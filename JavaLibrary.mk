@@ -21,7 +21,7 @@
 # Common definitions for host and target.
 #
 
-# dalvik/libcore is divided into modules.
+# libcore is divided into modules.
 #
 # The structure of each module is:
 #
