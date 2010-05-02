@@ -22,6 +22,9 @@ import java.net.SocketException;
 import java.net.ServerSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.Set;
+import java.util.HashSet;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import junit.framework.TestCase;
@@ -33,18 +36,50 @@ public class SSLSocketFactoryTest extends TestCase {
         assertTrue(SSLSocketFactory.class.isAssignableFrom(sf.getClass()));
     }
 
+    @KnownFailure("Using OpenSSL cipher suite names")
     public void test_SSLSocketFactory_getDefaultCipherSuites() {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        String[] cs = sf.getDefaultCipherSuites();
-        assertNotNull(cs);
-        assertTrue(cs.length != 0);
+        String[] cipherSuites = sf.getDefaultCipherSuites();
+        assertNotNull(cipherSuites);
+        assertTrue(cipherSuites.length != 0);
+
+        // Make sure modifying the result is not observable
+        String savedCipherSuite = cipherSuites[0];
+        assertNotNull(savedCipherSuite);
+        cipherSuites[0] = null;
+        assertNotNull(sf.getSupportedCipherSuites()[0]);
+        cipherSuites[0] = savedCipherSuite;
+
+        // Make sure all cipherSuites names are expected
+        for (String cipherSuite : cipherSuites) {
+            // TODO Fix Known Failure
+            // Need to fix CipherSuites methods to use JSSE names
+            assertTrue(StandardNames.CIPHER_SUITES.contains(cipherSuite));
+        }
     }
 
+    @KnownFailure("Using OpenSSL cipher suite names")
     public void test_SSLSocketFactory_getSupportedCipherSuites() {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        String[] cs = sf.getSupportedCipherSuites();
-        assertNotNull(cs);
-        assertTrue(cs.length != 0);
+        String[] cipherSuites = sf.getSupportedCipherSuites();
+        assertNotNull(cipherSuites);
+        assertTrue(cipherSuites.length != 0);
+
+        // Make sure modifying the result is not observable
+        String savedCipherSuite = cipherSuites[0];
+        assertNotNull(savedCipherSuite);
+        cipherSuites[0] = null;
+        assertNotNull(sf.getSupportedCipherSuites()[0]);
+        cipherSuites[0] = savedCipherSuite;
+
+        // Make sure all cipherSuites names are expected
+        Set remainingCipherSuites = new HashSet<String>(StandardNames.CIPHER_SUITES);
+        for (String cipherSuite : cipherSuites) {
+            assertNotNull(remainingCipherSuites.remove(cipherSuite));
+        }
+        // TODO Fix Known Failure
+        // Need to fix CipherSuites methods to use JSSE names
+        assertEquals(Collections.EMPTY_SET, remainingCipherSuites);
     }
 
     @KnownFailure("Should not parse bogus port number -1 during createSocket")

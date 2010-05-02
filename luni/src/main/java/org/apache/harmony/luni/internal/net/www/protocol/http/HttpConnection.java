@@ -160,8 +160,6 @@ public class HttpConnection {
             int port = config.getHostPort();
             // create the wrapper over connected socket
             sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket, hostName, port, true);
-            sslSocket.setUseClientMode(true);
-            sslSocket.startHandshake();
             if (!hostnameVerifier.verify(hostName, sslSocket.getSession())) {
                 throw new IOException("Hostname '" + hostName + "' was not verified");
             }
