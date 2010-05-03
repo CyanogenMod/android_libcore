@@ -12,7 +12,9 @@ LOCAL_SRC_FILES := \
 	java_lang_Double.c \
 	java_lang_Float.c \
 	java_lang_Math.c \
+        java_lang_ProcessManager.cpp \
 	java_lang_StrictMath.c \
+        java_lang_System.cpp \
 	java_net_InetAddress.cpp \
 	java_net_NetworkInterface.cpp \
 	java_util_zip_Adler32.c \
@@ -26,12 +28,30 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
 	org_apache_harmony_luni_platform_OSFileSystem.cpp \
 	org_apache_harmony_luni_platform_OSMemory.cpp \
+	org_apache_harmony_xml_ExpatParser.cpp \
+	org_apache_harmony_xnet_provider_jsse_NativeCrypto.cpp \
 	zip.c \
 	zipalloc.c \
-	sieb.c
+	sieb.c \
+        BidiWrapper.cpp \
+        ErrorCode.cpp \
+        ICU.cpp \
+        NativeBreakIterator.cpp \
+        NativeCollation.cpp \
+        NativeConverter.cpp \
+        NativeDecimalFormat.cpp \
+        NativeIDN.cpp \
+        NativeNormalizer.cpp \
+        NativeRegEx.cpp \
+        Register.cpp \
+        UCharacter.cpp
 
 
 LOCAL_C_INCLUDES += \
+	external/expat/lib \
+        external/icu4c/common \
+        external/icu4c/i18n \
+	external/openssl/include \
 	external/zlib
 
 # Any shared/static libs that are listed here must also
@@ -39,6 +59,13 @@ LOCAL_C_INCLUDES += \
 # TODO: fix this requirement
 
 LOCAL_SHARED_LIBRARIES += \
+	libcrypto \
+	libcutils \
+        libexpat \
+        libicudata \
+        libicuuc \
+        libicui18n \
+        libssl \
 	libutils \
 	libz
 

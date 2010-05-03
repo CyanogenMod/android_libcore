@@ -50,7 +50,7 @@ $(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/{java,resources} 2> /dev/null)
 endef
 
 # The Java files and their associated resources.
-core_src_files := $(call all-main-java-files-under,awt-kernel dalvik dom icu json junit luni luni-kernel openssl prefs security-kernel support x-net xml)
+core_src_files := $(call all-main-java-files-under,dalvik dom json junit luni openssl support xml)
 core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
 
@@ -124,16 +124,6 @@ LOCAL_MODULE := core-tests-json
 include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-test-java-files-under,luni-kernel)
-LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core core-tests-support
-LOCAL_DX_FLAGS := --core-library
-LOCAL_MODULE_TAGS := tests
-LOCAL_MODULE := core-tests-luni-kernel
-include $(BUILD_JAVA_LIBRARY)
-
-include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,luni)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
@@ -146,24 +136,11 @@ LOCAL_JAVA_LIBRARIES := \
         core-tests-support \
         core-tests-dom \
         core-tests-json \
-        core-tests-luni-kernel \
-        core-tests-prefs \
-        core-tests-x-net \
         core-tests-xml \
         sqlite-jdbc
 LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-luni
-include $(BUILD_JAVA_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-test-java-files-under,prefs)
-LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core core-tests-support
-LOCAL_DX_FLAGS := --core-library
-LOCAL_MODULE_TAGS := tests
-LOCAL_MODULE := core-tests-prefs
 include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -174,16 +151,6 @@ LOCAL_JAVA_LIBRARIES := core
 LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-support
-include $(BUILD_JAVA_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-test-java-files-under,x-net)
-LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core core-tests-support
-LOCAL_DX_FLAGS := --core-library
-LOCAL_MODULE_TAGS := tests
-LOCAL_MODULE := core-tests-x-net
 include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
