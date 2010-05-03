@@ -31,9 +31,6 @@ import org.apache.harmony.luni.util.Msg;
  * @see DatagramSocket
  */
 public class MulticastSocket extends DatagramSocket {
-
-    final static int SO_REUSEPORT = 512;
-
     private InetAddress interfaceSet;
 
     /**

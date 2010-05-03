@@ -16,12 +16,12 @@
 
 package java.net;
 
-import java.net.*;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import tests.support.Support_TestWebServer;
 
@@ -99,7 +99,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         int n = 512*1024;
         AtomicInteger total = new AtomicInteger(0);
         ServerSocket ss = startSinkServer(total);
-        URL url = new URL("http://localhost:" + ss.getLocalPort() + "/test1");
+        URL url = new URL("http://localhost:" + ss.getLocalPort() + "/" + UUID.randomUUID());
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
@@ -121,7 +121,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
             }
         }
         out.close();
-        assertTrue(conn.getResponseCode() > 0);
+        assertEquals(200, conn.getResponseCode());
         assertEquals(uploadKind == UploadKind.CHUNKED ? -1 : n, total.get());
     }
 
