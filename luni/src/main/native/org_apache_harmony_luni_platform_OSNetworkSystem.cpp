@@ -141,10 +141,6 @@
 #define SOCKET_STEP_CHECK 20
 #define SOCKET_STEP_DONE 30
 
-#define BROKEN_MULTICAST_IF 1
-#define BROKEN_MULTICAST_TTL 2
-#define BROKEN_TCP_NODELAY 4
-
 #define SOCKET_CONNECT_STEP_START 0
 #define SOCKET_CONNECT_STEP_CHECK 1
 
@@ -154,11 +150,7 @@
 
 #define SOCKET_NOFLAGS 0
 
-// Local constants for getOrSetSocketOption
-#define SOCKOPT_GET 1
-#define SOCKOPT_SET 2
-
-struct CachedFields {
+static struct CachedFields {
     jfieldID fd_descriptor;
     jclass iaddr_class;
     jmethodID iaddr_getbyaddress;
@@ -308,7 +300,7 @@ static int getSocketAddressFamily(int socket) {
     }
 }
 
-jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray) {
+static jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray) {
     if (byteArray == NULL) {
         return NULL;
     }
@@ -1143,7 +1135,7 @@ static const char *sockoptLevelToString(int level) {
  *
  * @note on internal failure, the errno variable will be set appropriately
  */
-static int getOrSetSocketOption(int action, int socket, int ipv4Option,
+static int getSocketOption(int socket, int ipv4Option,
         int ipv6Option, void *optionValue, socklen_t *optionLength) {
     int option;
     int protocol;
@@ -1164,28 +1156,12 @@ static int getOrSetSocketOption(int action, int socket, int ipv4Option,
             return -1;
     }
 
-    int ret;
-    if (action == SOCKOPT_GET) {
-        ret = getsockopt(socket, protocol, option, optionValue, optionLength);
+    int ret = getsockopt(socket, protocol, option, optionValue, optionLength);
 #if LOG_SOCKOPT
-        LOGI("getsockopt(%d, %s, %d, %p, [%d]) = %d %s",
+    LOGI("getsockopt(%d, %s, %d, %p, [%d]) = %d %s",
                 socket, sockoptLevelToString(protocol), option, optionValue,
                 *optionLength, ret, (ret == -1) ? strerror(errno) : "");
 #endif
-    } else if (action == SOCKOPT_SET) {
-        ret = setsockopt(socket, protocol, option, optionValue, *optionLength);
-#if LOG_SOCKOPT
-        LOGI("setsockopt(%d, %s, %d, [%d], %d) = %d %s",
-                socket, sockoptLevelToString(protocol), option,
-                // Note: this only works for integer options.
-                // TODO: Use dvmPrintHexDump() to log non-integer options.
-                *(int *)optionValue, *optionLength, ret,
-                (ret == -1) ? strerror(errno) : "");
-#endif
-    } else {
-        errno = EINVAL;
-        ret = -1;
-    }
     return ret;
 }
 
@@ -1202,29 +1178,22 @@ static int getOrSetSocketOption(int action, int socket, int ipv4Option,
  */
 static int interfaceIndexFromMulticastSocket(int socket) {
     int family = getSocketAddressFamily(socket);
-    int interfaceIndex;
-    int result;
     if (family == AF_INET) {
         // IP_MULTICAST_IF returns a pointer to a struct ip_mreqn.
         struct ip_mreqn tempRequest;
         socklen_t requestLength = sizeof(tempRequest);
-        result = getsockopt(socket, IPPROTO_IP, IP_MULTICAST_IF, &tempRequest,
-            &requestLength);
-        interfaceIndex = tempRequest.imr_ifindex;
+        int rc = getsockopt(socket, IPPROTO_IP, IP_MULTICAST_IF, &tempRequest, &requestLength);
+        return (rc == -1) ? -1 : tempRequest.imr_ifindex;
     } else if (family == AF_INET6) {
         // IPV6_MULTICAST_IF returns a pointer to an integer.
+        int interfaceIndex;
         socklen_t requestLength = sizeof(interfaceIndex);
-        result = getsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_IF,
-                &interfaceIndex, &requestLength);
+        int rc = getsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, &interfaceIndex, &requestLength);
+        return (rc == -1) ? -1 : interfaceIndex;
     } else {
         errno = EAFNOSUPPORT;
         return -1;
     }
-
-    if (result == 0)
-        return interfaceIndex;
-    else
-        return -1;
 }
 
 /**
@@ -1248,8 +1217,7 @@ static int interfaceIndexFromMulticastSocket(int socket) {
  *
  * @exception SocketException if an error occurs during the call
  */
-static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal,
-        int ignoreIF, int setSockOptVal) {
+static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal, int setSockOptVal) {
     struct sockaddr_storage sockaddrP;
     int result;
     // By default, let the system decide which interface to use.
@@ -1261,7 +1229,7 @@ static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal,
      * is passed in, only support IPv4 as obtaining an interface from an
      * InetAddress is complex and should be done by the Java caller.
      */
-    if (env->IsInstanceOf (optVal, gCachedFields.iaddr_class)) {
+    if (env->IsInstanceOf(optVal, gCachedFields.iaddr_class)) {
         /*
          * optVal is an InetAddress. Construct a multicast request structure
          * from this address. Support IPv4 only.
@@ -1270,14 +1238,11 @@ static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal,
         socklen_t length = sizeof(multicastRequest);
         memset(&multicastRequest, 0, length);
 
-        // If ignoreIF is false, determine the index of the interface to use.
-        if (!ignoreIF) {
-            interfaceIndex = interfaceIndexFromMulticastSocket(handle);
-            multicastRequest.imr_ifindex = interfaceIndex;
-            if (interfaceIndex == -1) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
+        interfaceIndex = interfaceIndexFromMulticastSocket(handle);
+        multicastRequest.imr_ifindex = interfaceIndex;
+        if (interfaceIndex == -1) {
+            jniThrowSocketException(env, errno);
+            return;
         }
 
         // Convert the inetAddress to an IPv4 address structure.
@@ -1303,21 +1268,15 @@ static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal,
          * it and construct a multicast request structure from these. Support
          * both IPv4 and IPv6.
          */
-        jclass cls;
-        jfieldID multiaddrID;
-        jfieldID interfaceIdxID;
-        jobject multiaddr;
 
         // Get the multicast address to join or leave.
-        cls = env->GetObjectClass(optVal);
-        multiaddrID = env->GetFieldID(cls, "multiaddr", "Ljava/net/InetAddress;");
-        multiaddr = env->GetObjectField(optVal, multiaddrID);
+        jclass cls = env->GetObjectClass(optVal);
+        jfieldID multiaddrID = env->GetFieldID(cls, "multiaddr", "Ljava/net/InetAddress;");
+        jobject multiaddr = env->GetObjectField(optVal, multiaddrID);
 
         // Get the interface index to use.
-        if (! ignoreIF) {
-            interfaceIdxID = env->GetFieldID(cls, "interfaceIdx", "I");
-            interfaceIndex = env->GetIntField(optVal, interfaceIdxID);
-        }
+        jfieldID interfaceIdxID = env->GetFieldID(cls, "interfaceIdx", "I");
+        interfaceIndex = env->GetIntField(optVal, interfaceIdxID);
         LOGI("mcastAddDropMembership interfaceIndex=%i", interfaceIndex);
 
         if (!inetAddressToSocketAddress(env, multiaddr, 0, &sockaddrP)) {
@@ -2384,9 +2343,6 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject,
         }
 
         case JAVASOCKOPT_TCP_NODELAY: {
-            if ((anOption >> 16) & BROKEN_TCP_NODELAY) {
-                return NULL;
-            }
             result = getsockopt(handle, IPPROTO_TCP, TCP_NODELAY, &intValue, &intSize);
             if (0 != result) {
                 jniThrowSocketException(env, errno);
@@ -2450,7 +2406,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject,
         }
 
         case JAVASOCKOPT_IP_TOS: {
-            result = getOrSetSocketOption(SOCKOPT_GET, handle, IP_TOS,
+            result = getSocketOption(handle, IP_TOS,
                                           IPV6_TCLASS, &intValue, &intSize);
             if (0 != result) {
                 jniThrowSocketException(env, errno);
@@ -2472,11 +2428,8 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject,
 
 #ifdef ENABLE_MULTICAST
         case JAVASOCKOPT_MCAST_TTL: {
-            if ((anOption >> 16) & BROKEN_MULTICAST_TTL) {
-                return newJavaLangByte(env, 0);
-            }
             // Java uses a byte to store the TTL, but the kernel uses an int.
-            result = getOrSetSocketOption(SOCKOPT_GET, handle, IP_MULTICAST_TTL,
+            result = getSocketOption(handle, IP_MULTICAST_TTL,
                                           IPV6_MULTICAST_HOPS, &intValue,
                                           &intSize);
             if (0 != result) {
@@ -2487,16 +2440,13 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject,
         }
 
         case JAVASOCKOPT_IP_MULTICAST_IF: {
-            if ((anOption >> 16) & BROKEN_MULTICAST_IF) {
-                return NULL;
-            }
-            result = getsockopt(handle, IPPROTO_IP, IP_MULTICAST_IF,
-                &sockVal, &sockSize);
+            result = getsockopt(handle, IPPROTO_IP, IP_MULTICAST_IF, &sockVal, &sockSize);
             if (result == -1) {
                 jniThrowSocketException(env, errno);
                 return NULL;
             }
             if (sockVal.ss_family != AF_INET) {
+                LOGE("sockVal.ss_family != AF_INET (%i)", sockVal.ss_family);
                 // Java expects an AF_INET INADDR_ANY, but Linux just returns AF_UNSPEC.
                 jbyteArray inAddrAny = env->NewByteArray(4); // { 0, 0, 0, 0 }
                 return byteArrayToInetAddress(env, inAddrAny);
@@ -2505,9 +2455,6 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject,
         }
 
         case JAVASOCKOPT_IP_MULTICAST_IF2: {
-            if ((anOption >> 16) & BROKEN_MULTICAST_IF) {
-                return NULL;
-            }
             struct ip_mreqn multicastRequest;
             int interfaceIndex = 0;
             socklen_t optionLength;
@@ -2538,7 +2485,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject,
         }
 
         case JAVASOCKOPT_IP_MULTICAST_LOOP: {
-            result = getOrSetSocketOption(SOCKOPT_GET, handle,
+            result = getSocketOption(handle,
                                           IP_MULTICAST_LOOP,
                                           IPV6_MULTICAST_LOOP, &intValue,
                                           &intSize);
@@ -2563,28 +2510,31 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject,
             return NULL;
         }
     }
-
 }
 
-static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject,
-        jobject fileDescriptor, jint anOption, jobject optVal) {
-    int result;
-    int intVal;
-    socklen_t intSize = sizeof(int);
-    struct sockaddr_storage sockVal;
-    int sockSize = sizeof(sockVal);
+template <typename T>
+static void setSocketOption(JNIEnv* env, int fd, int level, int option, T* value) {
+    int rc = setsockopt(fd, level, option, value, sizeof(*value));
+    if (rc == -1) {
+        LOGE("setSocketOption(fd=%i, level=%i, option=%i) failed: %s (errno=%i)",
+                fd, level, option, errno, strerror(errno), errno);
+        jniThrowSocketException(env, errno);
+    }
+}
 
+static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDescriptor, jint option, jobject optVal) {
+    int fd;
+    if (!jniGetFd(env, fileDescriptor, fd)) {
+        return;
+    }
+
+    int intVal;
     if (env->IsInstanceOf(optVal, gCachedFields.integer_class)) {
         intVal = (int) env->GetIntField(optVal, gCachedFields.integer_class_value);
     } else if (env->IsInstanceOf(optVal, gCachedFields.boolean_class)) {
         intVal = (int) env->GetBooleanField(optVal, gCachedFields.boolean_class_value);
     } else if (env->IsInstanceOf(optVal, gCachedFields.byte_class)) {
-        // TTL uses a byte in Java, but the kernel still wants an int.
         intVal = (int) env->GetByteField(optVal, gCachedFields.byte_class_value);
-    } else if (env->IsInstanceOf(optVal, gCachedFields.iaddr_class)) {
-        if (!inetAddressToSocketAddress(env, optVal, 0, &sockVal)) {
-            return;
-        }
     } else if (env->IsInstanceOf(optVal, gCachedFields.genericipmreq_class)) {
         // we'll use optVal directly
     } else {
@@ -2592,150 +2542,81 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject,
         return;
     }
 
-    int handle;
-    if (!jniGetFd(env, fileDescriptor, handle)) {
+    int family = getSocketAddressFamily(fd);
+    if (family != AF_INET && family != AF_INET6) {
+        jniThrowSocketException(env, EAFNOSUPPORT);
         return;
     }
 
-    switch ((int) anOption & 0xffff) {
-        case JAVASOCKOPT_SO_LINGER: {
+    switch (option) {
+    case JAVASOCKOPT_SO_LINGER:
+        {
             struct linger lingr;
             lingr.l_onoff = intVal > 0 ? 1 : 0;
             lingr.l_linger = intVal;
-            result = setsockopt(handle, SOL_SOCKET, SO_LINGER, &lingr,
-                    sizeof(struct linger));
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
+            setSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &lingr);
+            return;
         }
-
-        case JAVASOCKOPT_TCP_NODELAY: {
-            if ((anOption >> 16) & BROKEN_TCP_NODELAY) {
-                return;
-            }
-            result = setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, &intVal, intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_SO_SNDBUF: {
-            result = setsockopt(handle, SOL_SOCKET, SO_SNDBUF, &intVal, intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_SO_RCVBUF: {
-            result = setsockopt(handle, SOL_SOCKET, SO_RCVBUF, &intVal, intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_SO_BROADCAST: {
-            result = setsockopt(handle, SOL_SOCKET, SO_BROADCAST, &intVal, intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_SO_REUSEADDR: {
-            result = setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, &intVal, intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-        case JAVASOCKOPT_SO_KEEPALIVE: {
-            result = setsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, &intVal, intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_SO_OOBINLINE: {
-            result = setsockopt(handle, SOL_SOCKET, SO_OOBINLINE, &intVal, intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_IP_TOS: {
-            result = getOrSetSocketOption(SOCKOPT_SET, handle, IP_TOS,
-                                          IPV6_TCLASS, &intVal, &intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_REUSEADDR_AND_REUSEPORT: {
-            // SO_REUSEPORT doesn't need to get set on this System
-            result = setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, &intVal, intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_SO_RCVTIMEOUT: {
+    case JAVASOCKOPT_SO_SNDBUF:
+        setSocketOption(env, fd, SOL_SOCKET, SO_SNDBUF, &intVal);
+        return;
+    case JAVASOCKOPT_SO_RCVBUF:
+        setSocketOption(env, fd, SOL_SOCKET, SO_RCVBUF, &intVal);
+        return;
+    case JAVASOCKOPT_SO_BROADCAST:
+        setSocketOption(env, fd, SOL_SOCKET, SO_BROADCAST, &intVal);
+        return;
+    case JAVASOCKOPT_SO_REUSEADDR:
+        setSocketOption(env, fd, SOL_SOCKET, SO_REUSEADDR, &intVal);
+        return;
+    case JAVASOCKOPT_SO_KEEPALIVE:
+        setSocketOption(env, fd, SOL_SOCKET, SO_KEEPALIVE, &intVal);
+        return;
+    case JAVASOCKOPT_SO_OOBINLINE:
+        setSocketOption(env, fd, SOL_SOCKET, SO_OOBINLINE, &intVal);
+        return;
+    case JAVASOCKOPT_REUSEADDR_AND_REUSEPORT:
+        // SO_REUSEPORT doesn't need to get set on this System
+        setSocketOption(env, fd, SOL_SOCKET, SO_REUSEADDR, &intVal);
+        return;
+    case JAVASOCKOPT_SO_RCVTIMEOUT:
+        {
             timeval timeout(toTimeval(intVal));
-            result = setsockopt(handle, SOL_SOCKET, SO_RCVTIMEO, &timeout,
-                    sizeof(struct timeval));
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
+            setSocketOption(env, fd, SOL_SOCKET, SO_RCVTIMEO, &timeout);
+            return;
         }
-
+    case JAVASOCKOPT_IP_TOS:
+        if (family == AF_INET) {
+            setSocketOption(env, fd, IPPROTO_IP, IP_TOS, &intVal);
+        } else {
+            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_TCLASS, &intVal);
+        }
+        return;
+    case JAVASOCKOPT_TCP_NODELAY:
+        setSocketOption(env, fd, IPPROTO_TCP, TCP_NODELAY, &intVal);
+        return;
 #ifdef ENABLE_MULTICAST
-        case JAVASOCKOPT_MCAST_TTL: {
-            if ((anOption >> 16) & BROKEN_MULTICAST_TTL) {
-                return;
-            }
-            result = getOrSetSocketOption(SOCKOPT_SET, handle, IP_MULTICAST_TTL,
-                                          IPV6_MULTICAST_HOPS, &intVal,
-                                          &intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
+    case JAVASOCKOPT_MCAST_TTL:
+        if (family == AF_INET) {
+            // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
+            // IPv4 multicast TTL uses a byte.
+            char ttlVal = intVal;
+            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttlVal);
+        } else {
+            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &intVal);
         }
-
-        case JAVASOCKOPT_MCAST_ADD_MEMBERSHIP: {
-            mcastAddDropMembership(env, handle, optVal,
-                    (anOption >> 16) & BROKEN_MULTICAST_IF, IP_ADD_MEMBERSHIP);
-            break;
-        }
-
-        case JAVASOCKOPT_MCAST_DROP_MEMBERSHIP: {
-            mcastAddDropMembership(env, handle, optVal,
-                    (anOption >> 16) & BROKEN_MULTICAST_IF, IP_DROP_MEMBERSHIP);
-            break;
-        }
-
-        case JAVASOCKOPT_IP_MULTICAST_IF: {
-            if ((anOption >> 16) & BROKEN_MULTICAST_IF) {
+        return;
+    case JAVASOCKOPT_MCAST_ADD_MEMBERSHIP:
+        mcastAddDropMembership(env, fd, optVal, IP_ADD_MEMBERSHIP);
+        return;
+    case JAVASOCKOPT_MCAST_DROP_MEMBERSHIP:
+        mcastAddDropMembership(env, fd, optVal, IP_DROP_MEMBERSHIP);
+        return;
+    case JAVASOCKOPT_IP_MULTICAST_IF:
+        {
+            struct sockaddr_storage sockVal;
+            if (!env->IsInstanceOf(optVal, gCachedFields.iaddr_class) ||
+                    !inetAddressToSocketAddress(env, optVal, 0, &sockVal)) {
                 return;
             }
             // This call is IPv4 only. The socket may be IPv6, but the address
@@ -2746,79 +2627,41 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject,
             }
             struct ip_mreqn mcast_req;
             memset(&mcast_req, 0, sizeof(mcast_req));
-            struct sockaddr_in *sin = (struct sockaddr_in *) &sockVal;
-            mcast_req.imr_address = sin->sin_addr;
-            result = setsockopt(handle, IPPROTO_IP, IP_MULTICAST_IF,
-                                &mcast_req, sizeof(mcast_req));
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_IP_MULTICAST_IF2: {
-            if ((anOption >> 16) & BROKEN_MULTICAST_IF) {
-                return;
-            }
-            int addressFamily = getSocketAddressFamily(handle);
-            int interfaceIndex = intVal;
-            void *optionValue;
-            socklen_t optionLength;
-            struct ip_mreqn multicastRequest;
-            switch (addressFamily) {
-                case AF_INET:
-                    // IP_MULTICAST_IF expects a pointer to a struct ip_mreqn.
-                    memset(&multicastRequest, 0, sizeof(multicastRequest));
-                    multicastRequest.imr_ifindex = interfaceIndex;
-                    optionValue = &multicastRequest;
-                    optionLength = sizeof(multicastRequest);
-                    break;
-                case AF_INET6:
-                    // IPV6_MULTICAST_IF expects a pointer to an integer.
-                    optionValue = &interfaceIndex;
-                    optionLength = sizeof(interfaceIndex);
-                    break;
-                default:
-                    jniThrowSocketException(env, EAFNOSUPPORT);
-                    return;
-            }
-            result = getOrSetSocketOption(SOCKOPT_SET, handle,
-                    IP_MULTICAST_IF, IPV6_MULTICAST_IF, optionValue,
-                    &optionLength);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-
-        case JAVASOCKOPT_IP_MULTICAST_LOOP: {
-            result = getOrSetSocketOption(SOCKOPT_SET, handle,
-                                          IP_MULTICAST_LOOP,
-                                          IPV6_MULTICAST_LOOP, &intVal,
-                                          &intSize);
-            if (0 != result) {
-                jniThrowSocketException(env, errno);
-                return;
-            }
-            break;
-        }
-#else
-        case JAVASOCKOPT_MCAST_TTL:
-        case JAVASOCKOPT_MCAST_ADD_MEMBERSHIP:
-        case JAVASOCKOPT_MCAST_DROP_MEMBERSHIP:
-        case JAVASOCKOPT_IP_MULTICAST_IF:
-        case JAVASOCKOPT_IP_MULTICAST_IF2:
-        case JAVASOCKOPT_IP_MULTICAST_LOOP: {
-            jniThrowException(env, "java/lang/UnsupportedOperationException", NULL);
+            mcast_req.imr_address = reinterpret_cast<sockaddr_in*>(&sockVal)->sin_addr;
+            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &mcast_req);
             return;
         }
-#endif // def ENABLE_MULTICAST
-
-        default: {
-            jniThrowSocketException(env, ENOPROTOOPT);
+    case JAVASOCKOPT_IP_MULTICAST_IF2:
+        if (family == AF_INET) {
+            // IP_MULTICAST_IF expects a pointer to a struct ip_mreqn.
+            struct ip_mreqn multicastRequest;
+            memset(&multicastRequest, 0, sizeof(multicastRequest));
+            multicastRequest.imr_ifindex = intVal;
+            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &multicastRequest);
+        } else {
+            // IPV6_MULTICAST_IF expects a pointer to an integer.
+            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, &intVal);
         }
+        return;
+    case JAVASOCKOPT_IP_MULTICAST_LOOP:
+        if (family == AF_INET) {
+            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_LOOP, &intVal);
+        } else {
+            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &intVal);
+        }
+        return;
+#else
+    case JAVASOCKOPT_MCAST_TTL:
+    case JAVASOCKOPT_MCAST_ADD_MEMBERSHIP:
+    case JAVASOCKOPT_MCAST_DROP_MEMBERSHIP:
+    case JAVASOCKOPT_IP_MULTICAST_IF:
+    case JAVASOCKOPT_IP_MULTICAST_IF2:
+    case JAVASOCKOPT_IP_MULTICAST_LOOP:
+        jniThrowException(env, "java/lang/UnsupportedOperationException", NULL);
+        return;
+#endif // def ENABLE_MULTICAST
+    default:
+        jniThrowSocketException(env, ENOPROTOOPT);
     }
 }
 

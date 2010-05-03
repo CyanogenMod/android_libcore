@@ -296,7 +296,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void setTTL(byte ttl) throws IOException {
-        setTimeToLive(ttl);
+        setTimeToLive((int) ttl & 0xff); // Avoid sign extension.
     }
 
     @Override
