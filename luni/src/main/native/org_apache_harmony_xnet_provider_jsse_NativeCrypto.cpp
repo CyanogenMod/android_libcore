@@ -1112,7 +1112,7 @@ static void info_callback(const SSL *ssl, int where, int ret) {
     }
 
     // no longer needed after handshake is complete
-    appData->env = NULL;
+    appData->clearEnv();
     appData->certificateChainVerifier = NULL;
     appData->handshakeCompletedCallback = NULL;
     JNI_TRACE("ssl=%p info_callback completed", ssl);
@@ -1749,8 +1749,8 @@ static void NativeCrypto_SSL_free(JNIEnv* env, jclass, jint ssl_address)
       return;
     }
     AppData* appData = (AppData*) SSL_get_app_data(ssl);
-    delete appData;
     SSL_set_app_data(ssl, NULL);
+    delete appData;
     SSL_free(ssl);
 }
 

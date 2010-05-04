@@ -221,6 +221,29 @@ public class SSLSocketTest extends TestCase {
         }
     }
 
+    public void test_SSLSocket_startHandshake_noClientCertificate() throws Exception {
+        TestSSLContext serverContext = TestSSLContext.create();
+        TestSSLContext clientContext = TestSSLContext.createClient(serverContext);
+        SSLSocket client = (SSLSocket)
+            clientContext.sslContext.getSocketFactory().createSocket(serverContext.host,
+                                                                     serverContext.port);
+        final SSLSocket server = (SSLSocket) serverContext.serverSocket.accept();
+        Thread thread = new Thread(new Runnable () {
+            public void run() {
+                try {
+                    server.startHandshake();
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        thread.start();
+        client.startHandshake();
+        thread.join();
+    }
+
     @KnownFailure("local certificates should be null as it should not have been requested by server")
     public void test_SSLSocket_HandshakeCompletedListener() throws Exception {
         final TestSSLContext c = TestSSLContext.create();
@@ -339,6 +362,31 @@ public class SSLSocketTest extends TestCase {
                 handshakeCompletedListenerCalled.wait();
             }
         }
+    }
+
+    public void test_SSLSocket_HandshakeCompletedListener_RuntimeException() throws Exception {
+        final TestSSLContext c = TestSSLContext.create();
+        final SSLSocket client = (SSLSocket) c.sslContext.getSocketFactory().createSocket(c.host, c.port);
+        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+        Thread thread = new Thread(new Runnable () {
+            public void run() {
+                try {
+                    server.startHandshake();
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        thread.start();
+        client.addHandshakeCompletedListener(new HandshakeCompletedListener() {
+            public void handshakeCompleted(HandshakeCompletedEvent event) {
+                throw new RuntimeException("RuntimeException from handshakeCompleted");
+            }
+        });
+        client.startHandshake();
+        thread.join();
     }
 
     public void test_SSLSocket_getUseClientMode() throws Exception {

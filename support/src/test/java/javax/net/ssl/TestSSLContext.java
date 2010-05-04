@@ -24,6 +24,7 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -95,13 +96,18 @@ public final class TestSSLContext {
         this.port = port;
     }
 
+    /**
+     * Usual TestSSLContext creation method, creates underlying
+     * SSLContext with certificate and key as well as SSLServerSocket
+     * listening provided host and port.
+     */
     public static TestSSLContext create() {
         try {
             char[] keyStorePassword = null;
             String publicAlias = "public";
             String privateAlias = "private";
             return create(createKeyStore(keyStorePassword, publicAlias, privateAlias),
-                          null,
+                          keyStorePassword,
                           publicAlias,
                           privateAlias);
         } catch (RuntimeException e) {
@@ -111,6 +117,9 @@ public final class TestSSLContext {
         }
     }
 
+    /**
+     * TestSSLContext creation method that allows separate creation of key store
+     */
     public static TestSSLContext create(KeyStore keyStore,
                                         char[] keyStorePassword,
                                         String publicAlias,
@@ -126,6 +135,39 @@ public final class TestSSLContext {
 
             return new TestSSLContext(keyStore, keyStorePassword, publicAlias, privateAlias,
                                       sslContext, serverSocket, host, port);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Create a client version of the server TestSSLContext. The
+     * client will trust the server's certificate, but not contain any
+     * keys of its own.
+     */
+    public static TestSSLContext createClient(TestSSLContext server) {
+        try {
+            String publicAlias = server.publicAlias;
+            Certificate cert = server.keyStore.getCertificate(publicAlias);
+
+            KeyStore keyStore = KeyStore.getInstance("BKS");
+            keyStore.load(null, null);
+            keyStore.setCertificateEntry(publicAlias, cert);
+
+            char[] keyStorePassword = server.keyStorePassword;
+            String privateAlias = null;
+
+            String tmfa = TrustManagerFactory.getDefaultAlgorithm();
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfa);
+            tmf.init(keyStore);
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, tmf.getTrustManagers(), new SecureRandom());
+
+            return new TestSSLContext(keyStore, keyStorePassword, publicAlias, publicAlias,
+                                      sslContext, null, null, -1);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -158,49 +200,67 @@ public final class TestSSLContext {
                                           String privateAlias)
         throws Exception {
 
-        // 1.) we make the keys
-        int keysize = 1024;
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(keysize, new SecureRandom());
-        KeyPair kp = kpg.generateKeyPair();
-        RSAPrivateKey privateKey = (RSAPrivateKey)kp.getPrivate();
-        RSAPublicKey publicKey  = (RSAPublicKey)kp.getPublic();
+        RSAPrivateKey privateKey;
+        X509Certificate x509c;
+        if (publicAlias == null && privateAlias == null) {
+            // don't want anything apparently
+            privateKey = null;
+            x509c = null;
+        } else {
+            // 1.) we make the keys
+            int keysize = 1024;
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            kpg.initialize(keysize, new SecureRandom());
+            KeyPair kp = kpg.generateKeyPair();
+            privateKey = (RSAPrivateKey)kp.getPrivate();
+            RSAPublicKey publicKey  = (RSAPublicKey)kp.getPublic();
 
-        // 2.) use keys to make certficate
+            // 2.) use keys to make certficate
 
-        // note that there doesn't seem to be a standard way to make a
-        // certificate using java.* or javax.*. The CertificateFactory
-        // interface assumes you want to read in a stream of bytes a
-        // factory specific format. So here we use Bouncy Castle's
-        // X509V3CertificateGenerator and related classes.
+            // note that there doesn't seem to be a standard way to make a
+            // certificate using java.* or javax.*. The CertificateFactory
+            // interface assumes you want to read in a stream of bytes a
+            // factory specific format. So here we use Bouncy Castle's
+            // X509V3CertificateGenerator and related classes.
 
-        Hashtable attributes = new Hashtable();
-        attributes.put(X509Principal.CN, InetAddress.getLocalHost().getCanonicalHostName());
-        X509Principal dn = new X509Principal(attributes);
+            Hashtable attributes = new Hashtable();
+            attributes.put(X509Principal.CN, InetAddress.getLocalHost().getCanonicalHostName());
+            X509Principal dn = new X509Principal(attributes);
 
-        long millisPerDay = 24 * 60 * 60 * 1000;
-        long now = System.currentTimeMillis();
-        Date start = new Date(now - millisPerDay);
-        Date end = new Date(now + millisPerDay);
-        BigInteger serial = BigInteger.valueOf(1);
+            long millisPerDay = 24 * 60 * 60 * 1000;
+            long now = System.currentTimeMillis();
+            Date start = new Date(now - millisPerDay);
+            Date end = new Date(now + millisPerDay);
+            BigInteger serial = BigInteger.valueOf(1);
 
-        X509V3CertificateGenerator x509cg = new X509V3CertificateGenerator();
-        x509cg.setSubjectDN(dn);
-        x509cg.setIssuerDN(dn);
-        x509cg.setNotBefore(start);
-        x509cg.setNotAfter(end);
-        x509cg.setPublicKey(publicKey);
-        x509cg.setSignatureAlgorithm("sha1WithRSAEncryption");
-        x509cg.setSerialNumber(serial);
-        X509Certificate x509c = x509cg.generateX509Certificate(privateKey);
-        X509Certificate[] x509cc = new X509Certificate[] { x509c };
+            X509V3CertificateGenerator x509cg = new X509V3CertificateGenerator();
+            x509cg.setSubjectDN(dn);
+            x509cg.setIssuerDN(dn);
+            x509cg.setNotBefore(start);
+            x509cg.setNotAfter(end);
+            x509cg.setPublicKey(publicKey);
+            x509cg.setSignatureAlgorithm("sha1WithRSAEncryption");
+            x509cg.setSerialNumber(serial);
+            x509c = x509cg.generateX509Certificate(privateKey);
+        }
 
+        X509Certificate[] x509cc;
+        if (privateAlias == null) {
+            // don't need certificate chain
+            x509cc = null;
+        } else {
+            x509cc = new X509Certificate[] { x509c };
+        }
 
         // 3.) put certificate and private key to make a key store
         KeyStore ks = KeyStore.getInstance("BKS");
         ks.load(null, null);
-        ks.setKeyEntry(privateAlias, privateKey, keyStorePassword, x509cc);
-        ks.setCertificateEntry(publicAlias, x509c);
+        if (privateAlias != null) {
+            ks.setKeyEntry(privateAlias, privateKey, keyStorePassword, x509cc);
+        }
+        if (publicAlias != null) {
+            ks.setCertificateEntry(publicAlias, x509c);
+        }
         return ks;
     }
 
