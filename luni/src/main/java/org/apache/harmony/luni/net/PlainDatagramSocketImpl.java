@@ -158,12 +158,12 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public int getTimeToLive() throws IOException {
-        return getTTL() & 0xff;
+        return ((Integer) getOption(IP_MULTICAST_TTL)).intValue();
     }
 
     @Override
     public byte getTTL() throws IOException {
-        return ((Byte) getOption(IP_MULTICAST_TTL)).byteValue();
+        return (byte) getTimeToLive();
     }
 
     @Override
