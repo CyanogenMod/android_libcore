@@ -35,12 +35,11 @@ public final class TestSSLSocketPair {
     }
 
     /**
-     * based on test_SSLSocket_startHandshake_workaround, should
-     * be written to non-workaround form when possible
+     * based on test_SSLSocket_startHandshake
      */
-    public static TestSSLSocketPair create_workaround () {
+    public static TestSSLSocketPair create () {
         TestSSLContext c = TestSSLContext.create();
-        SSLSocket[] sockets = connect_workaround(c, null);
+        SSLSocket[] sockets = connect(c, null);
         return new TestSSLSocketPair(c, sockets[0], sockets[1]);
     }
 
@@ -49,15 +48,16 @@ public final class TestSSLSocketPair {
      * existing SSLContext. Optional clientCipherSuites allows
      * forcing new SSLSession to test SSLSessionContext caching
      */
-    public static SSLSocket[] connect_workaround (final TestSSLContext c,
-                                                  String[] clientCipherSuites) {
+    public static SSLSocket[] connect (final TestSSLContext c,
+                                       String[] clientCipherSuites) {
         try {
-            final SSLSocket[] server = new SSLSocket[1];
+            SSLSocket client = (SSLSocket)
+                c.sslContext.getSocketFactory().createSocket(c.host, c.port);
+            final SSLSocket server = (SSLSocket) c.serverSocket.accept();
             Thread thread = new Thread(new Runnable () {
                     public void run() {
                         try {
-                            server[0] = (SSLSocket) c.serverSocket.accept();
-                            server[0].startHandshake();
+                            server.startHandshake();
                         } catch (RuntimeException e) {
                             throw e;
                         } catch (Exception e) {
@@ -66,14 +66,12 @@ public final class TestSSLSocketPair {
                     }
                 });
             thread.start();
-            SSLSocket client = (SSLSocket)
-                c.sslContext.getSocketFactory().createSocket(c.host, c.port);
             if (clientCipherSuites != null) {
                 client.setEnabledCipherSuites(clientCipherSuites);
             }
             client.startHandshake();
             thread.join();
-            return new SSLSocket[] { server[0], client };
+            return new SSLSocket[] { server, client };
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
