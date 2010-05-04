@@ -59,7 +59,7 @@ public final class TestSSLSessions {
             SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
             SSLSocket ssl = (SSLSocket) sf.createSocket();
             SSLSession invalid = ssl.getSession();
-            TestSSLSocketPair s = TestSSLSocketPair.create_workaround();
+            TestSSLSocketPair s = TestSSLSocketPair.create();
             return new TestSSLSessions(invalid, s.server.getSession(), s.client.getSession(), s);
         } catch (Exception e) {
             throw new RuntimeException(e);

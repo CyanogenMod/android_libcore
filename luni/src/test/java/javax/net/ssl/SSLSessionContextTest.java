@@ -35,7 +35,7 @@ public class SSLSessionContextTest extends TestCase {
         assertSSLSessionContextSize(0, c.sslContext.getClientSessionContext());
         assertSSLSessionContextSize(0, c.sslContext.getServerSessionContext());
 
-        TestSSLSocketPair s = TestSSLSocketPair.create_workaround();
+        TestSSLSocketPair s = TestSSLSocketPair.create();
         assertSSLSessionContextSize(1, s.c.sslContext.getClientSessionContext());
         if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
             assertSSLSessionContextSize(0, s.c.sslContext.getServerSessionContext());
@@ -66,7 +66,7 @@ public class SSLSessionContextTest extends TestCase {
         assertNull(c.sslContext.getClientSessionContext().getSession(new byte[0]));
         assertNull(c.sslContext.getClientSessionContext().getSession(new byte[1]));
 
-        TestSSLSocketPair s = TestSSLSocketPair.create_workaround();
+        TestSSLSocketPair s = TestSSLSocketPair.create();
         SSLSessionContext client = s.c.sslContext.getClientSessionContext();
         SSLSessionContext server = s.c.sslContext.getServerSessionContext();
         byte[] clientId = (byte[]) client.getIds().nextElement();
@@ -83,7 +83,7 @@ public class SSLSessionContextTest extends TestCase {
         assertEquals(0, c.sslContext.getClientSessionContext().getSessionCacheSize());
         assertEquals(0, c.sslContext.getServerSessionContext().getSessionCacheSize());
 
-        TestSSLSocketPair s = TestSSLSocketPair.create_workaround();
+        TestSSLSocketPair s = TestSSLSocketPair.create();
         assertEquals(0, s.c.sslContext.getClientSessionContext().getSessionCacheSize());
         assertEquals(0, s.c.sslContext.getServerSessionContext().getSessionCacheSize());
     }
@@ -109,7 +109,7 @@ public class SSLSessionContextTest extends TestCase {
     @KnownFailure("Should return 0 for unlimited, not 10 entries")
     public void test_SSLSessionContext_setSessionCacheSize_dynamic() {
 
-        TestSSLSocketPair s = TestSSLSocketPair.create_workaround();
+        TestSSLSocketPair s = TestSSLSocketPair.create();
         SSLSessionContext client = s.c.sslContext.getClientSessionContext();
         SSLSessionContext server = s.c.sslContext.getServerSessionContext();
         assertEquals(0, client.getSessionCacheSize());
@@ -152,12 +152,10 @@ public class SSLSessionContextTest extends TestCase {
          */
         assertTrue(uniqueCipherSuites.size() > 5);
 
-        TestSSLSocketPair.connect_workaround(s.c,
-                                             new String[] { uniqueCipherSuites.remove() }); // 1
+        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 1
         assertSSLSessionContextSize(2, client);
         assertSSLSessionContextSize(2, server);
-        TestSSLSocketPair.connect_workaround(s.c,
-                                             new String[] { uniqueCipherSuites.remove() }); // 2
+        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 2
         assertSSLSessionContextSize(3, client);
         assertSSLSessionContextSize(3, server);
 
@@ -167,19 +165,16 @@ public class SSLSessionContextTest extends TestCase {
         assertEquals(1, server.getSessionCacheSize());
         assertSSLSessionContextSize(1, client);
         assertSSLSessionContextSize(1, server);
-        TestSSLSocketPair.connect_workaround(s.c,
-                                             new String[] { uniqueCipherSuites.remove() }); // 3
+        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 3
         assertSSLSessionContextSize(1, client);
         assertSSLSessionContextSize(1, server);
 
         client.setSessionCacheSize(2);
         server.setSessionCacheSize(2);
-        TestSSLSocketPair.connect_workaround(s.c,
-                                             new String[] { uniqueCipherSuites.remove() }); // 4
+        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 4
         assertSSLSessionContextSize(2, client);
         assertSSLSessionContextSize(2, server);
-        TestSSLSocketPair.connect_workaround(s.c,
-                                             new String[] { uniqueCipherSuites.remove() }); // 5
+        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 5
         assertSSLSessionContextSize(2, client);
         assertSSLSessionContextSize(2, server);
     }
@@ -190,7 +185,7 @@ public class SSLSessionContextTest extends TestCase {
         assertEquals(86400, c.sslContext.getClientSessionContext().getSessionTimeout());
         assertEquals(86400, c.sslContext.getServerSessionContext().getSessionTimeout());
 
-        TestSSLSocketPair s = TestSSLSocketPair.create_workaround();
+        TestSSLSocketPair s = TestSSLSocketPair.create();
         assertEquals(86400, s.c.sslContext.getClientSessionContext().getSessionTimeout());
         assertEquals(86400, s.c.sslContext.getServerSessionContext().getSessionTimeout());
     }
@@ -216,7 +211,7 @@ public class SSLSessionContextTest extends TestCase {
         } catch (IllegalArgumentException e) {
         }
 
-        TestSSLSocketPair s = TestSSLSocketPair.create_workaround();
+        TestSSLSocketPair s = TestSSLSocketPair.create();
         assertSSLSessionContextSize(1, s.c.sslContext.getClientSessionContext());
         assertSSLSessionContextSize(1, s.c.sslContext.getServerSessionContext());
         Thread.sleep(1 * 1000);
