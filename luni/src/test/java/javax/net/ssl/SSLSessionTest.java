@@ -23,55 +23,8 @@ import junit.framework.TestCase;
 
 public class SSLSessionTest extends TestCase {
 
-    public static final class Helper {
-
-        /**
-         * An invalid session that is not connected
-         */
-        public final SSLSession invalid;
-
-        /**
-         * The server side of a connected session
-         */
-        public final SSLSession server;
-
-        /**
-         * The client side of a connected session
-         */
-        public final SSLSession client;
-
-        /**
-         * The associated SSLSocketTest.Helper that is the source of
-         * the client and server SSLSessions.
-         */
-        public final SSLSocketTest.Helper s;
-
-        private Helper(SSLSession invalid,
-                       SSLSession server,
-                       SSLSession client,
-                       SSLSocketTest.Helper s) {
-            this.invalid = invalid;
-            this.server = server;
-            this.client = client;
-            this.s = s;
-        }
-
-        public static final Helper create() {
-            try {
-                SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
-                SSLSocket ssl = (SSLSocket) sf.createSocket();
-                SSLSession invalid = ssl.getSession();
-                SSLSocketTest.Helper s = SSLSocketTest.Helper.create_workaround();
-                return new Helper(invalid, s.server.getSession(), s.client.getSession(), s);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-
-    public void test_SSLSocket_Helper_create() {
-        Helper s = Helper.create();
+    public void test_SSLSocket_TestSSLSessions_create() {
+        TestSSLSessions s = TestSSLSessions.create();
         assertNotNull(s.invalid);
         assertFalse(s.invalid.isValid());
         assertTrue(s.server.isValid());
@@ -79,7 +32,7 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getApplicationBufferSize() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertTrue(s.invalid.getApplicationBufferSize() > 0);
         assertTrue(s.server.getApplicationBufferSize() > 0);
         assertTrue(s.client.getApplicationBufferSize() > 0);
@@ -87,7 +40,7 @@ public class SSLSessionTest extends TestCase {
 
     @KnownFailure("Expected SSL_NULL_WITH_NULL_NULL but received TLS_NULL_WITH_NULL_NULL")
     public void test_SSLSession_getCipherSuite() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertNotNull(s.invalid.getCipherSuite());
         assertEquals("SSL_NULL_WITH_NULL_NULL", s.invalid.getCipherSuite());
         assertNotNull(s.server.getCipherSuite());
@@ -97,7 +50,7 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getCreationTime() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertTrue(s.invalid.getCreationTime() > 0);
         assertTrue(s.server.getCreationTime() > 0);
         assertTrue(s.client.getCreationTime() > 0);
@@ -105,18 +58,22 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getId() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertNotNull(s.invalid.getId());
         assertNotNull(s.server.getId());
         assertNotNull(s.client.getId());
         assertEquals(0, s.invalid.getId().length);
-        assertEquals(32, s.server.getId().length);
+        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
+            assertEquals(0, s.server.getId().length);
+        } else {
+            assertEquals(32, s.server.getId().length);
+            assertTrue(Arrays.equals(s.server.getId(), s.client.getId()));
+        }
         assertEquals(32, s.client.getId().length);
-        assertTrue(Arrays.equals(s.server.getId(), s.client.getId()));
     }
 
     public void test_SSLSession_getLastAccessedTime() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertTrue(s.invalid.getLastAccessedTime() > 0);
         assertTrue(s.server.getLastAccessedTime() > 0);
         assertTrue(s.client.getLastAccessedTime() > 0);
@@ -128,9 +85,12 @@ public class SSLSessionTest extends TestCase {
                    s.client.getCreationTime());
     }
 
+    @KnownFailure("client local certificates should be null as it should not have been requested by server")
     public void test_SSLSession_getLocalCertificates() throws Exception {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertNull(s.invalid.getLocalCertificates());
+        // TODO Fix Known Failure
+        // Need to fix NativeCrypto.SSL_new to not use SSL_use_certificate
         assertNull(s.client.getLocalCertificates());
         assertNotNull(s.server.getLocalCertificates());
         assertEquals(1, s.server.getLocalCertificates().length);
@@ -138,9 +98,12 @@ public class SSLSessionTest extends TestCase {
                      s.server.getLocalCertificates()[0]);
     }
 
+    @KnownFailure("client local principal should be null as it should not have been requested by server")
     public void test_SSLSession_getLocalPrincipal() throws Exception {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertNull(s.invalid.getLocalPrincipal());
+        // TODO Fix Known Failure
+        // Need to fix NativeCrypto.SSL_new to not use SSL_use_certificate
         assertNull(s.client.getLocalPrincipal());
         assertNotNull(s.server.getLocalPrincipal());
         assertNotNull(s.server.getLocalPrincipal().getName());
@@ -151,14 +114,14 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getPacketBufferSize() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertTrue(s.invalid.getPacketBufferSize() > 0);
         assertTrue(s.server.getPacketBufferSize() > 0);
         assertTrue(s.client.getPacketBufferSize() > 0);
     }
 
     public void test_SSLSession_getPeerCertificateChain() throws Exception {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         try {
             s.invalid.getPeerCertificateChain();
             fail();
@@ -176,7 +139,7 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getPeerCertificates() throws Exception {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         try {
             s.invalid.getPeerCertificates();
             fail();
@@ -194,21 +157,21 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getPeerHost() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertNull(s.invalid.getPeerHost());
         assertNotNull(s.server.getPeerHost());
         assertNotNull(s.client.getPeerHost());
     }
 
     public void test_SSLSession_getPeerPort() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertEquals(-1, s.invalid.getPeerPort());
         assertTrue(s.server.getPeerPort() > 0);
         assertEquals(s.s.c.port, s.client.getPeerPort());
     }
 
     public void test_SSLSession_getPeerPrincipal() throws Exception {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         try {
             s.invalid.getPeerPrincipal();
             fail();
@@ -229,7 +192,7 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getProtocol() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertNotNull(s.invalid.getProtocol());
         assertEquals("NONE", s.invalid.getProtocol());
         assertNotNull(s.server.getProtocol());
@@ -239,7 +202,7 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getSessionContext() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertNull(s.invalid.getSessionContext());
         assertNotNull(s.server.getSessionContext());
         assertNotNull(s.client.getSessionContext());
@@ -252,7 +215,7 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getValue() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         try {
             s.invalid.getValue(null);
         } catch (IllegalArgumentException e) {
@@ -261,13 +224,13 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_getValueNames() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertNotNull(s.invalid.getValueNames());
         assertEquals(0, s.invalid.getValueNames().length);
     }
 
     public void test_SSLSession_invalidate() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertFalse(s.invalid.isValid());
         s.invalid.invalidate();
         assertFalse(s.invalid.isValid());
@@ -285,14 +248,14 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_isValid() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         assertFalse(s.invalid.isValid());
         assertTrue(s.server.isValid());
         assertTrue(s.client.isValid());
     }
 
     public void test_SSLSession_putValue() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         String key = "KEY";
         String value = "VALUE";
         assertNull(s.invalid.getValue(key));
@@ -304,7 +267,7 @@ public class SSLSessionTest extends TestCase {
     }
 
     public void test_SSLSession_removeValue() {
-        Helper s = Helper.create();
+        TestSSLSessions s = TestSSLSessions.create();
         String key = "KEY";
         String value = "VALUE";
         s.invalid.putValue(key, value);

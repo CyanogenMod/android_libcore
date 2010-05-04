@@ -89,44 +89,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             throw new NullPointerException("host to verify is null");
         }
 
-        ssl.startHandshake();
         SSLSession session = ssl.getSession();
-        if(session == null) {
-            // In our experience this only happens under IBM 1.4.x when
-            // spurious (unrelated) certificates show up in the server'
-            // chain.  Hopefully this will unearth the real problem:
-            InputStream in = ssl.getInputStream();
-            in.available();
-            /*
-              If you're looking at the 2 lines of code above because
-              you're running into a problem, you probably have two
-              options:
-
-                #1.  Clean up the certificate chain that your server
-                     is presenting (e.g. edit "/etc/apache2/server.crt"
-                     or wherever it is your server's certificate chain
-                     is defined).
-
-                                           OR
-
-                #2.   Upgrade to an IBM 1.5.x or greater JVM, or switch
-                      to a non-IBM JVM.
-            */
-
-            // If ssl.getInputStream().available() didn't cause an
-            // exception, maybe at least now the session is available?
-            session = ssl.getSession();
-            if(session == null) {
-                // If it's still null, probably a startHandshake() will
-                // unearth the real problem.
-                ssl.startHandshake();
-
-                // Okay, if we still haven't managed to cause an exception,
-                // might as well go for the NPE.  Or maybe we're okay now?
-                session = ssl.getSession();
-            }
-        }
-
         Certificate[] certs = session.getPeerCertificates();
         X509Certificate x509 = (X509Certificate) certs[0];
         verify(host, x509);

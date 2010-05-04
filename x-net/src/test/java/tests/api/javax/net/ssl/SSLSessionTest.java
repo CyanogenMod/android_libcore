@@ -197,8 +197,10 @@ public class SSLSessionTest extends TestCase {
     public void test_getCreationTime() {
         try {
             // check if creation time was in the last 10 seconds
-            long diff = new Date().getTime() - clientSession.getCreationTime();
-            assertTrue (diff < 10000);
+            long currentTime = System.currentTimeMillis();
+            long sessionTime = clientSession.getCreationTime();
+            long diff = currentTime - sessionTime;
+            assertTrue("diff between " + currentTime + " and " + sessionTime + " should be < 10000", diff < 10000);
         } catch (Exception ex) {
             fail("Unexpected exception " + ex);
         }
@@ -219,6 +221,7 @@ public class SSLSessionTest extends TestCase {
         try {
             SSLSession sess =
                 clientSslContext.getClientSessionContext().getSession(id);
+            assertNotNull("Could not find session for id " + id, sess);
             assertEquals(clientSession, sess);
         } catch (Exception ex) {
             fail("Unexpected exception " + ex);
@@ -238,8 +241,11 @@ public class SSLSessionTest extends TestCase {
     public void test_getLastAccessedTime() {
         try {
             // check if last access time was in the last 10 seconds
-            long diff = new Date().getTime() - clientSession.getLastAccessedTime();
-            assertTrue (diff < 10000);
+            long currentTime = System.currentTimeMillis();
+            long sessionTime = clientSession.getLastAccessedTime();
+            long diff = currentTime - sessionTime;
+            assertTrue("diff between " + currentTime + " and " + sessionTime + " should be < 10000", diff < 10000);
+            assertTrue ("diff should be < 10000 but is " + diff, diff < 10000);
         } catch (Exception ex) {
             fail("Unexpected exception " + ex);
         }
@@ -275,7 +281,6 @@ public class SSLSessionTest extends TestCase {
         method = "getLocalPrincipal",
         args = {}
     )
-    @KnownFailure("getLocalPrincipal returns null")
     @AndroidOnly("Uses bks key store. Change useBKS to false to run on the RI")
     public void test_getLocalPrincipal() {
         try {
