@@ -65,14 +65,14 @@ static void freeSslErrorState(void) {
  *
  * @return 1 if an exception was thrown, 0 if not.
  */
-static int throwExceptionIfNecessary(JNIEnv* env) {
+static int throwExceptionIfNecessary(JNIEnv* env, const char* location) {
     int error = ERR_get_error();
     int result = 0;
 
     if (error != 0) {
         char message[50];
         ERR_error_string_n(error, message, sizeof(message));
-        LOGD("OpenSSL error %d: %s", error, message);
+        // LOGD("OpenSSL error in %s %d: %s", location, error, message);
         jniThrowRuntimeException(env, message);
         result = 1;
     }
@@ -444,7 +444,7 @@ static jint NativeCrypto_EVP_DigestFinal(JNIEnv* env, jclass clazz, EVP_MD_CTX* 
     EVP_DigestFinal(ctx, (unsigned char*) (hashBytes + offset), (unsigned int*)&result);
     env->ReleaseByteArrayElements(hash, hashBytes, 0);
 
-    throwExceptionIfNecessary(env);
+    throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestFinal");
 
     return result;
 }
@@ -472,7 +472,7 @@ static void NativeCrypto_EVP_DigestInit(JNIEnv* env, jclass clazz, EVP_MD_CTX* c
 
     EVP_DigestInit(ctx, digest);
 
-    throwExceptionIfNecessary(env);
+    throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestInit");
 }
 
 /*
@@ -488,7 +488,7 @@ static jint NativeCrypto_EVP_DigestSize(JNIEnv* env, jclass clazz, EVP_MD_CTX* c
 
     int result = EVP_MD_CTX_size(ctx);
 
-    throwExceptionIfNecessary(env);
+    throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestSize");
 
     return result;
 }
@@ -506,7 +506,7 @@ static jint NativeCrypto_EVP_DigestBlockSize(JNIEnv* env, jclass clazz, EVP_MD_C
 
     int result = EVP_MD_CTX_block_size(ctx);
 
-    throwExceptionIfNecessary(env);
+    throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestBlockSize");
 
     return result;
 }
@@ -526,7 +526,7 @@ static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass clazz, EVP_MD_CTX*
     EVP_DigestUpdate(ctx, (unsigned char*) (bufferBytes + offset), length);
     env->ReleaseByteArrayElements(buffer, bufferBytes, JNI_ABORT);
 
-    throwExceptionIfNecessary(env);
+    throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestUpdate");
 }
 
 /*
@@ -552,7 +552,7 @@ static void NativeCrypto_EVP_VerifyInit(JNIEnv* env, jclass clazz, EVP_MD_CTX* c
 
     EVP_VerifyInit(ctx, digest);
 
-    throwExceptionIfNecessary(env);
+    throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyInit");
 }
 
 /*
@@ -570,7 +570,7 @@ static void NativeCrypto_EVP_VerifyUpdate(JNIEnv* env, jclass clazz, EVP_MD_CTX*
     EVP_VerifyUpdate(ctx, (unsigned char*) (bufferBytes + offset), length);
     env->ReleaseByteArrayElements(buffer, bufferBytes, JNI_ABORT);
 
-    throwExceptionIfNecessary(env);
+    throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyUpdate");
 }
 
 /*
@@ -588,7 +588,7 @@ static int NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass clazz, EVP_MD_CTX* c
     int result = EVP_VerifyFinal(ctx, (unsigned char*) (bufferBytes + offset), length, pkey);
     env->ReleaseByteArrayElements(buffer, bufferBytes, JNI_ABORT);
 
-    throwExceptionIfNecessary(env);
+    throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyFinal");
 
     return result;
 }
