@@ -16,9 +16,7 @@
 
 package org.apache.harmony.luni.platform;
 
-// BEGIN android-changed
 import dalvik.system.VMStack;
-// END android-changed
 
 /**
  * The Platform class gives access to the low-level underlying capabilities of
@@ -37,12 +35,9 @@ import dalvik.system.VMStack;
  * @see IMemorySystem
  */
 public class Platform {
-
-    static final IFileSystem FILE_SYSTEM = OSFileSystem.getOSFileSystem();
-
-    static final IMemorySystem MEMORY_SYSTEM = OSMemory.getOSMemory();
-
-    static final INetworkSystem NETWORK_SYSTEM = OSNetworkSystem.getOSNetworkSystem();
+    private static final IFileSystem FILE_SYSTEM = OSFileSystem.getOSFileSystem();
+    private static final IMemorySystem MEMORY_SYSTEM = OSMemory.getOSMemory();
+    private static final INetworkSystem NETWORK_SYSTEM = OSNetworkSystem.getOSNetworkSystem();
 
     /**
      * Checks to ensure that whoever is asking for the OS component is running

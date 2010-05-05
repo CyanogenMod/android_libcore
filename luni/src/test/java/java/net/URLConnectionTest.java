@@ -259,7 +259,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
                     // Read the request.
                     BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
                     String line;
-                    while ((line = in.readLine()) != null && line.length() == 0) {
+                    while ((line = in.readLine()) != null && !line.isEmpty()) {
                     }
                     // Send a response.
                     OutputStream out = s.getOutputStream();
