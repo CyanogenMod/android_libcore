@@ -17,10 +17,13 @@
 package java.net;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import tests.support.Support_TestWebServer;
@@ -175,6 +178,96 @@ public class URLConnectionTest extends junit.framework.TestCase {
                     } catch (SocketException expected) {
                         // The client already closed the connection.
                     }
+                } catch (Exception ex) {
+                    throw new RuntimeException("server died unexpectedly", ex);
+                }
+            }
+        });
+        t.start();
+        return ss;
+    }
+
+    public void test_responseCaching() throws Exception {
+        // Test each documented HTTP/1.1 code, plus the first unused value in each range.
+        // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+
+        // We can't test 100 because it's not really a response.
+        // assertCached(false, 100);
+        assertCached(false, 101);
+        assertCached(false, 102);
+        assertCached(true,  200);
+        assertCached(false, 201);
+        assertCached(false, 202);
+        assertCached(true,  203);
+        assertCached(false, 204);
+        assertCached(false, 205);
+        assertCached(true,  206);
+        assertCached(false, 207);
+        assertCached(true,  301);
+        for (int i = 302; i <= 308; ++i) {
+            assertCached(false, i);
+        }
+        for (int i = 400; i <= 406; ++i) {
+            assertCached(false, i);
+        }
+        // (See test_responseCaching_407.)
+        assertCached(false, 408);
+        assertCached(false, 409);
+        assertCached(true,  410);
+        for (int i = 411; i <= 418; ++i) {
+            assertCached(false, i);
+        }
+        for (int i = 500; i <= 506; ++i) {
+            assertCached(false, i);
+        }
+    }
+
+    public void test_responseCaching_407() throws Exception {
+        // This test will fail on Android because we throw if we're not using a proxy.
+        // This isn't true of the RI, but it seems like useful debugging behavior.
+        assertCached(false, 407);
+    }
+
+    private void assertCached(boolean shouldPut, int responseCode) throws Exception {
+        class MyResponseCache extends ResponseCache {
+            public boolean didPut;
+            public CacheResponse get(URI uri, String requestMethod,
+                    Map<String, List<String>> requestHeaders) throws IOException {
+                return null;
+            }
+            public CacheRequest put(URI uri, URLConnection conn) throws IOException {
+                didPut = true;
+                return null;
+            }
+        };
+        ServerSocket ss = startResponseCodeServer(responseCode);
+        URL url = new URL("http://localhost:" + ss.getLocalPort() + "/");
+        MyResponseCache cache = new MyResponseCache();
+        ResponseCache.setDefault(cache);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        assertEquals(responseCode, conn.getResponseCode());
+        assertEquals(Integer.toString(responseCode), shouldPut, cache.didPut);
+    }
+
+    private ServerSocket startResponseCodeServer(final int responseCode) throws Exception {
+        final ServerSocket ss = new ServerSocket(0);
+        ss.setReuseAddress(true);
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Socket s = ss.accept();
+                    // Read the request.
+                    BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                    String line;
+                    while ((line = in.readLine()) != null && line.length() == 0) {
+                    }
+                    // Send a response.
+                    OutputStream out = s.getOutputStream();
+                    out.write(String.format("HTTP/1.1 %d OK\r\n" +
+                            "Content-Length: 0\r\n" +
+                            "WWW-Authenticate: challenge\r\n\r\n", responseCode).getBytes());
+                    out.flush();
+                    out.close();
                 } catch (Exception ex) {
                     throw new RuntimeException("server died unexpectedly", ex);
                 }
