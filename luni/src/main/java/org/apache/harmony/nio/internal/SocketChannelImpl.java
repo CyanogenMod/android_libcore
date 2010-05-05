@@ -93,9 +93,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     // Step used for finishConnect.
     private static final int HY_PORT_SOCKET_STEP_CHECK = 1;
 
-    // Connect success.
-    private static final int CONNECT_SUCCESS = 0;
-
     // The descriptor to interact with native code.
     FileDescriptor fd;
 
@@ -269,16 +266,15 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             if (isBlocking()) {
                 begin();
                 networkSystem.connect(fd, trafficClass, normalAddr, port);
-                result = CONNECT_SUCCESS; // Or we'd have thrown an exception.
+                finished = true; // Or we'd have thrown an exception.
             } else {
-                result = networkSystem.connectWithTimeout(fd, 0, trafficClass,
+                finished = networkSystem.connectWithTimeout(fd, 0, trafficClass,
                         normalAddr, port, HY_SOCK_STEP_START, connectContext);
                 // set back to nonblocking to work around with a bug in portlib
                 if (!this.isBlocking()) {
                     networkSystem.setNonBlocking(fd, true);
                 }
             }
-            finished = (CONNECT_SUCCESS == result);
             isBound = finished;
         } catch (IOException e) {
             if (e instanceof ConnectException && !isBlocking()) {
@@ -331,17 +327,12 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             }
         }
 
-        // finish result
-        int result = EOF;
         boolean finished = false;
-
         try {
             begin();
-            result = networkSystem.connectWithTimeout(fd,
-                    isBlocking() ? -1 : 0, trafficClass, connectAddress
-                            .getAddress(), connectAddress.getPort(),
+            finished = networkSystem.connectWithTimeout(fd, isBlocking() ? -1 : 0, trafficClass,
+                    connectAddress.getAddress(), connectAddress.getPort(),
                     HY_PORT_SOCKET_STEP_CHECK, connectContext);
-            finished = (result == CONNECT_SUCCESS);
             isBound = finished;
             localAddress = networkSystem.getSocketLocalAddress(fd);
         } catch (ConnectException e) {

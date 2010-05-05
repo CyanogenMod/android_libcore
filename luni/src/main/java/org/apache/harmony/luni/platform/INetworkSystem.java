@@ -68,7 +68,7 @@ public interface INetworkSystem {
     public void connect(FileDescriptor aFD, int trafficClass,
             InetAddress inetAddress, int port) throws IOException;
 
-    public int connectWithTimeout(FileDescriptor aFD, int timeout,
+    public boolean connectWithTimeout(FileDescriptor aFD, int timeout,
             int trafficClass, InetAddress hostname, int port, int step,
             byte[] context) throws IOException;
 

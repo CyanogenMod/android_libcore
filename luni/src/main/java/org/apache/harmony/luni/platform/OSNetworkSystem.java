@@ -57,7 +57,7 @@ final class OSNetworkSystem implements INetworkSystem {
             int port, int timeout, int trafficClass, InetAddress inetAddress)
             throws IOException;
 
-    public native int connectWithTimeout(FileDescriptor fd, int timeout,
+    public native boolean connectWithTimeout(FileDescriptor fd, int timeout,
             int trafficClass, InetAddress inetAddress, int port, int step,
             byte[] context) throws IOException;
 
