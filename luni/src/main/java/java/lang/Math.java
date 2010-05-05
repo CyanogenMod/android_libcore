@@ -1111,12 +1111,7 @@ public final class Math {
     public static native float copySign(float magnitude, float sign);
 
     /**
-     * Answers the exponent of a float.
-     * 
-     * @param f
-     *            the given float
-     * @return the exponent of the float.
-     * 
+     * Returns the exponent of float {@code f}.
      * @since 1.6
      * @hide
      */
@@ -1127,12 +1122,7 @@ public final class Math {
     }
 
     /**
-     * Answers the exponent of a double.
-     * 
-     * @param d
-     *            the given double
-     * @return the exponent of the double.
-     * 
+     * Returns the exponent of double {@code d}.
      * @since 1.6
      * @hide
      */
@@ -1143,16 +1133,7 @@ public final class Math {
     }    
     
     /**
-     * Answers a double next to the first given double value in the direction of
-     * the second given double.
-     * 
-     * @param start
-     *            the double value to start
-     * @param direction
-     *            the double indicating the direction
-     * @return a double next to the first given double value in the direction of
-     *         the second given double.
-     * 
+     * Returns the next double after {@code start} in the given {@code direction}.
      * @since 1.6
      * @hide
      */
@@ -1164,16 +1145,7 @@ public final class Math {
     }
 
     /**
-     * Answers a float next to the first given float value in the direction of
-     * the second given double value.
-     * 
-     * @param start
-     *            the float value to start
-     * @param direction
-     *            the double indicating the direction
-     * @return a float next to the first given float value in the direction of
-     *         the second given double.
-     * 
+     * Returns the next float after {@code start} in the given {@code direction}.
      * @since 1.6
      * @hide
      */
@@ -1218,12 +1190,7 @@ public final class Math {
     }
     
     /**
-     * Answers the next larger double value to d.
-     * 
-     * @param d
-     *            the double value to start
-     * @return the next larger double value of d.
-     * 
+     * Returns the next double larger than {@code d}.
      * @since 1.6
      * @hide
      */
@@ -1244,12 +1211,7 @@ public final class Math {
     }
 
     /**
-     * Answers the next larger float value to d.
-     * 
-     * @param f
-     *            the float value to start
-     * @return the next larger float value of d.
-     * 
+     * Returns the next float larger than {@code f}.
      * @since 1.6
      * @hide
      */
@@ -1270,14 +1232,7 @@ public final class Math {
     }
     
     /**
-     * Answers a double value of d * 2^scaleFactor, the result may be rounded.
-     * 
-     * @param d
-     *            the base number
-     * @param scaleFactor
-     *            the power number
-     * @return d * 2^scaleFactor
-     * 
+     * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
      * @since 1.6
      * @hide
      */
@@ -1335,14 +1290,7 @@ public final class Math {
     }
 
     /**
-     * Answers a float value of d * 2^scaleFactor, the result may be rounded.
-     * 
-     * @param d
-     *            the base number
-     * @param scaleFactor
-     *            the power number
-     * @return d * 2^scaleFactor
-     * 
+     * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
      * @since 1.6
      * @hide
      */

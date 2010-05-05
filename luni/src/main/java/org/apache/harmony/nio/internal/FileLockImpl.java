@@ -30,7 +30,7 @@ final class FileLockImpl extends FileLock {
     private boolean isReleased = false;
 
     /**
-     * Answers a new file lock object with the given parameters.
+     * Constructs a new file lock object with the given parameters.
      * 
      * @param channel
      *            the file channel hosting the lock.
@@ -41,8 +41,7 @@ final class FileLockImpl extends FileLock {
      * @param shared
      *            whether this lock is shared (true) or exclusive (false)
      */
-    public FileLockImpl(FileChannel channel, long position, long size,
-            boolean shared) {
+    public FileLockImpl(FileChannel channel, long position, long size, boolean shared) {
         super(channel, position, size, shared);
     }
 

@@ -112,7 +112,7 @@ public final class Util {
     }
     
 	/**
-	 * Answers the millisecond value of the date and time parsed from the
+	 * Returns the millisecond value of the date and time parsed from the
 	 * specified String. Many date/time formats are recognized
 	 * 
 	 * @param string

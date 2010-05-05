@@ -899,41 +899,21 @@ public class ObjectStreamClass implements Serializable {
         arePropertiesResolved = true;
     }
 
-    /**
-     * Answers whether the class for this descriptor is serializable
-     *
-     * @return true if class implements Serializable
-     */
     boolean isSerializable() {
         resolveProperties();
         return isSerializable;
     }
 
-    /**
-     * Answers whether the class for this descriptor is serializable
-     *
-     * @return true if class implements Serializable
-     */
     boolean isExternalizable() {
         resolveProperties();
         return isExternalizable;
     }
 
-    /**
-     * Answers whether the class for this descriptor is proxied class
-     *
-     * @return true if class is proxied
-     */
     boolean isProxy() {
         resolveProperties();
         return isProxy;
     }
 
-    /**
-     * Answers whether the class for this descriptor is subclass of Enum
-     *
-     * @return true if class is subclass of Enum
-     */
     boolean isEnum() {
         resolveProperties();
         return isEnum;

@@ -460,11 +460,6 @@ public final class HttpCookie implements Cloneable {
         }
     }
 
-    /**
-     * Answers a copy of this object.
-     *
-     * @return a copy of this cookie
-     */
     @Override
     public Object clone() {
         try {
@@ -476,13 +471,9 @@ public final class HttpCookie implements Cloneable {
     }
 
     /**
-     * Answers whether two cookies are equal. Two cookies are equal if they have
+     * Returns true if {@code obj} equals this cookie. Two cookies are equal if they have
      * the same domain and name in a case-insensitive mode and path in a
      * case-sensitive mode.
-     *
-     * @param obj
-     *            the object to be compared.
-     * @return true if two cookies equals, false otherwise
      */
     @Override
     public boolean equals(Object obj) {
@@ -506,98 +497,72 @@ public final class HttpCookie implements Cloneable {
     }
 
     /**
-     * Answers the value of comment attribute(specified in RFC 2965) of this
-     * cookie.
-     *
-     * @return the value of comment attribute
+     * Returns the value of the "comment" attribute (specified in RFC 2965) of this cookie.
      */
     public String getComment() {
         return comment;
     }
 
     /**
-     * Answers the value of commentURL attribute(specified in RFC 2965) of this
-     * cookie.
-     *
-     * @return the value of commentURL attribute
+     * Returns the value of the "commentURL" attribute (specified in RFC 2965) of this cookie.
      */
     public String getCommentURL() {
         return commentURL;
     }
 
     /**
-     * Answers the value of discard attribute(specified in RFC 2965) of this
-     * cookie.
-     *
-     * @return discard value of this cookie
+     * Returns the value of the "discard" attribute (specified in RFC 2965) of this cookie.
      */
     public boolean getDiscard() {
         return discard;
     }
 
     /**
-     * Answers the domain name for this cookie in the format specified in RFC
-     * 2965
-     *
-     * @return the domain value of this cookie
+     * Returns the domain name for this cookie in the format specified in RFC 2965.
      */
     public String getDomain() {
         return domain;
     }
 
     /**
-     * Returns the Max-Age value as specified in RFC 2965 of this cookie.
-     *
-     * @return the Max-Age value
+     * Returns the Max-Age value for this cookie as specified in RFC 2965.
      */
     public long getMaxAge() {
         return maxAge;
     }
 
     /**
-     * Answers the name for this cookie.
-     *
-     * @return the name for this cookie
+     * Returns the name of this cookie.
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Answers the path part of a request URL to which this cookie is returned.
+     * Returns the path part of a request URL to which this cookie is returned.
      * This cookie is visible to all subpaths.
-     *
-     * @return the path used to return the cookie
      */
     public String getPath() {
         return path;
     }
 
     /**
-     * Answers the value of port attribute(specified in RFC 2965) of this
-     * cookie.
-     *
-     * @return port list of this cookie
+     * Returns the value of the "portlist" attribute (specified in RFC 2965) of this cookie.
      */
     public String getPortlist() {
         return portList;
     }
 
     /**
-     * Answers true if the browser only sends cookies over a secure protocol.
-     * False if can send cookies through any protocols.
-     *
-     * @return true if sends cookies only through secure protocol, false
-     *         otherwise
+     * Returns true if the browser only sends cookies over a secure protocol.
+     * False if it can send cookies through any protocols.
      */
     public boolean getSecure() {
         return secure;
     }
 
     /**
-     * Answers the value of this cookie.
-     *
-     * @return the value of this cookie
+     * Returns the value of this cookie.
      */
     public String getValue() {
         return value;
@@ -614,9 +579,7 @@ public final class HttpCookie implements Cloneable {
     }
 
     /**
-     * Answers whether the cookie has expired.
-     *
-     * @return true is the cookie has expired, false otherwise
+     * Returns true if this cookie has expired.
      */
     public boolean hasExpired() {
         // -1 indicates the cookie will persist until browser shutdown
@@ -633,12 +596,8 @@ public final class HttpCookie implements Cloneable {
     }
 
     /**
-     * Answers hash code of this http cookie. The result is calculated as below:
-     *
-     * getName().toLowerCase().hashCode() + getDomain().toLowerCase().hashCode() +
-     * getPath().hashCode()
-     *
-     * @return the hash code of this cookie
+     * Returns the hash code of this HTTP cookie. The hash code is
+     * {@code getName().toLowerCase().hashCode() + getDomain().toLowerCase().hashCode() + getPath().hashCode()}.
      */
     @Override
     public int hashCode() {

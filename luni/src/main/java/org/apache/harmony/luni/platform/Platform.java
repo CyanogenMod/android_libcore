@@ -49,38 +49,21 @@ public class Platform {
      * on the system classpath.
      */
     private static final void accessCheck() {
-        // BEGIN android-changed
         if (VMStack.getCallingClassLoader() != null) {
             throw new SecurityException();
         }
-        // END android-changed
     }
 
-    /**
-     * Answers the instance that interacts directly with the OS file system.
-     *
-     * @return a low-level file system interface.
-     */
     public static IFileSystem getFileSystem() {
         accessCheck();
         return FILE_SYSTEM;
     }
 
-    /**
-     * Answers the instance that interacts directly with the OS memory system.
-     *
-     * @return a low-level memory system interface.
-     */
     public static IMemorySystem getMemorySystem() {
         accessCheck();
         return MEMORY_SYSTEM;
     }
 
-    /**
-     * Answers the instance that interacts directly with the OS network system.
-     *
-     * @return a low-level network system interface.
-     */
     public static INetworkSystem getNetworkSystem() {
         accessCheck();
         return NETWORK_SYSTEM;
