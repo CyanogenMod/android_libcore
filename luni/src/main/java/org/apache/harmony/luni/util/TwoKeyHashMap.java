@@ -214,12 +214,7 @@ public class TwoKeyHashMap<E, K, V> extends AbstractMap<String, V> {
     }
 
     /**
-     * Answers whether this map contains a mapping for the specified keys.
-     * 
-     * @param key1 first key
-     * @param key2 second key
-     * @return true if this map contains a mapping for the specified keys, and
-     *         false otherwise.
+     * Returns true if this map contains a mapping for {@code key1} and {@code key2}.
      */
     public boolean containsKey(Object key1, Object key2) {
         return findEntry(key1, key2) != null;

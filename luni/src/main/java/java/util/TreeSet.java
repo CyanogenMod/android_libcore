@@ -257,24 +257,16 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
     }
 
     /**
-     * Answers the first element in this TreeSet.
-     *
-     * @return the first element
-     *
-     * @exception NoSuchElementException
-     *                when this TreeSet is empty
+     * Returns the first element in this set.
+     * @exception NoSuchElementException when this TreeSet is empty
      */
     public E first() {
         return backingMap.firstKey();
     }
 
     /**
-     * Answers the last element in this TreeSet.
-     *
-     * @return the last element
-     *
-     * @exception NoSuchElementException
-     *                when this TreeSet is empty
+     * Returns the last element in this set.
+     * @exception NoSuchElementException when this TreeSet is empty
      */
     public E last() {
         return backingMap.lastKey();
@@ -409,7 +401,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
     }
 
     /**
-     * Answers a SortedSet of the specified portion of this TreeSet which
+     * Returns a {@code SortedSet} of the specified portion of this {@code TreeSet} which
      * contains elements greater or equal to the start element but less than the
      * end element. The returned SortedSet is backed by this TreeSet so changes
      * to one are reflected by the other.
@@ -434,7 +426,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
     }
 
     /**
-     * Answers a SortedSet of the specified portion of this TreeSet which
+     * Returns a {@code SortedSet} of the specified portion of this {@code TreeSet} which
      * contains elements less than the end element. The returned SortedSet is
      * backed by this TreeSet so changes to one are reflected by the other.
      *
@@ -455,7 +447,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
     }
 
     /**
-     * Answers a SortedSet of the specified portion of this TreeSet which
+     * Returns a {@code SortedSet} of the specified portion of this {@code TreeSet} which
      * contains elements greater or equal to the start element. The returned
      * SortedSet is backed by this TreeSet so changes to one are reflected by
      * the other.

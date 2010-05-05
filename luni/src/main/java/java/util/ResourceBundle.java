@@ -792,11 +792,7 @@ public abstract class ResourceBundle {
         }
 
         /**
-         * Answers a control according to the given format list
-         * 
-         * @param formats
-         *            a format to use
-         * @return a control according to the given format list
+         * Returns a control according to {@code formats}.
          */
         public static final Control getControl(List<String> formats) {
             switch (formats.size()) {
@@ -818,13 +814,8 @@ public abstract class ResourceBundle {
         }
 
         /**
-         * Answers a control according to the given format list whose fallback
-         * locale is null
-         * 
-         * @param formats
-         *            a format to use
-         * @return a control according to the given format list whose fallback
-         *         locale is null
+         * Returns a control according to {@code formats} whose fallback
+         * locale is null.
          */
         public static final Control getNoFallbackControl(List<String> formats) {
             switch (formats.size()) {
@@ -846,14 +837,8 @@ public abstract class ResourceBundle {
         }
 
         /**
-         * Answers a list of candidate locales according to the base name and
-         * locale
-         * 
-         * @param baseName
-         *            the base name to use
-         * @param locale
-         *            the locale
-         * @return the candidate locales according to the base name and locale
+         * Returns a list of candidate locales according to {@code baseName} in
+         * {@code locale}.
          */
         public List<Locale> getCandidateLocales(String baseName, Locale locale) {
             if (null == baseName || null == locale) {
@@ -877,11 +862,7 @@ public abstract class ResourceBundle {
         }
 
         /**
-         * Answers a list of strings of formats according to the base name
-         * 
-         * @param baseName
-         *            the base name to use
-         * @return a list of strings of formats according to the base name
+         * Returns a list of strings of formats according to {@code baseName}.
          */
         public List<String> getFormats(String baseName) {
             if (null == baseName) {
@@ -891,11 +872,7 @@ public abstract class ResourceBundle {
         }
 
         /**
-         * Answers a list of strings of locales according to the base name
-         * 
-         * @param baseName
-         *            the base name to use
-         * @return a list of strings of locales according to the base name
+         * Returns the fallback locale for {@code baseName} in {@code locale}.
          */
         public Locale getFallbackLocale(String baseName, Locale locale) {
             if (null == baseName || null == locale) {
@@ -908,23 +885,23 @@ public abstract class ResourceBundle {
         }
 
         /**
-         * Answers a new ResourceBundle according to the give parameters
+         * Returns a new ResourceBundle.
          * 
          * @param baseName
          *            the base name to use
          * @param locale
          *            the given locale
          * @param format
-         *            the format, default is "java.class" or "java.properities"
+         *            the format, default is "java.class" or "java.properties"
          * @param loader
          *            the classloader to use
          * @param reload
-         *            if reload the resource
+         *            whether to reload the resource
          * @return a new ResourceBundle according to the give parameters
          * @throws IllegalAccessException
-         *             if can not access resources
+         *             if we can not access resources
          * @throws InstantiationException
-         *             if can not instante a resource class
+         *             if we can not instantiate a resource class
          * @throws IOException
          *             if other I/O exception happens
          */
@@ -1008,14 +985,8 @@ public abstract class ResourceBundle {
         }
 
         /**
-         * Answers the time to live of the ResourceBundle, default is
-         * TTL_NO_EXPIRATION_CONTROL
-         * 
-         * @param baseName
-         *            the base name to use
-         * @param locale
-         *            the locale to use
-         * @return TTL_NO_EXPIRATION_CONTROL
+         * Returns the time to live of the ResourceBundle {@code baseName} in {@code locale},
+         * default is TTL_NO_EXPIRATION_CONTROL.
          */
         public long getTimeToLive(String baseName, Locale locale) {
             if (null == baseName || null == locale) {
@@ -1025,7 +996,7 @@ public abstract class ResourceBundle {
         }
 
         /**
-         * Answers if the ResourceBundle needs to reload
+         * Returns true if the ResourceBundle needs to reload.
          * 
          * @param baseName
          *            the base name of the ResourceBundle

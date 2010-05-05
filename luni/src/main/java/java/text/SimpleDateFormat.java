@@ -956,26 +956,15 @@ public class SimpleDateFormat extends DateFormat {
      *             if there are invalid characters in the pattern.
      */
     @Override
-    public StringBuffer format(Date date, StringBuffer buffer,
-            FieldPosition fieldPos) {
+    public StringBuffer format(Date date, StringBuffer buffer, FieldPosition fieldPos) {
         // BEGIN android-changed
         // Harmony delegates to ICU's SimpleDateFormat, we implement it directly
         return formatImpl(date, buffer, fieldPos, null);
         // END android-changed
     }
 
-    // BEGIN android-removed
-    // private com.ibm.icu.text.DateFormat.Field toICUField(
-    //         DateFormat.Field attribute) {
-    //     ...
-    // }
-    // END android-removed
-
     /**
-     * Answers the Date which is the start of the one hundred year period for
-     * two digits year values.
-     * 
-     * @return a Date
+     * Returns the date which is the start of the one hundred year period for two-digit year values.
      */
     public Date get2DigitYearStart() {
         return defaultCenturyStart;
@@ -1340,16 +1329,9 @@ public class SimpleDateFormat extends DateFormat {
     // END android-added
 
     /**
-     * Sets the date which is the start of the one hundred year period for two
-     * digits year values.
-     * 
-     * @param date
-     *            the new date.
+     * Sets the date which is the start of the one hundred year period for two-digit year values.
      */
     public void set2DigitYearStart(Date date) {
-        // BEGIN android-removed
-        // icuFormat.set2DigitYearStart(date);
-        // END android-removed
         defaultCenturyStart = date;
         Calendar cal = new GregorianCalendar();
         cal.setTime(date);
