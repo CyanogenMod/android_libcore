@@ -22,21 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@code CacheResponse} is used for getting resource data from the installed
- * {@code ResponseCache}. A {@code CacheResponse} object provides an {@code
- * InputStream} to access the response body and also a method {@code
- * getHeaders()} to fetch the response headers.
- * 
+ * A response cache entry. A {@code CacheResponse} object provides an {@code
+ * InputStream} to access the response body and a {@code Map} for the response headers.
  * @see ResponseCache
  */
 public abstract class CacheResponse {
-    /**
-     * This implementation does nothing.
-     */
-    public CacheResponse() {
-        super();
-    }
-
     /**
      * Returns an {@code InputStream} to access the response body.
      * 
@@ -50,11 +40,13 @@ public abstract class CacheResponse {
 
     /**
      * Returns an immutable {@code Map} which contains the response headers
-     * information.
+     * information. Note that {@code URLConnection} may need the original headers to be
+     * able to fully reconstruct the response. In particular, failure to provide
+     * a mapping from null to the original HTTP status line will prevent an
+     * {@code HttpURLConnection} from returning the correct response code.
+     * See {@link URLConnection#getHeaderFields}.
      * 
-     * @return an immutable {@code Map} which contains the response headers. The
-     *         generic map contains response header fields as the key and a list
-     *         of strings as values.
+     * @return an immutable {@code Map} which contains the response headers.
      * @throws IOException
      *             if an I/O error is encountered while retrieving the response
      *             headers.

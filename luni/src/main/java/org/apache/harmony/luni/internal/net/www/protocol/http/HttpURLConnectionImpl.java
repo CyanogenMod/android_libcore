@@ -939,41 +939,43 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     // Tries to get head and body from cache, return true if has got this time
-    // or
-    // already got before
+    // or already got before
     private boolean getFromCache() throws IOException {
         if (useCaches && null != responseCache && !hasTriedCache) {
             hasTriedCache = true;
-            if (null == resHeader) {
+            if (resHeader == null) {
                 resHeader = new Header();
             }
-            cacheResponse = responseCache.get(uri, method, resHeader
-                    .getFieldMap());
-            if (null != cacheResponse) {
+            cacheResponse = responseCache.get(uri, method, resHeader.getFieldMap());
+            if (cacheResponse != null) {
                 Map<String, List<String>> headMap = cacheResponse.getHeaders();
-                if (null != headMap) {
+                if (headMap != null) {
                     resHeader = new Header(headMap);
                 }
                 is = cacheResponse.getBody();
-                if (null != is) {
+                if (is != null) {
                     return true;
                 }
             }
         }
-        if (hasTriedCache && null != is) {
-            return true;
-        }
-        return false;
+        return (hasTriedCache && is != null);
     }
 
-    // if user sets useCache to true, tries to put response to cache if cache
-    // exists
-    private void putToCache() throws IOException {
-        if (useCaches && null != responseCache) {
-            cacheRequest = responseCache.put(uri, this);
-            if (null != cacheRequest) {
-                cacheOut = cacheRequest.getBody();
-            }
+    private void maybeCache() throws IOException {
+        // Are we caching at all?
+        if (!useCaches || responseCache == null) {
+            return;
+        }
+        // Should we cache this particular response code?
+        if (responseCode != HTTP_OK && responseCode != HTTP_NOT_AUTHORITATIVE &&
+                responseCode != HTTP_PARTIAL && responseCode != HTTP_MOVED_PERM &&
+                responseCode != HTTP_GONE) {
+            return;
+        }
+        // Offer this request to the cache.
+        cacheRequest = responseCache.put(uri, this);
+        if (cacheRequest != null) {
+            cacheOut = cacheRequest.getBody();
         }
     }
 
@@ -1111,15 +1113,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return resHeader.getKey(pos);
     }
 
-    /**
-     * Provides an unmodifiable map of the connection header values. The map
-     * keys are the String header field names. Each map value is a list of the
-     * header field values associated with that key name.
-     *
-     * @return the mapping of header field names to values
-     *
-     * @since 1.4
-     */
     @Override
     public Map<String, List<String>> getHeaderFields() {
         try {
@@ -1362,7 +1355,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             disconnect();
             uis = new LimitedInputStream(0);
         }
-        putToCache();
+        maybeCache();
     }
 
     @Override
@@ -1659,9 +1652,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             // proxy authorization failed ?
             if (responseCode == HTTP_PROXY_AUTH) {
                 if (!usingProxy()) {
-                    // KA017=Received HTTP_PROXY_AUTH (407) code while not using
-                    // proxy
-                    throw new IOException(Msg.getString("KA017"));
+                    throw new IOException("Received HTTP_PROXY_AUTH (407) code while not using proxy");
                 }
                 // username/password
                 // until authorized
@@ -1690,11 +1681,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 // keep asking for username/password until authorized
                 String challenge = resHeader.get("WWW-Authenticate");
                 if (challenge == null) {
-                    // KA018=Received authentication challenge is null
-                    throw new IOException(Msg.getString("KA018"));
+                    throw new IOException("Received authentication challenge is null");
                 }
-                // drop everything and reconnect, might not be required for
-                // HTTP/1.1
+                // drop everything and reconnect, might not be required for HTTP/1.1
                 endRequest();
                 disconnect();
                 connected = false;
@@ -1762,10 +1751,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * @return authorization credentials
      * @throws IOException
      */
-    private String getAuthorizationCredentials(String challenge)
-            throws IOException {
-
+    private String getAuthorizationCredentials(String challenge) throws IOException {
         int idx = challenge.indexOf(" ");
+        if (idx == -1) {
+            return null;
+        }
         String scheme = challenge.substring(0, idx);
         int realm = challenge.indexOf("realm=\"") + 7;
         String prompt = null;

@@ -130,7 +130,7 @@ public abstract class URLConnection {
     public abstract void connect() throws IOException;
 
     /**
-     * Gets the option value which indicates whether user interaction is allowed
+     * Returns the option value which indicates whether user interaction is allowed
      * on this {@code URLConnection}.
      *
      * @return the value of the option {@code allowUserInteraction}.
@@ -141,7 +141,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets an object representing the content of the resource this {@code
+     * Returns an object representing the content of the resource this {@code
      * URLConnection} is connected to. First, it attempts to get the content
      * type from the method {@code getContentType()} which looks at the response
      * header field "Content-Type". If none is found it will guess the content
@@ -169,7 +169,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets an object representing the content of the resource this {@code
+     * Returns an object representing the content of the resource this {@code
      * URLConnection} is connected to. First, it attempts to get the content
      * type from the method {@code getContentType()} which looks at the response
      * header field "Content-Type". If none is found it will guess the content
@@ -203,7 +203,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the content encoding type specified by the response header field
+     * Returns the content encoding type specified by the response header field
      * {@code content-encoding} or {@code null} if this field is not set.
      *
      * @return the value of the response header field {@code content-encoding}.
@@ -286,7 +286,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the content length in bytes specified by the response header field
+     * Returns the content length in bytes specified by the response header field
      * {@code content-length} or {@code -1} if this field is not set.
      *
      * @return the value of the response header field {@code content-length}.
@@ -296,7 +296,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the MIME-type of the content specified by the response header field
+     * Returns the MIME-type of the content specified by the response header field
      * {@code content-type} or {@code null} if type is unknown.
      *
      * @return the value of the response header field {@code content-type}.
@@ -306,7 +306,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the timestamp when this response has been sent as a date in
+     * Returns the timestamp when this response has been sent as a date in
      * milliseconds since January 1, 1970 GMT or {@code 0} if this timestamp is
      * unknown.
      *
@@ -317,7 +317,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the default setting whether this connection allows user interaction.
+     * Returns the default setting whether this connection allows user interaction.
      *
      * @return the value of the default setting {@code
      *         defaultAllowUserInteraction}.
@@ -328,8 +328,8 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the default value for the specified request {@code field} or {@code
-     * null} if the field could not be found. The current implementation of this
+     * Returns the default value for the specified request {@code field} or {@code
+     * null} if the field could not be found. The base implementation of this
      * method returns always {@code null}.
      *
      * @param field
@@ -343,7 +343,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the default setting whether this connection allows using caches.
+     * Returns the default setting whether this connection allows using caches.
      *
      * @return the value of the default setting {@code defaultUseCaches}.
      * @see #useCaches
@@ -353,7 +353,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the value of the option {@code doInput} which specifies whether this
+     * Returns the value of the option {@code doInput} which specifies whether this
      * connection allows to receive data.
      *
      * @return {@code true} if this connection allows input, {@code false}
@@ -365,7 +365,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the value of the option {@code doOutput} which specifies whether
+     * Returns the value of the option {@code doOutput} which specifies whether
      * this connection allows to send data.
      *
      * @return {@code true} if this connection allows output, {@code false}
@@ -377,7 +377,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the timestamp when this response will be expired in milliseconds
+     * Returns the timestamp when this response will be expired in milliseconds
      * since January 1, 1970 GMT or {@code 0} if this timestamp is unknown.
      *
      * @return the value of the response header field {@code expires}.
@@ -387,7 +387,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the table which is used by all {@code URLConnection} instances to
+     * Returns the table which is used by all {@code URLConnection} instances to
      * determine the MIME-type according to a file extension.
      *
      * @return the file name map to determine the MIME-type.
@@ -405,9 +405,13 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the header value at the field position {@code pos} or {@code null}
-     * if the header has fewer than {@code pos} fields. The current
+     * Returns the header value at the field position {@code pos} or {@code null}
+     * if the header has fewer than {@code pos} fields. The base
      * implementation of this method returns always {@code null}.
+     *
+     * <p>Some implementations (notably {@code HttpURLConnection}) include a mapping
+     * for the null key; in HTTP's case, this maps to the HTTP status line and is
+     * treated as being at position 0 when indexing into the header fields.
      *
      * @param pos
      *            the field position of the response header.
@@ -418,9 +422,13 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets an unchangeable map of the response-header fields and values. The
+     * Returns an unchangeable map of the response-header fields and values. The
      * response-header field names are the key values of the map. The map values
      * are lists of header field values associated with a particular key name.
+     *
+     * <p>Some implementations (notably {@code HttpURLConnection}) include a mapping
+     * for the null key; in HTTP's case, this maps to the HTTP status line and is
+     * treated as being at position 0 when indexing into the header fields.
      *
      * @return the response-header representing generic map.
      * @since 1.4
@@ -430,7 +438,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets an unchangeable map of general request properties used by this
+     * Returns an unchangeable map of general request properties used by this
      * connection. The request property names are the key values of the map. The
      * map values are lists of property values of the corresponding key name.
      *
@@ -468,9 +476,13 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the value of the header field specified by {@code key} or {@code
-     * null} if there is no field with this name. The current implementation of
+     * Returns the value of the header field specified by {@code key} or {@code
+     * null} if there is no field with this name. The base implementation of
      * this method returns always {@code null}.
+     *
+     * <p>Some implementations (notably {@code HttpURLConnection}) include a mapping
+     * for the null key; in HTTP's case, this maps to the HTTP status line and is
+     * treated as being at position 0 when indexing into the header fields.
      *
      * @param key
      *            the name of the header field.
@@ -481,7 +493,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the specified header value as a date in milliseconds since January
+     * Returns the specified header value as a date in milliseconds since January
      * 1, 1970 GMT. Returns the {@code defaultValue} if no such header field
      * could be found.
      *
@@ -506,7 +518,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the specified header value as a number. Returns the {@code
+     * Returns the specified header value as a number. Returns the {@code
      * defaultValue} if no such header field could be found or the value could
      * not be parsed as an {@code Integer}.
      *
@@ -525,9 +537,13 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the name of the header field at the given position {@code posn} or
-     * {@code null} if there are fewer than {@code posn} fields. The current
+     * Returns the name of the header field at the given position {@code posn} or
+     * {@code null} if there are fewer than {@code posn} fields. The base
      * implementation of this method returns always {@code null}.
+     *
+     * <p>Some implementations (notably {@code HttpURLConnection}) include a mapping
+     * for the null key; in HTTP's case, this maps to the HTTP status line and is
+     * treated as being at position 0 when indexing into the header fields.
      *
      * @param posn
      *            the position of the header field which has to be returned.
@@ -538,7 +554,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the point of time since when the data must be modified to be
+     * Returns the point of time since when the data must be modified to be
      * transmitted. Some protocols transmit data only if it has been modified
      * more recently than a particular time.
      *
@@ -550,7 +566,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets an {@code InputStream} for reading data from the resource pointed by
+     * Returns an {@code InputStream} for reading data from the resource pointed by
      * this {@code URLConnection}. It throws an UnknownServiceException by
      * default. This method must be overridden by its subclasses.
      *
@@ -563,7 +579,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the value of the response header field {@code last-modified} or
+     * Returns the value of the response header field {@code last-modified} or
      * {@code 0} if this value is not set.
      *
      * @return the value of the {@code last-modified} header field.
@@ -576,7 +592,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets an {@code OutputStream} for writing data to this {@code
+     * Returns an {@code OutputStream} for writing data to this {@code
      * URLConnection}. It throws an {@code UnknownServiceException} by default.
      * This method must be overridden by its subclasses.
      *
@@ -589,7 +605,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets a {@code Permission} object representing all needed permissions to
+     * Returns a {@code Permission} object representing all needed permissions to
      * open this connection. The returned permission object depends on the state
      * of the connection and will be {@code null} if no permissions are
      * necessary. By default, this method returns {@code AllPermission}.
@@ -606,8 +622,8 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the value of the request header property specified by {code field}
-     * or {@code null} if there is no field with this name. The current
+     * Returns the value of the request header property specified by {code field}
+     * or {@code null} if there is no field with this name. The base
      * implementation of this method returns always {@code null}.
      *
      * @param field
@@ -624,7 +640,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the URL represented by this {@code URLConnection}.
+     * Returns the URL represented by this {@code URLConnection}.
      *
      * @return the URL of this connection.
      */
@@ -633,7 +649,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the value of the flag which specifies whether this {@code
+     * Returns the value of the flag which specifies whether this {@code
      * URLConnection} allows to use caches.
      *
      * @return {@code true} if using caches is allowed, {@code false} otherwise.
@@ -827,7 +843,7 @@ public abstract class URLConnection {
     /**
      * Sets the default value of the specified request header field. This value
      * will be used for the specific field of every newly created connection.
-     * The current implementation of this method does nothing.
+     * The base implementation of this method does nothing.
      *
      * @param field
      *            the request header field to be set.
@@ -993,7 +1009,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the configured connecting timeout.
+     * Returns the configured connecting timeout.
      *
      * @return the connecting timeout value in milliseconds.
      */
@@ -1021,7 +1037,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Gets the configured timeout for reading from the input stream of an
+     * Returns the configured timeout for reading from the input stream of an
      * established connection to the resource.
      *
      * @return the reading timeout value in milliseconds.
@@ -1038,17 +1054,10 @@ public abstract class URLConnection {
      */
     @Override
     public String toString() {
-        return getClass().getName() + ":" + url.toString(); //$NON-NLS-1$
+        return getClass().getName() + ":" + url.toString();
     }
 
     static class DefaultContentHandler extends java.net.ContentHandler {
-
-        /**
-         * @param u
-         *            the URL connection
-         * 
-         * @see java.net.ContentHandler#getContent(java.net.URLConnection)
-         */
         @Override
         public Object getContent(URLConnection u) throws IOException {
             return u.getInputStream();
