@@ -596,6 +596,7 @@ static int NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass clazz, EVP_MD_CTX* c
 /**
  * Convert ssl version constant to string. Based on SSL_get_version
  */
+// TODO move to jsse.patch
 static const char* get_ssl_version(int ssl_version) {
     switch (ssl_version) {
         // newest to oldest
@@ -617,6 +618,7 @@ static const char* get_ssl_version(int ssl_version) {
 /**
  * Convert content type constant to string.
  */
+// TODO move to jsse.patch
 static const char* get_content_type(int content_type) {
     switch (content_type) {
         case SSL3_RT_CHANGE_CIPHER_SPEC: {
@@ -982,6 +984,7 @@ static void sslNotify(AppData* appData) {
 }
 
 // From private header file external/openssl/ssl_locl.h
+// TODO move dependant code to jsse.patch to avoid dependency
 #define SSL_aRSA                0x00000001L
 #define SSL_aDSS                0x00000002L
 #define SSL_aNULL               0x00000004L
@@ -994,6 +997,7 @@ static void sslNotify(AppData* appData) {
 /**
  * Converts an SSL_CIPHER's algorithms field to a TrustManager auth argument
  */
+// TODO move to jsse.patch
 static const char* SSL_CIPHER_authentication_method(const SSL_CIPHER* cipher)
 {
     unsigned long alg_auth = cipher->algorithm_auth;
@@ -1754,6 +1758,163 @@ static void NativeCrypto_SSL_free(JNIEnv* env, jclass, jint ssl_address)
     SSL_free(ssl);
 }
 
+/**
+ * Gets and returns in a byte array the ID of the actual SSL session.
+ */
+static jbyteArray NativeCrypto_SSL_SESSION_session_id(JNIEnv* env, jclass, jint ssl_session_address) {
+    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_session_id", ssl_session);
+    jbyteArray result = env->NewByteArray(ssl_session->session_id_length);
+    if (result != NULL) {
+        jbyte* src = reinterpret_cast<jbyte*>(ssl_session->session_id);
+        env->SetByteArrayRegion(result, 0, ssl_session->session_id_length, src);
+    }
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_session_id => %p session_id_length=%d", 
+             ssl_session, result, ssl_session->session_id_length);
+    return result;
+}
+
+/**
+ * Our implementation of what might be considered
+ * SSL_SESSION_get_peer_cert_chain
+ *
+ */
+// TODO move to jsse.patch
+static STACK_OF(X509)* SSL_SESSION_get_peer_cert_chain(SSL_CTX* ssl_ctx, SSL_SESSION* ssl_session) {
+    SSL* ssl = SSL_new(ssl_ctx);
+    SSL_set_session(ssl, ssl_session);
+    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(ssl);
+    SSL_free(ssl);
+    return chain;
+}
+
+// Fills a byte[][] with the peer certificates in the chain.
+static jobjectArray NativeCrypto_SSL_SESSION_get_peer_cert_chain(JNIEnv* env,
+        jclass, jint ssl_ctx_address, jint ssl_session_address)
+{
+    SSL_CTX* ssl_ctx = reinterpret_cast<SSL_CTX*>(static_cast<uintptr_t>(ssl_ctx_address));
+    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_peer_cert_chain ssl_ctx=%p", ssl_session, ssl_ctx);
+    if (ssl_ctx == NULL) {
+        jniThrowNullPointerException(env, "SSL_CTX is null");
+        JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_peer_cert_chain => NULL", ssl_session);
+        return NULL;
+    }
+    STACK_OF(X509)* chain = SSL_SESSION_get_peer_cert_chain(ssl_ctx, ssl_session);
+    jobjectArray objectArray = getCertificateBytes(env, chain);
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_peer_cert_chain => %p", ssl_session, objectArray);
+    return objectArray;
+}
+
+/**
+ * Gets and returns in a long integer the creation's time of the
+ * actual SSL session.
+ */
+static jlong NativeCrypto_SSL_SESSION_get_time(JNIEnv* env, jclass, jint ssl_session_address) {
+    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_time", ssl_session);
+    jlong result = SSL_SESSION_get_time(ssl_session); // must be jlong, not long or *1000 will overflow
+    result *= 1000; // OpenSSL uses seconds, Java uses milliseconds.
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_time => %lld", ssl_session, result);
+    return result;
+}
+
+/**
+ * Our implementation of what might be considered
+ * SSL_SESSION_get_version, based on SSL_get_version.
+ * See get_ssl_version above.
+ */
+// TODO move to jsse.patch
+static const char* SSL_SESSION_get_version(SSL_SESSION* ssl_session) {
+  return get_ssl_version(ssl_session->ssl_version);
+}
+
+/**
+ * Gets and returns in a string the version of the SSL protocol. If it
+ * returns the string "unknown" it means that no connection is established.
+ */
+static jstring NativeCrypto_SSL_SESSION_get_version(JNIEnv* env, jclass, jint ssl_session_address) {
+    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_version", ssl_session);
+    const char* protocol = SSL_SESSION_get_version(ssl_session);
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_version => %s", ssl_session, protocol);
+    jstring result = env->NewStringUTF(protocol);
+    return result;
+}
+
+/**
+ * Gets and returns in a string the set of ciphers the actual SSL session uses.
+ */
+static jstring NativeCrypto_SSL_SESSION_cipher(JNIEnv* env, jclass, jint ssl_session_address) {
+    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_cipher", ssl_session);
+    const SSL_CIPHER* cipher = ssl_session->cipher;
+    const char* name = SSL_CIPHER_get_name(cipher);
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_cipher => %s", ssl_session, name);
+    return env->NewStringUTF(name);
+}
+
+/**
+ * Frees the SSL session.
+ */
+static void NativeCrypto_SSL_SESSION_free(JNIEnv* env, jclass, jint session) {
+    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(session);
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_free", ssl_session);
+    SSL_SESSION_free(ssl_session);
+}
+
+
+/**
+ * Serializes the native state of the session (ID, cipher, and keys but
+ * not certificates). Returns a byte[] containing the DER-encoded state.
+ * See apache mod_ssl.
+ */
+static jbyteArray NativeCrypto_i2d_SSL_SESSION(JNIEnv* env, jclass, jint ssl_session_address) {
+    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
+    JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION", ssl_session);
+    if (ssl_session == NULL) {
+        JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => NULL", ssl_session);
+        return NULL;
+    }
+
+    // Compute the size of the DER data
+    int size = i2d_SSL_SESSION(ssl_session, NULL);
+    if (size == 0) {
+        JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => NULL", ssl_session);
+        return NULL;
+    }
+
+    jbyteArray bytes = env->NewByteArray(size);
+    if (bytes != NULL) {
+        jbyte* tmp = env->GetByteArrayElements(bytes, NULL);
+        unsigned char* ucp = reinterpret_cast<unsigned char*>(tmp);
+        i2d_SSL_SESSION(ssl_session, &ucp);
+        env->ReleaseByteArrayElements(bytes, tmp, 0);
+    }
+
+    JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => size=%d", ssl_session, size);
+    return bytes;
+}
+
+/**
+ * Deserialize the session.
+ */
+static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray bytes, jint size) {
+    JNI_TRACE("NativeCrypto_d2i_SSL_SESSION bytes=%p size=%d", bytes, size);
+    if (bytes == NULL) {
+        JNI_TRACE("NativeCrypto_d2i_SSL_SESSION => 0");
+        return 0;
+    }
+
+    jbyte* tmp = env->GetByteArrayElements(bytes, NULL);
+    const unsigned char* ucp = reinterpret_cast<const unsigned char*>(tmp);
+    SSL_SESSION* ssl_session = d2i_SSL_SESSION(NULL, &ucp, size);
+    env->ReleaseByteArrayElements(bytes, tmp, 0);
+
+    JNI_TRACE("NativeCrypto_d2i_SSL_SESSION => %p", ssl_session);
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(ssl_session));
+}
+
 /*
  * Defines the mapping from Java methods and their signatures
  * to native functions. Order is (1) Java name, (2) signature,
@@ -1792,6 +1953,14 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     { "SSL_do_handshake",    "(ILjava/net/Socket;Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$CertificateChainVerifier;Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$HandshakeCompletedCallback;IZ)I",(void*)NativeCrypto_SSL_do_handshake},
     { "SSL_get_certificate", "(I)[[B",        (void*)NativeCrypto_SSL_get_certificate},
     { "SSL_free",            "(I)V",          (void*)NativeCrypto_SSL_free},
+    { "SSL_SESSION_session_id", "(I)[B",      (void*)NativeCrypto_SSL_SESSION_session_id },
+    { "SSL_SESSION_get_peer_cert_chain", "(II)[[B", (void*)NativeCrypto_SSL_SESSION_get_peer_cert_chain },
+    { "SSL_SESSION_get_time", "(I)J",         (void*)NativeCrypto_SSL_SESSION_get_time },
+    { "SSL_SESSION_get_version", "(I)Ljava/lang/String;", (void*)NativeCrypto_SSL_SESSION_get_version },
+    { "SSL_SESSION_cipher",  "(I)Ljava/lang/String;", (void*)NativeCrypto_SSL_SESSION_cipher },
+    { "SSL_SESSION_free",    "(I)V",          (void*)NativeCrypto_SSL_SESSION_free },
+    { "i2d_SSL_SESSION",     "(I)[B",         (void*)NativeCrypto_i2d_SSL_SESSION },
+    { "d2i_SSL_SESSION",     "([BI)I",        (void*)NativeCrypto_d2i_SSL_SESSION },
 };
 
 // ============================================================================
@@ -2439,170 +2608,6 @@ static JNINativeMethod sSocketImplMethods[] =
     {"nativeverifysignature", "([B[BLjava/lang/String;[B[B)I", (void*)org_apache_harmony_xnet_provider_jsse_OpenSSLSocketImpl_verifysignature},
 };
 
-/**
- * Our implementation of what might be considered
- * SSL_SESSION_get_peer_cert_chain
- */
-static STACK_OF(X509)* SSL_SESSION_get_peer_cert_chain(SSL_CTX* ssl_ctx, SSL_SESSION* ssl_session) {
-    SSL* ssl = SSL_new(ssl_ctx);
-    SSL_set_session(ssl, ssl_session);
-    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(ssl);
-    SSL_free(ssl);
-    return chain;
-}
-
-// Fills a byte[][] with the peer certificates in the chain.
-static jobjectArray OpenSSLSessionImpl_getPeerCertificatesImpl(JNIEnv* env,
-        jclass, jint ssl_ctx_address, jint ssl_session_address)
-{
-    SSL_CTX* ssl_ctx = reinterpret_cast<SSL_CTX*>(static_cast<uintptr_t>(ssl_ctx_address));
-    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getPeerCertificatesImpl ssl_ctx=%p", ssl_session, ssl_ctx);
-    if (ssl_ctx == NULL) {
-        jniThrowNullPointerException(env, "SSL_CTX is null");
-        JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getPeerCertificatesImpl => NULL", ssl_session);
-        return NULL;
-    }
-    STACK_OF(X509)* chain = SSL_SESSION_get_peer_cert_chain(ssl_ctx, ssl_session);
-    jobjectArray objectArray = getCertificateBytes(env, chain);
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getPeerCertificatesImpl => %p", ssl_session, objectArray);
-    return objectArray;
-}
-
-/**
- * Serializes the native state of the session (ID, cipher, and keys but
- * not certificates). Returns a byte[] containing the DER-encoded state.
- * See apache mod_ssl.
- */
-static jbyteArray OpenSSLSessionImpl_getEncoded(JNIEnv* env, jclass, jint ssl_session_address) {
-    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getEncoded", ssl_session);
-    if (ssl_session == NULL) {
-        JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getEncoded => NULL", ssl_session);
-        return NULL;
-    }
-
-    // Compute the size of the DER data
-    int size = i2d_SSL_SESSION(ssl_session, NULL);
-    if (size == 0) {
-        JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getEncoded => NULL", ssl_session);
-        return NULL;
-    }
-
-    jbyteArray bytes = env->NewByteArray(size);
-    if (bytes != NULL) {
-        jbyte* tmp = env->GetByteArrayElements(bytes, NULL);
-        unsigned char* ucp = reinterpret_cast<unsigned char*>(tmp);
-        i2d_SSL_SESSION(ssl_session, &ucp);
-        env->ReleaseByteArrayElements(bytes, tmp, 0);
-    }
-
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getEncoded => size=%d", ssl_session, size);
-    return bytes;
-}
-
-/**
- * Deserialize the session.
- */
-static jint OpenSSLSessionImpl_initializeNativeImpl(JNIEnv* env, jclass, jbyteArray bytes, jint size) {
-    JNI_TRACE("OpenSSLSessionImpl_initializeNativeImpl bytes=%p size=%d", bytes, size);
-    if (bytes == NULL) {
-        JNI_TRACE("OpenSSLSessionImpl_initializeNativeImpl => 0");
-        return 0;
-    }
-
-    jbyte* tmp = env->GetByteArrayElements(bytes, NULL);
-    const unsigned char* ucp = reinterpret_cast<const unsigned char*>(tmp);
-    SSL_SESSION* ssl_session = d2i_SSL_SESSION(NULL, &ucp, size);
-    env->ReleaseByteArrayElements(bytes, tmp, 0);
-
-    JNI_TRACE("OpenSSLSessionImpl_initializeNativeImpl => %p", ssl_session);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(ssl_session));
-}
-
-/**
- * Gets and returns in a byte array the ID of the actual SSL session.
- */
-static jbyteArray OpenSSLSessionImpl_getId(JNIEnv* env, jclass, jint ssl_session_address) {
-    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getId", ssl_session);
-    jbyteArray result = env->NewByteArray(ssl_session->session_id_length);
-    if (result != NULL) {
-        jbyte* src = reinterpret_cast<jbyte*>(ssl_session->session_id);
-        env->SetByteArrayRegion(result, 0, ssl_session->session_id_length, src);
-    }
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getId => %p session_id_length=%d", 
-             ssl_session, result, ssl_session->session_id_length);
-    return result;
-}
-
-/**
- * Gets and returns in a long integer the creation's time of the
- * actual SSL session.
- */
-static jlong OpenSSLSessionImpl_getCreationTime(JNIEnv* env, jclass, jint ssl_session_address) {
-    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getCreationTime", ssl_session);
-    jlong result = SSL_SESSION_get_time(ssl_session); // must be jlong, not long or *1000 will overflow
-    result *= 1000; // OpenSSL uses seconds, Java uses milliseconds.
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getCreationTime => %lld", ssl_session, result);
-    return result;
-}
-
-/**
- * Our implementation of what might be considered
- * SSL_SESSION_get_version, based on SSL_get_version.
- * See get_ssl_version above.
- */
-static const char* SSL_SESSION_get_version(SSL_SESSION* ssl_session) {
-  return get_ssl_version(ssl_session->ssl_version);
-}
-
-/**
- * Gets and returns in a string the version of the SSL protocol. If it
- * returns the string "unknown" it means that no connection is established.
- */
-static jstring OpenSSLSessionImpl_getProtocol(JNIEnv* env, jclass, jint ssl_session_address) {
-    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getProtocol", ssl_session);
-    const char* protocol = SSL_SESSION_get_version(ssl_session);
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getProtocol => %s", ssl_session, protocol);
-    jstring result = env->NewStringUTF(protocol);
-    return result;
-}
-
-/**
- * Gets and returns in a string the set of ciphers the actual SSL session uses.
- */
-static jstring OpenSSLSessionImpl_getCipherSuite(JNIEnv* env, jclass, jint ssl_session_address) {
-    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getCipherSuite", ssl_session);
-    const SSL_CIPHER* cipher = ssl_session->cipher;
-    const char* name = SSL_CIPHER_get_name(cipher);
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_getCipherSuite => %s", ssl_session, name);
-    return env->NewStringUTF(name);
-}
-
-/**
- * Frees the SSL session.
- */
-static void OpenSSLSessionImpl_freeImpl(JNIEnv* env, jclass, jint session) {
-    SSL_SESSION* ssl_session = reinterpret_cast<SSL_SESSION*>(session);
-    JNI_TRACE("ssl_session=%p OpenSSLSessionImpl_freeImpl", ssl_session);
-    SSL_SESSION_free(ssl_session);
-}
-
-static JNINativeMethod sSessionImplMethods[] = {
-    { "freeImpl",                 "(I)V",    (void*) OpenSSLSessionImpl_freeImpl },
-    { "getCipherSuite",           "(I)Ljava/lang/String;", (void*) OpenSSLSessionImpl_getCipherSuite },
-    { "getCreationTime",          "(I)J",    (void*) OpenSSLSessionImpl_getCreationTime },
-    { "getEncoded",               "(I)[B",   (void*) OpenSSLSessionImpl_getEncoded },
-    { "getId",                    "(I)[B",   (void*) OpenSSLSessionImpl_getId },
-    { "getPeerCertificatesImpl",  "(II)[[B", (void*) OpenSSLSessionImpl_getPeerCertificatesImpl },
-    { "getProtocol",              "(I)Ljava/lang/String;", (void*) OpenSSLSessionImpl_getProtocol },
-    { "initializeNativeImpl",     "([BI)I",  (void*) OpenSSLSessionImpl_initializeNativeImpl },
-};
-
 typedef struct {
     const char*            name;
     const JNINativeMethod* methods;
@@ -2612,7 +2617,6 @@ typedef struct {
 static JNINativeClass sClasses[] = {
     { "org/apache/harmony/xnet/provider/jsse/NativeCrypto", sNativeCryptoMethods, NELEM(sNativeCryptoMethods) },
     { "org/apache/harmony/xnet/provider/jsse/OpenSSLSocketImpl", sSocketImplMethods, NELEM(sSocketImplMethods) },
-    { "org/apache/harmony/xnet/provider/jsse/OpenSSLSessionImpl", sSessionImplMethods, NELEM(sSessionImplMethods) },
 };
 int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env) {
     JNI_TRACE("register_org_apache_harmony_xnet_provider_jsse_NativeCrypto");
