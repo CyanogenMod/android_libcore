@@ -59,65 +59,6 @@
 #define ENABLE_MULTICAST
 #endif
 
-/**
- * @name Socket Errors
- * Error codes for socket operations
- *
- * @internal SOCKERR* range from -200 to -299 avoid overlap
- */
-#define SOCKERR_NOTINITIALIZED     -201 /* socket library uninitialized */
-#define SOCKERR_BADAF              -202 /* bad address family */
-#define SOCKERR_BADPROTO           -203 /* bad protocol */
-#define SOCKERR_BADTYPE            -204 /* bad type */
-#define SOCKERR_SYSTEMBUSY         -205 /* system busy handling requests */
-#define SOCKERR_SYSTEMFULL         -206 /* too many sockets */
-#define SOCKERR_NOTCONNECTED       -207 /* socket is not connected */
-#define SOCKERR_INTERRUPTED        -208 /* the call was cancelled */
-#define SOCKERR_TIMEOUT            -209 /* the operation timed out */
-#define SOCKERR_CONNRESET          -210 /* the connection was reset */
-#define SOCKERR_WOULDBLOCK         -211 /* the socket is marked as nonblocking operation would block */
-#define SOCKERR_ADDRNOTAVAIL       -212 /* address not available */
-#define SOCKERR_ADDRINUSE          -213 /* address already in use */
-#define SOCKERR_NOTBOUND           -214 /* the socket is not bound */
-#define SOCKERR_INVALIDTIMEOUT     -216 /* the specified timeout is invalid */
-#define SOCKERR_FDSETFULL          -217 /* Unable to create an FDSET */
-#define SOCKERR_TIMEVALFULL        -218 /* Unable to create a TIMEVAL */
-#define SOCKERR_REMSOCKSHUTDOWN    -219 /* The remote socket has shutdown gracefully */
-#define SOCKERR_NOTLISTENING       -220 /* listen() was not invoked prior to accept() */
-#define SOCKERR_NOTSTREAMSOCK      -221 /* The socket does not support connection-oriented service */
-#define SOCKERR_ALREADYBOUND       -222 /* The socket is already bound to an address */
-#define SOCKERR_NBWITHLINGER       -223 /* The socket is marked non-blocking & SO_LINGER is non-zero */
-#define SOCKERR_ISCONNECTED        -224 /* The socket is already connected */
-#define SOCKERR_NOBUFFERS          -225 /* No buffer space is available */
-#define SOCKERR_HOSTNOTFOUND       -226 /* Authoritative Answer Host not found */
-#define SOCKERR_NODATA             -227 /* Valid name, no data record of requested type */
-#define SOCKERR_BOUNDORCONN        -228 /* The socket has not been bound or is already connected */
-#define SOCKERR_OPNOTSUPP          -229 /* The socket does not support the operation */
-#define SOCKERR_OPTUNSUPP          -230 /* The socket option is not supported */
-#define SOCKERR_OPTARGSINVALID     -231 /* The socket option arguments are invalid */
-#define SOCKERR_SOCKLEVELINVALID   -232 /* The socket level is invalid */
-#define SOCKERR_TIMEOUTFAILURE     -233
-#define SOCKERR_SOCKADDRALLOCFAIL  -234 /* Unable to allocate the sockaddr structure */
-#define SOCKERR_FDSET_SIZEBAD      -235 /* The calculated maximum size of the file descriptor set is bad */
-#define SOCKERR_UNKNOWNFLAG        -236 /* The flag is unknown */
-#define SOCKERR_MSGSIZE            -237 /* The datagram was too big to fit the specified buffer & was truncated. */
-#define SOCKERR_NORECOVERY         -238 /* The operation failed with no recovery possible */
-#define SOCKERR_ARGSINVALID        -239 /* The arguments are invalid */
-#define SOCKERR_BADDESC            -240 /* The socket argument is not a valid file descriptor */
-#define SOCKERR_NOTSOCK            -241 /* The socket argument is not a socket */
-#define SOCKERR_HOSTENTALLOCFAIL   -242 /* Unable to allocate the hostent structure */
-#define SOCKERR_TIMEVALALLOCFAIL   -243 /* Unable to allocate the timeval structure */
-#define SOCKERR_LINGERALLOCFAIL    -244 /* Unable to allocate the linger structure */
-#define SOCKERR_IPMREQALLOCFAIL    -245 /* Unable to allocate the ipmreq structure */
-#define SOCKERR_FDSETALLOCFAIL     -246 /* Unable to allocate the fdset structure */
-#define SOCKERR_OPFAILED           -247 /* Operation failed */
-#define SOCKERR_VALUE_NULL         -248 /* The value indexed was NULL */
-#define SOCKERR_CONNECTION_REFUSED -249 /* connection was refused */
-#define SOCKERR_ENETUNREACH        -250 /* network is not reachable */
-#define SOCKERR_EACCES             -251 /* permissions do not allow action on socket */
-#define SOCKERR_EHOSTUNREACH       -252 /* no route to host */
-#define SOCKERR_EPIPE              -253 /* broken pipe */
-
 #define JAVASOCKOPT_TCP_NODELAY 1
 #define JAVASOCKOPT_IP_TOS 3
 #define JAVASOCKOPT_SO_REUSEADDR 4
@@ -184,29 +125,22 @@ struct selectFDSet {
   fd_set exceptionSet;
 };
 
-static const char * netLookupErrorString(int anErrorNum);
-
-/**
- * Throws an SocketException with the message affiliated with the errorCode.
- * 
- * @deprecated: 'errorCode' is one of the bogus SOCKERR_ values, *not* errno.
- * jniThrowSocketException is the better choice.
- */
-static void throwSocketException(JNIEnv *env, int errorCode) {
-    jniThrowException(env, "java/net/SocketException",
-        netLookupErrorString(errorCode));
-}
-
 // TODO(enh): move to JNIHelp.h
-static void jniThrowExceptionWithErrno(JNIEnv* env,
-        const char* exceptionClassName, int error) {
+static void jniThrowExceptionWithErrno(JNIEnv* env, const char* exceptionClassName, int error) {
     char buf[BUFSIZ];
-    jniThrowException(env, exceptionClassName,
-            jniStrError(error, buf, sizeof(buf)));
+    jniThrowException(env, exceptionClassName, jniStrError(error, buf, sizeof(buf)));
 }
 
 static void jniThrowBindException(JNIEnv* env, int error) {
     jniThrowExceptionWithErrno(env, "java/net/BindException", error);
+}
+
+static void jniThrowConnectException(JNIEnv* env, int error) {
+    jniThrowExceptionWithErrno(env, "java/net/ConnectException", error);
+}
+
+static void jniThrowSecurityException(JNIEnv* env, int error) {
+    jniThrowExceptionWithErrno(env, "java/lang/SecurityException", error);
 }
 
 static void jniThrowSocketException(JNIEnv* env, int error) {
@@ -237,9 +171,7 @@ static bool jniGetFd(JNIEnv* env, jobject fileDescriptor, int& fd) {
 /**
  * Converts a native address structure to a Java byte array.
  */
-static jbyteArray socketAddressToByteArray(JNIEnv *env,
-        struct sockaddr_storage *address) {
-
+static jbyteArray socketAddressToByteArray(JNIEnv *env, struct sockaddr_storage *address) {
     void *rawAddress;
     size_t addressLength;
     if (address->ss_family == AF_INET) {
@@ -560,10 +492,9 @@ static jbyteArray osNetworkSystem_ipStringToByteArray(JNIEnv* env, jobject,
         freeaddrinfo(res);
     }
 
-    if (! result) {
+    if (!result) {
         env->ExceptionClear();
-        jniThrowException(env, "java/net/UnknownHostException",
-                gai_strerror(ret));
+        jniThrowException(env, "java/net/UnknownHostException", gai_strerror(ret));
     }
 
     return result;
@@ -631,184 +562,6 @@ static int time_msec_clock() {
     return toMs(tp);
 }
 
-/**
- * Answer the errorString corresponding to the errorNumber, if available.
- * This function will answer a default error string, if the errorNumber is not
- * recognized.
- *
- * This function will have to be reworked to handle internationalization
- * properly, removing the explicit strings.
- *
- * @param anErrorNum    the error code to resolve to a human readable string
- *
- * @return  a human readable error string
- */
-
-static const char * netLookupErrorString(int anErrorNum) {
-    switch (anErrorNum) {
-        case SOCKERR_NOTINITIALIZED:
-            return "Socket library uninitialized";
-        case SOCKERR_BADAF:
-            return "Bad address family";
-        case SOCKERR_BADPROTO:
-            return "Bad protocol";
-        case SOCKERR_BADTYPE:
-            return "Bad type";
-        case SOCKERR_SYSTEMBUSY:
-            return "System busy handling requests";
-        case SOCKERR_SYSTEMFULL:
-            return "Too many sockets allocated";
-        case SOCKERR_NOTCONNECTED:
-            return "Socket is not connected";
-        case SOCKERR_INTERRUPTED:
-            return "The system call was cancelled";
-        case SOCKERR_TIMEOUT:
-            return "The operation timed out";
-        case SOCKERR_CONNRESET:
-            return "The connection was reset";
-        case SOCKERR_WOULDBLOCK:
-            return "The nonblocking operation would block";
-        case SOCKERR_ADDRNOTAVAIL:
-            return "The address is not available";
-        case SOCKERR_ADDRINUSE:
-            return "The address is already in use";
-        case SOCKERR_NOTBOUND:
-            return "The socket is not bound";
-        case SOCKERR_INVALIDTIMEOUT:
-            return "The specified timeout is invalid";
-        case SOCKERR_FDSETFULL:
-            return "Unable to create an FDSET";
-        case SOCKERR_TIMEVALFULL:
-            return "Unable to create a TIMEVAL";
-        case SOCKERR_REMSOCKSHUTDOWN:
-            return "The remote socket has shutdown gracefully";
-        case SOCKERR_NOTLISTENING:
-            return "Listen() was not invoked prior to accept()";
-        case SOCKERR_NOTSTREAMSOCK:
-            return "The socket does not support connection-oriented service";
-        case SOCKERR_ALREADYBOUND:
-            return "The socket is already bound to an address";
-        case SOCKERR_NBWITHLINGER:
-            return "The socket is marked non-blocking & SO_LINGER is non-zero";
-        case SOCKERR_ISCONNECTED:
-            return "The socket is already connected";
-        case SOCKERR_NOBUFFERS:
-            return "No buffer space is available";
-        case SOCKERR_HOSTNOTFOUND:
-            return "Authoritative Answer Host not found";
-        case SOCKERR_NODATA:
-            return "Valid name, no data record of requested type";
-        case SOCKERR_BOUNDORCONN:
-            return "The socket has not been bound or is already connected";
-        case SOCKERR_OPNOTSUPP:
-            return "The socket does not support the operation";
-        case SOCKERR_OPTUNSUPP:
-            return "The socket option is not supported";
-        case SOCKERR_OPTARGSINVALID:
-            return "The socket option arguments are invalid";
-        case SOCKERR_SOCKLEVELINVALID:
-            return "The socket level is invalid";
-        case SOCKERR_TIMEOUTFAILURE:
-            return "The timeout operation failed";
-        case SOCKERR_SOCKADDRALLOCFAIL:
-            return "Failed to allocate address structure";
-        case SOCKERR_FDSET_SIZEBAD:
-            return "The calculated maximum size of the file descriptor set is bad";
-        case SOCKERR_UNKNOWNFLAG:
-            return "The flag is unknown";
-        case SOCKERR_MSGSIZE:
-            return "The datagram was too big to fit the specified buffer, so truncated";
-        case SOCKERR_NORECOVERY:
-            return "The operation failed with no recovery possible";
-        case SOCKERR_ARGSINVALID:
-            return "The arguments are invalid";
-        case SOCKERR_BADDESC:
-            return "The socket argument is not a valid file descriptor";
-        case SOCKERR_NOTSOCK:
-            return "The socket argument is not a socket";
-        case SOCKERR_HOSTENTALLOCFAIL:
-            return "Unable to allocate the hostent structure";
-        case SOCKERR_TIMEVALALLOCFAIL:
-            return "Unable to allocate the timeval structure";
-        case SOCKERR_LINGERALLOCFAIL:
-            return "Unable to allocate the linger structure";
-        case SOCKERR_IPMREQALLOCFAIL:
-            return "Unable to allocate the ipmreq structure";
-        case SOCKERR_FDSETALLOCFAIL:
-            return "Unable to allocate the fdset structure";
-        case SOCKERR_OPFAILED:
-            return "Operation failed";
-        case SOCKERR_CONNECTION_REFUSED:
-            return "Connection refused";
-        case SOCKERR_ENETUNREACH:
-            return "Network unreachable";
-        case SOCKERR_EHOSTUNREACH:
-            return "No route to host";
-        case SOCKERR_EPIPE:
-            return "Broken pipe";
-        case SOCKERR_EACCES:
-            return "Permission denied (maybe missing INTERNET permission)";
-
-        default:
-            LOGE("unknown socket error %d", anErrorNum);
-            return "unknown error";
-    }
-}
-
-static int convertError(int errorCode) {
-    switch (errorCode) {
-        case EBADF:
-            return SOCKERR_BADDESC;
-        case ENOBUFS:
-            return SOCKERR_NOBUFFERS;
-        case EOPNOTSUPP:
-            return SOCKERR_OPNOTSUPP;
-        case ENOPROTOOPT:
-            return SOCKERR_OPTUNSUPP;
-        case EINVAL:
-            return SOCKERR_SOCKLEVELINVALID;
-        case ENOTSOCK:
-            return SOCKERR_NOTSOCK;
-        case EINTR:
-            return SOCKERR_INTERRUPTED;
-        case ENOTCONN:
-            return SOCKERR_NOTCONNECTED;
-        case EAFNOSUPPORT:
-            return SOCKERR_BADAF;
-            /* note: CONNRESET not included because it has the same
-             * value as ECONNRESET and they both map to SOCKERR_CONNRESET */
-        case ECONNRESET:
-            return SOCKERR_CONNRESET;
-        case EAGAIN:
-            return SOCKERR_WOULDBLOCK;
-        case EPROTONOSUPPORT:
-            return SOCKERR_BADPROTO;
-        case EFAULT:
-            return SOCKERR_ARGSINVALID;
-        case ETIMEDOUT:
-            return SOCKERR_TIMEOUT;
-        case ECONNREFUSED:
-            return SOCKERR_CONNECTION_REFUSED;
-        case ENETUNREACH:
-            return SOCKERR_ENETUNREACH;
-        case EACCES:
-            return SOCKERR_EACCES;
-        case EPIPE:
-            return SOCKERR_EPIPE;
-        case EHOSTUNREACH:
-            return SOCKERR_EHOSTUNREACH;
-        case EADDRINUSE:
-            return SOCKERR_ADDRINUSE;
-        case EADDRNOTAVAIL:
-            return SOCKERR_ADDRNOTAVAIL;
-        case EMSGSIZE:
-            return SOCKERR_MSGSIZE;
-        default:
-            LOGE("unclassified errno %d (%s)", errorCode, strerror(errorCode));
-            return SOCKERR_OPFAILED;
-    }
-}
-
 static int selectWait(int fd, int uSecTime) {
     timeval tv;
     timeval* tvp;
@@ -827,13 +580,9 @@ static int selectWait(int fd, int uSecTime) {
     FD_SET(fd, &readFds);
     int result = select(fd + 1, &readFds, NULL, NULL, tvp);
     if (result == -1) {
-        if (errno == EINTR) {
-            result = SOCKERR_INTERRUPTED;
-        } else {
-            result = SOCKERR_OPFAILED;
-        }
+        return -errno;
     } else if (result == 0) {
-        result = SOCKERR_TIMEOUT;
+        return -ETIMEDOUT;
     }
     return result;
 }
@@ -847,7 +596,7 @@ static int pollSelectWait(JNIEnv *env, jobject fileDescriptor, int timeout) {
     int pollTimeoutUSec = 100000, pollMsec = 100;
     int finishTime = 0;
     int timeLeft = timeout;
-    int hasTimeout = timeout > 0 ? 1 : 0;
+    bool hasTimeout = timeout > 0;
     int result = 0;
     int handle;
 
@@ -881,11 +630,8 @@ static int pollSelectWait(JNIEnv *env, jobject fileDescriptor, int timeout) {
              * (presumably) lets treat an interrupt and timeout the same - go
              * see if we're done timewise, and then just try again if not.
              */
-            if (SOCKERR_TIMEOUT == result ||
-                SOCKERR_INTERRUPTED == result) {
-
+            if (result == -ETIMEDOUT || result == -EINTR) {
                 timeLeft = finishTime - time_msec_clock();
-
                 if (timeLeft <= 0) {
                     /*
                      * Always throw the "timeout" message because that is
@@ -897,8 +643,8 @@ static int pollSelectWait(JNIEnv *env, jobject fileDescriptor, int timeout) {
                     continue; // try again
                 }
 
-            } else if (0 > result) {
-                throwSocketException(env, result);
+            } else if (result < 0) {
+                jniThrowSocketException(env, -result);
             }
             poll = 0;
 
@@ -909,12 +655,10 @@ static int pollSelectWait(JNIEnv *env, jobject fileDescriptor, int timeout) {
             /*
              *  if interrupted (or a timeout) just retry
              */
-            if (SOCKERR_TIMEOUT == result ||
-               SOCKERR_INTERRUPTED == result) {
-
+            if (result == -ETIMEDOUT || result == -EINTR) {
                 continue; // try again
-            } else if (0 > result) {
-                throwSocketException(env, result);
+            } else if (result < 0) {
+                jniThrowSocketException(env, -result);
             }
             poll = 0;
         }
@@ -939,65 +683,40 @@ static int doConnect(int fd, const sockaddr_storage* socketAddress) {
  * Establish a connection to a peer with a timeout.  This function is called
  * repeatedly in order to carry out the connect and to allow other tasks to
  * proceed on certain platforms. The caller must first call with
- * step = SOCKET_STEP_START, if the result is SOCKERR_NOTCONNECTED it will then
+ * step = SOCKET_STEP_START, if the result is -EINPROGRESS it will then
  * call it with step = CHECK until either another error or 0 is returned to
  * indicate the connect is complete.  Each time the function should sleep for no
  * more than timeout milliseconds.  If the connect succeeds or an error occurs,
  * the caller must always end the process by calling the function with
  * step = SOCKET_STEP_DONE
  *
- * @param[in] portLibrary The port library.
- * @param[in] sock pointer to the unconnected local socket.
- * @param[in] addr pointer to the sockaddr, specifying remote host/port.
  * @param[in] timeout the timeout in milliseconds. If timeout is negative,
  *         perform a block operation.
- * @param[in,out] pointer to context pointer. Filled in on first call and then
- *         to be passed into each subsequent call.
  *
- * @return 0, if no errors occurred, otherwise the (negative) error code.
+ * @return 0, if no errors occurred, otherwise -errno. TODO: use +errno.
  */
-// TODO: do we really want to pass 'addr' by value?
-static int sockConnectWithTimeout(int handle, sockaddr_storage addr,
-                                  int timeout, unsigned int step, jbyte *ctxt) {
-    int rc = 0;
+static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int timeout, unsigned int step, selectFDSet* context) {
     int errorVal;
     socklen_t errorValLen = sizeof(int);
-    selectFDSet* context = reinterpret_cast<selectFDSet*>(ctxt);
 
-    if (SOCKET_STEP_START == step) {
-        context->sock = handle;
-        context->nfds = handle + 1;
+    if (step == SOCKET_STEP_START) {
+        context->sock = fd;
+        context->nfds = fd + 1;
 
         /* set the socket to non-blocking */
         int block = JNI_TRUE;
-        rc = ioctl(handle, FIONBIO, &block);
-        if (rc != 0) {
-            return convertError(rc);
+        if (ioctl(fd, FIONBIO, &block) == -1) {
+            LOGE("ioctl(fd, FIONBIO, true) failed: %s %i", strerror(errno), errno);
+            return -errno;
         }
-        
-        // LOGD("+connect to address 0x%08x (via normal) on handle %d",
-        //         addr.sin_addr.s_addr, handle);
-        rc = doConnect(handle, &addr);
-        // LOGD("-connect to address 0x%08x (via normal) returned %d",
-        //         addr.sin_addr.s_addr, (int) rc);
 
-        if (rc == -1) {
-            rc = errno;
-            switch (rc) {
-                case EINTR:
-                    return SOCKERR_ALREADYBOUND;
-                case EAGAIN:
-                case EINPROGRESS:
-                    return SOCKERR_NOTCONNECTED;
-                default:
-                    return convertError(rc);
-            }
+        if (doConnect(fd, &addr) == -1) {
+            return -errno;
         }
 
         /* we connected right off the bat so just return */
-        return rc;
-
-    } else if (SOCKET_STEP_CHECK == step) {
+        return 0;
+    } else if (step == SOCKET_STEP_CHECK) {
         /* now check if we have connected yet */
 
         /*
@@ -1020,131 +739,53 @@ static int sockConnectWithTimeout(int handle, sockaddr_storage addr,
         FD_SET(context->sock, &(context->readSet));
         FD_SET(context->sock, &(context->exceptionSet));
 
-        rc = select(context->nfds,
-                   &(context->readSet),
-                   &(context->writeSet),
-                   &(context->exceptionSet),
-                   timeout >= 0 ? &passedTimeout : NULL);
+        int rc = TEMP_FAILURE_RETRY(select(context->nfds,
+                &(context->readSet), &(context->writeSet), &(context->exceptionSet),
+                timeout >= 0 ? &passedTimeout : NULL));
 
         /* if there is at least one descriptor ready to be checked */
-        if (0 < rc) {
+        if (rc > 0) {
             /* if the descriptor is in the write set we connected or failed */
             if (FD_ISSET(context->sock, &(context->writeSet))) {
-
                 if (!FD_ISSET(context->sock, &(context->readSet))) {
                     /* ok we have connected ok */
                     return 0;
                 } else {
                     /* ok we have more work to do to figure it out */
-                    if (getsockopt(context->sock, SOL_SOCKET, SO_ERROR,
-                            &errorVal, &errorValLen) >= 0) {
-                        return errorVal ? convertError(errorVal) : 0;
+                    if (getsockopt(context->sock, SOL_SOCKET, SO_ERROR, &errorVal, &errorValLen) >= 0) {
+                        return errorVal ? -errorVal : 0;
                     } else {
-                        return convertError(errno);
+                        return -errno;
                     }
                 }
             }
 
             /* if the descriptor is in the exception set the connect failed */
             if (FD_ISSET(context->sock, &(context->exceptionSet))) {
-                if (getsockopt(context->sock, SOL_SOCKET, SO_ERROR, &errorVal,
-                        &errorValLen) >= 0) {
-                    return errorVal ? convertError(errorVal) : 0;
+                if (getsockopt(context->sock, SOL_SOCKET, SO_ERROR, &errorVal, &errorValLen) >= 0) {
+                    return errorVal ? -errorVal : 0;
                 }
-                rc = errno;
-                return convertError(rc);
+                return -errno;
             }
-
         } else if (rc < 0) {
-            /* something went wrong with the select call */
-            rc = errno;
-
-            /* if it was EINTR we can just try again. Return not connected */
-            if (EINTR == rc) {
-                return SOCKERR_NOTCONNECTED;
-            }
-
-            /* some other error occured so look it up and return */
-            return convertError(rc);
+            /* some other error occurred */
+            return -errno;
         }
 
         /*
          * if we get here the timeout expired or the connect had not yet
          * completed just indicate that the connect is not yet complete
          */
-        return SOCKERR_NOTCONNECTED;
-    } else if (SOCKET_STEP_DONE == step) {
-        /* we are done the connect or an error occured so clean up  */
-        if (handle != -1) {
+        return -EINPROGRESS;
+    } else if (step == SOCKET_STEP_DONE) {
+        /* we are done the connect or an error occurred so clean up  */
+        if (fd != -1) {
             int block = JNI_FALSE;
-            ioctl(handle, FIONBIO, &block);
+            ioctl(fd, FIONBIO, &block);
         }
         return 0;
     }
-    return SOCKERR_ARGSINVALID;
-}
-
-
-#if LOG_SOCKOPT
-/**
- * Helper method to log getsockopt/getsockopt calls.
- */
-static const char *sockoptLevelToString(int level) {
-    switch(level) {
-        case SOL_SOCKET:
-            return "SOL_SOCKET";
-        case IPPROTO_IP:
-            return "IPPROTO_IP";
-        case IPPROTO_IPV6:
-            return "IPPROTO_IPV6";
-        default:
-            return "SOL_???";
-    }
-}
-#endif
-
-/**
- * Helper method to get or set socket options
- *
- * @param action SOCKOPT_GET to get an option, SOCKOPT_SET to set it
- * @param socket the file descriptor of the socket to use
- * @param ipv4Option the option value to use for an IPv4 socket
- * @param ipv6Option the option value to use for an IPv6 socket
- * @param optionValue the value of the socket option to get or set
- * @param optionLength the length of the socket option to get or set
- *
- * @return the value of the socket call, or -1 on failure inside this function
- *
- * @note on internal failure, the errno variable will be set appropriately
- */
-static int getSocketOption(int socket, int ipv4Option,
-        int ipv6Option, void *optionValue, socklen_t *optionLength) {
-    int option;
-    int protocol;
-    int family = getSocketAddressFamily(socket);
-    switch (family) {
-        case AF_INET:
-            option = ipv4Option;
-            protocol = IPPROTO_IP;
-            break;
-        case AF_INET6:
-            option = ipv6Option;
-            protocol = IPPROTO_IPV6;
-            break;
-        default:
-            // TODO(enh): throw Java exceptions from this method instead of just
-            // returning error codes.
-            errno = EAFNOSUPPORT;
-            return -1;
-    }
-
-    int ret = getsockopt(socket, protocol, option, optionValue, optionLength);
-#if LOG_SOCKOPT
-    LOGI("getsockopt(%d, %s, %d, %p, [%d]) = %d %s",
-                socket, sockoptLevelToString(protocol), option, optionValue,
-                *optionLength, ret, (ret == -1) ? strerror(errno) : "");
-#endif
-    return ret;
+    return -EFAULT;
 }
 
 #ifdef ENABLE_MULTICAST
@@ -1404,8 +1045,7 @@ static bool initCachedFields(JNIEnv* env) {
  *         a negative value is returned.
  *
  */
-static int createSocketFileDescriptor(JNIEnv* env, jobject fileDescriptor,
-                                      int type) {
+static int createSocketFileDescriptor(JNIEnv* env, jobject fileDescriptor, int type) {
     if (fileDescriptor == NULL) {
         jniThrowNullPointerException(env, NULL);
         errno = EBADF;
@@ -1459,8 +1099,7 @@ static jint osNetworkSystem_readDirect(JNIEnv* env, jobject,
     }
 
     jbyte* dst = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address));
-    ssize_t bytesReceived =
-            TEMP_FAILURE_RETRY(recv(fd, dst, count, SOCKET_NOFLAGS));
+    ssize_t bytesReceived = TEMP_FAILURE_RETRY(recv(fd, dst, count, SOCKET_NOFLAGS));
     if (bytesReceived == 0) {
         return -1;
     } else if (bytesReceived == -1) {
@@ -1546,51 +1185,53 @@ static void osNetworkSystem_setNonBlocking(JNIEnv* env, jobject,
     }
 }
 
-static jint osNetworkSystem_connectWithTimeout(JNIEnv* env,
+static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
         jobject, jobject fileDescriptor, jint timeout, jint trafficClass,
         jobject inetAddr, jint port, jint step, jbyteArray passContext) {
     sockaddr_storage address;
     if (!inetAddressToSocketAddress(env, inetAddr, port, &address)) {
-        return -1;
+        return JNI_FALSE;
     }
 
     int handle;
     if (!jniGetFd(env, fileDescriptor, handle)) {
-        return -1;
+        return JNI_FALSE;
     }
 
-    jbyte* context = env->GetByteArrayElements(passContext, NULL);
+    jbyte* contextBytes = env->GetByteArrayElements(passContext, NULL);
+    selectFDSet* context = reinterpret_cast<selectFDSet*>(contextBytes);
     int result = 0;
     switch (step) {
     case SOCKET_CONNECT_STEP_START:
-        result = sockConnectWithTimeout(handle, address, 0,
-                SOCKET_STEP_START, context);
+        result = sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_START, context);
         break;
     case SOCKET_CONNECT_STEP_CHECK:
-        result = sockConnectWithTimeout(handle, address, timeout,
-                SOCKET_STEP_CHECK, context);
+        result = sockConnectWithTimeout(handle, address, timeout, SOCKET_STEP_CHECK, context);
         break;
     default:
         assert(false);
     }
-    env->ReleaseByteArrayElements(passContext, context, 0);
+    env->ReleaseByteArrayElements(passContext, contextBytes, 0);
 
     if (result == 0) {
-        /* connected , so stop here */
+        // Connected!
         sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, NULL);
-    } else if (result != SOCKERR_NOTCONNECTED) {
-        /* can not connect... */
-        sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, NULL);
-        if (result == SOCKERR_EACCES) {
-            jniThrowException(env, "java/lang/SecurityException",
-                              netLookupErrorString(result));
-        } else {
-            jniThrowException(env, "java/net/ConnectException",
-                              netLookupErrorString(result));
-        }
+        return JNI_TRUE;
     }
 
-    return result;
+    if (result == -EINPROGRESS) {
+        // Not yet connected, but not yet denied either... Try again later.
+        return JNI_FALSE;
+    }
+
+    // Denied!
+    sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, NULL);
+    if (result == -EACCES) {
+        jniThrowSecurityException(env, -result);
+    } else {
+        jniThrowConnectException(env, -result);
+    }
+    return JNI_FALSE;
 }
 
 static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
@@ -1598,12 +1239,11 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
         jint trafficClass, jobject inetAddr) {
     int result = 0;
     struct sockaddr_storage address;
-    jbyte *context = NULL;
     int remainingTimeout = timeout;
     int passedTimeout = 0;
     int finishTime = 0;
     int blocking = 0;
-    char hasTimeout = timeout > 0;
+    bool hasTimeout = timeout > 0;
 
     /* if a timeout was specified calculate the finish time value */
     if (hasTimeout)  {
@@ -1623,39 +1263,31 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
      * we will be looping checking for when we are connected so allocate
      * the descriptor sets that we will use
      */
-    context =(jbyte *) malloc(sizeof(struct selectFDSet));
-    if (context == NULL) {
-        jniThrowException(env, "java/lang/OutOfMemoryError", "native heap");
+    selectFDSet context;
+    result = sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_START, &context);
+    if (result == 0) {
+        /* ok we connected right away so we are done */
+        sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
+        return;
+    } else if (result != -EINPROGRESS) {
+        sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
+        /* we got an error other than NOTCONNECTED so we cannot continue */
+        if (result == -EACCES) {
+            jniThrowSecurityException(env, -result);
+        } else {
+            jniThrowSocketException(env, -result);
+        }
         return;
     }
 
-    result = sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_START, context);
-    if (0 == result) {
-        /* ok we connected right away so we are done */
-        sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, context);
-        goto bail;
-    } else if (result != SOCKERR_NOTCONNECTED) {
-        sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE,
-                               context);
-        /* we got an error other than NOTCONNECTED so we cannot continue */
-        if (SOCKERR_EACCES == result) {
-            jniThrowException(env, "java/lang/SecurityException",
-                              netLookupErrorString(result));
-        } else {
-            throwSocketException(env, result);
-        }
-        goto bail;
-    }
-
-    while (SOCKERR_NOTCONNECTED == result) {
+    while (result == -EINPROGRESS) {
         passedTimeout = remainingTimeout;
 
         /*
          * ok now try and connect. Depending on the platform this may sleep
          * for up to passedTimeout milliseconds
          */
-        result = sockConnectWithTimeout(handle, address, passedTimeout,
-                SOCKET_STEP_CHECK, context);
+        result = sockConnectWithTimeout(handle, address, passedTimeout, SOCKET_STEP_CHECK, &context);
 
         /*
          * now check if the socket is still connected.
@@ -1664,64 +1296,48 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
          */
         handle = jniGetFDFromFileDescriptor(env, fileDescriptor);
         if (handle == -1) {
-            sockConnectWithTimeout(handle, address, 0,
-                    SOCKET_STEP_DONE, context);
+            sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
             jniThrowSocketException(env, EBADF);
-            goto bail;
+            return;
         }
 
         /*
          * check if we are now connected,
          * if so we can finish the process and return
          */
-        if (0 == result) {
-            sockConnectWithTimeout(handle, address, 0,
-                    SOCKET_STEP_DONE, context);
-            goto bail;
+        if (result == 0) {
+            sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
+            return;
         }
 
         /*
-         * if the error is SOCKERR_NOTCONNECTED then we have not yet
+         * if the error is -EINPROGRESS then we have not yet
          * connected and we may not be done yet
          */
-        if (SOCKERR_NOTCONNECTED == result) {
+        if (result == -EINPROGRESS) {
             /* check if the timeout has expired */
             if (hasTimeout) {
                 remainingTimeout = finishTime - time_msec_clock();
                 if (remainingTimeout <= 0) {
-                    sockConnectWithTimeout(handle, address, 0,
-                            SOCKET_STEP_DONE, context);
-                    jniThrowSocketTimeoutException(env, ENOTCONN);
-                    goto bail;
+                    sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
+                    jniThrowSocketTimeoutException(env, ETIMEDOUT);
+                    return;
                 }
             } else {
                 remainingTimeout = 100;
             }
         } else {
-            sockConnectWithTimeout(handle, address, remainingTimeout,
-                                   SOCKET_STEP_DONE, context);
-            if ((SOCKERR_CONNRESET == result) ||
-                (SOCKERR_CONNECTION_REFUSED == result) ||
-                (SOCKERR_ADDRNOTAVAIL == result) ||
-                (SOCKERR_ADDRINUSE == result) ||
-                (SOCKERR_ENETUNREACH == result)) {
-                jniThrowException(env, "java/net/ConnectException",
-                                  netLookupErrorString(result));
-            } else if (SOCKERR_EACCES == result) {
-                jniThrowException(env, "java/lang/SecurityException",
-                                  netLookupErrorString(result));
+            sockConnectWithTimeout(handle, address, remainingTimeout, SOCKET_STEP_DONE, &context);
+            if (result == -ECONNRESET || result == -ECONNREFUSED || result == -EADDRNOTAVAIL ||
+                    result == -EADDRINUSE || result == -ENETUNREACH) {
+                jniThrowConnectException(env, -result);
+            } else if (result == -EACCES) {
+                jniThrowSecurityException(env, -result);
             } else {
-                throwSocketException(env, result);
+                jniThrowSocketException(env, -result);
             }
-            goto bail;
+            return;
         }
-    }
-
-bail:
-
-    /* free the memory for the FD set */
-    if (context != NULL)  {
-        free(context);
     }
 }
 
@@ -1839,8 +1455,7 @@ static void osNetworkSystem_connectDatagram(JNIEnv* env, jobject,
         return;
     }
 
-    int ret = doConnect(fd, &sockAddr);
-    if (ret < 0) {
+    if (doConnect(fd, &sockAddr) == -1) {
         jniThrowSocketException(env, errno);
     }
 }
@@ -2600,7 +2215,7 @@ static JNINativeMethod gMethods[] = {
     { "byteArrayToIpString",               "([B)Ljava/lang/String;",                                                   (void*) osNetworkSystem_byteArrayToIpString },
     { "connectDatagram",                   "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;)V",                      (void*) osNetworkSystem_connectDatagram },
     { "connectStreamWithTimeoutSocket",    "(Ljava/io/FileDescriptor;IIILjava/net/InetAddress;)V",                     (void*) osNetworkSystem_connectStreamWithTimeoutSocket },
-    { "connectWithTimeout",                "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;II[B)I",                  (void*) osNetworkSystem_connectWithTimeout },
+    { "connectWithTimeout",                "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;II[B)Z",                  (void*) osNetworkSystem_connectWithTimeout },
     { "createDatagramSocket",              "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_createDatagramSocket },
     { "createServerStreamSocket",          "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_createServerStreamSocket },
     { "createStreamSocket",                "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_createStreamSocket },
