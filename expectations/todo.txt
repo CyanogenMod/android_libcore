@@ -39,6 +39,25 @@ test tests.api.javax.xml.parsers.DocumentBuilderTest#testSetEntityResolver
 result EXEC_FAILED
 pattern .*java.lang.ClassCastException: org.apache.harmony.xml.dom.EntityReferenceImpl.*
 
+# the lack of schema parsing also extends to XML parsing in prefs
+test org.apache.harmony.prefs.tests.java.util.prefs.PreferencesTest#testImportPreferences
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: should throw InvalidPreferencesFormatException.*
+
+
+
+
+# many tests attempt to fork a Java executable, but fork the wrong one
+failure should fork a dalvikvm, not a JVM
+pattern .*/system/bin.*IOException.*
+result EXEC_FAILED
+
+
+# a low impact bug, we can't produce tiny random, probable prime big integers
+test tests.api.java.math.BigIntegerTest#test_ConstructorIILjava_util_Random
+pattern .*junit.framework.AssertionFailedError: Random number one is too big.*
+result EXEC_FAILED
+
 
 # low-impact XML bugs:
 test tests.xml.DomTest#testAttributeNamedIdIsNotAnIdByDefault

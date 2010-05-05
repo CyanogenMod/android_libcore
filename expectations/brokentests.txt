@@ -698,16 +698,6 @@ result EXEC_FAILED
 pattern .*got java\.lang\.StringIndexOutOfBoundsException: null - FAILED.*
 
 
-# this test is invalid, proxy.equals isn't symmetric
-test org.apache.harmony.luni.tests.java.util.HashMapTest#test_proxies
-result EXEC_FAILED
-
-
-# this test is invalid, the mock map's entry set isn't to spec
-test org.apache.harmony.luni.tests.java.util.HashMapTest.test_putAllLjava_util_Map
-result EXEC_FAILED
-
-
 # We don't have AWT
 test java.io.File.isDirectory.Applet
 result COMPILE_FAILED
@@ -771,3 +761,130 @@ pattern .*java.lang.IllegalArgumentException: 100 not in range \(100..109\].*
 test org.apache.harmony.luni.tests.java.util.TreeMapExtendTest#test_Entry_setValue
 result EXEC_FAILED
 pattern .*java.lang.UnsupportedOperationException.*.setValue.*
+
+# why are they using reflection to test implementation details?
+test org.apache.harmony.luni.tests.java.util.ArraysTest#test_swap_I_I_$Ljava_lang_Object
+result EXEC_FAILED
+pattern .*java.lang.NoSuchMethodException.*
+
+# these tests rely on a Harmony bug where TreeMaps may have a singleton null
+test org.apache.harmony.luni.tests.java.util.SimpleImmutableEntryTest#test_SimpleImmutableEntry_Constructor_LEntry
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*at java.util.TreeMap.find.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_illegalFirstNullKey
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*at java.util.TreeMap.find.*
+
+# this is testing exception priorities
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_subMapLjava_lang_ObjectLjava_lang_Object
+result EXEC_FAILED
+pattern .*java.lang.ClassCastException: java.lang.Object.*
+
+# the null-friendly comparator isn't symmetric
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_subMapLjava_lang_ObjectZLjava_lang_ObjectZ
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
+
+# tests that depend on the iteration order of a hash
+test org.apache.harmony.luni.tests.java.util.CollectionsTest#test_unmodifiable_toString_methods
+result EXEC_FAILED
+pattern .*expected:<...one=1, two=2...> but was:<...two=2, one=1...>.*
+
+test org.apache.harmony.luni.tests.java.util.HashtableTest#test_keySet_subtest1
+result EXEC_FAILED
+pattern .*java.lang.IllegalStateException.*at java.util.Hashtable.*
+
+test org.apache.harmony.luni.tests.java.util.HashtableTest#test_elements_subtest0
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: unexpected: b.*
+
+test org.apache.harmony.luni.tests.java.util.HashMapTest#test_rehash
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: expected same.*
+
+test org.apache.harmony.luni.tests.java.util.PropertiesTest#test_SequentialpropertyNames
+result EXEC_FAILED
+pattern .*expected:<current.b.key> but was:<current.a.key>.*
+
+test org.apache.harmony.luni.tests.java.util.PropertiesTest#test_SequentialstringPropertyNames
+result EXEC_FAILED
+pattern .*junit.framework.ComparisonFailure.*
+
+test org.apache.harmony.luni.tests.java.util.PropertiesTest.test_propertyNames_sequence
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: expected:<current.b.key> but was:<current.a.key>.*
+
+test org.apache.harmony.luni.tests.java.util.PropertiesTest#test_propertyNames_sequence
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: expected:<current.b.key> but was:<current.a.key>.*
+
+# tests that use secret type information to reason about behavior
+test org.apache.harmony.luni.tests.java.util.HashtableTest#test_keySet
+result EXEC_FAILED
+pattern .*junit.framework.ComparisonFailure: Not synchronized expected:<...Collections\$Synchronized...> but was:<...Hashtable\$Key...>.*
+
+test org.apache.harmony.luni.tests.java.util.HashtableTest#test_entrySet
+result EXEC_FAILED
+pattern .*junit.framework.ComparisonFailure: Not synchronized expected:<...Collections\$Synchronized...> but was:<...Hashtable\$Entry...>.*
+
+test org.apache.harmony.luni.tests.java.util.HashtableTest#test_values
+result EXEC_FAILED
+pattern .*junit.framework.ComparisonFailure: Not synchronized expected:<...Collections\$SynchronizedCollection> but was:<...Hashtable\$Values>.*
+
+# this test is invalid, proxy.equals isn't symmetric
+test org.apache.harmony.luni.tests.java.util.HashMapTest#test_proxies
+result EXEC_FAILED
+
+# this test is invalid, the mock map's entry set isn't to spec
+test org.apache.harmony.luni.tests.java.util.HashMapTest#test_putAllLjava_util_Map
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
+
+# this test assumes remove acts on equals() equality, not comparator equality
+test org.apache.harmony.luni.tests.java.util.PriorityQueueTest#test_remove_Ljava_lang_Object_using_comparator
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError.*
+
+# tests that violate the API and then guess about the outcomes
+test org.apache.harmony.luni.tests.java.util.HashtableTest#test_getLjava_lang_Object
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError.*
+
+# this test assumes Integer.toString() always returns a new instance
+test org.apache.harmony.luni.tests.java.util.IdentityHashMap2Test#test_containsKeyLjava_lang_Object
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: Returned true for copy of valid key.*
+
+# tests that cast to Harmony-specific types
+failure bogus cast to harmony Hashtable$KeyEnumeration
+result EXEC_FAILED
+pattern .*java.util.Hashtable\$KeyEnumeration.*
+
+failure bogus cast to Hashtable$ValueEnumeration
+result EXEC_FAILED
+pattern .*java.util.Hashtable\$ValueEnumeration.*
+
+# test doesn't expect it, but the spec permits the exception. RI also throws here.
+test org.apache.harmony.luni.tests.java.util.PriorityQueueTest#test_remove_Ljava_lang_Object_not_Compatible
+result EXEC_FAILED
+pattern .*java.lang.ClassCastException.*
+
+test org.apache.harmony.luni.tests.java.util.PriorityQueueTest#test_remove_Ljava_lang_Object_not_exists
+result EXEC_FAILED
+pattern .*java.lang.ClassCastException.*
+
+# localization tests where our data disagree
+test org.apache.harmony.luni.tests.java.util.LocaleTest#test_getAvailableLocales
+result EXEC_FAILED
+pattern .*Wrong number of locales.*
+
+# test that enforce redundant implements clauses
+test org.apache.harmony.luni.tests.java.util.LinkedHashMapTest#test_getInterfaces
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: expected:<3> but was:<2>.*
+
+# our behaviour is consistent with the JDK
+test tests.api.java.math.BigDecimalTest#test_stripTrailingZero
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: stripTrailingZero failed for 0.0000.*

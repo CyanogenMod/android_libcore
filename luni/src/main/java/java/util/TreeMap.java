@@ -255,10 +255,10 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
      */
     Node<K, V> find(K key, Relation relation) {
         if (root == null) {
+            if (comparator == NATURAL_ORDER && !(key instanceof Comparable)) {
+                throw new ClassCastException(key.getClass().getName()); // NullPointerException ok
+            }
             if (relation == Relation.CREATE) {
-                if (comparator == NATURAL_ORDER && key == null) {
-                    throw new NullPointerException();
-                }
                 root = new Node<K, V>(null, key);
                 size = 1;
                 modCount++;

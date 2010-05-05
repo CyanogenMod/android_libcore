@@ -36,6 +36,9 @@ public class UnknownFormatConversionException extends IllegalFormatException {
      *           the unknown format conversion.
      */
     public UnknownFormatConversionException(String s) {
+        if (s == null) {
+            throw new NullPointerException();
+        }
         this.s = s;
     }
 
