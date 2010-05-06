@@ -167,9 +167,9 @@ public class File implements Serializable, Comparable<File> {
         if (name == null) {
             throw new NullPointerException();
         }
-        if (dirPath == null || dirPath.length() == 0) {
+        if (dirPath == null || dirPath.isEmpty()) {
             init(name);
-        } else if (name.length() == 0) {
+        } else if (name.isEmpty()) {
             init(dirPath);
         } else {
             init(join(dirPath, name));
@@ -207,7 +207,7 @@ public class File implements Serializable, Comparable<File> {
         }
         String userDir = AccessController.doPrivileged(
             new PriviAction<String>("user.dir")); //$NON-NLS-1$
-        this.pathBytes = newCString(path.length() == 0 ? userDir : join(userDir, path));
+        this.pathBytes = newCString(path.isEmpty() ? userDir : join(userDir, path));
     }
 
     private byte[] newCString(String s) {
@@ -278,7 +278,7 @@ public class File implements Serializable, Comparable<File> {
         }
 
         temp = uri.getRawPath();
-        if (temp == null || temp.length() == 0) {
+        if (temp == null || temp.isEmpty()) {
             throw new IllegalArgumentException(Msg.getString("K031d", uri));
         }
 
@@ -326,7 +326,7 @@ public class File implements Serializable, Comparable<File> {
      * @hide
      */
     public boolean canExecute() {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -346,7 +346,7 @@ public class File implements Serializable, Comparable<File> {
      *             read request.
      */
     public boolean canRead() {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -367,7 +367,7 @@ public class File implements Serializable, Comparable<File> {
      *             write request.
      */
     public boolean canWrite() {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -395,6 +395,9 @@ public class File implements Serializable, Comparable<File> {
     /**
      * Deletes this file. Directories must be empty before they will be deleted.
      *
+     * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
+     * Callers must check the return value.
+     *
      * @return {@code true} if this file was deleted, {@code false} otherwise.
      * @throws SecurityException
      *             if a {@code SecurityManager} is installed and it denies the
@@ -402,7 +405,7 @@ public class File implements Serializable, Comparable<File> {
      * @see java.lang.SecurityManager#checkDelete
      */
     public boolean delete() {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -460,7 +463,7 @@ public class File implements Serializable, Comparable<File> {
      * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      */
     public boolean exists() {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -801,7 +804,7 @@ public class File implements Serializable, Comparable<File> {
      *             access to this file.
      */
     public boolean isDirectory() {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -823,7 +826,7 @@ public class File implements Serializable, Comparable<File> {
      *             access to this file.
      */
     public boolean isFile() {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -848,7 +851,7 @@ public class File implements Serializable, Comparable<File> {
      *             access to this file.
      */
     public boolean isHidden() {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -869,7 +872,7 @@ public class File implements Serializable, Comparable<File> {
      *             access to this file.
      */
     public long lastModified() {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return 0;
         }
         SecurityManager security = System.getSecurityManager();
@@ -885,6 +888,9 @@ public class File implements Serializable, Comparable<File> {
      * Sets the time this file was last modified, measured in milliseconds since
      * January 1st, 1970, midnight.
      *
+     * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
+     * Callers must check the return value.
+     *
      * @param time
      *            the last modification time for this file.
      * @return {@code true} if the operation is successful, {@code false}
@@ -896,7 +902,7 @@ public class File implements Serializable, Comparable<File> {
      *             access to this file.
      */
     public boolean setLastModified(long time) {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         if (time < 0) {
@@ -924,6 +930,9 @@ public class File implements Serializable, Comparable<File> {
      * Manipulates the execute permissions for the abstract path designated by
      * this file.
      *
+     * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
+     * Callers must check the return value.
+     *
      * @param executable
      *            To allow execute permission if true, otherwise disallow
      * @param ownerOnly
@@ -944,7 +953,7 @@ public class File implements Serializable, Comparable<File> {
      * @hide
      */
     public boolean setExecutable(boolean executable, boolean ownerOnly) {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -956,18 +965,7 @@ public class File implements Serializable, Comparable<File> {
 
     /**
      * Equivalent to setExecutable(executable, true).
-     *
-     * @param executable
-     *            To allow execute permission if true, otherwise disallow
-     * @return true if and only if the operation succeeded. If the user does not
-     *         have permission to change the access permissions of this abstract
-     *         pathname the operation will fail. If the underlying file system
-     *         does not support execute permission and the value of executable
-     *         is false, this operation will fail.
-     * @throws SecurityException -
-     *             If a security manager exists and
-     *             SecurityManager.checkWrite(java.lang.String) disallows write
-     *             permission to this file object
+     * @see #setExecutable(boolean, boolean)
      * @since 1.6
      * @hide
      */
@@ -1001,7 +999,7 @@ public class File implements Serializable, Comparable<File> {
      * @hide
      */
     public boolean setReadable(boolean readable, boolean ownerOnly) {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -1013,18 +1011,7 @@ public class File implements Serializable, Comparable<File> {
 
     /**
      * Equivalent to setReadable(readable, true).
-     *
-     * @param readable
-     *            To allow read permission if true, otherwise disallow
-     * @return true if and only if the operation succeeded. If the user does not
-     *         have permission to change the access permissions of this abstract
-     *         pathname the operation will fail. If the underlying file system
-     *         does not support read permission and the value of readable is
-     *         false, this operation will fail.
-     * @throws SecurityException -
-     *             If a security manager exists and
-     *             SecurityManager.checkWrite(java.lang.String) disallows write
-     *             permission to this file object
+     * @see #setReadable(boolean, boolean)
      * @since 1.6
      * @hide
      */
@@ -1056,7 +1043,7 @@ public class File implements Serializable, Comparable<File> {
      * @hide
      */
     public boolean setWritable(boolean writable, boolean ownerOnly) {
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
@@ -1068,16 +1055,7 @@ public class File implements Serializable, Comparable<File> {
 
     /**
      * Equivalent to setWritable(writable, true).
-     *
-     * @param writable
-     *            To allow write permission if true, otherwise disallow
-     * @return true if and only if the operation succeeded. If the user does not
-     *         have permission to change the access permissions of this abstract
-     *         pathname the operation will fail.
-     * @throws SecurityException -
-     *             If a security manager exists and
-     *             SecurityManager.checkWrite(java.lang.String) disallows write
-     *             permission to this file object
+     * @see #setWritable(boolean, boolean)
      * @since 1.6
      * @hide
      */
@@ -1127,7 +1105,7 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkRead(path);
         }
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             return null;
         }
         return listImpl(pathBytes);
@@ -1266,6 +1244,9 @@ public class File implements Serializable, Comparable<File> {
      * Creates the directory named by the trailing filename of this file. Does
      * not create the complete path required to create this directory.
      *
+     * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
+     * Callers must check the return value.
+     *
      * @return {@code true} if the directory has been created, {@code false}
      *         otherwise.
      * @throws SecurityException
@@ -1286,6 +1267,9 @@ public class File implements Serializable, Comparable<File> {
     /**
      * Creates the directory named by the trailing filename of this file,
      * including the complete directory path required to create this directory.
+     *
+     * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
+     * Callers must check the return value.
      *
      * @return {@code true} if the necessary directories have been created,
      *         {@code false} if the target directory already exists or one of
@@ -1320,6 +1304,9 @@ public class File implements Serializable, Comparable<File> {
      * Creates a new, empty file on the file system according to the path
      * information stored in this file.
      *
+     * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
+     * Callers must check the return value.
+     *
      * @return {@code true} if the file has been created, {@code false} if it
      *         already exists.
      * @throws IOException if it's not possible to create the file.
@@ -1332,7 +1319,7 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkWrite(path);
         }
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             throw new IOException(Msg.getString("KA012")); //$NON-NLS-1$
         }
         return createNewFileImpl(pathBytes);
@@ -1417,18 +1404,29 @@ public class File implements Serializable, Comparable<File> {
     }
 
     /**
-     * Renames this file to the name represented by the {@code dest} file. This
-     * works for both normal files and directories.
+     * Renames this file to {@code dest}. This operation is supported for both
+     * files and directories.
      *
-     * @param dest
-     *            the file containing the new name.
-     * @return {@code true} if the File was renamed, {@code false} otherwise.
+     * <p>Many failures are possible. Some of the more likely failures include:
+     * <ul>
+     * <li>Write permission is required on the directories containing both the source and
+     * destination paths.
+     * <li>Search permission is required for all parents of both paths.
+     * <li>Both paths be on the same mount point. On Android, applications are most likely to hit
+     * this restriction when attempting to copy between internal storage and an SD card.
+     * </ul>
+     *
+     * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
+     * Callers must check the return value.
+     *
+     * @param dest the new name.
+     * @return true on success.
      * @throws SecurityException
      *             if a {@code SecurityManager} is installed and it denies write
      *             access for this file or the {@code dest} file.
      */
-    public boolean renameTo(java.io.File dest) {
-        if (path.length() == 0 || dest.path.length() == 0) {
+    public boolean renameTo(File dest) {
+        if (path.isEmpty() || dest.path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
