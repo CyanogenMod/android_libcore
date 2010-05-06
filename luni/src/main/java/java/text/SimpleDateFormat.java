@@ -967,7 +967,7 @@ public class SimpleDateFormat extends DateFormat {
      * Returns the date which is the start of the one hundred year period for two-digit year values.
      */
     public Date get2DigitYearStart() {
-        return defaultCenturyStart;
+        return (Date) defaultCenturyStart.clone();
     }
 
     /**
@@ -1332,9 +1332,9 @@ public class SimpleDateFormat extends DateFormat {
      * Sets the date which is the start of the one hundred year period for two-digit year values.
      */
     public void set2DigitYearStart(Date date) {
-        defaultCenturyStart = date;
+        defaultCenturyStart = (Date) date.clone();
         Calendar cal = new GregorianCalendar();
-        cal.setTime(date);
+        cal.setTime(defaultCenturyStart);
         creationYear = cal.get(Calendar.YEAR);
     }
 
