@@ -54,7 +54,7 @@ import org.apache.harmony.security.x509.TBSCertificate;
 
 // BEGIN android-added
 import java.security.interfaces.RSAPublicKey;
-import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
+import org.apache.harmony.xnet.provider.jsse.NativeCrypto;
 // END android-added
 
 /**
@@ -597,7 +597,7 @@ public class X509CertImpl extends X509Certificate {
         }
 
         byte[] sig = certificate.getSignatureValue();
-        if (!OpenSSLSocketImpl.verifySignature(tbsCertificate, sig, algorithm, rsaKey)) {
+        if (!NativeCrypto.verifySignature(tbsCertificate, sig, algorithm, rsaKey)) {
             throw new SignatureException(Messages.getString("security.15C")); //$NON-NLS-1$
         }
     }
