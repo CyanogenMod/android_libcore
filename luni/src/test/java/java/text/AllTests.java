@@ -28,6 +28,7 @@ public class AllTests {
         suite.addTestSuite(java.text.DecimalFormatSymbolsTest.class);
         suite.addTestSuite(java.text.NormalizerTest.class);
         suite.addTestSuite(java.text.NumberFormatTest.class);
+        suite.addTestSuite(java.text.SimpleDateFormatTest.class);
         return suite;
     }
 }
