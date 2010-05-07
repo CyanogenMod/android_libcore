@@ -15,37 +15,29 @@
  * limitations under the License.
  */
 
+#include "JNIHelp.h"
 #include "jni.h"
-#include "hy2sie.h"
 #include "zlib.h"
-#include "sieb.h"
 
-JNIEXPORT jlong JNICALL
-Java_java_util_zip_Adler32_updateImpl (JNIEnv * env, jobject recv,
-                                       jbyteArray buf, int off, int len,
-                                       jlong crc)
-{
-  jbyte* b = (*env)->GetPrimitiveArrayCritical (env, buf, NULL);
-  if (b == NULL) {
-    return 0;
-  }
-  jlong result = (jlong) adler32 ((uLong) crc, (Bytef *) (b + off), (uInt) len);
-  (*env)->ReleasePrimitiveArrayCritical (env, buf, b, JNI_ABORT);
-
-  return result;
+static jlong Adler32_updateImpl(JNIEnv* env, jobject, jbyteArray buf, int off, int len, jlong crc) {
+    jbyte* b = (jbyte*) env->GetPrimitiveArrayCritical(buf, NULL);
+    if (b == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return 0;
+    }
+    jlong result = (jlong) adler32((uLong) crc, (Bytef *) (b + off), (uInt) len);
+    env->ReleasePrimitiveArrayCritical(buf, b, JNI_ABORT);
+    return result;
 }
 
-JNIEXPORT jlong JNICALL
-Java_java_util_zip_Adler32_updateByteImpl (JNIEnv * env, jobject recv,
-                                           jint val, jlong crc)
-{
-  Bytef bytefVal = val;
-  return adler32 ((uLong) crc, (Bytef *) (&bytefVal), 1);
+static jlong Adler32_updateByteImpl(JNIEnv* env, jobject, jint val, jlong crc) {
+    Bytef bytefVal = val;
+    return adler32((uLong) crc, (Bytef *) (&bytefVal), 1);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "updateImpl", "([BIIJ)J",     Java_java_util_zip_Adler32_updateImpl },
-    { "updateByteImpl", "(IJ)J",     Java_java_util_zip_Adler32_updateByteImpl },
+    { "updateImpl", "([BIIJ)J", (void*) Adler32_updateImpl },
+    { "updateByteImpl", "(IJ)J", (void*) Adler32_updateByteImpl },
 };
 int register_java_util_zip_Adler32(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/util/zip/Adler32", gMethods, NELEM(gMethods));

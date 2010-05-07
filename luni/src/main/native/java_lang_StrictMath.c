@@ -11,8 +11,6 @@
  * into the android environment.
  */
 
-/* #include "fltconst.h" */
-
 #if defined(__P)
 #undef __P
 #endif /* defined(__P) */

@@ -31,9 +31,9 @@
     positive           ==    sign bit clear
     negative           ==    sign bit set
 */
-#define MAX_U32_DOUBLE (ESDOUBLE) (4294967296.0)    /* 2^32 */
-#define MAX_U32_SINGLE (ESSINGLE) (4294967296.0)    /* 2^32 */
-#define HY_POS_PI      (ESDOUBLE) (3.141592653589793)
+#define MAX_U32_DOUBLE (double) (4294967296.0)    /* 2^32 */
+#define MAX_U32_SINGLE (float) (4294967296.0)    /* 2^32 */
+#define HY_POS_PI      (double) (3.141592653589793)
 
 #ifdef HY_LITTLE_ENDIAN
 #ifdef HY_PLATFORM_DOUBLE_ORDER

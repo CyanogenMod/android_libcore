@@ -504,10 +504,10 @@ static jboolean canEncode(JNIEnv *env, jclass, jlong handle, jint codeUnit) {
                          sourceLimit,NULL, TRUE,&errorCode);
 
         if(U_SUCCESS(errorCode)) {
-            return (jboolean)TRUE;
+            return JNI_TRUE;
         }
     }
-    return (jboolean)FALSE;
+    return JNI_FALSE;
 }
 
 /*
