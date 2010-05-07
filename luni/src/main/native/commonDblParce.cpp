@@ -14,71 +14,56 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
-#include "JNIHelp.h"
+
 #include "commonDblParce.h"
 #include "cbigint.h"
 
-#if defined(LINUX) || defined(FREEBSD) || defined(ZOS)
+
+/* ************************* Defines ************************* */
+#if defined(LINUX) || defined(FREEBSD)
 #define USE_LL
 #endif
 
 #define LOW_I32_FROM_VAR(u64)     LOW_I32_FROM_LONG64(u64)
-#ifdef HY_LITTLE_ENDIAN
-#define LOW_I32_FROM_PTR(ptr64) (*(I_32 *) (ptr64))
-#else
-#define LOW_I32_FROM_PTR(ptr64) (*(((I_32 *) (ptr64)) + 1))
-#endif
+#define LOW_I32_FROM_PTR(u64ptr)  LOW_I32_FROM_LONG64_PTR(u64ptr)
 #define HIGH_I32_FROM_VAR(u64)    HIGH_I32_FROM_LONG64(u64)
 #define HIGH_I32_FROM_PTR(u64ptr) HIGH_I32_FROM_LONG64_PTR(u64ptr)
 
-#define MAX_ACCURACY_WIDTH 8
+#define MAX_ACCURACY_WIDTH 17
 
 #define DEFAULT_WIDTH MAX_ACCURACY_WIDTH
 
-JNIEXPORT jfloat JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv* env,
-                                                        jclass clazz,
-                                                        jstring s, jint e);
-JNIEXPORT jdouble JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv* env,
-                                                        jclass clazz,
-                                                        jstring s, jint e);
+#if defined(USE_LL)
+#define INFINITE_LONGBITS (0x7FF0000000000000LL)
+#else
+#if defined(USE_L)
+#define INFINITE_LONGBITS (0x7FF0000000000000L)
+#else
+#define INFINITE_LONGBITS (0x7FF0000000000000)
+#endif /* USE_L */
+#endif /* USE_LL */
 
-jfloat createFloat1 (JNIEnv* env, U_64 * f, IDATA length, jint e);
-jfloat floatAlgorithm (JNIEnv* env, U_64 * f, IDATA length, jint e,
-                       jfloat z);
-jfloat createFloat (JNIEnv* env, const char *s, jint e);
+#define MINIMUM_LONGBITS (0x1)
 
-static const U_32 tens[] = {
-  0x3f800000,
-  0x41200000,
-  0x42c80000,
-  0x447a0000,
-  0x461c4000,
-  0x47c35000,
-  0x49742400,
-  0x4b189680,
-  0x4cbebc20,
-  0x4e6e6b28,
-  0x501502f9                    /* 10 ^ 10 in float */
-};
+#if defined(USE_LL)
+#define MANTISSA_MASK (0x000FFFFFFFFFFFFFLL)
+#define EXPONENT_MASK (0x7FF0000000000000LL)
+#define NORMAL_MASK   (0x0010000000000000LL)
+#else
+#if defined(USE_L)
+#define MANTISSA_MASK (0x000FFFFFFFFFFFFFL)
+#define EXPONENT_MASK (0x7FF0000000000000L)
+#define NORMAL_MASK   (0x0010000000000000L)
+#else
+#define MANTISSA_MASK (0x000FFFFFFFFFFFFF)
+#define EXPONENT_MASK (0x7FF0000000000000)
+#define NORMAL_MASK   (0x0010000000000000)
+#endif /* USE_L */
+#endif /* USE_LL */
 
-#define tenToTheE(e) (*((jfloat *) (tens + (e))))
-#define LOG5_OF_TWO_TO_THE_N 11
-
-#define sizeOfTenToTheE(e) (((e) / 19) + 1)
-
-#define INFINITE_INTBITS (0x7F800000)
-#define MINIMUM_INTBITS (1)
-
-#define MANTISSA_MASK (0x007FFFFF)
-#define EXPONENT_MASK (0x7F800000)
-#define NORMAL_MASK   (0x00800000)
-#define FLOAT_TO_INTBITS(flt) (*((U_32 *)(&flt)))
+#define DOUBLE_TO_LONGBITS(dbl) (*((U_64 *)(&dbl)))
 
 /* Keep a count of the number of times we decrement and increment to
  * approximate the double, and attempt to detect the case where we
@@ -89,39 +74,79 @@ static const U_32 tens[] = {
  * the loop if we toggle between incrementing and decrementing for more
  * than twice.
  */
-#define INCREMENT_FLOAT(_x, _decCount, _incCount) \
+#define INCREMENT_DOUBLE(_x, _decCount, _incCount) \
     { \
-        ++FLOAT_TO_INTBITS(_x); \
+        ++DOUBLE_TO_LONGBITS(_x); \
         _incCount++; \
         if( (_incCount > 2) && (_decCount > 2) ) { \
             if( _decCount > _incCount ) { \
-                FLOAT_TO_INTBITS(_x) += _decCount - _incCount; \
+                DOUBLE_TO_LONGBITS(_x) += _decCount - _incCount; \
             } else if( _incCount > _decCount ) { \
-                FLOAT_TO_INTBITS(_x) -= _incCount - _decCount; \
+                DOUBLE_TO_LONGBITS(_x) -= _incCount - _decCount; \
             } \
             break; \
         } \
     }
-#define DECREMENT_FLOAT(_x, _decCount, _incCount) \
+#define DECREMENT_DOUBLE(_x, _decCount, _incCount) \
     { \
-        --FLOAT_TO_INTBITS(_x); \
+        --DOUBLE_TO_LONGBITS(_x); \
         _decCount++; \
         if( (_incCount > 2) && (_decCount > 2) ) { \
             if( _decCount > _incCount ) { \
-                FLOAT_TO_INTBITS(_x) += _decCount - _incCount; \
+                DOUBLE_TO_LONGBITS(_x) += _decCount - _incCount; \
             } else if( _incCount > _decCount ) { \
-                FLOAT_TO_INTBITS(_x) -= _incCount - _decCount; \
+                DOUBLE_TO_LONGBITS(_x) -= _incCount - _decCount; \
             } \
             break; \
         } \
     }
-#define ERROR_OCCURED(x) (HIGH_I32_FROM_VAR(x) < 0)
 
 #define allocateU64(x, n) if (!((x) = (U_64*) malloc((n) * sizeof(U_64)))) goto OutOfMemory;
 #define release(r) if ((r)) free((r));
 
-jfloat
-createFloat (JNIEnv* env, const char *s, jint e)
+/* *********************************************************** */
+
+/* ************************ local data ************************ */
+static const jdouble tens[] = {
+  1.0,
+  1.0e1,
+  1.0e2,
+  1.0e3,
+  1.0e4,
+  1.0e5,
+  1.0e6,
+  1.0e7,
+  1.0e8,
+  1.0e9,
+  1.0e10,
+  1.0e11,
+  1.0e12,
+  1.0e13,
+  1.0e14,
+  1.0e15,
+  1.0e16,
+  1.0e17,
+  1.0e18,
+  1.0e19,
+  1.0e20,
+  1.0e21,
+  1.0e22
+};
+/* *********************************************************** */
+
+/* ************** private function declarations ************** */
+static jdouble createDouble1   (JNIEnv* env, U_64 * f, IDATA length, jint e);
+static jdouble doubleAlgorithm (JNIEnv* env, U_64 * f, IDATA length, jint e,
+                                jdouble z);
+/* *********************************************************** */
+
+#define tenToTheE(e) (*(tens + (e)))
+#define LOG5_OF_TWO_TO_THE_N 23
+
+#define sizeOfTenToTheE(e) (((e) / 19) + 1)
+
+jdouble
+createDouble (JNIEnv* env, const char *s, jint e)
 {
   /* assumes s is a null terminated string with at least one
    * character in it */
@@ -129,7 +154,7 @@ createFloat (JNIEnv* env, const char *s, jint e)
   U_64 defBackup[DEFAULT_WIDTH];
   U_64 *f, *fNoOverflow, *g, *tempBackup;
   U_32 overflow;
-  jfloat result;
+  jdouble result;
   IDATA index = 1;
   int unprocessedDigits = 0;
 
@@ -150,7 +175,6 @@ createFloat (JNIEnv* env, const char *s, jint e)
             simpleAppendDecimalDigitHighPrecision (f, index, *s - '0');
           if (overflow)
             {
-
               f[index++] = overflow;
               /* There is an overflow, but there is no more room
                * to store the result. We really only need the top 52
@@ -191,29 +215,34 @@ createFloat (JNIEnv* env, const char *s, jint e)
       e += unprocessedDigits;
       if (index > -1)
         {
-          if (e <= 0)
-            {
-              result = createFloat1 (env, f, index, e);
-            }
+          if (e == 0)
+            result = toDoubleHighPrecision (f, index);
+          else if (e < 0)
+            result = createDouble1 (env, f, index, e);
           else
             {
-              FLOAT_TO_INTBITS (result) = INFINITE_INTBITS;
+              DOUBLE_TO_LONGBITS (result) = INFINITE_LONGBITS;
             }
         }
       else
         {
-          result = *(jfloat *) & index;
+          LOW_I32_FROM_VAR  (result) = -1;
+          HIGH_I32_FROM_VAR (result) = -1;
         }
     }
   else
     {
       if (index > -1)
         {
-          result = createFloat1 (env, f, index, e);
+          if (e == 0)
+            result = toDoubleHighPrecision (f, index);
+          else
+            result = createDouble1 (env, f, index, e);
         }
       else
         {
-        result = *(jfloat *) & index;
+          LOW_I32_FROM_VAR  (result) = -1;
+          HIGH_I32_FROM_VAR (result) = -1;
         }
     }
 
@@ -221,119 +250,82 @@ createFloat (JNIEnv* env, const char *s, jint e)
 
 }
 
-jfloat
-createFloat1 (JNIEnv* env, U_64 * f, IDATA length, jint e)
+jdouble
+createDouble1 (JNIEnv* env, U_64 * f, IDATA length, jint e)
 {
   IDATA numBits;
-  jdouble dresult;
-  jfloat result;
+  jdouble result;
+
+#define APPROX_MIN_MAGNITUDE -309
+
+#define APPROX_MAX_MAGNITUDE 309
 
   numBits = highestSetBitHighPrecision (f, length) + 1;
-  if (numBits < 25 && e >= 0 && e < LOG5_OF_TWO_TO_THE_N)
+  numBits -= lowestSetBitHighPrecision (f, length);
+  if (numBits < 54 && e >= 0 && e < LOG5_OF_TWO_TO_THE_N)
     {
-      return ((jfloat) LOW_I32_FROM_PTR (f)) * tenToTheE (e);
+      return toDoubleHighPrecision (f, length) * tenToTheE (e);
     }
-  else if (numBits < 25 && e < 0 && (-e) < LOG5_OF_TWO_TO_THE_N)
+  else if (numBits < 54 && e < 0 && (-e) < LOG5_OF_TWO_TO_THE_N)
     {
-      return ((jfloat) LOW_I32_FROM_PTR (f)) / tenToTheE (-e);
+      return toDoubleHighPrecision (f, length) / tenToTheE (-e);
     }
-  else if (e >= 0 && e < 39)
+  else if (e >= 0 && e < APPROX_MAX_MAGNITUDE)
     {
-      result = (jfloat) (toDoubleHighPrecision (f, length) * pow (10.0, (double) e));
+      result = toDoubleHighPrecision (f, length) * pow (10.0, e);
     }
-  else if (e >= 39)
+  else if (e >= APPROX_MAX_MAGNITUDE)
     {
       /* Convert the partial result to make sure that the
        * non-exponential part is not zero. This check fixes the case
        * where the user enters 0.0e309! */
-      result = (jfloat) toDoubleHighPrecision (f, length);
+      result = toDoubleHighPrecision (f, length);
+      /* Don't go straight to zero as the fact that x*0 = 0 independent of x might
+         cause the algorithm to produce an incorrect result.  Instead try the min value
+         first and let it fall to zero if need be. */
 
       if (result == 0.0)
-
-        FLOAT_TO_INTBITS (result) = MINIMUM_INTBITS;
+        {
+          DOUBLE_TO_LONGBITS (result) = MINIMUM_LONGBITS;
+        }
       else
-        FLOAT_TO_INTBITS (result) = INFINITE_INTBITS;
+        {
+          DOUBLE_TO_LONGBITS (result) = INFINITE_LONGBITS;
+          return result;
+        }
     }
-  else if (e > -309)
+  else if (e > APPROX_MIN_MAGNITUDE)
     {
-      int dexp;
-      U_32 fmant, fovfl;
-      U_64 dmant;
-      dresult = toDoubleHighPrecision (f, length) / pow (10.0, (double) -e);
-      if (IS_DENORMAL_DBL (dresult))
-        {
-          FLOAT_TO_INTBITS (result) = 0;
-          return result;
-        }
-      dexp = doubleExponent (dresult) + 51;
-      dmant = doubleMantissa (dresult);
-      /* Is it too small to be represented by a single-precision
-       * float? */
-      if (dexp <= -155)
-        {
-          FLOAT_TO_INTBITS (result) = 0;
-          return result;
-        }
-      /* Is it a denormalized single-precision float? */
-      if ((dexp <= -127) && (dexp > -155))
-        {
-          /* Only interested in 24 msb bits of the 53-bit double mantissa */
-          fmant = (U_32) (dmant >> 29);
-          fovfl = ((U_32) (dmant & 0x1FFFFFFF)) << 3;
-          while ((dexp < -127) && ((fmant | fovfl) != 0))
-            {
-              if ((fmant & 1) != 0)
-                {
-                  fovfl |= 0x80000000;
-                }
-              fovfl >>= 1;
-              fmant >>= 1;
-              dexp++;
-            }
-          if ((fovfl & 0x80000000) != 0)
-            {
-              if ((fovfl & 0x7FFFFFFC) != 0)
-                {
-                  fmant++;
-                }
-              else if ((fmant & 1) != 0)
-                {
-                  fmant++;
-                }
-            }
-          else if ((fovfl & 0x40000000) != 0)
-            {
-              if ((fovfl & 0x3FFFFFFC) != 0)
-                {
-                  fmant++;
-                }
-            }
-          FLOAT_TO_INTBITS (result) = fmant;
-        }
-      else
-        {
-          result = (jfloat) dresult;
-        }
+      result = toDoubleHighPrecision (f, length) / pow (10.0, -e);
     }
 
-  /* Don't go straight to zero as the fact that x*0 = 0 independent
-   * of x might cause the algorithm to produce an incorrect result.
-   * Instead try the min  value first and let it fall to zero if need
-   * be.
-   */
-  if (e <= -309 || FLOAT_TO_INTBITS (result) == 0)
-    FLOAT_TO_INTBITS (result) = MINIMUM_INTBITS;
+  if (e <= APPROX_MIN_MAGNITUDE)
+    {
 
-  return floatAlgorithm (env, f, length, e, (jfloat) result);
+      result = toDoubleHighPrecision (f, length) * pow (10.0, e + 52);
+      result = result * pow (10.0, -52);
+
+    }
+
+  /* Don't go straight to zero as the fact that x*0 = 0 independent of x might
+     cause the algorithm to produce an incorrect result.  Instead try the min value
+     first and let it fall to zero if need be. */
+
+  if (result == 0.0)
+
+    DOUBLE_TO_LONGBITS (result) = MINIMUM_LONGBITS;
+
+  return doubleAlgorithm (env, f, length, e, result);
 }
 
 #if defined(WIN32)
 /* disable global optimizations on the microsoft compiler for the
- * floatAlgorithm function otherwise it won't properly compile */
+ * doubleAlgorithm function otherwise it won't compile */
 #pragma optimize("g",off)
 #endif
 
-/* The algorithm for the function floatAlgorithm() below can be found
+
+/* The algorithm for the function doubleAlgorithm() below can be found
  * in:
  *
  *      "How to Read Floating-Point Numbers Accurately", William D.
@@ -350,14 +342,13 @@ createFloat1 (JNIEnv* env, U_64 * f, IDATA length, jint e)
  * is currently set such that if the oscillation occurs more than twice
  * then return the original approximation.
  */
-jfloat
-floatAlgorithm (JNIEnv* env __attribute__ ((unused)), U_64 * f, IDATA length, jint e, jfloat z)
+static jdouble
+doubleAlgorithm (JNIEnv*, U_64 * f, IDATA length, jint e, jdouble z)
 {
   U_64 m;
   IDATA k, comparison, comparison2;
   U_64 *x, *y, *D, *D2;
-  IDATA xLength, yLength, DLength, D2Length;
-  IDATA decApproxCount, incApproxCount;
+  IDATA xLength, yLength, DLength, D2Length, decApproxCount, incApproxCount;
 
   x = y = D = D2 = 0;
   xLength = yLength = DLength = D2Length = 0;
@@ -365,8 +356,8 @@ floatAlgorithm (JNIEnv* env __attribute__ ((unused)), U_64 * f, IDATA length, ji
 
   do
     {
-      m = floatMantissa (z);
-      k = floatExponent (z);
+      m = doubleMantissa (z);
+      k = doubleExponent (z);
 
       if (x && x != f)
           free(x);
@@ -465,7 +456,7 @@ floatAlgorithm (JNIEnv* env __attribute__ ((unused)), U_64 * f, IDATA length, ji
               simpleShiftLeftHighPrecision (D2, D2Length, 1);
               if (compareHighPrecision (D2, D2Length, y, yLength) > 0)
                 {
-                  DECREMENT_FLOAT (z, decApproxCount, incApproxCount);
+                  DECREMENT_DOUBLE (z, decApproxCount, incApproxCount);
                 }
               else
                 {
@@ -479,11 +470,11 @@ floatAlgorithm (JNIEnv* env __attribute__ ((unused)), U_64 * f, IDATA length, ji
         }
       else if (comparison2 == 0)
         {
-          if ((m & 1) == 0)
+          if ((LOW_U32_FROM_VAR (m) & 1) == 0)
             {
               if (comparison < 0 && m == NORMAL_MASK)
                 {
-                  DECREMENT_FLOAT (z, decApproxCount, incApproxCount);
+                  DECREMENT_DOUBLE (z, decApproxCount, incApproxCount);
                 }
               else
                 {
@@ -492,30 +483,30 @@ floatAlgorithm (JNIEnv* env __attribute__ ((unused)), U_64 * f, IDATA length, ji
             }
           else if (comparison < 0)
             {
-              DECREMENT_FLOAT (z, decApproxCount, incApproxCount);
+              DECREMENT_DOUBLE (z, decApproxCount, incApproxCount);
               break;
             }
           else
             {
-              INCREMENT_FLOAT (z, decApproxCount, incApproxCount);
+              INCREMENT_DOUBLE (z, decApproxCount, incApproxCount);
               break;
             }
         }
       else if (comparison < 0)
         {
-          DECREMENT_FLOAT (z, decApproxCount, incApproxCount);
+          DECREMENT_DOUBLE (z, decApproxCount, incApproxCount);
         }
       else
         {
-          if (FLOAT_TO_INTBITS (z) == EXPONENT_MASK)
+          if (DOUBLE_TO_LONGBITS (z) == INFINITE_LONGBITS)
             break;
-          INCREMENT_FLOAT (z, decApproxCount, incApproxCount);
+          INCREMENT_DOUBLE (z, decApproxCount, incApproxCount);
         }
     }
   while (1);
 
   if (x && x != f)
-      free(x);
+     free(x);
   release (y);
   release (D);
   release (D2);
@@ -525,77 +516,11 @@ OutOfMemory:
   if (x && x != f)
       free(x);
   release (y);
+  release (y);
   release (D);
   release (D2);
 
-  FLOAT_TO_INTBITS (z) = -2;
+  DOUBLE_TO_LONGBITS (z) = -2;
 
   return z;
-}
-
-#if defined(WIN32)
-#pragma optimize("",on)         /*restore optimizations */
-#endif
-
-JNIEXPORT jfloat JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv* env,
-                                                        jclass clazz __attribute__ ((unused)),
-                                                        jstring s, jint e)
-{
-  jfloat flt;
-  const char *str = (*env)->GetStringUTFChars (env, s, 0);
-  flt = createFloat (env, str, e);
-  (*env)->ReleaseStringUTFChars (env, s, str);
-
-  if (((I_32) FLOAT_TO_INTBITS (flt)) >= 0)
-    {
-      return flt;
-    }
-  else if (((I_32) FLOAT_TO_INTBITS (flt)) == (I_32) - 1)
-    {                           /* NumberFormatException */
-      jniThrowException(env, "java/lang/NumberFormatException", "");
-    }
-  else
-    {                           /* OutOfMemoryError */
-      jniThrowException(env, "java/lang/OutOfMemoryError", "");
-    }
-
-  return 0.0;
-}
-
-JNIEXPORT jdouble JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv* env,
-                                                        jclass clazz __attribute__ ((unused)),
-                                                        jstring s, jint e)
-{
-  jdouble dbl;
-  const char *str = (*env)->GetStringUTFChars (env, s, 0);
-  dbl = createDouble (env, str, e);
-  (*env)->ReleaseStringUTFChars (env, s, str);
-
-  if (!ERROR_OCCURED (dbl))
-    {
-      return dbl;
-    }
-  else if (LOW_I32_FROM_VAR (dbl) == (I_32) - 1)
-    {                           /* NumberFormatException */
-      jniThrowException(env, "java/lang/NumberFormatException", "");
-    }
-  else
-    {                           /* OutOfMemoryError */
-      jniThrowException(env, "java/lang/OutOfMemoryError", "");
-    }
-
-  return 0.0;
-}
-
-static JNINativeMethod gMethods[] = {
-    { "parseFltImpl", "(Ljava/lang/String;I)F",
-        Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl },
-    { "parseDblImpl", "(Ljava/lang/String;I)D",
-        Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl },
-};
-int register_org_apache_harmony_luni_util_fltparse(JNIEnv *env) {
-    return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/FloatingPointParser",
-                gMethods, NELEM(gMethods));
 }

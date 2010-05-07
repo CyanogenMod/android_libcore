@@ -17,7 +17,7 @@
 
 #include "JNIHelp.h"
 
-static void java_setFieldBool (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
+static void java_setFieldBool (JNIEnv* env, jclass, 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -27,20 +27,20 @@ static void java_setFieldBool (JNIEnv* env, jclass clazz __attribute__ ((unused)
     if(targetObject == NULL) {
         return;
     }
-    fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "Z");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    fid = env->GetFieldID(declaringClass, fieldNameInC, "Z");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
      * or maybe it returned the real value 
      */
     if(fid != 0) {
-        (*env)->SetBooleanField(env, targetObject, fid, newValue);
+        env->SetBooleanField(targetObject, fid, newValue);
     }
 }
 
-static void java_setFieldChar (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
+static void java_setFieldChar (JNIEnv* env, jclass, 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -50,20 +50,20 @@ static void java_setFieldChar (JNIEnv* env, jclass clazz __attribute__ ((unused)
     if(targetObject == NULL) {
         return;
     }
-    fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "C");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    fid = env->GetFieldID(declaringClass, fieldNameInC, "C");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
      * or maybe it returned the real value 
      */
     if(fid != 0) {
-        (*env)->SetCharField(env, targetObject, fid, newValue);
+        env->SetCharField(targetObject, fid, newValue);
     }
 }
 
-static void java_setFieldInt (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
+static void java_setFieldInt (JNIEnv* env, jclass, 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -73,20 +73,20 @@ static void java_setFieldInt (JNIEnv* env, jclass clazz __attribute__ ((unused))
     if(targetObject == NULL) {
         return;
     }
-    fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "I");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    fid = env->GetFieldID(declaringClass, fieldNameInC, "I");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
      * or maybe it returned the real value 
      */
     if(fid != 0) {
-        (*env)->SetIntField(env, targetObject, fid, newValue);
+        env->SetIntField(targetObject, fid, newValue);
     }
 }
 
-static void java_setFieldFloat (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
+static void java_setFieldFloat (JNIEnv* env, jclass, 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -96,20 +96,20 @@ static void java_setFieldFloat (JNIEnv* env, jclass clazz __attribute__ ((unused
     if(targetObject == NULL) {
         return;
     }
-    fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "F");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    fid = env->GetFieldID(declaringClass, fieldNameInC, "F");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
      * or maybe it returned the real value 
      */
     if(fid != 0) {
-        (*env)->SetFloatField(env, targetObject, fid, newValue);
+        env->SetFloatField(targetObject, fid, newValue);
     }
 }
 
-static void java_setFieldDouble (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
+static void java_setFieldDouble (JNIEnv* env, jclass, 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -119,21 +119,21 @@ static void java_setFieldDouble (JNIEnv* env, jclass clazz __attribute__ ((unuse
     if(targetObject == NULL) {
         return;
     }
-    fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "D");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    fid = env->GetFieldID(declaringClass, fieldNameInC, "D");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
      * or maybe it returned the real value 
      */
     if(fid != 0) {
-        (*env)->SetDoubleField(env, targetObject, fid, newValue);
+        env->SetDoubleField(targetObject, fid, newValue);
     }
 
 }
 
-static void java_setFieldShort (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
+static void java_setFieldShort (JNIEnv* env, jclass, 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -143,21 +143,21 @@ static void java_setFieldShort (JNIEnv* env, jclass clazz __attribute__ ((unused
     if(targetObject == NULL) {
         return;
     }
-    fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "S");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    fid = env->GetFieldID(declaringClass, fieldNameInC, "S");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
      * or maybe it returned the real value 
      */
     if(fid != 0) {
-        (*env)->SetShortField(env, targetObject, fid, newValue);
+        env->SetShortField(targetObject, fid, newValue);
     }
 
 }
 
-static void java_setFieldLong (JNIEnv* env, jclass clazz __attribute__ ((unused)),  
+static void java_setFieldLong (JNIEnv* env, jclass,  
                                          jobject targetObject,  
                                          jclass declaringClass, 
                                          jstring fieldName,  
@@ -167,36 +167,36 @@ static void java_setFieldLong (JNIEnv* env, jclass clazz __attribute__ ((unused)
     if(targetObject == NULL) {
         return;
     }
-    fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "J");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    fid = env->GetFieldID(declaringClass, fieldNameInC, "J");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /*
      * Two options now. Maybe getFieldID caused an exception, 
      * or maybe it returned the real value 
      */
     if(fid != 0) {
-        (*env)->SetLongField(env, targetObject, fid, newValue);
+        env->SetLongField(targetObject, fid, newValue);
     }
 }
 
-static jobject java_newInstance (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
+static jobject java_newInstance (JNIEnv* env, jclass, 
                                          jclass instantiationClass, 
                                          jclass constructorClass) {
     jmethodID mid =
-    (*env)->GetMethodID(env, constructorClass, "<init>", "()V");
+    env->GetMethodID(constructorClass, "<init>", "()V");
 
     if(mid == 0) {
       /* Cant newInstance,No empty constructor... */
       return (jobject) 0;
     } else {
         /* Instantiate an object of a given class */
-        return (jobject) (*env)->NewObject(env, instantiationClass, mid);
+        return (jobject) env->NewObject(instantiationClass, mid);
     }
 
 }
 
-static void java_setFieldByte (JNIEnv* env, jclass clazz __attribute__ ((unused)),  
+static void java_setFieldByte (JNIEnv* env, jclass,  
                                          jobject targetObject,  
                                          jclass declaringClass, 
                                          jstring fieldName,  
@@ -206,17 +206,17 @@ static void java_setFieldByte (JNIEnv* env, jclass clazz __attribute__ ((unused)
     if(targetObject == NULL) {
         return;
     }
-    fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "B");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    fid = env->GetFieldID(declaringClass, fieldNameInC, "B");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* Two options now. Maybe getFieldID caused an exception, or maybe it returned the real value */
     if(fid != 0) {
-        (*env)->SetByteField(env, targetObject, fid, newValue);
+        env->SetByteField(targetObject, fid, newValue);
     }
 }
 
-static void java_setFieldObj (JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static void java_setFieldObj (JNIEnv* env, jclass,
                                             jobject targetObject,
                                             jclass declaringClass,
                                             jstring fieldName,
@@ -227,19 +227,19 @@ static void java_setFieldObj (JNIEnv* env, jclass clazz __attribute__ ((unused))
     if(targetObject == NULL) {
         return;
     }
-    fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    fieldTypeNameInC = (*env)->GetStringUTFChars(env, fieldTypeName, NULL);
-    fid = (*env)->GetFieldID(env, declaringClass, 
+    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    fieldTypeNameInC = env->GetStringUTFChars(fieldTypeName, NULL);
+    fid = env->GetFieldID(declaringClass, 
             fieldNameInC, fieldTypeNameInC);
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
-    (*env)->ReleaseStringUTFChars(env, fieldTypeName, fieldTypeNameInC);
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
+    env->ReleaseStringUTFChars(fieldTypeName, fieldTypeNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
      * or maybe it returned the real value 
      */
     if(fid != 0) {
-        (*env)->SetObjectField(env, targetObject, fid, newValue);
+        env->SetObjectField(targetObject, fid, newValue);
     }
 }
 

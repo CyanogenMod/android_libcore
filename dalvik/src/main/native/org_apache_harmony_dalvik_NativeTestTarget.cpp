@@ -21,7 +21,7 @@
  *
  * For benchmarks, a do-nothing JNI method with no arguments.
  */
-static void emptyJniStaticMethod0(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)))
+static void emptyJniStaticMethod0(JNIEnv*, jclass)
 {
     // This space intentionally left blank.
 }
@@ -32,8 +32,8 @@ static void emptyJniStaticMethod0(JNIEnv* env __attribute__ ((unused)), jclass c
  *
  * For benchmarks, a do-nothing JNI method with six arguments.
  */
-static void emptyJniStaticMethod6(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)),
-    int a __attribute__ ((unused)), int b __attribute__ ((unused)), int c __attribute__ ((unused)), int d __attribute__ ((unused)), int e __attribute__ ((unused)), int f __attribute__ ((unused)))
+static void emptyJniStaticMethod6(JNIEnv*, jclass,
+    int, int, int, int, int, int)
 {
     // This space intentionally left blank.
 }
@@ -44,19 +44,16 @@ static void emptyJniStaticMethod6(JNIEnv* env __attribute__ ((unused)), jclass c
  *
  * For benchmarks, a do-nothing JNI method with six arguments.
  */
-static void emptyJniStaticMethod6L(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)),
-    jobject a __attribute__ ((unused)), jarray b __attribute__ ((unused)), jarray c __attribute__ ((unused)), jobject d __attribute__ ((unused)), jarray e __attribute__ ((unused)), jarray f __attribute__ ((unused)))
+static void emptyJniStaticMethod6L(JNIEnv*, jclass,
+    jobject, jarray, jarray, jobject, jarray, jarray)
 {
     // This space intentionally left blank.
 }
 
 static JNINativeMethod gMethods[] = {
-    { "emptyJniStaticMethod0",  "()V",  emptyJniStaticMethod0 },
-    { "emptyJniStaticMethod6",  "(IIIIII)V", emptyJniStaticMethod6 },
-    { "emptyJniStaticMethod6L",
-      "(Ljava/lang/String;[Ljava/lang/String;[[I"
-      "Ljava/lang/Object;[Ljava/lang/Object;[[[[Ljava/lang/Object;)V",
-      emptyJniStaticMethod6L },
+  { "emptyJniStaticMethod0",  "()V",       (void*)emptyJniStaticMethod0 },
+  { "emptyJniStaticMethod6",  "(IIIIII)V", (void*)emptyJniStaticMethod6 },
+  { "emptyJniStaticMethod6L", "(Ljava/lang/String;[Ljava/lang/String;[[ILjava/lang/Object;[Ljava/lang/Object;[[[[Ljava/lang/Object;)V", (void*)emptyJniStaticMethod6L },
 };
 int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env) {
     int result = jniRegisterNativeMethods(env,
@@ -65,7 +62,7 @@ int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env) {
     if (result != 0) {
         /* print warning, but allow to continue */
         LOGW("WARNING: NativeTestTarget not registered\n");
-        (*env)->ExceptionClear(env);
+        env->ExceptionClear();
     }
     return 0;
 }

@@ -15,19 +15,19 @@ LOCAL_SRC_FILES := \
 	NativeRegEx.cpp \
 	Register.cpp \
 	UCharacter.cpp \
-	cbigint.c \
-	commonDblParce.c \
+	cbigint.cpp \
+	commonDblParce.cpp \
 	java_io_Console.cpp \
 	java_io_File.cpp \
 	java_io_FileDescriptor.c \
-	java_io_ObjectInputStream.c \
-	java_io_ObjectOutputStream.c \
-	java_io_ObjectStreamClass.c \
-	java_lang_Double.c \
-	java_lang_Float.c \
-	java_lang_Math.c \
+	java_io_ObjectInputStream.cpp \
+	java_io_ObjectOutputStream.cpp \
+	java_io_ObjectStreamClass.cpp \
+	java_lang_Double.cpp \
+	java_lang_Float.cpp \
+	java_lang_Math.cpp \
 	java_lang_ProcessManager.cpp \
-	java_lang_StrictMath.c \
+	java_lang_StrictMath.cpp \
 	java_lang_System.cpp \
 	java_net_InetAddress.cpp \
 	java_net_NetworkInterface.cpp \
@@ -38,8 +38,8 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_platform_OSFileSystem.cpp \
 	org_apache_harmony_luni_platform_OSMemory.cpp \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
-	org_apache_harmony_luni_util_NumberConvert.c \
-	org_apache_harmony_luni_util_fltparse.c \
+	org_apache_harmony_luni_util_NumberConvert.cpp \
+	org_apache_harmony_luni_util_fltparse.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
 	org_apache_harmony_xnet_provider_jsse_NativeCrypto.cpp
 

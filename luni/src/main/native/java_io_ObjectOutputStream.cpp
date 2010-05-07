@@ -17,13 +17,13 @@
 
 #include "JNIHelp.h"
 
-static jlong java_getFieldLong(JNIEnv * env, jclass clazz __attribute__ ((unused)),
+static jlong java_getFieldLong(JNIEnv * env, jclass,
                                               jobject targetObject,
                                               jclass declaringClass,
                                               jstring fieldName) {
-    const char *fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    jfieldID fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "J");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "J");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
@@ -33,17 +33,17 @@ static jlong java_getFieldLong(JNIEnv * env, jclass clazz __attribute__ ((unused
     	// Field not found. I believe we must throw an exception here
         return (jlong) 0L;
     } else {
-        return (*env)->GetLongField (env, targetObject, fid);
+        return env->GetLongField(targetObject, fid);
     }
 }
 
-static jshort java_getFieldShort(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jshort java_getFieldShort(JNIEnv* env, jclass,
                                                jobject targetObject,
                                                jclass declaringClass,
                                                jstring fieldName) {
-    const char *fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    jfieldID fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "S");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "S");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
@@ -53,17 +53,17 @@ static jshort java_getFieldShort(JNIEnv* env, jclass clazz __attribute__ ((unuse
         // Field not found. I believe we must throw an exception here
         return (jshort) 0;
     } else {
-        return (*env)->GetShortField (env, targetObject, fid);
+        return env->GetShortField(targetObject, fid);
     }
 }
 
-static jdouble java_getFieldDouble(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jdouble java_getFieldDouble(JNIEnv* env, jclass,
                                                 jobject targetObject,
                                                 jclass declaringClass,
                                                 jstring fieldName) {
-    const char *fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    jfieldID fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "D");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "D");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
@@ -73,17 +73,17 @@ static jdouble java_getFieldDouble(JNIEnv* env, jclass clazz __attribute__ ((unu
         // Field not found. I believe we must throw an exception here
         return (jdouble) 0.0;
     } else {
-        return (*env)->GetDoubleField (env, targetObject, fid);
+        return env->GetDoubleField(targetObject, fid);
     }
 }
 
-static jboolean java_getFieldBool(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jboolean java_getFieldBool(JNIEnv* env, jclass,
                                               jobject targetObject,
                                               jclass declaringClass,
                                               jstring fieldName) {
-    const char *fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    jfieldID fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "Z");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "Z");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
@@ -93,17 +93,17 @@ static jboolean java_getFieldBool(JNIEnv* env, jclass clazz __attribute__ ((unus
         // Field not found. I believe we must throw an exception here
         return (jboolean) 0;
     } else {
-        return (*env)->GetBooleanField (env, targetObject, fid);
+        return env->GetBooleanField(targetObject, fid);
     }
 }
 
-static jbyte java_getFieldByte(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jbyte java_getFieldByte(JNIEnv* env, jclass,
                                               jobject targetObject,
                                               jclass declaringClass,
                                               jstring fieldName) {
-    const char *fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    jfieldID fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "B");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "B");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
@@ -113,17 +113,17 @@ static jbyte java_getFieldByte(JNIEnv* env, jclass clazz __attribute__ ((unused)
         // Field not found. I believe we must throw an exception here
         return (jbyte) 0;
     } else {
-        return (*env)->GetByteField (env, targetObject, fid);
+        return env->GetByteField(targetObject, fid);
     }
 }
 
-static jfloat java_getFieldFloat(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jfloat java_getFieldFloat(JNIEnv* env, jclass,
                                                jobject targetObject,
                                                jclass declaringClass,
                                                jstring fieldName) {
-    const char *fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    jfieldID fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "F");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "F");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
@@ -134,18 +134,18 @@ static jfloat java_getFieldFloat(JNIEnv* env, jclass clazz __attribute__ ((unuse
         return (jfloat) 0.0f;
     }
     else {
-        return (*env)->GetFloatField (env, targetObject, fid);
+        return env->GetFloatField(targetObject, fid);
     }
 
 }
 
-static jchar java_getFieldChar(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jchar java_getFieldChar(JNIEnv* env, jclass,
                                               jobject targetObject,
                                               jclass declaringClass,
                                               jstring fieldName) {
-    const char *fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    jfieldID fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "C");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "C");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception, 
@@ -155,22 +155,22 @@ static jchar java_getFieldChar(JNIEnv* env, jclass clazz __attribute__ ((unused)
         // Field not found. I believe we must throw an exception here
         return (jchar) 0;
     } else  {
-        return (*env)->GetCharField(env, targetObject, fid);
+        return env->GetCharField(targetObject, fid);
     }
 }
 
-static jobject java_getFieldObj(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jobject java_getFieldObj(JNIEnv* env, jclass,
                                              jobject targetObject,
                                              jclass declaringClass,
                                              jstring fieldName,
                                              jstring fieldTypeName) {
-    const char *fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
+    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
     const char *fieldTypeNameInC =
-    (*env)->GetStringUTFChars(env, fieldTypeName, NULL);
-    jfieldID fid = (*env)->GetFieldID(env, declaringClass, 
+    env->GetStringUTFChars(fieldTypeName, NULL);
+    jfieldID fid = env->GetFieldID(declaringClass, 
             fieldNameInC, fieldTypeNameInC);
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
-    (*env)->ReleaseStringUTFChars(env, fieldTypeName, fieldTypeNameInC);
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
+    env->ReleaseStringUTFChars(fieldTypeName, fieldTypeNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused an exception,
@@ -180,17 +180,17 @@ static jobject java_getFieldObj(JNIEnv* env, jclass clazz __attribute__ ((unused
         // Field not found. I believe we must throw an exception here
         return (jobject) 0;
     } else {
-        return (*env)->GetObjectField (env, targetObject, fid);
+        return env->GetObjectField(targetObject, fid);
     }
 }
 
-static jint java_getFieldInt(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jint java_getFieldInt(JNIEnv* env, jclass,
                                              jobject targetObject,
                                              jclass declaringClass,
                                              jstring fieldName) {
-    const char *fieldNameInC = (*env)->GetStringUTFChars(env, fieldName, NULL);
-    jfieldID fid = (*env)->GetFieldID(env, declaringClass, fieldNameInC, "I");
-    (*env)->ReleaseStringUTFChars(env, fieldName, fieldNameInC);
+    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
+    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "I");
+    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
 
     /* 
      * Two options now. Maybe getFieldID caused 
@@ -200,7 +200,7 @@ static jint java_getFieldInt(JNIEnv* env, jclass clazz __attribute__ ((unused)),
        // Field not found. I believe we must throw an exception here
         return (jint) 0;
     } else {
-        return (*env)->GetIntField(env, targetObject, fid);
+        return env->GetIntField(targetObject, fid);
     }
 }
 

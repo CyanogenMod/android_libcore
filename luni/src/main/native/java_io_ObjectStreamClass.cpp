@@ -17,78 +17,78 @@
 
 #include "JNIHelp.h"
 
-static jobject java_io_osc_getFieldSignature(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jobject java_io_osc_getFieldSignature(JNIEnv* env, jclass,
                                                   jobject reflectField) {
     jclass lookupClass;
     jmethodID mid;
 
-    lookupClass = (*env)->FindClass(env, "java/lang/reflect/Field");
+    lookupClass = env->FindClass("java/lang/reflect/Field");
     if(!lookupClass) {
         return NULL;
     }
 
-    mid = (*env)->GetMethodID(env, lookupClass, "getSignature",
+    mid = env->GetMethodID(lookupClass, "getSignature",
             "()Ljava/lang/String;");
     if(!mid)
     {
         return NULL;
     }
 
-    jclass fieldClass = (*env)->GetObjectClass(env, reflectField);
+    jclass fieldClass = env->GetObjectClass(reflectField);
     
-    return (*env)->CallNonvirtualObjectMethod(env, reflectField, 
+    return env->CallNonvirtualObjectMethod(reflectField, 
             fieldClass, mid);
 }
 
-static jobject java_io_osc_getMethodSignature(JNIEnv* env, jclass clazz __attribute__ ((unused)),
+static jobject java_io_osc_getMethodSignature(JNIEnv* env, jclass,
                                                    jobject reflectMethod)
 {
     jclass lookupClass;
     jmethodID mid;
 
-    lookupClass = (*env)->FindClass(env, "java/lang/reflect/Method");
+    lookupClass = env->FindClass("java/lang/reflect/Method");
     if(!lookupClass) {
         return NULL;
     }
 
-    mid = (*env)->GetMethodID(env, lookupClass, "getSignature",
+    mid = env->GetMethodID(lookupClass, "getSignature",
             "()Ljava/lang/String;");
     if(!mid) {
         return NULL;
     }
   
-    jclass methodClass = (*env)->GetObjectClass(env, reflectMethod);
-    return (*env)->CallNonvirtualObjectMethod(env, reflectMethod, 
+    jclass methodClass = env->GetObjectClass(reflectMethod);
+    return env->CallNonvirtualObjectMethod(reflectMethod, 
             methodClass, mid);
 }
 
 static jobject java_io_osc_getConstructorSignature(JNIEnv* env,
-                                                        jclass clazz __attribute__ ((unused)),
+                                                        jclass,
                                                         jobject
                                                         reflectConstructor)
 {
     jclass lookupClass;
     jmethodID mid;
 
-    lookupClass = (*env)->FindClass(env, "java/lang/reflect/Constructor");
+    lookupClass = env->FindClass("java/lang/reflect/Constructor");
     if(!lookupClass) {
         return NULL;
     }
 
-    mid = (*env)->GetMethodID(env, lookupClass, "getSignature",
+    mid = env->GetMethodID(lookupClass, "getSignature",
             "()Ljava/lang/String;");
     if(!mid) {
         return NULL;
     }
 
-    jclass constructorClass = (*env)->GetObjectClass(env, reflectConstructor);
-    return (*env)->CallNonvirtualObjectMethod(env, reflectConstructor,
+    jclass constructorClass = env->GetObjectClass(reflectConstructor);
+    return env->CallNonvirtualObjectMethod(reflectConstructor,
                                              constructorClass, mid);
 }
 
-static jboolean java_io_osc_hasClinit(JNIEnv * env, jclass clazz, jobject targetClass) {
-    jmethodID mid = (*env)->GetStaticMethodID(env, targetClass, "<clinit>", "()V");
-    (*env)->ExceptionClear(env);
+static jboolean java_io_osc_hasClinit(JNIEnv * env, jclass, jclass targetClass) {
+    jmethodID mid = env->GetStaticMethodID(targetClass, "<clinit>", "()V");
+    env->ExceptionClear();
     return (mid != 0);
 }
 
