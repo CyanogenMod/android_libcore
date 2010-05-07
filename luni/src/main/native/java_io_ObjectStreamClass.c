@@ -86,42 +86,17 @@ static jobject java_io_osc_getConstructorSignature(JNIEnv* env,
                                              constructorClass, mid);
 }
 
-static jboolean java_io_osc_hasClinit(JNIEnv* env, jclass clazz __attribute__ ((unused)),
-                                          jobject targetClass) {
-    jmethodID mid = (*env)->GetStaticMethodID(env, targetClass, 
-            "<clinit>", "()V");
+static jboolean java_io_osc_hasClinit(JNIEnv * env, jclass clazz, jobject targetClass) {
+    jmethodID mid = (*env)->GetStaticMethodID(env, targetClass, "<clinit>", "()V");
     (*env)->ExceptionClear(env);
-
-    /* 
-     * Can I just return mid and rely on typecast to convert to jboolean ? 
-     * Safe implementation for now 
-     */
-    if(mid == 0) {
-      /* No <clinit>... */
-      return (jboolean) 0;
-    } else {
-      return (jboolean) 1;
-    }
-}
-
-static void java_io_osc_oneTimeInitialization(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused))) {
-  // dummy to stay compatible to harmony
+    return (mid != 0);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "getFieldSignature",       
-    	"(Ljava/lang/reflect/Field;)Ljava/lang/String;",
-    	(void*) java_io_osc_getFieldSignature },
-    { "getMethodSignature",      
-    	"(Ljava/lang/reflect/Method;)Ljava/lang/String;",
-    	(void*) java_io_osc_getMethodSignature },
-    { "getConstructorSignature", 
-    	"(Ljava/lang/reflect/Constructor;)Ljava/lang/String;",
-    	(void*) java_io_osc_getConstructorSignature },
-    { "hasClinit",               "(Ljava/lang/Class;)Z",
-    	(void*) java_io_osc_hasClinit },
-    { "oneTimeInitialization",   "()V",
-    	(void*) java_io_osc_oneTimeInitialization }
+    { "getConstructorSignature", "(Ljava/lang/reflect/Constructor;)Ljava/lang/String;", (void*) java_io_osc_getConstructorSignature },
+    { "getFieldSignature", "(Ljava/lang/reflect/Field;)Ljava/lang/String;", (void*) java_io_osc_getFieldSignature },
+    { "getMethodSignature", "(Ljava/lang/reflect/Method;)Ljava/lang/String;", (void*) java_io_osc_getMethodSignature },
+    { "hasClinit", "(Ljava/lang/Class;)Z", (void*) java_io_osc_hasClinit },
 };
 int register_java_io_ObjectStreamClass(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/ObjectStreamClass", gMethods, NELEM(gMethods));

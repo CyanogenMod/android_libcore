@@ -37,14 +37,6 @@ import java.io.FileDescriptor; // android-only
  * @see Deflater
  */
 public class Inflater {
-
-    static {
-        oneTimeInitialization();
-    }
-
-    // Fill in the JNI id caches
-    private static native void oneTimeInitialization();
-
     private boolean finished; // Set by the inflateImpl native
 
     int inLength;

@@ -108,16 +108,9 @@ public class Deflater {
      */
     private static final int FINISH = 4;
 
-    // Fill in the JNI id caches
-    private static native void oneTimeInitialization();
-
     // A stub buffer used when deflate() called while inputBuffer has not been
     // set.
     private static final byte[] STUB_INPUT_BUFFER = new byte[0];
-
-    static {
-        oneTimeInitialization();
-    }
 
     private int flushParm = NO_FLUSH;
 

@@ -139,26 +139,22 @@ static jlong Inflater_getTotalInImpl(JNIEnv*, jobject, jlong handle) {
     return toNativeZipStream(handle)->stream.total_in;
 }
 
-static void Inflater_oneTimeInitialization(JNIEnv * env, jclass clazz) {
-    memset(&gCachedFields, 0, sizeof(gCachedFields));
-    gCachedFields.inRead = env->GetFieldID(clazz, "inRead", "I");
-    gCachedFields.finished = env->GetFieldID(clazz, "finished", "Z");
-    gCachedFields.needsDictionary = env->GetFieldID(clazz, "needsDictionary", "Z");
-}
-
 static JNINativeMethod gMethods[] = {
     { "createStream", "(Z)J", (void*) Inflater_createStream },
-    { "setInputImpl", "([BIIJ)V", (void*) Inflater_setInputImpl },
-    { "setFileInputImpl", "(Ljava/io/FileDescriptor;JIJ)I", (void*) Inflater_setFileInputImpl },
-    { "inflateImpl", "([BIIJ)I", (void*) Inflater_inflateImpl },
-    { "getAdlerImpl", "(J)I", (void*) Inflater_getAdlerImpl },
     { "endImpl", "(J)V", (void*) Inflater_endImpl },
-    { "setDictionaryImpl", "([BIIJ)V", (void*) Inflater_setDictionaryImpl },
-    { "resetImpl", "(J)V", (void*) Inflater_resetImpl },
-    { "getTotalOutImpl", "(J)J", (void*) Inflater_getTotalOutImpl },
+    { "getAdlerImpl", "(J)I", (void*) Inflater_getAdlerImpl },
     { "getTotalInImpl", "(J)J", (void*) Inflater_getTotalInImpl },
-    { "oneTimeInitialization", "()V", (void*) Inflater_oneTimeInitialization },
+    { "getTotalOutImpl", "(J)J", (void*) Inflater_getTotalOutImpl },
+    { "inflateImpl", "([BIIJ)I", (void*) Inflater_inflateImpl },
+    { "resetImpl", "(J)V", (void*) Inflater_resetImpl },
+    { "setDictionaryImpl", "([BIIJ)V", (void*) Inflater_setDictionaryImpl },
+    { "setFileInputImpl", "(Ljava/io/FileDescriptor;JIJ)I", (void*) Inflater_setFileInputImpl },
+    { "setInputImpl", "([BIIJ)V", (void*) Inflater_setInputImpl },
 };
 int register_java_util_zip_Inflater(JNIEnv* env) {
+    jclass inflaterClass = env->FindClass("java/util/zip/Inflater");
+    gCachedFields.finished = env->GetFieldID(inflaterClass, "finished", "Z");
+    gCachedFields.inRead = env->GetFieldID(inflaterClass, "inRead", "I");
+    gCachedFields.needsDictionary = env->GetFieldID(inflaterClass, "needsDictionary", "Z");
     return jniRegisterNativeMethods(env, "java/util/zip/Inflater", gMethods, NELEM(gMethods));
 }

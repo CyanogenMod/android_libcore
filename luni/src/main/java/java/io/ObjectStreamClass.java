@@ -73,11 +73,7 @@ public class ObjectStreamClass implements Serializable {
 
     static final Class<?>[] UNSHARED_PARAM_TYPES;
 
-    private static native void oneTimeInitialization();
-
     static {
-        oneTimeInitialization();
-
         CLASS_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.FINAL
                 | Modifier.INTERFACE | Modifier.ABSTRACT;
         FIELD_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.PRIVATE

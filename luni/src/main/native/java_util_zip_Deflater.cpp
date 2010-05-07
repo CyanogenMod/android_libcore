@@ -128,25 +128,21 @@ static void Deflater_setLevelsImpl(JNIEnv* env, jobject, int level, int strategy
     }
 }
 
-static void Deflater_oneTimeInitialization(JNIEnv* env, jclass clazz) {
-    memset(&gCachedFields, 0, sizeof(gCachedFields));
-    gCachedFields.inRead = env->GetFieldID(clazz, "inRead", "I");
-    gCachedFields.finished = env->GetFieldID(clazz, "finished", "Z");
-}
-
 static JNINativeMethod gMethods[] = {
-    { "setDictionaryImpl", "([BIIJ)V", (void*) Deflater_setDictionaryImpl },
-    { "getTotalInImpl", "(J)J", (void*) Deflater_getTotalInImpl },
-    { "getTotalOutImpl", "(J)J", (void*) Deflater_getTotalOutImpl },
-    { "getAdlerImpl", "(J)I", (void*) Deflater_getAdlerImpl },
     { "createStream", "(IIZ)J", (void*) Deflater_createStream },
-    { "setInputImpl", "([BIIJ)V", (void*) Deflater_setInputImpl },
     { "deflateImpl", "([BIIJI)I", (void*) Deflater_deflateImpl },
     { "endImpl", "(J)V", (void*) Deflater_endImpl },
+    { "getAdlerImpl", "(J)I", (void*) Deflater_getAdlerImpl },
+    { "getTotalInImpl", "(J)J", (void*) Deflater_getTotalInImpl },
+    { "getTotalOutImpl", "(J)J", (void*) Deflater_getTotalOutImpl },
     { "resetImpl", "(J)V", (void*) Deflater_resetImpl },
+    { "setDictionaryImpl", "([BIIJ)V", (void*) Deflater_setDictionaryImpl },
+    { "setInputImpl", "([BIIJ)V", (void*) Deflater_setInputImpl },
     { "setLevelsImpl", "(IIJ)V", (void*) Deflater_setLevelsImpl },
-    { "oneTimeInitialization", "()V", (void*) Deflater_oneTimeInitialization },
 };
 int register_java_util_zip_Deflater(JNIEnv* env) {
+    jclass deflaterClass = env->FindClass("java/util/zip/Deflater");
+    gCachedFields.finished = env->GetFieldID(deflaterClass, "finished", "Z");
+    gCachedFields.inRead = env->GetFieldID(deflaterClass, "inRead", "I");
     return jniRegisterNativeMethods(env, "java/util/zip/Deflater", gMethods, NELEM(gMethods));
 }
