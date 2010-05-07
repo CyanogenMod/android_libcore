@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,53 +18,85 @@
 #if !defined(zip_h)
 #define zip_h
 
-#ifndef HY_ZIP_API
-#include "zipsup.h"
-#else /* HY_ZIP_API */
-#include "vmizip.h"
-#endif /* HY_ZIP_API */
+#include "JNIHelp.h"
+#include "UniquePtr.h"
+#include "jni.h"
+#include "zlib.h"
 
-#include "hymutex.h"
+// FIXME: move to JNIHelp.h
+static void jniThrowOutOfMemoryError(JNIEnv* env, const char* message) {
+    jniThrowException(env, "java/lang/OutOfMemoryError", message);
+}
 
-typedef struct JCLZipFile
-{
-  struct JCLZipFile *last;
-  struct JCLZipFile *next;
-#ifndef HY_ZIP_API
-  HyZipFile hyZipFile;
-#else
-  VMIZipFile hyZipFile;
-#endif
-} JCLZipFile;
+static void throwExceptionForZlibError(JNIEnv* env, const char* exceptionClassName, int error) {
+    if (error == Z_MEM_ERROR) {
+        jniThrowOutOfMemoryError(env, NULL);
+    } else {
+        jniThrowException(env, exceptionClassName, zError(error));
+    }
+}
 
-/* Fake JCLZipFile entry. last, next must be in the same position as JCLZipFile */
-typedef struct JCLZipFileLink
-{
-  JCLZipFile *last;
-  JCLZipFile *next;
-  MUTEX mutex;
-} JCLZipFileLink;
+class NativeZipStream {
+public:
+    UniquePtr<jbyte[]> input;
+    int inCap;
+    z_stream stream;
 
-// Contents from Harmony's inflater.h was put here:
-//
-typedef struct JCLZipStream
-{
-  U_8 *inaddr;
-  int inCap;
-  U_8 *dict;
-  z_stream *stream;
-} JCLZipStream;
+    NativeZipStream() : input(NULL), inCap(0), mDict(NULL) {
+        // Let zlib use its default allocator.
+        stream.opaque = Z_NULL;
+        stream.zalloc = Z_NULL;
+        stream.zfree = Z_NULL;
+    }
 
-#define THROW_ZIP_EXCEPTION(env, err, type)            \
-  if (err == Z_MEM_ERROR) {                            \
-    throwNewOutOfMemoryError(env, "");                 \
-  } else {                                             \
-    throwNew##type(env, (const char*) zError(err));    \
-  }
+    ~NativeZipStream() {
+    }
 
-void throwNewIllegalStateException PROTOTYPE((JNIEnv* env,
-                                              const char* message));
-void throwNewIllegalArgumentException PROTOTYPE((JNIEnv* env,
-                                                 const char* message));
+    void setDictionary(JNIEnv* env, jbyteArray dict, int off, int len, bool inflate) {
+        UniquePtr<jbyte[]> dBytes(new jbyte[len]);
+        if (dBytes.get() == NULL) {
+            jniThrowOutOfMemoryError(env, NULL);
+            return;
+        }
+        env->GetByteArrayRegion(dict, off, len, &dBytes[0]);
+        int err;
+        if (inflate) {
+            err = inflateSetDictionary(&stream, (Bytef *) &dBytes[0], len);
+        } else {
+            err = deflateSetDictionary(&stream, (Bytef *) &dBytes[0], len);
+        }
+        if (err != Z_OK) {
+            throwExceptionForZlibError(env, "java/lang/IllegalArgumentException", err);
+            return;
+        }
+        mDict.reset(dBytes.release());
+    }
+
+    void setInput(JNIEnv* env, jbyteArray buf, jint off, jint len) {
+        input.reset(new jbyte[len]);
+        if (input.get() == NULL) {
+            inCap = 0;
+            jniThrowOutOfMemoryError(env, NULL);
+            return;
+        }
+        inCap = len;
+        if (buf != NULL) {
+            env->GetByteArrayRegion(buf, off, len, &input[0]);
+        }
+        stream.next_in = (Bytef *) &input[0];
+        stream.avail_in = len;
+    }
+
+private:
+    UniquePtr<jbyte[]> mDict;
+
+    // Disallow copy and assignment.
+    NativeZipStream(const NativeZipStream&);
+    void operator=(const NativeZipStream&);
+};
+
+static NativeZipStream* toNativeZipStream(jlong address) {
+    return reinterpret_cast<NativeZipStream*>(static_cast<uintptr_t>(address));
+}
 
 #endif /* zip_h */

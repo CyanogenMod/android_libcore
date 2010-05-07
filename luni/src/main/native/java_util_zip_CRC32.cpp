@@ -15,35 +15,28 @@
  * limitations under the License.
  */
 
-#include "hy2sie.h"
-#include "sieb.h"
-
+#include "JNIHelp.h"
+#include "jni.h"
 #include "zlib.h"
 
-JNIEXPORT jlong JNICALL
-Java_java_util_zip_CRC32_updateImpl (JNIEnv * env, jobject recv,
-                                     jbyteArray buf, int off, int len,
-                                     jlong crc)
-{
-  jbyte* b = ((*env)->GetPrimitiveArrayCritical (env, buf, 0));
-  if (b == NULL) {
-    return -1;
-  }
-  jlong result = crc32 ((uLong) crc, (Bytef *) (b + off), (uInt) len);
-  ((*env)->ReleasePrimitiveArrayCritical (env, buf, b, JNI_ABORT));
-  return result;
+static jlong CRC32_updateImpl(JNIEnv* env, jobject, jbyteArray buf, int off, int len, jlong crc) {
+    jbyte* b = (jbyte*) env->GetPrimitiveArrayCritical(buf, NULL);
+    if (b == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return 0;
+    }
+    jlong result = crc32((uLong) crc, (Bytef *) (b + off), (uInt) len);
+    env->ReleasePrimitiveArrayCritical(buf, b, JNI_ABORT);
+    return result;
 }
 
-JNIEXPORT jlong JNICALL
-Java_java_util_zip_CRC32_updateByteImpl (JNIEnv * env, jobject recv,
-                                         jbyte val, jlong crc)
-{
-  return crc32 ((uLong) crc, (Bytef *) (&val), 1);
+static jlong CRC32_updateByteImpl(JNIEnv* env, jobject recv, jbyte val, jlong crc) {
+    return crc32((uLong) crc, (Bytef *) (&val), 1);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "updateImpl", "([BIIJ)J",     Java_java_util_zip_CRC32_updateImpl },
-    { "updateByteImpl", "(BJ)J",     Java_java_util_zip_CRC32_updateByteImpl },
+    { "updateImpl", "([BIIJ)J", (void*) CRC32_updateImpl },
+    { "updateByteImpl", "(BJ)J", (void*) CRC32_updateByteImpl },
 };
 int register_java_util_zip_CRC32(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/util/zip/CRC32", gMethods, NELEM(gMethods));

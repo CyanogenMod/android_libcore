@@ -81,7 +81,7 @@ static jboolean isDigitImpl(JNIEnv*, jclass, jint codePoint) {
 }
 
 static jboolean isIdentifierIgnorableImpl(JNIEnv*, jclass, jint codePoint) {
-    // Java also returns TRUE for U+0085 Next Line (it omits U+0085 from whitespace ISO controls)
+    // Java also returns true for U+0085 Next Line (it omits U+0085 from whitespace ISO controls).
     if(codePoint == 0x0085) {
         return JNI_TRUE;
     }
