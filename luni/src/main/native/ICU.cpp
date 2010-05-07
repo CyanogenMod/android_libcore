@@ -358,7 +358,7 @@ static jstring getDisplayTimeZoneNative(JNIEnv* env, jclass, jstring zoneId, jbo
     return env->NewString(displayName.getBuffer(), displayName.length());
 }
 
-static bool getDayIntVector(JNIEnv* env, UResourceBundle* gregorian, int* values) {
+static bool getDayIntVector(JNIEnv*, UResourceBundle* gregorian, int* values) {
     // get the First day of week and the minimal days in first week numbers
     UErrorCode status = U_ZERO_ERROR;
     ScopedResourceBundle gregorianElems(ures_getByKey(gregorian, "DateTimeElements", NULL, &status));

@@ -186,7 +186,7 @@ inline int getifaddrs(ifaddrs** result) {
     ssize_t bytesRead;
     while ((bytesRead  = recvNetlinkMessage(fd.get(), &buf[0], buf.size())) > 0) {
         nlmsghdr* hdr = reinterpret_cast<nlmsghdr*>(&buf[0]);
-        for (; NLMSG_OK(hdr, bytesRead); hdr = NLMSG_NEXT(hdr, bytesRead)) {
+        for (; NLMSG_OK(hdr, (size_t)bytesRead); hdr = NLMSG_NEXT(hdr, bytesRead)) {
             switch (hdr->nlmsg_type) {
             case NLMSG_DONE:
                 return 0;

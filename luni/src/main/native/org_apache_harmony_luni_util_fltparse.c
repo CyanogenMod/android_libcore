@@ -40,18 +40,18 @@
 #define DEFAULT_WIDTH MAX_ACCURACY_WIDTH
 
 JNIEXPORT jfloat JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv * env,
+Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv* env,
                                                         jclass clazz,
                                                         jstring s, jint e);
 JNIEXPORT jdouble JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv * env,
+Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv* env,
                                                         jclass clazz,
                                                         jstring s, jint e);
 
-jfloat createFloat1 (JNIEnv * env, U_64 * f, IDATA length, jint e);
-jfloat floatAlgorithm (JNIEnv * env, U_64 * f, IDATA length, jint e,
+jfloat createFloat1 (JNIEnv* env, U_64 * f, IDATA length, jint e);
+jfloat floatAlgorithm (JNIEnv* env, U_64 * f, IDATA length, jint e,
                        jfloat z);
-jfloat createFloat (JNIEnv * env, const char *s, jint e);
+jfloat createFloat (JNIEnv* env, const char *s, jint e);
 
 static const U_32 tens[] = {
   0x3f800000,
@@ -121,7 +121,7 @@ static const U_32 tens[] = {
 #define release(r) if ((r)) free((r));
 
 jfloat
-createFloat (JNIEnv * env, const char *s, jint e)
+createFloat (JNIEnv* env, const char *s, jint e)
 {
   /* assumes s is a null terminated string with at least one
    * character in it */
@@ -222,7 +222,7 @@ createFloat (JNIEnv * env, const char *s, jint e)
 }
 
 jfloat
-createFloat1 (JNIEnv * env, U_64 * f, IDATA length, jint e)
+createFloat1 (JNIEnv* env, U_64 * f, IDATA length, jint e)
 {
   IDATA numBits;
   jdouble dresult;
@@ -351,7 +351,7 @@ createFloat1 (JNIEnv * env, U_64 * f, IDATA length, jint e)
  * then return the original approximation.
  */
 jfloat
-floatAlgorithm (JNIEnv * env, U_64 * f, IDATA length, jint e, jfloat z)
+floatAlgorithm (JNIEnv* env __attribute__ ((unused)), U_64 * f, IDATA length, jint e, jfloat z)
 {
   U_64 m;
   IDATA k, comparison, comparison2;
@@ -538,8 +538,8 @@ OutOfMemory:
 #endif
 
 JNIEXPORT jfloat JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv * env,
-                                                        jclass clazz,
+Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv* env,
+                                                        jclass clazz __attribute__ ((unused)),
                                                         jstring s, jint e)
 {
   jfloat flt;
@@ -564,8 +564,8 @@ Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv * env
 }
 
 JNIEXPORT jdouble JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv * env,
-                                                        jclass clazz,
+Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv* env,
+                                                        jclass clazz __attribute__ ((unused)),
                                                         jstring s, jint e)
 {
   jdouble dbl;

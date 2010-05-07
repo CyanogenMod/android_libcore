@@ -21,7 +21,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-static jboolean java_io_Console_isatty(JNIEnv* env, jclass, jint fd) {
+static jboolean java_io_Console_isatty(JNIEnv*, jclass, jint fd) {
     return TEMP_FAILURE_RETRY(isatty(fd));
 }
 

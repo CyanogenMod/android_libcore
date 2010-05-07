@@ -30,7 +30,7 @@ static jlong Adler32_updateImpl(JNIEnv* env, jobject, jbyteArray buf, int off, i
     return result;
 }
 
-static jlong Adler32_updateByteImpl(JNIEnv* env, jobject, jint val, jlong crc) {
+static jlong Adler32_updateByteImpl(JNIEnv*, jobject, jint val, jlong crc) {
     Bytef bytefVal = val;
     return adler32((uLong) crc, (Bytef *) (&bytefVal), 1);
 }

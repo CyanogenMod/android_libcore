@@ -191,7 +191,7 @@ static void harmony_io_unlockImpl(JNIEnv* env, jobject, jint handle,
  * Returns the granularity of the starting address for virtual memory allocation.
  * (It's the same as the page size.)
  */
-static jint harmony_io_getAllocGranularity(JNIEnv* env, jobject) {
+static jint harmony_io_getAllocGranularity(JNIEnv*, jobject) {
     static int allocGranularity = getpagesize();
     return allocGranularity;
 }

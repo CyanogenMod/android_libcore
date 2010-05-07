@@ -115,7 +115,7 @@ static jboolean java_io_File_canReadImpl(JNIEnv* env, jobject, jbyteArray pathBy
     return (access(&path[0], R_OK) == 0);
 }
 
-static jboolean java_io_File_canWriteImpl(JNIEnv* env, jobject recv, jbyteArray pathBytes) {
+static jboolean java_io_File_canWriteImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
     ScopedByteArray path(env, pathBytes);
     return (access(&path[0], W_OK) == 0);
 }

@@ -34,7 +34,7 @@
 
 static jclass byteArrayClass = NULL;
 
-static jstring InetAddress_gethostname(JNIEnv* env, jobject obj)
+static jstring InetAddress_gethostname(JNIEnv* env, jclass)
 {
     char name[256];
     int r = gethostname(name, 256);
@@ -59,7 +59,7 @@ static void logIpString(struct addrinfo* ai, const char* name)
     }
 }
 #else
-static inline void logIpString(struct addrinfo* ai, const char* name)
+static inline void logIpString(struct addrinfo*, const char*)
 {
 }
 #endif
@@ -150,7 +150,7 @@ static jobjectArray InetAddress_getaddrinfoImpl(JNIEnv* env, const char* name) {
     return addressArray;
 }
 
-jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jobject obj, jstring javaName) {
+jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jclass, jstring javaName) {
     if (javaName == NULL) {
         jniThrowNullPointerException(env, NULL);
         return NULL;
@@ -170,7 +170,7 @@ jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jobject obj, jstring javaName)
  * @return the hostname.
  * @throws UnknownHostException: the IP address has no associated hostname.
  */
-static jstring InetAddress_getnameinfo(JNIEnv* env, jobject obj,
+static jstring InetAddress_getnameinfo(JNIEnv* env, jclass,
                                          jbyteArray javaAddress)
 {
     if (javaAddress == NULL) {

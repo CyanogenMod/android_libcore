@@ -135,10 +135,8 @@ static const jdouble tens[] = {
 /* *********************************************************** */
 
 /* ************** private function declarations ************** */
-static U_64 dblparse_shiftRight64 (U_64 * lp, volatile int mbe);
- 
-static jdouble createDouble1   (JNIEnv * env, U_64 * f, IDATA length, jint e);
-static jdouble doubleAlgorithm (JNIEnv * env, U_64 * f, IDATA length, jint e,
+static jdouble createDouble1   (JNIEnv* env, U_64 * f, IDATA length, jint e);
+static jdouble doubleAlgorithm (JNIEnv* env, U_64 * f, IDATA length, jint e,
                                 jdouble z);
 /* *********************************************************** */
 
@@ -148,7 +146,7 @@ static jdouble doubleAlgorithm (JNIEnv * env, U_64 * f, IDATA length, jint e,
 #define sizeOfTenToTheE(e) (((e) / 19) + 1)
 
 jdouble
-createDouble (JNIEnv * env, const char *s, jint e)
+createDouble (JNIEnv* env, const char *s, jint e)
 {
   /* assumes s is a null terminated string with at least one
    * character in it */
@@ -253,7 +251,7 @@ createDouble (JNIEnv * env, const char *s, jint e)
 }
 
 jdouble
-createDouble1 (JNIEnv * env, U_64 * f, IDATA length, jint e)
+createDouble1 (JNIEnv* env, U_64 * f, IDATA length, jint e)
 {
   IDATA numBits;
   jdouble result;
@@ -320,84 +318,6 @@ createDouble1 (JNIEnv * env, U_64 * f, IDATA length, jint e)
   return doubleAlgorithm (env, f, length, e, result);
 }
 
-static U_64
-dblparse_shiftRight64 (U_64 * lp, volatile int mbe)
-{
-  U_64 b1Value = 0;
-  U_32 hi      = HIGH_U32_FROM_LONG64_PTR (lp);
-  U_32 lo      = LOW_U32_FROM_LONG64_PTR (lp);
-  int srAmt;
-
-  if (mbe == 0)
-    return 0;
-  if (mbe >= 128)
-    {
-      HIGH_U32_FROM_LONG64_PTR (lp) = 0;
-      LOW_U32_FROM_LONG64_PTR  (lp) = 0;
-      return 0;
-    }
-
-  /* Certain platforms do not handle de-referencing a 64-bit value
-   * from a pointer on the stack correctly (e.g. MVL-hh/XScale)
-   * because the pointer may not be properly aligned, so we'll have
-   * to handle two 32-bit chunks. */
-  if (mbe < 32)
-    {
-      LOW_U32_FROM_LONG64      (b1Value) =  0;
-      HIGH_U32_FROM_LONG64     (b1Value) =  lo  << (32 - mbe);
-      LOW_U32_FROM_LONG64_PTR  (lp)      = (hi << (32 - mbe)) | (lo >> mbe);
-      HIGH_U32_FROM_LONG64_PTR (lp)      =  hi  >> mbe;
-    }
-  else if (mbe == 32)
-    {
-      LOW_U32_FROM_LONG64      (b1Value) = 0;
-      HIGH_U32_FROM_LONG64     (b1Value) = lo;
-      LOW_U32_FROM_LONG64_PTR  (lp)      = hi;
-      HIGH_U32_FROM_LONG64_PTR (lp)      = 0;
-    }
-  else if (mbe < 64)
-    {
-      srAmt = mbe - 32;
-      LOW_U32_FROM_LONG64      (b1Value) =  lo << (32 - srAmt);
-      HIGH_U32_FROM_LONG64     (b1Value) = (hi << (32 - srAmt)) | (lo >> srAmt);
-      LOW_U32_FROM_LONG64_PTR  (lp)      =  hi >> srAmt;
-      HIGH_U32_FROM_LONG64_PTR (lp)      =  0;
-    }
-  else if (mbe == 64)
-    {
-      LOW_U32_FROM_LONG64      (b1Value) = lo;
-      HIGH_U32_FROM_LONG64     (b1Value) = hi;
-      LOW_U32_FROM_LONG64_PTR  (lp)      = 0;
-      HIGH_U32_FROM_LONG64_PTR (lp)      = 0;
-    }
-  else if (mbe < 96)
-    {
-      srAmt = mbe - 64;
-      b1Value = *lp;
-      HIGH_U32_FROM_LONG64_PTR (lp)        = 0;
-      LOW_U32_FROM_LONG64_PTR  (lp)        = 0;
-      LOW_U32_FROM_LONG64      (b1Value) >>= srAmt;
-      LOW_U32_FROM_LONG64      (b1Value)  |= (hi << (32 - srAmt));
-      HIGH_U32_FROM_LONG64     (b1Value) >>= srAmt;
-    }
-  else if (mbe == 96)
-    {
-      LOW_U32_FROM_LONG64      (b1Value) = hi;
-      HIGH_U32_FROM_LONG64     (b1Value) = 0;
-      HIGH_U32_FROM_LONG64_PTR (lp)      = 0;
-      LOW_U32_FROM_LONG64_PTR  (lp)      = 0;
-    }
-  else
-    {
-      LOW_U32_FROM_LONG64      (b1Value) = hi >> (mbe - 96);
-      HIGH_U32_FROM_LONG64     (b1Value) = 0;
-      HIGH_U32_FROM_LONG64_PTR (lp)      = 0;
-      LOW_U32_FROM_LONG64_PTR  (lp)      = 0;
-    }
-
-  return b1Value;
-}
-
 #if defined(WIN32)
 /* disable global optimizations on the microsoft compiler for the
  * doubleAlgorithm function otherwise it won't compile */
@@ -423,7 +343,7 @@ dblparse_shiftRight64 (U_64 * lp, volatile int mbe)
  * then return the original approximation.
  */
 static jdouble
-doubleAlgorithm (JNIEnv * env, U_64 * f, IDATA length, jint e, jdouble z)
+doubleAlgorithm (JNIEnv* env __attribute__ ((unused)), U_64 * f, IDATA length, jint e, jdouble z)
 {
   U_64 m;
   IDATA k, comparison, comparison2;

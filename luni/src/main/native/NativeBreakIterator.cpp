@@ -34,7 +34,7 @@ static jint getIterator(JNIEnv* env, jstring locale, UBreakIteratorType type) {
     return reinterpret_cast<uintptr_t>(it);
 }
 
-static jint getCharacterInstanceImpl(JNIEnv* env, jclass clazz, jstring locale) {
+static jint getCharacterInstanceImpl(JNIEnv* env, jclass, jstring locale) {
     return getIterator(env, locale, UBRK_CHARACTER);
 }
 
@@ -54,7 +54,7 @@ static UBreakIterator* breakIterator(jint address) {
     return reinterpret_cast<UBreakIterator*>(static_cast<uintptr_t>(address));
 }
 
-static void closeBreakIteratorImpl(JNIEnv* env, jclass, jint address) {
+static void closeBreakIteratorImpl(JNIEnv*, jclass, jint address) {
     ubrk_close(breakIterator(address));
 }
 
@@ -78,7 +78,7 @@ static jboolean isBoundaryImpl(JNIEnv*, jclass, jint address, jint offset) {
     return ubrk_isBoundary(breakIterator(address), offset);
 }
 
-static jint nextImpl(JNIEnv* env, jclass, jint address, jint n) {
+static jint nextImpl(JNIEnv*, jclass, jint address, jint n) {
     UBreakIterator* bi = breakIterator(address);
     if (n < 0) {
         while (n++ < -1) {

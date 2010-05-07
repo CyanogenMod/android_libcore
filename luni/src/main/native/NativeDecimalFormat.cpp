@@ -77,7 +77,7 @@ static void setDecimalFormatSymbols(JNIEnv* env, jclass, jint addr,
     toDecimalFormat(addr)->adoptDecimalFormatSymbols(symbols);
 }
 
-static jint openDecimalFormatImpl(JNIEnv* env, jclass clazz, jstring pattern0,
+static jint openDecimalFormatImpl(JNIEnv* env, jclass, jstring pattern0,
         jstring currencySymbol, jchar decimalSeparator, jchar digit,
         jchar groupingSeparator, jstring infinity,
         jstring internationalCurrencySymbol, jchar minusSign,
@@ -103,11 +103,11 @@ static jint openDecimalFormatImpl(JNIEnv* env, jclass clazz, jstring pattern0,
     return static_cast<jint>(reinterpret_cast<uintptr_t>(fmt));
 }
 
-static void closeDecimalFormatImpl(JNIEnv* env, jclass, jint addr) {
+static void closeDecimalFormatImpl(JNIEnv*, jclass, jint addr) {
     delete toDecimalFormat(addr);
 }
 
-static void setRoundingMode(JNIEnv* env, jclass, jint addr, jint mode, jdouble increment) {
+static void setRoundingMode(JNIEnv*, jclass, jint addr, jint mode, jdouble increment) {
     DecimalFormat* fmt = toDecimalFormat(addr);
     fmt->setRoundingMode(static_cast<DecimalFormat::ERoundingMode>(mode));
     fmt->setRoundingIncrement(increment);
@@ -123,7 +123,7 @@ static void setSymbol(JNIEnv* env, jclass, jint addr, jint symbol, jstring s) {
     env->ReleaseStringChars(s, chars);
 }
 
-static void setAttribute(JNIEnv *env, jclass clazz, jint addr, jint symbol,
+static void setAttribute(JNIEnv*, jclass, jint addr, jint symbol,
         jint value) {
 
     UNumberFormat *fmt = (UNumberFormat *)(int)addr;
@@ -131,7 +131,7 @@ static void setAttribute(JNIEnv *env, jclass clazz, jint addr, jint symbol,
     unum_setAttribute(fmt, (UNumberFormatAttribute) symbol, value);
 }
 
-static jint getAttribute(JNIEnv *env, jclass clazz, jint addr, jint symbol) {
+static jint getAttribute(JNIEnv*, jclass, jint addr, jint symbol) {
 
     UNumberFormat *fmt = (UNumberFormat *)(int)addr;
 
@@ -140,7 +140,7 @@ static jint getAttribute(JNIEnv *env, jclass clazz, jint addr, jint symbol) {
     return res;
 }
 
-static void setTextAttribute(JNIEnv *env, jclass clazz, jint addr, jint symbol,
+static void setTextAttribute(JNIEnv* env, jclass, jint addr, jint symbol,
         jstring text) {
 
     // the errorcode returned by unum_setTextAttribute
@@ -160,7 +160,7 @@ static void setTextAttribute(JNIEnv *env, jclass clazz, jint addr, jint symbol,
     icu4jni_error(env, status);
 }
 
-static jstring getTextAttribute(JNIEnv *env, jclass clazz, jint addr,
+static jstring getTextAttribute(JNIEnv* env, jclass, jint addr,
         jint symbol) {
 
     uint32_t resultlength, reslenneeded;
@@ -198,7 +198,7 @@ static jstring getTextAttribute(JNIEnv *env, jclass clazz, jint addr,
     return res;
 }
 
-static void applyPatternImpl(JNIEnv *env, jclass clazz, jint addr, jboolean localized, jstring pattern0) {
+static void applyPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized, jstring pattern0) {
     if (pattern0 == NULL) {
         jniThrowNullPointerException(env, NULL);
         return;
@@ -214,7 +214,7 @@ static void applyPatternImpl(JNIEnv *env, jclass clazz, jint addr, jboolean loca
     icu4jni_error(env, status);
 }
 
-static jstring toPatternImpl(JNIEnv *env, jclass, jint addr, jboolean localized) {
+static jstring toPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized) {
     DecimalFormat* fmt = toDecimalFormat(addr);
     UnicodeString pattern;
     if (localized) {
@@ -226,9 +226,7 @@ static jstring toPatternImpl(JNIEnv *env, jclass, jint addr, jboolean localized)
 }
 
 template <typename T>
-static jstring format(JNIEnv *env, jint addr, jobject field, jstring fieldType, jobject attributes, T val) {
-    UErrorCode status = U_ZERO_ERROR;
-
+static jstring format(JNIEnv* env, jint addr, jobject field, jstring fieldType, jobject attributes, T val) {
     DecimalFormat::AttributeBuffer attrBuffer;
     attrBuffer.buffer = NULL;
     DecimalFormat::AttributeBuffer* attrBufferPtr = NULL;
@@ -302,7 +300,7 @@ static jstring formatDouble(JNIEnv* env, jclass, jint addr, jdouble value,
     return format(env, addr, field, fieldType, attributes, doubleValue);
 }
 
-static jstring formatDigitList(JNIEnv *env, jclass clazz, jint addr, jstring value,
+static jstring formatDigitList(JNIEnv* env, jclass, jint addr, jstring value,
         jobject field, jstring fieldType, jobject attributes, jint scale) {
 
     // const char * valueUTF = env->GetStringUTFChars(value, NULL);
@@ -470,7 +468,7 @@ static jstring formatDigitList(JNIEnv *env, jclass clazz, jint addr, jstring val
     return resulting;
 }
 
-static jobject parse(JNIEnv *env, jclass clazz, jint addr, jstring text,
+static jobject parse(JNIEnv* env, jclass, jint addr, jstring text,
         jobject position) {
     // TODO: cache these?
     jclass parsePositionClass = env->FindClass("java/text/ParsePosition");
@@ -490,7 +488,6 @@ static jobject parse(JNIEnv *env, jclass clazz, jint addr, jstring text,
     jmethodID dblInitMethodID = env->GetMethodID(doubleClass, "<init>", "(D)V");
     jmethodID bigDecimalInitMethodID = env->GetMethodID(bigDecimalClass, "<init>", "(Ljava/math/BigInteger;I)V");
     jmethodID bigIntegerInitMethodID = env->GetMethodID(bigIntegerClass, "<init>", "(Ljava/lang/String;)V");
-    jmethodID doubleValueMethodID = env->GetMethodID(bigDecimalClass, "doubleValue", "()D");
 
     // make sure the ParsePosition is valid. Actually icu4c would parse a number
     // correctly even if the parsePosition is set to -1, but since the RI fails
@@ -523,7 +520,6 @@ static jobject parse(JNIEnv *env, jclass clazz, jint addr, jstring text,
     }
 
     Formattable::Type numType = res.getType();
-    UErrorCode fmtStatus;
 
     double resultDouble;
     long resultLong;
@@ -579,7 +575,7 @@ static jobject parse(JNIEnv *env, jclass clazz, jint addr, jstring text,
     }
 }
 
-static jint cloneDecimalFormatImpl(JNIEnv *env, jclass, jint addr) {
+static jint cloneDecimalFormatImpl(JNIEnv*, jclass, jint addr) {
     DecimalFormat* fmt = toDecimalFormat(addr);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(fmt->clone()));
 }

@@ -48,7 +48,7 @@ static jlong openConverter(JNIEnv* env, jclass, jstring converterName) {
     return (jlong) conv;
 }
 
-static void closeConverter(JNIEnv* env, jclass, jlong handle) {
+static void closeConverter(JNIEnv*, jclass, jlong handle) {
     UConverter* cnv = (UConverter*)(long)handle;
     if (cnv) {
         // BEGIN android-added
@@ -87,7 +87,7 @@ static void closeConverter(JNIEnv* env, jclass, jlong handle) {
  * @param data buffer to recieve state of the current conversion
  * @param flush boolean that specifies end of source input
  */
-static jint convertCharToByte(JNIEnv *env, jclass, jlong handle,  jcharArray source,  jint sourceEnd, jbyteArray target, jint targetEnd, jintArray data, jboolean flush) {
+static jint convertCharToByte(JNIEnv* env, jclass, jlong handle,  jcharArray source,  jint sourceEnd, jbyteArray target, jint targetEnd, jintArray data, jboolean flush) {
 
     UErrorCode errorCode =U_ZERO_ERROR;
     UConverter* cnv = (UConverter*)handle;
@@ -134,7 +134,7 @@ static jint convertCharToByte(JNIEnv *env, jclass, jlong handle,  jcharArray sou
     return errorCode;
 }
 
-static jint encode(JNIEnv *env, jclass, jlong handle, jcharArray source, jint sourceEnd, jbyteArray target, jint targetEnd, jintArray data, jboolean flush) {
+static jint encode(JNIEnv* env, jclass, jlong handle, jcharArray source, jint sourceEnd, jbyteArray target, jint targetEnd, jintArray data, jboolean flush) {
    
     UErrorCode ec = UErrorCode(convertCharToByte(env, NULL,handle,source,sourceEnd, target,targetEnd,data,flush));
     UConverter* cnv = (UConverter*)handle;
@@ -171,7 +171,7 @@ static jint encode(JNIEnv *env, jclass, jlong handle, jcharArray source, jint so
  * @param data buffer to recieve state of the current conversion
  * @param flush boolean that specifies end of source input
  */
-static jint convertByteToChar(JNIEnv *env, jclass, jlong handle, jbyteArray source, jint sourceEnd, jcharArray target, jint targetEnd, jintArray data, jboolean flush) {
+static jint convertByteToChar(JNIEnv* env, jclass, jlong handle, jbyteArray source, jint sourceEnd, jcharArray target, jint targetEnd, jintArray data, jboolean flush) {
 
     UErrorCode errorCode =U_ZERO_ERROR;
     UConverter* cnv = (UConverter*)handle;
@@ -219,7 +219,7 @@ static jint convertByteToChar(JNIEnv *env, jclass, jlong handle, jbyteArray sour
     return errorCode;
 }
 
-static jint decode(JNIEnv *env, jclass, jlong handle, jbyteArray source, jint sourceEnd, jcharArray target, jint targetEnd, jintArray data, jboolean flush) {
+static jint decode(JNIEnv* env, jclass, jlong handle, jbyteArray source, jint sourceEnd, jcharArray target, jint targetEnd, jintArray data, jboolean flush) {
 
     jint ec = convertByteToChar(env, NULL,handle,source,sourceEnd, target,targetEnd,data,flush);
 
@@ -244,31 +244,31 @@ static jint decode(JNIEnv *env, jclass, jlong handle, jbyteArray source, jint so
     return ec;
 }
 
-static void resetByteToChar(JNIEnv* env, jclass, jlong handle) {
+static void resetByteToChar(JNIEnv*, jclass, jlong handle) {
     UConverter* cnv = (UConverter*)handle;
     if (cnv) {
         ucnv_resetToUnicode(cnv);
     }
 }
 
-static void resetCharToByte(JNIEnv* env, jclass, jlong handle) {
+static void resetCharToByte(JNIEnv*, jclass, jlong handle) {
     UConverter* cnv = (UConverter*)handle;
     if (cnv) {
         ucnv_resetFromUnicode(cnv);
     }
 }
 
-static jint getMaxBytesPerChar(JNIEnv *env, jclass, jlong handle) {
+static jint getMaxBytesPerChar(JNIEnv*, jclass, jlong handle) {
     UConverter* cnv = (UConverter*)handle;
     return (cnv != NULL) ? ucnv_getMaxCharSize(cnv) : -1;
 }
 
-static jint getMinBytesPerChar(JNIEnv *env, jclass, jlong handle) {
+static jint getMinBytesPerChar(JNIEnv*, jclass, jlong handle) {
     UConverter* cnv = (UConverter*)handle;
     return (cnv != NULL) ? ucnv_getMinCharSize(cnv) : -1;
 }
 
-static jfloat getAveBytesPerChar(JNIEnv *env, jclass, jlong handle) {
+static jfloat getAveBytesPerChar(JNIEnv*, jclass, jlong handle) {
     UConverter* cnv = (UConverter*)handle;
     if (cnv) {
          jfloat max = (jfloat)ucnv_getMaxCharSize(cnv);
@@ -278,7 +278,7 @@ static jfloat getAveBytesPerChar(JNIEnv *env, jclass, jlong handle) {
     return -1;
 }
 
-static jint flushByteToChar(JNIEnv *env, jclass,jlong handle, jcharArray target, jint targetEnd, jintArray data) {
+static jint flushByteToChar(JNIEnv* env, jclass,jlong handle, jcharArray target, jint targetEnd, jintArray data) {
 
     UErrorCode errorCode =U_ZERO_ERROR;
     UConverter* cnv = (UConverter*)handle;
@@ -319,7 +319,7 @@ static jint flushByteToChar(JNIEnv *env, jclass,jlong handle, jcharArray target,
     return errorCode;
 }
 
-static jint flushCharToByte (JNIEnv *env, jclass, jlong handle, jbyteArray target, jint targetEnd, jintArray data) {
+static jint flushCharToByte (JNIEnv* env, jclass, jlong handle, jbyteArray target, jint targetEnd, jintArray data) {
           
     UErrorCode errorCode =U_ZERO_ERROR;
     UConverter* cnv = (UConverter*)handle;
@@ -367,7 +367,7 @@ static void toChars(const UChar* us, char* cs, int32_t length) {
         --length;
     }
 }
-static jint setSubstitutionBytes(JNIEnv *env, jclass, jlong handle, jbyteArray subChars, jint length) {
+static jint setSubstitutionBytes(JNIEnv* env, jclass, jlong handle, jbyteArray subChars, jint length) {
     UConverter* cnv = (UConverter*) handle;
     UErrorCode errorCode = U_ZERO_ERROR;
     if (cnv) {
@@ -485,7 +485,7 @@ static void JNI_TO_U_CALLBACK_SUBSTITUTE( const void *context, UConverterToUnico
     return;
 }
 
-static jboolean canEncode(JNIEnv *env, jclass, jlong handle, jint codeUnit) {
+static jboolean canEncode(JNIEnv*, jclass, jlong handle, jint codeUnit) {
     
     UErrorCode errorCode =U_ZERO_ERROR;
     UConverter* cnv = (UConverter*)handle;
@@ -519,7 +519,7 @@ static jboolean canEncode(JNIEnv *env, jclass, jlong handle, jint codeUnit) {
  * the registry must be valid aliases. If a supported charset is not listed in the IANA
  * registry then its canonical name must begin with one of the strings "X-" or "x-".
  */
-static jstring getJavaCanonicalName(JNIEnv *env, const char* icuCanonicalName) {
+static jstring getJavaCanonicalName(JNIEnv* env, const char* icuCanonicalName) {
     UErrorCode status = U_ZERO_ERROR;
 
     // Check to see if this is a well-known MIME or IANA name.
@@ -556,7 +556,7 @@ static jstring getJavaCanonicalName(JNIEnv *env, const char* icuCanonicalName) {
     return env->NewStringUTF(&result[0]);
 }
 
-static jobjectArray getAvailableCharsetNames(JNIEnv *env, jclass) {
+static jobjectArray getAvailableCharsetNames(JNIEnv* env, jclass) {
     int32_t num = ucnv_countAvailable();
     jobjectArray result = env->NewObjectArray(num, env->FindClass("java/lang/String"), NULL);
     for (int i = 0; i < num; ++i) {
@@ -707,7 +707,7 @@ static UConverterFromUCallback getFromUCallback(int32_t mode) {
     }
 }
 
-static jint setCallbackEncode(JNIEnv *env, jclass, jlong handle, jint onMalformedInput, jint onUnmappableInput, jbyteArray subChars, jint length) {
+static jint setCallbackEncode(JNIEnv* env, jclass, jlong handle, jint onMalformedInput, jint onUnmappableInput, jbyteArray subChars, jint length) {
 
     UConverter* conv = (UConverter*)handle;
     UErrorCode errorCode =U_ZERO_ERROR;
@@ -836,7 +836,7 @@ static void CHARSET_DECODER_CALLBACK(const void *context,
     }      
 }
 
-static jint setCallbackDecode(JNIEnv *env, jclass, jlong handle, jint onMalformedInput, jint onUnmappableInput, jcharArray subChars, jint length) {
+static jint setCallbackDecode(JNIEnv* env, jclass, jlong handle, jint onMalformedInput, jint onUnmappableInput, jcharArray subChars, jint length) {
     
     UConverter* conv = (UConverter*)handle;
     UErrorCode errorCode =U_ZERO_ERROR;
@@ -886,18 +886,18 @@ static jint setCallbackDecode(JNIEnv *env, jclass, jlong handle, jint onMalforme
     return U_ILLEGAL_ARGUMENT_ERROR;
 }
 
-static jint getMaxCharsPerByte(JNIEnv *env, jclass, jlong handle) {
+static jint getMaxCharsPerByte(JNIEnv*, jclass, jlong) {
     /*
      * currently we know that max number of chars per byte is 2
      */
     return 2;
 }
 
-static jfloat getAveCharsPerByte(JNIEnv *env, jclass, jlong handle) {
+static jfloat getAveCharsPerByte(JNIEnv* env, jclass, jlong handle) {
     return (1 / (jfloat) getMaxBytesPerChar(env, NULL, handle));
 }
 
-static jbyteArray getSubstitutionBytes(JNIEnv *env, jclass, jlong handle) {
+static jbyteArray getSubstitutionBytes(JNIEnv* env, jclass, jlong handle) {
     const UConverter * cnv = (const UConverter *) handle;
     if (cnv) {
         UErrorCode status = U_ZERO_ERROR;
@@ -915,7 +915,7 @@ static jbyteArray getSubstitutionBytes(JNIEnv *env, jclass, jlong handle) {
     return env->NewByteArray(0);
 }
 
-static jboolean contains(JNIEnv* env, jclass, jlong handle1, jlong handle2) {
+static jboolean contains(JNIEnv*, jclass, jlong handle1, jlong handle2) {
     UErrorCode status = U_ZERO_ERROR;
     const UConverter * cnv1 = (const UConverter *) handle1;
     const UConverter * cnv2 = (const UConverter *) handle2;

@@ -10,161 +10,161 @@
 #include <math.h>
 
 /* native public static double sin(double a); */
-static jdouble jsin(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jsin(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return sin(a);
 }
 
 /* native public static double cos(double a); */
-static jdouble jcos(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jcos(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return cos(a);
 }
 
 /* native public static double tan(double a); */
-static jdouble jtan(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jtan(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return tan(a);
 }
 
 /* native public static double asin(double a); */
-static jdouble jasin(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jasin(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return asin(a);
 }
 
 /* native public static double acos(double a); */
-static jdouble jacos(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jacos(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return acos(a);
 }
 
 /* native public static double atan(double a); */
-static jdouble jatan(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jatan(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return atan(a);
 }
 
 /* native public static double exp(double a); */
-static jdouble jexp(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jexp(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return exp(a);
 }
 
 /* native public static double log(double a); */
-static jdouble jlog(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jlog(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return log(a);
 }
 
 /* native public static double sqrt(double a); */
-static jdouble jsqrt(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jsqrt(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return sqrt(a);
 }
 
 /* native public static double IEEEremainder(double a, double b); */
-static jdouble jieee_remainder(JNIEnv* env, jclass clazz, jdouble a, jdouble b)
+static jdouble jieee_remainder(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a, jdouble b)
 {
     return remainder(a, b);
 }
 
 /* native public static double floor(double a); */
-static jdouble jfloor(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jfloor(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return floor(a);
 }
 
 /* native public static double ceil(double a); */
-static jdouble jceil(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jceil(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return ceil(a);
 }
 
 /* native public static double rint(double a); */
-static jdouble jrint(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jrint(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return rint(a);
 }
 
 /* native public static double atan2(double a, double b); */
-static jdouble jatan2(JNIEnv* env, jclass clazz, jdouble a, jdouble b)
+static jdouble jatan2(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a, jdouble b)
 {
     return atan2(a, b);
 }
 
 /* native public static double pow(double a, double b); */
-static jdouble jpow(JNIEnv* env, jclass clazz, jdouble a, jdouble b)
+static jdouble jpow(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a, jdouble b)
 {
     return pow(a, b);
 }
 
 /* native public static double sinh(double a); */
-static jdouble jsinh(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jsinh(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return sinh(a);
 }
 
 /* native public static double tanh(double a); */
-static jdouble jtanh(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jtanh(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return tanh(a);
 }
 
 /* native public static double cosh(double a); */
-static jdouble jcosh(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jcosh(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return cosh(a);
 }
 
 /* native public static double log10(double a); */
-static jdouble jlog10(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jlog10(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return log10(a);
 }
 
 /* native public static double cbrt(double a); */
-static jdouble jcbrt(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jcbrt(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return cbrt(a);
 }
 
 /* native public static double expm1(double a); */
-static jdouble jexpm1(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jexpm1(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return expm1(a);
 }
 
 /* native public static double hypot(double a, double b); */
-static jdouble jhypot(JNIEnv* env, jclass clazz, jdouble a, jdouble b)
+static jdouble jhypot(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a, jdouble b)
 {
     return hypot(a, b);
 }
 
 /* native public static double log1p(double a); */
-static jdouble jlog1p(JNIEnv* env, jclass clazz, jdouble a)
+static jdouble jlog1p(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a)
 {
     return log1p(a);
 }
 
 /* native public static double nextafter(double a, double b); */
-static jdouble jnextafter(JNIEnv* env, jclass clazz, jdouble a, jdouble b)
+static jdouble jnextafter(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a, jdouble b)
 {
     return nextafter(a, b);
 }
 
 /* native public static float nextafterf(float a, float b); */
-static jfloat jnextafterf(JNIEnv* env, jclass clazz, jfloat a, jfloat b)
+static jfloat jnextafterf(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jfloat a, jfloat b)
 {
     return nextafterf(a, b);
 }
 
-static jdouble copySign(JNIEnv* env, jclass clazz, jdouble a, jdouble b) {
+static jdouble copySign(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble a, jdouble b) {
     // Our StrictMath.copySign delegates to Math.copySign, so we need to treat NaN as positive.
     return copysign(a, isnan(b) ? 1.0 : b);
 }
 
-static jfloat copySign_f(JNIEnv* env, jclass clazz, jfloat a, jfloat b) {
+static jfloat copySign_f(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jfloat a, jfloat b) {
     // Our StrictMath.copySign delegates to Math.copySign, so we need to treat NaN as positive.
     return copysignf(a, isnan(b) ? 1.0 : b);
 }

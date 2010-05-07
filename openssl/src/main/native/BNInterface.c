@@ -66,7 +66,7 @@ static int fourValidHandles (JNIEnv* env, void* a, void *b, void* c, void* d)
 /**
  * public static native int ERR_get_error();
  */
-static unsigned long NativeBN_ERR_get_error(JNIEnv* env, jclass cls) {
+static unsigned long NativeBN_ERR_get_error(JNIEnv* env __attribute__ ((unused)), jclass cls __attribute__ ((unused))) {
     unsigned long e = ERR_get_error();
     return e;
 }
@@ -74,7 +74,7 @@ static unsigned long NativeBN_ERR_get_error(JNIEnv* env, jclass cls) {
 /**
  * public static native String ERR_error_string(int);
  */
-static jstring NativeBN_ERR_error_string(JNIEnv* env, jclass cls, unsigned long e) {
+static jstring NativeBN_ERR_error_string(JNIEnv* env, jclass cls __attribute__ ((unused)), unsigned long e) {
     jstring returnJString = 0;
     char* errStr;
     errStr = ERR_error_string(e, NULL);
@@ -86,7 +86,7 @@ static jstring NativeBN_ERR_error_string(JNIEnv* env, jclass cls, unsigned long 
 /**
  * public static native int BN_CTX_new()
  */
-static BN_CTX* NativeBN_BN_CTX_new(JNIEnv* env, jclass cls) {
+static BN_CTX* NativeBN_BN_CTX_new(JNIEnv* env __attribute__ ((unused)), jclass cls __attribute__ ((unused))) {
     return BN_CTX_new();
 }
 
@@ -94,14 +94,14 @@ static BN_CTX* NativeBN_BN_CTX_new(JNIEnv* env, jclass cls) {
 /**
  * public static native int BN_new()
  */
-static BIGNUM* NativeBN_BN_new(JNIEnv* env, jclass cls) {
+static BIGNUM* NativeBN_BN_new(JNIEnv* env __attribute__ ((unused)), jclass cls __attribute__ ((unused))) {
     return BN_new();
 }
 
 /**
  * public static native int BN_free()
  */
-static void NativeBN_BN_free(JNIEnv* env, jclass cls, BIGNUM* a) {
+static void NativeBN_BN_free(JNIEnv* env __attribute__ ((unused)), jclass cls __attribute__ ((unused)), BIGNUM* a) {
     if (!oneValidHandle(env, a)) return;
     BN_free(a);
 }
@@ -110,7 +110,7 @@ static void NativeBN_BN_free(JNIEnv* env, jclass cls, BIGNUM* a) {
 /**
  * public static native int BN_cmp(int, int)
  */
-static int NativeBN_BN_cmp(JNIEnv* env, jclass cls, BIGNUM* a, BIGNUM* b) {
+static int NativeBN_BN_cmp(JNIEnv* env __attribute__ ((unused)), jclass cls __attribute__ ((unused)), BIGNUM* a, BIGNUM* b) {
     if (!twoValidHandles(env, a, b)) return 1;
     return BN_cmp(a, b);
 }
@@ -118,7 +118,7 @@ static int NativeBN_BN_cmp(JNIEnv* env, jclass cls, BIGNUM* a, BIGNUM* b) {
 /**
  * public static native int BN_copy(int, int)
  */
-static jboolean NativeBN_BN_copy(JNIEnv* env, jclass cls, BIGNUM* to, BIGNUM* from) {
+static jboolean NativeBN_BN_copy(JNIEnv* env __attribute__ ((unused)), jclass cls __attribute__ ((unused)), BIGNUM* to, BIGNUM* from) {
     if (!twoValidHandles(env, to, from)) return FALSE;
     return (BN_copy(to, from) != NULL);
 }
@@ -127,7 +127,7 @@ static jboolean NativeBN_BN_copy(JNIEnv* env, jclass cls, BIGNUM* to, BIGNUM* fr
 /**
  * public static native int putULongInt(int, long, int)
  */
-static jboolean NativeBN_putULongInt(JNIEnv* env, jclass cls, BIGNUM* a, unsigned long long dw, jboolean neg) {
+static jboolean NativeBN_putULongInt(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a, unsigned long long dw, jboolean neg) {
     if (!oneValidHandle(env, a)) return FALSE;
     unsigned int hi = dw >> 32; // This shifts without sign extension.
     int lo = (int)dw; // This truncates implicitely.
@@ -156,7 +156,7 @@ static jboolean NativeBN_putLongInt(JNIEnv* env, jclass cls, BIGNUM* a, long lon
 /**
  * public static native int BN_dec2bn(int, java.lang.String)
  */
-static int NativeBN_BN_dec2bn(JNIEnv* env, jclass cls, BIGNUM* a, jstring str) {
+static int NativeBN_BN_dec2bn(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a, jstring str) {
     if (!oneValidHandle(env, a)) return -1;
     char* tmpStr = (char*)(*env)->GetStringUTFChars(env, str, NULL);
     if (tmpStr != NULL) {
@@ -170,7 +170,7 @@ static int NativeBN_BN_dec2bn(JNIEnv* env, jclass cls, BIGNUM* a, jstring str) {
 /**
  * public static native int BN_hex2bn(int, java.lang.String)
  */
-static int NativeBN_BN_hex2bn(JNIEnv* env, jclass cls, BIGNUM* a, jstring str) {
+static int NativeBN_BN_hex2bn(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a, jstring str) {
    if (!oneValidHandle(env, a)) return -1;
     char* tmpStr = (char*)(*env)->GetStringUTFChars(env, str, NULL);
     if (tmpStr != NULL) {
@@ -184,7 +184,7 @@ static int NativeBN_BN_hex2bn(JNIEnv* env, jclass cls, BIGNUM* a, jstring str) {
 /**
  * public static native boolean BN_bin2bn(byte[], int, int, int)
  */
-static jboolean NativeBN_BN_bin2bn(JNIEnv* env, jclass cls, jbyteArray arr, int len, jboolean neg, BIGNUM* ret) {
+static jboolean NativeBN_BN_bin2bn(JNIEnv* env, jclass cls __attribute__ ((unused)), jbyteArray arr, int len, jboolean neg, BIGNUM* ret) {
     if (!oneValidHandle(env, ret)) return FALSE;
     jboolean success;
     unsigned char * tmpBytes;
@@ -208,7 +208,7 @@ static jboolean NativeBN_BN_bin2bn(JNIEnv* env, jclass cls, jbyteArray arr, int 
  * Also note that the same representation is used in the Cordoba Java Implementation of BigIntegers,
  *        whereof certain functionality is still being used.
  */
-static jboolean NativeBN_litEndInts2bn(JNIEnv* env, jclass cls, jintArray arr, int len, jboolean neg, BIGNUM* ret) {
+static jboolean NativeBN_litEndInts2bn(JNIEnv* env, jclass cls __attribute__ ((unused)), jintArray arr, int len, jboolean neg, BIGNUM* ret) {
     if (!oneValidHandle(env, ret)) return FALSE;
     bn_check_top(ret);
 	if (len > 0) {
@@ -244,7 +244,7 @@ static jboolean NativeBN_litEndInts2bn(JNIEnv* env, jclass cls, jintArray arr, i
   | (bytes[k + 1] & 0xFF) << 16 \
   | (bytes[k + 0] & 0xFF) << 24 )
 
-static jboolean negBigEndianBytes2bn(JNIEnv* env, jclass cls, unsigned char* bytes, int bytesLen, BIGNUM* ret) {
+static jboolean negBigEndianBytes2bn(JNIEnv* env __attribute__ ((unused)), jclass cls __attribute__ ((unused)), unsigned char* bytes, int bytesLen, BIGNUM* ret) {
 // We rely on: (BN_BITS2 == 32), i.e. BN_ULONG is unsigned int and has 4 bytes:
 //
     bn_check_top(ret);
@@ -330,7 +330,7 @@ static jboolean NativeBN_twosComp2bn(JNIEnv* env, jclass cls, jbyteArray arr, in
 /**
  * public static native long longInt(int)
  */
-static long long NativeBN_longInt(JNIEnv* env, jclass cls, BIGNUM* a) {
+static long long NativeBN_longInt(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a) {
     if (!oneValidHandle(env, a)) return -1;
     bn_check_top(a);
     int intLen = a->top;
@@ -364,7 +364,7 @@ static char* leadingZerosTrimmed(char* s) {
 /**
  * public static native java.lang.String BN_bn2dec(int)
  */
-static jstring NativeBN_BN_bn2dec(JNIEnv* env, jclass cls, BIGNUM* a) {
+static jstring NativeBN_BN_bn2dec(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a) {
     if (!oneValidHandle(env, a)) return NULL;
     char* tmpStr;
     char* retStr;
@@ -381,7 +381,7 @@ static jstring NativeBN_BN_bn2dec(JNIEnv* env, jclass cls, BIGNUM* a) {
 /**
  * public static native java.lang.String BN_bn2hex(int)
  */
-static jstring NativeBN_BN_bn2hex(JNIEnv* env, jclass cls, BIGNUM* a) {
+static jstring NativeBN_BN_bn2hex(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a) {
     if (!oneValidHandle(env, a)) return NULL;
     char* tmpStr;
     char* retStr;
@@ -398,7 +398,7 @@ static jstring NativeBN_BN_bn2hex(JNIEnv* env, jclass cls, BIGNUM* a) {
 /**
  * public static native byte[] BN_bn2bin(int, byte[])
  */
-static jbyteArray NativeBN_BN_bn2bin(JNIEnv* env, jclass cls, BIGNUM* a, jbyteArray to) {
+static jbyteArray NativeBN_BN_bn2bin(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a, jbyteArray to) {
     if (!oneValidHandle(env, a)) return NULL;
     jbyteArray returnJBytes = to;
     unsigned char * tmpBytes;
@@ -420,7 +420,7 @@ static jbyteArray NativeBN_BN_bn2bin(JNIEnv* env, jclass cls, BIGNUM* a, jbyteAr
  * public static native int[] bn2litEndInts(int, int[])
  * cf. litEndInts2bn
  */
-static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass cls, BIGNUM* a, jintArray to) {
+static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a, jintArray to) {
     if (!oneValidHandle(env, a)) return NULL;
     jintArray returnJInts = to;
     bn_check_top(a);
@@ -446,7 +446,7 @@ static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass cls, BIGNUM* a, jint
 /**
  * public static native int sign(int)
  */
-static int NativeBN_sign(JNIEnv* env, jclass cls, BIGNUM* a) {
+static int NativeBN_sign(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a) {
     if (!oneValidHandle(env, a)) return -2;
     if (BN_is_zero(a)) return 0;
     else if (BN_is_negative(a)) return -1;
@@ -456,7 +456,7 @@ static int NativeBN_sign(JNIEnv* env, jclass cls, BIGNUM* a) {
 /**
  * public static native void BN_set_negative(int, int)
  */
-static void NativeBN_BN_set_negative(JNIEnv* env, jclass cls, BIGNUM* b, int n) {
+static void NativeBN_BN_set_negative(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* b, int n) {
     if (!oneValidHandle(env, b)) return;
     BN_set_negative(b, n);
 }
@@ -464,7 +464,7 @@ static void NativeBN_BN_set_negative(JNIEnv* env, jclass cls, BIGNUM* b, int n) 
 /**
  * public static native int bitLength(int)
  */
-static int NativeBN_bitLength(JNIEnv* env, jclass cls, BIGNUM* a) {
+static int NativeBN_bitLength(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a) {
 // We rely on: (BN_BITS2 == 32), i.e. BN_ULONG is unsigned int and has 4 bytes:
 //
     if (!oneValidHandle(env, a)) return FALSE;
@@ -487,7 +487,7 @@ static int NativeBN_bitLength(JNIEnv* env, jclass cls, BIGNUM* a) {
 /**
  * public static native boolean BN_is_bit_set(int, int)
  */
-static jboolean NativeBN_BN_is_bit_set(JNIEnv* env, jclass cls, BIGNUM* a, int n) {
+static jboolean NativeBN_BN_is_bit_set(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a, int n) {
     if (!oneValidHandle(env, a)) return FALSE;
     return (jboolean)BN_is_bit_set(a, n);
 }
@@ -495,7 +495,7 @@ static jboolean NativeBN_BN_is_bit_set(JNIEnv* env, jclass cls, BIGNUM* a, int n
 /**
  * public static native void modifyBit(int, int, int)
  */
-static jboolean NativeBN_modifyBit(JNIEnv* env, jclass cls, BIGNUM* a, int n, int op) {
+static jboolean NativeBN_modifyBit(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* a, int n, int op) {
 // LOGD("NativeBN_BN_modifyBit");
     if (!oneValidHandle(env, a)) return FALSE;
     switch (op) {
@@ -511,7 +511,7 @@ static jboolean NativeBN_modifyBit(JNIEnv* env, jclass cls, BIGNUM* a, int n, in
 /**
  * public static native int BN_shift(int, int, int)
  */
-static jboolean NativeBN_BN_shift(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, int n) {
+static jboolean NativeBN_BN_shift(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* r, BIGNUM* a, int n) {
     if (!twoValidHandles(env, r, a)) return FALSE;
     return (n >= 0) ? BN_lshift(r, a, n) : BN_rshift(r, a, -n);
 }
@@ -519,7 +519,7 @@ static jboolean NativeBN_BN_shift(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a,
 /**
  * public static native boolean BN_add_word(int, int)
  */
-static jboolean NativeBN_BN_add_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULONG w) {
+static jboolean NativeBN_BN_add_word(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM *a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return FALSE;
     return BN_add_word(a, w);
 }
@@ -527,7 +527,7 @@ static jboolean NativeBN_BN_add_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULON
 /**
  * public static native boolean BN_sub_word(int, int)
  */
-static jboolean NativeBN_BN_sub_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULONG w) {
+static jboolean NativeBN_BN_sub_word(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM *a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return FALSE;
     return BN_sub_word(a, w);
 }
@@ -535,7 +535,7 @@ static jboolean NativeBN_BN_sub_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULON
 /**
  * public static native boolean BN_mul_word(int, int)
  */
-static jboolean NativeBN_BN_mul_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULONG w) {
+static jboolean NativeBN_BN_mul_word(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM *a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return FALSE;
     return BN_mul_word(a, w);
 }
@@ -543,7 +543,7 @@ static jboolean NativeBN_BN_mul_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULON
 /**
  * public static native boolean BN_div_word(int, int)
  */
-static BN_ULONG NativeBN_BN_div_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULONG w) {
+static BN_ULONG NativeBN_BN_div_word(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM *a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return FALSE;
     return BN_div_word(a, w);
 }
@@ -551,7 +551,7 @@ static BN_ULONG NativeBN_BN_div_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULON
 /**
  * public static native boolean BN_mod_word(int, int)
  */
-static BN_ULONG NativeBN_BN_mod_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULONG w) {
+static BN_ULONG NativeBN_BN_mod_word(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM *a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return FALSE;
     return BN_mod_word(a, w);
 }
@@ -561,7 +561,7 @@ static BN_ULONG NativeBN_BN_mod_word(JNIEnv* env, jclass cls, BIGNUM *a, BN_ULON
 /**
  * public static native int BN_add(int, int, int)
  */
-static jboolean NativeBN_BN_add(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, BIGNUM* b) {
+static jboolean NativeBN_BN_add(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* r, BIGNUM* a, BIGNUM* b) {
     if (!threeValidHandles(env, r, a, b)) return FALSE;
     return BN_add(r, a, b);
 }
@@ -569,7 +569,7 @@ static jboolean NativeBN_BN_add(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, B
 /**
  * public static native int BN_sub(int, int, int)
  */
-static jboolean NativeBN_BN_sub(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, BIGNUM* b) {
+static jboolean NativeBN_BN_sub(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* r, BIGNUM* a, BIGNUM* b) {
     if (!threeValidHandles(env, r, a, b)) return FALSE;
     return BN_sub(r, a, b);
 }
@@ -578,7 +578,7 @@ static jboolean NativeBN_BN_sub(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, B
 /**
  * public static native int BN_gcd(int, int, int, int)
  */
-static jboolean NativeBN_BN_gcd(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, BIGNUM* b, BN_CTX* ctx) {
+static jboolean NativeBN_BN_gcd(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* r, BIGNUM* a, BIGNUM* b, BN_CTX* ctx) {
     if (!threeValidHandles(env, r, a, b)) return FALSE;
     return BN_gcd(r, a, b, ctx);
 }
@@ -586,7 +586,7 @@ static jboolean NativeBN_BN_gcd(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, B
 /**
  * public static native int BN_mul(int, int, int, int)
  */
-static jboolean NativeBN_BN_mul(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, BIGNUM* b, BN_CTX* ctx) {
+static jboolean NativeBN_BN_mul(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* r, BIGNUM* a, BIGNUM* b, BN_CTX* ctx) {
     if (!threeValidHandles(env, r, a, b)) return FALSE;
     return BN_mul(r, a, b, ctx);
 }
@@ -594,7 +594,7 @@ static jboolean NativeBN_BN_mul(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, B
 /**
  * public static native int BN_exp(int, int, int, int)
  */
-static jboolean NativeBN_BN_exp(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, BIGNUM* p, BN_CTX* ctx) {
+static jboolean NativeBN_BN_exp(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* r, BIGNUM* a, BIGNUM* p, BN_CTX* ctx) {
     if (!threeValidHandles(env, r, a, p)) return FALSE;
     return BN_exp(r, a, p, ctx);
 }
@@ -602,7 +602,7 @@ static jboolean NativeBN_BN_exp(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, B
 /**
  * public static native boolean BN_div(int, int, int, int, int)
  */
-static jboolean NativeBN_BN_div(JNIEnv* env, jclass cls, BIGNUM* dv, BIGNUM* rem, BIGNUM* m, BIGNUM* d, BN_CTX* ctx) {
+static jboolean NativeBN_BN_div(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* dv, BIGNUM* rem, BIGNUM* m, BIGNUM* d, BN_CTX* ctx) {
     if (!fourValidHandles(env, (rem ? rem : dv), (dv ? dv : rem), m, d)) return FALSE;
     return BN_div(dv, rem, m, d, ctx);
 }
@@ -610,7 +610,7 @@ static jboolean NativeBN_BN_div(JNIEnv* env, jclass cls, BIGNUM* dv, BIGNUM* rem
 /**
  * public static native int BN_nnmod(int, int, int, int)
  */
-static jboolean NativeBN_BN_nnmod(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, BIGNUM* m, BN_CTX* ctx) {
+static jboolean NativeBN_BN_nnmod(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* r, BIGNUM* a, BIGNUM* m, BN_CTX* ctx) {
     if (!threeValidHandles(env, r, a, m)) return FALSE;
     return BN_nnmod(r, a, m, ctx);
 }
@@ -618,7 +618,7 @@ static jboolean NativeBN_BN_nnmod(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a,
 /**
  * public static native int BN_mod_exp(int, int, int, int, int)
  */
-static jboolean NativeBN_BN_mod_exp(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* a, BIGNUM* p, BIGNUM* m, BN_CTX* ctx) {
+static jboolean NativeBN_BN_mod_exp(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* r, BIGNUM* a, BIGNUM* p, BIGNUM* m, BN_CTX* ctx) {
     if (!fourValidHandles(env, r, a, p, m)) return FALSE;
     return BN_mod_exp(r, a, p, m, ctx);
 }
@@ -627,7 +627,7 @@ static jboolean NativeBN_BN_mod_exp(JNIEnv* env, jclass cls, BIGNUM* r, BIGNUM* 
 /**
  * public static native int BN_mod_inverse(int, int, int, int)
  */
-static jboolean NativeBN_BN_mod_inverse(JNIEnv* env, jclass cls, BIGNUM* ret, BIGNUM* a, BIGNUM* n, BN_CTX* ctx) {
+static jboolean NativeBN_BN_mod_inverse(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* ret, BIGNUM* a, BIGNUM* n, BN_CTX* ctx) {
     if (!threeValidHandles(env, ret, a, n)) return FALSE;
     return (BN_mod_inverse(ret, a, n, ctx) != NULL);
 }
@@ -636,7 +636,7 @@ static jboolean NativeBN_BN_mod_inverse(JNIEnv* env, jclass cls, BIGNUM* ret, BI
 /**
  * public static native int BN_generate_prime_ex(int, int, boolean, int, int, int)
  */
-static jboolean NativeBN_BN_generate_prime_ex(JNIEnv* env, jclass cls, BIGNUM* ret, int bits, jboolean safe,
+static jboolean NativeBN_BN_generate_prime_ex(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* ret, int bits, jboolean safe,
         BIGNUM* add, BIGNUM* rem, jint cb) {
     if (!oneValidHandle(env, ret)) return FALSE;
     return BN_generate_prime_ex(ret, bits, safe, add, rem, (BN_GENCB*) cb);
@@ -645,7 +645,7 @@ static jboolean NativeBN_BN_generate_prime_ex(JNIEnv* env, jclass cls, BIGNUM* r
 /**
  * public static native int BN_mod_inverse(int, int, int, int)
  */
-static jboolean NativeBN_BN_is_prime_ex(JNIEnv* env, jclass cls, BIGNUM* p, int nchecks, BN_CTX* ctx, jint cb) {
+static jboolean NativeBN_BN_is_prime_ex(JNIEnv* env, jclass cls __attribute__ ((unused)), BIGNUM* p, int nchecks, BN_CTX* ctx, jint cb) {
     if (!oneValidHandle(env, p)) return FALSE;
     return BN_is_prime_ex(p, nchecks, ctx, (BN_GENCB*) cb);
 }

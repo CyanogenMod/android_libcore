@@ -21,7 +21,7 @@ typedef union {
 /*
  * public static native long doubleToLongBits(double value)
  */
-static jlong doubleToLongBits(JNIEnv* env, jclass clazz, jdouble val)
+static jlong doubleToLongBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble val)
 {
     Double   d;
 
@@ -39,7 +39,7 @@ static jlong doubleToLongBits(JNIEnv* env, jclass clazz, jdouble val)
 /*
  * public static native long doubleToRawLongBits(double value)
  */
-static jlong doubleToRawLongBits(JNIEnv* env, jclass clazz, jdouble val)
+static jlong doubleToRawLongBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble val)
 {
     Double   d;
 
@@ -51,7 +51,7 @@ static jlong doubleToRawLongBits(JNIEnv* env, jclass clazz, jdouble val)
 /*
  * public static native double longBitsToDouble(long bits)
  */
-static jdouble longBitsToDouble(JNIEnv* env, jclass clazz, jlong val)
+static jdouble longBitsToDouble(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jlong val)
 {
     Double   d;
 

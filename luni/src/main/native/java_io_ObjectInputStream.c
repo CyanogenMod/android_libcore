@@ -17,7 +17,7 @@
 
 #include "JNIHelp.h"
 
-static void java_setFieldBool (JNIEnv * env, jclass clazz, 
+static void java_setFieldBool (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -40,7 +40,7 @@ static void java_setFieldBool (JNIEnv * env, jclass clazz,
     }
 }
 
-static void java_setFieldChar (JNIEnv * env, jclass clazz, 
+static void java_setFieldChar (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -63,7 +63,7 @@ static void java_setFieldChar (JNIEnv * env, jclass clazz,
     }
 }
 
-static void java_setFieldInt (JNIEnv * env, jclass clazz, 
+static void java_setFieldInt (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -86,7 +86,7 @@ static void java_setFieldInt (JNIEnv * env, jclass clazz,
     }
 }
 
-static void java_setFieldFloat (JNIEnv * env, jclass clazz, 
+static void java_setFieldFloat (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -109,7 +109,7 @@ static void java_setFieldFloat (JNIEnv * env, jclass clazz,
     }
 }
 
-static void java_setFieldDouble (JNIEnv * env, jclass clazz, 
+static void java_setFieldDouble (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -133,7 +133,7 @@ static void java_setFieldDouble (JNIEnv * env, jclass clazz,
 
 }
 
-static void java_setFieldShort (JNIEnv * env, jclass clazz, 
+static void java_setFieldShort (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
                                          jobject targetObject, 
                                          jclass declaringClass,
                                          jstring fieldName, 
@@ -157,7 +157,7 @@ static void java_setFieldShort (JNIEnv * env, jclass clazz,
 
 }
 
-static void java_setFieldLong (JNIEnv * env, jclass clazz,  
+static void java_setFieldLong (JNIEnv* env, jclass clazz __attribute__ ((unused)),  
                                          jobject targetObject,  
                                          jclass declaringClass, 
                                          jstring fieldName,  
@@ -180,7 +180,7 @@ static void java_setFieldLong (JNIEnv * env, jclass clazz,
     }
 }
 
-static jobject java_newInstance (JNIEnv * env, jclass clazz, 
+static jobject java_newInstance (JNIEnv* env, jclass clazz __attribute__ ((unused)), 
                                          jclass instantiationClass, 
                                          jclass constructorClass) {
     jmethodID mid =
@@ -196,7 +196,7 @@ static jobject java_newInstance (JNIEnv * env, jclass clazz,
 
 }
 
-static void java_setFieldByte (JNIEnv * env, jclass clazz,  
+static void java_setFieldByte (JNIEnv* env, jclass clazz __attribute__ ((unused)),  
                                          jobject targetObject,  
                                          jclass declaringClass, 
                                          jstring fieldName,  
@@ -216,7 +216,7 @@ static void java_setFieldByte (JNIEnv * env, jclass clazz,
     }
 }
 
-static void java_setFieldObj (JNIEnv * env, jclass clazz,
+static void java_setFieldObj (JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                             jobject targetObject,
                                             jclass declaringClass,
                                             jstring fieldName,

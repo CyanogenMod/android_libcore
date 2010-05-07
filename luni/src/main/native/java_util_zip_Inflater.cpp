@@ -110,11 +110,11 @@ static jint Inflater_inflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int 
     return stream->stream.total_out - sout;
 }
 
-static jint Inflater_getAdlerImpl(JNIEnv* env, jobject, jlong handle) {
+static jint Inflater_getAdlerImpl(JNIEnv*, jobject, jlong handle) {
     return toNativeZipStream(handle)->stream.adler;
 }
 
-static void Inflater_endImpl(JNIEnv* env, jobject, jlong handle) {
+static void Inflater_endImpl(JNIEnv*, jobject, jlong handle) {
     NativeZipStream* stream = toNativeZipStream(handle);
     inflateEnd(&stream->stream);
     delete stream;
@@ -131,11 +131,11 @@ static void Inflater_resetImpl(JNIEnv* env, jobject, jlong handle) {
     }
 }
 
-static jlong Inflater_getTotalOutImpl(JNIEnv* env, jobject, jlong handle) {
+static jlong Inflater_getTotalOutImpl(JNIEnv*, jobject, jlong handle) {
     return toNativeZipStream(handle)->stream.total_out;
 }
 
-static jlong Inflater_getTotalInImpl(JNIEnv* env, jobject, jlong handle) {
+static jlong Inflater_getTotalInImpl(JNIEnv*, jobject, jlong handle) {
     return toNativeZipStream(handle)->stream.total_in;
 }
 

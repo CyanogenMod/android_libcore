@@ -30,7 +30,7 @@ static jlong CRC32_updateImpl(JNIEnv* env, jobject, jbyteArray buf, int off, int
     return result;
 }
 
-static jlong CRC32_updateByteImpl(JNIEnv* env, jobject recv, jbyte val, jlong crc) {
+static jlong CRC32_updateByteImpl(JNIEnv*, jobject, jbyte val, jlong crc) {
     return crc32((uLong) crc, (Bytef *) (&val), 1);
 }
 

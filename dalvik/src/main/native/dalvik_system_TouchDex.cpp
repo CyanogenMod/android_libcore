@@ -52,7 +52,7 @@ static void logProcStatus(pid_t pid);
  * private static int trampoline(String dexFiles, String bcp)
  */
 static jint dalvik_system_TouchDex_trampoline(JNIEnv* env,
-    jclass clazz, jstring dexFilesStr, jstring bcpStr)
+    jclass, jstring dexFilesStr, jstring bcpStr)
 {
 #ifndef HAVE_ANDROID_OS
     /* don't do this on simulator -- gdb goes "funny" in goobuntu */
@@ -69,7 +69,6 @@ static jint dalvik_system_TouchDex_trampoline(JNIEnv* env,
     static const char* kClassName = "dalvik.system.TouchDex";
     static const char* kExecMode = "-Xint";
     static const int argc = 7;
-    char* bcpArg;
     const char* argv[argc+1];
     const char* kVerifyArg;
     const char* kDexOptArg;

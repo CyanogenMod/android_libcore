@@ -29,7 +29,7 @@ static int IsNaN(unsigned bits)
 /*
  * public static native int floatToIntBits(float value)
  */
-static jint floatToIntBits(JNIEnv* env, jclass clazz, jfloat val)
+static jint floatToIntBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jfloat val)
 {
     Float   f;
 
@@ -47,7 +47,7 @@ static jint floatToIntBits(JNIEnv* env, jclass clazz, jfloat val)
 /*
  * public static native int floatToRawBits(float value)
  */
-static jint floatToRawBits(JNIEnv* env, jclass clazz, jfloat val)
+static jint floatToRawBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jfloat val)
 {
     Float   f;
 
@@ -59,7 +59,7 @@ static jint floatToRawBits(JNIEnv* env, jclass clazz, jfloat val)
 /*
  * public static native float intBitsToFloat(int bits)
  */
-static jfloat intBitsToFloat(JNIEnv* env, jclass clazz, jint val)
+static jfloat intBitsToFloat(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jint val)
 {
     Float   f;
 

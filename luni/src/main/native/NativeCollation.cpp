@@ -26,11 +26,11 @@ static UCollationElements* toCollationElements(jint address) {
     return reinterpret_cast<UCollationElements*>(static_cast<uintptr_t>(address));
 }
 
-static void closeCollator(JNIEnv* env, jclass, jint address) {
+static void closeCollator(JNIEnv*, jclass, jint address) {
     ucol_close(toCollator(address));
 }
 
-static void closeElements(JNIEnv* env, jclass, jint address) {
+static void closeElements(JNIEnv*, jclass, jint address) {
     ucol_closeElements(toCollationElements(address));
 }
 
@@ -58,7 +58,7 @@ static jint getCollationElementIterator(JNIEnv* env, jclass, jint address, jstri
     return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
 }
 
-static jint getMaxExpansion(JNIEnv* env, jclass, jint address, jint order) {
+static jint getMaxExpansion(JNIEnv*, jclass, jint address, jint order) {
     return ucol_getMaxExpansion(toCollationElements(address), order);
 }
 
@@ -75,7 +75,7 @@ static void setNormalization(JNIEnv* env, jclass, jint address, jint mode) {
     icu4jni_error(env, status);
 }
 
-static jint getOffset(JNIEnv* env, jclass, jint address) {
+static jint getOffset(JNIEnv*, jclass, jint address) {
     return ucol_getOffset(toCollationElements(address));
 }
 
@@ -139,7 +139,7 @@ static jint previous(JNIEnv* env, jclass, jint address) {
     return result;
 }
 
-static void reset(JNIEnv* env, jclass, jint address) {
+static void reset(JNIEnv*, jclass, jint address) {
     ucol_reset(toCollationElements(address));
 }
 

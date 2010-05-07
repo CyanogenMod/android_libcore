@@ -61,7 +61,7 @@ static void java_lang_ProcessManager_close(JNIEnv* env,
 /**
  * Kills process with the given ID.
  */
-static void java_lang_ProcessManager_kill(JNIEnv* env, jclass clazz, jint pid) {
+static void java_lang_ProcessManager_kill(JNIEnv* env, jclass, jint pid) {
     int result = kill((pid_t) pid, SIGKILL);
     if (result == -1) {
         jniThrowIOException(env, errno);
@@ -335,7 +335,7 @@ static void freeStrings(JNIEnv* env, jobjectArray javaArray, char** array) {
  * Converts Java String[] to char** and delegates to executeProcess().
  */
 static pid_t java_lang_ProcessManager_exec(
-        JNIEnv* env, jclass clazz, jobjectArray javaCommands,
+        JNIEnv* env, jclass, jobjectArray javaCommands,
         jobjectArray javaEnvironment, jstring javaWorkingDirectory,
         jobject inDescriptor, jobject outDescriptor, jobject errDescriptor,
         jboolean redirectErrorStream) {

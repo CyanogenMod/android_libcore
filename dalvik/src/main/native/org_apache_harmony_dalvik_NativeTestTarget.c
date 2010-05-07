@@ -21,7 +21,7 @@
  *
  * For benchmarks, a do-nothing JNI method with no arguments.
  */
-static void emptyJniStaticMethod0(JNIEnv* env, jclass clazz)
+static void emptyJniStaticMethod0(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)))
 {
     // This space intentionally left blank.
 }
@@ -32,8 +32,8 @@ static void emptyJniStaticMethod0(JNIEnv* env, jclass clazz)
  *
  * For benchmarks, a do-nothing JNI method with six arguments.
  */
-static void emptyJniStaticMethod6(JNIEnv* env, jclass clazz,
-    int a, int b, int c, int d, int e, int f)
+static void emptyJniStaticMethod6(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)),
+    int a __attribute__ ((unused)), int b __attribute__ ((unused)), int c __attribute__ ((unused)), int d __attribute__ ((unused)), int e __attribute__ ((unused)), int f __attribute__ ((unused)))
 {
     // This space intentionally left blank.
 }
@@ -44,8 +44,8 @@ static void emptyJniStaticMethod6(JNIEnv* env, jclass clazz,
  *
  * For benchmarks, a do-nothing JNI method with six arguments.
  */
-static void emptyJniStaticMethod6L(JNIEnv* env, jclass clazz,
-    jobject a, jarray b, jarray c, jobject d, jarray e, jarray f)
+static void emptyJniStaticMethod6L(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)),
+    jobject a __attribute__ ((unused)), jarray b __attribute__ ((unused)), jarray c __attribute__ ((unused)), jobject d __attribute__ ((unused)), jarray e __attribute__ ((unused)), jarray f __attribute__ ((unused)))
 {
     // This space intentionally left blank.
 }

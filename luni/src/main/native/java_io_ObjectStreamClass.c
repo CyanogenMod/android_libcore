@@ -17,7 +17,7 @@
 
 #include "JNIHelp.h"
 
-static jobject java_io_osc_getFieldSignature(JNIEnv * env, jclass clazz,
+static jobject java_io_osc_getFieldSignature(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                                   jobject reflectField) {
     jclass lookupClass;
     jmethodID mid;
@@ -40,7 +40,7 @@ static jobject java_io_osc_getFieldSignature(JNIEnv * env, jclass clazz,
             fieldClass, mid);
 }
 
-static jobject java_io_osc_getMethodSignature(JNIEnv * env, jclass clazz,
+static jobject java_io_osc_getMethodSignature(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                                    jobject reflectMethod)
 {
     jclass lookupClass;
@@ -62,8 +62,8 @@ static jobject java_io_osc_getMethodSignature(JNIEnv * env, jclass clazz,
             methodClass, mid);
 }
 
-static jobject java_io_osc_getConstructorSignature(JNIEnv * env,
-                                                        jclass clazz,
+static jobject java_io_osc_getConstructorSignature(JNIEnv* env,
+                                                        jclass clazz __attribute__ ((unused)),
                                                         jobject
                                                         reflectConstructor)
 {
@@ -86,7 +86,7 @@ static jobject java_io_osc_getConstructorSignature(JNIEnv * env,
                                              constructorClass, mid);
 }
 
-static jboolean java_io_osc_hasClinit(JNIEnv * env, jclass clazz,
+static jboolean java_io_osc_hasClinit(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                           jobject targetClass) {
     jmethodID mid = (*env)->GetStaticMethodID(env, targetClass, 
             "<clinit>", "()V");
@@ -104,7 +104,7 @@ static jboolean java_io_osc_hasClinit(JNIEnv * env, jclass clazz,
     }
 }
 
-static void java_io_osc_oneTimeInitialization(JNIEnv * env, jclass clazz) {
+static void java_io_osc_oneTimeInitialization(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused))) {
   // dummy to stay compatible to harmony
 }
 

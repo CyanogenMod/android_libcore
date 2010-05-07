@@ -58,7 +58,7 @@ static void throwRuntimeException(JNIEnv* env, UErrorCode status) {
     jniThrowRuntimeException(env, u_errorName(status));
 }
 
-static void _close(JNIEnv* env, jclass clazz, RegExData* data)
+static void _close(JNIEnv*, jclass, RegExData* data)
 {
     if (data->regex != NULL) {
         uregex_close(data->regex);
@@ -81,7 +81,6 @@ static RegExData* open(JNIEnv* env, jclass clazz, jstring pattern, jint flags)
     UParseError error;
     error.offset = -1;
 
-    jchar const * patternRaw;
     int patternLen = env->GetStringLength(pattern);
     if (patternLen == 0) {
         data->regex = uregex_open(&EMPTY_STRING, -1, flags, &error, &status);
@@ -101,7 +100,7 @@ static RegExData* open(JNIEnv* env, jclass clazz, jstring pattern, jint flags)
     return data;
 }
 
-static RegExData* _clone(JNIEnv* env, jclass clazz, RegExData* data)
+static RegExData* _clone(JNIEnv* env, jclass, RegExData* data)
 {
     UErrorCode status = U_ZERO_ERROR;
 
@@ -116,7 +115,7 @@ static RegExData* _clone(JNIEnv* env, jclass clazz, RegExData* data)
     return result;
 }
 
-static void setText(JNIEnv* env, jclass clazz, RegExData* data, jstring text)
+static void setText(JNIEnv* env, jclass, RegExData* data, jstring text)
 {
     UErrorCode status = U_ZERO_ERROR;
 
@@ -146,7 +145,7 @@ static void setText(JNIEnv* env, jclass clazz, RegExData* data, jstring text)
     }
 }
 
-static jboolean matches(JNIEnv* env, jclass clazz, RegExData* data,
+static jboolean matches(JNIEnv* env, jclass, RegExData* data,
                         jint startIndex)
 {
     UErrorCode status = U_ZERO_ERROR;
@@ -159,7 +158,7 @@ static jboolean matches(JNIEnv* env, jclass clazz, RegExData* data,
     return result;
 }
 
-static jboolean lookingAt(JNIEnv* env, jclass clazz, RegExData* data,
+static jboolean lookingAt(JNIEnv* env, jclass, RegExData* data,
                           jint startIndex)
 {
     UErrorCode status = U_ZERO_ERROR;
@@ -172,7 +171,7 @@ static jboolean lookingAt(JNIEnv* env, jclass clazz, RegExData* data,
     return result;
 }
 
-static jboolean find(JNIEnv* env, jclass clazz, RegExData* data,
+static jboolean find(JNIEnv* env, jclass, RegExData* data,
                      jint startIndex)
 {
     UErrorCode status = U_ZERO_ERROR;
@@ -185,7 +184,7 @@ static jboolean find(JNIEnv* env, jclass clazz, RegExData* data,
     return result;
 }
 
-static jboolean findNext(JNIEnv* env, jclass clazz, RegExData* data)
+static jboolean findNext(JNIEnv* env, jclass, RegExData* data)
 {
     UErrorCode status = U_ZERO_ERROR;
 
@@ -197,7 +196,7 @@ static jboolean findNext(JNIEnv* env, jclass clazz, RegExData* data)
     return result;
 }
 
-static jint groupCount(JNIEnv* env, jclass clazz, RegExData* data)
+static jint groupCount(JNIEnv* env, jclass, RegExData* data)
 {
     UErrorCode status = U_ZERO_ERROR;
 
@@ -209,7 +208,7 @@ static jint groupCount(JNIEnv* env, jclass clazz, RegExData* data)
     return result;
 }
 
-static void startEnd(JNIEnv* env, jclass clazz, RegExData* data,
+static void startEnd(JNIEnv* env, jclass, RegExData* data,
                      jintArray offsets)
 {
     UErrorCode status = U_ZERO_ERROR;
@@ -229,7 +228,7 @@ static void startEnd(JNIEnv* env, jclass clazz, RegExData* data,
     }
 }
 
-static void setRegion(JNIEnv* env, jclass clazz, RegExData* data, jint start,
+static void setRegion(JNIEnv* env, jclass, RegExData* data, jint start,
                       jint end)
 {
     UErrorCode status = U_ZERO_ERROR;
@@ -239,7 +238,7 @@ static void setRegion(JNIEnv* env, jclass clazz, RegExData* data, jint start,
     }
 }
 
-static jint regionStart(JNIEnv* env, jclass clazz, RegExData* data)
+static jint regionStart(JNIEnv* env, jclass, RegExData* data)
 {
     UErrorCode status = U_ZERO_ERROR;
     int result = uregex_regionStart(data->regex, &status);
@@ -249,7 +248,7 @@ static jint regionStart(JNIEnv* env, jclass clazz, RegExData* data)
     return result;
 }
 
-static jint regionEnd(JNIEnv* env, jclass clazz, RegExData* data)
+static jint regionEnd(JNIEnv* env, jclass, RegExData* data)
 {
     UErrorCode status = U_ZERO_ERROR;
     int result = uregex_regionEnd(data->regex, &status);
@@ -259,7 +258,7 @@ static jint regionEnd(JNIEnv* env, jclass clazz, RegExData* data)
     return result;
 }
 
-static void useTransparentBounds(JNIEnv* env, jclass clazz, RegExData* data,
+static void useTransparentBounds(JNIEnv* env, jclass, RegExData* data,
                                  jboolean value)
 {
     UErrorCode status = U_ZERO_ERROR;
@@ -269,7 +268,7 @@ static void useTransparentBounds(JNIEnv* env, jclass clazz, RegExData* data,
     }
 }
 
-static jboolean hasTransparentBounds(JNIEnv* env, jclass clazz, RegExData* data)
+static jboolean hasTransparentBounds(JNIEnv* env, jclass, RegExData* data)
 {
     UErrorCode status = U_ZERO_ERROR;
     jboolean result = uregex_hasTransparentBounds(data->regex, &status);
@@ -279,7 +278,7 @@ static jboolean hasTransparentBounds(JNIEnv* env, jclass clazz, RegExData* data)
     return result;
 }
 
-static void useAnchoringBounds(JNIEnv* env, jclass clazz, RegExData* data,
+static void useAnchoringBounds(JNIEnv* env, jclass, RegExData* data,
                                jboolean value)
 {
     UErrorCode status = U_ZERO_ERROR;
@@ -289,7 +288,7 @@ static void useAnchoringBounds(JNIEnv* env, jclass clazz, RegExData* data,
     }
 }
 
-static jboolean hasAnchoringBounds(JNIEnv* env, jclass clazz, RegExData* data)
+static jboolean hasAnchoringBounds(JNIEnv* env, jclass, RegExData* data)
 {
     UErrorCode status = U_ZERO_ERROR;
     jboolean result = uregex_hasAnchoringBounds(data->regex, &status);
@@ -299,7 +298,7 @@ static jboolean hasAnchoringBounds(JNIEnv* env, jclass clazz, RegExData* data)
     return result;
 }
 
-static jboolean hitEnd(JNIEnv* env, jclass clazz, RegExData* data)
+static jboolean hitEnd(JNIEnv* env, jclass, RegExData* data)
 {
     UErrorCode status = U_ZERO_ERROR;
     jboolean result = uregex_hitEnd(data->regex, &status);
@@ -309,7 +308,7 @@ static jboolean hitEnd(JNIEnv* env, jclass clazz, RegExData* data)
     return result;
 }
 
-static jboolean requireEnd(JNIEnv* env, jclass clazz, RegExData* data)
+static jboolean requireEnd(JNIEnv* env, jclass, RegExData* data)
 {
     UErrorCode status = U_ZERO_ERROR;
     jboolean result = uregex_requireEnd(data->regex, &status);
@@ -319,7 +318,7 @@ static jboolean requireEnd(JNIEnv* env, jclass clazz, RegExData* data)
     return result;
 }
 
-static void reset(JNIEnv* env, jclass clazz, RegExData* data, jint position)
+static void reset(JNIEnv* env, jclass, RegExData* data, jint position)
 {
     UErrorCode status = U_ZERO_ERROR;
     uregex_reset(data->regex, position, &status);

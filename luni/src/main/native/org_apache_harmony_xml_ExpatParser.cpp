@@ -780,8 +780,6 @@ static void endCdata(void* data) {
 
 /**
  * Called by Expat at the beginning of a DOCTYPE section.
- *
- * @param data parsing context
  */
 static void startDtd(void* data, const char* name,
         const char* systemId, const char* publicId, int hasInternalSubset) {
@@ -858,7 +856,7 @@ static void processingInstruction(void* data, const char* target,
  * @param javaContext that was provided to handleExternalEntity
  * @returns the pointer to the C Expat entity parser
  */
-static jint createEntityParser(JNIEnv* env, jobject object, jint parentParser,
+static jint createEntityParser(JNIEnv* env, jobject, jint parentParser,
         jstring javaEncoding, jstring javaContext) {
     const char* encoding = env->GetStringUTFChars(javaEncoding, NULL);
     if (encoding == NULL) {
@@ -889,7 +887,7 @@ static jint createEntityParser(JNIEnv* env, jobject object, jint parentParser,
  * ourselves.
  */
 static int handleExternalEntity(XML_Parser parser, const char* context,
-        const char* ignored, const char* systemId, const char* publicId) {
+        const char*, const char* systemId, const char* publicId) {
     ParsingContext* parsingContext = (ParsingContext*) XML_GetUserData(parser);
     jobject javaParser = parsingContext->object;
     JNIEnv* env = parsingContext->env;
@@ -1161,7 +1159,7 @@ static void appendBytes(JNIEnv* env, jobject object, jint pointer,
  * @param object the Java ExpatParser instance
  * @param i pointer to the C expat parser
  */
-static void releaseParser(JNIEnv* env, jobject object, jint i) {
+static void releaseParser(JNIEnv*, jobject, jint i) {
     XML_Parser parser = (XML_Parser) i;
     XML_ParserFree(parser);
 }
@@ -1172,7 +1170,7 @@ static void releaseParser(JNIEnv* env, jobject object, jint i) {
  * @param object the Java ExpatParser instance
  * @param i pointer to the C expat parser
  */
-static void release(JNIEnv* env, jobject object, jint i) {
+static void release(JNIEnv* env, jobject, jint i) {
     XML_Parser parser = (XML_Parser) i;
 
     ParsingContext* context = (ParsingContext*) XML_GetUserData(parser);
@@ -1188,7 +1186,7 @@ static void release(JNIEnv* env, jobject object, jint i) {
  * @param pointer to the C expat parser
  * @returns current line number
  */
-static int line(JNIEnv* env, jobject clazz, jint pointer) {
+static int line(JNIEnv*, jobject, jint pointer) {
     XML_Parser parser = (XML_Parser) pointer;
     return XML_GetCurrentLineNumber(parser);
 }
@@ -1200,7 +1198,7 @@ static int line(JNIEnv* env, jobject clazz, jint pointer) {
  * @param pointer to the C expat parser
  * @returns current column number
  */
-static int column(JNIEnv* env, jobject clazz, jint pointer) {
+static int column(JNIEnv*, jobject, jint pointer) {
     XML_Parser parser = (XML_Parser) pointer;
     return XML_GetCurrentColumnNumber(parser);
 }
@@ -1214,7 +1212,7 @@ static int column(JNIEnv* env, jobject clazz, jint pointer) {
  * @param index of the attribute
  * @returns interned Java string containing attribute's URI
  */
-static jstring getAttributeURI(JNIEnv* env, jobject clazz, jint pointer,
+static jstring getAttributeURI(JNIEnv* env, jobject, jint pointer,
         jint attributePointer, jint index) {
     XML_Parser parser = (XML_Parser) pointer;
     ParsingContext* context = (ParsingContext*) XML_GetUserData(parser);
@@ -1230,7 +1228,7 @@ static jstring getAttributeURI(JNIEnv* env, jobject clazz, jint pointer,
  * @param index of the attribute
  * @returns interned Java string containing attribute's local name
  */
-static jstring getAttributeLocalName(JNIEnv* env, jobject clazz, jint pointer,
+static jstring getAttributeLocalName(JNIEnv* env, jobject, jint pointer,
         jint attributePointer, jint index) {
     XML_Parser parser = (XML_Parser) pointer;
     ParsingContext* context = (ParsingContext*) XML_GetUserData(parser);
@@ -1246,7 +1244,7 @@ static jstring getAttributeLocalName(JNIEnv* env, jobject clazz, jint pointer,
  * @param index of the attribute
  * @returns interned Java string containing attribute's local name
  */
-static jstring getAttributeQName(JNIEnv* env, jobject clazz, jint pointer,
+static jstring getAttributeQName(JNIEnv* env, jobject, jint pointer,
         jint attributePointer, jint index) {
     XML_Parser parser = (XML_Parser) pointer;
     ParsingContext* context = (ParsingContext*) XML_GetUserData(parser);
@@ -1261,7 +1259,7 @@ static jstring getAttributeQName(JNIEnv* env, jobject clazz, jint pointer,
  * @param index of the attribute
  * @returns Java string containing attribute's value
  */
-static jstring getAttributeValueByIndex(JNIEnv* env, jobject clazz,
+static jstring getAttributeValueByIndex(JNIEnv* env, jobject,
         jint attributePointer, jint index) {
     const char** attributes = (const char**) attributePointer;
     const char* value = attributes[(index << 1) + 1];
@@ -1276,7 +1274,7 @@ static jstring getAttributeValueByIndex(JNIEnv* env, jobject clazz,
  * @returns index of attribute with the given uri and local name or -1 if not
  *  found
  */
-static jint getAttributeIndexForQName(JNIEnv* env, jobject clazz,
+static jint getAttributeIndexForQName(JNIEnv* env, jobject,
         jint attributePointer, jstring qName) {
     const char** attributes = (const char**) attributePointer;
 
@@ -1306,7 +1304,7 @@ static jint getAttributeIndexForQName(JNIEnv* env, jobject clazz,
  * @returns index of attribute with the given uri and local name or -1 if not
  *  found
  */
-static jint getAttributeIndex(JNIEnv* env, jobject clazz,
+static jint getAttributeIndex(JNIEnv* env, jobject,
         jint attributePointer, jstring uri, jstring localName) {
     const char** attributes = (const char**) attributePointer;
 
@@ -1413,7 +1411,7 @@ static char** cloneStrings(const char** source, int count) {
  * @param pointer to char** to clone
  * @param count number of attributes
  */
-static jint cloneAttributes(JNIEnv* env, jobject clazz,
+static jint cloneAttributes(JNIEnv*, jobject,
         jint pointer, jint count) {
     return (int) cloneStrings((const char**) pointer, count << 1);
 }
@@ -1421,7 +1419,7 @@ static jint cloneAttributes(JNIEnv* env, jobject clazz,
 /**
  * Frees cloned attributes.
  */
-static void freeAttributes(JNIEnv* env, jobject clazz, jint pointer) {
+static void freeAttributes(JNIEnv*, jobject, jint pointer) {
     free((void*) pointer);
 }
 

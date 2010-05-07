@@ -1115,7 +1115,7 @@ static jint osNetworkSystem_readDirect(JNIEnv* env, jobject,
     return bytesReceived;
 }
 
-static jint osNetworkSystem_readSocketImpl(JNIEnv* env, jclass clazz,
+static jint osNetworkSystem_readSocketImpl(JNIEnv* env, jclass,
         jobject fileDescriptor, jbyteArray byteArray, jint offset, jint count,
         jint timeout) {
     // LOGD("ENTER readSocketImpl");
@@ -1242,7 +1242,6 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
     int remainingTimeout = timeout;
     int passedTimeout = 0;
     int finishTime = 0;
-    int blocking = 0;
     bool hasTimeout = timeout > 0;
 
     /* if a timeout was specified calculate the finish time value */

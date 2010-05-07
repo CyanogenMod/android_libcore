@@ -60,11 +60,11 @@ static UBiDi* uBiDi(jlong ptr) {
     return reinterpret_cast<BiDiData*>(static_cast<uintptr_t>(ptr))->uBiDi();
 }
 
-static jlong BidiWrapper_ubidi_open(JNIEnv* env, jclass) {
+static jlong BidiWrapper_ubidi_open(JNIEnv*, jclass) {
     return reinterpret_cast<uintptr_t>(new BiDiData(ubidi_open()));
 }
 
-static void BidiWrapper_ubidi_close(JNIEnv* env, jclass, jlong ptr) {
+static void BidiWrapper_ubidi_close(JNIEnv*, jclass, jlong ptr) {
     delete biDiData(ptr);
 }
 
@@ -97,15 +97,15 @@ static jlong BidiWrapper_ubidi_setLine(JNIEnv* env, jclass, jlong ptr, jint star
     return reinterpret_cast<uintptr_t>(lineData.release());
 }
 
-static jint BidiWrapper_ubidi_getDirection(JNIEnv * env, jclass clazz, jlong ptr) {
+static jint BidiWrapper_ubidi_getDirection(JNIEnv*, jclass, jlong ptr) {
     return ubidi_getDirection(uBiDi(ptr));
 }
 
-static jint BidiWrapper_ubidi_getLength(JNIEnv* env, jclass, jlong ptr) {
+static jint BidiWrapper_ubidi_getLength(JNIEnv*, jclass, jlong ptr) {
     return ubidi_getLength(uBiDi(ptr));
 }
 
-static jbyte BidiWrapper_ubidi_getParaLevel(JNIEnv* env, jclass, jlong ptr) {
+static jbyte BidiWrapper_ubidi_getParaLevel(JNIEnv*, jclass, jlong ptr) {
     return ubidi_getParaLevel(uBiDi(ptr));
 }
 

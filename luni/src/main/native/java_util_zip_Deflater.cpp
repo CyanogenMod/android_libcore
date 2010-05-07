@@ -26,15 +26,15 @@ static void Deflater_setDictionaryImpl(JNIEnv* env, jobject, jbyteArray dict, in
     toNativeZipStream(handle)->setDictionary(env, dict, off, len, false);
 }
 
-static jlong Deflater_getTotalInImpl(JNIEnv* env, jobject, jlong handle) {
+static jlong Deflater_getTotalInImpl(JNIEnv*, jobject, jlong handle) {
     return toNativeZipStream(handle)->stream.total_in;
 }
 
-static jlong Deflater_getTotalOutImpl(JNIEnv* env, jobject, jlong handle) {
+static jlong Deflater_getTotalOutImpl(JNIEnv*, jobject, jlong handle) {
     return toNativeZipStream(handle)->stream.total_out;
 }
 
-static jint Deflater_getAdlerImpl(JNIEnv* env, jobject, jlong handle) {
+static jint Deflater_getAdlerImpl(JNIEnv*, jobject, jlong handle) {
     return toNativeZipStream(handle)->stream.adler;
 }
 
@@ -100,7 +100,7 @@ static jint Deflater_deflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int 
     return stream->stream.total_out - sout;
 }
 
-static void Deflater_endImpl(JNIEnv* env, jobject, jlong handle) {
+static void Deflater_endImpl(JNIEnv*, jobject, jlong handle) {
     NativeZipStream* stream = toNativeZipStream(handle);
     deflateEnd(&stream->stream);
     delete stream;

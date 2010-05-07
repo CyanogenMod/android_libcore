@@ -17,7 +17,7 @@
 
 #include "JNIHelp.h"
 
-static jlong java_getFieldLong(JNIEnv * env, jclass clazz,
+static jlong java_getFieldLong(JNIEnv * env, jclass clazz __attribute__ ((unused)),
                                               jobject targetObject,
                                               jclass declaringClass,
                                               jstring fieldName) {
@@ -37,7 +37,7 @@ static jlong java_getFieldLong(JNIEnv * env, jclass clazz,
     }
 }
 
-static jshort java_getFieldShort(JNIEnv * env, jclass clazz,
+static jshort java_getFieldShort(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                                jobject targetObject,
                                                jclass declaringClass,
                                                jstring fieldName) {
@@ -57,7 +57,7 @@ static jshort java_getFieldShort(JNIEnv * env, jclass clazz,
     }
 }
 
-static jdouble java_getFieldDouble(JNIEnv * env, jclass clazz,
+static jdouble java_getFieldDouble(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                                 jobject targetObject,
                                                 jclass declaringClass,
                                                 jstring fieldName) {
@@ -77,7 +77,7 @@ static jdouble java_getFieldDouble(JNIEnv * env, jclass clazz,
     }
 }
 
-static jboolean java_getFieldBool(JNIEnv * env, jclass clazz,
+static jboolean java_getFieldBool(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                               jobject targetObject,
                                               jclass declaringClass,
                                               jstring fieldName) {
@@ -97,7 +97,7 @@ static jboolean java_getFieldBool(JNIEnv * env, jclass clazz,
     }
 }
 
-static jbyte java_getFieldByte(JNIEnv * env, jclass clazz,
+static jbyte java_getFieldByte(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                               jobject targetObject,
                                               jclass declaringClass,
                                               jstring fieldName) {
@@ -117,7 +117,7 @@ static jbyte java_getFieldByte(JNIEnv * env, jclass clazz,
     }
 }
 
-static jfloat java_getFieldFloat(JNIEnv * env, jclass clazz,
+static jfloat java_getFieldFloat(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                                jobject targetObject,
                                                jclass declaringClass,
                                                jstring fieldName) {
@@ -139,7 +139,7 @@ static jfloat java_getFieldFloat(JNIEnv * env, jclass clazz,
 
 }
 
-static jchar java_getFieldChar(JNIEnv * env, jclass clazz,
+static jchar java_getFieldChar(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                               jobject targetObject,
                                               jclass declaringClass,
                                               jstring fieldName) {
@@ -159,7 +159,7 @@ static jchar java_getFieldChar(JNIEnv * env, jclass clazz,
     }
 }
 
-static jobject java_getFieldObj(JNIEnv * env, jclass clazz,
+static jobject java_getFieldObj(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                              jobject targetObject,
                                              jclass declaringClass,
                                              jstring fieldName,
@@ -184,7 +184,7 @@ static jobject java_getFieldObj(JNIEnv * env, jclass clazz,
     }
 }
 
-static jint java_getFieldInt(JNIEnv * env, jclass clazz,
+static jint java_getFieldInt(JNIEnv* env, jclass clazz __attribute__ ((unused)),
                                              jobject targetObject,
                                              jclass declaringClass,
                                              jstring fieldName) {
