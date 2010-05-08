@@ -42,12 +42,6 @@ public class ServerSocket {
 
     private boolean isClosed;
 
-    // BEGIN android-removed: we do this statically, when we start the VM.
-    // static {
-    //    Platform.getNetworkSystem().oneTimeInitialization(true);
-    // }
-    // END android-removed
-
     /**
      * Constructs a new {@code ServerSocket} instance which is not bound to any
      * port. The default number of pending connections may be backlogged.

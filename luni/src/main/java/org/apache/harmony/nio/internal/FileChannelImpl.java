@@ -172,19 +172,12 @@ public abstract class FileChannelImpl extends FileChannel {
         lockManager.removeLock(lock);
     }
 
-    /*
-     * Flush the contents of the file to disk, and the metadata if asked.
-     */
-    public void force(boolean metadata) throws IOException {
+    @Override public void force(boolean metadata) throws IOException {
         openCheck();
-        // Forcing data-only on a read-only file is a no-op.
-        if (metadata) {
-            fileSystem.fflush(handle, metadata);
-        }
+        fileSystem.fflush(handle, metadata);
     }
 
-    public abstract MappedByteBuffer map(MapMode mode, long position, long size)
-            throws IOException;
+    public abstract MappedByteBuffer map(MapMode mode, long position, long size) throws IOException;
 
     protected final MappedByteBuffer mapImpl(int mapMode, long position,
             long size) throws IOException {

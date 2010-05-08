@@ -428,9 +428,9 @@ public final class NetworkInterface extends Object {
         if (addresses.isEmpty()) {
             return false;
         }
-        return isUpImpl(name, interfaceIndex);
+        return isUpImpl(name);
     }
-    private static native boolean isUpImpl(String n, int index) throws SocketException;
+    private static native boolean isUpImpl(String n) throws SocketException;
 
     /**
      * Returns true if this network interface is a loopback interface.
@@ -444,9 +444,9 @@ public final class NetworkInterface extends Object {
         if (addresses.isEmpty()) {
             return false;
         }
-        return isLoopbackImpl(name, interfaceIndex);
+        return isLoopbackImpl(name);
     }
-    private static native boolean isLoopbackImpl(String n, int index) throws SocketException;
+    private static native boolean isLoopbackImpl(String n) throws SocketException;
 
     /**
      * Returns true if this network interface is a point-to-point interface.
@@ -461,9 +461,9 @@ public final class NetworkInterface extends Object {
         if (addresses.isEmpty()) {
             return false;
         }
-        return isPointToPointImpl(name, interfaceIndex);
+        return isPointToPointImpl(name);
     }
-    private static native boolean isPointToPointImpl(String n, int index) throws SocketException;
+    private static native boolean isPointToPointImpl(String n) throws SocketException;
 
     /**
      * Returns true if this network interface supports multicast.
@@ -476,9 +476,9 @@ public final class NetworkInterface extends Object {
         if (addresses.isEmpty()) {
             return false;
         }
-        return supportsMulticastImpl(name, interfaceIndex);
+        return supportsMulticastImpl(name);
     }
-    private static native boolean supportsMulticastImpl(String n, int index) throws SocketException;
+    private static native boolean supportsMulticastImpl(String n) throws SocketException;
 
     /**
      * Returns the hardware address of the interface, if it has one, and the
@@ -494,9 +494,9 @@ public final class NetworkInterface extends Object {
         if (addresses.isEmpty()) {
             return new byte[0];
         }
-        return getHardwareAddressImpl(name, interfaceIndex);
+        return getHardwareAddressImpl(name);
     }
-    private static native byte[] getHardwareAddressImpl(String n, int index) throws SocketException;
+    private static native byte[] getHardwareAddressImpl(String n) throws SocketException;
 
     /**
      * Returns the Maximum Transmission Unit (MTU) of this interface.
@@ -510,9 +510,9 @@ public final class NetworkInterface extends Object {
         if (addresses.isEmpty()) {
             return 0;
         }
-        return getMTUImpl(name, interfaceIndex);
+        return getMTUImpl(name);
     }
-    private static native int getMTUImpl(String n, int index) throws SocketException;
+    private static native int getMTUImpl(String n) throws SocketException;
 
     /**
      * Returns true if this interface is a virtual interface (also called

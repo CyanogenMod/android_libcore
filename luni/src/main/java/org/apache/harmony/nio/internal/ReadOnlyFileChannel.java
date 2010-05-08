@@ -95,9 +95,8 @@ public final class ReadOnlyFileChannel extends FileChannelImpl {
         return super.mapImpl(IMemorySystem.MMAP_READ_ONLY, position, size);
     }
 
-    public final void force(boolean metadata) throws IOException {
+    @Override public final void force(boolean metadata) throws IOException {
         openCheck();
-        return;
     }
 
     protected final FileLock basicLock(long position, long size,

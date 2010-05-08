@@ -184,7 +184,7 @@ static jboolean hasFlag(JNIEnv* env, jstring name, int flag) {
     return (ifr.ifr_flags & flag) != 0;
 }
 
-static jbyteArray getHardwareAddressImpl(JNIEnv* env, jclass, jstring name, jint index) {
+static jbyteArray getHardwareAddressImpl(JNIEnv* env, jclass, jstring name) {
     ifreq ifr;
     if (!doIoctl(env, name, SIOCGIFHWADDR, ifr)) {
         return NULL;
@@ -205,36 +205,36 @@ static jbyteArray getHardwareAddressImpl(JNIEnv* env, jclass, jstring name, jint
     return result;
 }
 
-static jint getMTUImpl(JNIEnv* env, jclass, jstring name, jint index) {
+static jint getMTUImpl(JNIEnv* env, jclass, jstring name) {
     ifreq ifr;
     doIoctl(env, name, SIOCGIFMTU, ifr); // May throw.
     return ifr.ifr_mtu;
 }
 
-static jboolean isLoopbackImpl(JNIEnv* env, jclass, jstring name, jint index) {
+static jboolean isLoopbackImpl(JNIEnv* env, jclass, jstring name) {
     return hasFlag(env, name, IFF_LOOPBACK);
 }
 
-static jboolean isPointToPointImpl(JNIEnv* env, jclass, jstring name, jint index) {
+static jboolean isPointToPointImpl(JNIEnv* env, jclass, jstring name) {
     return hasFlag(env, name, IFF_POINTOPOINT); // Unix API typo!
 }
 
-static jboolean isUpImpl(JNIEnv* env, jclass, jstring name, jint index) {
+static jboolean isUpImpl(JNIEnv* env, jclass, jstring name) {
     return hasFlag(env, name, IFF_UP);
 }
 
-static jboolean supportsMulticastImpl(JNIEnv* env, jclass, jstring name, jint index) {
+static jboolean supportsMulticastImpl(JNIEnv* env, jclass, jstring name) {
     return hasFlag(env, name, IFF_MULTICAST);
 }
 
 static JNINativeMethod gMethods[] = {
     { "getAllInterfaceAddressesImpl", "()[Ljava/net/InterfaceAddress;", (void*) getAllInterfaceAddressesImpl },
-    { "getHardwareAddressImpl", "(Ljava/lang/String;I)[B", (void*) getHardwareAddressImpl },
-    { "getMTUImpl", "(Ljava/lang/String;I)I", (void*) getMTUImpl },
-    { "isLoopbackImpl", "(Ljava/lang/String;I)Z", (void*) isLoopbackImpl },
-    { "isPointToPointImpl", "(Ljava/lang/String;I)Z", (void*) isPointToPointImpl },
-    { "isUpImpl", "(Ljava/lang/String;I)Z", (void*) isUpImpl },
-    { "supportsMulticastImpl", "(Ljava/lang/String;I)Z", (void*) supportsMulticastImpl },
+    { "getHardwareAddressImpl", "(Ljava/lang/String;)[B", (void*) getHardwareAddressImpl },
+    { "getMTUImpl", "(Ljava/lang/String;)I", (void*) getMTUImpl },
+    { "isLoopbackImpl", "(Ljava/lang/String;)Z", (void*) isLoopbackImpl },
+    { "isPointToPointImpl", "(Ljava/lang/String;)Z", (void*) isPointToPointImpl },
+    { "isUpImpl", "(Ljava/lang/String;)Z", (void*) isUpImpl },
+    { "supportsMulticastImpl", "(Ljava/lang/String;)Z", (void*) supportsMulticastImpl },
 };
 int register_java_net_NetworkInterface(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/net/NetworkInterface", gMethods, NELEM(gMethods));

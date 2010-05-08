@@ -15,16 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// This file corresponds to harmony's OSFileSystem.c and OSFileSystemLinux32.c.
-// It has been greatly simplified by the assumption that the underlying
-// platform is always Linux.
-// END android-note
-
-/*
- * Common natives supporting the file system interface.
- */
-
 /* Values for HyFileOpen */
 #define HyOpenRead    1
 #define HyOpenWrite   2
@@ -49,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/uio.h>
 
@@ -367,10 +358,10 @@ static jlong harmony_io_seek(JNIEnv* env, jobject, jint fd, jlong offset,
     return result;
 }
 
-// TODO: are we supposed to support the 'metadata' flag? (false => fdatasync.)
-static void harmony_io_fflush(JNIEnv* env, jobject, jint fd,
-        jboolean metadata) {
+static void harmony_io_fflush(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
+    LOGW("fdatasync unimplemented on Android"); // http://b/2667481
     int rc = fsync(fd);
+    // int rc = metadataToo ? fsync(fd) : fdatasync(fd);
     if (rc == -1) {
         jniThrowIOException(env, errno);
     }
