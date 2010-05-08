@@ -3,7 +3,7 @@
 # or BUILD_*_LIBRARY.
 
 LOCAL_SRC_FILES := \
-	BNInterface.c
+	BNInterface.cpp
 
 LOCAL_C_INCLUDES += \
 	external/openssl/include

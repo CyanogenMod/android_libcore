@@ -29,7 +29,7 @@ static int IsNaN(unsigned bits)
 /*
  * public static native int floatToIntBits(float value)
  */
-static jint floatToIntBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jfloat val)
+static jint floatToIntBits(JNIEnv*, jclass, jfloat val)
 {
     Float   f;
 
@@ -47,7 +47,7 @@ static jint floatToIntBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __
 /*
  * public static native int floatToRawBits(float value)
  */
-static jint floatToRawBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jfloat val)
+static jint floatToRawBits(JNIEnv*, jclass, jfloat val)
 {
     Float   f;
 
@@ -59,7 +59,7 @@ static jint floatToRawBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __
 /*
  * public static native float intBitsToFloat(int bits)
  */
-static jfloat intBitsToFloat(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jint val)
+static jfloat intBitsToFloat(JNIEnv*, jclass, jint val)
 {
     Float   f;
 
@@ -69,9 +69,9 @@ static jfloat intBitsToFloat(JNIEnv* env __attribute__ ((unused)), jclass clazz 
 }
 
 static JNINativeMethod gMethods[] = {
-    { "floatToIntBits",         "(F)I",     floatToIntBits },
-    { "floatToRawIntBits",      "(F)I",     floatToRawBits },
-    { "intBitsToFloat",         "(I)F",     intBitsToFloat },
+    { "floatToIntBits",         "(F)I",     (void*)floatToIntBits },
+    { "floatToRawIntBits",      "(F)I",     (void*)floatToRawBits },
+    { "intBitsToFloat",         "(I)F",     (void*)intBitsToFloat },
 };
 int register_java_lang_Float(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/Float", gMethods, NELEM(gMethods));

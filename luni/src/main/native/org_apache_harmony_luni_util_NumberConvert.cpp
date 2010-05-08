@@ -26,20 +26,6 @@
 #define USE_LL
 #endif
 
-JNIEXPORT void JNICALL
-Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (JNIEnv *
-                                                                    env,
-                                                                    jobject
-                                                                    inst,
-                                                                    jlong f,
-                                                                    jint e,
-                                                                    jboolean
-                                                                    isDenormalized,
-                                                                    jboolean
-                                                                    mantissaIsZero,
-                                                                    jint p);
-
-
 #define INV_LOG_OF_TEN_BASE_2 (0.30102999566398114) /* Local */
 #define ERROR_OCCURED(x) (HIGH_I32_FROM_VAR(x) < 0) /* Local */
 
@@ -80,18 +66,14 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
  * 
  */
 JNIEXPORT void JNICALL
-Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (JNIEnv *
-                                                                    env,
-                                                                    jobject
-                                                                    inst,
-                                                                    jlong f,
-                                                                    jint e,
-                                                                    jboolean
-                                                                    isDenormalized,
-                                                                    jboolean
-                                                                    mantissaIsZero,
-                                                                    jint p)
-{
+Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
+        JNIEnv* env,
+        jobject inst,
+        jlong f,
+        jint e,
+        jboolean isDenormalized,
+        jboolean mantissaIsZero,
+        jint p) {
   int RLength, SLength, TempLength, mplus_Length, mminus_Length;
   int high, low, i;
   jint k, firstK, U;
@@ -204,10 +186,10 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
         --mminus_Length;
     }
 
-  clazz = (*env)->GetObjectClass (env, inst);
-  fid = (*env)->GetFieldID (env, clazz, "uArray", "[I");
-  uArrayObject = (jintArray) (*env)->GetObjectField (env, inst, fid);
-  uArray = (*env)->GetIntArrayElements (env, uArrayObject, 0);
+  clazz = env->GetObjectClass(inst);
+  fid = env->GetFieldID(clazz, "uArray", "[I");
+  uArrayObject = (jintArray) env->GetObjectField(inst, fid);
+  uArray = env->GetIntArrayElements(uArrayObject, 0);
 
   getCount = setCount = 0;
   do
@@ -261,21 +243,21 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
   else
     uArray[setCount++] = U + 1;
 
-  (*env)->ReleaseIntArrayElements (env, uArrayObject, uArray, 0);
+  env->ReleaseIntArrayElements(uArrayObject, uArray, 0);
 
-  fid = (*env)->GetFieldID (env, clazz, "setCount", "I");
-  (*env)->SetIntField (env, inst, fid, setCount);
+  fid = env->GetFieldID(clazz, "setCount", "I");
+  env->SetIntField(inst, fid, setCount);
 
-  fid = (*env)->GetFieldID (env, clazz, "getCount", "I");
-  (*env)->SetIntField (env, inst, fid, getCount);
+  fid = env->GetFieldID(clazz, "getCount", "I");
+  env->SetIntField(inst, fid, getCount);
 
-  fid = (*env)->GetFieldID (env, clazz, "firstK", "I");
-  (*env)->SetIntField (env, inst, fid, firstK);
+  fid = env->GetFieldID(clazz, "firstK", "I");
+  env->SetIntField(inst, fid, firstK);
 }
 
 static JNINativeMethod gMethods[] = {
     { "bigIntDigitGeneratorInstImpl", "(JIZZI)V"              ,
-        Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl },
+      (void*)Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl },
 };
 int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv *env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/NumberConverter",

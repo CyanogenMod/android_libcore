@@ -21,7 +21,7 @@ typedef union {
 /*
  * public static native long doubleToLongBits(double value)
  */
-static jlong doubleToLongBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble val)
+static jlong doubleToLongBits(JNIEnv*, jclass, jdouble val)
 {
     Double   d;
 
@@ -39,7 +39,7 @@ static jlong doubleToLongBits(JNIEnv* env __attribute__ ((unused)), jclass clazz
 /*
  * public static native long doubleToRawLongBits(double value)
  */
-static jlong doubleToRawLongBits(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jdouble val)
+static jlong doubleToRawLongBits(JNIEnv*, jclass, jdouble val)
 {
     Double   d;
 
@@ -51,7 +51,7 @@ static jlong doubleToRawLongBits(JNIEnv* env __attribute__ ((unused)), jclass cl
 /*
  * public static native double longBitsToDouble(long bits)
  */
-static jdouble longBitsToDouble(JNIEnv* env __attribute__ ((unused)), jclass clazz __attribute__ ((unused)), jlong val)
+static jdouble longBitsToDouble(JNIEnv*, jclass, jlong val)
 {
     Double   d;
 
@@ -61,9 +61,9 @@ static jdouble longBitsToDouble(JNIEnv* env __attribute__ ((unused)), jclass cla
 }
 
 static JNINativeMethod gMethods[] = {
-    { "doubleToLongBits",       "(D)J",     doubleToLongBits },
-    { "doubleToRawLongBits",    "(D)J",     doubleToRawLongBits },
-    { "longBitsToDouble",       "(J)D",     longBitsToDouble },
+  { "doubleToLongBits",       "(D)J",     (void*)doubleToLongBits },
+  { "doubleToRawLongBits",    "(D)J",     (void*)doubleToRawLongBits },
+  { "longBitsToDouble",       "(J)D",     (void*)longBitsToDouble },
 };
 int register_java_lang_Double(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/Double", gMethods, NELEM(gMethods));
