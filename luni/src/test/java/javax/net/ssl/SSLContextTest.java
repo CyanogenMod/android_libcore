@@ -16,7 +16,6 @@
 
 package javax.net.ssl;
 
-import dalvik.annotation.KnownFailure;
 import java.security.Provider;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
@@ -137,7 +136,6 @@ public class SSLContextTest extends TestCase {
         }
     }
 
-    @KnownFailure("Should be able to ask SSLContext for SSLSessionContext's before called SSLContext.init")
     public void test_SSLContext_getServerSessionContext() throws Exception {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         SSLSessionContext sessionContext = sslContext.getServerSessionContext();
@@ -147,7 +145,6 @@ public class SSLContextTest extends TestCase {
                       sessionContext);
     }
 
-    @KnownFailure("Should be able to ask SSLContext for SSLSessionContext's before called SSLContext.init")
     public void test_SSLContext_getClientSessionContext() throws Exception {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         SSLSessionContext sessionContext = sslContext.getClientSessionContext();
