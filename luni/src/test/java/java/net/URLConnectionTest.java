@@ -16,37 +16,22 @@
 
 package java.net;
 
+import tests.http.MockResponse;
+import tests.http.MockWebServer;
+import tests.http.RecordedRequest;
+
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import tests.support.Support_TestWebServer;
 
 public class URLConnectionTest extends junit.framework.TestCase {
-    private int mPort;
-    private Support_TestWebServer mServer;
-    
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        mServer = new Support_TestWebServer();
-        mPort = mServer.initServer(0, true);
-    }
-    
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        mServer.close();
-    }
-    
-    private String readFirstLine() throws Exception {
-        URLConnection connection = new URL("http://localhost:" + mPort + "/test1").openConnection();
+
+    private String readFirstLine(MockWebServer server) throws Exception {
+        URLConnection connection = server.getUrl("/").openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String result = in.readLine();
         in.close();
@@ -57,22 +42,38 @@ public class URLConnectionTest extends junit.framework.TestCase {
     // recycled connection doesn't get the unread tail of the first request's response.
     // http://code.google.com/p/android/issues/detail?id=2939
     public void test_2939() throws Exception {
-        mServer.setChunked(true);
-        mServer.setMaxChunkSize(8);
-        assertTrue(readFirstLine().equals("<html>"));
-        assertTrue(readFirstLine().equals("<html>"));
-        assertEquals(1, mServer.getNumAcceptedConnections());
+        MockResponse response = new MockResponse().setChunkedBody("ABCDE\nFGHIJ\nKLMNO\nPQR", 8);
+
+        MockWebServer server = new MockWebServer();
+        server.enqueue(response);
+        server.enqueue(response);
+        server.play();
+
+        assertTrue(readFirstLine(server).equals("ABCDE"));
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        assertTrue(readFirstLine(server).equals("ABCDE"));
+        assertEquals(1, server.takeRequest().getSequenceNumber());
     }
 
     public void testConnectionsArePooled() throws Exception {
-        readFirstLine();
-        readFirstLine();
-        readFirstLine();
-        assertEquals(1, mServer.getNumAcceptedConnections());
+        MockResponse response = new MockResponse().setBody("ABCDEFGHIJKLMNOPQR");
+
+        MockWebServer server = new MockWebServer();
+        server.enqueue(response);
+        server.enqueue(response);
+        server.enqueue(response);
+        server.play();
+
+        readFirstLine(server);
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        readFirstLine(server);
+        assertEquals(1, server.takeRequest().getSequenceNumber());
+        readFirstLine(server);
+        assertEquals(2, server.takeRequest().getSequenceNumber());
     }
 
-    enum UploadKind { CHUNKED, FIXED_LENGTH };
-    enum WriteKind { BYTE_BY_BYTE, SMALL_BUFFERS, LARGE_BUFFERS };
+    enum UploadKind { CHUNKED, FIXED_LENGTH }
+    enum WriteKind { BYTE_BY_BYTE, SMALL_BUFFERS, LARGE_BUFFERS }
 
     public void test_chunkedUpload_byteByByte() throws Exception {
         doUpload(UploadKind.CHUNKED, WriteKind.BYTE_BY_BYTE);
@@ -100,10 +101,12 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
     private void doUpload(UploadKind uploadKind, WriteKind writeKind) throws Exception {
         int n = 512*1024;
-        AtomicInteger total = new AtomicInteger(0);
-        ServerSocket ss = startSinkServer(total);
-        URL url = new URL("http://localhost:" + ss.getLocalPort() + "/" + UUID.randomUUID());
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        MockWebServer server = new MockWebServer();
+        server.setBodyLimit(0);
+        server.enqueue(new MockResponse());
+        server.play();
+
+        HttpURLConnection conn = (HttpURLConnection) server.getUrl("/").openConnection();
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
         if (uploadKind == UploadKind.CHUNKED) {
@@ -125,66 +128,13 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
         out.close();
         assertEquals(200, conn.getResponseCode());
-        assertEquals(uploadKind == UploadKind.CHUNKED ? -1 : n, total.get());
-    }
-
-    private ServerSocket startSinkServer(final AtomicInteger totalByteCount) throws Exception {
-        final ServerSocket ss = new ServerSocket(0);
-        ss.setReuseAddress(true);
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Socket s = ss.accept();
-                    BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                    int contentLength = -1;
-                    String line;
-                    int emptyLineCount = 0;
-                    // read the headers
-                    while ((line = in.readLine()) != null) {
-                        if (contentLength == -1 && line.toLowerCase().startsWith("content-length: ")) {
-                            contentLength = Integer.parseInt(line.substring(16));
-                        }
-                        if (line.isEmpty()) {
-                            ++emptyLineCount;
-                            // If we had a content length, the first empty line we see marks the
-                            // start of the payload. The loop below then skips over that.
-                            // If we didn't get a content length, we're using chunked encoding.
-                            // The first empty line again marks the start of the payload, and the
-                            // second empty line is a consequence of both the last chunk ending
-                            // CRLF and the chunked-body itself ending with a CRLF. (The fact that
-                            // a chunk of size 0 is used to mark the end isn't sufficient because
-                            // there may also be a "trailer": header fields deferred until after
-                            // the payload.)
-                            if (contentLength != -1 || emptyLineCount == 2) {
-                                break;
-                            }
-                        }
-                    }
-                    // Skip the payload in the setFixedLengthStreamingMode case.
-                    // In the chunked case, we read all the chunked data in the loop above.
-                    long left = contentLength;
-                    while (left > 0) {
-                        left -= in.skip(left);
-                    }
-                    // Send a response to unblock the client.
-                    totalByteCount.set(contentLength);
-                    OutputStream out = s.getOutputStream();
-                    out.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
-                    out.flush();
-                    out.close();
-                    // Check there wasn't junk at the end.
-                    try {
-                        assertEquals(-1, in.read());
-                    } catch (SocketException expected) {
-                        // The client already closed the connection.
-                    }
-                } catch (Exception ex) {
-                    throw new RuntimeException("server died unexpectedly", ex);
-                }
-            }
-        });
-        t.start();
-        return ss;
+        RecordedRequest request = server.takeRequest();
+        assertEquals(n, request.getBodySize());
+        if (uploadKind == UploadKind.CHUNKED) {
+            assertTrue(request.getChunkSizes().size() > 0);
+        } else {
+            assertTrue(request.getChunkSizes().isEmpty());
+        }
     }
 
     public void test_responseCaching() throws Exception {
@@ -239,41 +189,18 @@ public class URLConnectionTest extends junit.framework.TestCase {
                 didPut = true;
                 return null;
             }
-        };
-        ServerSocket ss = startResponseCodeServer(responseCode);
-        URL url = new URL("http://localhost:" + ss.getLocalPort() + "/");
+        }
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse()
+                .setResponseCode(responseCode)
+                .addHeader("WWW-Authenticate: challenge"));
+        server.play();
+
         MyResponseCache cache = new MyResponseCache();
         ResponseCache.setDefault(cache);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = (HttpURLConnection) server.getUrl("/").openConnection();
         assertEquals(responseCode, conn.getResponseCode());
         assertEquals(Integer.toString(responseCode), shouldPut, cache.didPut);
-    }
 
-    private ServerSocket startResponseCodeServer(final int responseCode) throws Exception {
-        final ServerSocket ss = new ServerSocket(0);
-        ss.setReuseAddress(true);
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Socket s = ss.accept();
-                    // Read the request.
-                    BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                    String line;
-                    while ((line = in.readLine()) != null && !line.isEmpty()) {
-                    }
-                    // Send a response.
-                    OutputStream out = s.getOutputStream();
-                    out.write(String.format("HTTP/1.1 %d OK\r\n" +
-                            "Content-Length: 0\r\n" +
-                            "WWW-Authenticate: challenge\r\n\r\n", responseCode).getBytes());
-                    out.flush();
-                    out.close();
-                } catch (Exception ex) {
-                    throw new RuntimeException("server died unexpectedly", ex);
-                }
-            }
-        });
-        t.start();
-        return ss;
     }
 }
