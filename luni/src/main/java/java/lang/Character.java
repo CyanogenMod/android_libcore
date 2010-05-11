@@ -50,7 +50,55 @@ import com.ibm.icu4jni.lang.UCharacter;
  * On the Java platform a {@code char} value represents either a single BMP code
  * point or a UTF-16 unit that's part of a surrogate pair. The {@code int} type
  * is used to represent all Unicode code points.
- *
+ * 
+ * <a name="unicode_categories"><h3>Unicode categories</h3></a>
+ * <p>Here's a list of the Unicode character categories and the corresponding Java constant,
+ * grouped semantically to provide a convenient overview. This table is also useful in
+ * conjunction with {@code \p} and {@code \P} in {@link java.util.regex.Pattern regular expressions}.
+ * <span class="datatable">
+ * <style type="text/css">
+ * .datatable td { padding-right: 20px; }
+ * </style>
+ * <p><table>
+ * <tr> <td> Cn </td> <td> Unassigned </td>  <td>{@link #UNASSIGNED}</td> </tr>
+ * <tr> <td> Cc </td> <td> Control </td>     <td>{@link #CONTROL}</td> </tr>
+ * <tr> <td> Cf </td> <td> Format </td>      <td>{@link #FORMAT}</td> </tr>
+ * <tr> <td> Cf </td> <td> Private use </td> <td>{@link #PRIVATE_USE}</td> </tr>
+ * <tr> <td> Cf </td> <td> Surrogate </td>   <td>{@link #SURROGATE}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Lu </td> <td> Uppercase letter </td> <td>{@link #UPPERCASE_LETTER}</td> </tr>
+ * <tr> <td> Ll </td> <td> Lowercase letter </td> <td>{@link #LOWERCASE_LETTER}</td> </tr>
+ * <tr> <td> Lt </td> <td> Titlecase letter </td> <td>{@link #TITLECASE_LETTER}</td> </tr>
+ * <tr> <td> Lm </td> <td> Modifier letter </td>  <td>{@link #MODIFIER_LETTER}</td> </tr>
+ * <tr> <td> Lo </td> <td> Other letter </td>     <td>{@link #OTHER_LETTER}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Mn </td> <td> Non-spacing mark </td>       <td>{@link #NON_SPACING_MARK}</td> </tr>
+ * <tr> <td> Me </td> <td> Enclosing mark </td>         <td>{@link #ENCLOSING_MARK}</td> </tr>
+ * <tr> <td> Mc </td> <td> Combining spacing mark </td> <td>{@link #COMBINING_SPACING_MARK}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Nd </td> <td> Decimal digit number </td> <td>{@link #DECIMAL_DIGIT_NUMBER}</td> </tr>
+ * <tr> <td> Nl </td> <td> Letter number </td>        <td>{@link #LETTER_NUMBER}</td> </tr>
+ * <tr> <td> No </td> <td> Other number </td>         <td>{@link #OTHER_NUMBER}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Pd </td> <td> Dash punctuation </td>          <td>{@link #DASH_PUNCTUATION}</td> </tr>
+ * <tr> <td> Ps </td> <td> Start punctuation </td>         <td>{@link #START_PUNCTUATION}</td> </tr>
+ * <tr> <td> Pe </td> <td> End punctuation </td>           <td>{@link #END_PUNCTUATION}</td> </tr>
+ * <tr> <td> Pc </td> <td> Connector punctuation </td>     <td>{@link #CONNECTOR_PUNCTUATION}</td> </tr>
+ * <tr> <td> Pi </td> <td> Initial quote punctuation </td> <td>{@link #INITIAL_QUOTE_PUNCTUATION}</td> </tr>
+ * <tr> <td> Pf </td> <td> Final quote punctuation </td>   <td>{@link #FINAL_QUOTE_PUNCTUATION}</td> </tr>
+ * <tr> <td> Po </td> <td> Other punctuation </td>         <td>{@link #OTHER_PUNCTUATION}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Sm </td> <td> Math symbol </td>     <td>{@link #MATH_SYMBOL}</td> </tr>
+ * <tr> <td> Sc </td> <td> Currency symbol </td> <td>{@link #CURRENCY_SYMBOL}</td> </tr>
+ * <tr> <td> Sk </td> <td> Modifier symbol </td> <td>{@link #MODIFIER_SYMBOL}</td> </tr>
+ * <tr> <td> So </td> <td> Other symbol </td>    <td>{@link #OTHER_SYMBOL}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Zs </td> <td> Space separator </td>     <td>{@link #SPACE_SEPARATOR}</td> </tr>
+ * <tr> <td> Zl </td> <td> Line separator </td>      <td>{@link #LINE_SEPARATOR}</td> </tr>
+ * <tr> <td> Zp </td> <td> Paragraph separator </td> <td>{@link #PARAGRAPH_SEPARATOR}</td> </tr>
+ * </table>
+ * </span>
+ * 
  * @since 1.0
  */
 public final class Character implements Serializable, Comparable<Character> {
