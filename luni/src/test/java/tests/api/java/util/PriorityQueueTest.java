@@ -812,7 +812,10 @@ public class PriorityQueueTest extends TestCase {
             queue.offer(array[i]);
         }
         assertFalse(queue.contains("BB"));
-        assertTrue(queue.remove("BB"));
+        // Even though "BB" is equivalent to "AA" using the string length comparator, remove()
+        // uses equals(), so only "AA" succeeds in removing element "AA".
+        assertFalse(queue.remove("BB"));
+        assertTrue(queue.remove("AA"));
     }
 
     /**

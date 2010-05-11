@@ -244,17 +244,13 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
         if (o == null) {
             return false;
         }
-        int targetIndex;
-        for (targetIndex = 0; targetIndex < size; targetIndex++) {
-            if (0 == this.compare((E) o, elements[targetIndex])) {
-                break;
+        for (int targetIndex = 0; targetIndex < size; targetIndex++) {
+            if (o.equals(elements[targetIndex])) {
+                removeAt(targetIndex);
+                return true;
             }
         }
-        if (size == 0 || size == targetIndex) {
-            return false;
-        }
-        removeAt(targetIndex);
-        return true;
+        return false;
     }
 
     /**
