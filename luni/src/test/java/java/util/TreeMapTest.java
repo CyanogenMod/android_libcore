@@ -22,6 +22,110 @@ import junit.framework.TestCase;
 
 public class TreeMapTest extends TestCase {
 
+    /**
+     * Test that the entrySet() method produces correctly mutable Entrys.
+     */
+    public void testEntrySetSetValue() {
+        TreeMap<String, String> map = new TreeMap<String, String>();
+        map.put("A", "a");
+        map.put("B", "b");
+        map.put("C", "c");
+
+        Iterator<Entry<String,String>> iterator = map.entrySet().iterator();
+        Entry<String, String> entryA = iterator.next();
+        assertEquals("a", entryA.setValue("x"));
+        assertEquals("x", entryA.getValue());
+        assertEquals("x", map.get("A"));
+        Entry<String, String> entryB = iterator.next();
+        assertEquals("b", entryB.setValue("y"));
+        Entry<String, String> entryC = iterator.next();
+        assertEquals("c", entryC.setValue("z"));
+        assertEquals("y", entryB.getValue());
+        assertEquals("y", map.get("B"));
+        assertEquals("z", entryC.getValue());
+        assertEquals("z", map.get("C"));
+    }
+
+    /**
+     * Test that the entrySet() method of a submap produces correctly mutable Entrys that
+     * propagate changes to the original map.
+     */
+    public void testSubMapEntrySetSetValue() {
+        TreeMap<String, String> map = new TreeMap<String, String>();
+        map.put("A", "a");
+        map.put("B", "b");
+        map.put("C", "c");
+        map.put("D", "d");
+        NavigableMap<String, String> subMap = map.subMap("A", true, "C", true);
+
+        Iterator<Entry<String,String>> iterator = subMap.entrySet().iterator();
+        Entry<String, String> entryA = iterator.next();
+        assertEquals("a", entryA.setValue("x"));
+        assertEquals("x", entryA.getValue());
+        assertEquals("x", subMap.get("A"));
+        assertEquals("x", map.get("A"));
+        Entry<String, String> entryB = iterator.next();
+        assertEquals("b", entryB.setValue("y"));
+        Entry<String, String> entryC = iterator.next();
+        assertEquals("c", entryC.setValue("z"));
+        assertEquals("y", entryB.getValue());
+        assertEquals("y", subMap.get("B"));
+        assertEquals("y", map.get("B"));
+        assertEquals("z", entryC.getValue());
+        assertEquals("z", subMap.get("C"));
+        assertEquals("z", map.get("C"));
+    }
+
+    /**
+     * Test that an Entry given by any method except entrySet() is immutable.
+     */
+    public void testExceptionsOnSetValue() {
+        TreeMap<String, String> map = new TreeMap<String, String>();
+        map.put("A", "a");
+        map.put("B", "b");
+        map.put("C", "c");
+
+        assertAllEntryMethodsReturnImmutableEntries(map);
+    }
+
+    /**
+     * Test that an Entry given by any method except entrySet() of a submap is immutable.
+     */
+    public void testExceptionsOnSubMapSetValue() {
+        TreeMap<String, String> map = new TreeMap<String, String>();
+        map.put("A", "a");
+        map.put("B", "b");
+        map.put("C", "c");
+        map.put("D", "d");
+
+        assertAllEntryMethodsReturnImmutableEntries(map.subMap("A", true, "C", true));
+    }
+
+    /**
+     * Asserts that each NavigableMap method that returns an Entry (except entrySet()) returns an
+     * immutable one. Assumes that the map contains at least entries with keys "A", "B" and "C".
+     */
+    private void assertAllEntryMethodsReturnImmutableEntries(NavigableMap<String, String> map) {
+        assertImmutable(map.ceilingEntry("B"));
+        assertImmutable(map.firstEntry());
+        assertImmutable(map.floorEntry("D"));
+        assertImmutable(map.higherEntry("A"));
+        assertImmutable(map.lastEntry());
+        assertImmutable(map.lowerEntry("C"));
+        assertImmutable(map.pollFirstEntry());
+        assertImmutable(map.pollLastEntry());
+    }
+
+    private void assertImmutable(Entry<String, String> entry) {
+        String initialValue = entry.getValue();
+        try {
+            entry.setValue("x");
+            fail();
+        } catch (UnsupportedOperationException e) {
+        }
+        assertEquals(initialValue, entry.getValue());
+    }
+
     public void testConcurrentModificationDetection() {
         Map<String, String> map = new TreeMap<String, String>();
         map.put("A", "a");
