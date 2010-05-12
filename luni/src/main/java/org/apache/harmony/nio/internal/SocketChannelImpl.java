@@ -391,15 +391,14 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
      *      int)
      */
     @Override
-    public long read(ByteBuffer[] targets, int offset, int length)
-            throws IOException {
+    public long read(ByteBuffer[] targets, int offset, int length) throws IOException {
         if (!isIndexValid(targets, offset, length)) {
             throw new IndexOutOfBoundsException();
         }
 
         checkOpenConnected();
-        int totalCount = calculateByteBufferArray(targets, offset, length);
-        if (0 == totalCount) {
+        int totalCount = FileChannelImpl.calculateTotalRemaining(targets, offset, length);
+        if (totalCount == 0) {
             return 0;
         }
         byte[] readArray = new byte[totalCount];
@@ -486,15 +485,14 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
      *      int)
      */
     @Override
-    public long write(ByteBuffer[] sources, int offset, int length)
-            throws IOException {
+    public long write(ByteBuffer[] sources, int offset, int length) throws IOException {
         if (!isIndexValid(sources, offset, length)) {
             throw new IndexOutOfBoundsException();
         }
 
         checkOpenConnected();
-        int count = calculateByteBufferArray(sources, offset, length);
-        if (0 == count) {
+        int count = FileChannelImpl.calculateTotalRemaining(sources, offset, length);
+        if (count == 0) {
             return 0;
         }
         ByteBuffer writeBuf = ByteBuffer.allocate(count);
@@ -516,15 +514,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             result -= gap;
         }
         return written;
-    }
-
-    private int calculateByteBufferArray(ByteBuffer[] sources, int offset,
-            int length) {
-        int sum = 0;
-        for (int val = offset; val < offset + length; val++) {
-            sum = sum + sources[val].remaining();
-        }
-        return sum;
     }
 
     /*

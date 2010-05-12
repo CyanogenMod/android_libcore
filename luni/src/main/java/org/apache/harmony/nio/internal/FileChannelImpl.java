@@ -288,17 +288,13 @@ public abstract class FileChannelImpl extends FileChannel {
         return bytesRead;
     }
 
-    public long read(ByteBuffer[] buffers, int offset, int length)
-            throws IOException {
-        int count = 0;
+    public long read(ByteBuffer[] buffers, int offset, int length) throws IOException {
         if (offset < 0 || length < 0 || offset + length > buffers.length) {
             throw new IndexOutOfBoundsException();
         }
         openCheck();
-        for (int i = offset; i < offset + length; i++) {
-            count += buffers[i].remaining();
-        }
-        if (0 == count) {
+        int count = calculateTotalRemaining(buffers, offset, length);
+        if (count == 0) {
             return 0;
         }
         ByteBuffer[] directBuffers = new ByteBuffer[length];
@@ -557,11 +553,8 @@ public abstract class FileChannelImpl extends FileChannel {
             throw new IndexOutOfBoundsException();
         }
         openCheck();
-        int count = 0;
-        for (int i = offset; i < offset + length; i++) {
-            count += buffers[i].remaining();
-        }
-        if (0 == count) {
+        int count = calculateTotalRemaining(buffers, offset, length);
+        if (count == 0) {
             return 0;
         }
         int[] handles = new int[length];
@@ -574,8 +567,7 @@ public abstract class FileChannelImpl extends FileChannel {
         for (int i = 0; i < length; i++) {
             ByteBuffer buffer = buffers[i + offset];
             if (!buffer.isDirect()) {
-                ByteBuffer directBuffer = ByteBuffer.allocateDirect(buffer
-                        .remaining());
+                ByteBuffer directBuffer = ByteBuffer.allocateDirect(buffer.remaining());
                 directBuffer.put(buffer);
                 directBuffer.flip();
                 buffer = directBuffer;
@@ -624,6 +616,14 @@ public abstract class FileChannelImpl extends FileChannel {
             }
         }
         return bytesWritten;
+    }
+
+    static int calculateTotalRemaining(ByteBuffer[] buffers, int offset, int length) {
+        int count = 0;
+        for (int i = offset; i < offset + length; ++i) {
+            count += buffers[i].remaining();
+        }
+        return count;
     }
 
     public int getHandle() {
