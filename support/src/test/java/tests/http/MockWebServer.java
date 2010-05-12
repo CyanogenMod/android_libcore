@@ -171,11 +171,14 @@ public final class MockWebServer {
             }
         }
 
+        boolean hasBody = false;
         TruncatingOutputStream requestBody = new TruncatingOutputStream();
         List<Integer> chunkSizes = new ArrayList<Integer>();
         if (contentLength != -1) {
+            hasBody = true;
             transfer(contentLength, in, requestBody);
         } else if (chunked) {
+            hasBody = true;
             while (true) {
                 int chunkSize = Integer.parseInt(readAsciiUntilCrlf(in).trim(), 16);
                 if (chunkSize == 0) {
@@ -186,6 +189,18 @@ public final class MockWebServer {
                 transfer(chunkSize, in, requestBody);
                 readEmptyLine(in);
             }
+        }
+
+        if (request.startsWith("GET ")) {
+            if (hasBody) {
+                throw new IllegalArgumentException("GET requests should not have a body!");
+            }
+        } else if (request.startsWith("POST ")) {
+            if (!hasBody) {
+                throw new IllegalArgumentException("POST requests must have a body!");
+            }
+        } else {
+            throw new UnsupportedOperationException("Unexpected method: " + request);
         }
 
         return new RecordedRequest(request, headers, chunkSizes,
