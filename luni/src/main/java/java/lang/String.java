@@ -1958,105 +1958,100 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     }
 
     /**
-     * Determines whether this string matches a given regular expression.
+     * Tests whether this string matches the given {@code regularExpression}. This method returns
+     * true only if the regular expression matches the <i>entire</i> input string. A common mistake is
+     * to assume that this method behaves like {@link #contains}; if you want to match anywhere
+     * within the input string, you need to add {@code .*} to the beginning and end of your
+     * regular expression. See {@link Pattern#matches}.
      * 
-     * @param expr
-     *            the regular expression to be matched.
-     * @return {@code true} if the expression matches, otherwise {@code false}.
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     * 
      * @throws PatternSyntaxException
      *             if the syntax of the supplied regular expression is not
      *             valid.
-     * @throws NullPointerException
-     *             if {@code expr} is {@code null}.
+     * @throws NullPointerException if {@code regularExpression == null}
      * @since 1.4
      */
-    public boolean matches(String expr) {
-        return Pattern.matches(expr, this);
+    public boolean matches(String regularExpression) {
+        return Pattern.matches(regularExpression, this);
     }
 
     /**
-     * Replace any substrings within this string that match the supplied regular
-     * expression {@code expr}, with the string {@code substitute}.
+     * Replaces all matches for {@code regularExpression} within this string with the given
+     * {@code replacement}.
+     * See {@link Pattern} for regular expression syntax.
      * 
-     * @param expr
-     *            the regular expression to match.
-     * @param substitute
-     *            the string to replace the matching substring with.
-     * @return the new string.
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     * 
+     * @throws PatternSyntaxException
+     *             if the syntax of the supplied regular expression is not
+     *             valid.
+     * @throws NullPointerException if {@code regularExpression == null}
+     * @see Pattern
+     * @since 1.4
+     */
+    public String replaceAll(String regularExpression, String replacement) {
+        return Pattern.compile(regularExpression).matcher(this).replaceAll(replacement);
+    }
+
+    /**
+     * Replaces the first match for {@code regularExpression} within this string with the given
+     * {@code replacement}.
+     * See {@link Pattern} for regular expression syntax.
+     * 
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     * 
+     * @throws PatternSyntaxException
+     *             if the syntax of the supplied regular expression is not
+     *             valid.
+     * @throws NullPointerException if {@code regularExpression == null}
+     * @see Pattern
+     * @since 1.4
+     */
+    public String replaceFirst(String regularExpression, String replacement) {
+        return Pattern.compile(regularExpression).matcher(this).replaceFirst(replacement);
+    }
+
+    /**
+     * Splits this string using the supplied {@code regularExpression}.
+     * Equivalent to {@code split(regularExpression, 0)}.
+     * See {@link Pattern#split(CharSequence, int)} for an explanation of {@code limit}.
+     * See {@link Pattern} for regular expression syntax.
+     * 
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     * 
+     * @throws NullPointerException if {@code regularExpression ==  null}
      * @throws PatternSyntaxException
      *             if the syntax of the supplied regular expression is not
      *             valid.
      * @see Pattern
      * @since 1.4
      */
-    public String replaceAll(String expr, String substitute) {
-        return Pattern.compile(expr).matcher(this).replaceAll(substitute);
+    public String[] split(String regularExpression) {
+        return split(regularExpression, 0);
     }
 
     /**
-     * Replace the first substring within this string that matches the supplied
-     * regular expression {@code expr}, with the string {@code substitute}.
+     * Splits this string using the supplied {@code regularExpression}.
+     * See {@link Pattern#split(CharSequence, int)} for an explanation of {@code limit}.
+     * See {@link Pattern} for regular expression syntax.
      * 
-     * @param expr
-     *            the regular expression to match.
-     * @param substitute
-     *            the string to replace the matching substring with.
-     * @return the new string.
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     * 
+     * @throws NullPointerException if {@code regularExpression ==  null}
      * @throws PatternSyntaxException
      *             if the syntax of the supplied regular expression is not
      *             valid.
-     * @throws NullPointerException
-     *             if {@code strbuf} is {@code null}.
-     * @see Pattern
      * @since 1.4
      */
-    public String replaceFirst(String expr, String substitute) {
-        return Pattern.compile(expr).matcher(this).replaceFirst(substitute);
-    }
-
-    /**
-     * Splits this string using the supplied regular expression {@code expr},
-     * as if by {@code split(expr, 0)}.
-     * 
-     * @param expr
-     *            the regular expression used to divide the string.
-     * @return an array of Strings created by separating the string along
-     *         matches of the regular expression.
-     * @throws NullPointerException
-     *             if {@code expr} is {@code null}.
-     * @throws PatternSyntaxException
-     *             if the syntax of the supplied regular expression is not
-     *             valid.
-     * @see Pattern
-     * @since 1.4
-     */
-    public String[] split(String expr) {
-        return split(expr, 0);
-    }
-
-    /**
-     * Splits this string using the supplied regular expression {@code expr}.
-     * The parameter {@code max} controls the behavior how many times the
-     * pattern is applied to the string; see {@link Pattern#split(CharSequence, int)}
-     * for details.
-     * 
-     * @param expr
-     *            the regular expression used to divide the string.
-     * @param max
-     *            the number of entries in the resulting array.
-     * @return an array of Strings created by separating the string along
-     *         matches of the regular expression.
-     * @throws NullPointerException
-     *             if {@code expr} is {@code null}.
-     * @throws PatternSyntaxException
-     *             if the syntax of the supplied regular expression is not
-     *             valid.
-     * @see Pattern#split(CharSequence, int)
-     * @since 1.4
-     */
-    public String[] split(String expr, int max) {
-        String[] result = java.util.regex.Splitter.fastSplit(expr, this, max);
-        return result != null ? result : Pattern.compile(expr).split(this, max);
+    public String[] split(String regularExpression, int limit) {
+        String[] result = java.util.regex.Splitter.fastSplit(regularExpression, this, limit);
+        return result != null ? result : Pattern.compile(regularExpression).split(this, limit);
     }
 
     /**
