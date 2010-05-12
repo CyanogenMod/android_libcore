@@ -74,8 +74,7 @@ public class FileInputStream extends InputStream implements Closeable {
             security.checkRead(filePath);
         }
         if (file == null) {
-            // KA001=Argument must not be null
-            throw new NullPointerException(Msg.getString("KA001")); //$NON-NLS-1$
+            throw new NullPointerException("file == null");
         }
         fd = new FileDescriptor();
         fd.readOnly = true;
@@ -103,7 +102,7 @@ public class FileInputStream extends InputStream implements Closeable {
     public FileInputStream(FileDescriptor fd) {
         super();
         if (fd == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("fd == null");
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -270,10 +269,10 @@ public class FileInputStream extends InputStream implements Closeable {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         if ((count | offset) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
         }
         // END android-changed
         if (0 == count) {
@@ -309,10 +308,9 @@ public class FileInputStream extends InputStream implements Closeable {
         }
         if (count < 0) {
             // KA013=Number of bytes to skip cannot be negative
-            throw new IOException(Msg.getString("KA013")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("KA013"));
         }
 
-        // BEGIN android-changed
         // The RI doesn't treat stdin as special. It throws IOException for
         // all non-seekable streams, so we do too. If you did want to support
         // non-seekable streams, the best way to do it would be to recognize
@@ -323,7 +321,6 @@ public class FileInputStream extends InputStream implements Closeable {
             fileSystem.seek(fd.descriptor, count, IFileSystem.SEEK_CUR);
             return count;
         }
-        // END android-changed
     }
 
     private synchronized void openCheck() throws IOException {

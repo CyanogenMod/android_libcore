@@ -71,6 +71,8 @@ class OSFileSystem implements IFileSystem {
      */
     public native int getAllocGranularity();
 
+    public native long length(int fd);
+
     public boolean lock(int fileDescriptor, long start, long length, int type,
             boolean waitFlag) throws IOException {
         // Validate arguments

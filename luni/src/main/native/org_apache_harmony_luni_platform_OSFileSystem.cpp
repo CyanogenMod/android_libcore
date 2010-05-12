@@ -31,6 +31,7 @@
 #include "JNIHelp.h"
 #include "LocalArray.h"
 #include "ScopedByteArray.h"
+#include "UniquePtr.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -39,9 +40,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/uio.h>
+#include <unistd.h>
 
 #if HAVE_SYS_SENDFILE_H
 #include <sys/sendfile.h>
@@ -210,29 +213,30 @@ static iovec* initIoVec(JNIEnv* env,
 
 static jlong harmony_io_readv(JNIEnv* env, jobject, jint fd,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    iovec* vectors = initIoVec(env, jBuffers, jOffsets, jLengths, size);
-    if (vectors == NULL) {
+    UniquePtr<iovec> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
+    if (vectors.get() == NULL) {
         return -1;
     }
-    long result = readv(fd, vectors, size);
+    long result = readv(fd, vectors.get(), size);
+    if (result == 0) {
+        return -1;
+    }
     if (result == -1) {
         jniThrowIOException(env, errno);
     }
-    delete[] vectors;
     return result;
 }
 
 static jlong harmony_io_writev(JNIEnv* env, jobject, jint fd,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    iovec* vectors = initIoVec(env, jBuffers, jOffsets, jLengths, size);
-    if (vectors == NULL) {
+    UniquePtr<iovec> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
+    if (vectors.get() == NULL) {
         return -1;
     }
-    long result = writev(fd, vectors, size);
+    long result = writev(fd, vectors.get(), size);
     if (result == -1) {
         jniThrowIOException(env, errno);
     }
-    delete[] vectors;
     return result;
 }
 
@@ -491,19 +495,28 @@ static jint harmony_io_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescripto
     return (jint) avail;
 }
 
+static jlong lengthImpl(JNIEnv* env, jobject, jint fd) {
+    struct stat sb;
+    jint rc = TEMP_FAILURE_RETRY(fstat(fd, &sb));
+    if (rc == -1) {
+        jniThrowIOException(env, errno);
+    }
+    return sb.st_size;
+}
+
 static JNINativeMethod gMethods[] = {
     { "close",              "(I)V",       (void*) harmony_io_close },
     { "fflush",             "(IZ)V",      (void*) harmony_io_fflush },
     { "getAllocGranularity","()I",        (void*) harmony_io_getAllocGranularity },
     { "ioctlAvailable", "(Ljava/io/FileDescriptor;)I", (void*) harmony_io_ioctlAvailable },
+    { "length", "(I)J", (void*) lengthImpl },
     { "lockImpl",           "(IJJIZ)I",   (void*) harmony_io_lockImpl },
     { "openImpl",           "([BI)I",     (void*) harmony_io_openImpl },
     { "readDirect",         "(IIII)J",    (void*) harmony_io_readDirect },
     { "readImpl",           "(I[BII)J",   (void*) harmony_io_readImpl },
     { "readv",              "(I[I[I[II)J",(void*) harmony_io_readv },
     { "seek",               "(IJI)J",     (void*) harmony_io_seek },
-    { "transfer",           "(ILjava/io/FileDescriptor;JJ)J",
-                                          (void*) harmony_io_transfer },
+    { "transfer",           "(ILjava/io/FileDescriptor;JJ)J", (void*) harmony_io_transfer },
     { "truncate",           "(IJ)V",      (void*) harmony_io_truncate },
     { "unlockImpl",         "(IJJ)V",     (void*) harmony_io_unlockImpl },
     { "writeDirect",        "(IIII)J",    (void*) harmony_io_writeDirect },

@@ -301,9 +301,6 @@ public abstract class FileChannelImpl extends FileChannel {
         if (0 == count) {
             return 0;
         }
-        if (size() == 0) {
-            return -1;
-        }
         ByteBuffer[] directBuffers = new ByteBuffer[length];
         int[] handles = new int[length];
         int[] offsets = new int[length];
@@ -373,14 +370,7 @@ public abstract class FileChannelImpl extends FileChannel {
      */
     public long size() throws IOException {
         openCheck();
-        synchronized (repositioningLock) {
-            long currentPosition = fileSystem.seek(handle, 0L,
-                    IFileSystem.SEEK_CUR);
-            long endOfFilePosition = fileSystem.seek(handle, 0L,
-                    IFileSystem.SEEK_END);
-            fileSystem.seek(handle, currentPosition, IFileSystem.SEEK_SET);
-            return endOfFilePosition;
-        }
+        return fileSystem.length(handle);
     }
 
     public long transferFrom(ReadableByteChannel src, long position, long count)

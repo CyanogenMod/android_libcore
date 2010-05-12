@@ -54,11 +54,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     private int options;
     // END android-added
 
-    private static class RepositionLock {
-    }
-
-    private Object repositionLock = new RepositionLock();
-
     /**
      * Constructs a new {@code RandomAccessFile} based on {@code file} and opens
      * it according to the access string in {@code mode}.
@@ -277,15 +272,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public long length() throws IOException {
         openCheck();
-        synchronized (repositionLock) {
-            long currentPosition = fileSystem.seek(fd.descriptor, 0L,
-                    IFileSystem.SEEK_CUR);
-            long endOfFilePosition = fileSystem.seek(fd.descriptor, 0L,
-                    IFileSystem.SEEK_END);
-            fileSystem.seek(fd.descriptor, currentPosition,
-                    IFileSystem.SEEK_SET);
-            return endOfFilePosition;
-        }
+        return fileSystem.length(fd.descriptor);
     }
 
     /**
@@ -301,10 +288,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public int read() throws IOException {
         openCheck();
         byte[] bytes = new byte[1];
-        synchronized (repositionLock) {
-            long readed = fileSystem.read(fd.descriptor, bytes, 0, 1);
-            return readed == -1 ? -1 : bytes[0] & 0xff;
-        }
+        long byteCount = fileSystem.read(fd.descriptor, bytes, 0, 1);
+        return byteCount == -1 ? -1 : bytes[0] & 0xff;
     }
 
     /**
@@ -363,9 +348,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             return 0;
         }
         openCheck();
-        synchronized (repositionLock) {
-            return (int) fileSystem.read(fd.descriptor, buffer, offset, count);
-        }
+        return (int) fileSystem.read(fd.descriptor, buffer, offset, count);
     }
 
     /**
@@ -723,9 +706,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             throw new IOException(Msg.getString("K0347")); //$NON-NLS-1$
         }
         openCheck();
-        synchronized (repositionLock) {
-            fileSystem.seek(fd.descriptor, pos, IFileSystem.SEEK_SET);
-        }
+        fileSystem.seek(fd.descriptor, pos, IFileSystem.SEEK_SET);
     }
 
     /**
@@ -747,12 +728,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (newLength < 0) {
             throw new IllegalArgumentException();
         }
-        synchronized (repositionLock) {
-            long position = fileSystem.seek(fd.descriptor, 0,
-                    IFileSystem.SEEK_CUR);
-            fileSystem.truncate(fd.descriptor, newLength);
-            seek(position > newLength ? newLength : position);
-        }
+        fileSystem.truncate(fd.descriptor, newLength);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -825,7 +801,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         // RI, but are spec-compliant.
         // made implicit null check explicit,
         // removed redundant check, used (offset | count) < 0
-        // instead of (offset < 0) || (count < 0) to safe one operation
+        // instead of (offset < 0) || (count < 0) to save one operation
         if (buffer == null) {
             throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
         }
@@ -836,12 +812,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (count == 0) {
             return;
         }
-        // BEGIN android-added
         openCheck();
-        // END android-added
-        synchronized (repositionLock) {
-            fileSystem.write(fd.descriptor, buffer, offset, count);
-        }
+        fileSystem.write(fd.descriptor, buffer, offset, count);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -863,9 +835,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         openCheck();
         byte[] bytes = new byte[1];
         bytes[0] = (byte) (oneByte & 0xff);
-        synchronized (repositionLock) {
-            fileSystem.write(fd.descriptor, bytes, 0, 1);
-        }
+        fileSystem.write(fd.descriptor, bytes, 0, 1);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
