@@ -187,12 +187,7 @@ public class Header implements Cloneable {
     }
 
     /**
-     * Returns the value corresponding to the specified key.
-     *
-     * @param key
-     *            the key to look up.
-     * @return Answers the value for the given key, or <code>null</code> if no
-     *         such key exists.
+     * Returns the value corresponding to the specified key, or null.
      */
     public String get(String key) {
         LinkedList<String> result = keyTable.get(key);

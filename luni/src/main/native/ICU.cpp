@@ -17,6 +17,7 @@
 #define LOG_TAG "ICU"
 
 #include "JNIHelp.h"
+#include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "cutils/log.h"
@@ -215,9 +216,8 @@ static jobjectArray toStringArray(JNIEnv* env, const char* const* strings) {
     }
     jobjectArray result = env->NewObjectArray(count, string_class, NULL);
     for (size_t i = 0; i < count; ++i) {
-        jstring s = env->NewStringUTF(strings[i]);
-        env->SetObjectArrayElement(result, i, s);
-        env->DeleteLocalRef(s);
+        ScopedLocalRef s(env, env->NewStringUTF(strings[i]));
+        env->SetObjectArrayElement(result, i, s.get());
     }
     return result;
 }
@@ -235,9 +235,8 @@ static jobjectArray getAvailableLocales(JNIEnv* env, Counter* counter, Getter* g
     size_t count = (*counter)();
     jobjectArray result = env->NewObjectArray(count, string_class, NULL);
     for (size_t i = 0; i < count; ++i) {
-        jstring s = env->NewStringUTF((*getter)(i));
-        env->SetObjectArrayElement(result, i, s);
-        env->DeleteLocalRef(s);
+        ScopedLocalRef s(env, env->NewStringUTF((*getter)(i)));
+        env->SetObjectArrayElement(result, i, s.get());
     }
     return result;
 }
@@ -279,37 +278,34 @@ static jstring formatDate(JNIEnv* env, const SimpleDateFormat& fmt, const UDate&
     return env->NewString(str.getBuffer(), str.length());
 }
 
-static void getTimeZonesNative(JNIEnv* env, jclass, jobjectArray outerArray, jstring locale) {
-    // get all timezone objects
-    jobjectArray zoneIdArray = (jobjectArray) env->GetObjectArrayElement(outerArray, 0);
-    int count = env->GetArrayLength(zoneIdArray);
-    TimeZone* zones[count];
-    for(int i = 0; i < count; i++) {
-        jstring id = (jstring) env->GetObjectArrayElement(zoneIdArray, i);
-        zones[i] = timeZoneFromId(env, id);
-        env->DeleteLocalRef(id);
-    }
-
-    Locale loc = getLocale(env, locale);
-
+static void getTimeZonesNative(JNIEnv* env, jclass, jobjectArray outerArray, jstring localeName) {
+    Locale locale = getLocale(env, localeName);
+    
+    // We could use TimeZone::getDisplayName, but that's way too slow.
+    // The cost of this method goes from 0.5s to 4.5s on a Nexus One.
+    // Much of the saving comes from caching SimpleDateFormat instances.
     UErrorCode status = U_ZERO_ERROR;
-    UnicodeString longPattern("zzzz","");
-    SimpleDateFormat longFormat(longPattern, loc, status);
-    UnicodeString shortPattern("z","");
-    SimpleDateFormat shortFormat(shortPattern, loc, status);
+    UnicodeString longPattern("zzzz", "");
+    SimpleDateFormat longFormat(longPattern, locale, status);
+    UnicodeString shortPattern("z", "");
+    SimpleDateFormat shortFormat(shortPattern, locale, status);
 
-    jobjectArray longStdTimeArray = (jobjectArray) env->GetObjectArrayElement(outerArray, 1);
-    jobjectArray shortStdTimeArray = (jobjectArray) env->GetObjectArrayElement(outerArray, 2);
-    jobjectArray longDlTimeArray = (jobjectArray) env->GetObjectArrayElement(outerArray, 3);
-    jobjectArray shortDlTimeArray = (jobjectArray) env->GetObjectArrayElement(outerArray, 4);
+    jobjectArray longStdArray = (jobjectArray) env->GetObjectArrayElement(outerArray, 1);
+    jobjectArray shortStdArray = (jobjectArray) env->GetObjectArrayElement(outerArray, 2);
+    jobjectArray longDstArray = (jobjectArray) env->GetObjectArrayElement(outerArray, 3);
+    jobjectArray shortDstArray = (jobjectArray) env->GetObjectArrayElement(outerArray, 4);
 
     // 15th January 2008
     UDate date1 = 1203105600000.0;
     // 15th July 2008
     UDate date2 = 1218826800000.0;
 
-    for (int i = 0; i < count; ++i) {
-        TimeZone* tz = zones[i];
+    jobjectArray zoneIds = (jobjectArray) env->GetObjectArrayElement(outerArray, 0);
+    int zoneIdCount = env->GetArrayLength(zoneIds);
+    for (int i = 0; i < zoneIdCount; ++i) {
+        ScopedLocalRef id(env, env->GetObjectArrayElement(zoneIds, i));
+        UniquePtr<TimeZone> tz(timeZoneFromId(env, reinterpret_cast<jstring>(id.get())));
+        
         longFormat.setTimeZone(*tz);
         shortFormat.setTimeZone(*tz);
 
@@ -328,24 +324,23 @@ static void getTimeZonesNative(JNIEnv* env, jclass, jobjectArray outerArray, jst
             standardDate = date1;
             daylightSavingDate = date2;
         }
+        
+        ScopedLocalRef shortStd(env, formatDate(env, shortFormat, standardDate));
+        env->SetObjectArrayElement(shortStdArray, i, shortStd.get());
 
-        jstring content = formatDate(env, shortFormat, daylightSavingDate);
-        env->SetObjectArrayElement(shortDlTimeArray, i, content);
-        env->DeleteLocalRef(content);
-
-        content = formatDate(env, shortFormat, standardDate);
-        env->SetObjectArrayElement(shortStdTimeArray, i, content);
-        env->DeleteLocalRef(content);
-
-        content = formatDate(env, longFormat, daylightSavingDate);
-        env->SetObjectArrayElement(longDlTimeArray, i, content);
-        env->DeleteLocalRef(content);
-
-        content = formatDate(env, longFormat, standardDate);
-        env->SetObjectArrayElement(longStdTimeArray, i, content);
-        env->DeleteLocalRef(content);
-
-        delete tz;
+        ScopedLocalRef longStd(env, formatDate(env, longFormat, standardDate));
+        env->SetObjectArrayElement(longStdArray, i, longStd.get());
+        
+        if (tz->useDaylightTime()) {
+            ScopedLocalRef shortDst(env, formatDate(env, shortFormat, daylightSavingDate));
+            env->SetObjectArrayElement(shortDstArray, i, shortDst.get());
+            
+            ScopedLocalRef longDst(env, formatDate(env, longFormat, daylightSavingDate));
+            env->SetObjectArrayElement(longDstArray, i, longDst.get());
+        } else {
+            env->SetObjectArrayElement(shortDstArray, i, shortStd.get());
+            env->SetObjectArrayElement(longDstArray, i, longStd.get());
+        }
     }
 }
 
@@ -395,12 +390,10 @@ static jobjectArray getAmPmMarkers(JNIEnv* env, UResourceBundle* gregorian) {
     }
     
     jobjectArray amPmMarkers = env->NewObjectArray(2, string_class, NULL);
-    jstring amU = env->NewString(am, lengthAm);
-    env->SetObjectArrayElement(amPmMarkers, 0, amU);
-    env->DeleteLocalRef(amU);
-    jstring pmU = env->NewString(pm, lengthPm);
-    env->SetObjectArrayElement(amPmMarkers, 1, pmU);
-    env->DeleteLocalRef(pmU);
+    ScopedLocalRef amU(env, env->NewString(am, lengthAm));
+    env->SetObjectArrayElement(amPmMarkers, 0, amU.get());
+    ScopedLocalRef pmU(env, env->NewString(pm, lengthPm));
+    env->SetObjectArrayElement(amPmMarkers, 1, pmU.get());
 
     return amPmMarkers;
 }
@@ -427,9 +420,8 @@ static jobjectArray getEras(JNIEnv* env, UResourceBundle* gregorian) {
         if (U_FAILURE(status)) {
             return NULL;
         }
-        jstring eraU = env->NewString(era, eraLength);
-        env->SetObjectArrayElement(eras, i, eraU);
-        env->DeleteLocalRef(eraU);
+        ScopedLocalRef eraU(env, env->NewString(era, eraLength));
+        env->SetObjectArrayElement(eras, i, eraU.get());
     }
     return eras;
 }
@@ -461,14 +453,12 @@ static jobjectArray getMonthNames(JNIEnv* env, UResourceBundle* gregorian, bool 
         if (U_FAILURE(status)) {
             return NULL;
         }
-        jstring monthU = env->NewString(month, monthNameLength);
-        env->SetObjectArrayElement(months, i, monthU);
-        env->DeleteLocalRef(monthU);
+        ScopedLocalRef monthU(env, env->NewString(month, monthNameLength));
+        env->SetObjectArrayElement(months, i, monthU.get());
     }
     
-    jstring monthU = env->NewStringUTF("");
-    env->SetObjectArrayElement(months, monthCount, monthU);
-    env->DeleteLocalRef(monthU);
+    ScopedLocalRef monthU(env, env->NewStringUTF(""));
+    env->SetObjectArrayElement(months, monthCount, monthU.get());
     
     return months;
 }
@@ -509,9 +499,8 @@ static jobjectArray getWeekdayNames(JNIEnv* env, UResourceBundle* gregorian, boo
         if(U_FAILURE(status)) {
             return NULL;
         }
-        jstring dayU = env->NewString(day, dayNameLength);
-        env->SetObjectArrayElement(weekdays, i + 1, dayU);
-        env->DeleteLocalRef(dayU);
+        ScopedLocalRef dayU(env, env->NewString(day, dayNameLength));
+        env->SetObjectArrayElement(weekdays, i + 1, dayU.get());
     }
     return weekdays;
 }

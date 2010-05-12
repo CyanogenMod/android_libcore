@@ -16,6 +16,7 @@
 
 package com.ibm.icu4jni.util;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -157,21 +158,24 @@ public final class ICU {
         arrayToFill[3] = new String[availableTimezones.length];
         arrayToFill[4] = new String[availableTimezones.length];
 
-        /*
-         * Fill in the zone names in native.
-         */
+        // Don't be distracted by all the code either side of this line: this is the expensive bit!
         getTimeZonesNative(arrayToFill, locale);
 
-        /*
-         * Finally we need to reorder the entries so we get the expected result.
-         */
+        // Reorder the entries so we get the expected result.
+        // We also take the opportunity to de-duplicate the names (http://b/2672057).
+        HashMap<String, String> internTable = new HashMap<String, String>();
         String[][] result = new String[availableTimezones.length][5];
-        for (int i = 0; i < availableTimezones.length; i++) {
+        for (int i = 0; i < availableTimezones.length; ++i) {
             result[i][0] = arrayToFill[0][i];
-            result[i][1] = arrayToFill[1][i];
-            result[i][2] = arrayToFill[2][i];
-            result[i][3] = arrayToFill[3][i];
-            result[i][4] = arrayToFill[4][i];
+            for (int j = 1; j <= 4; ++j) {
+                String original = arrayToFill[j][i];
+                String nonDuplicate = internTable.get(original);
+                if (nonDuplicate == null) {
+                    internTable.put(original, original);
+                    nonDuplicate = original;
+                }
+                result[i][j] = nonDuplicate;
+            }
         }
 
         Logger.global.info("Loaded time zone names for " + locale + " in "

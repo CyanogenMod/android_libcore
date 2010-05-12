@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,43 +14,41 @@
  * limitations under the License.
  */
 
-#ifndef SCOPED_GLOBAL_REF_H_included
-#define SCOPED_GLOBAL_REF_H_included
+#ifndef SCOPED_LOCAL_REF_H_included
+#define SCOPED_LOCAL_REF_H_included
 
 #include "JNIHelp.h"
 
-// A smart pointer that creates a JNI global reference from a weak reference.
-// The global reference is deleted when the smart pointer goes out of scope.
-class ScopedGlobalRef {
+// A smart pointer that deletes a JNI local reference when it goes out of scope.
+class ScopedLocalRef {
 public:
-    ScopedGlobalRef(JNIEnv* env, jobject localRef)
-    : mEnv(env), mGlobalRef(NULL)
+    ScopedLocalRef(JNIEnv* env, jobject localRef)
+    : mEnv(env), mLocalRef(localRef)
     {
-        mGlobalRef = env->NewGlobalRef(localRef);
     }
 
-    ~ScopedGlobalRef() {
+    ~ScopedLocalRef() {
         reset();
     }
 
     void reset() {
-        if (mGlobalRef != NULL) {
-            mEnv->DeleteGlobalRef(mGlobalRef);
-            mGlobalRef = NULL;
+        if (mLocalRef != NULL) {
+            mEnv->DeleteLocalRef(mLocalRef);
+            mLocalRef = NULL;
         }
     }
 
     jobject get() const {
-        return mGlobalRef;
+        return mLocalRef;
     }
 
 private:
     JNIEnv* mEnv;
-    jobject mGlobalRef;
+    jobject mLocalRef;
 
     // Disallow copy and assignment.
-    ScopedGlobalRef(const ScopedGlobalRef&);
-    void operator=(const ScopedGlobalRef&);
+    ScopedLocalRef(const ScopedLocalRef&);
+    void operator=(const ScopedLocalRef&);
 };
 
-#endif  // SCOPED_GLOBAL_REF_H_included
+#endif  // SCOPED_LOCAL_REF_H_included
