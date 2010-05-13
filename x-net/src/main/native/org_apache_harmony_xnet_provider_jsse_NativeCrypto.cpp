@@ -2220,7 +2220,7 @@ static void org_apache_harmony_xnet_provider_jsse_OpenSSLServerSocketImpl_init(J
     env->ReleaseStringUTFChars(privatekey, privatekeychar);
 
     if (privatekeyevp == NULL) {
-        LOGE(ERR_error_string(ERR_get_error(), NULL));
+        LOGE("%s", ERR_error_string(ERR_get_error(), NULL));
         throwIOExceptionStr(env, "Error parsing the private key");
         return;
     }
@@ -2232,25 +2232,25 @@ static void org_apache_harmony_xnet_provider_jsse_OpenSSLServerSocketImpl_init(J
     env->ReleaseStringUTFChars(certificates, certificateschar);
 
     if (certificatesx509 == NULL) {
-        LOGE(ERR_error_string(ERR_get_error(), NULL));
+        LOGE("%s", ERR_error_string(ERR_get_error(), NULL));
         throwIOExceptionStr(env, "Error parsing the certificates");
         return;
     }
 
     if (!SSL_CTX_use_certificate(ssl_ctx, certificatesx509)) {
-        LOGE(ERR_error_string(ERR_get_error(), NULL));
+        LOGE("%s", ERR_error_string(ERR_get_error(), NULL));
         throwIOExceptionStr(env, "Error setting the certificates");
         return;
     }
 
     if (!SSL_CTX_use_PrivateKey(ssl_ctx, privatekeyevp)) {
-        LOGE(ERR_error_string(ERR_get_error(), NULL));
+        LOGE("%s", ERR_error_string(ERR_get_error(), NULL));
         throwIOExceptionStr(env, "Error setting the private key");
         return;
     }
 
     if (!SSL_CTX_check_private_key(ssl_ctx)) {
-        LOGE(ERR_error_string(ERR_get_error(), NULL));
+        LOGE("%s", ERR_error_string(ERR_get_error(), NULL));
         throwIOExceptionStr(env, "Error checking private key");
         return;
     }
