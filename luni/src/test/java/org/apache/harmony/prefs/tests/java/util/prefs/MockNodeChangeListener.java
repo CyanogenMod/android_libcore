@@ -30,7 +30,7 @@ public class MockNodeChangeListener implements NodeChangeListener {
     public MockNodeChangeListener() {
 
     }
-    
+
     public void waitForEvent() {
         try {
             synchronized (addLock) {

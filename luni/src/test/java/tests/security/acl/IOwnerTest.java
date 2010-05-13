@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,16 +33,16 @@ import org.apache.harmony.security.tests.support.acl.*;
 
 @TestTargetClass(Owner.class)
 public class IOwnerTest extends TestCase {
-    
+
     class MyOwner extends OwnerImpl {
         public MyOwner(Principal pr) {
             super(pr);
         }
     }
-    
+
     /**
      * @tests java.security.acl.Owner#isOwner(Principal owner)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -59,10 +59,10 @@ public class IOwnerTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests java.security.acl.Owner#addOwner(Principal caller, Principal owner)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -91,10 +91,10 @@ public class IOwnerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests java.security.acl.Owner#deleteOwner(Principal caller, Principal owner)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -108,14 +108,14 @@ public class IOwnerTest extends TestCase {
         Principal owner2 = new PrincipalImpl("NewOwner2");
         Principal notCaller = new PrincipalImpl("AclOwner");
         MyOwner mo = new MyOwner(caller);
-        
+
         try {
             if (!mo.isOwner(owner1))  mo.addOwner(caller, owner1);
             if (!mo.isOwner(owner2))  mo.addOwner(caller, owner2);
         } catch (Exception e) {
             fail("Unexpected exception " + e + " was thrown for addOwner");
         }
-        
+
         try {
             //remove existent owner - TRUE expected
             assertTrue("Method returns FALSE", mo.deleteOwner(caller, owner1));

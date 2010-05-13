@@ -27,7 +27,7 @@ import java.io.IOException;
 
 /**
  * This class represents ASN.1 ANY type.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -38,7 +38,7 @@ public class ASN1Any extends ASN1Type {
 
     /**
      * Constructs ASN.1 ANY type
-     * 
+     *
      * The constructor is provided for inheritance purposes
      * when there is a need to create a custom ASN.1 ANY type.
      * To get a default implementation it is recommended to use
@@ -50,7 +50,7 @@ public class ASN1Any extends ASN1Type {
 
     /**
      * Returns ASN.1 ANY type default implementation
-     * 
+     *
      * The default implementation works with full encoding
      * that is represented as raw byte array.
      *
@@ -90,7 +90,7 @@ public class ASN1Any extends ASN1Type {
     /**
      * Extracts array of bytes that represents full encoding from BER input
      * stream.
-     * 
+     *
      * @param in -
      *            BER input stream
      * @return array of bytes

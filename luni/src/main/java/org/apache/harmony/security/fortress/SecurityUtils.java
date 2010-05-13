@@ -30,20 +30,20 @@ import org.apache.harmony.security.internal.nls.Messages;
 //FIXME: move this class under umbrella of protected packages -
 // see lib/java.security: property 'package.access',
 // so only trusted classes like Thread and AccessController will
-// have an access to this class. 
-// This is to remove dependency on VMStack, to reduce number 
+// have an access to this class.
+// This is to remove dependency on VMStack, to reduce number
 // of VM2API-dependent classes.
 
 /**
- * The class is used to perform an exchange of information between 
+ * The class is used to perform an exchange of information between
  * java.lang.Thread and java.security.AccessController.<br>
- * The data to exchange is inherited contexts for the Thread-s.  
- * 
+ * The data to exchange is inherited contexts for the Thread-s.
+ *
  */
 public final class SecurityUtils {
 
     // A map used to store inherited contexts.<br>
-    // A thread is used as a key for the map and AccessControlContext 
+    // A thread is used as a key for the map and AccessControlContext
     // passed to the putContext is used as a value.
     private static final WeakHashMap<Thread, AccessControlContext> ACC_CACHE = new WeakHashMap<Thread, AccessControlContext>();
 
@@ -59,30 +59,30 @@ public final class SecurityUtils {
      * }<br>
      * </code>
      *
-     * The method throws SecurityException if the method is called more than 
+     * The method throws SecurityException if the method is called more than
      * once for a given thread. The first call to <code>putContext</code> is
      * always performed in the Thread's constructor so this effectively means
      * that no one can replace the snapshot taken.
-     * 
-     * @throws SecurityException if a context for the passed 
+     *
+     * @throws SecurityException if a context for the passed
      *     <code>thread</code> already exists in the map.
      * @throws NullPointerException if thread is null
-     * @throws Error if context is null AND if null context is already stored 
-     *     in the map 
+     * @throws Error if context is null AND if null context is already stored
+     *     in the map
      */
     public static void putContext(Thread thread, AccessControlContext context)
             throws SecurityException {
         if (thread == null) {
-            throw new NullPointerException(Messages.getString("security.140")); 
+            throw new NullPointerException(Messages.getString("security.140"));
         }
         synchronized (ACC_CACHE) {
             if (ACC_CACHE.containsKey(thread)) {
-                throw new SecurityException(Messages.getString("security.141")); 
+                throw new SecurityException(Messages.getString("security.141"));
             }
             if (context == null) {
                 // this only allowed once - for the very first thread.
                 if (ACC_CACHE.containsValue(null)) {
-                    throw new Error(Messages.getString("security.142")); 
+                    throw new Error(Messages.getString("security.142"));
                 }
             }
             ACC_CACHE.put(thread, context);
@@ -91,9 +91,9 @@ public final class SecurityUtils {
 
     /**
      * Returns the AccessControlContext stored for a given thread.<br>
-     * The method may return null - for the very first thread created 
+     * The method may return null - for the very first thread created
      * by the VM which does not have inherited context.<br>
-     * It may also return null if no Thread found in the map - that seems 
+     * It may also return null if no Thread found in the map - that seems
      * possible during VM startup process.
      */
     public static AccessControlContext getContext(Thread thread)

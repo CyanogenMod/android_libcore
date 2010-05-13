@@ -25,7 +25,7 @@ public class Util {
     /**
      * Returns whether the given source string ends with the suffix, ignoring
      * case and assuming that the strings are ascii encoded.
-     * 
+     *
      * @param source
      *            the string to match.
      * @param suffix
@@ -52,7 +52,7 @@ public class Util {
     /**
      * Compares the given byte arrays and returns whether they are equal,
      * ignoring case differences and assuming they are ascii-encoded strings.
-     * 
+     *
      * @param buf1
      *            first byte array to compare.
      * @param buf2
@@ -83,7 +83,7 @@ public class Util {
     /**
      * Compares the given strings and returns whether they are equal, ignoring
      * case differences and assuming they are ascii-encoded strings.
-     * 
+     *
      * @param s1
      *            first string to compare.
      * @param s2

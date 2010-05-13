@@ -47,7 +47,7 @@ import junit.framework.TestCase;
 @TestTargetClass(CipherSpi.class)
 /**
  * Tests for <code>CipherSpi</code> class constructors and methods.
- * 
+ *
  */
 public class CipherSpiTest extends TestCase {
     class Mock_CipherSpi extends myCipherSpi {
@@ -142,7 +142,7 @@ public class CipherSpiTest extends TestCase {
     }
 
     /**
-     * Test for <code>CipherSpi</code> constructor 
+     * Test for <code>CipherSpi</code> constructor
      * Assertion: constructs CipherSpi
      */
     @TestTargetNew(
@@ -153,7 +153,7 @@ public class CipherSpiTest extends TestCase {
     )
     public void testCipherSpiTests01() throws IllegalBlockSizeException,
             BadPaddingException, ShortBufferException {
-        
+
         Mock_CipherSpi cSpi = new Mock_CipherSpi();
         assertEquals("BlockSize is not 0", cSpi.engineGetBlockSize(), 0);
         assertEquals("OutputSize is not 0", cSpi.engineGetOutputSize(1), 0);
@@ -175,9 +175,9 @@ public class CipherSpiTest extends TestCase {
                 "Incorrect result of engineDoFinal(byte, int, int, byte, int)",
                 2, cSpi.engineDoFinal(bb1, 1, 2, bb2, 0));
     }
-    
+
     /**
-     * Test for <code>engineGetKeySize(Key)</code> method 
+     * Test for <code>engineGetKeySize(Key)</code> method
      * Assertion: It throws UnsupportedOperationException if it is not overridden
      */
     @TestTargetNew(
@@ -195,7 +195,7 @@ public class CipherSpiTest extends TestCase {
     }
 
     /**
-     * Test for <code>engineWrap(Key)</code> method 
+     * Test for <code>engineWrap(Key)</code> method
      * Assertion: It throws UnsupportedOperationException if it is not overridden
      */
     @TestTargetNew(
@@ -231,7 +231,7 @@ public class CipherSpiTest extends TestCase {
         } catch (UnsupportedOperationException e) {
         }
     }
-    
+
     /**
      * Test for <code>engineUpdate(ByteBuffer, ByteBuffer)</code> method
      * Assertions:
@@ -292,7 +292,7 @@ public class CipherSpiTest extends TestCase {
 
     /**
      * Test for <code>engineDoFinal(ByteBuffer, ByteBuffer)</code> method
-     * Assertions: 
+     * Assertions:
      * throws NullPointerException if one of these buffers is null;
      * throws ShortBufferException is there is no space in output to hold result
      */
@@ -341,7 +341,7 @@ public class CipherSpiTest extends TestCase {
     }
 }
 /**
- * 
+ *
  * Additional class for CipherGeneratorSpi constructor verification
  */
 
@@ -431,18 +431,18 @@ class myCipherSpi extends CipherSpi {
             byte[] output, int outputOffset) throws ShortBufferException,
             IllegalBlockSizeException, BadPaddingException {
         byte[] res = engineDoFinal(input, inputOffset, inputLen);
-        
+
         int t = res.length;
         if ((output.length - outputOffset) < t) {
             throw new ShortBufferException("DoFinal");
         }
-        for (int i = 0; i < t; i++) {            
+        for (int i = 0; i < t; i++) {
             output[i + outputOffset] = res[i];
         }
         return t;
     }
 
-    
+
     protected int engineUpdate(ByteBuffer input, ByteBuffer output)
     throws ShortBufferException {
         return super.engineUpdate(input, output);

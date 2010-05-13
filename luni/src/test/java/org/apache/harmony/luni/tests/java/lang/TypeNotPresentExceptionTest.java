@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,12 +28,12 @@ public class TypeNotPresentExceptionTest extends TestCase {
         assertNotNull(e);
         String m = e.getMessage();
         assertNotNull(m);
-        
+
         e = new TypeNotPresentException(getClass().getName(), null);
         assertNotNull(e);
         m = e.getMessage();
         assertNotNull(m);
-        
+
         NullPointerException npe = new NullPointerException();
         e = new TypeNotPresentException(getClass().getName(), npe);
         assertNotNull(e.getMessage());
@@ -46,7 +46,7 @@ public class TypeNotPresentExceptionTest extends TestCase {
     public void test_typeName() {
         TypeNotPresentException e = new TypeNotPresentException(null, null);
         assertNull(e.typeName());
-        
+
         e = new TypeNotPresentException(getClass().getName(), null);
         assertEquals(getClass().getName(), e.typeName());
     }

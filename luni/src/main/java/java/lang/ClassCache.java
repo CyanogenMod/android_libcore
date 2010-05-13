@@ -33,7 +33,7 @@ import java.util.HashSet;
 /**
  * Cache of per-class data, meant to help the performance of reflection
  * methods.
- * 
+ *
  * <p><b>Note:</b> None of the methods perform access checks. It is up
  * to the (package internal) clients of this code to perform such
  * checks as necessary.</p>
@@ -45,14 +45,14 @@ import java.util.HashSet;
  */
 /*package*/ class ClassCache<T> {
     // TODO: Add caching for constructors and fields.
-    
+
     /** non-null; comparator used for enumerated values */
     private static final EnumComparator ENUM_COMPARATOR =
         new EnumComparator();
 
     /** non-null; reflection access bridge */
     /*package*/ static final ReflectionAccess REFLECT = getReflectionAccess();
-    
+
     /** non-null; class that this instance represents */
     private final Class<T> clazz;
 
@@ -122,7 +122,7 @@ import java.util.HashSet;
 
     /**
      * Constructs an instance.
-     * 
+     *
      * @param clazz non-null; class that this instance represents
      */
     /*package*/ ClassCache(Class<T> clazz) {
@@ -145,7 +145,7 @@ import java.util.HashSet;
 
     /**
      * Gets the list of all declared methods.
-     * 
+     *
      * @return non-null; the list of all declared methods
      */
     public Method[] getDeclaredMethods() {
@@ -158,7 +158,7 @@ import java.util.HashSet;
 
     /**
      * Gets the list of all declared public methods.
-     * 
+     *
      * @return non-null; the list of all declared public methods
      */
     public Method[] getDeclaredPublicMethods() {
@@ -172,7 +172,7 @@ import java.util.HashSet;
     /**
      * Gets either the list of declared methods or the list of declared
      * public methods.
-     * 
+     *
      * @param publicOnly whether to only return public methods
      */
     public Method[] getDeclaredMethods(boolean publicOnly) {
@@ -182,7 +182,7 @@ import java.util.HashSet;
     /**
      * Gets the list of all methods, both directly
      * declared and inherited.
-     * 
+     *
      * @return non-null; the list of all methods
      */
     public Method[] getAllMethods() {
@@ -196,7 +196,7 @@ import java.util.HashSet;
     /**
      * Gets the list of all public methods, both directly
      * declared and inherited.
-     * 
+     *
      * @return non-null; the list of all public methods
      */
     public Method[] getAllPublicMethods() {
@@ -211,17 +211,17 @@ import java.util.HashSet;
      * Returns the list of methods without performing any security checks
      * first. This includes the methods inherited from superclasses. If no
      * methods exist at all, an empty array is returned.
-     * 
+     *
      * @param publicOnly reflects whether we want only public methods
      * or all of them
-     * @return the list of methods 
+     * @return the list of methods
      */
     private Method[] getFullListOfMethods(boolean publicOnly) {
         ArrayList<Method> methods = new ArrayList<Method>();
         HashSet<String> seen = new HashSet<String>();
 
         findAllMethods(clazz, methods, seen, publicOnly);
-        
+
         return methods.toArray(new Method[methods.size()]);
     }
 
@@ -231,7 +231,7 @@ import java.util.HashSet;
      * all implemented interfaces. The latter may also implement multiple
      * interfaces, so we (potentially) recursively walk through a whole tree of
      * classes. If no methods exist at all, an empty array is returned.
-     * 
+     *
      * @param clazz non-null; class to inspect
      * @param methods non-null; the target list to add the results to
      * @param seen non-null; a set of signatures we've already seen
@@ -243,7 +243,7 @@ import java.util.HashSet;
             boolean publicOnly) {
         StringBuilder builder = new StringBuilder();
         Class<?> origClass = clazz;
-        
+
         // Traverse class and superclasses, get rid of dupes by signature
         while (clazz != null) {
             Method[] declaredMethods =
@@ -263,7 +263,7 @@ import java.util.HashSet;
                         }
                     }
                     builder.append(')');
-                    
+
                     String signature = builder.toString();
                     if (!seen.contains(signature)) {
                         methods.add(method);
@@ -271,10 +271,10 @@ import java.util.HashSet;
                     }
                 }
             }
-            
+
             clazz = clazz.getSuperclass();
         }
-        
+
         // Traverse all interfaces, and do the same recursively.
         Class<?>[] interfaces = origClass.getInterfaces();
         for (Class<?> intf : interfaces) {
@@ -285,7 +285,7 @@ import java.util.HashSet;
     /**
      * Finds and returns a method with a given name and signature. Use
      * this with one of the method lists returned by instances of this class.
-     * 
+     *
      * @param list non-null; the list of methods to search through
      * @param parameterTypes non-null; the formal parameter list
      * @return non-null; the matching method
@@ -298,23 +298,23 @@ import java.util.HashSet;
         }
         for (int i = list.length - 1; i >= 0; i--) {
             Method method = list[i];
-            if (method.getName().equals(name) 
+            if (method.getName().equals(name)
                     && compareClassLists(
                             method.getParameterTypes(), parameterTypes)) {
                 return method;
             }
         }
-        
+
         throw new NoSuchMethodException(name);
     }
-    
+
     /**
      * Compares two class lists for equality. Empty and
      * <code>null</code> lists are considered equal. This is useful
      * for matching methods and constructors.
-     * 
+     *
      * <p>TODO: Take into account assignment compatibility?</p>
-     * 
+     *
      * @param a null-ok; the first list of types
      * @param b null-ok; the second list of types
      * @return true if and only if the lists are equal
@@ -325,7 +325,7 @@ import java.util.HashSet;
         }
 
         int length = a.length;
-        
+
         if (b == null) {
             return (length == 0);
         }
@@ -339,14 +339,14 @@ import java.util.HashSet;
                 return false;
             }
         }
-        
+
         return true;
     }
 
     /**
      * Makes a deep copy of the given array of methods. This is useful
      * when handing out arrays from the public API.
-     * 
+     *
      * <p><b>Note:</b> In such cases, it is insufficient to just make
      * a shallow copy of the array, since method objects aren't
      * immutable due to the existence of {@link
@@ -368,7 +368,7 @@ import java.util.HashSet;
 
     /**
      * Gets the list of all declared fields.
-     * 
+     *
      * @return non-null; the list of all declared fields
      */
     public Field[] getDeclaredFields() {
@@ -381,7 +381,7 @@ import java.util.HashSet;
 
     /**
      * Gets the list of all declared public fields.
-     * 
+     *
      * @return non-null; the list of all declared public fields
      */
     public Field[] getDeclaredPublicFields() {
@@ -395,7 +395,7 @@ import java.util.HashSet;
     /**
      * Gets either the list of declared fields or the list of declared
      * public fields.
-     * 
+     *
      * @param publicOnly whether to only return public fields
      */
     public Field[] getDeclaredFields(boolean publicOnly) {
@@ -405,7 +405,7 @@ import java.util.HashSet;
     /**
      * Gets the list of all fields, both directly
      * declared and inherited.
-     * 
+     *
      * @return non-null; the list of all fields
      */
     public Field[] getAllFields() {
@@ -419,7 +419,7 @@ import java.util.HashSet;
     /**
      * Gets the list of all public fields, both directly
      * declared and inherited.
-     * 
+     *
      * @return non-null; the list of all public fields
      */
     public Field[] getAllPublicFields() {
@@ -434,17 +434,17 @@ import java.util.HashSet;
      * Returns the list of fields without performing any security checks
      * first. This includes the fields inherited from superclasses. If no
      * fields exist at all, an empty array is returned.
-     * 
+     *
      * @param publicOnly reflects whether we want only public fields
      * or all of them
-     * @return the list of fields 
+     * @return the list of fields
      */
     private Field[] getFullListOfFields(boolean publicOnly) {
         ArrayList<Field> fields = new ArrayList<Field>();
         HashSet<String> seen = new HashSet<String>();
 
         findAllfields(clazz, fields, seen, publicOnly);
-        
+
         return fields.toArray(new Field[fields.size()]);
     }
 
@@ -454,7 +454,7 @@ import java.util.HashSet;
      * all implemented interfaces. The latter may also implement multiple
      * interfaces, so we (potentially) recursively walk through a whole tree of
      * classes. If no fields exist at all, an empty array is returned.
-     * 
+     *
      * @param clazz non-null; class to inspect
      * @param fields non-null; the target list to add the results to
      * @param seen non-null; a set of signatures we've already seen
@@ -464,25 +464,25 @@ import java.util.HashSet;
     private static void findAllfields(Class<?> clazz,
             ArrayList<Field> fields, HashSet<String> seen,
             boolean publicOnly) {
-        
+
         // Traverse class and superclasses, get rid of dupes by signature
         while (clazz != null) {
             Field[] declaredFields =
                     clazz.getClassCache().getDeclaredFields(publicOnly);
-            for (Field field : declaredFields) {                    
+            for (Field field : declaredFields) {
                 String signature = field.toString();
                 if (!seen.contains(signature)) {
                     fields.add(field);
                     seen.add(signature);
                 }
             }
-            
+
             // Traverse all interfaces, and do the same recursively.
             Class<?>[] interfaces = clazz.getInterfaces();
             for (Class<?> intf : interfaces) {
                 findAllfields(intf, fields, seen, publicOnly);
             }
-            
+
             clazz = clazz.getSuperclass();
         }
     }
@@ -490,7 +490,7 @@ import java.util.HashSet;
     /**
      * Finds and returns a field with a given name and signature. Use
      * this with one of the field lists returned by instances of this class.
-     * 
+     *
      * @param list non-null; the list of fields to search through
      * @return non-null; the matching field
      * @throws NoSuchFieldException thrown if the field does not exist
@@ -506,14 +506,14 @@ import java.util.HashSet;
                 return field;
             }
         }
-        
+
         throw new NoSuchFieldException(name);
     }
 
     /**
      * Makes a deep copy of the given array of fields. This is useful
      * when handing out arrays from the public API.
-     * 
+     *
      * <p><b>Note:</b> In such cases, it is insufficient to just make
      * a shallow copy of the array, since field objects aren't
      * immutable due to the existence of {@link
@@ -535,7 +535,7 @@ import java.util.HashSet;
 
     /**
      * Gets the enumerated value with a given name.
-     * 
+     *
      * @param name non-null; name of the value
      * @return null-ok; the named enumerated value or <code>null</code>
      * if this instance's class doesn't have such a value (including
@@ -563,7 +563,7 @@ import java.util.HashSet;
             int guessIdx = min + ((max - min) >> 1);
             Enum guess = values[guessIdx];
             int cmp = name.compareTo(guess.name());
-            
+
             if (cmp < 0) {
                 max = guessIdx - 1;
             } else if (cmp > 0) {
@@ -578,7 +578,7 @@ import java.util.HashSet;
 
     /**
      * Gets the array of enumerated values, sorted by name.
-     * 
+     *
      * @return null-ok; the value array, or <code>null</code> if this
      * instance's class isn't in fact an enumeration
      */
@@ -604,7 +604,7 @@ import java.util.HashSet;
     /**
      * Gets the array of enumerated values, in their original declared
      * order.
-     * 
+     *
      * @return null-ok; the value array, or <code>null</code> if this
      * instance's class isn't in fact an enumeration
      */
@@ -620,7 +620,7 @@ import java.util.HashSet;
      * Calls the static method <code>values()</code> on this
      * instance's class, which is presumed to be a properly-formed
      * enumeration class, using proper privilege hygiene.
-     * 
+     *
      * @return non-null; the array of values as reported by
      * <code>value()</code>
      */
@@ -636,7 +636,7 @@ import java.util.HashSet;
             // This shouldn't happen if the class is a well-formed enum.
             throw new UnsupportedOperationException(ex);
         }
-        
+
         try {
             return (T[]) method.invoke((Object[]) null);
         } catch (IllegalAccessException ex) {
@@ -657,7 +657,7 @@ import java.util.HashSet;
     /**
      * Gets the reflection access object. This uses reflection to do
      * so. My head is spinning.
-     * 
+     *
      * @return non-null; the reflection access object
      */
     private static ReflectionAccess getReflectionAccess() {

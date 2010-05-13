@@ -28,7 +28,7 @@ import sun.misc.Unsafe;
 public class ThreadsTest extends TestCase {
     private static Unsafe UNSAFE = null;
     private static RuntimeException INITIALIZEFAILED = null;
-    
+
     static {
         /*
          * Set up {@link #UNSAFE}. This subverts the access check to
@@ -142,10 +142,10 @@ public class ThreadsTest extends TestCase {
 
         /**
          * Construct an instance.
-         * 
+         *
          * @param absolute whether to use an absolute time or not; in
          * either case, this constructor takes a duration to park for
-         * @param parkMillis the number of milliseconds to be parked 
+         * @param parkMillis the number of milliseconds to be parked
          */
         public Parker(boolean absolute, long parkMillis) {
             this.absolute = absolute;
@@ -194,15 +194,15 @@ public class ThreadsTest extends TestCase {
                         Assert.fail("parker hanging");
                     }
                 }
-                
+
                 return endMillis - startMillis;
             }
         }
 
         /**
-         * Asserts that the actual duration is within 5% of the 
+         * Asserts that the actual duration is within 5% of the
          * given expected time.
-         * 
+         *
          * @param expectedMillis the expected duration, in milliseconds
          */
         public void assertDurationIsInRange(long expectedMillis) {
@@ -217,15 +217,15 @@ public class ThreadsTest extends TestCase {
             long duration = getDurationMillis(waitMillis);
 
             if (duration < minimum) {
-                Assert.fail("expected duration: " + expectedMillis + 
+                Assert.fail("expected duration: " + expectedMillis +
                         "; actual too short: " + duration);
             } else if (duration > maximum) {
-                Assert.fail("expected duration: " + expectedMillis + 
+                Assert.fail("expected duration: " + expectedMillis +
                         "; actual too long: " + duration);
             }
         }
     }
-    
+
     /**
      * Helper <code>Runnable</code> for tests, which waits for the
      * specified amount of time and then unparks an indicated thread.
@@ -238,7 +238,7 @@ public class ThreadsTest extends TestCase {
             this.waitMillis = waitMillis;
             this.thread = thread;
         }
-        
+
         public void run() {
             try {
                 Thread.sleep(waitMillis);
@@ -249,7 +249,7 @@ public class ThreadsTest extends TestCase {
             UNSAFE.unpark(thread);
         }
     }
-    
+
     @Override
     protected void setUp() throws Exception {
         if (INITIALIZEFAILED != null) {

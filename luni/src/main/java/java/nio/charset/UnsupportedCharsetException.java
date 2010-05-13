@@ -35,7 +35,7 @@ public class UnsupportedCharsetException extends IllegalArgumentException {
     /**
      * Constructs a new {@code UnsupportedCharsetException} with the supplied
      * charset name.
-     * 
+     *
      * @param charset
      *            the encountered unsupported charset name.
      */
@@ -46,7 +46,7 @@ public class UnsupportedCharsetException extends IllegalArgumentException {
 
     /**
      * Gets the encountered unsupported charset name.
-     * 
+     *
      * @return the encountered unsupported charset name.
      */
     public String getCharsetName() {

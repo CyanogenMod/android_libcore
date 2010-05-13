@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,7 @@ import java.util.Map;
 public abstract class CacheResponse {
     /**
      * Returns an {@code InputStream} to access the response body.
-     * 
+     *
      * @return an {@code InputStream} which can be used to fetch the response
      *         body.
      * @throws IOException
@@ -45,7 +45,7 @@ public abstract class CacheResponse {
      * a mapping from null to the original HTTP status line will prevent an
      * {@code HttpURLConnection} from returning the correct response code.
      * See {@link URLConnection#getHeaderFields}.
-     * 
+     *
      * @return an immutable {@code Map} which contains the response headers.
      * @throws IOException
      *             if an I/O error is encountered while retrieving the response

@@ -34,12 +34,12 @@ public class AllTestsNet
         TestSuite suite = new TestSuite("Tests for java.net");
 
         suite.addTest(org.apache.harmony.luni.tests.java.net.AllTests.suite());
-        
+
         suite.addTest(tests.api.java.net.AllTests.suite());
 
         suite.addTest(org.apache.harmony.luni.tests.internal.net.www.protocol.http.AllTests.suite());
         suite.addTest(org.apache.harmony.luni.tests.internal.net.www.protocol.https.AllTests.suite());
-        
+
         return suite;
     }
 }

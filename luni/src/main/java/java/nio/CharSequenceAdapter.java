@@ -25,7 +25,7 @@ package java.nio;
  * <li>Char sequence based buffer is always readonly.</li>
  * </ul>
  * </p>
- * 
+ *
  */
 final class CharSequenceAdapter extends CharBuffer {
 

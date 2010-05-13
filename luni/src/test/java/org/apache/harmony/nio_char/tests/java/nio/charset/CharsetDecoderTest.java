@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,9 +52,9 @@ public class CharsetDecoderTest extends TestCase {
     public void test_ConstructorLjava_nio_charset_CharsetFF() {
         // Regression for HARMONY-142
         try {
-            Charset cs = Charset.forName("UTF-8"); 
+            Charset cs = Charset.forName("UTF-8");
             new MockCharsetDecoderForHarmony142(cs, 1.1f, 1);
-            fail("Assert 0: Should throw IllegalArgumentException."); 
+            fail("Assert 0: Should throw IllegalArgumentException.");
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -73,7 +73,7 @@ public class CharsetDecoderTest extends TestCase {
             return null;
         }
     }
- 
+
     /**
      * @tests java.nio.charset.CharsetDecoder#decode(java.nio.ByteBuffer)
      */
@@ -103,7 +103,7 @@ public class CharsetDecoderTest extends TestCase {
 //
 //        charbuf = Charset.forName("UTF-16LE").decode(buf);
 //        assertEquals("Assert 2: charset UTF16LE", 0, charbuf.length());
-        
+
         // Regression for HARMONY-99
         CharsetDecoder decoder2 = Charset.forName("UTF-16").newDecoder();
         decoder2.onMalformedInput(CodingErrorAction.REPORT);
@@ -114,9 +114,9 @@ public class CharsetDecoderTest extends TestCase {
             fail("Assert 3: MalformedInputException should have thrown");
         } catch (MalformedInputException e) {
             //expected
-        } 
+        }
     }
-    
+
     /*
      * Test malfunction decode(ByteBuffer)
      */
@@ -128,7 +128,7 @@ public class CharsetDecoderTest extends TestCase {
     )
     public void test_decodeLjava_nio_ByteBuffer() throws Exception {
         MockMalfunctionCharset cs1 = new MockMalfunctionCharset(
-                "Harmony-124-1", null); 
+                "Harmony-124-1", null);
         try {
             cs1.newDecoder().onMalformedInput(CodingErrorAction.REPLACE)
                     .onUnmappableCharacter(CodingErrorAction.REPLACE).decode(
@@ -139,7 +139,7 @@ public class CharsetDecoderTest extends TestCase {
         }
 
         MockMalfunctionCharset cs2 = new MockMalfunctionCharset(
-                "Harmony-124-2", null); 
+                "Harmony-124-2", null);
         try {
             cs2.decode(ByteBuffer.wrap(new byte[] { 0x00, 0x11 }));
             fail("Assert 1: Charset.decode should throw CoderMalfunctionError");
@@ -147,7 +147,7 @@ public class CharsetDecoderTest extends TestCase {
             // expected
         }
     }
-    
+
     /*
      * Mock charset class with malfunction decode & encode.
      */
@@ -196,8 +196,8 @@ public class CharsetDecoderTest extends TestCase {
         protected CoderResult encodeLoop(CharBuffer in, ByteBuffer out) {
             throw new BufferOverflowException();
         }
-    } 
-    
+    }
+
     /*
      * Test the method decode(ByteBuffer) .
      */

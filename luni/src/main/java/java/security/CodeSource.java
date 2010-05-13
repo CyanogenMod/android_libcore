@@ -64,7 +64,7 @@ public class CodeSource implements Serializable {
     // Need to cache it for better performance.
     private transient SocketPermission sp;
 
-    // Cached factory used to build CertPath-s in <code>getCodeSigners()</code>.  
+    // Cached factory used to build CertPath-s in <code>getCodeSigners()</code>.
     private transient CertificateFactory factory;
 
     /**
@@ -141,7 +141,7 @@ public class CodeSource implements Serializable {
             return false;
         }
 
-        // do not use this.certs, as we also need to take care about 
+        // do not use this.certs, as we also need to take care about
         // CodeSigners' certificates
         Certificate[] thizCerts = getCertificatesNoClone();
         Certificate[] thatCerts = that.getCertificatesNoClone();
@@ -175,11 +175,11 @@ public class CodeSource implements Serializable {
         return tmp;
     }
 
-    // Acts exactly as {@link #getCertificates()} does, but does not clone the 
+    // Acts exactly as {@link #getCertificates()} does, but does not clone the
     // array before returning (and returns reference to <code>this.certs</code>
     // if this array is not null).<br>
-    // @return a reference to the certificates array, or null if there are no 
-    // certificates associated.  
+    // @return a reference to the certificates array, or null if there are no
+    // certificates associated.
     private Certificate[] getCertificatesNoClone() {
         if (certs != null) {
             return certs;
@@ -228,9 +228,9 @@ public class CodeSource implements Serializable {
         // the lowest certs first; the CAs are at the last
         //
         // So the following loop scans trough the certs and checks
-        // that every next certificate is an Issuer of the previous one. 
-        // Any certificate that is not an Issuer of the previous one starts a 
-        // new chain (== a new CertPath) 
+        // that every next certificate is an Issuer of the previous one.
+        // Any certificate that is not an Issuer of the previous one starts a
+        // new chain (== a new CertPath)
 
         for (int i = 0; i < certs.length; i++) {
             if (!(certs[i] instanceof X509Certificate)) {
@@ -245,7 +245,7 @@ public class CodeSource implements Serializable {
             } else {
                 X500Principal subj = x509.getSubjectX500Principal();
                 if (!prevIssuer.equals(subj)) {
-                    // Ok, this ends the previous chain, 
+                    // Ok, this ends the previous chain,
                     // so transform this one into CertPath ...
                     CertPath cpath = makeCertPath(list);
                     if (cpath != null) {
@@ -275,13 +275,13 @@ public class CodeSource implements Serializable {
         return tmp;
     }
 
-    // Makes an CertPath from a given List of X509Certificate-s. 
+    // Makes an CertPath from a given List of X509Certificate-s.
     // @param list
-    // @return CertPath, or null if CertPath cannot be made  
+    // @return CertPath, or null if CertPath cannot be made
     private CertPath makeCertPath(List<? extends Certificate> list) {
         if (factory == null) {
             try {
-                factory = CertificateFactory.getInstance("X.509"); 
+                factory = CertificateFactory.getInstance("X.509");
             } catch (CertificateException ex) {
                 //? throw new Error("X.509 is a 'must be'", ex);
                 return null;
@@ -390,7 +390,7 @@ public class CodeSource implements Serializable {
      */
     public boolean implies(CodeSource cs) {
         //
-        // Here, javadoc:N refers to the appropriate item in the API spec for 
+        // Here, javadoc:N refers to the appropriate item in the API spec for
         // the CodeSource.implies()
         // The info was taken from the 1.5 final API spec
 
@@ -400,9 +400,9 @@ public class CodeSource implements Serializable {
         }
 
         // javadoc:2
-        // with a comment: the javadoc says only about certificates and does 
+        // with a comment: the javadoc says only about certificates and does
         // not explicitly mention CodeSigners' certs.
-        // It seems more convenient to use getCerts() to get the real 
+        // It seems more convenient to use getCerts() to get the real
         // certificates - with a certificates got form the signers
         Certificate[] thizCerts = getCertificatesNoClone();
         if (thizCerts != null) {
@@ -435,44 +435,44 @@ public class CodeSource implements Serializable {
                     return false;
                 }
 
-                // 1. According to the spec, an empty string will be considered 
+                // 1. According to the spec, an empty string will be considered
                 // as "localhost" in the SocketPermission
                 // 2. 'file://' URLs will have an empty getHost()
-                // so, let's make a special processing of localhost-s, I do 
-                // believe this'll improve performance of file:// code sources 
+                // so, let's make a special processing of localhost-s, I do
+                // believe this'll improve performance of file:// code sources
 
                 //
                 // Don't have to evaluate both the boolean-s each time.
                 // It's better to evaluate them directly under if() statement.
-                // 
+                //
                 // boolean thisIsLocalHost = thisHost.length() == 0 || "localhost".equals(thisHost);
                 // boolean thatIsLocalHost = thatHost.length() == 0 || "localhost".equals(thatHost);
-                // 
+                //
                 // if( !(thisIsLocalHost && thatIsLocalHost) &&
                 // !thisHost.equals(thatHost)) {
 
-                if (!((thisHost.length() == 0 || "localhost".equals(thisHost)) && (thatHost 
-                        .length() == 0 || "localhost".equals(thatHost))) 
+                if (!((thisHost.length() == 0 || "localhost".equals(thisHost)) && (thatHost
+                        .length() == 0 || "localhost".equals(thatHost)))
                         && !thisHost.equals(thatHost)) {
 
                     // Obvious, but very slow way....
-                    // 
+                    //
                     // SocketPermission thisPerm = new SocketPermission(
                     //          this.location.getHost(), "resolve");
                     // SocketPermission thatPerm = new SocketPermission(
                     //          cs.location.getHost(), "resolve");
-                    // if (!thisPerm.implies(thatPerm)) { 
+                    // if (!thisPerm.implies(thatPerm)) {
                     //      return false;
                     // }
                     //
-                    // let's cache it: 
+                    // let's cache it:
 
                     if (this.sp == null) {
-                        this.sp = new SocketPermission(thisHost, "resolve"); 
+                        this.sp = new SocketPermission(thisHost, "resolve");
                     }
 
                     if (cs.sp == null) {
-                        cs.sp = new SocketPermission(thatHost, "resolve"); 
+                        cs.sp = new SocketPermission(thatHost, "resolve");
                     }
 
                     if (!this.sp.implies(cs.sp)) {
@@ -492,25 +492,25 @@ public class CodeSource implements Serializable {
             String thisFile = this.location.getFile();
             String thatFile = cs.location.getFile();
 
-            if (thisFile.endsWith("/-")) { //javadoc:3.6."/-" 
+            if (thisFile.endsWith("/-")) { //javadoc:3.6."/-"
                 if (!thatFile.startsWith(thisFile.substring(0, thisFile
                         .length() - 2))) {
                     return false;
                 }
-            } else if (thisFile.endsWith("/*")) { //javadoc:3.6."/*" 
+            } else if (thisFile.endsWith("/*")) { //javadoc:3.6."/*"
                 if (!thatFile.startsWith(thisFile.substring(0, thisFile
                         .length() - 2))) {
                     return false;
                 }
                 // no further separators(s) allowed
-                if (thatFile.indexOf("/", thisFile.length() - 1) != -1) { 
+                if (thatFile.indexOf("/", thisFile.length() - 1) != -1) {
                     return false;
                 }
             } else {
                 // javadoc:3.6."/"
                 if (!thisFile.equals(thatFile)) {
-                    if (!thisFile.endsWith("/")) { 
-                        if (!thatFile.equals(thisFile + "/")) { 
+                    if (!thisFile.endsWith("/")) {
+                        if (!thatFile.equals(thisFile + "/")) {
                             return false;
                         }
                     } else {
@@ -525,12 +525,12 @@ public class CodeSource implements Serializable {
                     return false;
                 }
             }
-            // ok, every check was made, and they all were successful. 
+            // ok, every check was made, and they all were successful.
             // it's ok to return true.
         } // if this.location != null
 
-        // javadoc: a note about CodeSource with null location and null Certs 
-        // is applicable here 
+        // javadoc: a note about CodeSource with null location and null Certs
+        // is applicable here
         return true;
     }
 
@@ -544,24 +544,24 @@ public class CodeSource implements Serializable {
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        buf.append("CodeSource, url="); 
-        buf.append(location == null ? "<null>" : location.toString()); 
+        buf.append("CodeSource, url=");
+        buf.append(location == null ? "<null>" : location.toString());
 
         if (certs == null) {
-            buf.append(", <no certificates>"); 
+            buf.append(", <no certificates>");
         } else {
-            buf.append("\nCertificates [\n"); 
+            buf.append("\nCertificates [\n");
             for (int i = 0; i < certs.length; i++) {
-                buf.append(i + 1).append(") ").append(certs[i]).append("\n");  
+                buf.append(i + 1).append(") ").append(certs[i]).append("\n");
             }
-            buf.append("]\n"); 
+            buf.append("]\n");
         }
         if (signers != null) {
-            buf.append("\nCodeSigners [\n"); 
+            buf.append("\nCodeSigners [\n");
             for (int i = 0; i < signers.length; i++) {
-                buf.append(i + 1).append(") ").append(signers[i]).append("\n");  
+                buf.append(i + 1).append(") ").append(signers[i]).append("\n");
             }
-            buf.append("]\n"); 
+            buf.append("]\n");
         }
         return buf.toString();
     }
@@ -583,7 +583,7 @@ public class CodeSource implements Serializable {
                     oos.write(data);
                 } catch (CertificateEncodingException ex) {
                     throw (IOException) new IOException(
-                            Messages.getString("security.18")).initCause(ex); 
+                            Messages.getString("security.18")).initCause(ex);
                 }
             }
         }
@@ -594,9 +594,9 @@ public class CodeSource implements Serializable {
 
     private void readObject(ObjectInputStream ois) throws IOException,
             ClassNotFoundException {
-        
+
         ois.defaultReadObject();
-        
+
         int certsCount = ois.readInt();
         certs = null;
         if (certsCount != 0) {
@@ -608,7 +608,7 @@ public class CodeSource implements Serializable {
                     factory = CertificateFactory.getInstance(type);
                 } catch (CertificateException ex) {
                     throw new ClassNotFoundException(
-                            Messages.getString("security.19", type), 
+                            Messages.getString("security.19", type),
                             ex);
                 }
                 int dataLen = ois.readInt();
@@ -619,7 +619,7 @@ public class CodeSource implements Serializable {
                     certs[i] = factory.generateCertificate(bais);
                 } catch (CertificateException ex) {
                     throw (IOException) new IOException(
-                            Messages.getString("security.1A")).initCause(ex); 
+                            Messages.getString("security.1A")).initCause(ex);
                 }
             }
         }

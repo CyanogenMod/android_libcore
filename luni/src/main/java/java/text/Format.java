@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,9 +69,9 @@ public abstract class Format implements Serializable, Cloneable {
 
     /**
      * Returns a copy of this {@code Format} instance.
-     * 
+     *
      * @return a shallow copy of this format.
-     * 
+     *
      * @see java.lang.Cloneable
      */
     @Override
@@ -115,7 +115,7 @@ public abstract class Format implements Serializable, Cloneable {
 
     /**
      * Formats the specified object using the rules of this format.
-     * 
+     *
      * @param object
      *            the object to format.
      * @return the formatted string.
@@ -171,7 +171,7 @@ public abstract class Format implements Serializable, Cloneable {
 
     /**
      * Parses the specified string using the rules of this format.
-     * 
+     *
      * @param string
      *            the string to parse.
      * @return the object resulting from the parse.
@@ -193,7 +193,7 @@ public abstract class Format implements Serializable, Cloneable {
      * the {@code ParsePosition} is updated to the index following the parsed
      * text. On error, the index is unchanged and the error index of
      * {@code ParsePosition} is set to the index where the error occurred.
-     * 
+     *
      * @param string
      *            the string to parse.
      * @param position

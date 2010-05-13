@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,7 +44,7 @@ import tests.util.TestEnvironment;
 @TestTargetClass(DriverManager.class)
 /**
  * JUnit Testcase for the java.sql.DriverManager class
- * 
+ *
  */
 public class DriverManagerTest extends TestCase {
 
@@ -84,7 +84,7 @@ public class DriverManagerTest extends TestCase {
 
     /**
      * Test for the method DriverManager.deregisterDriver
-     * @throws SQLException 
+     * @throws SQLException
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -202,7 +202,7 @@ public class DriverManagerTest extends TestCase {
             } // end try
         } // end for
     } // end method testGetConnectionString()
-    
+
     /**
      * @tests java.sql.DriverManager#getConnection(String, Properties)
      */
@@ -214,19 +214,19 @@ public class DriverManagerTest extends TestCase {
     )
     public void test_getConnection_LStringLProperties() {
         try {
-            DriverManager.getConnection("fff", 
+            DriverManager.getConnection("fff",
                     new Properties());
             fail("Should throw SQLException.");
         } catch (SQLException e) {
-            assertEquals("08001", e.getSQLState()); 
+            assertEquals("08001", e.getSQLState());
         }
-        
+
         try {
-            DriverManager.getConnection(null, 
+            DriverManager.getConnection(null,
                     new Properties());
             fail("Should throw SQLException.");
         } catch (SQLException e) {
-            assertEquals("08001", e.getSQLState()); 
+            assertEquals("08001", e.getSQLState());
         }
     }
 
@@ -258,8 +258,8 @@ public class DriverManagerTest extends TestCase {
         String[] invalidURLs = { null, invalidURL1,
                 invalidURL2, invalidURL3 };
         Properties[] invalidProps = { nullProps, invalidProps1};
-        
-        
+
+
 
         Connection theConnection = null;
         // validConnection - user & password required
@@ -279,7 +279,7 @@ public class DriverManagerTest extends TestCase {
         } // end for
         for (Properties invalidProp : invalidProps) {
             assertNotNull(DriverManager.getConnection(validURL1, invalidProp));
-        } 
+        }
     } // end method testGetConnectionStringProperties()
 
     /*
@@ -325,7 +325,7 @@ public class DriverManagerTest extends TestCase {
         for (String[] theData : invalids2) {
             assertNotNull(DriverManager.getConnection(theData[0], theData[1],
                     theData[2]));
-        } 
+        }
     } // end method testGetConnectionStringStringString()
 
     static String validURL1 = "jdbc:mikes1";
@@ -474,7 +474,7 @@ public class DriverManagerTest extends TestCase {
     public void testRegisterDriver() throws ClassNotFoundException,
             SQLException, IllegalAccessException, InstantiationException {
         // This is DRIVER3
-        // String EXTRA_DRIVER_NAME = 
+        // String EXTRA_DRIVER_NAME =
         // "org.apache.harmony.sql.tests.java.sql.TestHelper_Driver3";
 
         try {
@@ -489,11 +489,11 @@ public class DriverManagerTest extends TestCase {
         Class<?> driverClass = Class.forName(DRIVER3);
         theDriver = (Driver) driverClass.newInstance();
         DriverManager.registerDriver(theDriver);
-        
+
         assertTrue("testRegisterDriver: driver not in loaded set",
                 isDriverLoaded(theDriver));
-        
-        
+
+
 
     } // end testRegisterDriver()
 

@@ -30,7 +30,7 @@ import dalvik.annotation.TestTargetNew;
  */
 @TestTargetClass(java.lang.Class.class)
 public class JavaLangClassTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -44,7 +44,7 @@ public class JavaLangClassTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies that Class.getProtectionDomain() checks " +
@@ -71,14 +71,14 @@ public class JavaLangClassTest extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         c.getProtectionDomain();
         assertTrue("Test 2: Class.getProtectionDomain() must check " +
                 "RuntimePermission(\"getProtectionDomain\") on " +
                 "security manager", s.called);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies that forName(String,boolean,Classloader) method checks RuntimePermission(getClassLoader) of security manager.",
@@ -101,11 +101,11 @@ public class JavaLangClassTest extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         Class.forName("java.lang.String", true, null);
         assertTrue("Test 2: Class.forName(String,boolean,Classloader) must " +
-                "check RuntimePermission(getClassLoader) on security manager", 
+                "check RuntimePermission(getClassLoader) on security manager",
                 s.called);
     }
 }

@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@ import java.io.PrintStream;
 /**
  * This exception is thrown by methods that are not currently implemented, so
  * that programs that call the stubs fail early and predictably.
- * 
+ *
  */
 public class NotImplementedException extends RuntimeException {
 
@@ -69,7 +69,7 @@ public class NotImplementedException extends RuntimeException {
 
     /**
      * Constructor that takes a reason message.
-     * 
+     *
      * @param detailMessage
      */
     public NotImplementedException(String detailMessage) {
@@ -78,7 +78,7 @@ public class NotImplementedException extends RuntimeException {
 
     /**
      * Constructor that takes a reason and a wrapped exception.
-     * 
+     *
      * @param detailMessage
      * @param throwable
      */
@@ -88,7 +88,7 @@ public class NotImplementedException extends RuntimeException {
 
     /**
      * Constructor that takes a wrapped exception.
-     * 
+     *
      * @param throwable
      */
     public NotImplementedException(Throwable throwable) {

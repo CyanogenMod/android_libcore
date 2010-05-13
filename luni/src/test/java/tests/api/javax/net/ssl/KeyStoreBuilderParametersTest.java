@@ -28,9 +28,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(KeyStoreBuilderParameters.class) 
+@TestTargetClass(KeyStoreBuilderParameters.class)
 public class KeyStoreBuilderParametersTest extends TestCase {
-    
+
     /**
      * @tests javax.net.ssl.KeyStoreBuilderParameters#KeyStoreBuilderParameters(KeyStore.Builder builder)
      */
@@ -42,7 +42,7 @@ public class KeyStoreBuilderParametersTest extends TestCase {
     )
     public void test_Constructor01() {
         KeyStore.Builder bld = null;
-        
+
         //Null parameter
         try {
             KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters(bld);
@@ -50,7 +50,7 @@ public class KeyStoreBuilderParametersTest extends TestCase {
         } catch (NullPointerException npe) {
             fail("NullPointerException should not be thrown");
         }
-        
+
         //Not null parameter
         KeyStore.ProtectionParameter pp = new ProtectionParameterImpl();
         bld = KeyStore.Builder.newInstance("testType", null, pp);
@@ -62,7 +62,7 @@ public class KeyStoreBuilderParametersTest extends TestCase {
             fail("Unexpected exception was thrown");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.KeyStoreBuilderParameters#KeyStoreBuilderParameters(List parameters)
      */
@@ -73,7 +73,7 @@ public class KeyStoreBuilderParametersTest extends TestCase {
         args = {java.util.List.class}
     )
     public void test_Constructor02() {
-               
+
         //Null parameter
         List<String> ls = null;
         try {
@@ -82,7 +82,7 @@ public class KeyStoreBuilderParametersTest extends TestCase {
         } catch (NullPointerException npe) {
             //expected
         }
-        
+
         //Empty parameter
         List<String> lsEmpty = new ArrayList<String>();
         try {
@@ -91,20 +91,20 @@ public class KeyStoreBuilderParametersTest extends TestCase {
         } catch (IllegalArgumentException iae) {
             //expected
         }
-        
+
         //Not null parameter
         List<String> lsFiled = new ArrayList<String>();;
         lsFiled.add("Parameter1");
         lsFiled.add("Parameter2");
         try {
             KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters(lsFiled);
-            assertTrue("Not instanceof KeyStoreBuilderParameters object", 
-                       ksp instanceof KeyStoreBuilderParameters); 
+            assertTrue("Not instanceof KeyStoreBuilderParameters object",
+                       ksp instanceof KeyStoreBuilderParameters);
         } catch (Exception e) {
             fail("Unexpected exception was thrown");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.KeyStoreBuilderParameters#getParameters()
      */
@@ -128,7 +128,7 @@ public class KeyStoreBuilderParametersTest extends TestCase {
             } catch (UnsupportedOperationException e) {
                 // expected
             }
-            Object[] res = res_list.toArray(); 
+            Object[] res = res_list.toArray();
             if (res.length == param.length) {
                 for (int i = 0; i < res.length; i++) {
                     if (!param[i].equals(res[i])) {
@@ -142,7 +142,7 @@ public class KeyStoreBuilderParametersTest extends TestCase {
             fail("Unexpected exception was thrown");
         }
     }
-    
+
     class ProtectionParameterImpl implements KeyStore.ProtectionParameter {
         ProtectionParameterImpl(){}
     }

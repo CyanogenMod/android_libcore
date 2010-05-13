@@ -27,7 +27,7 @@ import java.io.IOException;
 
 /**
  * TODO Type description
- * 
+ *
  */
 public interface IFileSystem {
 
@@ -48,7 +48,7 @@ public interface IFileSystem {
     public final int O_RDWR = 0x00000010;
 
     public final int O_RDWRSYNC = 0x00000020;
-    
+
     public final int O_APPEND = 0x00000100;
 
     public final int O_CREAT = 0x00001000;
@@ -112,9 +112,9 @@ public interface IFileSystem {
     // public long ttyAvailable() throws IOException;
     // public long ttyRead(byte[] bytes, int offset, int length) throws IOException;
     // END android-deleted
-    
+
     // BEGIN android-added
     public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException;
     // END android-added
-    
+
 }

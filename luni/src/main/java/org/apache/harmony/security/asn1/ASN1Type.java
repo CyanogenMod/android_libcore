@@ -30,7 +30,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * This abstract class is the super class for all ASN.1 types
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -48,7 +48,7 @@ public abstract class ASN1Type implements ASN1Constants {
 
     /**
      * Constructs a primitive, universal ASN.1 type.
-     * 
+     *
      * @param tagNumber - ASN.1 tag number
      * @throws IllegalArgumentException - if tagNumber is invalid
      */
@@ -58,7 +58,7 @@ public abstract class ASN1Type implements ASN1Constants {
 
     /**
      * Constructs an ASN.1 type.
-     * 
+     *
      * @param tagClass - tag class. MUST be
      *     CLASS_UNIVERSAL, CLASS_APPLICATION, CLASS_CONTEXTSPECIFIC, CLASS_PRIVATE
      * @param isConstructed - is ASN.1 type is a constructed type.
@@ -68,13 +68,13 @@ public abstract class ASN1Type implements ASN1Constants {
     public ASN1Type(int tagClass, int tagNumber) {
 
         if (tagNumber < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.102")); 
+            throw new IllegalArgumentException(Messages.getString("security.102"));
         }
 
         if (tagClass != CLASS_UNIVERSAL && tagClass != CLASS_APPLICATION
                 && tagClass != CLASS_CONTEXTSPECIFIC
                 && tagClass != CLASS_PRIVATE) {
-            throw new IllegalArgumentException(Messages.getString("security.103")); 
+            throw new IllegalArgumentException(Messages.getString("security.103"));
         }
 
         if (tagNumber < 31) {
@@ -83,7 +83,7 @@ public abstract class ASN1Type implements ASN1Constants {
         } else {
             // long form
             throw new IllegalArgumentException(
-                    Messages.getString("security.104")); 
+                    Messages.getString("security.104"));
         }
         this.constrId = this.id + PC_CONSTRUCTED;
     }
@@ -133,7 +133,7 @@ public abstract class ASN1Type implements ASN1Constants {
 
     /**
      * Decodes ASN.1 type.
-     * 
+     *
      * @param in -
      *            BER input stream
      * @throws IOException -
@@ -143,7 +143,7 @@ public abstract class ASN1Type implements ASN1Constants {
 
     /**
      * Tests provided identifier.
-     * 
+     *
      * @param identifier -
      *            identifier to be verified
      * @return - true if identifier is associated with this ASN.1 type,
@@ -153,12 +153,12 @@ public abstract class ASN1Type implements ASN1Constants {
 
     /**
      * Creates decoded object.
-     * 
+     *
      * Derived classes should override this method to provide creation for a
      * selected class of objects during decoding.
-     * 
+     *
      * The default implementation returns an object created by decoding stream.
-     * 
+     *
      * @param -
      *            input stream
      * @return - created object
@@ -208,7 +208,7 @@ public abstract class ASN1Type implements ASN1Constants {
     public String toString() {
         // TODO decide whether this method is necessary
         //FIXME fix performance
-        return this.getClass().getName() + "(tag: 0x" 
-                + Integer.toHexString(0xff & this.id) + ")"; 
+        return this.getClass().getName() + "(tag: 0x"
+                + Integer.toHexString(0xff & this.id) + ")";
     }
 }

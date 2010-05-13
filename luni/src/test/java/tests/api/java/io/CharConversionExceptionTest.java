@@ -23,7 +23,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(CharConversionException.class) 
+@TestTargetClass(CharConversionException.class)
 public class CharConversionExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -33,7 +33,7 @@ public class CharConversionExceptionTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "CharConversionException",
         args = {}
-    )     
+    )
     public void test_Constructor() {
         try {
             if (true) // To avoid unreachable code compilation error.
@@ -52,7 +52,7 @@ public class CharConversionExceptionTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "CharConversionException",
         args = {java.lang.String.class}
-    )     
+    )
     public void test_ConstructorLjava_lang_String() {
         try {
             if (true) // To avoid unreachable code compilation error.

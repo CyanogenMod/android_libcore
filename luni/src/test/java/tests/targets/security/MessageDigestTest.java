@@ -28,7 +28,7 @@ import java.security.NoSuchAlgorithmException;
 public abstract class MessageDigestTest extends TestCase {
 
     private String digestAlgorithmName;
-    
+
     protected MessageDigestTest(String digestAlgorithmName) {
         super();
         this.digestAlgorithmName = digestAlgorithmName;
@@ -37,21 +37,21 @@ public abstract class MessageDigestTest extends TestCase {
     private MessageDigest digest;
     private InputStream sourceData;
     private byte[] checkDigest;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         this.source3 = getLongMessage(1000000);
         this.digest = getMessageDigest();
         this.sourceData = getSourceData();
         this.checkDigest = getCheckDigest();
     }
-    
+
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
-        
+
         // This is critical. The MessageDigest tests consume a lot of memory due
         // to the 1 MB buffers being allocated. We need to make sure all data is
         // freed after each test. Otherwise the Android runtime simply dies at
@@ -59,18 +59,18 @@ public abstract class MessageDigestTest extends TestCase {
         source1 = null;
         source2 = null;
         source3 = null;
-        
+
         expected1 = null;
         expected2 = null;
         expected3 = null;
-        
+
         digest = null;
         sourceData = null;
         checkDigest = null;
-        
+
         System.gc();
     }
-    
+
     MessageDigest getMessageDigest()
     {
         try {
@@ -80,16 +80,16 @@ public abstract class MessageDigestTest extends TestCase {
             return null;
         }
     }
-    
+
     InputStream getSourceData()
     {
         InputStream sourceStream = getClass().getResourceAsStream(
                 digestAlgorithmName + ".data");
-        assertNotNull("digest source data not found: " + digestAlgorithmName, 
+        assertNotNull("digest source data not found: " + digestAlgorithmName,
                 sourceStream);
         return sourceStream;
     }
-    
+
     byte[] getCheckDigest()
     {
         InputStream checkDigestStream = getClass().getResourceAsStream(
@@ -107,7 +107,7 @@ public abstract class MessageDigestTest extends TestCase {
         }
         return checkDigest;
     }
-    
+
     @TestTargets({
         @TestTargetNew(
                 level = TestLevel.ADDITIONAL,
@@ -137,21 +137,21 @@ public abstract class MessageDigestTest extends TestCase {
         } catch (IOException e) {
             fail("failed to read digest data");
         }
-        
+
         byte[] computedDigest = digest.digest();
-        
+
         assertNotNull("computed digest is is null", computedDigest);
         assertEquals("digest length mismatch", checkDigest.length,
                 computedDigest.length);
-        
+
         for (int i = 0; i < checkDigest.length; i++)
         {
             assertEquals("byte " + i + " of computed and check digest differ",
                     checkDigest[i], computedDigest[i]);
         }
-        
+
     }
-    
+
     @TestTargets({
         @TestTargetNew(
                 level = TestLevel.ADDITIONAL,
@@ -180,9 +180,9 @@ public abstract class MessageDigestTest extends TestCase {
         } catch (IOException e) {
             fail("failed to read digest data");
         }
-        
+
         byte[] computedDigest = digest.digest();
-        
+
         assertNotNull("computed digest is is null", computedDigest);
         assertEquals("digest length mismatch", checkDigest.length,
                 computedDigest.length);
@@ -191,7 +191,7 @@ public abstract class MessageDigestTest extends TestCase {
             assertEquals("byte " + i + " of computed and check digest differ",
                     checkDigest[i], computedDigest[i]);
         }
-        
+
     }
 
 
@@ -242,7 +242,7 @@ public abstract class MessageDigestTest extends TestCase {
             res = Integer.toHexString(computedDigest[i] & 0xFF);
             sb.append((res.length() == 1 ? "0" : "") + res);
         }
-        assertEquals("computed and check digest differ", expected1, 
+        assertEquals("computed and check digest differ", expected1,
                 sb.toString());
     }
 
@@ -314,7 +314,7 @@ public abstract class MessageDigestTest extends TestCase {
             res = Integer.toHexString(computedDigest[i] & 0xFF);
             sb.append((res.length() == 1 ? "0" : "") + res);
         }
-        assertEquals("computed and check digest differ", expected3, 
+        assertEquals("computed and check digest differ", expected3,
                 sb.toString());
     }
 }

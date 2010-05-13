@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -23,7 +23,7 @@ import java.security.spec.EllipticCurve;
 import java.security.spec.RSAPrivateCrtKeySpec;
 
 /**
- * Utility class to provide some constants 
+ * Utility class to provide some constants
  */
 class Util {
 
@@ -54,12 +54,12 @@ class Util {
                     + "91161573885991070984580607652541845127399865661520191726"
                     + "47818913386618968229835178446104566543814577436312685021"
                     + "713979414153557537");
-    
+
     /**
-     * Value returned using MySecureRandomSpi 
+     * Value returned using MySecureRandomSpi
      */
     static final BigInteger RND_RET = new BigInteger("10");
-    
+
     /**
      * Valid RSA parameters
      */
@@ -75,10 +75,10 @@ class Util {
     static final ECParameterSpec ecParam = new ECParameterSpec(
             new EllipticCurve(
                     new ECFieldFp(BigInteger.valueOf(23)),
-                    BigInteger.valueOf(5), BigInteger.valueOf(3)), 
+                    BigInteger.valueOf(5), BigInteger.valueOf(3)),
             new ECPoint(BigInteger.valueOf(1), BigInteger.valueOf(3)),
             BigInteger.valueOf(23), 1);
-    
+
     private Util() {
     }
 }
@@ -89,7 +89,7 @@ class Util {
  */
 @SuppressWarnings("serial")
 class MySecureRandomSpi extends SecureRandomSpi {
-    
+
     @Override
     protected byte[] engineGenerateSeed(int arg0) {
         return null;

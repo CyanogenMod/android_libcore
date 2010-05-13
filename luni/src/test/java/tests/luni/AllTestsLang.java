@@ -36,9 +36,9 @@ public class AllTestsLang
         suite.addTest(org.apache.harmony.luni.tests.java.lang.AllTests.suite());
 
         suite.addTest(tests.api.java.lang.AllTests.suite());
-        
+
         suite.addTest(tests.api.java.lang.ref.AllTests.suite());
-        
+
         suite.addTest(tests.api.java.lang.reflect.AllTests.suite());
 
         return suite;

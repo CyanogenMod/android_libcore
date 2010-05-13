@@ -10,25 +10,25 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.ManagerFactoryParameters;
 
 public class KeyManagerFactorySpiImpl extends MyKeyManagerFactorySpi {
-    
+
     private boolean isInitialized = false;
-    
+
     public void engineInit(KeyStore ks, char[] password)
             throws KeyStoreException, NoSuchAlgorithmException,
             UnrecoverableKeyException {
-        
+
         if (ks == null && password == null) {
-            throw new NoSuchAlgorithmException();            
+            throw new NoSuchAlgorithmException();
         }
-        
+
         if (ks == null) {
             throw new KeyStoreException();
         }
-        
+
         if (password == null) {
-            throw new UnrecoverableKeyException();            
+            throw new UnrecoverableKeyException();
         }
-        
+
         isInitialized = true;
     }
 

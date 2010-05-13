@@ -79,8 +79,8 @@ public class CipherInputStream extends FilterInputStream {
     @Override
     public int read() throws IOException {
         if (finished) {
-            return ((o_buffer == null) || (index == o_buffer.length)) 
-                            ? -1 
+            return ((o_buffer == null) || (index == o_buffer.length))
+                            ? -1
                             : o_buffer[index++] & 0xFF;
         }
         if ((o_buffer != null) && (index < o_buffer.length)) {
@@ -150,7 +150,7 @@ public class CipherInputStream extends FilterInputStream {
         int i;
         for (i=0; i<len; i++) {
             if ((read_b = read()) == -1) {
-                return (i == 0) ? -1 : i; 
+                return (i == 0) ? -1 : i;
             }
             if (b != null) {
                 b[off+i] = (byte) read_b;

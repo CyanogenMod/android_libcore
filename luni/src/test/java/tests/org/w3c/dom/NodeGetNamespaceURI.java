@@ -6,14 +6,14 @@ The source document contained the following notice:
 
 
 
-Copyright (c) 2001-2003 World Wide Web Consortium, 
+Copyright (c) 2001-2003 World Wide Web Consortium,
 (Massachusetts Institute of Technology, Institut National de
-Recherche en Informatique et en Automatique, Keio University).  All 
+Recherche en Informatique et en Automatique, Keio University).  All
 Rights Reserved.  This program is distributed under the W3C's Software
-Intellectual Property License.  This program is distributed in the 
+Intellectual Property License.  This program is distributed in the
 hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.  
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
 
 See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -36,9 +36,9 @@ import javax.xml.parsers.DocumentBuilder;
 
 /**
  *  The method getNamespaceURI returns the namespace URI of this node, or null if it is unspecified
- *  For nodes of any type other than ELEMENT_NODE and ATTRIBUTE_NODE and nodes created with 
+ *  For nodes of any type other than ELEMENT_NODE and ATTRIBUTE_NODE and nodes created with
  *  a DOM Level 1 method, such as createElement from the Document interface, this is always null.
- *   
+ *
  *  Ceate two new element nodes and atribute nodes, with and without namespace prefixes.
  *  Retreive their namespaceURI's using getNamespaceURI and verrify if it is correct.
 * @author IBM
@@ -69,7 +69,7 @@ public final class NodeGetNamespaceURI extends DOMTestCase {
         builder = null;
         super.tearDown();
     }
-    
+
    /**
     * Runs the test case.
     * @throws Throwable Any uncaught exception causes test to fail
@@ -106,6 +106,6 @@ public final class NodeGetNamespaceURI extends DOMTestCase {
       assertEquals("nodegetnamespaceuri03_attrNSURI", "http://www.w3.org/DOM/Test/attr", attrNSURI);
       assertNull("nodegetnamespaceuri03_2", attrNSURINull);
       }
-   
+
 }
 

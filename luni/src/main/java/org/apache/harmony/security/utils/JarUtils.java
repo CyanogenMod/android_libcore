@@ -60,8 +60,8 @@ public class JarUtils {
         new int[] {1, 2, 840, 113549, 1, 9, 4};
 
     /**
-     * This method handle all the work with  PKCS7, ASN1 encoding, signature verifying, 
-     * and certification path building. 
+     * This method handle all the work with  PKCS7, ASN1 encoding, signature verifying,
+     * and certification path building.
      * See also PKCS #7: Cryptographic Message Syntax Standard:
      * http://www.ietf.org/rfc/rfc2315.txt
      * @param signature - the input stream of signature file to be verified
@@ -70,14 +70,14 @@ public class JarUtils {
      * @throws IOException - if some errors occurs during reading from the stream
      * @throws GeneralSecurityException - if signature verification process fails
      */
-    public static Certificate[] verifySignature(InputStream signature, InputStream 
+    public static Certificate[] verifySignature(InputStream signature, InputStream
             signatureBlock) throws IOException, GeneralSecurityException {
 
         BerInputStream bis = new BerInputStream(signatureBlock);
-        ContentInfo info = (ContentInfo)ContentInfo.ASN1.decode(bis);      
+        ContentInfo info = (ContentInfo)ContentInfo.ASN1.decode(bis);
         SignedData signedData = info.getSignedData();
         if (signedData == null) {
-            throw new IOException(Messages.getString("security.173")); 
+            throw new IOException(Messages.getString("security.173"));
         }
         Collection encCerts = signedData.getCertificates();
         if (encCerts.isEmpty()) {
@@ -106,7 +106,7 @@ public class JarUtils {
         // Locate the certificate
         int issuerSertIndex = 0;
         for (i = 0; i < certs.length; i++) {
-            if (issuer.equals(certs[i].getIssuerDN()) && 
+            if (issuer.equals(certs[i].getIssuerDN()) &&
                     snum.equals(certs[i].getSerialNumber())) {
                 issuerSertIndex = i;
                 break;
@@ -117,7 +117,7 @@ public class JarUtils {
         }
 
         if (certs[issuerSertIndex].hasUnsupportedCriticalExtension()) {
-            throw new SecurityException(Messages.getString("security.174")); 
+            throw new SecurityException(Messages.getString("security.174"));
         }
 
         // Get Signature instance
@@ -126,8 +126,8 @@ public class JarUtils {
         String dea = sigInfo.getDigestEncryptionAlgorithm();
         String alg = null;
         if (da != null && dea != null) {
-            alg = da + "with" +  dea; 
-            try{ 
+            alg = da + "with" +  dea;
+            try{
                 // BEGIN android-removed
                 // sig = OpenSSLSignature.getInstance(alg);
                 // END android-removed
@@ -141,7 +141,7 @@ public class JarUtils {
             if (alg == null) {
                 return null;
             }
-            try{ 
+            try{
                 // BEGIN android-removed
                 // sig = OpenSSLSignature.getInstance(alg);
                 // END android-removed
@@ -163,7 +163,7 @@ public class JarUtils {
         signature.read(sfBytes);
 
         if (atr == null) {
-            sig.update(sfBytes);    
+            sig.update(sfBytes);
         } else {
             sig.update(sigInfo.getEncodedAuthenticatedAttributes());
 
@@ -185,18 +185,18 @@ public class JarUtils {
                 // END android-added
                 byte[] computedDigest = md.digest(sfBytes);
                 if (!Arrays.equals(existingDigest, computedDigest)) {
-                    throw new SecurityException(Messages.getString("security.175")); 
+                    throw new SecurityException(Messages.getString("security.175"));
                 }
             }
         }
 
         if (!sig.verify(sigInfo.getEncryptedDigest())) {
-            throw new SecurityException(Messages.getString("security.176")); 
+            throw new SecurityException(Messages.getString("security.176"));
         }
 
         return createChain(certs[issuerSertIndex], certs);
     }
-    
+
     private static X509Certificate[] createChain(X509Certificate  signer, X509Certificate[] candidates) {
         LinkedList chain = new LinkedList();
         chain.add(0, signer);

@@ -40,15 +40,15 @@ import junit.framework.TestSuite;
 
 @TestTargetClass(KeyStore.PrivateKeyEntry.class)
 /**
- * Tests for <code>KeyStore.PrivateKeyEntry</code>  class constructor and methods 
- * 
+ * Tests for <code>KeyStore.PrivateKeyEntry</code>  class constructor and methods
+ *
  */
 
 public class KSPrivateKeyEntryTest extends TestCase {
 
     private PrivateKey testPrivateKey;
     private Certificate [] testChain;
-    
+
     private void createParams(boolean diffCerts, boolean diffKeys) {
         byte[] encoded = {(byte)0, (byte)1, (byte)2, (byte)3};
         testChain = new Certificate[5];
@@ -57,10 +57,10 @@ public class KSPrivateKeyEntryTest extends TestCase {
             testChain[i] = new MyCertificate("MY_TEST_CERTIFICATE_"
                     .concat(s), encoded);
         }
-        testPrivateKey = (diffKeys ? (PrivateKey)new tmpPrivateKey() : 
+        testPrivateKey = (diffKeys ? (PrivateKey)new tmpPrivateKey() :
             (PrivateKey)new tmpPrivateKey(testChain[0].getPublicKey().getAlgorithm()));
     }
-    
+
     /**
      * Test for <code>PrivateKeyEntry(PrivateKey privateKey, Certificate[] chain)</code>
      * constructor
@@ -112,7 +112,7 @@ public class KSPrivateKeyEntryTest extends TestCase {
     /**
      * Test for <code>PrivateKeyEntry(PrivateKey privateKey, Certificate[] chain)</code>
      * constructor
-     * Assertion: throws IllegalArgumentException when chain contains certificates 
+     * Assertion: throws IllegalArgumentException when chain contains certificates
      * of different types
      */
     @TestTargetNew(
@@ -129,11 +129,11 @@ public class KSPrivateKeyEntryTest extends TestCase {
         } catch (IllegalArgumentException e) {
         }
     }
-    
+
     /**
      * Test for <code>PrivateKeyEntry(PrivateKey privateKey, Certificate[] chain)</code>
      * constructor
-     * Assertion: throws IllegalArgumentException when algorithm of privateKey 
+     * Assertion: throws IllegalArgumentException when algorithm of privateKey
      * does not match the algorithm of PublicKey in the end certificate (with 0 index)
      */
     @TestTargetNew(
@@ -143,11 +143,11 @@ public class KSPrivateKeyEntryTest extends TestCase {
         args = {java.security.PrivateKey.class, java.security.cert.Certificate[].class}
     )
     public void testPrivateKeyEntry04() {
-        createParams(false, true);               
+        createParams(false, true);
         try {
             new KeyStore.PrivateKeyEntry(testPrivateKey, testChain);
             fail("IllegalArgumentException must be thrown when key algorithms do not match");
-        } catch (IllegalArgumentException e) {       
+        } catch (IllegalArgumentException e) {
         }
     }
 
@@ -168,7 +168,7 @@ public class KSPrivateKeyEntryTest extends TestCase {
         assertEquals("Incorrect PrivateKey", testPrivateKey, ksPKE
                 .getPrivateKey());
     }
-    
+
     /**
      * Test for <code>getCertificateChain()</code> method Assertion: returns
      * array of the Certificates corresponding to chain
@@ -190,7 +190,7 @@ public class KSPrivateKeyEntryTest extends TestCase {
                     .concat(Integer.toString(i)), testChain[i], res[i]);
         }
     }
-    
+
     /**
      * Test for <code>getCertificate()</code> method
      * Assertion: returns end Certificate (with 0 index in chain)

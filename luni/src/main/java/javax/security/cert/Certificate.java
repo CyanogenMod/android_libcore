@@ -140,7 +140,7 @@ public abstract class Certificate {
      *                if signature errors are detected
      */
     public abstract void verify(PublicKey key, String sigProvider)
-            throws CertificateException, NoSuchAlgorithmException, 
+            throws CertificateException, NoSuchAlgorithmException,
                    InvalidKeyException, NoSuchProviderException,
                    SignatureException;
 

@@ -37,7 +37,7 @@ import org.apache.harmony.security.tests.support.TestCertUtils;
 import junit.framework.TestCase;
 @TestTargetClass(CodeSigner.class)
 /**
- * Unit test for CodeSigner. 
+ * Unit test for CodeSigner.
  */
 
 public class CodeSignerTest extends TestCase {
@@ -81,7 +81,7 @@ public class CodeSignerTest extends TestCase {
             fail("Unexpected exception");
         }
     }
-    
+
     /**
      * Not null parameters
      */
@@ -110,11 +110,11 @@ public class CodeSignerTest extends TestCase {
         args = {java.lang.Object.class}
     )
     public final void testEqualsObject() {
-        
+
         CodeSigner one = new CodeSigner(cpath, ts);
         CodeSigner two = new CodeSigner(cpath, ts);
         CodeSigner three = new CodeSigner(cpath, null);
-        
+
         CertPath cpath2 = TestCertUtils.genCertPath(5, 3);
         CodeSigner four = new CodeSigner(cpath2, null);
 
@@ -170,7 +170,7 @@ public class CodeSignerTest extends TestCase {
     public void testToString() {
         assertTrue(new CodeSigner(cpath, null).toString().contains(""));
         assertTrue(new CodeSigner(cpath, ts).toString().contains(""));
-        
+
         assertTrue(new CodeSigner(cpath, null).toString().contains("Signer"));
         assertTrue(new CodeSigner(cpath, ts).toString().contains(ts.toString()));
     }
@@ -188,7 +188,7 @@ public class CodeSignerTest extends TestCase {
         CodeSigner cs1 = new CodeSigner(cpath, ts);
         CodeSigner cs2 = new CodeSigner(cpath, ts);
         CodeSigner cs3 = new CodeSigner(cpath, null);
-        
+
         assertTrue(cs1.hashCode() == cs2.hashCode());
         assertTrue(cs2.hashCode() != cs3.hashCode());
     }

@@ -44,7 +44,7 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyPairGenerator.class)
 /**
  * Tests for KeyPairGenerator class
- * 
+ *
  */
 
 public class KeyPairGenerator3Test extends TestCase {
@@ -54,7 +54,7 @@ public class KeyPairGenerator3Test extends TestCase {
     public static Provider validProvider = null;
 
     private static boolean DSASupported = false;
-    
+
     private static String NotSupportMsg = KeyPairGenerator1Test.NotSupportMsg;
 
     static {
@@ -86,11 +86,11 @@ public class KeyPairGenerator3Test extends TestCase {
         }
     }
 
-    
+
     /**
      * Test for <code>generateKeyPair()</code> and <code>genKeyPair()</code>
      * methods
-     * Assertion: KeyPairGenerator was initialized before the invocation 
+     * Assertion: KeyPairGenerator was initialized before the invocation
      * of these methods
      */
     @TestTargets({
@@ -127,7 +127,7 @@ public class KeyPairGenerator3Test extends TestCase {
                     kp1.getPublic()));
         }
     }
-    
+
     /**
      * Test for <code>generateKeyPair()</code> and <code>genKeyPair()</code>
      * methods
@@ -155,7 +155,7 @@ public class KeyPairGenerator3Test extends TestCase {
         }
         KeyPairGenerator[] kpg = createKPGen();
         assertNotNull("KeyPairGenerator objects were not created", kpg);
-        KeyPair kp, kp1;   
+        KeyPair kp, kp1;
         for (int i = 0; i < kpg.length; i++) {
             kp = kpg[i].generateKeyPair();
             kp1 = kpg[i].genKeyPair();
@@ -165,9 +165,9 @@ public class KeyPairGenerator3Test extends TestCase {
                 kp1.getPublic()));
         }
     }
-    
+
     /**
-     * Test for <code>KeyPairGenerator</code> constructor 
+     * Test for <code>KeyPairGenerator</code> constructor
      * Assertion: returns KeyPairGenerator object
      */
     @TestTargetNew(
@@ -179,7 +179,7 @@ public class KeyPairGenerator3Test extends TestCase {
     public void testKeyPairGeneratorConst() {
         String[] alg = {null, "", "AsDfGh!#$*", "DSA", "RSA"};
         MykeyPGen kpg;
-        
+
         for (int i = 0; i < alg.length; i++) {
             try {
                 kpg = new MykeyPGen(alg[i]);

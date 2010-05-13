@@ -62,7 +62,7 @@ import tests.util.TestEnvironment;
 @TestTargetClass(EncryptedPrivateKeyInfo.class)
 /**
  * Test for EncryptedPrivateKeyInfo class.
- * 
+ *
  * All binary data for this test were generated using BEA JRockit j2sdk1.4.2_04
  * (http://www.bea.com) with security providers list extended by Bouncy Castle's
  * one (http://www.bouncycastle.org)
@@ -243,7 +243,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Assertion: creates <code>EncryptedPrivateKeyInfo</code> instance <br>
      * Test preconditions: valid parameters passed <br>
      * Expected: must pass without any exceptions
-     * 
+     *
      * @throws IOException
      * @throws NoSuchAlgorithmException
      */
@@ -265,7 +265,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * <code>null</code><br>
      * Test preconditions: <code>null</code> passed as a parameter <br>
      * Expected: <code>NullPointerException</code>
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -427,7 +427,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: valid array passed then modified <br>
      * Expected: getEncoded(), invoked after above modification, must return
      * array as it was before the modification
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -515,7 +515,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: pass <code>null</code> as algorithm name then as
      * encrypted data <br>
      * Expected: <code>NullPointerException</code> in both cases
-     * 
+     *
      * @throws NoSuchAlgorithmException
      */
     @TestTargetNew(
@@ -572,7 +572,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: valid array passed then modified <br>
      * Expected: getEncryptedData(), invoked after above modification, must
      * return array as it was before the modification
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -612,7 +612,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
             fail("NoSuchAlgorithmException expected");
         } catch (NoSuchAlgorithmException e) {
             //expected
-        }    
+        }
     }
 
     class Mock_AlgorithmParameters extends AlgorithmParameters {
@@ -629,9 +629,9 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Assertion: creates <code>EncryptedPrivateKeyInfo</code> instance <br>
      * Test preconditions: valid parameters passed <br>
      * Expected: must pass without any exceptions
-     * 
+     *
      * @throws IOException
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -660,9 +660,9 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
             }
         }
         assertTrue("Test not performed", performed);
-        
+
         ap = new Mock_AlgorithmParameters(null, null, "Wrong alg name");
-            
+
         try {
             new EncryptedPrivateKeyInfo(ap,
                 EncryptedPrivateKeyInfoData.encryptedData);
@@ -682,7 +682,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: pass <code>null</code> as algorithm parameters then
      * as encrypted data <br>
      * Expected: <code>NullPointerException</code> in both cases
-     * 
+     *
      * @throws NoSuchAlgorithmException
      * @throws IOException
      */
@@ -722,7 +722,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * empty, i.e. 0-length <br>
      * Test preconditions: pass empty encrypted data <br>
      * Expected: <code>IllegalArgumentException</code>
-     * 
+     *
      * @throws NoSuchAlgorithmException
      * @throws IOException
      */
@@ -755,7 +755,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: valid array passed then modified <br>
      * Expected: getEncryptedData(), invoked after above modification, must
      * return array as it was before the modification
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -790,7 +790,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * form as the only parameter; encoded form passed contains algorithm
      * parameters encoding <br>
      * Expected: corresponding algorithm parameters must be returned
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -851,7 +851,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * form as the only parameter; encoded form passed does not contain
      * algorithm parameters encoding <br>
      * Expected: <code>null</code> must be returned
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -890,7 +890,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: test object created using ctor which takes algorithm
      * name and encrypted data as a parameters <br>
      * Expected: <code>null</code> must be returned
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -925,7 +925,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * AlgorithmParameters and encrypted data as a parameters; <br>
      * Expected: the same algorithm parameters as ones passed to the ctor must be
      * returned
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -967,7 +967,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * form as the only parameter; encoded form passed contains encrypted data
      * <br>
      * Expected: the equivalent encrypted data must be returned
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -1038,7 +1038,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: test object created using ctor which takes algorithm
      * parameters and encrypted data as a parameters <br>
      * Expected: the equivalent encrypted data must be returned
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -1116,7 +1116,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: test object created using ctor which takes encoded
      * form as the only parameter <br>
      * Expected: equivalent encoded form must be returned
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -1151,7 +1151,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: test object created using ctor which takes algorithm
      * name and encrypted data as a parameters <br>
      * Expected: equivalent encoded form (without alg params) must be returned
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -1192,7 +1192,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * Test preconditions: test object created using ctor which takes algorithm
      * name and encrypted data as a parameters <br>
      * Expected: equivalent encoded form (without alg params) must be returned
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(
@@ -1236,7 +1236,7 @@ public class EncryptedPrivateKeyInfoTest extends TestCase {
      * name and encrypted data as a parameters <br>
      * Expected: several refs to byte array returned by the method under test
      * must be different
-     * 
+     *
      * @throws IOException
      */
     @TestTargetNew(

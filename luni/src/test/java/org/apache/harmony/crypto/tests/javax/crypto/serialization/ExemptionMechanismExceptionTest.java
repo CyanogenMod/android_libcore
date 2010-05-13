@@ -29,7 +29,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Test for ExemptionMechanismException serialization
- * 
+ *
  */
 
 public class ExemptionMechanismExceptionTest extends SerializationTest {

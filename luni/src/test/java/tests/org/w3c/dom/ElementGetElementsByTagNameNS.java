@@ -17,13 +17,13 @@ import javax.xml.parsers.DocumentBuilder;
  * encountered in a preorder traversal of the Document tree. Invoke
  * getElementsByTagNameNS on the documentElement with values for namespaceURI
  * '*' and localName '*'. Verify if this returns a nodeList of 0 elements.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class ElementGetElementsByTagNameNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -49,7 +49,7 @@ public final class ElementGetElementsByTagNameNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -81,7 +81,7 @@ public final class ElementGetElementsByTagNameNS extends DOMTestCase {
         Element child1;
         Element child2;
         Element child3;
-        
+
         NodeList elementList;
         String nullNS = null;
 

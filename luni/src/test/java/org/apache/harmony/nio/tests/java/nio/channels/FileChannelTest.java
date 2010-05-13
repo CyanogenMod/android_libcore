@@ -370,7 +370,7 @@ public class FileChannelTest extends TestCase {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private void writeLargeDataToFile(File file, int size) 
+    private void writeLargeDataToFile(File file, int size)
             throws FileNotFoundException, IOException {
         FileOutputStream fos = new FileOutputStream(file);
         byte[] buf = new byte[size];
@@ -2167,7 +2167,7 @@ public class FileChannelTest extends TestCase {
         }
     }
 
-    private void doTestForIOOBException(FileChannel channel, 
+    private void doTestForIOOBException(FileChannel channel,
             ByteBuffer[] buffer) throws IOException{
         try {
             channel.read(buffer, -1, 0);
@@ -2224,7 +2224,7 @@ public class FileChannelTest extends TestCase {
         doTestForIOOBException(readOnlyFileChannel, readBuffers);
         doTestForIOOBException(readWriteFileChannel, readBuffers);
         doTestForIOOBException(writeOnlyFileChannel, readBuffers);
-        
+
         doTestForIOOBException(readOnlyFileChannel, readBuffersNull);
         doTestForIOOBException(readWriteFileChannel, readBuffersNull);
         doTestForIOOBException(writeOnlyFileChannel, readBuffersNull);
@@ -2805,7 +2805,7 @@ public class FileChannelTest extends TestCase {
                         fileOfReadOnlyFileChannel).getChannel();
             }
 
-            writeLargeDataToFile(fileOfReadOnlyFileChannel, sizes[i] + 
+            writeLargeDataToFile(fileOfReadOnlyFileChannel, sizes[i] +
                     2 * CONTENT_LEN);
             MappedByteBuffer mapped = readOnlyFileChannel.map(MapMode.READ_ONLY,
                     sizes[i], CONTENT_LEN);

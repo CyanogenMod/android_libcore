@@ -42,7 +42,7 @@ public class AbstractCollectionTest extends TestCase {
                 fail("size should not get called");
                 return 0;
             }
-            
+
         };
         try {
             ac.add(null);
@@ -74,7 +74,7 @@ public class AbstractCollectionTest extends TestCase {
                 fail("size should not get called");
                 return 0;
             }
-            
+
         };
         assertTrue(ac.addAll(fixtures));
     }
@@ -103,7 +103,7 @@ public class AbstractCollectionTest extends TestCase {
                 fail("size should not get called");
                 return 0;
             }
-            
+
         };
         assertTrue(ac.containsAll(fixtures));
     }
@@ -152,7 +152,7 @@ public class AbstractCollectionTest extends TestCase {
                     public void remove() {
                         removed[index - 1] = values[index - 1];
                     }
-                    
+
                 };
             }
 
@@ -161,7 +161,7 @@ public class AbstractCollectionTest extends TestCase {
                 fail("size should not get called");
                 return 0;
             }
-            
+
         };
         assertTrue(ac.removeAll(Arrays.asList("0", "1", "2")));
         for (String r : removed) {
@@ -194,7 +194,7 @@ public class AbstractCollectionTest extends TestCase {
                     public void remove() {
                         removed[index - 1] = values[index - 1];
                     }
-                    
+
                 };
             }
 
@@ -203,7 +203,7 @@ public class AbstractCollectionTest extends TestCase {
                 fail("size should not get called");
                 return 0;
             }
-            
+
         };
         assertTrue(ac.retainAll(Arrays.asList("1", "2")));
         assertEquals("0", removed[0]);
@@ -230,16 +230,16 @@ public class AbstractCollectionTest extends TestCase {
                     public void remove() {
                         fail("remove should not get called");
                     }
-                    
+
                 };
             }
-            
+
             @Override
             public int size() {
                 return 3;
             }
         };
-        
+
         Object[] array = ac.toArray();
         assertEquals(3, array.length);
         for (Object o : array) {
@@ -270,7 +270,7 @@ public class AbstractCollectionTest extends TestCase {
                     public void remove() {
                         fail("remove should not get called");
                     }
-                    
+
                 };
             }
             @Override
@@ -291,15 +291,15 @@ public class AbstractCollectionTest extends TestCase {
         } catch (ArrayStoreException e) {
             // expected
         }
-        
+
         String[] a = new String[3];
         assertSame(a, ac.toArray(a));
-        
+
         a = new String[0];
         assertNotSame(a, ac.toArray(a));
         a = ac.toArray(a);
         assertEquals(3, a.length);
-        
+
         CharSequence[] csa = new CharSequence[3];
         ac.toArray(csa);
         assertEquals(3, csa.length);

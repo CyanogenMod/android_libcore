@@ -34,7 +34,7 @@ public class UnmappableCharacterException extends CharacterCodingException {
 
     /**
      * Constructs a new {@code UnmappableCharacterException}.
-     * 
+     *
      * @param length
      *            the length of the unmappable character.
      */

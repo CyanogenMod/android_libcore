@@ -28,8 +28,8 @@ import org.apache.harmony.security.x501.AttributeType;
 
 
 /**
- * Represents Information Object Set. 
- * 
+ * Represents Information Object Set.
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -55,7 +55,7 @@ public class InformationObjectSet {
     public void put(int[] oid, Object object) {
 
         int index = hashIntArray(oid) % capacity;
-        // look for OID in the pool 
+        // look for OID in the pool
         Entry[] list = pool[index];
         int i = 0;
         for (; list[i] != null; i++) {
@@ -76,7 +76,7 @@ public class InformationObjectSet {
     public Object get(int[] oid) {
         int index = hashIntArray(oid) % capacity;
 
-        // look for OID in the pool 
+        // look for OID in the pool
         Entry[] list = pool[index];
         for (int i = 0; list[i] != null; i++) {
             if (Arrays.equals(oid, list[i].oid)) {

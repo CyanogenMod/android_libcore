@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,13 +49,13 @@ import junit.framework.TestCase;
 /**
  * Note: the test case uses a temp text file named "test" which contains 31
  * characters : "P@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]"
- * 
+ *
  */
 @TestTargetClass(Channels.class)
 public class ChannelsTest extends TestCase {
-    private static final String CODE_SET = "GB2312"; 
+    private static final String CODE_SET = "GB2312";
 
-    private static final String BAD_CODE_SET = "GB2313"; 
+    private static final String BAD_CODE_SET = "GB2313";
 
     private FileInputStream fins;
 
@@ -66,7 +66,7 @@ public class ChannelsTest extends TestCase {
     private final int testNum = 10;
 
     private final int fileSize = 31;// the file size
-    
+
     private File tmpFile;
 
     protected void setUp() throws Exception {
@@ -98,7 +98,7 @@ public class ChannelsTest extends TestCase {
         bit[0] = 80;
         this.fouts.write(bit);
         this.fouts.flush();
-        String writebuf = ""; 
+        String writebuf = "";
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -476,7 +476,7 @@ public class ChannelsTest extends TestCase {
             // correct
         }
 
-        // Write methods throw IllegalBlockingModeException if underlying 
+        // Write methods throw IllegalBlockingModeException if underlying
         // channel is in non-blocking mode.
         SocketChannel chan = SocketChannel.open();
         chan.configureBlocking(false);
@@ -510,7 +510,7 @@ public class ChannelsTest extends TestCase {
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         try {
             Channels.newReader(rbChannel, Charset.forName(BAD_CODE_SET)
-                    .newDecoder(), 
+                    .newDecoder(),
                     -1);
             fail();
         } catch (UnsupportedCharsetException e) {
@@ -610,7 +610,7 @@ public class ChannelsTest extends TestCase {
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         // channel with null inputs
         testReader = Channels.newReader(rbChannel, Charset.forName(CODE_SET)
-                .newDecoder(), 
+                .newDecoder(),
                 -1);
         assertNotNull(testReader);
         assertFalse(testReader.ready());
@@ -688,7 +688,7 @@ public class ChannelsTest extends TestCase {
         this.fins = new FileInputStream(tmpFile);
         // channel null
         Reader testReader = Channels.newReader(null, Charset.forName(CODE_SET)
-                .newDecoder(), 
+                .newDecoder(),
                 0);
         assertNotNull(testReader);
         assertFalse(testReader.ready());
@@ -709,7 +709,7 @@ public class ChannelsTest extends TestCase {
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         // channel with null inputs
         testReader = Channels.newReader(rbChannel, Charset.forName(CODE_SET)
-                .newDecoder(), 
+                .newDecoder(),
                 -1);
         assertNotNull(testReader);
         assertFalse(testReader.ready());
@@ -793,9 +793,9 @@ public class ChannelsTest extends TestCase {
         this.fins = new FileInputStream(tmpFile);
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         Reader testReader = Channels.newReader(rbChannel, Charset.forName(
-                CODE_SET).newDecoder(), 
+                CODE_SET).newDecoder(),
                 -1);
-        Reader testReader_s = Channels.newReader(rbChannel, CODE_SET); 
+        Reader testReader_s = Channels.newReader(rbChannel, CODE_SET);
 
         assertEquals(this.fileSize, this.fins.available());
         // not ready...
@@ -831,13 +831,13 @@ public class ChannelsTest extends TestCase {
     public void testNewWriterWritableByteChannelCharsetEncoderI_internalBufZero()
             throws IOException {
 
-        String writebuf = ""; 
+        String writebuf = "";
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
         // null channel
         Writer testWriter = Channels.newWriter(null, Charset.forName(CODE_SET)
-                .newEncoder(), 
+                .newEncoder(),
                 -1);
         // can write to buffer
         testWriter.write(writebuf);
@@ -858,7 +858,7 @@ public class ChannelsTest extends TestCase {
         this.fouts = null;
         WritableByteChannel wbChannel = Channels.newChannel(this.fouts);
         testWriter = Channels.newWriter(wbChannel, Charset.forName(CODE_SET)
-                .newEncoder(), 
+                .newEncoder(),
                 -1);
         // can write to buffer
         testWriter.write(writebuf);
@@ -888,7 +888,7 @@ public class ChannelsTest extends TestCase {
     public void testNewWriterWritableByteChannelString_internalBufZero()
             throws IOException {
 
-        String writebuf = ""; 
+        String writebuf = "";
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -943,10 +943,10 @@ public class ChannelsTest extends TestCase {
         this.fouts = new FileOutputStream(tmpFile);
         WritableByteChannel wbChannel = Channels.newChannel(this.fouts);
         Writer testWriter = Channels.newWriter(wbChannel, Charset.forName(
-                CODE_SET).newEncoder(), 
+                CODE_SET).newEncoder(),
                 1);
 
-        String writebuf = ""; 
+        String writebuf = "";
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -972,7 +972,7 @@ public class ChannelsTest extends TestCase {
         WritableByteChannel wbChannel = Channels.newChannel(this.fouts);
         Writer testWriter = Channels.newWriter(wbChannel, CODE_SET);
 
-        String writebuf = ""; 
+        String writebuf = "";
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -1004,12 +1004,12 @@ public class ChannelsTest extends TestCase {
     public void testNewWriterWritableByteChannelString() throws IOException {
         this.fouts = new FileOutputStream(tmpFile);
         WritableByteChannel wbChannel = Channels.newChannel(this.fouts);
-        Writer testWriter = Channels.newWriter(wbChannel, CODE_SET); 
+        Writer testWriter = Channels.newWriter(wbChannel, CODE_SET);
         Writer testWriter_s = Channels.newWriter(wbChannel, Charset.forName(
-                CODE_SET).newEncoder(), 
+                CODE_SET).newEncoder(),
                 -1);
 
-        String writebuf = ""; 
+        String writebuf = "";
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -1039,7 +1039,7 @@ public class ChannelsTest extends TestCase {
         testWriter_s.write(writebuf);
         testWriter.flush();
         this.assertFileSizeSame(tmpFile, this.writebufSize / 2 + 1);
-        
+
         SocketChannel chan = SocketChannel.open();
         chan.configureBlocking(false);
         Writer writer = Channels.newWriter(chan, CODE_SET);
@@ -1068,9 +1068,9 @@ public class ChannelsTest extends TestCase {
         } catch (IllegalBlockingModeException e) {
             // expected
         }
-        
+
         writer = Channels.newWriter(chan, Charset.forName(
-                CODE_SET).newEncoder(), 
+                CODE_SET).newEncoder(),
                 -1);
         try {
             writer.write(10);
@@ -1098,7 +1098,7 @@ public class ChannelsTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests java.nio.channels.Channels#newReader(ReadableByteChannel channel,
      *        String charsetName)

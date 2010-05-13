@@ -39,9 +39,9 @@ import junit.framework.TestCase;
 
 import org.apache.harmony.xnet.tests.support.SSLContextSpiImpl;
 
-@TestTargetClass(SSLContextSpi.class) 
+@TestTargetClass(SSLContextSpi.class)
 public class SSLContextSpiTest extends TestCase {
-    
+
     /**
      * @tests javax.net.ssl.SSLContextSpi#SSLContextSpi()
      */
@@ -59,10 +59,10 @@ public class SSLContextSpiTest extends TestCase {
             fail("Unexpected exception " + e.toString());
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLContextSpi#engineCreateSSLEngine()
-     * Verify exception when SSLContextSpi object wasn't initialiazed. 
+     * Verify exception when SSLContextSpi object wasn't initialiazed.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -77,13 +77,13 @@ public class SSLContextSpiTest extends TestCase {
             fail("RuntimeException wasn't thrown");
         } catch (RuntimeException re) {
             String str = re.getMessage();
-            if (!str.equals("Not initialiazed")) 
+            if (!str.equals("Not initialiazed"))
                 fail("Incorrect exception message: " + str);
         } catch (Exception e) {
             fail("Incorrect exception " + e + " was thrown");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLContextSpi#engineCreateSSLEngine(String host, int port)
      * Verify exception when SSLContextSpi object wasn't initialiazed.
@@ -102,22 +102,22 @@ public class SSLContextSpiTest extends TestCase {
             fail("RuntimeException wasn't thrown");
         } catch (RuntimeException re) {
             String str = re.getMessage();
-            if (!str.equals("Not initialiazed")) 
+            if (!str.equals("Not initialiazed"))
                 fail("Incorrect exception message: " + str);
         } catch (Exception e) {
             fail("Incorrect exception " + e + " was thrown");
         }
-        
+
         for (int i = 0; i < invalid_port.length; i++) {
             try {
                 SSLEngine sleng = ssl.engineCreateSSLEngine("localhost", invalid_port[i]);
                 fail("IllegalArgumentException wasn't thrown");
             } catch (IllegalArgumentException iae) {
                 //expected
-            }            
+            }
         }
     }
-    
+
     /**
      * @tests SSLContextSpi#engineGetClientSessionContext()
      * @tests SSLContextSpi#engineGetServerSessionContext()
@@ -153,52 +153,52 @@ public class SSLContextSpiTest extends TestCase {
     })
     public void test_commonTest_01() {
         SSLContextSpiImpl ssl = new SSLContextSpiImpl();
-        
+
         try {
             SSLSessionContext slsc = ssl.engineGetClientSessionContext();
             fail("RuntimeException wasn't thrown");
         } catch (RuntimeException re) {
             String str = re.getMessage();
-            if (!str.equals("Not initialiazed")) 
+            if (!str.equals("Not initialiazed"))
                 fail("Incorrect exception message: " + str);
         } catch (Exception e) {
             fail("Incorrect exception " + e + " was thrown");
         }
-        
+
         try {
             SSLSessionContext slsc = ssl.engineGetServerSessionContext();
             fail("RuntimeException wasn't thrown");
         } catch (RuntimeException re) {
             String str = re.getMessage();
-            if (!str.equals("Not initialiazed")) 
+            if (!str.equals("Not initialiazed"))
                 fail("Incorrect exception message: " + str);
         } catch (Exception e) {
             fail("Incorrect exception " + e + " was thrown");
         }
-        
+
         try {
             SSLServerSocketFactory sssf = ssl.engineGetServerSocketFactory();
             fail("RuntimeException wasn't thrown");
         } catch (RuntimeException re) {
             String str = re.getMessage();
-            if (!str.equals("Not initialiazed")) 
+            if (!str.equals("Not initialiazed"))
                 fail("Incorrect exception message: " + str);
         } catch (Exception e) {
             fail("Incorrect exception " + e + " was thrown");
         }
-        
+
         try {
             SSLSocketFactory ssf = ssl.engineGetSocketFactory();
             fail("RuntimeException wasn't thrown");
         } catch (RuntimeException re) {
             String str = re.getMessage();
-            if (!str.equals("Not initialiazed")) 
+            if (!str.equals("Not initialiazed"))
                 fail("Incorrect exception message: " + str);
         } catch (Exception e) {
             fail("Incorrect exception " + e + " was thrown");
-        }        
+        }
     }
-    
+
     /**
      * @tests SSLContextSpi#engineInit(KeyManager[] km, TrustManager[] tm, SecureRandom sr)
      */
@@ -238,7 +238,7 @@ public class SSLContextSpiTest extends TestCase {
             fail(ex + " unexpected exception");
         }
     }
-    
+
     /**
      * @tests SSLContextSpi#engineCreateSSLEngine()
      * @tests SSLContextSpi#engineCreateSSLEngine(String host, int port)
@@ -304,7 +304,7 @@ public class SSLContextSpiTest extends TestCase {
         } catch (Exception ex) {
             fail(ex + " unexpected exception");
         }
-        
+
         try {
             assertNotNull("Subtest_01: Object is NULL", ssl.engineCreateSSLEngine());
             SSLEngine sleng = ssl.engineCreateSSLEngine("localhost", 1080);
@@ -319,5 +319,5 @@ public class SSLContextSpiTest extends TestCase {
             fail("Unexpected exception " + e);
         }
     }
-    
+
 }

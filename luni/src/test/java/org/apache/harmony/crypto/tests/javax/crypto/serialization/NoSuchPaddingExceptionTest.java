@@ -29,7 +29,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Test for NuSuchPaddingException serialization
- * 
+ *
  */
 
 public class NoSuchPaddingExceptionTest extends SerializationTest {

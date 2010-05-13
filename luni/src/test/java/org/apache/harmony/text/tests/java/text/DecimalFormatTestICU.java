@@ -69,7 +69,7 @@ public class DecimalFormatTestICU extends TestCase {
         format.applyPattern("@@##");
         assertEquals("sigDigit doesn't work", "3.142", format.format(3.14159));
         assertEquals("sigDigit doesn't work", "1.23", format.format(1.23004));
-        
+
         format.applyPattern("@@###E0");
         assertEquals("1.23E1", format.format(12.3));
         format.applyPattern("0.0###E0");

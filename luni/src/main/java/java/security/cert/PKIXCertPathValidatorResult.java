@@ -23,7 +23,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * The implementation of the result of the PKIX certification path validation.
- * 
+ *
  * @see CertPathValidator
  * @see CertPathValidator#validate(CertPath, CertPathParameters)
  */
@@ -39,7 +39,7 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
     /**
      * Creates a new {@code PKIXCertPathValidatorResult} with the specified
      * trust anchor, the valid policy tree and the subject public key.
-     * 
+     *
      * @param trustAnchor
      *            the trust anchor describing the certification authority (CA)
      *            that served as trust anchor for the certification path.
@@ -54,17 +54,17 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
         this.policyTree = policyTree;
         this.subjectPublicKey = subjectPublicKey;
         if (this.trustAnchor == null) {
-            throw new NullPointerException(Messages.getString("security.64")); 
+            throw new NullPointerException(Messages.getString("security.64"));
         }
         if (this.subjectPublicKey == null) {
             throw new NullPointerException(
-                    Messages.getString("security.65")); 
+                    Messages.getString("security.65"));
         }
     }
 
     /**
      * Returns the valid policy tree from the validation.
-     * 
+     *
      * @return the valid policy tree from the validation.
      */
     public PolicyNode getPolicyTree() {
@@ -73,7 +73,7 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
 
     /**
      * Returns the subject public key from the validation.
-     * 
+     *
      * @return the subject public key from the validation.
      */
     public PublicKey getPublicKey() {
@@ -83,7 +83,7 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
     /**
      * Returns the trust anchor describing the certification authority (CA) that
      * served as trust anchor for this certification path.
-     * 
+     *
      * @return the trust anchor.
      */
     public TrustAnchor getTrustAnchor() {
@@ -92,7 +92,7 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
 
     /**
      * Clones this {@code PKIXCertPathValidatorResult} instance.
-     * 
+     *
      * @return the cloned instance.
      */
     public Object clone() {
@@ -106,20 +106,20 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
     /**
      * Returns a string representation for this {@code
      * PKIXCertPathValidatorResult} instance.
-     * 
+     *
      * @return a string representation for this {@code
      *         PKIXCertPathValidatorResult} instance.
      */
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
-        sb.append(": [\n Trust Anchor: "); 
+        sb.append(": [\n Trust Anchor: ");
         sb.append(trustAnchor.toString());
-        sb.append("\n Policy Tree: "); 
-        sb.append(policyTree == null ? "no valid policy tree\n" 
+        sb.append("\n Policy Tree: ");
+        sb.append(policyTree == null ? "no valid policy tree\n"
                                      : policyTree.toString());
-        sb.append("\n Subject Public Key: "); 
+        sb.append("\n Subject Public Key: ");
         sb.append(subjectPublicKey.toString());
-        sb.append("\n]"); 
+        sb.append("\n]");
         return sb.toString();
     }
 }

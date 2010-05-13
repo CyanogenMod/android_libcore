@@ -34,7 +34,7 @@ import java.security.cert.CertificateException;
 
 /**
  * Tests for <code>CertificateException</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CertificateException.class)
 public class CertificateExceptionTest extends TestCase {

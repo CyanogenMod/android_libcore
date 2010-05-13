@@ -120,7 +120,7 @@ public class MultiThreadAccessTest extends TestCase {
     /**
      * A few threads execute select operation in the same time for one table in
      * the database. Number of threads is defined by numThreads variable
-     * 
+     *
      * @throws SQLException
      */
     @TestTargetNew(
@@ -139,7 +139,7 @@ public class MultiThreadAccessTest extends TestCase {
      * A few threads execute select operation in the same time for different
      * tables in the database. Number of threads is defined by numThreads
      * variable
-     * 
+     *
      * @throws SQLException
      */
     @TestTargetNew(
@@ -158,7 +158,7 @@ public class MultiThreadAccessTest extends TestCase {
      * A few threads execute update, insert and delete operations in the same
      * time for one table in the database. Number of threads is defined by
      * numThreads variable
-     * 
+     *
      * @throws SQLException
      */
     @TestTargetNew(
@@ -219,7 +219,7 @@ public class MultiThreadAccessTest extends TestCase {
     /**
      * A few threads execute update operation in the same time for one tables in
      * the database. Number of threads is defined by numThreads variable
-     * 
+     *
      * @throws SQLException
      */
     @TestTargetNew(
@@ -252,7 +252,7 @@ public class MultiThreadAccessTest extends TestCase {
         double expectedVal = id + numThreads;
         result = statement.executeQuery(selectQuery);
         assertTrue("There is no records with id = " + id, result.next());
-        // TODO getBigDecimal is not supported -> 
+        // TODO getBigDecimal is not supported ->
 //        assertEquals("Wrong value of field " + field, expectedVal, result
 //                .getBigDecimal(field).doubleValue());
         result.close();
@@ -261,7 +261,7 @@ public class MultiThreadAccessTest extends TestCase {
     /**
      * This method creates a Runnable that executes select operation for the
      * first table
-     * 
+     *
      * @param taskID
      * @return
      */
@@ -294,7 +294,7 @@ public class MultiThreadAccessTest extends TestCase {
     /**
      * This method creates a Runnable that execute select operation for the
      * second table
-     * 
+     *
      * @param taskID
      */
     private static Runnable createTask2(final int taskID) {
@@ -345,7 +345,7 @@ public class MultiThreadAccessTest extends TestCase {
     /**
      * This method creates a Runnable that execute select operation for the
      * third table
-     * 
+     *
      * @param taskID
      */
     private static Runnable createTask3(final int taskID) {
@@ -373,7 +373,7 @@ public class MultiThreadAccessTest extends TestCase {
     /**
      * This method creates a Runnable that executes delete operation for the
      * first table
-     * 
+     *
      * @param taskID
      */
     private static Runnable createTask4(final int id) {
@@ -393,7 +393,7 @@ public class MultiThreadAccessTest extends TestCase {
     /**
      * This method creates a Runnable that executes insert operation for the
      * first table
-     * 
+     *
      * @param taskID
      */
     private static Runnable createTask5(final int id) {
@@ -418,7 +418,7 @@ public class MultiThreadAccessTest extends TestCase {
     /**
      * This method creates a Runnable that executes update operation for the one
      * record of the first table
-     * 
+     *
      * @param taskID
      */
     private static Runnable createTask6(final int oldID, final int newID) {
@@ -442,7 +442,7 @@ public class MultiThreadAccessTest extends TestCase {
     /**
      * This method creates a Runnable that executes update operation for the one
      * field of one record with identifier id in the first table
-     * 
+     *
      * @param taskID
      */
     private static Runnable createTask7(final int id, final String field) {

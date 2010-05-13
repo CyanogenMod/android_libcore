@@ -45,7 +45,7 @@ import org.apache.harmony.security.tests.support.cert.MyCertStoreSpi;
 
 /**
  * Tests for <code>CertStoreSpi</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CertStoreSpi.class)
 public class CertStoreSpiTest extends TestCase {
@@ -92,12 +92,12 @@ public class CertStoreSpiTest extends TestCase {
         assertNull("Not null collection", certStoreSpi
                 .engineGetCRLs(crlSelector));
     }
-    
+
     public static Test suite() {
         return new TestSuite(CertStoreSpiTest.class);
     }
 
-    /** 
+    /**
      * Additional classes for verification CertStoreSpi class
      */
     public static class tmpCRLSelector implements CRLSelector {
@@ -116,5 +116,5 @@ public class CertStoreSpiTest extends TestCase {
             return true;
         }
     }
-    
+
 }

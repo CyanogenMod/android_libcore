@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>ExemptionMechanismException</code> class constructors and
  * methods.
- * 
+ *
  */
 public class ExemptionMechanismExceptionTest extends TestCase {
 

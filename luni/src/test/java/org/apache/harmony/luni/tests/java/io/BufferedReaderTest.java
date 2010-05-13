@@ -331,14 +331,14 @@ public class BufferedReaderTest extends TestCase {
 		} catch (IOException e) {
 			fail("Unexpected: " + e);
 		}
-        
+
         //regression for HARMONY-831
         try{
             new BufferedReader(new PipedReader(), 9).read(new char[] {}, 7, 0);
             fail("should throw IndexOutOfBoundsException");
         }catch(IndexOutOfBoundsException e){
         }
-        
+
         // Regression for HARMONY-54
         char[] ch = {};
         BufferedReader reader = new BufferedReader(new CharArrayReader(ch));

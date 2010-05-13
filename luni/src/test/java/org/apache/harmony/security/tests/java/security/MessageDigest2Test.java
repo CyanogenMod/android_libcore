@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -83,7 +83,7 @@ public class MessageDigest2Test extends junit.framework.TestCase {
             assertNull(md.getProvider());
         }
     }
-    
+
     /**
      * @tests java.security.MessageDigest#clone()
      */
@@ -436,7 +436,7 @@ public class MessageDigest2Test extends junit.framework.TestCase {
                 fail("getInstance did not find algorithm " + digestAlgs[i]);
             }
         }
-        
+
         try {
             MessageDigest.getInstance("UnknownDigest");
             fail("expected NoSuchAlgorithmException");
@@ -465,7 +465,7 @@ public class MessageDigest2Test extends junit.framework.TestCase {
                 fail("getInstance did not find provider " + providerName);
             }
         }
-        
+
         try {
             MessageDigest.getInstance(digestAlgs[0], "UnknownProvider");
             fail("expected NoSuchProviderException");
@@ -474,7 +474,7 @@ public class MessageDigest2Test extends junit.framework.TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             MessageDigest.getInstance("UnknownDigest", providerName);
             fail("expected NoSuchAlgorithmException");
@@ -483,7 +483,7 @@ public class MessageDigest2Test extends junit.framework.TestCase {
         } catch (NoSuchProviderException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             MessageDigest.getInstance(null, providerName);
             fail("expected NullPointerException");
@@ -494,7 +494,7 @@ public class MessageDigest2Test extends junit.framework.TestCase {
         } catch (NoSuchProviderException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             MessageDigest.getInstance("AnyDigest", (String)null);
             fail("expected IllegalArgumentException");
@@ -528,7 +528,7 @@ public class MessageDigest2Test extends junit.framework.TestCase {
                 }
             }
         }
-        
+
         try {
             MessageDigest.getInstance(null, new TestProvider());
             fail("expected NullPointerException");
@@ -537,14 +537,14 @@ public class MessageDigest2Test extends junit.framework.TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             MessageDigest.getInstance("UnknownDigest", new TestProvider());
             fail("expected NoSuchAlgorithmException");
         } catch (NoSuchAlgorithmException e) {
             // ok
         }
-        
+
         try {
             MessageDigest.getInstance("AnyDigest", (Provider)null);
             fail("expected IllegalArgumentException");
@@ -668,13 +668,13 @@ public class MessageDigest2Test extends junit.framework.TestCase {
         }
 
     }
-    
+
     private static class TestProvider extends Provider {
 
         protected TestProvider() {
             super("TestProvider", 1.0, "INFO");
-            
+
         }
-        
+
     }
 }

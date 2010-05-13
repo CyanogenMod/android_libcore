@@ -25,7 +25,7 @@ package org.apache.harmony.security.utils;
 
 /**
  * Utility class for arrays
- * 
+ *
  */
 public class Array {
 
@@ -38,18 +38,18 @@ public class Array {
      * for printing. Array length can be up to 32767
      *
      * @param array to be represented as <code>String</code>
-     * 
+     *
      * @return <code>String</code> representation of the <code>array</code>
      */
     public static String toString(byte[] array, String prefix) {
         // Prefixes to be added to the offset values
         // in <code>String toString(byte[], String)</code> method
         final String[] offsetPrefix = {
-                "", 
-                "000", 
-                "00", 
-                "0", 
-                "" 
+                "",
+                "000",
+                "00",
+                "0",
+                ""
         };
         StringBuilder sb = new StringBuilder();
         StringBuilder charForm = new StringBuilder();
@@ -93,12 +93,12 @@ public class Array {
         if (i%16 != 0) {
             int ws2add = 16 - i%16;
             for (int j=0; j<ws2add; j++) {
-                sb.append("   "); 
+                sb.append("   ");
             }
             if (ws2add > 8) {
                 sb.append(' ');
             }
-            sb.append("  "); 
+            sb.append("  ");
             sb.append(charForm.toString());
             sb.append('\n');
         }

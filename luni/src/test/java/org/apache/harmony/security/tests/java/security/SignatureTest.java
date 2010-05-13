@@ -49,7 +49,7 @@ import junit.framework.TestCase;
 @TestTargetClass(Signature.class)
 /**
  * Tests for <code>Signature</code> constructor and methods
- * 
+ *
  */
 public class SignatureTest extends TestCase {
 
@@ -72,18 +72,18 @@ public class SignatureTest extends TestCase {
             assertNull(s.getProvider());
             assertEquals(0, s.getState());
         }
-        
+
         MySignature1 s1 = new MySignature1(null);
         assertNull(s1.getAlgorithm());
         assertNull(s1.getProvider());
         assertEquals(0, s1.getState());
-    
+
         MySignature1 s2 = new MySignature1("ABCD@#&^%$)(*&");
         assertEquals("ABCD@#&^%$)(*&", s2.getAlgorithm());
         assertNull(s2.getProvider());
         assertEquals(0, s2.getState());
     }
-    
+
     /*
      * Class under test for Object clone()
      */
@@ -98,16 +98,16 @@ public class SignatureTest extends TestCase {
         try {
             s.clone();
             fail("No expected CloneNotSupportedException");
-        } catch (CloneNotSupportedException e) {    
-        } 
-        
+        } catch (CloneNotSupportedException e) {
+        }
+
         MySignature sc = new MySignature();
         try {
             sc.clone();
         } catch (CloneNotSupportedException e) {
             fail("unexpected exception: " + e);
         }
-        
+
     }
 
     @TestTargetNew(
@@ -118,7 +118,7 @@ public class SignatureTest extends TestCase {
     )
     public void testGetProvider() {
         MySignature1 s = new MySignature1("ABC");
-        
+
         assertEquals("state", MySignature1.UNINITIALIZED, s.getState());
         assertNull("provider", s.getProvider());
     }
@@ -151,7 +151,7 @@ public class SignatureTest extends TestCase {
         s.initVerify(new MyPublicKey());
         assertEquals("state", MySignature1.VERIFY, s.getState());
         assertTrue("initVerify() failed", s.runEngineInitVerify);
-        
+
         try {
             Signature sig = getTestSignature();
             sig.initVerify((PublicKey)null);
@@ -177,7 +177,7 @@ public class SignatureTest extends TestCase {
         s.initVerify(new MyCertificate());
         assertEquals("state", MySignature1.VERIFY, s.getState());
         assertTrue("initVerify() failed", s.runEngineInitVerify);
-        
+
         try {
             Signature sig = getTestSignature();
             sig.initVerify(new MyCertificate());
@@ -204,7 +204,7 @@ public class SignatureTest extends TestCase {
         s.initSign(new MyPrivateKey());
         assertEquals("state", MySignature1.SIGN, s.getState());
         assertTrue("initSign() failed", s.runEngineInitSign);
-        
+
         try {
             Signature signature = getTestSignature();
             signature.initSign(null);
@@ -215,18 +215,18 @@ public class SignatureTest extends TestCase {
             fail("unexpected: " + e);
         }
     }
-    
+
     private Signature getTestSignature() throws NoSuchAlgorithmException {
         Provider provider = new MyProvider("TestProvider", 1.0, "Test Provider", "Signature.ABC", MySignature.class.getName());
         Security.insertProviderAt(provider, 1);
-        
+
         try {
             return Signature.getInstance("ABC");
         }
         finally {
            Security.removeProvider("TestProvider");
         }
-        
+
     }
 
     /*
@@ -244,7 +244,7 @@ public class SignatureTest extends TestCase {
         s.initSign(new MyPrivateKey(), new SecureRandom());
         assertEquals("state", MySignature1.SIGN, s.getState());
         assertTrue("initSign() failed", s.runEngineInitSign);
-        
+
         try {
             Signature sig = getTestSignature();
             sig.initSign(null, null);
@@ -270,17 +270,17 @@ public class SignatureTest extends TestCase {
         try {
             s.sign();
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
 
         s.initVerify(new MyPublicKey());
-        
+
         try {
             s.sign();
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
-        
+
         s.initSign(new MyPrivateKey());
         s.sign();
         assertEquals("state", MySignature1.SIGN, s.getState());
@@ -302,22 +302,22 @@ public class SignatureTest extends TestCase {
         try {
             s.sign(outbuf, 0, outbuf.length);
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
 
         s.initVerify(new MyPublicKey());
-        
+
         try {
             s.sign(outbuf, 0, outbuf.length);
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
-        
+
         s.initSign(new MyPrivateKey());
         assertEquals(s.getBufferLength(), s.sign(outbuf, 0, outbuf.length));
         assertEquals("state", MySignature1.SIGN, s.getState());
         assertTrue("sign() failed", s.runEngineSign);
-        
+
         try {
             s.initSign(new MyPrivateKey());
             s.sign(outbuf, outbuf.length, 0);
@@ -336,7 +336,7 @@ public class SignatureTest extends TestCase {
 
     }
 
-    
+
     /*
      * Class under test for boolean verify(byte[])
      */
@@ -352,16 +352,16 @@ public class SignatureTest extends TestCase {
         try {
             s.verify(b);
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
 
         s.initSign(new MyPrivateKey());
         try {
             s.verify(b);
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
-        
+
         s.initVerify(new MyPublicKey());
         s.verify(b);
         assertEquals("state", MySignature1.VERIFY, s.getState());
@@ -383,7 +383,7 @@ public class SignatureTest extends TestCase {
         try {
             s.verify(b, 0, 3);
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
 
         s.initSign(new MyPrivateKey());
@@ -391,17 +391,17 @@ public class SignatureTest extends TestCase {
         try {
             s.verify(b, 0, 3);
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
-        
+
         s.initVerify(new MyPublicKey());
-        
+
         try {
             s.verify(b, 0, 5);
             fail("No expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {        
+        } catch (IllegalArgumentException e) {
         }
-        
+
         s.verify(b, 0, 3);
         assertEquals("state", MySignature1.VERIFY, s.getState());
         assertTrue("verify() failed", s.runEngineVerify);
@@ -421,7 +421,7 @@ public class SignatureTest extends TestCase {
         try {
             s.update((byte)1);
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
 
         s.initVerify(new MyPublicKey());
@@ -431,7 +431,7 @@ public class SignatureTest extends TestCase {
 
         assertEquals("state", MySignature1.SIGN, s.getState());
         assertTrue("update() failed", s.runEngineUpdate1);
-        
+
         try {
             Signature sig = getTestSignature();
             sig.update((byte) 42);
@@ -456,7 +456,7 @@ public class SignatureTest extends TestCase {
         try {
             s.update(b);
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
 
         s.initVerify(new MyPublicKey());
@@ -466,7 +466,7 @@ public class SignatureTest extends TestCase {
 
         assertEquals("state", MySignature1.SIGN, s.getState());
         assertTrue("update() failed", s.runEngineUpdate2);
-        
+
         try {
             Signature sig = getTestSignature();
             sig.update(b);
@@ -474,7 +474,7 @@ public class SignatureTest extends TestCase {
         } catch (SignatureException e) {
             // ok
         }
-        
+
         try {
             Signature sig = getTestSignature();
             sig.update((byte[])null);
@@ -501,7 +501,7 @@ public class SignatureTest extends TestCase {
         try {
             s.update(b, 0, 3);
             fail("No expected SignatureException");
-        } catch (SignatureException e) {        
+        } catch (SignatureException e) {
         }
 
         s.initVerify(new MyPublicKey());
@@ -511,7 +511,7 @@ public class SignatureTest extends TestCase {
 
         assertEquals("state", MySignature1.SIGN, s.getState());
         assertTrue("update() failed", s.runEngineUpdate2);
-        
+
         try {
             s.update(b, 3, 0);
             fail("expected IllegalArgumentException");
@@ -525,16 +525,16 @@ public class SignatureTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // ok
         }
-        
+
         try {
             s.update(b, -1, b.length);
             fail("expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // ok
         }
-        
+
     }
-    
+
     /*
      * Class under test for void update(byte[], int, int)
      */
@@ -556,7 +556,7 @@ public class SignatureTest extends TestCase {
 
         assertEquals("state", MySignature1.SIGN, s.getState());
         assertTrue("update() failed", s.runEngineUpdate2);
-        
+
         try {
             s.update(null, 0, 3);
             fail("NullPointerException wasn't thrown");
@@ -564,7 +564,7 @@ public class SignatureTest extends TestCase {
             // ok
         }
     }
-    
+
 
     /*
      * Class under test for void setParameter(String, Object)
@@ -579,7 +579,7 @@ public class SignatureTest extends TestCase {
     public void testSetParameterStringObject() {
         MySignature1 s = new MySignature1("ABC");
         s.setParameter("aaa", new Object());
-        
+
         try {
             Signature sig = getTestSignature();
             sig.setParameter("TestParam", new Integer(42));
@@ -605,9 +605,9 @@ public class SignatureTest extends TestCase {
         try {
             s.setParameter((java.security.spec.AlgorithmParameterSpec)null);
             fail("No expected UnsupportedOperationException");
-        } catch (UnsupportedOperationException e){    
+        } catch (UnsupportedOperationException e){
         }
-        
+
         try {
             Signature sig = getTestSignature();
             sig.setParameter(new AlgorithmParameterSpec() {});
@@ -617,27 +617,27 @@ public class SignatureTest extends TestCase {
             fail("unexpected: " + e);
         }
     }
-    
+
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
             notes = "",
             method = "getParameter",
             args = {java.lang.String.class}
-    )    
+    )
     @SuppressWarnings("deprecation")
     public void testGetParameter() {
         MySignature1 s = new MySignature1("ABC");
         s.getParameter("aaa");
-        
+
         try {
             MySignature se = new MySignature();
             se.getParameter("test");
         } catch (InvalidParameterException e) {
             // ok
         }
-        
+
     }
-    
+
     private class MyKey implements Key {
         public String getFormat() {
             return "123";
@@ -647,34 +647,34 @@ public class SignatureTest extends TestCase {
         }
         public String getAlgorithm() {
             return "aaa";
-        }        
+        }
     }
-    
+
     private class MyPublicKey extends MyKey implements PublicKey {}
 
     private class MyPrivateKey extends MyKey implements PrivateKey {}
-    
-    private class MyCertificate extends java.security.cert.Certificate {    
+
+    private class MyCertificate extends java.security.cert.Certificate {
         public  MyCertificate() {
             super("MyCertificateType");
         }
-        
+
         public PublicKey getPublicKey() {
             return new MyPublicKey();
         }
-        
+
         public byte[] getEncoded() {
             return null;
         }
         public void verify(PublicKey key) {}
-        
+
         public void verify(PublicKey key, String sigProvider) {}
-        
+
         public String toString() {
             return "MyCertificate";
         }
     }
-    
+
     @SuppressWarnings("unused")
     protected static class MySignature extends Signature implements Cloneable {
 
@@ -719,7 +719,7 @@ public class SignatureTest extends TestCase {
         @Override
         protected void engineUpdate(byte[] b, int off, int len)
                 throws SignatureException {
-            
+
         }
 
         @Override
@@ -727,7 +727,7 @@ public class SignatureTest extends TestCase {
                 throws SignatureException {
             return false;
         }
-        
+
         @Override
         protected void engineSetParameter(AlgorithmParameterSpec params)
                 throws InvalidAlgorithmParameterException {
@@ -736,13 +736,13 @@ public class SignatureTest extends TestCase {
             }
         }
     }
-    
+
     private class MyProvider extends Provider {
 
         protected MyProvider(String name, double version, String info, String signame, String className) {
             super(name, version, info);
             put(signame, className);
         }
-        
+
     }
 }

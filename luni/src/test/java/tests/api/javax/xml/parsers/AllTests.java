@@ -33,7 +33,7 @@ public class AllTests {
         suite.addTestSuite(DocumentBuilderTest.class);
         suite.addTestSuite(FactoryConfigurationErrorTest.class);
         suite.addTestSuite(ParserConfigurationExceptionTest.class);
-        suite.addTestSuite(SAXParserFactoryTest.class);       
+        suite.addTestSuite(SAXParserFactoryTest.class);
         suite.addTestSuite(SAXParserTest.class);
         // TODO Move ExpatParser to impl tests package
         // suite.addTestSuite(ExpatParserTest.class);

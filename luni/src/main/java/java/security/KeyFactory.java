@@ -31,25 +31,25 @@ import org.apache.harmony.security.internal.nls.Messages;
  */
 public class KeyFactory {
     // The service name.
-    private static final String SERVICE = "KeyFactory"; 
-    
+    private static final String SERVICE = "KeyFactory";
+
     // The provider
     private Provider provider;
-    
-    
+
+
     // Used to access common engine functionality
     static private Engine engine = new Engine(SERVICE);
-    
+
     // The SPI implementation.
-    private KeyFactorySpi spiImpl; 
-    
+    private KeyFactorySpi spiImpl;
+
     // The algorithm.
     private String algorithm;
 
     /**
      * Constructs a new instance of {@code KeyFactory} with the specified
      * arguments.
-     * 
+     *
      * @param keyFacSpi
      *            the concrete key factory service.
      * @param provider
@@ -57,7 +57,7 @@ public class KeyFactory {
      * @param algorithm
      *            the algorithm to use.
      */
-    protected KeyFactory(KeyFactorySpi keyFacSpi, 
+    protected KeyFactory(KeyFactorySpi keyFacSpi,
                          Provider provider,
                          String algorithm) {
         this.provider = provider;
@@ -68,7 +68,7 @@ public class KeyFactory {
     /**
      * Returns a new instance of {@code KeyFactory} that utilizes the specified
      * algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm.
      * @return a new instance of {@code KeyFactory} that utilizes the specified
@@ -79,7 +79,7 @@ public class KeyFactory {
     public static KeyFactory getInstance(String algorithm)
                                 throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -90,7 +90,7 @@ public class KeyFactory {
     /**
      * Returns a new instance of {@code KeyFactory} that utilizes the specified
      * algorithm from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm.
      * @param provider
@@ -114,13 +114,13 @@ public class KeyFactory {
         if (p == null) {
             throw new NoSuchProviderException(Messages.getString("security.03", provider));
         }
-        return getInstance(algorithm, p);    
+        return getInstance(algorithm, p);
     }
 
     /**
      * Returns a new instance of {@code KeyFactory} that utilizes the specified
      * algorithm from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm.
      * @param provider
@@ -133,10 +133,10 @@ public class KeyFactory {
     public static KeyFactory getInstance(String algorithm, Provider provider)
                                  throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); 
+            throw new IllegalArgumentException(Messages.getString("security.04"));
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);
@@ -146,7 +146,7 @@ public class KeyFactory {
 
     /**
      * Returns the provider associated with this {@code KeyFactory}.
-     * 
+     *
      * @return the provider associated with this {@code KeyFactory}.
      */
     public final Provider getProvider() {
@@ -156,7 +156,7 @@ public class KeyFactory {
     /**
      * Returns the name of the algorithm associated with this {@code
      * KeyFactory}.
-     * 
+     *
      * @return the name of the algorithm associated with this {@code
      *         KeyFactory}.
      */
@@ -167,7 +167,7 @@ public class KeyFactory {
     /**
      * Generates a instance of {@code PublicKey} from the given key
      * specification.
-     * 
+     *
      * @param keySpec
      *            the specification of the public key
      * @return the public key
@@ -182,7 +182,7 @@ public class KeyFactory {
     /**
      * Generates a instance of {@code PrivateKey} from the given key
      * specification.
-     * 
+     *
      * @param keySpec
      *            the specification of the private key.
      * @return the private key.
@@ -196,7 +196,7 @@ public class KeyFactory {
 
     /**
      * Returns the key specification for the specified key.
-     * 
+     *
      * @param key
      *            the key from which the specification is requested.
      * @param keySpec
@@ -214,7 +214,7 @@ public class KeyFactory {
 
     /**
      * Translates the given key into a key from this key factory.
-     * 
+     *
      * @param key
      *            the key to translate.
      * @return the translated key.

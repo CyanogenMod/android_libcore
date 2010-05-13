@@ -16,13 +16,13 @@ import javax.xml.parsers.DocumentBuilder;
  * has an attribute with the given name. Retrieve the first "address" element
  * and the "hasAttribute()" method should return false since the element does
  * not have a default value.
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttr">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttr</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class HasAttribute extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -48,7 +48,7 @@ public final class HasAttribute extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

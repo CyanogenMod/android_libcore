@@ -49,15 +49,15 @@ public class KeyUsage extends ExtensionValue {
      * The names of the usages.
      */
     private static final String[] USAGES = {
-        "digitalSignature", 
-        "nonRepudiation", 
-        "keyEncipherment", 
-        "dataEncipherment", 
-        "keyAgreement", 
-        "keyCertSign", 
-        "cRLSign", 
-        "encipherOnly", 
-        "decipherOnly", 
+        "digitalSignature",
+        "nonRepudiation",
+        "keyEncipherment",
+        "dataEncipherment",
+        "keyAgreement",
+        "keyCertSign",
+        "cRLSign",
+        "encipherOnly",
+        "decipherOnly",
     };
 
     // the value of extension
@@ -98,14 +98,14 @@ public class KeyUsage extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("KeyUsage [\n"); 
+        buffer.append(prefix).append("KeyUsage [\n");
         for (int i=0; i<keyUsage.length; i++) {
             if (keyUsage[i]) {
-                buffer.append(prefix).append("  ") 
+                buffer.append(prefix).append("  ")
                     .append(USAGES[i]).append('\n');
             }
         }
-        buffer.append(prefix).append("]\n"); 
+        buffer.append(prefix).append("]\n");
     }
 
     /**

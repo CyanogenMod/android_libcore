@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 /**
  * Tests for the class {@link String}.
  */
-@TestTargetClass(String.class) 
+@TestTargetClass(String.class)
 public class StringTest extends TestCase {
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -69,7 +69,7 @@ public class StringTest extends TestCase {
         assertTrue("abcd".endsWith("bcd"));
         assertFalse("abcd".endsWith("bcde"));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -79,7 +79,7 @@ public class StringTest extends TestCase {
     public void test_CASE_INSENSITIVE_ORDER() {
         String  s1 = "ABCDEFG";
         String  s2 = "abcdefg";
-        
+
         assertTrue(String.CASE_INSENSITIVE_ORDER.compare(s1, s2) == 0);
     }
 }

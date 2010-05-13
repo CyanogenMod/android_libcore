@@ -29,7 +29,7 @@ import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with Validity structure which is the part of X.509 certificate
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -39,7 +39,7 @@ import org.apache.harmony.security.asn1.BerInputStream;
  * <pre>
  *  Validity ::= SEQUENCE {
  *       notBefore      Time,
- *       notAfter       Time 
+ *       notAfter       Time
  *  }
  * </pre>
  */
@@ -76,7 +76,7 @@ public class Validity {
     public Date getNotAfter() {
         return notAfter;
     }
-    
+
     /**
      * Returns ASN.1 encoded form of this X.509 Validity value.
      * @return a byte array containing ASN.1 encode form.
@@ -91,7 +91,7 @@ public class Validity {
     /**
      * ASN.1 DER X.509 Validity encoder/decoder class.
      */
-    public static final ASN1Sequence ASN1 
+    public static final ASN1Sequence ASN1
         = new ASN1Sequence(new ASN1Type[] {Time.ASN1, Time.ASN1 }) {
 
         protected Object getDecodedObject(BerInputStream in) {

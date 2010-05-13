@@ -37,7 +37,7 @@ import junit.framework.TestCase;
 @TestTargetClass(Timestamp.class)
 /**
  * Tests for <code>Timestamp</code> class fields and methods
- * 
+ *
  */
 
 public class TimestampTest extends TestCase {
@@ -66,7 +66,7 @@ public class TimestampTest extends TestCase {
             return;
         } catch (NullPointerException ex) { /* ok */
         }
-        
+
         Timestamp timestamp = new Timestamp(now, cpath);
         assertEquals("not expected value", now, timestamp.getTimestamp());
         assertEquals("not expected cert path", cpath, timestamp.getSignerCertPath());
@@ -150,11 +150,11 @@ public class TimestampTest extends TestCase {
         Timestamp three = new Timestamp(now, new MyCertPath(new byte[] { 10,
                 20, 30 }));
         Timestamp four = null;
-        
+
         assertTrue(one.hashCode() == two.hashCode());
         assertTrue(one.hashCode() != three.hashCode());
         assertTrue(two.hashCode() != three.hashCode());
-        
+
         try {
             four.hashCode();
             fail("NullPointerException expected");

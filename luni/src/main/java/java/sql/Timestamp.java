@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -90,7 +90,7 @@ public class Timestamp extends Date {
     /**
      * Returns a {@code Timestamp} object corresponding to the time represented
      * by a supplied time value.
-     * 
+     *
      * @param theTime
      *            a time value in the format of milliseconds since the Epoch
      *            (January 1 1970 00:00:00.000 GMT).
@@ -107,7 +107,7 @@ public class Timestamp extends Date {
     /**
      * Returns {@code true} if this timestamp object is later than the supplied
      * timestamp, otherwise returns {@code false}.
-     * 
+     *
      * @param theTimestamp
      *            the timestamp to compare with this timestamp object.
      * @return {@code true} if this {@code Timestamp} object is later than the
@@ -139,7 +139,7 @@ public class Timestamp extends Date {
     /**
      * Returns {@code true} if this {@code Timestamp} object is earlier than the
      * supplied timestamp, otherwise returns {@code false}.
-     * 
+     *
      * @param theTimestamp
      *            the timestamp to compare with this {@code Timestamp} object.
      * @return {@code true} if this {@code Timestamp} object is earlier than the
@@ -171,7 +171,7 @@ public class Timestamp extends Date {
     /**
      * Compares this {@code Timestamp} object with a supplied {@code Timestamp}
      * object.
-     * 
+     *
      * @param theObject
      *            the timestamp to compare with this {@code Timestamp} object,
      *            passed as an {@code Object}.
@@ -199,7 +199,7 @@ public class Timestamp extends Date {
     /**
      * Compares this {@code Timestamp} object with a supplied {@code Timestamp}
      * object.
-     * 
+     *
      * @param theTimestamp
      *            the timestamp to compare with this {@code Timestamp} object,
      *            passed in as a {@code Timestamp}.
@@ -231,7 +231,7 @@ public class Timestamp extends Date {
 
     /**
      * Tests to see if this timestamp is equal to a supplied object.
-     * 
+     *
      * @param theObject
      *            the object to which this timestamp is compared.
      * @return {@code true} if this {@code Timestamp} object is equal to the
@@ -249,7 +249,7 @@ public class Timestamp extends Date {
 
     /**
      * Tests to see if this timestamp is equal to a supplied timestamp.
-     * 
+     *
      * @param theTimestamp
      *            the timestamp to compare with this {@code Timestamp} object,
      *            passed as an {@code Object}.
@@ -266,7 +266,7 @@ public class Timestamp extends Date {
 
     /**
      * Gets this {@code Timestamp}'s nanosecond value
-     * 
+     *
      * @return The timestamp's nanosecond value, an integer between 0 and
      *         999,999,999.
      */
@@ -318,7 +318,7 @@ public class Timestamp extends Date {
     public void setTime(long theTime) {
         setTimeImpl(theTime);
     }
-    
+
     private void setTimeImpl(long theTime) {
         /*
          * Deal with the nanoseconds value. The supplied time is in milliseconds -
@@ -343,7 +343,7 @@ public class Timestamp extends Date {
     /**
      * Returns the timestamp formatted as a String in the JDBC Timestamp Escape
      * format, which is {@code "yyyy-mm-dd hh:mm:ss.nnnnnnnnn"}.
-     * 
+     *
      * @return A string representing the instant defined by the {@code
      *         Timestamp}, in JDBC Timestamp escape format.
      */
@@ -378,22 +378,22 @@ public class Timestamp extends Date {
 
     private static final String PADDING = "000000000";
 
-    /* 
-    * Private method to format the time 
-    */ 
-    private void format(int date, int digits, StringBuilder sb) { 
+    /*
+    * Private method to format the time
+    */
+    private void format(int date, int digits, StringBuilder sb) {
         String str = String.valueOf(date);
         if (digits - str.length() > 0) {
             sb.append(PADDING.substring(0, digits - str.length()));
         }
-        sb.append(str); 
+        sb.append(str);
     }
 
     /**
      * Creates a {@code Timestamp} object with a time value equal to the time
      * specified by a supplied String holding the time in JDBC timestamp escape
      * format, which is {@code "yyyy-mm-dd hh:mm:ss.nnnnnnnnn}"
-     * 
+     *
      * @param s
      *            the {@code String} containing a time in JDBC timestamp escape
      *            format.
@@ -501,7 +501,7 @@ public class Timestamp extends Date {
 
         return theTimestamp;
     }
-    
+
     private static IllegalArgumentException badTimestampString(String s) {
         throw new IllegalArgumentException("Timestamp format must be " +
                 "yyyy-mm-dd hh:mm:ss.fffffffff; was '" + s + "'");

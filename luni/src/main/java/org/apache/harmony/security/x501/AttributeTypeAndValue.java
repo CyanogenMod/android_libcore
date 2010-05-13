@@ -95,7 +95,7 @@ public class AttributeTypeAndValue {
     // Street attribute (name from RFC 1779)
     private static final ObjectIdentifier STREET;
 
-    // Surname attribute (comes from an individual's parent name) 
+    // Surname attribute (comes from an individual's parent name)
     // (name from API spec)
     private static final ObjectIdentifier SURNAME;
 
@@ -139,47 +139,47 @@ public class AttributeTypeAndValue {
         KNOWN_OIDS = new ObjectIdentifier[SIZE][CAPACITY];
 
         // init known attribute type keywords
-        C = new ObjectIdentifier(new int[] { 2, 5, 4, 6 }, "C", RFC1779_NAMES); 
-        CN = new ObjectIdentifier(new int[] { 2, 5, 4, 3 }, "CN", RFC1779_NAMES); 
+        C = new ObjectIdentifier(new int[] { 2, 5, 4, 6 }, "C", RFC1779_NAMES);
+        CN = new ObjectIdentifier(new int[] { 2, 5, 4, 3 }, "CN", RFC1779_NAMES);
 
         DC = new ObjectIdentifier(
-                new int[] { 0, 9, 2342, 19200300, 100, 1, 25 }, "DC", 
+                new int[] { 0, 9, 2342, 19200300, 100, 1, 25 }, "DC",
                 RFC2253_NAMES);
         // DN qualifier aliases
-        DNQ = new ObjectIdentifier(new int[] { 2, 5, 4, 46 }, "DNQ", 
+        DNQ = new ObjectIdentifier(new int[] { 2, 5, 4, 46 }, "DNQ",
                 RFC2459_NAMES);
         DNQUALIFIER = new ObjectIdentifier(new int[] { 2, 5, 4, 46 },
-                "DNQUALIFIER", RFC2459_NAMES); 
+                "DNQUALIFIER", RFC2459_NAMES);
 
         EMAILADDRESS = new ObjectIdentifier(new int[] { 1, 2, 840, 113549, 1,
-                9, 1 }, "EMAILADDRESS", RFC2459_NAMES); 
+                9, 1 }, "EMAILADDRESS", RFC2459_NAMES);
 
         GENERATION = new ObjectIdentifier(new int[] { 2, 5, 4, 44 },
-                "GENERATION", RFC2459_NAMES); 
+                "GENERATION", RFC2459_NAMES);
         GIVENNAME = new ObjectIdentifier(new int[] { 2, 5, 4, 42 },
-                "GIVENNAME", RFC2459_NAMES); 
+                "GIVENNAME", RFC2459_NAMES);
 
-        INITIALS = new ObjectIdentifier(new int[] { 2, 5, 4, 43 }, "INITIALS", 
+        INITIALS = new ObjectIdentifier(new int[] { 2, 5, 4, 43 }, "INITIALS",
                 RFC2459_NAMES);
 
-        L = new ObjectIdentifier(new int[] { 2, 5, 4, 7 }, "L", RFC1779_NAMES); 
+        L = new ObjectIdentifier(new int[] { 2, 5, 4, 7 }, "L", RFC1779_NAMES);
 
-        O = new ObjectIdentifier(new int[] { 2, 5, 4, 10 }, "O", RFC1779_NAMES); 
-        OU = new ObjectIdentifier(new int[] { 2, 5, 4, 11 }, "OU", 
+        O = new ObjectIdentifier(new int[] { 2, 5, 4, 10 }, "O", RFC1779_NAMES);
+        OU = new ObjectIdentifier(new int[] { 2, 5, 4, 11 }, "OU",
                 RFC1779_NAMES);
 
         SERIALNUMBER = new ObjectIdentifier(new int[] { 2, 5, 4, 5 },
-                "SERIALNUMBER", RFC2459_NAMES); 
-        ST = new ObjectIdentifier(new int[] { 2, 5, 4, 8 }, "ST", RFC1779_NAMES); 
-        STREET = new ObjectIdentifier(new int[] { 2, 5, 4, 9 }, "STREET", 
+                "SERIALNUMBER", RFC2459_NAMES);
+        ST = new ObjectIdentifier(new int[] { 2, 5, 4, 8 }, "ST", RFC1779_NAMES);
+        STREET = new ObjectIdentifier(new int[] { 2, 5, 4, 9 }, "STREET",
                 RFC1779_NAMES);
-        SURNAME = new ObjectIdentifier(new int[] { 2, 5, 4, 4 }, "SURNAME", 
+        SURNAME = new ObjectIdentifier(new int[] { 2, 5, 4, 4 }, "SURNAME",
                 RFC2459_NAMES);
 
-        T = new ObjectIdentifier(new int[] { 2, 5, 4, 12 }, "T", RFC2459_NAMES); 
+        T = new ObjectIdentifier(new int[] { 2, 5, 4, 12 }, "T", RFC2459_NAMES);
 
         UID = new ObjectIdentifier(
-                new int[] { 0, 9, 2342, 19200300, 100, 1, 1 }, "UID", 
+                new int[] { 0, 9, 2342, 19200300, 100, 1, 1 }, "UID",
                 RFC2253_NAMES);
 
         //
@@ -218,7 +218,7 @@ public class AttributeTypeAndValue {
         // Init KNOWN_OIDS pool
         //
 
-        // add from RFC2253 (includes RFC1779) 
+        // add from RFC2253 (includes RFC1779)
         Iterator it = RFC2253_NAMES.values().iterator();
         while (it.hasNext()) {
             addOID((ObjectIdentifier) it.next());
@@ -264,7 +264,7 @@ public class AttributeTypeAndValue {
     /**
      * Creates AttributeTypeAndValue with OID and AttributeValue. Parses OID
      * string representation
-     * 
+     *
      * @param sOid
      *            string representation of OID
      * @param value
@@ -288,7 +288,7 @@ public class AttributeTypeAndValue {
         } else {
             this.oid = (ObjectIdentifier) KNOWN_NAMES.get(Util.toUpperCase(sOid));
             if (this.oid == null) {
-                throw new IOException(Messages.getString("security.178", sOid)); 
+                throw new IOException(Messages.getString("security.178", sOid));
             }
         }
         this.value = value;
@@ -296,7 +296,7 @@ public class AttributeTypeAndValue {
 
     /**
      * Appends AttributeTypeAndValue string representation
-     * 
+     *
      * @param attrFormat - format of DN
      * @param buf - string buffer to be used
      */
@@ -361,7 +361,7 @@ public class AttributeTypeAndValue {
 
     /**
      * Gets type of the AttributeTypeAndValue
-     * 
+     *
      * @return ObjectIdentifier
      */
     public ObjectIdentifier getType() {
@@ -369,15 +369,15 @@ public class AttributeTypeAndValue {
     }
 
     /**
-     * According to RFC 3280 (http://www.ietf.org/rfc/rfc3280.txt) 
+     * According to RFC 3280 (http://www.ietf.org/rfc/rfc3280.txt)
      * X.501 AttributeTypeAndValue structure is defined as follows:
-     *  
+     *
      *   AttributeTypeAndValue ::= SEQUENCE {
      *      type     AttributeType,
      *      value    AttributeValue }
-     *   
+     *
      *    AttributeType ::= OBJECT IDENTIFIER
-     *  
+     *
      *    AttributeValue ::= ANY DEFINED BY AttributeType
      *    ...
      *    DirectoryString ::= CHOICE {
@@ -386,7 +386,7 @@ public class AttributeTypeAndValue {
      *          universalString         UniversalString (SIZE (1..MAX)),
      *          utf8String              UTF8String (SIZE (1.. MAX)),
      *          bmpString               BMPString (SIZE (1..MAX)) }
-     *  
+     *
      */
 
     public static final ASN1Type attributeValue = new ASN1Type(
@@ -417,7 +417,7 @@ public class AttributeTypeAndValue {
 
         public Object getDecodedObject(BerInputStream in) throws IOException {
             // stub to avoid wrong decoder usage
-            throw new RuntimeException(Messages.getString("security.179")); 
+            throw new RuntimeException(Messages.getString("security.179"));
         }
 
         //
@@ -438,7 +438,7 @@ public class AttributeTypeAndValue {
         }
 
         public void setEncodingContent(BerOutputStream out) {
-            
+
             AttributeValue av = (AttributeValue) out.content;
 
             if (av.encoded != null) {
@@ -455,7 +455,7 @@ public class AttributeTypeAndValue {
                     out.content = av;
                 } else {
                     try {
-                        av.bytes = av.rawString.getBytes("UTF-8"); 
+                        av.bytes = av.rawString.getBytes("UTF-8");
                     } catch (UnsupportedEncodingException e) {
                         throw new RuntimeException(e.getMessage());
                     }
@@ -466,7 +466,7 @@ public class AttributeTypeAndValue {
 
         public void encodeContent(BerOutputStream out) {
             // stub to avoid wrong encoder usage
-            throw new RuntimeException(Messages.getString("security.17A")); 
+            throw new RuntimeException(Messages.getString("security.17A"));
         }
 
         public int getEncodedLength(BerOutputStream out) { //FIXME name
@@ -503,7 +503,7 @@ public class AttributeTypeAndValue {
 
         int index = hashIntArray(oid) % CAPACITY;
 
-        // look for OID in the pool 
+        // look for OID in the pool
         ObjectIdentifier[] list = KNOWN_OIDS[index];
         for (int i = 0; list[i] != null; i++) {
             if (Arrays.equals(oid, list[i].getOid())) {
@@ -520,21 +520,21 @@ public class AttributeTypeAndValue {
         int[] newOid = oid.getOid();
         int index = hashIntArray(newOid) % CAPACITY;
 
-        // look for OID in the pool 
+        // look for OID in the pool
         ObjectIdentifier[] list = KNOWN_OIDS[index];
         int i = 0;
         for (; list[i] != null; i++) {
 
             // check wrong static initialization: no duplicate OIDs
             if (Arrays.equals(newOid, list[i].getOid())) {
-                throw new Error(Messages.getString("security.17B", 
+                throw new Error(Messages.getString("security.17B",
                                 oid.getName(), list[i].getName()));
             }
         }
 
         // check : to avoid NPE
         if (i == (CAPACITY - 1)) {
-            throw new Error(Messages.getString("security.17C")); 
+            throw new Error(Messages.getString("security.17C"));
         }
         list[i] = oid;
     }

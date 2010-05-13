@@ -6,14 +6,14 @@ The source document contained the following notice:
 
 
 
-Copyright (c) 2001 World Wide Web Consortium, 
+Copyright (c) 2001 World Wide Web Consortium,
 (Massachusetts Institute of Technology, Institut National de
-Recherche en Informatique et en Automatique, Keio University).  All 
+Recherche en Informatique et en Automatique, Keio University).  All
 Rights Reserved.  This program is distributed under the W3C's Software
-Intellectual Property License.  This program is distributed in the 
+Intellectual Property License.  This program is distributed in the
 hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.  
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
 
 See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -36,10 +36,10 @@ import org.w3c.dom.DOMException;
 import javax.xml.parsers.DocumentBuilder;
 
 /**
- *     The "setNamedItemNS(arg)" method for a 
- *    NamedNodeMap should raise INUSE_ATTRIBUTE_ERR DOMException if 
+ *     The "setNamedItemNS(arg)" method for a
+ *    NamedNodeMap should raise INUSE_ATTRIBUTE_ERR DOMException if
  *    arg is an Attr that is already an attribute of another Element object.
- *    
+ *
  *    Retrieve an attr node from the third "address" element whose local name
  *    is "domestic" and namespaceURI is "http://www.netzero.com".
  *    Invoke method setNamedItemNS(arg) on the map of the first "address" element with
@@ -51,7 +51,7 @@ import javax.xml.parsers.DocumentBuilder;
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-setNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-setNamedItemNS</a>
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-setNamedItemNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='INUSE_ATTRIBUTE_ERR'])">http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-setNamedItemNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='INUSE_ATTRIBUTE_ERR'])</a>
 */
-@TestTargetClass(NamedNodeMap.class) 
+@TestTargetClass(NamedNodeMap.class)
 public final class SetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -93,7 +93,7 @@ public final class SetNamedItemNS extends DOMTestCase {
       Node arg;
       Node testAddress;
       NamedNodeMap map;
-      
+
       doc = (Document) load("staffNS", builder);
       elementList = doc.getElementsByTagName("address");
       anotherElement = elementList.item(2);
@@ -101,7 +101,7 @@ public final class SetNamedItemNS extends DOMTestCase {
       arg = anotherMap.getNamedItemNS("http://www.netzero.com", "domestic");
       testAddress = elementList.item(0);
       map = testAddress.getAttributes();
-      
+
       {
          boolean success = false;
          try {
@@ -127,7 +127,7 @@ public final class SetNamedItemNS extends DOMTestCase {
           NodeList elementList;
           Node testAddress;
           NamedNodeMap attributes;
-         
+
           doc = (Document) load("staffNS", builder);
           anotherDoc = (Document) load("staffNS", builder);
           arg = anotherDoc.createAttributeNS(namespaceURI, qualifiedName);
@@ -135,7 +135,7 @@ public final class SetNamedItemNS extends DOMTestCase {
           elementList = doc.getElementsByTagName("address");
           testAddress = elementList.item(0);
           attributes = testAddress.getAttributes();
-          
+
           {
              boolean success = false;
              try {
@@ -162,7 +162,7 @@ public final class SetNamedItemNS extends DOMTestCase {
           NamedNodeMap attributes;
           Node retnode;
           String value;
-          
+
           doc = (Document) load("staffNS", builder);
           arg = doc.createAttributeNS(namespaceURI, qualifiedName);
           arg.setNodeValue("newValue");
@@ -188,7 +188,7 @@ public final class SetNamedItemNS extends DOMTestCase {
 //          Node child2;
 //          NamedNodeMap attributes;
 //          Node arg;
-//          
+//
 //          int nodeType;
 //          doc = (Document) load("staffNS", builder);
 //          elementList = doc.getElementsByTagName("gender");
@@ -196,7 +196,7 @@ public final class SetNamedItemNS extends DOMTestCase {
 //          nList = testAddress.getChildNodes();
 //          child = nList.item(0);
 //          nodeType = (int) child.getNodeType();
-//          
+//
 //          if (1 == nodeType) {
 //              child = doc.createEntityReference("ent4");
 //          assertNotNull("createdEntRefNotNull", child);
@@ -206,7 +206,7 @@ public final class SetNamedItemNS extends DOMTestCase {
 //          assertNotNull("notnull", child2);
 //          attributes = child2.getAttributes();
 //          arg = attributes.getNamedItemNS(namespaceURI, localName);
-//          
+//
 //          {
 //             boolean success = false;
 //             try {
@@ -243,6 +243,6 @@ public final class SetNamedItemNS extends DOMTestCase {
           value = retnode.getNodeValue();
           assertEquals("throw_Equals", "Yes", value);
           }
-  
+
 }
 

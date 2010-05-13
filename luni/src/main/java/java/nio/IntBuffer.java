@@ -33,7 +33,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
 
     /**
      * Creates an int buffer based on a newly allocated int array.
-     * 
+     *
      * @param capacity
      *            the capacity of the new buffer.
      * @return the created int buffer.
@@ -144,7 +144,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
     /**
      * Compares the remaining ints of this buffer to another int buffer's
      * remaining ints.
-     * 
+     *
      * @param otherBuffer
      *            another int buffer.
      * @return a negative value if this is less than {@code other}; 0 if this
@@ -224,7 +224,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
 
     /**
      * Returns the int at the current position and increases the position by 1.
-     * 
+     *
      * @return the int at the current position.
      * @exception BufferUnderflowException
      *                if the position is equal or greater than limit.
@@ -252,7 +252,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * Reads ints from the current position into the specified int array,
      * starting from the specified offset, and increases the position by the
      * number of ints read.
-     * 
+     *
      * @param dest
      *            the target int array.
      * @param off
@@ -283,7 +283,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
 
     /**
      * Returns an int at the specified index; the position is not changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than limit.
      * @return an int at the specified index.
@@ -360,7 +360,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
     /**
      * Writes the given int to the current position and increases the position
      * by 1.
-     * 
+     *
      * @param i
      *            the int to write.
      * @return this buffer.
@@ -394,7 +394,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * Writes ints from the given int array, starting from the specified offset,
      * to the current position and increases the position by the number of ints
      * written.
-     * 
+     *
      * @param src
      *            the source int array.
      * @param off
@@ -430,7 +430,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * Writes all the remaining ints of the {@code src} int buffer to this
      * buffer's current position, and increases both buffers' position by the
      * number of ints copied.
-     * 
+     *
      * @param src
      *            the source int buffer.
      * @return this buffer.
@@ -458,7 +458,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
     /**
      * Write a int to the specified index of this buffer; the position is not
      * changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than the limit.
      * @param i
@@ -483,25 +483,25 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * The new buffer shares its content with this buffer, which means either
      * buffer's change of content will be visible to the other. The two buffer's
      * position, limit and mark are independent.
-     * 
+     *
      * @return a sliced buffer that shares its content with this buffer.
      */
     public abstract IntBuffer slice();
 
     /**
      * Returns a string represents of the state of this int buffer.
-     * 
+     *
      * @return a string represents of the state of this int buffer.
      */
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append(getClass().getName());
-        buf.append(", status: capacity="); 
+        buf.append(", status: capacity=");
         buf.append(capacity());
-        buf.append(" position="); 
+        buf.append(" position=");
         buf.append(position());
-        buf.append(" limit="); 
+        buf.append(" limit=");
         buf.append(limit());
         return buf.toString();
     }

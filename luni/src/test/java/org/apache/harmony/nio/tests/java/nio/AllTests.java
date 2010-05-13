@@ -22,7 +22,7 @@ import junit.framework.TestSuite;
 
 /**
  * Test suite for java.nio package
- * 
+ *
  */
 public class AllTests {
     public static Test suite() {

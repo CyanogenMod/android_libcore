@@ -58,7 +58,7 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyStore.class)
 /**
  * Tests for <code>KeyStore</code> constructor and methods
- * 
+ *
  */
 
 public class KeyStoreTest extends TestCase {
@@ -108,9 +108,9 @@ public class KeyStoreTest extends TestCase {
     }
 
     /**
-     * Test for <code>load(LoadStoreParameter param)</code> 
+     * Test for <code>load(LoadStoreParameter param)</code>
      * <code>store(LoadStoreParameter param)</code>
-     * methods 
+     * methods
      * Assertions: throw IllegalArgumentException if param is null;
      */
     @TestTargetNew(
@@ -149,10 +149,10 @@ public class KeyStoreTest extends TestCase {
         }
     }
 
-    
+
     /**
-     * Test for <code>setKeyEntry(String alias, byte[] key, Certificate[] chain)</code> 
-     * method 
+     * Test for <code>setKeyEntry(String alias, byte[] key, Certificate[] chain)</code>
+     * method
      * Assertion: stores KeyEntry.
      */
     @TestTargetNew(
@@ -163,7 +163,7 @@ public class KeyStoreTest extends TestCase {
     )
     public void testSetKeyEntry() throws Exception {
         assertTrue(NotSupportMsg, KSSupported);
-        
+
         KeyStore[] kss = createKS();
         assertNotNull("KeyStore objects were not created", kss);
         byte[] kk = { (byte) 1, (byte) 2, (byte) 127, (byte) 77 };
@@ -217,7 +217,7 @@ public class KeyStoreTest extends TestCase {
         }
         assertNotNull("Default type have not be null", dType);
         assertEquals("Incorrect default type", dType, resType);
-        
+
         if (defKSType == null) {
             Security.setProperty(propName, defaultType);
             dType = KeyStore.getDefaultType();
@@ -229,11 +229,11 @@ public class KeyStoreTest extends TestCase {
     }
 
     /**
-     * Test for <code>getInstance(String type)</code> method 
-     * Assertion: 
-     * throws NullPointerException when type is null 
+     * Test for <code>getInstance(String type)</code> method
+     * Assertion:
+     * throws NullPointerException when type is null
      * throws KeyStoreException when type is not available
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL,
@@ -264,7 +264,7 @@ public class KeyStoreTest extends TestCase {
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "IllegalStateException checking missed",
-        clazz = KeyStore.PasswordProtection.class, 
+        clazz = KeyStore.PasswordProtection.class,
         method = "getPassword",
         args = {}
     )
@@ -276,7 +276,7 @@ public class KeyStoreTest extends TestCase {
         KeyStore.PasswordProtection pp = new KeyStore.PasswordProtection(password);
         assertNotSame(pp.getPassword(), password);
         assertSame(pp.getPassword(), pp.getPassword());
-        
+
     }
 
 
@@ -286,24 +286,24 @@ public class KeyStoreTest extends TestCase {
     public void testEngineEntryInstanceOf() throws Exception {
         //Regression for HARMONY-615
 
-        // create a KeyStore 
+        // create a KeyStore
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(null, "pwd".toCharArray());
 
-        // generate a key 
+        // generate a key
         KeyGenerator keyGen = KeyGenerator.getInstance("DES");
         keyGen.init(56);
         SecretKey secretKey = keyGen.generateKey();
 
-        // put the key into keystore 
+        // put the key into keystore
         String alias = "alias";
         keyStore.setKeyEntry(alias, secretKey, "pwd".toCharArray(), null);
 
-        // check if it is a secret key 
+        // check if it is a secret key
         assertTrue(keyStore.entryInstanceOf(alias,
                 KeyStore.SecretKeyEntry.class));
 
-        // check if it is NOT a private key 
+        // check if it is NOT a private key
         assertFalse(keyStore.entryInstanceOf(alias,
                 KeyStore.PrivateKeyEntry.class));
     }
@@ -378,14 +378,14 @@ public class KeyStoreTest extends TestCase {
                     NoSuchAlgorithmException,
                     InvalidKeyException,
                     NoSuchProviderException,
-                    SignatureException 
+                    SignatureException
             {}
             public void verify(PublicKey p0, String p1)
                     throws CertificateException,
                     NoSuchAlgorithmException,
                     InvalidKeyException,
                     NoSuchProviderException,
-                    SignatureException 
+                    SignatureException
             {}
             public String toString() {
                     return null;

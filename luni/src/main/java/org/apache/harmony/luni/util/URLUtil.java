@@ -28,16 +28,16 @@ public final class URLUtil {
     public static String canonicalizePath(String path) {
         int dirIndex;
 
-        while ((dirIndex = path.indexOf("/./")) >= 0) { 
+        while ((dirIndex = path.indexOf("/./")) >= 0) {
             path = path.substring(0, dirIndex + 1)
                     + path.substring(dirIndex + 3);
         }
 
-        if (path.endsWith("/.")) { 
+        if (path.endsWith("/.")) {
             path = path.substring(0, path.length() - 1);
         }
 
-        while ((dirIndex = path.indexOf("/../")) >= 0) { 
+        while ((dirIndex = path.indexOf("/../")) >= 0) {
             if (dirIndex != 0) {
                 path = path.substring(0, path
                         .lastIndexOf('/', dirIndex - 1))
@@ -47,7 +47,7 @@ public final class URLUtil {
             }
         }
 
-        if (path.endsWith("/..") && path.length() > 3) { 
+        if (path.endsWith("/..") && path.length() > 3) {
             path = path.substring(0, path.lastIndexOf('/',
                     path.length() - 4) + 1);
         }

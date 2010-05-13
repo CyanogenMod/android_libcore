@@ -24,15 +24,15 @@ import javax.net.ssl.SSLKeyException;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(SSLKeyException.class) 
+@TestTargetClass(SSLKeyException.class)
 public class SSLKeyExceptionTest extends TestCase {
-    
+
     private static String[] msgs = {
             "",
             "Check new message",
             "Check new message Check new message Check new message Check new message Check new message" };
-    
-    
+
+
     /**
      * Test for <code>SSLKeyException(String)</code> constructor Assertion:
      * constructs SSLKeyException with detail message msg. Parameter
@@ -52,7 +52,7 @@ public class SSLKeyExceptionTest extends TestCase {
             assertNull("getCause() must return null", skE.getCause());
         }
     }
-    
+
     /**
      * Test for <code>SSLPeerUnverifiedException(String)</code> constructor Assertion:
      * constructs SSLPeerUnverifiedException with detail message msg. Parameter

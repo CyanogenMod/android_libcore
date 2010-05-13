@@ -38,7 +38,7 @@ public class PasswordCallback implements Callback, Serializable {
 
     private void setPrompt(String prompt) throws IllegalArgumentException {
         if (prompt == null || prompt.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("auth.14")); 
+            throw new IllegalArgumentException(Messages.getString("auth.14"));
         }
         this.prompt = prompt;
     }

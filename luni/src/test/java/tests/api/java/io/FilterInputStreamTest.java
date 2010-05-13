@@ -29,7 +29,7 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 
-@TestTargetClass(FilterInputStream.class) 
+@TestTargetClass(FilterInputStream.class)
 public class FilterInputStreamTest extends junit.framework.TestCase {
 
     static class MyFilterInputStream extends java.io.FilterInputStream {
@@ -58,7 +58,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         notes = "Verifies constructor FilterInputStream(InputStream).",
         method = "FilterInputStream",
         args = {java.io.InputStream.class}
-    )     
+    )
     public void test_Constructor() {
         // The FilterInputStream object has already been created in setUp().
         // If anything has gone wrong, closing it should throw a
@@ -79,9 +79,9 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "available",
         args = {}
-    )     
+    )
     public void test_available() throws IOException {
-        assertEquals("Test 1: Returned incorrect number of available bytes;", 
+        assertEquals("Test 1: Returned incorrect number of available bytes;",
                 testLength, is.available());
 
         is.close();
@@ -100,7 +100,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "close",
         args = {}
-    )     
+    )
     public void test_close() throws IOException {
         is.close();
 
@@ -110,7 +110,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // Expected.
         }
-        
+
         Support_ASimpleInputStream sis = new Support_ASimpleInputStream(true);
         is = new MyFilterInputStream(sis);
         try {
@@ -138,7 +138,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
             method = "reset",
             args = {}
         )
-    })     
+    })
     public void test_markI() throws Exception {
         // Test for method void java.io.FilterInputStream.mark(int)
         final int bufSize = 10;
@@ -156,7 +156,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
             // Expected
         }
         is.read(buf2, 0, bufSize);
-        assertFalse("Test 1: mark() should have no effect.", 
+        assertFalse("Test 1: mark() should have no effect.",
                 Arrays.equals(buf1, buf2));
         is.close();
 
@@ -169,7 +169,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         is.read(buf1, 0, bufSize);
         is.reset();
         is.read(buf2, 0, bufSize);
-        assertTrue("Test 2: mark() or reset() has failed.", 
+        assertTrue("Test 2: mark() or reset() has failed.",
                 Arrays.equals(buf1, buf2));
     }
 
@@ -181,23 +181,23 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         notes = "Verifies markSupported() method.",
         method = "markSupported",
         args = {}
-    )     
+    )
     public void test_markSupported() throws Exception {
         // Test for method boolean java.io.FilterInputStream.markSupported()
-        
+
         // Test 1: Check that markSupported() returns false for a filtered
-        // input stream that is known to not support mark(). 
+        // input stream that is known to not support mark().
         assertFalse("Test 1: markSupported() incorrectly returned true " +
                 "for a FileInputStream.", is.markSupported());
         is.close();
         // Test 2: Check that markSupported() returns true for a filtered
-        // input stream that is known to support mark(). 
+        // input stream that is known to support mark().
         is = new MyFilterInputStream(new BufferedInputStream(
                 new java.io.FileInputStream(fileName), 100));
         assertTrue("Test 2: markSupported() incorrectly returned false " +
                 "for a BufferedInputStream.", is.markSupported());
     }
-        
+
     /**
      * @tests java.io.FilterInputStream#read()
      */
@@ -205,12 +205,12 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "read",
         args = {}
-    )    
+    )
     public void test_read() throws IOException {
         int c = is.read();
-        assertEquals("Test 1: Read returned incorrect char;", 
+        assertEquals("Test 1: Read returned incorrect char;",
                 testString.charAt(0), c);
-        
+
         is.close();
         try {
             is.read();
@@ -227,12 +227,12 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "read",
         args = {byte[].class}
-    )    
+    )
     public void test_read$B() throws IOException {
         // Test for method int java.io.FilterInputStream.read(byte [])
         byte[] buf1 = new byte[100];
         is.read(buf1);
-        assertTrue("Test 1: Failed to read correct data.", 
+        assertTrue("Test 1: Failed to read correct data.",
                 new String(buf1, 0, buf1.length).equals(
                         testString.substring(0, 100)));
 
@@ -252,7 +252,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )        
+    )
     public void test_read$BII() throws IOException {
         byte[] buf1 = new byte[20];
         is.skip(10);
@@ -269,7 +269,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         notes = "Illegal argument checks.",
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )      
+    )
     public void test_read$BII_Exception() throws IOException {
         byte[] buf = null;
         try {
@@ -277,9 +277,9 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected.
-        } 
+        }
 
-        buf = new byte[1000];        
+        buf = new byte[1000];
         try {
             is.read(buf, -1, 0);
             fail("Test 2: IndexOutOfBoundsException expected.");
@@ -292,36 +292,36 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
             fail("Test 3: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
-        
+        }
+
         try {
             is.read(buf, -1, -1);
             fail("Test 4: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
+        }
 
         try {
             is.read(buf, 0, 1001);
             fail("Test 5: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
+        }
 
         try {
             is.read(buf, 1001, 0);
             fail("Test 6: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
+        }
 
         try {
             is.read(buf, 500, 501);
             fail("Test 7: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
-        
+        }
+
         is.close();
         try {
             is.read(buf, 0, 100);
@@ -347,10 +347,10 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
             method = "mark",
             args = { int.class }
         )
-    })    
+    })
     public void test_reset() throws Exception {
         // Test for method void java.io.FilterInputStream.reset()
-        
+
         // Test 1: Check that reset() throws an IOException if the
         // filtered stream is a FileInputStream.
         try {
@@ -359,7 +359,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // expected
         }
-        
+
         // Test 2: Check that reset() throws an IOException if the
         // filtered stream is a BufferedInputStream but mark() has not
         // yet been called.
@@ -371,7 +371,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // expected
         }
-        
+
         // Test 3: Check that reset() in combination with mark()
         // works correctly.
         final int bufSize = 10;
@@ -386,7 +386,7 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
             fail("Test 3: Unexpected IOException.");
         }
         is.read(buf2, 0, bufSize);
-        assertTrue("Test 4: mark() or reset() has failed.", 
+        assertTrue("Test 4: mark() or reset() has failed.",
                 Arrays.equals(buf1, buf2));
     }
 
@@ -397,12 +397,12 @@ public class FilterInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "skip",
         args = {long.class}
-    )    
+    )
     public void test_skipJ() throws IOException {
         byte[] buf1 = new byte[10];
         is.skip(10);
         is.read(buf1, 0, buf1.length);
-        assertTrue("Test 1: Failed to skip to the correct position.", 
+        assertTrue("Test 1: Failed to skip to the correct position.",
                 new String(buf1, 0, buf1.length).equals(
                         testString.substring(10, 20)));
 

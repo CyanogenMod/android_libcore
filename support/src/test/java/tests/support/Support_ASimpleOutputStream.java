@@ -43,7 +43,7 @@ public class Support_ASimpleOutputStream extends OutputStream {
             throw new IOException("Exception thrown for testing purpose.");
         }
     }
-    
+
     @Override
     public void flush() throws IOException {
         if (throwExceptionOnNextUse) {
@@ -67,7 +67,7 @@ public class Support_ASimpleOutputStream extends OutputStream {
 //            throw new IOException("Exception thrown for testing purposes.");
 //        }
 //        if (offset < 0 || count < 0 || (offset + count) > buffer.length) {
-//            throw new IndexOutOfBoundsException(); 
+//            throw new IndexOutOfBoundsException();
 //        }
 //        for (int i = offset; i < offset + count; i++) {
 //            write(buffer[i]);

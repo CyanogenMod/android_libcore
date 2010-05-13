@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>IllegalBlockSizeException</code> class constructors and
  * methods.
- * 
+ *
  */
 public class IllegalBlockSizeExceptionTest extends TestCase {
 

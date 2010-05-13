@@ -28,7 +28,7 @@ import dalvik.annotation.TestTargetNew;
 public class SAXNotRecognizedExceptionTest extends TestCase {
 
     public static final String ERR = "Houston, we have a problem";
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "SAXNotRecognizedException",
@@ -47,9 +47,9 @@ public class SAXNotRecognizedExceptionTest extends TestCase {
     public void testSAXNotRecognizedException_String() {
         SAXNotRecognizedException e = new SAXNotRecognizedException(ERR);
         assertEquals(ERR, e.getMessage());
-        
+
         e = new SAXNotRecognizedException(null);
         assertNull(e.getMessage());
     }
-    
+
 }

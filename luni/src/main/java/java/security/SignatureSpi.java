@@ -25,7 +25,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 /**
  * {@code SignatureSpi} is the <i>Service Provider Interface</i> (<b>SPI</b>)
  * definition for {@link Signature}.
- * 
+ *
  * @see Signature
  */
 public abstract class SignatureSpi {
@@ -110,7 +110,7 @@ public abstract class SignatureSpi {
     /**
      * Updates the data to be verified or to be signed, using the specified
      * {@code ByteBuffer}.
-     * 
+     *
      * @param input
      *            the {@code ByteBuffer} to update with.
      * @throws RuntimeException
@@ -131,7 +131,7 @@ public abstract class SignatureSpi {
             int limit = input.limit();
             try {
                 engineUpdate(tmp, offset + position, limit - position);
-            } catch (SignatureException e) { 
+            } catch (SignatureException e) {
                 throw new RuntimeException(e); //Wrap SignatureException
             }
             input.position(limit);
@@ -189,13 +189,13 @@ public abstract class SignatureSpi {
             return 0;
         }
         if (len < tmp.length) {
-            throw new SignatureException(Messages.getString("security.2D")); 
+            throw new SignatureException(Messages.getString("security.2D"));
         }
         if (offset < 0) {
-            throw new SignatureException(Messages.getString("security.1C")); 
+            throw new SignatureException(Messages.getString("security.1C"));
         }
         if (offset + len > outbuf.length) {
-            throw new SignatureException(Messages.getString("security.05")); 
+            throw new SignatureException(Messages.getString("security.05"));
         }
         System.arraycopy(tmp, 0, outbuf, offset, tmp.length);
         return tmp.length;

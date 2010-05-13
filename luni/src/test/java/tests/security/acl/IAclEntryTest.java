@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ import org.apache.harmony.security.tests.support.acl.*;
 
 @TestTargetClass(AclEntry.class)
 public class IAclEntryTest extends TestCase {
-    
+
     class MyAclEntry extends AclEntryImpl {
         public MyAclEntry() {
             super();
@@ -43,10 +43,10 @@ public class IAclEntryTest extends TestCase {
             super(pr);
         }
     }
-    
-    
+
+
     /**
-     * @tests java.security.acl.AclEntry#addPermission(Permission permission) 
+     * @tests java.security.acl.AclEntry#addPermission(Permission permission)
      * @tests java.security.acl.AclEntry#checkPermission(Permission permission)
      * @tests java.security.acl.AclEntry#removePermission(Permission permission)
      */
@@ -84,9 +84,9 @@ public class IAclEntryTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @tests java.security.acl.AclEntry#getPrincipal() 
+     * @tests java.security.acl.AclEntry#getPrincipal()
      * @tests java.security.acl.AclEntry#setPrincipal(Principal user)
      */
     @TestTargets({
@@ -115,9 +115,9 @@ public class IAclEntryTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @tests java.security.acl.AclEntry#setNegativePermissions() 
+     * @tests java.security.acl.AclEntry#setNegativePermissions()
      * @tests java.security.acl.AclEntry#isNegative()
      */
     @TestTargets({
@@ -144,9 +144,9 @@ public class IAclEntryTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @tests java.security.acl.AclEntry#permissions() 
+     * @tests java.security.acl.AclEntry#permissions()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -173,9 +173,9 @@ public class IAclEntryTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @tests java.security.acl.AclEntry#toString() 
+     * @tests java.security.acl.AclEntry#toString()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -192,9 +192,9 @@ public class IAclEntryTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @tests java.security.acl.AclEntry#clone() 
+     * @tests java.security.acl.AclEntry#clone()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,

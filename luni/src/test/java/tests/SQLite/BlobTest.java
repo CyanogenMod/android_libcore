@@ -37,17 +37,17 @@ import java.io.OutputStream;
 
 @TestTargetClass(Blob.class)
 public class BlobTest extends SQLiteTest {
-    
+
     private static Blob testBlob = null;
-    
+
     private byte[] blobInput= null;
-    
+
     private static InputStream file = null;
-    
+
     private static Database db = null;
-    
+
     private static Stmt st = null;
-    
+
     public class MockBlob extends Blob {
         public void finalize() {
             try {
@@ -57,21 +57,21 @@ public class BlobTest extends SQLiteTest {
             }
         }
     }
-    
+
     public void setUp() throws java.lang.Exception {
         super.setUp();
         testBlob = new Blob();
-        
+
         super.setUp();
         Support_SQL.loadDriver();
         db = new Database();
         db.open(dbFile.getPath(), 0);
-             
+
         db.exec("create table B(id integer primary key, val blob)",null);
         db.exec("insert into B values(1, zeroblob(128))", null);
         db.exec("insert into B values(2, zeroblob(128))", null);
         db.exec("insert into B values(3, zeroblob(128))", null);
-        
+
         // can not fill Blob with data at this point...
         /*
         File resources = Support_Resources.createTempFolder();
@@ -98,14 +98,14 @@ public class BlobTest extends SQLiteTest {
     }
 
     public void tearDown() {
-        
+
         testBlob.close();
         super.tearDown();
     }
-    
+
     /**
-     * @throws Exception 
-     * @throws IOException 
+     * @throws Exception
+     * @throws IOException
      * @tests Blob#Blob()
      */
     @TestTargets ( {
@@ -119,7 +119,7 @@ public class BlobTest extends SQLiteTest {
         level = TestLevel.NOT_FEASIBLE,
         notes = "functional test",
         method = "getOutputStream",
-        args = {}    
+        args = {}
     ),
     @TestTargetNew(
         level = TestLevel.NOT_FEASIBLE,
@@ -137,11 +137,11 @@ public class BlobTest extends SQLiteTest {
         }
         Blob blob = db.open_blob(dbFile.getPath(), "B", "val", 1, true);
         try {
-            
+
         OutputStream os = blob.getOutputStream();
         os.write(b128);
         os.close();
-        
+
         InputStream is = blob.getInputStream();
         is.skip(96);
         assertEquals(4,is.read(b));
@@ -161,7 +161,7 @@ public class BlobTest extends SQLiteTest {
         args = {}
     )
     public void testFinalize() {
-        
+
     }
 
     /**
@@ -175,13 +175,13 @@ public class BlobTest extends SQLiteTest {
     )
     public void testGetInputStream() {
         InputStream in = testBlob.getInputStream();
-        
+
         try {
             in.read();
             fail("Exception not thrown for invalid Blob.");
         } catch (Throwable e) {
             //ok
-        }   
+        }
     }
 
     /**
@@ -195,7 +195,7 @@ public class BlobTest extends SQLiteTest {
     )
     public void testGetOutputStream() {
         OutputStream out = testBlob.getOutputStream();
-       
+
         try {
            out.write(null);
            fail("Write operation unsupported");
@@ -216,11 +216,11 @@ public class BlobTest extends SQLiteTest {
 //    @KnownFailure("Blob does not clean up inputStream.")
     public void testClose() {
     assertNotNull(testBlob);
-       
+
     testBlob.close();
     // inputStream either null or some error occurs
     try {
-        // TODO This does look a bit weird. Revisit later. 
+        // TODO This does look a bit weird. Revisit later.
         assertNull(testBlob.getInputStream());
     } catch (Throwable e) {
         //ok

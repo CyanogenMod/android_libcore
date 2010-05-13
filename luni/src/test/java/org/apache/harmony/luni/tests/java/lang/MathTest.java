@@ -114,7 +114,7 @@ public class MathTest extends junit.framework.TestCase {
 		assertTrue("Returned incorrect arc tangent: " + answer, answer <= 1.0
 				&& answer >= 9.9999999999999983E-1);
 	}
-    
+
      /**
      * @tests java.lang.Math#cbrt(double)
      */
@@ -174,7 +174,7 @@ public class MathTest extends junit.framework.TestCase {
     /**
      * @tests {@link java.lang.Math#copySign(double, double)}
      * @since 1.6
-     * 
+     *
      */
     @SuppressWarnings("boxing")
     public void test_copySign_DD() {
@@ -342,7 +342,7 @@ public class MathTest extends junit.framework.TestCase {
                 Double.POSITIVE_INFINITY, Math.cosh(Double.MAX_VALUE), 0D);
         assertEquals("Should return 1.0", 1.0, Math.cosh(Double.MIN_VALUE), 0D);
     }
-    
+
 	/**
 	 * @tests java.lang.Math#exp(double)
 	 */
@@ -354,7 +354,7 @@ public class MathTest extends junit.framework.TestCase {
 		assertTrue("Incorrect answer returned for larger power", Math.log(Math
 				.abs(Math.exp(5.5D)) - 5.5D) < 10.0D);
 	}
-    
+
     /**
      * @tests java.lang.Math#expm1(double)
      */
@@ -481,7 +481,7 @@ public class MathTest extends junit.framework.TestCase {
             Float.MIN_EXPONENT - 1, Float.MIN_EXPONENT - 1,
             Float.MIN_EXPONENT - 1, Float.MIN_EXPONENT - 1,
             Float.MIN_EXPONENT - 1, Float.MAX_EXPONENT + 1,0,Float.MIN_EXPONENT };
-    
+
     /**
      * @tests {@link java.lang.Math#getExponent(float)}
      * @since 1.6
@@ -501,7 +501,7 @@ public class MathTest extends junit.framework.TestCase {
             // Expected
         }
     }
-    
+
     /**
      * @tests java.lang.Math#hypot(double, double)
      */
@@ -524,11 +524,11 @@ public class MathTest extends junit.framework.TestCase {
                         Double.NEGATIVE_INFINITY), 0D);
         assertEquals("Should return POSITIVE_INFINITY",
                 Double.POSITIVE_INFINITY, Math.hypot(Double.NEGATIVE_INFINITY,
-                        Double.POSITIVE_INFINITY), 0D);        
+                        Double.POSITIVE_INFINITY), 0D);
         assertTrue("Should be NaN", Double.isNaN(Math.hypot(Double.NaN,
                 2342301.89843)));
         assertTrue("Should be NaN", Double.isNaN(Math.hypot(-345.2680,
-                Double.NaN)));        
+                Double.NaN)));
 
         assertEquals("Should return 2396424.905416697", 2396424.905416697, Math
                 .hypot(12322.12, -2396393.2258), 0D);
@@ -564,7 +564,7 @@ public class MathTest extends junit.framework.TestCase {
 					.abs(d * 0.00000001));
 		}
 	}
-    
+
     /**
      * @tests java.lang.Math#log10(double)
      */
@@ -578,7 +578,7 @@ public class MathTest extends junit.framework.TestCase {
         assertEquals(Double.NEGATIVE_INFINITY, Math.log10(0.0));
         assertEquals(Double.NEGATIVE_INFINITY, Math.log10(+0.0));
         assertEquals(Double.NEGATIVE_INFINITY, Math.log10(-0.0));
-        
+
         assertEquals(3.0, Math.log10(1000.0));
         assertEquals(14.0, Math.log10(Math.pow(10, 14)));
         assertEquals(3.7389561269540406, Math.log10(5482.2158));
@@ -587,7 +587,7 @@ public class MathTest extends junit.framework.TestCase {
         assertEquals(308.25471555991675, Math.log10(Double.MAX_VALUE));
         assertEquals(-323.3062153431158, Math.log10(Double.MIN_VALUE));
     }
-    
+
     /**
      * @tests java.lang.Math#log1p(double)
      */
@@ -1198,12 +1198,12 @@ public class MathTest extends junit.framework.TestCase {
                  * 1. If the first argument is finite and less than zero if the
                  * second argument is a finite even integer, the result is equal
                  * to the result of raising the absolute value of the first
-                 * argument to the power of the second argument 
-                 * 
+                 * argument to the power of the second argument
+                 *
                  * 2. if the second argument is a finite odd integer, the result is equal to the
                  * negative of the result of raising the absolute value of the
-                 * first argument to the power of the second argument 
-                 * 
+                 * first argument to the power of the second argument
+                 *
                  * 3. if the second argument is finite and not an integer, then the result
                  * is NaN.
                  */
@@ -1481,7 +1481,7 @@ public class MathTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
         long b1em1022 = 0x0010000000000000L; // bit representation of
                                                 // Double.MIN_NORMAL
         long b1em1023 = 0x0008000000000000L; // bit representation of half of
@@ -1630,7 +1630,7 @@ public class MathTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
         int b1em126 = 0x00800000; // bit representation of Float.MIN_NORMAL
         int b1em127 = 0x00400000; // bit representation of half
                                     // Float.MIN_NORMAL
@@ -1638,7 +1638,7 @@ public class MathTest extends junit.framework.TestCase {
         assertEquals(b1em127, Float.floatToIntBits(Math.scalb(Float
                 .intBitsToFloat(b1em126), -1)));
     }
-    
+
     /**
      * @tests java.lang.Math#signum(double)
      */
@@ -1698,7 +1698,7 @@ public class MathTest extends junit.framework.TestCase {
 		assertEquals("Incorrect answer", 0.0, Math.sin(0), 0D);
 		assertEquals("Incorrect answer", 0.8414709848078965, Math.sin(1), 0D);
 	}
-    
+
     /**
      * @tests java.lang.Math#sinh(double)
      */
@@ -1731,7 +1731,7 @@ public class MathTest extends junit.framework.TestCase {
         assertEquals("Should return 4.9E-324", 4.9E-324, Math
                 .sinh(Double.MIN_VALUE), 0D);
     }
-    
+
 	/**
 	 * @tests java.lang.Math#sqrt(double)
 	 */
@@ -1777,7 +1777,7 @@ public class MathTest extends junit.framework.TestCase {
         assertEquals("Should return 4.9E-324", 4.9E-324, Math
                 .tanh(Double.MIN_VALUE), 0D);
     }
-    
+
 	/**
 	 * @tests java.lang.Math#random()
 	 */
@@ -1891,8 +1891,8 @@ public class MathTest extends junit.framework.TestCase {
 	
 	/**
      * @tests {@link java.lang.Math#shiftIntBits(int, int)}
-     * 
-     * @since 1.6 
+     *
+     * @since 1.6
      */
     public void test_shiftIntBits_II() {
         class Tuple {
@@ -1921,7 +1921,7 @@ public class MathTest extends junit.framework.TestCase {
 
                 // normal to sub-normal
                 new Tuple(0x00000002, 0x01a00000, -24),
-                // round to even 
+                // round to even
                 new Tuple(0x00000004, 0x01e00000, -24),
                 // round to even
                 new Tuple(0x00000003, 0x01c80000, -24),
@@ -1940,10 +1940,10 @@ public class MathTest extends junit.framework.TestCase {
 
     /**
      * @tests {@link java.lang.Math#shiftLongBits(long, long)}
-     * 
+     *
      * Round result to nearest value on precision lost.
-     * 
-     * @since 1.6 
+     *
+     * @since 1.6
      */
     public void test_shiftLongBits_LL() {
         class Tuple {

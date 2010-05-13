@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -120,8 +120,8 @@ public class CharsetTest extends TestCase {
         assertTrue(Charset.availableCharsets().containsKey("UTF-16BE"));
         assertTrue(Charset.availableCharsets().containsKey("UTF-16LE"));
     }
-    
-    
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -140,7 +140,7 @@ public class CharsetTest extends TestCase {
         assertTrue(Charset.forName("UTF-16").contains(Charset.forName("UTF-16LE")));
         assertTrue(Charset.forName("UTF-16").contains(Charset.forName("UTF-16BE")));
         assertTrue(Charset.forName("UTF-16").contains(Charset.forName("UTF-8")));
-        
+
         assertTrue(Charset.forName("UTF-16LE").contains(Charset.forName("UTF-16LE")));
         assertTrue(Charset.forName("UTF-16LE").contains(Charset.forName("UTF-16BE")));
         assertTrue(Charset.forName("UTF-16LE").contains(Charset.forName("UTF-16")));
@@ -179,7 +179,7 @@ public class CharsetTest extends TestCase {
 
     /*
      * Test the method isSupported(String) with empty string.
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -198,7 +198,7 @@ public class CharsetTest extends TestCase {
 
     /*
      * Test the method isSupported(String) with a string starting with ".".
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -376,7 +376,7 @@ public class CharsetTest extends TestCase {
 
     /*
      * Test the constructor with empty canonical name.
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -396,7 +396,7 @@ public class CharsetTest extends TestCase {
     /*
      * Test the constructor with illegal canonical name: starting with neither a
      * digit nor a letter.
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -561,7 +561,7 @@ public class CharsetTest extends TestCase {
 
     /*
      * Test the constructor with empty aliases.
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -581,7 +581,7 @@ public class CharsetTest extends TestCase {
     /*
      * Test the constructor with illegal aliases: starting with neither a digit
      * nor a letter.
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -1115,7 +1115,7 @@ public class CharsetTest extends TestCase {
         MockCharset c1 = new MockCharset("mock", null);
         assertTrue(-1 != c1.toString().indexOf("mock"));
     }
-    
+
     /*
      * Mock charset class.
      */
@@ -1217,7 +1217,7 @@ public class CharsetTest extends TestCase {
             return v.iterator();
         }
     }
-    
+
     /*
      * Used to grant all permissions except charset provider access.
      */

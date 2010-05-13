@@ -108,32 +108,32 @@ public class Proxy implements Serializable {
             }
             String name = next.getName();
             if (!next.isInterface()) {
-                throw new IllegalArgumentException(Msg.getString("K00ed", name)); 
+                throw new IllegalArgumentException(Msg.getString("K00ed", name));
             }
             if (loader != next.getClassLoader()) {
                 try {
                     if (next != Class.forName(name, false, loader)) {
                         throw new IllegalArgumentException(Msg.getString(
-                                "K00ee", name)); 
+                                "K00ee", name));
                     }
                 } catch (ClassNotFoundException ex) {
-                    throw new IllegalArgumentException(Msg.getString("K00ee", 
+                    throw new IllegalArgumentException(Msg.getString("K00ee",
                             name));
                 }
             }
             for (int j = i + 1; j < length; j++) {
                 if (next == interfaces[j]) {
-                    throw new IllegalArgumentException(Msg.getString("K00ef", 
+                    throw new IllegalArgumentException(Msg.getString("K00ef",
                             name));
                 }
             }
             if (!Modifier.isPublic(next.getModifiers())) {
                 int last = name.lastIndexOf('.');
-                String p = last == -1 ? "" : name.substring(0, last); 
+                String p = last == -1 ? "" : name.substring(0, last);
                 if (commonPackageName == null) {
                     commonPackageName = p;
                 } else if (!commonPackageName.equals(p)) {
-                    throw new IllegalArgumentException(Msg.getString("K00f0")); 
+                    throw new IllegalArgumentException(Msg.getString("K00f0"));
                 }
             }
         }
@@ -149,7 +149,7 @@ public class Proxy implements Serializable {
                                 (interfaceCache = new HashMap<String, WeakReference<Class<?>>>()));
             }
 
-            String interfaceKey = ""; 
+            String interfaceKey = "";
             if (interfaces.length == 1) {
                 interfaceKey = interfaces[0].getName();
             } else {
@@ -164,9 +164,9 @@ public class Proxy implements Serializable {
             Class<?> newClass;
             WeakReference<Class<?>> ref = interfaceCache.get(interfaceKey);
             if (ref == null) {
-                String nextClassName = "$Proxy" + NextClassNameIndex++; 
+                String nextClassName = "$Proxy" + NextClassNameIndex++;
                 if (commonPackageName != null && commonPackageName.length() > 0) {
-                    nextClassName = commonPackageName + "." + nextClassName; 
+                    nextClassName = commonPackageName + "." + nextClassName;
                 }
                 // BEGIN android-changed
                 // byte[] classFileBytes = ProxyClassFile.generateBytes(
@@ -185,7 +185,7 @@ public class Proxy implements Serializable {
                         newClass));
                 synchronized (proxyCache) {
                     // the value is unused
-                    proxyCache.put(newClass, ""); 
+                    proxyCache.put(newClass, "");
                 }
             } else {
                 newClass = ref.get();
@@ -282,7 +282,7 @@ public class Proxy implements Serializable {
             return ((Proxy) proxy).h;
         }
 
-        throw new IllegalArgumentException(Msg.getString("K00f1")); 
+        throw new IllegalArgumentException(Msg.getString("K00f1"));
     }
 
     // BEGIN android-changed

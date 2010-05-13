@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -149,7 +149,7 @@ public class DigestInputStream2Test extends junit.framework.TestCase {
         byte buf2[] = new byte[bytesToRead + 5];
         // make sure we're actually reading some data
         assertTrue("No data to read for this test", bytesToRead>0);
-        
+
         // read and compare the data that the inStream has
         int bytesRead1 = dis.read(buf1, 5, bytesToRead);
         int bytesRead2 = inStream1.read(buf2, 5, bytesToRead);
@@ -162,7 +162,7 @@ public class DigestInputStream2Test extends junit.framework.TestCase {
             if (buf1[i] != buf2[i]) {
                 same = false;
             }
-        }// end for 
+        }// end for
         assertTrue("Didn't get the same data", same);
     }
 
@@ -174,7 +174,7 @@ public class DigestInputStream2Test extends junit.framework.TestCase {
         notes = "Illegal argument checks.",
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )      
+    )
     public void test_read$BII_Exception() throws IOException {
         DigestInputStream is = new DigestInputStream(inStream, digest);
         byte[] buf = null;
@@ -183,9 +183,9 @@ public class DigestInputStream2Test extends junit.framework.TestCase {
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected.
-        } 
+        }
 
-        buf = new byte[1000];        
+        buf = new byte[1000];
         try {
             is.read(buf, -1, 0);
             fail("Test 2: IndexOutOfBoundsException expected.");
@@ -198,38 +198,38 @@ public class DigestInputStream2Test extends junit.framework.TestCase {
             fail("Test 3: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
-        
+        }
+
         try {
             is.read(buf, -1, -1);
             fail("Test 4: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
+        }
 
         try {
             is.read(buf, 0, 1001);
             fail("Test 5: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
+        }
 
         try {
             is.read(buf, 1001, 0);
             fail("Test 6: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
+        }
 
         try {
             is.read(buf, 500, 501);
             fail("Test 7: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
-        } 
-        
+        }
+
         is.close();
-        
+
         Support_ASimpleInputStream sis = new Support_ASimpleInputStream(true);
         is = new DigestInputStream(sis, digest);
         try {
@@ -241,7 +241,7 @@ public class DigestInputStream2Test extends junit.framework.TestCase {
         sis.throwExceptionOnNextUse = false;
         is.close();
     }
-    
+
     /**
      * @tests java.security.DigestInputStream#setMessageDigest(java.security.MessageDigest)
      */
@@ -255,7 +255,7 @@ public class DigestInputStream2Test extends junit.framework.TestCase {
         // Test for method void
         // java.security.DigestInputStream.setMessageDigest(java.security.MessageDigest)
         DigestInputStream dis = new DigestInputStream(inStream, null);
-        
+
         // make sure the digest is null when it's not been set
         assertNull(
                 "Uninitialised MessageDigest should have been returned as null",

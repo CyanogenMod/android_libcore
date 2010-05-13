@@ -26,7 +26,7 @@ public interface FileDescriptorHandler {
 
     /**
      * Get the wrapped <code>FileDescriptor</code>.
-     * 
+     *
      * @return the wrapped <code>FileDescriptor</code>.
      */
     FileDescriptor getFD();

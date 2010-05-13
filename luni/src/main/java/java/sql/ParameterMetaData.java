@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -62,7 +62,7 @@ public interface ParameterMetaData {
     /**
      * Gets the fully-qualified name of the Java class which should be passed as
      * a parameter to the method {@code PreparedStatement.setObject}.
-     * 
+     *
      * @param paramIndex
      *            the index number of the parameter, where the first parameter
      *            has index 1.
@@ -77,7 +77,7 @@ public interface ParameterMetaData {
     /**
      * Gets the number of parameters in the {@code PreparedStatement} for which
      * this {@code ParameterMetaData} contains information.
-     * 
+     *
      * @return the number of parameters.
      * @throws SQLException
      *             if a database error happens.
@@ -92,7 +92,7 @@ public interface ParameterMetaData {
      * <li>ParameterMetaData.parameterModeInOut</li>
      * <li>ParameterMetaData.parameterModeUnknown</li>
      * </ul>
-     * 
+     *
      * @param paramIndex
      *            the index number of the parameter, where the first parameter
      *            has index 1.
@@ -104,7 +104,7 @@ public interface ParameterMetaData {
 
     /**
      * Gets the SQL type of a specified parameter.
-     * 
+     *
      * @param paramIndex
      *            the index number of the parameter, where the first parameter
      *            has index 1.
@@ -117,7 +117,7 @@ public interface ParameterMetaData {
 
     /**
      * Gets the database-specific type name of a specified parameter.
-     * 
+     *
      * @param paramIndex
      *            the index number of the parameter, where the first parameter
      *            has index 1.
@@ -131,7 +131,7 @@ public interface ParameterMetaData {
 
     /**
      * Gets the number of decimal digits for a specified parameter.
-     * 
+     *
      * @param paramIndex
      *            the index number of the parameter, where the first parameter
      *            has index 1.
@@ -145,7 +145,7 @@ public interface ParameterMetaData {
     /**
      * Gets the number of digits after the decimal point for a specified
      * parameter.
-     * 
+     *
      * @param paramIndex
      *            the index number of the parameter, where the first parameter
      *            has index 1.
@@ -164,7 +164,7 @@ public interface ParameterMetaData {
      * <li>ParameterMetaData.parameterNullable</li>
      * <li>ParameterMetaData.parameterNullableUnknown</li>
      * </ul>
-     * 
+     *
      * @param paramIndex
      *            the index number of the parameter, where the first parameter
      *            has index 1.
@@ -176,7 +176,7 @@ public interface ParameterMetaData {
 
     /**
      * Gets whether values for the specified parameter can be signed numbers.
-     * 
+     *
      * @param paramIndex
      *            the index number of the parameter, where the first parameter
      *            has index 1.

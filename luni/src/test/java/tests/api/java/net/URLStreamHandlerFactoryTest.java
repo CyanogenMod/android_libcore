@@ -15,17 +15,17 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(URLStreamHandlerFactory.class) 
+@TestTargetClass(URLStreamHandlerFactory.class)
 public class URLStreamHandlerFactoryTest extends TestCase {
 
     URLStreamHandlerFactory oldFactory = null;
     Field factoryField = null;
-    
+
     boolean isTestable = false;
-    
+
     boolean isOpenConnectionCalled = false;
     boolean isCreateURLStreamHandlerCalled = false;
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -34,13 +34,13 @@ public class URLStreamHandlerFactoryTest extends TestCase {
     )
     @SideEffect("Leaves wrong StreamHandlerFactory behind, affects other tests")
     public void test_createURLStreamHandler() throws MalformedURLException {
-        
+
         if(isTestable) {
-            
+
             TestURLStreamHandlerFactory shf = new TestURLStreamHandlerFactory();
             assertFalse(isCreateURLStreamHandlerCalled);
             URL.setURLStreamHandlerFactory(shf);
-            URL url = new URL("http://" + 
+            URL url = new URL("http://" +
                     Support_Configuration.SpecialInetTestAddress);
 
             try {
@@ -49,30 +49,30 @@ public class URLStreamHandlerFactoryTest extends TestCase {
                 assertTrue(isOpenConnectionCalled);
             } catch (Exception e) {
                 fail("Exception during test : " + e.getMessage());
-            
+
             }
-            
+
             try {
                 URL.setURLStreamHandlerFactory(shf);
-                fail("java.lang.Error was not thrown.");                
+                fail("java.lang.Error was not thrown.");
             } catch(java.lang.Error e) {
                 //expected
             }
-            
+
             try {
                 URL.setURLStreamHandlerFactory(null);
-                fail("java.lang.Error was not thrown.");                
+                fail("java.lang.Error was not thrown.");
             } catch(java.lang.Error e) {
                 //expected
             }
-            
-        } else { 
+
+        } else {
             TestURLStreamHandlerFactory shf = new TestURLStreamHandlerFactory();
             URLStreamHandler sh = shf.createURLStreamHandler("");
             assertNotNull(sh.toString());
         }
     }
-    
+
     public void setUp() {
         Field [] fields = URL.class.getDeclaredFields();
         int counter = 0;
@@ -81,31 +81,31 @@ public class URLStreamHandlerFactoryTest extends TestCase {
                 counter++;
                 factoryField = field;
             }
-        } 
-        
+        }
+
         if(counter == 1) {
-            
+
             isTestable = true;
-    
+
             factoryField.setAccessible(true);
             try {
                 oldFactory = (URLStreamHandlerFactory) factoryField.get(null);
             } catch (IllegalArgumentException e) {
-                fail("IllegalArgumentException was thrown during setUp: " 
+                fail("IllegalArgumentException was thrown during setUp: "
                         + e.getMessage());
             } catch (IllegalAccessException e) {
                 fail("IllegalAccessException was thrown during setUp: "
                         + e.getMessage());
-            }        
+            }
         }
     }
-    
+
     public void tearDown() {
         if(isTestable) {
             try {
                 factoryField.set(null, oldFactory);
             } catch (IllegalArgumentException e) {
-                fail("IllegalArgumentException was thrown during tearDown: " 
+                fail("IllegalArgumentException was thrown during tearDown: "
                         + e.getMessage());
             } catch (IllegalAccessException e) {
                 fail("IllegalAccessException was thrown during tearDown: "
@@ -113,7 +113,7 @@ public class URLStreamHandlerFactoryTest extends TestCase {
             }
         }
     }
-    
+
     class TestURLStreamHandlerFactory implements URLStreamHandlerFactory {
 
         public URLStreamHandler createURLStreamHandler(String protocol) {
@@ -121,7 +121,7 @@ public class URLStreamHandlerFactoryTest extends TestCase {
             return new TestURLStreamHandler();
         }
     }
-    
+
     class TestURLStreamHandler extends URLStreamHandler {
         @Override
         protected URLConnection openConnection(URL u) throws IOException {

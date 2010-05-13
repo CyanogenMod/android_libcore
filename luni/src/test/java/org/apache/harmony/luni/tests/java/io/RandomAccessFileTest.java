@@ -56,7 +56,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.seek(0);
         assertEquals("Incorrect int read/written", 20, raf.read());
         raf.close();
-        
+
         raf = new java.io.RandomAccessFile(f, "rwd");
         raf.write(20);
         raf.seek(0);
@@ -68,7 +68,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.seek(0);
         assertEquals("Incorrect int read/written", 20, raf.read());
         raf.close();
-        
+
         // Regression for HARMONY-50
         File f = File.createTempFile("xxx", "yyy");
         f.deleteOnExit();
@@ -92,7 +92,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.write("Test".getBytes(), 0, 4);
         raf.close();
-        
+
         raf = new java.io.RandomAccessFile(fileName, "rwd");
         raf.write("Test".getBytes(), 0, 4);
         raf.close();
@@ -324,7 +324,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         assertEquals("Goodbye", raf.readLine());
         assertEquals("Cruel", raf.readLine());
         assertEquals("World", raf.readLine());
-        
+
         raf.close();
     }
 
@@ -425,40 +425,40 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     public void test_write$B() throws IOException {
         // Test for method void java.io.RandomAccessFile.write(byte [])
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
-        
+
         byte[] nullByteArray = null;
         try {
         	raf.write(nullByteArray);
         	fail("should throw NullPointerException");
         } catch (NullPointerException e) {
         	//expected
-        }   
-        
+        }
+
         byte[] rbuf = new byte[4000];
         raf.write(fileString.getBytes());
         raf.close();
-        
+
         try {
         	raf.write(nullByteArray);
         	fail("should throw NullPointerException");
         } catch (NullPointerException e) {
         	//expected
-        }  
-        
+        }
+
         //will not throw IOException if array's length is 0
         raf.write(new byte[0]);
-        
+
         try {
         	raf.write(fileString.getBytes());
         	fail("should throw IOException");
         } catch (IOException e) {
         	//expected
-        }  
-        
+        }
+
         FileInputStream fis = new java.io.FileInputStream(fileName);
         fis.read(rbuf, 0, fileString.length());
         assertEquals("Incorrect bytes written", fileString, new String(rbuf, 0,
-                fileString.length()));    
+                fileString.length()));
         fis.close();
     }
 
@@ -478,7 +478,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
                 fileString.length()));
         fis.close();
     }
-    
+
     /**
      * @tests java.io.RandomAccessFile#write(byte[], int, int)
      */
@@ -617,7 +617,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
 		raf.write(byteArray, 0, 0);
 		raf.write(byteArray, byteArray.length, 0);
     }
-    
+
 
     /**
      * @tests java.io.RandomAccessFile#write(int)
@@ -783,7 +783,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
 
     /**
      * @tests java.io.RandomAccessFile#seek(long)
-     * 
+     *
      * Regression for HARMONY-374
      */
     public void test_seekI() throws IOException {
@@ -798,7 +798,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
 
     /**
      * @tests java.io.RandomAccessFile#read(byte[], int, int)
-     * 
+     *
      * Regression for HARMONY-377
      */
     public void test_readBII() throws IOException {
@@ -835,9 +835,9 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
 
         raf.close();
     }
-    
+
     /**
-     * @tests java.io.RandomAccessFile#read(byte[],int,int) 
+     * @tests java.io.RandomAccessFile#read(byte[],int,int)
      */
     public void test_read_$BII_IndexOutOfBoundsException() throws IOException {
         FileOutputStream fos = new java.io.FileOutputStream(fileName);
@@ -854,9 +854,9 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
           //expected
         }
     }
-    
+
     /**
-     * @tests java.io.RandomAccessFile#read(byte[],int,int) 
+     * @tests java.io.RandomAccessFile#read(byte[],int,int)
      */
     public void test_read_$BII_IOException() throws IOException {
         FileOutputStream fos = new java.io.FileOutputStream(fileName);
@@ -869,7 +869,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         int read = raf.read(rbuf,0,0);
         assertEquals(0,read);
     }
-    
+
     /**
      * @tests java.io.RandomAccessFile#read(byte[])
      */
@@ -884,9 +884,9 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         int read = raf.read(rbuf);
         assertEquals(0,read);
     }
-    
+
     /**
-     * @tests java.io.RandomAccessFile#read(byte[],int,int) 
+     * @tests java.io.RandomAccessFile#read(byte[],int,int)
      */
     public void test_read_$BII_NullPointerException() throws IOException {
         File f = File.createTempFile("tmp", "tmp");
@@ -904,7 +904,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
 
     /**
      * @tests java.io.RandomAccessFile#write(byte[], int, int)
-     * 
+     *
      * Regression for HARMONY-377
      */
     public void test_writeBII() throws IOException {

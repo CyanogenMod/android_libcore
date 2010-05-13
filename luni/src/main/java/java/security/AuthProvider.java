@@ -35,7 +35,7 @@ public abstract class AuthProvider extends Provider {
     /**
      * Constructs a new instance of {@code AuthProvider} with its name, version
      * and description.
-     * 
+     *
      * @param name
      *            the name of the provider.
      * @param version
@@ -44,9 +44,9 @@ public abstract class AuthProvider extends Provider {
      *            a description of the provider.
      */
     protected AuthProvider(String name, double version, String info) {
-        super(name, version, info); 
+        super(name, version, info);
     }
-    
+
     /**
      * Performs a login into this {@code AuthProvider}. The specified {@code
      * CallbackHandler} is used to obtain information from the caller.
@@ -55,7 +55,7 @@ public abstract class AuthProvider extends Provider {
      * the {@code SecurityPermission} {@code authProvider.NAME} (where NAME is
      * the provider name) to be granted, otherwise a {@code SecurityException}
      * will be thrown.
-     * 
+     *
      * @param subject
      *            the subject that is used to login.
      * @param handler
@@ -68,7 +68,7 @@ public abstract class AuthProvider extends Provider {
      *             not have permission to invoke this method.
      */
     public abstract void login(Subject subject, CallbackHandler handler) throws LoginException;
-    
+
     /**
      * Performs a logout from this {@code AuthProvider}.
      * <p>
@@ -84,7 +84,7 @@ public abstract class AuthProvider extends Provider {
      *             not have permission to invoke this method.
      */
     public abstract void logout() throws LoginException;
-    
+
     /**
      * Sets the {@code CallbackHandler} to this {@code AuthProvider}. If no
      * handler is passed to the {@link #login(Subject, CallbackHandler)} method,

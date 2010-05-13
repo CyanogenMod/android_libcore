@@ -39,7 +39,7 @@ import tests.support.DatabaseCreator;
 
 @TestTargetClass(FunctionContext.class)
 public class FunctionContextTest extends SQLiteTest {
-    
+
     private Database db = null;
 
     public void setUp() throws java.lang.Exception {
@@ -62,7 +62,7 @@ public class FunctionContextTest extends SQLiteTest {
 
     /**
      * Test method for {@link SQLite.FunctionContext#set_result(java.lang.String)}.
-     * @throws Exception 
+     * @throws Exception
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -85,7 +85,7 @@ public class FunctionContextTest extends SQLiteTest {
 
     /**
      * Test method for {@link SQLite.FunctionContext#set_result(int)}.
-     * @throws Exception 
+     * @throws Exception
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -108,7 +108,7 @@ public class FunctionContextTest extends SQLiteTest {
 
     /**
      * Test method for {@link SQLite.FunctionContext#set_result(double)}.
-     * @throws Exception 
+     * @throws Exception
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -127,13 +127,13 @@ public class FunctionContextTest extends SQLiteTest {
         String val = row[0];
 
         assertEquals(testD.testDouble, Double.parseDouble(val));
-        
+
         assertTrue(testD.functionCalled);
     }
 
     /**
      * Test method for {@link SQLite.FunctionContext#set_error(java.lang.String)}.
-     * @throws Exception 
+     * @throws Exception
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -147,7 +147,7 @@ public class FunctionContextTest extends SQLiteTest {
         db.exec("insert into " + DatabaseCreator.TEST_TABLE2
                 + " (fdouble)  values (" + testD.testDouble + ")", null);
         db.create_function("testError", 1, testError);
-        
+
         try {
         TableResult res = db.get_table("select testError(fdouble) from "
                 + DatabaseCreator.TEST_TABLE2);
@@ -155,14 +155,14 @@ public class FunctionContextTest extends SQLiteTest {
         } catch (Exception e) {
             assertEquals("error in step", e.getMessage());
         }
-        
+
         assertFalse(testD.functionCalled);
     }
 
     /**
      * Test method for {@link SQLite.FunctionContext#set_result(byte[])}.
-     * @throws Exception 
-     * @throws UnsupportedEncodingException 
+     * @throws Exception
+     * @throws UnsupportedEncodingException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -170,15 +170,15 @@ public class FunctionContextTest extends SQLiteTest {
         method = "set_result",
         args = {byte[].class}
     )
-    public void testSet_resultByteArray() throws Exception, UnsupportedEncodingException {     
+    public void testSet_resultByteArray() throws Exception, UnsupportedEncodingException {
         Stmt st = null;
         TestFCByteArray testBinArrayFnc = new TestFCByteArray();
         String expected = "";
         expected = "X'" + getHexString(testBinArrayFnc.byteVal) + "'";
-        
+
         // setup
         db.exec("create table testBinaryData (binVal BINARY) ;", null);
-        
+
         try {
         st = db.prepare("insert into testBinaryData values (?)");
         st.bind(1, testBinArrayFnc.byteVal);
@@ -191,11 +191,11 @@ public class FunctionContextTest extends SQLiteTest {
 
         String row[] = (String[]) res.rows.elementAt(0);
         String val = row[0];
-       
+
         assertTrue(expected.equalsIgnoreCase(val));
-        
+
         assertTrue(testBinArrayFnc.functionCalled);
-        
+
         } finally {
             //teardown
             db.exec("drop table testBinaryData;", null);
@@ -204,8 +204,8 @@ public class FunctionContextTest extends SQLiteTest {
 
     /**
      * Test method for {@link SQLite.FunctionContext#set_result_zeroblob(int)}.
-     * @throws Exception 
-     * @throws UnsupportedEncodingException 
+     * @throws Exception
+     * @throws UnsupportedEncodingException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -219,11 +219,11 @@ public class FunctionContextTest extends SQLiteTest {
         Stmt st = null;
         TestFCZeroBlob testZeroBlobFnc = new TestFCZeroBlob();
         byte[] byteVal = {(byte) 1, (byte) 2, (byte) 3};
-        
-        
+
+
         // setup
         db.exec("create table testBinaryData (binVal BINARY) ;", null);
-        
+
         try {
         st = db.prepare("insert into testBinaryData values (?)");
         st.bind(1, byteVal);
@@ -243,7 +243,7 @@ public class FunctionContextTest extends SQLiteTest {
 
         assertEquals(((String[]) res2.rows.elementAt(0))[0], val);
         assertTrue(testZeroBlobFnc.functionCalled);
-        
+
         } finally  {
          // teardown
             db.exec("drop table if exists testBinaryData;", null);
@@ -252,8 +252,8 @@ public class FunctionContextTest extends SQLiteTest {
 
     /**
      * Test method for {@link SQLite.FunctionContext#count()}.
-     * @throws SQLException 
-     * @throws Exception 
+     * @throws SQLException
+     * @throws Exception
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -265,29 +265,29 @@ public class FunctionContextTest extends SQLiteTest {
     public void testCount() throws SQLException, Exception {
         TestFCCount countTest = new TestFCCount();
         int inputCount = 10;
-        
+
         assertFalse(countTest.functionCalled);
-        
+
         DatabaseCreator.fillTestTable2(conn, inputCount);
         db.create_function("testCount", 0, countTest);
         // the invokation of testCount leads to a Segmentation fault
         /*
         TableResult res = db
                 .get_table("select testCount() from "+DatabaseCreator.TEST_TABLE2);
-       
+
         String row[] = (String[]) res.rows.elementAt(0);
         String val = row[0];
-        
+
         assertTrue(countTest.functionCalled);
         assertEquals(inputCount,Integer.parseInt(val));
         */
-        
+
     }
-    
+
     class TestFCError implements Function {
         public boolean functionCalled = false;
         public String errorMsg = "FunctionError";
-        
+
         public void function(FunctionContext fc, String args[]) {
             functionCalled = true;
             fc.set_error(errorMsg);
@@ -303,11 +303,11 @@ public class FunctionContextTest extends SQLiteTest {
 
         }
     }
-    
+
     class TestFCCount implements Function {
         public boolean functionCalled = false;
         public int noOfRows = 0;
-        
+
         public void function(FunctionContext fc, String args[]) {
             functionCalled = true;
             noOfRows = fc.count();
@@ -324,11 +324,11 @@ public class FunctionContextTest extends SQLiteTest {
 
         }
     }
-    
+
     class TestFCZeroBlob implements Function {
         public int numBytes = 16;
         public boolean functionCalled = false;
-        
+
         public void function(FunctionContext fc, String args[]) {
             functionCalled = true;
             fc.set_result_zeroblob(numBytes);
@@ -344,11 +344,11 @@ public class FunctionContextTest extends SQLiteTest {
 
         }
     }
-    
+
     class TestFCString implements Function {
         public String testString = "TestString";
         public boolean functionCalled;
-        
+
         public void function(FunctionContext fc, String args[]) {
             assertNotNull(args);
             functionCalled = true;
@@ -365,11 +365,11 @@ public class FunctionContextTest extends SQLiteTest {
 
         }
     }
-    
+
     class TestFCInt implements Function {
         public int intVal = Integer.MAX_VALUE;
         public boolean functionCalled;
-        
+
         public void function(FunctionContext fc, String args[]) {
             assertNotNull(args);
             functionCalled = true;
@@ -386,11 +386,11 @@ public class FunctionContextTest extends SQLiteTest {
 
         }
     }
-    
+
     class TestFCByteArray implements Function {
         public byte[] byteVal = {(byte)  1, (byte) 2, (byte) 3};
         public boolean functionCalled;
-        
+
         public void function(FunctionContext fc, String args[]) {
             assertNotNull(args);
             functionCalled = true;
@@ -407,12 +407,12 @@ public class FunctionContextTest extends SQLiteTest {
 
         }
     }
-    
+
         class SinFunc implements Function {
-            
+
         public Double testDouble = 3.0;
         public boolean functionCalled = false;
-        
+
         public void function(FunctionContext fc, String args[]) {
             Double d = new Double(args[0]);
             functionCalled = true;
@@ -429,13 +429,13 @@ public class FunctionContextTest extends SQLiteTest {
 
         }
     }
-    
+
     static final byte[] HEX_CHAR_TABLE = {
             (byte)'0', (byte)'1', (byte)'2', (byte)'3',
             (byte)'4', (byte)'5', (byte)'6', (byte)'7',
             (byte)'8', (byte)'9', (byte)'a', (byte)'b',
             (byte)'c', (byte)'d', (byte)'e', (byte)'f'
-          };    
+          };
 
      public static String getHexString(byte[] raw)
             throws UnsupportedEncodingException {

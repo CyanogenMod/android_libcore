@@ -40,14 +40,14 @@ import junit.framework.TestCase;
 
 /**
  * Tests for KeyManagerFactory class constructors and methods
- * 
+ *
  */
-@TestTargetClass(KeyManagerFactory.class) 
+@TestTargetClass(KeyManagerFactory.class)
 public class KeyManagerFactory2Test extends TestCase {
     private static final String srvKeyManagerFactory = "KeyManagerFactory";
-    
+
     private static final String defaultAlg = "KeyMF";
-    
+
     private static final String KeyManagerFactoryProviderClass = "org.apache.harmony.xnet.tests.support.MyKeyManagerFactorySpi";
 
     private static final String[] invalidValues = SpiEngUtils.invalidValues;
@@ -84,7 +84,7 @@ public class KeyManagerFactory2Test extends TestCase {
         throws Exception {
         KeyStore kStore = null;
         ManagerFactoryParameters mfp = null;
-        
+
         char[] pass = { 'a', 'b', 'c' };
 
         try {
@@ -104,10 +104,10 @@ public class KeyManagerFactory2Test extends TestCase {
         }
         assertNull("getKeyManagers() should return null object", keyMF
                 .getKeyManagers());
-        
+
         try {
             kStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            kStore.load(null, null);            
+            kStore.load(null, null);
         } catch (KeyStoreException e) {
             fail("default keystore is not supported");
             return;
@@ -236,8 +236,8 @@ public class KeyManagerFactory2Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, Provider provider)</code>
-     * method 
-     * Assertions: 
+     * method
+     * Assertions:
      * throws NullPointerException when algorithm is null;
      * throws NoSuchAlgorithmException when algorithm is not correct;
      * throws IllegalArgumentException when provider is null;

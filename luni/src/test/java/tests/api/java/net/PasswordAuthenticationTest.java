@@ -17,14 +17,14 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
 import java.net.PasswordAuthentication;
 
-@TestTargetClass(PasswordAuthentication.class) 
+@TestTargetClass(PasswordAuthentication.class)
 public class PasswordAuthenticationTest extends junit.framework.TestCase {
 
     /**
@@ -65,7 +65,7 @@ public class PasswordAuthenticationTest extends junit.framework.TestCase {
         for (int counter = password.length - 1; counter >= 0; counter--)
             assertTrue("Passwords not equal",
                     returnedPassword[counter] == password[counter]);
-        
+
         try {
             new PasswordAuthentication(name, null);
             fail("NullPointerException was not thrown.");

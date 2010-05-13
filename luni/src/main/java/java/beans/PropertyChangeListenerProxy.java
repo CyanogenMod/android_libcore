@@ -31,7 +31,7 @@ public class PropertyChangeListenerProxy extends EventListenerProxy implements
     /**
      * Creates a new listener proxy that associates a listener with a property
      * name.
-     * 
+     *
      * @param propertyName
      *            the name of the associated property.
      * @param listener
@@ -45,7 +45,7 @@ public class PropertyChangeListenerProxy extends EventListenerProxy implements
 
     /**
      * Returns the name of the property associated with this listener proxy.
-     * 
+     *
      * @return the name of the associated property.
      */
     public String getPropertyName() {

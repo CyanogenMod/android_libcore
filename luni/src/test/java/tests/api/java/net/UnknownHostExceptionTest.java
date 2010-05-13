@@ -17,12 +17,12 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(java.net.UnknownHostException.class) 
+@TestTargetClass(java.net.UnknownHostException.class)
 public class UnknownHostExceptionTest extends junit.framework.TestCase {
 
     /**

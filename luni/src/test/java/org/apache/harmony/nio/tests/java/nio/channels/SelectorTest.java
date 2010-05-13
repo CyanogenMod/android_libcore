@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -151,10 +151,10 @@ public class SelectorTest extends TestCase {
     )
     public void test_keys() throws IOException {
         SelectionKey key = ssc.register(selector, SelectionKey.OP_ACCEPT);
-        
+
         Set<SelectionKey> keySet = selector.keys();
         Set<SelectionKey> keySet2 = selector.keys();
-        
+
         assertSame(keySet, keySet2);
         assertEquals(1,keySet.size());
         SelectionKey key2 = keySet.iterator().next();
@@ -582,7 +582,7 @@ public class SelectorTest extends TestCase {
             assertEquals(0, count);
             // but selectedKeys remains the same as previous
             assertSame(selectedKeys, selector.selectedKeys());
-            sc.finishConnect();            
+            sc.finishConnect();
             selectedKeys.clear();
         } finally {
             try {
@@ -590,7 +590,7 @@ public class SelectorTest extends TestCase {
             } catch (Exception e) {
                 // do nothing
             }
-          
+
             try {
                 sc.close();
             } catch (IOException e) {

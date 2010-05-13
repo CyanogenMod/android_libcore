@@ -29,7 +29,7 @@ import org.apache.harmony.luni.platform.PlatformAddress;
  * <p>
  * This class is marked final for runtime performance.
  * </p>
- * 
+ *
  */
 final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
 

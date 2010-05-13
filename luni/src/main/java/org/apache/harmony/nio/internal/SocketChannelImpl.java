@@ -419,7 +419,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
     /**
      * Read from channel, and store the result in the target.
-     * 
+     *
      * @param target
      *            output parameter
      */
@@ -906,7 +906,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             }
             return new SocketChannelInputStream(channel);
         }
-        
+
         private void checkOpenAndConnected() throws SocketException {
             if (!channel.isOpen()) {
                 throw new SocketException("Socket is closed");
@@ -915,7 +915,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                 throw new SocketException("Socket is not connected");
             }
         }
-        
+
         /*
          * Checks whether the channel is open.
          */
@@ -947,7 +947,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
         /*
          * Closes this stream and channel.
-         * 
+         *
          * @exception IOException thrown if an error occurs during the close
          */
         @Override

@@ -35,7 +35,7 @@ public abstract class FloatBuffer extends Buffer implements
 
     /**
      * Creates a float buffer based on a newly allocated float array.
-     * 
+     *
      * @param capacity
      *            the capacity of the new buffer.
      * @return the created float buffer.
@@ -147,7 +147,7 @@ public abstract class FloatBuffer extends Buffer implements
     /**
      * Compare the remaining floats of this buffer to another float buffer's
      * remaining floats.
-     * 
+     *
      * @param otherBuffer
      *            another float buffer.
      * @return a negative value if this is less than {@code otherBuffer}; 0 if
@@ -195,15 +195,15 @@ public abstract class FloatBuffer extends Buffer implements
     /**
      * Checks whether this float buffer is equal to another object. If {@code
      * other} is not a {@code FloatBuffer} then {@code false} is returned.
-     * 
+     *
      * <p>Two float buffers are equal if their remaining floats are equal.
      * Position, limit, capacity and mark are not considered.
-     * 
+     *
      * <p>This method considers two floats {@code a} and {@code b} to be equal
      * if {@code a == b} or if {@code a} and {@code b} are both {@code NaN}.
      * Unlike {@link Float#equals}, this method considers {@code -0.0} and
      * {@code +0.0} to be equal.
-     * 
+     *
      * @param other
      *            the object to compare with this float buffer.
      * @return {@code true} if this float buffer is equal to {@code other},
@@ -235,7 +235,7 @@ public abstract class FloatBuffer extends Buffer implements
     /**
      * Returns the float at the current position and increases the position by
      * 1.
-     * 
+     *
      * @return the float at the current position.
      * @exception BufferUnderflowException
      *                if the position is equal or greater than limit.
@@ -263,7 +263,7 @@ public abstract class FloatBuffer extends Buffer implements
      * Reads floats from the current position into the specified float array,
      * starting from the specified offset, and increases the position by the
      * number of floats read.
-     * 
+     *
      * @param dest
      *            the target float array.
      * @param off
@@ -295,7 +295,7 @@ public abstract class FloatBuffer extends Buffer implements
 
     /**
      * Returns a float at the specified index; the position is not changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than limit.
      * @return a float at the specified index.
@@ -372,7 +372,7 @@ public abstract class FloatBuffer extends Buffer implements
     /**
      * Writes the given float to the current position and increases the position
      * by 1.
-     * 
+     *
      * @param f
      *            the float to write.
      * @return this buffer.
@@ -406,7 +406,7 @@ public abstract class FloatBuffer extends Buffer implements
      * Writes floats from the given float array, starting from the specified
      * offset, to the current position and increases the position by the number
      * of floats written.
-     * 
+     *
      * @param src
      *            the source float array.
      * @param off
@@ -442,7 +442,7 @@ public abstract class FloatBuffer extends Buffer implements
      * Writes all the remaining floats of the {@code src} float buffer to this
      * buffer's current position, and increases both buffers' position by the
      * number of floats copied.
-     * 
+     *
      * @param src
      *            the source float buffer.
      * @return this buffer.
@@ -470,7 +470,7 @@ public abstract class FloatBuffer extends Buffer implements
     /**
      * Writes a float to the specified index of this buffer; the position is not
      * changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than the limit.
      * @param f
@@ -495,25 +495,25 @@ public abstract class FloatBuffer extends Buffer implements
      * The new buffer shares its content with this buffer, which means either
      * buffer's change of content will be visible to the other. The two buffer's
      * position, limit and mark are independent.
-     * 
+     *
      * @return a sliced buffer that shares its content with this buffer.
      */
     public abstract FloatBuffer slice();
 
     /**
      * Returns a string representing the state of this float buffer.
-     * 
+     *
      * @return a string representing the state of this float buffer.
      */
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append(getClass().getName());
-        buf.append(", status: capacity="); 
+        buf.append(", status: capacity=");
         buf.append(capacity());
-        buf.append(" position="); 
+        buf.append(" position=");
         buf.append(position());
-        buf.append(" limit="); 
+        buf.append(" limit=");
         buf.append(limit());
         return buf.toString();
     }

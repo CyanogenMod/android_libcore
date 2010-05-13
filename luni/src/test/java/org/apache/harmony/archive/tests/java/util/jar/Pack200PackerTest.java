@@ -37,7 +37,7 @@ public class Pack200PackerTest extends TestCase {
     Map properties;
 
     public void testProperties() {
-        assertTrue(properties.size()>0); 
+        assertTrue(properties.size()>0);
     }
 
     public void testPackJarFileOutputStream() throws IOException {
@@ -80,7 +80,7 @@ public class Pack200PackerTest extends TestCase {
         Support_Resources.copyFile(resources, null, "junit4-4.3.1.jar");
         File jarFile = new File(resources, "junit4-4.3.1.jar");
         JarInputStream jis = new JarInputStream(new FileInputStream(jarFile));
-    
+
         File packFile1 = Support_Resources.createTempFile("pack200_1");
         File packFile2 = Support_Resources.createTempFile("pack200_2");
         File packFile3 = Support_Resources.createTempFile("pack200_3");
@@ -102,10 +102,10 @@ public class Pack200PackerTest extends TestCase {
         assertTrue(packFile1.length()>packFile2.length());
         assertTrue(packFile2.length()>packFile3.length());
     }
-    
+
     class MyPCL implements PropertyChangeListener {
         boolean flag = false;
-        
+
         public boolean isCalled() {
             return flag;
         }

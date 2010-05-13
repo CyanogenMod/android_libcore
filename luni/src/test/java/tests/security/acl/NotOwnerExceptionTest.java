@@ -28,7 +28,7 @@ import java.security.acl.NotOwnerException;
 
 /**
  * Unit test for NotOwnerException.
- * 
+ *
  */
 public class NotOwnerExceptionTest extends TestCase {
     public void testNotOwnerException() {

@@ -89,40 +89,40 @@ public class ReasonCode extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Reason Code: [ "); 
+        buffer.append(prefix).append("Reason Code: [ ");
         switch (code) {
             case UNSPECIFIED:
-                buffer.append("unspecified"); 
+                buffer.append("unspecified");
                 break;
             case KEY_COMPROMISE:
-                buffer.append("keyCompromise"); 
+                buffer.append("keyCompromise");
                 break;
             case CA_COMPROMISE:
-                buffer.append("cACompromise"); 
+                buffer.append("cACompromise");
                 break;
             case AFFILIATION_CHANGED:
-                buffer.append("affiliationChanged"); 
+                buffer.append("affiliationChanged");
                 break;
             case SUPERSEDED:
-                buffer.append("superseded"); 
+                buffer.append("superseded");
                 break;
             case CESSATION_OF_OPERATION:
-                buffer.append("cessationOfOperation"); 
+                buffer.append("cessationOfOperation");
                 break;
             case CERTIFICATE_HOLD:
-                buffer.append("certificateHold"); 
+                buffer.append("certificateHold");
                 break;
             case REMOVE_FROM_CRL:
-                buffer.append("removeFromCRL"); 
+                buffer.append("removeFromCRL");
                 break;
             case PRIVILEGE_WITHDRAWN:
-                buffer.append("privilegeWithdrawn"); 
+                buffer.append("privilegeWithdrawn");
                 break;
             case AA_COMPROMISE:
-                buffer.append("aACompromise"); 
+                buffer.append("aACompromise");
                 break;
         }
-        buffer.append(" ]\n"); 
+        buffer.append(" ]\n");
     }
 
     /**

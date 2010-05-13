@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001-2004 World Wide Web Consortium, 
+ Copyright (c) 2001-2004 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -36,18 +36,18 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The "getAttributeNodeNS(namespaceURI,localName)" method retrieves an
  * attribute node by local name and NamespaceURI.
- * 
+ *
  * Retrieve the first emp:address element node. The getAttributeNodeNS method
  * returns an Attr node, the "value" can be examined to ensure the proper
  * attribute node was retrieved. This attribute value should be null since there
  * is no such attribute.
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElGetAtNodeNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElGetAtNodeNS</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class GetAttributeNodeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -73,7 +73,7 @@ public final class GetAttributeNodeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

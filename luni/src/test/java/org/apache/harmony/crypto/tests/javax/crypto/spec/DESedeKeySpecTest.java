@@ -119,7 +119,7 @@ public class DESedeKeySpecTest extends TestCase {
     /**
      * getKey() method testing. Checks that modification of returned key
      * does not affect the internal key. Also test check an equality of
-     * the key with the key specified in the constructor. The object under 
+     * the key with the key specified in the constructor. The object under
      * the test is created by different constructors.
      */
     @TestTargetNew(

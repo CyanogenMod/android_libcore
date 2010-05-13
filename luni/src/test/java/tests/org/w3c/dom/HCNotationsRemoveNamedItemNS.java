@@ -33,14 +33,14 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * An attempt to add remove an notation using removeNamedItemNS should result in
  * a NO_MODIFICATION_ERR or a NOT_FOUND_ERR.
- * 
+ *
  * @author Curt Arnold
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-D46829EF">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-D46829EF</a>
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-removeNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-removeNamedItemNS</a>
  */
-@TestTargetClass(NamedNodeMap.class) 
+@TestTargetClass(NamedNodeMap.class)
 public final class HCNotationsRemoveNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -66,7 +66,7 @@ public final class HCNotationsRemoveNamedItemNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

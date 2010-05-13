@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ import java.io.Serializable;
  * <li>A chain to a next {@code Exception}, if relevant, which can give access
  * to additional error information.</li>
  * </ul>
- * 
+ *
  * @see DatabaseMetaData
  */
 public class SQLException extends Exception implements Serializable {
@@ -64,7 +64,7 @@ public class SQLException extends Exception implements Serializable {
      * Creates an {@code SQLException} object. The reason string is set to the given
      * reason string, the {@code SQLState} string is set to {@code null} and the error code is
      * set to 0.
-     * 
+     *
      * @param theReason
      *            the string to use as the Reason string
      */
@@ -76,7 +76,7 @@ public class SQLException extends Exception implements Serializable {
      * Creates an {@code SQLException} object. The reason string is set to the
      * given reason string, the {@code SQLState} string is set to the given
      * {@code SQLState} string and the error code is set to 0.
-     * 
+     *
      * @param theReason
      *            the string to use as the reason string.
      * @param theSQLState
@@ -91,7 +91,7 @@ public class SQLException extends Exception implements Serializable {
      * given reason string, the {@code SQLState} string is set to the given
      * {@code SQLState} string and the error code is set to the given error code
      * value.
-     * 
+     *
      * @param theReason
      *            the string to use as the reason string.
      * @param theSQLState
@@ -107,7 +107,7 @@ public class SQLException extends Exception implements Serializable {
 
     /**
      * Returns the integer error code for this {@code SQLException}.
-     * 
+     *
      * @return The integer error code for this {@code SQLException}. The meaning
      *         of the code is specific to the vendor of the database.
      */
@@ -118,7 +118,7 @@ public class SQLException extends Exception implements Serializable {
     /**
      * Retrieves the {@code SQLException} chained to this {@code SQLException},
      * if any.
-     * 
+     *
      * @return The {@code SQLException} chained to this {@code SQLException}.
      *         {@code null} if there is no {@code SQLException} chained to this
      *         {@code SQLException}.
@@ -130,7 +130,7 @@ public class SQLException extends Exception implements Serializable {
     /**
      * Retrieves the {@code SQLState} description string for this {@code
      * SQLException} object.
-     * 
+     *
      * @return The {@code SQLState} string for this {@code SQLException} object.
      *         This is an error description string which follows either the SQL
      *         99 conventions or the X/OPEN {@code SQLstate} conventions. The
@@ -146,12 +146,12 @@ public class SQLException extends Exception implements Serializable {
 
     /**
      * Adds the SQLException to the end of this {@code SQLException} chain.
-     * 
+     *
      * @param ex
      *            the new {@code SQLException} to be added to the end of the
      *            chain.
      */
-    public void setNextException(SQLException ex) {    
+    public void setNextException(SQLException ex) {
         if (next != null) {
             next.setNextException(ex);
         } else {

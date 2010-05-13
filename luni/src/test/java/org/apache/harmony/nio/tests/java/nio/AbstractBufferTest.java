@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,16 +31,16 @@ import junit.framework.TestCase;
  */
 @TestTargetClass(java.nio.Buffer.class)
 public abstract class AbstractBufferTest extends TestCase {
-    
+
     protected Buffer baseBuf;
     protected int capacity;
-    
+
     protected void setUp() throws Exception{
         super.setUp();
         capacity = 10;
         baseBuf = ByteBuffer.allocate(10);
     }
-    
+
     protected void tearDown() throws Exception{
         super.tearDown();
     }
@@ -103,7 +103,7 @@ public abstract class AbstractBufferTest extends TestCase {
         assertEquals(oldPosition, baseBuf.limit());
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -191,20 +191,20 @@ public abstract class AbstractBufferTest extends TestCase {
         // mark should be invalid
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }
 
         try {
             baseBuf.limit(-1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {
             baseBuf.limit(baseBuf.capacity() + 1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -274,13 +274,13 @@ public abstract class AbstractBufferTest extends TestCase {
 
         try {
             baseBuf.position(-1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {
             baseBuf.position(baseBuf.limit() + 1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -304,7 +304,7 @@ public abstract class AbstractBufferTest extends TestCase {
         // mark should be invalid
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -354,7 +354,7 @@ public abstract class AbstractBufferTest extends TestCase {
         baseBuf.clear();
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -380,7 +380,7 @@ public abstract class AbstractBufferTest extends TestCase {
         assertSame(ret, baseBuf);
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }

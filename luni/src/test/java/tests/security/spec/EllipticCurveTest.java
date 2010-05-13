@@ -33,7 +33,7 @@ import java.util.Arrays;
 
 /**
  * Tests for <code>EllipticCurve</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(EllipticCurve.class)
 public class EllipticCurveTest extends TestCase {
@@ -68,7 +68,7 @@ public class EllipticCurveTest extends TestCase {
         new EllipticCurve(f1, a, b, seed);
 
         // test case 3 parameters set,
-        // the seed parameter may be null 
+        // the seed parameter may be null
         f = new ECFieldFp(BigInteger.valueOf(23L));
         a = BigInteger.ONE;
         b = BigInteger.valueOf(19L);
@@ -305,7 +305,7 @@ public class EllipticCurveTest extends TestCase {
         new EllipticCurve(f1, a, b);
 
         // test case 3 parameters set,
-        // the seed parameter may be null 
+        // the seed parameter may be null
         f = new ECFieldFp(BigInteger.valueOf(23L));
         a = BigInteger.ONE;
         b = BigInteger.valueOf(19L);
@@ -710,7 +710,7 @@ public class EllipticCurveTest extends TestCase {
      * Test #1 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * repeatedly on the same object. 
+     * repeatedly on the same object.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -734,7 +734,7 @@ public class EllipticCurveTest extends TestCase {
      * Test #2 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * on equal (according to the <code>equals(Object)</code> method) objects. 
+     * on equal (according to the <code>equals(Object)</code> method) objects.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -763,7 +763,7 @@ public class EllipticCurveTest extends TestCase {
 
     /**
      * EllipticCurve subclass for testing purposes
-     * 
+     *
      */
     private static class MyEllipticCurve extends EllipticCurve {
 

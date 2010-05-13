@@ -96,7 +96,7 @@ public class KeyStoreTest extends TestCase {
             fail(e.getMessage());
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
                 level=TestLevel.ADDITIONAL,
@@ -118,7 +118,7 @@ public class KeyStoreTest extends TestCase {
                 method="method",
                 args={}
         )
-    })    
+    })
     public void testKeyStoreCreate() {
         KeyStore keyStore = null;
         try {

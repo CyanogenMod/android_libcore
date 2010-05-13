@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -73,7 +73,7 @@ public class CipherTest extends junit.framework.TestCase {
     static Key cipherKeyDES;
     static final String algorithmDES = "DES";
     static final int keyLenDES = 56;
-    
+
     static {
         try {
             KeyGenerator kg = KeyGenerator.getInstance(algorithm);
@@ -121,7 +121,7 @@ public class CipherTest extends junit.framework.TestCase {
     public void test_getInstanceLjava_lang_String() throws Exception {
         Cipher cipher = Cipher.getInstance("DESede/CBC/PKCS5Padding");
         assertNotNull("Received a null Cipher instance", cipher);
-        
+
         try {
             Cipher.getInstance("WrongAlgorithmName");
             fail("NoSuchAlgorithmException expected");
@@ -232,7 +232,7 @@ public class CipherTest extends junit.framework.TestCase {
             Cipher cipher = Cipher.getInstance("DES", providers[i]);
             assertNotNull("Cipher.getInstance() returned a null value", cipher);
         }
-        
+
         // Exception case
         try {
             Cipher.getInstance("DES", (Provider) null);
@@ -340,14 +340,14 @@ public class CipherTest extends junit.framework.TestCase {
 
         SecureRandom sr = new SecureRandom();
         Cipher cipher = Cipher.getInstance(algorithm + "/ECB/PKCS5Padding");
-        
+
         try {
             cipher.getOutputSize(25);
             fail("IllegalStateException expected");
         } catch (IllegalStateException e) {
             //expected
         }
-        
+
         cipher.init(Cipher.ENCRYPT_MODE, cipherKey, sr);
 
         // A 25-byte input could result in at least 4 8-byte blocks
@@ -372,7 +372,7 @@ public class CipherTest extends junit.framework.TestCase {
         Cipher cipher = Cipher.getInstance(algorithm + "/ECB/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, cipherKey);
 
-        
+
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
         try {
             cipher.init(Cipher.ENCRYPT_MODE, cipherKey);
@@ -455,7 +455,7 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
-        ap = new RSAKeyGenParameterSpec(10, new BigInteger("10")); 
+        ap = new RSAKeyGenParameterSpec(10, new BigInteger("10"));
 
         try {
             cipher.init(Cipher.ENCRYPT_MODE, cipherKeyDES, ap);
@@ -513,7 +513,7 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
-        ap = new RSAKeyGenParameterSpec(10, new BigInteger("10")); 
+        ap = new RSAKeyGenParameterSpec(10, new BigInteger("10"));
 
         try {
             cipher.init(Cipher.ENCRYPT_MODE, cipherKeyDES, ap, sr);
@@ -587,7 +587,7 @@ public class CipherTest extends junit.framework.TestCase {
             assertTrue("Operation produced incorrect results", Arrays.equals(
                     plaintextBytes, decipheredCipherText));
         }// end for
-        
+
         Cipher cipher = Cipher.getInstance("DESEDE/CBC/PKCS5Padding");
         try {
             cipher.update(new byte[64], 0, 32);
@@ -683,7 +683,7 @@ public class CipherTest extends junit.framework.TestCase {
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap);
-        
+
         c.update(b1, 0, 24, b, 0);
         try {
             c.doFinal();
@@ -711,7 +711,7 @@ public class CipherTest extends junit.framework.TestCase {
             return null;
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -731,7 +731,7 @@ public class CipherTest extends junit.framework.TestCase {
         Cipher c = Cipher.getInstance("DES");
         assertNull(c.getParameters());
     }
-    
+
     /*
      * Class under test for int update(byte[], int, int, byte[], int)
      */
@@ -769,11 +769,11 @@ public class CipherTest extends junit.framework.TestCase {
         } catch (ShortBufferException e) {
             //expected
         }
-        
+
         b1 = new byte[30];
         c.update(b, 0, 10, b1, 5);
     }
-    
+
     /*
      * Class under test for int doFinal(byte[], int, int, byte[], int)
      */
@@ -795,7 +795,7 @@ public class CipherTest extends junit.framework.TestCase {
     public void testDoFinalbyteArrayintintbyteArrayint() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         try {
@@ -824,7 +824,7 @@ public class CipherTest extends junit.framework.TestCase {
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap);
-        
+
         try {
             c.doFinal(b1, 0, 24, new byte[42], 0);
             fail("BadPaddingException expected");
@@ -842,7 +842,7 @@ public class CipherTest extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -944,14 +944,14 @@ public class CipherTest extends junit.framework.TestCase {
             args = {java.nio.ByteBuffer.class, java.nio.ByteBuffer.class}
         )
     })
-    public void test_doFinalLjava_nio_ByteBufferLjava_nio_ByteBuffer () 
+    public void test_doFinalLjava_nio_ByteBufferLjava_nio_ByteBuffer ()
     throws NoSuchAlgorithmException, NoSuchPaddingException,
     InvalidKeyException, ShortBufferException, BadPaddingException,
     IllegalBlockSizeException, InvalidAlgorithmParameterException {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         ByteBuffer bInput = ByteBuffer.allocate(64);
         ByteBuffer bOutput = ByteBuffer.allocate(64);
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         bInput.put(b, 0, 10);
@@ -991,7 +991,7 @@ public class CipherTest extends junit.framework.TestCase {
         } catch (BadPaddingException e) {
             //expected
         }
-        
+
         c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         bInput.put(b, 0, 16);
@@ -1042,14 +1042,14 @@ public class CipherTest extends junit.framework.TestCase {
         Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap);
         assertNotNull(c.getParameters());
-        
+
         try {
             c.init(Cipher.DECRYPT_MODE, cipherKey, ap);
             fail("InvalidKeyException e");
         } catch (InvalidKeyException e) {
             //expected
         }
-        
+
         try {
             c.init(Cipher.DECRYPT_MODE, cipherKeyDES, (AlgorithmParameters)null);
             fail("InvalidAlgorithmParameterException e");
@@ -1084,14 +1084,14 @@ public class CipherTest extends junit.framework.TestCase {
         Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap, sr);
         assertNotNull(c.getParameters());
-        
+
         try {
             c.init(Cipher.DECRYPT_MODE, cipherKey, ap, new SecureRandom());
             fail("InvalidKeyException e");
         } catch (InvalidKeyException e) {
             //expected
         }
-        
+
         try {
             c.init(Cipher.DECRYPT_MODE, cipherKeyDES, (AlgorithmParameters)null, sr);
             fail("InvalidAlgorithmParameterException e");
@@ -1109,11 +1109,11 @@ public class CipherTest extends junit.framework.TestCase {
         method = "init",
         args = {int.class, java.security.cert.Certificate.class}
     )
-    public void test_initILjava_security_cert_Certificate () 
-    throws MalformedURLException, IOException, CertificateException, 
+    public void test_initILjava_security_cert_Certificate ()
+    throws MalformedURLException, IOException, CertificateException,
     NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
-    
-    /* Certificate creation notes: certificate should be valid 37273 starting 
+
+    /* Certificate creation notes: certificate should be valid 37273 starting
      * from 13 Nov 2008
      * If it brcomes invalidated regenerate it using following commands:
      * 1. openssl genrsa -des3 -out test.key 1024
@@ -1122,15 +1122,15 @@ public class CipherTest extends junit.framework.TestCase {
      * 4. openssl rsa -in test.key.org -out test.key
      * 5. openssl x509 -req -days 37273 -in test.csr -signkey test.key -out test.cert
      * */
-    
+
         String certName = Support_Resources.getURL("test.cert");
         InputStream is = new URL(certName).openConnection().getInputStream();
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        
+
         Certificate cert = cf.generateCertificate(is);
 
         Cipher c = Cipher.getInstance("RSA");
-        
+
         c.init(Cipher.ENCRYPT_MODE, cert);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         try {
@@ -1148,10 +1148,10 @@ public class CipherTest extends junit.framework.TestCase {
         args = {int.class, java.security.cert.Certificate.class, java.security.SecureRandom.class}
     )
     public void test_initILjava_security_cert_Certificate_java_security_SecureRandom ()
-    throws MalformedURLException, IOException, CertificateException, 
+    throws MalformedURLException, IOException, CertificateException,
     NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
-        
-    /* Certificate creation notes: certificate should be valid 37273 starting 
+
+    /* Certificate creation notes: certificate should be valid 37273 starting
      * from 13 Nov 2008
      * If it brcomes invalidated regenerate it using following commands:
      * 1. openssl genrsa -des3 -out test.key 1024
@@ -1160,15 +1160,15 @@ public class CipherTest extends junit.framework.TestCase {
      * 4. openssl rsa -in test.key.org -out test.key
      * 5. openssl x509 -req -days 37273 -in test.csr -signkey test.key -out test.cert
      * */
-    
+
         String certName = Support_Resources.getURL("test.cert");
         InputStream is = new URL(certName).openConnection().getInputStream();
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        
+
         Certificate cert = cf.generateCertificate(is);
 
         Cipher c = Cipher.getInstance("RSA");
-        
+
         c.init(Cipher.ENCRYPT_MODE, cert, new SecureRandom());
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         try {
@@ -1207,7 +1207,7 @@ public class CipherTest extends junit.framework.TestCase {
         c.init(Cipher.WRAP_MODE, cipherKeyDES, ap, sr);
         byte[] arDES = c.wrap(cipherKeyDES);
         byte[] ar    = c.wrap(cipherKey);
-        
+
         try {
             c.unwrap(arDES, "DES", Cipher.SECRET_KEY);
             fail("IllegalStateException expected");
@@ -1235,7 +1235,7 @@ public class CipherTest extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -1251,13 +1251,13 @@ public class CipherTest extends junit.framework.TestCase {
                 args = {java.nio.ByteBuffer.class, java.nio.ByteBuffer.class}
         )
     })
-    public void test_updateLjava_nio_ByteBufferLjava_nio_ByteBuffer () throws 
-    NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, 
+    public void test_updateLjava_nio_ByteBufferLjava_nio_ByteBuffer () throws
+    NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
     ShortBufferException, InvalidAlgorithmParameterException {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         ByteBuffer bInput = ByteBuffer.allocate(256);
         ByteBuffer bOutput = ByteBuffer.allocate(256);
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         bInput.put(b, 0, 10);
@@ -1326,7 +1326,7 @@ public class CipherTest extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     class Mock_Key implements Key {
         public String getAlgorithm() {
             return null;
@@ -1339,9 +1339,9 @@ public class CipherTest extends junit.framework.TestCase {
         public String getFormat() {
             return null;
         }
-        
+
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -1358,8 +1358,8 @@ public class CipherTest extends junit.framework.TestCase {
         )
     })
     public void test_wrap_java_security_Key () throws NoSuchAlgorithmException,
-    NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, 
-    InvalidAlgorithmParameterException, MalformedURLException, IOException, 
+    NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
+    InvalidAlgorithmParameterException, MalformedURLException, IOException,
     CertificateException {
         SecureRandom sr = new SecureRandom();
         byte[] iv = new byte[8];
@@ -1374,7 +1374,7 @@ public class CipherTest extends junit.framework.TestCase {
         String certName = Support_Resources.getURL("test.cert");
         InputStream is = new URL(certName).openConnection().getInputStream();
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        
+
         Certificate cert = cf.generateCertificate(is);
         assertNotNull(c.wrap(cert.getPublicKey()));
 
@@ -1388,14 +1388,14 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap, sr);
-        
+
         try {
             c.wrap(cipherKeyDES);
             fail("IllegalStateException expected");
         } catch (IllegalStateException e) {
             //expected
         }
-        
+
         c.init(Cipher.WRAP_MODE, cipherKeyDES, ap, sr);
         try {
             c.wrap(new Mock_Key());
@@ -1414,7 +1414,7 @@ public class CipherTest extends junit.framework.TestCase {
     public void test_doFinal$BI() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         c.update(b, 0, 10);
@@ -1445,7 +1445,7 @@ public class CipherTest extends junit.framework.TestCase {
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap);
-        
+
         c.update(b1, 0, 24);
         try {
             c.doFinal(b, 0);
@@ -1478,7 +1478,7 @@ public class CipherTest extends junit.framework.TestCase {
         byte[] bI2 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
         byte[] bI3 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] bI4 = {1,2,3};
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         try {
@@ -1509,7 +1509,7 @@ public class CipherTest extends junit.framework.TestCase {
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap);
-        
+
         try {
             c.doFinal(b1);
             fail("BadPaddingException expected");
@@ -1536,7 +1536,7 @@ public class CipherTest extends junit.framework.TestCase {
     public void test_doFinal$BII() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         try {
@@ -1567,7 +1567,7 @@ public class CipherTest extends junit.framework.TestCase {
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap);
-        
+
         try {
             c.doFinal(b1, 0, 24);
             fail("BadPaddingException expected");
@@ -1585,7 +1585,7 @@ public class CipherTest extends junit.framework.TestCase {
     public void test_doFinal$BII$B() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, cipherKeyDES);
         try {
@@ -1614,7 +1614,7 @@ public class CipherTest extends junit.framework.TestCase {
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, cipherKeyDES, ap);
-        
+
         try {
             c.doFinal(b1, 0, 24, new byte[42]);
             fail("BadPaddingException expected");
@@ -1658,7 +1658,7 @@ public class CipherTest extends junit.framework.TestCase {
     public void test_() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
 
         try {

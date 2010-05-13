@@ -28,7 +28,7 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 
-@TestTargetClass(DataOutputStream.class) 
+@TestTargetClass(DataOutputStream.class)
 public class DataInputOutputStreamTest extends junit.framework.TestCase {
 
     private DataOutputStream os;
@@ -68,12 +68,12 @@ public class DataInputOutputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         sos.setThrowsException(false);
-        
+
         os.close();
         openDataInputStream();
-        assertTrue("Test 2: Incorrect boolean written or read.", 
+        assertTrue("Test 2: Incorrect boolean written or read.",
                 dis.readBoolean());
-        
+
         try {
             dis.readBoolean();
             fail("Test 3: EOFException expected.");
@@ -119,12 +119,12 @@ public class DataInputOutputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         sos.setThrowsException(false);
-        
+
         os.close();
         openDataInputStream();
-        assertEquals("Test 2: Incorrect byte written or read;", 
+        assertEquals("Test 2: Incorrect byte written or read;",
                 (byte) 127, dis.readByte());
-        
+
         try {
             dis.readByte();
             fail("Test 3: EOFException expected.");
@@ -170,12 +170,12 @@ public class DataInputOutputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         sos.setThrowsException(false);
-        
+
         os.close();
         openDataInputStream();
-        assertEquals("Test 2: Incorrect char written or read;", 
+        assertEquals("Test 2: Incorrect char written or read;",
                 'b', dis.readChar());
-        
+
         try {
             dis.readChar();
             fail("Test 3: EOFException expected.");
@@ -221,12 +221,12 @@ public class DataInputOutputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         sos.setThrowsException(false);
-       
+
         os.close();
         openDataInputStream();
-        assertEquals("Test 1: Incorrect double written or read;", 
+        assertEquals("Test 1: Incorrect double written or read;",
                 2345.76834720202, dis.readDouble());
-        
+
         try {
             dis.readDouble();
             fail("Test 2: EOFException expected.");
@@ -272,12 +272,12 @@ public class DataInputOutputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         sos.setThrowsException(false);
-        
+
         os.close();
         openDataInputStream();
-        assertEquals("Test 2: Incorrect float written or read;", 
+        assertEquals("Test 2: Incorrect float written or read;",
                 29.08764f, dis.readFloat());
-        
+
         try {
             dis.readFloat();
             fail("Test 3: EOFException expected.");
@@ -323,12 +323,12 @@ public class DataInputOutputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         sos.setThrowsException(false);
-        
+
         os.close();
         openDataInputStream();
-        assertEquals("Test 1: Incorrect int written or read;", 
+        assertEquals("Test 1: Incorrect int written or read;",
                 768347202, dis.readInt());
-        
+
         try {
             dis.readInt();
             fail("Test 2: EOFException expected.");
@@ -374,12 +374,12 @@ public class DataInputOutputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         sos.setThrowsException(false);
-        
+
         os.close();
         openDataInputStream();
-        assertEquals("Test 2: Incorrect long written or read;", 
+        assertEquals("Test 2: Incorrect long written or read;",
                 9875645283333L, dis.readLong());
-        
+
         try {
             dis.readLong();
             fail("Test 3: EOFException expected.");
@@ -425,12 +425,12 @@ public class DataInputOutputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         sos.setThrowsException(false);
-        
+
         os.close();
         openDataInputStream();
-        assertEquals("Test 1: Incorrect short written or read;", 
+        assertEquals("Test 1: Incorrect short written or read;",
                 9875, dis.readShort());
-        
+
         try {
             dis.readShort();
             fail("Test 2: EOFException expected.");
@@ -477,12 +477,12 @@ public class DataInputOutputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         sos.setThrowsException(false);
-        
+
         os.close();
         openDataInputStream();
-        assertTrue("Test 1: Incorrect UTF-8 string written or read.", 
+        assertTrue("Test 1: Incorrect UTF-8 string written or read.",
                 dis.readUTF().equals(unihw));
-        
+
         try {
             dis.readUTF();
             fail("Test 2: EOFException expected.");

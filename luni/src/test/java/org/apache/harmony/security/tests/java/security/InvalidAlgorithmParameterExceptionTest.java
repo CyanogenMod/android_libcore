@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>InvalidAlgorithmParameterException</code> class
  * constructors and methods.
- * 
+ *
  */
 public class InvalidAlgorithmParameterExceptionTest extends TestCase {
 

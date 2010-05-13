@@ -65,7 +65,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation independent test for HttpsURLConnection.
- * The test needs certstore file placed in system classpath 
+ * The test needs certstore file placed in system classpath
  * and named as "key_store." + the type of the
  * default KeyStore installed in the system in lower case.
  * <br>
@@ -101,7 +101,7 @@ public class HttpsURLConnectionTest extends TestCase {
     private static final int AUTHENTICATION_REQUIRED_CODE = 407;
 
     private static File store;
-    
+
     static {
         try {
             store = File.createTempFile("key_store", "bks");
@@ -848,7 +848,7 @@ public class HttpsURLConnectionTest extends TestCase {
             System.out.println("------ " + getName());
             System.out.println("------------------------");
         }
-        
+
         if (store != null) {
             String ksFileName = "org/apache/harmony/luni/tests/key_store."
                     + KeyStore.getDefaultType().toLowerCase();
@@ -874,7 +874,7 @@ public class HttpsURLConnectionTest extends TestCase {
             store.delete();
         }
     }
-    
+
     /**
      * Checks the HttpsURLConnection getter's values and compares
      * them with actual corresponding values of remote peer.
@@ -906,7 +906,7 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * Returns the file name of the key/trust store. The key store file 
+     * Returns the file name of the key/trust store. The key store file
      * (named as "key_store." + extension equals to the default KeyStore
      * type installed in the system in lower case) is searched in classpath.
      * @throws junit.framework.AssertionFailedError if property was not set
@@ -989,7 +989,7 @@ public class HttpsURLConnectionTest extends TestCase {
      * Performs interaction between client's HttpURLConnection and
      * servers side (ServerSocket). Server will response with specified
      * response code.
-     * @param doAuthentication specifies 
+     * @param doAuthentication specifies
      * if the server needs client authentication.
      */
     public static Socket doInteraction(

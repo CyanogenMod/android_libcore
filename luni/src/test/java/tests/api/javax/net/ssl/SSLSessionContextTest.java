@@ -12,16 +12,16 @@ import javax.net.ssl.SSLSessionContext;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-   
+
 /**
  * Tests for <code>SSLSessionContext</code> class constructors and methods.
  */
-@TestTargetClass(SSLSessionContext.class) 
+@TestTargetClass(SSLSessionContext.class)
 public class SSLSessionContextTest extends TestCase {
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
-     * @throws KeyManagementException 
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
      * @tests javax.net.ssl.SSLSessionContex#getSessionCacheSize()
      * @tests javax.net.ssl.SSLSessionContex#setSessionCacheSize(int size)
      */
@@ -48,7 +48,7 @@ public class SSLSessionContextTest extends TestCase {
         assertEquals("10 wasn't returned", 10, sc.getSessionCacheSize());
         sc.setSessionCacheSize(5);
         assertEquals("5 wasn't returned", 5, sc.getSessionCacheSize());
-        
+
         try {
             sc.setSessionCacheSize(-1);
             fail("IllegalArgumentException wasn't thrown");
@@ -56,10 +56,10 @@ public class SSLSessionContextTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
-     * @throws KeyManagementException 
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
      * @tests javax.net.ssl.SSLSessionContex#getSessionTimeout()
      * @tests javax.net.ssl.SSLSessionContex#setSessionTimeout(int seconds)
      */
@@ -86,7 +86,7 @@ public class SSLSessionContextTest extends TestCase {
         assertEquals("100 wasn't returned", 100, sc.getSessionTimeout());
         sc.setSessionTimeout(5000);
         assertEquals("5000 wasn't returned", 5000, sc.getSessionTimeout());
-        
+
         try {
             sc.setSessionTimeout(-1);
             fail("IllegalArgumentException wasn't thrown");
@@ -94,10 +94,10 @@ public class SSLSessionContextTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
-     * @throws KeyManagementException 
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
      * @tests javax.net.ssl.SSLSessionContex#getSession(byte[] sessionId)
      */
     @TestTargetNew(
@@ -118,10 +118,10 @@ public class SSLSessionContextTest extends TestCase {
         }
         assertNull(sc.getSession(new byte[5]));
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
-     * @throws KeyManagementException 
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
      * @tests javax.net.ssl.SSLSessionContex#getIds()
      */
     @TestTargetNew(

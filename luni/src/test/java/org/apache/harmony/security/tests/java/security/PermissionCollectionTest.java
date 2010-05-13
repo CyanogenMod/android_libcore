@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 @TestTargetClass(PermissionCollection.class)
 /**
  * Tests for <code>PermissionCollection</code>
- * 
+ *
  */
 
 public class PermissionCollectionTest extends TestCase {
@@ -43,31 +43,31 @@ public class PermissionCollectionTest extends TestCase {
     // Bare extension to instantiate abstract PermissionCollection class
     private static final class RealPermissionCollection extends PermissionCollection
     {
-        final private Set <Permission> setCol = new HashSet<Permission>(); 
+        final private Set <Permission> setCol = new HashSet<Permission>();
         public RealPermissionCollection(Set <Permission> col)
         {
             if (col != null) {
                 setCol.addAll(col);
             }
         }
-               
+
         public void add(Permission permission) {
             if (!setCol.add(permission)) {
                 throw new IllegalArgumentException("permission is not added");
             }
         }
-        
-        public Enumeration elements() 
+
+        public Enumeration elements()
         {
             return setCol == null ? null : Collections.enumeration(setCol);
         }
-        
-        public boolean implies(Permission permission) 
+
+        public boolean implies(Permission permission)
         {
             return false;
         }
     }
-        
+
     /** Test read-only flag. Should be false by default and can be set once forever. */
     @TestTargets({
         @TestTargetNew(
@@ -92,7 +92,7 @@ public class PermissionCollectionTest extends TestCase {
         pc.setReadOnly();
         assertTrue("more calls to setReadOnly() should not harm", pc.isReadOnly());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -114,7 +114,7 @@ public class PermissionCollectionTest extends TestCase {
 }
 
 class RealPermission extends Permission {
-    
+
     public RealPermission(String name) {
         super(name);
     }

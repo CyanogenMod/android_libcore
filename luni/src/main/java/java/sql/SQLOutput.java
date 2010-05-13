@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,7 +42,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code String} value into the output stream.
-     * 
+     *
      * @param theString
      *            the {@code String} to write.
      * @throws SQLException
@@ -52,7 +52,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code boolean} value into the output stream.
-     * 
+     *
      * @param theFlag
      *            the {@code boolean} value to write.
      * @throws SQLException
@@ -62,7 +62,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code byte} value into the output stream.
-     * 
+     *
      * @param theByte
      *            the {@code byte} value to write.
      * @throws SQLException
@@ -72,7 +72,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code short} value into the output stream.
-     * 
+     *
      * @param theShort
      *            the {@code short} value to write.
      * @throws SQLException
@@ -82,7 +82,7 @@ public interface SQLOutput {
 
     /**
      * Write an {@code int} value into the output stream.
-     * 
+     *
      * @param theInt
      *            the {@code int} value to write.
      * @throws SQLException
@@ -92,7 +92,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code long} value into the output stream.
-     * 
+     *
      * @param theLong
      *            the {@code long} value to write.
      * @throws SQLException
@@ -102,7 +102,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code float} value into the output stream.
-     * 
+     *
      * @param theFloat
      *            the {@code float} value to write.
      * @throws SQLException
@@ -112,7 +112,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code double} value into the output stream.
-     * 
+     *
      * @param theDouble
      *            the {@code double} value to write.
      * @throws SQLException
@@ -122,7 +122,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code java.math.BigDecimal} value into the output stream.
-     * 
+     *
      * @param theBigDecimal
      *            the {@code BigDecimal} value to write.
      * @throws SQLException
@@ -132,7 +132,7 @@ public interface SQLOutput {
 
     /**
      * Write an array of bytes into the output stream.
-     * 
+     *
      * @param theBytes
      *            the array of bytes to write.
      * @throws SQLException
@@ -142,7 +142,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code java.sql.Date} value into the output stream.
-     * 
+     *
      * @param theDate
      *            the {@code Date} value to write.
      * @throws SQLException
@@ -153,7 +153,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code java.sql.Time} value into the output stream.
-     * 
+     *
      * @param theTime
      *            the {@code Time} value to write.
      * @throws SQLException
@@ -164,7 +164,7 @@ public interface SQLOutput {
 
     /**
      * Write a {@code java.sql.Timestamp} value into the output stream.
-     * 
+     *
      * @param theTimestamp
      *            the {@code Timestamp} value to write.
      * @throws SQLException
@@ -175,7 +175,7 @@ public interface SQLOutput {
 
     /**
      * Write a stream of unicode characters into the output stream.
-     * 
+     *
      * @param theStream
      *            the stream of unicode characters to write, as a {@code
      *            java.io.Reader} object.
@@ -186,7 +186,7 @@ public interface SQLOutput {
 
     /**
      * Write a stream of ASCII characters into the output stream.
-     * 
+     *
      * @param theStream
      *            the stream of ASCII characters to write, as a {@code
      *            java.io.InputStream} object
@@ -197,7 +197,7 @@ public interface SQLOutput {
 
     /**
      * Write a stream of uninterpreted bytes into the output stream.
-     * 
+     *
      * @param theStream
      *            the stream of bytes to write, as a {@code java.io.InputStream}
      *            object
@@ -216,7 +216,7 @@ public interface SQLOutput {
      * SQLOutput writer methods for each attribute, in order. The order of the
      * attributes is the order they are listed in the SQL definition of the User
      * Defined Type.
-     * 
+     *
      * @param theObject
      *            the {@code SQLData} object to write.
      * @throws SQLException
@@ -227,7 +227,7 @@ public interface SQLOutput {
 
     /**
      * Write an SQL {@code Ref} value into the output stream.
-     * 
+     *
      * @param theRef
      *            the {@code java.sql.Ref} object to write.
      * @throws SQLException
@@ -238,7 +238,7 @@ public interface SQLOutput {
 
     /**
      * Write an SQL {@code Blob} value into the output stream.
-     * 
+     *
      * @param theBlob
      *            the {@code java.sql.Blob} object to write.
      * @throws SQLException
@@ -249,7 +249,7 @@ public interface SQLOutput {
 
     /**
      * Write an SQL {@code Clob} value into the output stream.
-     * 
+     *
      * @param theClob
      *            the {@code java.sql.Clob} object to write.
      * @throws SQLException
@@ -260,7 +260,7 @@ public interface SQLOutput {
 
     /**
      * Write an SQL {@code Struct} value into the output stream.
-     * 
+     *
      * @param theStruct
      *            the {@code java.sql.Struct} object to write.
      * @throws SQLException
@@ -271,7 +271,7 @@ public interface SQLOutput {
 
     /**
      * Write an SQL {@code Array} value into the output stream.
-     * 
+     *
      * @param theArray
      *            the {@code java.sql.Array} object to write.
      * @throws SQLException
@@ -282,7 +282,7 @@ public interface SQLOutput {
 
     /**
      * Write an SQL {@code DATALINK} value into the output stream.
-     * 
+     *
      * @param theURL
      *            the datalink value as a {@code java.net.URL} to write.
      * @throws SQLException

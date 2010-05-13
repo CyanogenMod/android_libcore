@@ -34,7 +34,7 @@ import java.security.spec.InvalidParameterSpecException;
 /**
  * Tests for <code>InvalidParameterSpecException</code> class constructors and
  * methods.
- * 
+ *
  */
 @TestTargetClass(InvalidParameterSpecException.class)
 public class InvalidParameterSpecExceptionTest extends TestCase {

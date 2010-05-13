@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,7 +49,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
  * checks are omitted. This allows privileged code, such as Java object
  * serialization, object inspectors, and debuggers to have complete access to
  * objects.
- * 
+ *
  * @see Field
  * @see Constructor
  * @see Method
@@ -64,7 +64,7 @@ public class AccessibleObject implements AnnotatedElement {
      * one dimensional array
      */
     private static final String DIMENSION_1 = "[]";
-    
+
     /**
      * two dimensional array
      */
@@ -74,10 +74,10 @@ public class AccessibleObject implements AnnotatedElement {
      * three dimensional array
      */
     private static final String DIMENSION_3 = "[][][]";
-    
+
     // Holds a mapping from Java type names to native type codes.
     static Hashtable<String, String> trans;
-    
+
     static {
         trans = new Hashtable<String, String>(9);
         trans.put("byte", "B");
@@ -97,15 +97,15 @@ public class AccessibleObject implements AnnotatedElement {
      * flag to {@code false} will enable access checks, setting to {@code true}
      * will disable them. If there is a security manager, checkPermission is
      * called with a {@code ReflectPermission("suppressAccessChecks")}.
-     * 
+     *
      * @param objects
      *            the accessible objects
      * @param flag
      *            the new value for the accessible flag
-     *            
+     *
      * @throws SecurityException
      *             if the request is denied
-     *             
+     *
      * @see #setAccessible(boolean)
      * @see ReflectPermission
      */
@@ -115,7 +115,7 @@ public class AccessibleObject implements AnnotatedElement {
         if (smgr != null) {
             smgr.checkPermission(new ReflectPermission("suppressAccessChecks"));
         }
-        
+
         synchronized(AccessibleObject.class) {
             for (int i = 0; i < objects.length; i++) {
                 objects[i].flag = flag;
@@ -135,7 +135,7 @@ public class AccessibleObject implements AnnotatedElement {
     /**
      * Indicates whether this object is accessible without security checks being
      * performed. Returns the accessible flag.
-     * 
+     *
      * @return {@code true} if this object is accessible without security
      *         checks, {@code false} otherwise
      */
@@ -148,13 +148,13 @@ public class AccessibleObject implements AnnotatedElement {
      * {@code false} will enable access checks, setting to {@code true} will
      * disable them. If there is a security manager, checkPermission is called
      * with a {@code ReflectPermission("suppressAccessChecks")}.
-     * 
+     *
      * @param flag
      *            the new value for the accessible flag
-     *            
+     *
      * @throws SecurityException
      *             if the request is denied
-     *             
+     *
      * @see ReflectPermission
      */
     public void setAccessible(boolean flag) throws SecurityException {
@@ -162,20 +162,20 @@ public class AccessibleObject implements AnnotatedElement {
         if (smgr != null) {
             smgr.checkPermission(new ReflectPermission("suppressAccessChecks"));
         }
-        
+
         this.flag = flag;
     }
 
     /**
      * Sets the accessible flag on this instance without doing any checks.
-     * 
+     *
      * @param flag
      *            the new value for the accessible flag
      */
     /*package*/ void setAccessibleNoCheck(boolean flag) {
         this.flag = flag;
     }
-    
+
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
         return getAnnotation(annotationType) != null;
     }
@@ -210,18 +210,18 @@ public class AccessibleObject implements AnnotatedElement {
      *
      * @param clazz
      *            the class for which a signature is required
-     * 
+     *
      * @return The signature as a string
      */
     String getSignature(Class<?> clazz) {
         String result = "";
         String nextType = clazz.getName();
-        
+
         if(trans.containsKey(nextType)) {
             result = trans.get(nextType);
         } else {
             if(clazz.isArray()) {
-                result = "[" + getSignature(clazz.getComponentType());   
+                result = "[" + getSignature(clazz.getComponentType());
             } else {
                 result = "L" + nextType + ";";
             }
@@ -237,7 +237,7 @@ public class AccessibleObject implements AnnotatedElement {
      *
      * @param types
      *            the array of classes
-     * 
+     *
      * @return The String of names
      */
     String toString(Class<?>[] types) {
@@ -250,7 +250,7 @@ public class AccessibleObject implements AnnotatedElement {
                 result.append(types[i].getCanonicalName());
             }
         }
-        
+
         return result.toString();
     }
 
@@ -296,16 +296,16 @@ public class AccessibleObject implements AnnotatedElement {
     static /*package*/ ReflectionAccess getReflectionAccess() {
         return ReflectionAccessImpl.THE_ONE;
     }
-    
-    
+
+
     /**
      * Appends the specified class name to the buffer. The class may represent
      * a simple type, a reference type or an array type.
      *
      * @param sb buffer
      * @param obj the class which name should be appended to the buffer
-     * 
-     * @throws NullPointerException if any of the arguments is null 
+     *
+     * @throws NullPointerException if any of the arguments is null
      */
     void appendArrayType(StringBuilder sb, Class<?> obj) {
         if (!obj.isArray()) {
@@ -344,8 +344,8 @@ public class AccessibleObject implements AnnotatedElement {
      *
      * @param sb buffer
      * @param objs array of classes to print the names
-     * 
-     * @throws NullPointerException if any of the arguments is null 
+     *
+     * @throws NullPointerException if any of the arguments is null
      */
     void appendArrayType(StringBuilder sb, Class[] objs) {
         if (objs.length > 0) {
@@ -364,8 +364,8 @@ public class AccessibleObject implements AnnotatedElement {
      *
      * @param sb buffer
      * @param objs array of classes to print the names
-     * 
-     * @throws NullPointerException if any of the arguments is null 
+     *
+     * @throws NullPointerException if any of the arguments is null
      */
     void appendArrayGenericType(StringBuilder sb, Type[] objs) {
         if (objs.length > 0) {
@@ -382,8 +382,8 @@ public class AccessibleObject implements AnnotatedElement {
      *
      * @param sb buffer
      * @param obj the generic type which representation should be appended to the buffer
-     * 
-     * @throws NullPointerException if any of the arguments is null 
+     *
+     * @throws NullPointerException if any of the arguments is null
      */
     void appendGenericType(StringBuilder sb, Type obj) {
         if (obj instanceof TypeVariable) {
@@ -435,13 +435,13 @@ public class AccessibleObject implements AnnotatedElement {
      * Appends names of the specified array classes to the buffer. The array
      * elements may represent a simple type, a reference type or an array type.
      * In case if the specified array element represents an array type its
-     * internal will be appended to the buffer.   
+     * internal will be appended to the buffer.
      * Output format: [Ljava.lang.Object;, java.io.File, void
      *
      * @param sb buffer
      * @param objs array of classes to print the names
-     * 
-     * @throws NullPointerException if any of the arguments is null 
+     *
+     * @throws NullPointerException if any of the arguments is null
      */
     void appendSimpleType(StringBuilder sb, Class<?>[] objs) {
         if (objs.length > 0) {

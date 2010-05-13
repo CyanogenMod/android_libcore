@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 public class SQLiteTest extends TestCase {
     public static Connection conn;
     public static File dbFile = null;
-    
+
     public void setUp() throws Exception {
         String tmp = System.getProperty("java.io.tmpdir");
         File tmpDir = new File(tmp);
@@ -39,7 +39,7 @@ public class SQLiteTest extends TestCase {
             } else {
                 System.out.println("ctsdir does not exist");
             }
-            
+
             Class.forName("SQLite.JDBCDriver").newInstance();
 
             if (!dbFile.exists()) {
@@ -57,9 +57,9 @@ public class SQLiteTest extends TestCase {
         } catch (java.lang.Exception e) {
             fail("Exception: " + e.toString());
         }
-        
+
     }
-    
+
     public void tearDown() {
         try {
             if (!conn.isClosed()) {

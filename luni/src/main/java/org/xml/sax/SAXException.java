@@ -45,8 +45,8 @@ public class SAXException extends Exception {
     super();
     this.exception = null;
     }
-    
-    
+
+
     /**
      * Create a new SAXException.
      *
@@ -56,8 +56,8 @@ public class SAXException extends Exception {
     super(message);
     this.exception = null;
     }
-    
-    
+
+
     /**
      * Create a new SAXException wrapping an existing exception.
      *
@@ -72,8 +72,8 @@ public class SAXException extends Exception {
     super();
     this.exception = e;
     }
-    
-    
+
+
     /**
      * Create a new SAXException from an existing exception.
      *
@@ -88,8 +88,8 @@ public class SAXException extends Exception {
     super(message);
     this.exception = e;
     }
-    
-    
+
+
     /**
      * Return a detail message for this exception.
      *
@@ -102,15 +102,15 @@ public class SAXException extends Exception {
     public String getMessage ()
     {
     String message = super.getMessage();
-    
+
     if (message == null && exception != null) {
         return exception.getMessage();
     } else {
         return message;
     }
     }
-    
-    
+
+
     /**
      * Return the embedded exception, if any.
      *
@@ -135,8 +135,8 @@ public class SAXException extends Exception {
         return super.toString();
     }
     }
-    
-    
+
+
     
     //////////////////////////////////////////////////////////////////////
     // Internal state.
@@ -145,9 +145,9 @@ public class SAXException extends Exception {
 
     /**
      * @serial The embedded exception if tunnelling, or null.
-     */    
+     */
     private Exception exception;
-    
+
 }
 
 // end of SAXException.java

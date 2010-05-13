@@ -29,7 +29,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Test for ShortBufferException serialization
- * 
+ *
  */
 
 public class ShortBufferExceptionTest extends SerializationTest {

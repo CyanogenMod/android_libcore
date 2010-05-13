@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -167,7 +167,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     /**
      * Returns a new collator with the same decomposition mode and
      * strength value as this collator.
-     * 
+     *
      * @return a shallow copy of this collator.
      * @see java.lang.Cloneable
      */
@@ -185,7 +185,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     /**
      * Compares two objects to determine their relative order. The objects must
      * be strings.
-     * 
+     *
      * @param object1
      *            the first string to compare.
      * @param object2
@@ -202,7 +202,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
 
     /**
      * Compares two strings to determine their relative order.
-     * 
+     *
      * @param string1
      *            the first string to compare.
      * @param string2
@@ -216,7 +216,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     /**
      * Compares this collator with the specified object and indicates if they
      * are equal.
-     * 
+     *
      * @param object
      *            the object to compare with this object.
      * @return {@code true} if {@code object} is a {@code Collator} object and
@@ -237,7 +237,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     /**
      * Compares two strings using the collation rules to determine if they are
      * equal.
-     * 
+     *
      * @param string1
      *            the first string to compare.
      * @param string2
@@ -260,7 +260,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     /**
      * Returns a {@link CollationKey} for the specified string for this collator
      * with the current decomposition rule and strength value.
-     * 
+     *
      * @param string
      *            the source string that is converted into a collation key.
      * @return the collation key for {@code string}.
@@ -269,7 +269,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
 
     /**
      * Returns the decomposition rule for this collator.
-     * 
+     *
      * @return the decomposition rule, either {@code NO_DECOMPOSITION} or
      *         {@code CANONICAL_DECOMPOSITION}. {@code FULL_DECOMPOSITION} is
      *         not supported.
@@ -299,7 +299,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
 
     /**
      * Returns the strength value for this collator.
-     * 
+     *
      * @return the strength value, either PRIMARY, SECONDARY, TERTIARY or
      *         IDENTICAL.
      */
@@ -312,7 +312,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
 
     /**
      * Sets the decomposition rule for this collator.
-     * 
+     *
      * @param value
      *            the decomposition rule, either {@code NO_DECOMPOSITION} or
      *            {@code CANONICAL_DECOMPOSITION}. {@code FULL_DECOMPOSITION}
@@ -327,7 +327,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
 
     /**
      * Sets the strength value for this collator.
-     * 
+     *
      * @param value
      *            the strength value, either PRIMARY, SECONDARY, TERTIARY, or
      *            IDENTICAL.

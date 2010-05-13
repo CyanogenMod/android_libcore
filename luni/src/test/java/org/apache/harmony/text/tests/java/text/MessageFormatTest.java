@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,7 +46,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-@TestTargetClass(MessageFormat.class) 
+@TestTargetClass(MessageFormat.class)
 public class MessageFormatTest extends TestCase {
 
     private MessageFormat format1, format2, format3;
@@ -300,7 +300,7 @@ public class MessageFormatTest extends TestCase {
          * assertEquals("Wrong pattern number format", "' {#}'##0.0E0", actual);
          * assertEquals("Wrong pattern number pattern", "{0,number,'
          * {#}'##0.0E0}", format.toPattern());
-         * 
+         *
          */
 
         format.applyPattern("{0, choice,0#no|1#one|2#{1,number}}");
@@ -421,14 +421,14 @@ public class MessageFormatTest extends TestCase {
         new Support_MessageFormat(
                 "test_formatToCharacterIteratorLjava_lang_Object")
                 .t_formatToCharacterIterator();
-        
+
         try {
             new MessageFormat("{1, number}").formatToCharacterIterator(null);
             fail("NullPointerException was not thrown.");
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         try {
             new MessageFormat("{0, time}").formatToCharacterIterator(new Object[]{""});
             fail("IllegalArgumentException was not thrown.");
@@ -456,12 +456,12 @@ public class MessageFormatTest extends TestCase {
         format.format(new Object[] { "0", new Double(53.863) }, buffer,
                 new FieldPosition(MessageFormat.Field.ARGUMENT));
         assertEquals("Wrong result", "54", buffer.toString());
-        
+
         format.format(new Object[] { "0", new Double(53.863) }, buffer,
                 new FieldPosition(MessageFormat.Field.ARGUMENT));
-        
+
         assertEquals("Wrong result", "5454", buffer.toString());
-      
+
         buffer = new StringBuffer();
         format
                 .applyPattern("{0,choice,0#zero|1#one '{1,choice,2#two {2,time}}'}");
@@ -473,13 +473,13 @@ public class MessageFormatTest extends TestCase {
                         .Field.ARGUMENT));
         assertEquals("Choice not recursive:\n" + expected + "\n" + buffer,
                 expected, buffer.toString());
-        
+
         StringBuffer str = format.format(new Object[] { new Double(0.6),
                 new Integer(3)}, buffer, null);
-        
+
         assertEquals(expected + "zero", str.toString());
         assertEquals(expected + "zero", buffer.toString());
-     
+
         try {
             format.format(new Object[] { "0", new Double(1), "" }, buffer,
                     new FieldPosition(MessageFormat.Field.ARGUMENT));
@@ -487,9 +487,9 @@ public class MessageFormatTest extends TestCase {
         } catch(IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
-            format.format(new Object[] { "",  new Integer(3)}, buffer, 
+            format.format(new Object[] { "",  new Integer(3)}, buffer,
                     new FieldPosition(MessageFormat.Field.ARGUMENT));
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
@@ -514,15 +514,15 @@ public class MessageFormatTest extends TestCase {
         new Support_MessageFormat(
                 "test_formatLjava_lang_ObjectLjava_lang_StringBufferLjava_text_FieldPosition")
                 .t_format_with_FieldPosition();
-        
+
         String pattern = "On {4,date} at {3,time}, he ate {2,number, integer} " +
                 "hamburger{2,choice,1#|1<s}.";
         MessageFormat format = new MessageFormat(pattern, Locale.US);
 
         Object[] objects = new Object[] { "", new Integer(3), 8, ""};
-        
+
         try {
-            format.format(objects, new StringBuffer(), 
+            format.format(objects, new StringBuffer(),
                     new FieldPosition(DateFormat.Field.AM_PM));
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
@@ -1059,14 +1059,14 @@ public class MessageFormatTest extends TestCase {
         String parse = "a; b; c";
         result = mf.parse(parse, new ParsePosition(0));
         assertEquals("Wrong variable result", "c", result[0]);
-        
+
         try {
             mf.parse(parse, null);
             fail("NullPointerException was not thrown.");
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         try {
             mf.parse(null, pos);
         } catch(NullPointerException npe) {

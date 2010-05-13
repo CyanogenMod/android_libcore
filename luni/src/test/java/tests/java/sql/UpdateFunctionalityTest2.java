@@ -43,7 +43,7 @@ public class UpdateFunctionalityTest2 extends TestCase {
     private static Connection conn = null;
 
     private static Statement statement = null;
-    
+
     public void setUp() throws Exception {
         super.setUp();
         Support_SQL.loadDriver();
@@ -141,8 +141,8 @@ public class UpdateFunctionalityTest2 extends TestCase {
     /**
      * @tests UpdateFunctionalityTest2#testUpdate2(). Attempts to update row
      *        with referencing ones and RESTRICT action - expecting SQLException
-     *        
-     *  TODO not supported       
+     *
+     *  TODO not supported
      */
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -184,8 +184,8 @@ public class UpdateFunctionalityTest2 extends TestCase {
     /**
      * @tests UpdateFunctionalityTest2#testUpdate4(). Attempts to set incorrect
      *        foreign key value - expecting SQLException
-     *        
-     *  TODO foreign key functionality is not supported      
+     *
+     *  TODO foreign key functionality is not supported
      */
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -244,12 +244,12 @@ public class UpdateFunctionalityTest2 extends TestCase {
      * @tests UpdateFunctionalityTest2#testUpdate6(). Attempts to set incorrect
      *        foreign key value to row with CASCADE action - expecting
      *        SQLException
-     *        
-     *  TODO Foreign key functionality is not supported       
+     *
+     *  TODO Foreign key functionality is not supported
      */
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Functionality test: Attempts to set incorrect\n" + 
+            notes = "Functionality test: Attempts to set incorrect\n" +
                     "foreign key value to row with CASCADE action - expecting SQLException: not supported",
             method = "executeUpdate",
             args = {java.lang.String.class}
@@ -269,8 +269,8 @@ public class UpdateFunctionalityTest2 extends TestCase {
     /**
      * @tests UpdateFunctionalityTest2#testUpdate7(). Updates table using
      *        subquery in WHERE clause
-     *        
-     *  TODO Foreign key functionality is not supported       
+     *
+     *  TODO Foreign key functionality is not supported
      */
     @TestTargets({
         @TestTargetNew(
@@ -288,7 +288,7 @@ public class UpdateFunctionalityTest2 extends TestCase {
     })
     @KnownFailure("not supported")
    public void testUpdate7() throws SQLException {
-        
+
         DatabaseCreator.fillFKStrictTable(conn);
         statement.executeUpdate("UPDATE " + DatabaseCreator.FKSTRICT_TABLE
                 + " SET value = 'updated' WHERE name_id = ANY (SELECT id FROM "

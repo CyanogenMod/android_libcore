@@ -110,23 +110,23 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
 
         fd = new FileDescriptor();
 
-        if (mode.equals("r")) { 
+        if (mode.equals("r")) {
             isReadOnly = true;
             fd.readOnly = true;
             options = IFileSystem.O_RDONLY;
-        } else if (mode.equals("rw") || mode.equals("rws") || mode.equals("rwd")) {   
+        } else if (mode.equals("rw") || mode.equals("rws") || mode.equals("rwd")) {
             isReadOnly = false;
             options = IFileSystem.O_RDWR;
 
-            if (mode.equals("rws")) { 
+            if (mode.equals("rws")) {
                 // Sync file and metadata with every write
                 syncMetadata = true;
-            } else if (mode.equals("rwd")) { 
+            } else if (mode.equals("rwd")) {
                 // Sync file, but not necessarily metadata
                 options = IFileSystem.O_RDWRSYNC;
             }
         } else {
-            throw new IllegalArgumentException(Msg.getString("K0081")); 
+            throw new IllegalArgumentException(Msg.getString("K0081"));
         }
 
         SecurityManager security = System.getSecurityManager();
@@ -338,10 +338,10 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         // made implicit null check explicit, used (offset | count) < 0
         // instead of (offset < 0) || (count < 0) to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); 
+            throw new NullPointerException(Msg.getString("K0047"));
         }
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
         }
         // END android-changed
         if (0 == count) {
@@ -486,7 +486,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public final void readFully(byte[] buffer, int offset, int count)
             throws IOException {
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); 
+            throw new NullPointerException(Msg.getString("K0047"));
         }
         // avoid int overflow
         // BEGIN android-changed
@@ -495,7 +495,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         // removed redundant check, used (offset | count) < 0
         // instead of (offset < 0) || (count < 0) to safe one operation
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
         }
         // END android-changed
         while (count > 0) {
@@ -678,7 +678,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public final String readUTF() throws IOException {
         int utfSize = readUnsignedShort();
         if (utfSize == 0) {
-            return ""; 
+            return "";
         }
         byte[] buf = new byte[utfSize];
         if (read(buf, 0, buf.length) != buf.length) {
@@ -703,7 +703,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public void seek(long pos) throws IOException {
         if (pos < 0) {
             // seek position is negative
-            throw new IOException(Msg.getString("K0347")); 
+            throw new IOException(Msg.getString("K0347"));
         }
         openCheck();
         fileSystem.seek(fd.descriptor, pos, IFileSystem.SEEK_SET);
@@ -803,10 +803,10 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         // removed redundant check, used (offset | count) < 0
         // instead of (offset < 0) || (count < 0) to save one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); 
+            throw new NullPointerException(Msg.getString("K0047"));
         }
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
         }
         // END android-changed
         if (count == 0) {
@@ -1048,7 +1048,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             }
         }
         if (utfCount > 65535) {
-            throw new UTFDataFormatException(Msg.getString("K0068")); 
+            throw new UTFDataFormatException(Msg.getString("K0068"));
         }
         byte utfBytes[] = new byte[utfCount + 2];
         int utfIndex = 2;

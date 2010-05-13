@@ -23,7 +23,7 @@ package java.util;
  * <p>
  * Dictionary is an abstract class which is the superclass of all classes that
  * associate keys with values, such as {@code Hashtable}.
- * 
+ *
  * @see Hashtable
  * @since 1.0
  */
@@ -37,7 +37,7 @@ public abstract class Dictionary<K, V> {
 
     /**
      * Returns an enumeration on the elements of this dictionary.
-     * 
+     *
      * @return an enumeration of the values of this dictionary.
      * @see #keys
      * @see #size
@@ -47,7 +47,7 @@ public abstract class Dictionary<K, V> {
 
     /**
      * Returns the value which is associated with {@code key}.
-     * 
+     *
      * @param key
      *            the key of the value returned.
      * @return the value associated with {@code key}, or {@code null} if the
@@ -58,7 +58,7 @@ public abstract class Dictionary<K, V> {
 
     /**
      * Returns true if this dictionary has no key/value pairs.
-     * 
+     *
      * @return {@code true} if this dictionary has no key/value pairs,
      *         {@code false} otherwise.
      * @see #size
@@ -67,7 +67,7 @@ public abstract class Dictionary<K, V> {
 
     /**
      * Returns an enumeration on the keys of this dictionary.
-     * 
+     *
      * @return an enumeration of the keys of this dictionary.
      * @see #elements
      * @see #size
@@ -79,7 +79,7 @@ public abstract class Dictionary<K, V> {
      * Associate {@code key} with {@code value} in this dictionary. If {@code
      * key} exists in the dictionary before this call, the old value in the
      * dictionary is replaced by {@code value}.
-     * 
+     *
      * @param key
      *            the key to add.
      * @param value
@@ -95,7 +95,7 @@ public abstract class Dictionary<K, V> {
     /**
      * Removes the key/value pair with the specified {@code key} from this
      * dictionary.
-     * 
+     *
      * @param key
      *            the key to remove.
      * @return the associated value before the deletion or {@code null} if
@@ -107,7 +107,7 @@ public abstract class Dictionary<K, V> {
 
     /**
      * Returns the number of key/value pairs in this dictionary.
-     * 
+     *
      * @return the number of key/value pairs in this dictionary.
      * @see #elements
      * @see #keys

@@ -31,17 +31,17 @@ import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the GeneralSubtrees structure which is a part of X.509 certificate:
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
- * 
+ *
  * <pre>
  *   GeneralSubtrees ::= SEQUENCE SIZE (1..MAX) OF GeneralSubtree
  * </pre>
- * 
+ *
  * @see org.apache.harmony.security.x509.NameConstraints
  * @see org.apache.harmony.security.x509.GeneralSubtree
  */
@@ -52,12 +52,12 @@ public class GeneralSubtrees {
     private List generalSubtrees;
     // the ASN.1 encoded form of GeneralSubtrees
     private byte[] encoding;
-    
+
     /**
      * Constructs an object representing the value of GeneralSubtrees.
      */
     public GeneralSubtrees() {}
-    
+
     /**
      * TODO
      * @param   generalSubtrees:    List
@@ -66,7 +66,7 @@ public class GeneralSubtrees {
         // TODO: the size should not be less than one
         this.generalSubtrees = generalSubtrees;
     }
-    
+
     /**
      * Returns the list of values of subtrees.
      * @return  subtrees
@@ -111,7 +111,7 @@ public class GeneralSubtrees {
 
         public Collection getValues(Object object) {
             GeneralSubtrees gss = (GeneralSubtrees) object;
-            return (gss.generalSubtrees == null) 
+            return (gss.generalSubtrees == null)
                 ? new ArrayList() : gss.generalSubtrees;
         }
     };

@@ -28,7 +28,7 @@ public final class ImplForType implements ParameterizedType {
     private ClassLoader loader;
 
 
-    public ImplForType(ImplForType ownerType, String rawTypeName, 
+    public ImplForType(ImplForType ownerType, String rawTypeName,
             ListOfTypes args, ClassLoader loader) {
         this.ownerType0 = ownerType;
         this.rawTypeName = rawTypeName;
@@ -55,7 +55,7 @@ public final class ImplForType implements ParameterizedType {
 
     public Class getRawType() {
         if (rawType == null) {
-            // Here the actual loading of the class has to be performed and the 
+            // Here the actual loading of the class has to be performed and the
             // Exceptions have to be re-thrown TypeNotPresent...
             // How to deal with member (nested) classes?
             try {

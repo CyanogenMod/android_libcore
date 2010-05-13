@@ -97,7 +97,7 @@ public class DefaultHandler2 extends DefaultHandler
     /**
      * Tells the parser that if no external subset has been declared
      * in the document text, none should be used.
-     * 
+     *
      * @param name Identifies the document root element.  This name comes
      *    from a DOCTYPE declaration (where available) or from the actual
      *    root element. The parameter is ignored.
@@ -105,9 +105,9 @@ public class DefaultHandler2 extends DefaultHandler
      *    hint for selecting the external subset.  This is always an absolute
      *    URI, unless it is null because the XMLReader was given an InputSource
      *    without one. The parameter is ignored.
-     *    
+     *
      * @return null (always).
-     * 
+     *
      * @exception SAXException Any SAX exception, possibly wrapping
      *    another exception.
      * @exception IOException Probably indicating a failure to create
@@ -122,10 +122,10 @@ public class DefaultHandler2 extends DefaultHandler
      * and read the entity text from that resulting absolute URI.
      * Note that because the older
      * {@link DefaultHandler#resolveEntity DefaultHandler.resolveEntity()},
-     * method is overridden to call this one, this method may sometimes 
+     * method is overridden to call this one, this method may sometimes
      * be invoked with null <em>name</em> and <em>baseURI</em>, and
      * with the <em>systemId</em> already absolutized.
-     * 
+     *
      * @param name Identifies the external entity being resolved.
      *    Either "[dtd]" for the external subset, or a name starting
      *    with "%" to indicate a parameter entity, or else the name of
@@ -145,7 +145,7 @@ public class DefaultHandler2 extends DefaultHandler
      *    entities, and any external subset, are resolved by such parsers.
      *
      * @return An InputSource object describing the new input source.
-     * 
+     *
      * @exception SAXException Any SAX exception, possibly wrapping
      *    another exception.
      * @exception IOException Probably indicating a failure to create
@@ -155,7 +155,7 @@ public class DefaultHandler2 extends DefaultHandler
         String baseURI, String systemId)
     throws SAXException, IOException
     { return null; }
-    
+
     // SAX1 EntityResolver
 
     /**
@@ -163,7 +163,7 @@ public class DefaultHandler2 extends DefaultHandler
      * {@link EntityResolver2#resolveEntity EntityResolver2.resolveEntity()}
      * with null entity name and base URI.
      * You only need to override that method to use this class.
-     * 
+     *
      * @param publicId The public identifier of the external entity being
      *    referenced (normalized as required by the XML specification), or
      *    null if none was supplied.
@@ -173,7 +173,7 @@ public class DefaultHandler2 extends DefaultHandler
      *    entities, and any external subset, are resolved by such parsers.
      *
      * @return An InputSource object describing the new input source.
-     * 
+     *
      * @exception SAXException Any SAX exception, possibly wrapping
      *    another exception.
      * @exception IOException Probably indicating a failure to create

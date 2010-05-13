@@ -50,7 +50,7 @@ import com.ibm.icu4jni.lang.UCharacter;
  * On the Java platform a {@code char} value represents either a single BMP code
  * point or a UTF-16 unit that's part of a surrogate pair. The {@code int} type
  * is used to represent all Unicode code points.
- * 
+ *
  * <a name="unicode_categories"><h3>Unicode categories</h3></a>
  * <p>Here's a list of the Unicode character categories and the corresponding Java constant,
  * grouped semantically to provide a convenient overview. This table is also useful in
@@ -98,7 +98,7 @@ import com.ibm.icu4jni.lang.UCharacter;
  * <tr> <td> Zp </td> <td> Paragraph separator </td> <td>{@link #PARAGRAPH_SEPARATOR}</td> </tr>
  * </table>
  * </span>
- * 
+ *
  * @since 1.0
  */
 public final class Character implements Serializable, Comparable<Character> {

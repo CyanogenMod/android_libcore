@@ -30,7 +30,7 @@ public class BackingStoreException extends Exception {
     /**
      * Constructs a new {@code BackingStoreException} instance with a detailed
      * exception message.
-     * 
+     *
      * @param s
      *            the detailed exception message.
      */

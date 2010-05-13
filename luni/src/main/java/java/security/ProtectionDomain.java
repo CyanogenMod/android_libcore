@@ -40,8 +40,8 @@ public class ProtectionDomain {
     // Set of principals associated with this ProtectionDomain
     private Principal[] principals;
 
-    // false if this ProtectionDomain was constructed with static 
-    // permissions, true otherwise. 
+    // false if this ProtectionDomain was constructed with static
+    // permissions, true otherwise.
     private boolean dynamicPerms;
 
     /**
@@ -190,15 +190,15 @@ public class ProtectionDomain {
      *         this {@code ProtectionDomain}, {@code false} otherwise.
      */
     public boolean implies(Permission permission) {
-        // First, test with the Policy, as the default Policy.implies() 
-        // checks for both dynamic and static collections of the 
+        // First, test with the Policy, as the default Policy.implies()
+        // checks for both dynamic and static collections of the
         // ProtectionDomain passed...
         if (dynamicPerms
                 && Policy.getAccessiblePolicy().implies(this, permission)) {
             return true;
         }
 
-        // ... and we get here if 
+        // ... and we get here if
         // either the permissions are static
         // or Policy.implies() did not check for static permissions
         // or the permission is not implied
@@ -214,32 +214,32 @@ public class ProtectionDomain {
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder(200);
-        buf.append("ProtectionDomain\n"); 
-        buf.append("CodeSource=").append( 
-                codeSource == null ? "<null>" : codeSource.toString()).append( 
-                "\n"); 
-        buf.append("ClassLoader=").append( 
-                classLoader == null ? "<null>" : classLoader.toString()) 
-                .append("\n"); 
+        buf.append("ProtectionDomain\n");
+        buf.append("CodeSource=").append(
+                codeSource == null ? "<null>" : codeSource.toString()).append(
+                "\n");
+        buf.append("ClassLoader=").append(
+                classLoader == null ? "<null>" : classLoader.toString())
+                .append("\n");
         if (principals == null || principals.length == 0) {
-            buf.append("<no principals>\n"); 
+            buf.append("<no principals>\n");
         } else {
-            buf.append("Principals: <\n"); 
+            buf.append("Principals: <\n");
             for (int i = 0; i < principals.length; i++) {
-                buf.append("\t").append( 
-                        principals[i] == null ? "<null>" : principals[i] 
-                                .toString()).append("\n"); 
+                buf.append("\t").append(
+                        principals[i] == null ? "<null>" : principals[i]
+                                .toString()).append("\n");
             }
-            buf.append(">"); 
+            buf.append(">");
         }
 
         //permissions here
-        buf.append("Permissions:\n"); 
+        buf.append("Permissions:\n");
         if (permissions == null) {
-            buf.append("\t\t<no static permissions>\n"); 
+            buf.append("\t\t<no static permissions>\n");
         } else {
-            buf.append("\t\tstatic: ").append(permissions.toString()).append( 
-                    "\n"); 
+            buf.append("\t\tstatic: ").append(permissions.toString()).append(
+                    "\n");
         }
 
         if (dynamicPerms) {
@@ -247,13 +247,13 @@ public class ProtectionDomain {
                 PermissionCollection perms;
                 perms = Policy.getAccessiblePolicy().getPermissions(this);
                 if (perms == null) {
-                    buf.append("\t\t<no dynamic permissions>\n"); 
+                    buf.append("\t\t<no dynamic permissions>\n");
                 } else {
-                    buf.append("\t\tdynamic: ").append(perms.toString()) 
-                            .append("\n"); 
+                    buf.append("\t\tdynamic: ").append(perms.toString())
+                            .append("\n");
                 }
             } else {
-                buf.append("\t\t<no dynamic permissions>\n"); 
+                buf.append("\t\t<no dynamic permissions>\n");
             }
         }
         return buf.toString();

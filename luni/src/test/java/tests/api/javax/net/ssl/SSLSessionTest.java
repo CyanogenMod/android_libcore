@@ -56,9 +56,9 @@ import javax.security.cert.X509Certificate;
 
 /**
  * Tests for SSLSession class
- * 
+ *
  */
-@TestTargetClass(SSLSession.class) 
+@TestTargetClass(SSLSession.class)
 public class SSLSessionTest extends TestCase {
 
     // set to true if on Android, false if on RI
@@ -92,7 +92,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#invalidate()
      * @tests javax.net.ssl.SSLSession#isValid()
@@ -122,7 +122,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getPeerPrincipal()
      */
@@ -147,7 +147,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getApplicationBufferSize()
      */
@@ -165,7 +165,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getCipherSuite()
      */
@@ -183,7 +183,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getCreationTime()
      */
@@ -205,7 +205,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getId()
      */
@@ -227,7 +227,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getLastAccessedTime()
      */
@@ -250,7 +250,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getLocalCertificates()
      */
@@ -265,13 +265,13 @@ public class SSLSessionTest extends TestCase {
         try {
             KeyStore store = client.getStore();
             Certificate cert = store.getCertificate("mykey");
-            Certificate[] certs = clientSession.getLocalCertificates(); 
+            Certificate[] certs = clientSession.getLocalCertificates();
             assertEquals(cert, certs[0]);
         } catch (Exception ex) {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getLocalPrincipal()
      */
@@ -296,7 +296,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getPacketBufferSize()
      */
@@ -314,7 +314,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getPeerCertificates()
      */
@@ -339,7 +339,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getPeerCertificateChain()
      */
@@ -364,7 +364,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getProtocol()
      */
@@ -382,7 +382,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getSessionContext()
      */
@@ -401,7 +401,7 @@ public class SSLSessionTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#putValue(String name, Object value)
      * @tests javax.net.ssl.SSLSession#removeValue(String name)
@@ -443,7 +443,7 @@ public class SSLSessionTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             s.putValue(null, null);
             fail("IllegalArgumentException wasn't thrown");
@@ -462,7 +462,7 @@ public class SSLSessionTest extends TestCase {
         } catch (IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
             s.removeValue(null);
             fail("IllegalArgumentException wasn't thrown");
@@ -470,7 +470,7 @@ public class SSLSessionTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSession#getValue(String name)
      */
@@ -484,14 +484,14 @@ public class SSLSessionTest extends TestCase {
     public void test_getValue() {
         SSLSession s = clientSession;
         mySSLSessionBindingListener sbl = new mySSLSessionBindingListener();
-        
+
         try {
             s.getValue(null);
             fail("IllegalArgumentException wasn't thrown");
         } catch (IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
             s.putValue("Name", sbl);
             Object obj = s.getValue("Name");
@@ -513,10 +513,10 @@ public class SSLSessionTest extends TestCase {
         server = new TestServer(true,
                 TestServer.CLIENT_AUTH_WANTED, serverKeys);
         client = new TestClient(true, clientKeys);
-        
+
         serverThread = new Thread(server);
         clientThread = new Thread(client);
-        
+
         serverThread.start();
         try {
             Thread.currentThread().sleep(1000);
@@ -551,7 +551,7 @@ public class SSLSessionTest extends TestCase {
             clientThread.join();
         } catch (InterruptedException e) {
         }
-        
+
         // The server must have completed without an exception.
         if (server.getException() != null) {
             throw new RuntimeException(server.getException());
@@ -562,7 +562,7 @@ public class SSLSessionTest extends TestCase {
             throw new RuntimeException(client.getException());
         }
     }
-    
+
     public class mySSLSessionBindingListener implements
             SSLSessionBindingListener {
         mySSLSessionBindingListener() {
@@ -574,11 +574,11 @@ public class SSLSessionTest extends TestCase {
 
 
     String cipherSuiteBKS = "AES256-SHA";
-    /** 
+    /**
      * Defines the keystore contents for the server, BKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
      */
-    private static final String SERVER_KEYS_BKS = 
+    private static final String SERVER_KEYS_BKS =
         "AAAAAQAAABQDkebzoP1XwqyWKRCJEpn/t8dqIQAABDkEAAVteWtleQAAARpYl20nAAAAAQAFWC41" +
         "MDkAAAJNMIICSTCCAbKgAwIBAgIESEfU1jANBgkqhkiG9w0BAQUFADBpMQswCQYDVQQGEwJVUzET" +
         "MBEGA1UECBMKQ2FsaWZvcm5pYTEMMAoGA1UEBxMDTVRWMQ8wDQYDVQQKEwZHb29nbGUxEDAOBgNV" +
@@ -604,11 +604,11 @@ public class SSLSessionTest extends TestCase {
         "1gaEjsC/0wGmmBDg1dTDH+F1p9TInzr3EFuYD0YiQ7YlAHq3cPuyGoLXJ5dXYuSBfhDXJSeddUkl" +
         "k1ufZyOOcskeInQge7jzaRfmKg3U94r+spMEvb0AzDQVOKvjjo1ivxMSgFRZaDb/4qw=";
 
-    /** 
+    /**
      * Defines the keystore contents for the client, BKS version. Holds just a
      * single self-generated key. The subject name is "Test Client".
      */
-    private static final String CLIENT_KEYS_BKS = 
+    private static final String CLIENT_KEYS_BKS =
         "AAAAAQAAABT4Rka6fxbFps98Y5k2VilmbibNkQAABfQEAAVteWtleQAAARpYl+POAAAAAQAFWC41" +
         "MDkAAAJNMIICSTCCAbKgAwIBAgIESEfU9TANBgkqhkiG9w0BAQUFADBpMQswCQYDVQQGEwJVUzET" +
         "MBEGA1UECBMKQ2FsaWZvcm5pYTEMMAoGA1UEBxMDTVRWMQ8wDQYDVQQKEwZHb29nbGUxEDAOBgNV" +
@@ -635,11 +635,11 @@ public class SSLSessionTest extends TestCase {
         "lHorCXAmLFB0W6Cz4KPP01nD9YBB4olxiK1t7m0AU9zscdivNiuUaB5OIEr+JuZ6dNw=";
 
     String cipherSuiteJKS = "SSL_RSA_WITH_RC4_128_MD5";
-    /** 
+    /**
      * Defines the keystore contents for the server, JKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
      */
-    private static final String SERVER_KEYS_JKS = 
+    private static final String SERVER_KEYS_JKS =
         "/u3+7QAAAAIAAAABAAAAAQAFbXlrZXkAAAEaWFfBeAAAArowggK2MA4GCisGAQQBKgIRAQEFAASC" +
         "AqI2kp5XjnF8YZkhcF92YsJNQkvsmH7zqMM87j23zSoV4DwyE3XeC/gZWq1ToScIhoqZkzlbWcu4" +
         "T/Zfc/DrfGk/rKbBL1uWKGZ8fMtlZk8KoAhxZk1JSyJvdkyKxqmzUbxk1OFMlN2VJNu97FPVH+du" +
@@ -664,12 +664,12 @@ public class SSLSessionTest extends TestCase {
         "BAUAA4GBAJn+6YgUlY18Ie+0+Vt8oEi81DNi/bfPrAUAh63fhhBikx/3R9dl3wh09Z6p7cIdNxjW" +
         "n2ll+cRW9eqF7z75F0Omm0C7/KAEPjukVbszmzeU5VqzkpSt0j84YWi+TfcHRrfvhLbrlmGITVpY" +
         "ol5pHLDyqGmDs53pgwipWqsn/nEXEBgj3EoqPeqHbDf7YaP8h/5BSt0=";
-    
-    /** 
+
+    /**
      * Defines the keystore contents for the client, JKS version. Holds just a
      * single self-generated key. The subject name is "Test Client".
      */
-    private static final String CLIENT_KEYS_JKS = 
+    private static final String CLIENT_KEYS_JKS =
         "/u3+7QAAAAIAAAABAAAAAQAFbXlrZXkAAAEaWFhyMAAAArkwggK1MA4GCisGAQQBKgIRAQEFAASC" +
         "AqGVSfXolBStZy4nnRNn4fAr+S7kfU2BS23wwW8uB2Ru3GvtLzlK9q08Gvq/LNqBafjyFTVL5FV5" +
         "SED/8YomO5a98GpskSeRvytCiTBLJdgGhws5TOGekgIAcBROPGIyOtJPQ0HfOQs+BqgzGDHzHQhw" +
@@ -695,7 +695,7 @@ public class SSLSessionTest extends TestCase {
         "wYudC7u3P8X/tBT8GR1Yk7QW3KgFyPafp3lQBBCraSsfrjKj+dCLig1uBLUr4f68W8VFWZWWTHqp" +
         "NMGpCX6qmjbkJQLVK/Yfo1ePaUexPSOX0G9m8+DoV3iyNw6at01NRw==";
 
-    
+
     int port;
     SSLSocket serverSocket;
     MyHandshakeListener listener;
@@ -704,12 +704,12 @@ public class SSLSessionTest extends TestCase {
     SSLSession clientSession = null;
     SSLContext clientSslContext = null;
     String testData = "PING";
-    
+
     private String PASSWORD = "android";
 
     String cipherSuite = (useBKS ? cipherSuiteBKS : cipherSuiteJKS);
 
-    /** 
+    /**
      * Implements a test SSL socket server. It waits for a connection on a given
      * port, requests client authentication (if specified), reads from the socket,
      * and writes to the socket.
@@ -721,15 +721,15 @@ public class SSLSessionTest extends TestCase {
         public static final int CLIENT_AUTH_WANTED = 1;
 
         public static final int CLIENT_AUTH_NEEDED = 2;
-        
+
         private TestTrustManager trustManager;
 
         private Exception exception;
 
         String keys;
-        
+
         private int clientAuth;
-        
+
         private boolean provideKeys;
 
         private KeyStore store;
@@ -738,10 +738,10 @@ public class SSLSessionTest extends TestCase {
             this.keys = keys;
             this.clientAuth = clientAuth;
             this.provideKeys = provideKeys;
-            
-            trustManager = new TestTrustManager(); 
+
+            trustManager = new TestTrustManager();
         }
-        
+
         public void run() {
             try {
                 store = provideKeys ? getKeyStore(keys) : null;
@@ -750,10 +750,10 @@ public class SSLSessionTest extends TestCase {
 
                 SSLContext sslContext = SSLContext.getInstance("TLS");
                 sslContext.init(keyManagers, trustManagers, null);
-                
+
                 SSLServerSocket serverSocket = (SSLServerSocket)sslContext
                         .getServerSocketFactory().createServerSocket();
-                
+
                 if (clientAuth == CLIENT_AUTH_WANTED) {
                     serverSocket.setWantClientAuth(true);
                 } else if (clientAuth == CLIENT_AUTH_NEEDED) {
@@ -761,9 +761,9 @@ public class SSLSessionTest extends TestCase {
                 } else {
                     serverSocket.setWantClientAuth(false);
                 }
-                
+
                 serverSocket.bind(new InetSocketAddress(port));
-                
+
                 SSLSocket clientSocket = (SSLSocket)serverSocket.accept();
 
                 InputStream istream = clientSocket.getInputStream();
@@ -780,7 +780,7 @@ public class SSLSessionTest extends TestCase {
 
                 clientSocket.close();
                 serverSocket.close();
-                
+
             } catch (Exception ex) {
                 exception = ex;
             }
@@ -789,40 +789,40 @@ public class SSLSessionTest extends TestCase {
         public Exception getException() {
             return exception;
         }
-        
+
         public X509Certificate[] getChain() {
             return trustManager.getChain();
         }
-        
+
         public KeyStore getStore() {
             return store;
         }
-        
+
     }
 
-    /** 
+    /**
      * Implements a test SSL socket client. It opens a connection to localhost on
      * a given port, writes to the socket, and reads from the socket.
      */
     class TestClient implements Runnable {
-        
+
         private TestTrustManager trustManager;
 
         private Exception exception;
-        
+
         private String keys;
-        
+
         private boolean provideKeys;
 
         private KeyStore store;
-        
+
         public TestClient(boolean provideKeys, String keys) {
             this.keys = keys;
             this.provideKeys = provideKeys;
-            
-            trustManager = new TestTrustManager(); 
+
+            trustManager = new TestTrustManager();
         }
-        
+
         public void run() {
             try {
                 store = provideKeys ? getKeyStore(keys) : null;
@@ -831,7 +831,7 @@ public class SSLSessionTest extends TestCase {
 
                 clientSslContext = SSLContext.getInstance("TLS");
                 clientSslContext.init(keyManagers, trustManagers, null);
-                
+
                 SSLSocket socket = (SSLSocket)clientSslContext.getSocketFactory().createSocket();
 
                 socket.connect(new InetSocketAddress(port));
@@ -848,7 +848,7 @@ public class SSLSessionTest extends TestCase {
                     Thread.currentThread().sleep(500);
                 }
                 socket.close();
-                
+
             } catch (Exception ex) {
                 exception = ex;
             }
@@ -861,35 +861,35 @@ public class SSLSessionTest extends TestCase {
         public X509Certificate[] getChain() {
             return trustManager.getChain();
         }
-        
+
         public KeyStore getStore() {
             return store;
         }
     }
-    
+
     /**
      * Loads a keystore from a base64-encoded String. Returns the KeyManager[]
      * for the result.
      */
     private KeyStore getKeyStore(String keys) throws Exception {
-        byte[] bytes = new Base64().decode(keys.getBytes());                    
+        byte[] bytes = new Base64().decode(keys.getBytes());
         InputStream inputStream = new ByteArrayInputStream(bytes);
-        
+
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(inputStream, PASSWORD.toCharArray());
         inputStream.close();
         return keyStore;
     }
-    
+
     /**
      * Loads a keystore from a base64-encoded String. Returns the KeyManager[]
      * for the result.
      */
-    private KeyManager[] getKeyManagers(KeyStore keyStore) throws Exception {        
+    private KeyManager[] getKeyManagers(KeyStore keyStore) throws Exception {
         String algorithm = KeyManagerFactory.getDefaultAlgorithm();
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(algorithm);
         keyManagerFactory.init(keyStore, PASSWORD.toCharArray());
-        
+
         return keyManagerFactory.getKeyManagers();
     }
 }

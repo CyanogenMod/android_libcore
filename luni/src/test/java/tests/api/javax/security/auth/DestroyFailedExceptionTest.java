@@ -27,17 +27,17 @@ import javax.security.auth.DestroyFailedException;
 
 /**
  * Tests for <code>DestroyFailedException</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(DestroyFailedException.class) 
+@TestTargetClass(DestroyFailedException.class)
 public class DestroyFailedExceptionTest extends TestCase {
-    
+
     public static void main(String[] args) {
     }
 
     /**
      * Constructor for DestroyFailedExceptionTest.
-     * 
+     *
      * @param arg0
      */
     public DestroyFailedExceptionTest(String arg0) {
@@ -51,7 +51,7 @@ public class DestroyFailedExceptionTest extends TestCase {
 
 
     /**
-     * @tests javax.security.auth.DestroyFailedException#DestroyFailedException() 
+     * @tests javax.security.auth.DestroyFailedException#DestroyFailedException()
      * Assertion: constructs DestroyFailedException with no detail message
      */
     @TestTargetNew(
@@ -65,9 +65,9 @@ public class DestroyFailedExceptionTest extends TestCase {
         assertNull("getMessage() must return null.", dfE.getMessage());
         assertNull("getCause() must return null", dfE.getCause());
     }
-    
+
     /**
-     * @tests javax.security.auth.DestroyFailedException#DestroyFailedException(String msg) 
+     * @tests javax.security.auth.DestroyFailedException#DestroyFailedException(String msg)
      * Assertion: constructs with not null parameter.
      */
     @TestTargetNew(
@@ -86,7 +86,7 @@ public class DestroyFailedExceptionTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.DestroyFailedException#DestroyFailedException(String msg) 
+     * @tests javax.security.auth.DestroyFailedException#DestroyFailedException(String msg)
      * Assertion: constructs with null parameter.
      */
     @TestTargetNew(

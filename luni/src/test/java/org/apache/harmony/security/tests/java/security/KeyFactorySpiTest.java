@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>KeyFactorySpi</code> class constructors
  * and methods.
- * 
+ *
  */
 @TestTargetClass(KeyFactorySpi.class)
 public class KeyFactorySpiTest extends TestCase {
@@ -77,7 +77,7 @@ public class KeyFactorySpiTest extends TestCase {
     public void testKeyFactorySpi() {
         MyKeyFactorySpi keyFSpi = new MyKeyFactorySpi();
         assertTrue(keyFSpi instanceof KeyFactorySpi);
-        
+
         KeySpec ks = new MyKeySpec();
         KeySpec kss = new MyKeySpec();
         try {
@@ -104,6 +104,6 @@ public class KeyFactorySpiTest extends TestCase {
             return null;
         }
     }
-    
+
     class MyKeySpec implements KeySpec {}
 }

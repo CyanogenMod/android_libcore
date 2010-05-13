@@ -157,7 +157,7 @@ public class CalendarTest extends junit.framework.TestCase {
         cal.set(Calendar.DAY_OF_WEEK, Calendar.TUESDAY);
         assertEquals("Incorrect result 1b: " + cal.getTime(), 1015304400000L, cal.getTime()
                 .getTime());
-        
+
 
 		// WEEK_OF_MONTH has priority
 		cal.clear();
@@ -383,7 +383,7 @@ public class CalendarTest extends junit.framework.TestCase {
 				Calendar.PM, cal.get(Calendar.AM_PM));
 		assertEquals(hour, cal.get(Calendar.HOUR));
 		assertEquals(hourOfDay + 12, cal.get(Calendar.HOUR_OF_DAY));
-        
+
         // regression test for Harmony-2122
         cal = Calendar.getInstance();
         int oldValue = cal.get(Calendar.AM_PM);

@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -401,7 +401,7 @@ public class BitSetTest extends TestCase {
     public void test_getII() {
         BitSet bitset = new BitSet(30);
         bitset.get(3, 3);
-               
+
         // Test for method boolean java.util.BitSet.get(int, int)
         BitSet bs, resultbs, correctbs;
         bs = new BitSet(512);
@@ -616,7 +616,7 @@ public class BitSetTest extends TestCase {
             bitset.set(i);
         }
         bitset.flip(10, 10);
-               
+
         // Test for method void java.util.BitSet.flip(int, int)
         // pos1 and pos2 are in the same bitset element
         BitSet bs = new BitSet(16);
@@ -813,7 +813,7 @@ public class BitSetTest extends TestCase {
     public void test_setII() throws IndexOutOfBoundsException {
         BitSet bitset = new BitSet(30);
         bitset.set(29, 29);
-        
+
         // Test for method void java.util.BitSet.set(int, int)
         // pos1 and pos2 are in the same bitset element
         BitSet bs = new BitSet(16);

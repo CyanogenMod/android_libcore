@@ -95,7 +95,7 @@ public class JSONObjectTest extends TestCase {
         assertEquals("bar", object.optString("foo", "bar"));
         assertNull(object.remove("foo"));
     }
-    
+
     public void testEqualsAndHashCode() throws JSONException {
         JSONObject a = new JSONObject();
         JSONObject b = new JSONObject();
@@ -468,7 +468,7 @@ public class JSONObjectTest extends TestCase {
         } catch (JSONException e) {
         }
     }
-    
+
     public void testObjectCoercion() throws JSONException {
         JSONObject object = new JSONObject();
         object.put("foo", "{}");
@@ -810,7 +810,7 @@ public class JSONObjectTest extends TestCase {
         assertFalse(object.has("bar"));
         assertFalse(object.has(null));
     }
-    
+
     public void testOptNull() throws JSONException {
         JSONObject object = new JSONObject();
         object.put("foo", "bar");

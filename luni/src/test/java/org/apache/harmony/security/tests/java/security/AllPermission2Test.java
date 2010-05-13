@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -143,7 +143,7 @@ public class AllPermission2Test extends junit.framework.TestCase {
                 !(new SecurityPermission("ugh!").implies(new AllPermission())));
         assertTrue("AllPermission does not imply when parametr NULL", new AllPermission().implies(null));
     }
-    
+
     /**
      * @tests java.security.AllPermission#newPermissionCollection()
      */
@@ -159,14 +159,14 @@ public class AllPermission2Test extends junit.framework.TestCase {
         "or this action");
         AllPermission ap3 = new AllPermission("Remember this cool name",
         "and this action");
-        
+
         PermissionCollection pc1 = ap1.newPermissionCollection();
         assertFalse(pc1.isReadOnly());
-        
+
         Enumeration<Permission> perm1 = pc1.elements();
         assertFalse(perm1.hasMoreElements());
         assertNotNull(perm1);
-        
+
         pc1.add(ap1);
         pc1.add(ap2);
         assertTrue("Should imply", pc1.implies(ap1));
@@ -174,14 +174,14 @@ public class AllPermission2Test extends junit.framework.TestCase {
         assertTrue("Should imply", pc1.implies(ap3));
         perm1 = pc1.elements();
         assertTrue(perm1.hasMoreElements());
-        
+
         PermissionCollection pc2 = ap2.newPermissionCollection();
         assertFalse(pc2.isReadOnly());
-        
+
         Enumeration<Permission> perm2 = pc2.elements();
         assertFalse(perm2.hasMoreElements());
         assertNotNull(perm2);
-        
+
         pc2.add(ap1);
         pc2.add(ap2);
         assertTrue("Should imply", pc2.implies(ap1));

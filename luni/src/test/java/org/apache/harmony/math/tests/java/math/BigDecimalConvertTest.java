@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 
 /**
  * Class:  java.math.BigDecimal
- * Methods: doubleValue, floatValue, intValue, longValue,  
+ * Methods: doubleValue, floatValue, intValue, longValue,
  * valueOf, toString, toBigInteger
  */
 public class BigDecimalConvertTest extends TestCase {
@@ -571,7 +571,7 @@ public class BigDecimalConvertTest extends TestCase {
         }
     }
 
-// ANDROID ADDED 
+// ANDROID ADDED
 
     /**
      * @tests java.math.BigDecimal#intValueExact() Integer value of a negative

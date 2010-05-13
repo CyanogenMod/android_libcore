@@ -46,7 +46,7 @@ public class EllipticCurve {
     /**
      * Creates a new {@code EllipticCurve} with the specified field,
      * coefficients and seed.
-     * 
+     *
      * @param field
      *            the finite field of this elliptic curve.
      * @param a
@@ -61,15 +61,15 @@ public class EllipticCurve {
     public EllipticCurve(ECField field, BigInteger a, BigInteger b, byte[] seed) {
         this.field = field;
         if (this.field == null) {
-            throw new NullPointerException(Messages.getString("security.7A")); 
+            throw new NullPointerException(Messages.getString("security.7A"));
         }
         this.a = a;
         if (this.a == null) {
-            throw new NullPointerException(Messages.getString("security.7B")); 
+            throw new NullPointerException(Messages.getString("security.7B"));
         }
         this.b = b;
         if (this.b == null) {
-            throw new NullPointerException(Messages.getString("security.7C")); 
+            throw new NullPointerException(Messages.getString("security.7C"));
         }
         // make defensive copy
         if (seed == null) {
@@ -84,18 +84,18 @@ public class EllipticCurve {
         if (this.field instanceof ECFieldFp) {
             BigInteger p = ((ECFieldFp) this.field).getP();
             if (this.a.signum() < 0 || this.a.compareTo(p) >= 0) {
-                throw new IllegalArgumentException(Messages.getString("security.7D")); 
+                throw new IllegalArgumentException(Messages.getString("security.7D"));
             }
             if (this.b.signum() < 0 || this.b.compareTo(p) >= 0) {
-                throw new IllegalArgumentException(Messages.getString("security.7E")); 
+                throw new IllegalArgumentException(Messages.getString("security.7E"));
             }
         } else if (this.field instanceof ECFieldF2m) {
             int fieldSizeInBits = this.field.getFieldSize();
             if (!(this.a.bitLength() <= fieldSizeInBits)) {
-                throw new IllegalArgumentException(Messages.getString("security.7D")); 
+                throw new IllegalArgumentException(Messages.getString("security.7D"));
             }
             if (!(this.b.bitLength() <= fieldSizeInBits)) {
-                throw new IllegalArgumentException(Messages.getString("security.7E")); 
+                throw new IllegalArgumentException(Messages.getString("security.7E"));
             }
         }
     }
@@ -103,7 +103,7 @@ public class EllipticCurve {
     /**
      * Creates a new {@code EllipticCurve} with the specified field and
      * coefficients.
-     * 
+     *
      * @param field
      *            the finite field of this elliptic curve.
      * @param a
@@ -119,7 +119,7 @@ public class EllipticCurve {
 
     /**
      * Returns the coefficient {@code a} of this elliptic curve.
-     * 
+     *
      * @return the coefficient {@code a} of this elliptic curve.
      */
     public BigInteger getA() {
@@ -128,7 +128,7 @@ public class EllipticCurve {
 
     /**
      * Returns the coefficient {@code b} of this elliptic curve.
-     * 
+     *
      * @return the coefficient {@code b} of this elliptic curve.
      */
     public BigInteger getB() {
@@ -137,7 +137,7 @@ public class EllipticCurve {
 
     /**
      * Returns the finite field of this elliptic curve.
-     * 
+     *
      * @return the finite field of this elliptic curve.
      */
     public ECField getField() {
@@ -146,7 +146,7 @@ public class EllipticCurve {
 
     /**
      * Returns a copy of the seed that was used to generate this elliptic curve.
-     * 
+     *
      * @return a copy of the seed that was used to generate this elliptic curve,
      *         or {@code null} if none specified.
      */
@@ -163,7 +163,7 @@ public class EllipticCurve {
 
     /**
      * Returns whether the specified object equals to this elliptic curve.
-     * 
+     *
      * @param other
      *            the object to compare.
      * @return {@code true} if the specified object is equal to this elliptic
@@ -184,7 +184,7 @@ public class EllipticCurve {
 
     /**
      * Returns the hashcode of this elliptic curve.
-     * 
+     *
      * @return the hashcode of this elliptic curve.
      */
     public int hashCode() {

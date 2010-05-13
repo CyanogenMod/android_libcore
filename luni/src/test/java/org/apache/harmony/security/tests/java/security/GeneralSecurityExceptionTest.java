@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>GeneralSecurityException</code> class constructors and
  * methods.
- * 
+ *
  */
 public class GeneralSecurityExceptionTest extends TestCase {
 

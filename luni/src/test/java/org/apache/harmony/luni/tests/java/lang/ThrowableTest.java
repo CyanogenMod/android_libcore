@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-@TestTargetClass(Throwable.class) 
+@TestTargetClass(Throwable.class)
 public class ThrowableTest extends TestCase {
 
     /**
@@ -69,7 +69,7 @@ public class ThrowableTest extends TestCase {
         assertEquals("fixture", e.getMessage());
         assertNull(e.getCause());
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -95,17 +95,17 @@ public class ThrowableTest extends TestCase {
         NullPointerException npe = new NullPointerException();
         Throwable thr = new Throwable(message, npe);
         assertEquals("message is incorrect.", message, thr.getMessage());
-        assertEquals("cause is incorrect.", npe, thr.getCause());        
-        
+        assertEquals("cause is incorrect.", npe, thr.getCause());
+
         thr = new Throwable(null, npe);
         assertNull("message is not null.", thr.getMessage());
-        assertEquals("cause is incorrect.", npe, thr.getCause());  
-        
+        assertEquals("cause is incorrect.", npe, thr.getCause());
+
         thr = new Throwable(message, null);
         assertEquals("message is incorrect.", message, thr.getMessage());
-        assertNull("cause is not null.", thr.getCause());    
+        assertNull("cause is not null.", thr.getCause());
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -127,12 +127,12 @@ public class ThrowableTest extends TestCase {
         )
     })
     public void test_ConstructorLThrowable() {
-        
+
         NullPointerException npe = new NullPointerException();
         Throwable thr = new Throwable(npe);
-        
+
         assertEquals("Returned cause is incorrect.", npe, thr.getCause());
-        
+
         thr = new Throwable((Throwable) null);
         assertNull("The cause is not null.", thr.getCause());
     }
@@ -304,7 +304,7 @@ public class ThrowableTest extends TestCase {
         assertEquals("java.lang.Throwable: Throw", e.toString());
 
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -314,24 +314,24 @@ public class ThrowableTest extends TestCase {
     public void test_getLocalizedMessage() {
         String testMessage = "Test message";
         Throwable e = new Throwable(testMessage);
-        assertEquals("Returned incorrect localized message.", 
+        assertEquals("Returned incorrect localized message.",
                 testMessage, e.getLocalizedMessage());
-        
+
         TestThrowable tt = new TestThrowable(testMessage);
         assertEquals("localized message", tt.getLocalizedMessage());
     }
-    
+
     class TestThrowable extends Throwable {
-        
+
         public TestThrowable(String message) {
             super(message);
         }
-        
+
         public String getLocalizedMessage() {
             return "localized message";
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -345,7 +345,7 @@ public class ThrowableTest extends TestCase {
         StackTraceElement[] ste = thr.getStackTrace();
         assertNotNull("Returned stack trace is empty", ste.length != 0);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -359,19 +359,19 @@ public class ThrowableTest extends TestCase {
         Throwable thr = new Throwable();
         thr.initCause(iae);
         assertEquals("getCause returns incorrect cause.", iae, thr.getCause());
-        
+
         thr = new Throwable("message");
         thr.initCause(npe);
-        assertEquals("getCause returns incorrect cause.", npe, thr.getCause());        
-        
-        thr = new Throwable(message, npe);        
+        assertEquals("getCause returns incorrect cause.", npe, thr.getCause());
+
+        thr = new Throwable(message, npe);
         try {
             thr.initCause(iae);
             fail("IllegalStateException was not thrown.");
         } catch(IllegalStateException ise) {
             //expected
         }
-        
+
         thr = new Throwable(npe);
         try {
             thr.initCause(iae);
@@ -379,16 +379,16 @@ public class ThrowableTest extends TestCase {
         } catch(IllegalStateException ise) {
             //expected
         }
-        
+
         thr = new Throwable();
         try {
             thr.initCause(thr);
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException ise) {
             //expected
-        }        
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -402,7 +402,7 @@ public class ThrowableTest extends TestCase {
         Throwable thr1 = new Throwable(npe);
         thr1.setStackTrace(ste);
         assertEquals(ste.length, thr1.getStackTrace().length);
-        
+
         try {
             thr.setStackTrace(null);
             fail("NullPointerException is not thrown.");

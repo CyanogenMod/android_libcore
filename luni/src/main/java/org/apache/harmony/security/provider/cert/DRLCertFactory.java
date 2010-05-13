@@ -49,16 +49,16 @@ public final class DRLCertFactory extends Provider {
         // BEGIN android-changed
         // Avoid using a message resource string here, since it forces loading
         // all the messages in a non-error context.
-        super("DRLCertFactory", 1.0, "ASN.1, DER, PkiPath, PKCS7");  
+        super("DRLCertFactory", 1.0, "ASN.1, DER, PkiPath, PKCS7");
         // END android-changed
-                
+
         AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
             public Void run() {
                 // register the service
-                put("CertificateFactory.X509", 
-                    "org.apache.harmony.security.provider.cert.X509CertFactoryImpl"); 
+                put("CertificateFactory.X509",
+                    "org.apache.harmony.security.provider.cert.X509CertFactoryImpl");
                 // mapping the alias
-                put("Alg.Alias.CertificateFactory.X.509", "X509");  
+                put("Alg.Alias.CertificateFactory.X.509", "X509");
                     return null;
             }
         });

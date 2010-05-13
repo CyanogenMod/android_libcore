@@ -60,9 +60,9 @@ public class CookieManager extends CookieHandler {
 
     private CookiePolicy policy;
 
-    private static final String VERSION_ZERO_HEADER = "Set-cookie"; 
+    private static final String VERSION_ZERO_HEADER = "Set-cookie";
 
-    private static final String VERSION_ONE_HEADER = "Set-cookie2"; 
+    private static final String VERSION_ONE_HEADER = "Set-cookie2";
 
     /**
      * Constructs a new cookie manager.
@@ -108,7 +108,7 @@ public class CookieManager extends CookieHandler {
     public Map<String, List<String>> get(URI uri,
             Map<String, List<String>> requestHeaders) throws IOException {
         if (uri == null || requestHeaders == null) {
-            throw new IllegalArgumentException(Msg.getString("KB004")); 
+            throw new IllegalArgumentException(Msg.getString("KB004"));
         }
         List<HttpCookie> cookies = store.get(uri);
         for (int i = 0; i < cookies.size(); i++) {
@@ -139,14 +139,14 @@ public class CookieManager extends CookieHandler {
             }
         }
         if (versionOne && !cookies.isEmpty()) {
-            cookieStr.add("$Version=\"1\""); 
+            cookieStr.add("$Version=\"1\"");
         }
         // add every cookie's string representation into map
         for (HttpCookie cookie : cookies) {
             cookieStr.add(cookie.toString());
         }
         // TODO So far only "Cookie" head detected
-        map.put("Cookie", cookieStr); 
+        map.put("Cookie", cookieStr);
         return Collections.unmodifiableMap(map);
     }
 
@@ -164,7 +164,7 @@ public class CookieManager extends CookieHandler {
     public void put(URI uri, Map<String, List<String>> responseHeaders)
             throws IOException {
         if (uri == null || responseHeaders == null) {
-            throw new IllegalArgumentException(Msg.getString("KA019")); 
+            throw new IllegalArgumentException(Msg.getString("KA019"));
         }
         // parse and construct cookies according to the map
         List<HttpCookie> cookies = parseCookie(responseHeaders);

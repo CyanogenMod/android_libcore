@@ -86,14 +86,14 @@ public interface SHA1_Data {
 //    /**
 //     *  name of native library to use on Windows platform
 //     */
-//    static final String LIBRARY_NAME = "hysecurity";  
+//    static final String LIBRARY_NAME = "hysecurity";
     // END android-removed
 
 
     /**
      *  names of random devices on Linux platform
      */
-    // BEGIN android-changed: /dev/random seems to be empty on Android 
-    static final String DEVICE_NAMES[] = { "/dev/urandom" /*, "/dev/random" */ };  
+    // BEGIN android-changed: /dev/random seems to be empty on Android
+    static final String DEVICE_NAMES[] = { "/dev/urandom" /*, "/dev/random" */ };
     // END android-changed
 }

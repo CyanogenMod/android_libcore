@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -58,7 +58,7 @@ public class Date extends java.util.Date {
     /**
      * Creates a date which corresponds to the day determined by the supplied
      * milliseconds time value {@code theDate}.
-     * 
+     *
      * @param theDate
      *            a time value in milliseconds since the epoch - January 1 1970
      *            00:00:00 GMT. The time value (hours, minutes, seconds,
@@ -154,7 +154,7 @@ public class Date extends java.util.Date {
     /**
      * Sets this date to a date supplied as a milliseconds value. The date is
      * set based on the supplied time value and rounded to zero GMT for that day.
-     * 
+     *
      * @param theTime
      *            the time in milliseconds since the Epoch.
      */
@@ -169,7 +169,7 @@ public class Date extends java.util.Date {
 
     /**
      * Produces a string representation of the date in SQL format
-     * 
+     *
      * @return a string representation of the date in SQL format - {@code
      *         "yyyy-mm-dd"}.
      */
@@ -186,23 +186,23 @@ public class Date extends java.util.Date {
         return sb.toString();
     }
 
-    private static final String PADDING = "0000";  
+    private static final String PADDING = "0000";
 
-    /* 
-    * Private method to format the time 
-    */ 
-    private void format(int date, int digits, StringBuilder sb) { 
+    /*
+    * Private method to format the time
+    */
+    private void format(int date, int digits, StringBuilder sb) {
         String str = String.valueOf(date);
         if (digits - str.length() > 0) {
             sb.append(PADDING.substring(0, digits - str.length()));
         }
-        sb.append(str); 
+        sb.append(str);
     }
 
     /**
      * Creates a {@code Date} from a string representation of a date in SQL
      * format.
-     * 
+     *
      * @param dateString
      *            the string representation of a date in SQL format - " {@code
      *            yyyy-mm-dd}".

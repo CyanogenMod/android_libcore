@@ -42,7 +42,7 @@ public abstract class AbstractSelector extends Selector {
 
     /**
      * Constructs a new {@code AbstractSelector}.
-     * 
+     *
      * @param selectorProvider
      *            the selector provider that creates this selector.
      */
@@ -54,7 +54,7 @@ public abstract class AbstractSelector extends Selector {
      * Closes this selector. This method does nothing if this selector is
      * already closed. The actual closing must be implemented by subclasses in
      * {@code implCloseSelector()}.
-     * 
+     *
      * @throws IOException
      *             if an I/O error occurs.
      */
@@ -67,7 +67,7 @@ public abstract class AbstractSelector extends Selector {
 
     /**
      * Implements the closing of this channel.
-     * 
+     *
      * @throws IOException
      *             if an I/O error occurs.
      */
@@ -86,7 +86,7 @@ public abstract class AbstractSelector extends Selector {
 
     /**
      * Gets this selector's provider.
-     * 
+     *
      * @return the provider of this selector.
      */
     @Override
@@ -96,7 +96,7 @@ public abstract class AbstractSelector extends Selector {
 
     /**
      * Returns this channel's set of canceled selection keys.
-     * 
+     *
      * @return the set of canceled selection keys.
      */
     protected final Set<SelectionKey> cancelledKeys() {
@@ -105,7 +105,7 @@ public abstract class AbstractSelector extends Selector {
 
     /**
      * Registers a channel with this selector.
-     * 
+     *
      * @param channel
      *            the channel to be registered.
      * @param operations
@@ -119,7 +119,7 @@ public abstract class AbstractSelector extends Selector {
 
     /**
      * Deletes the key from the channel's key set.
-     * 
+     *
      * @param key
      *            the key.
      */

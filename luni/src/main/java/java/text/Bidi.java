@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,12 +28,12 @@ import org.apache.harmony.text.BidiWrapper;
  * Provides the Unicode Bidirectional Algorithm. The algorithm is
  * defined in the Unicode Standard Annex #9, version 13, also described in The
  * Unicode Standard, Version 4.0 .
- * 
+ *
  * Use a {@code Bidi} object to get the information on the position reordering of a
  * bidirectional text, such as Arabic or Hebrew. The natural display ordering of
  * horizontal text in these languages is from right to left, while they order
  * numbers from left to right.
- * 
+ *
  * If the text contains multiple runs, the information of each run can be
  * obtained from the run index. The level of any particular run indicates the
  * direction of the text as well as the nesting level. Left-to-right runs have
@@ -77,7 +77,7 @@ public final class Bidi {
     //     }
     // }
     //
-    // /* 
+    // /*
     //  * Use an embedded ICU4J Bidi object to do all the work
     //  */
     // private com.ibm.icu.text.Bidi icuBidi;
@@ -176,7 +176,7 @@ public final class Bidi {
 
     /**
      * Creates a {@code Bidi} object.
-     * 
+     *
      * @param text
      *            the char array of the paragraph text that is processed.
      * @param textStart
@@ -229,7 +229,7 @@ public final class Bidi {
         if (paragraphLength < 0) {
             throw new IllegalArgumentException("Negative paragraph length " + paragraphLength);
         }
-        
+
         // BEGIN android-changed
         long pBidi = createUBiDi(text, textStart, embeddings, embStart,
                 paragraphLength, flags);
@@ -240,7 +240,7 @@ public final class Bidi {
 
     /**
      * Creates a {@code Bidi} object.
-     * 
+     *
      * @param paragraph
      *            the string containing the paragraph text to perform the
      *            algorithm on.
@@ -354,7 +354,7 @@ public final class Bidi {
 
     /**
      * Returns whether the base level is from left to right.
-     * 
+     *
      * @return true if the base level is from left to right.
      */
     public boolean baseIsLeftToRight() {
@@ -366,7 +366,7 @@ public final class Bidi {
     /**
      * Creates a new {@code Bidi} object containing the information of one line
      * from this object.
-     * 
+     *
      * @param lineStart
      *            the start offset of the line.
      * @param lineLimit
@@ -420,7 +420,7 @@ public final class Bidi {
 
     /**
      * Returns the base level.
-     * 
+     *
      * @return the base level.
      */
     public int getBaseLevel() {
@@ -431,7 +431,7 @@ public final class Bidi {
 
     /**
      * Returns the length of the text in the {@code Bidi} object.
-     * 
+     *
      * @return the length.
      */
     public int getLength() {
@@ -442,7 +442,7 @@ public final class Bidi {
 
     /**
      * Returns the level of a specified character.
-     * 
+     *
      * @param offset
      *            the offset of the character.
      * @return the level.
@@ -459,7 +459,7 @@ public final class Bidi {
 
     /**
      * Returns the number of runs in the bidirectional text.
-     * 
+     *
      * @return the number of runs, at least 1.
      */
     public int getRunCount() {
@@ -470,7 +470,7 @@ public final class Bidi {
 
     /**
      * Returns the level of the specified run.
-     * 
+     *
      * @param run
      *            the index of the run.
      * @return the level of the run.
@@ -483,7 +483,7 @@ public final class Bidi {
 
     /**
      * Returns the limit offset of the specified run.
-     * 
+     *
      * @param run
      *            the index of the run.
      * @return the limit offset of the run.
@@ -496,7 +496,7 @@ public final class Bidi {
 
     /**
      * Returns the start offset of the specified run.
-     * 
+     *
      * @param run
      *            the index of the run.
      * @return the start offset of the run.
@@ -510,7 +510,7 @@ public final class Bidi {
     /**
      * Indicates whether the text is from left to right, that is, both the base
      * direction and the text direction is from left to right.
-     * 
+     *
      * @return {@code true} if the text is from left to right; {@code false}
      *         otherwise.
      */
@@ -522,7 +522,7 @@ public final class Bidi {
 
     /**
      * Indicates whether the text direction is mixed.
-     * 
+     *
      * @return {@code true} if the text direction is mixed; {@code false}
      *         otherwise.
      */
@@ -535,7 +535,7 @@ public final class Bidi {
     /**
      * Indicates whether the text is from right to left, that is, both the base
      * direction and the text direction is from right to left.
-     * 
+     *
      * @return {@code true} if the text is from right to left; {@code false}
      *         otherwise.
      */
@@ -551,7 +551,7 @@ public final class Bidi {
      * of objects at {@code index} from {@code objectStart} to {@code
      * objectStart + count} will be reordered according to the range of levels
      * at {@code index} from {@code levelStart} to {@code levelStart + count}.
-     * 
+     *
      * @param levels
      *            the level array, which is already determined.
      * @param levelStart
@@ -576,7 +576,7 @@ public final class Bidi {
                     ", levelStart=" + levelStart + ", objects=" + objects.length +
                     ", objectStart=" + objectStart + ", count=" + count + ")");
         }
-        
+
         // BEGIN android-changed
         byte[] realLevels = new byte[count];
         System.arraycopy(levels, levelStart, realLevels, 0, count);
@@ -595,7 +595,7 @@ public final class Bidi {
     /**
      * Indicates whether a range of characters of a text requires a {@code Bidi}
      * object to display properly.
-     * 
+     *
      * @param text
      *            the char array of the text.
      * @param start
@@ -614,7 +614,7 @@ public final class Bidi {
         if (limit < 0 || start < 0 || start > limit || limit > text.length) {
             throw new IllegalArgumentException();
         }
-        
+
         // BEGIN android-changed
         Bidi bidi = new Bidi(text, start, null, 0, limit - start, 0);
         return !bidi.isLeftToRight();
@@ -624,7 +624,7 @@ public final class Bidi {
     /**
      * Returns the internal message of the {@code Bidi} object, used in
      * debugging.
-     * 
+     *
      * @return a string containing the internal message.
      */
     @Override

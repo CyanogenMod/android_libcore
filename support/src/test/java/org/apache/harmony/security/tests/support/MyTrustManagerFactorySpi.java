@@ -26,9 +26,9 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactorySpi;
 
 /**
- * Class for vertifying TrustManagerFactorySpi and TrustManagerFactory 
+ * Class for vertifying TrustManagerFactorySpi and TrustManagerFactory
  * functionality
- * 
+ *
  */
 
 public class MyTrustManagerFactorySpi extends TrustManagerFactorySpi {
@@ -57,8 +57,8 @@ public class MyTrustManagerFactorySpi extends TrustManagerFactorySpi {
     protected TrustManager[] engineGetTrustManagers() {
         return null;
     }
-    
-    
+
+
     public static class Parameters implements ManagerFactoryParameters {
         private KeyStore keyStore;
         public Parameters (KeyStore ks) {

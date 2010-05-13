@@ -33,7 +33,7 @@ public final class Unsafe {
 
     /** non-null; the lang-access utility instance */
     private final LangAccess lang;
-    
+
     /**
      * This class is only privately instantiable.
      */
@@ -61,7 +61,7 @@ public final class Unsafe {
     /**
      * Gets the raw byte offset from the start of an object's memory to
      * the memory used to store the indicated instance field.
-     * 
+     *
      * @param field non-null; the field in question, which must be an
      * instance field
      * @return the offset to the field
@@ -78,7 +78,7 @@ public final class Unsafe {
     /**
      * Helper for {@link #objectFieldOffset}, which does all the work,
      * assuming the parameter is deemed valid.
-     * 
+     *
      * @param field non-null; the instance field
      * @return the offset to the field
      */
@@ -87,7 +87,7 @@ public final class Unsafe {
     /**
      * Gets the offset from the start of an array object's memory to
      * the memory used to store its initial (zeroeth) element.
-     * 
+     *
      * @param clazz non-null; class in question; must be an array class
      * @return the offset to the initial element
      */
@@ -103,14 +103,14 @@ public final class Unsafe {
     /**
      * Helper for {@link #arrayBaseOffset}, which does all the work,
      * assuming the parameter is deemed valid.
-     * 
+     *
      * @return the offset to the field
      */
     private static native int arrayBaseOffset0(Class clazz);
 
     /**
      * Gets the size of each element of the given array class.
-     * 
+     *
      * @param clazz non-null; class in question; must be an array class
      * @return &gt; 0; the size of each element of the array
      */
@@ -126,7 +126,7 @@ public final class Unsafe {
     /**
      * Helper for {@link #arrayIndexScale}, which does all the work,
      * assuming the parameter is deemed valid.
-     * 
+     *
      * @return the offset to the field
      */
     private static native int arrayIndexScale0(Class clazz);
@@ -134,7 +134,7 @@ public final class Unsafe {
     /**
      * Performs a compare-and-set operation on an <code>int</code>
      * field within the given object.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
      * @param expectedValue expected value of the field
@@ -145,11 +145,11 @@ public final class Unsafe {
      */
     public native boolean compareAndSwapInt(Object obj, long offset,
             int expectedValue, int newValue);
-    
+
     /**
      * Performs a compare-and-set operation on a <code>long</code>
      * field within the given object.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
      * @param expectedValue expected value of the field
@@ -160,11 +160,11 @@ public final class Unsafe {
      */
     public native boolean compareAndSwapLong(Object obj, long offset,
             long expectedValue, long newValue);
-    
+
     /**
      * Performs a compare-and-set operation on an <code>Object</code>
      * field (that is, a reference field) within the given object.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
      * @param expectedValue expected value of the field
@@ -179,7 +179,7 @@ public final class Unsafe {
     /**
      * Gets an <code>int</code> field from the given object,
      * using <code>volatile</code> semantics.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
      * @return the retrieved value
@@ -189,17 +189,17 @@ public final class Unsafe {
     /**
      * Stores an <code>int</code> field into the given object,
      * using <code>volatile</code> semantics.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
-     * @param newValue the value to store 
+     * @param newValue the value to store
      */
     public native void putIntVolatile(Object obj, long offset, int newValue);
-    
+
     /**
      * Gets a <code>long</code> field from the given object,
      * using <code>volatile</code> semantics.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
      * @return the retrieved value
@@ -209,17 +209,17 @@ public final class Unsafe {
     /**
      * Stores a <code>long</code> field into the given object,
      * using <code>volatile</code> semantics.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
-     * @param newValue the value to store 
+     * @param newValue the value to store
      */
     public native void putLongVolatile(Object obj, long offset, long newValue);
 
     /**
      * Gets an <code>Object</code> field from the given object,
      * using <code>volatile</code> semantics.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
      * @return the retrieved value
@@ -229,17 +229,17 @@ public final class Unsafe {
     /**
      * Stores an <code>Object</code> field into the given object,
      * using <code>volatile</code> semantics.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
-     * @param newValue the value to store 
+     * @param newValue the value to store
      */
     public native void putObjectVolatile(Object obj, long offset,
             Object newValue);
 
     /**
      * Gets an <code>int</code> field from the given object.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
      * @return the retrieved value
@@ -248,10 +248,10 @@ public final class Unsafe {
 
     /**
      * Stores an <code>int</code> field into the given object.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
-     * @param newValue the value to store 
+     * @param newValue the value to store
      */
     public native void putInt(Object obj, long offset, int newValue);
 
@@ -265,7 +265,7 @@ public final class Unsafe {
 
     /**
      * Gets a <code>long</code> field from the given object.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
      * @return the retrieved value
@@ -274,10 +274,10 @@ public final class Unsafe {
 
     /**
      * Stores a <code>long</code> field into the given object.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
-     * @param newValue the value to store 
+     * @param newValue the value to store
      */
     public native void putLong(Object obj, long offset, long newValue);
 
@@ -291,7 +291,7 @@ public final class Unsafe {
 
     /**
      * Gets an <code>Object</code> field from the given object.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
      * @return the retrieved value
@@ -300,10 +300,10 @@ public final class Unsafe {
 
     /**
      * Stores an <code>Object</code> field into the given object.
-     * 
+     *
      * @param obj non-null; object containing the field
      * @param offset offset to the field within <code>obj</code>
-     * @param newValue the value to store 
+     * @param newValue the value to store
      */
     public native void putObject(Object obj, long offset, Object newValue);
 
@@ -321,10 +321,10 @@ public final class Unsafe {
      * a previous call to {@link #unpark}. This method may also return
      * spuriously (that is, without the thread being told to unpark
      * and without the indicated amount of time elapsing).
-     * 
+     *
      * <p>See {@link java.util.concurrent.locks.LockSupport} for more
      * in-depth information of the behavior of this method.</p>
-     * 
+     *
      * @param absolute whether the given time value is absolute
      * milliseconds-since-the-epoch (<code>true</code>) or relative
      * nanoseconds-from-now (<code>false</code>)
@@ -340,7 +340,7 @@ public final class Unsafe {
 
     /**
      * Unparks the given object, which must be a {@link Thread}.
-     * 
+     *
      * <p>See {@link java.util.concurrent.locks.LockSupport} for more
      * in-depth information of the behavior of this method.</p>
      *

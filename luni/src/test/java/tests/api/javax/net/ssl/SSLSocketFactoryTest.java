@@ -32,9 +32,9 @@ import junit.framework.TestCase;
 
 import tests.support.Support_PortManager;
 
-@TestTargetClass(SSLSocketFactory.class) 
+@TestTargetClass(SSLSocketFactory.class)
 public class SSLSocketFactoryTest extends TestCase {
-    
+
     private ServerSocket ss;
 
     protected int startServer(String name) {
@@ -64,7 +64,7 @@ public class SSLSocketFactoryTest extends TestCase {
             fail("Unexpected exception " + e.toString());
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSocketFactory#getDefault()
      */
@@ -78,7 +78,7 @@ public class SSLSocketFactoryTest extends TestCase {
         assertNotNull("Incorrect default socket factory",
                 SSLSocketFactory.getDefault());
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSocketFactory#createSocket(Socket s, String host, int port, boolean autoClose)
      */
@@ -136,7 +136,7 @@ public class SSLSocketFactoryTest extends TestCase {
             fail(e + " was thrown instead of UnknownHostException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSocketFactory#getDefaultCipherSuites()
      */
@@ -155,7 +155,7 @@ public class SSLSocketFactoryTest extends TestCase {
             fail("Unexpected exception " + e.toString());
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLSocketFactory#getSupportedCipherSuites()
      */
@@ -174,5 +174,5 @@ public class SSLSocketFactoryTest extends TestCase {
             fail("Unexpected exception " + e.toString());
         }
     }
-    
+
 }

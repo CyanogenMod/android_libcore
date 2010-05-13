@@ -32,7 +32,7 @@ import org.apache.harmony.luni.platform.PlatformAddressFactory;
  * <p>
  * This class is marked final for runtime performance.
  * </p>
- * 
+ *
  */
 final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
@@ -118,9 +118,9 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     /*
      * Override ByteBuffer.put(byte[], int, int) to improve performance.
-     * 
+     *
      * (non-Javadoc)
-     * 
+     *
      * @see java.nio.ByteBuffer#put(byte[], int, int)
      */
     @Override

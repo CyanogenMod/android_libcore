@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 @TestTargetClass( UnrecoverableEntryException.class)
 /**
  * Tests for <code>UnrecoverableEntryException</code> class
- * 
+ *
  */
 
 public class UnrecoverableEntryExceptionTest extends TestCase {
@@ -77,7 +77,7 @@ public class UnrecoverableEntryExceptionTest extends TestCase {
                     .getMessage(), msgs[i]);
             assertNull("getCause() must return null", tE.getCause());
         }
-        
+
         try {
             tE = new UnrecoverableEntryException(null);
         } catch (Exception e) {

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -102,7 +102,7 @@ public class ZipEntryTest extends junit.framework.TestCase {
 		ZipEntry zipEntry = new ZipEntry("zippy.zip");
 		assertNull("Incorrect Comment Returned.", zipEntry.getComment());
 		zipEntry.setComment("This Is A Comment");
-		assertEquals("Incorrect Comment Returned.", 
+		assertEquals("Incorrect Comment Returned.",
 				"This Is A Comment", zipEntry.getComment());
 	}
 
@@ -197,7 +197,7 @@ public class ZipEntryTest extends junit.framework.TestCase {
 		// java.util.zip.ZipEntry.setComment(java.lang.String)
 		zentry = zfile.getEntry("File1.txt");
 		zentry.setComment("Set comment using api");
-		assertEquals("Comment not correctly set", 
+		assertEquals("Comment not correctly set",
 				"Set comment using api", zentry.getComment());
 		String n = null;
 		zentry.setComment(n);

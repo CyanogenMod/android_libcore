@@ -37,7 +37,7 @@ public abstract class CertPathBuilderTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         params = getCertPathParameters();
     }
 
@@ -76,7 +76,7 @@ public abstract class CertPathBuilderTest extends TestCase {
         CertPath path = builderResult.getCertPath();
 
         assertNotNull("built path is null", path);
-        
+
         validateCertPath(path);
     }
 }

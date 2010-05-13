@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -268,7 +268,7 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Returns a new instance of {@code BreakIterator} to iterate over
      * characters using the given locale.
-     * 
+     *
      * @param where
      *            the given locale.
      * @return a new instance of {@code BreakIterator} using the given locale.
@@ -290,7 +290,7 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Returns a new instance of {@code BreakIterator} to iterate over
      * line breaks using the given locale.
-     * 
+     *
      * @param where
      *            the given locale.
      * @return a new instance of {@code BreakIterator} using the given locale.
@@ -313,7 +313,7 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Returns a new instance of {@code BreakIterator} to iterate over
      * sentence-breaks using the given locale.
-     * 
+     *
      * @param where
      *            the given locale.
      * @return a new instance of {@code BreakIterator} using the given locale.
@@ -336,7 +336,7 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Returns a new instance of {@code BreakIterator} to iterate over
      * word-breaks using the given locale.
-     * 
+     *
      * @param where
      *            the given locale.
      * @return a new instance of {@code BreakIterator} using the given locale.
@@ -351,7 +351,7 @@ public abstract class BreakIterator implements Cloneable {
      * returns true, the current iteration position is set to the given
      * position; if the function returns false, the current iteration position
      * is set as though {@link #following(int)} had been called.
-     * 
+     *
      * @param offset
      *            the given offset to check.
      * @return {@code true} if the given offset is a boundary position; {@code
@@ -380,7 +380,7 @@ public abstract class BreakIterator implements Cloneable {
      * Sets the new text string to be analyzed, the current position will be
      * reset to the beginning of this new string, and the old string will be
      * lost.
-     * 
+     *
      * @param newText
      *            the new text string to be analyzed.
      */
@@ -390,7 +390,7 @@ public abstract class BreakIterator implements Cloneable {
 
     /**
      * Returns this iterator's current position.
-     * 
+     *
      * @return this iterator's current position.
      */
     public abstract int current();
@@ -398,7 +398,7 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Sets this iterator's current position to the first boundary and returns
      * that position.
-     * 
+     *
      * @return the position of the first boundary.
      */
     public abstract int first();
@@ -422,7 +422,7 @@ public abstract class BreakIterator implements Cloneable {
      * iterator used by this object. If the invoker wants to modify the status
      * of the returned iterator, it is recommended to first create a clone of
      * the iterator returned.
-     * 
+     *
      * @return a {@code CharacterIterator} which represents the text being
      *         analyzed.
      */
@@ -431,7 +431,7 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Sets this iterator's current position to the last boundary and returns
      * that position.
-     * 
+     *
      * @return the position of last boundary.
      */
     public abstract int last();
@@ -440,7 +440,7 @@ public abstract class BreakIterator implements Cloneable {
      * Sets this iterator's current position to the next boundary after the
      * current position, and returns this position. Returns {@code DONE} if no
      * boundary was found after the current position.
-     * 
+     *
      * @return the position of last boundary.
      */
     public abstract int next();
@@ -449,7 +449,7 @@ public abstract class BreakIterator implements Cloneable {
      * Sets this iterator's current position to the next boundary after the
      * given position, and returns that position. Returns {@code DONE} if no
      * boundary was found after the given position.
-     * 
+     *
      * @param n
      *            the given position.
      * @return the position of last boundary.
@@ -460,7 +460,7 @@ public abstract class BreakIterator implements Cloneable {
      * Sets this iterator's current position to the previous boundary before the
      * current position and returns that position. Returns {@code DONE} if
      * no boundary was found before the current position.
-     * 
+     *
      * @return the position of last boundary.
      */
     public abstract int previous();
@@ -469,7 +469,7 @@ public abstract class BreakIterator implements Cloneable {
      * Sets the new text to be analyzed by the given {@code CharacterIterator}.
      * The position will be reset to the beginning of the new text, and other
      * status information of this iterator will be kept.
-     * 
+     *
      * @param newText
      *            the {@code CharacterIterator} referring to the text to be
      *            analyzed.
@@ -479,7 +479,7 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Creates a copy of this iterator, all status information including the
      * current position are kept the same.
-     * 
+     *
      * @return a copy of this iterator.
      */
     @Override

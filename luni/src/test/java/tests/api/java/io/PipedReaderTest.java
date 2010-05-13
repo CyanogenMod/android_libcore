@@ -72,7 +72,7 @@ public class PipedReaderTest extends TestCase {
     public void test_ConstructorLjava_io_PipedWriter() throws IOException {
         preader = new PipedReader(new PipedWriter());
     }
-    
+
     /**
      * @tests java.io.PipedReader#PipedReader(java.io.PipedWriter,
      *        int)
@@ -83,14 +83,14 @@ public class PipedReaderTest extends TestCase {
         // int)
         try {
             preader = new PipedReader(null, -1);
-            fail("Should throw IllegalArgumentException"); 
+            fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }
-        
+
         try {
             preader = new PipedReader(null, 0);
-            fail("Should throw IllegalArgumentException"); 
+            fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -104,14 +104,14 @@ public class PipedReaderTest extends TestCase {
         // Test for method java.io.PipedReader(int)
         try {
             preader = new PipedReader(-1);
-            fail("Should throw IllegalArgumentException"); 
+            fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }
-        
+
         try {
             preader = new PipedReader(0);
-            fail("Should throw IllegalArgumentException"); 
+            fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -259,7 +259,7 @@ public class PipedReaderTest extends TestCase {
         pr.close();
         try {
             pr.read(buf, 0, 10);
-            fail("Should throws IOException"); 
+            fail("Should throws IOException");
         } catch (IOException e) {
             // expected
         } finally {
@@ -272,7 +272,7 @@ public class PipedReaderTest extends TestCase {
         pr.close();
         try {
             pr.read(buf, 0, 10);
-            fail("Should throws IOException"); 
+            fail("Should throws IOException");
         } catch (IOException e) {
             // expected
         } finally {
@@ -285,7 +285,7 @@ public class PipedReaderTest extends TestCase {
         pr.close();
         try {
             pr.read(buf, -1, 0);
-            fail("Should throws IOException"); 
+            fail("Should throws IOException");
         } catch (IOException e) {
             // expected
         } finally {
@@ -299,7 +299,7 @@ public class PipedReaderTest extends TestCase {
         pr.close();
         try {
             pr.read(buf, 0, -1);
-            fail("Should throws IOException"); 
+            fail("Should throws IOException");
         } catch (IOException e) {
             // expected
         } finally {
@@ -313,7 +313,7 @@ public class PipedReaderTest extends TestCase {
         pr.close();
         try {
             pr.read(buf, 1, 10);
-            fail("Should throws IOException"); 
+            fail("Should throws IOException");
         } catch (IOException e) {
             // expected
         } finally {
@@ -326,7 +326,7 @@ public class PipedReaderTest extends TestCase {
         pr.close();
         try {
             pr.read(new char[0], -1, -1);
-            fail("should throw IOException"); 
+            fail("should throw IOException");
         } catch (IOException e) {
             // expected
         } finally {
@@ -339,7 +339,7 @@ public class PipedReaderTest extends TestCase {
         pr.close();
         try {
             pr.read(null, 0, 1);
-            fail("should throw IOException"); 
+            fail("should throw IOException");
         } catch (IOException e) {
             // expected
         } finally {
@@ -351,7 +351,7 @@ public class PipedReaderTest extends TestCase {
         pr = new PipedReader(pw);
         try {
             pr.read(null, -1, 1);
-            fail("should throw IndexOutOfBoundsException"); 
+            fail("should throw IndexOutOfBoundsException");
         } catch (NullPointerException expected) { // android-added
         } catch (IndexOutOfBoundsException e) {
             // expected
@@ -364,7 +364,7 @@ public class PipedReaderTest extends TestCase {
         pr = new PipedReader(pw);
         try {
             pr.read(null, 0, -1);
-            fail("should throw NullPointerException"); 
+            fail("should throw NullPointerException");
         } catch (NullPointerException e) {
             // expected
         } finally {
@@ -376,7 +376,7 @@ public class PipedReaderTest extends TestCase {
         pr = new PipedReader(pw);
         try {
             pr.read(new char[10], 11, 0);
-            fail("should throw IndexOutOfBoundsException"); 
+            fail("should throw IndexOutOfBoundsException");
         } catch (IndexOutOfBoundsException e) {
             // expected
         } finally {
@@ -388,7 +388,7 @@ public class PipedReaderTest extends TestCase {
         pr = new PipedReader(pw);
         try {
             pr.read(null, 1, 0);
-            fail("should throw NullPointerException"); 
+            fail("should throw NullPointerException");
         } catch (NullPointerException e) {
             // expected
         } finally {

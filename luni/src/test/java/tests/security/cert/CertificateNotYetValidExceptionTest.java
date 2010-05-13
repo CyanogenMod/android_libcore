@@ -34,7 +34,7 @@ import java.security.cert.CertificateNotYetValidException;
 
 /**
  * Tests for <code>DigestException</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CertificateNotYetValidException.class)
 public class CertificateNotYetValidExceptionTest extends TestCase {

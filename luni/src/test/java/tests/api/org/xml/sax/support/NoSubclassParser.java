@@ -50,5 +50,5 @@ public class NoSubclassParser {
 
     public void setLocale(Locale locale) {
     }
-    
+
 }

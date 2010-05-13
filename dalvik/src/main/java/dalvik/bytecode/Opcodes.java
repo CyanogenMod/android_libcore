@@ -66,7 +66,7 @@ public interface Opcodes {
 
     int OP_NEW_INSTANCE                 = 0x22;
     int OP_NEW_ARRAY                    = 0x23;
-    
+
     int OP_FILLED_NEW_ARRAY             = 0x24;
     int OP_FILLED_NEW_ARRAY_RANGE       = 0x25;
     int OP_FILL_ARRAY_DATA              = 0x26;
@@ -77,7 +77,7 @@ public interface Opcodes {
     int OP_GOTO_32                      = 0x2a;
     int OP_PACKED_SWITCH                = 0x2b;
     int OP_SPARSE_SWITCH                = 0x2c;
-    
+
     int OP_CMPL_FLOAT                   = 0x2d;
     int OP_CMPG_FLOAT                   = 0x2e;
     int OP_CMPL_DOUBLE                  = 0x2f;
@@ -151,7 +151,7 @@ public interface Opcodes {
     int OP_INVOKE_INTERFACE             = 0x72;
 
     /* 73 unused */
-    
+
     int OP_INVOKE_VIRTUAL_RANGE         = 0x74;
     int OP_INVOKE_SUPER_RANGE           = 0x75;
     int OP_INVOKE_DIRECT_RANGE          = 0x76;

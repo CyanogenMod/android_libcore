@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -289,9 +289,9 @@ public abstract class DateFormat extends Format {
 
     /**
      * Returns a new instance of {@code DateFormat} with the same properties.
-     * 
+     *
      * @return a shallow copy of this {@code DateFormat}.
-     * 
+     *
      * @see java.lang.Cloneable
      */
     @Override
@@ -305,7 +305,7 @@ public abstract class DateFormat extends Format {
     /**
      * Compares this date format with the specified object and indicates if they
      * are equal.
-     * 
+     *
      * @param object
      *            the object to compare with this date format.
      * @return {@code true} if {@code object} is a {@code DateFormat} object and
@@ -370,7 +370,7 @@ public abstract class DateFormat extends Format {
 
     /**
      * Formats the specified date using the rules of this date format.
-     * 
+     *
      * @param date
      *            the date to format.
      * @return the formatted string.
@@ -411,7 +411,7 @@ public abstract class DateFormat extends Format {
 
     /**
      * Returns the calendar used by this {@code DateFormat}.
-     * 
+     *
      * @return the calendar used by this date format.
      */
     public Calendar getCalendar() {
@@ -421,7 +421,7 @@ public abstract class DateFormat extends Format {
     /**
      * Returns a {@code DateFormat} instance for formatting and parsing dates in
      * the DEFAULT style for the default locale.
-     * 
+     *
      * @return the {@code DateFormat} instance for the default style and locale.
      */
     public final static DateFormat getDateInstance() {
@@ -448,7 +448,7 @@ public abstract class DateFormat extends Format {
     /**
      * Returns a {@code DateFormat} instance for formatting and parsing dates in
      * the specified style for the specified locale.
-     * 
+     *
      * @param style
      *            one of SHORT, MEDIUM, LONG, FULL, or DEFAULT.
      * @param locale
@@ -467,7 +467,7 @@ public abstract class DateFormat extends Format {
     /**
      * Returns a {@code DateFormat} instance for formatting and parsing dates
      * and time values in the DEFAULT style for the default locale.
-     * 
+     *
      * @return the {@code DateFormat} instance for the default style and locale.
      */
     public final static DateFormat getDateTimeInstance() {
@@ -497,7 +497,7 @@ public abstract class DateFormat extends Format {
     /**
      * Returns a {@code DateFormat} instance for formatting and parsing dates
      * and time values in the specified styles for the specified locale.
-     * 
+     *
      * @param dateStyle
      *            one of SHORT, MEDIUM, LONG, FULL, or DEFAULT.
      * @param timeStyle
@@ -521,7 +521,7 @@ public abstract class DateFormat extends Format {
     /**
      * Returns a {@code DateFormat} instance for formatting and parsing dates
      * and times in the SHORT style for the default locale.
-     * 
+     *
      * @return the {@code DateFormat} instance for the SHORT style and default
      *         locale.
      */
@@ -531,7 +531,7 @@ public abstract class DateFormat extends Format {
 
     /**
      * Returns the {@code NumberFormat} used by this {@code DateFormat}.
-     * 
+     *
      * @return the {@code NumberFormat} used by this date format.
      */
     public NumberFormat getNumberFormat() {
@@ -541,7 +541,7 @@ public abstract class DateFormat extends Format {
     /**
      * Returns a {@code DateFormat} instance for formatting and parsing time
      * values in the DEFAULT style for the default locale.
-     * 
+     *
      * @return the {@code DateFormat} instance for the default style and locale.
      */
     public final static DateFormat getTimeInstance() {
@@ -568,7 +568,7 @@ public abstract class DateFormat extends Format {
     /**
      * Returns a {@code DateFormat} instance for formatting and parsing time
      * values in the specified style for the specified locale.
-     * 
+     *
      * @param style
      *            one of SHORT, MEDIUM, LONG, FULL, or DEFAULT.
      * @param locale
@@ -586,7 +586,7 @@ public abstract class DateFormat extends Format {
 
     /**
      * Returns the time zone of this date format's calendar.
-     * 
+     *
      * @return the time zone of the calendar used by this date format.
      */
     public TimeZone getTimeZone() {
@@ -604,7 +604,7 @@ public abstract class DateFormat extends Format {
 
     /**
      * Indicates whether the calendar used by this date format is lenient.
-     * 
+     *
      * @return {@code true} if the calendar is lenient; {@code false} otherwise.
      */
     public boolean isLenient() {
@@ -614,7 +614,7 @@ public abstract class DateFormat extends Format {
     /**
      * Parses a date from the specified string using the rules of this date
      * format.
-     * 
+     *
      * @param string
      *            the string to parse.
      * @return the {@code Date} resulting from the parsing.
@@ -685,7 +685,7 @@ public abstract class DateFormat extends Format {
 
     /**
      * Sets the calendar used by this date format.
-     * 
+     *
      * @param cal
      *            the new calendar.
      */
@@ -698,7 +698,7 @@ public abstract class DateFormat extends Format {
      * parsing, the parser may use heuristics to interpret inputs that do not
      * precisely match this object's format. With strict parsing, inputs must
      * match this object's format.
-     * 
+     *
      * @param value
      *            {@code true} to set the calendar to be lenient, {@code false}
      *            otherwise.
@@ -709,7 +709,7 @@ public abstract class DateFormat extends Format {
 
     /**
      * Sets the {@code NumberFormat} used by this date format.
-     * 
+     *
      * @param format
      *            the new number format.
      */
@@ -719,7 +719,7 @@ public abstract class DateFormat extends Format {
 
     /**
      * Sets the time zone of the calendar used by this date format.
-     * 
+     *
      * @param timezone
      *            the new time zone.
      */
@@ -858,7 +858,7 @@ public abstract class DateFormat extends Format {
 
         /**
          * Returns the Calendar field that this field represents.
-         * 
+         *
          * @return the calendar field.
          */
         public int getCalendarField() {
@@ -868,7 +868,7 @@ public abstract class DateFormat extends Format {
         /**
          * Returns the {@code DateFormat.Field} instance for the given calendar
          * field.
-         * 
+         *
          * @param calendarField
          *            a calendar field constant.
          * @return the {@code DateFormat.Field} corresponding to
@@ -901,7 +901,7 @@ public abstract class DateFormat extends Format {
             if (calendarField != -1) {
                 try {
                     Field result = ofCalendarField(calendarField);
-                    
+
                     if (result != null && this.getName().equals(result.getName())) {
                         return result;
                     }

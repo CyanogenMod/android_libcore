@@ -30,7 +30,7 @@ public class MacThread extends TestThread {
         byte[] src2 = new byte[size];
         byte[] src3 = new byte[size];
         int i;
-        
+
         for (i = 0; i < size; i++) {
             src1[i] = (byte)i;
             src2[i] = (byte)i;

@@ -89,7 +89,7 @@ public class VectorTest extends junit.framework.TestCase {
 		grow.addElement("four");
 		assertEquals("Wrong size", 4, grow.size());
 		assertEquals("Wrong capacity", 6, grow.capacity());
-        
+
         Vector emptyVector = new Vector(0, 0);
         emptyVector.addElement("one");
         assertEquals("Wrong size", 1, emptyVector.size());
@@ -192,7 +192,7 @@ public class VectorTest extends junit.framework.TestCase {
 				.get(51));
 		assertNull("Wrong element at position 52--wanted null",
 				tVector.get(52));
-        
+
         try {
             v.addAll(0, null);
             fail("Should throw NullPointerException");
@@ -237,7 +237,7 @@ public class VectorTest extends junit.framework.TestCase {
 				.get(vSize + 1));
 		assertNull("Wrong element at last position--wanted null", tVector
 				.get(vSize + 2));
-        
+
         try {
             v.addAll(null);
             fail("Should throw NullPointerException");
@@ -454,7 +454,7 @@ public class VectorTest extends junit.framework.TestCase {
 				.capacity());
 		v = new Vector(100);
 		assertEquals("ensureCapacity reduced capacity", 100, v.capacity());
-        
+
         v.ensureCapacity(150);
         assertEquals(
                 "ensuieCapacity failed to set to be twice the old capacity",
@@ -514,7 +514,7 @@ public class VectorTest extends junit.framework.TestCase {
 		tVector.insertElementAt(null, 0);
 		assertNull("Returned incorrect firstElement--wanted null", tVector
 				.firstElement());
-        
+
         Vector v = new Vector();
         try {
             v.firstElement();
@@ -529,7 +529,7 @@ public class VectorTest extends junit.framework.TestCase {
 	 */
 	public void test_getI() {
 		// Test for method java.lang.Object java.util.Vector.get(int)
-		assertEquals("Get returned incorrect object", 
+		assertEquals("Get returned incorrect object",
 				"Test 80", tVector.get(80));
 		tVector.add(25, null);
 		assertNull("Returned incorrect element--wanted null",
@@ -614,7 +614,7 @@ public class VectorTest extends junit.framework.TestCase {
 				.equals(prevElement));
 		v.insertElementAt(null, 20);
 		assertNull("null not inserted", v.elementAt(20));
-        
+
         try {
             tVector.insertElementAt("Inserted Element", -1);
             fail("Should throw ArrayIndexOutOfBoundsException");
@@ -696,7 +696,7 @@ public class VectorTest extends junit.framework.TestCase {
 		tVector.addElement(null);
 		assertNull("Incorrect last element returned--wanted null", tVector
 				.lastElement());
-        
+
         Vector vector = new Vector();
         try {
             vector.lastElement();
@@ -792,7 +792,7 @@ public class VectorTest extends junit.framework.TestCase {
                 removeElement, result);
 		assertEquals("Failed to decrement size after removing null", 98, tVector
 				.size());
-        
+
         try {
             tVector.remove(-1);
             fail("Should throw ArrayIndexOutOfBoundsException");
@@ -896,7 +896,7 @@ public class VectorTest extends junit.framework.TestCase {
 		assertEquals("Failed to remove element", -1, v.indexOf("Test 50", 0));
         assertEquals("Test 51", v.get(50));
         assertEquals(size - 1, v.size());
-        
+
 		tVector.insertElementAt(null, 60);
         assertNull(tVector.get(60));
         size = tVector.size();
@@ -919,7 +919,7 @@ public class VectorTest extends junit.framework.TestCase {
             // Excepted
         }
 	}
-    
+
     /**
      * @tests {@link java.util.Vector#removeRange(int, int)}
      */
@@ -1001,7 +1001,7 @@ public class VectorTest extends junit.framework.TestCase {
                 "Should return the element previously at the specified position",
                 previous, result);
 		assertTrue("Failed to set Object", tVector.get(23) == o);
-        
+
         previous = tVector.get(0);
         result = tVector.set(0, null);
         assertEquals(
@@ -1048,7 +1048,7 @@ public class VectorTest extends junit.framework.TestCase {
 		v.setElementAt("Inserted Element", 99);
 		assertEquals("Element not set", "Inserted Element", ((String) v.elementAt(99))
 				);
-        
+
         v.setElementAt(null, 0);
         assertNull("Null element not set", v.elementAt(0));
 
@@ -1246,15 +1246,15 @@ public class VectorTest extends junit.framework.TestCase {
 		String result = v.toString();
 		assertTrue("should contain self ref", result.indexOf("(this") > -1);
 	}
-    
+
     public void test_override_size() throws Exception {
-        Vector v = new Vector(); 
+        Vector v = new Vector();
         Vector testv = new MockVector();
         // though size is overriden, it should passed without exception
         testv.add(1);
         testv.add(2);
         testv.clear();
-        
+
         testv.add(1);
         testv.add(2);
         v.add(1);
@@ -1277,13 +1277,13 @@ public class VectorTest extends junit.framework.TestCase {
 	protected Vector vectorClone(Vector s) {
 		return (Vector) s.clone();
 	}
-    
+
     public class MockVector extends Vector{
         @Override
         public synchronized int size() {
             return 0;
         }
-        
+
         public void removeRange(int start, int end) {
             super.removeRange(start, end);
         }

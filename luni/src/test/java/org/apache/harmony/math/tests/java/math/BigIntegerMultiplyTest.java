@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 /**
  * Class:  java.math.BigInteger
- * Method: multiply 
+ * Method: multiply
  */
 public class BigIntegerMultiplyTest extends TestCase {
     /**
@@ -37,7 +37,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         byte aBytes[] = {1, 2, 3, 4, 5, 6, 7, 1, 2, 3};
         byte bBytes[] = {10, 20, 30, 40, 50, 60, 70, 10, 20, 30};
         int aSign = -1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {10, 40, 100, -55, 96, 51, 76, 40, -45, 85, 105, 4, 28, -86, -117, -52, 100, 120, 90};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -58,7 +58,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         byte aBytes[] = {1, 2, 3, 4, 5, 6, 7, 1, 2, 3};
         byte bBytes[] = {10, 20, 30, 40, 50, 60, 70, 10, 20, 30};
         int aSign = -1;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {-11, -41, -101, 54, -97, -52, -77, -41, 44, -86, -106, -5, -29, 85, 116, 51, -101, -121, -90};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -79,8 +79,8 @@ public class BigIntegerMultiplyTest extends TestCase {
         byte aBytes[] = {1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 1, 2, 3, 4, 5};
         byte bBytes[] = {10, 20, 30, 40, 50, 60, 70, 10, 20, 30};
         int aSign = 1;
-        int bSign = 1;        
-        byte rBytes[] = {10, 40, 100, -55, 96, 51, 76, 40, -45, 85, 115, 44, -127, 
+        int bSign = 1;
+        byte rBytes[] = {10, 40, 100, -55, 96, 51, 76, 40, -45, 85, 115, 44, -127,
                          115, -21, -62, -15, 85, 64, -87, -2, -36, -36, -106};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -101,8 +101,8 @@ public class BigIntegerMultiplyTest extends TestCase {
         byte aBytes[] = {10, 20, 30, 40, 50, 60, 70, 10, 20, 30};
         byte bBytes[] = {1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 1, 2, 3, 4, 5};
         int aSign = 1;
-        int bSign = 1;        
-        byte rBytes[] = {10, 40, 100, -55, 96, 51, 76, 40, -45, 85, 115, 44, -127, 
+        int bSign = 1;
+        byte rBytes[] = {10, 40, 100, -55, 96, 51, 76, 40, -45, 85, 115, 44, -127,
                          115, -21, -62, -15, 85, 64, -87, -2, -36, -36, -106};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -124,7 +124,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         byte aBytes[] = {1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 1, 2, 3, 4, 5};
         byte bBytes[] = {10, 20, 30, 40, 50, 60, 70, 10, 20, 30};
         int aSign = 1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {-11, -41, -101, 54, -97, -52, -77, -41, 44, -86, -116, -45, 126,
                          -116, 20, 61, 14, -86, -65, 86, 1, 35, 35, 106};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
@@ -147,7 +147,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         byte aBytes[] = {10, 20, 30, 40, 50, 60, 70, 10, 20, 30};
         byte bBytes[] = {1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 1, 2, 3, 4, 5};
         int aSign = 1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {-11, -41, -101, 54, -97, -52, -77, -41, 44, -86, -116, -45, 126,
                          -116, 20, 61, 14, -86, -65, 86, 1, 35, 35, 106};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
@@ -168,7 +168,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         byte aBytes[] = {1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 1, 2, 3, 4, 5};
         byte bBytes[] = {0};
         int aSign = 1;
-        int bSign = 0;        
+        int bSign = 0;
         byte rBytes[] = {0};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -234,7 +234,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         }
         assertEquals("incorrect sign", -1, result.signum());
     }
-    
+
     /**
      * Multiply two numbers of 4 bytes length.
      */
@@ -242,7 +242,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         byte aBytes[] = {10, 20, 30, 40};
         byte bBytes[] = {1, 2, 3, 4};
         int aSign = 1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {-11, -41, -101, 55, 5, 15, 96};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -254,7 +254,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         }
         assertEquals("incorrect sign", -1, result.signum());
     }
-    
+
     /**
      * Multiply two numbers of 4 bytes length.
      */
@@ -262,7 +262,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         byte aBytes[] = {-1, -1, -1, -1};
         byte bBytes[] = {-1, -1, -1, -1};
         int aSign = 1;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {0, -1, -1, -1, -2, 0, 0, 0, 1};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -274,7 +274,7 @@ public class BigIntegerMultiplyTest extends TestCase {
         }
         assertEquals("incorrect sign", 1, result.signum());
     }
-    
+
     /**
      * Negative exponent.
      */

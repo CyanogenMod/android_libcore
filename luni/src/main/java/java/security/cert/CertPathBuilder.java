@@ -35,17 +35,17 @@ import org.apache.harmony.security.internal.nls.Messages;
 public class CertPathBuilder {
 
     // Store CertPathBuilder service name
-    private static final String SERVICE = "CertPathBuilder"; 
+    private static final String SERVICE = "CertPathBuilder";
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
 
     // Store default property name
-    private static final String PROPERTYNAME = "certpathbuilder.type"; 
+    private static final String PROPERTYNAME = "certpathbuilder.type";
 
     // Default value of CertPathBuilder type. It returns if certpathbuild.type
     // property is not defined in java.security file
-    private static final String DEFAULTPROPERTY = "PKIX"; 
+    private static final String DEFAULTPROPERTY = "PKIX";
 
     // Store used provider
     private final Provider provider;
@@ -94,7 +94,7 @@ public class CertPathBuilder {
     /**
      * Creates a new {@code CertPathBuilder} instance with the specified
      * algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm.
      * @return a builder for the requested algorithm.
@@ -106,7 +106,7 @@ public class CertPathBuilder {
     public static CertPathBuilder getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -118,7 +118,7 @@ public class CertPathBuilder {
     /**
      * Creates a new {@code CertPathBuilder} instance from the specified
      * provider providing the specified algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm.
      * @param provider
@@ -136,7 +136,7 @@ public class CertPathBuilder {
     public static CertPathBuilder getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02")); 
+            throw new IllegalArgumentException(Messages.getString("security.02"));
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -149,7 +149,7 @@ public class CertPathBuilder {
     /**
      * Creates a new {@code CertPathBuilder} instance from the specified
      * provider providing the specified algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm.
      * @param provider
@@ -165,10 +165,10 @@ public class CertPathBuilder {
     public static CertPathBuilder getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); 
+            throw new IllegalArgumentException(Messages.getString("security.04"));
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);

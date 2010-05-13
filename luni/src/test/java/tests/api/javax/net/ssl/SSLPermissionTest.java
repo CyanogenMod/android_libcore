@@ -24,10 +24,10 @@ import dalvik.annotation.TestTargetNew;
 import javax.net.ssl.SSLPermission;
 import junit.framework.TestCase;
 
- 
+
 /**
  * Tests for <code>SSLPermission</code> class constructors.
- *  
+ *
  */
 @TestTargetClass(SSLPermission.class)
 public class SSLPermissionTest extends TestCase {

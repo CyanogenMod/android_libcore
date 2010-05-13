@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,14 +34,14 @@ public abstract class ProxySelector {
      * permission.
      */
     private final static NetPermission getProxySelectorPermission = new NetPermission(
-            "getProxySelector"); 
+            "getProxySelector");
 
     /*
      * "setProxySelector" permission. setDefault method requires this
      * permission.
      */
     private final static NetPermission setProxySelectorPermission = new NetPermission(
-            "setProxySelector"); 
+            "setProxySelector");
 
     /**
      * Creates a new {@code ProxySelector} instance.
@@ -52,7 +52,7 @@ public abstract class ProxySelector {
 
     /**
      * Gets the default {@code ProxySelector} of the system.
-     * 
+     *
      * @return the currently set default {@code ProxySelector}.
      * @throws SecurityException
      *             if a security manager is installed but it doesn't have the
@@ -70,7 +70,7 @@ public abstract class ProxySelector {
      * Sets the default {@code ProxySelector} of the system. Removes the system
      * default {@code ProxySelector} if the parameter {@code selector} is set to
      * {@code null}.
-     * 
+     *
      * @param selector
      *            the {@code ProxySelector} instance to set as default or
      *            {@code null} to remove the current default {@code
@@ -111,7 +111,7 @@ public abstract class ProxySelector {
      * could not be established. A concrete implementation should upon this
      * notification maintain the list of available proxies, since an updated
      * version should be provided by {@code select()}.
-     * 
+     *
      * @param uri
      *            the URI to which the connection could not be established.
      * @param sa

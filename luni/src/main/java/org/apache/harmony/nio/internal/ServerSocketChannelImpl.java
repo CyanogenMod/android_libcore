@@ -72,7 +72,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
         impl = new PlainServerSocketImpl(fd);
         socket = new ServerSocketAdapter(impl, this);
     }
-    
+
     // for native call
     @SuppressWarnings("unused")
     private ServerSocketChannelImpl() throws IOException {
@@ -92,7 +92,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
     }
 
     /*
-     * 
+     *
      * @see java.nio.channels.ServerSocketChannel#accept()
      */
     public SocketChannel accept() throws IOException {
@@ -147,7 +147,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
 
     /*
      * @see java.nio.channels.spi.AbstractSelectableChannel#implConfigureBlocking
-     * 
+     *
      * (boolean)
      */
     protected void implConfigureBlocking(boolean blockingMode)
@@ -158,7 +158,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
     }
 
     /*
-     * 
+     *
      * @see java.nio.channels.spi.AbstractSelectableChannel#implCloseSelectableChannel()
      */
     synchronized protected void implCloseSelectableChannel() throws IOException {
@@ -193,7 +193,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
         }
 
         /*
-         * 
+         *
          * @see java.net.ServerSocket#bind(java.net.SocketAddress, int)
          */
         public void bind(SocketAddress localAddr, int backlog)
@@ -204,7 +204,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
 
         /*
          * @see java.net.ServerSocket#accept()
-         * 
+         *
          * If the channel is in non-blocking mode and there is no connection
          * ready to be accepted, invoking this method will cause an
          * IllegalBlockingModeException.
@@ -256,7 +256,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
         }
 
         /*
-         * 
+         *
          * @see java.net.ServerSocket#isBound()
          */
         public boolean isBound() {
@@ -264,7 +264,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
         }
 
         /*
-         * 
+         *
          * @see java.net.ServerSocket#bind(java.net.SocketAddress)
          */
         public void bind(SocketAddress localAddr) throws IOException {

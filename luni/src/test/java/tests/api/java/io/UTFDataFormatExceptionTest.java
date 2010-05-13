@@ -23,7 +23,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(UTFDataFormatException.class) 
+@TestTargetClass(UTFDataFormatException.class)
 public class UTFDataFormatExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -33,7 +33,7 @@ public class UTFDataFormatExceptionTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "UTFDataFormatException",
             args = {}
-        )     
+        )
     public void test_Constructor() {
         try {
             if (true) // To avoid unreachable code compilation error.
@@ -52,7 +52,7 @@ public class UTFDataFormatExceptionTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "UTFDataFormatException",
             args = {java.lang.String.class}
-        )     
+        )
     public void test_ConstructorLjava_lang_String() {
         try {
             if (true) // To avoid unreachable code compilation error.

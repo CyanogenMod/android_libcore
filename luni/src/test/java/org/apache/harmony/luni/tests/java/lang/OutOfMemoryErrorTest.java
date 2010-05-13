@@ -37,7 +37,7 @@ public class OutOfMemoryErrorTest extends junit.framework.TestCase {
 		Error e = new OutOfMemoryError(null);
         assertNull(e.getMessage());
         assertNull(e.getCause());
-        
+
         e= new OutOfMemoryError("msg");
         assertEquals("msg", e.getMessage());
         assertNull(e.getCause());

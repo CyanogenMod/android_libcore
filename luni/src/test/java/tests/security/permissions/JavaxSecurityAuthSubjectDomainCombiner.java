@@ -37,7 +37,7 @@ import javax.security.auth.SubjectDomainCombiner;
  */
 @TestTargetClass(javax.security.auth.SubjectDomainCombiner.class)
 public class JavaxSecurityAuthSubjectDomainCombiner extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -51,7 +51,7 @@ public class JavaxSecurityAuthSubjectDomainCombiner extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies that getSubject() calls checkPermission on security permissions.",

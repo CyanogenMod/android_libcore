@@ -42,7 +42,7 @@ public class RowSetMetaDataTest extends TestCase {
         fail("Not yet implemented");
     }
 
-    
+
     /**
      * @tests {@link javax.sql.RowSetMetaData#setCatalogName(int, String)}
      */

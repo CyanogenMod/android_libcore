@@ -25,7 +25,7 @@ package org.apache.harmony.security.asn1;
 
 /**
  * This abstract class is the super class for all constructed ASN.1 types
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -38,7 +38,7 @@ public abstract class ASN1Constructured extends ASN1Type {
     public ASN1Constructured(int tagClass, int tagNumber) {
         super(tagClass, tagNumber);
     }
-    
+
     /**
      * Tests provided identifier.
      *
@@ -49,7 +49,7 @@ public abstract class ASN1Constructured extends ASN1Type {
     public final boolean checkTag(int identifier) {
         return this.constrId == identifier;
     }
-    
+
     /**
      *
      */

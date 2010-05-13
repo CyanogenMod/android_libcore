@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -168,7 +168,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns a new {@code NumberFormat} with the same properties as this
      * {@code NumberFormat}.
-     * 
+     *
      * @return a shallow copy of this {@code NumberFormat}.
      * @see java.lang.Cloneable
      */
@@ -181,7 +181,7 @@ public abstract class NumberFormat extends Format {
      * Compares the specified object to this number format and indicates if
      * they are equal. In order to be equal, {@code object} must be an instance
      * of {@code NumberFormat} with the same pattern and properties.
-     * 
+     *
      * @param object
      *            the object to compare with this object.
      * @return {@code true} if the specified object is equal to this number
@@ -207,7 +207,7 @@ public abstract class NumberFormat extends Format {
 
     /**
      * Formats the specified double using the rules of this number format.
-     * 
+     *
      * @param value
      *            the double to format.
      * @return the formatted string.
@@ -240,7 +240,7 @@ public abstract class NumberFormat extends Format {
 
     /**
      * Formats the specified long using the rules of this number format.
-     * 
+     *
      * @param value
      *            the long to format.
      * @return the formatted string.
@@ -324,7 +324,7 @@ public abstract class NumberFormat extends Format {
      * concrete subclasses should override this method if they support currency
      * formatting.
      * <p>
-     * 
+     *
      * @return the currency that was set in getInstance() or in setCurrency(),
      *         or {@code null}.
      * @throws UnsupportedOperationException
@@ -337,7 +337,7 @@ public abstract class NumberFormat extends Format {
      * Returns a {@code NumberFormat} for formatting and parsing currency values
      * for the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @return a {@code NumberFormat} for handling currency values.
      */
     public final static NumberFormat getCurrencyInstance() {
@@ -347,7 +347,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns a {@code NumberFormat} for formatting and parsing currency values
      * for the specified locale.
-     * 
+     *
      * @param locale
      *            the locale to use.
      * @return a {@code NumberFormat} for handling currency values.
@@ -360,7 +360,7 @@ public abstract class NumberFormat extends Format {
      * Returns a {@code NumberFormat} for formatting and parsing integers for the
      * user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @return a {@code NumberFormat} for handling integers.
      */
     public final static NumberFormat getIntegerInstance() {
@@ -370,7 +370,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns a {@code NumberFormat} for formatting and parsing integers for
      * the specified locale.
-     * 
+     *
      * @param locale
      *            the locale to use.
      * @return a {@code NumberFormat} for handling integers.
@@ -384,7 +384,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns a {@code NumberFormat} for formatting and parsing numbers for the
      * default locale.
-     * 
+     *
      * @return a {@code NumberFormat} for handling {@code Number} objects.
      */
     public final static NumberFormat getInstance() {
@@ -394,7 +394,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns a {@code NumberFormat} for formatting and parsing numbers for the
      * specified locale.
-     * 
+     *
      * @param locale
      *            the locale to use.
      * @return a {@code NumberFormat} for handling {@code Number} objects.
@@ -413,7 +413,7 @@ public abstract class NumberFormat extends Format {
      * Returns the maximum number of fraction digits that are printed when
      * formatting. If the maximum is less than the number of fraction digits,
      * the least significant digits are truncated.
-     * 
+     *
      * @return the maximum number of fraction digits.
      */
     public int getMaximumFractionDigits() {
@@ -424,7 +424,7 @@ public abstract class NumberFormat extends Format {
      * Returns the maximum number of integer digits that are printed when
      * formatting. If the maximum is less than the number of integer digits, the
      * most significant digits are truncated.
-     * 
+     *
      * @return the maximum number of integer digits.
      */
     public int getMaximumIntegerDigits() {
@@ -434,7 +434,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns the minimum number of fraction digits that are printed when
      * formatting.
-     * 
+     *
      * @return the minimum number of fraction digits.
      */
     public int getMinimumFractionDigits() {
@@ -444,7 +444,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns the minimum number of integer digits that are printed when
      * formatting.
-     * 
+     *
      * @return the minimum number of integer digits.
      */
     public int getMinimumIntegerDigits() {
@@ -455,7 +455,7 @@ public abstract class NumberFormat extends Format {
      * Returns a {@code NumberFormat} for formatting and parsing numbers for the
      * user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @return a {@code NumberFormat} for handling {@code Number} objects.
      */
     public final static NumberFormat getNumberInstance() {
@@ -465,7 +465,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns a {@code NumberFormat} for formatting and parsing numbers for the
      * specified locale.
-     * 
+     *
      * @param locale
      *            the locale to use.
      * @return a {@code NumberFormat} for handling {@code Number} objects.
@@ -478,7 +478,7 @@ public abstract class NumberFormat extends Format {
      * Returns a {@code NumberFormat} for formatting and parsing percentage
      * values for the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @return a {@code NumberFormat} for handling percentage values.
      */
     public final static NumberFormat getPercentInstance() {
@@ -488,7 +488,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Returns a {@code NumberFormat} for formatting and parsing percentage
      * values for the specified locale.
-     * 
+     *
      * @param locale
      *            the locale to use.
      * @return a {@code NumberFormat} for handling percentage values.
@@ -507,7 +507,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Indicates whether this number format formats and parses numbers using a
      * grouping separator.
-     * 
+     *
      * @return {@code true} if a grouping separator is used; {@code false}
      *         otherwise.
      */
@@ -518,7 +518,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Indicates whether this number format only parses integer numbers. Parsing
      * stops if a decimal separator is encountered.
-     * 
+     *
      * @return {@code true} if this number format only parses integers,
      *         {@code false} if if parsese integers as well as fractions.
      */
@@ -529,7 +529,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Parses a {@code Number} from the specified string using the rules of this
      * number format.
-     * 
+     *
      * @param string
      *            the string to parse.
      * @return the {@code Number} resulting from the parsing.
@@ -551,7 +551,7 @@ public abstract class NumberFormat extends Format {
      * the index of the {@code ParsePosition} is updated to the index following
      * the parsed text. On error, the index is unchanged and the error index of
      * {@code ParsePosition} is set to the index where the error occurred.
-     * 
+     *
      * @param string
      *            the string to parse.
      * @param position
@@ -596,7 +596,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Sets whether this number format formats and parses numbers using a
      * grouping separator.
-     * 
+     *
      * @param value
      *            {@code true} if a grouping separator is used; {@code false}
      *            otherwise.
@@ -609,7 +609,7 @@ public abstract class NumberFormat extends Format {
      * Sets the maximum number of fraction digits that are printed when
      * formatting. If the maximum is less than the number of fraction digits,
      * the least significant digits are truncated.
-     * 
+     *
      * @param value
      *            the maximum number of fraction digits.
      */
@@ -624,7 +624,7 @@ public abstract class NumberFormat extends Format {
      * Sets the new maximum count of integer digits that are printed when
      * formatting. If the maximum is less than the number of integer digits, the
      * most significant digits are truncated.
-     * 
+     *
      * @param value
      *            the new maximum number of integer numerals for display.
      */
@@ -638,7 +638,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Sets the minimum number of fraction digits that are printed when
      * formatting.
-     * 
+     *
      * @param value
      *            the minimum number of fraction digits.
      */
@@ -652,7 +652,7 @@ public abstract class NumberFormat extends Format {
     /**
      * Sets the minimum number of integer digits that are printed when
      * formatting.
-     * 
+     *
      * @param value
      *            the minimum number of integer digits.
      */
@@ -668,7 +668,7 @@ public abstract class NumberFormat extends Format {
      * else as any kind of number. If this method is called with a {@code true}
      * value then subsequent parsing attempts will stop if a decimal separator
      * is encountered.
-     * 
+     *
      * @param value
      *            {@code true} to only parse integers, {@code false} to parse
      *            integers as well as fractions.
@@ -704,7 +704,7 @@ public abstract class NumberFormat extends Format {
         fields.put("minFractionDigits",
                         minimumFractionDigits < Byte.MAX_VALUE ? (byte) minimumFractionDigits
                                 : Byte.MAX_VALUE);
-        fields.put("minimumFractionDigits", minimumFractionDigits); 
+        fields.put("minimumFractionDigits", minimumFractionDigits);
         fields.put("minimumIntegerDigits", minimumIntegerDigits);
         fields.put("minIntegerDigits",
                 minimumIntegerDigits < Byte.MAX_VALUE ? (byte) minimumIntegerDigits : Byte.MAX_VALUE);

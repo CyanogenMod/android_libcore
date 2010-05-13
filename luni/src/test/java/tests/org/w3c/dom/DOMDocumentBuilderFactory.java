@@ -22,7 +22,7 @@ public class DOMDocumentBuilderFactory {
         }
 
         factory = DocumentBuilderFactory.newInstance();
-        
+
         if (factory == null) {
             throw new RuntimeException("DocumentBuilderFactory must not be null");
         }
@@ -37,11 +37,11 @@ public class DOMDocumentBuilderFactory {
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
-        
+
         if (builder == null) {
             throw new RuntimeException("DocumentBuilder must not be null");
         }
-        
+
     }
 
     public DocumentBuilder getBuilder() {

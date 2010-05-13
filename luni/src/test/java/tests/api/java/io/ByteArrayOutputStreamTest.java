@@ -29,10 +29,10 @@ import dalvik.annotation.TestTargetNew;
 
 /**
  * Automated Test Suite for class java.io.ByteArrayOutputStream
- * 
+ *
  * @see java.io.ByteArrayOutputStream
  */
-@TestTargetClass(ByteArrayOutputStream.class) 
+@TestTargetClass(ByteArrayOutputStream.class)
 public class ByteArrayOutputStreamTest extends TestCase {
 
     ByteArrayOutputStream bos = null;
@@ -46,11 +46,11 @@ public class ByteArrayOutputStreamTest extends TestCase {
         level = TestLevel.COMPLETE,
         method = "ByteArrayOutputStream",
         args = {int.class}
-    )    
+    )
     public void test_ConstructorI() {
         bos = new java.io.ByteArrayOutputStream(100);
         assertEquals("Test 1: Failed to create stream;", 0, bos.size());
-        
+
         try {
             bos = new ByteArrayOutputStream(-1);
             fail("Test 2: IllegalArgumentException expected.");
@@ -66,7 +66,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         level = TestLevel.COMPLETE,
         method = "ByteArrayOutputStream",
         args = {}
-    )           
+    )
     public void test_Constructor() {
         // Test for method java.io.ByteArrayOutputStream()
         bos = new java.io.ByteArrayOutputStream();
@@ -81,7 +81,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         notes = "No IOException check since it is never thrown.",
         method = "close",
         args = {}
-    )           
+    )
     public void test_close() {
         // Test for method void java.io.ByteArrayOutputStream.close()
 
@@ -112,7 +112,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         level = TestLevel.COMPLETE,
         method = "reset",
         args = {}
-    )        
+    )
     public void test_reset() {
         // Test for method void java.io.ByteArrayOutputStream.reset()
         bos = new java.io.ByteArrayOutputStream();
@@ -129,7 +129,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         notes = "Verifies size() method.",
         method = "size",
         args = {}
-    )        
+    )
     public void test_size() {
         // Test for method int java.io.ByteArrayOutputStream.size()
         bos = new java.io.ByteArrayOutputStream();
@@ -147,7 +147,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         notes = "Verifies toByteArray() method.",
         method = "toByteArray",
         args = {}
-    )        
+    )
     public void test_toByteArray() {
         // Test for method byte [] java.io.ByteArrayOutputStream.toByteArray()
         byte[] bytes;
@@ -167,16 +167,16 @@ public class ByteArrayOutputStreamTest extends TestCase {
         level = TestLevel.COMPLETE,
         method = "toString",
         args = {java.lang.String.class}
-    )     
+    )
     public void test_toStringLjava_lang_String() throws Exception {
         bos = new ByteArrayOutputStream();
 
         bos.write(fileString.getBytes(), 0, fileString.length());
-        assertTrue("Test 1: Returned incorrect 8859-1 String", 
+        assertTrue("Test 1: Returned incorrect 8859-1 String",
                 bos.toString("8859_1").equals(fileString));
-        assertTrue("Test 2: Returned incorrect 8859-2 String", 
+        assertTrue("Test 2: Returned incorrect 8859-2 String",
                 bos.toString("8859_2").equals(fileString));
-        
+
         try {
             bos.toString("NotAnEcoding");
             fail("Test 3: UnsupportedEncodingException expected.");
@@ -193,7 +193,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         notes = "Verifies toString() method.",
         method = "toString",
         args = {}
-    )        
+    )
     public void test_toString() {
         // Test for method java.lang.String
         // java.io.ByteArrayOutputStream.toString()
@@ -213,7 +213,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         notes = "Verifies toString(int hibyte) method.",
         method = "toString",
         args = {int.class}
-    )    
+    )
     public void test_toStringI() {
         // Test for method java.lang.String
         // java.io.ByteArrayOutputStream.toString(int)
@@ -232,7 +232,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         notes = "",
         method = "write",
         args = {int.class}
-    )     
+    )
     public void test_writeI() {
         // Test for method void java.io.ByteArrayOutputStream.write(int)
         bos = new java.io.ByteArrayOutputStream();
@@ -249,7 +249,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "write",
         args = {byte[].class, int.class, int.class}
-    )        
+    )
     public void test_write$BII() {
         // Test for method void java.io.ByteArrayOutputStream.write(byte [],
         // int, int)
@@ -269,7 +269,7 @@ public class ByteArrayOutputStreamTest extends TestCase {
         notes = "Illegal argument checks.",
         method = "write",
         args = {byte[].class, int.class, int.class}
-    )     
+    )
     public void test_write$BII_Exception() {
         byte[] target = new byte[10];
         bos = new ByteArrayOutputStream();
@@ -306,13 +306,13 @@ public class ByteArrayOutputStreamTest extends TestCase {
         level = TestLevel.COMPLETE,
         method = "writeTo",
         args = {java.io.OutputStream.class}
-    )       
+    )
     public void test_writeToLjava_io_OutputStream() throws Exception {
         Support_OutputStream sos = new Support_OutputStream();
         bos = new java.io.ByteArrayOutputStream();
         bos.write(fileString.getBytes(), 0, 10);
         bos.writeTo(sos);
-        assertTrue("Test 1: Incorrect string written.", 
+        assertTrue("Test 1: Incorrect string written.",
                 sos.toString().equals(
                         fileString.substring(0, 10)));
 

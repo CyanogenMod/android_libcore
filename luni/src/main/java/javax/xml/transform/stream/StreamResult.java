@@ -149,7 +149,7 @@ public class StreamResult implements Result {
 
     /**
      * <p>Set the system ID from a <code>File</code> reference.</p>
-     * 
+     *
      * <p>Note the use of {@link File#toURI()} and {@link File#toURL()}.
      * <code>toURI()</code> is preferred and used if possible.
      * To allow JAXP 1.3 to run on J2SE 1.3, <code>toURL()</code>

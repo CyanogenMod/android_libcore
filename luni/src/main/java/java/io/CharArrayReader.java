@@ -139,7 +139,7 @@ public class CharArrayReader extends Reader {
     public void mark(int readLimit) throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0060")); 
+                throw new IOException(Msg.getString("K0060"));
             }
             markedPos = pos;
         }
@@ -172,7 +172,7 @@ public class CharArrayReader extends Reader {
     public int read() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0060")); 
+                throw new IOException(Msg.getString("K0060"));
             }
             if (pos == count) {
                 return -1;
@@ -211,16 +211,16 @@ public class CharArrayReader extends Reader {
         if (offset < 0 || offset > buffer.length) {
             // K002e=Offset out of bounds \: {0}
             throw new ArrayIndexOutOfBoundsException(
-                    Msg.getString("K002e", offset)); 
+                    Msg.getString("K002e", offset));
         }
         if (len < 0 || len > buffer.length - offset) {
             // K0031=Length out of bounds \: {0}
             throw new ArrayIndexOutOfBoundsException(
-                    Msg.getString("K0031", len)); 
+                    Msg.getString("K0031", len));
         }
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0060")); 
+                throw new IOException(Msg.getString("K0060"));
             }
             if (pos < this.count) {
                 int bytesRead = pos + len > this.count ? this.count - pos : len;
@@ -248,7 +248,7 @@ public class CharArrayReader extends Reader {
     public boolean ready() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0060")); 
+                throw new IOException(Msg.getString("K0060"));
             }
             return pos != count;
         }
@@ -267,7 +267,7 @@ public class CharArrayReader extends Reader {
     public void reset() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0060")); 
+                throw new IOException(Msg.getString("K0060"));
             }
             pos = markedPos != -1 ? markedPos : 0;
         }
@@ -288,7 +288,7 @@ public class CharArrayReader extends Reader {
     public long skip(long n) throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0060")); 
+                throw new IOException(Msg.getString("K0060"));
             }
             if (n <= 0) {
                 return 0;

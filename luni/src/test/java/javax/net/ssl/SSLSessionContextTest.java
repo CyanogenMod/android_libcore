@@ -89,15 +89,15 @@ public class SSLSessionContextTest extends TestCase {
 
     public void test_SSLSessionContext_getSessionCacheSize() {
         TestSSLContext c = TestSSLContext.create();
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE,
                      c.sslContext.getClientSessionContext().getSessionCacheSize());
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE,
                      c.sslContext.getServerSessionContext().getSessionCacheSize());
 
         TestSSLSocketPair s = TestSSLSocketPair.create();
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE,
                      s.c.sslContext.getClientSessionContext().getSessionCacheSize());
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE,
                      s.c.sslContext.getServerSessionContext().getSessionCacheSize());
     }
 
@@ -126,9 +126,9 @@ public class SSLSessionContextTest extends TestCase {
         TestSSLSocketPair s = TestSSLSocketPair.create();
         SSLSessionContext client = s.c.sslContext.getClientSessionContext();
         SSLSessionContext server = s.c.sslContext.getServerSessionContext();
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE,
                      client.getSessionCacheSize());
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE,
                      server.getSessionCacheSize());
         assertSSLSessionContextSize(1, client);
         if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
@@ -227,15 +227,15 @@ public class SSLSessionContextTest extends TestCase {
 
     public void test_SSLSessionContext_getSessionTimeout() {
         TestSSLContext c = TestSSLContext.create();
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT,
                      c.sslContext.getClientSessionContext().getSessionTimeout());
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT,
                      c.sslContext.getServerSessionContext().getSessionTimeout());
 
         TestSSLSocketPair s = TestSSLSocketPair.create();
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT,
                      s.c.sslContext.getClientSessionContext().getSessionTimeout());
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT,
                      s.c.sslContext.getServerSessionContext().getSessionTimeout());
     }
 
@@ -243,7 +243,7 @@ public class SSLSessionContextTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT,
                      c.sslContext.getClientSessionContext().getSessionTimeout());
-        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT, 
+        assertEquals(TestSSLContext.EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT,
                      c.sslContext.getServerSessionContext().getSessionTimeout());
         c.sslContext.getClientSessionContext().setSessionTimeout(0);
         c.sslContext.getServerSessionContext().setSessionTimeout(0);

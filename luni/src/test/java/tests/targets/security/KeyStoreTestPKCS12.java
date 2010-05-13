@@ -23,7 +23,7 @@ public class KeyStoreTestPKCS12 extends KeyStoreTest {
     public KeyStoreTestPKCS12() {
         super("PKCS12", keyStoreData, keyStorePassword);
     }
-    
+
     public static final String keyStorePassword = "the keystore password";
 
     public static final byte[] keyStoreData = new byte[] {

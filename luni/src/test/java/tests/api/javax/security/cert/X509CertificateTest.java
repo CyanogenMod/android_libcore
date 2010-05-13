@@ -98,7 +98,7 @@ public class X509CertificateTest extends TestCase {
             + "UdDgQDAQEBMAoGA1UdIQQDAQEBMAwGByqGSM44BAMBAQADMAAwLQIUAL4QvoazNWP"
             + "7jrj84/GZlhm09DsCFQCBKGKCGbrP64VtUt4JPmLjW1VxQA==\n"
             + "-----END CERTIFICATE-----";
-   
+
    /*
     * a self-signed certificate
     */
@@ -126,9 +126,9 @@ public class X509CertificateTest extends TestCase {
     private java.security.cert.X509Certificate cert;
 
     private javax.security.cert.X509Certificate tbt_cert;
-    
+
     private java.security.cert.X509Certificate javaCert;
-    
+
     private Provider myProvider;
 
     private javax.security.cert.X509Certificate javaxCert;
@@ -232,8 +232,8 @@ public class X509CertificateTest extends TestCase {
 
     /**
      * getInstance(byte[] certData) method testing.
-     * @throws CertificateEncodingException 
-     * @throws java.security.cert.CertificateEncodingException 
+     * @throws CertificateEncodingException
+     * @throws java.security.cert.CertificateEncodingException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -257,14 +257,14 @@ public class X509CertificateTest extends TestCase {
             // The requested certificate type is not available.
             // Test pass..
             certificateException = true;
-            
+
         }
-        
+
         if (! certificateException) {
             assertNotNull(c);
             assertTrue(Arrays.equals(c.getEncoded(),cert.getEncoded() ));
         }
-        
+
         try {
             X509Certificate.getInstance(new byte[]{(byte) 1 });
         } catch (CertificateException e) {
@@ -278,15 +278,15 @@ public class X509CertificateTest extends TestCase {
         } catch (CertificateException e) {
             // expected;
         }
-        
+
     }
 
     /**
      * checkValidity() method testing.
-     * @throws CertificateNotYetValidException 
-     * @throws CertificateExpiredException 
-     * @throws java.security.cert.CertificateExpiredException 
-     * @throws java.security.cert.CertificateNotYetValidException 
+     * @throws CertificateNotYetValidException
+     * @throws CertificateExpiredException
+     * @throws java.security.cert.CertificateExpiredException
+     * @throws java.security.cert.CertificateNotYetValidException
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -316,25 +316,25 @@ public class X509CertificateTest extends TestCase {
             assertTrue("Unexpected CertificateNotYetValidException was thrown",
                     date.compareTo(nb_date) < 0);
         }
-       
+
        try {
        tbt_cert.checkValidity();
        } catch (CertificateExpiredException e) {
         // ok
        }
-       
+
        try {
             cert.checkValidity();
         } catch (java.security.cert.CertificateExpiredException e) {
             // ok
-        } 
-       
+        }
+
     }
 
     /**
      * checkValidity(Date date) method testing.
-     * @throws CertificateNotYetValidException 
-     * @throws CertificateExpiredException 
+     * @throws CertificateNotYetValidException
+     * @throws CertificateExpiredException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -371,24 +371,24 @@ public class X509CertificateTest extends TestCase {
                         + "was thrown", date[i].compareTo(nb_date) < 0);
             }
         }
-        
+
         Calendar calendarNow = Calendar.getInstance();
-        
+
         try {
             tbt_cert.checkValidity(calendarNow.getTime());
         } catch (CertificateExpiredException e) {
             //ok
         }
-        
+
         Calendar calendarPast = GregorianCalendar.getInstance();
         calendarPast.clear();
-        
+
         try {
             tbt_cert.checkValidity(calendarPast.getTime());
         } catch (CertificateNotYetValidException e) {
             //ok
         }
-        
+
     }
 
     /**
@@ -570,7 +570,7 @@ public class X509CertificateTest extends TestCase {
         public MyCertificate() {
             super();
         }
-        
+
         @Override
         public void checkValidity() throws CertificateExpiredException,
                 CertificateNotYetValidException {
@@ -655,9 +655,9 @@ public class X509CertificateTest extends TestCase {
                 SignatureException {
         }
     }
-    
+
     public class MyModifiablePublicKey implements PublicKey {
-       
+
         private PublicKey key;
         private boolean modifiedAlgo;
         private String algo;
@@ -665,7 +665,7 @@ public class X509CertificateTest extends TestCase {
         private boolean modifiedFormat;
         private boolean modifiedEncoding;
         private byte[] encoding;
-        
+
         public MyModifiablePublicKey(PublicKey k) {
             super();
             this.key = k;
@@ -685,7 +685,7 @@ public class X509CertificateTest extends TestCase {
             } else {
                 return key.getFormat();
             }
-            
+
         }
 
         public byte[] getEncoded() {
@@ -694,31 +694,31 @@ public class X509CertificateTest extends TestCase {
             } else {
                 return key.getEncoded();
             }
-            
+
         }
 
         public long getSerVerUID() {
             return key.serialVersionUID;
         }
-        
+
         public void setAlgorithm(String myAlgo) {
             modifiedAlgo = true;
             this.algo = myAlgo;
         }
-        
+
         public void setFormat(String myFormat) {
             modifiedFormat = true;
             format = myFormat;
         }
-        
+
         public void setEncoding(byte[] myEncoded) {
             modifiedEncoding = true;
             encoding = myEncoded;
         }
     }
-    
+
     /**
-     * @throws CertificateEncodingException 
+     * @throws CertificateEncodingException
      * @tests {@link Certificate#getEncoded()}
      */
     @TestTargetNew(
@@ -733,7 +733,7 @@ public class X509CertificateTest extends TestCase {
         assertTrue(Arrays.equals(cert.getEncoded(), tbt_cert.getEncoded()));
         assertFalse(Arrays.equals(javaxCert.getEncoded(), tbt_cert.getEncoded()));
     }
-    
+
     /**
      * @tests {@link Certificate#getPublicKey()}
      */
@@ -748,21 +748,21 @@ public class X509CertificateTest extends TestCase {
        assertNotNull(key);
        assertEquals(javaxCert.getPublicKey(), javaCert.getPublicKey());
        assertEquals(key.getAlgorithm(),"RSA");
-       
+
        key = javaxSSCert.getPublicKey();
        assertNotNull(key);
        assertEquals(key.getAlgorithm(),"RSA");
-       
+
        //assertTrue(mySSProvider.containsKey(key));
 
     }
-    
+
     /**
-     * @throws SignatureException 
-     * @throws NoSuchProviderException 
-     * @throws NoSuchAlgorithmException 
-     * @throws InvalidKeyException 
-     * @throws CertificateException 
+     * @throws SignatureException
+     * @throws NoSuchProviderException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws CertificateException
      * @tests {@link Certificate#verify(PublicKey)}
      */
     @TestTargetNew(
@@ -785,7 +785,7 @@ public class X509CertificateTest extends TestCase {
         //precondition for self signed certificates
         /*assertEquals(((X509Certificate) javaxSSCert).getIssuerDN().getName(),
                 ((X509Certificate) javaxSSCert).getSubjectDN());*/
-        
+
         // must always evaluate true for self signed
         // here not self signed:
         try {
@@ -819,7 +819,7 @@ public class X509CertificateTest extends TestCase {
         } catch (Exception e) {
             // ok
         }
-        
+
         // following test doesn't work because the algorithm is derived from
         // somewhere else.
 
@@ -832,7 +832,7 @@ public class X509CertificateTest extends TestCase {
         // } catch (SignatureException e) {
         //     // ok
         // }
-        
+
         // Security.removeProvider(mySSProvider.getName());
 
         // try {
@@ -842,19 +842,19 @@ public class X509CertificateTest extends TestCase {
         // }
 
         // Security.addProvider(mySSProvider);
-        
+
         // must always evaluate true for self signed
         // javaxSSCert.verify(javaxSSCert.getPublicKey());
     }
-    
+
     /**
-     * @throws SignatureException 
-     * @throws NoSuchProviderException 
-     * @throws NoSuchAlgorithmException 
-     * @throws java.security.cert.CertificateException 
-     * @throws InvalidKeyException 
-     * @throws IOException 
-     * @throws CertificateException 
+     * @throws SignatureException
+     * @throws NoSuchProviderException
+     * @throws NoSuchAlgorithmException
+     * @throws java.security.cert.CertificateException
+     * @throws InvalidKeyException
+     * @throws IOException
+     * @throws CertificateException
      * @tests {@link Certificate#verify(PublicKey, String)}
      */
     @TestTargetNew(
@@ -868,7 +868,7 @@ public class X509CertificateTest extends TestCase {
             java.security.cert.CertificateException, NoSuchAlgorithmException,
             NoSuchProviderException, SignatureException, IOException,
             CertificateException {
-        
+
         try {
             javaxCert.verify(javaxCert.getPublicKey(), myProvider.getName());
         } catch (NoSuchAlgorithmException e) {
@@ -884,13 +884,13 @@ public class X509CertificateTest extends TestCase {
             // ok
         }
         Security.addProvider(myProvider);
-        
+
         Provider[] providers = Security.getProviders("Signature.MD5withRSA");
         if (providers == null || providers.length == 0) {
             fail("no Provider for Signature.MD5withRSA");
             return;
         }
-        
+
         // self signed cert: should verify with provider
         try {
             javaxSSCert.verify(javaxSSCert.getPublicKey(),

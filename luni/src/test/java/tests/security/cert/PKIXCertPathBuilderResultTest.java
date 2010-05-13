@@ -41,7 +41,7 @@ import java.security.spec.InvalidKeySpecException;
 
 /**
  * Tests for <code>PKIXCertPathBuilderResult</code>
- * 
+ *
  */
 @TestTargetClass(PKIXCertPathBuilderResult.class)
 public class PKIXCertPathBuilderResultTest extends TestCase {
@@ -56,7 +56,7 @@ public class PKIXCertPathBuilderResultTest extends TestCase {
      * PublicKey stub
      */
     private static PublicKey testPublicKey = new PublicKey() {
-        
+
         private static final long serialVersionUID = -5529950703394751638L;
         public String getAlgorithm() {
             return "NeverMind";

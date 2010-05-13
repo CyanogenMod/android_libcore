@@ -36,7 +36,7 @@ import org.apache.harmony.security.asn1.BitString;
 import org.apache.harmony.security.x501.Name;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with TBSCertificate structure which is the part of X.509 certificate
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -64,11 +64,11 @@ import org.apache.harmony.security.x501.Name;
 public class TBSCertificate {
 
     // the value of version field of the structure
-    private final int version; 
+    private final int version;
     // the value of serialNumber field of the structure
     private final BigInteger serialNumber;
     // the value of signature field of the structure
-    private final AlgorithmIdentifier signature; 
+    private final AlgorithmIdentifier signature;
     // the value of issuer field of the structure
     private final Name issuer;
     // the value of validity field of the structure
@@ -97,11 +97,11 @@ public class TBSCertificate {
      * @param   subject :   Name
      * @param   subjectPublicKeyInfo    :   SubjectPublicKeyInfo
      */
-    public TBSCertificate(int version, BigInteger serialNumber, 
+    public TBSCertificate(int version, BigInteger serialNumber,
                           AlgorithmIdentifier signature, Name issuer,
-                          Validity validity, Name subject, 
+                          Validity validity, Name subject,
                           SubjectPublicKeyInfo subjectPublicKeyInfo) {
-        this(version, serialNumber, signature, issuer, validity, subject, 
+        this(version, serialNumber, signature, issuer, validity, subject,
              subjectPublicKeyInfo, null, null, null);
     }
 
@@ -118,15 +118,15 @@ public class TBSCertificate {
      * @param   subjectUniqueID:    byte[]
      * @param   extensions: Extensions
      */
-    public TBSCertificate(int version, BigInteger serialNumber, 
+    public TBSCertificate(int version, BigInteger serialNumber,
                           AlgorithmIdentifier signature, Name issuer,
-                          Validity validity, Name subject, 
+                          Validity validity, Name subject,
                           SubjectPublicKeyInfo subjectPublicKeyInfo,
                           boolean[] issuerUniqueID, boolean[] subjectUniqueID,
                           Extensions extensions) {
-        this.version = version; 
+        this.version = version;
         this.serialNumber = serialNumber;
-        this.signature = signature; 
+        this.signature = signature;
         this.issuer = issuer;
         this.validity = validity;
         this.subject = subject;
@@ -135,8 +135,8 @@ public class TBSCertificate {
         this.subjectUniqueID = subjectUniqueID;
         this.extensions = extensions;
     }
-        
-    // 
+
+    //
     // TODO
     // @param   version:    int
     // @param   serialNumber:   BigInteger
@@ -149,18 +149,18 @@ public class TBSCertificate {
     // @param   subjectUniqueID:    byte[]
     // @param   extensions: Extensions
     // @param   encoding:   byte[]
-    // 
-    private TBSCertificate(int version, BigInteger serialNumber, 
+    //
+    private TBSCertificate(int version, BigInteger serialNumber,
                           AlgorithmIdentifier signature, Name issuer,
-                          Validity validity, Name subject, 
+                          Validity validity, Name subject,
                           SubjectPublicKeyInfo subjectPublicKeyInfo,
                           boolean[] issuerUniqueID, boolean[] subjectUniqueID,
                           Extensions extensions, byte[] encoding) {
-        this(version, serialNumber, signature, issuer, validity, subject, 
+        this(version, serialNumber, signature, issuer, validity, subject,
              subjectPublicKeyInfo, issuerUniqueID, subjectUniqueID, extensions);
         this.encoding = encoding;
     }
-        
+
     /**
      * Returns the value of version field of the structure.
      * @return  version
@@ -176,7 +176,7 @@ public class TBSCertificate {
     public BigInteger getSerialNumber() {
         return serialNumber;
     }
-    
+
     /**
      * Returns the value of signature field of the structure.
      * @return  signature
@@ -184,7 +184,7 @@ public class TBSCertificate {
     public AlgorithmIdentifier getSignature() {
         return signature;
     }
-    
+
     /**
      * Returns the value of issuer field of the structure.
      * @return  issuer
@@ -192,7 +192,7 @@ public class TBSCertificate {
     public Name getIssuer() {
         return issuer;
     }
-    
+
     /**
      * Returns the value of validity field of the structure.
      * @return  validity
@@ -200,7 +200,7 @@ public class TBSCertificate {
     public Validity getValidity() {
         return validity;
     }
-    
+
     /**
      * Returns the value of subject field of the structure.
      * @return  subject
@@ -208,7 +208,7 @@ public class TBSCertificate {
     public Name getSubject() {
         return subject;
     }
-    
+
     /**
      * Returns the value of subjectPublicKeyInfo field of the structure.
      * @return  subjectPublicKeyInfo
@@ -216,7 +216,7 @@ public class TBSCertificate {
     public SubjectPublicKeyInfo getSubjectPublicKeyInfo() {
         return subjectPublicKeyInfo;
     }
-    
+
     /**
      * Returns the value of issuerUniqueID field of the structure.
      * @return  issuerUniqueID
@@ -224,7 +224,7 @@ public class TBSCertificate {
     public boolean[] getIssuerUniqueID() {
         return issuerUniqueID;
     }
-    
+
     /**
      * Returns the value of subjectUniqueID field of the structure.
      * @return  subjectUniqueID
@@ -232,7 +232,7 @@ public class TBSCertificate {
     public boolean[] getSubjectUniqueID() {
         return subjectUniqueID;
     }
-    
+
     /**
      * Returns the value of extensions field of the structure.
      * @return  extensions
@@ -257,51 +257,51 @@ public class TBSCertificate {
      */
     public void dumpValue(StringBuffer buffer) {
         buffer.append('[');
-        buffer.append("\n  Version: V").append(version+1); 
-        buffer.append("\n  Subject: ") 
+        buffer.append("\n  Version: V").append(version+1);
+        buffer.append("\n  Subject: ")
             .append(subject.getName(X500Principal.RFC2253));
-        buffer.append("\n  Signature Algorithm: "); 
+        buffer.append("\n  Signature Algorithm: ");
         signature.dumpValue(buffer);
-        buffer.append("\n  Key: "); 
+        buffer.append("\n  Key: ");
         buffer.append(subjectPublicKeyInfo.getPublicKey().toString());
-        buffer.append("\n  Validity: [From: "); 
+        buffer.append("\n  Validity: [From: ");
         buffer.append(validity.getNotBefore());
-        buffer.append("\n               To: "); 
+        buffer.append("\n               To: ");
         buffer.append(validity.getNotAfter()).append(']');
-        buffer.append("\n  Issuer: "); 
+        buffer.append("\n  Issuer: ");
         buffer.append(issuer.getName(X500Principal.RFC2253));
-        buffer.append("\n  Serial Number: "); 
+        buffer.append("\n  Serial Number: ");
         buffer.append(serialNumber);
         if (issuerUniqueID != null) {
-            buffer.append("\n  Issuer Id: "); 
+            buffer.append("\n  Issuer Id: ");
             for (int i=0; i<issuerUniqueID.length; i++) {
                 buffer.append(issuerUniqueID[i] ? '1' : '0');
             }
         }
         if (subjectUniqueID != null) {
-            buffer.append("\n  Subject Id: "); 
+            buffer.append("\n  Subject Id: ");
             for (int i=0; i<subjectUniqueID.length; i++) {
                 buffer.append(subjectUniqueID[i] ? '1' : '0');
             }
         }
         if (extensions != null) {
-            buffer.append("\n\n  Extensions: "); 
-            buffer.append("[\n"); 
-            extensions.dumpValue(buffer, "    "); 
-            buffer.append("  ]"); 
+            buffer.append("\n\n  Extensions: ");
+            buffer.append("[\n");
+            extensions.dumpValue(buffer, "    ");
+            buffer.append("  ]");
         }
-        buffer.append("\n]"); 
+        buffer.append("\n]");
     }
 
     /**
      * X.509 TBSCertificate encoder/decoder.
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
-            new ASN1Explicit(0, ASN1Integer.getInstance()), ASN1Integer.getInstance(), 
+            new ASN1Explicit(0, ASN1Integer.getInstance()), ASN1Integer.getInstance(),
             AlgorithmIdentifier.ASN1, Name.ASN1,
-            Validity.ASN1, Name.ASN1, SubjectPublicKeyInfo.ASN1, 
-            new ASN1Implicit(1, ASN1BitString.getInstance()), 
-            new ASN1Implicit(2, ASN1BitString.getInstance()), 
+            Validity.ASN1, Name.ASN1, SubjectPublicKeyInfo.ASN1,
+            new ASN1Implicit(1, ASN1BitString.getInstance()),
+            new ASN1Implicit(2, ASN1BitString.getInstance()),
             new ASN1Explicit(3, Extensions.ASN1)}) {
         {
             setDefault(new byte[] {0}, 0);
@@ -313,18 +313,18 @@ public class TBSCertificate {
         protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
 
-            boolean[] issuerUniqueID = (values[7] == null) 
+            boolean[] issuerUniqueID = (values[7] == null)
                 ? null : ((BitString) values[7]).toBooleanArray();
-            boolean[] subjectUniqueID = (values[8] == null) 
+            boolean[] subjectUniqueID = (values[8] == null)
                 ? null : ((BitString) values[8]).toBooleanArray();
             return new TBSCertificate(
                         ASN1Integer.toIntValue(values[0]),
-                        new BigInteger((byte[]) values[1]), 
+                        new BigInteger((byte[]) values[1]),
                         (AlgorithmIdentifier) values[2],
-                        (Name) values[3], 
-                        (Validity) values[4], 
+                        (Name) values[3],
+                        (Validity) values[4],
                         (Name) values[5],
-                        (SubjectPublicKeyInfo) values[6], 
+                        (SubjectPublicKeyInfo) values[6],
                         issuerUniqueID,
                         subjectUniqueID,
                         (Extensions) values[9],
@@ -337,7 +337,7 @@ public class TBSCertificate {
             values[0] = ASN1Integer.fromIntValue(tbs.version);
             values[1] = tbs.serialNumber.toByteArray();
             values[2] = tbs.signature;
-            values[3] = tbs.issuer; 
+            values[3] = tbs.issuer;
             values[4] = tbs.validity;
             values[5] = tbs.subject;
             values[6] = tbs.subjectPublicKeyInfo;

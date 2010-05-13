@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ import junit.framework.TestCase;
 @TestTargetClass(AbstractSelector.class)
 /**
  * Tests for AbstractSelector and register of its default implementation
- */ 
+ */
 public class AbstractSelectorTest extends TestCase {
 
     /**
@@ -92,7 +92,7 @@ public class AbstractSelectorTest extends TestCase {
     }
 
     /**
-     * 
+     *
      * @tests AbstractSelector#begin/end()
      */
     @TestTargets({
@@ -111,13 +111,13 @@ public class AbstractSelectorTest extends TestCase {
     })
     public void test_begin_end() throws IOException {
         MockAbstractSelector mockSelector = new MockAbstractSelector(
-                SelectorProvider.provider());     
+                SelectorProvider.provider());
         try {
             mockSelector.superBegin();
         } finally {
             mockSelector.superEnd();
         }
-        
+
         mockSelector = new MockAbstractSelector(SelectorProvider.provider());
         try {
             mockSelector.superBegin();
@@ -125,7 +125,7 @@ public class AbstractSelectorTest extends TestCase {
         } finally {
             mockSelector.superEnd();
         }
-       
+
         try {
             // begin twice
             mockSelector.superBegin();
@@ -133,7 +133,7 @@ public class AbstractSelectorTest extends TestCase {
         } finally {
             mockSelector.superEnd();
         }
-        
+
         try {
             mockSelector.superBegin();
         } finally {
@@ -149,7 +149,7 @@ public class AbstractSelectorTest extends TestCase {
             mockSelector.superEnd();
         }
     }
-    
+
     /**
      * @tests AbstractSelector#isOpen()
      */
@@ -165,7 +165,7 @@ public class AbstractSelectorTest extends TestCase {
         acceptSelector.close();
         assertFalse(acceptSelector.isOpen());
     }
-    
+
     /**
      * @tests AbstractSelector()
      */
@@ -180,7 +180,7 @@ public class AbstractSelectorTest extends TestCase {
                 SelectorProvider.provider());
         assertSame(SelectorProvider.provider(), acceptSelector.provider());
     }
-    
+
     /**
      * @tests AbstractSelector#register(AbstractSelectableChannel,int,Object)
      */
@@ -189,8 +189,8 @@ public class AbstractSelectorTest extends TestCase {
         notes = "Verifies register method from SelectableChannel class.",
         method = "register",
         args = {AbstractSelectableChannel.class, int.class, java.lang.Object.class}
-    )   
-    public void test_register_LAbstractSelectableChannelIObject() 
+    )
+    public void test_register_LAbstractSelectableChannelIObject()
             throws Exception {
         Selector acceptSelector = new MockSelectorProvider().openSelector();
         ServerSocketChannel ssc = ServerSocketChannel.open();
@@ -207,7 +207,7 @@ public class AbstractSelectorTest extends TestCase {
         notes = "",
         method = "cancelledKeys",
         args = {}
-    )    
+    )
     public void test_cancelledKeys() throws Exception {
         MockSelectorProvider prov = new MockSelectorProvider();
         Selector acceptSelector = prov.openSelector();
@@ -217,7 +217,7 @@ public class AbstractSelectorTest extends TestCase {
         SelectionKey acceptKey = sc.register(acceptSelector,
                 SelectionKey.OP_READ, null);
         acceptKey.cancel();
-        Set<SelectionKey> cKeys = 
+        Set<SelectionKey> cKeys =
                 ((MockAbstractSelector)acceptSelector).getCancelledKeys();
         assertTrue(cKeys.contains(acceptKey));
     }
@@ -244,7 +244,7 @@ public class AbstractSelectorTest extends TestCase {
     }
 
     static class MockSelectorProvider extends SelectorProvider {
-        
+
         private  MockSelectorProvider() {
             // do nothing
         }

@@ -30,12 +30,12 @@ import java.security.spec.AlgorithmParameterSpec;
 /**
  * Additional class for verification AlgorithmParameterGeneratorSpi and
  * AlgorithmParameterGenerator classes
- * 
+ *
  */
 
-public class MyAlgorithmParameterGeneratorSpi 
+public class MyAlgorithmParameterGeneratorSpi
         extends AlgorithmParameterGeneratorSpi {
-    
+
     public void engineInit(int keysize, SecureRandom random) {
         if (keysize < 0) {
             throw new IllegalArgumentException("keysize < 0");
@@ -48,7 +48,7 @@ public class MyAlgorithmParameterGeneratorSpi
             throw new IllegalArgumentException("random is null");
         }
     }
-    
+
     public AlgorithmParameters engineGenerateParameters() {
         return null;
     }

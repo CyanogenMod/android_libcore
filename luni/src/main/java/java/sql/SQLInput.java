@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,9 +47,9 @@ public interface SQLInput {
 
     /**
      * Returns the next attribute in the stream in the form of a {@code String}.
-     * 
+     *
      * @return the next attribute. {@code null} if the value is SQL {@code NULL}.
-     * 
+     *
      * @throws SQLException
      *             if there is a database error.
      */
@@ -58,7 +58,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a {@code boolean}
      * .
-     * 
+     *
      * @return the next attribute as a {@code boolean}. {@code false} if the
      *         value is SQL {@code NULL}.
      * @throws SQLException
@@ -68,7 +68,7 @@ public interface SQLInput {
 
     /**
      * Returns the next attribute in the stream in the form of a {@code byte}.
-     * 
+     *
      * @return the next attribute as a {@code byte}. 0 if the value is SQL
      *         {@code NULL}.
      * @throws SQLException
@@ -78,7 +78,7 @@ public interface SQLInput {
 
     /**
      * Returns the next attribute in the stream in the form of a {@code short}.
-     * 
+     *
      * @return the next attribute as a {@code short}. 0 if the value is SQL
      *         {@code NULL}.
      * @throws SQLException
@@ -88,7 +88,7 @@ public interface SQLInput {
 
     /**
      * Returns the next attribute in the stream in the form of an {@code int}.
-     * 
+     *
      * @return the next attribute as an {@code int}. 0 if the value is SQL
      *         {@code NULL}.
      * @throws SQLException
@@ -98,7 +98,7 @@ public interface SQLInput {
 
     /**
      * Returns the next attribute in the stream in the form of a {@code long}.
-     * 
+     *
      * @return the next attribute as a {@code long}. 0 if the value is SQL
      *         {@code NULL}.
      * @throws SQLException
@@ -108,7 +108,7 @@ public interface SQLInput {
 
     /**
      * Returns the next attribute in the stream in the form of a {@code float}.
-     * 
+     *
      * @return the next attribute as a {@code float}. 0 if the value is SQL
      *         {@code NULL}.
      * @throws SQLException
@@ -118,7 +118,7 @@ public interface SQLInput {
 
     /**
      * Returns the next attribute in the stream in the form of a {@code double}.
-     * 
+     *
      * @return the next attribute as a {@code double}. 0 if the value is SQL
      *         {@code NULL}.
      * @throws SQLException
@@ -129,7 +129,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a {@code
      * java.math.BigDecimal}.
-     * 
+     *
      * @return the attribute as a {@code java.math.BigDecimal}. {@code null} if
      *         the read returns SQL {@code NULL}.
      * @throws SQLException
@@ -140,7 +140,7 @@ public interface SQLInput {
 
     /**
      * Returns the next attribute in the stream in the form of a byte array.
-     * 
+     *
      * @return the attribute as a byte array. {@code null} if the read returns
      *         SQL {@code NULL}.
      * @throws SQLException
@@ -151,7 +151,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a {@code
      * java.sql.Date}.
-     * 
+     *
      * @return the next attribute as a {@code java.sql.Date}. {@code null} if
      *         the value is SQL {@code NULL}.
      * @throws SQLException
@@ -163,7 +163,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a {@code
      * java.sql.Time}.
-     * 
+     *
      * @return the attribute as a {@code java.sql.Time}. {@code null} if the
      *         read returns SQL {@code NULL}.
      * @throws SQLException
@@ -175,7 +175,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a {@code
      * java.sql.Timestamp}.
-     * 
+     *
      * @return the attribute as a {@code java.sql.Timestamp}. {@code null} if
      *         the read returns SQL {@code NULL}.
      * @throws SQLException
@@ -187,7 +187,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a Unicode
      * character stream embodied as a {@code java.io.Reader}.
-     * 
+     *
      * @return the next attribute as a {@code java.io.Reader}. {@code null} if
      *         the value is SQL {@code NULL}.
      * @throws SQLException
@@ -199,7 +199,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of an ASCII
      * character stream embodied as a {@code java.io.InputStream}.
-     * 
+     *
      * @return the next attribute as a {@code java.io.InputStream}. {@code null}
      *         if the value is SQL {@code NULL}.
      * @throws SQLException
@@ -211,7 +211,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a stream of bytes
      * embodied as a {@code java.io.InputStream}.
-     * 
+     *
      * @return the next attribute as a {@code java.io.InputStream}. {@code null}
      *         if the value is SQL {@code NULL}.
      * @throws SQLException
@@ -234,7 +234,7 @@ public interface SQLInput {
      * type, the driver creates an object for the relevant type and invokes the
      * method {@code SQLData.readSQL} on it, which reads supplementary data from
      * the stream using whichever protocol is defined for that method.
-     * 
+     *
      * @return the next attribute as an Object. {@code null} if the value is SQL
      *         {@code NULL}.
      * @throws SQLException
@@ -245,7 +245,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a {@code
      * java.sql.Ref}.
-     * 
+     *
      * @return the next attribute as a {@code java.sql.Ref}. {@code null} if the
      *         value is SQL {@code NULL}.
      * @throws SQLException
@@ -257,7 +257,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a {@code
      * java.sql.Blob}.
-     * 
+     *
      * @return the next attribute as a {@code java.sql.Blob}. {@code null} if
      *         the value is SQL {@code NULL}.
      * @throws SQLException
@@ -268,7 +268,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a {@code
      * java.sql.Clob}.
-     * 
+     *
      * @return the next attribute as a {@code java.sql.Clob}. {@code null} if
      *         the value is SQL {@code NULL}.
      * @throws SQLException
@@ -280,7 +280,7 @@ public interface SQLInput {
     /**
      * Returns the next attribute in the stream in the form of a {@code
      * java.sql.Array}.
-     * 
+     *
      * @return the next attribute as an {@code Array}. {@code null} if the value
      *         is SQL {@code NULL}.
      * @throws SQLException
@@ -291,7 +291,7 @@ public interface SQLInput {
 
     /**
      * Reports whether the last value read was SQL {@code NULL}.
-     * 
+     *
      * @return {@code true} if the last value read was SQL {@code NULL}, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -302,7 +302,7 @@ public interface SQLInput {
     /**
      * Reads the next attribute in the stream (SQL DATALINK value) and returns
      * it as a {@code java.net.URL} object.
-     * 
+     *
      * @return the next attribute as a {@code java.net.URL}. {@code null} if the
      *         value is SQL {@code NULL}.
      * @throws SQLException

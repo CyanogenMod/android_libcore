@@ -24,7 +24,7 @@ import java.security.spec.AlgorithmParameterSpec;
 /**
  * The <i>Service Provider Interface</i> (<b>SPI</b>) definition for the
  * {@code KeyGenerator} class.
- * 
+ *
  * @see KeyGenerator
  */
 public abstract class KeyGeneratorSpi {

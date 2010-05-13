@@ -34,7 +34,7 @@ import java.security.Permission;
  */
 @TestTargetClass(java.io.RandomAccessFile.class)
 public class JavaIoRandomAccessFileTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -48,7 +48,7 @@ public class JavaIoRandomAccessFileTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -79,7 +79,7 @@ public class JavaIoRandomAccessFileTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
 
@@ -88,21 +88,21 @@ public class JavaIoRandomAccessFileTest extends TestCase {
         File f = File.createTempFile(filename, null);
         f.deleteOnExit();
         filename = f.getCanonicalPath();
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         new RandomAccessFile(filename, "r");
         assertTrue("RandomAccessFile(String,String) ctor must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         new RandomAccessFile(f, "r");
         assertTrue("RandomAccessFile(File, String) ctor must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies that RandomAccessFile constructor calls checkRead and checkWrite on security manager.",
@@ -115,14 +115,14 @@ public class JavaIoRandomAccessFileTest extends TestCase {
             boolean checkWriteCalled;
             String checkReadFile;
             String checkWriteFile;
-            
+
             void reset(){
                 checkReadCalled = false;
                 checkWriteCalled = false;
                 checkReadFile = null;
                 checkWriteFile = null;
             }
-            
+
             @Override
             public void checkRead(String file) {
                 checkReadCalled = true;
@@ -137,7 +137,7 @@ public class JavaIoRandomAccessFileTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
 
@@ -146,10 +146,10 @@ public class JavaIoRandomAccessFileTest extends TestCase {
         File f = File.createTempFile(filename, null);
         f.deleteOnExit();
         filename = f.getCanonicalPath();
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         new RandomAccessFile(filename, "rw");
         assertTrue("RandomAccessFile(String,String) ctor must call checkRead on security manager", s.checkReadCalled);

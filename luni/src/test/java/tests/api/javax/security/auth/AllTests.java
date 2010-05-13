@@ -34,7 +34,7 @@ public class AllTests {
         suite.addTestSuite(SubjectDomainCombinerTest.class);
         suite.addTestSuite(DestroyFailedExceptionTest.class);
         suite.addTestSuite(DestroyableTest.class);
-        
+
         suite.addTestSuite(LoginExceptionTest.class);
         suite.addTestSuite(X500PrincipalTest.class);
         suite.addTestSuite(UnsupportedCallbackExceptionTest.class);

@@ -32,8 +32,8 @@ import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.x501.Name;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
- * with the DistributionPointName structure which is the part 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
+ * with the DistributionPointName structure which is the part
  * of X.509 CRL
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -46,12 +46,12 @@ import org.apache.harmony.security.x501.Name;
  *  DistributionPoint ::= SEQUENCE {
  *        distributionPoint       [0]     DistributionPointName OPTIONAL,
  *        reasons                 [1]     ReasonFlags OPTIONAL,
- *        cRLIssuer               [2]     GeneralNames OPTIONAL 
+ *        cRLIssuer               [2]     GeneralNames OPTIONAL
  *  }
  *
  *  DistributionPointName ::= CHOICE {
  *        fullName                [0]     GeneralNames,
- *        nameRelativeToCRLIssuer [1]     RelativeDistinguishedName 
+ *        nameRelativeToCRLIssuer [1]     RelativeDistinguishedName
  *  }
  *
  *  ReasonFlags ::= BIT STRING {
@@ -63,12 +63,12 @@ import org.apache.harmony.security.x501.Name;
  *        cessationOfOperation    (5),
  *        certificateHold         (6),
  *        privilegeWithdrawn      (7),
- *        aACompromise            (8) 
+ *        aACompromise            (8)
  *  }
  * </pre>
  */
 public class DistributionPointName {
-   
+
     private final GeneralNames fullName;
     private final Name nameRelativeToCRLIssuer;
 
@@ -77,7 +77,7 @@ public class DistributionPointName {
         this.fullName = fullName;
         this.nameRelativeToCRLIssuer = null;
     }
-    
+
     public DistributionPointName(Name nameRelativeToCRLIssuer) {
         this.fullName = null;
         this.nameRelativeToCRLIssuer = nameRelativeToCRLIssuer;
@@ -89,21 +89,21 @@ public class DistributionPointName {
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
         buffer.append(prefix);
-        buffer.append("Distribution Point Name: [\n"); 
+        buffer.append("Distribution Point Name: [\n");
         if (fullName != null) {
-            fullName.dumpValue(buffer, prefix + "  "); 
+            fullName.dumpValue(buffer, prefix + "  ");
         } else {
             buffer.append(prefix);
-            buffer.append("  "); 
+            buffer.append("  ");
             buffer.append(nameRelativeToCRLIssuer.getName(
                         X500Principal.RFC2253));
-        } 
+        }
         buffer.append(prefix);
-        buffer.append("]\n"); 
+        buffer.append("]\n");
     }
 
     public static final ASN1Choice ASN1 = new ASN1Choice(new ASN1Type[] {
-            new ASN1Implicit(0, GeneralNames.ASN1), 
+            new ASN1Implicit(0, GeneralNames.ASN1),
             new ASN1Implicit(1, Name.ASN1_RDN) }) {
 
         public int getIndex(java.lang.Object object) {
@@ -116,7 +116,7 @@ public class DistributionPointName {
             if (in.choiceIndex == 0) {
                 result = new DistributionPointName((GeneralNames) in.content);
             } else {
-                // note: ASN.1 decoder will report an error if index 
+                // note: ASN.1 decoder will report an error if index
                 // is neither 0 or 1
                 result = new DistributionPointName((Name) in.content);
             }

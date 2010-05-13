@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 public @interface TestTargetNew {
-    
+
     /**
      * Specifies the name of the API method that is being tested. This field
      * may be left empty if the test target is a concept implemented in a
@@ -50,12 +50,12 @@ public @interface TestTargetNew {
      * test progress doclet.
      */
     Class<?> clazz() default void.class;
- 
+
     /**
      * Specifies the level of coverage the tested API method has.
      */
     TestLevel level();
-    
+
     /**
      * Specifies noteworthy plain-text information about the test, for example
      * if something is NOT covered by the test method.

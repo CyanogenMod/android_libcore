@@ -17,8 +17,8 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.BrokenTest; 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.BrokenTest;
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -42,10 +42,10 @@ import tests.util.TestEnvironment;
  * This test is designed for collecting all the testcases which needs a proxy
  * server. They will be moved to corresponding test class when ProxyHandler of
  * Jetty is ready in the future.
- * 
+ *
  */
 
-@TestTargetClass(Proxy.class) 
+@TestTargetClass(Proxy.class)
 public class ExcludedProxyTest extends TestCase {
 
     @Override protected void setUp() throws Exception {
@@ -133,7 +133,7 @@ public class ExcludedProxyTest extends TestCase {
             System.setProperties(null);
         }
     }
-    
+
     /**
      * @tests java.net.SocketImpl#SocketImpl()
      */
@@ -180,7 +180,7 @@ public class ExcludedProxyTest extends TestCase {
             System.setProperties(null);
         }
     }
-    
+
     /**
      * @tests java.net.URL#openConnection(Proxy)
      */
@@ -224,7 +224,7 @@ public class ExcludedProxyTest extends TestCase {
             assertTrue("Response to POST method invalid", response
                     .equals(posted));
         }
-        
+
         URL httpUrl = new URL("http://abc.com");
         URL jarUrl = new URL("jar:"
                 + Support_Resources.getResourceURL("/JUC/lf.jar!/plus.bmp"));

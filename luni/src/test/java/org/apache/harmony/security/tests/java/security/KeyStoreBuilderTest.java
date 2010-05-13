@@ -101,16 +101,16 @@ public class KeyStoreBuilderTest extends TestCase {
         try {
             ksb = new KeyStoreBuilder();
             assertNotNull(ksb);
-            
+
             ksb.getKeyStore();
             ksb.getProtectionParameter("test");
         } catch (Exception e) {
             fail("Unexpected exception " + e.getMessage());
         }
     }
-    
+
     /*
-     * test for method newInstance(KeyStore, KeyStore.ProtectionParameter) 
+     * test for method newInstance(KeyStore, KeyStore.ProtectionParameter)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -122,21 +122,21 @@ public class KeyStoreBuilderTest extends TestCase {
             throws KeyStoreException, NoSuchAlgorithmException, IOException,
             CertificateException {
         // exceptions verification
-        
+
         try {
             KeyStore.Builder.newInstance(null, null);
             fail("NullPointerException must be thrown");
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         try {
             KeyStore.Builder.newInstance(null, protPass);
             fail("NullPointerException must be thrown");
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         KeyStore.Builder ksB;
 
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -159,7 +159,7 @@ public class KeyStoreBuilderTest extends TestCase {
             } catch (IllegalArgumentException e) {
                 // expected
             }
-            
+
             ks.load(null, pass);
             ksB = KeyStore.Builder.newInstance(ks, pp[i]);
 
@@ -227,12 +227,12 @@ public class KeyStoreBuilderTest extends TestCase {
      * IllegalArgumentException if file does not exist or is not file; throws
      * IllegalArgumentException if ProtectionParameter is not PasswordProtection
      * or CallbackHandlerProtection; returns new object
-     * 
+     *
      * getKeyStore() returns specified keystore; getProtectionParameter(String
      * alias) throws NullPointerException when alias is null; throws
      * KeyStoreException when alias is not available; returns
      * ProtectionParameter which is used in newInstance(...)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -242,7 +242,7 @@ public class KeyStoreBuilderTest extends TestCase {
     )
     public void testNewInstanceStringProviderFileProtectionParameter()
             throws Exception {
-        
+
         File fl = File.createTempFile("KSBuilder_ImplTest", "keystore");
         fl.deleteOnExit();
         KeyStore.Builder ksB;
@@ -299,7 +299,7 @@ public class KeyStoreBuilderTest extends TestCase {
         }
 
         fl = createKS();
-        
+
         // Exception Tests with custom ProtectionParameter
         try {
             KeyStore.Builder.newInstance(KeyStore.getDefaultType(),
@@ -315,7 +315,7 @@ public class KeyStoreBuilderTest extends TestCase {
                     + "thrown for incorrect ProtectionParameter");
         } catch (IllegalArgumentException e) {
         }
-        
+
         // Tests with PasswordProtection
         ksB = KeyStore.Builder.newInstance(KeyStore.getDefaultType(),
                 null, fl, protPass);
@@ -354,7 +354,7 @@ public class KeyStoreBuilderTest extends TestCase {
             // with such alias
         }
 
-        
+
         for (Enumeration<String> aliases = ks1.aliases(); aliases.hasMoreElements(); ) {
             String aName = aliases.nextElement();
             assertEquals("Incorrect ProtectionParameter", ksB1
@@ -367,7 +367,7 @@ public class KeyStoreBuilderTest extends TestCase {
             // KeyStoreException might be thrown because there is no entry
             // with such alias
         }
-            
+
 
         // Tests with CallbackHandlerProtection
         ksB = KeyStore.Builder.newInstance(KeyStore.getDefaultType(),
@@ -412,11 +412,11 @@ public class KeyStoreBuilderTest extends TestCase {
      * <code>getProtectionParameter(String alias)</code> Assertions: throws
      * NullPointerException if type, or protectionParameter is null; returns new
      * object
-     * 
+     *
      * getKeyStore() returns empty keystore getProtectionParameter(String alias)
      * throws NullPointerException when alias is null; throws KeyStoreException
      * when alias is not available
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -426,7 +426,7 @@ public class KeyStoreBuilderTest extends TestCase {
     )
     public void testNewInstanceStringProviderProtectionParameter()
             throws KeyStoreException {
-        
+
         try {
             KeyStore.Builder.newInstance(null, defaultProvider, protPass);
             fail("NullPointerException must be thrown when type is null");
@@ -534,8 +534,8 @@ public class KeyStoreBuilderTest extends TestCase {
             }
         }
     }
-    
-//     Creates empty KeyStore and loads it to file    
+
+//     Creates empty KeyStore and loads it to file
     private File createKS() throws Exception {
         FileOutputStream fos = null;
         File ff = File.createTempFile("KSBuilder_ImplTest", "keystore");
@@ -561,11 +561,11 @@ public class KeyStoreBuilderTest extends TestCase {
         public KeyStoreBuilder() {
             super();
         }
-        
+
         public KeyStore getKeyStore() {
             return null;
         }
-        
+
         public KeyStore.ProtectionParameter getProtectionParameter(String alias) {
             return null;
         }

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -298,7 +298,7 @@ public interface DatabaseMetaData {
     /**
      * Returns whether all procedures returned by {@link #getProcedures} can be
      * called by the current user.
-     * 
+     *
      * @return {@code true} if all procedures can be called by the current user,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -309,7 +309,7 @@ public interface DatabaseMetaData {
     /**
      * Returns whether all the tables returned by {@code getTables} can be used
      * by the current user in a {@code SELECT} statement.
-     * 
+     *
      * @return {@code true} if all the tables can be used,{@code false}
      *         otherwise.
      * @throws SQLException
@@ -320,7 +320,7 @@ public interface DatabaseMetaData {
     /**
      * Returns whether a data definition statement in a transaction forces a {@code
      * commit} of the transaction.
-     * 
+     *
      * @return {@code true} if the statement forces a commit, {@code false}
      *         otherwise.
      * @throws SQLException
@@ -331,7 +331,7 @@ public interface DatabaseMetaData {
     /**
      * Returns whether the database ignores data definition statements within a
      * transaction.
-     * 
+     *
      * @return {@code true} if the database ignores a data definition statement,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -342,7 +342,7 @@ public interface DatabaseMetaData {
     /**
      * Returns whether a visible row delete can be detected by calling
      * {@link ResultSet#rowDeleted}.
-     * 
+     *
      * @param type
      *            the type of the {@code ResultSet} involved: {@code
      *            ResultSet.TYPE_FORWARD_ONLY}, {@code
@@ -358,7 +358,7 @@ public interface DatabaseMetaData {
     /**
      * Returns whether the return value of {@code getMaxRowSize} includes the
      * SQL data types {@code LONGVARCHAR} and {@code LONGVARBINARY}.
-     * 
+     *
      * @return {@code true} if the return value includes {@code LONGVARBINARY}
      *         and {@code LONGVARCHAR}, otherwise {@code false}.
      * @throws SQLException
@@ -367,12 +367,12 @@ public interface DatabaseMetaData {
     public boolean doesMaxRowSizeIncludeBlobs() throws SQLException;
 
     /**
-     * Returns a {@code ResultSet} describing a subset of the attributes of a 
+     * Returns a {@code ResultSet} describing a subset of the attributes of a
      * specified SQL User Defined Type (UDT) for a specified schema and catalog.
-     * The subset is determined by restricting to those attributes whose 
-     * name matches the {@code attributeNamePattern} and whose type name 
+     * The subset is determined by restricting to those attributes whose
+     * name matches the {@code attributeNamePattern} and whose type name
      * matches the {@code typeNamePattern}. Each row of the {@code ResultSet}
-     * describes one attribute, and the rows are ordered by the columns {@code TYPE_SCHEM}, 
+     * describes one attribute, and the rows are ordered by the columns {@code TYPE_SCHEM},
      * {@code TYPE_NAME} and {@code ORDINAL_POSITION}. Inherited attributes
      * are not included.
      * <p>
@@ -417,14 +417,14 @@ public interface DatabaseMetaData {
      * the count starts from 1, not 0)</li>
      * <li>IS_NULLABLE - String - {@code "NO"} = the column does not allow {@code
      * NULL}s, {@code "YES"} = the column allows {@code NULL}s, "" = status unknown</li>
-     * <li>{@code SCOPE_CATALOG} - String - if the {@code DATA_TYPE} is {@code REF}, 
-     * this gives the catalog of the table corresponding to the attribute's scope. 
+     * <li>{@code SCOPE_CATALOG} - String - if the {@code DATA_TYPE} is {@code REF},
+     * this gives the catalog of the table corresponding to the attribute's scope.
      * NULL if the {@code DATA_TYPE} is not REF.</li>
-     * <li>{@code SCOPE_SCHEMA} - String - if the {@code DATA_TYPE} is {@code REF}, 
-     * this gives the schema of the table corresponding to the attribute's scope. 
+     * <li>{@code SCOPE_SCHEMA} - String - if the {@code DATA_TYPE} is {@code REF},
+     * this gives the schema of the table corresponding to the attribute's scope.
      * NULL if the {@code DATA_TYPE} is not REF.</li>
-     * <li>{@code SCOPE_TABLE} - String - if the {@code DATA_TYPE} is {@code REF}, 
-     * this gives the name of the table corresponding to the attribute's scope. 
+     * <li>{@code SCOPE_TABLE} - String - if the {@code DATA_TYPE} is {@code REF},
+     * this gives the name of the table corresponding to the attribute's scope.
      * NULL if the {@code DATA_TYPE} is not REF.</li>
      * <li>{@code SOURCE_DATA_TYPE} - String - The source type for a user
      * generated REF type or for a Distinct type. ({@code NULL} if {@code
@@ -464,7 +464,7 @@ public interface DatabaseMetaData {
      * <ol>
      * <li>{@code SCOPE} - short - the {@code SCOPE} of the result, as follows:
      * <ul>
-     * <li>{@code DatabaseMetaData.bestRowTemporary} - the result is very temporary, 
+     * <li>{@code DatabaseMetaData.bestRowTemporary} - the result is very temporary,
      * only valid while on the current row</li>
      * <li>{@code DatabaseMetaData.bestRowTransaction} - the result is good for remainder of
      * current transaction</li>
@@ -520,7 +520,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the set of catalog names available in this database. The set is
      * returned ordered by catalog name.
-     * 
+     *
      * @return a {@code ResultSet} containing the catalog names, with each row
      *         containing one catalog name (as a {@code String}) in the
      *         single column named {@code TABLE_CAT}.
@@ -532,7 +532,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the separator that this database uses between a catalog name and
      * table name.
-     * 
+     *
      * @return a String containing the separator.
      * @throws SQLException
      *             if there is a database error.
@@ -541,7 +541,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the term that the database vendor prefers term for "catalog".
-     * 
+     *
      * @return a String with the vendor's term for "catalog".
      * @throws SQLException
      *             if there is a database error.
@@ -606,7 +606,7 @@ public interface DatabaseMetaData {
      * <li>{@code COLUMN_NAME} - String - the column name</li>
      * <li>{@code DATA_TYPE} - int - the SQL type as specified in {@code
      * java.sql.Types}</li>
-     * <li>{@code TYPE_NAME} - String - the name of the data type, (database-dependent, 
+     * <li>{@code TYPE_NAME} - String - the name of the data type, (database-dependent,
      * UDT names are fully qualified)</li>
      * <li>{@code COLUMN_SIZE} - int - the column size (the precision for numeric
      * types, max characters for {@code char} and {@code date} types)</li>
@@ -632,14 +632,14 @@ public interface DatabaseMetaData {
      * <li>{@code IS_NULLABLE} - String - {@code "NO"} = column does not allow
      * NULLs, {@code "YES"} = column allows NULLs, "" = {@code NULL} status
      * unknown</li>
-     * <li>{@code SCOPE_CATALOG} - String - if the {@code DATA_TYPE} is {@code REF}, 
-     * this gives the catalog of the table corresponding to the attribute's scope. 
+     * <li>{@code SCOPE_CATALOG} - String - if the {@code DATA_TYPE} is {@code REF},
+     * this gives the catalog of the table corresponding to the attribute's scope.
      * NULL if the {@code DATA_TYPE} is not REF.</li>
-     * <li>{@code SCOPE_SCHEMA} - String - if the {@code DATA_TYPE} is {@code REF}, 
-     * this gives the schema of the table corresponding to the attribute's scope. 
+     * <li>{@code SCOPE_SCHEMA} - String - if the {@code DATA_TYPE} is {@code REF},
+     * this gives the schema of the table corresponding to the attribute's scope.
      * NULL if the {@code DATA_TYPE} is not REF.</li>
-     * <li>{@code SCOPE_TABLE} - String - if the {@code DATA_TYPE} is {@code REF}, 
-     * this gives the name of the table corresponding to the attribute's scope. 
+     * <li>{@code SCOPE_TABLE} - String - if the {@code DATA_TYPE} is {@code REF},
+     * this gives the name of the table corresponding to the attribute's scope.
      * NULL if the {@code DATA_TYPE} is not REF.</li>
      * <li>{@code SOURCE_DATA_TYPE} - String - The source type for a user
      * generated REF type or for a Distinct type. ({@code NULL} if {@code
@@ -673,7 +673,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the database connection that created this metadata.
-     * 
+     *
      * @return the connection to the database.
      * @throws SQLException
      *             if there is a database error.
@@ -783,7 +783,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the major version number of the database software.
-     * 
+     *
      * @return the major version number of the database software.
      * @throws SQLException
      *             a database error occurred.
@@ -792,7 +792,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the minor version number of the database software.
-     * 
+     *
      * @return the minor version number of the database software.
      * @throws SQLException
      *             a database error occurred.
@@ -801,7 +801,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the name of the database software.
-     * 
+     *
      * @return a {@code String} with the name of the database software.
      * @throws SQLException
      *             a database error occurred.
@@ -810,7 +810,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the version number of this database software.
-     * 
+     *
      * @return a {@code String} with the version number of the database
      *         software.
      * @throws SQLException
@@ -820,7 +820,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the default transaction isolation level for this database.
-     * 
+     *
      * @return the default transaction isolation level. One of the following values:
      *         <ul>
      *         <li>{@code TRANSACTION_NONE}</li>
@@ -836,21 +836,21 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the JDBC driver's major version number.
-     * 
+     *
      * @return the driver's major version number.
      */
     public int getDriverMajorVersion();
 
     /**
      * Returns the JDBC driver's minor version number.
-     * 
+     *
      * @return the driver's minor version number.
      */
     public int getDriverMinorVersion();
 
     /**
      * Returns the name of this JDBC driver.
-     * 
+     *
      * @return a {@code String} containing the name of the JDBC driver
      * @throws SQLException
      *             a database error occurred.
@@ -859,7 +859,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the version number of this JDBC driver.
-     * 
+     *
      * @return a {@code String} containing the complete version number of the
      *         JDBC driver.
      * @throws SQLException
@@ -894,7 +894,7 @@ public interface DatabaseMetaData {
      * <li>{@code UPDATE_RULE} - short - a value giving the rule for how to treat the foreign key when the corresponding primary
      * key is updated:
      * <ul>
-     * <li>{@code DatabaseMetaData.importedKeyNoAction} - don't allow the 
+     * <li>{@code DatabaseMetaData.importedKeyNoAction} - don't allow the
      * primary key to be updated if it is imported as a foreign key</li>
      * <li>{@code DatabaseMetaData.importedKeyCascade} - change the imported key to
      * match the primary key update</li>
@@ -959,7 +959,7 @@ public interface DatabaseMetaData {
      * Returns a string of characters that may be used in unquoted identifier
      * names. The characters {@code a-z}, {@code A-Z}, {@code 0-9} and {@code _}
      * are always permitted.
-     * 
+     *
      * @return a String containing all the additional permitted characters.
      * @throws SQLException
      *             a database error occurred.
@@ -969,7 +969,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the string used to quote SQL identifiers. Returns " " (space) if
      * identifier quoting not supported.
-     * 
+     *
      * @return the String used to quote SQL identifiers.
      * @throws SQLException
      *             a database error occurred.
@@ -982,7 +982,7 @@ public interface DatabaseMetaData {
      * imported by a table).
      * <p>
      * The list returned is a {@code ResultSet} with a row entry for each
-     * primary key column, ordered by {@code PKTABLE_CAT}, {@code PKTABLE_SCHEM}, 
+     * primary key column, ordered by {@code PKTABLE_CAT}, {@code PKTABLE_SCHEM},
      * {@code PKTABLE_NAME}, and {@code KEY_SEQ}, with the following format:
      * <ol>
      * <li>{@code PKTABLE_CAT} - String - primary key catalog name being
@@ -1138,7 +1138,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns this driver's major JDBC version number.
-     * 
+     *
      * @return the major JDBC version number.
      * @throws SQLException
      *             a database error occurred.
@@ -1147,7 +1147,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the minor JDBC version number for this driver.
-     * 
+     *
      * @return the Minor JDBC Version Number.
      * @throws SQLException
      *             a database error occurred.
@@ -1157,7 +1157,7 @@ public interface DatabaseMetaData {
     /**
      * Get the maximum number of hex characters in an in-line binary literal for
      * this database.
-     * 
+     *
      * @return the maximum number of hex characters in an in-line binary
      *         literal. If the number is unlimited then the result is zero.
      * @throws SQLException
@@ -1167,7 +1167,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the maximum size of a catalog name in this database.
-     * 
+     *
      * @return the maximum size in characters for a catalog name. If the limit
      *         is unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1177,7 +1177,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the maximum size for a character literal in this database.
-     * 
+     *
      * @return the maximum size in characters for a character literal. If the
      *         limit is unknown, or the value is unlimited, then the result is
      *         zero.
@@ -1188,7 +1188,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the maximum size for a Column name for this database.
-     * 
+     *
      * @return the maximum number of characters for a Column name. If the limit
      *         is unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1199,7 +1199,7 @@ public interface DatabaseMetaData {
     /**
      * Get the maximum number of columns in a {@code GROUP BY} clause for this
      * database.
-     * 
+     *
      * @return the maximum number of columns in a {@code GROUP BY} clause. If
      *         the limit is unknown, or the value is unlimited, then the result
      *         is zero.
@@ -1210,7 +1210,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the maximum number of columns in an Index for this database.
-     * 
+     *
      * @return the maximum number of columns in an Index. If the limit is
      *         unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1221,7 +1221,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the maximum number of columns in an {@code ORDER BY} clause for
      * this database.
-     * 
+     *
      * @return the maximum number of columns in an {@code ORDER BY} clause. If
      *         the limit is unknown, or the value is unlimited, then the result
      *         is zero.
@@ -1233,7 +1233,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the maximum number of columns in a {@code SELECT} list for this
      * database.
-     * 
+     *
      * @return the maximum number of columns in a {@code SELECT} list. If the
      *         limit is unknown, or the value is unlimited, then the result is
      *         zero.
@@ -1244,7 +1244,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the maximum number of columns in a table for this database.
-     * 
+     *
      * @return the maximum number of columns in a table. If the limit is
      *         unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1254,7 +1254,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the database's maximum number of concurrent connections.
-     * 
+     *
      * @return the maximum number of connections. If the limit is unknown, or
      *         the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1264,7 +1264,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the maximum length of a cursor name for this database.
-     * 
+     *
      * @return the maximum number of characters in a cursor name. If the limit
      *         is unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1275,7 +1275,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the maximum length in bytes for an Index for this database. This
      * covers all the parts of a composite index.
-     * 
+     *
      * @return the maximum length in bytes for an Index. If the limit is
      *         unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1286,7 +1286,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the maximum number of characters for a procedure name in this
      * database.
-     * 
+     *
      * @return the maximum number of character for a procedure name. If the
      *         limit is unknown, or the value is unlimited, then the result is
      *         zero.
@@ -1298,7 +1298,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the maximum number of bytes within a single row for this
      * database.
-     * 
+     *
      * @return the maximum number of bytes for a single row. If the limit is
      *         unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1309,7 +1309,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the maximum number of characters in a schema name for this
      * database.
-     * 
+     *
      * @return the maximum number of characters in a schema name. If the limit
      *         is unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1320,7 +1320,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the maximum number of characters in an SQL statement for this
      * database.
-     * 
+     *
      * @return the maximum number of characters in an SQL statement. If the
      *         limit is unknown, or the value is unlimited, then the result is
      *         zero.
@@ -1332,7 +1332,7 @@ public interface DatabaseMetaData {
     /**
      * Get the maximum number of simultaneously open active statements for this
      * database.
-     * 
+     *
      * @return the maximum number of open active statements. If the limit is
      *         unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1342,7 +1342,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the maximum size for a table name in the database.
-     * 
+     *
      * @return the maximum size in characters for a table name. If the limit is
      *         unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1353,7 +1353,7 @@ public interface DatabaseMetaData {
     /**
      * Returns the maximum number of tables permitted in a {@code SELECT}
      * statement for the database.
-     * 
+     *
      * @return the maximum number of tables permitted in a {@code SELECT}
      *         statement. If the limit is unknown, or the value is unlimited,
      *         then the result is zero.
@@ -1364,7 +1364,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the maximum number of characters in a user name for the database.
-     * 
+     *
      * @return the maximum number of characters in a user name. If the limit is
      *         unknown, or the value is unlimited, then the result is zero.
      * @throws SQLException
@@ -1376,7 +1376,7 @@ public interface DatabaseMetaData {
      * Returns a list of the math functions available with this database. These
      * are used in the JDBC function escape clause and are the Open Group CLI
      * math function names.
-     * 
+     *
      * @return a String which contains the list of math functions as a comma
      *         separated list.
      * @throws SQLException
@@ -1526,7 +1526,7 @@ public interface DatabaseMetaData {
      * </ul>
      * </li>
      * </ol>
-     * 
+     *
      * @param catalog
      *            a catalog name. {@code null} is used to imply no narrowing of
      *            the search by catalog name. Otherwise, the name must match a
@@ -1550,7 +1550,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the database vendor's preferred name for "procedure".
-     * 
+     *
      * @return a String with the vendor's preferred name for "procedure".
      * @throws SQLException
      *             a database error occurred.
@@ -1559,7 +1559,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the result set's default holdability.
-     * 
+     *
      * @return one of {@code ResultSet.HOLD_CURSORS_OVER_COMMIT} or {@code
      *         ResultSet.CLOSE_CURSORS_AT_COMMIT}.
      * @throws SQLException
@@ -1575,7 +1575,7 @@ public interface DatabaseMetaData {
      * <li>{@code TABLE_SCHEM} - String - the schema name</li> <li>{@code
      * TABLE_CATALOG} - String - the catalog name (possibly {@code null}) </li>
      * </ol>
-     * 
+     *
      * @return a {@code ResultSet} with one row for each schema in the format
      *         defined above.
      * @throws SQLException
@@ -1585,7 +1585,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the database vendor's preferred term for "schema".
-     * 
+     *
      * @return a String which is the vendor's preferred term for schema.
      * @throws SQLException
      *             a database error occurred.
@@ -1598,7 +1598,7 @@ public interface DatabaseMetaData {
      * characters in catalog search pattern strings. {@code '_'} is used to represent any single
      * character while {@code '%'} is used for a sequence of zero or more
      * characters.
-     * 
+     *
      * @return a String used to escape the wildcard characters.
      * @throws SQLException
      *             a database error occurred.
@@ -1608,7 +1608,7 @@ public interface DatabaseMetaData {
     /**
      * Returns a list of all the SQL keywords that are NOT also SQL92 keywords
      * for the database.
-     * 
+     *
      * @return a String containing the list of SQL keywords in a comma separated
      *         format.
      * @throws SQLException
@@ -1620,7 +1620,7 @@ public interface DatabaseMetaData {
      * States the type of {@code SQLState} value returned by {@code
      * SQLException.getSQLState}. This can either be the X/Open (now known as
      * Open Group) SQL CLI form or the SQL99 form.
-     * 
+     *
      * @return an integer, which is either {@code
      *         DatabaseMetaData.sqlStateSQL99} or {@code
      *         DatabaseMetaData.sqlStateXOpen}.
@@ -1633,7 +1633,7 @@ public interface DatabaseMetaData {
      * Returns a list of string functions available with the database. These
      * functions are used in JDBC function escape clause and follow the Open
      * Group CLI string function names definition.
-     * 
+     *
      * @return a String containing the list of string functions in comma
      *         separated format.
      * @throws SQLException
@@ -1727,7 +1727,7 @@ public interface DatabaseMetaData {
      * Returns a list of system functions available with the database. These are
      * names used in the JDBC function escape clause and are Open Group CLI
      * function names.
-     * 
+     *
      * @return a String containing the list of system functions in a comma
      *         separated format.
      * @throws SQLException
@@ -1854,7 +1854,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns a list of time and date functions available for the database.
-     * 
+     *
      * @return a string containing a comma separated list of the time and date
      *         functions.
      * @throws SQLException
@@ -1913,7 +1913,7 @@ public interface DatabaseMetaData {
      * <li>{@code SQL_DATETIME_SUB} - int - not used</li>
      * <li>{@code NUM_PREC_RADIX} - int - number radix (typically 2 or 10)</li>
      * </ol>
-     * 
+     *
      * @return a {@code ResultSet} which is structured as described above.
      * @throws SQLException
      *             a database error occurred.
@@ -1970,7 +1970,7 @@ public interface DatabaseMetaData {
 
     /**
      * Returns the URL for this database.
-     * 
+     *
      * @return the URL for the database. {@code null} if it cannot be generated.
      * @throws SQLException
      *             a database error occurred.
@@ -1979,7 +1979,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determine the user name as known by the database.
-     * 
+     *
      * @return the user name.
      * @throws SQLException
      *             a database error occurred.
@@ -2037,7 +2037,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether a visible row insert can be detected by calling {@code
      * ResultSet.rowInserted}.
-     * 
+     *
      * @param type
      *            the {@code ResultSet} type. This may be one of {@code
      *            ResultSet.TYPE_SCROLL_SENSITIVE} or {@code
@@ -2054,7 +2054,7 @@ public interface DatabaseMetaData {
     /**
      * Determine whether a fully qualified table name is prefixed or suffixed to
      * a fully qualified table name.
-     * 
+     *
      * @return {@code true} if the catalog appears at the start of a fully
      *         qualified table name, {@code false} otherwise.
      * @throws SQLException
@@ -2064,7 +2064,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database is in read-only mode.
-     * 
+     *
      * @return {@code true} if the database is in read-only mode, {@code false}
      *         otherwise.
      * @throws SQLException
@@ -2075,7 +2075,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether updates are made to a copy of, or directly on, Large Objects
      * ({@code LOB}s).
-     * 
+     *
      * @return {@code true} if updates are made to a copy of the Large Object,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2086,7 +2086,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database handles concatenations between {@code NULL} and
      * non-{@code NULL} values by producing a {@code NULL} output.
-     * 
+     *
      * @return {@code true} if {@code NULL} to non-{@code NULL} concatenations
      *         produce a {@code NULL} result, {@code false} otherwise.
      * @throws SQLException
@@ -2099,7 +2099,7 @@ public interface DatabaseMetaData {
      * results regardless of requested sort order. This means that they will
      * appear at the end of sorted lists whatever other non-{@code NULL} values
      * may be present.
-     * 
+     *
      * @return {@code true} if {@code NULL} values are sorted at the end,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2111,7 +2111,7 @@ public interface DatabaseMetaData {
      * Determines whether {@code NULL} values are always sorted at the start of the
      * sorted list, irrespective of the sort order. This means that they appear
      * at the start of sorted lists, whatever other values may be present.
-     * 
+     *
      * @return {@code true} if {@code NULL} values are sorted at the start,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2122,7 +2122,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether {@code NULL} values are sorted high - i.e. they are sorted
      * as if they are higher than any other values.
-     * 
+     *
      * @return {@code true} if {@code NULL} values are sorted high, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2133,7 +2133,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether {@code NULL} values are sorted low - i.e. they are sorted as
      * if they are lower than any other values.
-     * 
+     *
      * @return {@code true} if {@code NULL} values are sorted low, {@code false}
      *         otherwise.
      * @throws SQLException
@@ -2144,7 +2144,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether deletes made by others are visible, for a specified {@code
      * ResultSet} type.
-     * 
+     *
      * @param type
      *            the type of the {@code ResultSet}. It may be either {@code
      *            ResultSet.TYPE_FORWARD_ONLY} or {@code
@@ -2160,7 +2160,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether inserts made by others are visible, for a specified {@code
      * ResultSet} type.
-     * 
+     *
      * @param type
      *            the type of the {@code ResultSet}. May be {@code
      *            ResultSet.TYPE_FORWARD_ONLY}, or {@code
@@ -2176,7 +2176,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether updates made by others are visible, for a specified {@code
      * ResultSet} type.
-     * 
+     *
      * @param type
      *            the type of the {@code ResultSet}. May be {@code
      *            ResultSet.TYPE_FORWARD_ONLY}, or {@code
@@ -2192,7 +2192,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether a {@code ResultSet} can see its own deletes, for a
      * specified {@code ResultSet} type.
-     * 
+     *
      * @param type
      *            the type of the {@code ResultSet}: {@code
      *            ResultSet.TYPE_FORWARD_ONLY}, {@code
@@ -2208,7 +2208,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether a {@code ResultSet} can see its own inserts, for a
      * specified {@code ResultSet} type.
-     * 
+     *
      * @param type
      *            the type of the {@code ResultSet}: {@code
      *            ResultSet.TYPE_FORWARD_ONLY}, {@code
@@ -2224,7 +2224,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether a {@code ResultSet} can see its own updates, for a
      * specified {@code ResultSet} type.
-     * 
+     *
      * @param type
      *            the type of the {@code ResultSet}: {@code
      *            ResultSet.TYPE_FORWARD_ONLY}, {@code
@@ -2241,7 +2241,7 @@ public interface DatabaseMetaData {
      * Determines whether the database treats SQL identifiers that are in mixed
      * case (and unquoted) as case insensitive. If {@code true} then the
      * database stores them in lower case.
-     * 
+     *
      * @return {@code true} if unquoted SQL identifiers are stored in lower
      *         case, {@code false} otherwise.
      * @throws SQLException
@@ -2252,7 +2252,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database considers mixed case quoted SQL
      * identifiers as case insensitive and stores them in lower case.
-     * 
+     *
      * @return {@code true} if quoted SQL identifiers are stored in lower case,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2263,7 +2263,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database considers mixed case unquoted SQL
      * identifiers as case insensitive and stores them in mixed case.
-     * 
+     *
      * @return {@code true} if unquoted SQL identifiers as stored in mixed case,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2275,7 +2275,7 @@ public interface DatabaseMetaData {
      * Determines whether the database considers identifiers as case insensitive
      * if they are mixed case quoted SQL. The database stores them in mixed
      * case.
-     * 
+     *
      * @return {@code true} if quoted SQL identifiers are stored in mixed case,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2286,7 +2286,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database considers mixed case unquoted SQL
      * identifiers as case insensitive and stores them in upper case.
-     * 
+     *
      * @return {@code true} if unquoted SQL identifiers are stored in upper
      *         case, {@code false} otherwise.
      * @throws SQLException
@@ -2297,7 +2297,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database considers mixed case quoted SQL
      * identifiers as case insensitive and stores them in upper case.
-     * 
+     *
      * @return {@code true} if quoted SQL identifiers are stored in upper case,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2308,7 +2308,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database supports {@code ALTER TABLE} operation with
      * {@code ADD COLUMN}.
-     * 
+     *
      * @return {@code true} if {@code ALTER TABLE} with {@code ADD COLUMN} is
      *         supported, {@code false} otherwise.
      * @throws SQLException
@@ -2319,7 +2319,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database supports {@code ALTER TABLE} operation with
      * {@code DROP COLUMN}.
-     * 
+     *
      * @return {@code true} if {@code ALTER TABLE} with {@code DROP COLUMN} is
      *         supported, {@code false} otherwise.
      * @throws SQLException
@@ -2329,7 +2329,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports the ANSI92 entry level SQL grammar.
-     * 
+     *
      * @return {@code true} if the ANSI92 entry level SQL grammar is supported,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2339,7 +2339,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports the ANSI92 full SQL grammar.
-     * 
+     *
      * @return {@code true} if the ANSI92 full SQL grammar is supported, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2349,7 +2349,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports the ANSI92 intermediate SQL Grammar.
-     * 
+     *
      * @return {@code true} if the ANSI92 intermediate SQL grammar is supported,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2359,7 +2359,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports batch updates.
-     * 
+     *
      * @return {@code true} if batch updates are supported, {@code false}
      *         otherwise.
      * @throws SQLException
@@ -2370,7 +2370,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether catalog names may be used in data manipulation
      * statements.
-     * 
+     *
      * @return {@code true} if catalog names can be used in data manipulation
      *         statements, {@code false} otherwise.
      * @throws SQLException
@@ -2380,7 +2380,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether catalog names can be used in index definition statements.
-     * 
+     *
      * @return {@code true} if catalog names can be used in index definition
      *         statements, {@code false} otherwise.
      * @throws SQLException
@@ -2391,7 +2391,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether catalog names can be used in privilege definition
      * statements.
-     * 
+     *
      * @return {@code true} if catalog names can be used in privilege definition
      *         statements, {@code false} otherwise.
      * @throws SQLException
@@ -2401,7 +2401,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether catalog names can be used in procedure call statements.
-     * 
+     *
      * @return {@code true} if catalog names can be used in procedure call
      *         statements.
      * @throws SQLException
@@ -2411,7 +2411,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether catalog names may be used in table definition statements.
-     * 
+     *
      * @return {@code true} if catalog names can be used in definition
      *         statements, {@code false} otherwise.
      * @throws SQLException
@@ -2435,7 +2435,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database supports the {@code CONVERT} operation between
      * SQL types.
-     * 
+     *
      * @return {@code true} if the {@code CONVERT} operation is supported,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2446,7 +2446,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database supports {@code CONVERT} operation for two
      * supplied SQL types.
-     * 
+     *
      * @param fromType
      *            the Type to convert from, as defined by {@code java.sql.Types}
      * @param toType
@@ -2461,7 +2461,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports the Core SQL Grammar for ODBC.
-     * 
+     *
      * @return {@code true} if the Core SQL Grammar is supported, {@code false}
      *         otherwise.
      * @throws SQLException
@@ -2471,7 +2471,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports correlated sub-queries.
-     * 
+     *
      * @return {@code true} if the database does support correlated sub-queries
      *         and {@code false} otherwise.
      * @throws SQLException
@@ -2482,7 +2482,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database allows both data definition and data
      * manipulation statements inside a transaction.
-     * 
+     *
      * @return {@code true} if both types of statement are permitted, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2494,7 +2494,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database only allows data manipulation statements inside
      * a transaction.
-     * 
+     *
      * @return {@code true} if data manipulation statements are permitted only within a transaction,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2506,7 +2506,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether table correlation names are required to be different from
      * the names of the tables, when they are supported.
-     * 
+     *
      * @return {@code true} if correlation names must be different from table
      *         names, {@code false} otherwise.
      * @throws SQLException
@@ -2516,7 +2516,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether expressions in {@code ORDER BY} lists are supported.
-     * 
+     *
      * @return {@code true} if expressions in {@code ORDER BY} lists are
      *         supported.
      * @throws SQLException
@@ -2526,7 +2526,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the Extended SQL Grammar for ODBC is supported.
-     * 
+     *
      * @return {@code true} if the Extended SQL Grammar is supported, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2536,7 +2536,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports full nested outer joins.
-     * 
+     *
      * @return {@code true} if full nested outer joins are supported, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2547,7 +2547,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether auto generated keys can be returned when a statement
      * executes.
-     * 
+     *
      * @return {@code true} if auto generated keys can be returned, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2557,7 +2557,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports {@code GROUP BY} clauses.
-     * 
+     *
      * @return {@code true} if the {@code GROUP BY} clause is supported, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2570,7 +2570,7 @@ public interface DatabaseMetaData {
      * BY} clause not included in the {@code SELECT} statement as long as all of
      * the columns in the {@code SELECT} statement are used in the {@code GROUP
      * BY} clause.
-     * 
+     *
      * @return {@code true} if {@code GROUP BY} clauses can use column names in
      *         this way, {@code false} otherwise.
      * @throws SQLException
@@ -2581,7 +2581,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database supports using a column name in a {@code GROUP
      * BY} clause that is not in the {@code SELECT} statement.
-     * 
+     *
      * @return {@code true} if {@code GROUP BY} clause can use a column name not
      *         in the {@code SELECT} statement, {@code false} otherwise.
      * @throws SQLException
@@ -2592,7 +2592,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database supports SQL Integrity Enhancement
      * Facility.
-     * 
+     *
      * @return {@code true} if the Integrity Enhancement Facility is supported,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2602,7 +2602,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports a {@code LIKE} escape clause.
-     * 
+     *
      * @return {@code true} if LIKE escape clause is supported, {@code false}
      *         otherwise.
      * @throws SQLException
@@ -2613,7 +2613,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database provides limited support for outer join
      * operations.
-     * 
+     *
      * @return {@code true} if there is limited support for outer join
      *         operations, {@code false} otherwise. This will be {@code true} if
      *         {@code supportsFullOuterJoins} returns {@code true}.
@@ -2624,7 +2624,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database supports Minimum SQL Grammar for ODBC.
-     * 
+     *
      * @return {@code true} if the Minimum SQL Grammar is supported, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2635,7 +2635,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database treats mixed case unquoted SQL identifiers as
      * case sensitive storing them in mixed case.
-     * 
+     *
      * @return {@code true} if unquoted SQL identifiers are stored in mixed
      *         case, {@code false} otherwise.
      * @throws SQLException
@@ -2646,7 +2646,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database considers mixed case quoted SQL
      * identifiers as case sensitive, storing them in mixed case.
-     * 
+     *
      * @return {@code true} if quoted SQL identifiers are stored in mixed case,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2657,7 +2657,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether it is possible for a single {@code CallableStatement} to
      * return multiple {@code ResultSet}s simultaneously.
-     * 
+     *
      * @return {@code true} if a single {@code CallableStatement} can return
      *         multiple {@code ResultSet}s simultaneously, {@code false}
      *         otherwise.
@@ -2669,7 +2669,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether retrieving multiple {@code ResultSet}s from a single
      * call to the {@code execute} method is supported.
-     * 
+     *
      * @return {@code true} if multiple {@code ResultSet}s can be retrieved,
      *         {@code false} otherwise.
      * @throws SQLException
@@ -2680,7 +2680,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether multiple simultaneous transactions on
      * different connections are supported.
-     * 
+     *
      * @return {@code true} if multiple open transactions are supported, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2690,7 +2690,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether callable statements with named parameters is supported.
-     * 
+     *
      * @return {@code true} if named parameters can be used with callable
      *         statements, {@code false} otherwise.
      * @throws SQLException
@@ -2700,7 +2700,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether columns in the database can be defined as non-nullable.
-     * 
+     *
      * @return {@code true} if columns can be defined non-nullable, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2711,7 +2711,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether keeping cursors open across commit operations is
      * supported.
-     * 
+     *
      * @return {@code true} if cursors can be kept open across commit
      *         operations, {@code false} if they might get closed.
      * @throws SQLException
@@ -2722,7 +2722,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the database can keep cursors open across rollback
      * operations.
-     * 
+     *
      * @return {@code true} if cursors can be kept open across rollback
      *         operations, {@code false} if they might get closed.
      * @throws SQLException
@@ -2733,7 +2733,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether keeping statements open across commit operations is
      * supported.
-     * 
+     *
      * @return {@code true} if statements can be kept open, {@code false} if
      *         they might not.
      * @throws SQLException
@@ -2744,7 +2744,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether keeping statements open across rollback operations is
      * supported.
-     * 
+     *
      * @return {@code true} if statements can be kept open, {@code false} if
      *         they might not.
      * @throws SQLException
@@ -2755,7 +2755,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether using a column in an {@code ORDER BY} clause that is
      * not in the {@code SELECT} statement is supported.
-     * 
+     *
      * @return {@code true} if it is possible to {@code ORDER} using a column
      *         not in the {@code SELECT}, {@code false} otherwise.
      * @throws SQLException
@@ -2765,7 +2765,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether outer join operations are supported.
-     * 
+     *
      * @return {@code true} if outer join operations are supported, {@code
      *         false} otherwise.
      * @throws SQLException
@@ -2775,7 +2775,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether positioned {@code DELETE} statements are supported.
-     * 
+     *
      * @return {@code true} if the database supports positioned {@code DELETE}
      *         statements.
      * @throws SQLException
@@ -2785,7 +2785,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether positioned {@code UPDATE} statements are supported.
-     * 
+     *
      * @return {@code true} if the database supports positioned {@code UPDATE}
      *         statements, {@code false} otherwise.
      * @throws SQLException
@@ -2796,7 +2796,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether there is support for a given concurrency style for the
      * given {@code ResultSet}.
-     * 
+     *
      * @param type
      *            the {@code ResultSet} type, as defined in {@code
      *            java.sql.ResultSet}:
@@ -2820,7 +2820,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the supplied {@code ResultSet} holdability mode is
      * supported.
-     * 
+     *
      * @param holdability
      *            as specified in {@code java.sql.ResultSet}: {@code
      *            ResultSet.HOLD_CURSORS_OVER_COMMIT} or {@code
@@ -2835,7 +2835,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the supplied {@code ResultSet} type is supported.
-     * 
+     *
      * @param type
      *            the {@code ResultSet} type as defined in {@code
      *            java.sql.ResultSet}: {@code ResultSet.TYPE_FORWARD_ONLY},
@@ -2850,7 +2850,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether savepoints for transactions are supported.
-     * 
+     *
      * @return {@code true} if savepoints are supported, {@code false}
      *         otherwise.
      * @throws SQLException
@@ -2861,7 +2861,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether a schema name may be used in a data manipulation
      * statement.
-     * 
+     *
      * @return {@code true} if a schema name can be used in a data manipulation,
      *         otherwise {@code false}.
      * @throws SQLException
@@ -2872,7 +2872,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether a schema name may be used in an index definition
      * statement.
-     * 
+     *
      * @return {@code true} if a schema name can be used in an index definition,
      *         otherwise {@code false}.
      * @throws SQLException
@@ -2883,7 +2883,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether a database schema name can be used in a privilege
      * definition statement.
-     * 
+     *
      * @return {@code true} if a database schema name may be used in a privilege
      *         definition, otherwise {@code false}
      * @throws SQLException
@@ -2893,7 +2893,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether a procedure call statement may be contain in a schema name.
-     * 
+     *
      * @return {@code true} if a schema name can be used in a procedure call,
      *         otherwise {@code false}.
      * @throws SQLException
@@ -2903,7 +2903,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether a schema name can be used in a table definition statement.
-     * 
+     *
      * @return {@code true} if a schema name can be used in a table definition,
      *         otherwise {@code false}.
      * @throws SQLException
@@ -2913,7 +2913,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the {@code SELECT FOR UPDATE} statement is supported.
-     * 
+     *
      * @return {@code true} if {@code SELECT FOR UPDATE} statements are
      *         supported, otherwise {@code false}.
      * @throws SQLException
@@ -2923,7 +2923,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether statement pooling is supported.
-     * 
+     *
      * @return {@code true} of the database does support statement pooling,
      *         otherwise {@code false}.
      * @throws SQLException
@@ -2934,7 +2934,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether stored procedure calls using the stored procedure
      * escape syntax is supported.
-     * 
+     *
      * @return {@code true} if stored procedure calls using the stored procedure
      *         escape syntax are supported, otherwise {@code false}.
      * @throws SQLException
@@ -2944,7 +2944,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether subqueries in comparison expressions are supported.
-     * 
+     *
      * @return {@code true} if subqueries are supported in comparison
      *         expressions.
      * @throws SQLException
@@ -2954,7 +2954,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether subqueries in {@code EXISTS} expressions are supported.
-     * 
+     *
      * @return {@code true} if subqueries are supported in {@code EXISTS}
      *         expressions, otherwise {@code false}.
      * @throws SQLException
@@ -2964,7 +2964,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether subqueries in {@code IN} statements are supported.
-     * 
+     *
      * @return {@code true} if subqueries are supported in {@code IN} statements,
      *         otherwise {@code false}.
      * @throws SQLException
@@ -2974,7 +2974,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether subqueries in quantified expressions are supported.
-     * 
+     *
      * @return {@code true} if subqueries are supported, otherwise {@code false}.
      * @throws SQLException
      *             a database error occurred.
@@ -2983,7 +2983,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the database has table correlation names support.
-     * 
+     *
      * @return {@code true} if table correlation names are supported, otherwise
      *         {@code false}.
      * @throws SQLException
@@ -2993,7 +2993,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether a specified transaction isolation level is supported.
-     * 
+     *
      * @param level
      *            the transaction isolation level, as specified in {@code
      *            java.sql.Connection}: {@code TRANSACTION_NONE}, {@code
@@ -3024,7 +3024,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the {@code SQL UNION} operation is supported.
-     * 
+     *
      * @return {@code true} of the database does support {@code UNION}, otherwise
      *         {@code false}.
      * @throws SQLException
@@ -3034,7 +3034,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether the {@code SQL UNION ALL} operation is supported.
-     * 
+     *
      * @return {@code true} if the database does support {@code UNION ALL},
      *         otherwise {@code false}.
      * @throws SQLException
@@ -3045,7 +3045,7 @@ public interface DatabaseMetaData {
     /**
      * Determines whether the method {@code ResultSet.rowUpdated} can detect a visible
      * row update for the specified {@code ResultSet} type.
-     * 
+     *
      * @param type
      *            {@code ResultSet} type: {@code ResultSet.TYPE_FORWARD_ONLY},
      *            {@code ResultSet.TYPE_SCROLL_INSENSITIVE}, or {@code
@@ -3059,7 +3059,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether this database uses a file for each table.
-     * 
+     *
      * @return {@code true} if the database uses one file for each table,
      *         otherwise {@code false}.
      * @throws SQLException
@@ -3069,7 +3069,7 @@ public interface DatabaseMetaData {
 
     /**
      * Determines whether this database uses a local file to store tables.
-     * 
+     *
      * @return {@code true} if the database stores tables in a local file,
      *         otherwise {@code false}.
      * @throws SQLException

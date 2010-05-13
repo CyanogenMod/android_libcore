@@ -49,7 +49,7 @@ public class X509CRLSelector2Test extends TestCase {
 
     /**
      * constructor testing.
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -291,7 +291,7 @@ public class X509CRLSelector2Test extends TestCase {
         args = {java.math.BigInteger.class}
     )
     @AndroidOnly("Uses specific class: " +
-            "org.apache.harmony.security.asn1.ASN1OctetString.")    
+            "org.apache.harmony.security.asn1.ASN1OctetString.")
     public void testSetMinCRLNumberLjava_math_BigInteger() {
         X509CRLSelector selector = new X509CRLSelector();
         BigInteger minCRL = new BigInteger("10000");
@@ -321,7 +321,7 @@ public class X509CRLSelector2Test extends TestCase {
         args = {java.math.BigInteger.class}
     )
     @AndroidOnly("Uses specific class: " +
-            "org.apache.harmony.security.asn1.ASN1OctetString.")    
+            "org.apache.harmony.security.asn1.ASN1OctetString.")
     public void testSetMaxCRLNumberLjava_math_BigInteger() {
         X509CRLSelector selector = new X509CRLSelector();
         BigInteger maxCRL = new BigInteger("10000");
@@ -373,7 +373,7 @@ public class X509CRLSelector2Test extends TestCase {
     }
 
     /**
-     * setCertificateChecking(X509Certificate) method testing. 
+     * setCertificateChecking(X509Certificate) method testing.
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -395,7 +395,7 @@ public class X509CRLSelector2Test extends TestCase {
         assertTrue("The CRL should match the selection criteria.", selector
                 .match(crl));
         assertEquals(cert, selector.getCertificateChecking());
-        
+
         selector.setCertificateChecking(null);
         assertTrue("The CRL should match the selection criteria.", selector
                 .match(crl));
@@ -527,7 +527,7 @@ public class X509CRLSelector2Test extends TestCase {
     }
 
     /**
-     * getCertificateChecking() method testing. 
+     * getCertificateChecking() method testing.
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -546,11 +546,11 @@ public class X509CRLSelector2Test extends TestCase {
 
         selector.setCertificateChecking(cert);
         assertEquals(cert, selector.getCertificateChecking());
-        
+
         selector.setCertificateChecking(null);
         assertNull(selector.getCertificateChecking());
     }
-    
+
     /**
      * match(CRL crl) method testing. Tests if the null object matches to the
      * selector or not.

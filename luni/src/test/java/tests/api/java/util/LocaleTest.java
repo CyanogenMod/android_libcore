@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.AndroidOnly;
 import tests.support.Support_Locale;
 
@@ -32,13 +32,13 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Set;
 
-@TestTargetClass(Locale.class) 
+@TestTargetClass(Locale.class)
 public class LocaleTest extends junit.framework.TestCase {
 
     Locale testLocale;
 
     Locale l;
-    
+
     Locale defaultLocale;
 
     /**
@@ -54,7 +54,7 @@ public class LocaleTest extends junit.framework.TestCase {
         // Test for method java.util.Locale(java.lang.String)
         Locale x = new Locale("xx");
         assertTrue("Failed to create Locale", x.getVariant().equals(""));
-        
+
         try {
             new Locale(null);
             fail("NullPointerException expected");
@@ -77,14 +77,14 @@ public class LocaleTest extends junit.framework.TestCase {
         Locale x = new Locale("xx", "CV");
         assertTrue("Failed to create Locale", x.getCountry().equals("CV")
                 && x.getVariant().equals(""));
-        
+
         try {
             new Locale("xx", null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         try {
             new Locale(null, "CV");
             fail("NullPointerException expected");
@@ -181,7 +181,7 @@ public class LocaleTest extends junit.framework.TestCase {
             // regression test for HARMONY-1514
             // HashSet can filter duplicate locales
             Set<Locale> localesSet = new HashSet<Locale>(Arrays.asList(locales));
-            assertEquals(localesSet.size(), locales.length);            
+            assertEquals(localesSet.size(), locales.length);
         } catch (Exception e) {
             fail("Exception during test : " + e.getMessage());
         }
@@ -237,14 +237,14 @@ public class LocaleTest extends junit.framework.TestCase {
         assertTrue("Returned incorrect country: "
                 + testLocale.getDisplayCountry(), testLocale
                 .getDisplayCountry().equals("Canada"));
-        
+
         // Regression for Harmony-1146
-        Locale l_countryCD = new Locale("", "CD");  
+        Locale l_countryCD = new Locale("", "CD");
 // BEGIN android-changed
 // ICU has different display name for countries
-//                assertEquals("The Democratic Republic Of Congo", 
+//                assertEquals("The Democratic Republic Of Congo",
 //                        l_countryCD.getDisplayCountry());
-        assertEquals("Congo - Kinshasa", 
+        assertEquals("Congo - Kinshasa",
               l_countryCD.getDisplayCountry());
 // END android-changed
     }
@@ -285,10 +285,10 @@ public class LocaleTest extends junit.framework.TestCase {
         assertTrue("Returned incorrect language: "
                 + testLocale.getDisplayLanguage(), testLocale
                 .getDisplayLanguage().equals("English"));
-        
+
         // Regression for Harmony-1146
-        Locale l_languageAE = new Locale("ae", "");  
-        assertEquals("Avestan", l_languageAE.getDisplayLanguage()); 
+        Locale l_languageAE = new Locale("ae", "");
+        assertEquals("Avestan", l_languageAE.getDisplayLanguage());
     }
 
     /**
@@ -396,7 +396,7 @@ public class LocaleTest extends junit.framework.TestCase {
         assertTrue("Returned incorrect ISO3 country: "
                 + testLocale.getISO3Country(), testLocale.getISO3Country()
                 .equals("CAN"));
-        
+
         Locale l = new Locale("", "CD");
         assertEquals("COD", l.getISO3Country());
 
@@ -422,17 +422,17 @@ public class LocaleTest extends junit.framework.TestCase {
         assertTrue("Returned incorrect ISO3 language: "
                 + testLocale.getISO3Language(), testLocale.getISO3Language()
                 .equals("eng"));
-        
+
         Locale l = new Locale("ae");
         assertEquals("ave", l.getISO3Language());
-        
+
         // Regression for Harmony-1146
-        Locale l_CountryCS = new Locale("", "CS");  
-        assertEquals("SCG", l_CountryCS.getISO3Country()); 
-        
+        Locale l_CountryCS = new Locale("", "CS");
+        assertEquals("SCG", l_CountryCS.getISO3Country());
+
         // Regression for Harmony-1129
-        l = new Locale("ak", "");  
-        assertEquals("aka", l.getISO3Language()); 
+        l = new Locale("ak", "");
+        assertEquals("aka", l.getISO3Language());
 
         Locale x = new Locale("xx", "C");
         try {
@@ -488,10 +488,10 @@ public class LocaleTest extends junit.framework.TestCase {
         int length = isoLang.length;
 
         // BEGIN android-changed
-        // Language codes are 2- and 3-letter, with preference given 
+        // Language codes are 2- and 3-letter, with preference given
         // to 2-letter codes where possible. 3-letter codes are used
         // when lack a 2-letter equivalent.
-        assertTrue("Random element in wrong format.", 
+        assertTrue("Random element in wrong format.",
                    (isoLang[length / 2].length() == 2 || isoLang[length / 2].length() == 3)
                    && isoLang[length / 2].toLowerCase().equals(isoLang[length / 2]));
         // END android-changed
@@ -562,7 +562,7 @@ public class LocaleTest extends junit.framework.TestCase {
         Locale.setDefault(org);
         assertEquals("Wrong toUppercase conversion", "\u0130", res1);
         assertEquals("Wrong toLowercase conversion", "\u0131", res2);
-        
+
         try {
             Locale.setDefault(null);
             fail("NullPointerException expected");
@@ -608,12 +608,12 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("Wrong representation 6", "en_CA", l.toString());
         l = new Locale("en", "CA", "VAR");
         assertEquals("Wrong representation 7", "en_CA_VAR", l.toString());
-        
+
         l = new Locale("", "", "var");
         assertEquals("Wrong representation 8", "", l.toString());
 
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -623,10 +623,10 @@ public class LocaleTest extends junit.framework.TestCase {
     public void test_hashCode() {
         Locale l1 = new Locale("en", "US");
         Locale l2 = new Locale("fr", "CA");
-        
+
         assertTrue(l1.hashCode() != l2.hashCode());
     }
-    
+
 // BEGIN android-removed
 // These locales are not part of the android reference impl
 //    // Regression Test for HARMONY-2953
@@ -644,7 +644,7 @@ public class LocaleTest extends junit.framework.TestCase {
 //        assertTrue(countries.contains("CS"));
 //    }
 // END android-removed
-    
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.

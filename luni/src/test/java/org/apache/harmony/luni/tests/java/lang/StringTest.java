@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -47,7 +47,7 @@ public class StringTest extends TestCase {
         return UNSAFE_CONSTRUCTOR.newInstance(Integer.valueOf(start), Integer.valueOf(len),
                     data);
     }
-    
+
     /**
      * @tests java.lang.String#String()
      */
@@ -106,7 +106,7 @@ public class StringTest extends TestCase {
     public void test_Constructor$BIILjava_lang_String() throws Exception {
         String s = new String(new byte[] { 65, 66, 67, 68, 69 }, 0, 5, "8859_1");
         assertEquals("Incorrect string returned: " + s, "ABCDE", s);
-        
+
         try {
         	new String(new byte[] { 65, 66, 67, 68, 69 }, 0, 5, "");
         	fail("Should throw UnsupportedEncodingException");
@@ -246,7 +246,7 @@ public class StringTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * @tests java.lang.String#contentEquals(StringBuffer)
      */
@@ -382,7 +382,7 @@ public class StringTest extends TestCase {
             fail("No IOOBE for index that's too large.");
         } catch (IndexOutOfBoundsException e) {
         }
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         try {
             s.offsetByCodePoints(-1, 1);
@@ -423,7 +423,7 @@ public class StringTest extends TestCase {
         assertEquals('a', s.codePointAt(0));
         assertEquals('b', s.codePointAt(1));
         assertEquals('c', s.codePointAt(2));
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         assertEquals('a', s.codePointAt(0));
         assertEquals('b', s.codePointAt(1));
@@ -432,7 +432,7 @@ public class StringTest extends TestCase {
         s = "\uD800\uDC00";
         assertEquals(0x10000, s.codePointAt(0));
         assertEquals('\uDC00', s.codePointAt(1));
-        
+
         s = newString(2,2,"__\uD800\uDC00__".toCharArray());
         assertEquals(0x10000, s.codePointAt(0));
         assertEquals('\uDC00', s.codePointAt(1));
@@ -455,7 +455,7 @@ public class StringTest extends TestCase {
             fail("No IOOBE on index greater than length.");
         } catch (IndexOutOfBoundsException e) {
         }
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         try {
             s.codePointAt(-1);
@@ -484,7 +484,7 @@ public class StringTest extends TestCase {
         assertEquals('a', s.codePointBefore(1));
         assertEquals('b', s.codePointBefore(2));
         assertEquals('c', s.codePointBefore(3));
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         assertEquals('a', s.codePointBefore(1));
         assertEquals('b', s.codePointBefore(2));
@@ -493,7 +493,7 @@ public class StringTest extends TestCase {
         s = "\uD800\uDC00";
         assertEquals(0x10000, s.codePointBefore(2));
         assertEquals('\uD800', s.codePointBefore(1));
-        
+
         s = newString(2,2,"__\uD800\uDC00__".toCharArray());
         assertEquals(0x10000, s.codePointBefore(2));
         assertEquals('\uD800', s.codePointBefore(1));
@@ -516,7 +516,7 @@ public class StringTest extends TestCase {
             fail("No IOOBE on index greater than length.");
         } catch (IndexOutOfBoundsException e) {
         }
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         try {
             s.codePointBefore(0);
@@ -548,7 +548,7 @@ public class StringTest extends TestCase {
 
         assertEquals(3, "a\uD800\uDC00b".codePointCount(0, 4));
         assertEquals(4, "a\uD800\uDC00b\uD800".codePointCount(0, 5));
-        
+
         assertEquals(1, newString(2,2,"__\uD800\uDC00__".toCharArray()).codePointCount(0, 2));
         assertEquals(1, newString(2,2,"__\uD800\uDC01__".toCharArray()).codePointCount(0, 2));
         assertEquals(1, newString(2,2,"__\uD801\uDC01__".toCharArray()).codePointCount(0, 2));
@@ -575,7 +575,7 @@ public class StringTest extends TestCase {
             fail("No IOOBE for begin index larger than end index.");
         } catch (IndexOutOfBoundsException e) {
         }
-        
+
         s = newString(2, 3, "__abc__".toCharArray());
         try {
             s.codePointCount(-1, 2);
@@ -595,10 +595,10 @@ public class StringTest extends TestCase {
         } catch (IndexOutOfBoundsException e) {
         }
     }
-    
+
     /**
-     * @tests {@link java.lang.String#String(byte[], int, int, Charset)} 
-     * 
+     * @tests {@link java.lang.String#String(byte[], int, int, Charset)}
+     *
      * @since 1.6
      */
     public void test_ConstructorBIIL() throws Exception {
@@ -680,10 +680,10 @@ public class StringTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests {@link java.lang.String#String(byte[], Charset)}
-     * 
+     *
      *  @since 1.6
      */
     public void test_ConstructorBL() throws Exception {
@@ -708,20 +708,20 @@ public class StringTest extends TestCase {
         }
         new String(new byte[0], Charset.defaultCharset());
     }
-    
+
     /**
      * @tests {@link java.lang.String#isEmpty()}
-     * 
+     *
      * @since 1.6
      */
     public void test_isEmpty() throws Exception {
         assertTrue(new String(new byte[0], Charset.defaultCharset()).isEmpty());
         assertTrue(new String(new byte[8], Charset.defaultCharset()).substring(0, 0).isEmpty());
     }
-    
+
     /**
      * @tests {@link java.lang.String#getBytes(Charset)}
-     * 
+     *
      * @since 1.6
      */
     public void test_getBytesLCharset() throws Exception {
@@ -744,7 +744,7 @@ public class StringTest extends TestCase {
             assertFalse(bytesEquals("\u4f60\u597d".getBytes(ascii), "\u4f60\u597d".getBytes(utf8)));
         }
     }
-    
+
     boolean bytesEquals(byte[] bytes1, byte[] bytes2){
         if (bytes1.length == bytes2.length){
             for (int i = 0; i < bytes1.length; i++){

@@ -32,53 +32,53 @@ public final class RuntimePermission extends BasicPermission {
      * Constants for runtime permissions used in this package.
      */
     static final RuntimePermission permissionToSetSecurityManager = new RuntimePermission(
-            "setSecurityManager"); 
+            "setSecurityManager");
 
     static final RuntimePermission permissionToCreateSecurityManager = new RuntimePermission(
-            "createSecurityManager"); 
+            "createSecurityManager");
 
     static final RuntimePermission permissionToGetProtectionDomain = new RuntimePermission(
-            "getProtectionDomain"); 
+            "getProtectionDomain");
 
     static final RuntimePermission permissionToGetClassLoader = new RuntimePermission(
-            "getClassLoader"); 
+            "getClassLoader");
 
     static final RuntimePermission permissionToCreateClassLoader = new RuntimePermission(
-            "createClassLoader"); 
+            "createClassLoader");
 
     static final RuntimePermission permissionToModifyThread = new RuntimePermission(
-            "modifyThread"); 
+            "modifyThread");
 
     static final RuntimePermission permissionToModifyThreadGroup = new RuntimePermission(
-            "modifyThreadGroup"); 
+            "modifyThreadGroup");
 
     static final RuntimePermission permissionToExitVM = new RuntimePermission(
-            "exitVM"); 
+            "exitVM");
 
     static final RuntimePermission permissionToReadFileDescriptor = new RuntimePermission(
-            "readFileDescriptor"); 
+            "readFileDescriptor");
 
     static final RuntimePermission permissionToWriteFileDescriptor = new RuntimePermission(
-            "writeFileDescriptor"); 
+            "writeFileDescriptor");
 
     static final RuntimePermission permissionToQueuePrintJob = new RuntimePermission(
-            "queuePrintJob"); 
+            "queuePrintJob");
 
     static final RuntimePermission permissionToSetFactory = new RuntimePermission(
-            "setFactory"); 
+            "setFactory");
 
     static final RuntimePermission permissionToSetIO = new RuntimePermission(
-            "setIO"); 
+            "setIO");
 
     static final RuntimePermission permissionToStopThread = new RuntimePermission(
-            "stopThread"); 
+            "stopThread");
 
     static final RuntimePermission permissionToSetContextClassLoader = new RuntimePermission(
-            "setContextClassLoader"); 
+            "setContextClassLoader");
 
     /**
      * Creates an instance of {@code RuntimePermission} with the specified name.
-     * 
+     *
      * @param permissionName
      *            the name of the new permission.
      */
@@ -89,7 +89,7 @@ public final class RuntimePermission extends BasicPermission {
     /**
      * Creates an instance of {@code RuntimePermission} with the specified name
      * and action list. The action list is ignored.
-     * 
+     *
      * @param name
      *            the name of the new permission.
      * @param actions

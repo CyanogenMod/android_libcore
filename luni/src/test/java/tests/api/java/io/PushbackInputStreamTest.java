@@ -26,7 +26,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(PushbackInputStream.class) 
+@TestTargetClass(PushbackInputStream.class)
 public class PushbackInputStreamTest extends junit.framework.TestCase {
 
     Support_ASimpleInputStream underlying = new Support_ASimpleInputStream();
@@ -81,7 +81,7 @@ public class PushbackInputStreamTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             // Expected.
         }
-        
+
         pis = new PushbackInputStream(bas , 5);
         try {
             pis.unread("Hello world".getBytes());
@@ -114,7 +114,7 @@ public class PushbackInputStreamTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackInputStream#available()
      */
     @TestTargetNew(
@@ -173,7 +173,7 @@ public class PushbackInputStreamTest extends junit.framework.TestCase {
             // expected
         }
 
-        assertEquals("Test 3: Incorrect byte read;", 
+        assertEquals("Test 3: Incorrect byte read;",
                 fileString.getBytes()[0], pis.read());
     }
 
@@ -378,7 +378,7 @@ public class PushbackInputStreamTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("IOException during unread test : " + e.getMessage());
         }
-        
+
         try {
             byte[] buf = new byte[10];
             pis.unread(buf, 0, -1);
@@ -386,7 +386,7 @@ public class PushbackInputStreamTest extends junit.framework.TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             byte[] buf = new byte[10];
             pis.unread(buf, -1, 1);
@@ -394,7 +394,7 @@ public class PushbackInputStreamTest extends junit.framework.TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             byte[] buf = new byte[10];
             pis.unread(buf, 10, 1);

@@ -29,13 +29,13 @@ import java.util.Properties;
 /**
  * Instances of this class map file extensions to MIME content types based on a
  * default MIME table.
- * 
+ *
  * The default values can be overridden by modifying the contents of the file
  * "content-types.properties".
  */
 public class MimeTable implements FileNameMap {
 
-    public static final String UNKNOWN = "content/unknown"; 
+    public static final String UNKNOWN = "content/unknown";
 
     /**
      * A hash table containing the mapping between extensions and mime types.
@@ -44,15 +44,15 @@ public class MimeTable implements FileNameMap {
 
     // Default mapping.
     static {
-        types.setProperty("text", "text/plain");  
-        types.setProperty("txt", "text/plain");  
-        types.setProperty("htm", "text/html");  
-        types.setProperty("html", "text/html");  
+        types.setProperty("text", "text/plain");
+        types.setProperty("txt", "text/plain");
+        types.setProperty("htm", "text/html");
+        types.setProperty("html", "text/html");
     }
 
     /**
      * Constructs a MIME table using the default values defined in this class.
-     * 
+     *
      * It then augments this table by reading pairs of extensions and
      * corresponding content types from the file "content-types.properties",
      * which is represented in standard java.util.Properties.load(...) format.
@@ -81,15 +81,15 @@ public class MimeTable implements FileNameMap {
     /**
      * Answer an InputStream over an external properties file containing the
      * MIME types.
-     * 
+     *
      * Looks in the location specified in the user property, and then in the
      * expected location.
-     * 
+     *
      * @return the InputStream, or null if none.
      */
     private InputStream getContentTypes() {
         // User override?
-        String userTable = System.getProperty("content.types.user.table"); 
+        String userTable = System.getProperty("content.types.user.table");
         if (userTable != null) {
             try {
                 return new FileInputStream(userTable);
@@ -99,9 +99,9 @@ public class MimeTable implements FileNameMap {
         }
 
         // Standard location?
-        String javahome = System.getProperty("java.home"); 
-        File contentFile = new File(javahome, "lib" 
-                + File.separator + "content-types.properties"); 
+        String javahome = System.getProperty("java.home");
+        File contentFile = new File(javahome, "lib"
+                + File.separator + "content-types.properties");
         try {
             return new FileInputStream(contentFile);
         } catch (IOException e) {
@@ -113,24 +113,24 @@ public class MimeTable implements FileNameMap {
 
     /**
      * Determines the MIME type for the given filename.
-     * 
+     *
      * @param filename
      *            The file whose extension will be mapped.
-     * 
+     *
      * @return The mime type associated with the file's extension or null if no
      *         mapping is known.
      */
     public String getContentTypeFor(String filename) {
-        if (filename.endsWith("/")) { 
+        if (filename.endsWith("/")) {
             // a directory, return html
-            return (String) types.get("html"); 
+            return (String) types.get("html");
         }
         int lastCharInExtension = filename.lastIndexOf('#');
         if (lastCharInExtension < 0) {
             lastCharInExtension = filename.length();
         }
         int firstCharInExtension = filename.lastIndexOf('.') + 1;
-        String ext = ""; 
+        String ext = "";
         if (firstCharInExtension > filename.lastIndexOf('/')) {
             ext = filename.substring(firstCharInExtension, lastCharInExtension);
         }

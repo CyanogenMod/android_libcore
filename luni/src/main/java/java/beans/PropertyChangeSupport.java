@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This utility class  
+ * This utility class
  *
  */
 public class PropertyChangeSupport implements Serializable {
@@ -54,7 +54,7 @@ public class PropertyChangeSupport implements Serializable {
 
     /**
      * Creates a new instance that uses the source bean as source for any event.
-     * 
+     *
      * @param sourceBean
      *            the bean used as source for all events.
      */
@@ -70,7 +70,7 @@ public class PropertyChangeSupport implements Serializable {
      * new value. As source the bean used to initialize this instance is used.
      * If the old value and the new value are not null and equal the event will
      * not be fired.
-     * 
+     *
      * @param propertyName
      *            the name of the property
      * @param oldValue
@@ -90,7 +90,7 @@ public class PropertyChangeSupport implements Serializable {
      * value, new value and index. As source the bean used to initialize this
      * instance is used. If the old value and the new value are not null and
      * equal the event will not be fired.
-     * 
+     *
      * @param propertyName
      *            the name of the property
      * @param index
@@ -113,7 +113,7 @@ public class PropertyChangeSupport implements Serializable {
      * was registered to this property. Nothing happens if it was not
      * registered with this property or if the property name or the listener is
      * null.
-     * 
+     *
      * @param propertyName
      *            the property name the listener is listening to
      * @param listener
@@ -134,7 +134,7 @@ public class PropertyChangeSupport implements Serializable {
     /**
      * Adds a listener to a specific property. Nothing happens if the property
      * name or the listener is null.
-     * 
+     *
      * @param propertyName
      *            the name of the property
      * @param listener
@@ -168,7 +168,7 @@ public class PropertyChangeSupport implements Serializable {
     /**
      * Returns an array of listeners that registered to the property with the
      * given name. If the property name is null an empty array is returned.
-     * 
+     *
      * @param propertyName
      *            the name of the property whose listeners should be returned
      * @return the array of listeners to the property with the given name.
@@ -190,7 +190,7 @@ public class PropertyChangeSupport implements Serializable {
      * Fires a property change of a boolean property with the given name. If the
      * old value and the new value are not null and equal the event will not be
      * fired.
-     * 
+     *
      * @param propertyName
      *            the property name
      * @param oldValue
@@ -209,7 +209,7 @@ public class PropertyChangeSupport implements Serializable {
      * Fires a property change of a boolean property with the given name. If the
      * old value and the new value are not null and equal the event will not be
      * fired.
-     * 
+     *
      * @param propertyName
      *            the property name
      * @param index
@@ -232,7 +232,7 @@ public class PropertyChangeSupport implements Serializable {
      * Fires a property change of an integer property with the given name. If
      * the old value and the new value are not null and equal the event will not
      * be fired.
-     * 
+     *
      * @param propertyName
      *            the property name
      * @param oldValue
@@ -251,7 +251,7 @@ public class PropertyChangeSupport implements Serializable {
      * Fires a property change of an integer property with the given name. If
      * the old value and the new value are not null and equal the event will not
      * be fired.
-     * 
+     *
      * @param propertyName
      *            the property name
      * @param index
@@ -273,7 +273,7 @@ public class PropertyChangeSupport implements Serializable {
     /**
      * Returns true if there are listeners registered to the property with the
      * given name.
-     * 
+     *
      * @param propertyName
      *            the name of the property
      * @return true if there are listeners registered to that property, false
@@ -293,7 +293,7 @@ public class PropertyChangeSupport implements Serializable {
 
     /**
      * removes a property change listener that was registered to all properties.
-     * 
+     *
      * @param listener
      *            the listener to remove
      */
@@ -315,7 +315,7 @@ public class PropertyChangeSupport implements Serializable {
 
     /**
      * Registers a listener with all properties.
-     * 
+     *
      * @param listener
      *            the listener to register
      */
@@ -336,7 +336,7 @@ public class PropertyChangeSupport implements Serializable {
 
     /**
      * Returns an array with the listeners that registered to all properties.
-     * 
+     *
      * @return the array of listeners
      */
     public synchronized PropertyChangeListener[] getPropertyChangeListeners() {
@@ -397,7 +397,7 @@ public class PropertyChangeSupport implements Serializable {
 
         children = new Hashtable<String, List<PropertyChangeListener>>(
                 selectedSerializedPropertiesChangeListeners);
-        children.put("", allSerializedPropertiesChangeListeners); 
+        children.put("", allSerializedPropertiesChangeListeners);
         oos.writeObject(children);
 
         Object source = null;
@@ -418,7 +418,7 @@ public class PropertyChangeSupport implements Serializable {
         selectedPropertiesChangeListeners = new HashMap<String, List<PropertyChangeListener>>(
                 children);
         allPropertiesChangeListeners = selectedPropertiesChangeListeners
-                .remove(""); 
+                .remove("");
         if (allPropertiesChangeListeners == null) {
             allPropertiesChangeListeners = new ArrayList<PropertyChangeListener>();
         }
@@ -429,7 +429,7 @@ public class PropertyChangeSupport implements Serializable {
 
     /**
      * Fires a property change event to all listeners of that property.
-     * 
+     *
      * @param event
      *            the event to fire
      */

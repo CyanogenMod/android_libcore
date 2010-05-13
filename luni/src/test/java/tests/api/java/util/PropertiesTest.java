@@ -66,7 +66,7 @@ public class PropertiesTest extends junit.framework.TestCase {
             // Expected
         }
     }
-    
+
     public void test_loadsave() throws Exception{
         Properties p = new Properties();
         try {
@@ -74,7 +74,7 @@ public class PropertiesTest extends junit.framework.TestCase {
             fail("should throw NPE");
         } catch (NullPointerException npe) {
         	// expected
-        }        
+        }
     }
 
     /**
@@ -406,7 +406,7 @@ public class PropertiesTest extends junit.framework.TestCase {
         prop.load(new ByteArrayInputStream("a=\\q".getBytes()));
         assertEquals("Failed to read slash value #3", expected, prop);
     }
-    
+
     /**
      * @tests java.util.Properties#load(java.io.InputStream)
      */
@@ -416,11 +416,11 @@ public class PropertiesTest extends junit.framework.TestCase {
         prop = new Properties();
         prop.load(new ByteArrayInputStream("=".getBytes()));
         assertTrue("Failed to add empty key", prop.get("").equals(""));
-        
+
         prop = new Properties();
         prop.load(new ByteArrayInputStream("=\r\n".getBytes()));
         assertTrue("Failed to add empty key", prop.get("").equals(""));
-        
+
         prop = new Properties();
         prop.load(new ByteArrayInputStream("=\n\r".getBytes()));
         assertTrue("Failed to add empty key", prop.get("").equals(""));
@@ -837,7 +837,7 @@ public class PropertiesTest extends junit.framework.TestCase {
                 .getProperty("key2"));
         assertEquals("Failed to load correct properties", "value1", prop
                 .getProperty("key1"));
-        
+
         try {
             prop.loadFromXML(null);
             fail("should throw NullPointerException");
@@ -925,7 +925,7 @@ public class PropertiesTest extends junit.framework.TestCase {
             assertTrue("Stored property list not equal to original", myProps2
                     .getProperty(nextKey).equals(myProps.getProperty(nextKey)));
         }
-        
+
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             myProps.storeToXML(out, null, null);
@@ -934,7 +934,7 @@ public class PropertiesTest extends junit.framework.TestCase {
             // expected
         }
     }
- 
+
     /**
      * if loading from single line like "hello" without "\n\r" neither "=", it
      * should be same as loading from "hello="

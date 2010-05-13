@@ -38,7 +38,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 public class DSAKeyFactoryImpl extends KeyFactorySpi {
 
     /**
-     * This method generates a DSAPrivateKey object from the provided key specification. 
+     * This method generates a DSAPrivateKey object from the provided key specification.
      *
      * @param
      *    keySpec - the specification (key material) for the DSAPrivateKey.
@@ -62,11 +62,11 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 return new DSAPrivateKeyImpl((PKCS8EncodedKeySpec) keySpec);
             }
         }
-        throw new InvalidKeySpecException(Messages.getString("security.19C")); 
+        throw new InvalidKeySpecException(Messages.getString("security.19C"));
     }
 
     /**
-     * This method generates a DSAPublicKey object from the provided key specification. 
+     * This method generates a DSAPublicKey object from the provided key specification.
      *
      * @param
      *    keySpec - the specification (key material) for the DSAPublicKey.
@@ -90,22 +90,22 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 return new DSAPublicKeyImpl((X509EncodedKeySpec) keySpec);
             }
         }
-        throw new InvalidKeySpecException(Messages.getString("security.19D")); 
+        throw new InvalidKeySpecException(Messages.getString("security.19D"));
     }
-    
+
     /**
      * This method returns a specification for the supplied key.
-     * 
+     *
      * The specification will be returned in the form of an object of the type
      * specified by keySpec.
-     * 
+     *
      * @param key -
      *            either DSAPrivateKey or DSAPublicKey
      * @param keySpec -
      *            either DSAPrivateKeySpec.class or DSAPublicKeySpec.class
-     * 
+     *
      * @return either a DSAPrivateKeySpec or a DSAPublicKeySpec
-     * 
+     *
      * @throws InvalidKeySpecException
      *             if "keySpec" is not a specification for DSAPublicKey or
      *             DSAPrivateKey
@@ -118,7 +118,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
         if (key != null) {
             if (keySpec == null) {
                 throw new NullPointerException(Messages
-                        .getString("security.19E")); 
+                        .getString("security.19E"));
             }
             if (key instanceof DSAPrivateKey) {
                 DSAPrivateKey privateKey = (DSAPrivateKey) key;
@@ -141,7 +141,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 }
 
                 throw new InvalidKeySpecException(Messages
-                        .getString("security.19C")); 
+                        .getString("security.19C"));
             }
 
             if (key instanceof DSAPublicKey) {
@@ -165,14 +165,14 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 }
 
                 throw new InvalidKeySpecException(Messages
-                        .getString("security.19D")); 
+                        .getString("security.19D"));
             }
         }
-        throw new InvalidKeySpecException(Messages.getString("security.19F")); 
+        throw new InvalidKeySpecException(Messages.getString("security.19F"));
     }
 
     /**
-     * The method generates a DSAPublicKey object from the provided key. 
+     * The method generates a DSAPublicKey object from the provided key.
      *
      * @param
      *    key - a DSAPublicKey object or DSAPrivateKey object.
@@ -198,7 +198,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 } catch (InvalidKeySpecException e) {
                     // Actually this exception shouldn't be thrown
                     throw new InvalidKeyException(Messages.getString(
-                            "security.1A0", e)); 
+                            "security.1A0", e));
                 }
             }
 
@@ -214,11 +214,11 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 } catch (InvalidKeySpecException e) {
                     // Actually this exception shouldn't be thrown
                     throw new InvalidKeyException(Messages.getString(
-                            "security.1A1", e)); 
+                            "security.1A1", e));
                 }
             }
         }
-        throw new InvalidKeyException(Messages.getString("security.19F")); 
+        throw new InvalidKeyException(Messages.getString("security.19F"));
     }
 
 }

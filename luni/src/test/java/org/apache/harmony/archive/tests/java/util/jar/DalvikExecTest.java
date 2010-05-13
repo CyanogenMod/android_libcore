@@ -213,15 +213,15 @@ public class DalvikExecTest extends TestCase {
      * @hide
      */
     public static class HelloWorld {
-    
+
         public static void main(String[] args) {
             System.out.println("Hello Android World!");
         }
-    
+
     }
 
     public static class ResourceDumper {
-    
+
         static ByteArrayOutputStream outputFrom (InputStream input) throws IOException {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buffer = new byte[512];
@@ -235,7 +235,7 @@ public class DalvikExecTest extends TestCase {
             }
             return out;
         }
-    
+
         public static void main(String[] args) throws IOException {
             System.out.print("Android Resource Dumper started ");
             String fileName;
@@ -253,7 +253,7 @@ public class DalvikExecTest extends TestCase {
                 System.out.println(outputFrom(is).toString());
             }
         }
-    
+
     }
 
 }

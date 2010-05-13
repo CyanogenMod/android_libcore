@@ -36,7 +36,7 @@ class SocketInputStream extends InputStream {
     /**
      * Constructs a SocketInputStream for the <code>socket</code>. Read
      * operations are forwarded to the <code>socket</code>.
-     * 
+     *
      * @param socket the socket to be read
      * @see Socket
      */

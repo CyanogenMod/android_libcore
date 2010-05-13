@@ -17,13 +17,13 @@ import javax.xml.parsers.DocumentBuilder;
  * attribute node using the removeAttributeNodeNS method. Check if the attribute
  * was remove by invoking the hasAttributeNS method on the element and check if
  * it returns false.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElRemAtNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElRemAtNS</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class ElementRemoveAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -49,7 +49,7 @@ public final class ElementRemoveAttributeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

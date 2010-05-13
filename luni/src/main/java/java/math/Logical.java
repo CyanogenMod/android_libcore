@@ -251,12 +251,12 @@ class Logical {
             }
         }
     }
-    
+
     /** @return sign = 1, magnitude = val.magnitude & ~that.magnitude*/
     static BigInteger andNotPositive(BigInteger val, BigInteger that) {
         // PRE: both arguments are positive
         int resDigits[] = new int[val.numberLength];
-        
+
         int limit = Math.min(val.numberLength, that.numberLength);
         int i;
         for (i = val.getFirstNonzeroDigit(); i < limit; i++) {
@@ -265,25 +265,25 @@ class Logical {
         for ( ; i < val.numberLength; i++) {
             resDigits[i] = val.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(1, val.numberLength, resDigits);
         result.cutOffLeadingZeroes();
         return result;
     }
-    
+
     /** @return sign = 1, magnitude = positive.magnitude & ~(-negative.magnitude)*/
     static BigInteger andNotPositiveNegative(BigInteger positive, BigInteger negative) {
         // PRE: positive > 0 && negative < 0
         int iNeg = negative.getFirstNonzeroDigit();
         int iPos = positive.getFirstNonzeroDigit();
-        
+
         if (iNeg >= positive.numberLength) {
             return positive;
         }
-        
+
         int resLength = Math.min(positive.numberLength, negative.numberLength);
         int resDigits[] = new int[resLength];
-        
+
         // Always start from first non zero of positive
         int i = iPos;
         for ( ; i < iNeg; i++) {
@@ -298,12 +298,12 @@ class Logical {
             // resDigits[i] = positive.digits[i] & ~(~negative.digits[i]);
             resDigits[i] = positive.digits[i] & negative.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(1, resLength, resDigits);
         result.cutOffLeadingZeroes();
         return result;
     }
-    
+
     /** @return sign = -1, magnitude = -(-negative.magnitude & ~positive.magnitude)*/
     static BigInteger andNotNegativePositive(BigInteger negative, BigInteger positive) {
         // PRE: negative < 0 && positive > 0
@@ -311,14 +311,14 @@ class Logical {
         int resDigits[];
         int limit;
         int digit;
-        
+
         int iNeg = negative.getFirstNonzeroDigit();
         int iPos = positive.getFirstNonzeroDigit();
-        
+
         if (iNeg >= positive.numberLength) {
             return negative;
         }
-        
+
         resLength = Math.max(negative.numberLength, positive.numberLength);
         int i = iNeg;
         if (iPos > iNeg) {
@@ -351,7 +351,7 @@ class Logical {
                         resLength++;
                         resDigits = new int[resLength];
                         resDigits[resLength - 1] = 1;
-                        
+
                         BigInteger result = new BigInteger(-1, resLength, resDigits);
                         return result;
                     }
@@ -361,7 +361,7 @@ class Logical {
             resDigits[i] = -digit;
             i++;
                     }
-        
+
         limit = Math.min(positive.numberLength, negative.numberLength);
         for ( ; i < limit; i++) {
             //resDigits[i] = ~(~negative.digits[i] & ~positive.digits[i]);
@@ -374,21 +374,21 @@ class Logical {
         for ( ; i < positive.numberLength; i++) {
             resDigits[i] = positive.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(-1, resLength, resDigits);
         return result;
             }
-    
+
     /** @return sign = 1, magnitude = -val.magnitude & ~(-that.magnitude)*/
     static BigInteger andNotNegative(BigInteger val, BigInteger that) {
         // PRE: val < 0 && that < 0
         int iVal = val.getFirstNonzeroDigit();
         int iThat = that.getFirstNonzeroDigit();
-        
+
         if (iVal >= that.numberLength) {
             return BigInteger.ZERO;
         }
-        
+
         int resLength = that.numberLength;
         int resDigits[] = new int[resLength];
         int limit;
@@ -419,7 +419,7 @@ class Logical {
             // resDigits[i] = -val.digits[i] & ~-that.digits[i];
             resDigits[i] = -val.digits[i] & (that.digits[i] - 1);
             }
-        
+
         limit = Math.min(val.numberLength, that.numberLength);
         for (i++; i < limit; i++) {
             // resDigits[i] = ~val.digits[i] & ~~that.digits[i];
@@ -429,7 +429,7 @@ class Logical {
             // resDigits[i] = -1 & ~~that.digits[i];
             resDigits[i] = that.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(1, resLength, resDigits);
         result.cutOffLeadingZeroes();
         return result;
@@ -467,14 +467,14 @@ class Logical {
                     }
                 }
             }
-    
+
     /** @return sign = 1, magnitude = longer.magnitude | shorter.magnitude*/
     static BigInteger orPositive(BigInteger longer, BigInteger shorter) {
         // PRE: longer and shorter are positive;
         // PRE: longer has at least as many digits as shorter
         int resLength = longer.numberLength;
         int resDigits[] = new int[resLength];
-        
+
         int i = Math.min(longer.getFirstNonzeroDigit(), shorter.getFirstNonzeroDigit());
         for (i = 0; i < shorter.numberLength; i++) {
             resDigits[i] = longer.digits[i] | shorter.digits[i];
@@ -482,11 +482,11 @@ class Logical {
         for ( ; i < resLength; i++) {
             resDigits[i] = longer.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(1, resLength, resDigits);
         return result;
     }
-    
+
     /** @return sign = -1, magnitude = -(-val.magnitude | -that.magnitude) */
     static BigInteger orNegative(BigInteger val, BigInteger that){
         // PRE: val and that are negative;
@@ -494,16 +494,16 @@ class Logical {
         int iThat = that.getFirstNonzeroDigit();
         int iVal = val.getFirstNonzeroDigit();
         int i;
-        
+
         if (iVal >= that.numberLength) {
             return that;
         }else if (iThat >= val.numberLength) {
             return val;
         }
-        
+
         int resLength = Math.min(val.numberLength, that.numberLength);
         int resDigits[] = new int[resLength];
-        
+
         //Looking for the first non-zero digit of the result
         if (iThat == iVal) {
             resDigits[iVal] = -(-val.digits[iVal] | -that.digits[iVal]);
@@ -514,16 +514,16 @@ class Logical {
             }
             resDigits[i] = that.digits[i] & (val.digits[i] - 1);
         }
-        
+
         for (i++; i < resLength; i++) {
             resDigits[i] = val.digits[i] & that.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(-1, resLength, resDigits);
         result.cutOffLeadingZeroes();
         return result;
     }
-    
+
     /** @return sign = -1, magnitude = -(positive.magnitude | -negative.magnitude) */
     static BigInteger orDiffSigns(BigInteger positive, BigInteger negative){
         // Jumping over the least significant zero bits
@@ -531,7 +531,7 @@ class Logical {
         int iPos = positive.getFirstNonzeroDigit();
         int i;
         int limit;
-        
+
         // Look if the trailing zeros of the positive will "copy" all
         // the negative digits
         if (iPos >= negative.numberLength) {
@@ -539,7 +539,7 @@ class Logical {
         }
         int resLength = negative.numberLength;
         int resDigits[] = new int[resLength];
-        
+
         if (iNeg < iPos ) {
             // We know for sure that this will
             // be the first non zero digit in the result
@@ -553,8 +553,8 @@ class Logical {
             for(i++; i < limit; i++ ) {
                 resDigits[i] = ~positive.digits[i];
             }
-            if (i != positive.numberLength) {               
-                resDigits[i] = ~(-negative.digits[i] | positive.digits[i]);                
+            if (i != positive.numberLength) {
+                resDigits[i] = ~(-negative.digits[i] | positive.digits[i]);
             } else{
                   for (; i<iNeg; i++) {
                       resDigits[i] = -1;
@@ -578,7 +578,7 @@ class Logical {
         for( ; i < negative.numberLength; i++) {
             resDigits[i] = negative.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(-1, resLength, resDigits);
         result.cutOffLeadingZeroes();
         return result;
@@ -598,7 +598,7 @@ class Logical {
         if (val.equals(BigInteger.MINUS_ONE)) {
             return that.not();
         }
-        
+
         if (val.sign > 0) {
             if (that.sign > 0) {
                 if (val.numberLength > that.numberLength) {
@@ -619,7 +619,7 @@ class Logical {
             }
         }
     }
-    
+
     /** @return sign = 0, magnitude = longer.magnitude | shorter.magnitude */
     static BigInteger xorPositive(BigInteger longer, BigInteger shorter) {
         // PRE: longer and shorter are positive;
@@ -633,12 +633,12 @@ class Logical {
         for( ; i < longer.numberLength; i++ ){
             resDigits[i] = longer.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(1, resLength, resDigits);
         result.cutOffLeadingZeroes();
         return result;
     }
-    
+
     /** @return sign = 0, magnitude = -val.magnitude ^ -that.magnitude */
     static BigInteger xorNegative(BigInteger val, BigInteger that){
         // PRE: val and that are negative
@@ -649,8 +649,8 @@ class Logical {
         int iThat = that.getFirstNonzeroDigit();
         int i = iThat;
         int limit;
-        
-        
+
+
         if (iVal == iThat) {
             resDigits[i] = -val.digits[i] ^ -that.digits[i];
         } else {
@@ -672,7 +672,7 @@ class Logical {
                 resDigits[i] = -val.digits[i] ^ ~that.digits[i];
             }
         }
-        
+
         limit = Math.min(val.numberLength, that.numberLength);
         //Perform ^ between that al val until that ends
         for (i++; i < limit; i++) {
@@ -688,12 +688,12 @@ class Logical {
             //resDigits[i] = -1 ^ ~that.digits[i] ;
             resDigits[i] = that.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(1, resLength, resDigits);
         result.cutOffLeadingZeroes();
         return result;
     }
-    
+
     /** @return sign = 1, magnitude = -(positive.magnitude ^ -negative.magnitude)*/
     static BigInteger xorDiffSigns(BigInteger positive, BigInteger negative){
         int resLength = Math.max(negative.numberLength, positive.numberLength);
@@ -702,7 +702,7 @@ class Logical {
         int iPos = positive.getFirstNonzeroDigit();
             int i;
         int limit;
-        
+
         //The first
         if (iNeg < iPos) {
             resDigits = new int[resLength];
@@ -769,7 +769,7 @@ class Logical {
                         resLength = resLength + 1;
                         resDigits = new int[resLength];
                         resDigits[resLength - 1] = 1;
-                        
+
                         BigInteger result = new BigInteger(-1, resLength, resDigits);
                         return result;
                 }
@@ -779,7 +779,7 @@ class Logical {
             resDigits[i] = -digit;
             i++;
         }
-        
+
         limit = Math.min(negative.numberLength, positive.numberLength);
         for ( ; i < limit; i++) {
             resDigits[i] = ~(~negative.digits[i] ^ positive.digits[i]);
@@ -788,11 +788,11 @@ class Logical {
             // resDigits[i] = ~(positive.digits[i] ^ -1)
             resDigits[i] = positive.digits[i];
         }
-        for ( ; i < negative.numberLength; i++) { 
+        for ( ; i < negative.numberLength; i++) {
             // resDigits[i] = ~(0 ^ ~negative.digits[i])
             resDigits[i] = negative.digits[i];
         }
-        
+
         BigInteger result = new BigInteger(-1, resLength, resDigits);
         result.cutOffLeadingZeroes();
         return result;

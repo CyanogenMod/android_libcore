@@ -28,13 +28,13 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * This class is the super class for all string ASN.1 types
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
 public abstract class ASN1StringType extends ASN1Type {
 
-    // TODO: what about defining them as separate classes?  
+    // TODO: what about defining them as separate classes?
     // TODO: check decoded/encoded characters
     public static final ASN1StringType BMPSTRING = new ASN1StringType(
             TAG_BMPSTRING) {
@@ -64,13 +64,13 @@ public abstract class ASN1StringType extends ASN1Type {
             TAG_UTF8STRING) {
 
         public Object getDecodedObject(BerInputStream in) throws IOException {
-            return new String(in.buffer, in.contentOffset, in.length, "UTF-8"); 
+            return new String(in.buffer, in.contentOffset, in.length, "UTF-8");
         }
 
         public void setEncodingContent(BerOutputStream out) {
 
             try {
-                byte[] bytes = ((String) out.content).getBytes("UTF-8"); 
+                byte[] bytes = ((String) out.content).getBytes("UTF-8");
                 out.content = bytes;
                 out.length = bytes.length;
             } catch (UnsupportedEncodingException e) {
@@ -91,7 +91,7 @@ public abstract class ASN1StringType extends ASN1Type {
 
     /**
      * Tests provided identifier.
-     * 
+     *
      * @param identifier -
      *            identifier to be verified
      * @return - true if identifier correspond to primitive or constructed
@@ -104,7 +104,7 @@ public abstract class ASN1StringType extends ASN1Type {
     public Object decode(BerInputStream in) throws IOException {
 
         in.readString(this);
-        
+
         if (in.isVerify) {
             return null;
         }
@@ -128,7 +128,7 @@ public abstract class ASN1StringType extends ASN1Type {
     // Encode
     //
     //
-    
+
     public void encodeASN(BerOutputStream out) {
         out.encodeTag(id);
         encodeContent(out);
@@ -140,7 +140,7 @@ public abstract class ASN1StringType extends ASN1Type {
 
     public void setEncodingContent(BerOutputStream out) {
         try {
-            byte[] bytes = ((String) out.content).getBytes("UTF-8"); 
+            byte[] bytes = ((String) out.content).getBytes("UTF-8");
             out.content = bytes;
             out.length = bytes.length;
         } catch (UnsupportedEncodingException e) {

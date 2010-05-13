@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@
 package org.apache.harmony.luni.platform;
 
 public class MappedPlatformAddress extends PlatformAddress {
-    
+
     MappedPlatformAddress(int address, long size) {
         super(address, size);
     }
@@ -40,17 +40,17 @@ public class MappedPlatformAddress extends PlatformAddress {
         memorySpy.rangeCheck(this, 0, (int) size * SIZEOF_JBYTE);
         osMemory.flush(osaddr, size);
     }
-    
+
     public final void free(){
         if(memorySpy.free(this)){
             osMemory.unmap(osaddr, size);
         }
     }
-    
+
     public PlatformAddress duplicate(){
         return PlatformAddressFactory.mapOn(osaddr, size);
     }
-    
+
     public final PlatformAddress offsetBytes(int offset) {
         return PlatformAddressFactory.mapOn(osaddr + offset, size - offset);
     }

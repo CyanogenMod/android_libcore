@@ -110,7 +110,7 @@ public class ThreadPool extends ThreadGroup {
                 try {
                     Logger.global.info("Task is run");
                     task.run();
-                    
+
                 } catch (Throwable t) {
                     System.err.println(t.getMessage());
                 }

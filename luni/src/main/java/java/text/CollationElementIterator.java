@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -62,7 +62,7 @@ public final class CollationElementIterator {
      * Obtains the maximum length of any expansion sequence that ends with the
      * specified collation element. Returns {@code 1} if there is no expansion
      * with this collation element as the last element.
-     * 
+     *
      * @param order
      *            a collation element that has been previously obtained from a
      *            call to either the {@link #next()} or {@link #previous()}
@@ -92,7 +92,7 @@ public final class CollationElementIterator {
      * <li>The length of the source string, if iteration has reached the end.
      * </li>
      * </ul>
-     * 
+     *
      * @return The position of the collation element in the source string that
      *         will be returned by the next invocation of the {@link #next()}
      *         method.
@@ -103,7 +103,7 @@ public final class CollationElementIterator {
 
     /**
      * Obtains the next collation element in the source string.
-     * 
+     *
      * @return the next collation element or {@code NULLORDER} if the end
      *         of the iteration has been reached.
      */
@@ -113,7 +113,7 @@ public final class CollationElementIterator {
 
     /**
      * Obtains the previous collation element in the source string.
-     * 
+     *
      * @return the previous collation element, or {@code NULLORDER} when
      *         the start of the iteration has been reached.
      */
@@ -124,7 +124,7 @@ public final class CollationElementIterator {
     /**
      * Obtains the primary order of the specified collation element, i.e. the
      * first 16 bits. This value is unsigned.
-     * 
+     *
      * @param order
      *            the element of the collation.
      * @return the element's 16 bit primary order.
@@ -149,7 +149,7 @@ public final class CollationElementIterator {
     /**
      * Obtains the secondary order of the specified collation element, i.e. the
      * 16th to 23th bits, inclusive. This value is unsigned.
-     * 
+     *
      * @param order
      *            the element of the collator.
      * @return the 8 bit secondary order of the element.
@@ -175,7 +175,7 @@ public final class CollationElementIterator {
      * decomposable range of source text, the iterator may not return a correct
      * result for the next forwards or backwards iteration. The user must ensure
      * that the offset is not in the middle of a decomposable range.
-     * 
+     *
      * @param newOffset
      *            the character offset into the original source string to set.
      *            Note that this is not an offset into the corresponding
@@ -188,7 +188,7 @@ public final class CollationElementIterator {
     /**
      * Sets a new source string iterator for iteration, and resets the offset to
      * the beginning of the text.
-     * 
+     *
      * @param source
      *            the new source string iterator for iteration.
      */
@@ -199,7 +199,7 @@ public final class CollationElementIterator {
     /**
      * Sets a new source string for iteration, and resets the offset to the
      * beginning of the text.
-     * 
+     *
      * @param source
      *            the new source string for iteration.
      */
@@ -210,7 +210,7 @@ public final class CollationElementIterator {
     /**
      * Obtains the tertiary order of the specified collation element, i.e. the
      * last 8 bits. This value is unsigned.
-     * 
+     *
      * @param order
      *            the element of the collation.
      * @return the 8 bit tertiary order of the element.

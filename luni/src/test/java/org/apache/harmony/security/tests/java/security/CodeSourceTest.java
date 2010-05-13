@@ -43,7 +43,7 @@ import junit.framework.TestCase;
 @TestTargetClass(CodeSource.class)
 /**
  * Unit test for CodeSource.
- * 
+ *
  */
 
 public class CodeSourceTest extends TestCase {
@@ -73,7 +73,7 @@ public class CodeSourceTest extends TestCase {
     private static URL urlFileDirStar;
 
     private static URL urlRef1, urlRef2;
-    
+
     private boolean init = false;
 
     private void init() {
@@ -82,28 +82,28 @@ public class CodeSourceTest extends TestCase {
                 String siteName = "www.intel.com";
                 InetAddress addr = InetAddress.getByName(siteName);
                 String siteIP = addr.getHostAddress();
-    
+
                 urlSite = new URL("http://"+siteName+"");
                 urlDir = new URL("http://"+siteName+"/drl_test");
                 urlDirOtherSite = new URL("http://www.any-other-site-which-is-not-siteName.com/drl_test");
-    
+
                 urlDir_port80 = new URL("http://"+siteName+":80/drl_test");
                 urlDir_port81 = new URL("http://"+siteName+":81/drl_test");
                 urlDirWithSlash = new URL(urlDir + "/");
-    
+
                 //urlDirFtp = new URL("ftp://www.intel.com/drl_test");
                 urlDir_FileProtocol = new URL("file://"+siteName+"/drl_test");
-    
+
                 urlDirIP = new URL("http://"+siteIP+"/drl_test");
-    
+
                 urlFile = new URL("http://"+siteName+"/drl_test/empty.jar");
                 urlFileWithAdditionalDirs = new URL(
                         "http://"+siteName+"/drl_test/what/ever/here/empty.jar");
-    
+
                 urlFileDirMinus = new URL("http://"+siteName+"/drl_test/-");
                 urlFileDirStar = new URL("http://"+siteName+"/drl_test/*");
                 urlFileDirOtherDir = new URL("http://"+siteName+"/_test_drl_/*");
-    
+
                 urlRef1 = new URL("http://"+siteName+"/drl_test/index.html#ref1");
                 urlRef2 = new URL("http://"+siteName+"/drl_test/index.html#ref2");
             } catch (MalformedURLException ex) {
@@ -124,7 +124,7 @@ public class CodeSourceTest extends TestCase {
 
     /**
      * Tests hashCode().<br>
-     * javadoc says nothing, so test DRL-specific implementation. 
+     * javadoc says nothing, so test DRL-specific implementation.
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -133,7 +133,7 @@ public class CodeSourceTest extends TestCase {
         args = {}
     )
     public void testHashCode() {
-        // when nothing is specified, then hashCode obviously must be 0. 
+        // when nothing is specified, then hashCode obviously must be 0.
         assertTrue(new CodeSource(null, (Certificate[]) null).hashCode() == 0);
         // only URL.hashCode is taken into account...
         assertTrue(new CodeSource(urlSite, (Certificate[]) null).hashCode() == urlSite
@@ -207,7 +207,7 @@ public class CodeSourceTest extends TestCase {
 
     /**
      * Test for equals(Object)<br>
-     * The signer certificate chain must contain the same set of certificates, but 
+     * The signer certificate chain must contain the same set of certificates, but
      * the order of the certificates is not taken into account.
      */
     @TestTargetNew(
@@ -228,7 +228,7 @@ public class CodeSourceTest extends TestCase {
 
     /**
      * Test for equals(Object)<br>
-     * Checks that both 'null' and not-null URLs are taken into account - properly. 
+     * Checks that both 'null' and not-null URLs are taken into account - properly.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -267,7 +267,7 @@ public class CodeSourceTest extends TestCase {
     }
 
     /**
-     * Tests whether the getCertificates() returns certificates obtained from 
+     * Tests whether the getCertificates() returns certificates obtained from
      * the signers.
      */
     @TestTargetNew(
@@ -285,19 +285,19 @@ public class CodeSourceTest extends TestCase {
         CodeSigner[] signers = { new CodeSigner(cpath, null) };
         CodeSource cs = new CodeSource(null, signers);
         Certificate[] got = cs.getCertificates();
-        // The set of certificates must be exactly the same, 
+        // The set of certificates must be exactly the same,
         // but the order is not specified
         assertTrue(presented(certs, got));
         assertTrue(presented(got, certs));
     }
 
     /**
-     * Checks whether two arrays of certificates represent the same same set of 
+     * Checks whether two arrays of certificates represent the same same set of
      * certificates - in the same order.
-     * @param one first array 
+     * @param one first array
      * @param two second array
-     * @return <code>true</code> if both arrays represent the same set of 
-     * certificates, 
+     * @return <code>true</code> if both arrays represent the same set of
+     * certificates,
      * <code>false</code> otherwise.
      */
     private static boolean checkEqual(java.security.cert.Certificate[] one,
@@ -332,10 +332,10 @@ public class CodeSourceTest extends TestCase {
     /**
      * Performs a test whether the <code>what</code> certificates are all
      * presented in <code>where</code> certificates.
-     * 
+     *
      * @param what - first array of Certificates
      * @param where  - second array of Certificates
-     * @return <code>true</code> if each and every certificate from 'what' 
+     * @return <code>true</code> if each and every certificate from 'what'
      * (including null) is presented in 'where' <code>false</code> otherwise
      */
     private static boolean presented(Certificate[] what, Certificate[] where) {
@@ -403,7 +403,7 @@ public class CodeSourceTest extends TestCase {
             assertTrue(found);
         }
     }
-    
+
     /**
      * Tests CodeSource.getCodeSigners() for null.
      */
@@ -414,7 +414,7 @@ public class CodeSourceTest extends TestCase {
         args = {}
     )
     public void testGetCoderSignersNull() throws Exception{
-        assertNull(new CodeSource(new URL("http://url"), (Certificate[])null).getCodeSigners()); 
+        assertNull(new CodeSource(new URL("http://url"), (Certificate[])null).getCodeSigners());
     }
 
     /**
@@ -443,7 +443,7 @@ public class CodeSourceTest extends TestCase {
         args = {}
     )
     public void testToString() {
-        // Javadoc keeps silence about String's format, 
+        // Javadoc keeps silence about String's format,
         // just make sure it can be invoked.
         new CodeSource(urlSite, chain).toString();
         new CodeSource(null, chain).toString();
@@ -452,9 +452,9 @@ public class CodeSourceTest extends TestCase {
 
     /**
      * Tests whether we are running with the 1.5 features.<br>
-     * The test is preformed by looking for (via reflection) the CodeSource's 
+     * The test is preformed by looking for (via reflection) the CodeSource's
      * constructor  {@link CodeSource#CodeSource(URL, CodeSigner[])}.
-     * @return <code>true</code> if 1.5 feature is presented, <code>false</code> 
+     * @return <code>true</code> if 1.5 feature is presented, <code>false</code>
      * otherwise.
      */
     private static boolean has_15_features() {
@@ -463,7 +463,7 @@ public class CodeSourceTest extends TestCase {
         try {
             klass.getConstructor(ctorArgs);
         } catch (NoSuchMethodException ex) {
-            // NoSuchMethod == Not RI.v1.5 and not DRL 
+            // NoSuchMethod == Not RI.v1.5 and not DRL
             return false;
         }
         return true;
@@ -567,7 +567,7 @@ public class CodeSourceTest extends TestCase {
         assertTrue(thizCS.implies(thatCS));
         assertTrue(thatCS.implies(thizCS));
 
-        // 
+        //
         // Check for another site - force to create SocketPermission
         //
         thatCS = new CodeSource(urlDirOtherSite, (Certificate[]) null);
@@ -744,7 +744,7 @@ public class CodeSourceTest extends TestCase {
 
         //
         that = new CodeSource(urlSite, (Certificate[]) null);
-        // 'thiz' has set of certs, while 'that' has no certs. URL-s are the 
+        // 'thiz' has set of certs, while 'that' has no certs. URL-s are the
         // same.
         assertFalse(thiz.implies(that));
         assertTrue(that.implies(thiz));
@@ -752,8 +752,8 @@ public class CodeSourceTest extends TestCase {
 
     /**
      * Testing with special URLs like 'localhost', 'file://' scheme ...
-     * These special URLs have a special processing in implies(), 
-     * so they need to be covered and performance need to be checked 
+     * These special URLs have a special processing in implies(),
+     * so they need to be covered and performance need to be checked
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -773,8 +773,8 @@ public class CodeSourceTest extends TestCase {
 
     /**
      * Testing with special URLs like 'localhost', 'file://' scheme ...
-     * These special URLs have a special processing in implies(), 
-     * so they need to be covered and performance need to be checked 
+     * These special URLs have a special processing in implies(),
+     * so they need to be covered and performance need to be checked
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,

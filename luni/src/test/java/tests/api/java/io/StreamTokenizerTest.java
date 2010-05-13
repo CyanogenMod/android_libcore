@@ -39,7 +39,7 @@ import dalvik.annotation.TestTargets;
 // test_ConstructorLjava_io_InputStream for example.
 // This gives much more helpful error messages.
 
-@TestTargetClass(StreamTokenizer.class) 
+@TestTargetClass(StreamTokenizer.class)
 public class StreamTokenizerTest extends junit.framework.TestCase {
     Support_StringReader r;
 
@@ -241,14 +241,14 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
         pout.close();
         assertTrue("Wrong token 1,5",
                st.nextToken() == StreamTokenizer.TT_EOF);
-        
+
         st = new StreamTokenizer(new Support_StringReader("\n \r\n#"));
         st.ordinaryChar('\n'); // make \n ordinary
         st.eolIsSignificant(true);
         assertTrue("Wrong token 2,1", st.nextToken() == '\n');
         assertTrue("Wrong token 2,2", st.nextToken() == '\n');
         assertEquals("Wrong token 2,3", '#', st.nextToken());
-        
+
         Support_ASimpleInputStream sis = new Support_ASimpleInputStream();
         sis.throwExceptionOnNextUse = true;
         st = new StreamTokenizer(sis);
@@ -396,7 +396,7 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
         assertTrue("Test failed.",
                st.nextToken() == StreamTokenizer.TT_WORD);
     }
-    
+
     /**
      * @tests java.io.StreamTokenizer#slashSlashComments(boolean)
      */
@@ -434,7 +434,7 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
 
         assertEquals(StreamTokenizer.TT_EOF,st.nextToken());
     }
-    
+
     /**
      * @tests java.io.StreamTokenizer#slashSlashComments(boolean)
      */
@@ -455,7 +455,7 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
         assertEquals('/',st.nextToken());
         assertEquals(StreamTokenizer.TT_WORD,st.nextToken());
     }
-    
+
     /**
      * @tests java.io.StreamTokenizer#slashStarComments(boolean)
      */
@@ -511,7 +511,7 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
         assertEquals(StreamTokenizer.TT_WORD,st.nextToken());
         assertEquals(StreamTokenizer.TT_EOF,st.nextToken());
     }
-    
+
     /**
      * @tests java.io.StreamTokenizer#toString()
      */
@@ -564,13 +564,13 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
                st.nextToken() == StreamTokenizer.TT_NUMBER);
         st.nextToken();
         assertEquals("WordChar failed4.", "B87", st.sval);
-        
+
         setTest("    Hello World");
         st.wordChars(' ', ' ');
         st.nextToken();
         assertEquals("WordChars failed for whitespace.", "Hello World", st.sval
                  );
-        
+
         setTest("    Hello World\r\n  \'Hello World\' Hello\' World");
         st.wordChars(' ', ' ');
         st.wordChars('\'', '\'');
@@ -593,7 +593,7 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
 
     protected void tearDown() {
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -671,7 +671,7 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
             b.lowerCaseMode(true);
             b.ordinaryChar('y');
             b.slashStarComments(true);
-            
+
             Assert.assertTrue(b.nextToken() == StreamTokenizer.TT_NUMBER);
             Assert.assertTrue(b.nval == -3.8);
             Assert.assertTrue(b.toString().equals("Token[n=-3.8], line 1"));
@@ -696,7 +696,7 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
             throw new RuntimeException("error in test, see stdout");
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -719,10 +719,10 @@ public class StreamTokenizerTest extends junit.framework.TestCase {
         } catch(Exception e) {
             Assert.fail(e.getMessage());
         }
-        String result = tokenizer.toString();  
+        String result = tokenizer.toString();
         Assert.assertEquals("Token['-'], line 1", result);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,

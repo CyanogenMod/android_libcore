@@ -44,8 +44,8 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
 
     private static final long serialVersionUID = -7176153071733132400L;
 
-    private static final ObjectStreamField[] serialPersistentFields = { 
-        new ObjectStreamField("permissions", Hashtable.class), }; 
+    private static final ObjectStreamField[] serialPersistentFields = {
+        new ObjectStreamField("permissions", Hashtable.class), };
 
     // elements of the collection.
     private transient Map klasses = new HashMap();
@@ -53,7 +53,7 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
     /**
      * Adds an unresolved permission to this {@code
      * UnresolvedPermissionCollection}.
-     * 
+     *
      * @param permission
      *            the permission to be added.
      * @throws SecurityException
@@ -64,11 +64,11 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
      */
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15")); 
+            throw new SecurityException(Messages.getString("security.15"));
         }
         if (permission == null
             || permission.getClass() != UnresolvedPermission.class) {
-            throw new IllegalArgumentException(Messages.getString("security.16", 
+            throw new IllegalArgumentException(Messages.getString("security.16",
                 permission));
         }
         synchronized (klasses) {
@@ -92,17 +92,17 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
 
     /**
      * Always returns {@code false}.
-     * 
+     *
      * @return always {@code false}
      * @see UnresolvedPermission#implies(Permission).
      */
     public boolean implies(Permission permission) {
         return false;
     }
-    
-    /** 
-     * Returns true if this collection contains unresolved permissions 
-     * with the same classname as argument permission. 
+
+    /**
+     * Returns true if this collection contains unresolved permissions
+     * with the same classname as argument permission.
      */
     boolean hasUnresolved(Permission permission) {
         return klasses.containsKey(permission.getClass().getName());
@@ -115,7 +115,7 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
      * an appropriate new collection is instantiated and used. All resolved
      * permissions are removed from this unresolved collection, and collection
      * with resolved ones is returned.
-     * 
+     *
      * @param target
      *            a kind of permissions to be resolved.
      * @param holder
@@ -151,8 +151,8 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
         return holder;
     }
 
-    /** 
-     * Output fields via default mechanism. 
+    /**
+     * Output fields via default mechanism.
      */
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         Hashtable permissions = new Hashtable();
@@ -162,17 +162,17 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
             permissions.put(key, new Vector(((Collection) entry.getValue())));
         }
         ObjectOutputStream.PutField fields = out.putFields();
-        fields.put("permissions", permissions); 
+        fields.put("permissions", permissions);
         out.writeFields();
     }
 
-    /** 
-     * Reads the object from stream and checks elements grouping for validity. 
+    /**
+     * Reads the object from stream and checks elements grouping for validity.
      */
     private void readObject(java.io.ObjectInputStream in) throws IOException,
         ClassNotFoundException {
         ObjectInputStream.GetField fields = in.readFields();
-        Map permissions = (Map)fields.get("permissions", null); 
+        Map permissions = (Map)fields.get("permissions", null);
         klasses = new HashMap();
         synchronized (klasses) {
             for (Iterator iter = permissions.entrySet().iterator(); iter
@@ -187,7 +187,7 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
 
                     if (!element.getName().equals(key)) {
                         throw new InvalidObjectException(
-                            Messages.getString("security.22")); 
+                            Messages.getString("security.22"));
                     }
                 }
                 klasses.put(key, new HashSet(values));

@@ -21,12 +21,12 @@ package org.apache.harmony.luni.internal.util;
  * access the current timezone.
  */
 public abstract class TimezoneGetter {
-    
+
     private static TimezoneGetter instance;
 
     /**
      * Retrieves the singleton instance of this class.
-     * 
+     *
      * @return TimezoneGetter the single instance of this class.
      */
     public static TimezoneGetter getInstance() {
@@ -35,7 +35,7 @@ public abstract class TimezoneGetter {
 
     /**
      * Sets the singleton instance of this class.
-     * 
+     *
      * @param instance
      *            TimezoneGetter the single instance of this class.
      */
@@ -48,7 +48,7 @@ public abstract class TimezoneGetter {
 
     /**
      * Retrieves the ID of the current time zone.
-     * 
+     *
      * @return String the ID of the current time zone.
      */
     public abstract String getId();

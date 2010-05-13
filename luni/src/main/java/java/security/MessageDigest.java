@@ -32,7 +32,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 public abstract class MessageDigest extends MessageDigestSpi {
 
     // The service name
-    private static final String SERVICE = "MessageDigest"; 
+    private static final String SERVICE = "MessageDigest";
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
@@ -46,7 +46,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     /**
      * Constructs a new instance of {@code MessageDigest} with the name of
      * the algorithm to use.
-     * 
+     *
      * @param algorithm
      *            the name of algorithm to use
      */
@@ -57,7 +57,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     /**
      * Returns a new instance of {@code MessageDigest} that utilizes the
      * specified algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use
      * @return a new instance of {@code MessageDigest} that utilizes the
@@ -70,7 +70,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     public static MessageDigest getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         MessageDigest result;
         synchronized (engine) {
@@ -89,7 +89,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     /**
      * Returns a new instance of {@code MessageDigest} that utilizes the
      * specified algorithm from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use
      * @param provider
@@ -107,12 +107,12 @@ public abstract class MessageDigest extends MessageDigestSpi {
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
             throw new IllegalArgumentException(Messages
-                    .getString("security.02")); 
+                    .getString("security.02"));
         }
         Provider p = Security.getProvider(provider);
         if (p == null) {
             throw new NoSuchProviderException(Messages.getString(
-                    "security.03", provider)); 
+                    "security.03", provider));
         }
         return getInstance(algorithm, p);
     }
@@ -120,7 +120,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     /**
      * Returns a new instance of {@code MessageDigest} that utilizes the
      * specified algorithm from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use
      * @param provider
@@ -136,10 +136,10 @@ public abstract class MessageDigest extends MessageDigestSpi {
             throws NoSuchAlgorithmException {
         if (provider == null) {
             throw new IllegalArgumentException(Messages
-                    .getString("security.04")); 
+                    .getString("security.04"));
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         MessageDigest result;
         synchronized (engine) {
@@ -166,7 +166,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
 
     /**
      * Updates this {@code MessageDigest} using the given {@code byte}.
-     * 
+     *
      * @param arg0
      *            the {@code byte} to update this {@code MessageDigest} with
      * @see #reset()
@@ -177,7 +177,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
 
     /**
      * Updates this {@code MessageDigest} using the given {@code byte[]}.
-     * 
+     *
      * @param input
      *            the {@code byte} array
      * @param offset
@@ -195,14 +195,14 @@ public abstract class MessageDigest extends MessageDigestSpi {
                 // see HARMONY-1120 for details
                 (long) offset + (long) len > input.length) {
             throw new IllegalArgumentException(Messages
-                    .getString("security.05")); 
+                    .getString("security.05"));
         }
         engineUpdate(input, offset, len);
     }
 
     /**
      * Updates this {@code MessageDigest} using the given {@code byte[]}.
-     * 
+     *
      * @param input
      *            the {@code byte} array
      * @throws NullPointerException
@@ -210,7 +210,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      */
     public void update(byte[] input) {
         if (input == null) {
-            throw new NullPointerException(Messages.getString("security.06")); 
+            throw new NullPointerException(Messages.getString("security.06"));
         }
         engineUpdate(input, 0, input.length);
     }
@@ -218,7 +218,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     /**
      * Computes and returns the final hash value for this {@link MessageDigest}.
      * After the digest is computed the receiver is reset.
-     * 
+     *
      * @return the computed one way hash value
      * @see #reset
      */
@@ -229,7 +229,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     /**
      * Computes and stores the final hash value for this {@link MessageDigest}.
      * After the digest is computed the receiver is reset.
-     * 
+     *
      * @param buf
      *            the buffer to store the result
      * @param offset
@@ -251,7 +251,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
                 // see HARMONY-1148 for details
                 (long) offset + (long) len > buf.length) {
             throw new IllegalArgumentException(Messages
-                    .getString("security.05")); 
+                    .getString("security.05"));
         }
         return engineDigest(buf, offset, len);
     }
@@ -260,7 +260,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      * Performs the final update and then computes and returns the final hash
      * value for this {@link MessageDigest}. After the digest is computed the
      * receiver is reset.
-     * 
+     *
      * @param input
      *            the {@code byte} array
      * @return the computed one way hash value
@@ -274,18 +274,18 @@ public abstract class MessageDigest extends MessageDigestSpi {
     /**
      * Returns a string containing a concise, human-readable description of this
      * {@code MessageDigest} including the name of its algorithm.
-     * 
+     *
      * @return a printable representation for this {@code MessageDigest}
      */
     @Override
     public String toString() {
-        return "MESSAGE DIGEST " + algorithm; 
+        return "MESSAGE DIGEST " + algorithm;
     }
 
     /**
      * Indicates whether to digest are equal by performing a simply
      * byte-per-byte compare of the two digests.
-     * 
+     *
      * @param digesta
      *            the first digest to be compared
      * @param digestb
@@ -306,7 +306,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
 
     /**
      * Returns the name of the algorithm of this {@code MessageDigest}.
-     * 
+     *
      * @return the name of the algorithm of this {@code MessageDigest}
      */
     public final String getAlgorithm() {
@@ -315,7 +315,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
 
     /**
      * Returns the provider associated with this {@code MessageDigest}.
-     * 
+     *
      * @return the provider associated with this {@code MessageDigest}
      */
     public final Provider getProvider() {
@@ -326,7 +326,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      * Returns the engine digest length in bytes. If the implementation does not
      * implement this function or is not an instance of {@code Cloneable},
      * {@code 0} is returned.
-     * 
+     *
      * @return the digest length in bytes, or {@code 0}
      */
     public final int getDigestLength() {
@@ -355,7 +355,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
 
     /**
      * Updates this {@code MessageDigest} using the given {@code input}.
-     * 
+     *
      * @param input
      *            the {@code ByteBuffer}
      */
@@ -364,9 +364,9 @@ public abstract class MessageDigest extends MessageDigestSpi {
     }
 
     /**
-     * 
+     *
      * The internal MessageDigest implementation
-     * 
+     *
      */
     private static class MessageDigestImpl extends MessageDigest {
 
@@ -418,7 +418,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
                 MessageDigestSpi spi = (MessageDigestSpi) spiImpl.clone();
                 return new MessageDigestImpl(spi, getProvider(), getAlgorithm());
             }
-            
+
             throw new CloneNotSupportedException();
         }
     }

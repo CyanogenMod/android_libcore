@@ -35,7 +35,7 @@ public class IllegalCharsetNameException extends IllegalArgumentException {
     /**
      * Constructs a new {@code IllegalCharsetNameException} with the supplied
      * charset name.
-     * 
+     *
      * @param charset
      *            the encountered illegal charset name.
      */

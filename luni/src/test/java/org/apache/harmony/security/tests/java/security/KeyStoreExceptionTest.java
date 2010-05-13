@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyStoreException.class)
 /**
  * Tests for <code>KeyStoreException</code> class constructors and methods.
- * 
+ *
  */
 public class KeyStoreExceptionTest extends TestCase {
 

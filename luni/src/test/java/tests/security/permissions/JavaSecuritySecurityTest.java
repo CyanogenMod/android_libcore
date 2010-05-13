@@ -36,7 +36,7 @@ import java.util.Set;
  */
 @TestTargetClass(java.security.Security.class)
 public class JavaSecuritySecurityTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -50,7 +50,7 @@ public class JavaSecuritySecurityTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies that getProperty() calls checkPermission on security permissions.",
@@ -85,7 +85,7 @@ public class JavaSecuritySecurityTest extends TestCase {
         assertTrue("java.security.Security.getProperty() must call checkSecurityAccess on security manager", s.called);
         assertEquals("Argument of checkSecurityAccess is not correct", "getProperty.key", s.target);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies that setProperty() method calls checkSecurityAccess on security manager.",
@@ -100,7 +100,7 @@ public class JavaSecuritySecurityTest extends TestCase {
                 called = false;
                 target = null;
             }
-            
+
             @Override
             public void checkPermission(Permission permission) {
                 if (permission instanceof SecurityPermission) {
@@ -113,13 +113,13 @@ public class JavaSecuritySecurityTest extends TestCase {
         }
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         Security.setProperty("key", "value");
         assertTrue("java.security.Security.setProperty() must call checkSecurityAccess on security manager", s.called);
         assertEquals("Argument of checkSecurityAccess is not correct", "setProperty.key", s.target);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -150,39 +150,39 @@ public class JavaSecuritySecurityTest extends TestCase {
             }
             @Override
             public void checkSecurityAccess(String target) {
-                called = true;       
+                called = true;
                 this.targets.add(target);
                 super.checkSecurityAccess(target);
-            }         
-            
+            }
+
             @Override
             public void checkPermission(Permission permission) {
             }
         }
-        
+
         class MyProvider extends Provider {
             private static final long serialVersionUID = 1L;
             MyProvider(){
                 super("DummyProvider", 1.0, "Provider for test purposes only");
             }
         }
-        
+
         Provider p = new MyProvider();
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
-        s.reset();        
+
+        s.reset();
         Security.addProvider(p);
         assertTrue("java.security.Security.addProvider() must call checkSecurityAccess on security manager", s.called);
         assertTrue("Argument of checkSecurityAccess is not correct", s.targets.contains("insertProvider.DummyProvider"));
-        
-        s.reset();        
+
+        s.reset();
         Security.removeProvider(p.getName());
         assertTrue("java.security.Security.removeProvider() must call checkSecurityAccess on security manager", s.called);
         assertTrue("Argument of checkSecurityAccess is not correct", s.targets.contains("removeProvider.DummyProvider"));
 
-        s.reset();        
+        s.reset();
         Security.insertProviderAt(p, 0);
         assertTrue("java.security.Security.insertProviderAt() must call checkSecurityAccess on security manager", s.called);
         assertTrue("Argument of checkSecurityAccess is not correct", s.targets.contains("insertProvider.DummyProvider"));

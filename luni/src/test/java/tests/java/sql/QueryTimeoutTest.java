@@ -46,9 +46,9 @@ import java.util.HashSet;
 /**
  * Functional test for the Statement.setQueryTimeout() method. Adopted from
  * Apache Derby project (Apache License 2.0).
- * 
+ *
  * TODO Test requires transaction isolation to be supported. => Ticket 69
- * 
+ *
  * This test consists of four parts: 1. Executes a SELECT
  * query in 4 different threads concurrently. The query calls a user-defined,
  * server-side function which delays the execution, so that it takes several
@@ -60,8 +60,8 @@ import java.util.HashSet;
  * one executes its statement with a timeout value. This way, the test ensures
  * that the correct statement is affected by setQueryTimeout(), regardless of
  * what connection/transaction it and other statements are executed in the
- * context of. 
- * 
+ * context of.
+ *
  * 2. Executes an INSERT query in multiple threads. This part tests
  * getting timeouts from calls to Statement.execute(). Each thread executes the
  * query in the context of a separate connection. There is no point in executing
@@ -71,9 +71,9 @@ import java.util.HashSet;
  * ResultSet.next() may be interleaved between the different threads). Half of
  * the threads execute their statement with a timeout value set, this is to
  * verify that the correct statements are affected by the timeout, while the
- * other statements execute to completion. 
+ * other statements execute to completion.
  * 3. Sets an invalid (negative)
- * timeout. Verifies that the correct exception is thrown. 
+ * timeout. Verifies that the correct exception is thrown.
  * 4. Tests that the query timeout value is not forgotten after the execution of a statement.
  */
 @TestTargetClass(Statement.class)
@@ -195,7 +195,7 @@ public class QueryTimeoutTest extends TestCase {
         exec(conn, "create table " + tablePrefix + "_orig (a int)");
 
         exec(conn, "create table " + tablePrefix + "_copy (a int)");
-        
+
         for (int i = 0; i < 7; i++) {
         exec(conn, "insert into " + tablePrefix + "_orig"
                 + " values ("+i+");");
@@ -429,9 +429,9 @@ public class QueryTimeoutTest extends TestCase {
     }
 
     /**
-     * 
+     *
      * @test {@link java.sql.Statement#setQueryTimeout(int) }
-     * 
+     *
      * Part two of this test.
      */
     @TestTargetNew(
@@ -513,11 +513,11 @@ public class QueryTimeoutTest extends TestCase {
         }
     }
 
-    
+
     /**
-     * 
+     *
      * @test {@link java.sql.Statement#setQueryTimeout(int) }
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -527,7 +527,7 @@ public class QueryTimeoutTest extends TestCase {
     )
     public static void testInvalidTimeoutValue(Connection conn)
             throws TestFailedException {
-        
+
         try {
             conn.setAutoCommit(true);
         } catch (SQLException e) {
@@ -574,11 +574,11 @@ public class QueryTimeoutTest extends TestCase {
             }
         }
     }
-    
+
     /**
-     * 
+     *
      * @test {@link java.sql.Statement#setQueryTimeout(int) }
-     * 
+     *
      * Part two of this test.
      */
     @TestTargetNew(
@@ -660,7 +660,7 @@ public class QueryTimeoutTest extends TestCase {
     }
 
     /**
-     * A function 
+     * A function
      * arg0 : int seconds
      *
      */
@@ -695,10 +695,10 @@ public class QueryTimeoutTest extends TestCase {
      * tables, runs the tests, and shuts down.
      */
     public static Test suite() {
-        
+
         TestSetup setup = new TestSetup( new TestSuite (QueryTimeoutTest.class)) {
             public void setUp() {
-                
+
                 // Establish connections
                 Support_SQL.loadDriver();
                 try {
@@ -711,7 +711,7 @@ public class QueryTimeoutTest extends TestCase {
                         connections[i]
                                 .setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
                     }
-                    
+
                     // setup Delay function
                     prepare();
 
@@ -720,7 +720,7 @@ public class QueryTimeoutTest extends TestCase {
                 }
 
                 System.out.println("Connections set up");
-                
+
             }
 
             public void tearDown() {
@@ -735,7 +735,7 @@ public class QueryTimeoutTest extends TestCase {
                 }
                 System.out.println("Closed connections");
             }
-            
+
             public void prepare() throws TestFailedException {
                 System.out.println("Preparing for testing queries with timeout");
                 Database db = new Database();
@@ -756,7 +756,7 @@ public class QueryTimeoutTest extends TestCase {
                 prepareTables(conn, "t");
             }
         };
-       
+
         TestSuite ts = new TestSuite();
         ts.addTestSuite(QueryTimeoutTest.class);
 

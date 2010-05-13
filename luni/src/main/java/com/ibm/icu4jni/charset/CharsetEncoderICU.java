@@ -6,13 +6,13 @@
 *
 *******************************************************************************
 */
-/** 
+/**
  * A JNI interface for ICU converters.
  *
- * 
+ *
  * @author Ram Viswanadha, IBM
  */
-package com.ibm.icu4jni.charset;  
+package com.ibm.icu4jni.charset;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -64,7 +64,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     private int onUnmappableInput = NativeConverter.STOP_CALLBACK;;
     private int onMalformedInput = NativeConverter.STOP_CALLBACK;;
 
-    /** 
+    /**
      * Construcs a new encoder for the given charset
      * @param cs for which the decoder is created
      * @param cHandle the address of ICU converter
@@ -78,7 +78,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
             (float) NativeConverter.getMaxBytesPerChar(cHandle),
             replacement);
         byte[] sub = replacement();
-        // The default callback action on unmappable input 
+        // The default callback action on unmappable input
         // or malformed input is to ignore so we set ICU converter
         // callback to stop and report the error
         ec = NativeConverter.setCallbackEncode( cHandle,
@@ -159,7 +159,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
      * Flushes any characters saved in the converter's internal buffer and
      * resets the converter.
      * @param out action to be taken
-     * @return result of flushing action and completes the decoding all input. 
+     * @return result of flushing action and completes the decoding all input.
      *       Returns CoderResult.UNDERFLOW if the action succeeds.
      * @stable ICU 2.4
      */
@@ -224,9 +224,9 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         data[OUTPUT_OFFSET]= getArray(out);
         data[INPUT_HELD] = 0;
         // BEGIN android-added
-        data[INVALID_CHARS] = 0; // Make sure we don't see earlier errors. 
+        data[INVALID_CHARS] = 0; // Make sure we don't see earlier errors.
         // END android added
-        
+
         try {
             /* do the conversion */
             ec = NativeConverter.encode(converterHandle,/* Handle to ICU Converter */
@@ -257,13 +257,13 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     }
 
     /**
-     * Ascertains if a given Unicode character can 
+     * Ascertains if a given Unicode character can
      * be converted to the target encoding
      *
      * @param  c the character to be converted
      * @return true if a character can be converted
      * @stable ICU 2.4
-     * 
+     *
      */
     public boolean canEncode(char c) {
         return canEncode((int) c);
@@ -341,8 +341,8 @@ public final class CharsetEncoderICU extends CharsetEncoder {
             }
             output = allocatedOutput;
             // END android-added
-            //since the new 
-            // buffer start position 
+            //since the new
+            // buffer start position
             // is 0
             return 0;
         }
@@ -368,18 +368,18 @@ public final class CharsetEncoderICU extends CharsetEncoder {
             in.get(input,0,inEnd);
             // reset the position
             in.position(pos);
-            // the start position  
-            // of the new buffer  
+            // the start position
+            // of the new buffer
             // is whatever is savedInputLen
             return savedInputHeldLen;
         }
 
     }
     private final void setPosition(ByteBuffer out) {
-        
+
         if (out.hasArray()) {
-            // in getArray method we accessed the 
-            // array backing the buffer directly and wrote to 
+            // in getArray method we accessed the
+            // array backing the buffer directly and wrote to
             // it, so just just set the position and return.
             // This is done to avoid the creation of temp array.
             // BEGIN android-changed: take arrayOffset into account
@@ -396,17 +396,17 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     private final void setPosition(CharBuffer in){
 
 // BEGIN android-removed
-//        // was there input held in the previous invocation of encodeLoop 
+//        // was there input held in the previous invocation of encodeLoop
 //        // that resulted in output in this invocation?
 //        if(data[OUTPUT_OFFSET]>0 && savedInputHeldLen>0){
 //            int len = in.position() + data[INPUT_OFFSET] + savedInputHeldLen;
-//            in.position(len);   
+//            in.position(len);
 //            savedInputHeldLen = data[INPUT_HELD];
 //        }else{
 //            in.position(in.position() + data[INPUT_OFFSET] + savedInputHeldLen);
 //            savedInputHeldLen = data[INPUT_HELD];
 //            in.position(in.position() - savedInputHeldLen);
-//        }     
+//        }
 // END android-removed
 
 // BEGIN android-added
@@ -417,13 +417,13 @@ public final class CharsetEncoderICU extends CharsetEncoder {
         // since we never saw that happening.
         int len = in.position() + data[INPUT_OFFSET] + savedInputHeldLen;
         len -= data[INVALID_CHARS]; // Otherwise position becomes wrong.
-        in.position(len);   
+        in.position(len);
         savedInputHeldLen = data[INPUT_HELD];
-        // was there input held in the previous invocation of encodeLoop 
+        // was there input held in the previous invocation of encodeLoop
         // that resulted in output in this invocation?
         if(!(data[OUTPUT_OFFSET]>0 && savedInputHeldLen>0)){
             in.position(in.position() - savedInputHeldLen);
-        }     
+        }
 // END android-added
 
         // BEGIN android-added

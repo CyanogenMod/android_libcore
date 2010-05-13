@@ -32,12 +32,12 @@ import dalvik.annotation.TestTargetNew;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface TestTargetClass {
-    
+
     /**
      * Specifies the class being tested.
      */
     Class<?> value();
-    
+
     /**
      * Option to specify untested methods for the class.
      * @hide

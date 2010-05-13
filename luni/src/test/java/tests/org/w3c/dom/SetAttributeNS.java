@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -39,10 +39,10 @@ import javax.xml.parsers.DocumentBuilder;
  * The "setAttributeNS(namespaceURI,qualifiedName,Value)" method raises a
  * INVALID_CHARACTER_ERR DOMException if the specified prefix contains an
  * illegal character.
- * 
+ *
  * Attempt to add a new attribute on the first employee node. An exception
  * should be raised since the "qualifiedName" has an invalid character.
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
@@ -52,7 +52,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElSetAttrNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='INVALID_CHARACTER_ERR'])">http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElSetAttrNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='INVALID_CHARACTER_ERR'])</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class SetAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -78,7 +78,7 @@ public final class SetAttributeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -209,7 +209,7 @@ public final class SetAttributeNS extends DOMTestCase {
         resultPrefix = addrAttr.getPrefix();
         assertEquals("prefix", "newprefix", resultPrefix);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies positive functionality.",
@@ -223,7 +223,7 @@ public final class SetAttributeNS extends DOMTestCase {
         Document doc;
         NodeList elementList;
         Node testAddr;
-        
+
         String resultAttr;
         doc = (Document) load("staffNS", builder);
         elementList = doc.getElementsByTagName("emp:address");

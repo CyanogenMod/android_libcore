@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 
 /**
  * Tests for <code>BadPaddingException</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(BadPaddingException.class)
 public class BadPaddingExceptionTest extends TestCase {

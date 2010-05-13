@@ -29,7 +29,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * This class represents explicitly tagged ASN.1 type.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -42,8 +42,8 @@ public final class ASN1Explicit extends ASN1Constructured {
 
     /**
      * Constructs explicitly tagged ASN.1 type
-     * with context-specific tag class and specified tag number. 
-     * 
+     * with context-specific tag class and specified tag number.
+     *
      * @param tagNumber - ASN.1 tag number
      * @param type - ASN.1 type to be tagged
      * @throws IllegalArgumentException - if tagNumber is invalid
@@ -54,7 +54,7 @@ public final class ASN1Explicit extends ASN1Constructured {
 
     /**
      * Constructs explicitly tagged ASN.1 type.
-     * 
+     *
      * @param tagClass - ASN.1 tag class.
      * @param tagNumber - ASN.1 tag number
      * @param type - ASN.1 type to be tagged
@@ -75,7 +75,7 @@ public final class ASN1Explicit extends ASN1Constructured {
     public Object decode(BerInputStream in) throws IOException {
         if (constrId != in.tag) {
             throw new ASN1Exception(
-                    Messages.getString("security.13F", 
+                    Messages.getString("security.13F",
                     new Object[] { in.tagOffset, Integer.toHexString(constrId),
                             Integer.toHexString(in.tag) }));
         }
@@ -105,6 +105,6 @@ public final class ASN1Explicit extends ASN1Constructured {
 
     public String toString() {
         //FIXME fix performance
-        return super.toString() + " for type " + type; 
+        return super.toString() + " for type " + type;
     }
 }

@@ -80,7 +80,7 @@ public class ClientSessionContextTest extends TestCase {
         expected.add(c);
         expected.add(d);
 
-        assertEquals(expected, sessions);               
+        assertEquals(expected, sessions);
     }
 
 }

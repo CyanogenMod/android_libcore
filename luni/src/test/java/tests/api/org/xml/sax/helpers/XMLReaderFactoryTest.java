@@ -55,37 +55,37 @@ public class XMLReaderFactoryTest extends TestCase {
 
         // Unknown class
         System.setProperty("org.xml.sax.driver", "foo.bar.XMLReader");
-        
+
         try {
             XMLReaderFactory.createXMLReader();
         } catch (SAXException e) {
             // Expected
         }
-        
+
         // Non-accessible class
         System.setProperty("org.xml.sax.driver",
                 "tests.api.org.xml.sax.support.NoAccessXMLReader");
-        
+
         try {
             XMLReaderFactory.createXMLReader();
         } catch (SAXException e) {
             // Expected
         }
-        
+
         // Non-instantiable class
         System.setProperty("org.xml.sax.driver",
                 "tests.api.org.xml.sax.support.NoInstanceXMLReader");
-        
+
         try {
             XMLReaderFactory.createXMLReader();
         } catch (SAXException e) {
             // Expected
         }
-        
+
         // Non-XMLReader class
         System.setProperty("org.xml.sax.driver",
                 "tests.api.org.xml.sax.support.NoSubclassXMLReader");
-        
+
         try {
             XMLReaderFactory.createXMLReader();
         } catch (ClassCastException e) {
@@ -93,17 +93,17 @@ public class XMLReaderFactoryTest extends TestCase {
         } catch (SAXException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         // Good one, finally
         System.setProperty("org.xml.sax.driver",
                 "tests.api.org.xml.sax.support.DoNothingXMLReader");
-        
+
         try {
             XMLReaderFactory.createXMLReader();
         } catch (SAXException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
     }
 
     @TestTargetNew(
@@ -127,7 +127,7 @@ public class XMLReaderFactoryTest extends TestCase {
         } catch (SAXException e) {
             // Expected
         }
-        
+
         // Non-accessible class
         try {
             XMLReaderFactory.createXMLReader(
@@ -135,7 +135,7 @@ public class XMLReaderFactoryTest extends TestCase {
         } catch (SAXException e) {
             // Expected
         }
-        
+
         // Non-instantiable class
         try {
             XMLReaderFactory.createXMLReader(
@@ -143,7 +143,7 @@ public class XMLReaderFactoryTest extends TestCase {
         } catch (SAXException e) {
             // Expected
         }
-        
+
         // Non-Parser class
         try {
             XMLReaderFactory.createXMLReader(
@@ -151,7 +151,7 @@ public class XMLReaderFactoryTest extends TestCase {
         } catch (SAXException e) {
             // Expected
         }
-        
+
         // Good one, finally
         try {
             XMLReaderFactory.createXMLReader(

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,18 +44,18 @@ import org.apache.harmony.luni.lang.reflect.Types;
 /**
  * This class represents a constructor. Information about the constructor can be
  * accessed, and the constructor can be invoked dynamically.
- * 
+ *
  * @param <T> the class that declares this constructor
  */
 public final class Constructor<T> extends AccessibleObject implements GenericDeclaration,
         Member {
-   
+
     Class<T> declaringClass;
-    
+
     Class<?>[] parameterTypes;
-    
+
     Class<?>[] exceptionTypes;
-    
+
     ListOfTypes genericExceptionTypes;
     ListOfTypes genericParameterTypes;
     TypeVariable<Constructor<T>>[] formalTypeParameters;
@@ -154,11 +154,11 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
         appendArrayType(sb, getDeclaringClass());
         // append parameters
         sb.append('(');
-        appendArrayGenericType(sb, 
+        appendArrayGenericType(sb,
                 Types.getClonedTypeArray(genericParameterTypes));
         sb.append(')');
         // append exceptions if any
-        Type[] genericExceptionTypeArray = 
+        Type[] genericExceptionTypeArray =
                 Types.getClonedTypeArray(genericExceptionTypes);
         if (genericExceptionTypeArray.length > 0) {
             sb.append(" throws ");
@@ -171,9 +171,9 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * Returns the generic parameter types as an array of {@code Type}
      * instances, in declaration order. If this constructor has no generic
      * parameters, an empty array is returned.
-     * 
+     *
      * @return the parameter types
-     * 
+     *
      * @throws GenericSignatureFormatError
      *             if the generic constructor signature is invalid
      * @throws TypeNotPresentException
@@ -191,9 +191,9 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * Returns the exception types as an array of {@code Type} instances. If
      * this constructor has no declared exceptions, an empty array will be
      * returned.
-     * 
+     *
      * @return an array of generic exception types
-     * 
+     *
      * @throws GenericSignatureFormatError
      *             if the generic constructor signature is invalid
      * @throws TypeNotPresentException
@@ -219,7 +219,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * parameters of this constructor. If there are no parameters on this
      * constructor, then an empty array is returned. If there are no annotations
      * set, then an array of empty arrays is returned.
-     * 
+     *
      * @return an array of arrays of {@code Annotation} instances
      */
     public Annotation[][] getParameterAnnotations() {
@@ -248,7 +248,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
     /**
      * Indicates whether or not this constructor is synthetic (artificially
      * introduced by the compiler).
-     * 
+     *
      * @return {@code true} if this constructor is synthetic, {@code false}
      *         otherwise
      */
@@ -262,13 +262,13 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * constructor. To be equal, the specified object must be an instance
      * of {@code Constructor} with the same declaring class and parameter types
      * as this constructor.
-     * 
+     *
      * @param object
      *            the object to compare
-     * 
+     *
      * @return {@code true} if the specified object is equal to this
      *         constructor, {@code false} otherwise
-     * 
+     *
      * @see #hashCode
      */
     @Override
@@ -289,7 +289,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * Returns the exception types as an array of {@code Class} instances. If
      * this constructor has no declared exceptions, an empty array will be
      * returned.
-     * 
+     *
      * @return the declared exception classes
      */
     public Class<?>[] getExceptionTypes() {
@@ -301,9 +301,9 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
     /**
      * Returns the modifiers for this constructor. The {@link Modifier} class
      * should be used to decode the result.
-     * 
+     *
      * @return the modifiers for this constructor
-     * 
+     *
      * @see Modifier
      */
     public int getModifiers() {
@@ -311,7 +311,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
     }
 
     private native int getConstructorModifiers(Class<T> declaringClass, int slot);
-    
+
     /**
      * Returns the name of this constructor.
      *
@@ -342,13 +342,13 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
     @SuppressWarnings("unused")
     private String getSignature() {
         StringBuilder result = new StringBuilder();
-        
+
         result.append('(');
-        for(int i = 0; i < parameterTypes.length; i++) {            
+        for(int i = 0; i < parameterTypes.length; i++) {
             result.append(getSignature(parameterTypes[i]));
         }
         result.append(")V");
-        
+
         return result.toString();
     }
 
@@ -358,7 +358,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * Constructor is the hash code of the name of the declaring class.
      *
      * @return the hash code
-     * 
+     *
      * @see #equals
      */
     @Override
@@ -394,12 +394,12 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * then thrown. If the invocation completes normally, the newly initialized
      * object is returned.
      * </ul>
-     * 
+     *
      * @param args
      *            the arguments to the constructor
-     * 
+     *
      * @return the new, initialized, object
-     * 
+     *
      * @exception InstantiationException
      *                if the class cannot be instantiated
      * @exception IllegalAccessException
@@ -409,7 +409,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      *                argument could not be converted by a widening conversion
      * @exception InvocationTargetException
      *                if an exception was thrown by the invoked constructor
-     * 
+     *
      * @see AccessibleObject
      */
     public T newInstance(Object... args) throws InstantiationException, IllegalAccessException,
@@ -425,7 +425,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
     /**
      * Returns a string containing a concise, human-readable description of this
      * constructor. The format of the string is:
-     * 
+     *
      * <ol>
      *   <li>modifiers (if any)
      *   <li>declaring class name
@@ -434,7 +434,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      *   <li>')'
      *   <li>'throws' plus exception types, separated by ',' (if any)
      * </ol>
-     * 
+     *
      * For example:
      * {@code public String(byte[],String) throws UnsupportedEncodingException}
      *
@@ -454,7 +454,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
             result.append(" throws ");
             result.append(toString(exceptionTypes));
         }
-        
+
         return result.toString();
     }
 }

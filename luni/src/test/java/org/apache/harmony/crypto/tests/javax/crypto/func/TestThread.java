@@ -19,15 +19,15 @@ public abstract class TestThread implements Runnable {
     public String[] algNamesArray = null;
     public int aCounter = 0;
     public String algName = null;
-    public StringBuffer errorSB = null; 
+    public StringBuffer errorSB = null;
     public int fails = 0;
     public boolean flagTestResult = false;
-     
+
     TestThread(String[] names) {
         algNamesArray = names;
         aCounter = 0;
     }
-    
+
     public abstract void test() throws Exception;
 
     public void launcher() {
@@ -74,16 +74,16 @@ public abstract class TestThread implements Runnable {
     public boolean hasAlgorithmName() {
         return (aCounter < algNamesArray.length);
     }
-    
+
     public String getNextAlgorithmName() {
         aCounter = (hasAlgorithmName()) ? aCounter : 0;
         return algNamesArray[aCounter++];
     }
-    
+
     public long getTotalFailuresNumber() {
         return fails;
     }
-    
+
     public String getFailureMessages() {
         return (errorSB == null) ? "" : new String(errorSB);
     }

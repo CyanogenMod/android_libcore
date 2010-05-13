@@ -17,7 +17,7 @@
 
 package tests.api.java.io;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -33,7 +33,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.NonWritableChannelException;
 
-@TestTargetClass(RandomAccessFile.class) 
+@TestTargetClass(RandomAccessFile.class)
 public class RandomAccessFileTest extends junit.framework.TestCase {
 
     public String fileName;
@@ -75,7 +75,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         }
 
         tmpFile.createNewFile();
-        
+
         try {
             // Checking the remaining valid mode parameters.
             try {
@@ -96,7 +96,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
                 fail("Test 5: Unexpected IllegalArgumentException: " + e.getMessage());
             }
             raf.close();
-            
+
             // Checking an invalid mode parameter.
             try {
                 raf = new java.io.RandomAccessFile(tmpFile, "i");
@@ -154,7 +154,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
                 fail("Test 5: Unexpected IllegalArgumentException: " + e.getMessage());
             }
             raf.close();
-            
+
             // Checking an invalid mode parameter.
             try {
                 raf = new java.io.RandomAccessFile(fileName, "i");
@@ -162,7 +162,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
             } catch (IllegalArgumentException e) {
                 // Expected.
             }
-            
+
             // Checking for NoWritableChannelException.
             raf = new java.io.RandomAccessFile(fileName, "r");
             FileChannel fcr = raf.getChannel();
@@ -173,7 +173,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
             } catch (NonWritableChannelException e) {
                 // Expected.
             }
-            
+
         } finally {
             if (raf != null ) raf.close();
             if (tmpFile.exists()) tmpFile.delete();
@@ -212,19 +212,19 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
 
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         FileChannel fc = raf.getChannel();
-        
+
         // Indirect test: If the file's file pointer moves then the position
         // in the channel has to move accordingly.
         assertTrue("Test 1: Channel position expected to be 0.", fc.position() == 0);
-        
+
         raf.write(testString.getBytes());
-        assertEquals("Test 2: Unexpected channel position.", 
+        assertEquals("Test 2: Unexpected channel position.",
                 testLength, fc.position());
-        assertTrue("Test 3: Channel position is not equal to file pointer.", 
+        assertTrue("Test 3: Channel position is not equal to file pointer.",
                 fc.position() == raf.getFilePointer());
         raf.close();
     }
-    
+
     /**
      * @tests java.io.RandomAccessFile#getFD()
      */
@@ -282,7 +282,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         // Test for method long java.io.RandomAccessFile.length()
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.write(testString.getBytes());
-        assertEquals("Test 1: Incorrect length returned. ", testLength, 
+        assertEquals("Test 1: Incorrect length returned. ", testLength,
                 raf.length());
         raf.close();
         try {
@@ -318,20 +318,20 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
             try {
                 raf.write(testBuf[i]);
             } catch (Exception e) {
-                fail("Test 1: Unexpected exception while writing: " 
+                fail("Test 1: Unexpected exception while writing: "
                         + e.getMessage());
             }
         }
-        
+
         raf.seek(0);
 
         for (i = 0; i < testString.length(); i++) {
-            assertEquals(String.format("Test 2: Incorrect value written or read at index %d; ", i), 
+            assertEquals(String.format("Test 2: Incorrect value written or read at index %d; ", i),
                     testBuf[i], raf.read());
         }
-        
+
         assertTrue("Test 3: End of file indicator (-1) expected.", raf.read() == -1);
-        
+
         raf.close();
         try {
             raf.write(42);
@@ -363,13 +363,13 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
 
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "r");
         byte[] rbuf = new byte[testLength + 10];
-        
+
         int bytesRead = raf.read(rbuf);
-        assertEquals("Test 1: Incorrect number of bytes read. ", 
+        assertEquals("Test 1: Incorrect number of bytes read. ",
                 testLength, bytesRead);
         assertEquals("Test 2: Incorrect bytes read. ", testString,
                 new String(rbuf, 0, testLength));
-        
+
         bytesRead = raf.read(rbuf);
         assertTrue("Test 3: EOF (-1) expected. ", bytesRead == -1);
 
@@ -395,27 +395,27 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         int bytesRead;
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         byte[] rbuf = new byte[4000];
-        
+
         FileOutputStream fos = new java.io.FileOutputStream(fileName);
         fos.write(testString.getBytes(), 0, testLength);
         fos.close();
-        
+
         // Read half of the file contents.
         bytesRead = raf.read(rbuf, 10, testLength / 2);
-        assertEquals("Test 1: Incorrect number of bytes read. ", 
+        assertEquals("Test 1: Incorrect number of bytes read. ",
                 testLength / 2, bytesRead);
-        assertEquals("Test 2: Incorrect bytes read. ", 
+        assertEquals("Test 2: Incorrect bytes read. ",
                 testString.substring(0, testLength / 2),
                 new String(rbuf, 10, testLength / 2));
-        
+
         // Read the rest of the file contents.
         bytesRead = raf.read(rbuf, 0, testLength);
-        assertEquals("Test 3: Incorrect number of bytes read. ", 
+        assertEquals("Test 3: Incorrect number of bytes read. ",
                 testLength - (testLength / 2), bytesRead);
-        assertEquals("Test 4: Incorrect bytes read. ", 
+        assertEquals("Test 4: Incorrect bytes read. ",
                 testString.substring(testLength / 2, (testLength / 2) + bytesRead),
                 new String(rbuf, 0, bytesRead));
-        
+
         // Try to read even more.
         bytesRead = raf.read(rbuf, 0, 1);
         assertTrue("Test 5: EOF (-1) expected. ", bytesRead == -1);
@@ -439,7 +439,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         // IOException test.
         raf.close();
         try {
@@ -473,19 +473,19 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.writeBoolean(true);
         raf.writeBoolean(false);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read;", 
+
+        assertEquals("Test 1: Incorrect value written or read;",
                 true, raf.readBoolean());
-        assertEquals("Test 2: Incorrect value written or read;", 
+        assertEquals("Test 2: Incorrect value written or read;",
                 false, raf.readBoolean());
-        
+
         try {
             raf.readBoolean();
             fail("Test 3: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.writeBoolean(false);
@@ -527,25 +527,25 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.writeByte(Byte.MIN_VALUE - 1);
         raf.writeByte(Byte.MAX_VALUE + 1);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read;", 
+
+        assertEquals("Test 1: Incorrect value written or read;",
                 Byte.MIN_VALUE, raf.readByte());
-        assertEquals("Test 2: Incorrect value written or read;", 
+        assertEquals("Test 2: Incorrect value written or read;",
                 11, raf.readByte());
-        assertEquals("Test 3: Incorrect value written or read;", 
+        assertEquals("Test 3: Incorrect value written or read;",
                 Byte.MAX_VALUE, raf.readByte());
-        assertEquals("Test 4: Incorrect value written or read;", 
+        assertEquals("Test 4: Incorrect value written or read;",
                 127, raf.readByte());
-        assertEquals("Test 5: Incorrect value written or read;", 
+        assertEquals("Test 5: Incorrect value written or read;",
                 -128, raf.readByte());
-        
+
         try {
             raf.readByte();
             fail("Test 6: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.writeByte(13);
@@ -587,25 +587,25 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.writeChar(Character.MIN_VALUE - 1);
         raf.writeChar(Character.MAX_VALUE + 1);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read;", 
+
+        assertEquals("Test 1: Incorrect value written or read;",
                 Character.MIN_VALUE, raf.readChar());
-        assertEquals("Test 2: Incorrect value written or read;", 
+        assertEquals("Test 2: Incorrect value written or read;",
                 'T', raf.readChar());
-        assertEquals("Test 3: Incorrect value written or read;", 
+        assertEquals("Test 3: Incorrect value written or read;",
                 Character.MAX_VALUE, raf.readChar());
-        assertEquals("Test 4: Incorrect value written or read;", 
+        assertEquals("Test 4: Incorrect value written or read;",
                 0xffff, raf.readChar());
-        assertEquals("Test 5: Incorrect value written or read;", 
+        assertEquals("Test 5: Incorrect value written or read;",
                 0, raf.readChar());
-        
+
         try {
             raf.readChar();
             fail("Test 6: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.writeChar('E');
@@ -644,19 +644,19 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.writeDouble(Double.MAX_VALUE);
         raf.writeDouble(424242.4242);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read;", 
+
+        assertEquals("Test 1: Incorrect value written or read;",
                 Double.MAX_VALUE, raf.readDouble());
-        assertEquals("Test 2: Incorrect value written or read;", 
+        assertEquals("Test 2: Incorrect value written or read;",
                 424242.4242, raf.readDouble());
-        
+
         try {
             raf.readDouble();
             fail("Test 3: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.writeDouble(Double.MIN_VALUE);
@@ -695,19 +695,19 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.writeFloat(Float.MAX_VALUE);
         raf.writeFloat(555.55f);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read. ", 
+
+        assertEquals("Test 1: Incorrect value written or read. ",
                 Float.MAX_VALUE, raf.readFloat());
-        assertEquals("Test 2: Incorrect value written or read. ", 
+        assertEquals("Test 2: Incorrect value written or read. ",
                 555.55f, raf.readFloat());
-        
+
         try {
             raf.readFloat();
             fail("Test 3: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.writeFloat(Float.MIN_VALUE);
@@ -749,25 +749,25 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.writeInt(Integer.MIN_VALUE - 1);
         raf.writeInt(Integer.MAX_VALUE + 1);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read;", 
+
+        assertEquals("Test 1: Incorrect value written or read;",
                 Integer.MIN_VALUE, raf.readInt());
-        assertEquals("Test 2: Incorrect value written or read;", 
+        assertEquals("Test 2: Incorrect value written or read;",
                 'T', raf.readInt());
-        assertEquals("Test 3: Incorrect value written or read;", 
+        assertEquals("Test 3: Incorrect value written or read;",
                 Integer.MAX_VALUE, raf.readInt());
-        assertEquals("Test 4: Incorrect value written or read;", 
+        assertEquals("Test 4: Incorrect value written or read;",
                 0x7fffffff, raf.readInt());
-        assertEquals("Test 5: Incorrect value written or read;", 
+        assertEquals("Test 5: Incorrect value written or read;",
                 0x80000000, raf.readInt());
-        
+
         try {
             raf.readInt();
             fail("Test 6: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.writeInt('E');
@@ -809,25 +809,25 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.writeLong(Long.MIN_VALUE - 1);
         raf.writeLong(Long.MAX_VALUE + 1);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read;", 
+
+        assertEquals("Test 1: Incorrect value written or read;",
                 Long.MIN_VALUE, raf.readLong());
-        assertEquals("Test 2: Incorrect value written or read;", 
+        assertEquals("Test 2: Incorrect value written or read;",
                 'T', raf.readLong());
-        assertEquals("Test 3: Incorrect value written or read;", 
+        assertEquals("Test 3: Incorrect value written or read;",
                 Long.MAX_VALUE, raf.readLong());
-        assertEquals("Test 4: Incorrect value written or read;", 
+        assertEquals("Test 4: Incorrect value written or read;",
                 0x7fffffffffffffffl, raf.readLong());
-        assertEquals("Test 5: Incorrect value written or read;", 
+        assertEquals("Test 5: Incorrect value written or read;",
                 0x8000000000000000l, raf.readLong());
-        
+
         try {
             raf.readLong();
             fail("Test 6: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.writeLong('E');
@@ -869,25 +869,25 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.writeShort(Short.MIN_VALUE - 1);
         raf.writeShort(Short.MAX_VALUE + 1);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read;", 
+
+        assertEquals("Test 1: Incorrect value written or read;",
                 Short.MIN_VALUE, raf.readShort());
-        assertEquals("Test 2: Incorrect value written or read;", 
+        assertEquals("Test 2: Incorrect value written or read;",
                 'T', raf.readShort());
-        assertEquals("Test 3: Incorrect value written or read;", 
+        assertEquals("Test 3: Incorrect value written or read;",
                 Short.MAX_VALUE, raf.readShort());
-        assertEquals("Test 4: Incorrect value written or read;", 
+        assertEquals("Test 4: Incorrect value written or read;",
                 0x7fff, raf.readShort());
-        assertEquals("Test 5: Incorrect value written or read;", 
+        assertEquals("Test 5: Incorrect value written or read;",
                 (short) 0x8000, raf.readShort());
-        
+
         try {
             raf.readShort();
             fail("Test 6: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.writeShort('E');
@@ -925,16 +925,16 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeUTF(unihw);
         raf.seek(0);
-        assertEquals("Test 1: Incorrect UTF string written or read;", 
+        assertEquals("Test 1: Incorrect UTF string written or read;",
                 unihw, raf.readUTF());
-        
+
         try {
             raf.readUTF();
             fail("Test 2: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.writeUTF("Already closed.");
@@ -973,16 +973,16 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeBytes(testString);
         raf.seek(0);
-        
+
         try {
             raf.readFully(null);
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected.
         }
-        
+
         raf.readFully(buf);
-        assertEquals("Test 2: Incorrect bytes written or read;", 
+        assertEquals("Test 2: Incorrect bytes written or read;",
                 testString, new String(buf));
 
         try {
@@ -991,8 +991,8 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         } catch (EOFException e) {
             // Expected.
         }
-        
-        raf.close();        
+
+        raf.close();
         try {
             raf.writeBytes("Already closed.");
             fail("Test 4: IOException expected.");
@@ -1030,20 +1030,20 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeBytes(testString);
         raf.seek(0);
-        
+
         try {
             raf.readFully(null);
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected.
         }
-        
+
         raf.readFully(buf, 5, testLength - 10);
         for (int i = 0; i < 5; i++) {
             assertEquals("Test 2: Incorrect bytes read;", 0, buf[i]);
         }
-        assertEquals("Test 3: Incorrect bytes written or read;", 
-                testString.substring(0, testLength - 10), 
+        assertEquals("Test 3: Incorrect bytes written or read;",
+                testString.substring(0, testLength - 10),
                 new String(buf, 5, testLength - 10));
 
         // Reading past the end of the file.
@@ -1073,9 +1073,9 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         // Reading from a closed file.
-        raf.close();        
+        raf.close();
         try {
             raf.readFully(buf);
             fail("Test 8: IOException expected.");
@@ -1097,17 +1097,17 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeByte(-1);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read;", 
+
+        assertEquals("Test 1: Incorrect value written or read;",
                 255, raf.readUnsignedByte());
-        
+
         try {
             raf.readUnsignedByte();
             fail("Test 2: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.readUnsignedByte();
@@ -1130,17 +1130,17 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeShort(-1);
         raf.seek(0);
-        
-        assertEquals("Test 1: Incorrect value written or read;", 
+
+        assertEquals("Test 1: Incorrect value written or read;",
                 65535, raf.readUnsignedShort());
-        
+
         try {
             raf.readUnsignedShort();
             fail("Test 2: EOFException expected.");
         } catch (EOFException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.readUnsignedShort();
@@ -1170,7 +1170,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         assertEquals("Test 2: Incorrect line read;", "Cruel", raf.readLine());
         assertEquals("Test 3: Incorrect line read;", "World", raf.readLine());
         assertNull("Test 4: Incorrect line read; null expected.", raf.readLine());
-        
+
         raf.close();
         try {
             raf.readLine();
@@ -1178,7 +1178,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // Expected.
         }
-       
+
     }
 
     /**
@@ -1193,7 +1193,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     public void test_seekJ() throws IOException {
         // Test for method void java.io.RandomAccessFile.seek(long)
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
-        
+
         try {
             raf.seek(-1);
             fail("Test 1: IOException expected.");
@@ -1214,7 +1214,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         raf.seek(12);
         assertEquals("Test 3: Seek failed to set file pointer.", 12,
                 raf.getFilePointer());
-        
+
         raf.close();
         try {
             raf.seek(1);
@@ -1238,19 +1238,19 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.writeBytes("HelloWorld");
         raf.seek(0);
-        
+
         assertTrue("Test 1: Nothing should be skipped if parameter is less than zero",
                 raf.skipBytes(-1) == 0);
-        
-        assertEquals("Test 4: Incorrect number of bytes skipped; ", 
+
+        assertEquals("Test 4: Incorrect number of bytes skipped; ",
                 5, raf.skipBytes(5));
 
         raf.readFully(buf);
-        assertEquals("Test 3: Failed to skip bytes.", 
+        assertEquals("Test 3: Failed to skip bytes.",
                 "World", new String(buf, 0, 5));
 
         raf.seek(0);
-        assertEquals("Test 4: Incorrect number of bytes skipped; ", 
+        assertEquals("Test 4: Incorrect number of bytes skipped; ",
                 10, raf.skipBytes(20));
 
         raf.close();
@@ -1275,36 +1275,36 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         int bytesRead;
         long truncLength = (long) (testLength * 0.75);
         byte[] rbuf = new byte[testLength + 10];
-        
+
         // Setup the test file.
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
         raf.write(testString.getBytes());
-        assertEquals("Test 1: Incorrect file length;", 
+        assertEquals("Test 1: Incorrect file length;",
                 testLength, raf.length());
-        
+
         // Truncate the file.
         raf.setLength(truncLength);
-        assertTrue("Test 2: File pointer not moved to the end of the truncated file.", 
+        assertTrue("Test 2: File pointer not moved to the end of the truncated file.",
                 raf.getFilePointer() == truncLength);
-        
+
         raf.close();
         raf = new java.io.RandomAccessFile(fileName, "rw");
-        assertEquals("Test 3: Incorrect file length;", 
+        assertEquals("Test 3: Incorrect file length;",
                 truncLength, raf.length());
         bytesRead = raf.read(rbuf);
-        assertEquals("Test 4: Incorrect number of bytes read;", 
+        assertEquals("Test 4: Incorrect number of bytes read;",
                 truncLength, bytesRead);
-        assertEquals("Test 5: Incorrect bytes read. ", 
+        assertEquals("Test 5: Incorrect bytes read. ",
                 testString.substring(0, bytesRead),
                 new String(rbuf, 0, bytesRead));
-        
+
         // Expand the file.
         raf.setLength(testLength + 2);
-        assertTrue("Test 6: File pointer incorrectly moved.", 
+        assertTrue("Test 6: File pointer incorrectly moved.",
                 raf.getFilePointer() == truncLength);
-        assertEquals("Test 7: Incorrect file length;", 
+        assertEquals("Test 7: Incorrect file length;",
                 testLength + 2, raf.length());
-        
+
         // BEGIN android-added
         // Exception testing.
         try {
@@ -1323,7 +1323,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             // Expected.
         }
-        
+
         raf.close();
         try {
             raf.setLength(truncLength);
@@ -1332,7 +1332,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
             // Expected.
         }
     }
-    
+
     /**
      * @tests java.io.RandomAccessFile#write(byte[])
      */
@@ -1345,21 +1345,21 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
     public void test_write$B() throws IOException {
         byte[] rbuf = new byte[4000];
         RandomAccessFile raf = new java.io.RandomAccessFile(fileName, "rw");
-        
+
         byte[] nullByteArray = null;
         try {
             raf.write(nullByteArray);
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected.
-        }   
-        
+        }
+
         try {
             raf.write(testString.getBytes());
         } catch (Exception e) {
             fail("Test 2: Unexpected exception: " + e.getMessage());
         }
-        
+
         raf.close();
 
         try {
@@ -1367,18 +1367,18 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("Test 3: Unexpected IOException: " + e.getMessage());
         }
-        
+
         try {
             raf.write(testString.getBytes());
             fail("Test 4: IOException expected.");
         } catch (IOException e) {
             // Expected.
         }
-        
+
         FileInputStream fis = new java.io.FileInputStream(fileName);
         fis.read(rbuf, 0, testLength);
         assertEquals("Incorrect bytes written", testString, new String(rbuf, 0,
-                testLength));    
+                testLength));
     }
 
     /**
@@ -1395,16 +1395,16 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         byte[] rbuf = new byte[4000];
         byte[] testBuf = null;
         int bytesRead;
-        
+
         try {
             raf.write(testBuf, 1, 1);
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected.
         }
-        
+
         testBuf = testString.getBytes();
-        
+
         try {
             raf.write(testBuf, -1, 10);
             fail("Test 2: IndexOutOfBoundsException expected.");
@@ -1414,7 +1414,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
                     "Test 2: IndexOutOfBoundsException rather than a subclass expected.",
                     IndexOutOfBoundsException.class, e.getClass());
         }
-        
+
         try {
             raf.write(testBuf, 0, -1);
             fail("Test 3: IndexOutOfBoundsException expected.");
@@ -1424,7 +1424,7 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
                     "Test 3: IndexOutOfBoundsException rather than a subclass expected.",
                     IndexOutOfBoundsException.class, e.getClass());
         }
-        
+
         try {
             raf.write(testBuf, 5, testLength);
             fail("Test 4: IndexOutOfBoundsException expected.");
@@ -1434,23 +1434,23 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
                     "Test 4: IndexOutOfBoundsException rather than a subclass expected.",
                     IndexOutOfBoundsException.class, e.getClass());
         }
-        
+
         // Positive test: The following write should not fail.
         try {
             raf.write(testBuf, 3, testLength - 5);
         } catch (Exception e) {
             fail("Test 5: Unexpected exception: " + e.getMessage());
         }
-        
+
         raf.close();
-        
+
         // Writing nothing to a closed file should not fail either.
         try {
             raf.write(new byte[0]);
         } catch (IOException e) {
             fail("Test 6: Unexpected IOException: " + e.getMessage());
         }
-        
+
         // Writing something to a closed file should fail.
         try {
             raf.write(testString.getBytes());
@@ -1458,16 +1458,16 @@ public class RandomAccessFileTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // Expected.
         }
-        
+
         FileInputStream fis = new java.io.FileInputStream(fileName);
         bytesRead = fis.read(rbuf, 0, testLength);
         assertEquals("Test 8: Incorrect number of bytes written or read;",
                 testLength - 5, bytesRead);
-        assertEquals("Test 9: Incorrect bytes written or read; ", 
-                testString.substring(3, testLength - 2), 
-                new String(rbuf, 0, bytesRead));    
+        assertEquals("Test 9: Incorrect bytes written or read; ",
+                testString.substring(3, testLength - 2),
+                new String(rbuf, 0, bytesRead));
     }
-    
+
     /**
      * @tests java.io.RandomAccessFile#writeChars(java.lang.String)
      */

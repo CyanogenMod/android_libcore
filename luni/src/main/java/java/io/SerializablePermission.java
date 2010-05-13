@@ -33,7 +33,7 @@ import java.security.BasicPermission;
  * <td>Object substitution is allowed.</td>
  * </tr>
  * </table>
- * 
+ *
  * @see ObjectStreamConstants
  */
 public final class SerializablePermission extends BasicPermission {
@@ -45,7 +45,7 @@ public final class SerializablePermission extends BasicPermission {
 
     /**
      * Constructs a new {@code SerializablePermission} with the specified name.
-     * 
+     *
      * @param permissionName
      *            the name of the new permission.
      */
@@ -56,7 +56,7 @@ public final class SerializablePermission extends BasicPermission {
     /**
      * Constructs a new {@code SerializablePermission} with the specified name.
      * The action list is ignored.
-     * 
+     *
      * @param name
      *            the name of the new permission.
      * @param actions

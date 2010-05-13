@@ -43,9 +43,9 @@ import tests.support.Support_PortManager;
 /**
  * Tests for <code>SocketFactory</code> class methods.
  */
-@TestTargetClass(SocketFactory.class) 
+@TestTargetClass(SocketFactory.class)
 public class SocketFactoryTest extends TestCase {
-    
+
     /**
      * @tests javax.net.SocketFactory#SocketFactory()
      */
@@ -62,7 +62,7 @@ public class SocketFactoryTest extends TestCase {
             fail("Unexpected exception " + e.toString());
         }
     }
-    
+
     /**
      * @tests javax.net.SocketFactory#createSocket()
      */
@@ -74,7 +74,7 @@ public class SocketFactoryTest extends TestCase {
     )
     public final void test_createSocket_01() {
         SocketFactory sf = SocketFactory.getDefault();
-        
+
         try {
             Socket s = sf.createSocket();
             assertNotNull(s);
@@ -83,17 +83,17 @@ public class SocketFactoryTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         MySocketFactory msf = new MySocketFactory();
         try {
             msf.createSocket();
             fail("No expected SocketException");
-        } catch (SocketException e) {        
+        } catch (SocketException e) {
         } catch (IOException e) {
             fail(e.toString());
         }
     }
-    
+
     /**
      * @tests javax.net.SocketFactory#createSocket(String host, int port)
      */
@@ -108,7 +108,7 @@ public class SocketFactoryTest extends TestCase {
         int portNumber = Support_PortManager.getNextPort();
         int sport = startServer("Cons String,I");
         int[] invalidPorts = {Integer.MIN_VALUE, -1, 65536, Integer.MAX_VALUE};
-        
+
         try {
             Socket s = sf.createSocket(InetAddress.getLocalHost().getHostName(), sport);
             assertNotNull(s);
@@ -116,7 +116,7 @@ public class SocketFactoryTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Socket s = sf.createSocket("bla-bla", sport);
             fail("UnknownHostException wasn't thrown");
@@ -125,7 +125,7 @@ public class SocketFactoryTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of UnknownHostException");
         }
-        
+
         for (int i = 0; i < invalidPorts.length; i++) {
             try {
                 Socket s = sf.createSocket(InetAddress.getLocalHost().getHostName(), invalidPorts[i]);
@@ -143,7 +143,7 @@ public class SocketFactoryTest extends TestCase {
         } catch (IOException ioe) {
             //expected
         }
-        
+
         SocketFactory f = SocketFactory.getDefault();
         try {
             Socket s = f.createSocket("localhost", 8082);
@@ -151,7 +151,7 @@ public class SocketFactoryTest extends TestCase {
         } catch (IOException e) {
         }
     }
-    
+
     /**
      * @tests javax.net.SocketFactory#createSocket(InetAddress host, int port)
      */
@@ -166,7 +166,7 @@ public class SocketFactoryTest extends TestCase {
         int portNumber = Support_PortManager.getNextPort();
         int sport = startServer("Cons InetAddress,I");
         int[] invalidPorts = {Integer.MIN_VALUE, -1, 65536, Integer.MAX_VALUE};
-        
+
         try {
             Socket s = sf.createSocket(InetAddress.getLocalHost(), sport);
             assertNotNull(s);
@@ -174,7 +174,7 @@ public class SocketFactoryTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         for (int i = 0; i < invalidPorts.length; i++) {
             try {
                 Socket s = sf.createSocket(InetAddress.getLocalHost(), invalidPorts[i]);
@@ -192,15 +192,15 @@ public class SocketFactoryTest extends TestCase {
         } catch (IOException ioe) {
             //expected
         }
-        
+
         SocketFactory f = SocketFactory.getDefault();
         try {
             Socket s = f.createSocket(InetAddress.getLocalHost(), 8081);
             fail("IOException wasn't thrown ...");
         } catch (IOException e) {
-        } 
+        }
     }
-    
+
     /**
      * @tests javax.net.SocketFactory#createSocket(InetAddress address, int port,
      *                                             InetAddress localAddress, int localPort)
@@ -216,7 +216,7 @@ public class SocketFactoryTest extends TestCase {
         int portNumber = Support_PortManager.getNextPort();
         int sport = startServer("Cons InetAddress,I,InetAddress,I");
         int[] invalidPorts = {Integer.MIN_VALUE, -1, 65536, Integer.MAX_VALUE};
-        
+
         try {
             Socket s = sf.createSocket(InetAddress.getLocalHost(), sport,
                                        InetAddress.getLocalHost(), portNumber);
@@ -226,7 +226,7 @@ public class SocketFactoryTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         for (int i = 0; i < invalidPorts.length; i++) {
             try {
                 Socket s = sf.createSocket(InetAddress.getLocalHost(), invalidPorts[i],
@@ -237,7 +237,7 @@ public class SocketFactoryTest extends TestCase {
             } catch (Exception e) {
                 fail(e + " was thrown instead of IllegalArgumentException for " + invalidPorts[i]);
             }
-            
+
             try {
                 Socket s = sf.createSocket(InetAddress.getLocalHost(), sport,
                                            InetAddress.getLocalHost(), invalidPorts[i]);
@@ -256,15 +256,15 @@ public class SocketFactoryTest extends TestCase {
         } catch (IOException ioe) {
             //expected
         }
-        
+
         SocketFactory f = SocketFactory.getDefault();
         try {
             Socket s = f.createSocket(InetAddress.getLocalHost(), 8081, InetAddress.getLocalHost(), 8082);
             fail("IOException wasn't thrown ...");
         } catch (IOException e) {
-        }     
+        }
     }
-    
+
     /**
      * @tests javax.net.SocketFactory#createSocket(String host, int port,
      *                                             InetAddress localHost, int localPort)
@@ -280,7 +280,7 @@ public class SocketFactoryTest extends TestCase {
         int portNumber = Support_PortManager.getNextPort();
         int sport = startServer("Cons String,I,InetAddress,I");
         int[] invalidPorts = {Integer.MIN_VALUE, -1, 65536, Integer.MAX_VALUE};
-        
+
         try {
             Socket s = sf.createSocket(InetAddress.getLocalHost().getHostName(), sport,
                                        InetAddress.getLocalHost(), portNumber);
@@ -290,7 +290,7 @@ public class SocketFactoryTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         portNumber = Support_PortManager.getNextPort();
         try {
             Socket s = sf.createSocket("bla-bla", sport, InetAddress.getLocalHost(), portNumber);
@@ -300,7 +300,7 @@ public class SocketFactoryTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of UnknownHostException");
         }
-        
+
         for (int i = 0; i < invalidPorts.length; i++) {
             portNumber = Support_PortManager.getNextPort();
             try {
@@ -330,7 +330,7 @@ public class SocketFactoryTest extends TestCase {
         } catch (IOException e) {
         }
     }
-    
+
     /**
      * @tests javax.net.SocketFactory#getDefault()
      */
@@ -357,14 +357,14 @@ public class SocketFactoryTest extends TestCase {
             s = sf.createSocket(InetAddress.getLocalHost(), 8081);
             s.close();
         } catch (IOException e) {
-        } 
+        }
         try {
             s = sf.createSocket(InetAddress.getLocalHost(), 8081, InetAddress.getLocalHost(), 8082);
             s.close();
         } catch (IOException e) {
-        }     
+        }
     }
-    
+
     protected int startServer(String name) {
         int portNumber = Support_PortManager.getNextPort();
         ServerSocket ss = null;
@@ -378,29 +378,29 @@ public class SocketFactoryTest extends TestCase {
 }
 
 class MySocketFactory extends SocketFactory {
-    
+
     public MySocketFactory() {
         super();
     }
-    
+
     @Override
     public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
         return null;
     }
-    
+
     @Override
     public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
             throws IOException, UnknownHostException {
         return null;
     }
-    
+
     @Override
     public Socket createSocket(InetAddress host, int port) throws IOException {
         return null;
      }
-    
+
     @Override
-    public Socket createSocket(InetAddress address, int port, 
+    public Socket createSocket(InetAddress address, int port,
                                InetAddress localAddress, int localPort) throws IOException {
         return null;
      }

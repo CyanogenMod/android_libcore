@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 @TestTargetClass(AllPermission.class)
 /**
  * Tests for <code>AllPermission</code>
- * 
+ *
  */
 public class AllPermissionTest extends TestCase {
 
@@ -62,11 +62,11 @@ public class AllPermissionTest extends TestCase {
         AllPermission a1 = new AllPermission();
         assertEquals("<all permissions>", a1.getName());
         assertEquals("<all actions>", a1.getActions());
-        
+
         a1 = new AllPermission("sdfsdfwe&^$", "*&IUGJKHVB764");
         assertEquals("<all permissions>", a1.getName());
         assertEquals("<all actions>", a1.getActions());
-        
+
         a1 = new AllPermission(null, "");
         assertEquals("<all permissions>", a1.getName());
         assertEquals("<all actions>", a1.getActions());
@@ -88,7 +88,7 @@ public class AllPermissionTest extends TestCase {
         assertFalse(a1.equals(null));
         assertFalse(a1.equals(new BasicPermission("hgf"){}));
     }
-    
+
     /** AllPermission implies any other permission */
     @TestTargetNew(
         level = TestLevel.PARTIAL,
@@ -103,7 +103,7 @@ public class AllPermissionTest extends TestCase {
         assertTrue(a1.implies(new BasicPermission("2323"){}));
         assertTrue(a1.implies(new UnresolvedPermission("2323", "", "", null)));
     }
-    
+
     /** newPermissionCollection() returns a new AllPermissionCollection on every invocation. */
     @TestTargetNew(
         level = TestLevel.COMPLETE,

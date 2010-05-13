@@ -6,14 +6,14 @@ The source document contained the following notice:
 
 
 
-Copyright (c) 2001-2004 World Wide Web Consortium, 
+Copyright (c) 2001-2004 World Wide Web Consortium,
 (Massachusetts Institute of Technology, Institut National de
-Recherche en Informatique et en Automatique, Keio University).  All 
+Recherche en Informatique et en Automatique, Keio University).  All
 Rights Reserved.  This program is distributed under the W3C's Software
-Intellectual Property License.  This program is distributed in the 
+Intellectual Property License.  This program is distributed in the
 hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.  
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
 
 See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -22,7 +22,7 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -32,16 +32,16 @@ import org.w3c.dom.NodeList;
 
 
 /**
- *       The method getAttributeNS retrieves an attribute value by local name and namespace URI.  
- *       Using the getAttributeNodeNS, retreive and verify the value of the default 
+ *       The method getAttributeNS retrieves an attribute value by local name and namespace URI.
+ *       Using the getAttributeNodeNS, retreive and verify the value of the default
  *       attribute node.
- *     
+ *
 * @author IBM
 * @author Neil Delima
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElGetAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElGetAttrNS</a>
 * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
 */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class ElementGetAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -84,6 +84,6 @@ public final class ElementGetAttributeNS extends DOMTestCase {
 //        attrValue = element.getAttributeNS(nullNS, "defaultAttr");
 //        assertEquals("elementgetattributens02", "defaultVal", attrValue);
 //    }
-   
+
 }
 

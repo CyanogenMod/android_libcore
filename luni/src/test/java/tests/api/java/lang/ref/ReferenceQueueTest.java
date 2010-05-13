@@ -28,7 +28,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
-@TestTargetClass(ReferenceQueue.class) 
+@TestTargetClass(ReferenceQueue.class)
 public class ReferenceQueueTest extends junit.framework.TestCase {
     static Boolean b;
 
@@ -77,7 +77,7 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         b = new Boolean(true);
         Object obj = new Object();
         String str = "Test";
-        
+
         SoftReference sr = new SoftReference(b, rq);
         WeakReference wr = new WeakReference(obj, rq);
         PhantomReference pr = new PhantomReference(str, rq);
@@ -91,13 +91,13 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("Exception during the test : " + e.getMessage());
         }
-        
+
         try {
             assertEquals("Remove failed.", obj, (rq.poll().get()));
         } catch (Exception e) {
             fail("Exception during the test : " + e.getMessage());
         }
-        
+
         try {
             assertTrue("Remove failed.", ((Boolean) rq.poll().get())
                     .booleanValue());
@@ -105,13 +105,13 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
             fail("Exception during the test : " + e.getMessage());
         }
         assertNull(rq.poll());
-        
+
         sr.enqueue();
         wr.enqueue();
 
         System.gc();
         System.runFinalization();
-        
+
         assertNull(rq.poll());
     }
 
@@ -128,7 +128,7 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         // store in a static so it won't be gc'ed because the jit
         // optimized it out
         b = new Boolean(true);
-        
+
         SoftReference sr = new SoftReference(b, rq);
         sr.enqueue();
         try {
@@ -137,11 +137,11 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("Exception during the test : " + e.getMessage());
         }
-        
+
         assertNull(rq.poll());
-        
+
         sr.enqueue();
-        
+
         class RemoveThread extends Thread {
             public void run() {
                 try {
@@ -156,14 +156,14 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         try {
             Thread.sleep(100);
         } catch(InterruptedException ie) {
-            
+
         }
         rt.interrupt();
         try {
             Thread.sleep(100);
         } catch(InterruptedException ie) {
-            
-        }        
+
+        }
         assertTrue(isThrown);
         assertNull(rq.poll());
     }
@@ -194,16 +194,16 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         }
 
         Object obj = new Object();
-        WeakReference wr = new WeakReference(obj, rq);        
+        WeakReference wr = new WeakReference(obj, rq);
         Boolean b = new Boolean(true);
         SoftReference sr = new SoftReference(b, rq);
         String str = "Test";
         PhantomReference pr = new PhantomReference(str, rq);
-        
+
         pr.enqueue();
         wr.enqueue();
         sr.enqueue();
-        
+
         try {
             Reference result = rq.remove(1L);
             assertTrue((Boolean)result.get());
@@ -219,7 +219,7 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         rq = new ReferenceQueue();
         isThrown = false;
         assertNull(rq.poll());
-        
+
         class RemoveThread extends Thread {
             public void run() {
                 try {
@@ -234,17 +234,17 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         try {
             Thread.sleep(10);
         } catch(InterruptedException ie) {
-            
+
         }
         rt.interrupt();
         try {
             Thread.sleep(10);
         } catch(InterruptedException ie) {
-            
-        }        
+
+        }
         assertTrue(isThrown);
         assertNull(rq.poll());
-        
+
         try {
             rq.remove(-1);
             fail("IllegalArgumentException expected.");

@@ -35,17 +35,17 @@ import org.apache.harmony.security.internal.nls.Messages;
  */
 public class CertPathValidator {
     // Store CertPathValidator implementation service name
-    private static final String SERVICE = "CertPathValidator"; 
+    private static final String SERVICE = "CertPathValidator";
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
 
     // Store default property name
-    private static final String PROPERTYNAME = "certpathvalidator.type"; 
+    private static final String PROPERTYNAME = "certpathvalidator.type";
 
     // Default value of CertPathBuilder type. It returns if certpathbuild.type
     // property is not defined in java.security file
-    private static final String DEFAULTPROPERTY = "PKIX"; 
+    private static final String DEFAULTPROPERTY = "PKIX";
 
     // Store used provider
     private final Provider provider;
@@ -93,7 +93,7 @@ public class CertPathValidator {
 
     /**
      * Returns a new certification path validator for the specified algorithm.
-     * 
+     *
      * @param algorithm
      *            the algorithm name.
      * @return a certification path validator for the requested algorithm.
@@ -105,7 +105,7 @@ public class CertPathValidator {
     public static CertPathValidator getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -117,7 +117,7 @@ public class CertPathValidator {
     /**
      * Returns a new certification path validator for the specified algorithm
      * from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the algorithm name.
      * @param provider
@@ -137,7 +137,7 @@ public class CertPathValidator {
             String provider) throws NoSuchAlgorithmException,
             NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02")); 
+            throw new IllegalArgumentException(Messages.getString("security.02"));
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -149,7 +149,7 @@ public class CertPathValidator {
     /**
      * Returns a new certification path validator for the specified algorithm
      * from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the algorithm name.
      * @param provider
@@ -166,10 +166,10 @@ public class CertPathValidator {
     public static CertPathValidator getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); 
+            throw new IllegalArgumentException(Messages.getString("security.04"));
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);
@@ -181,7 +181,7 @@ public class CertPathValidator {
     /**
      * Validates the {@code CertPath} with the algorithm of this {@code
      * CertPathValidator} using the specified algorithm parameters.
-     * 
+     *
      * @param certPath
      *            the certification path to be validated.
      * @param params

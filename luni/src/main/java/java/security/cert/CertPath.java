@@ -114,34 +114,34 @@ public abstract class CertPath implements Serializable {
      */
     public String toString() {
         StringBuilder sb = new StringBuilder(getType());
-        sb.append(" Cert Path, len="); 
+        sb.append(" Cert Path, len=");
         sb.append(getCertificates().size());
-        sb.append(": [\n"); 
+        sb.append(": [\n");
         int n=1;
         // BEGIN android-changed
         for (Iterator<? extends Certificate> i=getCertificates().iterator();
                       i.hasNext(); n++) {
-            sb.append("---------------certificate "); 
+            sb.append("---------------certificate ");
             sb.append(n);
-            sb.append("---------------\n"); 
+            sb.append("---------------\n");
             sb.append(((Certificate)i.next()).toString());
         }
         // END android-changed
-        sb.append("\n]"); 
+        sb.append("\n]");
         return sb.toString();
     }
 
     /**
      * Returns an immutable List of the {@code Certificate}s contained
      * in the {@code CertPath}.
-     * 
+     *
      * @return a list of {@code Certificate}s in the {@code CertPath}.
      */
     public abstract List<? extends Certificate> getCertificates();
 
     /**
      * Returns an encoding of the {@code CertPath} using the default encoding.
-     * 
+     *
      * @return default encoding of the {@code CertPath}.
      * @throws CertificateEncodingException
      *             if the encoding fails.
@@ -151,7 +151,7 @@ public abstract class CertPath implements Serializable {
 
     /**
      * Returns an encoding of the {@code CertPath} using the specified encoding.
-     * 
+     *
      * @param encoding
      *            encoding that should be generated.
      * @return default encoding of the {@code CertPath}.
@@ -164,7 +164,7 @@ public abstract class CertPath implements Serializable {
     /**
      * Returns an {@code Iterator} over the supported encodings for a
      * representation of the certificate path.
-     * 
+     *
      * @return {@code Iterator} over supported encodings (as {@code String}s).
      */
     public abstract Iterator<String> getEncodings();
@@ -181,7 +181,7 @@ public abstract class CertPath implements Serializable {
             return new CertPathRep(getType(), getEncoded());
         } catch (CertificateEncodingException e) {
             throw new NotSerializableException (
-                    Messages.getString("security.66", e)); 
+                    Messages.getString("security.66", e));
         }
     }
 
@@ -200,8 +200,8 @@ public abstract class CertPath implements Serializable {
         // Force default serialization to use writeUnshared/readUnshared
         // for cert path data
         private static final ObjectStreamField[] serialPersistentFields = {
-             new ObjectStreamField("type", String.class), 
-             new ObjectStreamField("data", byte[].class, true) 
+             new ObjectStreamField("type", String.class),
+             new ObjectStreamField("data", byte[].class, true)
         };
 
         /**
@@ -232,7 +232,7 @@ public abstract class CertPath implements Serializable {
                 return cf.generateCertPath(new ByteArrayInputStream(data));
             } catch (Throwable t) {
                 throw new NotSerializableException(
-                        Messages.getString("security.67", t)); 
+                        Messages.getString("security.67", t));
             }
         }
     }

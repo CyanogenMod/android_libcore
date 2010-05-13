@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -132,7 +132,7 @@ public class DriverManager {
 
     /**
      * Attempts to establish a connection to the given database URL.
-     * 
+     *
      * @param url
      *            a URL string representing the database target to connect with.
      * @return a {@code Connection} to the database identified by the URL.
@@ -147,7 +147,7 @@ public class DriverManager {
 
     /**
      * Attempts to establish a connection to the given database URL.
-     * 
+     *
      * @param url
      *            a URL string representing the database target to connect with
      * @param info
@@ -189,7 +189,7 @@ public class DriverManager {
 
     /**
      * Attempts to establish a connection to the given database URL.
-     * 
+     *
      * @param url
      *            a URL string representing the database target to connect with.
      * @param user
@@ -216,7 +216,7 @@ public class DriverManager {
 
     /**
      * Tries to find a driver that can interpret the supplied URL.
-     * 
+     *
      * @param url
      *            the URL of a database.
      * @return a {@code Driver} that matches the provided URL. {@code null} if
@@ -254,7 +254,7 @@ public class DriverManager {
     /**
      * Returns an {@code Enumeration} that contains all of the loaded JDBC
      * drivers that the current caller can access.
-     * 
+     *
      * @return An {@code Enumeration} containing all the currently loaded JDBC
      *         {@code Drivers}.
      */
@@ -286,7 +286,7 @@ public class DriverManager {
 
     /**
      * Returns the login timeout when connecting to a database in seconds.
-     * 
+     *
      * @return the login timeout in seconds.
      */
     public static int getLoginTimeout() {
@@ -307,7 +307,7 @@ public class DriverManager {
 
     /**
      * Retrieves the log writer.
-     * 
+     *
      * @return A {@code PrintWriter} object used as the log writer. {@code null}
      *         if no log writer is set.
      */
@@ -318,7 +318,7 @@ public class DriverManager {
     /**
      * Prints a message to the current JDBC log stream. This is either the
      * {@code PrintWriter} or (deprecated) the {@code PrintStream}, if set.
-     * 
+     *
      * @param message
      *            the message to print to the JDBC log stream.
      */
@@ -359,7 +359,7 @@ public class DriverManager {
 
     /**
      * Sets the login timeout when connecting to a database in seconds.
-     * 
+     *
      * @param seconds
      *            seconds until timeout. 0 indicates wait forever.
      */
@@ -385,7 +385,7 @@ public class DriverManager {
     /**
      * Sets the {@code PrintWriter} that is used by all loaded drivers, and also
      * the {@code DriverManager}.
-     * 
+     *
      * @param out
      *            the {@code PrintWriter} to be used.
      */
@@ -408,7 +408,7 @@ public class DriverManager {
 
     /**
      * Determines whether the supplied object was loaded by the given {@code ClassLoader}.
-     * 
+     *
      * @param theObject
      *            the object to check.
      * @param theClassLoader

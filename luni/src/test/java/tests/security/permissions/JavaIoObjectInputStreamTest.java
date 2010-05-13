@@ -42,7 +42,7 @@ import dalvik.annotation.TestTargets;
  */
 @TestTargetClass(java.io.ObjectInputStream.class)
 public class JavaIoObjectInputStreamTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -56,7 +56,7 @@ public class JavaIoObjectInputStreamTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     // needed for serialization
     private static class Node implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -64,7 +64,7 @@ public class JavaIoObjectInputStreamTest extends TestCase {
         public Node(){}
     }
 
-   
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies that ObjectInputStream.enableResolveObject method calls checkPermission on security manager.",
@@ -87,7 +87,7 @@ public class JavaIoObjectInputStreamTest extends TestCase {
                 }
             }
         }
-        
+
         // TestObjectInputStream is necessary in order to call protected
         // method enableResolveObject
         class TestObjectInputStream extends ObjectInputStream  {
@@ -108,20 +108,20 @@ public class JavaIoObjectInputStreamTest extends TestCase {
         oos.flush();
         oos.close();
         f.deleteOnExit();
-        
 
-        
+
+
         TestObjectInputStream ois = new TestObjectInputStream(new FileInputStream(f));
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         ois.enableResolveObject(true);
         assertTrue("ObjectInputStream.enableResolveObject(boolean) must call checkPermission on security manager", s.called);
         assertEquals("Name of SerializablePermission is not correct", "enableSubstitution", s.permission.getName());
     }
-    
+
     @TestTargets({
         @TestTargetNew(
                 level = TestLevel.PARTIAL_COMPLETE,
@@ -146,19 +146,19 @@ public class JavaIoObjectInputStreamTest extends TestCase {
                 }
             }
         }
-        
-        // Beginning with J2SE 1.4.0, ObjectInputStream's public one-argument 
-        // constructor requires the "enableSubclassImplementation" SerializablePermission 
-        // when invoked (either directly or indirectly) by a subclass which overrides 
+
+        // Beginning with J2SE 1.4.0, ObjectInputStream's public one-argument
+        // constructor requires the "enableSubclassImplementation" SerializablePermission
+        // when invoked (either directly or indirectly) by a subclass which overrides
         // ObjectInputStream.readFields or ObjectInputStream.readUnshared.
 
-        
+
         class TestObjectInputStream extends ObjectInputStream  {
             TestObjectInputStream(InputStream s) throws StreamCorruptedException, IOException {
                 super(s);
             }
         }
-        
+
         class TestObjectInputStream_readFields extends ObjectInputStream  {
             TestObjectInputStream_readFields(InputStream s) throws StreamCorruptedException, IOException {
                 super(s);
@@ -168,7 +168,7 @@ public class JavaIoObjectInputStreamTest extends TestCase {
                 return super.readFields();
             }
         }
-        
+
         class TestObjectInputStream_readUnshared extends ObjectInputStream  {
             TestObjectInputStream_readUnshared(InputStream s) throws StreamCorruptedException, IOException {
                 super(s);
@@ -176,11 +176,11 @@ public class JavaIoObjectInputStreamTest extends TestCase {
             @Override
             public Object readUnshared() throws IOException, ClassNotFoundException {
                 return super.readUnshared();
-            }   
+            }
         }
-        
-        
-        
+
+
+
         long id = new java.util.Date().getTime();
         String filename  = "SecurityPermissionsTest_"+id;
         File f = File.createTempFile(filename, null);
@@ -189,27 +189,27 @@ public class JavaIoObjectInputStreamTest extends TestCase {
         oos.flush();
         oos.close();
         f.deleteOnExit();
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         new ObjectInputStream(new FileInputStream(f));
         assertTrue("ObjectInputStream(InputStream) ctor must not call checkPermission on security manager on a class which neither overwrites methods readFields nor readUnshared", !s.called);
-        
+
         s.reset();
         new TestObjectInputStream(new FileInputStream(f));
         assertTrue("ObjectInputStream(InputStream) ctor must not call checkPermission on security manager on a class which neither overwrites methods readFields nor readUnshared", !s.called);
-        
+
         s.reset();
         new TestObjectInputStream_readFields(new FileInputStream(f));
         assertTrue("ObjectInputStream(InputStream) ctor must call checkPermission on security manager on a class which overwrites method readFields", s.called);
         assertEquals("Name of SerializablePermission is not correct", "enableSubclassImplementation", s.permission.getName());
-        
+
         s.reset();
         new TestObjectInputStream_readUnshared(new FileInputStream(f));
         assertTrue("ObjectInputStream(InputStream) ctor must call checkPermission on security manager on a class which overwrites method readUnshared", s.called);
         assertEquals("Name of SerializablePermission is not correct", "enableSubclassImplementation", s.permission.getName());
     }
-    
+
 }

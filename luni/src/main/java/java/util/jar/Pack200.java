@@ -30,9 +30,9 @@ import java.util.SortedMap;
  */
 public abstract class Pack200 {
 
-    private static final String SYSTEM_PROPERTY_PACKER = "java.util.jar.Pack200.Packer"; 
+    private static final String SYSTEM_PROPERTY_PACKER = "java.util.jar.Pack200.Packer";
 
-    private static final String SYSTEM_PROPERTY_UNPACKER = "java.util.jar.Pack200.Unpacker"; 
+    private static final String SYSTEM_PROPERTY_UNPACKER = "java.util.jar.Pack200.Unpacker";
 
     /**
      * Prevent this class from being instantiated.
@@ -57,7 +57,7 @@ public abstract class Pack200 {
                     public Object run() {
                         String className = System
                                 .getProperty(SYSTEM_PROPERTY_PACKER,
-                                        "org.apache.harmony.pack200.Pack200PackerAdapter"); 
+                                        "org.apache.harmony.pack200.Pack200PackerAdapter");
                         try {
                             // TODO Not sure if this will cause problems with
                             // loading the packer
@@ -107,12 +107,12 @@ public abstract class Pack200 {
         /**
          * the format of a class attribute name.
          */
-        static final String CLASS_ATTRIBUTE_PFX = "pack.class.attribute."; 
+        static final String CLASS_ATTRIBUTE_PFX = "pack.class.attribute.";
 
         /**
          * the format of a code attribute name.
          */
-        static final String CODE_ATTRIBUTE_PFX = "pack.code.attribute."; 
+        static final String CODE_ATTRIBUTE_PFX = "pack.code.attribute.";
 
         /**
          * the deflation hint to set in the output archive.

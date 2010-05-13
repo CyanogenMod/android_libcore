@@ -44,7 +44,7 @@ public class ParserConfigurationException extends Exception {
      *
      * @param msg The error message for the exception.
      */
-    
+
     public ParserConfigurationException(String msg) {
         super(msg);
     }

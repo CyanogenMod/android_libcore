@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -42,18 +42,18 @@ import javax.xml.parsers.DocumentBuilder;
  * The method setNamedItemNS adds a node using its namespaceURI and localName.
  * If a node with that namespace URI and that local name is already present in
  * this map, it is replaced by the new one.
- * 
+ *
  * Retreive the first element whose localName is address and namespaceURI
  * http://www.nist.gov", and put its attributes into a named node map. Create a
  * new attribute node and add it to this map. Verify if the attr node was
  * successfully added by checking the nodeName of the retreived atttribute.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getNamedItemNS</a>
  */
-@TestTargetClass(NamedNodeMap.class) 
+@TestTargetClass(NamedNodeMap.class)
 public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -82,7 +82,7 @@ public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -188,7 +188,7 @@ public final class NamedNodeMapSetNamedItemNS extends DOMTestCase {
     public void testSetNamedItemNS4() throws Throwable {
         Document doc;
         DOMImplementation domImpl;
-        Document docAlt; 
+        Document docAlt;
         DocumentType docType = null;
 
         NamedNodeMap attributes;

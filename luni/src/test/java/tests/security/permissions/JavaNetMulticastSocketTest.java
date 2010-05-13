@@ -38,7 +38,7 @@ import java.security.Permission;
  */
 @TestTargetClass(java.net.MulticastSocket.class)
 public class JavaNetMulticastSocketTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -52,7 +52,7 @@ public class JavaNetMulticastSocketTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -89,35 +89,35 @@ public class JavaNetMulticastSocketTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission permission) {
-                
+
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         int port = Support_PortManager.getNextPortForUDP();
-        
+
         s.reset();
         new MulticastSocket(port);
         assertTrue("java.net.MulticastSocket(int) ctor must call checkListen on security permissions", s.called);
         assertEquals("Argument of checkListen is not correct", port, s.port);
-        
+
         s.reset();
         new MulticastSocket(0);
         assertTrue("java.net.MulticastSocket() ctor must call checkListen on security permissions", s.called);
         assertEquals("Argument of checkListen is not correct", 0, s.port);
-        
+
         s.reset();
         new MulticastSocket();
         assertTrue("java.net.MulticastSocket() ctor must call checkListen on security permissions", s.called);
         assertEquals("Argument of checkListen is not correct", 0, s.port);
-        
+
         port = Support_PortManager.getNextPortForUDP();
-        
+
         s.reset();
         new MulticastSocket(new InetSocketAddress(port));
         assertTrue("java.net.MulticastSocket() ctor must call checkListen on security permissions", s.called);
         assertEquals("Argument of checkListen is not correct", port, s.port);
-    }    
+    }
 }

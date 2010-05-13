@@ -28,7 +28,7 @@ import java.security.acl.LastOwnerException;
 
 /**
  * Unit test for LastOwnerException.
- * 
+ *
  */
 public class LastOwnerExceptionTest extends TestCase {
     public void testLastOwnerException() {

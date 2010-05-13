@@ -22,7 +22,7 @@ import java.math.BigInteger;
 import org.apache.harmony.security.internal.nls.Messages;
 
 /**
- * The parameter specification used with Elliptic Curve Cryptography (ECC). 
+ * The parameter specification used with Elliptic Curve Cryptography (ECC).
  */
 public class ECParameterSpec implements AlgorithmParameterSpec {
     // Elliptic curve for which this is parameter
@@ -38,7 +38,7 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
      * Creates a new {@code ECParameterSpec} with the specified elliptic curve,
      * the base point, the order of the generator (or base point) and the
      * co-factor.
-     * 
+     *
      * @param curve
      *            the elliptic curve.
      * @param generator
@@ -58,28 +58,28 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
         this.cofactor = cofactor;
         // throw NullPointerException if curve, generator or order is null
         if (this.curve == null) {
-            throw new NullPointerException(Messages.getString("security.83", "curve"));  
+            throw new NullPointerException(Messages.getString("security.83", "curve"));
         }
         if (this.generator == null) {
-            throw new NullPointerException(Messages.getString("security.83", "generator"));  
+            throw new NullPointerException(Messages.getString("security.83", "generator"));
         }
         if (this.order == null) {
-            throw new NullPointerException(Messages.getString("security.83", "order"));  
+            throw new NullPointerException(Messages.getString("security.83", "order"));
         }
         // throw IllegalArgumentException if order or cofactor is not positive
         if (!(this.order.compareTo(BigInteger.ZERO) > 0)) {
             throw new
-            IllegalArgumentException(Messages.getString("security.86", "order"));  
+            IllegalArgumentException(Messages.getString("security.86", "order"));
         }
         if (!(this.cofactor > 0)) {
             throw new
-            IllegalArgumentException(Messages.getString("security.86", "cofactor"));  
+            IllegalArgumentException(Messages.getString("security.86", "cofactor"));
         }
     }
 
     /**
      * Returns the {@code cofactor}.
-     * 
+     *
      * @return the {@code cofactor}.
      */
     public int getCofactor() {
@@ -88,7 +88,7 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
 
     /**
      * Returns the elliptic curve.
-     * 
+     *
      * @return the elliptic curve.
      */
     public EllipticCurve getCurve() {
@@ -97,7 +97,7 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
 
     /**
      * Returns the generator (or base point).
-     * 
+     *
      * @return the generator (or base point).
      */
     public ECPoint getGenerator() {
@@ -106,7 +106,7 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
 
     /**
      * Returns the order of the generator.
-     * 
+     *
      * @return the order of the generator.
      */
     public BigInteger getOrder() {

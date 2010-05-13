@@ -36,15 +36,15 @@ import org.apache.harmony.security.tests.support.SpiEngUtils;
 
 /**
  * Tests for <code>java.security.cert.CRL</code> fields and methods
- * 
+ *
  */
 @TestTargetClass(CRL.class)
 public class CRLTest extends TestCase {
 
     public static final String[] validValues = { "X.509", "x.509" };
-    
+
     private final static String[] invalidValues = SpiEngUtils.invalidValues;
-    
+
     //
     // Tests
     //
@@ -63,12 +63,12 @@ public class CRLTest extends TestCase {
             CRL crl = new MyCRL(validValues[i]);
             assertEquals(validValues[i], crl.getType());
         }
-        
+
         for (int i = 0; i< invalidValues.length; i++) {
             CRL crl = new MyCRL(invalidValues[i]);
             assertEquals(invalidValues[i], crl.getType());
         }
-        
+
         try {
             CRL crl = new MyCRL(null);
         } catch (Exception e) {
@@ -76,7 +76,7 @@ public class CRLTest extends TestCase {
         }
     }
 
-    
+
     /**
      * Test #1 for <code>getType()</code> method<br>
      * Assertion: returns <code>CRL</code> type
@@ -156,6 +156,6 @@ public class CRLTest extends TestCase {
         public String toString() {
             return null;
         }
-        
+
     }
 }

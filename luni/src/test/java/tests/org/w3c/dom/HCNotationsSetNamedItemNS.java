@@ -34,14 +34,14 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * An attempt to add an element to the named node map returned by notations
  * should result in a NO_MODIFICATION_ERR or HIERARCHY_REQUEST_ERR.
- * 
+ *
  * @author Curt Arnold
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-D46829EF">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-D46829EF</a>
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-setNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-setNamedItemNS</a>
  */
-@TestTargetClass(NamedNodeMap.class) 
+@TestTargetClass(NamedNodeMap.class)
 public final class HCNotationsSetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -67,7 +67,7 @@ public final class HCNotationsSetNamedItemNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

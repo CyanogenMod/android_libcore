@@ -44,7 +44,7 @@ public class HashMapTest extends junit.framework.TestCase {
             return 0;
         }
     }
-    
+
     private static class MockMapNull extends AbstractMap {
         public Set entrySet() {
             return null;
@@ -54,7 +54,7 @@ public class HashMapTest extends junit.framework.TestCase {
             return 10;
         }
     }
-    
+
     interface MockInterface {
         public String mockMethod();
     }
@@ -174,7 +174,7 @@ public class HashMapTest extends junit.framework.TestCase {
 		for (int counter = 0; counter < hmSize; counter++)
 			assertTrue("Failed to construct correct HashMap", hm
 					.get(objArray2[counter]) == hm2.get(objArray2[counter]));
-        
+
         try {
             Map mockMap = new MockMap();
             hm = new HashMap(mockMap);
@@ -182,10 +182,10 @@ public class HashMapTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             //empty
         }
-        
+
         HashMap map = new HashMap();
         map.put("a", "a");
-        SubMap map2 = new SubMap(map); 
+        SubMap map2 = new SubMap(map);
         assertTrue(map2.containsKey("a"));
         assertTrue(map2.containsValue("a"));
 	}
@@ -199,7 +199,7 @@ public class HashMapTest extends junit.framework.TestCase {
 		for (int i = 0; i < hmSize; i++)
 			assertNull("Failed to clear all elements",
 					hm.get(objArray2[i]));
-        
+
 		// Check clear on a large loaded map of Integer keys
 		HashMap<Integer, String> map = new HashMap<Integer, String>();
         for (int i = -32767; i < 32768; i++) {
@@ -228,24 +228,24 @@ public class HashMapTest extends junit.framework.TestCase {
 		// get the keySet() and values() on the original Map
 		Set keys = map.keySet();
 		Collection values = map.values();
-		assertEquals("values() does not work", 
+		assertEquals("values() does not work",
 				"value", values.iterator().next());
-		assertEquals("keySet() does not work", 
+		assertEquals("keySet() does not work",
 				"key", keys.iterator().next());
 		AbstractMap map2 = (AbstractMap) map.clone();
 		map2.put("key", "value2");
 		Collection values2 = map2.values();
 		assertTrue("values() is identical", values2 != values);
 		// values() and keySet() on the cloned() map should be different
-		assertEquals("values() was not cloned", 
+		assertEquals("values() was not cloned",
 				"value2", values2.iterator().next());
 		map2.clear();
 		map2.put("key2", "value3");
 		Set key2 = map2.keySet();
 		assertTrue("keySet() is identical", key2 != keys);
-		assertEquals("keySet() was not cloned", 
+		assertEquals("keySet() was not cloned",
 				"key2", key2.iterator().next());
-        
+
         // regresion test for HARMONY-4603
         HashMap hashmap = new HashMap();
         MockClonable mock = new MockClonable(1);
@@ -301,8 +301,8 @@ public class HashMapTest extends junit.framework.TestCase {
 					.getKey())
 					&& hm.containsValue(m.getValue()));
 		}
-        
-        Iterator iter = s.iterator(); 
+
+        Iterator iter = s.iterator();
         s.remove(iter.next());
         assertEquals(1001, s.size());
 	}
@@ -362,13 +362,13 @@ public class HashMapTest extends junit.framework.TestCase {
         assertEquals("Failed to remove proxy object key", val,
                 hm.remove(proxyKey));
         assertFalse("Should not have found proxy key", hm.containsKey(proxyKey));
-        
+
         // Proxy value
         Object k = new Object();
         hm.put(k, proxyValue);
-        
+
         assertTrue("Failed to find proxy object as value", hm.containsValue(proxyValue));
-        
+
         // Proxy key and value
         HashMap map = new HashMap();
         map.put(proxyKey, proxyValue);
@@ -456,7 +456,7 @@ public class HashMapTest extends junit.framework.TestCase {
                 .get(new Short((short) 0)));
         assertEquals("Failed adding to bucket containing null2", "int", m
                 .get(new Integer(0)));
-        
+
         // Check my actual key instance is returned
         HashMap<Integer, String> map = new HashMap<Integer, String>();
         for (int i = -32767; i < 32768; i++) {
@@ -506,7 +506,7 @@ public class HashMapTest extends junit.framework.TestCase {
         public MyKey() {
             super();
         }
-        
+
         public int hashCode() {
             return 0;
         }
@@ -521,13 +521,13 @@ public class HashMapTest extends junit.framework.TestCase {
 		for (int i = 0; i < 1000; i++)
 			assertTrue("Failed to clear all elements", hm2.get(
 					new Integer(i).toString()).equals((new Integer(i))));
-        
+
         Map mockMap = new MockMap();
         hm2 = new HashMap();
         hm2.putAll(mockMap);
         assertEquals("Size should be 0", 0, hm2.size());
 	}
-    
+
     /**
      * @tests java.util.HashMap#putAll(java.util.Map)
      */
@@ -546,7 +546,7 @@ public class HashMapTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // expected.
         }
-    } 
+    }
 
 	/**
 	 * @tests java.util.HashMap#remove(java.lang.Object)
@@ -626,7 +626,7 @@ public class HashMapTest extends junit.framework.TestCase {
 				!myHashMap.containsValue(new Integer(0)));
 
 	}
-    
+
     /**
      * @tests java.util.AbstractMap#toString()
      */
@@ -637,7 +637,7 @@ public class HashMapTest extends junit.framework.TestCase {
         String result = m.toString();
         assertTrue("should contain self ref", result.indexOf("(this") > -1);
     }
-    
+
 	static class ReusableKey {
 		private int key = 0;
 
@@ -659,7 +659,7 @@ public class HashMapTest extends junit.framework.TestCase {
 			return key == ((ReusableKey) o).key;
 		}
 	}
-    
+
 	public void test_Map_Entry_hashCode() {
         //Related to HARMONY-403
 	    HashMap<Integer, Integer> map = new HashMap<Integer, Integer>(10);
@@ -673,21 +673,21 @@ public class HashMapTest extends junit.framework.TestCase {
 	    map.put(key, val);
 	    expected += key.hashCode() ^ val.hashCode();
 	    assertEquals(expected, map.hashCode());
-	} 
-    
+	}
+
     class MockClonable implements Cloneable{
         public int i;
-        
+
         public MockClonable(int i) {
             this.i = i;
         }
-        
+
         @Override
         protected Object clone() throws CloneNotSupportedException {
             return new MockClonable(i);
         }
     }
-    
+
     /*
      * Regression test for HY-4750
      */
@@ -701,11 +701,11 @@ public class HashMapTest extends junit.framework.TestCase {
         Map.Entry copyEntry = new MockEntry();
         assertEquals(real, copyEntry);
         assertTrue(entrySet.contains(copyEntry));
-        
+
         entrySet.remove(copyEntry);
         assertFalse(entrySet.contains(copyEntry));
-        
-        
+
+
     }
 
     private static class MockEntry implements Map.Entry {
@@ -753,7 +753,7 @@ public class HashMapTest extends junit.framework.TestCase {
         HashMap<String, String> hm = new HashMap<String, String>();
         hm.put("key", "value");
 
-        SerializationTest.verifySelf(hm);        
+        SerializationTest.verifySelf(hm);
 
         //  regression for HARMONY-1583
         hm.put(null, "null");

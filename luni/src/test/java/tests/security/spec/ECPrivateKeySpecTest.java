@@ -60,10 +60,10 @@ public class ECPrivateKeySpecTest extends TestCase {
     }
 
     /**
-     * test for constructor ECPrivateKeySpec(BigInteger, ECParameterSpec) 
-     * test covers following usecases: 
+     * test for constructor ECPrivateKeySpec(BigInteger, ECParameterSpec)
+     * test covers following usecases:
      * case 1: creating object with valid parameters
-     * case 2: catch NullPointerException - if s is null. 
+     * case 2: catch NullPointerException - if s is null.
      * case 3: catch NullPointerException - if params is null.
      */
     @TestTargetNew(

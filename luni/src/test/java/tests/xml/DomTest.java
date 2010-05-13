@@ -602,7 +602,7 @@ public class DomTest extends TestCase {
     public void testNodeEqualsPositive() throws Exception {
         DomTest copy = new DomTest();
         copy.setUp();
-        
+
         for (int i = 0; i < allNodes.size(); i++) {
             Node a = allNodes.get(i);
             Node b = copy.allNodes.get(i);

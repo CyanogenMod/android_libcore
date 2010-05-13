@@ -45,8 +45,8 @@ public class ProcessTest extends junit.framework.TestCase {
             //        new String[] { "tests.support.Support_AvailTest" }, null,
             //        true);
             //Process proc = (Process) execArgs[0];
-            
-            String[] commands = { "sleep", "1"};            
+
+            String[] commands = { "sleep", "1"};
             Process proc = Runtime.getRuntime().exec(commands, null, null);
 
             OutputStream os = proc.getOutputStream();
@@ -88,7 +88,7 @@ public class ProcessTest extends junit.framework.TestCase {
     )
     public void test_getOutputStream() {
         try {
-            String[] commands = { "sleep", "1"};          
+            String[] commands = { "sleep", "1"};
             Process proc = Runtime.getRuntime().exec(commands, null, null);
             OutputStream os = proc.getOutputStream();
             // send data, and check if it is echoed back correctly
@@ -134,15 +134,15 @@ public class ProcessTest extends junit.framework.TestCase {
     )
     public void test_exitValue() {
         try {
-            String[] commands = { "ls" };            
+            String[] commands = { "ls" };
             Process process = Runtime.getRuntime().exec(commands, null, null);
             try {
                 Thread.sleep(5000);
             } catch(Exception e) {
-                
+
             }
             assertTrue(process.exitValue() == 0);
-            
+
             String[] commandsSleep = { "sleep", "3" };
             process = Runtime.getRuntime().exec(commandsSleep, null, null);
             process.destroy();
@@ -156,13 +156,13 @@ public class ProcessTest extends junit.framework.TestCase {
                 process.exitValue();
                 fail("IllegalThreadStateException was not thrown.");
             } catch(IllegalThreadStateException itse) {
-               //expected 
+               //expected
             }
         } catch (IOException e) {
             fail("IOException was thrown.");
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -173,7 +173,7 @@ public class ProcessTest extends junit.framework.TestCase {
         ProcessClass pc = new ProcessClass();
         assertTrue(pc.exitValue() == 0);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -182,7 +182,7 @@ public class ProcessTest extends junit.framework.TestCase {
     )
     @BrokenTest("Sporadic timeouts in CTS, but not in CoreTestRunner")
     public void test_destroy() {
-        String[] commands = { "ls"};            
+        String[] commands = { "ls"};
         try {
             Process process = Runtime.getRuntime().exec(commands, null, null);
             process.destroy();
@@ -190,7 +190,7 @@ public class ProcessTest extends junit.framework.TestCase {
             fail("IOException was thrown.");
         }
     }
-    
+
     protected void setUp() {
     }
 
@@ -199,16 +199,16 @@ public class ProcessTest extends junit.framework.TestCase {
 
     protected void doneSuite() {
     }
-    
+
     class ProcessClass extends Process {
-        
+
         ProcessClass() {
             super();
         }
 
         @Override
         public void destroy() {
-            
+
         }
 
         @Override
@@ -237,6 +237,6 @@ public class ProcessTest extends junit.framework.TestCase {
             // TODO Auto-generated method stub
             return 0;
         }
-        
+
     }
 }

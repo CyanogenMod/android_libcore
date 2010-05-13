@@ -31,7 +31,7 @@ import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the following certificate extension (OID: 2.5.29.16)
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -41,7 +41,7 @@ import org.apache.harmony.security.asn1.BerInputStream;
  * <pre>
  * PrivateKeyUsagePeriod ::= SEQUENCE {
  *      notBefore       [0]     GeneralizedTime OPTIONAL,
- *      notAfter        [1]     GeneralizedTime OPTIONAL 
+ *      notAfter        [1]     GeneralizedTime OPTIONAL
  * }
  * </pre>
  */
@@ -60,22 +60,22 @@ public class PrivateKeyUsagePeriod {
      * @param   notAfterDate:   Date
      */
     public PrivateKeyUsagePeriod(Date notBeforeDate, Date notAfterDate) {
-        this(notBeforeDate, notAfterDate, null); 
+        this(notBeforeDate, notAfterDate, null);
     }
 
-    // 
+    //
     // TODO
     // @param   notBeforeDate:  Date
     // @param   notAfterDate:   Date
     // @param   encoding:   byte[]
-    // 
-    private PrivateKeyUsagePeriod(Date notBeforeDate, 
+    //
+    private PrivateKeyUsagePeriod(Date notBeforeDate,
                                   Date notAfterDate, byte[] encoding) {
         this.notBeforeDate = notBeforeDate;
         this.notAfterDate = notAfterDate;
         this.encoding = encoding;
     }
-        
+
     /**
      * Returns the value of notBefore field of the structure.
      * @return  notBefore
@@ -91,7 +91,7 @@ public class PrivateKeyUsagePeriod {
     public Date getNotAfter() {
         return notAfterDate;
     }
-    
+
     /**
      * Returns ASN.1 encoded form of this X.509 PrivateKeyUsagePeriod value.
      * @return a byte array containing ASN.1 encode form.
@@ -107,7 +107,7 @@ public class PrivateKeyUsagePeriod {
      * ASN.1 DER X.509 PrivateKeyUsagePeriod encoder/decoder class.
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
-            new ASN1Implicit(0, ASN1GeneralizedTime.getInstance()), 
+            new ASN1Implicit(0, ASN1GeneralizedTime.getInstance()),
             new ASN1Implicit(1, ASN1GeneralizedTime.getInstance()) }) {
         {
             setOptional(0);
@@ -116,7 +116,7 @@ public class PrivateKeyUsagePeriod {
 
         protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[])in.content;
-            return 
+            return
                 new PrivateKeyUsagePeriod((Date) values[0], (Date) values[1],
                         in.getEncoded());
         }

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ import java.io.PrintWriter;
  * common {@code Throwable} without losing the detailed original error
  * information. When printing the stack trace, the trace of the cause is
  * included.
- * 
+ *
  * @see Error
  * @see Exception
  * @see RuntimeException
@@ -79,7 +79,7 @@ public class Throwable implements java.io.Serializable {
     /**
      * Constructs a new {@code Throwable} with the current stack trace and the
      * specified detail message.
-     * 
+     *
      * @param detailMessage
      *            the detail message for this {@code Throwable}.
      */
@@ -91,7 +91,7 @@ public class Throwable implements java.io.Serializable {
     /**
      * Constructs a new {@code Throwable} with the current stack trace, the
      * specified detail message and the specified cause.
-     * 
+     *
      * @param detailMessage
      *            the detail message for this {@code Throwable}.
      * @param throwable
@@ -106,7 +106,7 @@ public class Throwable implements java.io.Serializable {
     /**
      * Constructs a new {@code Throwable} with the current stack trace and the
      * specified cause.
-     * 
+     *
      * @param throwable
      *            the cause of this {@code Throwable}.
      */
@@ -122,7 +122,7 @@ public class Throwable implements java.io.Serializable {
      * to this {@code Throwable}. The method is public so that code which
      * catches a {@code Throwable} and then re-throws it can adjust the stack
      * trace to represent the location where the exception was re-thrown.
-     * 
+     *
      * @return this {@code Throwable} instance.
      */
     public Throwable fillInStackTrace() {
@@ -138,7 +138,7 @@ public class Throwable implements java.io.Serializable {
      * Returns the extra information message which was provided when this
      * {@code Throwable} was created. Returns {@code null} if no message was
      * provided at creation time.
-     * 
+     *
      * @return this {@code Throwable}'s detail message.
      */
     public String getMessage() {
@@ -150,7 +150,7 @@ public class Throwable implements java.io.Serializable {
      * {@code Throwable} was created. Returns {@code null} if no message was
      * provided at creation time. Subclasses may override this method to return
      * localized text for the message. Android returns the regular detail message.
-     * 
+     *
      * @return this {@code Throwable}'s localized detail message.
      */
     public String getLocalizedMessage() {
@@ -162,7 +162,7 @@ public class Throwable implements java.io.Serializable {
      * {@code StackTraceElement} represents an entry in the call stack. The
      * element at position 0 is the top of the stack, that is, the stack frame
      * where this {@code Throwable} is thrown.
-     * 
+     *
      * @return a copy of the array of {@code StackTraceElement}s representing
      *         the call stack. Changes in the array obtained from this call will
      *         not change the call stack stored in this {@code Throwable}.
@@ -177,7 +177,7 @@ public class Throwable implements java.io.Serializable {
      * represents an entry in the call stack. A copy of the specified array is
      * stored in this {@code Throwable}. will be returned by {@code
      * getStackTrace()} and printed by {@code printStackTrace()}.
-     * 
+     *
      * @param trace
      *            the new array of {@code StackTraceElement}s. A copy of the
      *            array is stored in this {@code Throwable}, so subsequent
@@ -200,7 +200,7 @@ public class Throwable implements java.io.Serializable {
     /**
      * Writes a printable representation of this {@code Throwable}'s stack trace
      * to the {@code System.err} stream.
-     * 
+     *
      */
     public void printStackTrace() {
         printStackTrace(System.err);
@@ -209,10 +209,10 @@ public class Throwable implements java.io.Serializable {
     /**
      * Counts the number of duplicate stack frames, starting from the
      * end of the stack.
-     * 
+     *
      * @param currentStack a stack to compare
      * @param parentStack a stack to compare
-     * 
+     *
      * @return the number of duplicate stack frames.
      */
     private static int countDuplicates(StackTraceElement[] currentStack,
@@ -233,7 +233,7 @@ public class Throwable implements java.io.Serializable {
     /**
      * Returns an array of StackTraceElement. Each StackTraceElement
      * represents a entry on the stack.
-     * 
+     *
      * @return an array of StackTraceElement representing the stack
      */
     private StackTraceElement[] getInternalStackTrace() {
@@ -251,7 +251,7 @@ public class Throwable implements java.io.Serializable {
      * to the specified print stream. If the {@code Throwable} contains a
      * {@link #getCause() cause}, the method will be invoked recursively for
      * the nested {@code Throwable}.
-     * 
+     *
      * @param err
      *            the stream to write the stack trace on.
      */
@@ -287,7 +287,7 @@ public class Throwable implements java.io.Serializable {
      * to the specified print writer. If the {@code Throwable} contains a
      * {@link #getCause() cause}, the method will be invoked recursively for the
      * nested {@code Throwable}.
-     * 
+     *
      * @param err
      *            the writer to write the stack trace on.
      */
@@ -332,7 +332,7 @@ public class Throwable implements java.io.Serializable {
     /**
      * Initializes the cause of this {@code Throwable}. The cause can only be
      * initialized once.
-     * 
+     *
      * @param throwable
      *            the cause of this {@code Throwable}.
      * @return this {@code Throwable} instance.
@@ -358,7 +358,7 @@ public class Throwable implements java.io.Serializable {
     /**
      * Returns the cause of this {@code Throwable}, or {@code null} if there is
      * no cause.
-     * 
+     *
      * @return Throwable this {@code Throwable}'s cause.
      */
     public Throwable getCause() {

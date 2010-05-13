@@ -29,9 +29,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
 public @interface HostController {
-    
+
     /**
      * The host controller method name.
      */
-    String name() default "";  
+    String name() default "";
 }

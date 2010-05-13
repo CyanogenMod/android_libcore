@@ -35,9 +35,9 @@ import junit.framework.TestCase;
 
 /**
  * Tests for <code>SSLSessionBindingEvent</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(SSLSessionBindingEvent.class) 
+@TestTargetClass(SSLSessionBindingEvent.class)
 public class SSLSessionBindingEventTest extends TestCase {
 
     @TestTargetNew(
@@ -48,7 +48,7 @@ public class SSLSessionBindingEventTest extends TestCase {
     )
     public final void test_ConstructorLjavax_net_ssl_SSLSessionLjava_lang_String() {
         SSLSession ses = new MySSLSession();
-        
+
         try {
             SSLSessionBindingEvent event = new SSLSessionBindingEvent(ses, "test");
             if (!"test".equals(event.getName())) {
@@ -60,14 +60,14 @@ public class SSLSessionBindingEventTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e);
         }
-        
+
         try {
             SSLSessionBindingEvent event = new SSLSessionBindingEvent(null, "test");
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
           // expected
         }
-        
+
         try {
             SSLSessionBindingEvent event = new SSLSessionBindingEvent(ses, null);
         } catch (IllegalArgumentException e) {

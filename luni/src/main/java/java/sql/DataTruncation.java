@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,9 +39,9 @@ public class DataTruncation extends SQLWarning implements Serializable {
 
     private int transferSize = 0;
 
-    private static final String THE_REASON = "Data truncation"; 
+    private static final String THE_REASON = "Data truncation";
 
-    private static final String THE_SQLSTATE = "01004"; 
+    private static final String THE_SQLSTATE = "01004";
 
     private static final int THE_ERROR_CODE = 0;
 
@@ -50,7 +50,7 @@ public class DataTruncation extends SQLWarning implements Serializable {
      * "Data truncation"}, the {@code ErrorCode} is set to the {@code
      * SQLException} default value, and the other fields are set to the values
      * supplied as arguments.
-     * 
+     *
      * @param index
      *            the Index value of the column value or parameter that was
      *            truncated.
@@ -77,7 +77,7 @@ public class DataTruncation extends SQLWarning implements Serializable {
 
     /**
      * Gets the number of bytes of data that should have been read/written.
-     * 
+     *
      * @return the number of bytes that should have been read or written. The
      *         value is set to {@code -1} if the size is unknown.
      */
@@ -87,7 +87,7 @@ public class DataTruncation extends SQLWarning implements Serializable {
 
     /**
      * Gets the index of the column or of the parameter that was truncated.
-     * 
+     *
      * @return the index number of the column or of the parameter.
      */
     public int getIndex() {
@@ -96,7 +96,7 @@ public class DataTruncation extends SQLWarning implements Serializable {
 
     /**
      * Gets whether the value truncated was a parameter value or a column value.
-     * 
+     *
      * @return {@code true} if the value truncated was a parameter value,
      *         {@code false} if it was a column value.
      */
@@ -107,7 +107,7 @@ public class DataTruncation extends SQLWarning implements Serializable {
     /**
      * Gets whether the value was truncated on a read operation or a write
      * operation
-     * 
+     *
      * @return {@code true} if the value was truncated on a read operation,
      *         {@code false} otherwise.
      */
@@ -117,7 +117,7 @@ public class DataTruncation extends SQLWarning implements Serializable {
 
     /**
      * Gets the number of bytes of data that was actually read or written.
-     * 
+     *
      * @return the number of bytes actually read/written. The value may be set
      *         to {@code -1} if the size is unknown.
      */

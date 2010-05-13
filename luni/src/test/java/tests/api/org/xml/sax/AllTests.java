@@ -33,7 +33,7 @@ public class AllTests {
 
         suite.addTest(tests.api.org.xml.sax.ext.AllTests.suite());
         suite.addTest(tests.api.org.xml.sax.helpers.AllTests.suite());
-        
+
         // $JUnit-END$
         return suite;
     }

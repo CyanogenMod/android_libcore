@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,7 +56,7 @@ public class Signature2Test extends junit.framework.TestCase {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
             keyGen.initialize(1024);
             dsaKeys = keyGen.generateKeyPair();
-            
+
             KeyPairGenerator keyGen2 = KeyPairGenerator.getInstance("RSA");
             keyGen2.initialize(1024);
             rsaKeys = keyGen2.generateKeyPair();
@@ -114,7 +114,7 @@ public class Signature2Test extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("Unexpected exception for DSA algorithm");
         }
-        
+
         try {
             Signature.getInstance("SHA-256");
             fail("NoSuchAlgorithmException was not thrown for unavailable algorithm");
@@ -163,7 +163,7 @@ public class Signature2Test extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         try {
             Signature.getInstance("SHA-256", providers[0]);
             fail("NoSuchAlgorithmException expected");
@@ -189,14 +189,14 @@ public class Signature2Test extends junit.framework.TestCase {
         for (int i = 0; i < providers.length; i++) {
             Signature.getInstance("DSA", providers[i].getName());
         }// end for
-        
+
         try {
             Signature.getInstance("SHA-256", providers[0].getName());
             fail("NoSuchAlgorithmException expected");
         } catch (NoSuchAlgorithmException e) {
             // expected
         }
-        
+
         Provider[] pp = Security.getProviders();
         for (int i = 0; i < pp.length; i++) {
             try {
@@ -206,7 +206,7 @@ public class Signature2Test extends junit.framework.TestCase {
                 // expected
             }
         }
-        
+
         String[] sp = {null, ""};
         for (int i = 0; i < sp.length; i++) {
             try {
@@ -234,7 +234,7 @@ public class Signature2Test extends junit.framework.TestCase {
         } catch (UnsupportedOperationException e) {
             // Could be that the operation is not supported
         }
-        
+
         try {
             MySignature sig2 = new MySignature("test");
             sig2.getParameters();
@@ -242,7 +242,7 @@ public class Signature2Test extends junit.framework.TestCase {
         } catch (UnsupportedOperationException e) {
             // ok
         }
-        
+
         try {
             MySignature sig2 = new MySignature("ABC");
             sig2.getParameters();
@@ -300,22 +300,22 @@ public class Signature2Test extends junit.framework.TestCase {
         } catch (InvalidKeyException e) {
             fail("unexpected: " + e);
         }
-        
-        try { 
+
+        try {
             Signature.getInstance("DSA").initSign(rsaKeys.getPrivate());
             fail("expected InvalidKeyException");
         } catch (InvalidKeyException e) {
             // ok
         }
     }
-    
+
     @TestTargetNew (
             level=TestLevel.COMPLETE,
             method="initSign",
             args={PrivateKey.class, SecureRandom.class}
     )
     public void test_initSignLjava_security_PrivateKeyLjava_security_SecureRandom() {
-        
+
         try {
             Signature sig = Signature.getInstance("DSA");
             sig.initSign(dsaKeys.getPrivate(), new SecureRandom());
@@ -324,7 +324,7 @@ public class Signature2Test extends junit.framework.TestCase {
         } catch (InvalidKeyException e) {
             fail("unexpected: " + e);
         }
-        
+
         try {
             Signature sig = Signature.getInstance("DSA");
             sig.initSign(rsaKeys.getPrivate(), new SecureRandom());
@@ -333,7 +333,7 @@ public class Signature2Test extends junit.framework.TestCase {
             // ok
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected: " + e);
-        } 
+        }
     }
 
     /**
@@ -347,14 +347,14 @@ public class Signature2Test extends junit.framework.TestCase {
     )
     public void test_initVerifyLjava_security_PublicKey() throws Exception {
         Signature.getInstance("DSA").initVerify(dsaKeys.getPublic());
-        
+
         try {
             Signature.getInstance("DSA").initVerify(rsaKeys.getPublic());
             fail("expected InvalidKeyException");
         } catch (InvalidKeyException e) {
             // ok
-        } 
-        
+        }
+
     }
 
     /**
@@ -484,7 +484,7 @@ public class Signature2Test extends junit.framework.TestCase {
 
         byte[] bytes = MESSAGE.getBytes();
         sig.update(bytes);
-        
+
         try {
             Signature sig2 = Signature.getInstance("DSA");
             sig2.update(MESSAGE.getBytes());
@@ -506,28 +506,28 @@ public class Signature2Test extends junit.framework.TestCase {
     public void test_update$BII() throws Exception {
         Signature sig = Signature.getInstance("DSA");
         byte[] bytes = MESSAGE.getBytes();
-        
+
         try {
             sig.update(bytes, 0, bytes.length);
             fail("expected SignatureException");
         } catch (SignatureException e) {
             // ok;
         }
-        
+
         sig.initSign(dsaKeys.getPrivate());
 
-        
+
         sig.update(bytes, 0, bytes.length);
-        
+
         sig.update(bytes, bytes.length - 2, 2);
-        
+
         try {
             sig.update(bytes, bytes.length -3, 4);
             fail("expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // ok
         }
-        
+
         try {
             sig.update(null, 0, 5);
             fail("expected IllegalArgumentException");
@@ -550,7 +550,7 @@ public class Signature2Test extends junit.framework.TestCase {
         sig.initSign(dsaKeys.getPrivate());
 
         sig.update(MESSAGE.getBytes()[0]);
-        
+
     }
 
     /**
@@ -592,14 +592,14 @@ public class Signature2Test extends junit.framework.TestCase {
     )
     public void test_verify$B() throws Exception {
         Signature sig = Signature.getInstance("DSA");
-        
+
         try {
             sig.verify(new byte[] { 0,1,2,3 });
             fail("expected SignatureException");
         } catch (SignatureException e) {
             // ok
         }
-        
+
         sig.initSign(dsaKeys.getPrivate());
         sig.update(MESSAGE.getBytes());
         byte[] signature = sig.sign();
@@ -696,7 +696,7 @@ public class Signature2Test extends junit.framework.TestCase {
             return services.size();
         }
     }
-    
+
     @SuppressWarnings("unused")
     private class MySignature extends Signature {
 
@@ -713,7 +713,7 @@ public class Signature2Test extends junit.framework.TestCase {
         @Override
         protected void engineInitSign(PrivateKey privateKey)
                 throws InvalidKeyException {
-            
+
         }
 
         @Override
@@ -724,7 +724,7 @@ public class Signature2Test extends junit.framework.TestCase {
         @Override
         protected void engineSetParameter(String param, Object value)
                 throws InvalidParameterException {
-            
+
         }
 
         @Override
@@ -734,13 +734,13 @@ public class Signature2Test extends junit.framework.TestCase {
 
         @Override
         protected void engineUpdate(byte b) throws SignatureException {
-            
+
         }
 
         @Override
         protected void engineUpdate(byte[] b, int off, int len)
                 throws SignatureException {
-            
+
         }
 
         @Override
@@ -748,7 +748,7 @@ public class Signature2Test extends junit.framework.TestCase {
                 throws SignatureException {
             return false;
         }
-        
+
         @Override
         protected AlgorithmParameters engineGetParameters() {
             if (this.getAlgorithm().equals("test")) {
@@ -757,6 +757,6 @@ public class Signature2Test extends junit.framework.TestCase {
                 return null;
             }
         }
-        
+
     }
 }

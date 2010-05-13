@@ -38,7 +38,7 @@ import java.util.Vector;
 import org.apache.harmony.security.tests.support.cert.MyCertificate;
 /**
  * Tests for <code>CollectionCertStoreParameters</code>
- * 
+ *
  */
 @TestTargetClass(CollectionCertStoreParameters.class)
 public class CollectionCertStoreParametersTest extends TestCase {
@@ -50,7 +50,7 @@ public class CollectionCertStoreParametersTest extends TestCase {
     /**
      * Test #1 for <code>CollectionCertStoreParameters()</code> constructor<br>
      * Assertion: Creates an instance of CollectionCertStoreParameters
-     * with the default parameter values (an empty and immutable Collection) 
+     * with the default parameter values (an empty and immutable Collection)
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -67,7 +67,7 @@ public class CollectionCertStoreParametersTest extends TestCase {
     /**
      * Test #2 for <code>CollectionCertStoreParameters</code> constructor<br>
      * Assertion: Creates an instance of CollectionCertStoreParameters
-     * with the default parameter values (an empty and immutable Collection) 
+     * with the default parameter values (an empty and immutable Collection)
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -93,7 +93,7 @@ public class CollectionCertStoreParametersTest extends TestCase {
     /**
      * Test #1 for <code>CollectionCertStoreParameters(Collection)</code>
      * constructor<br>
-     * Assertion: Creates an instance of CollectionCertStoreParameters 
+     * Assertion: Creates an instance of CollectionCertStoreParameters
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -112,7 +112,7 @@ public class CollectionCertStoreParametersTest extends TestCase {
      * constructor<br>
      * Assertion: If the specified <code>Collection</code> contains an object
      * that is not a <code>Certificate</code> or <code>CRL</code>, that object
-     * will be ignored by the Collection <code>CertStore</code>. 
+     * will be ignored by the Collection <code>CertStore</code>.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -136,7 +136,7 @@ public class CollectionCertStoreParametersTest extends TestCase {
      * This allows the caller to subsequently add or remove Certificates or
      * CRLs from the Collection, thus changing the set of Certificates or CRLs
      * available to the Collection CertStore. The Collection CertStore will
-     * not modify the contents of the Collection 
+     * not modify the contents of the Collection
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -149,7 +149,7 @@ public class CollectionCertStoreParametersTest extends TestCase {
         // create using empty collection
         CollectionCertStoreParameters cp =
             new CollectionCertStoreParameters(certificates);
-        // check that the reference is used 
+        // check that the reference is used
         assertTrue("isRefUsed_1", certificates == cp.getCollection());
         // check that collection still empty
         assertTrue("isEmpty", cp.getCollection().isEmpty());
@@ -164,7 +164,7 @@ public class CollectionCertStoreParametersTest extends TestCase {
      * Test #4 for <code>CollectionCertStoreParameters(Collection)</code>
      * constructor<br>
      * Assertion: <code>NullPointerException</code> - if
-     * <code>collection</code> is <code>null</code> 
+     * <code>collection</code> is <code>null</code>
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,

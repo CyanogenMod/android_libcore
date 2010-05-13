@@ -55,7 +55,7 @@ public class AbstractSetTest extends TestCase {
             return 0;
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -102,24 +102,24 @@ public class AbstractSetTest extends TestCase {
                     public boolean hasNext() {
                         return true;
                     }
-    
+
                     public Object next() {
                         return null;
                     }
-    
+
                     public void remove() {
                         throw new UnsupportedOperationException();
                     }
-                    
+
                 };
             }
-    
+
             @Override
             public int size() {
                 return 10;
             }
         };
-        
+
         try {
             as.removeAll(null);
             fail("NullPointerException expected");
@@ -134,9 +134,9 @@ public class AbstractSetTest extends TestCase {
         } catch (UnsupportedOperationException e) {
             //expected
         }
-        
+
         as = new Mock_AbstractSet();
-        
+
         as.removeAll(c);
     }
 }

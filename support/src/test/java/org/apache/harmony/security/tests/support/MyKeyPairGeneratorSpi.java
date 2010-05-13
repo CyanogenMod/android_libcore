@@ -31,7 +31,7 @@ import java.security.spec.AlgorithmParameterSpec;
 
 /**
  * Additional class for verification of KeyPairGeneratorSpi and KeyPairGenerator
- * 
+ *
  */
 
 public class MyKeyPairGeneratorSpi extends KeyPairGeneratorSpi {

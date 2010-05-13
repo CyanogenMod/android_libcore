@@ -46,7 +46,7 @@ public final class WriteOnlyFileChannel extends FileChannelImpl {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.apache.harmony.nio.internal.FileChannelImpl#position()
      */
     public long position() throws IOException {

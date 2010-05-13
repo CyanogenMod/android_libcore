@@ -67,7 +67,7 @@ public class MacFunctionalTest extends TestCase {
 
         MacThread mt = new MacThread(algArray);
         mt.launcher();
-        
+
         assertEquals(mt.getFailureMessages(), 0, mt.getTotalFailuresNumber());
     }
 }

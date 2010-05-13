@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,7 +56,7 @@ import dalvik.system.VMStack;
  * standard input and output. Enables clients to dynamically load native
  * libraries. All methods of this class are accessed in a static way and the
  * class itself can not be instantiated.
- * 
+ *
  * @see Runtime
  */
 public final class System {
@@ -97,7 +97,7 @@ public final class System {
 
     /**
      * Sets the standard input stream to the given user defined input stream.
-     * 
+     *
      * @param newIn
      *            the user defined input stream to set as the standard input
      *            stream.
@@ -116,7 +116,7 @@ public final class System {
 
     /**
      * Sets the standard output stream to the given user defined output stream.
-     * 
+     *
      * @param newOut
      *            the user defined output stream to set as the standard output
      *            stream.
@@ -136,7 +136,7 @@ public final class System {
     /**
      * Sets the standard error output stream to the given user defined output
      * stream.
-     * 
+     *
      * @param newErr
      *            the user defined output stream to set as the standard error
      *            output stream.
@@ -163,7 +163,7 @@ public final class System {
      * Copies the number of {@code length} elements of the Array {@code src}
      * starting at the offset {@code srcPos} into the Array {@code dest} at
      * the position {@code destPos}.
-     * 
+     *
      * @param src
      *            the source array to copy the content.
      * @param srcPos
@@ -184,7 +184,7 @@ public final class System {
      * 00:00:00 UTC. This method shouldn't be used for measuring timeouts or
      * other elapsed time measurements, as changing the system time can affect
      * the results.
-     * 
+     *
      * @return the local system time in milliseconds.
      */
     public static native long currentTimeMillis();
@@ -194,7 +194,7 @@ public final class System {
      * local system. This timestamp can only be used to measure an elapsed
      * period by comparing it against another timestamp. It cannot be used as a
      * very exact system time expression.
-     * 
+     *
      * @return the current timestamp in nanoseconds.
      */
     public static native long nanoTime();
@@ -204,7 +204,7 @@ public final class System {
      * {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
      * {@code true} argument, then all objects will be properly
      * garbage-collected and finalized first.
-     * 
+     *
      * @param code
      *            the return code.
      * @throws SecurityException
@@ -228,7 +228,7 @@ public final class System {
     /**
      * Returns the value of the environment variable with the given name {@code
      * var}.
-     * 
+     *
      * @param name
      *            the name of the environment variable.
      * @return the value of the specified environment variable or {@code null}
@@ -259,7 +259,7 @@ public final class System {
 
     /**
      * Returns an unmodifiable map of all available environment variables.
-     * 
+     *
      * @return the map representing all environment variables.
      * @throws SecurityException
      *             if a {@link SecurityManager} is installed and its {@code
@@ -301,7 +301,7 @@ public final class System {
     /**
      * Returns the inherited channel from the creator of the current virtual
      * machine.
-     * 
+     *
      * @return the inherited {@link Channel} or {@code null} if none exists.
      * @throws IOException
      *             if an I/O error occurred.
@@ -316,7 +316,7 @@ public final class System {
      * Returns the system properties. Note that this is not a copy, so that
      * changes made to the returned Properties object will be reflected in
      * subsequent calls to getProperty and getProperties.
-     * 
+     *
      * @return the system properties.
      * @throws SecurityException
      *             if a {@link SecurityManager} is installed and its {@code
@@ -334,7 +334,7 @@ public final class System {
     /**
      * Returns the system properties without any security checks. This is used
      * for access from within java.lang.
-     * 
+     *
      * @return the system properties
      */
     static Properties internalGetProperties() {
@@ -353,7 +353,7 @@ public final class System {
      * such property exists.
      * <p>
      * The properties currently provided by the virtual machine are:
-     * 
+     *
      * <pre>
      *        java.vendor.url
      *        java.class.path
@@ -372,7 +372,7 @@ public final class System {
      *        java.version
      *        java.home
      * </pre>
-     * 
+     *
      * @param prop
      *            the name of the system property to look up.
      * @return the value of the specified system property or {@code null} if the
@@ -388,7 +388,7 @@ public final class System {
     /**
      * Returns the value of a particular system property. The {@code
      * defaultValue} will be returned if no such property has been found.
-     * 
+     *
      * @param prop
      *            the name of the system property to look up.
      * @param defaultValue
@@ -414,7 +414,7 @@ public final class System {
 
     /**
      * Sets the value of a particular system property.
-     * 
+     *
      * @param prop
      *            the name of the system property to be changed.
      * @param value
@@ -438,7 +438,7 @@ public final class System {
 
     /**
      * Removes a specific system property.
-     * 
+     *
      * @param key
      *            the name of the system property to be removed.
      * @return the property value or {@code null} if the property didn't exist.
@@ -479,7 +479,7 @@ public final class System {
     /**
      * Returns null. Android does not use {@code SecurityManager}. This method
      * is only provided for source compatibility.
-     * 
+     *
      * @return null
      */
     public static SecurityManager getSecurityManager() {
@@ -491,7 +491,7 @@ public final class System {
      * the same one that would be returned by the method {@code
      * java.lang.Object.hashCode()}, whether or not the object's class has
      * overridden hashCode(). The hash code for {@code null} is {@code 0}.
-     * 
+     *
      * @param anObject
      *            the object to calculate the hash code.
      * @return the hash code for the given object.
@@ -501,7 +501,7 @@ public final class System {
 
     /**
      * Loads the specified file as a dynamic library.
-     * 
+     *
      * @param pathName
      *            the path of the file to be loaded.
      * @throws SecurityException
@@ -519,7 +519,7 @@ public final class System {
      * Loads and links the shared library with the given name {@code libName}.
      * The file will be searched in the default directory for shared libraries
      * of the local system.
-     * 
+     *
      * @param libName
      *            the name of the library to load.
      * @throws UnsatisfiedLinkError
@@ -547,7 +547,7 @@ public final class System {
      * Ensures that, when the virtual machine is about to exit, all objects are
      * finalized. Note that all finalization which occurs when the system is
      * exiting is performed after all running threads have been terminated.
-     * 
+     *
      * @param flag
      *            the flag determines if finalization on exit is enabled.
      * @deprecated this method is unsafe.
@@ -560,7 +560,7 @@ public final class System {
 
     /**
      * Sets all system properties.
-     * 
+     *
      * @param p
      *            the new system property.
      * @throws SecurityException
@@ -599,7 +599,7 @@ public final class System {
     /**
      * Returns the platform specific file name format for the shared library
      * named by the argument.
-     * 
+     *
      * @param userLibName
      *            the name of the library to look up.
      * @return the platform specific filename for the library.
@@ -609,7 +609,7 @@ public final class System {
     /**
      * Sets the value of the named static field in the receiver to the passed in
      * argument.
-     * 
+     *
      * @param fieldName
      *            the name of the field to set, one of in, out, or err
      * @param stream

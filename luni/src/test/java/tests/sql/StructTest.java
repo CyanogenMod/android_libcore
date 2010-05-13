@@ -36,7 +36,7 @@ public class StructTest extends TestCase {
       notes = "",
           method = "getSQLTypeName",
           args = {}
-        
+
     )
     public void testGetSQLTypeName() {
         fail("Not yet implemented");
@@ -48,7 +48,7 @@ public class StructTest extends TestCase {
     @TestTargetNew(
       level = TestLevel.NOT_FEASIBLE,
       notes = "",
-        
+
           method = "getAttributes",
           args = {}
     )

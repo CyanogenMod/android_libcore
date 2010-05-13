@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,22 +38,22 @@ public class Provider2Test extends junit.framework.TestCase {
 
     class MyEntry implements java.util.Map.Entry {
          public Object getKey() {
-             return null;  
+             return null;
          }
 
          public Object getValue() {
-             return null;  
+             return null;
          }
 
          public Object setValue(Object value) {
-             return null;  
+             return null;
          }
     }
-    
+
     TestProvider provTest = new TestProvider("provTest", 1.2,
             "contains nothings, purely for testing the class");
 
-    
+
     /**
      * @tests java.security.Provider#entrySet()
      */
@@ -160,8 +160,8 @@ public class Provider2Test extends junit.framework.TestCase {
             // expected
         }
     }
-    
-    
+
+
     /**
      * @tests java.security.Provider#toString()
      */
@@ -175,7 +175,7 @@ public class Provider2Test extends junit.framework.TestCase {
         // Regression for HARMONY-3734
         assertEquals("provTest version 1.2", provTest.toString());
     }
-    
+
     // Regression Test for Provider.Service.getAlias(), which is an package
     // private method but will lead to NPE thrown at
     // Secure.SecurityDorr.getAliases

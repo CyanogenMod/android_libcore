@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 
 import java.util.Locale;
 
-@TestTargetClass(Double.class) 
+@TestTargetClass(Double.class)
 public class DoubleTest extends TestCase {
     private static final long rawBitsFor3_4en324ToN1[] = { 0x1L, 0x7L, 0x45L, 0x2b0L, 0x1ae2L,
             0x10cd1L, 0xa8028L, 0x69018dL, 0x41a0f7eL, 0x29049aedL, 0x19a2e0d44L,
@@ -261,9 +261,9 @@ public class DoubleTest extends TestCase {
         d= new Double(Byte.MAX_VALUE);
         assertEquals("Returned incorrect byte value", Byte.MAX_VALUE, d.byteValue());
         d= new Double(Byte.MIN_VALUE);
-        assertEquals("Returned incorrect byte value", Byte.MIN_VALUE, d.byteValue());     
+        assertEquals("Returned incorrect byte value", Byte.MIN_VALUE, d.byteValue());
         d= new Double(Double.MAX_VALUE);
-        assertEquals("Returned incorrect byte value", -1, d.byteValue());     
+        assertEquals("Returned incorrect byte value", -1, d.byteValue());
     }
 
     /**
@@ -322,10 +322,10 @@ public class DoubleTest extends TestCase {
         double r = Double.longBitsToDouble(lbits);
 
         assertTrue("Bit conversion failed", d.doubleValue() == r);
-        
+
         assertEquals(0x7ff8000000000000L, Double.doubleToLongBits(Double.NaN));
-        assertEquals(0x7ff0000000000000L, Double.doubleToLongBits(Double.POSITIVE_INFINITY));      
-        assertEquals(0xfff0000000000000L, Double.doubleToLongBits(Double.NEGATIVE_INFINITY));  
+        assertEquals(0x7ff0000000000000L, Double.doubleToLongBits(Double.POSITIVE_INFINITY));
+        assertEquals(0xfff0000000000000L, Double.doubleToLongBits(Double.NEGATIVE_INFINITY));
     }
 
     /**
@@ -341,10 +341,10 @@ public class DoubleTest extends TestCase {
         long l = 0x7ff80000000004d2L;
         double d = Double.longBitsToDouble(l);
         assertTrue("Wrong raw bits", Double.doubleToRawLongBits(d) == l);
-        
+
         assertEquals(0x7ff8000000000000L, Double.doubleToLongBits(Double.NaN));
-        assertEquals(0x7ff0000000000000L, Double.doubleToLongBits(Double.POSITIVE_INFINITY));      
-        assertEquals(0xfff0000000000000L, Double.doubleToLongBits(Double.NEGATIVE_INFINITY));        
+        assertEquals(0x7ff0000000000000L, Double.doubleToLongBits(Double.POSITIVE_INFINITY));
+        assertEquals(0xfff0000000000000L, Double.doubleToLongBits(Double.NEGATIVE_INFINITY));
     }
 
     /**
@@ -360,7 +360,7 @@ public class DoubleTest extends TestCase {
         assertEquals("Incorrect double value returned", 999999999999999.9999999999999,
                 new Double(999999999999999.9999999999999).doubleValue(), 0D);
         assertEquals(Double.POSITIVE_INFINITY, new Double("1.7976931348623159E308").doubleValue());
-        assertEquals(Double.NEGATIVE_INFINITY, new Double("-1.7976931348623159E308").doubleValue());        
+        assertEquals(Double.NEGATIVE_INFINITY, new Double("-1.7976931348623159E308").doubleValue());
         assertEquals(Double.MAX_VALUE, new Double("1.7976931348623157E308").doubleValue());
         assertEquals(Double.MIN_VALUE, new Double("4.9E-324").doubleValue());
     }
@@ -423,9 +423,9 @@ public class DoubleTest extends TestCase {
         // Test for method int java.lang.Double.intValue()
         Double d = new Double(1923311.47712);
         assertEquals("Returned incorrect int value", 1923311, d.intValue());
-        assertEquals("Returned incorrect int value", Integer.MAX_VALUE, 
+        assertEquals("Returned incorrect int value", Integer.MAX_VALUE,
                                             new Double(2147483648d).intValue());
-        assertEquals("Returned incorrect int value", Integer.MIN_VALUE, 
+        assertEquals("Returned incorrect int value", Integer.MIN_VALUE,
                                            new Double(-2147483649d).intValue());
     }
 
@@ -494,7 +494,7 @@ public class DoubleTest extends TestCase {
 
         Double d = new Double(0.0 / 0.0);
         assertTrue("NAN check failed", Double.isNaN(d.doubleValue()));
-        
+
         assertFalse("Doesn't return false value", Double.isNaN(new Double(Double.MAX_VALUE)));
     }
 
@@ -604,7 +604,7 @@ public class DoubleTest extends TestCase {
         doTestCompareRawBits("-1.2341234124312332E107", 0xd62ae7a25fe706ecL,
                 "-1.2341234124312331E107");
 
-        doTestCompareRawBits("9.999999999999999e22", 0x44b52d02c7e14af6L, 
+        doTestCompareRawBits("9.999999999999999e22", 0x44b52d02c7e14af6L,
                 "9.999999999999999e22");
 
         /*
@@ -690,7 +690,7 @@ public class DoubleTest extends TestCase {
                 "-0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000055595409854908458349204328908234982349050934129878452378432452458968024357823490509341298784523784324524589680243578234905093412987845237843245245896802435782349050934129878452378432452458968024357868024357823490509341298784523784324524589680243578234905093412987845237843245245896802435786802435782349050934129878452378432452458968024357823490509341298784523784324524589680243578",
                 0x8000000000000001L, "-4.9E-324");
     }
-    
+
     /**
      * @tests java.lang.Double#parseDouble(java.lang.String)
      */
@@ -764,7 +764,7 @@ public class DoubleTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests java.lang.Double#parseDouble(java.lang.String)
      */
@@ -808,49 +808,49 @@ public class DoubleTest extends TestCase {
 
         actual = Double.parseDouble("0x0.0p999999999999999999999999999999999999999999999999999999999999999");
         assertEquals("Returned incorrect value", 0.0, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0xf1.0p9999999999999999999999999999999999999999999999999999999999999999");
         assertEquals("Returned incorrect value", Double.POSITIVE_INFINITY, actual, 0.0D);
 
         actual = Double.parseDouble("0xffffffffffffffffffffffffffffffffffff.ffffffffffffffffffffffffffffffffffffffffffffffp1");
         expected = Double.longBitsToDouble(0x4900000000000000L);
         assertEquals("Returned incorrect value", expected, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0x0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p1600");
         expected = Double.longBitsToDouble(0x7f30000000000000L);
         assertEquals("Returned incorrect value", expected, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0x0.0p-999999999999999999999999999999999999999999999999999999");
         assertEquals("Returned incorrect value", 0.0, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0xf1.0p-9999999999999999999999999999999999999999999999999999999999999999");
         assertEquals("Returned incorrect value", 0.0, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0x10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000p-1600");
         expected = Double.longBitsToDouble(0xf0000000000000L);
         assertEquals("Returned incorrect value", expected, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0x1.p9223372036854775807");
         assertEquals("Returned incorrect value", Double.POSITIVE_INFINITY, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0x1.p9223372036854775808");
         assertEquals("Returned incorrect value", Double.POSITIVE_INFINITY, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0x10.p9223372036854775808");
         assertEquals("Returned incorrect value", Double.POSITIVE_INFINITY, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0xabcd.ffffffffp+2000");
         assertEquals("Returned incorrect value", Double.POSITIVE_INFINITY, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0x1.p-9223372036854775808");
         assertEquals("Returned incorrect value", 0.0, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0x1.p-9223372036854775809");
         assertEquals("Returned incorrect value", 0.0, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0x.1p-9223372036854775809");
         assertEquals("Returned incorrect value", 0.0, actual, 0.0D);
-        
+
         actual = Double.parseDouble("0xabcd.ffffffffffffffp-2000");
         assertEquals("Returned incorrect value", 0.0, actual, 0.0D);
     }
@@ -924,20 +924,20 @@ public class DoubleTest extends TestCase {
         for (int i = 0; i < expecteds.length; i++) {
             int part = i*11;
             String inputString = "0x" + part + "." + part + "0123456789abcdefp" + part;
-            
+
             double actual = Double.parseDouble(inputString);
             double expected = Double.longBitsToDouble(expecteds[i]);
-            
+
             String expectedString = "0x" + Long.toHexString(Double.doubleToLongBits(expected));
             String actualString = "0x" + Long.toHexString(Double.doubleToLongBits(actual));
             String errorMsg = i + "th input string is:<" + inputString
                     + ">.The expected result should be:<" + expectedString
                     + ">, but was: <" + actualString + ">. ";
-            
+
             assertEquals(errorMsg, expected, actual, 0.0D);
         }
     }
-    
+
     /**
      * @tests java.lang.Double#parseDouble(java.lang.String)
      */
@@ -991,20 +991,20 @@ public class DoubleTest extends TestCase {
         for (int i = 0; i < expecteds.length; i++) {
             int part = i*11;
             String inputString = "0x" + part + "." + part + "0123456789abcdefp-" + part;
-            
+
             double actual = Double.parseDouble(inputString);
             double expected = Double.longBitsToDouble(expecteds[i]);
-            
+
             String expectedString = "0x" + Long.toHexString(Double.doubleToLongBits(expected));
             String actualString = "0x" + Long.toHexString(Double.doubleToLongBits(actual));
             String errorMsg = i + "th input string is:<" + inputString
                     + ">.The expected result should be:<" + expectedString
                     + ">, but was: <" + actualString + ">. ";
-            
+
             assertEquals(errorMsg, expected, actual, 0.0D);
         }
     }
-    
+
     /**
      * @tests java.lang.Double#parseDouble(java.lang.String)
      */
@@ -1021,13 +1021,13 @@ public class DoubleTest extends TestCase {
                0x7fefffffffffffffL,               0x7ff0000000000000L,               0x7ff0000000000000L,
                0x7ff0000000000000L,               0x7ff0000000000000L,               0x7ff0000000000000L,
                0x7ff0000000000000L,               0x7ff0000000000000L,               0x7ff0000000000000L,
-               
+
                0xffefffffffffffffL,               0xffefffffffffffffL,               0xffefffffffffffffL,
                0xffefffffffffffffL,               0xffefffffffffffffL,               0xffefffffffffffffL,
                0xffefffffffffffffL,               0xfff0000000000000L,               0xfff0000000000000L,
                0xfff0000000000000L,               0xfff0000000000000L,               0xfff0000000000000L,
                0xfff0000000000000L,               0xfff0000000000000L,               0xfff0000000000000L };
-       
+
        String[] inputs = {
                "0x1.fffffffffffffp1023",
                "0x1.fffffffffffff000000000000000000000000001p1023",
@@ -1060,21 +1060,21 @@ public class DoubleTest extends TestCase {
                "-0x1.ffffffffffffffp1023",
                "-0x1.ffffffffffffff00000000000000000000000001p1023",
                "-0x1.fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp1023" };
-       
+
        for (int i = 0; i < inputs.length; i++) {
            double actual = Double.parseDouble(inputs[i]);
            double expected = Double.longBitsToDouble(expecteds[i]);
-           
+
            String expectedString = "0x" + Long.toHexString(Double.doubleToLongBits(expected));
            String actualString = "0x" + Long.toHexString(Double.doubleToLongBits(actual));
            String errorMsg = i + "th input string is:<" + inputs[i]
                    + ">.The expected result should be:<" + expectedString
                    + ">, but was: <" + actualString + ">. ";
-           
+
            assertEquals(errorMsg, expected, actual, 0.0D);
        }
     }
-    
+
     /**
      * @tests java.lang.Double#parseDouble(java.lang.String)
      */
@@ -1091,13 +1091,13 @@ public class DoubleTest extends TestCase {
                 0x10000000000000L,                0x10000000000000L,                0x10000000000001L,
                 0x10000000000001L,                0x10000000000001L,                0x10000000000001L,
                 0x10000000000001L,                0x10000000000001L,                0x10000000000001L,
-                
+
                 0x8010000000000000L,                0x8010000000000000L,                0x8010000000000000L,
                 0x8010000000000000L,                0x8010000000000000L,                0x8010000000000000L,
                 0x8010000000000000L,                0x8010000000000000L,                0x8010000000000001L,
                 0x8010000000000001L,                0x8010000000000001L,                0x8010000000000001L,
                 0x8010000000000001L,                0x8010000000000001L,                0x8010000000000001L };
-       
+
        String[] inputs = {
                "0x1.0p-1022",
                "0x1.00000000000001p-1022",
@@ -1114,7 +1114,7 @@ public class DoubleTest extends TestCase {
                "0x1.00000000000009fffffffffffffffffffffffffffffffffp-1022",
                "0x1.0000000000000fp-1022",
                "0x1.0000000000000ffffffffffffffffffffffffffffffffffp-1022",
-               
+
                "-0x1.0p-1022",
                "-0x1.00000000000001p-1022",
                "-0x1.000000000000010000000000000000001p-1022",
@@ -1130,21 +1130,21 @@ public class DoubleTest extends TestCase {
                "-0x1.00000000000009fffffffffffffffffffffffffffffffffp-1022",
                "-0x1.0000000000000fp-1022",
                "-0x1.0000000000000ffffffffffffffffffffffffffffffffffp-1022" };
-       
+
        for (int i = 0; i < inputs.length; i++) {
            double actual = Double.parseDouble(inputs[i]);
            double expected = Double.longBitsToDouble(expecteds[i]);
-           
+
            String expectedString = "0x" + Long.toHexString(Double.doubleToLongBits(expected));
            String actualString = "0x" + Long.toHexString(Double.doubleToLongBits(actual));
            String errorMsg = i + "th input string is:<" + inputs[i]
                    + ">.The expected result should be:<" + expectedString
                    + ">, but was: <" + actualString + ">. ";
-           
+
            assertEquals(errorMsg, expected, actual, 0.0D);
        }
     }
-    
+
     /**
      * @tests java.lang.Double#parseDouble(java.lang.String)
      */
@@ -1161,13 +1161,13 @@ public class DoubleTest extends TestCase {
                 0xfffffffffffffL,                0x10000000000000L,                0x10000000000000L,
                 0x10000000000000L,                0x10000000000000L,                0x10000000000000L,
                 0x10000000000000L,                0x10000000000000L,                0x10000000000000L,
-                
+
                 0x800fffffffffffffL,                0x800fffffffffffffL,                0x800fffffffffffffL,
                 0x800fffffffffffffL,                0x800fffffffffffffL,                0x800fffffffffffffL,
                 0x800fffffffffffffL,                0x8010000000000000L,                0x8010000000000000L,
                 0x8010000000000000L,                0x8010000000000000L,                0x8010000000000000L,
                 0x8010000000000000L,                0x8010000000000000L,                0x8010000000000000L };
-       
+
        String[] inputs = {
                "0x0.fffffffffffffp-1022",
                "0x0.fffffffffffff00000000000000000000000000000000001p-1022",
@@ -1199,22 +1199,22 @@ public class DoubleTest extends TestCase {
                "-0x0.fffffffffffff9ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp-1022",
                "-0x0.ffffffffffffffp-1022",
                "-0x0.ffffffffffffff0000000000000000000000000000000001p-1022",
-               "-0x0.ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp-1022" };        
-       
+               "-0x0.ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp-1022" };
+
        for (int i = 0; i < inputs.length; i++) {
            double actual = Double.parseDouble(inputs[i]);
            double expected = Double.longBitsToDouble(expecteds[i]);
-           
+
            String expectedString = "0x" + Long.toHexString(Double.doubleToLongBits(expected));
            String actualString = "0x" + Long.toHexString(Double.doubleToLongBits(actual));
            String errorMsg = i + "th input string is:<" + inputs[i]
                    + ">.The expected result should be:<" + expectedString
                    + ">, but was: <" + actualString + ">. ";
-           
+
            assertEquals(errorMsg, expected, actual, 0.0D);
        }
     }
-    
+
     /**
      * @tests java.lang.Double#parseDouble(java.lang.String)
      */
@@ -1231,13 +1231,13 @@ public class DoubleTest extends TestCase {
                 0x2L,                0x2L,                0x2L,
                 0x2L,                0x2L,                0x2L,
                 0x2L,                0x2L,                0x2L,
-                
+
                 0x8000000000000001L,                0x8000000000000001L,                0x8000000000000002L,
                 0x8000000000000001L,                0x8000000000000001L,                0x8000000000000001L,
                 0x8000000000000002L,                0x8000000000000002L,                0x8000000000000002L,
                 0x8000000000000002L,                0x8000000000000002L,                0x8000000000000002L,
                 0x8000000000000002L,                0x8000000000000002L,                0x8000000000000002L };
-       
+
        String[] inputs = {
                "0x0.0000000000001p-1022",
                "0x0.00000000000010000000000000000001p-1022",
@@ -1253,8 +1253,8 @@ public class DoubleTest extends TestCase {
                "0x0.00000000000019fffffffffffffffffffffffffffffffffp-1022",
                "0x0.0000000000001fp-1022",
                "0x0.0000000000001f0000000000000000001p-1022",
-               "0x0.0000000000001ffffffffffffffffffffffffffffffffffp-1022",  
-               
+               "0x0.0000000000001ffffffffffffffffffffffffffffffffffp-1022",
+
                "-0x0.0000000000001p-1022",
                "-0x0.00000000000010000000000000000001p-1022",
                "-0x0.0000000000001fffffffffffffffffffffffffffffffffp-1022",
@@ -1270,21 +1270,21 @@ public class DoubleTest extends TestCase {
                "-0x0.0000000000001fp-1022",
                "-0x0.0000000000001f0000000000000000001p-1022",
                "-0x0.0000000000001ffffffffffffffffffffffffffffffffffp-1022" };
-       
+
        for (int i = 0; i < inputs.length; i++) {
            double actual = Double.parseDouble(inputs[i]);
            double expected = Double.longBitsToDouble(expecteds[i]);
-           
+
            String expectedString = "0x" + Long.toHexString(Double.doubleToLongBits(expected));
            String actualString = "0x" + Long.toHexString(Double.doubleToLongBits(actual));
            String errorMsg = i + "th input string is:<" + inputs[i]
                    + ">.The expected result should be:<" + expectedString
                    + ">, but was: <" + actualString + ">. ";
-           
+
            assertEquals(errorMsg, expected, actual, 0.0D);
        }
     }
-    
+
     /**
      * @tests java.lang.Double#parseDouble(java.lang.String)
      */
@@ -1302,7 +1302,7 @@ public class DoubleTest extends TestCase {
                 0x8000000000000000L,                0x8000000000000000L,                0x8000000000000000L,
                 0x8000000000000001L,                0x8000000000000001L,                0x8000000000000001L,
                 0x8000000000000001L,                0x8000000000000001L,                0x8000000000000001L };
-       
+
        String[] inputs = {
                "0x0.00000000000004p-1022",
                "0x0.00000000000007ffffffffffffffffffffffp-1022",
@@ -1313,7 +1313,7 @@ public class DoubleTest extends TestCase {
                "0x0.000000000000090000000000000000001p-1022",
                "0x0.00000000000009fffffffffffffffffffffffffffffffffp-1022",
                "0x0.0000000000000fffffffffffffffffffffffffffffffffffp-1022",
-          
+
                "-0x0.00000000000004p-1022",
                "-0x0.00000000000007ffffffffffffffffffffffp-1022",
                "-0x0.00000000000008p-1022",
@@ -1323,17 +1323,17 @@ public class DoubleTest extends TestCase {
                "-0x0.000000000000090000000000000000001p-1022",
                "-0x0.00000000000009fffffffffffffffffffffffffffffffffp-1022",
                "-0x0.0000000000000fffffffffffffffffffffffffffffffffffp-1022" };
-       
+
        for (int i = 0; i < inputs.length; i++) {
            double actual = Double.parseDouble(inputs[i]);
            double expected = Double.longBitsToDouble(expecteds[i]);
-           
+
            String expectedString = "0x" + Long.toHexString(Double.doubleToLongBits(expected));
            String actualString = "0x" + Long.toHexString(Double.doubleToLongBits(actual));
            String errorMsg = i + "th input string is:<" + inputs[i]
                    + ">.The expected result should be:<" + expectedString
                    + ">, but was: <" + actualString + ">. ";
-           
+
            assertEquals(errorMsg, expected, actual, 0.0D);
        }
     }
@@ -1632,7 +1632,7 @@ public class DoubleTest extends TestCase {
         assertEquals("0x1.2957874cccccdp23", Double.toHexString(9743299.65000D));
         assertEquals("0x1.2957874cccf63p23", Double.toHexString(9743299.650001234D));
         assertEquals("0x1.700d1061d3333p33", Double.toHexString(12349743299.65000D));
-        
+
         // test HARMONY-2132
         assertEquals("0x1.01p10", Double.toHexString(0x1.01p10));
     }

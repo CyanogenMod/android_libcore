@@ -32,7 +32,7 @@ public class StaleDexCacheError extends VirtualMachineError {
 
     /**
      * Creates a new exception instance and initializes it with a given message.
-     * 
+     *
      * @param detailMessage the error message
      */
     public StaleDexCacheError(String detailMessage) {

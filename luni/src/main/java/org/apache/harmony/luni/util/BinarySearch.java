@@ -23,7 +23,7 @@ public class BinarySearch {
     /**
      * Search the sorted characters in the string and return an exact index or
      * -1.
-     * 
+     *
      * @param data
      *            the String to search
      * @param value
@@ -47,7 +47,7 @@ public class BinarySearch {
 
     /**
      * Search the sorted characters in the string and return the nearest index.
-     * 
+     *
      * @param data
      *            the String to search
      * @param c

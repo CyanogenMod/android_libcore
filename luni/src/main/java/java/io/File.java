@@ -68,7 +68,7 @@ public class File implements Serializable, Comparable<File> {
 
     private static final long serialVersionUID = 301077366599181567L;
 
-    private static final String EMPTY_STRING = ""; 
+    private static final String EMPTY_STRING = "";
 
     // Caches the UTF-8 Charset for newCString.
     private static final Charset UTF8 = Charset.forName("UTF-8");
@@ -122,8 +122,8 @@ public class File implements Serializable, Comparable<File> {
 
     static {
         // The default protection domain grants access to these properties.
-        separatorChar = System.getProperty("file.separator", "/").charAt(0);  
-        pathSeparatorChar = System.getProperty("path.separator", ":").charAt(0); 
+        separatorChar = System.getProperty("file.separator", "/").charAt(0);
+        pathSeparatorChar = System.getProperty("path.separator", ":").charAt(0);
         separator = String.valueOf(separatorChar);
         pathSeparator = String.valueOf(pathSeparatorChar);
     }
@@ -206,7 +206,7 @@ public class File implements Serializable, Comparable<File> {
             return;
         }
         String userDir = AccessController.doPrivileged(
-            new PriviAction<String>("user.dir")); 
+            new PriviAction<String>("user.dir"));
         this.pathBytes = newCString(path.isEmpty() ? userDir : join(userDir, path));
     }
 
@@ -906,7 +906,7 @@ public class File implements Serializable, Comparable<File> {
             return false;
         }
         if (time < 0) {
-            throw new IllegalArgumentException(Msg.getString("K006a")); 
+            throw new IllegalArgumentException(Msg.getString("K006a"));
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -1320,7 +1320,7 @@ public class File implements Serializable, Comparable<File> {
             security.checkWrite(path);
         }
         if (path.isEmpty()) {
-            throw new IOException(Msg.getString("KA012")); 
+            throw new IOException(Msg.getString("KA012"));
         }
         return createNewFileImpl(pathBytes);
     }
@@ -1494,7 +1494,7 @@ public class File implements Serializable, Comparable<File> {
         if (!name.startsWith("/")) {
             // start with sep.
             return new URL(
-                    "file", EMPTY_STRING, -1, new StringBuilder(name.length() + 1) 
+                    "file", EMPTY_STRING, -1, new StringBuilder(name.length() + 1)
                             .append('/').append(name).toString(), null);
         } else if (name.startsWith("//")) {
             return new URL("file:" + name); // UNC path

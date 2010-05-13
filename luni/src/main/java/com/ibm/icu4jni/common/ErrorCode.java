@@ -13,16 +13,16 @@ package com.ibm.icu4jni.common;
 * Error exception class mapping ICU error codes of the enum UErrorCode
 * @author syn wee quek
 * @internal
-*/   
+*/
 public final class ErrorCode extends Exception
-{ 
+{
 
   // public methods --------------------------------------------------------
-  
+
   /**
   * Generic mapping from the error codes to java default exceptions.
   * @param error error code
-  * @return java default exception that maps to the argument error code, 
+  * @return java default exception that maps to the argument error code,
   *         otherwise if error is not a valid error code, null is returned.
   * @stable ICU 2.4
   */
@@ -45,33 +45,33 @@ public final class ErrorCode extends Exception
         return new RuntimeException(errorname);
     }
   }
-  
+
   // public static data member ---------------------------------------------
-  
+
   /**
-  * Start of information results (semantically successful) 
+  * Start of information results (semantically successful)
   */
   public static final int U_ERROR_INFO_START = -128;
-  /** 
-  * A resource bundle lookup returned a fallback result (not an error) 
+  /**
+  * A resource bundle lookup returned a fallback result (not an error)
   */
   public static final int U_USING_FALLBACK_ERROR = -128;
   /**
-  * A resource bundle lookup returned a result from the root locale (not an 
-  * error) 
+  * A resource bundle lookup returned a result from the root locale (not an
+  * error)
   */
   public static final int U_USING_DEFAULT_ERROR = -127;
   /**
-  * A SafeClone operation required allocating memory (informational 
-  * only 
+  * A SafeClone operation required allocating memory (informational
+  * only
   */
   public static final int U_SAFECLONE_ALLOCATED_ERROR = -126;
   /**
-  * This must always be the last warning value to indicate the limit for 
-  * UErrorCode warnings (last warning code +1) 
+  * This must always be the last warning value to indicate the limit for
+  * UErrorCode warnings (last warning code +1)
   */
   public static final int U_ERROR_INFO_LIMIT = -125;
-  
+
   /**
   * No error, no warning
   */
@@ -98,17 +98,17 @@ public final class ErrorCode extends Exception
   */
   public static final int U_PARSE_ERROR = 9;
   /**
-  * In the Character conversion routines: Invalid character or sequence was 
+  * In the Character conversion routines: Invalid character or sequence was
   * encountered
   */
   public static final int U_INVALID_CHAR_FOUND = 10;
   /**
-  * In the Character conversion routines: More bytes are required to complete 
+  * In the Character conversion routines: More bytes are required to complete
   * the conversion successfully
   */
   public static final int U_TRUNCATED_CHAR_FOUND = 11;
   /**
-  * In codeset conversion: a sequence that does NOT belong in the codepage has 
+  * In codeset conversion: a sequence that does NOT belong in the codepage has
   * been encountered
   */
   public static final int U_ILLEGAL_CHAR_FOUND = 12;
@@ -133,40 +133,40 @@ public final class ErrorCode extends Exception
   */
   public static final int U_RESOURCE_TYPE_MISMATCH = 17;
   /**
-  * ISO-2022 illlegal escape sequence 
+  * ISO-2022 illlegal escape sequence
   */
   public static final int U_ILLEGAL_ESCAPE_SEQUENCE = 18;
   /**
   * ISO-2022 unsupported escape sequence
   */
   public static final int U_UNSUPPORTED_ESCAPE_SEQUENCE = 19;
-  /** 
-  * No space available for in-buffer expansion for Arabic shaping 
+  /**
+  * No space available for in-buffer expansion for Arabic shaping
   */
   public static final int U_NO_SPACE_AVAILABLE = 20;
   /**
-  * This must always be the last value to indicate the limit for UErrorCode 
-  * (last error code +1) 
+  * This must always be the last value to indicate the limit for UErrorCode
+  * (last error code +1)
   */
   public static final int U_ERROR_LIMIT = 21;
   /**
   * Load library flag
   */
   public static boolean LIBRARY_LOADED = false;
-  
+
   // private data member ----------------------------------------------------
-  
+
   /**
   * Array of error code names corresponding to the errorcodes.
   * ie ERROR_NAMES_[0] = name of U_ZERO_ERROR
   */
-  private static final String ERROR_NAMES_[] = { 
-    "U_ZERO_ERROR",               "U_ILLEGAL_ARGUMENT_ERROR", 
-    "U_MISSING_RESOURCE_ERROR",   "U_INVALID_FORMAT_ERROR", 
-    "U_FILE_ACCESS_ERROR",        "U_INTERNAL_PROGRAM_ERROR", 
+  private static final String ERROR_NAMES_[] = {
+    "U_ZERO_ERROR",               "U_ILLEGAL_ARGUMENT_ERROR",
+    "U_MISSING_RESOURCE_ERROR",   "U_INVALID_FORMAT_ERROR",
+    "U_FILE_ACCESS_ERROR",        "U_INTERNAL_PROGRAM_ERROR",
     "U_MESSAGE_PARSE_ERROR",      "U_MEMORY_ALLOCATION_ERROR",
     "U_INDEX_OUTOFBOUNDS_ERROR",  "U_PARSE_ERROR",
-    "U_INVALID_CHAR_FOUND",       "U_TRUNCATED_CHAR_FOUND", 
+    "U_INVALID_CHAR_FOUND",       "U_TRUNCATED_CHAR_FOUND",
     "U_ILLEGAL_CHAR_FOUND",       "U_INVALID_TABLE_FORMAT",
     "U_INVALID_TABLE_FILE",       "U_BUFFER_OVERFLOW_ERROR",
     "U_UNSUPPORTED_ERROR",        "U_RESOURCE_TYPE_MISMATCH",
@@ -181,17 +181,17 @@ public final class ErrorCode extends Exception
   public static String getErrorName(int ec){
     return ERROR_NAMES_[ec];
   }
-  
+
   /**
    * Returns true if the input error code denotes success
    * @param ec int value of the error code
-   * @return boolean 
+   * @return boolean
    * @stable ICU 2.4
-   */    
+   */
   public static boolean isSuccess(int ec){
     return (ec<=U_ZERO_ERROR);
   }
-  
+
   /**
    * Returns true if the input error code denotes failure
    * @param ec int value of the error code

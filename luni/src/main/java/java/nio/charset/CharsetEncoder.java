@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -124,7 +124,7 @@ public abstract class CharsetEncoder {
      * Constructs a new <code>CharsetEncoder</code> using the given
      * <code>Charset</code>, average number and maximum number of bytes
      * created by this encoder for one input character.
-     * 
+     *
      * @param cs
      *            the <code>Charset</code> to be used by this encoder.
      * @param averageBytesPerChar
@@ -147,7 +147,7 @@ public abstract class CharsetEncoder {
      * Constructs a new <code>CharsetEncoder</code> using the given
      * <code>Charset</code>, replacement byte array, average number and
      * maximum number of bytes created by this encoder for one input character.
-     * 
+     *
      * @param cs
      *            the <code>Charset</code> to be used by this encoder.
      * @param averageBytesPerChar
@@ -184,7 +184,7 @@ public abstract class CharsetEncoder {
     /**
      * Gets the average number of bytes created by this encoder for a single
      * input character.
-     * 
+     *
      * @return the average number of bytes created by this encoder for a single
      *         input character.
      */
@@ -239,13 +239,13 @@ public abstract class CharsetEncoder {
     /**
      * Checks if a given <code>CharSequence</code> can be encoded by this
      * encoder.
-     * 
+     *
      * Note that this method can change the internal status of this encoder, so
      * it should not be called when another encode process is ongoing, otherwise
      * it will throw an <code>IllegalStateException</code>.
-     * 
+     *
      * This method can be overridden for performance improvement.
-     * 
+     *
      * @param sequence
      *            the given <code>CharSequence</code>.
      * @return true if the given <code>CharSequence</code> can be encoded by
@@ -265,7 +265,7 @@ public abstract class CharsetEncoder {
 
     /**
      * Gets the <code>Charset</code> which this encoder uses.
-     * 
+     *
      * @return the <code>Charset</code> which this encoder uses.
      */
     public final Charset charset() {
@@ -535,7 +535,7 @@ public abstract class CharsetEncoder {
      * <p>
      * During the flush, the output buffer's position will be changed
      * accordingly, while its mark and limit will be intact.
-     * 
+     *
      * @param out
      *            the given output buffer.
      * @return <code>CoderResult.UNDERFLOW</code> or
@@ -544,7 +544,7 @@ public abstract class CharsetEncoder {
      *             if this encoder hasn't read all input characters during one
      *             encoding process, which means neither after calling
      *             {@link #encode(CharBuffer) encode(CharBuffer)} nor after
-     *             calling {@link #encode(CharBuffer, ByteBuffer, boolean) 
+     *             calling {@link #encode(CharBuffer, ByteBuffer, boolean)
      *             encode(CharBuffer, ByteBuffer, boolean)} with {@code true}
      *             for the last boolean parameter.
      */
@@ -563,7 +563,7 @@ public abstract class CharsetEncoder {
      * Flushes this encoder. The default implementation does nothing and always
      * returns <code>CoderResult.UNDERFLOW</code>; this method can be
      * overridden if needed.
-     * 
+     *
      * @param out
      *            the output buffer.
      * @return <code>CoderResult.UNDERFLOW</code> or
@@ -577,7 +577,7 @@ public abstract class CharsetEncoder {
      * Notifies that this encoder's <code>CodingErrorAction</code> specified
      * for malformed input error has been changed. The default implementation
      * does nothing; this method can be overridden if needed.
-     * 
+     *
      * @param newAction
      *            the new action.
      */
@@ -589,7 +589,7 @@ public abstract class CharsetEncoder {
      * Notifies that this encoder's <code>CodingErrorAction</code> specified
      * for unmappable character error has been changed. The default
      * implementation does nothing; this method can be overridden if needed.
-     * 
+     *
      * @param newAction
      *            the new action.
      */
@@ -600,7 +600,7 @@ public abstract class CharsetEncoder {
     /**
      * Notifies that this encoder's replacement has been changed. The default
      * implementation does nothing; this method can be overridden if needed.
-     * 
+     *
      * @param newReplacement
      *            the new replacement string.
      */
@@ -619,12 +619,12 @@ public abstract class CharsetEncoder {
     /**
      * Checks if the given argument is legal as this encoder's replacement byte
      * array.
-     * 
+     *
      * The given byte array is legal if and only if it can be decode into
      * sixteen bits Unicode characters.
-     * 
+     *
      * This method can be overridden for performance improvement.
-     * 
+     *
      * @param repl
      *            the given byte array to be checked.
      * @return true if the the given argument is legal as this encoder's
@@ -651,7 +651,7 @@ public abstract class CharsetEncoder {
     /**
      * Gets this encoder's <code>CodingErrorAction</code> when a malformed
      * input error occurred during the encoding process.
-     * 
+     *
      * @return this encoder's <code>CodingErrorAction</code> when a malformed
      *         input error occurred during the encoding process.
      */
@@ -662,7 +662,7 @@ public abstract class CharsetEncoder {
     /**
      * Gets the maximum number of bytes which can be created by this encoder for
      * one input character, must be positive.
-     * 
+     *
      * @return the maximum number of bytes which can be created by this encoder
      *         for one input character, must be positive.
      */
@@ -672,11 +672,11 @@ public abstract class CharsetEncoder {
 
     /**
      * Sets this encoder's action on malformed input error.
-     * 
+     *
      * This method will call the
      * {@link #implOnMalformedInput(CodingErrorAction) implOnMalformedInput}
      * method with the given new action as argument.
-     * 
+     *
      * @param newAction
      *            the new action on malformed input error.
      * @return this encoder.
@@ -694,11 +694,11 @@ public abstract class CharsetEncoder {
 
     /**
      * Sets this encoder's action on unmappable character error.
-     * 
+     *
      * This method will call the
      * {@link #implOnUnmappableCharacter(CodingErrorAction) implOnUnmappableCharacter}
      * method with the given new action as argument.
-     * 
+     *
      * @param newAction
      *            the new action on unmappable character error.
      * @return this encoder.
@@ -716,7 +716,7 @@ public abstract class CharsetEncoder {
 
     /**
      * Gets the replacement byte array, which is never null or empty.
-     * 
+     *
      * @return the replacement byte array, cannot be null or empty.
      */
     public final byte[] replacement() {
@@ -725,12 +725,12 @@ public abstract class CharsetEncoder {
 
     /**
      * Sets the new replacement value.
-     * 
+     *
      * This method first checks the given replacement's validity, then changes
      * the replacement value and finally calls the
      * {@link #implReplaceWith(byte[]) implReplaceWith} method with the given
      * new replacement as argument.
-     * 
+     *
      * @param replacement
      *            the replacement byte array, cannot be null or empty, its
      *            length cannot be larger than <code>maxBytesPerChar</code>,
@@ -755,7 +755,7 @@ public abstract class CharsetEncoder {
      * Resets this encoder. This method will reset the internal status and then
      * calla <code>implReset()</code> to reset any status related to the
      * specific charset.
-     * 
+     *
      * @return this encoder.
      */
     public final CharsetEncoder reset() {
@@ -767,7 +767,7 @@ public abstract class CharsetEncoder {
     /**
      * Gets this encoder's <code>CodingErrorAction</code> when unmappable
      * character occurred during encoding process.
-     * 
+     *
      * @return this encoder's <code>CodingErrorAction</code> when unmappable
      *         character occurred during encoding process.
      */

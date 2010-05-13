@@ -76,7 +76,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test {@link java.sql.Connection#createStatement(int resultSetType, int
-     *       resultSetConcurrency)} 
+     *       resultSetConcurrency)}
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -88,8 +88,8 @@ public class ConnectionTest extends SQLTest {
     public void testCreateStatement_int_int() throws SQLException {
         Statement st = null;
         ResultSet rs = null;
-        
-        // test read only 
+
+        // test read only
         try {
             st = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                     ResultSet.CONCUR_READ_ONLY);
@@ -101,7 +101,7 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-        
+
         } catch (SQLException e) {
             fail("SQLException was thrown: " + e.getMessage());
         } finally {
@@ -111,7 +111,7 @@ public class ConnectionTest extends SQLTest {
             } catch (Exception ee) {
             }
         }
-        
+
         // test forward only: scrolling not allowed
         try {
             st = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,
@@ -125,7 +125,7 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-        
+
         } catch (SQLException e) {
             fail("SQLException was thrown: " + e.getMessage());
         } finally {
@@ -135,7 +135,7 @@ public class ConnectionTest extends SQLTest {
             } catch (Exception ee) {
             }
         }
-        
+
      // test forward only
         try {
             st = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,
@@ -149,7 +149,7 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException sqle) {
                 // expected
             }
-        
+
         } catch (SQLException e) {
             fail("SQLException was thrown: " + e.getMessage());
         } finally {
@@ -159,8 +159,8 @@ public class ConnectionTest extends SQLTest {
             } catch (Exception ee) {
             }
         }
-        
-        
+
+
         // test updating ResultSets
         try {
             st = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -182,7 +182,7 @@ public class ConnectionTest extends SQLTest {
             fail("SQLException was thrown: " + e.getMessage());
         } finally {
             try {
-                rs.close();                
+                rs.close();
                 st.close();
             } catch (Exception ee) {
             }
@@ -208,12 +208,12 @@ public class ConnectionTest extends SQLTest {
             fail("SQLException was thrown: " + e.getMessage());
         } finally {
             try {
-                rs.close();                
+                rs.close();
                 st.close();
             } catch (Exception ee) {
             }
         }
-        
+
         conn.close();
 
         try {
@@ -270,7 +270,7 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException ee) {
             }
         }
-        
+
         try {
             conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                     ResultSet.CONCUR_READ_ONLY, -100);
@@ -280,7 +280,7 @@ public class ConnectionTest extends SQLTest {
         }
 
     }
-    
+
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
             notes = "ResultSet.CLOSE_CURSORS_AT_COMMIT as argument is not supported",
@@ -297,14 +297,14 @@ public class ConnectionTest extends SQLTest {
             assertNotNull(st);
             st.execute("select id, name from zoo");
             ResultSet rs = st.getResultSet();
-            
+
             try {
                 rs.close();
                 fail("SQLException was not thrown");
             } catch (SQLException sqle) {
                 // expected
             }
-            
+
         } catch (SQLException e) {
             fail("SQLException was thrown: " + e.getMessage());
         } finally {
@@ -335,7 +335,7 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException e) {
             fail("SQLException is thrown");
         }
-        
+
         conn.close();
         try {
             conn.getMetaData();
@@ -346,9 +346,9 @@ public class ConnectionTest extends SQLTest {
     }
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#clearWarnings()
-     * 
+     *
      * TODO clearWarnings is not supported
      */
     @TestTargetNew(
@@ -359,15 +359,15 @@ public class ConnectionTest extends SQLTest {
     )
     @KnownFailure("not supported")
     public void testClearWarnings() throws SQLException {
-        
+
         try {
             SQLWarning w = conn.getWarnings();
             assertNull(w);
         } catch (Exception e) {
             fail("Unexpected Exception: " + e.getMessage());
         }
-        
-        
+
+
         Statement st = null;
         try {
             st = conn.createStatement();
@@ -402,7 +402,7 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException ee) {
             }
         }
-        
+
         //Test for correct functionality
         try {
             SQLWarning w = conn.getWarnings();
@@ -410,7 +410,7 @@ public class ConnectionTest extends SQLTest {
         } catch (Exception e) {
             fail("Unexpected Exception: " + e.getMessage());
         }
-        
+
         conn.close();
         try {
             conn.clearWarnings();
@@ -418,14 +418,14 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException e) {
             //ok
         }
-        
+
     }
-    
+
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#getWarnings()
-     * 
+     *
      * TODO GetWarnings is not supported: returns null
      */
     @TestTargetNew(
@@ -448,15 +448,15 @@ public class ConnectionTest extends SQLTest {
             // expected
             errorCode1 = e.getErrorCode();
         }
-        
+
         try {
             SQLWarning wrs = conn.getWarnings();
             assertNull(wrs);
         } catch (Exception e) {
             fail("Change test implementation: get warnings is supported now");
         }
-        
-        // tests implementation: but errorcodes need to change too -> change impl. 
+
+        // tests implementation: but errorcodes need to change too -> change impl.
         /*
         Statement st = null;
         int errorCode1 = -1;
@@ -499,9 +499,9 @@ public class ConnectionTest extends SQLTest {
             st.close();
         } catch (SQLException ee) {
         }
-        
+
         */
-        
+
         conn.close();
         try {
             conn.getWarnings();
@@ -545,7 +545,7 @@ public class ConnectionTest extends SQLTest {
     )
     @KnownFailure("conn.close() does not wrap up")
     public void testSetAutoCommit() throws SQLException {
-        
+
         Statement st = null;
         ResultSet rs = null;
         ResultSet rs1 = null;
@@ -577,7 +577,7 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException ee) {
             }
         }
-        
+
 
         try {
             conn.setAutoCommit(false);
@@ -587,11 +587,11 @@ public class ConnectionTest extends SQLTest {
             st.execute("select * from zoo");
             rs = st.getResultSet();
             assertEquals(4, getCount(rs));
-            conn.commit(); 
+            conn.commit();
             // Check cursors closed after commit
             rs1 = st.getResultSet();
             assertEquals(0, getCount(rs1));
-            
+
         } catch (SQLException e) {
             fail("SQLException is thrown: " + e.getMessage());
         } finally {
@@ -602,9 +602,9 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException ee) {
             }
         }
-        
+
         conn.close();
-        
+
         try {
             conn.setAutoCommit(true);
             fail("Exception expected");
@@ -614,7 +614,7 @@ public class ConnectionTest extends SQLTest {
     }
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#isReadOnly()
      */
     @TestTargetNew(
@@ -633,7 +633,7 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException sqle) {
             fail("SQLException was thrown: " + sqle.getMessage());
         }
-        
+
         conn.close();
         try {
             conn.isReadOnly();
@@ -644,7 +644,7 @@ public class ConnectionTest extends SQLTest {
     }
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#setReadOnly(boolean)
      */
     @TestTargetNew(
@@ -655,7 +655,7 @@ public class ConnectionTest extends SQLTest {
     )
     @KnownFailure("not supported")
     public void testSetReadOnly() throws SQLException {
-        
+
         // Pseudo test: not supported test
         Statement st = null;
         try {
@@ -671,7 +671,7 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException ee) {
             }
         }
-        
+
         // test for correct implementation
         st = null;
         try {
@@ -687,7 +687,7 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException ee) {
             }
         }
-        
+
         try {
             conn.setReadOnly(true);
             st = conn.createStatement();
@@ -714,7 +714,7 @@ public class ConnectionTest extends SQLTest {
             } catch (SQLException ee) {
             }
         }
-        
+
         conn.close();
         try {
             conn.setReadOnly(true);
@@ -725,9 +725,9 @@ public class ConnectionTest extends SQLTest {
     }
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#getHoldability()
-     * 
+     *
      * TODO ResultSet.CLOSE_CURSORS_AT_COMMIT is not supported
      */
     @TestTargetNew(
@@ -753,13 +753,13 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException e) {
             assertEquals("not supported", e.getMessage());
         }
-        
+
        // Exception checking
-        
+
         conn.close();
-        
+
         try {
-            conn.getHoldability(); 
+            conn.getHoldability();
             fail("Could execute statement on closed connection.");
         } catch (SQLException e) {
             //ok
@@ -768,7 +768,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test java.sql.Connection#setHoldability(int)
-     * 
+     *
      * TODO ResultSet.CLOSE_CURSORS_AT_COMMIT is not supported
      */
     @TestTargetNew(
@@ -824,9 +824,9 @@ public class ConnectionTest extends SQLTest {
     }
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#getTransactionIsolation()
-     * 
+     *
      * TODO only Connection.TRANSACTION_SERIALIZABLE is supported
      */
     @TestTargetNew(
@@ -855,23 +855,23 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException sqle) {
             fail("SQLException is thrown: " + sqle.toString());
         }
-        
+
        // Exception checking
-        
+
         conn.close();
-        
+
         try {
-            conn.getTransactionIsolation(); 
+            conn.getTransactionIsolation();
             fail("Could execute statement on closed connection.");
         } catch (SQLException e) {
             //ok
         }
     }
-    
+
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#getTransactionIsolation()
-     * 
+     *
      * TODO only Connection.TRANSACTION_SERIALIZABLE is supported
      */
     @TestTargetNew(
@@ -902,7 +902,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test java.sql.Connection#setTransactionIsolation(int)
-     * 
+     *
      * TODO only Connection.TRANSACTION_SERIALIZABLE is supported
      */
     @TestTargetNew(
@@ -941,7 +941,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test java.sql.Connection#setCatalog(String catalog)
-     * 
+     *
      * TODO setCatalog method does nothing: Hint default catalog sqlite_master.
      */
     @TestTargetNew(
@@ -951,7 +951,7 @@ public class ConnectionTest extends SQLTest {
         args = {java.lang.String.class}
     )
     public void testSetCatalog() {
-        
+
         String[] catalogs = { "test", "test1", "test" };
         Statement st = null;
         try {
@@ -972,7 +972,7 @@ public class ConnectionTest extends SQLTest {
             } catch (Exception ee) {
             }
         }
-        
+
         /*
         String[] catalogs = { "test"};
         Statement st = null;
@@ -994,7 +994,7 @@ public class ConnectionTest extends SQLTest {
             } catch (Exception ee) {
             }
         }
-        
+
         String[] catalogs = { "sqlite_test", "sqlite_test1", "sqlite_test" };
         Statement st = null;
         try {
@@ -1033,9 +1033,9 @@ public class ConnectionTest extends SQLTest {
     }
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#getCatalog()
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -1045,8 +1045,8 @@ public class ConnectionTest extends SQLTest {
     )
     @KnownFailure("not supported")
      public void testGetCatalog() throws SQLException {
-        
-        
+
+
         // test default catalog
         try {
             assertEquals("sqlite_master", conn.getCatalog());
@@ -1055,8 +1055,8 @@ public class ConnectionTest extends SQLTest {
         } catch (Exception e) {
             fail("Unexpected Exception " + e.getMessage());
         }
-      
-        
+
+
         String[] catalogs = { "sqlite_test", "sqlite_test1", "sqlite_test" };
         Statement st = null;
         try {
@@ -1069,13 +1069,13 @@ public class ConnectionTest extends SQLTest {
         } catch (Exception e) {
             fail("Reeimplement tests now that the method is implemented");
         }
-        
+
        // Exception checking
-        
+
         conn.close();
-        
+
         try {
-            conn.getCatalog(); 
+            conn.getCatalog();
             fail("Could execute statement on closed connection.");
         } catch (SQLException e) {
             //ok
@@ -1084,7 +1084,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test java.sql.Connection#setTypeMap(Map<String,Class<?>> map)
-     * 
+     *
      * TODO setTypeMap is not supported
      */
     @TestTargetNew(
@@ -1119,9 +1119,9 @@ public class ConnectionTest extends SQLTest {
     }
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#getTypeMap()
-     * 
+     *
      * TODO getTypeMap is not supported
      */
     @TestTargetNew(
@@ -1145,13 +1145,13 @@ public class ConnectionTest extends SQLTest {
         } catch (Exception e) {
             fail("Unexpected Exception " + e.getMessage());
         }
-        
+
 // Exception checking
-        
+
         conn.close();
-        
+
         try {
-            conn.setTypeMap(null); 
+            conn.setTypeMap(null);
             fail("Could execute statement on closed connection.");
         } catch (SQLException e) {
             //ok
@@ -1161,7 +1161,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test java.sql.Connection#nativeSQL(String sql)
-     * 
+     *
      * TODO nativeSQL is not supported
      */
     @TestTargetNew(
@@ -1210,23 +1210,23 @@ public class ConnectionTest extends SQLTest {
                 assertEquals("not supported",e.getMessage());
             }
         }
-        
+
         // Exception checking
-        
+
         conn.close();
-        
+
         try {
-            conn.nativeSQL(inc_queries[0]); 
+            conn.nativeSQL(inc_queries[0]);
             fail("Could execute statement on closed connection.");
         } catch (SQLException e) {
             //ok
         }
-        
+
     }
 
     /**
      * @test java.sql.Connection#prepareCall(String sql)
-     * 
+     *
      * TODO prepareCall is not supported
      */
     @TestTargetNew(
@@ -1265,7 +1265,7 @@ public class ConnectionTest extends SQLTest {
             } catch (Exception ee) {
             }
         }
-        
+
 
         try {
             conn.prepareCall("welcomeAnimal(4, 'Petya', 'Cock')");
@@ -1280,25 +1280,25 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException e) {
             // expected
         }
-        
+
  // Exception checking
-        
+
         conn.close();
-        
+
         try {
-            conn.prepareCall(""); 
+            conn.prepareCall("");
             fail("Could execute statement on closed connection.");
         } catch (SQLException e) {
             //ok
         }
-        
+
     }
 
     /**
      * @test java.sql.Connection#prepareCall(String sql, int resultSetType, int
      *       resultSetConcurrency)
-     *       
-     * TODO prepareCall is not supported      
+     *
+     * TODO prepareCall is not supported
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -1309,7 +1309,7 @@ public class ConnectionTest extends SQLTest {
     public void testPrepareCall_String_int_int() {
         CallableStatement cstmt = null;
         ResultSet rs = null;
-        
+
         try {
             String query = "call welcomeAnimal(3, 'Petya', 'Cock')";
             cstmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY,
@@ -1317,7 +1317,7 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException e) {
             //ok
         }
-        
+
         /*
         try {
             String query = "call welcomeAnimal(3, 'Petya', 'Dino')";
@@ -1414,15 +1414,15 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException sqle) {
             // expected
         }
-        
+
         */
     }
 
     /**
      * @test java.sql.Connection#prepareCall(String sql, int resultSetType, int
      *       resultSetConcurrency, int resultSetHoldability)
-     *       
-     * TODO prepareCall is not supported     
+     *
+     * TODO prepareCall is not supported
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -1433,7 +1433,7 @@ public class ConnectionTest extends SQLTest {
     public void testPrepareCall_String_int_int_int() {
         CallableStatement cstmt = null;
         ResultSet rs = null;
-        
+
         try {
             String query = "call welcomeAnimal(?, ?, ?)";
             cstmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY,
@@ -1468,7 +1468,7 @@ public class ConnectionTest extends SQLTest {
             } catch (Exception ee) {
             }
         }
-        
+
         Statement st = null;
 
         try {
@@ -1499,7 +1499,7 @@ public class ConnectionTest extends SQLTest {
     }
 
     /**
-     * @test java.sql.Connection#prepareStatement(String sql) 
+     * @test java.sql.Connection#prepareStatement(String sql)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -1551,11 +1551,11 @@ public class ConnectionTest extends SQLTest {
         } catch (Exception e) {
             //ok
         }
-        
-        
+
+
     }
-      
-    
+
+
     /**
      * @test { @link java.sql.Connection#prepareStatement(String sql, int
      *       autoGeneratedKeys) }
@@ -1573,11 +1573,11 @@ public class ConnectionTest extends SQLTest {
         PreparedStatement prst1 = null;
         Statement st = null;
         ResultSet rs = null;
-        ResultSet rs1 = null;  
+        ResultSet rs1 = null;
         ResultSet rs4 = null;
         ResultSet rs5 = null;
-        
-        
+
+
         try {
             String insert = "insert into zoo (id, name, family) values (?, ?, ?);";
             prst = conn.prepareStatement(insert,
@@ -1586,11 +1586,11 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException e) {
           //ok not supported
         }
-        
-        
+
+
         try {
             String insert = "insert into zoo (id, name, family) values (?, ?, ?);";
-            
+
             prst = conn.prepareStatement(insert,
                     Statement.NO_GENERATED_KEYS);
             prst.setInt(1, 8);
@@ -1608,7 +1608,7 @@ public class ConnectionTest extends SQLTest {
             rs4 = prst.getGeneratedKeys();
             assertEquals(0, getCount(rs4));
 
-           
+
 
             prst1 = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
             prst1.setInt(1, 5);
@@ -1616,12 +1616,12 @@ public class ConnectionTest extends SQLTest {
             prst1.setString(3, "dog");
 
             prst1.execute();
-            
-            
-            
+
+
+
             rs5 = prst1.getGeneratedKeys();
             assertEquals(0, getCount(rs5));
-          
+
         } catch (SQLException e) {
             fail("SQLException is thrown: " + e.getMessage());
         } finally {
@@ -1633,8 +1633,8 @@ public class ConnectionTest extends SQLTest {
             } catch (Exception ee) {
             }
         }
-        
-       
+
+
     }
 
     /**
@@ -1717,7 +1717,7 @@ public class ConnectionTest extends SQLTest {
     }
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.Connection#rollback()
      */
     @TestTargetNew(
@@ -1822,7 +1822,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test java.sql.Connection#setSavepoint()
-     * 
+     *
      * TODO setSavepoint is not supported
      */
     @TestTargetNew(
@@ -1832,7 +1832,7 @@ public class ConnectionTest extends SQLTest {
         args = {}
     )
     public void testSetSavepoint() {
-      
+
         try {
             conn.setAutoCommit(false);
 
@@ -1840,14 +1840,14 @@ public class ConnectionTest extends SQLTest {
                     Savepoint sp = conn.setSavepoint();
                 } catch (SQLException e) {
                     // ok not supported
-                } 
+                }
         } catch (SQLException sqle) {
             fail("SQLException is thrown: " + sqle.toString());
-        } 
-        
-        
+        }
+
+
         //Complete test but: not supported exception is thrown
-        /*    
+        /*
         try {
             conn.setAutoCommit(false);
 
@@ -1961,7 +1961,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test java.sql.Connection#setSavepoint(String name)
-     * 
+     *
      * TODO setSavepoint is not supported
      */
     @TestTargetNew(
@@ -1971,9 +1971,9 @@ public class ConnectionTest extends SQLTest {
         args = {java.lang.String.class}
     )
     public void testSetSavepoint_String() {
-        
+
         String testSavepoint = "testSavepoint";
-        
+
         try {
             conn.setAutoCommit(false);
 
@@ -1981,12 +1981,12 @@ public class ConnectionTest extends SQLTest {
                     Savepoint sp = conn.setSavepoint(testSavepoint);
                 } catch (SQLException e) {
                     // ok not supported
-                } 
+                }
         } catch (SQLException sqle) {
             fail("SQLException is thrown: " + sqle.toString());
-        } 
-        
-    /*        
+        }
+
+    /*
         Statement st = null;
         Statement st1 = null;
         ResultSet rs1 = null;
@@ -2099,7 +2099,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test java.sql.Connection#rollback(Savepoint savepoint)
-     * 
+     *
      * TODO Savepoint is not supported
      */
     @TestTargetNew(
@@ -2117,10 +2117,10 @@ public class ConnectionTest extends SQLTest {
                     conn.rollback(sp);
                 } catch (SQLException e) {
                     //ok
-                } 
+                }
         } catch (SQLException sqle) {
             fail("SQLException is thrown: " + sqle.toString());
-        } 
+        }
         /*
         Statement st = null;
         Statement st1 = null;
@@ -2234,7 +2234,7 @@ public class ConnectionTest extends SQLTest {
 
     /**
      * @test java.sql.Connection#releaseSavepoint(Savepoint savepoint)
-     * 
+     *
      * TODO Savepoint is not supported
      */
     @TestTargetNew(
@@ -2252,12 +2252,12 @@ public class ConnectionTest extends SQLTest {
                     conn.releaseSavepoint(sp);
                 } catch (SQLException e) {
                     //ok
-                } 
+                }
         } catch (SQLException sqle) {
             fail("SQLException is thrown: " + sqle.toString());
-        } 
+        }
         /*
-    
+
         Statement st = null;
         Statement st1 = null;
         ResultSet rs1 = null;
@@ -2367,9 +2367,9 @@ public class ConnectionTest extends SQLTest {
     /**
      * @test java.sql.Connection#prepareStatement(String sql, int[]
      *       columnIndexes)
-     *       
+     *
      * TODO prepareStatement(String sql, int[] columnIndexes) is not
-     * supported      
+     * supported
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -2391,7 +2391,7 @@ public class ConnectionTest extends SQLTest {
             }
         }
         /*
-    
+
         Statement st = null;
         PreparedStatement prst1 = null;
         PreparedStatement prst = null;
@@ -2534,10 +2534,10 @@ public class ConnectionTest extends SQLTest {
             // expected
         }
     }
-    
+
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
-            notes = "not supported options: ResultSet.TYPE_SCROLL_INSENSITIVE," + 
+            notes = "not supported options: ResultSet.TYPE_SCROLL_INSENSITIVE," +
                     "ResultSet.CONCUR_UPDATABLE",
             method = "prepareStatement",
             args = {java.lang.String.class, int.class, int.class}
@@ -2574,8 +2574,8 @@ public class ConnectionTest extends SQLTest {
         }
 
     }
-    
-    
+
+
 
     /**
      * @test java.sql.Connection#prepareStatement(String sql, int resultSetType,
@@ -2653,9 +2653,9 @@ public class ConnectionTest extends SQLTest {
     /**
      * @test java.sql.Connection#prepareStatement(String sql, String[]
      *       columnNames)
-     *       
+     *
      * TODO prepareStatement(String sql, String[] columnNames) method is
-     * not supported      
+     * not supported
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -2670,7 +2670,7 @@ public class ConnectionTest extends SQLTest {
         ResultSet rs1 = null;
         ResultSet rs4 = null;
         ResultSet rs5 = null;
-        
+
         try {
             String insert = "insert into zoo (id, name, family) values (?, ?, ?);";
             conn.prepareStatement(insert, new String[] { "id", "name",
@@ -2678,7 +2678,7 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException e) {
             //ok not supported
         }
-        
+
         /*
         try {
             String insert = "insert into zoo (id, name, family) values (?, ?, ?);";
@@ -2693,7 +2693,7 @@ public class ConnectionTest extends SQLTest {
         } catch (SQLException e) {
             fail("SQLException is thrown");
         }
-        
+
         try {
             String insert = "insert into zoo (id, name, family) values (?, ?, ?);";
             prst = conn.prepareStatement(insert, new String[] { "id", "name",
@@ -2738,11 +2738,11 @@ public class ConnectionTest extends SQLTest {
             }
         }
         */
-        
+
 
     }
-    
-    
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "not supported: it should release all resources but it doesn't",
@@ -2751,14 +2751,14 @@ public class ConnectionTest extends SQLTest {
     )
     public void testClose() {
         try {
-            
-            
-            
+
+
+
             if (! conn.isClosed()) {
             conn.close();
             }
             assertTrue(conn.isClosed());
-            
+
             try {
             conn.prepareCall("select * from zoo");
             fail("Should not be able to prepare query closed connection");
@@ -2769,9 +2769,9 @@ public class ConnectionTest extends SQLTest {
             fail("Error in implementation");
             e.printStackTrace();
         }
-        
+
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "not supported",
@@ -2789,7 +2789,7 @@ public class ConnectionTest extends SQLTest {
         Statement st = conn.createStatement();
         st.execute("select * from zoo");
     }
-    
+
 
     private static class DummySavePoint implements Savepoint{
 
@@ -2802,6 +2802,6 @@ public class ConnectionTest extends SQLTest {
             // TODO Auto-generated method stub
             return "NoName";
         }
-        
+
     }
 }

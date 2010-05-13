@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,7 +69,7 @@ public class LevelTest extends TestCase implements Serializable {
         assertEquals(-3, l.intValue());
         assertNull(l.getResourceBundleName());
     }
-     
+
     /*
      * Test the constructor having resource bundle parameter using normal
      * values. As byproducts, getName & intValue are also tested.
@@ -289,7 +289,7 @@ public class LevelTest extends TestCase implements Serializable {
 
     /**
      * @tests serialization/deserialization compatibility.
-     * 
+     *
      * Test serialization of pre-defined const levels. It is expected that the
      * deserialized cost level should be the same instance as the existing one.
      */
@@ -301,7 +301,7 @@ public class LevelTest extends TestCase implements Serializable {
 
     /**
      * @tests serialization/deserialization compatibility.
-     * 
+     *
      * Test serialization of normal instance of Level. It is expected that the
      * deserialized level object should be equal to the original one.
      */
@@ -334,11 +334,11 @@ public class LevelTest extends TestCase implements Serializable {
         Level l = new MockLevel("level1", 120,
                 "bundles/java/util/logging/res");
         assertEquals(rb.getString("level1"), l.getLocalizedName());
-        
+
         // regression test for HARMONY-2415
         rb = ResourceBundle.getBundle(
                 "org.apache.harmony.logging.tests.java.util.logging.LevelTestResource");
-        l = new MockLevel("Level_error", 120, 
+        l = new MockLevel("Level_error", 120,
                 "org.apache.harmony.logging.tests.java.util.logging.LevelTestResource");
         assertEquals(rb.getString("Level_error"), l.getLocalizedName());
 
@@ -384,7 +384,7 @@ public class LevelTest extends TestCase implements Serializable {
      */
     public void testSubclassNewLevel() {
         MyLevel.DUPLICATENAME.getName();// just to load MyLevel class
-        
+
         // test duplicated name and num
         assertEquals("INFO", MyLevel.parse("800").getName());
         assertEquals(800, MyLevel.parse("INFO").intValue());

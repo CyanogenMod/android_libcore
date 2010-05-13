@@ -39,7 +39,7 @@ import org.apache.harmony.luni.util.Base64;
 import tests.api.javax.net.ssl.HandshakeCompletedEventTest.TestTrustManager;
 import tests.support.Support_PortManager;
 
-@TestTargetClass(SSLSocket.class) 
+@TestTargetClass(SSLSocket.class)
 public class SSLSocketTest extends TestCase {
 
     public class HandshakeCL implements HandshakeCompletedListener {
@@ -49,9 +49,9 @@ public class SSLSocketTest extends TestCase {
         public void handshakeCompleted(HandshakeCompletedEvent event) {
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.SSLSocket#SSLSocket() 
+     * @tests javax.net.ssl.SSLSocket#SSLSocket()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -66,11 +66,11 @@ public class SSLSocketTest extends TestCase {
             fail("Unexpected exception " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws UnknownHostException 
-     * @tests javax.net.ssl.SSLSocket#SSLSocket(InetAddress address, int port) 
+     * @throws IOException
+     * @throws UnknownHostException
+     * @tests javax.net.ssl.SSLSocket#SSLSocket(InetAddress address, int port)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -82,18 +82,18 @@ public class SSLSocketTest extends TestCase {
         SSLSocket ssl;
         int sport = startServer("Cons InetAddress,I");
         int[] invalidPort = {-1, Integer.MIN_VALUE, 65536, Integer.MAX_VALUE};
-        
+
         ssl = getSSLSocket(InetAddress.getLocalHost(), sport);
         assertNotNull(ssl);
         assertEquals(sport, ssl.getPort());
-        
+
         try {
             ssl = getSSLSocket(InetAddress.getLocalHost(), sport + 1);
             fail("IOException wasn't thrown ...");
         } catch (IOException e) {
             //expected
         }
-        
+
         for (int i = 0; i < invalidPort.length; i++) {
             try {
                 ssl = getSSLSocket(InetAddress.getLocalHost(), invalidPort[i]);
@@ -105,12 +105,12 @@ public class SSLSocketTest extends TestCase {
             }
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws UnknownHostException 
-     * @tests javax.net.ssl.SSLSocket#SSLSocket(InetAddress address, int port, 
-     *                                          InetAddress clientAddress, int clientPort) 
+     * @throws IOException
+     * @throws UnknownHostException
+     * @tests javax.net.ssl.SSLSocket#SSLSocket(InetAddress address, int port,
+     *                                          InetAddress clientAddress, int clientPort)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -122,20 +122,20 @@ public class SSLSocketTest extends TestCase {
         SSLSocket ssl;
         int sport = startServer("Cons InetAddress,I,InetAddress,I");
         int portNumber = Support_PortManager.getNextPort();
-        
+
         ssl = getSSLSocket(InetAddress.getLocalHost(), sport,
                               InetAddress.getLocalHost(), portNumber);
         assertNotNull(ssl);
         assertEquals(sport, ssl.getPort());
         assertEquals(portNumber, ssl.getLocalPort());
-        
+
         try {
             ssl = getSSLSocket(InetAddress.getLocalHost(), 8081, InetAddress.getLocalHost(), 8082);
             fail("IOException wasn't thrown ...");
         } catch (IOException e) {
             //expected
         }
-        
+
         try {
             ssl = getSSLSocket(InetAddress.getLocalHost(), -1,
                                   InetAddress.getLocalHost(), sport + 1);
@@ -154,7 +154,7 @@ public class SSLSocketTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException for -1");
         }
-        
+
         try {
             ssl = getSSLSocket(InetAddress.getLocalHost(), Integer.MIN_VALUE,
                                   InetAddress.getLocalHost(), sport + 1);
@@ -178,7 +178,7 @@ public class SSLSocketTest extends TestCase {
             fail(e + " was thrown instead of IllegalArgumentException for "
                     + Integer.MIN_VALUE);
         }
-        
+
         try {
             ssl = getSSLSocket(InetAddress.getLocalHost(), 65536,
                                   InetAddress.getLocalHost(), sport + 1);
@@ -199,7 +199,7 @@ public class SSLSocketTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException for 65536");
         }
-        
+
         try {
             ssl = getSSLSocket(InetAddress.getLocalHost(), Integer.MAX_VALUE,
                                   InetAddress.getLocalHost(), sport + 1);
@@ -224,11 +224,11 @@ public class SSLSocketTest extends TestCase {
                     + Integer.MAX_VALUE);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws UnknownHostException 
-     * @tests javax.net.ssl.SSLSocket#SSLSocket(String host, int port) 
+     * @throws IOException
+     * @throws UnknownHostException
+     * @tests javax.net.ssl.SSLSocket#SSLSocket(String host, int port)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -240,18 +240,18 @@ public class SSLSocketTest extends TestCase {
         SSLSocket ssl;
         int sport = startServer("Cons String,I");
         int[] invalidPort = {-1, Integer.MIN_VALUE, 65536, Integer.MAX_VALUE};
-        
+
         ssl = getSSLSocket(InetAddress.getLocalHost().getHostName(), sport);
         assertNotNull(ssl);
         assertEquals(sport, ssl.getPort());
-        
+
         try {
             ssl = getSSLSocket("localhost", 8082);
             fail("IOException wasn't thrown ...");
         } catch (IOException e) {
             //expected
         }
-        
+
         for (int i = 0; i < invalidPort.length; i++) {
             try {
                 ssl = getSSLSocket(InetAddress.getLocalHost().getHostName(), invalidPort[i]);
@@ -262,7 +262,7 @@ public class SSLSocketTest extends TestCase {
                 fail(e + " was thrown instead of IllegalArgumentException for " + invalidPort[i]);
             }
         }
-        
+
         try {
             ssl = getSSLSocket("bla-bla", sport);
             fail("UnknownHostException wasn't thrown");
@@ -271,13 +271,13 @@ public class SSLSocketTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of UnknownHostException");
         }
-    } 
-    
+    }
+
     /**
-     * @throws IOException 
-     * @throws UnknownHostException 
-     * @tests javax.net.ssl.SSLSocket#SSLSocket(String host, int port, InetAddress clientAddress, 
-     *           int clientPort) 
+     * @throws IOException
+     * @throws UnknownHostException
+     * @tests javax.net.ssl.SSLSocket#SSLSocket(String host, int port, InetAddress clientAddress,
+     *           int clientPort)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -290,20 +290,20 @@ public class SSLSocketTest extends TestCase {
         int sport = startServer("Cons String,I,InetAddress,I");
         int portNumber = Support_PortManager.getNextPort();
         int[] invalidPort = {-1, Integer.MIN_VALUE, 65536, Integer.MAX_VALUE};
-        
+
         ssl = getSSLSocket(InetAddress.getLocalHost().getHostName(), sport,
                               InetAddress.getLocalHost(), portNumber);
         assertNotNull(ssl);
         assertEquals(sport, ssl.getPort());
         assertEquals(portNumber, ssl.getLocalPort());
-        
+
         try {
             ssl = getSSLSocket("localhost", 8081, InetAddress.getLocalHost(), 8082);
             fail("IOException wasn't thrown ...");
         } catch (IOException e) {
             //expected
         }
-        
+
         for (int i = 0; i < invalidPort.length; i++) {
             portNumber = Support_PortManager.getNextPort();
             try {
@@ -325,7 +325,7 @@ public class SSLSocketTest extends TestCase {
                 fail(e + " was thrown instead of IllegalArgumentException for " + invalidPort[i]);
             }
         }
-        
+
         portNumber = Support_PortManager.getNextPort();
         try {
             ssl = getSSLSocket("bla-bla", sport, InetAddress.getLocalHost(), portNumber);
@@ -336,7 +336,7 @@ public class SSLSocketTest extends TestCase {
             fail(e + " was thrown instead of UnknownHostException");
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Guard against native resource leakage.",
@@ -350,17 +350,17 @@ public class SSLSocketTest extends TestCase {
         for (int i = 0; i < 2048; ++i) {
             sslContext.getSocketFactory().createSocket();
         }
-        
+
         // Test the other codepath, which copies a seed from a byte[].
         sslContext.init(null, null, new SecureRandom());
         for (int i = 0; i < 2048; ++i) {
             sslContext.getSocketFactory().createSocket();
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.SSLSocket#addHandshakeCompletedListener(HandshakeCompletedListener listener) 
+     * @throws IOException
+     * @tests javax.net.ssl.SSLSocket#addHandshakeCompletedListener(HandshakeCompletedListener listener)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -384,10 +384,10 @@ public class SSLSocketTest extends TestCase {
             fail("Unexpected exception " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.SSLSocket#removeHandshakeCompletedListener(HandshakeCompletedListener listener) 
+     * @throws IOException
+     * @tests javax.net.ssl.SSLSocket#removeHandshakeCompletedListener(HandshakeCompletedListener listener)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -420,10 +420,10 @@ public class SSLSocketTest extends TestCase {
             fail("Unexpected exception " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.SSLSocket#setEnableSessionCreation(boolean flag) 
+     * @throws IOException
+     * @tests javax.net.ssl.SSLSocket#setEnableSessionCreation(boolean flag)
      * @tests javax.net.ssl.SSLSocket#getEnableSessionCreation()
      */
     @TestTargets({
@@ -448,11 +448,11 @@ public class SSLSocketTest extends TestCase {
         ssl.setEnableSessionCreation(true);
         assertTrue(ssl.getEnableSessionCreation());
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws UnknownHostException 
-     * @tests javax.net.ssl.SSLSocket#setNeedClientAuth(boolean need) 
+     * @throws IOException
+     * @throws UnknownHostException
+     * @tests javax.net.ssl.SSLSocket#setNeedClientAuth(boolean need)
      * @tests javax.net.ssl.SSLSocket#getNeedClientAuthCreation()
      */
     @TestTargets({
@@ -476,11 +476,11 @@ public class SSLSocketTest extends TestCase {
         ssl.setNeedClientAuth(false);
         assertFalse(ssl.getNeedClientAuth());
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws UnknownHostException 
-     * @tests javax.net.ssl.SSLSocket#setWantClientAuth(boolean want) 
+     * @throws IOException
+     * @throws UnknownHostException
+     * @tests javax.net.ssl.SSLSocket#setWantClientAuth(boolean want)
      * @tests javax.net.ssl.SSLSocket#getWantClientAuthCreation()
      */
     @TestTargets({
@@ -504,9 +504,9 @@ public class SSLSocketTest extends TestCase {
         ssl.setWantClientAuth(false);
         assertFalse(ssl.getWantClientAuth());
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLSocket#getSupportedProtocols()
      */
     @TestTargetNew(
@@ -520,9 +520,9 @@ public class SSLSocketTest extends TestCase {
         String[] res = ssl.getSupportedProtocols();
         assertTrue("No supported protocols found", res.length > 0);
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLSocket#getEnabledProtocols()
      * @tests javax.net.ssl.SSLSocket#setEnabledProtocols(String[] protocols)
      */
@@ -562,9 +562,9 @@ public class SSLSocketTest extends TestCase {
         assertEquals("no enabled protocols set",
                 ssl.getEnabledProtocols().length, res.length);
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLSocket#getSession()
      */
     @TestTargetNew(
@@ -581,9 +581,9 @@ public class SSLSocketTest extends TestCase {
             fail("Unexpected exception " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLSocket#getSupportedCipherSuites()
      */
     @TestTargetNew(
@@ -597,9 +597,9 @@ public class SSLSocketTest extends TestCase {
         String[] res = ssl.getSupportedCipherSuites();
         assertTrue("no supported cipher suites", res.length > 0);
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLSocket#getEnabledCipherSuites()
      * @tests javax.net.ssl.SSLSocket#setEnabledCipherSuites(String[] suites)
      */
@@ -638,12 +638,12 @@ public class SSLSocketTest extends TestCase {
         String[] res = ssl.getEnabledCipherSuites();
         assertNotNull("NULL result", res);
         assertEquals("not all supported cipher suites were enabled",
-                     Arrays.asList(ssl.getSupportedCipherSuites()), 
+                     Arrays.asList(ssl.getSupportedCipherSuites()),
                      Arrays.asList(res));
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLSocket#getUseClientMode()
      * @tests javax.net.ssl.SSLSocket#setUseClientMode(boolean mode)
      */
@@ -682,9 +682,9 @@ public class SSLSocketTest extends TestCase {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLSocket#startHandshake()
      */
     @TestTargetNew(
@@ -707,18 +707,18 @@ public class SSLSocketTest extends TestCase {
 
     // Change this to false if on RI
     boolean useBKS = true;
-    
+
     private String PASSWORD = "android";
-    
+
     private int port = Support_PortManager.getNextPort();
 
     private boolean serverReady = false;
 
-    /** 
+    /**
      * Defines the keystore contents for the server, BKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
      */
-    private static final String SERVER_KEYS_BKS = 
+    private static final String SERVER_KEYS_BKS =
         "AAAAAQAAABQDkebzoP1XwqyWKRCJEpn/t8dqIQAABDkEAAVteWtleQAAARpYl20nAAAAAQAFWC41" +
         "MDkAAAJNMIICSTCCAbKgAwIBAgIESEfU1jANBgkqhkiG9w0BAQUFADBpMQswCQYDVQQGEwJVUzET" +
         "MBEGA1UECBMKQ2FsaWZvcm5pYTEMMAoGA1UEBxMDTVRWMQ8wDQYDVQQKEwZHb29nbGUxEDAOBgNV" +
@@ -744,11 +744,11 @@ public class SSLSocketTest extends TestCase {
         "1gaEjsC/0wGmmBDg1dTDH+F1p9TInzr3EFuYD0YiQ7YlAHq3cPuyGoLXJ5dXYuSBfhDXJSeddUkl" +
         "k1ufZyOOcskeInQge7jzaRfmKg3U94r+spMEvb0AzDQVOKvjjo1ivxMSgFRZaDb/4qw=";
 
-    /** 
+    /**
      * Defines the keystore contents for the server, JKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
      */
-    private static final String SERVER_KEYS_JKS = 
+    private static final String SERVER_KEYS_JKS =
         "/u3+7QAAAAIAAAABAAAAAQAFbXlrZXkAAAEaWFfBeAAAArowggK2MA4GCisGAQQBKgIRAQEFAASC" +
         "AqI2kp5XjnF8YZkhcF92YsJNQkvsmH7zqMM87j23zSoV4DwyE3XeC/gZWq1ToScIhoqZkzlbWcu4" +
         "T/Zfc/DrfGk/rKbBL1uWKGZ8fMtlZk8KoAhxZk1JSyJvdkyKxqmzUbxk1OFMlN2VJNu97FPVH+du" +
@@ -790,11 +790,11 @@ public class SSLSocketTest extends TestCase {
         }
         return server.sport;
     }
-    
-    /** 
+
+    /**
      * Implements a test SSL socket server. It wait for a connection on a given
      * port, requests client authentication (if specified), and read 256 bytes
-     * from the socket. 
+     * from the socket.
      */
     class TestServer implements Runnable {
 
@@ -803,13 +803,13 @@ public class SSLSocketTest extends TestCase {
         public static final int CLIENT_AUTH_WANTED = 1;
 
         public static final int CLIENT_AUTH_NEEDED = 2;
-        
+
         private TestTrustManager trustManager;
 
         private Exception exception;
 
         String keys;
-        
+
         private boolean provideKeys;
 
         int sport;
@@ -817,10 +817,10 @@ public class SSLSocketTest extends TestCase {
         public TestServer(boolean provideKeys, String keys) {
             this.keys = keys;
             this.provideKeys = provideKeys;
-            
-            trustManager = new TestTrustManager(); 
+
+            trustManager = new TestTrustManager();
         }
-        
+
         public void run() {
             try {
                 KeyManager[] keyManagers = provideKeys ? getKeyManagers(keys) : null;
@@ -828,13 +828,13 @@ public class SSLSocketTest extends TestCase {
 
                 SSLContext sslContext = SSLContext.getInstance("TLS");
                 sslContext.init(keyManagers, trustManagers, null);
-                
+
                 SSLServerSocket serverSocket = (SSLServerSocket)sslContext.getServerSocketFactory().createServerSocket();
-                
+
                 serverSocket.bind(new InetSocketAddress(port));
                 sport = serverSocket.getLocalPort();
                 serverReady = true;
-                
+
                 SSLSocket clientSocket = (SSLSocket)serverSocket.accept();
 
                 InputStream stream = clientSocket.getInputStream();
@@ -845,11 +845,11 @@ public class SSLSocketTest extends TestCase {
                         throw new RuntimeException("Error reading socket, expected " + i + ", got " + j);
                     }
                 }
-                
+
                 stream.close();
                 clientSocket.close();
                 serverSocket.close();
-                
+
             } catch (Exception ex) {
                 exception = ex;
             }
@@ -858,29 +858,29 @@ public class SSLSocketTest extends TestCase {
         public Exception getException() {
             return exception;
         }
-        
+
         public X509Certificate[] getChain() {
             return trustManager.getChain();
         }
-        
+
     }
-    
+
     /**
      * Loads a keystore from a base64-encoded String. Returns the KeyManager[]
      * for the result.
      */
     private KeyManager[] getKeyManagers(String keys) throws Exception {
-        byte[] bytes = new Base64().decode(keys.getBytes());                    
+        byte[] bytes = new Base64().decode(keys.getBytes());
         InputStream inputStream = new ByteArrayInputStream(bytes);
-        
+
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(inputStream, PASSWORD.toCharArray());
         inputStream.close();
-        
+
         String algorithm = KeyManagerFactory.getDefaultAlgorithm();
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(algorithm);
         keyManagerFactory.init(keyStore, PASSWORD.toCharArray());
-        
+
         return keyManagerFactory.getKeyManagers();
     }
 

@@ -36,7 +36,7 @@ public class KeyStoreBuilderParameters implements ManagerFactoryParameters {
     /**
      * Creates a new {@code KeyStoreBuilderParameters} with the specified key
      * store builder.
-     * 
+     *
      * @param builder
      *            the key store builder.
      */
@@ -48,7 +48,7 @@ public class KeyStoreBuilderParameters implements ManagerFactoryParameters {
     /**
      * Creates a new {@code KeyStoreBuilderParameters} with the specified list
      * of {@code KeyStore.Builder}s.
-     * 
+     *
      * @param parameters
      *            the list of key store builders
      * @throws IllegalArgumentException
@@ -69,7 +69,7 @@ public class KeyStoreBuilderParameters implements ManagerFactoryParameters {
     /**
      * Returns the unmodifiable list of {@code KeyStore.Builder}s associated
      * with this parameters instance.
-     * 
+     *
      * @return the unmodifiable list of {@code KeyStore.Builder}s.
      */
     @SuppressWarnings("unchecked")

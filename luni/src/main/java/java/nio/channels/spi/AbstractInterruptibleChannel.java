@@ -48,7 +48,7 @@ public abstract class AbstractInterruptibleChannel implements Channel,
                     .doPrivileged(new PrivilegedExceptionAction<Method>() {
                         public Method run() throws Exception {
                             return Thread.class.getDeclaredMethod(
-                                    "setInterruptAction", 
+                                    "setInterruptAction",
                                     new Class[] { Runnable.class });
 
                         }
@@ -74,7 +74,7 @@ public abstract class AbstractInterruptibleChannel implements Channel,
 
     /**
      * Indicates whether this channel is open.
-     * 
+     *
      * @return {@code true} if this channel is open, {@code false} if it is
      *         closed.
      * @see java.nio.channels.Channel#isOpen()
@@ -140,7 +140,7 @@ public abstract class AbstractInterruptibleChannel implements Channel,
     /**
      * Indicates the end of a code section that has been started with
      * {@code begin()} and that includes a potentially blocking I/O operation.
-     * 
+     *
      * @param success
      *            pass {@code true} if the blocking operation has succeeded and
      *            has had a noticeable effect; {@code false} otherwise.
@@ -181,7 +181,7 @@ public abstract class AbstractInterruptibleChannel implements Channel,
      * Any outstanding threads blocked on I/O operations on this channel must be
      * released with either a normal return code, or by throwing an
      * {@code AsynchronousCloseException}.
-     * 
+     *
      * @throws IOException
      *             if a problem occurs while closing the channel.
      */

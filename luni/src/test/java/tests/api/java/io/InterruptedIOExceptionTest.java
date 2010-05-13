@@ -23,7 +23,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(InterruptedIOException.class) 
+@TestTargetClass(InterruptedIOException.class)
 public class InterruptedIOExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -34,7 +34,7 @@ public class InterruptedIOExceptionTest extends junit.framework.TestCase {
         notes = "",
         method = "InterruptedIOException",
         args = {}
-    )    
+    )
     public void test_Constructor() {
         // Test for method java.io.InterruptedIOException()
         try {
@@ -56,7 +56,7 @@ public class InterruptedIOExceptionTest extends junit.framework.TestCase {
         notes = "",
         method = "InterruptedIOException",
         args = {java.lang.String.class}
-    )    
+    )
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.io.InterruptedIOException(java.lang.String)
         try {

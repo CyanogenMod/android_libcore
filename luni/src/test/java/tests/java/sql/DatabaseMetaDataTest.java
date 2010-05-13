@@ -133,7 +133,7 @@ public class DatabaseMetaDataTest extends TestCase {
                         conn.close();
                     }
                     } catch (SQLException e) {
-                        
+
                     }
                 }
             }
@@ -148,20 +148,20 @@ public class DatabaseMetaDataTest extends TestCase {
                         ResultSet.TYPE_FORWARD_ONLY,
                         ResultSet.CONCUR_READ_ONLY);
                 meta = conn.getMetaData();
-                
+
                 assertFalse(conn.isClosed());
             } catch (SQLException e) {
                 fail("Unexpected SQLException " + e.toString());
             }
-            
+
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
     }
     */
-    
+
     /**
      * @tests {@link java.sql.DatabaseMetaData #getBestRowIdentifier(java.lang.String,
      *        java.lang.String, java.lang.String, int, boolean) }
@@ -190,7 +190,7 @@ public class DatabaseMetaDataTest extends TestCase {
          fail("Unexpected SQLException " + e.toString());
          }
          */
-        
+
 
         result.close();
 
@@ -215,7 +215,7 @@ public class DatabaseMetaDataTest extends TestCase {
         assertEquals("Incorrect data type", java.sql.Types.INTEGER, rs.getInt("DATA_TYPE"));
         assertEquals("Incorrect type name", "INTEGER", rs.getString("TYPE_NAME"));
         rs.close();
-        
+
      // Exception testing
         conn.close();
 
@@ -227,11 +227,11 @@ public class DatabaseMetaDataTest extends TestCase {
             // ok
         }
     }
-    
+
     /**
      * @tests java.sql.DatabaseMetaData #getColumns(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String)
-     *           
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -247,24 +247,24 @@ public class DatabaseMetaDataTest extends TestCase {
         String[] tablesName = {DatabaseCreator.TEST_TABLE1,
                 DatabaseCreator.TEST_TABLE3};
         Arrays.sort(tablesName);
-        int setSize = 0; 
+        int setSize = 0;
         try {
             allArbitrary = meta.getColumns("%","%","%","%");
             assertNotNull(allArbitrary);
             checkColumnsShape(allArbitrary);
             setSize = crossCheckGetColumnsAndResultSetMetaData(allArbitrary, false);
             assertEquals(6, setSize);
-            
+
             setMixed = meta.getColumns(null, null,"%","%");
             assertNotNull(setMixed);
             checkColumnsShape(setMixed);
             setSize = crossCheckGetColumnsAndResultSetMetaData(setMixed, false);
             assertEquals(6, setSize);
-            
+
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         // Exception testing
         conn.close();
 
@@ -276,11 +276,11 @@ public class DatabaseMetaDataTest extends TestCase {
             // ok
         }
     }
-    
+
     /**
      * @tests java.sql.DatabaseMetaData #getColumns(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String)
-     *           
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -335,7 +335,7 @@ public class DatabaseMetaDataTest extends TestCase {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         // Exception checking
         conn.close();
 
@@ -347,13 +347,13 @@ public class DatabaseMetaDataTest extends TestCase {
             // ok
         }
     }
-    
-    
-    
+
+
+
     /**
      * @tests java.sql.DatabaseMetaData #getColumns(java.lang.String,
      *        java.lang.String, java.lang.String, java.lang.String)
-     *           
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -378,7 +378,7 @@ public class DatabaseMetaDataTest extends TestCase {
         int countSingle = 0;
         int countAll1 = 0;
         int countAll2 = 0;
-        
+
         try {
             ResultSet rs = meta.getColumns(null, null,
                     DatabaseCreator.TEST_TABLE1, "%");
@@ -400,7 +400,7 @@ public class DatabaseMetaDataTest extends TestCase {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             ResultSet rs = meta.getColumns(null, null, "%"+DatabaseCreator.CREATE_TABLE1.substring(0, 3)+"%","%" );
             while (rs.next()) {
@@ -429,7 +429,7 @@ public class DatabaseMetaDataTest extends TestCase {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
      // Exception checking
         conn.close();
 
@@ -440,12 +440,12 @@ public class DatabaseMetaDataTest extends TestCase {
         } catch (SQLException e) {
             // ok
         }
-        
-        
+
+
     }
-    
-    
-     
+
+
+
     /**
      * @tests java.sql.DatabaseMetaData#getConnection()
      */
@@ -457,7 +457,7 @@ public class DatabaseMetaDataTest extends TestCase {
     )
     public void test_getConnection() throws SQLException {
         assertEquals("Incorrect connection value", conn, meta.getConnection());
-     
+
         // Exception checking
         conn.close();
 
@@ -499,7 +499,7 @@ public class DatabaseMetaDataTest extends TestCase {
             assertEquals("Incorrect column name", columnNames[c - 1], rsmd
                     .getColumnName(c));
         }
-//      TODO getCatalog is not supported 
+//      TODO getCatalog is not supported
         assertEquals("Incorrect primary key table catalog", conn.getCatalog(),
                 rs.getString("PKTABLE_CAT"));
         assertEquals("Incorrect primary key table schema", "", rs
@@ -531,7 +531,7 @@ public class DatabaseMetaDataTest extends TestCase {
                 DatabaseMetaData.importedKeyNotDeferrable, rs
                         .getShort("DEFERRABILITY"));
         rs.close();
-        
+
      // Exception checking
         conn.close();
 
@@ -543,7 +543,7 @@ public class DatabaseMetaDataTest extends TestCase {
         } catch (SQLException e) {
             // ok
         }
-        
+
         // Exception checking
         conn.close();
 
@@ -570,7 +570,7 @@ public class DatabaseMetaDataTest extends TestCase {
     public void test_getDatabaseMajorVersion() throws SQLException {
         assertTrue("Incorrdct database major version", meta
                 .getDatabaseMajorVersion() >= 0);
-        
+
         // Exception checking
         conn.close();
 
@@ -580,7 +580,7 @@ public class DatabaseMetaDataTest extends TestCase {
         } catch (SQLException e) {
             // ok
         }
-        
+
     }
 
     /**
@@ -596,7 +596,7 @@ public class DatabaseMetaDataTest extends TestCase {
     public void test_getDatabaseMinorVersion() throws SQLException {
         assertTrue("Incorrect database minor version", meta
                 .getDatabaseMinorVersion() >= 0);
-        
+
      // Exception checking
         conn.close();
 
@@ -621,7 +621,7 @@ public class DatabaseMetaDataTest extends TestCase {
     public void test_getDatabaseProductName() throws SQLException {
         assertTrue("Incorrect database product name", !"".equals(meta
                 .getDatabaseProductName().trim()));
-        
+
         // Exception checking
         conn.close();
 
@@ -681,7 +681,7 @@ public class DatabaseMetaDataTest extends TestCase {
         default:
             fail("Incorrect value of default transaction isolation level");
         }
-        
+
         // Exception checking
         conn.close();
 
@@ -735,7 +735,7 @@ public class DatabaseMetaDataTest extends TestCase {
         String driverName = meta.getDriverName();
         assertTrue("Incorrect driver name", driverName.trim().startsWith(
                 "SQLite"));
-        
+
         // Exception checking
         conn.close();
 
@@ -760,19 +760,19 @@ public class DatabaseMetaDataTest extends TestCase {
     public void test_getDriverVersion() throws SQLException {
         assertTrue("Incorrect driver version", !"".equals(meta
                 .getDriverVersion().trim()));
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getDriverVersion();
              fail("SQLException not thrown");
          } catch (SQLException e) {
              //ok
          }
-         
+
     }
-   
+
 
     /**
      * @tests java.sql.DatabaseMetaData #getImportedKeys(java.lang.String,
@@ -834,10 +834,10 @@ public class DatabaseMetaDataTest extends TestCase {
                 DatabaseMetaData.importedKeyNotDeferrable, rs
                         .getShort("DEFERRABILITY"));
         rs.close();
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getImportedKeys(conn.getCatalog(), null,
                      DatabaseCreator.TEST_TABLE1);
@@ -869,7 +869,7 @@ public class DatabaseMetaDataTest extends TestCase {
             fail("Incorrect length of cursor name");
         }
     }
-    
+
     /**
      * @tests java.sql.DatabaseMetaData#getJDBCMinorVersion()
      */
@@ -883,10 +883,10 @@ public class DatabaseMetaDataTest extends TestCase {
     public void test_getJDBCMinorVersion() throws SQLException {
         assertTrue("Incorrect JDBC minor version",
                 meta.getJDBCMinorVersion() >= 0);
-      
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getJDBCMinorVersion();
              fail("SQLException not thrown");
@@ -895,7 +895,7 @@ public class DatabaseMetaDataTest extends TestCase {
          }
 
     }
-    
+
     /**
      * @tests java.sql.DatabaseMetaData#getJDBCMajorVersion()
      */
@@ -909,10 +909,10 @@ public class DatabaseMetaDataTest extends TestCase {
     public void test_getJDBCMajorVersion() throws SQLException {
         assertTrue("Incorrect JDBC major version",
                 meta.getJDBCMajorVersion() >= 0);
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getJDBCMajorVersion();
              fail("SQLException not thrown");
@@ -936,11 +936,11 @@ public class DatabaseMetaDataTest extends TestCase {
             "NUMERIC_FUNCTIONS not complete. When fixed change to @KnownFailure")
     public void test_getNumericFunctions() throws SQLException {
         escapedFunctions(NUMERIC_FUNCTIONS, meta.getNumericFunctions());
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getNumericFunctions();
              fail("SQLException not thrown");
@@ -987,10 +987,10 @@ public class DatabaseMetaDataTest extends TestCase {
         assertEquals("Incorrect primary key name", "primary", rs.getString(
                 "PK_NAME").toLowerCase());
         rs.close();
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getPrimaryKeys(conn.getCatalog(), null,
                      DatabaseCreator.TEST_TABLE1);
@@ -1022,10 +1022,10 @@ public class DatabaseMetaDataTest extends TestCase {
         }
         assertFalse("Incorrect result set holdability", meta
                 .supportsResultSetHoldability(hdb));
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getResultSetHoldability();
              fail("SQLException not thrown");
@@ -1048,10 +1048,10 @@ public class DatabaseMetaDataTest extends TestCase {
     public void test_getSQLKeywords() throws SQLException {
         assertTrue("Incorrect SQL keywords", !"".equals(meta.getSQLKeywords()
                 .trim()));
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getSQLKeywords();
              fail("SQLException not thrown");
@@ -1081,11 +1081,11 @@ public class DatabaseMetaDataTest extends TestCase {
         default:
             fail("Incorrect SQL state types");
         }
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getSQLStateType();
              fail("SQLException not thrown");
@@ -1117,11 +1117,11 @@ public class DatabaseMetaDataTest extends TestCase {
                     .getColumnName(c));
         }
         rs.close();
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getSchemas();
              fail("SQLException not thrown");
@@ -1144,10 +1144,10 @@ public class DatabaseMetaDataTest extends TestCase {
     public void test_getSearchStringEscape() throws SQLException {
         assertTrue("Incorrect search string escape", !"".equals(meta
                 .getSearchStringEscape().trim()));
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getSearchStringEscape();
              fail("SQLException not thrown");
@@ -1169,11 +1169,11 @@ public class DatabaseMetaDataTest extends TestCase {
     @KnownFailure("not supported")
     public void test_getStringFunctions() throws SQLException {
         escapedFunctions(STRING_FUNCTIONS, meta.getStringFunctions());
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getStringFunctions();
              fail("SQLException not thrown");
@@ -1181,10 +1181,10 @@ public class DatabaseMetaDataTest extends TestCase {
              //ok
          }
 
-        
+
     }
 
-  
+
     /**
      * @tests java.sql.DatabaseMetaData#getSystemFunctions()
      */
@@ -1197,11 +1197,11 @@ public class DatabaseMetaDataTest extends TestCase {
     @KnownFailure("not supported")
     public void test_getSystemFunctions() throws SQLException {
         escapedFunctions(SYSTEM_FUNCTIONS, meta.getSystemFunctions());
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getSystemFunctions();
              fail("SQLException not thrown");
@@ -1211,7 +1211,7 @@ public class DatabaseMetaDataTest extends TestCase {
 
     }
 
-   
+
     /**
      * @tests java.sql.DatabaseMetaData#getTableTypes()
      */
@@ -1231,18 +1231,18 @@ public class DatabaseMetaDataTest extends TestCase {
                     .getString("TABLE_TYPE")) > -1);
         }
         rs.close();
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getTableTypes();
              fail("SQLException not thrown");
          } catch (SQLException e) {
              //ok
          }
-         
+
     }
 
     /**
@@ -1271,7 +1271,7 @@ public class DatabaseMetaDataTest extends TestCase {
         while (rs.next()) {
             assertTrue("Wrong table name", Arrays.binarySearch(tablesName, rs
                     .getString("TABLE_NAME")) > -1);
-        //No Schema associated    
+        //No Schema associated
             assertNull("Wrong table schema: "+rs.getString("TABLE_SCHEM"), rs.getString("TABLE_SCHEM"));
             assertTrue("Wrong table type", Arrays.binarySearch(tablesType, rs
                     .getString("TABLE_TYPE")) > -1);
@@ -1313,11 +1313,11 @@ public class DatabaseMetaDataTest extends TestCase {
             assertEquals("Wrong parameter REMARKS", "", rs.getString("REMARKS"));
         }
         rs.close();
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getTables(null, null, null, null);
              fail("SQLException not thrown");
@@ -1338,13 +1338,13 @@ public class DatabaseMetaDataTest extends TestCase {
     )
     @KnownFailure("not supported")
     public void test_getTimeDateFunctions() throws SQLException {
-        
+
         escapedFunctions(TIMEDATE_FUNCTIONS, meta.getTimeDateFunctions());
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getTimeDateFunctions();
              fail("SQLException not thrown");
@@ -1396,10 +1396,10 @@ public class DatabaseMetaDataTest extends TestCase {
                     .getInt("DATA_TYPE")) > -1);
         }
         rs.close();
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getTypeInfo();
              fail("SQLException not thrown");
@@ -1422,10 +1422,10 @@ public class DatabaseMetaDataTest extends TestCase {
     @KnownFailure("Ticket 98")
     public void test_getURL() throws SQLException {
         assertEquals("Wrong url", Support_SQL.sqlUrl, meta.getURL());
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getURL();
              fail("SQLException not thrown");
@@ -1434,10 +1434,10 @@ public class DatabaseMetaDataTest extends TestCase {
          }
 
     }
-    
+
     /**
      * @tests java.sql.DatabaseMetaData#getUserName()
-     * 
+     *
      *  NOT_FEASIBLE not supported
      */
     @TestTargetNew(
@@ -1449,10 +1449,10 @@ public class DatabaseMetaDataTest extends TestCase {
      @KnownFailure("Ticket 98")
     public void s() throws SQLException {
       assertEquals("Wrong user name", Support_SQL.sqlUser, meta.getUserName());
-      
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.getUserName();
              fail("SQLException not thrown");
@@ -1483,11 +1483,11 @@ public class DatabaseMetaDataTest extends TestCase {
         assertFalse(
                 "visible row insert can be detected for TYPE_SCROLL_SENSITIVE type",
                 meta.insertsAreDetected(ResultSet.TYPE_SCROLL_SENSITIVE));
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.insertsAreDetected(ResultSet.TYPE_SCROLL_SENSITIVE);
              fail("SQLException not thrown");
@@ -1509,11 +1509,11 @@ public class DatabaseMetaDataTest extends TestCase {
     @KnownFailure("Ticket 98")
     public void test_isReadOnly() throws SQLException {
         assertFalse("database is not read-only", meta.isReadOnly());
-        
-      
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.isReadOnly();
              fail("SQLException not thrown");
@@ -1521,7 +1521,7 @@ public class DatabaseMetaDataTest extends TestCase {
              //ok
          }
     }
-    
+
     /**
      * @tests java.sql.DatabaseMetaData#othersDeletesAreVisible(int)
      */
@@ -1542,11 +1542,11 @@ public class DatabaseMetaDataTest extends TestCase {
         assertFalse(
                 "deletes made by others are visible for TYPE_SCROLL_SENSITIVE type",
                 meta.othersDeletesAreVisible(ResultSet.TYPE_SCROLL_SENSITIVE));
-       
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              assertFalse("inserts made by others are visible for unknown type", meta
                      .othersDeletesAreVisible(ResultSet.CONCUR_READ_ONLY));
@@ -1577,11 +1577,11 @@ public class DatabaseMetaDataTest extends TestCase {
         assertFalse(
                 "inserts made by others are visible for TYPE_SCROLL_SENSITIVE type",
                 meta.othersInsertsAreVisible(ResultSet.TYPE_SCROLL_SENSITIVE));
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              assertFalse("inserts made by others are visible for unknown type", meta
                      .othersInsertsAreVisible(ResultSet.CONCUR_READ_ONLY));
@@ -1589,7 +1589,7 @@ public class DatabaseMetaDataTest extends TestCase {
          } catch (SQLException e) {
              //ok
          }
-         
+
     }
 
     /**
@@ -1612,9 +1612,9 @@ public class DatabaseMetaDataTest extends TestCase {
         assertFalse(
                 "updates made by others are visible for TYPE_SCROLL_SENSITIVE type",
                 meta.othersUpdatesAreVisible(ResultSet.TYPE_SCROLL_SENSITIVE));
-        
+
       //Exception checking
-         
+
          try {
              assertFalse("updates made by others are visible for unknown type", meta
                      .othersUpdatesAreVisible(ResultSet.CONCUR_READ_ONLY));
@@ -1643,9 +1643,9 @@ public class DatabaseMetaDataTest extends TestCase {
     })
     public void test_storesMixedCaseQuotedIdentifiers() throws SQLException {
         String quote = meta.getIdentifierQuoteString();
-        
-        
-        
+
+
+
         insertNewRecord();
 
         String selectQuery = "SELECT " + quote + "fieLD1" + quote + " FROM "
@@ -1661,20 +1661,20 @@ public class DatabaseMetaDataTest extends TestCase {
                 fail("quoted case is not supported");
             }
         }
-        
+
         //Exception checking
         /*
         conn.close();
-         
+
          try {
              meta.storesMixedCaseIdentifiers();
              fail("SQLException not thrown");
          } catch (SQLException e) {
              //ok
          }
-         
+
          conn.close();
-         
+
          try {
              meta.storesMixedCaseQuotedIdentifiers();
              fail("SQLException not thrown");
@@ -1683,7 +1683,7 @@ public class DatabaseMetaDataTest extends TestCase {
          }
 
     }
-    
+
     @TestTargetNew(
       level = TestLevel.COMPLETE,
       notes = "Exception test fails.",
@@ -1695,7 +1695,7 @@ public class DatabaseMetaDataTest extends TestCase {
        assertNotNull(
                meta.getIdentifierQuoteString()
                );
-       
+
        //Exception test
        /*
        conn.close();
@@ -1706,10 +1706,10 @@ public class DatabaseMetaDataTest extends TestCase {
            //ok
        }
        */
-       
+
     }
 
-   
+
     /**
      * @tests java.sql.DatabaseMetaData#supportsColumnAliasing()
      */
@@ -1739,10 +1739,10 @@ public class DatabaseMetaDataTest extends TestCase {
             assertEquals("Aliasing is supported", 0, rsmd.getColumnCount());
         }
         rs.close();
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.supportsColumnAliasing();
              fail("SQLException not thrown");
@@ -1752,7 +1752,7 @@ public class DatabaseMetaDataTest extends TestCase {
 
     }
 
-    
+
     /**
      * @tests java.sql.DatabaseMetaData#supportsExpressionsInOrderBy()
      */
@@ -1779,10 +1779,10 @@ public class DatabaseMetaDataTest extends TestCase {
                 fail("Expressions in order by are not supported");
             }
         }
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.supportsExpressionsInOrderBy();
              fail("SQLException not thrown");
@@ -1819,10 +1819,10 @@ public class DatabaseMetaDataTest extends TestCase {
                 fail("group by are not supported");
             }
         }
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.supportsGroupBy();
              fail("SQLException not thrown");
@@ -1832,7 +1832,7 @@ public class DatabaseMetaDataTest extends TestCase {
 
     }
 
-   
+
     /**
      * @tests java.sql.DatabaseMetaData#supportsGroupByUnrelated()
      */
@@ -1859,10 +1859,10 @@ public class DatabaseMetaDataTest extends TestCase {
                 fail("unrelated columns in group by are not supported");
             }
         }
-       
+
         //Exception checking
         conn.close();
-         
+
          try {
              meta.supportsGroupByUnrelated();
              fail("SQLException not thrown");
@@ -1888,18 +1888,18 @@ public class DatabaseMetaDataTest extends TestCase {
                 meta.supportsNonNullableColumns());
         statementForward.execute("create table companies(id integer not null);");
         statementForward.execute("drop table companies");
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.supportsNonNullableColumns();
              fail("SQLException not thrown");
          } catch (SQLException e) {
              //ok
          }
-         
+
     }
 
     /**
@@ -1928,10 +1928,10 @@ public class DatabaseMetaDataTest extends TestCase {
                 fail("unrelated columns in order by are not supported");
             }
         }
-        
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.supportsOrderByUnrelated();
              fail("SQLException not thrown");
@@ -1967,11 +1967,11 @@ public class DatabaseMetaDataTest extends TestCase {
                 fail("select for update are not supported");
             }
         }
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.supportsSelectForUpdate();
              fail("SQLException not thrown");
@@ -2009,11 +2009,11 @@ public class DatabaseMetaDataTest extends TestCase {
                 fail("Subqueries in exists are not supported");
             }
         }
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.supportsSubqueriesInExists();
              fail("SQLException not thrown");
@@ -2034,10 +2034,10 @@ public class DatabaseMetaDataTest extends TestCase {
     )
     @KnownFailure("exception test fails")
     public void test_supportsTableCorrelationNames() throws SQLException {
-        
+
         insertNewRecord();
         assertFalse(conn.isClosed());
-        
+
         String corelationName = "TABLE_NAME";
         String selectQuery = "SELECT * FROM " + DatabaseCreator.TEST_TABLE1
                 + " AS " + corelationName;
@@ -2054,11 +2054,11 @@ public class DatabaseMetaDataTest extends TestCase {
                         DatabaseCreator.TEST_TABLE1, rsmd.getTableName(i + 1));
             }
         }
-        
-        
+
+
       //Exception checking
         conn.close();
-         
+
          try {
              meta.supportsTableCorrelationNames();
              fail("SQLException not thrown");
@@ -2097,10 +2097,10 @@ public class DatabaseMetaDataTest extends TestCase {
                 "database doesn't supports TRANSACTION_SERIALIZABLE isolation level",
                 meta
                         .supportsTransactionIsolationLevel(Connection.TRANSACTION_SERIALIZABLE));
-        
-        
+
+
       //Exception checking
-         
+
          try {
              assertFalse("database supports unknown isolation level", meta
                      .supportsTransactionIsolationLevel(Integer.MAX_VALUE));;
@@ -2130,15 +2130,15 @@ public class DatabaseMetaDataTest extends TestCase {
                 meta.updatesAreDetected(ResultSet.TYPE_SCROLL_SENSITIVE));
         assertFalse("visible row update can be detected for unknown type", meta
                 .updatesAreDetected(100));
-        
+
         //Exception checking
        conn.close();
-        
+
         try {
             meta.updatesAreDetected(ResultSet.CLOSE_CURSORS_AT_COMMIT);
             assertFalse("visible row update can be detected for unknown type", meta
                     .updatesAreDetected(ResultSet.CLOSE_CURSORS_AT_COMMIT));
-            
+
         } catch (SQLException e) {
             //ok
         }
@@ -2149,26 +2149,26 @@ public class DatabaseMetaDataTest extends TestCase {
         if (conn.isClosed()) {
             System.out.println("DatabaseMetaDataTest.insertNewRecord() : closed");
         }
-        
+
         String insertQuery = "INSERT INTO " + DatabaseCreator.TEST_TABLE1
                 + " (id, field1, field2, field3) VALUES(" + id + ", '"
                 + "value" + id + "', " + id + ", " + id + ")";
         id++;
         statement.execute(insertQuery);
     }
-    
+
     //BEGIN APACHE-DERBY
-    
+
     /**
      * Test Method from Apache Derby Project
-     * Class 
+     * Class
      * org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest
-     *  
+     *
      * Compare a ResultSet from getColumns() with ResultSetMetaData returned
      * from a SELECT * against the table. This method handles situations where a
      * full set of the columns are in the ResultSet. The first action is to call
      * rs.next(). The ResultSet will be closed by this method.
-     * 
+     *
      * @param rs
      *            resultset to crossCheck
      * @param partial
@@ -2185,49 +2185,49 @@ public class DatabaseMetaDataTest extends TestCase {
         {
             String schema = rs.getString("TABLE_SCHEM");
             String table = rs.getString("TABLE_NAME");
-            
+
             ResultSet rst = s.executeQuery(
                 "SELECT * FROM " + schema+"."+table);
             ResultSetMetaData rsmdt = rst.getMetaData();
 
-                     
+
             for (int col = 1; col <= rsmdt.getColumnCount() ; col++)
             {
                 if (!partial) {
                     if (col != 1)
                         assertTrue(rs.next());
-                
+
                     assertEquals("ORDINAL_POSITION",
                             col, rs.getInt("ORDINAL_POSITION"));
                 }
-                
+
                 assertEquals("TABLE_CAT",
                         "", rs.getString("TABLE_CAT"));
                 assertEquals("TABLE_SCHEM",
                         schema, rs.getString("TABLE_SCHEM"));
                 assertEquals("TABLE_NAME",
                         table, rs.getString("TABLE_NAME"));
-                
+
                 crossCheckGetColumnRowAndResultSetMetaData(rs, rsmdt);
                 if (partial)
                     break;
-                
+
             }
             rst.close();
-            
-            
+
+
         }
         int count = rs.getRow();
         rs.close();
         s.close();
         return count;
     }
-    
+
     /**
      * * Test Method from Apache Derby Project
-     * Class 
+     * Class
      * org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest
-     * 
+     *
      * Cross check a single row from getColumns() with ResultSetMetaData
      * for a SELECT * from the same table.
      * @param rs ResultSet from getColumns already positioned on the row.
@@ -2241,17 +2241,17 @@ public class DatabaseMetaDataTest extends TestCase {
         throws SQLException
     {
         int col = rs.getInt("ORDINAL_POSITION");
-        
+
         assertEquals("RSMD.getCatalogName",
                 rsmdt.getCatalogName(col), rs.getString("TABLE_CAT"));
         assertEquals("RSMD.getSchemaName",
                 rsmdt.getSchemaName(col), rs.getString("TABLE_SCHEM"));
         assertEquals("RSMD.getTableName",
                 rsmdt.getTableName(col), rs.getString("TABLE_NAME"));
-        
+
         assertEquals("COLUMN_NAME",
                 rsmdt.getColumnName(col), rs.getString("COLUMN_NAME"));
-        
+
         // DERBY-2285 BOOLEAN columns appear different on
         // network client.
         // meta returns BOOLEAN
@@ -2270,31 +2270,31 @@ public class DatabaseMetaDataTest extends TestCase {
         else if (metaColumnType == Types.JAVA_OBJECT)
         {
             // meta returns JAVA_OBJECT
-            // RSMD returns LONGVARBINARY!                    
+            // RSMD returns LONGVARBINARY!
             assertEquals("DATA_TYPE",
-                    Types.LONGVARBINARY, rsmdt.getColumnType(col));                   
+                    Types.LONGVARBINARY, rsmdt.getColumnType(col));
         }
         else if (metaColumnType == Types.VARBINARY )
         {
             // meta returns different type name to RSMD
             assertEquals("DATA_TYPE",
-                    Types.VARBINARY, rsmdt.getColumnType(col));  
+                    Types.VARBINARY, rsmdt.getColumnType(col));
         }
         else if (metaColumnType == Types.BINARY )
         {
             // meta returns different type name to RSMD
             assertEquals("DATA_TYPE",
-                    Types.BINARY, rsmdt.getColumnType(col));                               
+                    Types.BINARY, rsmdt.getColumnType(col));
         }
         else if (metaColumnType == Types.NUMERIC )
         {
             // DERBY-584 inconsistency in numeric & decimal
             assertEquals("DATA_TYPE",
                     Types.DECIMAL, rsmdt.getColumnType(col));
-            
+
             assertEquals("TYPE_NAME",
                     "DECIMAL", rsmdt.getColumnTypeName(col));
-                       
+
             assertEquals("TYPE_NAME",
                     "NUMERIC", rs.getString("TYPE_NAME"));
         }
@@ -2305,7 +2305,7 @@ public class DatabaseMetaDataTest extends TestCase {
             assertEquals("TYPE_NAME",
                 rsmdt.getColumnTypeName(col), rs.getString("TYPE_NAME"));
         }
-        
+
         /*
         if (metaColumnType != Types.JAVA_OBJECT) {
         System.out.println("TYPE " + rs.getInt("DATA_TYPE"));
@@ -2314,12 +2314,12 @@ public class DatabaseMetaDataTest extends TestCase {
                 rsmdt.getPrecision(col), rs.getInt("COLUMN_SIZE"));
         }
         */
-        
+
         /*
         assertEquals("DECIMAL_DIGITS",
                 rsmdt.getScale(col), rs.getInt("DECIMAL_DIGITS"));
         */
-        
+
         // This assumes the constants defined by meta and ResultSet
         // for nullability are equal. They are by inspection
         // and since they are static final and part of a defined
@@ -2327,11 +2327,11 @@ public class DatabaseMetaDataTest extends TestCase {
         // check statically this is true in the testConstants fixture.
         assertEquals("NULLABLE",
                 rsmdt.isNullable(col), rs.getInt("NULLABLE"));
-        
+
         // REMARKS set to empty string by Derby
         assertEquals("REMARKS", "", rs.getString("REMARKS"));
-        
-        
+
+
         // IS_NULLABLE
         switch (rsmdt.isNullable(col))
         {
@@ -2347,23 +2347,23 @@ public class DatabaseMetaDataTest extends TestCase {
         default:
             fail("invalid return from rsmdt.isNullable(col)");
         }
-        
+
         // SCOPE not supported
         assertNull("SCOPE_CATLOG", rs.getString("SCOPE_CATLOG"));
         assertNull("SCOPE_SCHEMA", rs.getString("SCOPE_SCHEMA"));
         assertNull("SCOPE_TABLE", rs.getString("SCOPE_TABLE"));
-        
+
         // DISTINCT not supported
         assertEquals("SOURCE_DATA_TYPE", 0, rs.getShort("SOURCE_DATA_TYPE"));
         assertTrue(rs.wasNull());
-        
+
         // IS_AUTOINCREMENT added in JDBC 4.0
        assertEquals("IS_AUTOINCREMENT",
                rsmdt.isAutoIncrement(col) ? "YES" : "NO",
                rs.getString("IS_AUTOINCREMENT"));
-       assertFalse(rs.wasNull());        
+       assertFalse(rs.wasNull());
     }
-    
+
     /*
      * Check the shape of the ResultSet from any getColumns call.
      */
@@ -2386,15 +2386,15 @@ public class DatabaseMetaDataTest extends TestCase {
                 "SOURCE_DATA_TYPE", "IS_AUTOINCREMENT"}, columnTypes, null);
 
     }
-    
+
     public static void assertMetaDataResultSet(ResultSet rs,
             String[] columnNames, int[] columnTypes,
             boolean[] nullability) throws SQLException
     {
-     // see ResultSetGetterTest, getType() -> this test fails currently  
+     // see ResultSetGetterTest, getType() -> this test fails currently
         assertEquals(ResultSet.TYPE_FORWARD_ONLY, rs.getType());
         assertEquals(ResultSet.CONCUR_READ_ONLY, rs.getConcurrency());
-        
+
         if (columnNames != null)
             assertColumnNames(rs, columnNames);
         if (columnTypes != null)
@@ -2402,12 +2402,12 @@ public class DatabaseMetaDataTest extends TestCase {
         if (nullability != null)
             assertNullability(rs, nullability);
     }
-    
+
     /**
      * * Test Method from Apache Derby Project
-     *   Class 
+     *   Class
      * org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest
-     * 
+     *
      * Takes a result set and an array of expected colum names (as
      * Strings)  and asserts that the column names in the result
      * set metadata match the number, order, and names of those
@@ -2427,22 +2427,22 @@ public class DatabaseMetaDataTest extends TestCase {
         assertEquals("Column names do not match:",
                 expectedColNames[i], rsmd.getColumnName(i+1));
         }
-        
+
         assertEquals("Unexpected column count:",
         expectedColNames.length, rsmd.getColumnCount());
     }
-    
+
     /**
      * Test Method from Apache Derby Project
-     * Class 
+     * Class
      * org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest
-     * 
+     *
      * Takes a result set and an array of expected column types
-     * from java.sql.Types 
+     * from java.sql.Types
      * and asserts that the column types in the result
      * set metadata match the number, order, and names of those
      * in the array.
-     * 
+     *
      * No length information for variable length types
      * can be passed. For ResultSets from JDBC DatabaseMetaData
      * the specification only indicates the types of the
@@ -2466,13 +2466,13 @@ public class DatabaseMetaDataTest extends TestCase {
                     expectedTypes[i], rsmd.getColumnType(i+1));
         }
     }
-    
+
     /**
      * Check the nullability of the column definitions for
      * the ResultSet matches the expected values.
      * @param rs
      * @param nullability
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static void assertNullability(ResultSet rs,
             boolean[] nullability) throws SQLException
@@ -2489,9 +2489,9 @@ public class DatabaseMetaDataTest extends TestCase {
                ResultSetMetaData.columnNullable : ResultSetMetaData.columnNoNulls;
        assertEquals("Column nullability do not match for column " + (i+1),
                     expected, rsmd.isNullable(i+1));
-        }       
+        }
     }
-    
+
     //BEGIN Apache Derby DatabaseMetaDataTest
 
      /*
@@ -2499,27 +2499,27 @@ public class DatabaseMetaDataTest extends TestCase {
       */
      private static final String[][] NUMERIC_FUNCTIONS = {
              // Section C.1 JDBC 3.0 spec.
-             {"ABS", "-25.67"}, 
-             
+             {"ABS", "-25.67"},
+
 //             {"ACOS", "0.0707"}, {"ASIN", "0.997"},
 //             {"ATAN", "14.10"}, {"ATAN2", "0.56", "1.2"}, {"CEILING", "3.45"},
 //             {"COS", "1.2"}, {"COT", "3.4"}, {"DEGREES", "2.1"}, {"EXP", "2.3"},
 //             {"FLOOR", "3.22"}, {"LOG", "34.1"}, {"LOG10", "18.7"},
 //             {"MOD", "124", "7"}, {"PI"}, {"POWER", "2", "3"},
-//             {"RADIANS", "54"}, {"RAND", "17"}, 
-             
+//             {"RADIANS", "54"}, {"RAND", "17"},
+
              {"ROUND", "345.345", "1"}
-             
+
 //             {"SIGN", "-34"}, {"SIN", "0.32"}, {"SQRT", "6.22"},
 //             {"TAN", "0.57",}, {"TRUNCATE", "345.395", "1"}
-             
+
              };
 
      private static final String[][] TIMEDATE_FUNCTIONS = {
              // Section C.3 JDBC 3.0 spec.
-         
+
              {"date","'now'"}
-             
+
              //TODO Complete list
 
      };
@@ -2540,7 +2540,7 @@ public class DatabaseMetaDataTest extends TestCase {
 //             {"INSERT", "'Bill Clinton'", "4", "'William'"},
 //             {"LCASE", "'Fernando Alonso'"}, {"LEFT", "'Bonjour'", "3"},
 //             {"LENGTH", "'four    '"}, {"LOCATE", "'jour'", "'Bonjour'"},
-             {"LTRIM", "'   left trim   '"}, 
+             {"LTRIM", "'   left trim   '"},
 //               {"REPEAT", "'echo'", "3"},
 //             {"REPLACE", "'to be or not to be'", "'be'", "'England'"},
 //             {"RTRIM", "'  right trim   '"}, {"SOUNDEX", "'Derby'"},
@@ -2563,7 +2563,7 @@ public class DatabaseMetaDataTest extends TestCase {
       */
      private static final String[] BUILTIN_SCHEMAS = {
              //TODO: Are there any other built in schemas?
-             
+
      };
 
      public static String getStoredIdentifier(String sqlIdentifier) {
@@ -2575,7 +2575,7 @@ public class DatabaseMetaDataTest extends TestCase {
 
      /**
       * Test getSchemas() without modifying the database.
-      * 
+      *
       * @throws SQLException
       */
      @TestTargetNew(
@@ -2651,7 +2651,7 @@ public class DatabaseMetaDataTest extends TestCase {
       * _ matches a single character <BR>
       * % matches zero or more characters <BR>
       * Other characters match themselves.
-      * 
+      *
       * @param pattern
       *            Pattern
       * @param pp
@@ -2730,9 +2730,9 @@ public class DatabaseMetaDataTest extends TestCase {
       */
      private void escapedFunctions(String[][] specList, String metaDataList)
              throws SQLException {
-         
+
          boolean[] seenFunction = new boolean[specList.length];
-         
+
          StringTokenizer st = new StringTokenizer(metaDataList, ",");
          int counter = 0;
          while (st.hasMoreTokens()) {
@@ -2758,7 +2758,7 @@ public class DatabaseMetaDataTest extends TestCase {
                  fail("Non-JDBC spec function in list: " + function);
              }
          }
-         
+
          // Now see if any speced functions are not in the metadata list
          assertSame("Function missing in metadata impl",specList.length, counter);
          for (int f = 0; f < specList.length; f++) {
@@ -2776,7 +2776,7 @@ public class DatabaseMetaDataTest extends TestCase {
              }
          }
      }
-     
+
      /**
       * Test we can execute a function listed as a supported
       * JDBC escaped function. We don't care about the actual
@@ -2786,28 +2786,28 @@ public class DatabaseMetaDataTest extends TestCase {
      private void executeEscaped(String[] specDetails)
          throws SQLException
      {
-         
+
          String sql = "SELECT " + specDetails[0] + "(";
-         
+
          for (int p = 0; p < specDetails.length - 1; p++)
          {
              if (p != 0)
                  sql = sql + ", ";
-             
+
              sql = sql + specDetails[p + 1];
          }
-         
-         sql = sql + ") ;";       
-         
+
+         sql = sql + ") ;";
+
          System.out.println("DatabaseMetaDataTest.executeEscaped() "+sql);
          Statement st = conn.createStatement();
          ResultSet rs = st.executeQuery(sql);
-         
+
          assertNotNull("not supported function: "+sql,rs);
-         
+
          rs.close();
          st.close();
      }
-     
+
   //END APACHE-DERBY
 }

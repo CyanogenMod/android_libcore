@@ -78,7 +78,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: Creates an instance of <code>PKIXParameters</code> with the
      * specified <code>Set</code> of most-trusted CAs. Each element of the set
      * is a <code>TrustAnchor</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -103,7 +103,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #2 for <code>PKIXParameters(Set)</code> constructor<br>
      * Assertion: ... the <code>Set</code> is copied to protect against
      * subsequent modifications
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -207,7 +207,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #3 for <code>PKIXParameters(KeyStore)</code> constructor<br>
      * Assertion: <code>NullPointerException</code> - if the
      * <code>keystore</code> is <code>null</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      * @throws KeyStoreException
      */
@@ -289,7 +289,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: When a <code>PKIXParameters</code> object is created, this
      * flag is set to <code>true</code><br>
      * Assertion: returns the current value of the PolicyQualifiersRejected flag
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -313,7 +313,7 @@ public class PKIXParametersTest extends TestCase {
      * Test for <code>setPolicyQualifiersRejected()</code> method<br>
      * Assertion: set the new value of the <code>PolicyQualifiersRejected</code>
      * flag
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -342,7 +342,7 @@ public class PKIXParametersTest extends TestCase {
      * <code>false</code> otherwise<br>
      * Assertion: By default, the any policy OID is not inhibited (
      * <code>isAnyPolicyInhibited()</code> returns false).
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -366,7 +366,7 @@ public class PKIXParametersTest extends TestCase {
      * Test for <code>setAnyPolicyInhibited()</code> method<br>
      * Assertion: sets state to determine if the any policy OID should be
      * processed if it is included in a certificate
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -394,7 +394,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: returns <code>true</code> if explicit policy is required,
      * <code>false</code> otherwise<br>
      * Assertion: by default, the ExplicitPolicyRequired flag is false
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -417,7 +417,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test for <code>setExplicitPolicyRequired()</code> method<br>
      * Assertion: sets the ExplicitPolicyRequired flag
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -426,7 +426,7 @@ public class PKIXParametersTest extends TestCase {
         method = "setExplicitPolicyRequired",
         args = {boolean.class}
     )
-    public final void testSetExplicitPolicyRequired() throws Exception { 
+    public final void testSetExplicitPolicyRequired() throws Exception {
         Set<TrustAnchor> taSet = TestUtils.getTrustAnchorSet();
         if (taSet == null) {
             fail(getName()
@@ -445,7 +445,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: returns true if policy mapping is inhibited, false otherwise
      * Assertion: by default, policy mapping is not inhibited (the flag is
      * false)
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -462,13 +462,13 @@ public class PKIXParametersTest extends TestCase {
 
         PKIXParameters p = new PKIXParameters(taSet);
         assertFalse(p.isPolicyMappingInhibited());
-        
+
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         TestUtils.initCertPathSSCertChain();
         Set<TrustAnchor> taSet2 = Collections.singleton(new TrustAnchor(
                TestUtils.rootCertificateSS, null));
         p = new PKIXParameters(taSet2);
-        
+
         assertFalse(p.isPolicyMappingInhibited());
         p.setPolicyMappingInhibited(true);
         assertTrue(p.isRevocationEnabled());
@@ -477,7 +477,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test for <code>setPolicyMappingInhibited()</code> method<br>
      * Assertion: sets the PolicyMappingInhibited flag
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -505,7 +505,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: returns the current value of the RevocationEnabled flag
      * Assertion: when a <code>PKIXParameters</code> object is created, this
      * flag is set to true
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -523,13 +523,13 @@ public class PKIXParametersTest extends TestCase {
 
         PKIXParameters p = new PKIXParameters(taSet);
         assertTrue(p.isRevocationEnabled());
-        
+
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
        TestUtils.initCertPathSSCertChain();
        Set<TrustAnchor> taSet2 = Collections.singleton(new TrustAnchor(
               TestUtils.rootCertificateSS, null));
        p = new PKIXParameters(taSet2);
-       
+
        assertTrue(p.isRevocationEnabled());
        p.setRevocationEnabled(false);
        assertFalse(p.isRevocationEnabled());
@@ -538,7 +538,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test for <code>isPolicyMappingInhibited()</code> method<br>
      * Assertion: sets the RevocationEnabled flag
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -564,7 +564,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test for <code>getSigProvider()</code> method<br>
      * Assertion: returns the signature provider's name, or null if not set
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -615,7 +615,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #1 for <code>getTargetCertConstraints()</code> method<br>
      * Assertion: returns a <code>CertSelector</code> specifying the constraints
      * on the target certificate (or <code>null</code>)
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -639,7 +639,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #2 for <code>getTargetCertConstraints()</code> method<br>
      * Assertion: note that the <code>CertSelector</code> returned is cloned to
      * protect against subsequent modifications
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      * @throws IOException
      */
@@ -687,7 +687,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: sets the required constraints on the target certificate. The
      * constraints are specified as an instance of CertSelector<br>
      * Assertion: ... If <code>null</code>, no constraints are defined
-     * 
+     *
      * @throws IOException
      * @throws InvalidAlgorithmParameterException
      */
@@ -718,7 +718,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #2 for <code>setTargetCertConstraints(CertSelector)</code> method<br>
      * Assertion: ... the CertSelector specified is cloned to protect against
      * subsequent modifications
-     * 
+     *
      * @throws IOException
      * @throws InvalidAlgorithmParameterException
      */
@@ -751,7 +751,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #1 for <code>getCertStores()</code> method<br>
      * Assertion: list ... (may be empty, but never <code>null</code>)
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -776,7 +776,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #2 for <code>getCertStores()</code> method<br>
      * Assertion: returns an immutable <code>List</code> of
      * <code>CertStores</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -806,7 +806,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #1 for <code>setCertStores(List)</code> method<br>
      * Assertion: Sets the list of CertStores ...
-     * 
+     *
      * @throws NoSuchAlgorithmException
      * @throws InvalidAlgorithmParameterException
      */
@@ -832,7 +832,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #2 for <code>setCertStores(List)</code> method<br>
      * Assertion: list ... may be <code>null</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -863,7 +863,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #3 for <code>setCertStores(List)</code> method<br>
      * Assertion: list is copied to protect against subsequent modifications
-     * 
+     *
      * @throws NoSuchAlgorithmException
      * @throws InvalidAlgorithmParameterException
      */
@@ -894,7 +894,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #4 for <code>setCertStores(List)</code> method<br>
      * Assertion: <code>ClassCastException</code> - if any of the elements in
      * the list are not of type <code>java.security.cert.CertStore</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      * @throws NoSuchAlgorithmException
      */
@@ -928,7 +928,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #1 for <code>addCertStore(CertStore)</code> method<br>
      * Assertion: adds a <code>CertStore</code> to the end of the list of
      * <code>CertStores</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      * @throws NoSuchAlgorithmException
      */
@@ -954,7 +954,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #2 for <code>addCertStore(CertStore)</code> method<br>
      * Assertion: if <code>null</code>, the store is ignored (not added to list)
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -978,7 +978,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #1 for <code>getCertPathCheckers()</code> method<br>
      * Assertion: list ... may be empty, but not <code>null</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1004,7 +1004,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #2 for <code>getCertPathCheckers()</code> method<br>
      * Assertion: returns an immutable <code>List</code> of
      * <code>PKIXCertPathChecker</code>s
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1036,7 +1036,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: The returned List is immutable, and each
      * <code>PKIXCertPathChecker</code> in the <code>List</code> is cloned to
      * protect against subsequent modifications
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      * @throws CertPathValidatorException
      */
@@ -1073,7 +1073,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #1 for <code>setCertPathCheckers(List)</code> method<br>
      * Assertion: sets a <code>List</code> of additional certification path
      * checkers
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1102,7 +1102,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #2 for <code>setCertPathCheckers(List)</code> method<br>
      * Assertion: <code>List</code> ... may be null
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1134,7 +1134,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: <code>List</code> supplied here is copied and each
      * <code>PKIXCertPathChecker</code> in the list is cloned to protect against
      * subsequent modifications
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1169,7 +1169,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: <code>List</code> supplied here is copied and each
      * <code>PKIXCertPathChecker</code> in the list is cloned to protect against
      * subsequent modifications
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      * @throws InvalidAlgorithmParameterException
      * @throws CertPathValidatorException
@@ -1207,7 +1207,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: <code>ClassCastException</code> - if any of the elements in
      * the list are not of type
      * <code>java.security.cert.PKIXCertPathChecker</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1242,7 +1242,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #1 for <code>addCertPathChecker(PKIXCertPathChecker)</code> method<br>
      * Assertion: adds a <code>CertPathChecker</code> to the end of the list of
      * <code>CertPathChecker</code>s
-     * 
+     *
      * @throws CertPathValidatorException
      */
     @TestTargetNew(
@@ -1280,7 +1280,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #2 for <code>addCertPathChecker(PKIXCertPathChecker)</code> method<br>
      * Assertion: if null, the checker is ignored (not added to list).
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1312,7 +1312,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #3 for <code>addCertPathChecker(PKIXCertPathChecker)</code> method<br>
      * Assertion: <code>PKIXCertPathChecker</code> is cloned to protect against
      * subsequent modifications
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      * @throws CertPathValidatorException
      */
@@ -1348,7 +1348,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #1 for <code>getDate()</code> method<br>
      * Assertion: the <code>Date</code>, or <code>null</code> if not set
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1378,7 +1378,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #2 for <code>getDate()</code> method<br>
      * Assertion: <code>Date</code> returned is copied to protect against
      * subsequent modifications
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1450,7 +1450,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #1 for <code>getInitialPolicies()</code> method<br>
      * Assertion: The default return value is an empty <code>Set</code>
      * Assertion: Never returns <code>null</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1475,7 +1475,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #2 for <code>getInitialPolicies()</code> method<br>
      * Assertion: returns an immutable <code>Set</code> of initial policy OIDs
      * in <code>String</code> format<br>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1505,7 +1505,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #1 for <code>setInitialPolicies(Set)</code> method<br>
      * Assertion: sets the <code>Set</code> of initial policy identifiers (OID
      * strings)
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1531,7 +1531,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #2 for <code>setInitialPolicies(Set)</code> method<br>
      * Assertion: <code>Set</code> may be <code>null</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1608,7 +1608,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #5 for <code>setInitialPolicies(Set)</code> method<br>
      * Assertion: <code>ClassCastException</code> - if any of the elements in
      * the set are not of type <code>String</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1640,7 +1640,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #1 for <code>getTrustAnchors()</code> method<br>
      * Assertion: an immutable <code>Set</code> of <code>TrustAnchors</code>
      * (never <code>null</code>)
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1664,7 +1664,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #2 for <code>getTrustAnchors()</code> method<br>
      * Assertion: an immutable <code>Set</code> of <code>TrustAnchors</code>
      * (never <code>null</code>)
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1693,7 +1693,7 @@ public class PKIXParametersTest extends TestCase {
     /**
      * Test #1 for <code>setTrustAnchors(Set)</code> method<br>
      * Assertion: Sets the <code>Set</code> of most-trusted CAs
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1720,7 +1720,7 @@ public class PKIXParametersTest extends TestCase {
      * Assertion: <code>InvalidAlgorithmParameterException</code> - if the
      * specified <code>Set</code> is empty (
      * <code>trustAnchors.isEmpty() == true</code>)
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1776,7 +1776,7 @@ public class PKIXParametersTest extends TestCase {
      * Test #4 for <code>setTrustAnchors(Set)</code> method<br>
      * Assertion: <code>ClassCastException</code> - if any of the elements in
      * the set are not of type <code>java.security.cert.TrustAnchor</code>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
@@ -1830,10 +1830,10 @@ public class PKIXParametersTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * Test #4 for <code>PKIXParameters(KeyStore)</code> constructor<br>
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      * @throws KeyStoreException
      */
@@ -1856,24 +1856,24 @@ public class PKIXParametersTest extends TestCase {
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         store = KeyStore.getInstance("PKCS12");
         store.load(stream, new String(KeyStoreTestPKCS12.keyStorePassword)
                 .toCharArray());
         stream.close();
-        
+
         try {
               PKIXParameters p = new PKIXParameters(store);
         } catch (InvalidAlgorithmParameterException e) {
             // ok
         }
-        
-        
+
+
         KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
         keystore.load(null,null);
         keystore.setCertificateEntry("test", TestUtils.rootCertificateSS);
-        
-        
+
+
         PKIXParameters p = new PKIXParameters(keystore);
     }
 }

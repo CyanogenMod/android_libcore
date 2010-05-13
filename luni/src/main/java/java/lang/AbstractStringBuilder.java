@@ -64,7 +64,7 @@ abstract class AbstractStringBuilder {
             val = new char[0];
         }
         if (val.length < len) {
-            throw new InvalidObjectException(Msg.getString("K0199")); 
+            throw new InvalidObjectException(Msg.getString("K0199"));
         }
 
         shared = false;
@@ -124,11 +124,11 @@ abstract class AbstractStringBuilder {
         // Force null check of chars first!
         if (offset > chars.length || offset < 0) {
             // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
         }
         if (length < 0 || chars.length - offset < length) {
             // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
         }
 
         int newSize = count + length;
@@ -164,7 +164,7 @@ abstract class AbstractStringBuilder {
 
     final void append0(CharSequence s, int start, int end) {
         if (s == null) {
-            s = "null"; 
+            s = "null";
         }
         if (start < 0 || end < 0 || start > end || end > s.length()) {
             throw new IndexOutOfBoundsException();
@@ -191,7 +191,7 @@ abstract class AbstractStringBuilder {
                 value[j++] = s.charAt(i);
             }
         }
-        
+
         this.count = newSize;
         // END android-changed
     }
@@ -340,9 +340,9 @@ abstract class AbstractStringBuilder {
                 }
                 return;
             }
-            throw new StringIndexOutOfBoundsException("offset " + start 
-                    + ", length " + length 
-                    + ", char[].length " + chars.length); 
+            throw new StringIndexOutOfBoundsException("offset " + start
+                    + ", length " + length
+                    + ", char[].length " + chars.length);
         }
         throw new StringIndexOutOfBoundsException(index);
     }
@@ -360,7 +360,7 @@ abstract class AbstractStringBuilder {
     final void insert0(int index, String string) {
         if (0 <= index && index <= count) {
             if (string == null) {
-                string = "null"; 
+                string = "null";
             }
             int min = string.length();
             if (min != 0) {
@@ -377,7 +377,7 @@ abstract class AbstractStringBuilder {
 
     final void insert0(int index, CharSequence s, int start, int end) {
         if (s == null) {
-            s = "null"; 
+            s = "null";
         }
         if (index < 0 || index > count || start < 0 || end < 0 || start > end
                 || end > s.length()) {
@@ -608,7 +608,7 @@ abstract class AbstractStringBuilder {
     public String substring(int start) {
         if (0 <= start && start <= count) {
             if (start == count) {
-                return ""; 
+                return "";
             }
 
             // Remove String sharing for more performance
@@ -633,7 +633,7 @@ abstract class AbstractStringBuilder {
     public String substring(int start, int end) {
         if (0 <= start && start <= end && end <= count) {
             if (start == end) {
-                return ""; 
+                return "";
             }
 
             // Remove String sharing for more performance
@@ -650,7 +650,7 @@ abstract class AbstractStringBuilder {
     @Override
     public String toString() {
         if (count == 0) {
-            return ""; 
+            return "";
         }
         // Optimize String sharing for more performance
         int wasted = value.length - count;

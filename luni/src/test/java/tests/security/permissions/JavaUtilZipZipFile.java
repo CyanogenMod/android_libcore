@@ -33,7 +33,7 @@ import dalvik.annotation.TestTargetNew;
  */
 @TestTargetClass(java.util.zip.ZipFile.class)
 public class JavaUtilZipZipFile extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -47,7 +47,7 @@ public class JavaUtilZipZipFile extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies that the constructor java.util.zip.ZipFile() calls checkRead on the security manager.",
@@ -69,18 +69,18 @@ public class JavaUtilZipZipFile extends TestCase {
                 this.name = name;
                 super.checkRead(name);
             }
-            
+
             @Override
             public void checkPermission(Permission permission) {
             }
         }
-        
+
         File file = File.createTempFile("foo", "zip");
         String filename = file.getAbsolutePath();
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         try {
             new ZipFile(filename);

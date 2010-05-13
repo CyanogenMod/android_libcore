@@ -164,7 +164,7 @@ public final class Locale implements Cloneable, Serializable {
     /**
      * Locale constant for the root locale. The root locale has an empty language,
      * country, and variant.
-     * 
+     *
      * @since 1.6
      * @hide
      */
@@ -303,7 +303,7 @@ public final class Locale implements Cloneable, Serializable {
      * Locale.US}, and usually several others. Most locale-sensitive classes
      * offer their own {@code getAvailableLocales} method, which should be
      * preferred over this general purpose method.
-     * 
+     *
      * @see java.text.BreakIterator#getAvailableLocales()
      * @see java.text.Collator#getAvailableLocales()
      * @see java.text.DateFormat#getAvailableLocales()

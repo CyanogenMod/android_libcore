@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -82,7 +82,7 @@ import java.util.ServiceLoader;
  * behavior guarantees are made.
  *
  * @see PreferencesFactory
- * 
+ *
  * @since 1.4
  */
 public abstract class Preferences {
@@ -130,7 +130,7 @@ public abstract class Preferences {
 
     /**
      * Gets the absolute path string of this preference node.
-     * 
+     *
      * @return the preference node's absolute path string.
      */
     public abstract String absolutePath();
@@ -138,7 +138,7 @@ public abstract class Preferences {
     /**
      * Returns the names of all children of this node or an empty array if this
      * node has no children.
-     * 
+     *
      * @return the names of all children of this node.
      * @throws BackingStoreException
      *             if backing store is unavailable or causes an operation
@@ -150,7 +150,7 @@ public abstract class Preferences {
 
     /**
      * Removes all preferences of this node.
-     * 
+     *
      * @throws BackingStoreException
      *             if backing store is unavailable or causes an operation
      *             failure.
@@ -165,15 +165,15 @@ public abstract class Preferences {
      * <p>
      * This XML document uses the UTF-8 encoding and is written according to the
      * DTD in its DOCTYPE declaration, which is the following:
-     * 
+     *
      * <pre>
      * &lt;!DOCTYPE preferences SYSTEM &quot;http://java.sun.com/dtd/preferences.dtd&quot;&gt;
      * </pre>
-     * 
+     *
      * <i>Please note that (unlike the methods of this class that don't concern
      * serialization), this call is not thread-safe.</i>
      * </p>
-     * 
+     *
      * @param ostream
      *            the output stream to write the XML-formatted data to.
      * @throws IOException
@@ -192,15 +192,15 @@ public abstract class Preferences {
      * <p>
      * This XML document uses the UTF-8 encoding and is written according to the
      * DTD in its DOCTYPE declaration, which is the following:
-     * 
+     *
      * <pre>
      * &lt;!DOCTYPE preferences SYSTEM &quot;http://java.sun.com/dtd/preferences.dtd&quot;&gt;
      * </pre>
-     * 
+     *
      * <i>Please note that (unlike the methods of this class that don't concern
      * serialization), this call is not thread-safe.</i>
      * </p>
-     * 
+     *
      * @param ostream
      *            the output stream to write the XML-formatted data to.
      * @throws IOException
@@ -221,7 +221,7 @@ public abstract class Preferences {
      * If this node has been removed, the invocation of this method only flushes
      * this node, not its descendants.
      * </p>
-     * 
+     *
      * @throws BackingStoreException
      *             if the backing store is unavailable or causes an operation
      *             failure.
@@ -236,7 +236,7 @@ public abstract class Preferences {
      * case, if there is no value mapped to the given key, the stored default
      * value is returned.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key.
      * @param deflt
@@ -263,7 +263,7 @@ public abstract class Preferences {
      * case, if there is no value mapped to the given key, the stored default
      * value is returned.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key.
      * @param deflt
@@ -292,7 +292,7 @@ public abstract class Preferences {
      * case, if there is no value mapped to the given key, the stored default
      * value is returned.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key.
      * @param deflt
@@ -320,7 +320,7 @@ public abstract class Preferences {
      * case, if there is no value mapped to the given key, the stored default
      * value is returned.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key.
      * @param deflt
@@ -349,7 +349,7 @@ public abstract class Preferences {
      * case, if there is no value mapped to the given key, the stored default
      * value is returned.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key.
      * @param deflt
@@ -378,7 +378,7 @@ public abstract class Preferences {
      * case, if there is no value mapped to the given key, the stored default
      * value is returned.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key.
      * @param deflt
@@ -406,7 +406,7 @@ public abstract class Preferences {
      * case, if there is no value mapped to the given key, the stored default
      * value is returned.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key.
      * @param deflt
@@ -427,15 +427,15 @@ public abstract class Preferences {
      * <p>
      * This XML document uses the UTF-8 encoding and must be written according
      * to the DTD in its DOCTYPE declaration, which must be the following:
-     * 
+     *
      * <pre>
      * &lt;!DOCTYPE preferences SYSTEM &quot;http://java.sun.com/dtd/preferences.dtd&quot;&gt;
      * </pre>
-     * 
+     *
      * <i>Please note that (unlike the methods of this class that don't concern
      * serialization), this call is not thread-safe.</i>
      * </p>
-     * 
+     *
      * @param istream
      *            the input stream to read the data from.
      * @throws InvalidPreferencesFormatException
@@ -457,7 +457,7 @@ public abstract class Preferences {
 
     /**
      * Returns whether this is a user preference node.
-     * 
+     *
      * @return {@code true}, if this is a user preference node, {@code false} if
      *         this is a system preference node.
      */
@@ -466,7 +466,7 @@ public abstract class Preferences {
     /**
      * Returns all preference keys stored in this node or an empty array if no
      * key was found.
-     * 
+     *
      * @return the list of all preference keys of this node.
      * @throws BackingStoreException
      *             if the backing store is unavailable or causes an operation
@@ -478,7 +478,7 @@ public abstract class Preferences {
 
     /**
      * Returns the name of this node.
-     * 
+     *
      * @return the name of this node.
      */
     public abstract String name();
@@ -491,7 +491,7 @@ public abstract class Preferences {
      * The path is treated as relative to this node if it doesn't start with a
      * slash, otherwise it will be treated as an absolute path.
      * </p>
-     * 
+     *
      * @param path
      *            the path name of the requested preference node.
      * @return the requested preference node.
@@ -513,7 +513,7 @@ public abstract class Preferences {
      * node will throw an {@code IllegalStateException} unless the given path is
      * an empty string, which will return {@code false}.
      * </p>
-     * 
+     *
      * @param path
      *            the path name of the preference node to query.
      * @return {@code true}, if the queried preference node exists, {@code false}
@@ -534,7 +534,7 @@ public abstract class Preferences {
     /**
      * Returns the parent preference node of this node or {@code null} if this
      * node is the root node.
-     * 
+     *
      * @return the parent preference node of this node.
      * @throws IllegalStateException
      *             if this node has been removed.
@@ -544,7 +544,7 @@ public abstract class Preferences {
     /**
      * Adds a new preference to this node using the given key and value or
      * updates the value if a preference with the given key already exists.
-     * 
+     *
      * @param key
      *            the preference key to be added or updated.
      * @param value
@@ -564,7 +564,7 @@ public abstract class Preferences {
      * Adds a new preference with a {@code boolean} value to this node using the
      * given key and value or updates the value if a preference with the given
      * key already exists.
-     * 
+     *
      * @param key
      *            the preference key to be added or updated.
      * @param value
@@ -588,7 +588,7 @@ public abstract class Preferences {
      * given byte array. The Base64 encoding is as defined in <a
      * href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>, section 6.8.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key to be added or updated.
      * @param value
@@ -612,7 +612,7 @@ public abstract class Preferences {
      * The value is stored in its string form, which is the result of invoking
      * {@link Double#toString(double) Double.toString(double)}.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key to be added or updated.
      * @param value
@@ -635,7 +635,7 @@ public abstract class Preferences {
      * The value is stored in its string form, which is the result of invoking
      * {@link Float#toString(float) Float.toString(float)}.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key to be added or updated.
      * @param value
@@ -658,7 +658,7 @@ public abstract class Preferences {
      * The value is stored in its string form, which is the result of invoking
      * {@link Integer#toString(int) Integer.toString(int)}.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key to be added or updated.
      * @param value
@@ -681,7 +681,7 @@ public abstract class Preferences {
      * The value is stored in its string form, which is the result of invoking
      * {@link Long#toString(long) Long.toString(long)}.
      * </p>
-     * 
+     *
      * @param key
      *            the preference key to be added or updated.
      * @param value
@@ -698,7 +698,7 @@ public abstract class Preferences {
 
     /**
      * Removes the preference mapped to the given key from this node.
-     * 
+     *
      * @param key
      *            the key of the preference to be removed.
      * @throws NullPointerException
@@ -711,7 +711,7 @@ public abstract class Preferences {
     /**
      * Removes this preference node with all its descendants. The removal won't
      * necessarily be persisted until the method {@code flush()} is invoked.
-     * 
+     *
      * @throws BackingStoreException
      *             if the backing store is unavailable or causes an operation
      *             failure.
@@ -726,7 +726,7 @@ public abstract class Preferences {
      * Registers a {@code NodeChangeListener} instance for this node, which will
      * handle {@code NodeChangeEvent}s. {@code NodeChangeEvent}s will be fired
      * when a child node has been added to or removed from this node.
-     * 
+     *
      * @param ncl
      *            the listener to be registered.
      * @throws NullPointerException
@@ -753,7 +753,7 @@ public abstract class Preferences {
 
     /**
      * Removes the given {@code NodeChangeListener} instance from this node.
-     * 
+     *
      * @param ncl
      *            the listener to be removed.
      * @throws IllegalArgumentException
@@ -766,7 +766,7 @@ public abstract class Preferences {
     /**
      * Removes the given {@code PreferenceChangeListener} instance from this
      * node.
-     * 
+     *
      * @param pcl
      *            the listener to be removed.
      * @throws IllegalArgumentException
@@ -781,7 +781,7 @@ public abstract class Preferences {
      * the back-end preference store. Any changes found in the back-end data
      * should be reflected in this node and its descendants, and at the same
      * time any local changes to this node and descendants should be persisted.
-     * 
+     *
      * @throws BackingStoreException
      *             if the backing store is unavailable or causes an operation
      *             failure.
@@ -817,7 +817,7 @@ public abstract class Preferences {
 
     /**
      * Returns the root node of the system preference hierarchy.
-     * 
+     *
      * @return the system preference hierarchy root node.
      * @throws SecurityException
      *             if the {@code RuntimePermission("preferences")} is denied by
@@ -873,7 +873,7 @@ public abstract class Preferences {
 
     /**
      * Returns the root node of the user preference hierarchy.
-     * 
+     *
      * @return the user preference hierarchy root node.
      * @throws SecurityException
      *             if the {@code RuntimePermission("preferences")} is denied by
@@ -887,7 +887,7 @@ public abstract class Preferences {
     /**
      * Returns a string representation of this node. The format is "User/System
      * Preference Node: " followed by this node's absolute path.
-     * 
+     *
      * @return the string representation of this node.
      */
     @Override

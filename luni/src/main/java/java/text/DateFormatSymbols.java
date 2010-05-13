@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -112,7 +112,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     /**
      * Constructs a new {@code DateFormatSymbols} instance containing the
      * symbols for the specified locale.
-     * 
+     *
      * @param locale
      *            the locale.
      */
@@ -131,7 +131,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     /**
      * Returns a new {@code DateFormatSymbols} instance for the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @return an instance of {@code DateFormatSymbols}
      * @since 1.6
      * @hide
@@ -202,7 +202,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     /**
      * Compares this object with the specified object and indicates if they are
      * equal.
-     * 
+     *
      * @param object
      *            the object to compare with this object.
      * @return {@code true} if {@code object} is an instance of
@@ -260,7 +260,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Returns the array of strings which represent AM and PM. Use the
      * {@link java.util.Calendar} constants {@code Calendar.AM} and
      * {@code Calendar.PM} as indices for the array.
-     * 
+     *
      * @return an array of strings.
      */
     public String[] getAmPmStrings() {
@@ -271,7 +271,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Returns the array of strings which represent BC and AD. Use the
      * {@link java.util.Calendar} constants {@code GregorianCalendar.BC} and
      * {@code GregorianCalendar.AD} as indices for the array.
-     * 
+     *
      * @return an array of strings.
      */
     public String[] getEras() {
@@ -281,7 +281,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     /**
      * Returns the pattern characters used by {@link SimpleDateFormat} to
      * specify date and time fields.
-     * 
+     *
      * @return a string containing the pattern characters.
      */
     public String getLocalPatternChars() {
@@ -292,7 +292,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Returns the array of strings containing the full names of the months. Use
      * the {@link java.util.Calendar} constants {@code Calendar.JANUARY} etc. as
      * indices for the array.
-     * 
+     *
      * @return an array of strings.
      */
     public String[] getMonths() {
@@ -303,7 +303,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Returns the array of strings containing the abbreviated names of the
      * months. Use the {@link java.util.Calendar} constants
      * {@code Calendar.JANUARY} etc. as indices for the array.
-     * 
+     *
      * @return an array of strings.
      */
     public String[] getShortMonths() {
@@ -314,7 +314,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Returns the array of strings containing the abbreviated names of the days
      * of the week. Use the {@link java.util.Calendar} constants
      * {@code Calendar.SUNDAY} etc. as indices for the array.
-     * 
+     *
      * @return an array of strings.
      */
     public String[] getShortWeekdays() {
@@ -325,7 +325,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Returns the array of strings containing the full names of the days of the
      * week. Use the {@link java.util.Calendar} constants
      * {@code Calendar.SUNDAY} etc. as indices for the array.
-     * 
+     *
      * @return an array of strings.
      */
     public String[] getWeekdays() {
@@ -338,7 +338,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * first is a TimeZone ID, the second and third are the full and abbreviated
      * time zone names for standard time, and the fourth and fifth are the full
      * and abbreviated names for daylight time.
-     * 
+     *
      * @return a two-dimensional array of strings.
      */
     public String[][] getZoneStrings() {
@@ -384,7 +384,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Sets the array of strings which represent AM and PM. Use the
      * {@link java.util.Calendar} constants {@code Calendar.AM} and
      * {@code Calendar.PM} as indices for the array.
-     * 
+     *
      * @param data
      *            the array of strings for AM and PM.
      */
@@ -396,7 +396,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Sets the array of Strings which represent BC and AD. Use the
      * {@link java.util.Calendar} constants {@code GregorianCalendar.BC} and
      * {@code GregorianCalendar.AD} as indices for the array.
-     * 
+     *
      * @param data
      *            the array of strings for BC and AD.
      */
@@ -407,7 +407,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     /**
      * Sets the pattern characters used by {@link SimpleDateFormat} to specify
      * date and time fields.
-     * 
+     *
      * @param data
      *            the string containing the pattern characters.
      * @throws NullPointerException
@@ -424,7 +424,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Sets the array of strings containing the full names of the months. Use
      * the {@link java.util.Calendar} constants {@code Calendar.JANUARY} etc. as
      * indices for the array.
-     * 
+     *
      * @param data
      *            the array of strings.
      */
@@ -436,7 +436,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Sets the array of strings containing the abbreviated names of the months.
      * Use the {@link java.util.Calendar} constants {@code Calendar.JANUARY}
      * etc. as indices for the array.
-     * 
+     *
      * @param data
      *            the array of strings.
      */
@@ -448,7 +448,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Sets the array of strings containing the abbreviated names of the days of
      * the week. Use the {@link java.util.Calendar} constants
      * {@code Calendar.SUNDAY} etc. as indices for the array.
-     * 
+     *
      * @param data
      *            the array of strings.
      */
@@ -460,7 +460,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Sets the array of strings containing the full names of the days of the
      * week. Use the {@link java.util.Calendar} constants
      * {@code Calendar.SUNDAY} etc. as indices for the array.
-     * 
+     *
      * @param data
      *            the array of strings.
      */
@@ -474,7 +474,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * first is a TimeZone ID, and second and third are the full and abbreviated
      * time zone names for standard time, and the fourth and fifth are the full
      * and abbreviated names for daylight time.
-     * 
+     *
      * @param data
      *            the two-dimensional array of strings.
      */

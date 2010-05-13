@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,9 +30,9 @@ import java.security.spec.DSAParameterSpec;
 
 @TestTargetClass(DSAPrivateKey.class)
 public class DSAPrivateKeyTest extends TestCase {
-    
+
     /**
-     * @tests java.security.interfaces.DSAPrivateKey 
+     * @tests java.security.interfaces.DSAPrivateKey
      * #getX()
      */
     @TestTargetNew(
@@ -44,7 +44,7 @@ public class DSAPrivateKeyTest extends TestCase {
     public void test_getX() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
         keyGen.initialize(new DSAParameterSpec(Util.P, Util.Q, Util.G),
-                new SecureRandom(new MySecureRandomSpi(), null) {                    
+                new SecureRandom(new MySecureRandomSpi(), null) {
                 });
         KeyPair keyPair = keyGen.generateKeyPair();
         DSAPrivateKey key = (DSAPrivateKey) keyPair.getPrivate();

@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 @TestTargetClass(SecureRandom.class)
 /**
  * Tests for <code>SecureRandom</code> constructor and methods
- * 
+ *
  */
 public class SecureRandomTest extends TestCase {
 
@@ -47,7 +47,7 @@ public class SecureRandomTest extends TestCase {
      * SRProvider
      */
     Provider p;
-    
+
     /*
      * @see TestCase#setUp()
      */
@@ -74,7 +74,7 @@ public class SecureRandomTest extends TestCase {
     public final void testNext() {
         MySecureRandom sr = new MySecureRandom();
         if (sr.nextElement(1) != 1 || sr.nextElement(2) != 3 || sr.nextElement(3) != 7) {
-            fail("next failed");            
+            fail("next failed");
         }
     }
 
@@ -92,7 +92,7 @@ public class SecureRandomTest extends TestCase {
         sr.setSeed(12345);
         if (!RandomImpl.runEngineSetSeed) {
             fail("setSeed failed");
-        }    
+        }
     }
 
     @TestTargetNew(
@@ -110,7 +110,7 @@ public class SecureRandomTest extends TestCase {
                 fail("nextBytes failed");
             }
         }
-        
+
         try {
             sr.nextBytes(null);
             fail("expected exception");
@@ -133,7 +133,7 @@ public class SecureRandomTest extends TestCase {
         if (!sr.getAlgorithm().equals("someRandom")  ||
                 sr.getProvider()!= p) {
             fail("incorrect SecureRandom implementation" + p.getName());
-        }    
+        }
     }
 
     /*
@@ -148,12 +148,12 @@ public class SecureRandomTest extends TestCase {
     public final void testSecureRandombyteArray() {
         byte[] b = {1,2,3};
         new SecureRandom(b);
-        
+
         if (!RandomImpl.runEngineSetSeed) {
             fail("No setSeed");
         }
-        
-        
+
+
     }
 
     /*
@@ -168,13 +168,13 @@ public class SecureRandomTest extends TestCase {
     public final void testGetInstanceString() {
         SecureRandom sr = null;
         try {
-            sr = SecureRandom.getInstance("someRandom");    
+            sr = SecureRandom.getInstance("someRandom");
         } catch (NoSuchAlgorithmException e) {
             fail(e.toString());
         }
         if (sr.getProvider() != p || !"someRandom".equals(sr.getAlgorithm())) {
             fail("getInstance failed");
-        }    
+        }
     }
 
     /*
@@ -187,11 +187,11 @@ public class SecureRandomTest extends TestCase {
         args = {java.lang.String.class, java.lang.String.class}
     )
     public final void testGetInstanceStringString() throws Exception {
-        SecureRandom sr = SecureRandom.getInstance("someRandom", "SRProvider");    
+        SecureRandom sr = SecureRandom.getInstance("someRandom", "SRProvider");
         if (sr.getProvider() != p || !"someRandom".equals(sr.getAlgorithm())) {
             fail("getInstance failed");
         }
-        
+
         try {
             SecureRandom r = SecureRandom.getInstance("anotherRandom", "SRProvider");
             fail("expected NoSuchAlgorithmException");
@@ -204,7 +204,7 @@ public class SecureRandomTest extends TestCase {
         } catch (NullPointerException e) {
             fail("unexpected: " + e);
         }
-        
+
         try {
             SecureRandom r = SecureRandom.getInstance("someRandom", "UnknownProvider");
             fail("expected NoSuchProviderException");
@@ -217,7 +217,7 @@ public class SecureRandomTest extends TestCase {
         } catch (NullPointerException e) {
             fail("unexpected: " + e);
         }
-        
+
         try {
             SecureRandom r = SecureRandom.getInstance("someRandom", (String)null);
             fail("expected IllegalArgumentException");
@@ -230,7 +230,7 @@ public class SecureRandomTest extends TestCase {
         } catch (NullPointerException e) {
             fail("unexpected: " + e);
         }
-        
+
         try {
             SecureRandom r = SecureRandom.getInstance(null, "SRProvider");
             fail("expected NullPointerException");
@@ -260,7 +260,7 @@ public class SecureRandomTest extends TestCase {
         if (sr.getProvider() != p || !"someRandom".equals(sr.getAlgorithm())) {
             fail("getInstance failed");
         }
-        
+
         try {
             SecureRandom r = SecureRandom.getInstance("unknownRandom", p);
             fail("expected NoSuchAlgorithmException");
@@ -272,7 +272,7 @@ public class SecureRandomTest extends TestCase {
             fail("unexpected: " + e);
         }
 
-        
+
         try {
             SecureRandom r = SecureRandom.getInstance(null, p);
             fail("expected NullPointerException");
@@ -294,7 +294,7 @@ public class SecureRandomTest extends TestCase {
         } catch (NullPointerException e) {
             fail("unexpected: " + e);
         }
-        
+
 
     }
 
@@ -314,7 +314,7 @@ public class SecureRandomTest extends TestCase {
         if (!RandomImpl.runEngineSetSeed) {
             fail("setSeed failed");
         }
-        
+
     }
 
     @TestTargetNew(
@@ -345,9 +345,9 @@ public class SecureRandomTest extends TestCase {
             }
         }
     }
-    
-    
-    
+
+
+
     public class SRProvider extends Provider {
         public SRProvider() {
             super("SRProvider", 1.0, "SRProvider for testing");
@@ -355,12 +355,12 @@ public class SecureRandomTest extends TestCase {
                     "org.apache.harmony.security.tests.support.RandomImpl");
         }
     }
-    
+
     class MySecureRandom extends SecureRandom {
         public MySecureRandom(){
             super();
         }
-        
+
         public int nextElement(int numBits) {
             return super.next(numBits);
         }

@@ -31,7 +31,7 @@ import org.apache.harmony.security.internal.nls.Messages;
  * naming convention. Asterisk '*' can be used as wildcards. Either by itself,
  * matching anything, or at the end of the name, immediately preceded by a '.'.
  * For example:
- * 
+ *
  * <pre>
  * java.io.*  grants all permissions under the java.io permission hierarchy
  * *          grants all permissions
@@ -80,13 +80,13 @@ public abstract class BasicPermission extends Permission implements
 
     /**
      * Checks name parameter
-     */ 
+     */
     private final void checkName(String name) {
         if (name == null) {
-            throw new NullPointerException(Messages.getString("security.28")); 
+            throw new NullPointerException(Messages.getString("security.28"));
         }
         if (name.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("security.29")); 
+            throw new IllegalArgumentException(Messages.getString("security.29"));
         }
     }
 
@@ -138,7 +138,7 @@ public abstract class BasicPermission extends Permission implements
      */
     @Override
     public String getActions() {
-        return ""; 
+        return "";
     }
 
     /**

@@ -32,7 +32,7 @@ public interface ECPublicKey extends PublicKey, ECKey {
 
     /**
      * Returns the public point {@code W} on an elliptic curve (EC).
-     * 
+     *
      * @return the public point {@code W} on an elliptic curve (EC).
      */
     public ECPoint getW();

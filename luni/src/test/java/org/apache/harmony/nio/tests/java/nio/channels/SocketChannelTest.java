@@ -157,7 +157,7 @@ public class SocketChannelTest extends TestCase {
         )
     })
     public void testConstructor() throws IOException {
-        SocketChannel channel = 
+        SocketChannel channel =
                 SelectorProvider.provider().openSocketChannel();
         assertNotNull(channel);
         assertSame(SelectorProvider.provider(), channel.provider());
@@ -327,7 +327,7 @@ public class SocketChannelTest extends TestCase {
     public void testOpenSocketAddress() throws IOException {
         this.channel1 = SocketChannel.open(localAddr1);
         assertTrue(this.channel1.isConnected());
-        
+
         SecurityManager smngr = System.getSecurityManager();
         System.setSecurityManager(new MockSecurityManager("blargh"));
         try {
@@ -346,7 +346,7 @@ public class SocketChannelTest extends TestCase {
             // expected
         }
 
-        SocketAddress unresolvedAddress = 
+        SocketAddress unresolvedAddress =
                 InetSocketAddress.createUnresolved("127.0.0.1", 8080);
         try {
             this.channel1 = SocketChannel.open(unresolvedAddress);
@@ -354,7 +354,7 @@ public class SocketChannelTest extends TestCase {
         } catch (UnresolvedAddressException e) {
             // expected
         }
-        
+
         SocketChannel channel1IP = null;
         try {
             channel1IP = SocketChannel.open(null);
@@ -471,7 +471,7 @@ public class SocketChannelTest extends TestCase {
         }
         testMSChannel.write(byteBuf);
         testMSChannelnull.write(byteBuf);
-        
+
         this.channel1.close();
         try {
             this.channel1.write(byteBuf);
@@ -564,7 +564,7 @@ public class SocketChannelTest extends TestCase {
         Socket s1 = this.channel1.socket();
         // status of not connected
         // RI fails here. RI returns 0 while spec says getLocalPort()
-        // shall return -1 for unbound socket 
+        // shall return -1 for unbound socket
         assertSocketBeforeConnect(s1);
         Socket s2 = this.channel1.socket();
         // same
@@ -1185,7 +1185,7 @@ public class SocketChannelTest extends TestCase {
             // OK
         }
         statusChannelClosed();
-        
+
         this.channel1.close();
         statusChannelClosed();
     }
@@ -1255,7 +1255,7 @@ public class SocketChannelTest extends TestCase {
             method = "finishConnect",
             args = {}
         )
-    })   
+    })
     public void testCFII_ConnectAfterFinish_NoServer_Block() throws Exception {
         // ensure
         ensureServerClosed();
@@ -1301,7 +1301,7 @@ public class SocketChannelTest extends TestCase {
             method = "finishConnect",
             args = {}
         )
-    })    
+    })
     public void testCFII_ConnectAfterFinish_NoServer_NonBlock()
             throws Exception {
         // ensure
@@ -1353,7 +1353,7 @@ public class SocketChannelTest extends TestCase {
         notes = "Verifies AlreadyConnectedException.",
         method = "connect",
         args = {java.net.SocketAddress.class}
-    )        
+    )
     public void testCFII_ConnectAfterFinish_Server_Block() throws Exception {
         connectServerBlock();
 
@@ -1403,7 +1403,7 @@ public class SocketChannelTest extends TestCase {
         notes = "Verifies AlreadyConnectedException.",
         method = "connect",
         args = {java.net.SocketAddress.class}
-    )    
+    )
     public void testCFII_ConnectAfterFinish_Server_NonBlock() throws Exception {
         connectServerNonBlock();
 
@@ -1460,7 +1460,7 @@ public class SocketChannelTest extends TestCase {
             method = "finishConnect",
             args = {}
         )
-    }) 
+    })
     public void testCFII_ConnectTwice_NoServer_NonBlock() throws Exception {
         // ensure
         ensureServerClosed();
@@ -1518,7 +1518,7 @@ public class SocketChannelTest extends TestCase {
             method = "finishConnect",
             args = {}
         )
-    }) 
+    })
     public void testCFII_ConnectTwice_Server_Block() throws Exception {
         // ensure
         ensureServerOpen();
@@ -1579,7 +1579,7 @@ public class SocketChannelTest extends TestCase {
             method = "finishConnect",
             args = {}
         )
-    }) 
+    })
     public void testCFII_ConnectTwice_Server_NonBlock() throws Exception {
         // ensure
         ensureServerOpen();
@@ -1724,7 +1724,7 @@ public class SocketChannelTest extends TestCase {
             method = "finishConnect",
             args = {}
         )
-    })    
+    })
     public void testCFII_FinishFirst_Server_Block() throws Exception {
         // ensure
         ensureServerOpen();
@@ -1765,7 +1765,7 @@ public class SocketChannelTest extends TestCase {
             method = "finishConnect",
             args = {}
         )
-    })    
+    })
     public void testCFII_FinishFirst_Server_NonBlock() throws Exception {
         // ensure
         ensureServerOpen();
@@ -2067,7 +2067,7 @@ public class SocketChannelTest extends TestCase {
     // -------------------------------------------------------------------
 
     /**
-     * 
+     *
      * 'SocketChannelImpl.connect(SocketAddress)'
      */
     @TestTargetNew(
@@ -2122,7 +2122,7 @@ public class SocketChannelTest extends TestCase {
             method = "finishConnect",
             args = {}
         )
-    }) 
+    })
     public void testCFII_Data_ConnectWithServer_nonBlocking() throws Exception {
         ensureServerOpen();
         java.nio.ByteBuffer writeBuf = java.nio.ByteBuffer
@@ -2219,7 +2219,7 @@ public class SocketChannelTest extends TestCase {
             method = "open",
             args = {SocketAddress.class}
         )
-    }) 
+    })
     public void testCFII_Data_FinishConnect_AddrSetServerStartLater()
             throws IOException {
         ensureServerClosed();
@@ -2290,7 +2290,7 @@ public class SocketChannelTest extends TestCase {
         notes = "",
         method = "finishConnect",
         args = {}
-    ) 
+    )
     public void testCFII_Data_FinishConnect_ServerStartLater()
             throws IOException {
         ensureServerClosed();
@@ -2394,7 +2394,7 @@ public class SocketChannelTest extends TestCase {
         notes = "Doesn't verify exceptions.",
         method = "finishConnect",
         args = {}
-    )  
+    )
     public void test_finishConnect() throws Exception {
         SocketAddress address = new InetSocketAddress("localhost", 2046);
 
@@ -2446,7 +2446,7 @@ public class SocketChannelTest extends TestCase {
         notes = "",
         method = "read",
         args = {java.nio.ByteBuffer[].class}
-    ) 
+    )
     public void test_readLByteBuffer_Blocking() throws IOException {
         // initialize write content
         byte[] writeContent = new byte[CAPACITY_NORMAL];
@@ -2498,7 +2498,7 @@ public class SocketChannelTest extends TestCase {
         notes = "",
         method = "read",
         args = {java.nio.ByteBuffer[].class}
-    ) 
+    )
     public void test_readLByteBuffer_Nonblocking() throws IOException {
         // initialize write content
         byte[] writeContent = new byte[CAPACITY_NORMAL];
@@ -2912,7 +2912,7 @@ public class SocketChannelTest extends TestCase {
         notes = "",
         method = "read",
         args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )    
+    )
     public void testReadByteBufferArrayIntInt_Direct() throws Exception {
         assertTrue(this.server1.isBound());
         java.nio.ByteBuffer[] readBuf = new java.nio.ByteBuffer[2];
@@ -3233,7 +3233,7 @@ public class SocketChannelTest extends TestCase {
         args = {java.nio.ByteBuffer[].class, int.class, int.class}
     )
     public void testWriteByteBufferArrayIntInt_SizeError() throws IOException {
-        java.nio.ByteBuffer[] writeBuf = 
+        java.nio.ByteBuffer[] writeBuf =
                 {java.nio.ByteBuffer.allocate(CAPACITY_NORMAL)};
 
         this.channel1.connect(localAddr1);
@@ -3337,7 +3337,7 @@ public class SocketChannelTest extends TestCase {
         notes = "",
         method = "read",
         args = {java.nio.ByteBuffer[].class}
-    ) 
+    )
     public void test_read$LByteBuffer_blocking() throws Exception {
         assert_read$LByteBuffer(true);
     }
@@ -3350,7 +3350,7 @@ public class SocketChannelTest extends TestCase {
         notes = "",
         method = "read",
         args = {java.nio.ByteBuffer[].class}
-    ) 
+    )
     public void test_read$LByteBuffer_nonblocking() throws Exception {
         assert_read$LByteBuffer(false);
     }
@@ -3418,7 +3418,7 @@ public class SocketChannelTest extends TestCase {
         notes = "",
         method = "read",
         args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    ) 
+    )
     public void test_read$LByteBufferII_blocking() throws Exception {
         assert_read$LByteBufferII(true);
     }
@@ -3431,7 +3431,7 @@ public class SocketChannelTest extends TestCase {
         notes = "",
         method = "read",
         args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    ) 
+    )
     public void test_read$LByteBufferII_nonblocking() throws Exception {
         assert_read$LByteBufferII(false);
     }
@@ -3861,7 +3861,7 @@ public class SocketChannelTest extends TestCase {
         notes = "Doesn't verify exceptions.",
         method = "read",
         args = {java.nio.ByteBuffer[].class}
-    ) 
+    )
     public void test_read$LByteBuffer_Blocking() throws IOException {
         // regression test for Harmony-728
         byte[] data = new byte[CAPACITY_NORMAL];
@@ -4213,7 +4213,7 @@ public class SocketChannelTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.nio.channels.SocketChannel#read(ByteBuffer)
      */
     @TestTargetNew(
@@ -4221,7 +4221,7 @@ public class SocketChannelTest extends TestCase {
         notes = "",
         method = "read",
         args = {java.nio.ByteBuffer[].class}
-    ) 
+    )
     public void test_socketChannel_read_DirectByteBuffer() throws InterruptedException, IOException {
 
         ServerThread server = new ServerThread();

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,8 +44,8 @@ public class AccessController2Test extends junit.framework.TestCase {
             }
         }
     };
-    
-    PrivilegedExceptionAction<Boolean> privExceptAction = 
+
+    PrivilegedExceptionAction<Boolean> privExceptAction =
         new PrivilegedExceptionAction<Boolean>() {
         public Boolean run() {
             try {
@@ -56,7 +56,7 @@ public class AccessController2Test extends junit.framework.TestCase {
             }
         }
     };
-    
+
     /**
      * @tests java.security.AccessController#doPrivileged(java.security.PrivilegedAction,
      *        java.security.AccessControlContext))
@@ -76,14 +76,14 @@ public class AccessController2Test extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // Expected.
         }
-        
+
         pass = AccessController.doPrivileged(privAction, null);
         assertTrue("Test 2: Got AllPermission when providing a null " +
                 "AccessControlContext.", pass.booleanValue());
 
         AccessControlContext acc = AccessController.getContext();
         assertNotNull("Test 3: AccessControlContext must not be null", acc);
-        
+
         pass = AccessController.doPrivileged(privAction, acc);
         assertTrue("Test 4: Got AllPermission when providing a non-null " +
                 "AccessControlContext.", pass.booleanValue());
@@ -107,7 +107,7 @@ public class AccessController2Test extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // Expected.
         }
-        
+
         pass = AccessController.doPrivileged(privAction);
         assertTrue("Test 2: Got AllPermission when providing no " +
                 "AccessControlContext.", pass.booleanValue());
@@ -132,7 +132,7 @@ public class AccessController2Test extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // Expected.
         } catch (PrivilegedActionException e) {
-            fail("Test 2: Unexpected PrivilegedActionException " + 
+            fail("Test 2: Unexpected PrivilegedActionException " +
                     e.getMessage());
         }
 
@@ -141,10 +141,10 @@ public class AccessController2Test extends junit.framework.TestCase {
             assertTrue("Test 3: Got AllPermission when providing a null " +
                     "AccessControlContext.", pass.booleanValue());
         } catch (PrivilegedActionException e) {
-            fail("Test 4: Unexpected PrivilegedActionException " + 
+            fail("Test 4: Unexpected PrivilegedActionException " +
                     e.getMessage());
         }
-        
+
         AccessControlContext acc = AccessController.getContext();
         assertNotNull("Test 5: AccessControlContext must not be null", acc);
 
@@ -153,7 +153,7 @@ public class AccessController2Test extends junit.framework.TestCase {
             assertTrue("Test 6: Got AllPermission when providing non-null " +
                     "AccessControlContext.", pass.booleanValue());
         } catch (PrivilegedActionException e) {
-            fail("Test 7: Unexpected PrivilegedActionException " + 
+            fail("Test 7: Unexpected PrivilegedActionException " +
                     e.getMessage());
         }
     }
@@ -176,10 +176,10 @@ public class AccessController2Test extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // Expected.
         } catch (PrivilegedActionException e) {
-            fail("Test 2: Unexpected PrivilegedActionException " + 
+            fail("Test 2: Unexpected PrivilegedActionException " +
                     e.getMessage());
         }
-        
+
         try {
             pass = AccessController.doPrivileged(privExceptAction);
             assertTrue("Test 3: Got AllPermission when providing no " +
@@ -188,7 +188,7 @@ public class AccessController2Test extends junit.framework.TestCase {
             fail("Test 4: Unexpected exception " + e.getMessage());
         }
     }
-    
+
     /**
      * @tests java.security.AccessController#checkPermission(Permission perm)
      */
@@ -207,7 +207,7 @@ public class AccessController2Test extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests java.security.AccessController#checkPermission(Permission perm)
      */
@@ -221,7 +221,7 @@ public class AccessController2Test extends junit.framework.TestCase {
     public void test_checkPermission_InvalidPermission() {
         String[] perm_invalid = {null, "1", "", "invalid", "bla-bla", "testCtor123^%$#&^ &^$"};
         Permission perm;
-        
+
         //Null parameter
         try {
             AccessController.checkPermission(null);
@@ -229,7 +229,7 @@ public class AccessController2Test extends junit.framework.TestCase {
         } catch (NullPointerException npe) {
             //expected
         }
-        
+
         //Invalid parameter
         for (int i = 0; i < perm_invalid.length; i++) {
             try {
@@ -241,10 +241,10 @@ public class AccessController2Test extends junit.framework.TestCase {
             } catch (Exception e) {
                 fail("Unexpected exception caught: " + e.toString());
             }
-            
+
         }
     }
-    
+
     /**
      * @tests java.security.AccessController#getContext()
      */
@@ -263,7 +263,7 @@ public class AccessController2Test extends junit.framework.TestCase {
             fail("Unexpected exception");
         }
     }
-    
+
     // Bare extension to instantiate abstract Permission class
     static final class RealPermission extends Permission {
 

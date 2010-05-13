@@ -55,11 +55,11 @@ import tests.support.Support_PortManager;
 
 /**
  * Tests for <code>HandshakeCompletedEvent</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(HandshakeCompletedEvent.class) 
+@TestTargetClass(HandshakeCompletedEvent.class)
 public class HandshakeCompletedEventTest extends TestCase {
-    
+
     String certificate = "-----BEGIN CERTIFICATE-----\n"
         + "MIICZTCCAdICBQL3AAC2MA0GCSqGSIb3DQEBAgUAMF8xCzAJBgNVBAYTAlVTMSAw\n"
         + "HgYDVQQKExdSU0EgRGF0YSBTZWN1cml0eSwgSW5jLjEuMCwGA1UECxMlU2VjdXJl\n"
@@ -78,8 +78,8 @@ public class HandshakeCompletedEventTest extends TestCase {
 
 
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.HandshakeCompletedEvent#HandshakeCompletedEvent(SSLSocket sock, SSLSession s) 
+     * @throws IOException
+     * @tests javax.net.ssl.HandshakeCompletedEvent#HandshakeCompletedEvent(SSLSocket sock, SSLSession s)
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -102,10 +102,10 @@ public class HandshakeCompletedEventTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getCipherSuite() 
+     * @throws IOException
+     * @tests javax.net.ssl.HandshakeCompletedEvent#getCipherSuite()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -123,10 +123,10 @@ public class HandshakeCompletedEventTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getLocalCertificates() 
+     * @throws IOException
+     * @tests javax.net.ssl.HandshakeCompletedEvent#getLocalCertificates()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -144,10 +144,10 @@ public class HandshakeCompletedEventTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getLocalPrincipal() 
+     * @throws IOException
+     * @tests javax.net.ssl.HandshakeCompletedEvent#getLocalPrincipal()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -165,10 +165,10 @@ public class HandshakeCompletedEventTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getPeerCertificateChain() 
+     * @throws IOException
+     * @tests javax.net.ssl.HandshakeCompletedEvent#getPeerCertificateChain()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -187,7 +187,7 @@ public class HandshakeCompletedEventTest extends TestCase {
         } catch (SSLPeerUnverifiedException spue) {
             //expected
         }
-        
+
         try {
             X509Certificate xc = X509Certificate.getInstance(bis);
             X509Certificate[] xcs = {xc};
@@ -203,10 +203,10 @@ public class HandshakeCompletedEventTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getPeerCertificates() 
+     * @throws IOException
+     * @tests javax.net.ssl.HandshakeCompletedEvent#getPeerCertificates()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -224,7 +224,7 @@ public class HandshakeCompletedEventTest extends TestCase {
         } catch (SSLPeerUnverifiedException spue) {
             //expected
         }
-        
+
         session = new mySSLSession((X509Certificate[]) null);
         event = new HandshakeCompletedEvent(socket, session);
         try {
@@ -234,10 +234,10 @@ public class HandshakeCompletedEventTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getPeerPrincipal() 
+     * @throws IOException
+     * @tests javax.net.ssl.HandshakeCompletedEvent#getPeerPrincipal()
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -255,10 +255,10 @@ public class HandshakeCompletedEventTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getSession() 
+     * @throws IOException
+     * @tests javax.net.ssl.HandshakeCompletedEvent#getSession()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -278,10 +278,10 @@ public class HandshakeCompletedEventTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.HandshakeCompletedEvent#getSocket() 
+     * @throws IOException
+     * @tests javax.net.ssl.HandshakeCompletedEvent#getSocket()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -300,25 +300,25 @@ public class HandshakeCompletedEventTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
-    
+
+
     // Regression test for CompletedHandshakeEvent not firing with a custom
     // TrustManager
-    
+
 
     SSLSocket socket;
     SSLSocket serverSocket;
     MyHandshakeListener listener;
     int port = Support_PortManager.getNextPort();
     String host = "localhost";
-    
+
     private String PASSWORD = "android";
 
-    /** 
+    /**
      * Defines the keystore contents for the server, BKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
      */
-    private static final String SERVER_KEYS_BKS = 
+    private static final String SERVER_KEYS_BKS =
         "AAAAAQAAABQDkebzoP1XwqyWKRCJEpn/t8dqIQAABDkEAAVteWtleQAAARpYl20nAAAAAQAFWC41" +
         "MDkAAAJNMIICSTCCAbKgAwIBAgIESEfU1jANBgkqhkiG9w0BAQUFADBpMQswCQYDVQQGEwJVUzET" +
         "MBEGA1UECBMKQ2FsaWZvcm5pYTEMMAoGA1UEBxMDTVRWMQ8wDQYDVQQKEwZHb29nbGUxEDAOBgNV" +
@@ -344,11 +344,11 @@ public class HandshakeCompletedEventTest extends TestCase {
         "1gaEjsC/0wGmmBDg1dTDH+F1p9TInzr3EFuYD0YiQ7YlAHq3cPuyGoLXJ5dXYuSBfhDXJSeddUkl" +
         "k1ufZyOOcskeInQge7jzaRfmKg3U94r+spMEvb0AzDQVOKvjjo1ivxMSgFRZaDb/4qw=";
 
-    /** 
+    /**
      * Defines the keystore contents for the server, JKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
      */
-    private static final String SERVER_KEYS_JKS = 
+    private static final String SERVER_KEYS_JKS =
         "/u3+7QAAAAIAAAABAAAAAQAFbXlrZXkAAAEaWFfBeAAAArowggK2MA4GCisGAQQBKgIRAQEFAASC" +
         "AqI2kp5XjnF8YZkhcF92YsJNQkvsmH7zqMM87j23zSoV4DwyE3XeC/gZWq1ToScIhoqZkzlbWcu4" +
         "T/Zfc/DrfGk/rKbBL1uWKGZ8fMtlZk8KoAhxZk1JSyJvdkyKxqmzUbxk1OFMlN2VJNu97FPVH+du" +
@@ -373,12 +373,12 @@ public class HandshakeCompletedEventTest extends TestCase {
         "BAUAA4GBAJn+6YgUlY18Ie+0+Vt8oEi81DNi/bfPrAUAh63fhhBikx/3R9dl3wh09Z6p7cIdNxjW" +
         "n2ll+cRW9eqF7z75F0Omm0C7/KAEPjukVbszmzeU5VqzkpSt0j84YWi+TfcHRrfvhLbrlmGITVpY" +
         "ol5pHLDyqGmDs53pgwipWqsn/nEXEBgj3EoqPeqHbDf7YaP8h/5BSt0=";
-    
-    /** 
+
+    /**
      * Defines the keystore contents for the client, JKS version. Holds just a
      * single self-generated key. The subject name is "Test Client".
      */
-    private static final String CLIENT_KEYS_JKS = 
+    private static final String CLIENT_KEYS_JKS =
         "/u3+7QAAAAIAAAABAAAAAQAFbXlrZXkAAAEaWFhyMAAAArkwggK1MA4GCisGAQQBKgIRAQEFAASC" +
         "AqGVSfXolBStZy4nnRNn4fAr+S7kfU2BS23wwW8uB2Ru3GvtLzlK9q08Gvq/LNqBafjyFTVL5FV5" +
         "SED/8YomO5a98GpskSeRvytCiTBLJdgGhws5TOGekgIAcBROPGIyOtJPQ0HfOQs+BqgzGDHzHQhw" +
@@ -404,11 +404,11 @@ public class HandshakeCompletedEventTest extends TestCase {
         "wYudC7u3P8X/tBT8GR1Yk7QW3KgFyPafp3lQBBCraSsfrjKj+dCLig1uBLUr4f68W8VFWZWWTHqp" +
         "NMGpCX6qmjbkJQLVK/Yfo1ePaUexPSOX0G9m8+DoV3iyNw6at01NRw==";
 
-    /** 
+    /**
      * Defines the keystore contents for the client, BKS version. Holds just a
      * single self-generated key. The subject name is "Test Client".
      */
-    private static final String CLIENT_KEYS_BKS = 
+    private static final String CLIENT_KEYS_BKS =
         "AAAAAQAAABT4Rka6fxbFps98Y5k2VilmbibNkQAABfQEAAVteWtleQAAARpYl+POAAAAAQAFWC41" +
         "MDkAAAJNMIICSTCCAbKgAwIBAgIESEfU9TANBgkqhkiG9w0BAQUFADBpMQswCQYDVQQGEwJVUzET" +
         "MBEGA1UECBMKQ2FsaWZvcm5pYTEMMAoGA1UEBxMDTVRWMQ8wDQYDVQQKEwZHb29nbGUxEDAOBgNV" +
@@ -432,7 +432,7 @@ public class HandshakeCompletedEventTest extends TestCase {
         "t2furYjK88j1AuB4921oxMxRm8c4Crq8Pyuf+n3YKi8Pl2BzBtw++0gj0ODlgwut8SrVj66/nvIB" +
         "jN3kLVahR8nZrEFF6vTTmyXi761pzq9yOVqI57wJGx8o3Ygox1p+pWUPl1hQR7rrhUbgK/Q5wno9" +
         "uJk07h3IZnNxE+/IKgeMTP/H4+jmyT4mhsexJ2BFHeiKF1KT/FMcJdSi+ZK5yoNVcYuY8aZbx0Ef" +
-        "lHorCXAmLFB0W6Cz4KPP01nD9YBB4olxiK1t7m0AU9zscdivNiuUaB5OIEr+JuZ6dNw=";    
+        "lHorCXAmLFB0W6Cz4KPP01nD9YBB4olxiK1t7m0AU9zscdivNiuUaB5OIEr+JuZ6dNw=";
 
 
     /**
@@ -441,7 +441,7 @@ public class HandshakeCompletedEventTest extends TestCase {
      * usual sense, we just make sure that we got the expected certificates,
      * because our self-signed test certificates are not valid.)
      */
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -470,17 +470,17 @@ public class HandshakeCompletedEventTest extends TestCase {
             TestServer server = new TestServer(true,
                     TestServer.CLIENT_AUTH_WANTED, serverKeys);
             TestClient client = new TestClient(true, clientKeys);
-            
+
             Thread serverThread = new Thread(server);
             Thread clientThread = new Thread(client);
-            
+
             serverThread.start();
             Thread.currentThread().sleep(3000);
             clientThread.start();
-            
+
             serverThread.join();
             clientThread.join();
-            
+
             // The server must have completed without an exception.
             if (server.getException() != null) {
                 throw new RuntimeException(server.getException());
@@ -490,15 +490,15 @@ public class HandshakeCompletedEventTest extends TestCase {
             if (client.getException() != null) {
                 throw new RuntimeException(client.getException());
             }
-            
+
             assertTrue(listener.completeDone);
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
-    
-    /** 
+
+    /**
      * Implements a test SSL socket server. It wait for a connection on a given
      * port, requests client authentication (if specified), reads 256 bytes
      * from the socket, and writes 256 bytes to the socket.
@@ -510,25 +510,25 @@ public class HandshakeCompletedEventTest extends TestCase {
         public static final int CLIENT_AUTH_WANTED = 1;
 
         public static final int CLIENT_AUTH_NEEDED = 2;
-        
+
         private TestTrustManager trustManager;
 
         private Exception exception;
 
         String keys;
-        
+
         private int clientAuth;
-        
+
         private boolean provideKeys;
 
         public TestServer(boolean provideKeys, int clientAuth, String keys) {
             this.keys = keys;
             this.clientAuth = clientAuth;
             this.provideKeys = provideKeys;
-            
-            trustManager = new TestTrustManager(); 
+
+            trustManager = new TestTrustManager();
         }
-        
+
         public void run() {
             try {
                 KeyManager[] keyManagers = provideKeys ? getKeyManagers(keys) : null;
@@ -536,9 +536,9 @@ public class HandshakeCompletedEventTest extends TestCase {
 
                 SSLContext sslContext = SSLContext.getInstance("TLS");
                 sslContext.init(keyManagers, trustManagers, null);
-                
+
                 SSLServerSocket serverSocket = (SSLServerSocket)sslContext.getServerSocketFactory().createServerSocket();
-                
+
                 if (clientAuth == CLIENT_AUTH_WANTED) {
                     serverSocket.setWantClientAuth(true);
                 } else if (clientAuth == CLIENT_AUTH_NEEDED) {
@@ -546,9 +546,9 @@ public class HandshakeCompletedEventTest extends TestCase {
                 } else {
                     serverSocket.setWantClientAuth(false);
                 }
-                
+
                 serverSocket.bind(new InetSocketAddress(port));
-                
+
                 SSLSocket clientSocket = (SSLSocket)serverSocket.accept();
 
                 InputStream istream = clientSocket.getInputStream();
@@ -559,7 +559,7 @@ public class HandshakeCompletedEventTest extends TestCase {
                         throw new RuntimeException("Error reading socket, expected " + i + ", got " + j);
                     }
                 }
-                
+
                 istream.close();
 
                 OutputStream ostream = clientSocket.getOutputStream();
@@ -573,7 +573,7 @@ public class HandshakeCompletedEventTest extends TestCase {
 
                 clientSocket.close();
                 serverSocket.close();
-                
+
             } catch (Exception ex) {
                 exception = ex;
             }
@@ -582,35 +582,35 @@ public class HandshakeCompletedEventTest extends TestCase {
         public Exception getException() {
             return exception;
         }
-        
+
         public X509Certificate[] getChain() {
             return trustManager.getChain();
         }
-        
+
     }
 
-    /** 
+    /**
      * Implements a test SSL socket client. It open a connection to localhost on
      * a given port, writes 256 bytes to the socket, and reads 256 bytes from the
      * socket.
      */
     class TestClient implements Runnable {
-        
+
         private TestTrustManager trustManager;
 
         private Exception exception;
-        
+
         private String keys;
-        
+
         private boolean provideKeys;
-        
+
         public TestClient(boolean provideKeys, String keys) {
             this.keys = keys;
             this.provideKeys = provideKeys;
-            
-            trustManager = new TestTrustManager(); 
+
+            trustManager = new TestTrustManager();
         }
-        
+
         public void run() {
             try {
                 KeyManager[] keyManagers = provideKeys ? getKeyManagers(keys) : null;
@@ -618,7 +618,7 @@ public class HandshakeCompletedEventTest extends TestCase {
 
                 SSLContext sslContext = SSLContext.getInstance("TLS");
                 sslContext.init(keyManagers, trustManagers, null);
-                
+
                 SSLSocket socket = (SSLSocket)sslContext.getSocketFactory().createSocket();
 
                 socket.connect(new InetSocketAddress(port));
@@ -626,11 +626,11 @@ public class HandshakeCompletedEventTest extends TestCase {
                 socket.startHandshake();
 
                 OutputStream ostream = socket.getOutputStream();
-                
+
                 for (int i = 0; i < 256; i++) {
                     ostream.write(i);
                 }
-                
+
                 ostream.flush();
                 ostream.close();
 
@@ -646,7 +646,7 @@ public class HandshakeCompletedEventTest extends TestCase {
                 istream.close();
 
                 socket.close();
-                
+
             } catch (Exception ex) {
                 exception = ex;
             }
@@ -660,15 +660,15 @@ public class HandshakeCompletedEventTest extends TestCase {
             return trustManager.getChain();
         }
     }
-    
+
     /**
      * Loads a keystore from a base64-encoded String. Returns the KeyManager[]
      * for the result.
      */
     private KeyManager[] getKeyManagers(String keys) throws Exception {
-        byte[] bytes = new Base64().decode(keys.getBytes());                    
+        byte[] bytes = new Base64().decode(keys.getBytes());
         InputStream inputStream = new ByteArrayInputStream(bytes);
-        
+
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(inputStream, PASSWORD.toCharArray());
         inputStream.close();
@@ -676,21 +676,21 @@ public class HandshakeCompletedEventTest extends TestCase {
         String algorithm = KeyManagerFactory.getDefaultAlgorithm();
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(algorithm);
         keyManagerFactory.init(keyStore, PASSWORD.toCharArray());
-        
+
         return keyManagerFactory.getKeyManagers();
     }
 
 
-    /** 
+    /**
      * Implements basically a dummy TrustManager. It stores the certificate
      * chain it sees, so it can later be queried.
      */
     public static class TestTrustManager implements X509TrustManager {
-        
+
         private X509Certificate[] chain;
-        
+
         private String authType;
-        
+
         public void checkClientTrusted(X509Certificate[] chain, String authType) {
             this.chain = chain;
             this.authType = authType;
@@ -708,7 +708,7 @@ public class HandshakeCompletedEventTest extends TestCase {
         public X509Certificate[] getChain() {
             return chain;
         }
-        
+
         public String getAuthType() {
             return authType;
         }
@@ -716,15 +716,15 @@ public class HandshakeCompletedEventTest extends TestCase {
         public void checkClientTrusted(
                 java.security.cert.X509Certificate[] chain, String authType)
                 throws CertificateException {
-            
+
         }
 
         public void checkServerTrusted(
                 java.security.cert.X509Certificate[] chain, String authType)
                 throws CertificateException {
-            
+
         }
-        
+
     }
 
     class MyHandshakeListener implements HandshakeCompletedListener {

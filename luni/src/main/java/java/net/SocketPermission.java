@@ -123,12 +123,12 @@ public final class SocketPermission extends Permission implements Serializable {
      *            the action string of this permission.
      */
     public SocketPermission(String host, String action) {
-        super(host.equals("") ? "localhost" : host);  
+        super(host.equals("") ? "localhost" : host);
         hostName = getHostString(host);
         if (action == null) {
             throw new NullPointerException();
         }
-        if (action.equals("")) { 
+        if (action.equals("")) {
             throw new IllegalArgumentException();
         }
 
@@ -206,7 +206,7 @@ public final class SocketPermission extends Permission implements Serializable {
      *            java.lang.String the action list
      */
     private void setActions(String actions) throws IllegalArgumentException {
-        if (actions.equals("")) { 
+        if (actions.equals("")) {
             return;
         }
         boolean parsing = true;
@@ -232,7 +232,7 @@ public final class SocketPermission extends Permission implements Serializable {
             } else if (action.equals(actionNames[SP_RESOLVE])) {
                 // do nothing
             } else {
-                throw new IllegalArgumentException(Msg.getString("K0048", 
+                throw new IllegalArgumentException(Msg.getString("K0048",
                         action));
             }
         }
@@ -268,7 +268,7 @@ public final class SocketPermission extends Permission implements Serializable {
 
         // only check the port range if the action string of the current object
         // is not "resolve"
-        if (!p.getActions().equals("resolve")) { 
+        if (!p.getActions().equals("resolve")) {
             if ((sp.portMin < this.portMin) || (sp.portMax > this.portMax)) {
                 return false;
             }
@@ -298,7 +298,7 @@ public final class SocketPermission extends Permission implements Serializable {
      */
     private void parsePort(String hostPort, String host) throws IllegalArgumentException {
        String port = hostPort.substring(host.length());
-       String emptyString = ""; 
+       String emptyString = "";
 
        if (emptyString.equals(port)) {
            // Not specified
@@ -339,11 +339,11 @@ public final class SocketPermission extends Permission implements Serializable {
 
            if (portMin > portMax) {
                // K0049=MinPort is greater than MaxPort\: {0}
-               throw new IllegalArgumentException(Msg.getString("K0049", port)); 
+               throw new IllegalArgumentException(Msg.getString("K0049", port));
            }
        } catch (NumberFormatException e) {
            // K004a=Invalid port number specified\: {0}
-           throw new IllegalArgumentException(Msg.getString("K004a", port)); 
+           throw new IllegalArgumentException(Msg.getString("K004a", port));
        }
     }
 
@@ -356,7 +356,7 @@ public final class SocketPermission extends Permission implements Serializable {
      * @return java.lang.String
      */
     private String toCanonicalActionString(String action) {
-        if (action == null || action.equals("") || actionsMask == SP_RESOLVE) { 
+        if (action == null || action.equals("") || actionsMask == SP_RESOLVE) {
             return actionNames[SP_RESOLVE]; // If none specified return the
         }
         // implied action resolve

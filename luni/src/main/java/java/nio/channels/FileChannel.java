@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -86,17 +86,17 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
         /**
          * Private mapping mode (equivalent to copy on write).
          */
-        public static final MapMode PRIVATE = new MapMode("PRIVATE"); 
+        public static final MapMode PRIVATE = new MapMode("PRIVATE");
 
         /**
          * Read-only mapping mode.
          */
-        public static final MapMode READ_ONLY = new MapMode("READ_ONLY"); 
+        public static final MapMode READ_ONLY = new MapMode("READ_ONLY");
 
         /**
          * Read-write mapping mode.
          */
-        public static final MapMode READ_WRITE = new MapMode("READ_WRITE"); 
+        public static final MapMode READ_WRITE = new MapMode("READ_WRITE");
 
         // The string used to display the mapping mode.
         private final String displayName;
@@ -111,7 +111,7 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
 
         /**
          * Returns a string version of the mapping mode.
-         * 
+         *
          * @return this map mode as string.
          */
         @Override
@@ -146,7 +146,7 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
      * time, etc. Note that passing <code>true</code> may invoke an underlying
      * write to the operating system (if the platform is maintaining metadata
      * such as last access time), even if the channel is opened read-only.
-     * 
+     *
      * @param metadata
      *            {@code true} if the file metadata should be flushed in
      *            addition to the file content, {@code false} otherwise.
@@ -284,7 +284,7 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
 
     /**
      * Returns the current value of the file position pointer.
-     * 
+     *
      * @return the current position as a positive integer number of bytes from
      *         the start of the file.
      * @throws ClosedChannelException
@@ -303,7 +303,7 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
      * size, attempts to read will return end of file. Write operations will
      * succeed but they will fill the bytes between the current end of file and
      * the new position with the required number of (unspecified) byte values.
-     * 
+     *
      * @param offset
      *            the new file position, in bytes.
      * @return the receiver.
@@ -459,7 +459,7 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
 
     /**
      * Returns the size of the file underlying this channel in bytes.
-     * 
+     *
      * @return the size of the file in bytes.
      * @throws ClosedChannelException
      *             if this channel is closed.
@@ -628,7 +628,7 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
      * some number of bytes are written (up to the remaining number of bytes in
      * the buffer) the file position is increased by the number of bytes
      * actually written.
-     * 
+     *
      * @param src
      *            the byte buffer containing the bytes to be written.
      * @return the number of bytes actually written.

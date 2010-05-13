@@ -35,7 +35,7 @@ import java.security.spec.KeySpec;
 
 /**
  * Tests for <code>DSAPublicKeySpec</code>
- * 
+ *
  */
 @TestTargetClass(DSAPublicKeySpec.class)
 public class DSAPublicKeySpecTest extends TestCase {
@@ -55,12 +55,12 @@ public class DSAPublicKeySpecTest extends TestCase {
                 new BigInteger("2"), // p
                 new BigInteger("3"), // q
                 new BigInteger("4"));// g
-        
+
         assertTrue(ks instanceof DSAPublicKeySpec);
     }
 
     /**
-     * Test for <code>getG</code> method 
+     * Test for <code>getG</code> method
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -74,12 +74,12 @@ public class DSAPublicKeySpecTest extends TestCase {
                 new BigInteger("2"), // p
                 new BigInteger("3"), // q
                 new BigInteger("4"));// g
-        
+
         assertEquals(4, dpks.getG().intValue());
     }
 
     /**
-     * Test for <code>getP</code> method 
+     * Test for <code>getP</code> method
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -93,12 +93,12 @@ public class DSAPublicKeySpecTest extends TestCase {
                 new BigInteger("2"), // p
                 new BigInteger("3"), // q
                 new BigInteger("4"));// g
-        
+
         assertEquals(2, dpks.getP().intValue());
     }
 
     /**
-     * Test for <code>getQ</code> method 
+     * Test for <code>getQ</code> method
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -112,12 +112,12 @@ public class DSAPublicKeySpecTest extends TestCase {
                 new BigInteger("2"), // p
                 new BigInteger("3"), // q
                 new BigInteger("4"));// g
-        
+
         assertEquals(3, dpks.getQ().intValue());
     }
 
     /**
-     * Test for <code>getY</code> method 
+     * Test for <code>getY</code> method
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -131,7 +131,7 @@ public class DSAPublicKeySpecTest extends TestCase {
                 new BigInteger("2"), // p
                 new BigInteger("3"), // q
                 new BigInteger("4"));// g
-        
+
         assertEquals(1, dpks.getY().intValue());
     }
 }

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -95,7 +95,7 @@ import java.util.Hashtable;
  */
 public class FileHandler extends StreamHandler {
 
-    private static final String LCK_EXT = ".lck"; 
+    private static final String LCK_EXT = ".lck";
 
     private static final int DEFAULT_COUNT = 1;
 
@@ -103,7 +103,7 @@ public class FileHandler extends StreamHandler {
 
     private static final boolean DEFAULT_APPEND = false;
 
-    private static final String DEFAULT_PATTERN = "%h/java%u.log"; 
+    private static final String DEFAULT_PATTERN = "%h/java%u.log";
 
     // maintain all file locks hold by this process
     private static final Hashtable<String, FileLock> allLocks = new Hashtable<String, FileLock>();
@@ -273,11 +273,11 @@ public class FileHandler extends StreamHandler {
 
         // TODO privilege code?
 
-        String tempPath = System.getProperty("java.io.tmpdir"); 
+        String tempPath = System.getProperty("java.io.tmpdir");
         boolean tempPathHasSepEnd = (tempPath == null ? false : tempPath
                 .endsWith(File.separator));
 
-        String homePath = System.getProperty("user.home"); 
+        String homePath = System.getProperty("user.home");
         boolean homePathHasSepEnd = (homePath == null ? false : homePath
                 .endsWith(File.separator));
 
@@ -327,11 +327,11 @@ public class FileHandler extends StreamHandler {
         sb.append(value, cur, value.length - cur);
 
         if (!hasGeneration && count > 1) {
-            sb.append(".").append(gen); 
+            sb.append(".").append(gen);
         }
 
         if (!hasUniqueID && uniqueID > 0) {
-            sb.append(".").append(uniqueID); 
+            sb.append(".").append(uniqueID);
         }
 
         return sb.toString();
@@ -345,9 +345,9 @@ public class FileHandler extends StreamHandler {
             return defaultValue;
         }
         boolean result = defaultValue;
-        if ("true".equalsIgnoreCase(property)) { 
+        if ("true".equalsIgnoreCase(property)) {
             result = true;
-        } else if ("false".equalsIgnoreCase(property)) { 
+        } else if ("false".equalsIgnoreCase(property)) {
             result = false;
         }
         return result;

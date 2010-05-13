@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 @TestTargetClass(Time.class)
 /**
  * JUnit Testcase for the java.sql.Time class
- * 
+ *
  */
 public class TimeTest extends TestCase {
 
@@ -111,7 +111,7 @@ public class TimeTest extends TestCase {
         args = {long.class}
     )
     public void testTime() {
-        TimeZone.setDefault(TimeZone.getTimeZone("GMT")); 
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
         Time theTime = new Time(TIME_TEST1);
 
         // The date should have been created
@@ -160,17 +160,17 @@ public class TimeTest extends TestCase {
     public void testValueOfString() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 
-        
+
         Time[] theReturns = { new Time(38720000), new Time(80279000),
                 new Time(47680000)};
         String[] validTime = { STRING_TEST1, STRING_TEST2, STRING_TEST3, };
         String[] invalidTime = { null, "ABCDEFGHI", "233104", "21-43-48" };
-        
+
         for (int i = 0; i < validTime.length; i++) {
             Time theReturn = Time.valueOf(validTime[i]);
                 assertEquals(theReturns[i], theReturn);
         } // end for
-        
+
         for (String element : invalidTime) {
             try {
                 Time.valueOf(element);
@@ -324,7 +324,7 @@ public class TimeTest extends TestCase {
             //expected
         } // end try
     } // end method test
-    
+
     /**
      * @tests java.sql.Time#valueOf(String )
      */
@@ -341,56 +341,56 @@ public class TimeTest extends TestCase {
             } catch (NumberFormatException e) {
                 //expected
             }
-            
+
             try{
                 Time.valueOf(":10:07:01");
                 fail("should throw IllegalArgumentException");
             } catch (IllegalArgumentException e) {
                 //expected
             }
-            
+
             try{
                 Time.valueOf("::01");
                 fail("should throw IllegalArgumentException");
             } catch (IllegalArgumentException e) {
                 //expected
             }
-            
+
             try{
                 Time.valueOf("11::");
                 fail("should throw IllegalArgumentException");
             } catch (IllegalArgumentException e) {
                 //expected
             }
-            
+
             try{
                 Time.valueOf(":01:");
                 fail("should throw IllegalArgumentException");
             } catch (IllegalArgumentException e) {
                 //expected
             }
-            
+
             try{
                 Time.valueOf(":10:w2:01");
                 fail("should throw IllegalArgumentException");
             } catch (IllegalArgumentException e) {
                 //expected
             }
-        
+
             try{
                 Time.valueOf("07:w2:");
                 fail("should throw IllegalArgumentException");
             } catch (IllegalArgumentException e) {
                 //expected
             }
-            
+
             try{
                 Time.valueOf("17:w2:w2");
                 fail("should throw NumberFormatException");
             } catch (NumberFormatException e) {
                 //expected
             }
-            
+
             try{
                 Time.valueOf("16::01");
                 fail("should throw NumberFormatException");

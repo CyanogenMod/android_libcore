@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -345,7 +345,7 @@ public class MessageFormat extends Format {
 
     /**
      * Constructs a new {@code MessageFormat} using the specified pattern and {@code locale}.
-     * 
+     *
      * @param template
      *            the pattern.
      * @param locale
@@ -362,7 +362,7 @@ public class MessageFormat extends Format {
      * Constructs a new {@code MessageFormat} using the specified pattern and
      * the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param template
      *            the pattern.
      * @throws IllegalArgumentException
@@ -374,7 +374,7 @@ public class MessageFormat extends Format {
 
     /**
      * Changes this {@code MessageFormat} to use the specified pattern.
-     * 
+     *
      * @param template
      *            the new pattern.
      * @throws IllegalArgumentException
@@ -402,9 +402,9 @@ public class MessageFormat extends Format {
                     if (ch < '0' && ch > '9') {
                         throw new IllegalArgumentException("Invalid argument number");
                     }
-                    
+
                     arg = arg * 10 + (ch - '0');
-                    
+
                     if (arg < 0 || offset >= length) {
                         throw new IllegalArgumentException("Invalid argument number");
                     }
@@ -441,7 +441,7 @@ public class MessageFormat extends Format {
     /**
      * Returns a new instance of {@code MessageFormat} with the same pattern and
      * formats as this {@code MessageFormat}.
-     * 
+     *
      * @return a shallow copy of this {@code MessageFormat}.
      * @see java.lang.Cloneable
      */
@@ -462,7 +462,7 @@ public class MessageFormat extends Format {
      * Compares the specified object to this {@code MessageFormat} and indicates
      * if they are equal. In order to be equal, {@code object} must be an
      * instance of {@code MessageFormat} and have the same pattern.
-     * 
+     *
      * @param object
      *            the object to compare with this object.
      * @return {@code true} if the specified object is equal to this
@@ -498,7 +498,7 @@ public class MessageFormat extends Format {
      * returns an {@code AttributedCharacterIterator} with the formatted message and
      * attributes. The {@code AttributedCharacterIterator} returned also includes the
      * attributes from the formats of this message format.
-     * 
+     *
      * @param object
      *            the object to format.
      * @return an {@code AttributedCharacterIterator} with the formatted message and
@@ -649,7 +649,7 @@ public class MessageFormat extends Format {
     /**
      * If fields vector is not null, find and add the fields of this format to
      * the fields vector by iterating through its AttributedCharacterIterator
-     * 
+     *
      * @param format
      *            the format to find fields for
      * @param arg
@@ -693,7 +693,7 @@ public class MessageFormat extends Format {
      * <p>
      * Calling this method is equivalent to calling
      * <blockquote>
-     * 
+     *
      * <pre>
      * format((Object[])object, buffer, field)
      * </pre>
@@ -719,7 +719,7 @@ public class MessageFormat extends Format {
 
     /**
      * Formats the supplied objects using the specified message format pattern.
-     * 
+     *
      * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
      *            the list of arguments passed to the formatter. If there are
@@ -742,7 +742,7 @@ public class MessageFormat extends Format {
 
     /**
      * Returns the {@code Format} instances used by this message format.
-     * 
+     *
      * @return an array of {@code Format} instances.
      */
     public Format[] getFormats() {
@@ -753,7 +753,7 @@ public class MessageFormat extends Format {
      * Returns the formats used for each argument index. If an argument is
      * placed more than once in the pattern string, then this returns the format
      * of the last one.
-     * 
+     *
      * @return an array of formats, ordered by argument index.
      */
     public Format[] getFormatsByArgumentIndex() {
@@ -767,7 +767,7 @@ public class MessageFormat extends Format {
     /**
      * Sets the format used for the argument at index {@code argIndex} to
      * {@code format}.
-     * 
+     *
      * @param argIndex
      *            the index of the format to set.
      * @param format
@@ -784,7 +784,7 @@ public class MessageFormat extends Format {
     /**
      * Sets the formats used for each argument. The {@code formats} array
      * elements should be in the order of the argument indices.
-     * 
+     *
      * @param formats
      *            the formats in an array.
      */
@@ -800,7 +800,7 @@ public class MessageFormat extends Format {
 
     /**
      * Returns the locale used when creating formats.
-     * 
+     *
      * @return the locale used to create formats.
      */
     public Locale getLocale() {
@@ -828,7 +828,7 @@ public class MessageFormat extends Format {
     /**
      * Parses the message arguments from the specified string using the rules of
      * this message format.
-     * 
+     *
      * @param string
      *            the string to parse.
      * @return the array of {@code Object} arguments resulting from the parse.
@@ -851,7 +851,7 @@ public class MessageFormat extends Format {
      * index following the parsed text. On error, the index is unchanged and the
      * error index of {@code ParsePosition} is set to the index where the error
      * occurred.
-     * 
+     *
      * @param string
      *            the string to parse.
      * @param position
@@ -922,7 +922,7 @@ public class MessageFormat extends Format {
      * index following the parsed text. On error, the index is unchanged and the
      * error index of {@code ParsePosition} is set to the index where the error
      * occurred.
-     * 
+     *
      * @param string
      *            the string to parse.
      * @param position
@@ -1048,7 +1048,7 @@ public class MessageFormat extends Format {
 
     /**
      * Sets the specified format used by this message format.
-     * 
+     *
      * @param offset
      *            the index of the format to change.
      * @param format
@@ -1060,7 +1060,7 @@ public class MessageFormat extends Format {
 
     /**
      * Sets the formats used by this message format.
-     * 
+     *
      * @param formats
      *            an array of {@code Format}.
      */
@@ -1078,7 +1078,7 @@ public class MessageFormat extends Format {
      * Sets the locale to use when creating {@code Format} instances. Changing
      * the locale may change the behavior of {@code applyPattern},
      * {@code toPattern}, {@code format} and {@code formatToCharacterIterator}.
-     * 
+     *
      * @param locale
      *            the new locale.
      */
@@ -1089,14 +1089,14 @@ public class MessageFormat extends Format {
             // BEGIN android-removed
             //if (format instanceof DecimalFormat) {
             //     formats[i] = new DecimalFormat(((DecimalFormat) format)
-            //             .toPattern(), new DecimalFormatSymbols(locale));                
+            //             .toPattern(), new DecimalFormatSymbols(locale));
             //} else if (format instanceof SimpleDateFormat) {
             //     formats[i] = new SimpleDateFormat(((SimpleDateFormat) format)
             //             .toPattern(), locale);
             //}
             // END android-removed
             // BEGIN android-added
-            // java specification undefined for null argument, change into 
+            // java specification undefined for null argument, change into
             // a more tolerant implementation
             if (format instanceof DecimalFormat) {
                 try {
@@ -1167,7 +1167,7 @@ public class MessageFormat extends Format {
 
     /**
      * Returns the pattern of this message format.
-     * 
+     *
      * @return the pattern.
      */
     public String toPattern() {

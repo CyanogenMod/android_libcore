@@ -52,13 +52,13 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         super(url);
         httpsEngine = new HttpsEngine(url, port, proxy);
     }
-    
+
     private void checkConnected() {
         if (sslSocket == null) {
             throw new IllegalStateException("Connection has not yet been established");
         }
     }
-    
+
     @Override
     public String getCipherSuite() {
         checkConnected();
@@ -365,7 +365,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 // keep request method
                 String save_meth = method;
                 // make SSL Tunnel
-                method = "CONNECT"; 
+                method = "CONNECT";
                 try {
                     doRequest();
                     endRequest();
@@ -399,13 +399,13 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 if (makingSSLTunnel) {
                     // we are making the SSL Tunneling, return remotehost:port
                     int port = url.getPort();
-                    return (port > 0) ? url.getHost() + ":" + port 
+                    return (port > 0) ? url.getHost() + ":" + port
                     : url.getHost();
                 }
                 // we has made SSL Tunneling, return /requested.data
                 String file = url.getFile();
                 if (file == null || file.length() == 0) {
-                    file = "/"; 
+                    file = "/";
                 }
                 return file;
             }

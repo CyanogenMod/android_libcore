@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001-2004 World Wide Web Consortium, 
+ Copyright (c) 2001-2004 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -39,7 +39,7 @@ import javax.xml.parsers.DocumentBuilder;
  * Using the method getNamedItemNS, retreive the entity "ent1" and notation
  * "notation1" from a NamedNodeMap of this DocumentTypes entities and notations.
  * Both should be null since entities and notations are not namespaced.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
@@ -51,7 +51,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://lists.w3.org/Archives/Member/w3c-dom-ig/2003Nov/0016.html">http://lists.w3.org/Archives/Member/w3c-dom-ig/2003Nov/0016.html</a>
  */
-@TestTargetClass(NamedNodeMap.class) 
+@TestTargetClass(NamedNodeMap.class)
 public final class NamedNodeMapGetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -77,11 +77,11 @@ public final class NamedNodeMapGetNamedItemNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
-// Assumes validation.    
+// Assumes validation.
 //    public void testGetNamedItemNS1() throws Throwable {
 //        Document doc;
 //        DocumentType docType;

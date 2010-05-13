@@ -40,7 +40,7 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyStore.CallbackHandlerProtection.class)
 /**
  * Tests for <code>KeyStore.CallbackHandlerProtection> class constructor and methods
- * 
+ *
  */
 
 public class KSCallbackHandlerProtectionTest extends TestCase {
@@ -62,27 +62,27 @@ public class KSCallbackHandlerProtectionTest extends TestCase {
             fail("NullPointerException must be thrown when handler is null");
         } catch (NullPointerException e) {
         }
-        
+
         class TestCallbackHandler implements CallbackHandler {
 
             public void handle(Callback[] callbacks) throws IOException,
                     UnsupportedCallbackException {
                 // does nothing
             }
-            
+
         }
-        
+
         try {
             new KeyStore.CallbackHandlerProtection(new TestCallbackHandler());
         } catch (Exception e) {
             fail("unexpected exception: " + e);
         }
-        
+
     }
-    
+
     /**
      * Test for <code>getCallbackHandler()</code> method
-     * Assertion: returns CallbackHandler 
+     * Assertion: returns CallbackHandler
      */
     @TestTargets({
         @TestTargetNew(

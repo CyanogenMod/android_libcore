@@ -32,7 +32,7 @@ import junit.framework.TestCase;
 
 import org.apache.harmony.xnet.tests.support.KeyManagerFactorySpiImpl;
 
-@TestTargetClass(KeyManagerFactorySpi.class) 
+@TestTargetClass(KeyManagerFactorySpi.class)
 public class KeyManagerFactorySpiTest extends TestCase {
 
     /**
@@ -52,7 +52,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
             fail("Unexpected Exception " + e.toString());
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.KeyManagerFactorySpi#KengineInit(KeyStore ks, char[] password)
      */
@@ -66,7 +66,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
         KeyManagerFactorySpiImpl kmf = new KeyManagerFactorySpiImpl();
         KeyStore ks;
         char[] psw = "password".toCharArray();
-        
+
         try {
             kmf.engineInit(null, null);
             fail("NoSuchAlgorithmException wasn't thrown");
@@ -75,7 +75,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of NoSuchAlgorithmException");
         }
-        
+
         try {
             kmf.engineInit(null, psw);
             fail("KeyStoreException wasn't thrown");
@@ -84,7 +84,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of KeyStoreException");
         }
-        
+
         try {
             ks = KeyStore.getInstance(KeyStore.getDefaultType());
             kmf.engineInit(ks, null);
@@ -94,7 +94,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of UnrecoverableKeyException");
         }
-        
+
         try {
             KeyStore kst = KeyStore.getInstance(KeyStore.getDefaultType());
             kst.load(null, null);
@@ -103,7 +103,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
             fail("Unexpected exception " + e);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.KeyManagerFactorySpi#KengineInit(ManagerFactoryParameters spec)
      */
@@ -115,7 +115,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
     )
     public void test_engineInit_02() {
         KeyManagerFactorySpiImpl kmf = new KeyManagerFactorySpiImpl();
-        
+
         try {
             kmf.engineInit(null);
             fail("InvalidAlgorithmParameterException wasn't thrown");
@@ -124,7 +124,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of InvalidAlgorithmParameterException");
         }
-        
+
         try {
             char[] psw = "password".toCharArray();
             Parameters pr = new Parameters(psw);
@@ -133,7 +133,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
             fail(e + " unexpected exception was thrown");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.KeyManagerFactorySpi#engineGetKeyManagers()
      */
@@ -145,7 +145,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
     )
     public void test_engineGetKeyManagers() {
         KeyManagerFactorySpiImpl kmf = new KeyManagerFactorySpiImpl();
-        
+
         try {
             KeyManager[] km = kmf.engineGetKeyManagers();
             fail("IllegalStateException wasn't thrown");
@@ -154,7 +154,7 @@ public class KeyManagerFactorySpiTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalStateException");
         }
-        
+
         try {
             char[] psw = "password".toCharArray();
             Parameters pr = new Parameters(psw);
@@ -165,10 +165,10 @@ public class KeyManagerFactorySpiTest extends TestCase {
             fail(e + " unexpected exception was thrown");
         }
     }
-    
+
     public class Parameters implements ManagerFactoryParameters {
         private char[] passWD;
-        
+
         public Parameters (char[] pass) {
             this.passWD = pass;
         }
@@ -176,5 +176,5 @@ public class KeyManagerFactorySpiTest extends TestCase {
             return passWD;
         }
     }
-    
+
 }

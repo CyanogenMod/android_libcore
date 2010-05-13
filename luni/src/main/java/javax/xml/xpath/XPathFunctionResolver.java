@@ -44,16 +44,16 @@ import javax.xml.namespace.QName;
  * @since 1.5
  */
 public interface XPathFunctionResolver {
-  /** 
+  /**
    * <p>Find a function in the set of available functions.</p>
-   * 
+   *
    * <p>If <code>functionName</code> or <code>arity</code> is <code>null</code>, then a <code>NullPointerException</code> is thrown.</p>
    *
    * @param functionName The function name.
    * @param arity The number of arguments that the returned function must accept.
-   * 
+   *
    * @return The function or <code>null</code> if no function named <code>functionName</code> with <code>arity</code> arguments exists.
-   * 
+   *
    * @throws NullPointerException If <code>functionName</code> or <code>arity</code> is <code>null</code>.
    */
   public XPathFunction resolveFunction(QName functionName, int arity);

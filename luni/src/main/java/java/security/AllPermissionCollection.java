@@ -30,7 +30,7 @@ import org.apache.harmony.security.internal.nls.Messages;
  * Specific {@code PermissionCollection} for storing {@code AllPermission}s. All
  * instances of {@code AllPermission} are equivalent, so it is enough to store a
  * single added instance.
- * 
+ *
  * @see AllPermission
  */
 final class AllPermissionCollection extends PermissionCollection {
@@ -38,7 +38,7 @@ final class AllPermissionCollection extends PermissionCollection {
     private static final long serialVersionUID = -4023755556366636806L;
 
     private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField(
-        "all_allowed", Boolean.TYPE), }; 
+        "all_allowed", Boolean.TYPE), };
 
     // Single element of collection.
     private transient Permission all;
@@ -49,10 +49,10 @@ final class AllPermissionCollection extends PermissionCollection {
     @Override
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15")); 
+            throw new SecurityException(Messages.getString("security.15"));
         }
         if (!(permission instanceof AllPermission)) {
-            throw new IllegalArgumentException(Messages.getString("security.16", 
+            throw new IllegalArgumentException(Messages.getString("security.16",
                 permission));
         }
         all = permission;
@@ -68,7 +68,7 @@ final class AllPermissionCollection extends PermissionCollection {
 
     /**
      * An auxiliary implementation for enumerating a single object.
-     * 
+     *
      */
     final static class SingletonEnumeration<E> implements Enumeration<E> {
 
@@ -94,7 +94,7 @@ final class AllPermissionCollection extends PermissionCollection {
          */
         public E nextElement() {
             if (element == null) {
-                throw new NoSuchElementException(Messages.getString("security.17")); 
+                throw new NoSuchElementException(Messages.getString("security.17"));
             }
             E last = element;
             element = null;
@@ -105,7 +105,7 @@ final class AllPermissionCollection extends PermissionCollection {
     /**
      * Indicates whether the argument permission is implied by the receiver.
      * {@code AllPermission} objects imply all other permissions.
-     * 
+     *
      * @return boolean {@code true} if the argument permission is implied by the
      *         receiver, and {@code false} if it is not.
      * @param permission
@@ -123,7 +123,7 @@ final class AllPermissionCollection extends PermissionCollection {
      */
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         ObjectOutputStream.PutField fields = out.putFields();
-        fields.put("all_allowed", all != null); 
+        fields.put("all_allowed", all != null);
         out.writeFields();
     }
 
@@ -133,7 +133,7 @@ final class AllPermissionCollection extends PermissionCollection {
     private void readObject(java.io.ObjectInputStream in) throws IOException,
         ClassNotFoundException {
         ObjectInputStream.GetField fields = in.readFields();
-        if (fields.get("all_allowed", false)) { 
+        if (fields.get("all_allowed", false)) {
             all = new AllPermission();
         }
     }

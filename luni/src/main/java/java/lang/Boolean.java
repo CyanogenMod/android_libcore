@@ -176,7 +176,7 @@ public final class Boolean implements Serializable, Comparable<Boolean> {
      * @since 1.5
      */
     public static boolean parseBoolean(String s) {
-        return "true".equalsIgnoreCase(s); 
+        return "true".equalsIgnoreCase(s);
     }
 
     /**

@@ -131,7 +131,7 @@ public class BigDecimalTest extends junit.framework.TestCase {
         /*
          * BigDecimal does not support a + sign in the exponent when converting
          * from a String.
-         * 
+         *
          * mc 081106: who says so?!?
          */
         BigDecimal bd;
@@ -146,41 +146,41 @@ public class BigDecimalTest extends junit.framework.TestCase {
      */
     public void test_constructor_String_empty() {
         try {
-            new BigDecimal("");            
+            new BigDecimal("");
             fail("NumberFormatException expected");
         } catch (NumberFormatException e) {
         }
     }
-    
+
     /**
      * @tests java.math.BigDecimal#BigDecimal(java.lang.String)
      */
     public void test_constructor_String_plus_minus_exp() {
         try {
-            new BigDecimal("+35e+-2");            
+            new BigDecimal("+35e+-2");
             fail("NumberFormatException expected");
         } catch (NumberFormatException e) {
         }
-        
+
         try {
-            new BigDecimal("-35e-+2");            
+            new BigDecimal("-35e-+2");
             fail("NumberFormatException expected");
         } catch (NumberFormatException e) {
         }
     }
-    
+
     /**
      * @tests java.math.BigDecimal#BigDecimal(char[])
      */
     public void test_constructor_CC_plus_minus_exp() {
         try {
-            new BigDecimal("+35e+-2".toCharArray());          
+            new BigDecimal("+35e+-2".toCharArray());
             fail("NumberFormatException expected");
         } catch (NumberFormatException e) {
         }
-        
+
         try {
-            new BigDecimal("-35e-+2".toCharArray());          
+            new BigDecimal("-35e-+2".toCharArray());
             fail("NumberFormatException expected");
         } catch (NumberFormatException e) {
         }
@@ -1054,7 +1054,7 @@ public class BigDecimalTest extends junit.framework.TestCase {
         assertEquals(bd.doubleValue(), nbd.doubleValue(), 0.0);
         assertEquals(bd.toString(), nbd.toString());
     }
-    
+
     /**
      * @tests java.math.BigDecimal#stripTrailingZero(long)
      */
@@ -1063,13 +1063,13 @@ public class BigDecimalTest extends junit.framework.TestCase {
         assertTrue("stripTrailingZero failed for 600.0",
                 ((sixhundredtest.stripTrailingZeros()).scale() == -2)
                 );
-        
+
         /* Single digit, no trailing zero, odd number */
         BigDecimal notrailingzerotest = new BigDecimal("1");
         assertTrue("stripTrailingZero failed for 1",
                 ((notrailingzerotest.stripTrailingZeros()).scale() == 0)
                 );
-        
+
         // BEGIN android-changed: preserve RI compatibility, so BigDecimal.equals (which checks
         // value *and* scale) continues to work. https://issues.apache.org/jira/browse/HARMONY-4623
         /* Zero */

@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -25,15 +25,15 @@ import java.security.interfaces.RSAPrivateCrtKey;
 
 @TestTargetClass(RSAPrivateCrtKey.class)
 public class RSAPrivateCrtKeyTest extends TestCase {
-    
+
     RSAPrivateCrtKey key = null;
-    
+
     protected void setUp() throws Exception {
         super.setUp();
         KeyFactory gen = KeyFactory.getInstance("RSA");
         key = (RSAPrivateCrtKey) gen.generatePrivate(Util.rsaCrtParam);
     }
-    
+
     /**
      * @tests java.security.interfaces.RSAPrivateCrtKey
      * #getCrtCoefficient()
@@ -48,7 +48,7 @@ public class RSAPrivateCrtKeyTest extends TestCase {
         assertEquals("invalid CRT coefficient",
                 Util.rsaCrtParam.getCrtCoefficient(), key.getCrtCoefficient());
     }
-    
+
     /**
      * @tests java.security.interfaces.RSAPrivateCrtKey
      * #getPrimeExponentP()
@@ -63,7 +63,7 @@ public class RSAPrivateCrtKeyTest extends TestCase {
         assertEquals("invalid prime exponent P",
                 Util.rsaCrtParam.getPrimeExponentP(), key.getPrimeExponentP());
     }
-    
+
     /**
      * @tests java.security.interfaces.RSAPrivateCrtKey
      * #getPrimeExponentQ()
@@ -78,7 +78,7 @@ public class RSAPrivateCrtKeyTest extends TestCase {
         assertEquals("invalid prime exponent Q",
                 Util.rsaCrtParam.getPrimeExponentQ(), key.getPrimeExponentQ());
     }
-    
+
     /**
      * @tests java.security.interfaces.RSAPrivateCrtKey
      * #getPrimeP()
@@ -93,7 +93,7 @@ public class RSAPrivateCrtKeyTest extends TestCase {
         assertEquals("invalid prime P",
                 Util.rsaCrtParam.getPrimeP(), key.getPrimeP());
     }
-    
+
     /**
      * @tests java.security.interfaces.RSAPrivateCrtKey
      * #getPrimeQ()
@@ -108,7 +108,7 @@ public class RSAPrivateCrtKeyTest extends TestCase {
         assertEquals("invalid prime Q",
                 Util.rsaCrtParam.getPrimeQ(), key.getPrimeQ());
     }
-    
+
     /**
      * @tests java.security.interfaces.RSAPrivateCrtKey
      * #getPublicExponent()
@@ -123,7 +123,7 @@ public class RSAPrivateCrtKeyTest extends TestCase {
         assertEquals("invalid public exponent",
                 Util.rsaCrtParam.getPublicExponent(), key.getPublicExponent());
     }
-    
+
     protected void tearDown() throws Exception {
         key = null;
         super.tearDown();

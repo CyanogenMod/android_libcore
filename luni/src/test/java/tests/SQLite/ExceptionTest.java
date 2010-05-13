@@ -27,18 +27,18 @@ import junit.framework.TestCase;
 
 @TestTargetClass(SQLite.Exception.class)
 public class ExceptionTest extends SQLiteTest {
-    
+
     private Database db = null;
 
     public void setUp() throws java.lang.Exception {
         super.setUp();
         db = new Database();
     }
-    
+
     public void tearDown() {
         super.tearDown();
     }
-    
+
     /**
      * @tests {@link Exception#Exception(String)}
      */

@@ -17,8 +17,8 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.AndroidOnly; 
-//import dalvik.annotation.KnownFailure; 
+import dalvik.annotation.AndroidOnly;
+//import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
@@ -48,7 +48,7 @@ import java.security.Permission;
 import tests.support.Support_Configuration;
 import tests.support.Support_PortManager;
 
-@TestTargetClass(Socket.class) 
+@TestTargetClass(Socket.class)
 public class SocketTest extends SocketTestCase {
 
     ServerSocket ss;
@@ -83,11 +83,11 @@ public class SocketTest extends SocketTestCase {
             }
         }
     }
-    
+
     SecurityManager sm = new SecurityManager() {
 
         public void checkPermission(Permission perm) {}
-        
+
         public void checkConnect(String host, int port) {
             throw new SecurityException();
         }
@@ -129,7 +129,7 @@ public class SocketTest extends SocketTestCase {
         int sport = startServer("Cons String,I");
         s = new Socket(InetAddress.getLocalHost().getHostName(), sport);
         assertTrue("Failed to create socket", s.getPort() == sport);
-        
+
         //regression for HARMONY-946
         ServerSocket ss = null;
         Socket s = null;
@@ -148,7 +148,7 @@ public class SocketTest extends SocketTestCase {
                 //ignore
             }
         }
-        
+
         try {
             new Socket("unknown.host", 0);
             fail("UnknownHostException was not thrown.");
@@ -171,7 +171,7 @@ public class SocketTest extends SocketTestCase {
                 socket.close();
             } catch(Exception e) {}
         }
-       
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -302,7 +302,7 @@ public class SocketTest extends SocketTestCase {
             }
             assertTrue("Was able to create two sockets on same port", exception);
         }
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -334,7 +334,7 @@ public class SocketTest extends SocketTestCase {
         assertTrue("Failed to create socket", s.getPort() == sport);
 
         s = new Socket(InetAddress.getLocalHost().getHostName(), sport, false);
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -363,7 +363,7 @@ public class SocketTest extends SocketTestCase {
         int sport = startServer("Cons InetAddress,I");
         s = new Socket(InetAddress.getLocalHost(), sport);
         assertTrue("Failed to create socket", s.getPort() == sport);
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -397,7 +397,7 @@ public class SocketTest extends SocketTestCase {
         s = new Socket(InetAddress.getLocalHost().getHostName(), sport,
                 InetAddress.getLocalHost(), portNumber);
         assertTrue("Failed to create socket", s.getLocalPort() == portNumber);
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -467,7 +467,7 @@ public class SocketTest extends SocketTestCase {
         try {
             s.getOutputStream();
             fail("IOException was not thrown.");
-        } catch (java.io.IOException e) { 
+        } catch (java.io.IOException e) {
             //expected
         }
     }
@@ -656,7 +656,7 @@ public class SocketTest extends SocketTestCase {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-        }        
+        }
         o.close();
         s.close();
     }
@@ -701,7 +701,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_LINGER);
         }
-        
+
         try {
             int portNumber = Support_PortManager.getNextPort();
             s = new Socket(InetAddress.getLocalHost(), sport, null, portNumber);
@@ -738,7 +738,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_RCVBUF);
         }
-        
+
         try {
             Socket newSocket = new Socket();
             newSocket.close();
@@ -750,7 +750,7 @@ public class SocketTest extends SocketTestCase {
             }
         } catch(Exception e) {
             fail("Unexpected exception.");
-        }        
+        }
     }
 
     /**
@@ -809,7 +809,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_TIMEOUT);
         }
-        
+
         try {
             int portNumber = Support_PortManager.getNextPort();
             s = new Socket(InetAddress.getLocalHost(), sport, null, portNumber);
@@ -822,7 +822,7 @@ public class SocketTest extends SocketTestCase {
             }
         } catch(Exception e) {
             fail("Unexpected exception was thrown: " + e.toString());
-        }        
+        }
     }
 
     /**
@@ -848,7 +848,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, TCP_NODELAY);
         }
-        
+
         try {
             int portNumber = Support_PortManager.getNextPort();
             s = new Socket(InetAddress.getLocalHost(), sport, null, portNumber);
@@ -861,7 +861,7 @@ public class SocketTest extends SocketTestCase {
             }
         } catch(Exception e) {
             fail("Unexpected exception was thrown: " + e.toString());
-        }           
+        }
     }
 
     /**
@@ -889,7 +889,7 @@ public class SocketTest extends SocketTestCase {
         }
         // regression test for HARMONY-1136
         new TestSocket((SocketImpl) null).setKeepAlive(true);
-        
+
         try {
             Socket theSocket = new Socket();
             theSocket.close();
@@ -903,7 +903,7 @@ public class SocketTest extends SocketTestCase {
         public TestSocket(SocketImpl impl) throws SocketException {
             super(impl);
         }
-    } 
+    }
 
     /**
      * @tests java.net.Socket#setSocketImplFactory(java.net.SocketImplFactory)
@@ -920,17 +920,17 @@ public class SocketTest extends SocketTestCase {
 
         // Cannot test as setting will cause the factory to be changed for
         // all subsequent sockets
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkSetFactory() {
                 throw new SecurityException();
             }
         };
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -943,7 +943,7 @@ public class SocketTest extends SocketTestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-     
+
     }
 
     /**
@@ -976,7 +976,7 @@ public class SocketTest extends SocketTestCase {
             //expected
         } catch(IOException ioe) {
             fail("IOException was thrown.");
-        } 
+        }
     }
 
     /**
@@ -999,7 +999,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_RCVBUF);
         }
-        
+
         try {
             Socket theSocket = new Socket();
             theSocket.close();
@@ -1009,7 +1009,7 @@ public class SocketTest extends SocketTestCase {
             //expected
         } catch(IOException ioe) {
             fail("IOException was thrown.");
-        }        
+        }
     }
 
     /**
@@ -1034,7 +1034,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_LINGER);
         }
-        
+
         try {
             Socket theSocket = new Socket();
             theSocket.close();
@@ -1044,7 +1044,7 @@ public class SocketTest extends SocketTestCase {
             //expected
         } catch(IOException ioe) {
             fail("IOException was thrown.");
-        } 
+        }
     }
 
     /**
@@ -1068,7 +1068,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_TIMEOUT);
         }
-        
+
         try {
             Socket theSocket = new Socket();
             theSocket.close();
@@ -1104,7 +1104,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, TCP_NODELAY);
         }
-        
+
         try {
             Socket theSocket = new Socket();
             theSocket.close();
@@ -1114,7 +1114,7 @@ public class SocketTest extends SocketTestCase {
             //expected
         } catch(IOException ioe) {
             fail("IOException was thrown.");
-        }        
+        }
     }
 
     /**
@@ -1173,10 +1173,10 @@ public class SocketTest extends SocketTestCase {
 
         // RI fails here. It is a RI bug not to return 0 to indicate EOF
         assertEquals(0, theInput.available());
-        
+
         theSocket.close();
         serverSocket.close();
-        
+
         Socket socket = new Socket();
         socket.close();
         try {
@@ -1220,7 +1220,7 @@ public class SocketTest extends SocketTestCase {
 
         theSocket.close();
         serverSocket.close();
-        
+
         try {
             theSocket.shutdownInput();
             fail("IOException was not thrown.");
@@ -1616,7 +1616,7 @@ public class SocketTest extends SocketTestCase {
             InetAddress address = InetAddress.getByName("localhost");
             int port = 0;
             socket.bind(new InetSocketAddress(address, port));
-            
+
             assertEquals(address, socket.getLocalAddress());
             assertTrue(port!=socket.getLocalPort());
 
@@ -1838,13 +1838,13 @@ public class SocketTest extends SocketTestCase {
 
         theSocket.close();
         serverSocket.close();
-        
+
         SocketChannel channel = SocketChannel.open();
         channel.configureBlocking(false);
         Socket socket = channel.socket();
         int port = Support_PortManager.getNextPort();
         try {
-            socket.connect( new InetSocketAddress(InetAddress.getLocalHost(), 
+            socket.connect( new InetSocketAddress(InetAddress.getLocalHost(),
                     Support_PortManager.getNextPort()));
             fail("IllegalBlockingModeException was not thrown.");
         } catch(IllegalBlockingModeException ibme) {
@@ -1904,7 +1904,7 @@ public class SocketTest extends SocketTestCase {
                     theSocket.connect(address, timeout);
                 } catch (Exception e) {
                 }
-                
+
                 return;
             }
 
@@ -2168,13 +2168,13 @@ public class SocketTest extends SocketTestCase {
                 theSocket.getSoTimeout());
         Thread.sleep(5000);
         theSocket.close();
-        
+
         SocketChannel channel = SocketChannel.open();
         channel.configureBlocking(false);
         Socket socket = channel.socket();
         int port = Support_PortManager.getNextPort();
         try {
-            socket.connect( new InetSocketAddress(InetAddress.getLocalHost(), 
+            socket.connect( new InetSocketAddress(InetAddress.getLocalHost(),
                     Support_PortManager.getNextPort()), port);
             fail("IllegalBlockingModeException was not thrown.");
         } catch(IllegalBlockingModeException ibme) {
@@ -2404,7 +2404,7 @@ public class SocketTest extends SocketTestCase {
             //expected
         } catch(IOException ioe) {
             fail("IOException was thrown.");
-        } 
+        }
     }
 
     /**
@@ -2429,7 +2429,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_REUSEADDR);
         }
-        
+
         try {
             Socket newSocket = new Socket();
             newSocket.close();
@@ -2441,7 +2441,7 @@ public class SocketTest extends SocketTestCase {
             }
         } catch(Exception e) {
             fail("Unexpected exception.");
-        }           
+        }
     }
 
     /**
@@ -2465,7 +2465,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_OOBINLINE);
         }
-        
+
         try {
             Socket theSocket = new Socket();
             theSocket.close();
@@ -2558,7 +2558,7 @@ public class SocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, IP_TOS);
         }
-        
+
         try {
             Socket theSocket = new Socket();
             theSocket.close();
@@ -2568,9 +2568,9 @@ public class SocketTest extends SocketTestCase {
             //expected
         } catch(IOException ioe) {
             fail("IOException was thrown.");
-        }         
+        }
     }
-    
+
     /**
      * @tests java.net.Socket#getTrafficClass()
      */
@@ -2614,7 +2614,7 @@ public class SocketTest extends SocketTestCase {
     )
     public void test_getChannel() throws Exception {
         assertNull(new Socket().getChannel());
-        
+
         SocketChannel channel = SocketChannel.open();
         Socket socket = channel.socket();
         assertEquals(channel, socket.getChannel());
@@ -2933,7 +2933,7 @@ public class SocketTest extends SocketTestCase {
                         + e.toString());
             }
         }
-        
+
         try {
             Socket theSocket = new Socket();
             theSocket.close();
@@ -3032,7 +3032,7 @@ public class SocketTest extends SocketTestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         try {
             new Socket((Proxy) null);
             fail("IllegalArgumentException was not thrown.");
@@ -3040,7 +3040,7 @@ public class SocketTest extends SocketTestCase {
             //expected
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "SocketException depends on the underlying protocol.",
@@ -3055,7 +3055,7 @@ public class SocketTest extends SocketTestCase {
             fail("SocketException was thrown.");
         }
     }
-    
+
     /**
      * @tests Socket#connect(SocketAddress) try an unknownhost
      */
@@ -3117,7 +3117,7 @@ public class SocketTest extends SocketTestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests Socket#getOutputStream()
      */
@@ -3141,15 +3141,15 @@ public class SocketTest extends SocketTestCase {
         } finally {
             s.close();
         }
-        
+
         SocketChannel channel = SocketChannel.open(
                 new InetSocketAddress(ss.getInetAddress(), ss.getLocalPort()));
         channel.configureBlocking(false);
         ss.accept();
         Socket socket = channel.socket();
-        
+
         OutputStream out = null;
-        
+
         try {
             out = socket.getOutputStream();
             out.write(1);
@@ -3197,7 +3197,7 @@ public class SocketTest extends SocketTestCase {
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.
-     * 
+     *
      * @throws Exception
      */
     protected void setUp() throws Exception {
@@ -3241,7 +3241,7 @@ public class SocketTest extends SocketTestCase {
     }
 
     /**
-     * 
+     *
      */
     protected int startServer(String name) {
         int portNumber = Support_PortManager.getNextPort();
@@ -3252,17 +3252,17 @@ public class SocketTest extends SocketTestCase {
         }
         return ss.getLocalPort();
     }
-    
+
     class MockSocketImpl extends SocketImpl {
-        
+
         public MockSocketImpl() {
             super();
         }
-        
+
         @Override
         protected void accept(SocketImpl arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -3274,37 +3274,37 @@ public class SocketTest extends SocketTestCase {
         @Override
         protected void bind(InetAddress arg0, int arg1) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void close() throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void connect(String arg0, int arg1) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void connect(InetAddress arg0, int arg1) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void connect(SocketAddress arg0, int arg1) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void create(boolean arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -3322,13 +3322,13 @@ public class SocketTest extends SocketTestCase {
         @Override
         protected void listen(int arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void sendUrgentData(int arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         public Object getOption(int arg0) throws SocketException {
@@ -3338,9 +3338,9 @@ public class SocketTest extends SocketTestCase {
 
         public void setOption(int arg0, Object arg1) throws SocketException {
             // TODO Auto-generated method stub
-            
+
         }
-        
+
     }
-    
+
 }

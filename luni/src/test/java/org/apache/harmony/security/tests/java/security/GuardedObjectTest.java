@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 @TestTargetClass(GuardedObject.class)
 /**
  * Tests for <code>GuardedObject</code>
- * 
+ *
  */
 
 public class GuardedObjectTest extends TestCase {

@@ -26,12 +26,12 @@ public class MockFunction implements SQLite.Function{
     public static boolean functionCalled = false;
     public static boolean stepCalled = false;
     public static boolean lastStepCalled = false;
-    
+
     public String getAggValue() {
         getAggValueCalled = true;
         return acc.toString();
     }
-    
+
     public void function(FunctionContext fc, String args[]) {
         functionCalled = true;
         if (args.length > 0) {

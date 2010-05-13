@@ -387,7 +387,7 @@ public class XsltXPathConformanceTestSuite {
                 if (errorRecorder.error != null) {
                     return;
                 }
-                fail("Expected " + operation + ", but transform completed normally." 
+                fail("Expected " + operation + ", but transform completed normally."
                         + " (Warning=" + errorRecorder.warning + ")");
             } else {
                 throw new UnsupportedOperationException("Unexpected operation: " + operation);

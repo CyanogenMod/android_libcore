@@ -24,13 +24,13 @@ import java.lang.annotation.Target;
 /**
  * Defines an annotation for test methods that allow, among other things, to
  * link the test to the method that is being tested.
- * 
+ *
  * {@hide}
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
 public @interface TestInfo {
-    
+
     /**
      * Specifies the current status of the test, as determined by a reviewer.
      */
@@ -41,16 +41,16 @@ public @interface TestInfo {
      * it is testing a specific parameter combination or something.
      */
     String notes() default "";
-    
+
     /**
      * Specifies the current level of coverage the test has.
      */
     TestLevel level() default TestLevel.PARTIAL;
 
     /**
-     * Specifies the purpose (either if it is noteworth to mention such as if 
+     * Specifies the purpose (either if it is noteworth to mention such as if
      * it is testing a specific parameter combination) or the covered test
-     * aspects (exceptions, normal cases, border edge cases, etc.) in 
+     * aspects (exceptions, normal cases, border edge cases, etc.) in
      * case the level is Level.PARTIAL
      */
     String purpose() default "";
@@ -59,5 +59,5 @@ public @interface TestInfo {
      * Specifies an array of target methods.
      */
     TestTarget[] targets();
-    
+
 }

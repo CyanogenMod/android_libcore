@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -186,7 +186,7 @@ public class SQLExceptionTest extends TestCase {
     )
     public void testSQLExceptionString() {
 
-        String[] init1 = { "a", "1", "valid1", "----", "&valid*", null, 
+        String[] init1 = { "a", "1", "valid1", "----", "&valid*", null,
                 "", "\u0000" };
 
         String[] theFinalStates1 = init1;
@@ -584,7 +584,7 @@ public class SQLExceptionTest extends TestCase {
             }
         }
     };
-    
+
     /**
      * @tests java.sql.SQLException#setNextException(java.sql.SQLException)
      */
@@ -599,18 +599,18 @@ public class SQLExceptionTest extends TestCase {
         SQLException se2 = new SQLException("reason" , "SQLState" , 2);
         SQLException se3 = new SQLException("reason" , "SQLState" , 3);
         SQLException se4 = new SQLException("reason" , "SQLState" , 4);
-        
+
         se1.setNextException(se2);
         assertSame(se2, se1.getNextException());
-        
+
         se1.setNextException(se3);
         assertSame(se2, se1.getNextException());
         assertSame(se3, se2.getNextException());
         assertNull(se3.getNextException());
-        
+
         se3.setNextException(null);
         assertNull(se3.getNextException());
-        
+
         se3.setNextException(se4);
         assertSame(se4, se3.getNextException());
     }

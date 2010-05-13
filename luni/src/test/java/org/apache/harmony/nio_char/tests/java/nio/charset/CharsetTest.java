@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -76,7 +76,7 @@ public class CharsetTest extends TestCase {
                     Charset.forName(name).isRegistered());
         }
     }
-    
+
     /**
      * @tests java.nio.charset.Charset#isSupported(String)
      */
@@ -95,7 +95,7 @@ public class CharsetTest extends TestCase {
             // Expected
         }
     }
-    
+
     /**
      * @tests java.nio.charset.Charset#defaultCharset()
      */
@@ -111,18 +111,18 @@ public class CharsetTest extends TestCase {
         String oldDefaultEncoding = System.getProperty("file.encoding");
         try {
             // Normal behavior
-            charsetName = "UTF-8"; 
+            charsetName = "UTF-8";
             System.setProperty("file.encoding", charsetName);
             defaultCharsetName = Charset.defaultCharset().name();
             assertEquals(charsetName, defaultCharsetName);
 
-            charsetName = "ISO-8859-1"; 
+            charsetName = "ISO-8859-1";
             System.setProperty("file.encoding", charsetName);
             defaultCharsetName = Charset.defaultCharset().name();
             assertEquals(charsetName, defaultCharsetName);
 
             // Unsupported behavior
-            charsetName = "IMPOSSIBLE-8"; 
+            charsetName = "IMPOSSIBLE-8";
             System.setProperty("file.encoding", charsetName);
             defaultCharsetName = Charset.defaultCharset().name();
             assertEquals("UTF-8", defaultCharsetName);
@@ -139,7 +139,7 @@ public class CharsetTest extends TestCase {
 
             // IllegalCharsetName behavior
             try {
-                charsetName = "IMP~~OSSIBLE-8"; 
+                charsetName = "IMP~~OSSIBLE-8";
                 System.setProperty("file.encoding", charsetName);
                 Charset.defaultCharset().name();
                 fail("Should throw IllegalCharsetNameException");
@@ -150,7 +150,7 @@ public class CharsetTest extends TestCase {
             System.setProperty("file.encoding", oldDefaultEncoding);
         }
     }
-    
+
     /**
      * @tests java.nio.charset.Charset#forName(java.lang.String)
      */

@@ -243,7 +243,7 @@ public class XmlPullParserFactory {
      * to create XML pull parsers (see class description for more
      * details).
      *
-     * @return a new instance of a PullParserFactory, as returned by newInstance (null, null); 
+     * @return a new instance of a PullParserFactory, as returned by newInstance (null, null);
      */
     public static XmlPullParserFactory newInstance () throws XmlPullParserException {
         return newInstance(null, null);

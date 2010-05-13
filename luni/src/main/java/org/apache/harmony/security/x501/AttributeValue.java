@@ -168,7 +168,7 @@ public class AttributeValue {
 
     //
     // Escapes:
-    // 1) chars ",", "+", """, "\", "<", ">", ";" (RFC 2253) 
+    // 1) chars ",", "+", """, "\", "<", ">", ";" (RFC 2253)
     // 2) chars "#", "=" (required by RFC 1779)
     // 3) a space char at the beginning or end
     // 4) according to the requirement to be RFC 1779 compatible:
@@ -190,7 +190,7 @@ public class AttributeValue {
 
             case ' ':
                 if (index == 0 || index == (length - 1)) {
-                    // escape first or last space 
+                    // escape first or last space
                     buf.append('\\');
                 }
                 buf.append(' ');

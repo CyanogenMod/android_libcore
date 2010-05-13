@@ -24,7 +24,7 @@ import org.apache.harmony.luni.util.Msg;
 /**
  * This abstract subclass of {@code URLConnection} defines methods for managing
  * HTTP connection according to the description given by RFC 2068.
- * 
+ *
  * @see ContentHandler
  * @see URL
  * @see URLConnection
@@ -39,7 +39,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * The HTTP request method of this {@code HttpURLConnection}. The default
      * value is {@code "GET"}.
      */
-    protected String method = "GET"; 
+    protected String method = "GET";
 
     /**
      * The status code of the response obtained from the HTTP request. The
@@ -272,7 +272,7 @@ public abstract class HttpURLConnection extends URLConnection {
     /**
      * Constructs a new {@code HttpURLConnection} instance pointing to the
      * resource specified by the {@code url}.
-     * 
+     *
      * @param url
      *            the URL of this connection.
      * @see URL
@@ -284,7 +284,7 @@ public abstract class HttpURLConnection extends URLConnection {
 
     /**
      * Closes the connection to the HTTP server.
-     * 
+     *
      * @see URLConnection#connect()
      * @see URLConnection#connected
      */
@@ -294,7 +294,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * Returns an input stream from the server in the case of an error such as
      * the requested file has not been found on the remote server. This stream
      * can be used to read the data the server will send back.
-     * 
+     *
      * @return the error input stream returned by the server.
      */
     public java.io.InputStream getErrorStream() {
@@ -305,7 +305,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * Returns the value of {@code followRedirects} which indicates if this
      * connection follows a different URL redirected by the server. It is
      * enabled by default.
-     * 
+     *
      * @return the value of the flag.
      * @see #setFollowRedirects
      */
@@ -318,7 +318,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * with the host and the port number as the target name and {@code
      * "resolve, connect"} as the action list. If the port number of this URL
      * instance is lower than {@code 0} the port will be set to {@code 80}.
-     * 
+     *
      * @return the permission object required for this connection.
      * @throws IOException
      *             if an IO exception occurs during the creation of the
@@ -330,15 +330,15 @@ public abstract class HttpURLConnection extends URLConnection {
         if (port < 0) {
             port = 80;
         }
-        return new SocketPermission(url.getHost() + ":" + port, 
-                "connect, resolve"); 
+        return new SocketPermission(url.getHost() + ":" + port,
+                "connect, resolve");
     }
 
     /**
      * Returns the request method which will be used to make the request to the
      * remote HTTP server. All possible methods of this HTTP implementation is
      * listed in the class definition.
-     * 
+     *
      * @return the request method string.
      * @see #method
      * @see #setRequestMethod
@@ -349,7 +349,7 @@ public abstract class HttpURLConnection extends URLConnection {
 
     /**
      * Returns the response code returned by the remote HTTP server.
-     * 
+     *
      * @return the response code, -1 if no valid response code.
      * @throws IOException
      *             if there is an IO error during the retrieval.
@@ -364,7 +364,7 @@ public abstract class HttpURLConnection extends URLConnection {
             return -1;
         }
         response = response.trim();
-        int mark = response.indexOf(" ") + 1; 
+        int mark = response.indexOf(" ") + 1;
         if (mark == 0) {
             return -1;
         }
@@ -381,7 +381,7 @@ public abstract class HttpURLConnection extends URLConnection {
 
     /**
      * Returns the response message returned by the remote HTTP server.
-     * 
+     *
      * @return the response message. {@code null} if no such response exists.
      * @throws IOException
      *             if there is an error during the retrieval.
@@ -399,7 +399,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * Sets the flag of whether this connection will follow redirects returned
      * by the remote server. This method can only be called with the permission
      * from the security manager.
-     * 
+     *
      * @param auto
      *            the value to enable or disable this option.
      * @see SecurityManager#checkSetFactory()
@@ -415,7 +415,7 @@ public abstract class HttpURLConnection extends URLConnection {
     /**
      * Sets the request command which will be sent to the remote HTTP server.
      * This method can only be called before the connection is made.
-     * 
+     *
      * @param method
      *            the string representing the method to be used.
      * @throws ProtocolException
@@ -426,7 +426,7 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     public void setRequestMethod(String method) throws ProtocolException {
         if (connected) {
-            throw new ProtocolException(Msg.getString("K0037")); 
+            throw new ProtocolException(Msg.getString("K0037"));
         }
         for (int i = 0; i < methodTokens.length; i++) {
             if (methodTokens[i].equals(method)) {
@@ -442,7 +442,7 @@ public abstract class HttpURLConnection extends URLConnection {
 
     /**
      * Returns whether this connection uses a proxy server or not.
-     * 
+     *
      * @return {@code true} if this connection passes a proxy server, false
      *         otherwise.
      */
@@ -450,7 +450,7 @@ public abstract class HttpURLConnection extends URLConnection {
 
     /**
      * Returns whether this connection follows redirects.
-     * 
+     *
      * @return {@code true} if this connection follows redirects, false
      *         otherwise.
      */
@@ -460,7 +460,7 @@ public abstract class HttpURLConnection extends URLConnection {
 
     /**
      * Sets whether this connection follows redirects.
-     * 
+     *
      * @param followRedirects
      *            {@code true} if this connection will follows redirects, false
      *            otherwise.
@@ -473,7 +473,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * Returns the date value in milliseconds since {@code 01.01.1970, 00:00h}
      * corresponding to the header field {@code field}. The {@code defaultValue}
      * will be returned if no such field can be found in the response header.
-     * 
+     *
      * @param field
      *            the header field name.
      * @param defaultValue
@@ -491,7 +491,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * If the length of a HTTP request body is known ahead, sets fixed length to
      * enable streaming without buffering. Sets after connection will cause an
      * exception.
-     * 
+     *
      * @see #setChunkedStreamingMode
      * @param contentLength
      *            the fixed length of the HTTP request body.
@@ -502,13 +502,13 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     public void setFixedLengthStreamingMode(int contentLength) {
         if (super.connected) {
-            throw new IllegalStateException(Msg.getString("K0079")); 
+            throw new IllegalStateException(Msg.getString("K0079"));
         }
         if (0 < chunkLength) {
-            throw new IllegalStateException(Msg.getString("KA003")); 
+            throw new IllegalStateException(Msg.getString("KA003"));
         }
         if (0 > contentLength) {
-            throw new IllegalArgumentException(Msg.getString("K0051")); 
+            throw new IllegalArgumentException(Msg.getString("K0051"));
         }
         this.fixedContentLength = contentLength;
     }
@@ -518,7 +518,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * transfer encoding to enable streaming with buffering. Notice that not all
      * http servers support this mode. Sets after connection will cause an
      * exception.
-     * 
+     *
      * @see #setFixedLengthStreamingMode
      * @param chunklen
      *            the length of a chunk.
@@ -527,10 +527,10 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     public void setChunkedStreamingMode(int chunklen) {
         if (super.connected) {
-            throw new IllegalStateException(Msg.getString("K0079")); 
+            throw new IllegalStateException(Msg.getString("K0079"));
         }
         if (0 <= fixedContentLength) {
-            throw new IllegalStateException(Msg.getString("KA003")); 
+            throw new IllegalStateException(Msg.getString("KA003"));
         }
         if (0 >= chunklen) {
             chunkLength = DEFAULT_CHUNK_LENGTH;

@@ -30,9 +30,9 @@ import org.apache.harmony.luni.util.Msg;
  */
 class URIEncoderDecoder {
 
-    static final String digits = "0123456789ABCDEF"; 
+    static final String digits = "0123456789ABCDEF";
 
-    static final String encoding = "UTF8"; 
+    static final String encoding = "UTF8";
 
     /**
      * Validate a string by checking if it contains any characters other than:
@@ -54,13 +54,13 @@ class URIEncoderDecoder {
             if (ch == '%') {
                 do {
                     if (i + 2 >= s.length()) {
-                        throw new URISyntaxException(s, Msg.getString("K0313"), 
+                        throw new URISyntaxException(s, Msg.getString("K0313"),
                                 i);
                     }
                     int d1 = Character.digit(s.charAt(i + 1), 16);
                     int d2 = Character.digit(s.charAt(i + 2), 16);
                     if (d1 == -1 || d2 == -1) {
-                        throw new URISyntaxException(s, Msg.getString("K0314", 
+                        throw new URISyntaxException(s, Msg.getString("K0314",
                                 s.substring(i, i + 3)), i);
                     }
 
@@ -73,7 +73,7 @@ class URIEncoderDecoder {
                     || (ch >= '0' && ch <= '9') || legal.indexOf(ch) > -1 || (ch > 127
                     && !Character.isSpaceChar(ch) && !Character
                     .isISOControl(ch)))) {
-                throw new URISyntaxException(s, Msg.getString("K00c1"), i); 
+                throw new URISyntaxException(s, Msg.getString("K00c1"), i);
             }
             i++;
         }
@@ -85,7 +85,7 @@ class URIEncoderDecoder {
             char ch = s.charAt(i);
             if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
                     || (ch >= '0' && ch <= '9') || legal.indexOf(ch) > -1)) {
-                throw new URISyntaxException(s, Msg.getString("K00c1"), i); 
+                throw new URISyntaxException(s, Msg.getString("K00c1"), i);
             }
             i++;
         }
@@ -176,7 +176,7 @@ class URIEncoderDecoder {
      * e.g. "A%20B%20C %24%25" -> "A B C $%"
      * <p>
      * Called from URI.getXYZ() methods
-     * 
+     *
      * @param s
      *            java.lang.String The encoded string.
      * @return java.lang.String The decoded version.
@@ -192,13 +192,13 @@ class URIEncoderDecoder {
                 do {
                     if (i + 2 >= s.length()) {
                         throw new IllegalArgumentException(Msg.getString(
-                                "K01fe", i)); 
+                                "K01fe", i));
                     }
                     int d1 = Character.digit(s.charAt(i + 1), 16);
                     int d2 = Character.digit(s.charAt(i + 2), 16);
                     if (d1 == -1 || d2 == -1) {
                         throw new IllegalArgumentException(Msg.getString(
-                                "K01ff", s.substring(i, i + 3), 
+                                "K01ff", s.substring(i, i + 3),
                                 String.valueOf(i)));
                     }
                     out.write((byte) ((d1 << 4) + d2));

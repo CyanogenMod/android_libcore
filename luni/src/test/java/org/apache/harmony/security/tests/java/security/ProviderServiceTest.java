@@ -41,7 +41,7 @@ import junit.framework.TestCase;
 @TestTargetClass(Service.class)
 /**
  * Tests for <code>Provider.Service</code> constructor and methods
- * 
+ *
  */
 public class ProviderServiceTest extends TestCase {
 
@@ -147,13 +147,13 @@ public class ProviderServiceTest extends TestCase {
 
         Object o = s.newInstance(null);
         assertTrue("incorrect instance", o instanceof RandomImpl);
-        
+
         try {
             o = s.newInstance(new Object());
             fail("No expected NoSuchAlgorithmException");
         } catch (NoSuchAlgorithmException e) {
         }
-        
+
     }
 
     @TestTargetNew(
@@ -167,7 +167,7 @@ public class ProviderServiceTest extends TestCase {
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
                 "className", null, null);
         assertTrue(s1.getAlgorithm().equals("algorithm"));
-        
+
         Provider.Service s2 = new Provider.Service(p, "SecureRandom",
                 "algorithm", "tests.java.security.support.RandomImpl", null,
                 null);
@@ -185,7 +185,7 @@ public class ProviderServiceTest extends TestCase {
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
                 "className", null, null);
         assertTrue(s1.getClassName().equals("className"));
-        
+
         Provider.Service s2 = new Provider.Service(p, "SecureRandom",
                 "algorithm", "tests.java.security.support.RandomImpl", null,
                 null);
@@ -203,7 +203,7 @@ public class ProviderServiceTest extends TestCase {
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
                 "className", null, null);
         assertTrue(s1.getProvider() == p);
-        
+
         Provider.Service s2 = new Provider.Service(p, "SecureRandom",
                 "algorithm", "tests.java.security.support.RandomImpl", null,
                 null);
@@ -221,7 +221,7 @@ public class ProviderServiceTest extends TestCase {
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
                 "className", null, null);
         assertTrue(s1.getType().equals("type"));
-        
+
         Provider.Service s2 = new Provider.Service(p, "SecureRandom",
                 "algorithm", "tests.java.security.support.RandomImpl", null,
                 null);
@@ -253,7 +253,7 @@ public class ProviderServiceTest extends TestCase {
         Provider.Service s1 = new Provider.Service(p, "type", "algorithm",
                 "className", null, null);
         s1.toString();
-        
+
         Provider.Service s2 = new Provider.Service(p, "SecureRandom",
                 "algorithm", "tests.java.security.support.RandomImpl", null,
                 null);
@@ -265,9 +265,9 @@ public class ProviderServiceTest extends TestCase {
             super("MyProvider", 1.0, "Provider for testing");
             put("MessageDigest.SHA-1", "SomeClassName");
         }
-        
+
     }
-    
+
     class MyService extends Provider.Service {
 
         public MyService(Provider provider, String type, String algorithm,
@@ -276,7 +276,7 @@ public class ProviderServiceTest extends TestCase {
             super(provider, type, algorithm, className, aliases, attributes);
             // TODO Auto-generated constructor stub
         }
-        
+
         @Override
         public boolean supportsParameter(Object parameter) {
             if (parameter.getClass() == String.class) {

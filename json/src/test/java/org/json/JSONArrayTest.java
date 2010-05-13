@@ -418,7 +418,7 @@ public class JSONArrayTest extends TestCase {
         JSONArray array = new JSONArray(Arrays.asList(5.5, Double.NaN));
         assertNull(array.toString());
     }
-    
+
     public void testListConstructorCopiesContents() throws JSONException {
         List<Object> contents = Arrays.<Object>asList(5);
         JSONArray array = new JSONArray(contents);

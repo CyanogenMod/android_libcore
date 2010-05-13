@@ -461,17 +461,17 @@ public class X509CertSelector implements CertSelector {
             int comp = Integer.parseInt(oid.substring(beg, end));
             beg = end + 1;
             if ((comp < 0) || (comp > 2)) {
-                throw new IOException(Messages.getString("security.56", oid)); 
+                throw new IOException(Messages.getString("security.56", oid));
             }
             end = oid.indexOf('.', beg);
             comp = Integer.parseInt(oid.substring(beg, end));
             if ((comp < 0) || (comp > 39)) {
-                throw new IOException(Messages.getString("security.56", oid)); 
+                throw new IOException(Messages.getString("security.56", oid));
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new IOException(Messages.getString("security.56", oid)); 
+            throw new IOException(Messages.getString("security.56", oid));
         } catch (NumberFormatException e) {
-            throw new IOException(Messages.getString("security.56", oid)); 
+            throw new IOException(Messages.getString("security.56", oid));
         }
     }
 
@@ -534,7 +534,7 @@ public class X509CertSelector implements CertSelector {
         }
         subjectPublicKey = new byte[key.length];
         System.arraycopy(key, 0, subjectPublicKey, 0, key.length);
-        subjectPublicKeyImpl = 
+        subjectPublicKeyImpl =
             ((SubjectPublicKeyInfo) SubjectPublicKeyInfo.ASN1.decode(key))
             .getPublicKey();
     }
@@ -679,7 +679,7 @@ public class X509CertSelector implements CertSelector {
             } else if (value instanceof byte[]) {
                 addSubjectAlternativeName(tag, (byte[]) value);
             } else {
-                throw new IOException(Messages.getString("security.57")); 
+                throw new IOException(Messages.getString("security.57"));
             }
         }
     }
@@ -842,7 +842,7 @@ public class X509CertSelector implements CertSelector {
      */
     public void setBasicConstraints(int pathLen) {
         if (pathLen < -2) {
-            throw new IllegalArgumentException(Messages.getString("security.58")); 
+            throw new IllegalArgumentException(Messages.getString("security.58"));
         }
         this.pathLen = pathLen;
     }
@@ -937,7 +937,7 @@ public class X509CertSelector implements CertSelector {
             } else if (value instanceof byte[]) {
                 addPathToName(tag, (byte[]) value);
             } else {
-                throw new IOException(Messages.getString("security.57")); 
+                throw new IOException(Messages.getString("security.57"));
             }
         }
     }
@@ -1018,101 +1018,101 @@ public class X509CertSelector implements CertSelector {
         // (http://www.ietf.org/rfc/rfc3280.txt).
 
         StringBuilder result = new StringBuilder();
-        result.append("X509CertSelector: \n["); 
+        result.append("X509CertSelector: \n[");
         if (this.certificateEquals != null) {
-            result.append("\n  certificateEquals: " + certificateEquals); 
+            result.append("\n  certificateEquals: " + certificateEquals);
         }
         if (this.serialNumber != null) {
             //FIXME: needs DRL's BigInteger.toString implementation
             //result.append("\n  serialNumber: " + serialNumber);
         }
         if (this.issuer != null) {
-            result.append("\n  issuer: " + issuer); 
+            result.append("\n  issuer: " + issuer);
         }
         if (this.subject != null) {
-            result.append("\n  subject: " + subject); 
+            result.append("\n  subject: " + subject);
         }
         if (this.subjectKeyIdentifier != null) {
-            result.append("\n  subjectKeyIdentifier: " 
+            result.append("\n  subjectKeyIdentifier: "
                     + getBytesAsString(subjectKeyIdentifier));
         }
         if (this.authorityKeyIdentifier != null) {
-            result.append("\n  authorityKeyIdentifier: " 
+            result.append("\n  authorityKeyIdentifier: "
                     + getBytesAsString(authorityKeyIdentifier));
         }
         if (this.certificateValid != null) {
-            result.append("\n  certificateValid: " + certificateValid); 
+            result.append("\n  certificateValid: " + certificateValid);
         }
         if (this.subjectPublicKeyAlgID != null) {
-            result.append("\n  subjectPublicKeyAlgID: " 
+            result.append("\n  subjectPublicKeyAlgID: "
                     + subjectPublicKeyAlgID);
         }
         if (this.privateKeyValid != null) {
-            result.append("\n  privateKeyValid: " + privateKeyValid); 
+            result.append("\n  privateKeyValid: " + privateKeyValid);
         }
         if (this.subjectPublicKey != null) {
-            result.append("\n  subjectPublicKey: " 
+            result.append("\n  subjectPublicKey: "
                     + getBytesAsString(subjectPublicKey));
         }
         if (this.keyUsage != null) {
-            result.append("\n  keyUsage: \n  ["); 
+            result.append("\n  keyUsage: \n  [");
             String[] kuNames = new String[] {
-                "digitalSignature", "nonRepudiation", "keyEncipherment",   
-                "dataEncipherment", "keyAgreement", "keyCertSign", "cRLSign",    
-                "encipherOnly", "decipherOnly"  
+                "digitalSignature", "nonRepudiation", "keyEncipherment",
+                "dataEncipherment", "keyAgreement", "keyCertSign", "cRLSign",
+                "encipherOnly", "decipherOnly"
             };
             for (int i=0; i<9; i++) {
                 if (keyUsage[i]) {
-                    result.append("\n    " + kuNames[i]); 
+                    result.append("\n    " + kuNames[i]);
                 }
             }
-            result.append("\n  ]"); 
+            result.append("\n  ]");
         }
         if (this.extendedKeyUsage != null) {
-            result.append("\n  extendedKeyUsage: " 
+            result.append("\n  extendedKeyUsage: "
                     + extendedKeyUsage.toString());
         }
-        result.append("\n  matchAllNames: " + matchAllNames); 
-        result.append("\n  pathLen: " + pathLen); 
+        result.append("\n  matchAllNames: " + matchAllNames);
+        result.append("\n  pathLen: " + pathLen);
         if (this.subjectAltNames != null) {
-            result.append("\n  subjectAltNames:  \n  ["); 
+            result.append("\n  subjectAltNames:  \n  [");
             for (int i=0; i<9; i++) {
                 List names = this.subjectAltNames[i];
                 if (names != null) {
                     int size = names.size();
                     for (int j=0; j<size; j++) {
-                        result.append("\n    " 
+                        result.append("\n    "
                             + ((GeneralName)names.get(j)).toString());
                     }
                 }
             }
-            result.append("\n  ]"); 
+            result.append("\n  ]");
         }
         if (this.nameConstraints != null) {
         }
         if (this.policies != null) {
-            result.append("\n  policies: " + policies.toString()); 
+            result.append("\n  policies: " + policies.toString());
         }
         if (this.pathToNames != null) {
-            result.append("\n  pathToNames:  \n  ["); 
+            result.append("\n  pathToNames:  \n  [");
             int size = pathToNames.size();
             for (int i = 0; i < size; i++) {
-                result.append("\n    " 
+                result.append("\n    "
                     + ((GeneralName)pathToNames.get(i)).toString());
             }
         }
-        result.append("\n]"); 
+        result.append("\n]");
         return result.toString();
     }
 
     private String getBytesAsString(byte[] data) {
-        String result = ""; 
+        String result = "";
         for (int i=0; i<data.length; i++) {
             String tail = Integer.toHexString(0x00ff & data[i]);
             if (tail.length() == 1) {
-                tail = "0" + tail; 
+                tail = "0" + tail;
             }
-            result += tail + " "; 
+            result += tail + " ";
         }
         return result;
     }
@@ -1162,14 +1162,14 @@ public class X509CertSelector implements CertSelector {
         }
         if ((subjectKeyIdentifier != null) &&
             !Arrays.equals(subjectKeyIdentifier,
-            // Here and later all of the extension OIDs 
+            // Here and later all of the extension OIDs
             // are taken from rfc 3280 (http://www.ietf.org/rfc/rfc3280.txt)
-                           getExtensionValue(cert, "2.5.29.14"))) { 
+                           getExtensionValue(cert, "2.5.29.14"))) {
             return false;
         }
         if ((authorityKeyIdentifier != null) &&
             !Arrays.equals(authorityKeyIdentifier,
-                           getExtensionValue(cert, "2.5.29.35"))) { 
+                           getExtensionValue(cert, "2.5.29.35"))) {
             return false;
         }
         if (certificateValid != null) {
@@ -1183,11 +1183,11 @@ public class X509CertSelector implements CertSelector {
         }
         if (privateKeyValid != null) {
             try {
-                byte[] bytes = getExtensionValue(cert, "2.5.29.16"); 
+                byte[] bytes = getExtensionValue(cert, "2.5.29.16");
                 if (bytes == null) {
                     return false;
                 }
-                PrivateKeyUsagePeriod pkup = (PrivateKeyUsagePeriod) 
+                PrivateKeyUsagePeriod pkup = (PrivateKeyUsagePeriod)
                                     PrivateKeyUsagePeriod.ASN1.decode(bytes);
                 Date notBefore = pkup.getNotBefore();
                 Date notAfter = pkup.getNotAfter();
@@ -1209,7 +1209,7 @@ public class X509CertSelector implements CertSelector {
         if (subjectPublicKeyAlgID  != null) {
             try {
                 byte[] encoding = cert.getPublicKey().getEncoded();
-                AlgorithmIdentifier ai = ((SubjectPublicKeyInfo) 
+                AlgorithmIdentifier ai = ((SubjectPublicKeyInfo)
                         SubjectPublicKeyInfo.ASN1.decode(encoding))
                         .getAlgorithmIdentifier();
                 if (!subjectPublicKeyAlgID.equals(ai.getAlgorithm())) {
@@ -1272,7 +1272,7 @@ public class X509CertSelector implements CertSelector {
         if (subjectAltNames != null) {
             PASSED:
             try {
-                byte[] bytes = getExtensionValue(cert, "2.5.29.17"); 
+                byte[] bytes = getExtensionValue(cert, "2.5.29.17");
                 if (bytes == null) {
                     return false;
                 }
@@ -1325,7 +1325,7 @@ public class X509CertSelector implements CertSelector {
             }
         }
         if (policies != null) {
-            byte[] bytes = getExtensionValue(cert, "2.5.29.32"); 
+            byte[] bytes = getExtensionValue(cert, "2.5.29.32");
             if (bytes == null) {
                 return false;
             }
@@ -1336,7 +1336,7 @@ public class X509CertSelector implements CertSelector {
             }
             PASSED:
             try {
-                List policyInformations = ((CertificatePolicies) 
+                List policyInformations = ((CertificatePolicies)
                         CertificatePolicies.ASN1.decode(bytes))
                         .getPolicyInformations();
                 Iterator it = policyInformations.iterator();
@@ -1353,7 +1353,7 @@ public class X509CertSelector implements CertSelector {
             }
         }
         if (pathToNames != null) {
-            byte[] bytes = getExtensionValue(cert, "2.5.29.30"); 
+            byte[] bytes = getExtensionValue(cert, "2.5.29.30");
             if (bytes != null) {
                 NameConstraints nameConstraints;
                 try {

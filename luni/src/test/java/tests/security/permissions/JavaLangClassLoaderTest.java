@@ -41,7 +41,7 @@ import tests.support.resource.Support_Resources;
  */
 @TestTargetClass(java.lang.ClassLoader.class)
 public class JavaLangClassLoaderTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -55,7 +55,7 @@ public class JavaLangClassLoaderTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -82,19 +82,19 @@ public class JavaLangClassLoaderTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
-        
+
         // class MyClassLoader defined package visible constructors
-        class MyClassLoader extends ClassLoader { 
+        class MyClassLoader extends ClassLoader {
             MyClassLoader(){super();}
-            MyClassLoader(ClassLoader parent){super(parent);}            
+            MyClassLoader(ClassLoader parent){super(parent);}
         }
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         ClassLoader c1 = new MyClassLoader();
         assertTrue("ClassLoader ctor must call checkCreateClassLoader on security manager", s.called);
@@ -103,7 +103,7 @@ public class JavaLangClassLoaderTest extends TestCase {
         ClassLoader c2 = new MyClassLoader(c1);
         assertTrue("ClassLoader ctor must call checkCreateClassLoader on security manager", s.called);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -134,31 +134,31 @@ public class JavaLangClassLoaderTest extends TestCase {
                 }
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         File tempFile = Support_Resources.createTempFile(".jar");
         tempFile.delete();
         tempFile.deleteOnExit();
         File tempCache = Support_Resources.createTempFile(".dex");
         tempCache.delete();
         tempCache.deleteOnExit();
-        
+
         /*
          * The testdex.jar contains the following two classes:
-         * 
+         *
          * package tests.security.permissions.resources;
-         * 
+         *
          * public class TestClass1 {
-         * 
+         *
          *      public TestClass1() {
          *          ClassLoader.getSystemClassLoader();
          *      }
          *  }
          *
          * package tests.security.permissions.resources;
-         * 
+         *
          *  public class TestClass2 {
          *
          *      public TestClass2 () {
@@ -166,7 +166,7 @@ public class JavaLangClassLoaderTest extends TestCase {
          *      }
          *  }
          */
-        
+
         InputStream is = Support_Resources.getResourceStream("testdex.jar");
         Support_Resources.copyLocalFileto(tempFile, is);
         DexFile dexfile = DexFile.loadDex(tempFile.getAbsolutePath(),
@@ -174,24 +174,24 @@ public class JavaLangClassLoaderTest extends TestCase {
         ClassLoader pcl = Support_ClassLoader.getInstance(
                 new URL(Support_Resources.getResourceURL("testdex.jar")),
                 ClassLoader.getSystemClassLoader());
-        
+
         Class<?> testClass = dexfile.loadClass(
                 "tests/security/permissions/resources/TestClass1", pcl);
-        
+
         assertNotNull("failed to load TestlClass1", testClass);
-        
+
         s.reset();
         testClass.newInstance();
-        
+
         assertTrue("ClassLoader.getSystemClassLoader() must call "
                 + "checkPermission on security manager", s.called);
-       
+
         testClass = dexfile.loadClass(
                 "tests/security/permissions/resources/TestClass2", pcl);
-        
+
         assertNotNull("failed to load TestClass2", testClass);
         s.reset();
-        
+
         testClass.newInstance();
 
         assertTrue("Method getParent on a class loader must call "

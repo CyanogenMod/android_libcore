@@ -24,18 +24,18 @@ import java.util.Collection;
 
 @TestTargetClass(CertStore.class)
 public class CertStore2Test extends TestCase {
-    
+
     private static final String CERT_STORE_PROVIDER_NAME = "TestCertStoreProvider";
     private static final String CERT_STORE_NAME = "TestCertStore";
 
     Provider provider;
-    
+
     protected void setUp() throws Exception {
         super.setUp();
-        provider = new MyCertStoreProvider();        
+        provider = new MyCertStoreProvider();
         Security.addProvider(provider);
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
@@ -207,7 +207,7 @@ public class CertStore2Test extends TestCase {
         } catch (InvalidAlgorithmParameterException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             CertStore.getInstance(CERT_STORE_NAME,
                     new MyOtherCertStoreParameters(), provider);
@@ -234,16 +234,16 @@ public class CertStore2Test extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         assertNotNull(certStore);
-        
+
         try {
             Collection<? extends Certificate> certificates = certStore.getCertificates(null);
             assertNull(certificates);
         } catch (CertStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             Collection<? extends Certificate> certificates = certStore.getCertificates(new MyCertSelector());
             assertNotNull(certificates);
@@ -251,7 +251,7 @@ public class CertStore2Test extends TestCase {
         } catch (CertStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             certStore.getCertificates(new MyOtherCertSelector());
             fail("expected CertStoreException");
@@ -274,16 +274,16 @@ public class CertStore2Test extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         assertNotNull(certStore);
-        
+
         try {
             Collection<? extends CRL> ls = certStore.getCRLs(null);
             assertNull(ls);
         } catch (CertStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             Collection<? extends CRL> ls = certStore.getCRLs(new MyCRLSelector());
             assertNotNull(ls);
@@ -291,7 +291,7 @@ public class CertStore2Test extends TestCase {
         } catch (CertStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             certStore.getCRLs(new MyOtherCRLSelector());
             fail("expected CertStoreException");
@@ -307,7 +307,7 @@ public class CertStore2Test extends TestCase {
             put("CertStore." + CERT_STORE_NAME, MyCertStoreSpi.class.getName());
         }
     }
-    
+
     static class MyCertStoreParameters implements CertStoreParameters {
         public Object clone() {
             return new MyCertStoreParameters();
@@ -330,7 +330,7 @@ public class CertStore2Test extends TestCase {
             return new MyCRLSelector();
         }
     }
-    
+
     static class MyOtherCRLSelector implements CRLSelector {
         public boolean match(CRL crl) {
             return false;
@@ -339,21 +339,21 @@ public class CertStore2Test extends TestCase {
         public Object clone() {
             return new MyOtherCRLSelector();
         }
-        
+
     }
-    
+
     static class MyCertSelector implements CertSelector {
 
         public boolean match(Certificate cert) {
             return false;
         }
-        
+
         public Object clone() {
             return new MyCertSelector();
         }
-        
+
     }
-    
+
     static class MyOtherCertSelector implements CertSelector {
         public boolean match(Certificate crl) {
             return false;
@@ -362,15 +362,15 @@ public class CertStore2Test extends TestCase {
         public Object clone() {
             return new MyOtherCRLSelector();
         }
-        
+
     }
-    
+
     public static class MyCertStoreSpi extends CertStoreSpi {
 
         public MyCertStoreSpi() throws InvalidAlgorithmParameterException {
             super(null);
         }
-        
+
         public MyCertStoreSpi(CertStoreParameters params)
                 throws InvalidAlgorithmParameterException {
             super(params);

@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,8 +16,8 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.KnownFailure; 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.KnownFailure;
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -36,9 +36,9 @@ import junit.framework.TestCase;
 
 import tests.support.Support_Configuration;
 
-@TestTargetClass(CookieHandler.class) 
+@TestTargetClass(CookieHandler.class)
 public class CookieHandlerTest extends TestCase {
-    
+
     URI getURI, putURI;
     String link = "http://" + Support_Configuration.SpecialInetTestAddress + "/";
     boolean isGetCalled = false;
@@ -161,7 +161,7 @@ public class CookieHandlerTest extends TestCase {
         MockCookieHandler mch = new MockCookieHandler();
         CookieHandler defaultHandler = CookieHandler.getDefault();
         CookieHandler.setDefault(mch);
-        
+
         class TestThread extends Thread {
             public void run() {
                 try {
@@ -175,26 +175,26 @@ public class CookieHandlerTest extends TestCase {
                     fail("MalformedURLException was thrown: " + e.toString());
                 } catch (IOException e) {
                     fail("IOException was thrown.");
-               }                
+               }
             }
         };
         try {
             TestThread thread = new TestThread();
-        
+
             thread.start();
             try {
                 thread.join();
             } catch (InterruptedException e) {
                 fail("InterruptedException was thrown.");
             }
-        
+
             assertTrue(isGetCalled);
             assertTrue(isPutCalled);
         } finally {
             CookieHandler.setDefault(defaultHandler);
         }
     }
-    
+
     class MockCookieHandler extends CookieHandler {
 
         public Map get(URI uri, Map requestHeaders) throws IOException {

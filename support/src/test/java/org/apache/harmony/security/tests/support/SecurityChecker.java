@@ -50,7 +50,7 @@ public class SecurityChecker extends SecurityManager {
             }
         }
     }
-    
+
     public SecurityChecker reset() {
         checkAsserted = false;
         return this;

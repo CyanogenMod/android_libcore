@@ -88,7 +88,7 @@ class FilePathToURI {
                 buffer.append((char)ch);
             }
         }
-        
+
         // we saw some non-ascii character
         if (i < len) {
             // get UTF-8 bytes for the remaining sub-string

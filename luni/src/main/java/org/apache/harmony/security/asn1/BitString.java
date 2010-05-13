@@ -26,7 +26,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * Represents ASN.1 bit string value
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -39,7 +39,7 @@ public final class BitString {
 
     /**
      * Sequence of bits padded with unused bits.
-     * @see #unusedBits 
+     * @see #unusedBits
      */
     public final byte[] bytes;
 
@@ -50,7 +50,7 @@ public final class BitString {
 
     /**
      * Constructs bit string
-     * 
+     *
      * @param bytes - array of bytes that represents bit string,
      *                including unused bits
      * @param unusedBits - number of unused bits
@@ -61,12 +61,12 @@ public final class BitString {
         // constraints are set according X.690
         if (unusedBits < 0 || unusedBits > 7) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.13D")); 
+                    Messages.getString("security.13D"));
         }
 
         if (bytes.length == 0 && unusedBits != 0) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.13E")); 
+                    Messages.getString("security.13E"));
         }
 
         this.bytes = bytes;
@@ -75,7 +75,7 @@ public final class BitString {
 
     /**
      * Constructs bit string from array of booleans
-     * 
+     *
      * @param values - array of booleans
      */
     public BitString(boolean[] values) {

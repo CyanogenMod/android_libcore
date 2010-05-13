@@ -218,7 +218,7 @@ public class ObjectInputStreamTest extends TestCase implements
             System.setSecurityManager(sm);
         }
     }
-    
+
     /**
      * @tests {@link java.io.ObjectInputStream#resolveProxyClass(String[])}
      */

@@ -31,11 +31,11 @@ import org.apache.xalan.processor.TransformerFactoryImpl;
  * This property names a concrete subclass of the
  * <code>TransformerFactory</code> abstract class. If the property is not
  * defined, a platform default is be used.</p>
- * 
+ *
  * @author <a href="mailto:Jeff.Suttor@Sun.com">Jeff Suttor</a>
  */
 public abstract class TransformerFactory {
-    
+
     /**
      * Default constructor is protected on purpose.
      */
@@ -44,7 +44,7 @@ public abstract class TransformerFactory {
 
     /**
      * <p>Get current state of canonicalization.</p>
-     * 
+     *
      * @return current state canonicalization control
      */
     /*
@@ -52,11 +52,11 @@ public abstract class TransformerFactory {
         return canonicalState;
     }
     */
-    
+
     /**
      * <p>Set canonicalization control to <code>true</code> or
      * </code>false</code>.</p>
-     * 
+     *
      * @param state of canonicalization
      */
     /*
@@ -133,7 +133,7 @@ public abstract class TransformerFactory {
      * @throws TransformerConfigurationException Thrown if there are errors when
      *    parsing the <code>Source</code> or it is not possible to create a
      *   <code>Transformer</code> instance.
-     * 
+     *
      * @see <a href="http://www.w3.org/TR/xslt">
      *   XSL Transformations (XSLT) Version 1.0</a>
      */
@@ -190,11 +190,11 @@ public abstract class TransformerFactory {
      *
      * @return A <code>Source</code> <code>Object</code> suitable for passing
      *   to the <code>TransformerFactory</code>.
-     * 
+     *
      * @throws TransformerConfigurationException An <code>Exception</code>
      *   is thrown if an error occurs during parsing of the
      *   <code>source</code>.
-     * 
+     *
      * @see <a href="http://www.w3.org/TR/xml-stylesheet/">
      *   Associating Style Sheets with XML documents Version 1.0</a>
      */
@@ -227,7 +227,7 @@ public abstract class TransformerFactory {
     /**
      * <p>Set a feature for this <code>TransformerFactory</code> and <code>Transformer</code>s
      * or <code>Template</code>s created by this factory.</p>
-     * 
+     *
      * <p>
      * Feature names are fully qualified {@link java.net.URI}s.
      * Implementations may define their own features.
@@ -235,7 +235,7 @@ public abstract class TransformerFactory {
      * <code>Transformer</code>s or <code>Template</code>s it creates cannot support the feature.
      * It is possible for an <code>TransformerFactory</code> to expose a feature value but be unable to change its state.
      * </p>
-     * 
+     *
      * <p>All implementations are required to support the {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} feature.
      * When the feature is:</p>
      * <ul>
@@ -252,10 +252,10 @@ public abstract class TransformerFactory {
      *     regard to possible implementation limits.
      *   </li>
      * </ul>
-     * 
+     *
      * @param name Feature name.
      * @param value Is feature state <code>true</code> or <code>false</code>.
-     *  
+     *
      * @throws TransformerConfigurationException if this <code>TransformerFactory</code>
      *   or the <code>Transformer</code>s or <code>Template</code>s it creates cannot support this feature.
      * @throws NullPointerException If the <code>name</code> parameter is null.
@@ -273,11 +273,11 @@ public abstract class TransformerFactory {
      * <code>Transformer</code>s or <code>Template</code>s it creates cannot support the feature.
      * It is possible for an <code>TransformerFactory</code> to expose a feature value but be unable to change its state.
      * </p>
-     * 
+     *
      * @param name Feature name.
-     * 
+     *
      * @return The current state of the feature, <code>true</code> or <code>false</code>.
-     * 
+     *
      * @throws NullPointerException If the <code>name</code> parameter is null.
      */
     public abstract boolean getFeature(String name);
@@ -299,7 +299,7 @@ public abstract class TransformerFactory {
      * implementation.
      * An <code>IllegalArgumentException</code> is thrown if the underlying
      * implementation doesn't recognize the attribute.
-     * 
+     *
      * @param name The name of the attribute.
      * @return value The value of the attribute.
      */

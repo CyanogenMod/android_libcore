@@ -33,17 +33,17 @@ import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with Certificate Policies structure which is a part of X.509 certificate
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
- * 
+ *
  * <pre>
  *   certificatePolicies ::= SEQUENCE SIZE (1..MAX) OF PolicyInformation
  * </pre>
- * 
+ *
  */
 
 public class CertificatePolicies extends ExtensionValue {
@@ -52,12 +52,12 @@ public class CertificatePolicies extends ExtensionValue {
     private List policyInformations;
     // the ASN.1 encoded form of CertificatePolicies
     private byte[] encoding;
-    
+
     /**
      * Constructs an object representing the value of CertificatePolicies.
      */
     public CertificatePolicies() {}
-    
+
     /**
      * TODO
      * @param   policyInformations: List
@@ -66,18 +66,18 @@ public class CertificatePolicies extends ExtensionValue {
         this.policyInformations = policyInformations;
     }
 
-    public static CertificatePolicies decode(byte[] encoding) 
+    public static CertificatePolicies decode(byte[] encoding)
             throws IOException {
         CertificatePolicies cps = ((CertificatePolicies) ASN1.decode(encoding));
         cps.encoding = encoding;
         return cps;
     }
-    
-    // 
+
+    //
     // TODO
     // @param   policyInformations: List
     // @param   encoding:   byte[]
-    // 
+    //
     private CertificatePolicies(List policyInformations, byte[] encoding) {
         this.policyInformations = policyInformations;
         this.encoding = encoding;
@@ -118,24 +118,24 @@ public class CertificatePolicies extends ExtensionValue {
     }
 
     /**
-     * Places the string representation of extension value 
+     * Places the string representation of extension value
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("CertificatePolicies [\n"); 
+        buffer.append(prefix).append("CertificatePolicies [\n");
         for (Iterator it=policyInformations.iterator(); it.hasNext();) {
             buffer.append(prefix);
-            buffer.append("  "); 
+            buffer.append("  ");
             ((PolicyInformation) it.next()).dumpValue(buffer);
             buffer.append('\n');
         }
-        buffer.append(prefix).append("]\n"); 
+        buffer.append(prefix).append("]\n");
     }
 
     /**
      * ASN.1 DER X.509 CertificatePolicies encoder/decoder class.
      */
-    public static final ASN1Type ASN1 = 
+    public static final ASN1Type ASN1 =
         new ASN1SequenceOf(PolicyInformation.ASN1) {
 
         public Object getDecodedObject(BerInputStream in) {

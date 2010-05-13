@@ -60,38 +60,38 @@ import java.util.logging.Logger;
 
 @TestTargetClass(Database.class)
 public class DatabaseTest extends SQLiteTest {
-    
+
     /**
      * The SQLite db file.
      */
 //    protected final File dbFile = new File("sqliteTest.db");
-//    
+//
 //    private final String connectionURL = "jdbc:sqlite:/" + dbFile.getPath();
-//    
+//
 //    private final String classname = "SQLite.JDBCDriver";
-//    
+//
 //    private static Connection conn = null;
-    
+
     private static ErrorTracker tracker = null;
-    
+
     private Statement statement;
-    
+
     private Database db = null;
-    
+
     private static final int numThreads = 10;
-    
+
     private static final int numOfRecords = 30;
-    
+
     public void setUp() throws java.lang.Exception {
         try {
             super.setUp();
             assertNotNull("Could not establish DB connection",conn);
             tracker = new ErrorTracker();
-            
+
             statement = conn.createStatement();
-            
+
           //Cleanup tables if necessary
-            
+
             DatabaseMetaData meta = conn.getMetaData();
             assertNotNull(meta);
             if (meta != null) {
@@ -101,12 +101,12 @@ public class DatabaseTest extends SQLiteTest {
                this.statement.execute("drop table "+tableName);
             }
             }
-            
+
             // Create default test table
 //            statement = conn.createStatement();
             statement.execute(DatabaseCreator.CREATE_TABLE_SIMPLE1);
             statement.close();
-            
+
             try {
             db = new Database();
             db.open(dbFile.getPath(), 0);
@@ -124,7 +124,7 @@ public class DatabaseTest extends SQLiteTest {
     }
 
     public void tearDown() {
-       
+
         try {
             db.close();
         }catch (Exception e) {
@@ -137,7 +137,7 @@ public class DatabaseTest extends SQLiteTest {
         tracker.reset();
         super.tearDown();
     }
-    
+
     /**
      * @tests Database#Database()
      */
@@ -163,13 +163,13 @@ public class DatabaseTest extends SQLiteTest {
         //db is open
         try {
             db2.open(dbFile.getPath(), 0);
-            db2.close();          
+            db2.close();
         } catch (Exception e) {
             fail("Second Database object could not be created "+e.getMessage());
             e.printStackTrace();
         }
     }
-    
+
     /**
      * @tests Database#finalize()
      */
@@ -243,8 +243,8 @@ public class DatabaseTest extends SQLiteTest {
         } catch (Exception e) {
             assertEquals("unsupported", e.getMessage());
         }
-        
-     /*   
+
+     /*
         try {
             temp = File.createTempFile("openAuxMethod", ".db");
             db.open_aux_file("");
@@ -267,7 +267,7 @@ public class DatabaseTest extends SQLiteTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-       
+
         temp.delete();
         */
     }
@@ -295,7 +295,7 @@ public class DatabaseTest extends SQLiteTest {
                 e1.printStackTrace();
             }
         }
-        
+
         try {
             db.close();
             db.close();
@@ -405,7 +405,7 @@ public class DatabaseTest extends SQLiteTest {
     }
 
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Database#interrupt()}
      */
     @TestTargetNew(
@@ -508,8 +508,8 @@ public class DatabaseTest extends SQLiteTest {
     }
 
     /**
-     * @throws SQLException 
-     * @throws Exception 
+     * @throws SQLException
+     * @throws Exception
      * @tests {@link Database#busy_handler(BusyHandler)}
      */
     @TestTargets({
@@ -555,7 +555,7 @@ public class DatabaseTest extends SQLiteTest {
             e.printStackTrace();
         }
 
-        
+
 //        try {
 //            DatabaseCreator.fillTestTable1(conn, numOfRecords);
             // set to fail immediately if table is locked.
@@ -584,27 +584,27 @@ public class DatabaseTest extends SQLiteTest {
             } else {
                 fail("No error happened");
             }
-            
+
             // reset
-            
+
 
             db.exec("delete from " + DatabaseCreator.TEST_TABLE1 + " where 1",
                     null);
             db.exec("delete from " + DatabaseCreator.TEST_TABLE3 + " where 1",
                             null);
-//            
+//
 //            // increase timeout for retry
 //            db.busy_timeout(1000);
 //            db.busy_handler(bh);
 //            tracker.reset();
-           
+
 //            threadPool = new ThreadPool(numThreads);
-//            
+//
 //            threadPool.runTask(createTask1(id1, dbFile.getPath(), tracker));
 //            threadPool.runTask(createTask2(id2, dbFile.getPath(), tracker));
-//            
+//
 //            threadPool.join();
-//            
+//
 //            errors = tracker.getErrors();
 //            if (errors.size() > 0) {
 //                // assertEquals(errors.get(0),
@@ -616,7 +616,7 @@ public class DatabaseTest extends SQLiteTest {
 //                // ok
 //                System.out.println("BUSY: No Error!");
 //            }
-//            
+//
 //
         } catch (Exception e) {
             fail("Error in test setup " + e.getMessage());
@@ -642,10 +642,10 @@ public class DatabaseTest extends SQLiteTest {
             db.exec(DatabaseCreator.DROP_TABLE3, null);
         }
     }
-    
+
     /**
-     * @throws Exception 
-     * @throws SQLException 
+     * @throws Exception
+     * @throws SQLException
      * @tests {@link Database#busy_timeout(int)}
      */
     @TestTargetNew(
@@ -658,7 +658,7 @@ public class DatabaseTest extends SQLiteTest {
     public void testBusy_timeout() throws Exception, SQLException {
         int counter = 0;
         ThreadPool threadPool = new ThreadPool(numThreads);
-        
+
         // initialization
         ResultSet userTabs;
         try {
@@ -678,18 +678,18 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error initializing test " + e.getMessage());
             e.printStackTrace();
         }
-        
-        
+
+
         // test run
         try {
             conn.setAutoCommit(false);
-        
+
 //            DatabaseCreator.fillTestTable1(conn, numOfRecords);
             // set to fail immediately if table is locked.
             db.busy_handler(null);
             db.busy_timeout(0);
             int id1 = numOfRecords - 3;
-           
+
             threadPool.runTask(createTask2(id1, dbFile.getPath(), tracker));
             int id2 = numOfRecords + 3;
             threadPool.runTask(createTask1(id2, dbFile.getPath(), tracker));
@@ -699,32 +699,32 @@ public class DatabaseTest extends SQLiteTest {
                     tracker));
 
             threadPool.join();
-            
+
             List<String> errors = tracker.getErrors();
             assertTrue("No error occurred on DB but should have",errors.size() > 0);
-            
+
             assertEquals(errors.get(0),
             db.error_string(Constants.SQLITE_LOCKED));
             assertEquals(errors.get(0), "database is locked");
-          
+
             // reset
 
             db.exec("delete from " + DatabaseCreator.TEST_TABLE1 + " where 1",
                     null);
             db.exec("delete from " + DatabaseCreator.TEST_TABLE3 + " where 1",
                             null);
-            
+
             // increase timeout for retry
             db.busy_timeout(10000);
             db.busy_handler(null);
             tracker.reset();
             threadPool = new ThreadPool(numThreads);
-            
+
             threadPool.runTask(createTask1(id1, dbFile.getPath(), tracker));
             threadPool.runTask(createTask2(id2, dbFile.getPath(), tracker));
-            
+
             threadPool.join();
-            
+
             errors = tracker.getErrors();
             if (errors.size() > 0) {
                 fail("busy timeout should prevent from lock exception!");
@@ -734,7 +734,7 @@ public class DatabaseTest extends SQLiteTest {
             } else {
                 // ok
             }
-            
+
 
         } catch (Exception e) {
             fail("Error in test setup " + e.getMessage());
@@ -775,7 +775,7 @@ public class DatabaseTest extends SQLiteTest {
 //            res = db.get_table("select * from "
 //                    + DatabaseCreator.SIMPLE_TABLE1);
 //            assertFalse(emptyTable.toString().equals(res.toString()));
-            
+
             try {
                 db.exec("insert into " + DatabaseCreator.SIMPLE_TABLE1
                         + " VALUES(1, 10, 20)", null);
@@ -884,7 +884,7 @@ public class DatabaseTest extends SQLiteTest {
          clazz = TableResult.class,
          args = {}
         )
-     
+
     })
     public void testGet_tableStringStringArrayTableResult() {
         String args[] = new String[1];
@@ -914,7 +914,7 @@ public class DatabaseTest extends SQLiteTest {
         }
     }
 
-    
+
     /**
      * @tests {@link Database#complete(String)}
      */
@@ -946,7 +946,7 @@ public class DatabaseTest extends SQLiteTest {
         } else {
             fail("DB version info missing");
         }
-        
+
     }
 
     /**
@@ -976,9 +976,9 @@ public class DatabaseTest extends SQLiteTest {
             fail("error in db setup "+e.getMessage());
             e.printStackTrace();
         }
-        
+
         assertTrue(Integer.parseInt(verNo.substring(0, 1))>= 3 );
-     
+
     }
 
     /**
@@ -1025,7 +1025,7 @@ public class DatabaseTest extends SQLiteTest {
      * @tests {@link Database#create_aggregate(String, int, Function)}
      */
     @TestTargets({
-            
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "method test",
@@ -1057,9 +1057,9 @@ public class DatabaseTest extends SQLiteTest {
     @KnownFailure("Aggregation function not called")
     public void testCreate_aggregate() {
         TestTrace t = new TestTrace();
-        
+
         MockFunction aggFunction = new MockFunction();
-       
+
         try {
             db
                     .exec(
@@ -1071,7 +1071,7 @@ public class DatabaseTest extends SQLiteTest {
             db.create_aggregate("myaggfunc", 1, aggFunction);
             db.function_type("myaggfunc", Constants.SQLITE3_TEXT);
             db.exec("PRAGMA show_datatypes = on", null);
-            
+
             assertFalse(aggFunction.functionCalled);
             assertFalse(aggFunction.stepCalled);
             assertFalse(aggFunction.lastStepCalled);
@@ -1079,7 +1079,7 @@ public class DatabaseTest extends SQLiteTest {
             assertTrue(aggFunction.stepCalled);
             assertTrue(aggFunction.lastStepCalled);
             assertTrue(aggFunction.functionCalled);
-            
+
             assertEquals("James Fiona ",aggFunction.getAggValue());
             db.exec("drop table TEST", null);
         } catch (Exception e) {
@@ -1087,23 +1087,23 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error in test setup: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             db.create_aggregate("myaggfunc", 0, null);
         } catch (Throwable e) {
             assertEquals("null SQLite.Function not allowed",e.getMessage());
         }
-            
+
           try {
             db.create_aggregate("myaggfunc", 0, aggFunction);
         } catch (Throwable e) {
             assertEquals("wrong number of arguments to function myaggfunc()",e.getMessage());
         }
-        
+
     }
 
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Database#function_type(String, int)}
      * This method does not make sense
      */
@@ -1114,41 +1114,41 @@ public class DatabaseTest extends SQLiteTest {
         args = {java.lang.String.class, int.class}
     )
     public void testFunction_type() throws Exception {
-        
+
         double input = 1.0;
         TableResult res = new TableResult();
         Function sinFunc = (Function) new SinFunc();
-        
+
         db.exec("PRAGMA show_datatypes = on", null);
         db.exec("create table TEST (res double)", null);
         db.exec("insert into TEST values (" + Double.toString(input) + ")",
                 null);
-        
+
         db.create_function("sin", 1, sinFunc);
         db.function_type("sin", Constants.SQLITE_FLOAT);
         res = db.get_table("select sin(res) from TEST WHERE res = "
                 + Double.toString(input));
-         
+
         String row[] = (String[]) res.rows.elementAt(0);
         String val = row[0];
         assertTrue("double".equalsIgnoreCase(res.types[0]));
         assertSame(Math.round(Math.sin(input)), Math.round(Double.parseDouble(val)));
-        
+
         // function determines return type: test that Double type is returned.
         db.function_type("sin", Constants.SQLITE_BLOB);
         Stmt s = db.prepare("select sin(res) from TEST WHERE res = ?");
         s.bind(1,input);
         s.step();
-        
+
         res = db.get_table("select sin(res) from TEST WHERE res = "
                 + Double.toString(input));
         assertTrue("double".equalsIgnoreCase(res.types[0]));
         row = (String[]) res.rows.elementAt(0);
-        val = row[0]; 
+        val = row[0];
         assertSame(Math.round(Math.sin(input)), Math.round(Double.parseDouble(val)));
-        
 
-        
+
+
 
     }
 
@@ -1169,9 +1169,9 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error should have happened");
         } catch (Exception e) {
             assertEquals(db.last_error(),db.last_error());
-            assertEquals(db.last_error(),Constants.SQLITE_ERROR);         
+            assertEquals(db.last_error(),Constants.SQLITE_ERROR);
         }
-       
+
     }
 
     /**
@@ -1185,7 +1185,7 @@ public class DatabaseTest extends SQLiteTest {
     )
     public void testSet_last_error() {
        assertEquals(db.last_error(), Constants.SQLITE_OK);
-       
+
        try {
            db.exec("sel from test;", null);
        } catch (Exception e) {
@@ -1210,15 +1210,15 @@ public class DatabaseTest extends SQLiteTest {
             fail("DB Error expected");
         } catch (Exception e) {
             String dbError = db.error_message();
-            assertTrue(e.getMessage().equals(dbError)); 
-            
+            assertTrue(e.getMessage().equals(dbError));
+
         }
     }
 
     /**
      * @tests {@link Database#error_string(int)}
      */
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "not supported",
@@ -1243,7 +1243,7 @@ public class DatabaseTest extends SQLiteTest {
     }
 
     /**
-     * @throws UnsupportedEncodingException 
+     * @throws UnsupportedEncodingException
      * @tests {@link Database#set_encoding(String)}
      * Method unsupported? -> tests fail
      */
@@ -1279,7 +1279,7 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error in test setup: " + e1.getMessage());
             e1.printStackTrace();
         }
-        
+
      // tests for different encoding schemes
         String[] charsetNames = {"UTF-8", "UTF-16", "UTF-16BE", "UTF-16LE"};
         for (int i = 0; i < charsetNames.length; i++) {
@@ -1314,8 +1314,8 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error setting the encoding." + e.getMessage());
             e.printStackTrace();
         }
-        
-        
+
+
         // DB teardown
         try {
             stat.close();
@@ -1325,7 +1325,7 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error in teardown of encoding environment");
             e3.printStackTrace();
         }
-        
+
         // Default tests
         try {
             db.set_encoding("");
@@ -1358,7 +1358,7 @@ public class DatabaseTest extends SQLiteTest {
     @KnownFailure("Callback never made for authorization. "+
             "Results of private table are returned withouth furhter checks.")
     public void testSet_authorizer() {
-        
+
         TableResult resPriv = null;
         TableResult resPub = null;
         TableResult emptyTable = new TableResult();
@@ -1366,7 +1366,7 @@ public class DatabaseTest extends SQLiteTest {
         String insertPrivate = "insert into private_table values(1,2)";
         try {
             // prepare, authorizer is not activated yet
-            db.exec("create table public_table(c1 integer, c2 integer);", null); 
+            db.exec("create table public_table(c1 integer, c2 integer);", null);
             db.exec("create table private_table(c1 integer, c2 integer);", null);
             // inserts
             db.exec(insertPublic, null);
@@ -1374,30 +1374,30 @@ public class DatabaseTest extends SQLiteTest {
             // selects
             resPriv = db.get_table("select * from private_table");
             resPub = db.get_table("select * from public_table");
-            
+
 //            db.exec("delete from public_table where 1", null);
 //            TableResult emptyPubTable = db.exec("select * from public");
-            
+
             // set Authorizer (positive case): denies private table
             AuthorizerCallback cb = new AuthorizerCallback();
             db.set_authorizer(cb);
             //select
-            
+
             db.exec("select * from private_table", cb);
             assertTrue(cb.wasCalled());
-            
+
            /*
             TableResult res = db.get_table("select * from private_table");
             assertEquals(emptyTable.toString(),res.toString());
             assertFalse(emptyTable.equals(resPriv));
-            
+
             res = db.get_table("select * from public_table");
             assertEquals(resPub,res);
             */
         } catch (Exception e) {
             fail("Error testing authorization: "+e.getMessage());
         }
-        
+
         // Try insert
         try {
             db.exec(insertPublic, null);
@@ -1410,7 +1410,7 @@ public class DatabaseTest extends SQLiteTest {
                 // ok
             }
         }
-        
+
     }
 
     /**
@@ -1437,7 +1437,7 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error testing traces: "+e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             db.close();
             db.exec(stmt,t);
@@ -1445,8 +1445,8 @@ public class DatabaseTest extends SQLiteTest {
         } catch (Exception e) {
             //ok
         }
-        
-        
+
+
     }
 
     /**
@@ -1469,8 +1469,8 @@ public class DatabaseTest extends SQLiteTest {
             db.compile("test");
             fail("Compiling of inaccurate statement does not fail.");
         } catch (Exception e) {
-            
-        } 
+
+        }
     }
 
     /**
@@ -1495,8 +1495,8 @@ public class DatabaseTest extends SQLiteTest {
             db.compile("test",null);
             fail("Compiling of inaccurate statement does not fail.");
         } catch (Exception e) {
-            
-        } 
+
+        }
     }
 
     /**
@@ -1566,8 +1566,8 @@ public class DatabaseTest extends SQLiteTest {
     }
 
     /**
-     * @throws Exception 
-     * @throws java.lang.Exception 
+     * @throws Exception
+     * @throws java.lang.Exception
      * @tests {@link Database#open_blob(String, String, String, long, boolean)}
      * unsupported
      */
@@ -1581,18 +1581,18 @@ public class DatabaseTest extends SQLiteTest {
     public void testOpen_blob() throws Exception, java.lang.Exception {
         Stmt statement2;
         Blob blobInput = new Blob();
-       
-        
+
+
         // Create test input Blob
         InputStream inStream = null;
         byte[] in = {(byte) 1, (byte) 2, (byte) 3, (byte) 4};
-        
+
         // setup test input
         db.exec("create table TEST (res blob)",null);
         inStream = Class.forName(this.getClass().getName()).getResourceAsStream("/blob.c");
         assertNotNull(inStream);
 
-        
+
         // insert byte array in db
         try {
             statement2 = db.prepare("insert into TEST(res) values (?)");
@@ -1603,18 +1603,18 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error happened inserting blob" + e.getMessage());
             e.printStackTrace();
         }
-        
+
         // read from db
         byte[] output = null;
         Blob blob;
-       
+
             blob = db.open_blob(dbFile.getPath(), "TEST", "res", 1, true);
             if (blob == null) {
                 fail("Blob could not be retrieved");
             }
             //read from blob and compare values (positive case)
             InputStream is = blob.getInputStream();
-            
+
             int i = 0;
             int outByte = 0;
             byte[] out = new byte[4];
@@ -1623,11 +1623,11 @@ public class DatabaseTest extends SQLiteTest {
                 i++;
             }
             is.close();
-            
+
             blob.close();
-            
+
             assertTrue(Arrays.equals(in, out));
-            
+
             //read from blob and compare values (default blob)
             db.exec("insert into TEST values(zeroblob(128))", null);
             Blob blob2 = db.open_blob(dbFile.getPath(), "TEST", "res", 2, true);
@@ -1699,7 +1699,7 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error in test setup: "+e.getMessage());
             e.printStackTrace();
         }
-        
+
         // Boundary value test
         inputVal = 0;
         TestProgressHandler progBoundary = new TestProgressHandler();
@@ -1717,7 +1717,7 @@ public class DatabaseTest extends SQLiteTest {
             fail("Error in test setup: "+e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             db.exec("drop table TEST5",null);
         } catch (Exception e) {
@@ -1725,12 +1725,12 @@ public class DatabaseTest extends SQLiteTest {
             e.printStackTrace();
         }
     }
-    
-    
-    
+
+
+
     class SinFunc implements Function {
-        
-        
+
+
         public void function(FunctionContext fc, String args[]) {
             Double d = new Double(args[0]);
             fc.set_result(Math.sin(d.doubleValue()));
@@ -1746,18 +1746,18 @@ public class DatabaseTest extends SQLiteTest {
 
         }
     }
-    
+
    @TestTargetClass(Trace.class)
     class TestTrace implements Trace,Callback {
-       
+
     private StringBuffer buf = new StringBuffer();
-    
+
     public boolean traceCalled = false;
-    
+
     public String getTrace() {
         return buf.toString();
     }
-    
+
     public void trace(String stmt) {
         traceCalled = true;
         buf.append(stmt);
@@ -1765,7 +1765,7 @@ public class DatabaseTest extends SQLiteTest {
 
     public void columns(String[] coldata) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public boolean newrow(String[] rowdata) {
@@ -1775,14 +1775,14 @@ public class DatabaseTest extends SQLiteTest {
 
     public void types(String[] types) {
         // TODO Auto-generated method stub
-        
+
     }
    }
-   
+
    @TestTargetClass(Authorizer.class)
    class AuthorizerCallback implements Authorizer,Callback {
        private boolean isAuthorizing = false;
-       
+
        public boolean wasCalled() {
            return isAuthorizing;
        }
@@ -1800,7 +1800,7 @@ public class DatabaseTest extends SQLiteTest {
 
     public void columns(String[] coldata) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public boolean newrow(String[] rowdata) {
@@ -1810,13 +1810,13 @@ public class DatabaseTest extends SQLiteTest {
 
     public void types(String[] types) {
         // TODO Auto-generated method stub
-        
+
     }
-       
+
    }
-   
+
    class TestBusyHandler implements BusyHandler, Callback {
-    
+
     public boolean busy(String table, int count) {
         System.out.println("BUSY!");
         return true;
@@ -1824,7 +1824,7 @@ public class DatabaseTest extends SQLiteTest {
 
     public void columns(String[] coldata) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public boolean newrow(String[] rowdata) {
@@ -1834,21 +1834,21 @@ public class DatabaseTest extends SQLiteTest {
 
     public void types(String[] types) {
         // TODO Auto-generated method stub
-        
+
     }
-       
+
    }
-   
+
    class TestProgressHandler implements ProgressHandler,Callback {
-       
+
     private boolean progressed = false;
-    
+
     private int counter = 0;
-       
+
     public boolean isProgressed() {
         return progressed;
     }
-    
+
     public int getCounts() {
         return counter;
     }
@@ -1861,7 +1861,7 @@ public class DatabaseTest extends SQLiteTest {
 
     public void columns(String[] coldata) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public boolean newrow(String[] rowdata) {
@@ -1871,13 +1871,13 @@ public class DatabaseTest extends SQLiteTest {
 
     public void types(String[] types) {
         // TODO Auto-generated method stub
-        
+
     }
-       
+
    }
-   
+
 //   class dbBusyThread implements Runnable {
-//       
+//
 //       String dbName = "sqliteTest.db";
 //
 //       Thread runner;
@@ -1891,11 +1891,11 @@ public class DatabaseTest extends SQLiteTest {
 //       public void run() {
 //            insert(3000);
 //        }
-//       
+//
 //       public void runNoDelay() {
 //           insert(0);
 //       }
-//       
+//
 //       synchronized private void insert(long delay) {
 //           Database db2 = new Database();
 //           try {
@@ -1918,7 +1918,7 @@ public class DatabaseTest extends SQLiteTest {
 //           }
 //       }
 //   }
-   
+
    /**
     * This method creates a Runnable that executes insert operation for the
     * first table
@@ -1950,7 +1950,7 @@ public class DatabaseTest extends SQLiteTest {
             }
         };
    }
-   
+
    /**
     * This method creates a Runnable that executes delete operation for the
     * first table
@@ -1969,7 +1969,7 @@ public class DatabaseTest extends SQLiteTest {
            }
        };
    }
-   
+
    /**
     * This method creates a Runnable that executes insert operation for the
     * first table
@@ -1986,14 +1986,14 @@ public class DatabaseTest extends SQLiteTest {
                            + " (id, field1, field2, field3) VALUES(" + id
                            + ", '" + value + "', " + id + ", " + id + ")";
                    db.exec(insertQuery,null);
-               } catch (Exception e) {  
+               } catch (Exception e) {
                    errorTracker.registerException(this, e);
-                   
+
                }
            }
        };
    }
-   
+
    /**
     * This method creates a Runnable that executes update operation for the one
     * record of the first table
@@ -2017,7 +2017,7 @@ public class DatabaseTest extends SQLiteTest {
             }
         };
     }
-   
+
    private class ErrorTracker {
         private List<String> errors = new ArrayList<String>();
 
@@ -2029,10 +2029,10 @@ public class DatabaseTest extends SQLiteTest {
         public List<String> getErrors() {
             return errors;
         }
-        
+
         public void reset() {
             errors.clear();
         }
     }
-   
+
 }

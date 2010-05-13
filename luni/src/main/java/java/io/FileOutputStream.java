@@ -116,7 +116,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
     public FileOutputStream(FileDescriptor fd) {
         super();
         if (fd == null) {
-            throw new NullPointerException(Msg.getString("K006c")); 
+            throw new NullPointerException(Msg.getString("K006c"));
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -280,10 +280,10 @@ public class FileOutputStream extends OutputStream implements Closeable {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); 
+            throw new NullPointerException(Msg.getString("K0047"));
         }
         if ((count | offset) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
         }
         // END android-changed
 

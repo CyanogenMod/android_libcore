@@ -39,7 +39,7 @@ import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the Extensions part of X.509 certificate
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -55,9 +55,9 @@ public class Extensions {
 
     // Supported critical extensions oids:
     private static List SUPPORTED_CRITICAL = Arrays.asList(
-            new String[] {"2.5.29.15", "2.5.29.19", "2.5.29.32", "2.5.29.17",     
-                "2.5.29.30", "2.5.29.36", "2.5.29.37", "2.5.29.54"});    
-    
+            new String[] {"2.5.29.15", "2.5.29.19", "2.5.29.32", "2.5.29.17",
+                "2.5.29.30", "2.5.29.36", "2.5.29.37", "2.5.29.54"});
+
     // the values of extensions of the structure
     private List<Extension> extensions;
     private Set critical;
@@ -70,12 +70,12 @@ public class Extensions {
     private HashMap oidMap;
     // the ASN.1 encoded form of Extensions
     private byte[] encoding;
-    
+
     /**
      * Constructs an object representing the value of Extensions.
      */
     public Extensions() {}
-    
+
     /**
      * TODO
      * @param   extensions: List
@@ -83,7 +83,7 @@ public class Extensions {
     public Extensions(List extensions) {
         this.extensions = extensions;
     }
-    
+
     /**
      * Returns the values of extensions.
      * @return  extensions
@@ -91,13 +91,13 @@ public class Extensions {
     public List getExtensions() {
         return extensions;
     }
-    
+
     public int size() {
-        return (extensions == null) 
+        return (extensions == null)
                         ? 0
                         : extensions.size();
     }
-    
+
     /**
      * Returns the list of critical extensions.
      * @return  extensions
@@ -128,7 +128,7 @@ public class Extensions {
     }
 
     //
-    // Makes the separated lists with oids of critical 
+    // Makes the separated lists with oids of critical
     // and non-critical extensions
     //
     private void makeOidsLists() {
@@ -151,7 +151,7 @@ public class Extensions {
             }
         }
     }
-    
+
     /**
      * Returns the values of extensions.
      * @param oid - the OID of needed extension.
@@ -177,7 +177,7 @@ public class Extensions {
      * Returns the value of Key Usage extension (OID == 2.5.29.15).
      * The ASN.1 definition of Key Usage Extension is:
      *
-     * <pre> 
+     * <pre>
      * id-ce-keyUsage OBJECT IDENTIFIER ::=  { id-ce 15 }
      *
      * KeyUsage ::= BIT STRING {
@@ -189,9 +189,9 @@ public class Extensions {
      *     keyCertSign             (5),
      *     cRLSign                 (6),
      *     encipherOnly            (7),
-     *     decipherOnly            (8) 
+     *     decipherOnly            (8)
      * }
-     * </pre> 
+     * </pre>
      * (as specified in RFC 3280)
      *
      * @return the value of Key Usage Extension if it is in the list,
@@ -200,23 +200,23 @@ public class Extensions {
      * than 9.
      */
     public boolean[] valueOfKeyUsage() {
-        Extension extn = getExtensionByOID("2.5.29.15"); 
+        Extension extn = getExtensionByOID("2.5.29.15");
         KeyUsage kUsage = null;
         if ((extn == null) || ((kUsage = extn.getKeyUsageValue()) == null)) {
             return null;
         }
         return kUsage.getKeyUsage();
     }
-   
+
     /**
      * Returns the value of Extended Key Usage extension (OID == 2.5.29.37).
      * The ASN.1 definition of Extended Key Usage Extension is:
      *
-     * <pre> 
+     * <pre>
      *  id-ce-extKeyUsage OBJECT IDENTIFIER ::= { id-ce 37 }
-     *  
+     *
      *  ExtKeyUsageSyntax ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
-     *  
+     *
      *  KeyPurposeId ::= OBJECT IDENTIFIER
      * </pre>
      * (as specified in RFC 3280)
@@ -226,24 +226,24 @@ public class Extensions {
      * @throws IOException if extension was incorrectly encoded.
      */
     public List valueOfExtendedKeyUsage() throws IOException {
-        Extension extn = getExtensionByOID("2.5.29.37"); 
+        Extension extn = getExtensionByOID("2.5.29.37");
         if (extn == null) {
             return null;
         }
-        return ((ExtendedKeyUsage) 
+        return ((ExtendedKeyUsage)
                 extn.getDecodedExtensionValue()).getExtendedKeyUsage();
     }
-    
+
     /**
      * Returns the value of Basic Constraints Extension (OID = 2.5.29.19).
      * The ASN.1 definition of Basic Constraints Extension is:
      *
-     * <pre> 
+     * <pre>
      *   id-ce-basicConstraints OBJECT IDENTIFIER ::=  { id-ce 19 }
      *
      *   BasicConstraints ::= SEQUENCE {
      *        cA                      BOOLEAN DEFAULT FALSE,
-     *        pathLenConstraint       INTEGER (0..MAX) OPTIONAL 
+     *        pathLenConstraint       INTEGER (0..MAX) OPTIONAL
      *   }
      * </pre>
      * (as specified in RFC 3280)
@@ -252,65 +252,65 @@ public class Extensions {
      * and Integer.MAX_VALUE if does not.
      */
     public int valueOfBasicConstrains() {
-        Extension extn = getExtensionByOID("2.5.29.19"); 
+        Extension extn = getExtensionByOID("2.5.29.19");
         BasicConstraints bc = null;
-        if ((extn == null) 
+        if ((extn == null)
                 || ((bc = extn.getBasicConstraintsValue()) == null)) {
             return Integer.MAX_VALUE;
         }
         return bc.getPathLenConstraint();
     }
-    
+
     /**
      * Returns the value of Subject Alternative Name (OID = 2.5.29.17).
      * The ASN.1 definition for Subject Alternative Name is:
      *
-     * <pre> 
+     * <pre>
      *  id-ce-subjectAltName OBJECT IDENTIFIER ::=  { id-ce 17 }
-     *  
+     *
      *  SubjectAltName ::= GeneralNames
      * </pre>
      * (as specified in RFC 3280)
      *
-     * @return Returns the collection of pairs: 
+     * @return Returns the collection of pairs:
      * (Integer (tag), Object (name value)) if extension presents, and
      * null if does not.
      */
     public List valueOfSubjectAlternativeName() throws IOException {
-        Extension extn = getExtensionByOID("2.5.29.17"); 
+        Extension extn = getExtensionByOID("2.5.29.17");
         if (extn == null) {
             return null;
         }
         return ((GeneralNames) GeneralNames.ASN1.decode(extn.getExtnValue()))
                 .getPairsList();
     }
-    
+
     /**
      * Returns the value of Issuer Alternative Name Extension (OID = 2.5.29.18).
      * The ASN.1 definition for Issuer Alternative Name is:
      *
-     * <pre> 
+     * <pre>
      *   id-ce-issuerAltName OBJECT IDENTIFIER ::=  { id-ce 18 }
-     *  
+     *
      *   IssuerAltName ::= GeneralNames
      * </pre>
      * (as specified in RFC 3280)
      *
-     * @return Returns the collection of pairs: 
+     * @return Returns the collection of pairs:
      * (Integer (tag), Object (name value)) if extension presents, and
      * null if does not.
      */
     public List valueOfIssuerAlternativeName() throws IOException {
-        Extension extn = getExtensionByOID("2.5.29.18"); 
+        Extension extn = getExtensionByOID("2.5.29.18");
         if (extn == null) {
             return null;
         }
-        return ((GeneralNames) 
+        return ((GeneralNames)
                 GeneralNames.ASN1.decode(extn.getExtnValue())).getPairsList();
     }
-   
+
     /**
-     * Returns the value of Certificate Issuer Extension (OID = 2.5.29.29). 
+     * Returns the value of Certificate Issuer Extension (OID = 2.5.29.29).
      * It is a CRL entry extension and contains the GeneralNames describing
      * the issuer of revoked certificate. Its ASN.1 notation is as follows:
      * <pre>
@@ -322,16 +322,16 @@ public class Extensions {
      *
      * @return the value of Certificate Issuer Extension
      */
-    public X500Principal valueOfCertificateIssuerExtension() 
+    public X500Principal valueOfCertificateIssuerExtension()
                                                         throws IOException {
-        Extension extn = getExtensionByOID("2.5.29.29"); 
+        Extension extn = getExtensionByOID("2.5.29.29");
         if (extn == null) {
             return null;
         }
-        return ((CertificateIssuer) 
+        return ((CertificateIssuer)
                 extn.getDecodedExtensionValue()).getIssuer();
     }
-    
+
     /**
      * TODO
      * @param   extn:  Extension
@@ -369,23 +369,23 @@ public class Extensions {
         }
         return encoding;
     }
-    
+
     public boolean equals(Object exts) {
         if (!(exts instanceof Extensions)) {
             return false;
         }
         Extensions extns = (Extensions) exts;
-        return ((extensions == null) || (extensions.size() == 0) 
-                    ? ((extns.extensions == null) 
+        return ((extensions == null) || (extensions.size() == 0)
+                    ? ((extns.extensions == null)
                             || (extns.extensions.size() == 0))
-                    : ((extns.extensions == null) 
+                    : ((extns.extensions == null)
                             || (extns.extensions.size() == 0))
                         ? false
                         : (extensions.containsAll(extns.extensions)
                             && (extensions.size() == extns.extensions.size()))
                 );
     }
-    
+
     public int hashCode() {
     	int hashcode = 0;
     	if (extensions != null) {
@@ -393,7 +393,7 @@ public class Extensions {
     	}
     	return hashcode;
     }
-    
+
     /**
      * Places the string representation into the StringBuffer object.
      */
@@ -404,7 +404,7 @@ public class Extensions {
         int num = 1;
         for (Extension extension: extensions) {
             buffer.append('\n').append(prefix)
-                .append('[').append(num++).append("]: "); 
+                .append('[').append(num++).append("]: ");
             extension.dumpValue(buffer, prefix);
         }
     }

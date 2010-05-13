@@ -43,7 +43,7 @@ import java.security.cert.CertPathBuilderResult;
 import org.apache.harmony.security.tests.support.SpiEngUtils;
 /**
  * Tests for CertPathBuilder class constructors and methods
- * 
+ *
  */
 @TestTargetClass(CertPathBuilder.class)
 public class CertPathBuilder2Test extends TestCase {
@@ -102,16 +102,16 @@ public class CertPathBuilder2Test extends TestCase {
             certBuild.build(null);
             fail("CertPathBuilderException must be thrown");
         } catch (CertPathBuilderException e) {
-        }    
+        }
         CertPathBuilderResult cpbResult = certBuild.build(null);
         assertNull("Not null CertPathBuilderResult", cpbResult);
     }
 
     /**
-     * Test for <code>getInstance(String algorithm)</code> method 
+     * Test for <code>getInstance(String algorithm)</code> method
      * Assertions:
-     * throws 
-     * throws NullPointerException when algorithm is null 
+     * throws
+     * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm  is not correct
      * returns CertPathBuilder object
      */
@@ -148,11 +148,11 @@ public class CertPathBuilder2Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code> method
-     * Assertions: 
-     * throws NullPointerException when algorithm is null 
+     * Assertions:
+     * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm  is not correct
-     * throws IllegalArgumentException when provider is null or empty; 
-     * throws NoSuchProviderException when provider is available; 
+     * throws IllegalArgumentException when provider is null or empty;
+     * throws NoSuchProviderException when provider is available;
      * returns CertPathBuilder object
      */
     @TestTargetNew(
@@ -219,9 +219,9 @@ public class CertPathBuilder2Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, Provider provider)</code>
-     * method 
-     * Assertions: 
-     * throws NullPointerException when algorithm is null 
+     * method
+     * Assertions:
+     * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm  is not correct
      * returns CertPathBuilder object
      */

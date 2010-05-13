@@ -136,7 +136,7 @@ public class SecureClassLoader extends ClassLoader {
                 : defineClass(name, data, 0, data.length, getPD(cs));
     }
 
-    // Constructs and caches ProtectionDomain for the given CodeSource 
+    // Constructs and caches ProtectionDomain for the given CodeSource
     // object.<br>
     // It calls {@link getPermissions()} to get a set of permissions.
     //
@@ -146,7 +146,7 @@ public class SecureClassLoader extends ClassLoader {
         if (cs == null) {
             return null;
         }
-        // need to cache PDs, otherwise every class from a given CodeSource 
+        // need to cache PDs, otherwise every class from a given CodeSource
         // will have it's own ProtectionDomain, which does not look right.
         ProtectionDomain pd;
         synchronized (pds) {

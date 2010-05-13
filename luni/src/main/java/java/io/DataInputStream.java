@@ -246,10 +246,10 @@ public class DataInputStream extends FilterInputStream implements DataInput {
             return;
         }
         if (in == null) {
-            throw new NullPointerException(Msg.getString("KA00b")); 
+            throw new NullPointerException(Msg.getString("KA00b"));
         }
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); 
+            throw new NullPointerException(Msg.getString("K0047"));
         }
         // BEGIN android-changed
         // Exception priorities (in case of multiple errors) differ from
@@ -257,7 +257,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
         // used (offset | length) < 0 instead of separate (offset < 0) and
         // (length < 0) check to safe one operation
         if ((offset | length) < 0 || offset > buffer.length - length) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
         }
         // END android-changed
         while (length > 0) {

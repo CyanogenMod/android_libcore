@@ -18,17 +18,17 @@ import javax.xml.parsers.DocumentBuilder;
  * qualified name of this node, and for nodes of any type other than
  * ELEMENT_NODE and ATTRIBUTE_NODE and nodes created with a DOM Level 1 method,
  * this is null.
- * 
+ *
  * Retrieve the first emp:address node and get the attributes of this node."
  * Then apply the getLocalName() method to the emp:domestic attribute. The
  * method should return "domestic".
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSLocalN">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSLocalN</a>
  */
-@TestTargetClass(Node.class) 
+@TestTargetClass(Node.class)
 public final class LocalName extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -54,7 +54,7 @@ public final class LocalName extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

@@ -184,7 +184,7 @@ public class Timer {
 
         /**
          * Starts a new timer.
-         * 
+         *
          * @param name thread's name
          * @param isDaemon daemon thread or not
          */
@@ -321,15 +321,15 @@ public class Timer {
         }
 
     }
-    
+
     private static final class FinalizerHelper {
         private final TimerImpl impl;
-        
+
         FinalizerHelper(TimerImpl impl) {
             super();
             this.impl = impl;
         }
-        
+
         @Override
         protected void finalize() {
             synchronized (impl) {
@@ -338,9 +338,9 @@ public class Timer {
             }
         }
     }
-    
+
     private static long timerId;
-    
+
     private synchronized static long nextId() {
         return timerId++;
     }
@@ -368,7 +368,7 @@ public class Timer {
         this.impl = new TimerImpl(name, isDaemon);
         this.finalizer = new FinalizerHelper(impl);
     }
-    
+
     /**
      * Creates a new named {@code Timer} which does not run as a daemon thread.
      *
@@ -378,7 +378,7 @@ public class Timer {
     public Timer(String name) {
         this(name, false);
     }
-    
+
     /**
      * Creates a new {@code Timer} which may be specified to be run as a daemon thread.
      *
@@ -560,22 +560,22 @@ public class Timer {
             boolean fixed) {
         synchronized (impl) {
             if (impl.cancelled) {
-                throw new IllegalStateException(Msg.getString("K00f3")); 
+                throw new IllegalStateException(Msg.getString("K00f3"));
             }
 
             long when = delay + System.currentTimeMillis();
 
             if (when < 0) {
-                throw new IllegalArgumentException(Msg.getString("K00f5")); 
+                throw new IllegalArgumentException(Msg.getString("K00f5"));
             }
 
             synchronized (task.lock) {
                 if (task.isScheduled()) {
-                    throw new IllegalStateException(Msg.getString("K00f6")); 
+                    throw new IllegalStateException(Msg.getString("K00f6"));
                 }
 
                 if (task.cancelled) {
-                    throw new IllegalStateException(Msg.getString("K00f7")); 
+                    throw new IllegalStateException(Msg.getString("K00f7"));
                 }
 
                 task.when = when;

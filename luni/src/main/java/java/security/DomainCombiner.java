@@ -20,7 +20,7 @@ package java.security;
 /**
  * {@code DomainCombiner} is used to update and optimize {@code
  * ProtectionDomain}s from an {@code AccessControlContext}.
- * 
+ *
  * @see AccessControlContext
  * @see AccessControlContext#AccessControlContext(AccessControlContext,
  *      DomainCombiner)

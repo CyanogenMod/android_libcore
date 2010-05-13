@@ -41,7 +41,7 @@ import dalvik.annotation.TestTargets;
                 method = "finalize",
                 args = {}
             )
-        }        
+        }
 )
 public class PatternTest extends TestCase {
     String[] testPatterns = {
@@ -57,7 +57,7 @@ public class PatternTest extends TestCase {
 // We don't have canonical equivalence.
 //            "x(?c)y", "x(?cc)y"
 //            "x(?:c)y"
-// END android-changed                    
+// END android-changed
 
     };
 
@@ -106,7 +106,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of splitsplit(java.lang.String, int) method.",
         method = "split",
         args = {CharSequence.class, int.class}
-    )          
+    )
     public void testSplitCharSequenceint() {
         // splitting CharSequence which ends with pattern
         // bug6193
@@ -189,7 +189,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of splitsplit(java.lang.String) method.",
         method = "split",
         args = {CharSequence.class}
-    )          
+    )
     public void testSplitCharSequence() {
         String s[];
         Pattern pat = Pattern.compile("b");
@@ -214,7 +214,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of pattern() method.",
         method = "pattern",
         args = {}
-    )          
+    )
     public void testPattern() {
         /* Positive assertion test. */
         for (String aPattern : testPatterns) {
@@ -232,7 +232,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testCompile() {
         /* Positive assertion test. */
         for (String aPattern : testPatterns) {
@@ -270,7 +270,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of compile(java.lang.String) method for different flags.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testFlags() {
         String baseString;
         String testString;
@@ -438,7 +438,7 @@ public class PatternTest extends TestCase {
 //        assertEquals(pat.flags(), Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 //    }
 //END android-removed
-    
+
     /*
      * Check default flags when they are not specified in pattern. Based on RI
      * since could not find that info
@@ -449,7 +449,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of flags() method for default flags.",
         method = "flags",
         args = {}
-    )          
+    )
     public void testFlagsCompileDefault() {
         for (String pat : testPatternsAlt) {
             try {
@@ -480,7 +480,7 @@ public class PatternTest extends TestCase {
             method = "compile",
             args = {java.lang.String.class, int.class}
         )
-    })          
+    })
     public void testFlagsCompileValid() {
         for (String pat : testPatternsAlt) {
             for (int flags : flagsSet) {
@@ -503,7 +503,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of compile(java.lang.String) method.Checks that correct exceptions were thrown.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testCompileStringint() {
         /*
          * these tests are needed to verify that appropriate exceptions are
@@ -564,7 +564,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of compile(java.lang.String) method.Checks that correct exceptions were thrown.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testQuantCompileNeg() {
         String[] patterns = { "5{,2}", "{5asd", "{hgdhg", "{5,hjkh", "{,5hdsh",
                 "{5,3shdfkjh}" };
@@ -592,7 +592,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testQuantCompilePos() {
         String[] patterns = {/* "(abc){1,3}", */"abc{2,}", "abc{5}" };
         for (String element : patterns) {
@@ -605,7 +605,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of compile() method. Also tested methods from matcher: matches(), start(int), group(int)",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testQuantComposition() {
         String pattern = "(a{1,3})aab";
         java.util.regex.Pattern pat = java.util.regex.Pattern.compile(pattern);
@@ -620,7 +620,7 @@ public class PatternTest extends TestCase {
         notes = "",
         method = "matches",
         args = {java.lang.String.class, java.lang.CharSequence.class}
-    )          
+    )
     public void testMatches() {
         String[][] posSeq = {
                 { "abb", "ababb", "abababbababb", "abababbababbabababbbbbabb" },
@@ -654,7 +654,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies exception",
         method = "matches",
         args = {java.lang.String.class, java.lang.CharSequence.class}
-    )          
+    )
     public void testMatchesException() {
         /* Negative assertion test. */
         for (String aPattern : wrongTestPatterns) {
@@ -674,7 +674,7 @@ public class PatternTest extends TestCase {
         notes = "The test verifies the functionality of matches(java.lang.String,java.lang.CharSequence) method.",
         method = "matches",
         args = {java.lang.String.class, java.lang.CharSequence.class}
-    )          
+    )
     public void testTimeZoneIssue() {
         Pattern p = Pattern.compile("GMT(\\+|\\-)(\\d+)(:(\\d+))?");
         Matcher m = p.matcher("GMT-9:45");
@@ -692,7 +692,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of matches(java.lang.String,java.lang.CharSequence) method.",
         method = "matches",
         args = {java.lang.String.class, java.lang.CharSequence.class}
-    )          
+    )
     public void testCompileRanges() {
         String[] correctTestPatterns = { "[^]*abb]*", /* "[^a-d[^m-p]]*abb", */
                 "[a-d\\d]*abb", "[abc]*abb", "[a-e&&[de]]*abb", "[^abc]*abb",
@@ -731,7 +731,7 @@ public class PatternTest extends TestCase {
         notes = "Verifies the functionality of matches(java.lang.String,java.lang.CharSequence) method for ranged patterns.",
         method = "matches",
         args = {java.lang.String.class, java.lang.CharSequence.class}
-    )          
+    )
     public void testRangesSpecialCases() {
         String neg_patterns[] = { "[a-&&[b-c]]", "[a-\\w]", "[b-a]", "[]" };
 
@@ -760,7 +760,7 @@ public class PatternTest extends TestCase {
         notes = "The test verifies the functionality of matches(java.lang.String,java.lang.CharSequence) method.",
         method = "matches",
         args = {java.lang.String.class, java.lang.CharSequence.class}
-    )          
+    )
 public void testZeroSymbols() {
         assertTrue(Pattern.matches("[\0]*abb", "\0\0\0\0\0\0abb"));
     }
@@ -770,7 +770,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of matcher(java.lang.String) method.",
         method = "matcher",
         args = {CharSequence.class}
-    )          
+    )
     public void testEscapes() {
         Pattern pat = Pattern.compile("\\Q{]()*?");
         Matcher mat = pat.matcher("{]()*?");
@@ -783,7 +783,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testBug181() {
         Pattern.compile("[\\t-\\r]");
     }
@@ -793,7 +793,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testOrphanQuantifiers() {
         try {
             Pattern.compile("+++++");
@@ -807,7 +807,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testOrphanQuantifiers2() {
         try {
             Pattern pat = Pattern.compile("\\d+*");
@@ -830,7 +830,7 @@ public void testZeroSymbols() {
             method = "compile",
             args = {java.lang.String.class}
         )
-    })          
+    })
     public void testBug197() {
         Object[] vals = { ":", new Integer(2),
                 new String[] { "boo", "and:foo" }, ":", new Integer(5),
@@ -862,7 +862,7 @@ public void testZeroSymbols() {
         notes = "The test verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testURIPatterns() {
         String URI_REGEXP_STR = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?";
         String SCHEME_REGEXP_STR = "^[a-zA-Z]{1}[\\w+-.]+$";
@@ -886,7 +886,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testFindBoundaryCases1() {
         Pattern pat = Pattern.compile(".*\n");
         Matcher mat = pat.matcher("a\n");
@@ -900,7 +900,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testFindBoundaryCases2() {
         Pattern pat = Pattern.compile(".*A");
         Matcher mat = pat.matcher("aAa");
@@ -914,7 +914,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testFindBoundaryCases3() {
         Pattern pat = Pattern.compile(".*A");
         Matcher mat = pat.matcher("a\naA\n");
@@ -928,7 +928,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testFindBoundaryCases4() {
         Pattern pat = Pattern.compile("A.*");
         Matcher mat = pat.matcher("A\n");
@@ -942,7 +942,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testFindBoundaryCases5() {
         Pattern pat = Pattern.compile(".*A.*");
         Matcher mat = pat.matcher("\nA\naaa\nA\naaAaa\naaaA\n");
@@ -959,7 +959,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testFindBoundaryCases6() {
         String[] res = { "", "a", "", "" };
         Pattern pat = Pattern.compile(".*");
@@ -984,7 +984,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testBackReferences() {
         Pattern pat = Pattern.compile("(\\((\\w*):(.*):(\\2)\\))");
         Matcher mat = pat
@@ -1015,7 +1015,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testNewLine() {
         Pattern pat = Pattern.compile("(^$)*\n", Pattern.MULTILINE);
         Matcher mat = pat.matcher("\r\n\n");
@@ -1039,7 +1039,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testFindGreedy() {
         Pattern pat = Pattern.compile(".*aaa", Pattern.DOTALL);
         Matcher mat = pat.matcher("aaaa\naaa\naaaaaa");
@@ -1086,7 +1086,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testSOLQuant() {
         Pattern pat = Pattern.compile("$*", Pattern.MULTILINE);
         Matcher mat = pat.matcher("\n\n");
@@ -1103,7 +1103,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testIllegalEscape() {
         try {
             Pattern.compile("\\y");
@@ -1117,7 +1117,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testEmptyFamily() {
         Pattern.compile("\\p{Lower}");
         String a = "*";
@@ -1136,7 +1136,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testNonCaptConstr() {
         // Flags
         Pattern pat = Pattern.compile("(?i)b*(?-i)a*");
@@ -1211,7 +1211,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testCorrectReplacementBackreferencedJointSet() {
         Pattern pat = Pattern.compile("ab(a)*\\1");
         pat = Pattern.compile("abc(cd)fg");
@@ -1243,7 +1243,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testCompilePatternWithTerminatorMark() {
         Pattern pat = Pattern.compile("a\u0000\u0000cd");
         Matcher mat = pat.matcher("a\u0000\u0000cd");
@@ -1263,7 +1263,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testAlternations() {
         String baseString = "|a|bc";
         Pattern pat = Pattern.compile(baseString);
@@ -1345,7 +1345,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testMatchWithGroups() {
         String baseString = "jwkerhjwehrkwjehrkwjhrwkjehrjwkehrjkwhrkwehrkwhrkwrhwkhrwkjehr";
         String pattern = ".*(..).*\\1.*";
@@ -1382,7 +1382,7 @@ public void testZeroSymbols() {
             method = "split",
             args = {java.lang.CharSequence.class, int.class}
         )
-    })          
+    })
     public void testSplitEndsWithPattern() {
         assertEquals(",,".split(",", 3).length, 3);
         assertEquals(",,".split(",", 4).length, 3);
@@ -1396,7 +1396,7 @@ public void testZeroSymbols() {
         notes = "The test verifies the functionality of matches(java.lang.String), java.lang.CharSequence) method for case insensitive flags.",
         method = "matches",
         args = {java.lang.String.class, java.lang.CharSequence.class}
-    )          
+    )
     public void testCaseInsensitiveFlag() {
         assertTrue(Pattern.matches("(?i-:AbC)", "ABC"));
     }
@@ -1414,7 +1414,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testEmptyGroups() {
         Pattern pat = Pattern.compile("ab(?>)cda");
         Matcher mat = pat.matcher("abcda");
@@ -1442,7 +1442,7 @@ public void testZeroSymbols() {
             method = "compile",
             args = {java.lang.String.class, int.class}
         )
-    })          
+    })
     public void testCompileNonCaptGroup() {
         boolean isCompiled = false;
 
@@ -1474,7 +1474,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testEmbeddedFlags() {
         String baseString = "(?i)((?s)a)";
         String testString = "A";
@@ -1512,7 +1512,7 @@ public void testZeroSymbols() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testAltWithFlags() {
         boolean isCompiled = false;
 
@@ -1538,7 +1538,7 @@ public void testZeroSymbols() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
 public void testRestoreFlagsAfterGroup() {
         String baseString = "abc((?x)d)   a";
         String testString = "abcd   a";
@@ -1557,7 +1557,7 @@ public void testRestoreFlagsAfterGroup() {
         notes = "Verifies the functionality of compile(java.lang.String) method.",
         method = "compile",
         args = {java.lang.String.class}
-    )          
+    )
     public void testCompileCharacterClass() {
         // Regression for HARMONY-606, 696
         Pattern pattern = Pattern.compile("\\p{javaLowerCase}");
@@ -1662,22 +1662,22 @@ public void testRestoreFlagsAfterGroup() {
 //         * "\u01E0cdbac\u00CC"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
 //         * assertTrue(mat.matches());
-//         * 
+//         *
 //         * baseString = "cdb(?:\u0041\u0307\u0304\u00CC)"; testString =
 //         * "cdb\u0226\u0304\u0049\u0300"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
 //         * assertTrue(mat.matches());
-//         * 
+//         *
 //         * baseString = "\u01E0[a-c]\u0049\u0300cdb(ac)"; testString =
 //         * "\u01E0b\u00CCcdbac"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
 //         * assertTrue(mat.matches());
-//         * 
+//         *
 //         * baseString = "\u01E0|\u00CCcdb(ac)"; testString =
 //         * "\u0041\u0307\u0304"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
 //         * assertTrue(mat.matches());
-//         * 
+//         *
 //         * baseString = "\u00CC?cdb(ac)*(\u01E0)*[a-c]"; testString =
 //         * "cdb\u0041\u0307\u0304b"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
@@ -1692,16 +1692,16 @@ public void testRestoreFlagsAfterGroup() {
 //         * baseString = "\u7B20\uF9F8abc"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher("\uF9F8\uF9F8abc");
 //         * assertTrue(mat.matches());
-//         * 
+//         *
 //         * //\u01F9 -> \u006E\u0300 //\u00C3 -> \u0041\u0303
-//         * 
+//         *
 //         * baseString = "cdb(?:\u00C3\u006E\u0300)"; testString =
 //         * "cdb\u0041\u0303\u01F9"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
 //         * assertTrue(mat.matches());
-//         * 
+//         *
 //         * //\u014C -> \u004F\u0304 //\u0163 -> \u0074\u0327
-//         * 
+//         *
 //         * baseString = "cdb(?:\u0163\u004F\u0304)"; testString =
 //         * "cdb\u0074\u0327\u014C"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
@@ -1760,12 +1760,12 @@ public void testRestoreFlagsAfterGroup() {
 //         * testString = "\uD4DBcdbac\uD21E"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
 //         * assertTrue(mat.matches());
-//         * 
+//         *
 //         * baseString = "cdb(?:\u1111\u1171\u11B6\uD21E)"; testString =
 //         * "cdb\uD4DB\u1110\u116D\u11B5"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
 //         * assertTrue(mat.matches());
-//         * 
+//         *
 //         * baseString = "\uD4DB[a-c]\u1110\u116D\u11B5cdb(ac)"; testString =
 //         * "\uD4DBb\uD21Ecdbac"; pat = Pattern.compile(baseString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
@@ -1803,7 +1803,7 @@ public void testRestoreFlagsAfterGroup() {
 //    /**
 //     * s original test was fixed to pass on RI
 //     */
-//    
+//
 //    public void testIndexesCanonicalEq() {
 //        String baseString;
 //        String testString;
@@ -1823,7 +1823,7 @@ public void testRestoreFlagsAfterGroup() {
 //         * pat.matcher("bcda\u1111\u1171\u11B6\uD4DBawr");
 //         * assertTrue(mat.find()); assertEquals(mat.start(), 4);
 //         * assertEquals(mat.end(), 8);
-//         * 
+//         *
 //         * baseString = "\uD4DB\uD21E\u1110\u1170"; testString =
 //         * "abcabc\u1111\u1171\u11B6\u1110\u116D\u11B5\uD264cdbac"; pat =
 //         * Pattern.compile(baseString, Pattern.CANON_EQ); mat =
@@ -1834,7 +1834,7 @@ public void testRestoreFlagsAfterGroup() {
 //    /**
 //     * s original test was fixed to pass on RI
 //     */
-//    
+//
 //    public void testCanonEqFlagWithSupplementaryCharacters() {
 //
 //        /*
@@ -1850,7 +1850,7 @@ public void testRestoreFlagsAfterGroup() {
 //        /*
 //         * testString = "abc\uD834\uDDBB\uD834\uDD6Fef"; mat =
 //         * pat.matcher(testString); assertTrue(mat.matches());
-//         * 
+//         *
 //         * patString = "abc\uD834\uDDBB\uD834\uDD6Fef"; testString =
 //         * "abc\uD834\uDDBFef"; pat = Pattern.compile(patString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
@@ -1864,7 +1864,7 @@ public void testRestoreFlagsAfterGroup() {
 //         * "abc\uD834\uDDBFef"; pat = Pattern.compile(patString,
 //         * Pattern.CANON_EQ); mat = pat.matcher(testString);
 //         * assertTrue(mat.matches());
-//         * 
+//         *
 //         * testString = "abc\uD834\uDDBB\uD834\uDD6Fef"; mat =
 //         * pat.matcher(testString); assertTrue(mat.matches());
 //         */
@@ -1878,7 +1878,7 @@ public void testRestoreFlagsAfterGroup() {
 //         * pat.matcher(testString); assertTrue(mat.matches());
 //         */}
 // END android-removed
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -1892,7 +1892,7 @@ public void testRestoreFlagsAfterGroup() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testRangesWithSurrogatesSupplementary() {
         String patString = "[abc\uD8D2]";
         String testString = "\uD8D2";
@@ -1972,7 +1972,7 @@ public void testRestoreFlagsAfterGroup() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testSequencesWithSurrogatesSupplementary() {
         String patString = "abcd\uD8D3";
         String testString = "abcd\uD8D3\uDFFC";
@@ -2014,7 +2014,7 @@ public void testRestoreFlagsAfterGroup() {
     /**
      * s original test was fixed to pass on RI
      */
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -2028,7 +2028,7 @@ public void testRestoreFlagsAfterGroup() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testPredefinedClassesWithSurrogatesSupplementary() {
         String patString = "[123\\D]";
         String testString = "a";
@@ -2149,7 +2149,7 @@ public void testRestoreFlagsAfterGroup() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testDotConstructionWithSurrogatesSupplementary() {
         String patString = ".";
         String testString = "\uD9A0\uDE81";
@@ -2215,7 +2215,7 @@ public void testRestoreFlagsAfterGroup() {
      * s java.util.regex.Pattern.matcher(String, CharSequence)
      * coped from test for matches method
      */
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -2229,7 +2229,7 @@ public void testRestoreFlagsAfterGroup() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void test_matcherLjava_lang_StringLjava_lang_CharSequence() {
         String[][] posSeq = {
                 { "abb", "ababb", "abababbababb", "abababbababbabababbbbbabb" },
@@ -2271,7 +2271,7 @@ public void testRestoreFlagsAfterGroup() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testQuantifiersWithSurrogatesSupplementary() {
         String patString = "\uD9A0\uDE81*abc";
         String testString = "\uD9A0\uDE81\uD9A0\uDE81abc";
@@ -2297,7 +2297,7 @@ public void testRestoreFlagsAfterGroup() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testAlternationsWithSurrogatesSupplementary() {
         String patString = "\uDE81|\uD9A0\uDE81|\uD9A0";
         String testString = "\uD9A0";
@@ -2337,7 +2337,7 @@ public void testRestoreFlagsAfterGroup() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testGroupsWithSurrogatesSupplementary() {
 
         //this pattern matches nothing
@@ -2370,7 +2370,7 @@ public void testRestoreFlagsAfterGroup() {
             method = "matcher",
             args = {java.lang.CharSequence.class}
         )
-    })          
+    })
     public void testUnicodeCategoryWithSurrogatesSupplementary() {
         Pattern p = Pattern.compile("\\p{javaLowerCase}");
         Matcher matcher = p.matcher("\uD801\uDC28");

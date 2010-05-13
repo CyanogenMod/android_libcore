@@ -48,7 +48,7 @@ class Conversion {
             387420489, 481890304, 594823321, 729000000, 887503681, 1073741824,
             1291467969, 1544804416, 1838265625, 60466176 };
 
-    
+
     /** @see BigInteger#toString(int) */
     static String bigInteger2String(BigInteger val, int radix) {
         // BEGIN android-added
@@ -59,7 +59,7 @@ class Conversion {
         int digits[] = val.digits;
 
         if (sign == 0) {
-            return "0"; 
+            return "0";
         }
         if (numberLength == 1) {
             int highDigit = digits[numberLength - 1];
@@ -132,7 +132,7 @@ class Conversion {
     /**
      * Builds the correspondent {@code String} representation of {@code val}
      * being scaled by {@code scale}.
-     * 
+     *
      * @see BigInteger#toString()
      * @see BigDecimal#toString()
      */
@@ -150,25 +150,25 @@ class Conversion {
         if (sign == 0) {
             switch (scale) {
                 case 0:
-                    return "0"; 
+                    return "0";
                 case 1:
-                    return "0.0"; 
+                    return "0.0";
                 case 2:
-                    return "0.00"; 
+                    return "0.00";
                 case 3:
-                    return "0.000"; 
+                    return "0.000";
                 case 4:
-                    return "0.0000"; 
+                    return "0.0000";
                 case 5:
-                    return "0.00000"; 
+                    return "0.00000";
                 case 6:
-                    return "0.000000"; 
+                    return "0.000000";
                 default:
                     StringBuffer result1 = new StringBuffer();
                     if (scale < 0) {
-                        result1.append("0E+"); 
+                        result1.append("0E+");
                     } else {
-                        result1.append("0E"); 
+                        result1.append("0E");
                     }
                     result1.append(-scale);
                     return result1.toString();
@@ -308,21 +308,21 @@ class Conversion {
         }
         if (value == 0) {
             switch (scale) {
-                case 0: return "0"; 
-                case 1: return "0.0"; 
-                case 2: return "0.00"; 
-                case 3: return "0.000"; 
-                case 4: return "0.0000"; 
-                case 5: return "0.00000"; 
-                case 6: return "0.000000"; 
+                case 0: return "0";
+                case 1: return "0.0";
+                case 2: return "0.00";
+                case 3: return "0.000";
+                case 4: return "0.0000";
+                case 5: return "0.00000";
+                case 6: return "0.000000";
                 default:
                     StringBuffer result1 = new StringBuffer();
                     if (scale  < 0) {
-                        result1.append("0E+"); 
+                        result1.append("0E+");
                     } else {
-                        result1.append("0E"); 
+                        result1.append("0E");
                     }
-                    result1.append( (scale == Integer.MIN_VALUE) ? "2147483648" : Integer.toString(-scale)); 
+                    result1.append( (scale == Integer.MIN_VALUE) ? "2147483648" : Integer.toString(-scale));
                     return result1.toString();
             }
         }
@@ -342,7 +342,7 @@ class Conversion {
             v /= 10;
             result[--currentChar] = (char) (0x0030 + (prev - v * 10));
         } while (v != 0);
-        
+
         long exponent = (long)resLengthInChars - (long)currentChar - scale - 1L;
         if (scale == 0) {
             if (negNumber) {
@@ -394,7 +394,7 @@ class Conversion {
         result1.append(Long.toString(exponent));
         return result1.toString();
     }
-    
+
     static long divideLongByBillion(long a) {
         long quot;
         long rem;

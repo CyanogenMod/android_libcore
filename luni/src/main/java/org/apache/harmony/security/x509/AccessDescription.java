@@ -30,27 +30,27 @@ import org.apache.harmony.security.asn1.ObjectIdentifier;
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
- *  
+ *
  *  AccessDescription  ::=  SEQUENCE {
  *      accessMethod          OBJECT IDENTIFIER,
  *      accessLocation        GeneralName  }
- * 
+ *
  */
 public class AccessDescription {
-    
+
     // the value of access method
     private final String accessMethod;
-    
+
     // the value of accessLocation
     private final GeneralName accessLocation;
-    
+
     private byte [] encoding;
-    
+
     public AccessDescription(String accessMethod, GeneralName accessLocation) {
         this.accessMethod = accessMethod;
         this.accessLocation = accessLocation;
     }
-    
+
     private AccessDescription(String accessMethod, GeneralName accessLocation,
             byte[] encoding) {
         this.accessMethod = accessMethod;
@@ -71,12 +71,12 @@ public class AccessDescription {
 
     public String toString() {
         StringBuilder res = new StringBuilder();
-        res.append("\n-- AccessDescription:"); 
-        res.append("\naccessMethod:  "); 
+        res.append("\n-- AccessDescription:");
+        res.append("\naccessMethod:  ");
         res.append(accessMethod);
-        res.append("\naccessLocation:  "); 
+        res.append("\naccessLocation:  ");
         res.append(accessLocation);
-        res.append("\n-- AccessDescription END\n"); 
+        res.append("\n-- AccessDescription END\n");
         return res.toString();
     }
 
@@ -93,18 +93,18 @@ public class AccessDescription {
     public String getAccessMethod() {
         return accessMethod;
     }
-    
+
     /**
      * Custom AccessDescription DER encoder/decoder
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
-            ASN1Oid.getInstance(), 
+            ASN1Oid.getInstance(),
             GeneralName.ASN1 }) {
 
         protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new AccessDescription(
-                    ObjectIdentifier.toString((int[]) values[0]), 
+                    ObjectIdentifier.toString((int[]) values[0]),
                     (GeneralName) values[1], in.getEncoded());
         }
 

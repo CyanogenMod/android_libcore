@@ -22,7 +22,7 @@ import java.io.IOException;
 /**
  * This exception is thrown when a program attempts to create an URL from an
  * incorrect specification.
- * 
+ *
  * @see URL
  */
 public class MalformedURLException extends IOException {
@@ -39,7 +39,7 @@ public class MalformedURLException extends IOException {
     /**
      * Constructs a new instance of this class with its walkback and message
      * filled in.
-     * 
+     *
      * @param detailMessage
      *            the detail message for this exception instance.
      */

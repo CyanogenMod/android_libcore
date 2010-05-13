@@ -71,7 +71,7 @@ public class AccessControlExceptionTest extends TestCase {
     }
 
     /**
-     * 
+     *
      * Tests AccessControlException.getPermission()
      */
     @TestTargetNew(

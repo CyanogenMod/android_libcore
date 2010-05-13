@@ -38,20 +38,20 @@ public class JDBCDriverFunctionalTest extends AbstractSqlTest {
      * The SQLite db file.
      */
     private  File dbFile = null;
-    
+
     private String connectionURL = "empty";
 
     /**
      * Sets up an unit test by loading the SQLite.JDBCDriver, getting two
      * connections and calling the setUp method of the super class.
-     * @throws Exception 
-     * @throws IllegalAccessException 
-     * @throws InstantiationException 
-     * @throws Exception 
-     * @throws Exception 
-     * @throws Exception 
-     * @throws Exception 
-     * @throws Exception 
+     * @throws Exception
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws Exception
+     * @throws Exception
+     * @throws Exception
+     * @throws Exception
+     * @throws Exception
      */
     @Override
     public void setUp() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, Exception { // the Exception class needs to be fully
@@ -95,7 +95,7 @@ public class JDBCDriverFunctionalTest extends AbstractSqlTest {
 
         return connectionURL;
     }
-    
+
     @Override
     protected String getDriverClassName() {
         return "SQLite.JDBCDriver";
@@ -105,6 +105,6 @@ public class JDBCDriverFunctionalTest extends AbstractSqlTest {
     protected int getTransactionIsolation() {
         return Connection.TRANSACTION_SERIALIZABLE;
     }
-    
-    
+
+
 }

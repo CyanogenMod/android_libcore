@@ -20,11 +20,11 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.EventObject;
 
-@TestTargetClass(EventObject.class) 
+@TestTargetClass(EventObject.class)
 public class EventObjectTest extends junit.framework.TestCase {
 
     Object myObject;

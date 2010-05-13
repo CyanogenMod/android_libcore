@@ -41,7 +41,7 @@ public class SecurityExceptionTest extends TestCase {
         assertEquals("fixture", e.getMessage());
         assertNull(e.getCause());
     }
-    
+
     /**
      * @tests java.lang.SecurityException#SecurityException(String, Throwable)
      */

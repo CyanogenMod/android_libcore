@@ -54,9 +54,9 @@ public interface DeclHandler
      * <p>The content model will consist of the string "EMPTY", the
      * string "ANY", or a parenthesised group, optionally followed
      * by an occurrence indicator.  The model will be normalized so
-     * that all parameter entities are fully resolved and all whitespace 
+     * that all parameter entities are fully resolved and all whitespace
      * is removed,and will include the enclosing parentheses.  Other
-     * normalization (such as removing redundant parentheses or 
+     * normalization (such as removing redundant parentheses or
      * simplifying occurrence indicators) is at the discretion of the
      * parser.</p>
      *
@@ -74,7 +74,7 @@ public interface DeclHandler
      * <p>Only the effective (first) declaration for an attribute will
      * be reported.  The type will be one of the strings "CDATA",
      * "ID", "IDREF", "IDREFS", "NMTOKEN", "NMTOKENS", "ENTITY",
-     * "ENTITIES", a parenthesized token group with 
+     * "ENTITIES", a parenthesized token group with
      * the separator "|" and all whitespace removed, or the word
      * "NOTATION" followed by a space followed by a parenthesized
      * token group with all whitespace removed.</p>

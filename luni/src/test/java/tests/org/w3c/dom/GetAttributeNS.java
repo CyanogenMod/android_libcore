@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001-2003 World Wide Web Consortium, 
+ Copyright (c) 2001-2003 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -36,11 +36,11 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The "getAttributeNS(namespaceURI,localName)" method retrieves an attribute
  * value by local name and NamespaceURI.
- * 
+ *
  * Retrieve the first "emp:address" element. The value returned by the
  * "getAttributeNS()" method should be the value "DISTRICT" since the attribute
  * has a default value.
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
@@ -48,7 +48,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=238">http://www.w3.org/Bugs/Public/show_bug.cgi?id=238</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class GetAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -74,7 +74,7 @@ public final class GetAttributeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

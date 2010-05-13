@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 @TestTargetClass(SignatureException.class)
 /**
  * Tests for <code>SignatureException</code> class constructors and methods.
- * 
+ *
  */
 public class SignatureExceptionTest extends TestCase {
 

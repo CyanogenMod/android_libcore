@@ -24,7 +24,7 @@ import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(ThreadLocal.class) 
+@TestTargetClass(ThreadLocal.class)
 public class ThreadLocalTest extends TestCase {
 
     /**
@@ -39,7 +39,7 @@ public class ThreadLocalTest extends TestCase {
     public void test_Constructor() {
         new ThreadLocal<Object>();
     }
-    
+
     /**
      * @tests java.lang.ThreadLocal#remove()
      */
@@ -56,7 +56,7 @@ public class ThreadLocalTest extends TestCase {
                 return "initial";
             }
         };
-        
+
         assertEquals("initial", tl.get());
         tl.set("fixture");
         assertEquals("fixture", tl.get());

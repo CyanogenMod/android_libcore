@@ -31,15 +31,15 @@ import dalvik.annotation.TestTargets;
 public class SAXParseExceptionTest extends TestCase {
 
     public static final String ERR = "Houston, we have a problem";
-    
+
     public static final String SYS = "mySystemID";
 
     public static final String PUB = "myPublicID";
 
     public static final int ROW = 1;
-    
+
     public static final int COL = 2;
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -83,15 +83,15 @@ public class SAXParseExceptionTest extends TestCase {
         l.setSystemId(SYS);
         l.setLineNumber(ROW);
         l.setColumnNumber(COL);
-        
+
         Exception c = new Exception();
-        
+
         // Ordinary case
         SAXParseException e = new SAXParseException(ERR, l, c);
-        
+
         assertEquals(ERR, e.getMessage());
         assertEquals(c, e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
@@ -99,32 +99,32 @@ public class SAXParseExceptionTest extends TestCase {
 
         // No message
         e = new SAXParseException(null, l, c);
-        
+
         assertNull(e.getMessage());
         assertEquals(c, e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
         assertEquals(COL, e.getColumnNumber());
-        
+
         // No locator
         e = new SAXParseException(ERR, null, c);
-        
+
         assertEquals(ERR, e.getMessage());
         assertEquals(c, e.getException());
-        
+
         assertNull(e.getPublicId());
         assertNull(e.getSystemId());
         assertEquals(-1, e.getLineNumber());
         assertEquals(-1, e.getColumnNumber());
-        
+
         // No cause
         e = new SAXParseException(ERR, l, null);
-        
+
         assertEquals(ERR, e.getMessage());
         assertNull(e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
@@ -142,13 +142,13 @@ public class SAXParseExceptionTest extends TestCase {
         l.setSystemId(SYS);
         l.setLineNumber(ROW);
         l.setColumnNumber(COL);
-        
+
         // Ordinary case
         SAXParseException e = new SAXParseException(ERR, l);
-        
+
         assertEquals(ERR, e.getMessage());
         assertNull(e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
@@ -156,10 +156,10 @@ public class SAXParseExceptionTest extends TestCase {
 
         // No message
         e = new SAXParseException(null, l);
-        
+
         assertNull(e.getMessage());
         assertNull(e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
@@ -167,15 +167,15 @@ public class SAXParseExceptionTest extends TestCase {
 
         // No locator
         e = new SAXParseException(ERR, null);
-        
+
         assertEquals(ERR, e.getMessage());
         assertNull(e.getException());
-        
+
         assertNull(e.getPublicId());
         assertNull(e.getSystemId());
         assertEquals(-1, e.getLineNumber());
         assertEquals(-1, e.getColumnNumber());
-        
+
     }
 
     @TestTargetNew(
@@ -186,13 +186,13 @@ public class SAXParseExceptionTest extends TestCase {
     )
     public void testSAXParseException_String_String_String_int_int_Exception() {
         Exception c = new Exception();
-        
+
         // Ordinary case
         SAXParseException e = new SAXParseException(ERR, PUB, SYS, ROW, COL, c);
-        
+
         assertEquals(ERR, e.getMessage());
         assertEquals(c, e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
@@ -200,38 +200,38 @@ public class SAXParseExceptionTest extends TestCase {
 
         // No message
         e = new SAXParseException(null, PUB, SYS, ROW, COL, c);
-        
+
         assertNull(e.getMessage());
         assertEquals(c, e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
         assertEquals(COL, e.getColumnNumber());
-        
+
         // No locator
         e = new SAXParseException(ERR, null, null, -1, -1, c);
-        
+
         assertEquals(ERR, e.getMessage());
         assertEquals(c, e.getException());
-        
+
         assertNull(e.getPublicId());
         assertNull(e.getSystemId());
         assertEquals(-1, e.getLineNumber());
         assertEquals(-1, e.getColumnNumber());
-        
+
         // No cause
         e = new SAXParseException(ERR, PUB, SYS, ROW, COL, null);
-        
+
         assertEquals(ERR, e.getMessage());
         assertNull(e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
         assertEquals(COL, e.getColumnNumber());
     }
- 
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "SAXParseException",
@@ -241,10 +241,10 @@ public class SAXParseExceptionTest extends TestCase {
     public void testSAXParseException_String_String_String_int_int() {
         // Ordinary case
         SAXParseException e = new SAXParseException(ERR, PUB, SYS, ROW, COL);
-        
+
         assertEquals(ERR, e.getMessage());
         assertNull(e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
@@ -252,21 +252,21 @@ public class SAXParseExceptionTest extends TestCase {
 
         // No message
         e = new SAXParseException(null, PUB, SYS, ROW, COL);
-        
+
         assertNull(e.getMessage());
         assertNull(e.getException());
-        
+
         assertEquals(PUB, e.getPublicId());
         assertEquals(SYS, e.getSystemId());
         assertEquals(ROW, e.getLineNumber());
         assertEquals(COL, e.getColumnNumber());
-        
+
         // No locator
         e = new SAXParseException(ERR, null, null, -1, -1);
-        
+
         assertEquals(ERR, e.getMessage());
         assertNull(e.getException());
-        
+
         assertNull(e.getPublicId());
         assertNull(e.getSystemId());
         assertEquals(-1, e.getLineNumber());

@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,7 +55,7 @@ public abstract class ResponseCache {
 
     /**
      * Returns the cached response corresponding to the given request.
-     * 
+     *
      * @param uri
      *            the request URI.
      * @param requestMethod
@@ -77,7 +77,7 @@ public abstract class ResponseCache {
      * {@code ResponseCache} decides whether the resource data should be cached
      * or not. If so, this method returns a {@code CacheRequest} to write the
      * resource data to. Otherwise, this method returns {@code null}.
-     * 
+     *
      * @param uri
      *            the reference to the requested resource.
      * @param conn

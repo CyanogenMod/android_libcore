@@ -35,7 +35,7 @@ import java.security.spec.RSAKeyGenParameterSpec;
 
 /**
  * Tests for <code>RSAKeyGenParameterSpec</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(RSAKeyGenParameterSpec.class)
 public class RSAKeyGenParameterSpecTest extends TestCase {
@@ -88,7 +88,7 @@ public class RSAKeyGenParameterSpecTest extends TestCase {
             new RSAKeyGenParameterSpec(512, BigInteger.valueOf(0L));
         assertEquals(0, rkgps.getPublicExponent().intValue());
     }
-    
+
     /**
      * Test for <code>F0</code> field<br>
      * Assertion: the public exponent value F0 = 3
@@ -102,7 +102,7 @@ public class RSAKeyGenParameterSpecTest extends TestCase {
     public final void testF0Value() {
         assertEquals(3, RSAKeyGenParameterSpec.F0.intValue());
     }
-    
+
     /**
      * Test for <code>F4</code> field<br>
      * Assertion: the public exponent value F0 = 65537

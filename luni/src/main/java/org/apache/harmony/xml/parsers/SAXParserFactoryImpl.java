@@ -34,10 +34,10 @@ public class SAXParserFactoryImpl extends SAXParserFactory {
 
     private static final String NAMESPACES
             = "http://xml.org/sax/features/namespaces";
-    
+
     private static final String VALIDATION
             = "http://xml.org/sax/features/validation";
-    
+
     private Map<String, Boolean> features = new HashMap<String, Boolean>();
 
     @Override
@@ -45,11 +45,11 @@ public class SAXParserFactoryImpl extends SAXParserFactory {
         if (name == null) {
             throw new NullPointerException();
         }
-        
+
         if (!name.startsWith("http://xml.org/sax/features/")) {
             throw new SAXNotRecognizedException(name);
         }
-        
+
         return Boolean.TRUE.equals(features.get(name));
     }
 
@@ -77,7 +77,7 @@ public class SAXParserFactoryImpl extends SAXParserFactory {
             throw new ParserConfigurationException(
                     "No validating SAXParser implementation available");
         }
-        
+
         try {
             return new SAXParserImpl(features);
         } catch (Exception ex) {
@@ -90,11 +90,11 @@ public class SAXParserFactoryImpl extends SAXParserFactory {
         if (name == null) {
             throw new NullPointerException();
         }
-        
+
         if (!name.startsWith("http://xml.org/sax/features/")) {
             throw new SAXNotRecognizedException(name);
         }
-        
+
         if (value) {
             features.put(name, Boolean.TRUE);
         } else {

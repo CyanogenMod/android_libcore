@@ -17,13 +17,13 @@ import javax.xml.parsers.DocumentBuilder;
  * that have the same local name but different namespaceURIs and prefixes.
  * Retrieve an attribute using namespace and localname and check its value, name
  * and namespaceURI.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElGetAtNodeNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElGetAtNodeNS</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class ElementGetAttributeNodeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -49,7 +49,7 @@ public final class ElementGetAttributeNodeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -64,8 +64,8 @@ public final class ElementGetAttributeNodeNS extends DOMTestCase {
         Element element;
         Attr attribute1;
         Attr attribute2;
-        
-        
+
+
         Attr attribute;
         String attrValue;
         String attrName;
@@ -106,7 +106,7 @@ public final class ElementGetAttributeNodeNS extends DOMTestCase {
         Document doc;
         Element element;
         Attr attribute;
-        
+
         String attrValue;
         doc = (Document) load("staffNS", builder);
         element = doc.createElementNS("namespaceURI", "root");

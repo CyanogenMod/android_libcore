@@ -17,18 +17,18 @@ import javax.xml.parsers.DocumentBuilder;
  * The "feature" parameter in the "hasFeature(feature,version)" method is the
  * package name of the feature. Legal values are XML and HTML and CORE. (Test
  * for feature core, lower case)
- * 
+ *
  * Retrieve the entire DOM document and invoke its "getImplementation()" method.
  * This should create a DOMImplementation object whose "hasFeature(feature,
  * version)" method is invoked with feature equal to "core". The method should
  * return a boolean "true".
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-5CED94D7">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-5CED94D7</a>
  */
-@TestTargetClass(DOMImplementation.class) 
+@TestTargetClass(DOMImplementation.class)
 public final class DOMImplementationHasFeature extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -54,7 +54,7 @@ public final class DOMImplementationHasFeature extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

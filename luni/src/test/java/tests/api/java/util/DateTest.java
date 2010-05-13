@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -28,7 +28,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-@TestTargetClass(Date.class) 
+@TestTargetClass(Date.class)
 public class DateTest extends junit.framework.TestCase {
 
     /**
@@ -62,10 +62,10 @@ public class DateTest extends junit.framework.TestCase {
     public void test_ConstructorIII() {
         // Test for method java.util.Date(int, int, int)
         Date d1 = new Date(70, 0, 1); // the epoch + local time
-        
+
         // the epoch + local time
         Date d2 = new Date(0 + d1.getTimezoneOffset() * 60 * 1000);
-        
+
         assertTrue("Created incorrect date", d1.equals(d2));
 
         Date date = new Date(99, 5, 22);
@@ -84,9 +84,9 @@ public class DateTest extends junit.framework.TestCase {
     )
     public void test_ConstructorIIIII() {
         // Test for method java.util.Date(int, int, int, int, int)
-        
+
         // the epoch + local time + (1 hour and 1 minute)
-        Date d1 = new Date(70, 0, 1, 1, 1); 
+        Date d1 = new Date(70, 0, 1, 1, 1);
 
         // the epoch + local time + (1 hour and 1 minute)
         Date d2 = new Date(0 + d1.getTimezoneOffset() * 60 * 1000 + 60 * 60
@@ -106,14 +106,14 @@ public class DateTest extends junit.framework.TestCase {
     )
     public void test_ConstructorIIIIII() {
         // Test for method java.util.Date(int, int, int, int, int, int)
-        
+
         // the epoch + local time + (1 hour and 1 minute + 1 second)
-        Date d1 = new Date(70, 0, 1, 1, 1, 1); 
-        
+        Date d1 = new Date(70, 0, 1, 1, 1, 1);
+
         // the epoch + local time + (1 hour and 1 minute + 1 second)
         Date d2 = new Date(0 + d1.getTimezoneOffset() * 60 * 1000 + 60 * 60
                 * 1000 + 60 * 1000 + 1000);
-        
+
         assertTrue("Created incorrect date", d1.equals(d2));
     }
 
@@ -145,7 +145,7 @@ public class DateTest extends junit.framework.TestCase {
         Date d1 = new Date("January 1, 1970, 00:00:00 GMT"); // the epoch
         Date d2 = new Date(0); // the epoch
         assertTrue("Created incorrect date", d1.equals(d2));
-        
+
         try {
             // Regression for HARMONY-238
             new Date(null);
@@ -171,7 +171,7 @@ public class DateTest extends junit.framework.TestCase {
         Date d2 = new Date(1900000);
         assertTrue("Older was returned as newer", d2.after(d1));
         assertTrue("Newer was returned as older", !d1.after(d2));
-        
+
         try {
             d1.after(null);
             fail("NullPointerException expected");
@@ -195,7 +195,7 @@ public class DateTest extends junit.framework.TestCase {
         Date d2 = new Date(1900000);
         assertTrue("Older was returned as newer", !d2.before(d1));
         assertTrue("Newer was returned as older", d1.before(d2));
-        
+
         try {
             d1.before(null);
             fail("NullPointerException expected");
@@ -247,7 +247,7 @@ public class DateTest extends junit.framework.TestCase {
                 1, d1.compareTo(d4));
         assertEquals("date1.compareTo(date2), where date1 < date2, did not result in -1",
                 -1, d1.compareTo(d3));
-        
+
         try {
             d1.compareTo(null);
             fail("NullPointerException expected");
@@ -400,7 +400,7 @@ public class DateTest extends junit.framework.TestCase {
         // Test for method int java.util.Date.getTimezoneOffset()
         assertTrue("Used to test", true);
         int offset = new Date(96, 1, 14).getTimezoneOffset();
-        assertTrue(offset > -720 && offset < 720); 
+        assertTrue(offset > -720 && offset < 720);
     }
 
     /**
@@ -475,7 +475,7 @@ public class DateTest extends junit.framework.TestCase {
         cal.clear();
         cal.set(1999, Calendar.NOVEMBER, 22, 12, 52, 06);
         assertTrue("Wrong parsed date 5", d.equals(cal.getTime()));
-        
+
         try {
             // Regression for HARMONY-259
             Date.parse(null);

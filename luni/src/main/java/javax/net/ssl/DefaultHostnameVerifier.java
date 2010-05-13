@@ -52,10 +52,10 @@ import javax.net.ssl.SSLSocket;
  * The hostname must match either the first CN, or any of the subject-alts.
  * A wildcard can occur in the CN, and in any of the subject-alts.
  * <p/>
- * The only difference between BROWSER_COMPATIBLE and STRICT is that a wildcard 
- * (such as "*.foo.com") with BROWSER_COMPATIBLE matches all subdomains, 
+ * The only difference between BROWSER_COMPATIBLE and STRICT is that a wildcard
+ * (such as "*.foo.com") with BROWSER_COMPATIBLE matches all subdomains,
  * including "a.b.foo.com".
- * 
+ *
  * @author Julius Davies
  */
 class DefaultHostnameVerifier implements HostnameVerifier {
@@ -183,7 +183,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             }
         }
         if(!match) {
-            throw new SSLException("hostname in certificate didn't match: <" + 
+            throw new SSLException("hostname in certificate didn't match: <" +
                                    host + "> !=" + buf);
         }
     }
@@ -320,10 +320,10 @@ class DefaultHostnameVerifier implements HostnameVerifier {
      * @throws SSLException If verification failed.
      */
     public final void verify(
-            final String host, 
+            final String host,
             final String[] cns,
             final String[] subjectAlts) throws SSLException {
         verify(host, cns, subjectAlts, false);
     }
-    
+
 }

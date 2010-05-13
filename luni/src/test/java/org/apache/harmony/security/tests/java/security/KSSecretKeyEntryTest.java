@@ -34,8 +34,8 @@ import javax.crypto.SecretKey;
 import junit.framework.TestCase;
 @TestTargetClass(KeyStore.SecretKeyEntry.class)
 /**
- * Tests for <code>KeyStore.SecretKeyEntry</code> class constructor and methods 
- * 
+ * Tests for <code>KeyStore.SecretKeyEntry</code> class constructor and methods
+ *
  */
 
 public class KSSecretKeyEntryTest extends TestCase {
@@ -58,7 +58,7 @@ public class KSSecretKeyEntryTest extends TestCase {
         } catch(NullPointerException e) {
             //expected
         }
-        
+
         sk = new tmpSecretKey();
         try {
             KeyStore.SecretKeyEntry ske = new KeyStore.SecretKeyEntry(sk);
@@ -68,7 +68,7 @@ public class KSSecretKeyEntryTest extends TestCase {
             fail("Unexpected exception was thrown when secretKey is not null");
         }
     }
-    
+
     /**
      * Test for <code>getSecretKey()</code> method
      * Assertion: returns SecretKey from the given entry
@@ -84,7 +84,7 @@ public class KSSecretKeyEntryTest extends TestCase {
         KeyStore.SecretKeyEntry ske = new KeyStore.SecretKeyEntry(sk);
         assertEquals("Incorrect SecretKey", sk, ske.getSecretKey());
     }
-   
+
     /**
      * Test for <code>toString()</code> method
      * Assertion: returns non null string

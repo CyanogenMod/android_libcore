@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -63,7 +63,7 @@ public class Object {
      * needs to implement this kind of cloning should call {@code super.clone()}
      * to create the new instance and then create deep copies of the nested,
      * mutable objects.
-     * 
+     *
      * @return a copy of this object.
      * @throws CloneNotSupportedException
      *             if this object's class does not implement the {@code
@@ -73,7 +73,7 @@ public class Object {
         if (!(this instanceof Cloneable)) {
             throw new CloneNotSupportedException("Class doesn't implement Cloneable");
         }
-        
+
         return internalClone((Cloneable) this);
     }
 
@@ -81,7 +81,7 @@ public class Object {
      * Native helper method for cloning.
      */
     private native Object internalClone(Cloneable o);
-    
+
     /**
      * Compares this instance with the specified object and indicates if they
      * are equal. In order to be equal, {@code o} must represent the same object
@@ -100,7 +100,7 @@ public class Object {
      * these objects. This means that subclasses of {@code Object} usually
      * override either both methods or none of them.
      * </p>
-     * 
+     *
      * @param o
      *            the object to compare this instance with.
      * @return {@code true} if the specified object is equal to this {@code
@@ -115,7 +115,7 @@ public class Object {
      * Is called before the object's memory is being reclaimed by the VM. This
      * can only happen once the VM has detected, during a run of the garbage
      * collector, that the object is no longer reachable by any thread of the
-     * running application.  
+     * running application.
      * <p>
      * The method can be used to free system resources or perform other cleanup
      * before the object is garbage collected. The default implementation of the
@@ -132,7 +132,7 @@ public class Object {
      * {@link java.lang.ref.ReferenceQueue}, because it provides more control
      * over the way the VM deals with references during garbage collection.
      * </p>
-     * 
+     *
      * @throws Throwable
      *             any exception which is raised during finalization; these are
      *             ignored by the virtual machine.
@@ -153,7 +153,7 @@ public class Object {
      * List<Integer> l = new ArrayList<Integer>();
      * Class<? extends List> c = l.getClass();
      * </pre>
-     * 
+     *
      * @return this object's {@code Class} instance.
      */
     public final native Class<? extends Object> getClass();
@@ -163,7 +163,7 @@ public class Object {
      * objects for which {@code equals(Object)} returns {@code true} must return
      * the same hash code value. This means that subclasses of {@code Object}
      * usually override both methods or neither method.
-     * 
+     *
      * @return this object's hash code.
      * @see #equals
      */
@@ -188,7 +188,7 @@ public class Object {
      * <li>by executing a synchronized static method if the object is of type
      * {@code Class}.</li>
      * </ul>
-     * 
+     *
      * @see #notifyAll
      * @see #wait()
      * @see #wait(long)
@@ -214,7 +214,7 @@ public class Object {
      * <li>by executing a synchronized static method if the object is of type
      * {@code Class}.</li>
      * </ul>
-     * 
+     *
      * @throws IllegalMonitorStateException
      *             if the thread calling this method is not the owner of this
      *             object's monitor.
@@ -233,11 +233,11 @@ public class Object {
      * default implementation simply concatenates the class name, the '@' sign
      * and a hexadecimal representation of the object's {@link #hashCode()},
      * that is, it is equivalent to the following expression:
-     * 
+     *
      * <pre>
      * getClass().getName() + '@' + Integer.toHexString(hashCode())
      * </pre>
-     * 
+     *
      * @return a printable representation of this object.
      */
     public String toString() {
@@ -260,7 +260,7 @@ public class Object {
      * When it is notified (or interrupted), it re-acquires the monitor before
      * it starts running.
      * </p>
-     * 
+     *
      * @throws IllegalMonitorStateException
      *             if the thread calling this method is not the owner of this
      *             object's monitor.
@@ -293,7 +293,7 @@ public class Object {
      * When it is notified (or interrupted), it re-acquires the monitor before
      * it starts running.
      * </p>
-     * 
+     *
      * @param millis
      *            the maximum time to wait in milliseconds.
      * @throws IllegalArgumentException
@@ -330,7 +330,7 @@ public class Object {
      * When it is notified (or interrupted), it re-acquires the monitor before
      * it starts running.
      * </p>
-     * 
+     *
      * @param millis
      *            the maximum time to wait in milliseconds.
      * @param nanos

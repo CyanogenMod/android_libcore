@@ -23,7 +23,7 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 public class DateTest extends junit.framework.TestCase {
-    
+
     static class MockDate extends Date{
         private String holiday;
 
@@ -31,7 +31,7 @@ public class DateTest extends junit.framework.TestCase {
             super(theTime);
             holiday = "Christmas";
         }
-        
+
         // Constructor should not call this public API,
         // since it may be overrided to use variables uninitialized.
         public void setTime(long theTime){
@@ -39,7 +39,7 @@ public class DateTest extends junit.framework.TestCase {
             holiday.hashCode();
         }
     }
-    
+
 	/**
 	 * @tests java.util.Date#Date()
 	 */
@@ -77,7 +77,7 @@ public class DateTest extends junit.framework.TestCase {
 		// Test for method java.util.Date(int, int, int, int, int)
 		
 		// the epoch + local time + (1 hour and 1 minute)
-		Date d1 = new Date(70, 0, 1, 1, 1); 
+		Date d1 = new Date(70, 0, 1, 1, 1);
 
 		// the epoch + local time + (1 hour and 1 minute)
 		Date d2 = new Date(0 + d1.getTimezoneOffset() * 60 * 1000 + 60 * 60
@@ -93,7 +93,7 @@ public class DateTest extends junit.framework.TestCase {
 		// Test for method java.util.Date(int, int, int, int, int, int)
 		
 		// the epoch + local time + (1 hour and 1 minute + 1 second)
-		Date d1 = new Date(70, 0, 1, 1, 1, 1); 
+		Date d1 = new Date(70, 0, 1, 1, 1, 1);
 		
 		// the epoch + local time + (1 hour and 1 minute + 1 second)
 		Date d2 = new Date(0 + d1.getTimezoneOffset() * 60 * 1000 + 60 * 60
@@ -119,7 +119,7 @@ public class DateTest extends junit.framework.TestCase {
 		Date d1 = new Date("January 1, 1970, 00:00:00 GMT"); // the epoch
 		Date d2 = new Date(0); // the epoch
 		assertTrue("Created incorrect date", d1.equals(d2));
-        
+
 		try {
 			// Regression for HARMONY-238
 			new Date(null);
@@ -331,7 +331,7 @@ public class DateTest extends junit.framework.TestCase {
 		cal.clear();
 		cal.set(1999, Calendar.NOVEMBER, 22, 12, 52, 06);
 		assertTrue("Wrong parsed date 5", d.equals(cal.getTime()));
-        
+
 		try {
 			// Regression for HARMONY-259
 			Date.parse(null);
@@ -466,7 +466,7 @@ public class DateTest extends junit.framework.TestCase {
 		} finally {
 			TimeZone.setDefault(tz);
 		}
-        
+
         // Test for HARMONY-5468
         TimeZone.setDefault(TimeZone.getTimeZone("MST"));
         Date d2 = new Date(108, 7, 27);

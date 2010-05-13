@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE })
 public @interface TestTarget {
-    
+
     /**
      * Specifies the name of the method that is being tested.
      */
@@ -46,7 +46,7 @@ public @interface TestTarget {
      * ...), ...
      */
     String conceptName() default "";
-    
+
     /**
      * Specifies the signature of the method that is being tested, in terms of
      * Java classes.

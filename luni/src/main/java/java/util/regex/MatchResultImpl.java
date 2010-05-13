@@ -20,7 +20,7 @@ package java.util.regex;
  * Holds the results of a successful match of a regular expression against a
  * given string. Only used internally, thus sparsely documented (though the
  * defining public interface has full documentation).
- * 
+ *
  * @see java.util.regex.MatchResult
  */
 class MatchResultImpl implements MatchResult {

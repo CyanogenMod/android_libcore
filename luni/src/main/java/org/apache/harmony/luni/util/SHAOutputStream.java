@@ -64,7 +64,7 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
 
     // 80 words
     private static final int WArraySize = 80;
-    
+
     // 5-word Array. Starts with well-known constants, ends with SHA
     private int[] HConstants;
 
@@ -94,10 +94,10 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
 
     /**
      * Constructs a new MD5OutputStream with the given initial state.
-     * 
+     *
      * @param state The initial state of the output stream. This is what will be
      *        returned by getHash() if write() is never called.
-     * 
+     *
      * @throws IllegalArgumentException if state.length is less than 16.
      */
     public SHAOutputStream(byte[] state) {
@@ -121,7 +121,7 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
      * <p>
      * Classes which wish to support cloning must specify that they implement
      * the Cloneable interface, since the native implementation checks for this.
-     * 
+     *
      * @return a complete copy of this object
      * @throws CloneNotSupportedException if the component does not implement
      *         the interface Cloneable
@@ -140,11 +140,11 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
     /**
      * Copies a byte array into the receiver's internal buffer, making the
      * adjustments as necessary and keeping the receiver in a consistent state.
-     * 
+     *
      * @param buffer byte array representation of the bytes
      * @param off offset into the source buffer where to start the copying
      * @param len how many bytes in the source byte array to copy
-     * 
+     *
      */
     private void copyToInternalBuffer(byte[] buffer, int off, int len) {
         int index;
@@ -159,7 +159,7 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
     /**
      * Returns an int array (length = 5) with the SHA value of the bytes written
      * to the receiver.
-     * 
+     *
      * @return The 5 ints that form the SHA value of the bytes written to
      *         the receiver
      */
@@ -176,7 +176,7 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
     /**
      * Returns a byte array (length = 20) with the SHA value of the bytes
      * written to the receiver.
-     * 
+     *
      * @return The bytes that form the SHA value of the bytes written to
      *         the receiver
      */
@@ -202,7 +202,7 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
     /**
      * Returns a byte array (length = 20) with the SHA value of the bytes
      * written to the receiver.
-     * 
+     *
      * @return The bytes that form the SHA value of the bytes written to
      *         the receiver
      */
@@ -375,7 +375,7 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
 
     /**
      * Converts a block to a String representation.
-     * 
+     *
      * @param block
      *            byte array representation of the bytes
      */
@@ -385,7 +385,7 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
 
     /**
      * Converts a block to a String representation.
-     * 
+     *
      * @param block
      *            byte array representation of the bytes
      * @param off
@@ -411,7 +411,7 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
      * <code>buffer</code> starting at offset <code>off</code> to the
      * SHAOutputStream. The internal buffer used to compute SHA is updated, and
      * the incremental computation of SHA is also performed.
-     * 
+     *
      * @param buffer
      *            the buffer to be written
      * @param off
@@ -450,7 +450,7 @@ public class SHAOutputStream extends OutputStream implements Cloneable {
     /**
      * Writes the specified byte <code>b</code> to this OutputStream. Only the
      * low order byte of <code>b</code> is written.
-     * 
+     *
      * @param b
      *            the byte to be written
      */

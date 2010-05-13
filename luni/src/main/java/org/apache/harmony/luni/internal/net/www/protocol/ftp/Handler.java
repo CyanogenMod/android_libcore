@@ -39,13 +39,13 @@ public class Handler extends URLStreamHandler {
      * to the FTP server specified by this <code>URL</code>. If
      * <code>proxy</code> is DIRECT type, the connection is made in normal
      * way.
-     * 
+     *
      * @param u
      *            the URL which the connection is pointing to
      * @param proxy
      *            the proxy which is used to make the connection
      * @return a connection to the resource pointed by this url.
-     * 
+     *
      * @throws IOException
      *             if this handler fails to establish a connection.
      * @throws IllegalArgumentException
@@ -57,7 +57,7 @@ public class Handler extends URLStreamHandler {
     protected URLConnection openConnection(URL u, Proxy proxy)
             throws IOException {
         if (null == u || null == proxy) {
-            throw new IllegalArgumentException(Msg.getString("K034b")); 
+            throw new IllegalArgumentException(Msg.getString("K034b"));
         }
         return new FtpURLConnection(u, proxy);
     }

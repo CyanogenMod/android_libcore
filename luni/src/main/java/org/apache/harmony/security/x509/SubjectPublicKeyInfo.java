@@ -46,7 +46,7 @@ import org.apache.harmony.security.utils.AlgNameMapper;
  * <pre>
  *  SubjectPublicKeyInfo  ::=  SEQUENCE  {
  *      algorithm            AlgorithmIdentifier,
- *      subjectPublicKey     BIT STRING  
+ *      subjectPublicKey     BIT STRING
  *  }
  * </pre>
  */
@@ -62,14 +62,14 @@ public class SubjectPublicKeyInfo {
     private int unusedBits;
     // the ASN.1 encoded form of SubjectPublicKeyInfo
     private byte[] encoding;
-    
+
     /**
      * TODO
      * @param   algID:  AlgorithmIdentifier
      * @param   subjectPublicKey:   byte[]
      */
-    public SubjectPublicKeyInfo(AlgorithmIdentifier algID, 
-                                byte[] subjectPublicKey) { 
+    public SubjectPublicKeyInfo(AlgorithmIdentifier algID,
+                                byte[] subjectPublicKey) {
         this(algID, subjectPublicKey, 0);
     }
 
@@ -79,20 +79,20 @@ public class SubjectPublicKeyInfo {
      * @param   subjectPublicKey:   byte[]
      * @param   unused: int
      */
-    public SubjectPublicKeyInfo(AlgorithmIdentifier algID, 
+    public SubjectPublicKeyInfo(AlgorithmIdentifier algID,
                                 byte[] subjectPublicKey, int unused) {
         this(algID, subjectPublicKey, 0, null);
     }
 
-    // 
+    //
     // TODO
     // @param   algID:  AlgorithmIdentifier
     // @param   subjectPublicKey:   byte[]
     // @param   unused: int
     // @param   encoding:   byte[]
-    // 
-    private SubjectPublicKeyInfo(AlgorithmIdentifier algID, 
-                                 byte[] subjectPublicKey, int unused, 
+    //
+    private SubjectPublicKeyInfo(AlgorithmIdentifier algID,
+                                 byte[] subjectPublicKey, int unused,
                                  byte[] encoding) {
         this.algorithmID = algID;
         this.subjectPublicKey = subjectPublicKey;
@@ -144,9 +144,9 @@ public class SubjectPublicKeyInfo {
         if (publicKey == null) {
             String alg_oid = algorithmID.getAlgorithm();
             try {
-                String alg = 
+                String alg =
                     AlgNameMapper.map2AlgName(alg_oid);
-                
+
                 if (alg == null) {
                     alg = alg_oid;
                 }
@@ -162,7 +162,7 @@ public class SubjectPublicKeyInfo {
         }
         return publicKey;
     }
-    
+
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
             AlgorithmIdentifier.ASN1, ASN1BitString.getInstance() }) {
 

@@ -43,13 +43,13 @@ public final class UnresolvedPermission extends Permission
 
     private static final long serialVersionUID = -4821973115467008846L;
 
-    private String type;    
-    
+    private String type;
+
     private String name;
-    
+
     private String actions;
 
-    // The signer certificates 
+    // The signer certificates
     private transient Certificate[] targetCerts;
 
     // Cached hash value
@@ -92,7 +92,7 @@ public final class UnresolvedPermission extends Permission
     // Check type parameter
     private final void checkType(String type) {
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.2F")); 
+            throw new NullPointerException(Messages.getString("security.2F"));
         }
 
         // type is the class name of the Permission class.
@@ -224,7 +224,7 @@ public final class UnresolvedPermission extends Permission
      */
     @Override
     public String getActions() {
-        return ""; 
+        return "";
     }
 
     /**
@@ -304,8 +304,8 @@ public final class UnresolvedPermission extends Permission
      */
     @Override
     public String toString() {
-        return "(unresolved " + type + " " + name + " "   
-            + actions + ")"; 
+        return "(unresolved " + type + " " + name + " "
+            + actions + ")";
     }
 
     /**
@@ -383,20 +383,20 @@ public final class UnresolvedPermission extends Permission
                     out.write(enc);
                 } catch (CertificateEncodingException cee) {
                     throw ((IOException)new NotSerializableException(
-                        Messages.getString("security.30",  
+                        Messages.getString("security.30",
                         targetCerts[i])).initCause(cee));
                 }
             }
         }
     }
 
-    /** 
-     * Reads the object from stream and checks target type for validity. 
+    /**
+     * Reads the object from stream and checks target type for validity.
      */
     private void readObject(ObjectInputStream in) throws IOException,
         ClassNotFoundException {
-        in.defaultReadObject();        
-        checkType(getUnresolvedType());      
+        in.defaultReadObject();
+        checkType(getUnresolvedType());
         int certNumber = in.readInt();
         if (certNumber != 0) {
             targetCerts = new Certificate[certNumber];
@@ -410,7 +410,7 @@ public final class UnresolvedPermission extends Permission
                         .generateCertificate(new ByteArrayInputStream(enc));
                 } catch (CertificateException cee) {
                     throw ((IOException)new IOException(
-                        Messages.getString("security.32")).initCause(cee)); 
+                        Messages.getString("security.32")).initCause(cee));
                 }
             }
         }

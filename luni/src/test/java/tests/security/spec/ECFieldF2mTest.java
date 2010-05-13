@@ -36,7 +36,7 @@ import java.util.Random;
 
 /**
  * Tests for <code>ECFieldF2m</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(ECFieldF2m.class)
 public class ECFieldF2mTest extends TestCase {
@@ -44,8 +44,8 @@ public class ECFieldF2mTest extends TestCase {
     /**
      * Support class for this test.
      * Encapsulates <code>ECFieldF2m</code> testing
-     * domain parameters. 
-     * 
+     * domain parameters.
+     *
      */
     private static final class ECFieldF2mDomainParams {
 
@@ -61,7 +61,7 @@ public class ECFieldF2mTest extends TestCase {
          * ctors in some circumstances
          */
         static final IllegalArgumentException IArgE = new IllegalArgumentException();
-        
+
         /**
          * The <code>m</code> parameter for <code>ECFieldF2m</code>
          * ctor for the current test.
@@ -77,17 +77,17 @@ public class ECFieldF2mTest extends TestCase {
          * ctor for the current test.
          */
         final int[] ks;
-        
-        
+
+
         /**
          * Exception expected with this parameters set or <code>null</code>
          * if no exception expected.
          */
         final Exception x;
-        
+
         /**
          * Constructs ECFieldF2mDomainParams
-         * 
+         *
          * @param m
          * @param rp
          * @param ks
@@ -126,10 +126,10 @@ public class ECFieldF2mTest extends TestCase {
 
     /**
      * Tests for constructor <code>ECFieldF2m(int)</code><br>
-     * 
+     *
      * Assertion: constructs new <code>ECFieldF2m</code> object
      * using valid parameter m.
-     * 
+     *
      * Assertion: IllegalArgumentException if m is not positive.
      */
     @TestTargetNew(
@@ -144,9 +144,9 @@ public class ECFieldF2mTest extends TestCase {
             try {
                 // perform test
                 new ECFieldF2m(tp.m);
-                
+
                 if (tp.x != null) {
-                    // exception has been expected 
+                    // exception has been expected
                     fail(getName() + ", set " + i +
                             " FAILED: expected exception has not been thrown");
                 }
@@ -250,17 +250,17 @@ public class ECFieldF2mTest extends TestCase {
 
     /**
      * Tests for constructor <code>ECFieldF2m(int m, int[] ks)</code><br>
-     * 
+     *
      * Assertion: constructs new <code>ECFieldF2m</code> object
      * using valid parameters m and rp. ks represents trinomial basis.
-     * 
+     *
      * Assertion: constructs new <code>ECFieldF2m</code> object
      * using valid parameters m and ks. ks represents pentanomial basis.
-     * 
+     *
      * Assertion: IllegalArgumentException if m is not positive.
-     * 
+     *
      * Assertion: NullPointerException if ks is null.
-     * 
+     *
      * Assertion: IllegalArgumentException if ks is invalid.
      */
     @TestTargetNew(
@@ -275,9 +275,9 @@ public class ECFieldF2mTest extends TestCase {
             try {
                 // perform test
                 ECFieldF2m test = new ECFieldF2m(tp.m, tp.ks);
-                
+
                 if (tp.x != null) {
-                    // exception has been expected 
+                    // exception has been expected
                     fail(getName() + ", set " + i +
                             " FAILED: expected exception has not been thrown");
                 }
@@ -292,20 +292,20 @@ public class ECFieldF2mTest extends TestCase {
             }
         }
     }
-    
+
     /**
      * Tests for constructor <code>ECFieldF2m(int m, BigInteger rp)</code><br>
-     * 
+     *
      * Assertion: constructs new <code>ECFieldF2m</code> object
      * using valid parameters m and rp.
-     * 
+     *
      * Assertion: constructs new <code>ECFieldF2m</code> object
      * using valid parameters m and rp.
-     * 
+     *
      * Assertion: IllegalArgumentException if m is not positive.
-     * 
+     *
      * Assertion: NullPointerException if rp is null.
-     * 
+     *
      * Assertion: IllegalArgumentException if rp is invalid.
      */
     @TestTargetNew(
@@ -319,9 +319,9 @@ public class ECFieldF2mTest extends TestCase {
             try {
                 // perform test
                 new ECFieldF2m(tp.m, tp.rp);
-                
+
                 if (tp.x != null) {
-                    // exception has been expected 
+                    // exception has been expected
                     fail(getName() + ", set " + i +
                             " FAILED: expected exception has not been thrown");
                 }
@@ -341,7 +341,7 @@ public class ECFieldF2mTest extends TestCase {
      * Test #1 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * repeatedly on the same object. 
+     * repeatedly on the same object.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -366,7 +366,7 @@ public class ECFieldF2mTest extends TestCase {
      * Test #2 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * repeatedly on the same object. 
+     * repeatedly on the same object.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -391,7 +391,7 @@ public class ECFieldF2mTest extends TestCase {
      * Test #3 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * on equal (according to the <code>equals(Object)</code> method) objects. 
+     * on equal (according to the <code>equals(Object)</code> method) objects.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -408,7 +408,7 @@ public class ECFieldF2mTest extends TestCase {
      * Test #4 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * on equal (according to the <code>equals(Object)</code> method) objects. 
+     * on equal (according to the <code>equals(Object)</code> method) objects.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -425,7 +425,7 @@ public class ECFieldF2mTest extends TestCase {
      * Test #5 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * on equal (according to the <code>equals(Object)</code> method) objects. 
+     * on equal (according to the <code>equals(Object)</code> method) objects.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -443,7 +443,7 @@ public class ECFieldF2mTest extends TestCase {
     /**
      * Test #1 for <code>equals()</code> method.<br>
      *
-     * Assertion: object equals to itself. 
+     * Assertion: object equals to itself.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -459,7 +459,7 @@ public class ECFieldF2mTest extends TestCase {
     /**
      * Test #2 for <code>equals()</code> method.<br>
      *
-     * Assertion: normal basis - objects equal if their m are equal. 
+     * Assertion: normal basis - objects equal if their m are equal.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -475,7 +475,7 @@ public class ECFieldF2mTest extends TestCase {
      * Test #3 for <code>equals()</code> method.<br>
      *
      * Assertion: trinomial basis - objects equal if their m, and rp
-     * are mutually equal. 
+     * are mutually equal.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -493,7 +493,7 @@ public class ECFieldF2mTest extends TestCase {
      * Test #4 for <code>equals()</code> method.<br>
      *
      * Assertion: pentanomial basis - objects equal if their m, and rp
-     * are mutually equal. 
+     * are mutually equal.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -505,14 +505,14 @@ public class ECFieldF2mTest extends TestCase {
         ECFieldF2m f1 = new ECFieldF2m(2000, new int[] {981, 2, 1});
         ECFieldF2m f2 = new ECFieldF2m(2000, BigInteger.valueOf(0L).
                 setBit(0).setBit(1).setBit(2).
-                setBit(981).setBit(2000)); 
+                setBit(981).setBit(2000));
         assertTrue(f1.equals(f2) && f2.equals(f1));
     }
 
     /**
      * Test #5 for <code>equals()</code> method.<br>
      *
-     * Assertion: objects equal if their m, and rp are mutually equal. 
+     * Assertion: objects equal if their m, and rp are mutually equal.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -524,7 +524,7 @@ public class ECFieldF2mTest extends TestCase {
         ECFieldF2m f1 = new ECFieldF2m(2000);
         ECFieldF2m f2 = new ECFieldF2m(2000, BigInteger.valueOf(0L).
                 setBit(0).setBit(1).setBit(2).
-                setBit(981).setBit(2000)); 
+                setBit(981).setBit(2000));
         assertFalse(f1.equals(f2) || f2.equals(f1));
     }
 
@@ -692,7 +692,7 @@ public class ECFieldF2mTest extends TestCase {
         // modify copy
         aCopy[0] = 5;
         // compare reference with returned array
-        assertTrue(Arrays.equals(a, f.getMidTermsOfReductionPolynomial()));        
+        assertTrue(Arrays.equals(a, f.getMidTermsOfReductionPolynomial()));
     }
 
     /**
@@ -724,7 +724,7 @@ public class ECFieldF2mTest extends TestCase {
         // get array reference and modify returned array
         f.getMidTermsOfReductionPolynomial()[0] = 1532;
         // compare reference with returned for the second time array
-        assertTrue(Arrays.equals(a, f.getMidTermsOfReductionPolynomial()));        
+        assertTrue(Arrays.equals(a, f.getMidTermsOfReductionPolynomial()));
     }
 
 }

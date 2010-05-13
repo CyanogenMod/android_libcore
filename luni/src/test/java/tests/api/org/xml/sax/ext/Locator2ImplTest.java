@@ -35,13 +35,13 @@ public class Locator2ImplTest extends TestCase {
     public static final String PUB = "myPublicID";
 
     public static final int ROW = 1;
-    
+
     public static final int COL = 2;
 
     public static final String ENC = "Klingon";
-    
+
     public static final String XML = "1.0";
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "Locator2Impl",
@@ -49,12 +49,12 @@ public class Locator2ImplTest extends TestCase {
     )
     public void testLocatorImpl() {
         Locator2Impl l = new Locator2Impl();
-        
+
         assertEquals(null, l.getPublicId());
         assertEquals(null, l.getSystemId());
         assertEquals(0, l.getLineNumber());
         assertEquals(0, l.getColumnNumber());
-        
+
         assertEquals(null, l.getEncoding());
         assertEquals(null, l.getXMLVersion());
     }
@@ -74,10 +74,10 @@ public class Locator2ImplTest extends TestCase {
 
         inner.setEncoding(ENC);
         inner.setXMLVersion(XML);
-        
+
         // Ordinary case
         Locator2Impl outer = new Locator2Impl(inner);
-        
+
         assertEquals(PUB, outer.getPublicId());
         assertEquals(SYS, outer.getSystemId());
         assertEquals(ROW, outer.getLineNumber());
@@ -85,10 +85,10 @@ public class Locator2ImplTest extends TestCase {
 
         assertEquals(ENC, outer.getEncoding());
         assertEquals(XML, outer.getXMLVersion());
-        
+
         // Instance of old locator
         outer = new Locator2Impl(new LocatorImpl(inner));
-        
+
         assertEquals(PUB, outer.getPublicId());
         assertEquals(SYS, outer.getSystemId());
         assertEquals(ROW, outer.getLineNumber());
@@ -96,7 +96,7 @@ public class Locator2ImplTest extends TestCase {
 
         assertEquals(null, outer.getEncoding());
         assertEquals(null, outer.getXMLVersion());
-        
+
         // No locator
         try {
             outer = new Locator2Impl(null);
@@ -120,10 +120,10 @@ public class Locator2ImplTest extends TestCase {
     })
     public void testSetXMLVersionGetXMLVersion() {
         Locator2Impl l = new Locator2Impl();
-        
+
         l.setXMLVersion(XML);
         assertEquals(XML, l.getXMLVersion());
-        
+
         l.setXMLVersion(null);
         assertEquals(null, l.getXMLVersion());
     }
@@ -142,10 +142,10 @@ public class Locator2ImplTest extends TestCase {
     })
     public void testSetEncodingGetEncoding() {
         Locator2Impl l = new Locator2Impl();
-        
+
         l.setEncoding(ENC);
         assertEquals(ENC, l.getEncoding());
-        
+
         l.setEncoding(null);
         assertEquals(null, l.getEncoding());
     }

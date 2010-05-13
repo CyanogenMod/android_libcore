@@ -54,7 +54,7 @@ public final class Channels {
      * <li>Neither {@code mark} nor {@code reset} is supported.</li>
      * <li>It is not buffered.</li>
      * </ul>
-     * 
+     *
      * @param channel
      *            the channel to be wrapped by an InputStream.
      * @return an InputStream that takes bytes from the given byte channel.
@@ -74,7 +74,7 @@ public final class Channels {
      * in non-blocking mode and {@code write} is called.</li>
      * <li>It is not buffered.</li>
      * </ul>
-     * 
+     *
      * @param channel
      *            the channel to be wrapped by an OutputStream.
      * @return an OutputStream that puts bytes onto the given byte channel.
@@ -91,7 +91,7 @@ public final class Channels {
      * well.</li>
      * <li>It is not buffered.</li>
      * </ul>
-     * 
+     *
      * @param inputStream
      *            the stream to be wrapped by a byte channel.
      * @return a byte channel that reads bytes from the input stream.
@@ -102,7 +102,7 @@ public final class Channels {
 
     /**
      * Returns a writable channel on the given output stream.
-     * 
+     *
      * The resulting channel has following properties:
      * <ul>
      * <li>If the channel is closed, then the underlying stream is closed as
@@ -120,7 +120,7 @@ public final class Channels {
 
     /**
      * Returns a reader that decodes bytes from a channel.
-     * 
+     *
      * @param channel
      *            the Channel to be read.
      * @param decoder
@@ -139,7 +139,7 @@ public final class Channels {
     /**
      * Returns a reader that decodes bytes from a channel. This method creates a
      * reader with a buffer of default size.
-     * 
+     *
      * @param channel
      *            the Channel to be read.
      * @param charsetName
@@ -156,7 +156,7 @@ public final class Channels {
     /**
      * Returns a writer that encodes characters with the specified
      * {@code encoder} and sends the bytes to the specified channel.
-     * 
+     *
      * @param channel
      *            the Channel to write to.
      * @param encoder
@@ -176,7 +176,7 @@ public final class Channels {
      * Returns a writer that encodes characters with the specified
      * {@code encoder} and sends the bytes to the specified channel. This method
      * creates a writer with a buffer of default size.
-     * 
+     *
      * @param channel
      *            the Channel to be written to.
      * @param charsetName

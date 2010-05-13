@@ -38,11 +38,11 @@ public interface XPathFunction {
    * definition of extension functions. The implementation evaluating an
    * XPath expression is under no obligation to call extension functions in
    * any particular order or any particular number of times.</p>
-   * 
+   *
    * @param args The arguments, <code>null</code> is a valid value.
-   * 
+   *
    * @return The result of evaluating the <code>XPath</code> function as an <code>Object</code>.
-   * 
+   *
    * @throws XPathFunctionException If <code>args</code> cannot be evaluated with this <code>XPath</code> function.
    */
   public Object evaluate(List args)

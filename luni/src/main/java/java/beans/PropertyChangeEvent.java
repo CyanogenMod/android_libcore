@@ -37,7 +37,7 @@ public class PropertyChangeEvent extends EventObject {
 
     /**
      * The constructor used to create a new {@code PropertyChangeEvent}.
-     * 
+     *
      * @param source
      *            the changed bean.
      * @param propertyName
@@ -64,7 +64,7 @@ public class PropertyChangeEvent extends EventObject {
     /**
      * Returns the name of the property that has changed. If an unspecified set
      * of properties has changed it returns null.
-     * 
+     *
      * @return the name of the property that has changed, or null.
      */
     public String getPropertyName() {
@@ -73,7 +73,7 @@ public class PropertyChangeEvent extends EventObject {
 
     /**
      * Sets the propagationId object.
-     * 
+     *
      * @see #getPropagationId()
      */
     public void setPropagationId(Object propagationId) {
@@ -85,7 +85,7 @@ public class PropertyChangeEvent extends EventObject {
      * 1.0 demands that a listener receiving this property and then sending its
      * own PropertyChangeEvent sets the received propagationId on the new
      * PropertyChangeEvent's propagationId field.
-     * 
+     *
      * @return the propagationId object.
      */
     public Object getPropagationId() {
@@ -95,7 +95,7 @@ public class PropertyChangeEvent extends EventObject {
     /**
      * Returns the old value that the property had. If the old value is unknown
      * this method returns null.
-     * 
+     *
      * @return the old property value or null.
      */
     public Object getOldValue() {
@@ -105,7 +105,7 @@ public class PropertyChangeEvent extends EventObject {
     /**
      * Returns the new value that the property now has. If the new value is
      * unknown this method returns null.
-     * 
+     *
      * @return the old property value or null.
      */
     public Object getNewValue() {

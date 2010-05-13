@@ -27,7 +27,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * This abstract class represents ASN.1 type that is a collection of ASN.1 types.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -41,9 +41,9 @@ public abstract class ASN1TypeCollection extends ASN1Constructured {
 
     /**
      * Constructs ASN.1 collection type.
-     * 
+     *
      * @param tagNumber - ASN.1 tag number
-     * @param type - a collection of one or more ASN.1 types. 
+     * @param type - a collection of one or more ASN.1 types.
      * @throws IllegalArgumentException - if tagNumber is invalid
      */
     public ASN1TypeCollection(int tagNumber, ASN1Type[] type) {
@@ -83,16 +83,16 @@ public abstract class ASN1TypeCollection extends ASN1Constructured {
 
     /**
      * Provides an object's values to be encoded
-     * 
+     *
      * Derived classes should override this method to provide
-     * encoding for a selected class of objects. 
-     * 
+     * encoding for a selected class of objects.
+     *
      * The default implementation throws RuntimeException.
      *
      * @param object - an object to be encoded
      * @param values - an array to store an object's values to be encoded
      */
     protected void getValues(Object object, Object[] values) {
-        throw new RuntimeException(Messages.getString("security.101", getClass().getName())); 
+        throw new RuntimeException(Messages.getString("security.101", getClass().getName()));
     }
 }

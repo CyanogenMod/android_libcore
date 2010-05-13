@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * {@code Key} is the common interface for all keys.
- * 
+ *
  * @see PublicKey
  * @see PrivateKey
  */
@@ -35,7 +35,7 @@ public interface Key extends Serializable {
     /**
      * Returns the name of the algorithm of this key. If the algorithm is
      * unknown, {@code null} is returned.
-     * 
+     *
      * @return the name of the algorithm of this key or {@code null} if the
      *         algorithm is unknown.
      */
@@ -44,7 +44,7 @@ public interface Key extends Serializable {
     /**
      * Returns the name of the format used to encode this key, or {@code null}
      * if it can not be encoded.
-     * 
+     *
      * @return the name of the format used to encode this key, or {@code null}
      *         if it can not be encoded.
      */
@@ -53,7 +53,7 @@ public interface Key extends Serializable {
     /**
      * Returns the encoded form of this key, or {@code null} if encoding is not
      * supported by this key.
-     * 
+     *
      * @return the encoded form of this key, or {@code null} if encoding is not
      *         supported by this key.
      */

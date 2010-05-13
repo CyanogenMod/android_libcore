@@ -36,7 +36,7 @@ public class CipherRSAThread extends CipherThread {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
         kpg.initialize(getKeyLength());
         KeyPair kp = kpg.generateKeyPair();
- 
+
         Cipher cip = Cipher.getInstance(getAlgName() + "/" + getMode() + "/" +
                 getPadding());
         cip.init(Cipher.ENCRYPT_MODE, kp.getPublic());

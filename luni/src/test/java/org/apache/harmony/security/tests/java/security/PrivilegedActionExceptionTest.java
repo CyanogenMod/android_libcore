@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 @TestTargetClass(PrivilegedActionException.class)
 /**
  * Unit test for java.security.PrivilegedActionException.
- * 
+ *
  */
 
 public class PrivilegedActionExceptionTest extends TestCase {

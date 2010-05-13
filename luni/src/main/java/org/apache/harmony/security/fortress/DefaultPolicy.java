@@ -45,7 +45,7 @@ import org.apache.harmony.security.PolicyEntry;
  * Default Policy implementation based on policy configuration files. This
  * implementation recognizes text files, consisting of clauses with the
  * following syntax:
- * 
+ *
  * <pre>
  * keystore &quot;some_keystore_url&quot; [, &quot;keystore_type&quot;];
  * </pre>
@@ -53,13 +53,13 @@ import org.apache.harmony.security.PolicyEntry;
  * grant [SignedBy &quot;signer_names&quot;] [, CodeBase &quot;URL&quot;]
  *  [, Principal [principal_class_name] &quot;principal_name&quot;]
  *  [, Principal [principal_class_name] &quot;principal_name&quot;] ... {
- *  permission permission_class_name [ &quot;target_name&quot; ] [, &quot;action&quot;] 
+ *  permission permission_class_name [ &quot;target_name&quot; ] [, &quot;action&quot;]
  *  [, SignedBy &quot;signer_names&quot;];
  *  permission ...
  *  };
- *  
+ *
  * </pre>
- * 
+ *
  * The <i>keystore </i> clause specifies reference to a keystore, which is a
  * database of private keys and their associated digital certificates. The
  * keystore is used to look up the certificates of signers specified in the
@@ -132,7 +132,7 @@ import org.apache.harmony.security.PolicyEntry;
  * permissions for the requested objects (ProtectionDomains and CodeSources) via
  * WeakHashMap; the cache is cleaned either explicitly during refresh()
  * invocation, or naturally by garbage-collecting the corresponding objects.
- * 
+ *
  * @see org.apache.harmony.security.fortress.PolicyUtils#getPolicyURLs(
  *      Properties, String, String)
  */
@@ -142,12 +142,12 @@ public class DefaultPolicy extends Policy {
     /**
      * System property for dynamically added policy location.
      */
-    public static final String JAVA_SECURITY_POLICY = "java.security.policy"; 
+    public static final String JAVA_SECURITY_POLICY = "java.security.policy";
 
     /**
      * Prefix for numbered Policy locations specified in security.properties.
      */
-    public static final String POLICY_URL_PREFIX = "policy.url."; 
+    public static final String POLICY_URL_PREFIX = "policy.url.";
 
     // A set of PolicyEntries constituting this Policy.
     private final Set<PolicyEntry> grants = new HashSet<PolicyEntry>();
@@ -185,8 +185,8 @@ public class DefaultPolicy extends Policy {
     }
 
     /**
-     * Returns collection of permissions allowed for the domain 
-     * according to the policy. The evaluated characteristics of the 
+     * Returns collection of permissions allowed for the domain
+     * according to the policy. The evaluated characteristics of the
      * domain are it's codesource and principals; they are assumed
      * to be <code>null</code> if the domain is <code>null</code>.
      */
@@ -225,8 +225,8 @@ public class DefaultPolicy extends Policy {
     }
 
     /**
-     * Returns collection of permissions allowed for the codesource 
-     * according to the policy. 
+     * Returns collection of permissions allowed for the codesource
+     * according to the policy.
      * The evaluation assumes that current principals are undefined.
      */
     public PermissionCollection getPermissions(CodeSource cs) {
@@ -267,14 +267,14 @@ public class DefaultPolicy extends Policy {
      * failed loads are ignored. After processing all locations, old policy
      * settings are discarded and new ones come into force. <br>
      * This method is declared synchronized to avoid concurrent reloading.
-     * 
+     *
      * @see PolicyUtils#getPolicyURLs(Properties, String, String)
      */
     public synchronized void refresh() {
         Set<PolicyEntry> fresh = new HashSet<PolicyEntry>();
         Properties system = new Properties(AccessController
                 .doPrivileged(new PolicyUtils.SystemKit()));
-        system.setProperty("/", File.separator); 
+        system.setProperty("/", File.separator);
         URL[] policyLocations = PolicyUtils.getPolicyURLs(system,
                                                           JAVA_SECURITY_POLICY,
                                                           POLICY_URL_PREFIX);
@@ -285,7 +285,7 @@ public class DefaultPolicy extends Policy {
                 fresh.addAll(parser.parse(policyLocations[i], system));
             } catch (Exception e) {
                 // TODO log warning
-                //System.err.println("Ignoring policy file: " 
+                //System.err.println("Ignoring policy file: "
                 //                 + policyLocations[i] + ". Reason:\n"+ e);
             }
         }

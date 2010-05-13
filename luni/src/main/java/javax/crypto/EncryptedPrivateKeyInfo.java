@@ -83,12 +83,12 @@ public class EncryptedPrivateKeyInfo {
     public EncryptedPrivateKeyInfo(byte[] encoded)
             throws IOException {
         if (encoded == null) {
-            throw new NullPointerException(Messages.getString("crypto.22")); 
+            throw new NullPointerException(Messages.getString("crypto.22"));
         }
         this.encoded = new byte[encoded.length];
         System.arraycopy(encoded, 0, this.encoded, 0, encoded.length);
         Object[] values;
-            
+
         values = (Object[])asn1.decode(encoded);
 
         AlgorithmIdentifier aId = (AlgorithmIdentifier) values[0];
@@ -139,18 +139,18 @@ public class EncryptedPrivateKeyInfo {
     public EncryptedPrivateKeyInfo(String encrAlgName, byte[] encryptedData)
         throws NoSuchAlgorithmException {
         if (encrAlgName == null) {
-            throw new NullPointerException(Messages.getString("crypto.23")); 
+            throw new NullPointerException(Messages.getString("crypto.23"));
         }
         this.algName = encrAlgName;
         if (!mapAlgName()) {
-            throw new NoSuchAlgorithmException(Messages.getString("crypto.24", this.algName)); 
+            throw new NoSuchAlgorithmException(Messages.getString("crypto.24", this.algName));
         }
         if (encryptedData == null) {
             throw new NullPointerException(
-                    Messages.getString("crypto.25")); 
+                    Messages.getString("crypto.25"));
         }
         if (encryptedData.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.26")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.26"));
         }
         this.encryptedData = new byte[encryptedData.length];
         System.arraycopy(encryptedData, 0,
@@ -177,22 +177,22 @@ public class EncryptedPrivateKeyInfo {
             byte[] encryptedData)
         throws NoSuchAlgorithmException {
         if (algParams == null) {
-            throw new NullPointerException(Messages.getString("crypto.27")); 
+            throw new NullPointerException(Messages.getString("crypto.27"));
         }
         this.algParameters = algParams;
         if (encryptedData == null) {
             throw new NullPointerException(
-                    Messages.getString("crypto.25")); 
+                    Messages.getString("crypto.25"));
         }
         if (encryptedData.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.26")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.26"));
         }
         this.encryptedData = new byte[encryptedData.length];
         System.arraycopy(encryptedData, 0,
                 this.encryptedData, 0, encryptedData.length);
         this.algName = this.algParameters.getAlgorithm();
         if (!mapAlgName()) {
-            throw new NoSuchAlgorithmException(Messages.getString("crypto.24", this.algName)); 
+            throw new NoSuchAlgorithmException(Messages.getString("crypto.24", this.algName));
         }
     }
 
@@ -246,7 +246,7 @@ public class EncryptedPrivateKeyInfo {
     public PKCS8EncodedKeySpec getKeySpec(Cipher cipher)
         throws InvalidKeySpecException {
         if (cipher == null) {
-            throw new NullPointerException(Messages.getString("crypto.28")); 
+            throw new NullPointerException(Messages.getString("crypto.28"));
         }
         try {
             byte[] decryptedData = cipher.doFinal(encryptedData);
@@ -254,7 +254,7 @@ public class EncryptedPrivateKeyInfo {
                 ASN1PrivateKeyInfo.verify(decryptedData);
             } catch (IOException e1) {
                 throw new InvalidKeySpecException(
-                        Messages.getString("crypto.29")); 
+                        Messages.getString("crypto.29"));
             }
             return new PKCS8EncodedKeySpec(decryptedData);
         } catch (IllegalStateException e) {
@@ -286,7 +286,7 @@ public class EncryptedPrivateKeyInfo {
         throws NoSuchAlgorithmException,
                InvalidKeyException {
         if (decryptKey == null) {
-            throw new NullPointerException(Messages.getString("crypto.2A")); 
+            throw new NullPointerException(Messages.getString("crypto.2A"));
         }
         try {
             Cipher cipher = Cipher.getInstance(algName);
@@ -300,7 +300,7 @@ public class EncryptedPrivateKeyInfo {
                 ASN1PrivateKeyInfo.verify(decryptedData);
             } catch (IOException e1) {
                 throw new InvalidKeyException(
-                        Messages.getString("crypto.29")); 
+                        Messages.getString("crypto.29"));
             }
             return new PKCS8EncodedKeySpec(decryptedData);
         } catch (NoSuchPaddingException e) {
@@ -339,15 +339,15 @@ public class EncryptedPrivateKeyInfo {
      *             .
      */
     public PKCS8EncodedKeySpec getKeySpec(Key decryptKey, String providerName)
-        throws NoSuchProviderException, 
+        throws NoSuchProviderException,
                NoSuchAlgorithmException,
                InvalidKeyException {
         if (decryptKey == null) {
-            throw new NullPointerException(Messages.getString("crypto.2A")); 
+            throw new NullPointerException(Messages.getString("crypto.2A"));
         }
         if (providerName == null) {
             throw new NullPointerException(
-                    Messages.getString("crypto.2B")); 
+                    Messages.getString("crypto.2B"));
         }
         try {
             Cipher cipher = Cipher.getInstance(algName, providerName);
@@ -361,7 +361,7 @@ public class EncryptedPrivateKeyInfo {
                 ASN1PrivateKeyInfo.verify(decryptedData);
             } catch (IOException e1) {
                 throw new InvalidKeyException(
-                        Messages.getString("crypto.29")); 
+                        Messages.getString("crypto.29"));
             }
             return new PKCS8EncodedKeySpec(decryptedData);
         } catch (NoSuchPaddingException e) {
@@ -399,10 +399,10 @@ public class EncryptedPrivateKeyInfo {
         throws NoSuchAlgorithmException,
                InvalidKeyException {
         if (decryptKey == null) {
-            throw new NullPointerException(Messages.getString("crypto.2A")); 
+            throw new NullPointerException(Messages.getString("crypto.2A"));
         }
         if (provider == null) {
-            throw new NullPointerException(Messages.getString("crypto.2C")); 
+            throw new NullPointerException(Messages.getString("crypto.2C"));
         }
         try {
             Cipher cipher = Cipher.getInstance(algName, provider);
@@ -416,7 +416,7 @@ public class EncryptedPrivateKeyInfo {
                 ASN1PrivateKeyInfo.verify(decryptedData);
             } catch (IOException e1) {
                 throw new InvalidKeyException(
-                        Messages.getString("crypto.29")); 
+                        Messages.getString("crypto.29"));
             }
             return new PKCS8EncodedKeySpec(decryptedData);
         } catch (NoSuchPaddingException e) {
@@ -498,15 +498,15 @@ public class EncryptedPrivateKeyInfo {
     //
 
     private static final byte[] nullParam = new byte[] { 5, 0 };
-    
+
     private static final ASN1Sequence asn1 = new ASN1Sequence(new ASN1Type[] {
             AlgorithmIdentifier.ASN1, ASN1OctetString.getInstance() }) {
 
                 @Override
                 protected void getValues(Object object, Object[] values) {
-        
+
                     EncryptedPrivateKeyInfo epki = (EncryptedPrivateKeyInfo) object;
-        
+
                     try {
                         byte[] algParmsEncoded = (epki.algParameters == null) ? nullParam
                                 : epki.algParameters.getEncoded();
@@ -523,7 +523,7 @@ public class EncryptedPrivateKeyInfo {
     // (as defined in PKCS #8: Private-Key Information Syntax Standard
     //  http://www.ietf.org/rfc/rfc2313.txt)
     //
-    // 
+    //
     //    PrivateKeyInfo ::= SEQUENCE {
     //        version Version,
     //        privateKeyAlgorithm PrivateKeyAlgorithmIdentifier,

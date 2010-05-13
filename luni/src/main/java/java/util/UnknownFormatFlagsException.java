@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import org.apache.harmony.luni.util.Msg;
 /**
  * An {@code UnknownFormatFlagsException} will be thrown if there is
  * an unknown flag.
- * 
+ *
  * @see java.lang.RuntimeException
  */
 public class UnknownFormatFlagsException extends IllegalFormatException {
@@ -33,7 +33,7 @@ public class UnknownFormatFlagsException extends IllegalFormatException {
     /**
      * Constructs a new {@code UnknownFormatFlagsException} with the specified
      * flags.
-     * 
+     *
      * @param f
      *           the specified flags.
      */
@@ -46,7 +46,7 @@ public class UnknownFormatFlagsException extends IllegalFormatException {
 
     /**
      * Returns the flags associated with the exception.
-     * 
+     *
      * @return the flags associated with the exception.
      */
     public String getFlags() {
@@ -55,12 +55,12 @@ public class UnknownFormatFlagsException extends IllegalFormatException {
 
     /**
      * Returns the message associated with the exception.
-     * 
+     *
      * @return the message associated with the exception.
      */
     @Override
     public String getMessage() {
         // K034a=The flags are {0}
-        return Msg.getString("K034a", flags); 
+        return Msg.getString("K034a", flags);
     }
 }

@@ -46,13 +46,13 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyPairGenerator.class)
 /**
  * Tests for <code>KeyPairGenerator</code> class constructors and methods.
- * 
+ *
  */
 
 public class KeyPairGenerator1Test extends TestCase {
 
     private static String[] invalidValues = SpiEngUtils.invalidValues;
-    
+
     public static final String srvKeyPairGenerator = "KeyPairGenerator";
 
     public static String[] algs = {
@@ -65,7 +65,7 @@ public class KeyPairGenerator1Test extends TestCase {
     public static Provider validProvider = null;
 
     private static boolean DSASupported = false;
-    
+
     public static String NotSupportMsg = "";
 
     static {
@@ -75,10 +75,10 @@ public class KeyPairGenerator1Test extends TestCase {
         DSASupported = (validProvider != null);
         if (!DSASupported) {
             NotSupportMsg = validAlgName + " algorithm is not supported" ;
-        }        
+        }
         validProviderName = (DSASupported ? validProvider.getName() : null);
     }
-    
+
     protected KeyPairGenerator [] createKPGen() {
         if (!DSASupported) {
             fail(NotSupportMsg);
@@ -97,10 +97,10 @@ public class KeyPairGenerator1Test extends TestCase {
     }
 
     /**
-     * Test for <code>getInstance(String algorithm)</code> method 
+     * Test for <code>getInstance(String algorithm)</code> method
      * Assertion:
      * throws NullPointerException  when algorithm is null
-     * throws NoSuchAlgorithmException when algorithm is incorrect; 
+     * throws NoSuchAlgorithmException when algorithm is incorrect;
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -126,7 +126,7 @@ public class KeyPairGenerator1Test extends TestCase {
     }
 
     /**
-     * Test for <code>getInstance(String algorithm)</code> method 
+     * Test for <code>getInstance(String algorithm)</code> method
      * Assertion: returns KeyPairGenerator object
      */
     @TestTargetNew(
@@ -150,7 +150,7 @@ public class KeyPairGenerator1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code>
-     * method 
+     * method
      * Assertion: throws IllegalArgumentException when provider is null or empty
      */
     @TestTargetNew(
@@ -182,7 +182,7 @@ public class KeyPairGenerator1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code>
-     * method 
+     * method
      * Assertion:
      * throws NoSuchProviderException when provider is not available
      */
@@ -213,7 +213,7 @@ public class KeyPairGenerator1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code>
-     * method 
+     * method
      * Assertion: throws NoSuchAlgorithmException when algorithm is not
      * available
      * throws NullPointerException  when algorithm is null
@@ -251,7 +251,7 @@ public class KeyPairGenerator1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code>
-     * method 
+     * method
      * Assertion: returns KeyPairGenerator object
      */
     @TestTargetNew(
@@ -278,7 +278,7 @@ public class KeyPairGenerator1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, Provider provider)</code>
-     * method 
+     * method
      * Assertion: throws IllegalArgumentException when provider is null
      */
     @TestTargetNew(
@@ -304,10 +304,10 @@ public class KeyPairGenerator1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, Provider provider)</code>
-     * method 
-     * Assertion: 
+     * method
+     * Assertion:
      * throws NullPointerException  when algorithm is null
-     * throws NoSuchAlgorithmException when algorithm is incorrect; 
+     * throws NoSuchAlgorithmException when algorithm is incorrect;
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -339,7 +339,7 @@ public class KeyPairGenerator1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, Provider provider)</code>
-     * method 
+     * method
      * Assertion: returns KeyPairGenerator object
      */
     @TestTargetNew(
@@ -362,11 +362,11 @@ public class KeyPairGenerator1Test extends TestCase {
             assertEquals("Incorrect provider", kpg.getProvider(), validProvider);
         }
     }
-    
+
     /**
      * Test for <code>generateKeyPair()</code> and <code>genKeyPair()</code>
      * methods
-     * Assertion: KeyPairGenerator was initialized before the invocation 
+     * Assertion: KeyPairGenerator was initialized before the invocation
      * of these methods
      */
     @TestTargets({
@@ -403,9 +403,9 @@ public class KeyPairGenerator1Test extends TestCase {
                         kp1.getPublic()));
             }
     }
-    
+
     /**
-     * Test for methods: 
+     * Test for methods:
      * <code>initialize(int keysize)</code>
      * <code>initialize(int keysize, SecureRandom random)</code>
      * <code>initialize(AlgorithmParameterSpec param)</code>
@@ -453,14 +453,14 @@ public class KeyPairGenerator1Test extends TestCase {
         AlgorithmParameterSpec aps = null;
 
         for (int i = 0; i < kpg.length; i++) {
-                        
-            for (int j = 0; j < keys.length; j++) {                
+
+            for (int j = 0; j < keys.length; j++) {
                 try {
                     kpg[i].initialize(keys[j]);
                     kpg[i].initialize(keys[j], random);
                 } catch (InvalidParameterException e) {
                 }
-            }            
+            }
 
             try {
                 kpg[i].initialize(aps);
@@ -469,7 +469,7 @@ public class KeyPairGenerator1Test extends TestCase {
             }
         }
     }
-    
+
     /**
      * Test for methods: <code>initialize(int keysize)</code>
      * <code>initialize(int keysize, SecureRandom random)</code>
@@ -570,7 +570,7 @@ public class KeyPairGenerator1Test extends TestCase {
             }
         }
     }
-    
+
     /**
      * Test for methods: <code>initialize(int keysize)</code>
      * <code>initialize(int keysize, SecureRandom random)</code>

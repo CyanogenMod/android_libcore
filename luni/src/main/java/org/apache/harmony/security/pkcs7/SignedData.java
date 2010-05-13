@@ -38,17 +38,17 @@ import org.apache.harmony.security.x509.CertificateList;
 /**
  * As defined in PKCS #7: Cryptographic Message Syntax Standard
  * (http://www.ietf.org/rfc/rfc2315.txt)
- * 
- * SignedData ::= SEQUENCE { 
- *   version Version, 
+ *
+ * SignedData ::= SEQUENCE {
+ *   version Version,
  *   digestAlgorithms DigestAlgorithmIdentifiers,
  *   contentInfo ContentInfo,
  *   certificates
  *     [0] IMPLICIT ExtendedCertificatesAndCertificates OPTIONAL,
- *   crls 
+ *   crls
  *     [1] IMPLICIT CertificateRevocationLists OPTIONAL,
  *   signerInfos SignerInfos }
- *  
+ *
  */
 
 public class SignedData {
@@ -106,34 +106,34 @@ public class SignedData {
 
     public String toString() {
         StringBuilder res = new StringBuilder();
-        res.append("---- SignedData:"); 
-        res.append("\nversion: "); 
+        res.append("---- SignedData:");
+        res.append("\nversion: ");
         res.append(version);
-        res.append("\ndigestAlgorithms: "); 
+        res.append("\ndigestAlgorithms: ");
         res.append(digestAlgorithms.toString());
-        res.append("\ncontentInfo: "); 
+        res.append("\ncontentInfo: ");
         res.append(contentInfo.toString());
-        res.append("\ncertificates: "); 
+        res.append("\ncertificates: ");
         if (certificates != null) {
             res.append(certificates.toString());
         }
-        res.append("\ncrls: "); 
+        res.append("\ncrls: ");
         if (crls != null) {
             res.append(crls.toString());
         }
-        res.append("\nsignerInfos:\n"); 
+        res.append("\nsignerInfos:\n");
         res.append(signerInfos.toString());
-        res.append("\n---- SignedData End\n]"); 
+        res.append("\n---- SignedData End\n]");
         return res.toString();
     }
 
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
-            ASN1Integer.getInstance(), 
+            ASN1Integer.getInstance(),
             new ASN1SetOf(AlgorithmIdentifier.ASN1),
             ContentInfo.ASN1,
             new ASN1Implicit(0, new ASN1SetOf(Certificate.ASN1)),
             new ASN1Implicit(1, new ASN1SetOf(CertificateList.ASN1)),
-            new ASN1SetOf(SignerInfo.ASN1) 
+            new ASN1SetOf(SignerInfo.ASN1)
             }) {
         {
             setOptional(3); // certificates is optional
@@ -154,10 +154,10 @@ public class SignedData {
             Object[] values = (Object[]) in.content;
             return new SignedData(
                         ASN1Integer.toIntValue(values[0]),
-                        (List) values[1], 
+                        (List) values[1],
                         (ContentInfo) values[2],
-                        (List) values[3], 
-                        (List) values[4], 
+                        (List) values[3],
+                        (List) values[4],
                         (List) values[5]
                     );
         }

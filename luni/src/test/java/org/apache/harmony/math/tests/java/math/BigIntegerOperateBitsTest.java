@@ -112,7 +112,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         assertEquals(96, aNumber.bitLength());
     }
-    
+
     /**
      * bitLength() of a negative number which is a power of 2
      */
@@ -517,7 +517,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", -1, result.signum());
     }
-    
+
     /**
      * flipBit(int n) the leftmost bit in a positive number
      */
@@ -573,7 +573,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
     }
 
     /**
-     * flipBit(int n) inside a negative number with all ones in bit representation 
+     * flipBit(int n) inside a negative number with all ones in bit representation
      */
     public void testFlipBitNegativeInside3() {
         String as = "-18446744073709551615";
@@ -629,7 +629,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", -1, result.signum());
     }
-    
+
     /**
      * flipBit(int n) outside a negative number
      */
@@ -647,7 +647,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", -1, result.signum());
     }
-    
+
     /**
      * flipBit(int n) inside a positive number
      */
@@ -915,7 +915,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", -1, result.signum());
     }
-    
+
     /**
      * setBit(int n) inside a negative number
      */
@@ -1007,7 +1007,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", -1, result.signum());
     }
-    
+
     /**
      * setBit(int n) outside a negative number
      */
@@ -1025,18 +1025,18 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", -1, result.signum());
     }
-    
+
     /**
      * setBit: check the case when the number of bit to be set can be
      * represented as n * 32 + 31, where n is an arbitrary integer.
-     * Here 191 = 5 * 32 + 31 
+     * Here 191 = 5 * 32 + 31
      */
     public void testSetBitBug1331() {
         BigInteger result = BigInteger.valueOf(0L).setBit(191);
         assertEquals("incorrect value", "3138550867693340381917894711603833208051177722232017256448", result.toString());
         assertEquals("incorrect sign", 1, result.signum());
     }
-    
+
     /**
      * shiftLeft(int n), n = 0
      */
@@ -1054,7 +1054,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", 1, result.signum());
     }
-    
+
     /**
      * shiftLeft(int n), n < 0
      */
@@ -1090,7 +1090,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", 1, result.signum());
     }
-    
+
     /**
      * shiftLeft(int n) a positive number, n > 0
      */
@@ -1126,7 +1126,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", -1, result.signum());
     }
-    
+
     /**
      * shiftRight(int n), n = 0
      */
@@ -1144,7 +1144,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", 1, result.signum());
     }
-    
+
     /**
      * shiftRight(int n), n < 0
      */
@@ -1180,7 +1180,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", 1, result.signum());
     }
-    
+
     /**
      * shiftRight(int n), n > 32
      */
@@ -1216,11 +1216,11 @@ public class BigIntegerOperateBitsTest extends TestCase {
         }
         assertEquals("incorrect sign", 0, result.signum());
     }
-    
+
     /**
      * shiftRight a negative number;
      * shift distance is multiple of 32;
-     * shifted bits are NOT zeroes. 
+     * shifted bits are NOT zeroes.
      */
     public void testShiftRightNegNonZeroesMul32() {
         byte aBytes[] = {1, -128, 56, 100, -2, -76, 89, 45, 91, 1, 0, 0, 0, 0, 0, 0, 0};
@@ -1240,7 +1240,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
     /**
      * shiftRight a negative number;
      * shift distance is NOT multiple of 32;
-     * shifted bits are NOT zeroes. 
+     * shifted bits are NOT zeroes.
      */
     public void testShiftRightNegNonZeroes() {
         byte aBytes[] = {1, -128, 56, 100, -2, -76, 89, 45, 91, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -1260,7 +1260,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
     /**
      * shiftRight a negative number;
      * shift distance is NOT multiple of 32;
-     * shifted bits are zeroes. 
+     * shifted bits are zeroes.
      */
     public void testShiftRightNegZeroes() {
         byte aBytes[] = {1, -128, 56, 100, -2, -76, 89, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -1280,7 +1280,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
     /**
      * shiftRight a negative number;
      * shift distance is multiple of 32;
-     * shifted bits are zeroes. 
+     * shifted bits are zeroes.
      */
     public void testShiftRightNegZeroesMul32() {
         byte aBytes[] = {1, -128, 56, 100, -2, -76, 89, 45, 91, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -1334,7 +1334,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         assertTrue(aNumber.testBit(number));
     }
-    
+
     /**
      * testBit(int n) of a positive number, n > bitLength()
      */
@@ -1367,7 +1367,7 @@ public class BigIntegerOperateBitsTest extends TestCase {
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         assertTrue(!aNumber.testBit(number));
     }
-    
+
     /**
      * testBit(int n) of a positive n, n > bitLength()
      */

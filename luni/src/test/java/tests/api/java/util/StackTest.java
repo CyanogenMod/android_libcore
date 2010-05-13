@@ -20,12 +20,12 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.EmptyStackException;
 import java.util.Stack;
 
-@TestTargetClass(Stack.class) 
+@TestTargetClass(Stack.class)
 public class StackTest extends junit.framework.TestCase {
 
     Stack s;
@@ -163,16 +163,16 @@ public class StackTest extends junit.framework.TestCase {
         args = {java.lang.Object.class}
     )
     public void test_pushLjava_lang_Object() {
-        Object [] array = {new Integer(0), new Object(), 
+        Object [] array = {new Integer(0), new Object(),
                            new Float(0), new String()};
-        
+
         Stack<Object> stack = new Stack<Object>();
         for(int i = 0; i < array.length; i++) {
             stack.push(array[i]);
         }
         for(int i = 0; i < array.length; i++) {
             assertEquals(array.length - i, stack.search(array[i]));
-        }       
+        }
     }
 
     /**

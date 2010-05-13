@@ -63,7 +63,7 @@ public abstract class AlgorithmParameterGeneratorTest extends TestCase {
         generator.init(1024);
 
         AlgorithmParameters parameters = generator.generateParameters();
-        
+
         assertNotNull("generated parameters are null", parameters);
 
         helper.test(parameters);

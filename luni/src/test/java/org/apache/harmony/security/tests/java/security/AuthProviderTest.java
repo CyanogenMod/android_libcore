@@ -72,13 +72,13 @@ public class AuthProviderTest extends TestCase {
         CallbackHandler handler = null;
         String[] str = {"", null, "!@#$%^&*()"};
         double[] version = {0.0, -1.0, Double.MAX_VALUE, Double.MIN_VALUE, Double.NaN, Double.NEGATIVE_INFINITY};
-        
+
         assertEquals("name", ap.getName());
         assertEquals(1.0, ap.getVersion());
         assertEquals("info", ap.getInfo());
         assertNotNull(ap.getServices());
         assertTrue(ap.getServices().isEmpty());
-        
+
         for (int i = 0; i < str.length; i++) {
             for (int j = 0; j < version.length; j++) {
                 try {
@@ -88,7 +88,7 @@ public class AuthProviderTest extends TestCase {
                 }
             }
         }
-        
+
         try {
             ap.setCallbackHandler(handler);
             ap.login(null, handler);
@@ -97,7 +97,7 @@ public class AuthProviderTest extends TestCase {
             fail("Unexpected exception");
         }
     }
-    
+
     public class AuthProviderStub extends AuthProvider {
         public AuthProviderStub(String name, double version, String info) {
             super( name,  version, info);

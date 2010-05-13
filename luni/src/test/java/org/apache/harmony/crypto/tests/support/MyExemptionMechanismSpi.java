@@ -33,15 +33,15 @@ import javax.crypto.ExemptionMechanismSpi;
 import javax.crypto.ShortBufferException;
 
 /**
- * Additional class for verification ExemptionMechanismSpi 
+ * Additional class for verification ExemptionMechanismSpi
  * and ExemptionMechanism classes
- * 
+ *
  */
 
 public class MyExemptionMechanismSpi  extends ExemptionMechanismSpi {
-    
+
     private static final int byteArrayLength = 5;
-    
+
     public static final int getLength() {
         return byteArrayLength;
     }
@@ -78,7 +78,7 @@ public class MyExemptionMechanismSpi  extends ExemptionMechanismSpi {
             throws InvalidKeyException, InvalidAlgorithmParameterException,
             ExemptionMechanismException {
         if (key == null) {
-            throw new InvalidKeyException("key is null");            
+            throw new InvalidKeyException("key is null");
         }
         if (!(key instanceof tmpKey)) {
             throw new ExemptionMechanismException("Incorrect key");
@@ -102,7 +102,7 @@ public class MyExemptionMechanismSpi  extends ExemptionMechanismSpi {
             throw new InvalidAlgorithmParameterException("params is null");
         }
     }
-    
+
     @SuppressWarnings("serial")
     public class tmpKey implements Key {
         private String alg;

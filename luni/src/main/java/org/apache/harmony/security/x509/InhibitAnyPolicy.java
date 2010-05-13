@@ -78,7 +78,7 @@ public class InhibitAnyPolicy extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Inhibit Any-Policy: ") 
+        buffer.append(prefix).append("Inhibit Any-Policy: ")
             .append(skipCerts).append('\n');
     }
 }

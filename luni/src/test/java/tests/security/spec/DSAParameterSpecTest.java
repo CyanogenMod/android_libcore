@@ -35,13 +35,13 @@ import java.security.spec.DSAParameterSpec;
 
 /**
  * Tests for <code>DSAParameterSpec</code>
- * 
+ *
  */
 @TestTargetClass(DSAParameterSpec.class)
 public class DSAParameterSpecTest extends TestCase {
 
     /**
-     * Ctor test 
+     * Ctor test
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -54,7 +54,7 @@ public class DSAParameterSpecTest extends TestCase {
                 new BigInteger("1"),
                 new BigInteger("2"),
                 new BigInteger("3"));
-        
+
         assertTrue(aps instanceof DSAParameterSpec);
     }
 
@@ -72,7 +72,7 @@ public class DSAParameterSpecTest extends TestCase {
                 new BigInteger("1"),
                 new BigInteger("2"),
                 new BigInteger("3"));
-        
+
         assertEquals(3, dps.getG().intValue());
     }
 
@@ -90,12 +90,12 @@ public class DSAParameterSpecTest extends TestCase {
                 new BigInteger("1"),
                 new BigInteger("2"),
                 new BigInteger("3"));
-        
+
         assertEquals(1, dps.getP().intValue());
     }
 
     /**
-     * getQ() test 
+     * getQ() test
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -108,7 +108,7 @@ public class DSAParameterSpecTest extends TestCase {
                 new BigInteger("1"),
                 new BigInteger("2"),
                 new BigInteger("3"));
-        
+
         assertEquals(2, dps.getQ().intValue());
     }
 }

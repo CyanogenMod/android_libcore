@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -97,7 +97,7 @@ public abstract class Buffer {
 
     /**
      * Construct a buffer with the specified capacity.
-     * 
+     *
      * @param capacity
      *            The capacity of this buffer
      */
@@ -149,7 +149,7 @@ public abstract class Buffer {
 
     /**
      * Returns the capacity of this buffer.
-     * 
+     *
      * @return the number of elements that are contained in this buffer.
      */
     public final int capacity() {
@@ -203,7 +203,7 @@ public abstract class Buffer {
     /**
      * Indicates if there are elements remaining in this buffer, that is if
      * {@code position < limit}.
-     * 
+     *
      * @return {@code true} if there are elements remaining in this buffer,
      *         {@code false} otherwise.
      */
@@ -220,7 +220,7 @@ public abstract class Buffer {
 
     /**
      * Indicates whether this buffer is read-only.
-     * 
+     *
      * @return {@code true} if this buffer is read-only, {@code false}
      *         otherwise.
      */
@@ -228,7 +228,7 @@ public abstract class Buffer {
 
     /**
      * Returns the limit of this buffer.
-     * 
+     *
      * @return the limit of this buffer.
      */
     public final int limit() {
@@ -268,7 +268,7 @@ public abstract class Buffer {
     /**
      * Marks the current position, so that the position may return to this point
      * later by calling <code>reset()</code>.
-     * 
+     *
      * @return this buffer.
      */
     public final Buffer mark() {
@@ -278,7 +278,7 @@ public abstract class Buffer {
 
     /**
      * Returns the position of this buffer.
-     * 
+     *
      * @return the value of this buffer's current position.
      */
     public final int position() {
@@ -313,7 +313,7 @@ public abstract class Buffer {
     /**
      * Returns the number of remaining elements in this buffer, that is
      * {@code limit - position}.
-     * 
+     *
      * @return the number of remaining elements in this buffer.
      */
     public final int remaining() {
@@ -322,7 +322,7 @@ public abstract class Buffer {
 
     /**
      * Resets the position of this buffer to the <code>mark</code>.
-     * 
+     *
      * @return this buffer.
      * @exception InvalidMarkException
      *                if the mark is not set.

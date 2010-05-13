@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,26 +27,26 @@ import java.io.PrintStream;
 import java.util.logging.ErrorManager;
 
 public class ErrorManagerTest extends TestCase {
-    
-    
+
+
     private final PrintStream err = System.err;
     private final PrintStream out = System.out;
 
-    private OutputStream errSubstituteStream = null; 
-    
+    private OutputStream errSubstituteStream = null;
+
     public void setUp() throws Exception{
         super.setUp();
         errSubstituteStream = new NullOutputStream();
-        System.setErr(new PrintStream(errSubstituteStream));           
+        System.setErr(new PrintStream(errSubstituteStream));
     }
-    
+
     public void tearDown() throws Exception{
         System.setErr(err);
         System.setOut(out);
         super.tearDown();
     }
-    
-    
+
+
     public void test_errorCheck() {
         ErrorManager em = new ErrorManager();
         MockStream aos = new MockStream();
@@ -58,7 +58,7 @@ public class ErrorManagerTest extends TestCase {
 
        assertTrue("message appears (supertest)", aos.getWrittenData().indexOf("supertest") != -1);
     }
-    
+
     public void test_errorStringStringint() {
         ErrorManager em = new ErrorManager();
         em.error(null, new NullPointerException(),
@@ -75,24 +75,24 @@ public class ErrorManagerTest extends TestCase {
         assertEquals(4, ErrorManager.OPEN_FAILURE);
         assertEquals(1, ErrorManager.WRITE_FAILURE);
     }
-    
+
     public class MockStream extends ByteArrayOutputStream {
 
         private StringBuffer linesWritten = new StringBuffer();
 
         public void flush() {}
         public  void close() {}
-        
+
         @Override
         public void write(byte[] buffer) {
             linesWritten.append(new String(buffer));
         }
-        
+
         @Override
         public synchronized void write(byte[] buffer, int offset, int len) {
             linesWritten.append(new String(buffer, offset, len));
         }
-                
+
         public String getWrittenData() {return linesWritten.toString();}
 
     }

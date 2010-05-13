@@ -35,7 +35,7 @@ public class AllTestsUtil
 
         suite.addTest(tests.api.java.util.AllTests.suite());
         suite.addTest(org.apache.harmony.luni.tests.java.util.AllTests.suite());
- 
+
         return suite;
     }
 }

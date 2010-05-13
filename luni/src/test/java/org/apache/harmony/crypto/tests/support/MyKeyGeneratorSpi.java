@@ -30,13 +30,13 @@ import javax.crypto.KeyGeneratorSpi;
 import javax.crypto.SecretKey;
 
 /**
- * Additional class for verification of 
+ * Additional class for verification of
  * KeyGeneratorSpi and KeyGenerator functionality
- * 
+ *
  */
 
 public class MyKeyGeneratorSpi  extends KeyGeneratorSpi {
-    
+
     @Override
     protected SecretKey engineGenerateKey() {
         return null;

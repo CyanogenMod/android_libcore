@@ -28,13 +28,13 @@ import javax.security.auth.callback.PasswordCallback;
 
 /**
  * Tests for <code>PasswordCallback</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(PasswordCallback.class) 
+@TestTargetClass(PasswordCallback.class)
 public class PasswordCallbackTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.callback.PasswordCallback#PasswordCallback(String prompt, boolean echoOn) 
+     * @tests javax.security.auth.callback.PasswordCallback#PasswordCallback(String prompt, boolean echoOn)
      * @tests javax.security.auth.callback.PasswordCallback#getPrompt()
      * @tests javax.security.auth.callback.PasswordCallback#isEchoOn()
      */
@@ -60,7 +60,7 @@ public class PasswordCallbackTest extends TestCase {
     })
     public void test_PasswordCallback() {
         String prompt = "promptTest";
-        
+
         try {
             PasswordCallback pc = new PasswordCallback(prompt, true);
             assertNotNull("Null object returned", pc);
@@ -69,7 +69,7 @@ public class PasswordCallbackTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             PasswordCallback pc = new PasswordCallback(prompt, false);
             assertNotNull("Null object returned", pc);
@@ -78,22 +78,22 @@ public class PasswordCallbackTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             PasswordCallback pc = new PasswordCallback(null, true);
             fail("IllegalArgumentException wasn't thrown");
         } catch (IllegalArgumentException npe) {
-        } 
+        }
 
         try {
             PasswordCallback pc = new PasswordCallback("", true);
             fail("IllegalArgumentException wasn't thrown");
         } catch (IllegalArgumentException npe) {
-        } 
+        }
     }
-    
+
     /**
-     * @tests javax.security.auth.callback.PasswordCallback#getPassword() 
+     * @tests javax.security.auth.callback.PasswordCallback#getPassword()
      * @tests javax.security.auth.callback.PasswordCallback#setPassword(char[] password)
      * @tests javax.security.auth.callback.PasswordCallback#clearPassword()
      */
@@ -122,7 +122,7 @@ public class PasswordCallbackTest extends TestCase {
         char[] psw1 = "testPassword".toCharArray();
         char[] psw2 = "newPassword".toCharArray();
         PasswordCallback pc = new PasswordCallback(prompt, true);
-        
+
         try {
             assertNull(pc.getPassword());
             pc.setPassword(psw1);

@@ -31,7 +31,7 @@ public class AllTests
 
     public static final Test suite() {
         TestSuite suite = new TestSuite();
-        
+
         // Harmony-written test suites (often with Android tests added in).
         suite.addTest(tests.annotation.AllTests.suite());
         suite.addTest(tests.archive.AllTests.suite());
@@ -54,7 +54,7 @@ public class AllTests
         suite.addTest(tests.text.AllTests.suite());
         suite.addTest(tests.xml.AllTests.suite());
         suite.addTest(tests.xnet.AllTests.suite());
-        
+
         // Android-written test suites.
         suite.addTest(com.ibm.icu4jni.util.AllTests.suite());
         suite.addTest(java.io.AllTests.suite());
@@ -70,7 +70,7 @@ public class AllTests
         suite.addTest(org.apache.harmony.luni.platform.AllTests.suite());
         suite.addTest(org.json.AllTests.suite());
         suite.addTest(tests.api.org.apache.harmony.kernel.dalvik.AllTests.suite());
-        
+
         return suite;
     }
 }

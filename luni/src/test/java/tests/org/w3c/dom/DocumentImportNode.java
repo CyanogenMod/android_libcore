@@ -23,13 +23,13 @@ import javax.xml.parsers.DocumentBuilder;
  * The returned node has no parent; (parentNode is null). The source node is not
  * altered or removed from the original document but a new copy of the source
  * node is created.
- * 
+ *
  * Using the method importNode with deep=true, import the attribute, "street" of
  * the second element node, from a list of nodes whose local names are "address"
  * and namespaceURI "http://www.nist.gov" into the same document. Check the
  * parentNode, nodeName, nodeType and nodeValue of the imported node to verify
  * if it has been imported correctly.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
@@ -37,7 +37,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-@TestTargetClass(Document.class) 
+@TestTargetClass(Document.class)
 public final class DocumentImportNode extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -63,7 +63,7 @@ public final class DocumentImportNode extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -215,7 +215,7 @@ public final class DocumentImportNode extends DOMTestCase {
     )
     public void testImportNode6() throws Throwable {
         Document doc;
-        
+
         doc = (Document) load("staffNS", builder);
 
         {
@@ -236,7 +236,7 @@ public final class DocumentImportNode extends DOMTestCase {
     )
     public void testImportNode7() throws Throwable {
         Document doc;
-        
+
         DocumentType docType;
         doc = (Document) load("staffNS", builder);
         docType = doc.getDoctype();
@@ -259,7 +259,7 @@ public final class DocumentImportNode extends DOMTestCase {
     )
     public void testImportNode8() throws Throwable {
         Document doc;
-        
+
         DocumentType docType;
         DOMImplementation domImpl;
         String nullNS = null;
@@ -290,7 +290,7 @@ public final class DocumentImportNode extends DOMTestCase {
         NodeList childList;
         boolean success;
         Node addressNode;
-        
+
         Node importedDocFrag;
         doc = (Document) load("staffNS", builder);
         docFragment = doc.createDocumentFragment();
@@ -313,7 +313,7 @@ public final class DocumentImportNode extends DOMTestCase {
         NodeList childList;
         boolean success;
         Node addressNode;
-        
+
         Node importedDocFrag;
         doc = (Document) load("staffNS", builder);
         docFragment = doc.createDocumentFragment();
@@ -429,12 +429,12 @@ public final class DocumentImportNode extends DOMTestCase {
     )
     public void testImportNode15() throws Throwable {
         Document doc;
-        
+
         Node textImport;
         Node textToImport;
         String nodeValue;
         doc = (Document) load("staffNS", builder);
-        
+
         textToImport = doc
                 .createTextNode("Document.importNode test for a TEXT_NODE");
         textImport = doc.importNode(textToImport, true);
@@ -450,12 +450,12 @@ public final class DocumentImportNode extends DOMTestCase {
     )
     public void testImportNode17() throws Throwable {
         Document doc;
-        
+
         Node commentImport;
         Node commentToImport;
         String nodeValue;
         doc = (Document) load("staffNS", builder);
-        
+
         commentToImport = doc
                 .createComment("Document.importNode test for a COMMENT_NODE");
         commentImport = doc.importNode(commentToImport, true);
@@ -471,13 +471,13 @@ public final class DocumentImportNode extends DOMTestCase {
     )
     public void testImportNode18() throws Throwable {
         Document doc;
-        
+
         ProcessingInstruction piImport;
         ProcessingInstruction piToImport;
         String piData;
         String piTarget;
         doc = (Document) load("staffNS", builder);
-        
+
         piToImport = doc.createProcessingInstruction("Target", "Data");
         piImport = (ProcessingInstruction) doc.importNode(piToImport, false);
         piTarget = piImport.getTarget();
@@ -585,8 +585,8 @@ public final class DocumentImportNode extends DOMTestCase {
 
 // TODO Fails on JDK. Why?
 //    public void testImportNode21() throws Throwable {
-//        
-//        
+//
+//
 //        Document doc;
 //        DocumentType docTypeNull = null;
 //
@@ -639,7 +639,7 @@ public final class DocumentImportNode extends DOMTestCase {
 //                nodeValueImp2);
 //        assertEquals("documentimportnode21_Ent3Nodevalue", "Texas",
 //                nodeValueImp3);
-//        
+//
 //    }
 
 // Assumes validation.
@@ -653,12 +653,12 @@ public final class DocumentImportNode extends DOMTestCase {
 //        NamedNodeMap nodeMap;
 //        Notation notation1;
 //        Notation notation2;
-//        
+//
 //        String publicId1;
 //        String publicId1Imp;
 //        String publicId1NewImp;
 //        String publicId2Imp;
-//        
+//
 //        String systemId1Imp;
 //        String systemId1NewImp;
 //        String systemId2;

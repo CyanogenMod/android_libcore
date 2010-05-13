@@ -36,7 +36,7 @@ import org.w3c.dom.Text;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-@TestTargetClass(DocumentBuilder.class) 
+@TestTargetClass(DocumentBuilder.class)
 public class SimpleBuilderTest extends TestCase {
 
     private DocumentBuilder builder;
@@ -134,21 +134,21 @@ public class SimpleBuilderTest extends TestCase {
 
         Element root = document.getDocumentElement();
         assertNotNull(root);
-        
+
         // dump("", root);
     }
-    
+
     private void dump(String prefix, Element element) {
         System.out.print(prefix + "<" + element.getTagName());
-        
+
         NamedNodeMap attrs = element.getAttributes();
         for (int i = 0; i < attrs.getLength(); i++) {
             Node item = attrs.item(i);
             System.out.print(" " + item.getNodeName() + "=" + item.getNodeValue());
         }
-        
+
         System.out.println(">");
-        
+
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node item = children.item(i);
@@ -156,7 +156,7 @@ public class SimpleBuilderTest extends TestCase {
                 dump(prefix + "  ", (Element)item);
             }
         }
-        
+
         System.out.println(prefix + "</" + element.getTagName() + ">");
     }
 }

@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,7 +67,7 @@ public abstract class SelectionKey {
     /**
      * Attaches an object to this key. It is acceptable to attach {@code null},
      * this discards the old attachment.
-     * 
+     *
      * @param anObject
      *            the object to attach, or {@code null} to discard the current
      *            attachment.
@@ -82,7 +82,7 @@ public abstract class SelectionKey {
 
     /**
      * Gets the attached object.
-     * 
+     *
      * @return the attached object or {@code null} if no object has been
      *         attached.
      */
@@ -107,7 +107,7 @@ public abstract class SelectionKey {
 
     /**
      * Gets the channel of this key.
-     * 
+     *
      * @return the channel of this key.
      */
     public abstract SelectableChannel channel();
@@ -115,7 +115,7 @@ public abstract class SelectionKey {
     /**
      * Gets this key's {@link SelectionKey interest set}. The returned set has
      * only those bits set that are valid for this key's channel.
-     * 
+     *
      * @return the interest set of this key.
      * @throws CancelledKeyException
      *             if the key has already been canceled.
@@ -124,7 +124,7 @@ public abstract class SelectionKey {
 
     /**
      * Sets the {@link SelectionKey interest set} for this key.
-     * 
+     *
      * @param operations
      *            the new interest set.
      * @return this key.
@@ -141,7 +141,7 @@ public abstract class SelectionKey {
      * Indicates whether this key's channel is interested in the accept
      * operation and is ready to accept new connections. A call to this method
      * is equal to executing {@code (readyOps() & OP_ACCEPT) == OP_ACCEPT}.
-     * 
+     *
      * @return {@code true} if the channel is interested in the accept operation
      *         and is ready to accept new connections, {@code false} otherwise.
      * @throws CancelledKeyException
@@ -155,7 +155,7 @@ public abstract class SelectionKey {
      * Indicates whether this key's channel is interested in the connect
      * operation and is ready to connect. A call to this method is equal to
      * executing {@code (readyOps() & OP_CONNECT) == OP_CONNECT}.
-     * 
+     *
      * @return {@code true} if the channel is interested in the connect
      *         operation and is ready to connect, {@code false} otherwise.
      * @throws CancelledKeyException
@@ -169,7 +169,7 @@ public abstract class SelectionKey {
      * Indicates whether this key's channel is interested in the read operation
      * and is ready to read. A call to this method is equal to executing
      * {@code (readyOps() & OP_READ) == OP_READ}.
-     * 
+     *
      * @return {@code true} if the channel is interested in the read operation
      *         and is ready to read, {@code false} otherwise.
      * @throws CancelledKeyException
@@ -182,7 +182,7 @@ public abstract class SelectionKey {
     /**
      * Indicates whether this key is valid. A key is valid as long as it has not
      * been canceled.
-     * 
+     *
      * @return {@code true} if this key has not been canceled, {@code false}
      *         otherwise.
      */
@@ -192,7 +192,7 @@ public abstract class SelectionKey {
      * Indicates whether this key's channel is interested in the write operation
      * and is ready to write. A call to this method is equal to executing
      * {@code (readyOps() & OP_WRITE) == OP_WRITE}.
-     * 
+     *
      * @return {@code true} if the channel is interested in the wrie operation
      *         and is ready to write, {@code false} otherwise.
      * @throws CancelledKeyException
@@ -205,7 +205,7 @@ public abstract class SelectionKey {
     /**
      * Gets the set of operations that are ready. The returned set has only
      * those bits set that are valid for this key's channel.
-     * 
+     *
      * @return the operations for which this key's channel is ready.
      * @throws CancelledKeyException
      *             if the key has already been canceled.
@@ -214,7 +214,7 @@ public abstract class SelectionKey {
 
     /**
      * Gets the selector for which this key's channel is registered.
-     * 
+     *
      * @return the related selector.
      */
     public abstract Selector selector();

@@ -130,7 +130,7 @@ public class CipherOutputStream1Test extends TestCase {
         if (!Arrays.equals(result, data)) {
             fail("CipherOutputStream wrote incorrect data.");
         }
-        
+
         try {
             cos.write(null);
             fail("NullPointerException expected");
@@ -258,12 +258,12 @@ public class CipherOutputStream1Test extends TestCase {
         KeyGenerator kg = KeyGenerator.getInstance("DES");
         kg.init(56, new SecureRandom());
         Key key = kg.generateKey();
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, key);
-        
+
         CipherOutputStream cos = new CipherOutputStream(baos, c);
-        
+
         assertNotNull(cos);
     }
 }

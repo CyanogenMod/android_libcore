@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,11 +36,11 @@ import tests.util.SerializationTester;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(PriorityQueue.class) 
+@TestTargetClass(PriorityQueue.class)
 public class PriorityQueueTest extends TestCase {
 
-    private static final String SERIALIZATION_FILE_NAME = "/serialization/tests/api/java/util/PriorityQueue.golden.ser";     
-                                                            
+    private static final String SERIALIZATION_FILE_NAME = "/serialization/tests/api/java/util/PriorityQueue.golden.ser";
+
     /**
      * @tests java.util.PriorityQueue#iterator()
      */
@@ -249,7 +249,7 @@ public class PriorityQueueTest extends TestCase {
         assertNotNull(queue);
         assertEquals(0, queue.size());
         assertNull(queue.comparator());
-        
+
         try {
             new PriorityQueue(0);
             fail("IllegalArgumentException expected");
@@ -773,7 +773,7 @@ public class PriorityQueueTest extends TestCase {
 
     /**
      * @tests java.util.PriorityQueue#remove(Object)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -796,7 +796,7 @@ public class PriorityQueueTest extends TestCase {
 
     /**
      * @tests java.util.PriorityQueue#remove(Object)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -820,7 +820,7 @@ public class PriorityQueueTest extends TestCase {
 
     /**
      * @tests java.util.PriorityQueue#remove(Object)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -844,7 +844,7 @@ public class PriorityQueueTest extends TestCase {
 
     /**
      * @tests java.util.PriorityQueue#remove(Object)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -861,7 +861,7 @@ public class PriorityQueueTest extends TestCase {
 
     /**
      * @tests java.util.PriorityQueue#remove(Object)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -948,7 +948,7 @@ public class PriorityQueueTest extends TestCase {
         notes = "Verifies serialization/deserialization.",
         method = "!SerializationSelf",
         args = {}
-    )    
+    )
     public void test_Serialization_casting() throws Exception {
         Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
         List<Integer> list = Arrays.asList(array);
@@ -971,7 +971,7 @@ public class PriorityQueueTest extends TestCase {
         notes = "Verifies serialization/deserialization compatibility.",
         method = "!SerializationGolden",
         args = {}
-    )    
+    )
     public void test_SerializationCompatibility_cast() throws Exception {
         Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
         List<Integer> list = Arrays.asList(array);

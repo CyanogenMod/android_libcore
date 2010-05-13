@@ -33,7 +33,7 @@ public class NoSuchPaddingException extends GeneralSecurityException {
     /**
      * Creates a new {@code NoSuchPaddingException} with the specified
      * message.
-     * 
+     *
      * @param msg
      *            the message.
      */

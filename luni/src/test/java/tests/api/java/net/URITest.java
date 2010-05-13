@@ -17,7 +17,7 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -28,11 +28,11 @@ import java.net.URISyntaxException;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(URI.class) 
+@TestTargetClass(URI.class)
 public class URITest extends TestCase {
 
     private URI[] uris;
-    
+
     String[] constructorTests = new String[] {
             "http://user@www.google.com:45/search?q=helpinfo#somefragment",
             // http with authority, query and fragment
@@ -70,7 +70,7 @@ public class URITest extends TestCase {
             // equivalent to = "http://host\u00dfname/",
             "ht123-+tp://www.google.com:80/test", // legal chars in scheme
     };
-    
+
     String[] constructorTestsInvalid = new String[] {
             "http:///a path#frag", // space char in path, not in escaped
             // octet form, with no host
@@ -118,7 +118,7 @@ public class URITest extends TestCase {
                 // URI("ascheme://user\u00df\u00a3info@host:0/a\u0080path?qu\u00a9\u00aeery#fr\u00e4\u00e8g"),
 
                 // multiple arg constructors
-                new URI("http", "user%60%20info", "host", 80, "/a%20path", 
+                new URI("http", "user%60%20info", "host", 80, "/a%20path",
                         "qu%60%20ery", "fr%5E%20ag"),
                 // escaped octets for illegal
                 new URI("http", "user%C3%9F%C2%A3info", "host", -1,
@@ -226,7 +226,7 @@ public class URITest extends TestCase {
             } catch (URISyntaxException e) {
             }
         }
-        
+
         try {
             new URI(null);
             fail("NullPointerException was not thrown.");
@@ -694,8 +694,8 @@ public class URITest extends TestCase {
         args = {java.lang.String.class}
     )
     public void test_createLjava_lang_String() {
-        
-       
+
+
         for (int i = 0; i < constructorTests.length; i++) {
             try {
                 new URI(constructorTests[i]);
@@ -704,7 +704,7 @@ public class URITest extends TestCase {
                         + " : " + e);
             }
         }
-        
+
         for(int i = 0; i < constructorTestsInvalid.length; i++) {
             try {
                 URI myUri = URI.create(constructorTestsInvalid[i]);
@@ -1761,7 +1761,7 @@ public class URITest extends TestCase {
         } catch (URISyntaxException e) {
             // Expected
         }
-        
+
         // regression test for HARMONY-1126
         assertNotNull(URI.create("file://C:/1.txt").parseServerAuthority());
     }
@@ -1825,7 +1825,7 @@ public class URITest extends TestCase {
                         + ": " + e);
             }
         }
-        
+
         try {
             URI b = new URI(relativizeData[0][0]);
             b.relativize(null);
@@ -1950,7 +1950,7 @@ public class URITest extends TestCase {
                         + ", " + resolveData[i][1] + ": " + e);
             }
         }
-        
+
         try {
             URI b = new URI(resolveData[0][0]);
             b.resolve((URI) null);
@@ -2018,19 +2018,19 @@ public class URITest extends TestCase {
                         + ", " + resolveData[i][1] + ": " + e);
             }
         }
-        
+
         try {
-            URI b = new URI(resolveData[0][0]);              
+            URI b = new URI(resolveData[0][0]);
             b.resolve((String) null);
             fail("NullPointerException was not thrown.");
         } catch(NullPointerException npe) {
             //expected
         } catch (URISyntaxException e) {
             fail("URISyntaxException was thrown.");
-        }        
-        
+        }
+
         try {
-            URI b = new URI(resolveData[0][0]);              
+            URI b = new URI(resolveData[0][0]);
             b.resolve("http://a/b/c/g?y/./x\n");
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
@@ -2039,7 +2039,7 @@ public class URITest extends TestCase {
             fail("URISyntaxException was thrown.");
         }
     }
-    
+
     /**
      * @tests java.net.URI#toASCIIString()
      */

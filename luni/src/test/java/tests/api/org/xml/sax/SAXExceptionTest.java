@@ -37,11 +37,11 @@ public class SAXExceptionTest extends TestCase {
     )
     public void testSAXParseException() {
         SAXException e = new SAXException();
-        
+
         assertNull(e.getMessage());
         assertNull(e.getException());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "SAXException",
@@ -49,22 +49,22 @@ public class SAXExceptionTest extends TestCase {
     )
     public void testSAXException_String_Exception() {
         Exception c = new Exception();
-        
+
         // Ordinary case
         SAXException e = new SAXException(ERR, c);
-        
+
         assertEquals(ERR, e.getMessage());
         assertEquals(c, e.getException());
 
         // No message
         e = new SAXException(null, c);
-        
+
         assertNull(e.getMessage());
         assertEquals(c, e.getException());
-        
+
         // No cause
         e = new SAXParseException(ERR, null);
-        
+
         assertEquals(ERR, e.getMessage());
         assertNull(e.getException());
     }
@@ -77,13 +77,13 @@ public class SAXExceptionTest extends TestCase {
     public void testSAXException_String() {
         // Ordinary case
         SAXException e = new SAXException(ERR);
-        
+
         assertEquals(ERR, e.getMessage());
         assertNull(e.getException());
 
         // No message
         e = new SAXException((String)null);
-        
+
         assertNull(e.getMessage());
         assertNull(e.getException());
     }
@@ -95,16 +95,16 @@ public class SAXExceptionTest extends TestCase {
     )
     public void testSAXException_Exception() {
         Exception c = new Exception();
-        
+
         // Ordinary case
         SAXException e = new SAXException(c);
-        
+
         assertNull(e.getMessage());
         assertEquals(c, e.getException());
 
         // No cause
         e = new SAXException((Exception)null);
-        
+
         assertNull(e.getMessage());
         assertNull(e.getException());
     }
@@ -118,14 +118,14 @@ public class SAXExceptionTest extends TestCase {
         // Ordinary case
         SAXException e = new SAXException(ERR);
         String s = e.toString();
-        
+
         assertTrue(s.contains(ERR));
-        
+
         // No message
         e = new SAXException();
         s = e.toString();
 
         assertFalse(s.contains(ERR));
    }
-    
+
 }

@@ -30,7 +30,7 @@ import java.math.RoundingMode;
 
 /**
  * Class:  java.math.BigDecimal
- * Methods: abs, compareTo, equals, hashCode, 
+ * Methods: abs, compareTo, equals, hashCode,
  * max, min, negate, signum
  */
 public class BigDecimalCompareTest extends TestCase {

@@ -17,9 +17,9 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
-@TestTargetClass(java.net.Socket.class) 
+@TestTargetClass(java.net.Socket.class)
 public abstract class SocketTestCase extends junit.framework.TestCase {
 
     public static final int SO_MULTICAST = 0;

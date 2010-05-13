@@ -29,7 +29,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * Decodes ASN.1 types encoded with DER (X.690)
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -56,7 +56,7 @@ public final class DerInputStream extends BerInputStream {
         int tag = super.next();
 
         if (length == INDEFINIT_LENGTH) {
-            throw new ASN1Exception(Messages.getString("security.105")); 
+            throw new ASN1Exception(Messages.getString("security.105"));
         }
 
         // FIXME add check: length encoding uses minimum number of octets
@@ -75,7 +75,7 @@ public final class DerInputStream extends BerInputStream {
     public void readBitString() throws IOException {
 
         if (tag == ASN1Constants.TAG_C_BITSTRING) {
-            throw new ASN1Exception(Messages.getString("security.106", tagOffset)); 
+            throw new ASN1Exception(Messages.getString("security.106", tagOffset));
         }
 
         super.readBitString();
@@ -84,7 +84,7 @@ public final class DerInputStream extends BerInputStream {
         if (length > 1
                 && buffer[contentOffset] != 0
                 && (buffer[offset - 1] & UNUSED_BITS_MASK[buffer[contentOffset] - 1]) != 0) {
-            throw new ASN1Exception(Messages.getString("security.107", contentOffset)); 
+            throw new ASN1Exception(Messages.getString("security.107", contentOffset));
         }
     }
 
@@ -97,7 +97,7 @@ public final class DerInputStream extends BerInputStream {
 
         // check encoded content
         if (buffer[contentOffset] != 0 && buffer[contentOffset] != (byte) 0xFF) {
-            throw new ASN1Exception(Messages.getString("security.108", contentOffset)); 
+            throw new ASN1Exception(Messages.getString("security.108", contentOffset));
         }
     }
 
@@ -108,7 +108,7 @@ public final class DerInputStream extends BerInputStream {
 
         if (tag == ASN1Constants.TAG_C_OCTETSTRING) {
             throw new ASN1Exception(
-                    Messages.getString("security.109", tagOffset)); 
+                    Messages.getString("security.109", tagOffset));
         }
         super.readOctetString();
     }
@@ -145,7 +145,7 @@ public final class DerInputStream extends BerInputStream {
     public void readString(ASN1StringType type) throws IOException {
 
         if (tag == type.constrId) {
-            throw new ASN1Exception(Messages.getString("security.10A", tagOffset)); 
+            throw new ASN1Exception(Messages.getString("security.10A", tagOffset));
         }
         super.readString(type);
     }
@@ -157,12 +157,12 @@ public final class DerInputStream extends BerInputStream {
 
         if (tag == ASN1Constants.TAG_C_UTCTIME) {
             // It is a string type and it can be encoded as primitive or constructed.
-            throw new ASN1Exception(Messages.getString("security.10B", tagOffset)); 
+            throw new ASN1Exception(Messages.getString("security.10B", tagOffset));
         }
 
         // check format: DER uses YYMMDDHHMMSS'Z' only
         if (length != ASN1UTCTime.UTC_HMS) {
-            throw new ASN1Exception(Messages.getString("security.10C", tagOffset)); 
+            throw new ASN1Exception(Messages.getString("security.10C", tagOffset));
         }
 
         super.readUTCTime();
@@ -175,12 +175,12 @@ public final class DerInputStream extends BerInputStream {
 
         if (tag == ASN1Constants.TAG_C_GENERALIZEDTIME) {
             // It is a string type and it can be encoded as primitive or constructed.
-            throw new ASN1Exception(Messages.getString("security.10D", tagOffset)); 
+            throw new ASN1Exception(Messages.getString("security.10D", tagOffset));
         }
 
         super.readGeneralizedTime();
 
-        // FIXME makes sense only if we support all GeneralizedTime formats 
+        // FIXME makes sense only if we support all GeneralizedTime formats
         // late check syntax: the last char MUST be Z
         //if (buffer[offset - 1] != 'Z') {
         //    throw new ASN1Exception(

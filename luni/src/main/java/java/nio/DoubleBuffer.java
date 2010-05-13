@@ -36,7 +36,7 @@ public abstract class DoubleBuffer extends Buffer implements
 
     /**
      * Creates a double buffer based on a newly allocated double array.
-     * 
+     *
      * @param capacity
      *            the capacity of the new buffer.
      * @return the created double buffer.
@@ -97,7 +97,7 @@ public abstract class DoubleBuffer extends Buffer implements
 
     /**
      * Constructs a {@code DoubleBuffer} with given capacity.
-     * 
+     *
      * @param capacity
      *            the capacity of the buffer.
      */
@@ -145,7 +145,7 @@ public abstract class DoubleBuffer extends Buffer implements
     /**
      * Compare the remaining doubles of this buffer to another double buffer's
      * remaining doubles.
-     * 
+     *
      * @param otherBuffer
      *            another double buffer.
      * @return a negative value if this is less than {@code other}; 0 if this
@@ -193,15 +193,15 @@ public abstract class DoubleBuffer extends Buffer implements
     /**
      * Checks whether this double buffer is equal to another object. If {@code
      * other} is not a {@code DoubleBuffer} then {@code false} is returned.
-     * 
+     *
      * <p>Two double buffers are equal if their remaining doubles are equal.
      * Position, limit, capacity and mark are not considered.
-     * 
+     *
      * <p>This method considers two doubles {@code a} and {@code b} to be equal
      * if {@code a == b} or if {@code a} and {@code b} are both {@code NaN}.
      * Unlike {@link Double#equals}, this method considers {@code -0.0} and
      * {@code +0.0} to be equal.
-     * 
+     *
      * @param other
      *            the object to compare with this double buffer.
      * @return {@code true} if this double buffer is equal to {@code other},
@@ -233,7 +233,7 @@ public abstract class DoubleBuffer extends Buffer implements
     /**
      * Returns the double at the current position and increases the position by
      * 1.
-     * 
+     *
      * @return the double at the current position.
      * @exception BufferUnderflowException
      *                if the position is equal or greater than limit.
@@ -261,7 +261,7 @@ public abstract class DoubleBuffer extends Buffer implements
      * Reads doubles from the current position into the specified double array,
      * starting from the specified offset, and increases the position by the
      * number of doubles read.
-     * 
+     *
      * @param dest
      *            the target double array.
      * @param off
@@ -293,7 +293,7 @@ public abstract class DoubleBuffer extends Buffer implements
 
     /**
      * Returns a double at the specified index; the position is not changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than limit.
      * @return a double at the specified index.
@@ -331,7 +331,7 @@ public abstract class DoubleBuffer extends Buffer implements
      * <p>
      * A double buffer is direct if it is based on a byte buffer and the byte
      * buffer is direct.
-     * 
+     *
      * @return {@code true} if this buffer is direct, {@code false} otherwise.
      */
     public abstract boolean isDirect();
@@ -372,7 +372,7 @@ public abstract class DoubleBuffer extends Buffer implements
     /**
      * Writes the given double to the current position and increases the
      * position by 1.
-     * 
+     *
      * @param d
      *            the double to write.
      * @return this buffer.
@@ -406,7 +406,7 @@ public abstract class DoubleBuffer extends Buffer implements
      * Writes doubles from the given double array, starting from the specified
      * offset, to the current position and increases the position by the number
      * of doubles written.
-     * 
+     *
      * @param src
      *            the source double array.
      * @param off
@@ -442,7 +442,7 @@ public abstract class DoubleBuffer extends Buffer implements
      * Writes all the remaining doubles of the {@code src} double buffer to this
      * buffer's current position, and increases both buffers' position by the
      * number of doubles copied.
-     * 
+     *
      * @param src
      *            the source double buffer.
      * @return this buffer.
@@ -470,7 +470,7 @@ public abstract class DoubleBuffer extends Buffer implements
     /**
      * Write a double to the specified index of this buffer and the position is
      * not changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than the limit.
      * @param d
@@ -502,18 +502,18 @@ public abstract class DoubleBuffer extends Buffer implements
 
     /**
      * Returns a string representing the state of this double buffer.
-     * 
+     *
      * @return A string representing the state of this double buffer.
      */
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append(getClass().getName());
-        buf.append(", status: capacity="); 
+        buf.append(", status: capacity=");
         buf.append(capacity());
-        buf.append(" position="); 
+        buf.append(" position=");
         buf.append(position());
-        buf.append(" limit="); 
+        buf.append(" limit=");
         buf.append(limit());
         return buf.toString();
     }

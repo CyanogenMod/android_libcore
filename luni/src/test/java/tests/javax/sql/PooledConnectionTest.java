@@ -51,7 +51,7 @@ public class PooledConnectionTest extends TestCase {
         fail("Not yet implemented");
     }
 
-    
+
     /**
      * @tests {@link javax.sql.PooledConnection#removeConnectionEventListener(ConnectionEventListener)}
      */

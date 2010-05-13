@@ -49,7 +49,7 @@ abstract class AbstractSqlTest extends TestCase {
      * The second connection.
      */
     private Connection secondConnection;
-    
+
     /**
      * The statement from the first connection.
      */
@@ -87,9 +87,9 @@ abstract class AbstractSqlTest extends TestCase {
     /**
      * Sets up a unit test, by creating two statements from two connections and
      * creating a test table.
-     * 
+     *
      * @exception SQLException if there is a problem accessing the database
-     * @throws Exception 
+     * @throws Exception
      * @exception Exception may be thrown by subclasses
      */
     @Override
@@ -125,7 +125,7 @@ abstract class AbstractSqlTest extends TestCase {
     /**
      * Adds some rows to the test table and asserts that the rows can be
      * retrieved again.
-     * 
+     *
      * @throws SQLException if there is a problem accessing the database
      */
     private void autoCommitInsertSelect() throws SQLException {
@@ -139,7 +139,7 @@ abstract class AbstractSqlTest extends TestCase {
 
     /**
      * Asserts that the expected values can be selected from the test table.
-     * 
+     *
      * @param stmt the statement to be used for the selection of the data
      * @param ones the expected values of the column 'one'
      * @param twos the expected values of the column 'two'
@@ -156,7 +156,7 @@ abstract class AbstractSqlTest extends TestCase {
         }
         assertTrue(i == ones.length);
     }
-    
+
     @TestTargetNew(
       level = TestLevel.PARTIAL_COMPLETE,
       notes = "",
@@ -167,15 +167,15 @@ abstract class AbstractSqlTest extends TestCase {
     public void testAutoCommitInsertSelect() throws SQLException{
         autoCommitInsertSelect();
     }
-    
+
     /**
      * Tests the following sequence after successful insertion of some test
-     * data: 
-     * - update data from connection one 
-     * - select data from connection two (-> should have the old values) 
-     * - commit data from connection one 
+     * data:
+     * - update data from connection one
+     * - select data from connection two (-> should have the old values)
+     * - commit data from connection one
      * - select data from connection two (-> should have the new values)
-     * 
+     *
      * @throws SQLException if there is a problem accessing the database
      */
     @TestTargetNew(
@@ -196,12 +196,12 @@ abstract class AbstractSqlTest extends TestCase {
 
     /**
      * Tests the following sequence after successful insertion of some test
-     * data: 
-     * - update data from connection one 
-     * - select data from connection two (-> should have the old values) 
-     * - rollback data from connection one 
+     * data:
+     * - update data from connection one
+     * - select data from connection two (-> should have the old values)
+     * - rollback data from connection one
      * - select data from connection two (-> should still have the old values)
-     * 
+     *
      * @throws SQLException if there is a problem accessing the database
      */
     @TestTargetNew(
@@ -236,9 +236,9 @@ abstract class AbstractSqlTest extends TestCase {
     }
 
     protected abstract String getConnectionURL();
-    
+
     protected abstract String getDriverClassName();
-    
+
     protected abstract int getTransactionIsolation();
 
 }

@@ -11,7 +11,7 @@ import java.util.regex.*;
 @TestTargetClass(java.util.regex.Pattern.class)
 /**
  * TODO Type description
- * 
+ *
  */
 public class SplitTest extends TestCase {
     @TestTargets({
@@ -27,7 +27,7 @@ public class SplitTest extends TestCase {
             method = "compile",
             args = {java.lang.String.class}
         )
-    })          
+    })
     public void testSimple() {
         Pattern p = Pattern.compile("/");
         String[] results = p.split("have/you/done/it/right");
@@ -51,17 +51,17 @@ public class SplitTest extends TestCase {
         assertArraysEqual(new String[0], ":".split(":"));
         // ...but not when limit < 0.
         assertArraysEqual(new String[] { "1", "2", "" }, "1:2:".split(":", -1));
-        
+
         // Leading empty matches are retained.
         assertArraysEqual(new String[] { "", "", "o" }, "hello".split(".."));
-        
+
         // A separator that doesn't occur in the input gets you the input.
         assertArraysEqual(new String[] { "hello" }, "hello".split("not-present-in-test"));
         // ...including when the input is the empty string.
         // (Perl returns an empty list instead.)
         assertArraysEqual(new String[] { "" }, "".split("not-present-in-test"));
         assertArraysEqual(new String[] { "" }, "".split("A?"));
-        
+
         // The limit argument controls the size of the result.
         // If l == 0, the result is as long as needed, except trailing empty matches are dropped.
         // If l < 0, the result is as long as needed, and trailing empty matches are retained.
@@ -80,20 +80,20 @@ public class SplitTest extends TestCase {
         assertArraysEqual(new String[] { "a", "b", "c", "" }, "a,b,c,".split(",", Integer.MAX_VALUE));
         assertArraysEqual(new String[] { "a", "b", "c", "" }, "a,b,c,".split(",", -1));
     }
-    
+
     private void assertArraysEqual(String[] expected, String[] actual) {
         assertEquals(expected.length, actual.length);
         for (int i = 0; i < expected.length; i++) {
             assertEquals(Integer.toString(i), expected[i], actual[i]);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies the functionality of split(java.lang.CharSequence). Test uses not empty pattern.",
         method = "split",
         args = {java.lang.CharSequence.class, int.class}
-    )          
+    )
     public void testSplit1() throws PatternSyntaxException {
         Pattern p = Pattern.compile(" ");
 
@@ -190,7 +190,7 @@ public class SplitTest extends TestCase {
         notes = "Verifies the functionality of split(java.lang.CharSequence). Test uses empty pattern.",
         method = "split",
         args = {java.lang.CharSequence.class, int.class}
-    )          
+    )
     public void testSplit2() {
         Pattern p = Pattern.compile("");
         String s[];
@@ -212,7 +212,7 @@ public class SplitTest extends TestCase {
         assertEquals("c", s[3]);
         assertEquals("d", s[4]);
         assertEquals("", s[5]);
-        
+
         // Regression test for Android
         assertEquals("GOOG,23,500".split("|").length, 12);
     }
@@ -231,9 +231,9 @@ public class SplitTest extends TestCase {
             method = "compile",
             args = {java.lang.String.class}
         )
-    })          
+    })
     public void testSplitSupplementaryWithEmptyString() {
-        
+
         /*
          * See http://www.unicode.org/reports/tr18/#Supplementary_Characters
          * We have to treat text as code points not code units.
@@ -245,7 +245,7 @@ public class SplitTest extends TestCase {
         assertEquals("", s[0]);
         assertEquals("a", s[1]);
         assertEquals("\ud869\uded6", s[2]);
-        assertEquals("b", s[3]);                
-        assertEquals("", s[4]);        
+        assertEquals("b", s[3]);
+        assertEquals("", s[4]);
     }
 }

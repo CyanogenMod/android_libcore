@@ -5,11 +5,11 @@
 *******************************************************************************
 *
 *******************************************************************************
-*/ 
- /** 
+*/
+ /**
   * A JNI interface for ICU converters.
   *
-  * 
+  *
   * @author Ram Viswanadha, IBM
   */
 package com.ibm.icu4jni.charset;
@@ -27,8 +27,8 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.nio.ByteBuffer;
 
-public final class CharsetDecoderICU extends CharsetDecoder{ 
-        
+public final class CharsetDecoderICU extends CharsetDecoder{
+
 
     private static final int INPUT_OFFSET   = 0,
                              OUTPUT_OFFSET  = 1,
@@ -42,11 +42,11 @@ public final class CharsetDecoderICU extends CharsetDecoder{
      * data[INPUT_HELD]     = number of input chars held in the converter's state
      */
     private int[] data = new int[LIMIT];
-    
+
     /* handle to the ICU converter that is opened */
     private long converterHandle=0;
 
-    
+
     private  byte[] input = null;
     private  char[] output= null;
 
@@ -54,7 +54,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
     private byte[] allocatedInput = null;
     private char[] allocatedOutput = null;
     // END android-added
-    
+
     // These instance variables are
     // always assigned in the methods
     // before being used. This class
@@ -67,8 +67,8 @@ public final class CharsetDecoderICU extends CharsetDecoder{
     private int onUnmappableInput = NativeConverter.STOP_CALLBACK;;
     private int onMalformedInput = NativeConverter.STOP_CALLBACK;;
     private int savedInputHeldLen;
-    
-    /** 
+
+    /**
      * Constructs a new decoder for the given charset
      * @param cs for which the decoder is created
      * @param cHandle the address of ICU converter
@@ -80,7 +80,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
                NativeConverter.getAveCharsPerByte(cHandle),
                NativeConverter.getMaxCharsPerByte(cHandle)
                );
-                       
+
          char[] sub = replacement().toCharArray();
          ec = NativeConverter.setCallbackDecode(cHandle,
                                                 onMalformedInput,
@@ -93,18 +93,18 @@ public final class CharsetDecoderICU extends CharsetDecoder{
          converterHandle=cHandle;
 
     }
-    
+
     /**
      * Sets this decoders replacement string. Substitutes the string in input if an
      * umappable or illegal sequence is encountered
      * @param newReplacement to replace the error bytes with
      * @stable ICU 2.4
-     */    
+     */
     protected void implReplaceWith(String newReplacement) {
         if(converterHandle > 0){
             if( newReplacement.length() > NativeConverter.getMaxBytesPerChar(converterHandle)) {
                     throw new IllegalArgumentException();
-            }           
+            }
             ec =NativeConverter.setSubstitutionChars(converterHandle,
                                                     newReplacement.toCharArray(),
                                                     newReplacement.length()
@@ -114,7 +114,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
             }
         }
      }
-    
+
     /**
      * Sets the action to be taken if an illegal sequence is encountered
      * @param newAction action to be taken
@@ -134,9 +134,9 @@ public final class CharsetDecoderICU extends CharsetDecoder{
         ec = NativeConverter.setCallbackDecode(converterHandle, onMalformedInput, onUnmappableInput, sub, sub.length);
         if(ErrorCode.isFailure(ec)){
             throw ErrorCode.getException(ec);
-        } 
+        }
     }
-    
+
     /**
      * Sets the action to be taken if an illegal sequence is encountered
      * @param newAction action to be taken
@@ -155,20 +155,20 @@ public final class CharsetDecoderICU extends CharsetDecoder{
         ec = NativeConverter.setCallbackDecode(converterHandle,onMalformedInput, onUnmappableInput, sub, sub.length);
         if(ErrorCode.isFailure(ec)){
             throw ErrorCode.getException(ec);
-        } 
+        }
     }
-    
+
     /**
      * Flushes any characters saved in the converter's internal buffer and
      * resets the converter.
      * @param out action to be taken
-     * @return result of flushing action and completes the decoding all input. 
+     * @return result of flushing action and completes the decoding all input.
      *         Returns CoderResult.UNDERFLOW if the action succeeds.
      * @stable ICU 2.4
      */
     protected final CoderResult implFlush(CharBuffer out) {
        try{
-           
+
            data[OUTPUT_OFFSET] = getArray(out);
 
             ec=NativeConverter.flushByteToChar(
@@ -177,8 +177,8 @@ public final class CharsetDecoderICU extends CharsetDecoder{
                                             outEnd,           /* input index+1 to be written */
                                             data              /* contains data, inOff,outOff */
                                             );
-                                      
-            
+
+
             /* If we don't have room for the output, throw an exception*/
             if (ErrorCode.isFailure(ec)) {
                 if (ec == ErrorCode.U_BUFFER_OVERFLOW_ERROR) {
@@ -198,7 +198,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
             implReset();
        }
     }
-    
+
     /**
      * Resets the to Unicode mode of converter
      * @stable ICU 2.4
@@ -213,17 +213,17 @@ public final class CharsetDecoderICU extends CharsetDecoder{
         output = null;
         input = null;
     }
-      
+
     /**
      * Decodes one or more bytes. The default behaviour of the converter
-     * is stop and report if an error in input stream is encountered. 
+     * is stop and report if an error in input stream is encountered.
      * To set different behaviour use @see CharsetDecoder.onMalformedInput()
-     * This  method allows a buffer by buffer conversion of a data stream.  
-     * The state of the conversion is saved between calls to convert.  
-     * Among other things, this means multibyte input sequences can be 
-     * split between calls. If a call to convert results in an Error, the 
-     * conversion may be continued by calling convert again with suitably 
-     * modified parameters.All conversions should be finished with a call to 
+     * This  method allows a buffer by buffer conversion of a data stream.
+     * The state of the conversion is saved between calls to convert.
+     * Among other things, this means multibyte input sequences can be
+     * split between calls. If a call to convert results in an Error, the
+     * conversion may be continued by calling convert again with suitably
+     * modified parameters.All conversions should be finished with a call to
      * the flush method.
      * @param in buffer to decode
      * @param out buffer to populate with decoded result
@@ -240,7 +240,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
         data[INPUT_OFFSET] = getArray(in);
         data[OUTPUT_OFFSET]= getArray(out);
         data[INPUT_HELD] = 0;
-        
+
         try{
             /* do the conversion */
             ec=NativeConverter.decode(
@@ -252,7 +252,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
                                 data,             /* contains data, inOff,outOff */
                                 false             /* donot flush the data */
                                 );
-            
+
 
             /* return an error*/
             if(ec == ErrorCode.U_BUFFER_OVERFLOW_ERROR){
@@ -269,7 +269,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
             setPosition(out);
         }
     }
-    
+
     /**
      * Releases the system resources by cleanly closing ICU converter opened
      * @stable ICU 2.4
@@ -279,7 +279,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
         super.finalize();
         converterHandle = 0;
     }
-    
+
     //------------------------------------------
     // private utility methods
     //------------------------------------------
@@ -299,12 +299,12 @@ public final class CharsetDecoderICU extends CharsetDecoder{
             }
             output = allocatedOutput;
             // END android-added
-            //since the new 
-            // buffer start position 
+            //since the new
+            // buffer start position
             // is 0
             return 0;
         }
-        
+
     }
     private  final int getArray(ByteBuffer in){
         if(in.hasArray()){
@@ -326,12 +326,12 @@ public final class CharsetDecoderICU extends CharsetDecoder{
             in.get(input,0,inEnd);
             // reset the position
             in.position(pos);
-            // the start position  
-            // of the new buffer  
+            // the start position
+            // of the new buffer
             // is whatever is savedInputLen
             return savedInputHeldLen;
         }
-       
+
     }
     private final void setPosition(CharBuffer out){
         if(out.hasArray()){
@@ -348,7 +348,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
     }
     private final void setPosition(ByteBuffer in){
 
-        // ok was there input held in the previous invocation of decodeLoop 
+        // ok was there input held in the previous invocation of decodeLoop
         // that resulted in output in this invocation?
         // BEGIN android-changed
         in.position(in.position() + data[INPUT_OFFSET] + savedInputHeldLen - data[INPUT_HELD]);

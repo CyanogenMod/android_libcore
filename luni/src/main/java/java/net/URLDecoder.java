@@ -54,7 +54,7 @@ public class URLDecoder {
         if (defaultCharset == null) {
             try {
                 defaultCharset = Charset.forName(
-                        System.getProperty("file.encoding")); 
+                        System.getProperty("file.encoding"));
             } catch (IllegalCharsetNameException e) {
                 // Ignored
             } catch (UnsupportedCharsetException e) {
@@ -62,7 +62,7 @@ public class URLDecoder {
             }
 
             if (defaultCharset == null) {
-                defaultCharset = Charset.forName("ISO-8859-1"); 
+                defaultCharset = Charset.forName("ISO-8859-1");
             }
         }
         return decode(s, defaultCharset);
@@ -97,7 +97,7 @@ public class URLDecoder {
         if (enc.length() == 0) {
             throw new UnsupportedEncodingException(
                     // K00a5=Invalid parameter - {0}
-                    Msg.getString("K00a5", "enc"));  
+                    Msg.getString("K00a5", "enc"));
         }
 
         if (s.indexOf('%') == -1) {
@@ -142,7 +142,7 @@ public class URLDecoder {
                     if (i + 2 >= s.length()) {
                         throw new IllegalArgumentException(
                                 // K01fe=Incomplete % sequence at\: {0}
-                                Msg.getString("K01fe", i)); 
+                                Msg.getString("K01fe", i));
                     }
                     int d1 = Character.digit(s.charAt(i + 1), 16);
                     int d2 = Character.digit(s.charAt(i + 2), 16);
@@ -150,7 +150,7 @@ public class URLDecoder {
                         throw new IllegalArgumentException(
                                 // K01ff=Invalid % sequence ({0}) at\: {1}
                                 Msg.getString(
-                                        "K01ff", 
+                                        "K01ff",
                                         s.substring(i, i + 3),
                                         String.valueOf(i)));
                     }

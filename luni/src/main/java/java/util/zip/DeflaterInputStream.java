@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ public class DeflaterInputStream extends FilterInputStream {
      * Constructs a {@code DeflaterInputStream} with a new {@code Deflater} and an
      * implementation-defined default internal buffer size. {@code in} is a source of
      * uncompressed data, and this stream will be a source of compressed data.
-     * 
+     *
      * @param in the source {@code InputStream}
      */
     public DeflaterInputStream(InputStream in) {
@@ -52,7 +52,7 @@ public class DeflaterInputStream extends FilterInputStream {
      * Constructs a {@code DeflaterInputStream} with the given {@code Deflater} and an
      * implementation-defined default internal buffer size. {@code in} is a source of
      * uncompressed data, and this stream will be a source of compressed data.
-     * 
+     *
      * @param in the source {@code InputStream}
      * @param deflater the {@code Deflater} to be used for compression
      */
@@ -64,7 +64,7 @@ public class DeflaterInputStream extends FilterInputStream {
      * Constructs a {@code DeflaterInputStream} with the given {@code Deflater} and
      * given internal buffer size. {@code in} is a source of
      * uncompressed data, and this stream will be a source of compressed data.
-     * 
+     *
      * @param in the source {@code InputStream}
      * @param deflater the {@code Deflater} to be used for compression
      * @param bufferSize the length in bytes of the internal buffer
@@ -95,7 +95,7 @@ public class DeflaterInputStream extends FilterInputStream {
     /**
      * Reads a byte from the compressed input stream. The result will be a byte of compressed
      * data corresponding to an uncompressed byte or bytes read from the underlying stream.
-     * 
+     *
      * @return the byte or -1 if the end of the stream has been reached.
      */
     @Override
@@ -110,7 +110,7 @@ public class DeflaterInputStream extends FilterInputStream {
     /**
      * Reads compressed data into a byte buffer. The result will be bytes of compressed
      * data corresponding to an uncompressed byte or bytes read from the underlying stream.
-     * 
+     *
      * @param b
      *            the byte buffer that compressed data will be read into.
      * @param off
@@ -194,12 +194,12 @@ public class DeflaterInputStream extends FilterInputStream {
      * Returns 0 when when this stream has exhausted its input; and 1 otherwise.
      * A result of 1 does not guarantee that further bytes can be returned,
      * with or without blocking.
-     * 
+     *
      * <p>Although consistent with the RI, this behavior is inconsistent with
      * {@link InputStream#available()}, and violates the <a
      * href="http://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov
      * Substitution Principle</a>. This method should not be used.
-     * 
+     *
      * @return 0 if no further bytes are available. Otherwise returns 1,
      *         which suggests (but does not guarantee) that additional bytes are
      *         available.

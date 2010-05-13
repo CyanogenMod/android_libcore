@@ -41,7 +41,7 @@ public class Locator2Impl extends LocatorImpl implements Locator2
      * Copy an existing Locator or Locator2 object.
      * If the object implements Locator2, values of the
      * <em>encoding</em> and <em>version</em>strings are copied,
-     * otherwise they set to <em>null</em>. 
+     * otherwise they set to <em>null</em>.
      *
      * @param locator The existing Locator object.
      */
@@ -59,7 +59,7 @@ public class Locator2Impl extends LocatorImpl implements Locator2
     ////////////////////////////////////////////////////////////////////
     // Locator2 method implementations
     ////////////////////////////////////////////////////////////////////
-    
+
     /**
      * Returns the current value of the version property.
      *
@@ -72,7 +72,7 @@ public class Locator2Impl extends LocatorImpl implements Locator2
 
     /**
      * Returns the current value of the encoding property.
-     * 
+     *
      * @return the current value of the encoding property.
      *
      * @see #setEncoding
@@ -82,9 +82,9 @@ public class Locator2Impl extends LocatorImpl implements Locator2
 
 
     ////////////////////////////////////////////////////////////////////
-    // Setters 
+    // Setters
     ////////////////////////////////////////////////////////////////////
-    
+
     /**
      * Assigns the current value of the version property.
      *

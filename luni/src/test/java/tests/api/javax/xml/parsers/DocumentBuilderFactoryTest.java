@@ -45,7 +45,7 @@ import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 
-@TestTargetClass(DocumentBuilderFactory.class) 
+@TestTargetClass(DocumentBuilderFactory.class)
 public class DocumentBuilderFactoryTest extends TestCase {
 
     DocumentBuilderFactory dbf;
@@ -134,7 +134,7 @@ public class DocumentBuilderFactoryTest extends TestCase {
     /**
      * @tests javax.xml.parsers.DocumentBuilderFactory#getFeature(String).
      */
-// TODO Fails on JDK. Why?    
+// TODO Fails on JDK. Why?
 //    public void test_getFeatureLjava_lang_String() {
 //        String[] features = { "http://xml.org/sax/features/namespaces",
 //                "http://xml.org/sax/features/validation",
@@ -401,7 +401,7 @@ public class DocumentBuilderFactoryTest extends TestCase {
         } catch(Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         // Exception case
         dbf.setValidating(true);
         try {
@@ -410,7 +410,7 @@ public class DocumentBuilderFactoryTest extends TestCase {
             // Expected, since Android doesn't have a validating parser.
         }
     }
-    
+
     /**
      * @tests javax.xml.parsers.DocumentBuilderFactory#setAttribute(java.lang.String,
      *     java.lang.Object).
@@ -822,7 +822,7 @@ public class DocumentBuilderFactoryTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        
+
         try {
             dbf.getAttribute("foo");
             fail("IllegalArgumentException expected");
@@ -830,7 +830,7 @@ public class DocumentBuilderFactoryTest extends TestCase {
             // Expected
         }
     }
-    
+
     /**
      * @tests javax.xml.parsers.DocumentBuilderFactory#setSchema(javax.xml.validation.Schema).
      */

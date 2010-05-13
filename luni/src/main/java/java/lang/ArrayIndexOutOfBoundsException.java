@@ -39,13 +39,13 @@ public class ArrayIndexOutOfBoundsException extends IndexOutOfBoundsException {
      * Constructs a new {@code ArrayIndexOutOfBoundsException} with the current
      * stack trace and a detail message that is based on the specified invalid
      * {@code index}.
-     * 
+     *
      * @param index
      *            the invalid index.
      */
     public ArrayIndexOutOfBoundsException(int index) {
         // K0052=Array index out of range\: {0}
-        super(Msg.getString("K0052", index)); 
+        super(Msg.getString("K0052", index));
     }
 
     /**

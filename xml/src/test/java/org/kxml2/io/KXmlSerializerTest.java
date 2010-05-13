@@ -29,13 +29,13 @@ import static tests.support.Support_Xml.*;
 
 public class KXmlSerializerTest extends TestCase {
     private static final String NAMESPACE = null;
-    
+
     private static boolean isValidXmlCodePoint(int c) {
         // http://www.w3.org/TR/REC-xml/#charsets
         return (c >= 0x20 && c <= 0xd7ff) || (c == 0x9) || (c == 0xa) || (c == 0xd) ||
                 (c >= 0xe000 && c <= 0xfffd) || (c >= 0x10000 && c <= 0x10ffff);
     }
-    
+
     private static XmlSerializer newSerializer() throws IOException {
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         XmlSerializer serializer = new KXmlSerializer();
@@ -43,7 +43,7 @@ public class KXmlSerializerTest extends TestCase {
         serializer.startDocument("UTF-8", null);
         return serializer;
     }
-    
+
     public void testInvalidCharactersInText() throws IOException {
         XmlSerializer serializer = newSerializer();
         serializer.startTag(NAMESPACE, "root");
@@ -61,7 +61,7 @@ public class KXmlSerializerTest extends TestCase {
         }
         serializer.endTag(NAMESPACE, "root");
     }
-    
+
     public void testInvalidCharactersInAttributeValues() throws IOException {
         XmlSerializer serializer = newSerializer();
         serializer.startTag(NAMESPACE, "root");
@@ -79,7 +79,7 @@ public class KXmlSerializerTest extends TestCase {
         }
         serializer.endTag(NAMESPACE, "root");
     }
-    
+
     public void testInvalidCharactersInCdataSections() throws IOException {
         XmlSerializer serializer = newSerializer();
         serializer.startTag(NAMESPACE, "root");
@@ -97,7 +97,7 @@ public class KXmlSerializerTest extends TestCase {
         }
         serializer.endTag(NAMESPACE, "root");
     }
-    
+
     public void testCdataWithTerminatorInside() throws Exception {
         StringWriter writer = new StringWriter();
         XmlSerializer serializer = new KXmlSerializer();

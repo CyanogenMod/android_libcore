@@ -23,7 +23,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(NotActiveException.class) 
+@TestTargetClass(NotActiveException.class)
 public class NotActiveExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -33,7 +33,7 @@ public class NotActiveExceptionTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "NotActiveException",
             args = {}
-        )     
+        )
     public void test_Constructor() {
         try {
             if (true) // To avoid unreachable code compilation error.
@@ -52,7 +52,7 @@ public class NotActiveExceptionTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "NotActiveException",
             args = {java.lang.String.class}
-        )     
+        )
     public void test_ConstructorLjava_lang_String() {
         try {
             if (true) // To avoid unreachable code compilation error.

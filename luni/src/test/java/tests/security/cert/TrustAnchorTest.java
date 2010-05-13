@@ -59,7 +59,7 @@ public class TrustAnchorTest extends TestCase {
         "C=Testland";
 
     /**
-     * Test #1 for <code>TrustAnchor(String, PublicKey, byte[])</code> constructor<br> 
+     * Test #1 for <code>TrustAnchor(String, PublicKey, byte[])</code> constructor<br>
      * Assertion: creates <code>TrustAnchor</code> instance<br>
      * Test preconditions: valid parameters passed<br>
      * Expected: must pass without any exceptions
@@ -79,15 +79,15 @@ public class TrustAnchorTest extends TestCase {
         // sub testcase 1
         new TrustAnchor(validCaNameRfc2253, pk, getFullEncoding());
         // sub testcase 2
-        new TrustAnchor(validCaNameRfc2253, pk, getEncodingPSOnly());        
+        new TrustAnchor(validCaNameRfc2253, pk, getEncodingPSOnly());
         // sub testcase 3
-        new TrustAnchor(validCaNameRfc2253, pk, getEncodingESOnly());        
+        new TrustAnchor(validCaNameRfc2253, pk, getEncodingESOnly());
         // sub testcase 4
-        new TrustAnchor(validCaNameRfc2253, pk, getEncodingNoMinMax());        
+        new TrustAnchor(validCaNameRfc2253, pk, getEncodingNoMinMax());
     }
 
     /**
-     * Test #2 for <code>TrustAnchor(String, PublicKey, byte[])</code> constructor<br> 
+     * Test #2 for <code>TrustAnchor(String, PublicKey, byte[])</code> constructor<br>
      * Assertion: creates <code>TrustAnchor</code> instance<br>
      * Test preconditions: <code>null</code> as nameConstraints passed<br>
      * Expected: must pass without any exceptions
@@ -108,7 +108,7 @@ public class TrustAnchorTest extends TestCase {
     }
 
     /**
-     * Test #3 for <code>TrustAnchor(String, PublicKey, byte[])</code> constructor<br> 
+     * Test #3 for <code>TrustAnchor(String, PublicKey, byte[])</code> constructor<br>
      * Assertion: nameConstraints cloned by the constructor<br>
      * Test preconditions: modify passed nameConstraints<br>
      * Expected: modification must not change object internal state
@@ -137,7 +137,7 @@ public class TrustAnchorTest extends TestCase {
     }
 
     /**
-     * Test #4 for <code>TrustAnchor(String, PublicKey, byte[])</code> constructor<br> 
+     * Test #4 for <code>TrustAnchor(String, PublicKey, byte[])</code> constructor<br>
      * Assertion: <code>NullPointerException</code> if <code>caName</code>
      * or <code>caPublicKey</code> parameter is <code>null</code><br>
      * Test preconditions: pass <code>null</code> as mentioned parameter<br>
@@ -191,7 +191,7 @@ public class TrustAnchorTest extends TestCase {
     }
 
     /**
-     * Test #1 for <code>TrustAnchor(X500Principal, PublicKey, byte[])</code> constructor<br> 
+     * Test #1 for <code>TrustAnchor(X500Principal, PublicKey, byte[])</code> constructor<br>
      * Assertion: creates <code>TrustAnchor</code> instance<br>
      * Test preconditions: valid parameters passed<br>
      * Expected: must pass without any exceptions
@@ -212,15 +212,15 @@ public class TrustAnchorTest extends TestCase {
         // sub testcase 1
         new TrustAnchor(x500p, pk, getFullEncoding());
         // sub testcase 2
-        new TrustAnchor(x500p, pk, getEncodingPSOnly());        
+        new TrustAnchor(x500p, pk, getEncodingPSOnly());
         // sub testcase 3
-        new TrustAnchor(x500p, pk, getEncodingESOnly());        
+        new TrustAnchor(x500p, pk, getEncodingESOnly());
         // sub testcase 4
-        new TrustAnchor(x500p, pk, getEncodingNoMinMax());        
+        new TrustAnchor(x500p, pk, getEncodingNoMinMax());
     }
 
     /**
-     * Test #2 for <code>TrustAnchor(X500Principal, PublicKey, byte[])</code> constructor<br> 
+     * Test #2 for <code>TrustAnchor(X500Principal, PublicKey, byte[])</code> constructor<br>
      * Assertion: creates <code>TrustAnchor</code> instance<br>
      * Test preconditions: <code>null</code> as nameConstraints passed<br>
      * Expected: must pass without any exceptions
@@ -243,7 +243,7 @@ public class TrustAnchorTest extends TestCase {
     }
 
     /**
-     * Test #3 for <code>TrustAnchor(X500Principal, PublicKey, byte[])</code> constructor<br> 
+     * Test #3 for <code>TrustAnchor(X500Principal, PublicKey, byte[])</code> constructor<br>
      * Assertion: nameConstraints cloned by the constructor<br>
      * Test preconditions: modify passed nameConstraints<br>
      * Expected: modification must not change object internal state
@@ -273,7 +273,7 @@ public class TrustAnchorTest extends TestCase {
     }
 
     /**
-     * Test #4 for <code>TrustAnchor(X500Principal, PublicKey, byte[])</code> constructor<br> 
+     * Test #4 for <code>TrustAnchor(X500Principal, PublicKey, byte[])</code> constructor<br>
      * Assertion: <code>NullPointerException</code> if <code>caPrincipal</code>
      * or <code>caPublicKey</code> parameter is <code>null</code><br>
      * Test preconditions: pass <code>null</code> as mentioned parameter<br>
@@ -429,7 +429,7 @@ public class TrustAnchorTest extends TestCase {
      * Assertion: creates <code>TrustAnchor</code> instance<br>
      * Test preconditions: pass not valid name constraints array Expected:
      * IllegalArgumentException
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -480,11 +480,11 @@ public class TrustAnchorTest extends TestCase {
 
     /**
      * Test #1 for <code>getCAPublicKey()</code> method<br>
-     *  
+     *
      * Assertion: returns most trusted CA public key</code><br>
      * Test preconditions: valid name passed to the constructor<br>
      * Expected: the same name must be returned by the method<br>
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -509,7 +509,7 @@ public class TrustAnchorTest extends TestCase {
 
     /**
      * Test #1 for <code>getCAName()</code> method<br>
-     *  
+     *
      * Assertion: returns most trusted CA name as <code>String</code><br>
      * Test preconditions: valid name passed to the constructor<br>
      * Expected: the same name must be returned by the method<br>
@@ -537,7 +537,7 @@ public class TrustAnchorTest extends TestCase {
 
     /**
      * Test #2 for <code>getCAName()</code> method<br>
-     *  
+     *
      * Assertion: returns ... <code>null</code> if <code>TrustAnchor</code>
      * was not specified as trusted certificate<br>
      * Test preconditions: test object is not specified as trusted certificate<br>
@@ -561,7 +561,7 @@ public class TrustAnchorTest extends TestCase {
         X500Principal x500p = new X500Principal(validCaNameRfc2253);
         ta = new TrustAnchor(x500p, pk, null);
         assertNull("null2", ta.getTrustedCert());
-        
+
         X509Certificate cert = new TestCertUtils.TestX509Certificate(x500p, x500p);
         TrustAnchor ta2 = new TrustAnchor(cert, null);
         assertSame(cert, ta2.getTrustedCert());
@@ -569,7 +569,7 @@ public class TrustAnchorTest extends TestCase {
 
     /**
      * Test #1 for <code>getNameConstraints()</code> method<br>
-     * 
+     *
      * Assertion: Returns the name constraints parameter.<br>
      * Test preconditions: valid parameters are passed to the constructors<br>
      * Expected: the valid parameters must be returned by the method<br>
@@ -602,7 +602,7 @@ public class TrustAnchorTest extends TestCase {
 
     /**
      * Test #2 for <code>getNameConstraints()</code> method<br>
-     * 
+     *
      * Assertion: Returns the name constraints parameter.<br>
      * Test preconditions: null parameters are passed to the constructors<br>
      * Expected: the null parameters must be returned by the method<br>
@@ -633,7 +633,7 @@ public class TrustAnchorTest extends TestCase {
 
     /**
      * Test #1 for <code>toString()</code> method<br>
-     * 
+     *
      * Assertion: returns a formatted string describing the TrustAnchor<br>
      * Test preconditions: valid parameters are passed to the constructors<br>
      * Expected: not null string<br>
@@ -665,7 +665,7 @@ public class TrustAnchorTest extends TestCase {
 
     /**
      * Test #1 for <code>getCA()</code> method<br>
-     *  
+     *
      * Assertion: returns most trusted CA<br>
      * Test preconditions: valid CA or CA name passed to the constructor<br>
      * Expected: the same CA ot the CA with the same name must be returned
@@ -696,14 +696,14 @@ public class TrustAnchorTest extends TestCase {
     //
     // Private stuff
     //
-    
+
     /*
      * The following methods return valid DER encoding
      * for the following ASN.1 definition (as specified in RFC 3280 -
      *  Internet X.509 Public Key Infrastructure.
      *  Certificate and Certificate Revocation List (CRL) Profile.
      *  http://www.ietf.org/rfc/rfc3280.txt):
-     * 
+     *
      *  NameConstraints ::= SEQUENCE {
      *             permittedSubtrees       [0]     GeneralSubtrees OPTIONAL,
      *             excludedSubtrees        [1]     GeneralSubtrees OPTIONAL }
@@ -727,7 +727,7 @@ public class TrustAnchorTest extends TestCase {
      *             uniformResourceIdentifier       [6]     IA5String,
      *             iPAddress                       [7]     OCTET STRING,
      *             registeredID                    [8]     OBJECT IDENTIFIER}
-     */ 
+     */
 
     //
     // Full NameConstraints encoding
@@ -782,7 +782,7 @@ public class TrustAnchorTest extends TestCase {
     // NameConstraints encoding without excludedSubtrees
     // (generated by own encoder class created during test development)
     //
-    // @return NameConstraints encoding with 
+    // @return NameConstraints encoding with
     // permittedSubtrees only; all OPTIONAL
     // values in permittedSubtrees are presented.
     //
@@ -814,7 +814,7 @@ public class TrustAnchorTest extends TestCase {
     // NameConstraints encoding without permittedSubtrees
     // (generated by own encoder class created during test development)
     //
-    // @return NameConstraints encoding with 
+    // @return NameConstraints encoding with
     // excludedSubtrees only; all OPTIONAL
     // values in excludedSubtrees are presented.
     //

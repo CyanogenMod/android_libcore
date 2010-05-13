@@ -80,8 +80,8 @@ public class XMLFilterImpl
 
     /**
      * Construct an XML filter with the specified parent.
-     * 
-     * @param parent the XML reader from which this filter receives its events. 
+     *
+     * @param parent the XML reader from which this filter receives its events.
      *
      * @see #setParent
      * @see #getParent
@@ -102,8 +102,8 @@ public class XMLFilterImpl
     /**
      * Set the parent reader.
      *
-     * <p>This is the {@link org.xml.sax.XMLReader XMLReader} from which 
-     * this filter will obtain its events and to which it will pass its 
+     * <p>This is the {@link org.xml.sax.XMLReader XMLReader} from which
+     * this filter will obtain its events and to which it will pass its
      * configuration requests.  The parent may itself be another filter.</p>
      *
      * <p>If there is no parent reader set, any attempt to parse
@@ -146,7 +146,7 @@ public class XMLFilterImpl
      * @exception org.xml.sax.SAXNotRecognizedException If the feature
      *            value can't be assigned or retrieved from the parent.
      * @exception org.xml.sax.SAXNotSupportedException When the
-     *            parent recognizes the feature name but 
+     *            parent recognizes the feature name but
      *            cannot set the requested value.
      */
     public void setFeature (String name, boolean value)
@@ -170,7 +170,7 @@ public class XMLFilterImpl
      * @exception org.xml.sax.SAXNotRecognizedException If the feature
      *            value can't be assigned or retrieved from the parent.
      * @exception org.xml.sax.SAXNotSupportedException When the
-     *            parent recognizes the feature name but 
+     *            parent recognizes the feature name but
      *            cannot determine its value at this time.
      */
     public boolean getFeature (String name)
@@ -194,7 +194,7 @@ public class XMLFilterImpl
      * @exception org.xml.sax.SAXNotRecognizedException If the property
      *            value can't be assigned or retrieved from the parent.
      * @exception org.xml.sax.SAXNotSupportedException When the
-     *            parent recognizes the property name but 
+     *            parent recognizes the property name but
      *            cannot set the requested value.
      */
     public void setProperty (String name, Object value)
@@ -216,7 +216,7 @@ public class XMLFilterImpl
      * @exception org.xml.sax.SAXNotRecognizedException If the property
      *            value can't be assigned or retrieved from the parent.
      * @exception org.xml.sax.SAXNotSupportedException When the
-     *            parent recognizes the property name but 
+     *            parent recognizes the property name but
      *            cannot determine its value at this time.
      */
     public Object getProperty (String name)
@@ -387,7 +387,7 @@ public class XMLFilterImpl
     // Implementation of org.xml.sax.DTDHandler.
     ////////////////////////////////////////////////////////////////////
 
-    
+
     /**
      * Filter a notation declaration event.
      *
@@ -405,7 +405,7 @@ public class XMLFilterImpl
     }
     }
 
-    
+
     /**
      * Filter an unparsed entity declaration event.
      *
@@ -683,7 +683,7 @@ public class XMLFilterImpl
      * Set up before a parse.
      *
      * <p>Before every parse, check whether the parent is
-     * non-null, and re-register the filter for all of the 
+     * non-null, and re-register the filter for all of the
      * events.</p>
      */
     private void setupParse ()

@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -147,7 +147,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method isError().
-     * 
+     *
      */
     @TestTargets({
         @TestTargetNew(
@@ -178,7 +178,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method isMalformed().
-     * 
+     *
      */
     @TestTargets({
         @TestTargetNew(
@@ -209,7 +209,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method isMalformed().
-     * 
+     *
      */
     @TestTargets({
         @TestTargetNew(
@@ -240,7 +240,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method isOverflow().
-     * 
+     *
      */
     @TestTargets({
         @TestTargetNew(
@@ -271,7 +271,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method isUnderflow().
-     * 
+     *
      */
     @TestTargets({
         @TestTargetNew(
@@ -302,7 +302,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method length().
-     * 
+     *
      */
     @TestTargets({
         @TestTargetNew(
@@ -344,7 +344,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method malformedForLength(int).
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -377,7 +377,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method unmappableForLength(int).
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -408,7 +408,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method throwException().
-     * 
+     *
      */
     @TestTargets({
         @TestTargetNew(
@@ -459,7 +459,7 @@ public class CoderResultTest extends TestCase {
 
     /**
      * Test method toString().
-     * 
+     *
      */
     @TestTargets({
         @TestTargetNew(

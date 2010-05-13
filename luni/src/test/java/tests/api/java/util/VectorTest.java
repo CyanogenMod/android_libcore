@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +34,7 @@ import java.util.Vector;
 
 import tests.support.Support_ListTest;
 
-@TestTargetClass(Vector.class) 
+@TestTargetClass(Vector.class)
 public class VectorTest extends junit.framework.TestCase {
 
     private Vector tVector = new Vector();
@@ -85,7 +85,7 @@ public class VectorTest extends junit.framework.TestCase {
         Vector v = new Vector(100);
         assertEquals("Vector creation failed", 0, v.size());
         assertEquals("Wrong capacity", 100, v.capacity());
-        
+
         try {
             new Vector(-1);
             fail("IllegalArgumentException expected");
@@ -121,7 +121,7 @@ public class VectorTest extends junit.framework.TestCase {
         grow.addElement("four");
         assertEquals("Wrong size", 4, grow.size());
         assertEquals("Wrong capacity", 6, grow.capacity());
-        
+
         try {
             new Vector(-1, 1);
             fail("IllegalArgumentException expected");
@@ -150,7 +150,7 @@ public class VectorTest extends junit.framework.TestCase {
         for (int counter = 0; counter < objArray.length; counter++)
             assertTrue("Vector does not contain correct elements", myVector
                     .contains(((List) l).get(counter)));
-        
+
         try {
             new Vector(null);
             fail("NullPointerException expected");
@@ -183,14 +183,14 @@ public class VectorTest extends junit.framework.TestCase {
         assertTrue("Failed to fix-up existing indices after adding null",
                 tVector.get(51) == prev);
         assertEquals("Wrong size after add", 102, tVector.size());
-        
+
         try {
             tVector.add(-5, null);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.add(tVector.size() + 1, null);
             fail("ArrayIndexOutOfBoundsException expected");
@@ -262,21 +262,21 @@ public class VectorTest extends junit.framework.TestCase {
                 .get(51));
         assertNull("Wrong element at position 52--wanted null",
                 tVector.get(52));
-        
+
         try {
             tVector.addAll(-5, Arrays.asList(new String[] { "two", "three" }));
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.addAll(tVector.size() + 1, Arrays.asList(new String[] { "two", "three" }));
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.addAll(tVector.size() / 2, null);
             fail("NullPointerException expected");
@@ -491,7 +491,7 @@ public class VectorTest extends junit.framework.TestCase {
         s.add(new Object());
         assertTrue("Returned true for invalid collection", !tVector
                 .containsAll(s));
-        
+
         try {
             tVector.containsAll(null);
             fail("NullPointerException expected");
@@ -518,7 +518,7 @@ public class VectorTest extends junit.framework.TestCase {
 
         for (int i = 0; i < 100; i++)
             assertTrue("copyInto failed", a[i] == tVector.elementAt(i));
-        
+
         try {
             tVector.copyInto(null);
             fail("NullPointerException expected");
@@ -543,14 +543,14 @@ public class VectorTest extends junit.framework.TestCase {
         tVector.setElementAt(null, 20);
         assertNull("Incorrect element returned--wanted null", tVector
                 .elementAt(20));
-        
+
         try {
             tVector.elementAt(-5);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.elementAt(tVector.size() + 1);
             fail("ArrayIndexOutOfBoundsException expected");
@@ -677,9 +677,9 @@ public class VectorTest extends junit.framework.TestCase {
         tVector.insertElementAt(null, 0);
         assertNull("Returned incorrect firstElement--wanted null", tVector
                 .firstElement());
-        
+
         tVector = new Vector(10);
-        
+
         try {
             tVector.firstElement();
             fail("NoSuchElementException expected");
@@ -699,19 +699,19 @@ public class VectorTest extends junit.framework.TestCase {
     )
     public void test_getI() {
         // Test for method java.lang.Object java.util.Vector.get(int)
-        assertEquals("Get returned incorrect object", 
+        assertEquals("Get returned incorrect object",
                 "Test 80", tVector.get(80));
         tVector.add(25, null);
         assertNull("Returned incorrect element--wanted null",
                 tVector.get(25));
-        
+
         try {
             tVector.get(-5);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.get(tVector.size() + 1);
             fail("ArrayIndexOutOfBoundsException expected");
@@ -783,7 +783,7 @@ public class VectorTest extends junit.framework.TestCase {
                 + tVector.indexOf(null, 25), tVector.indexOf(null, 25) == 40);
         assertTrue("b) Incorrect indexOf returned for null: "
                 + tVector.indexOf(null, 20), tVector.indexOf(null, 20) == 20);
-        
+
         try {
             tVector.indexOf(null, -1);
             fail("IndexOutOfBoundsException expected");
@@ -813,14 +813,14 @@ public class VectorTest extends junit.framework.TestCase {
                 .equals(prevElement));
         v.insertElementAt(null, 20);
         assertNull("null not inserted", v.elementAt(20));
-        
+
         try {
             tVector.insertElementAt(null, -5);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.insertElementAt(null, tVector.size() + 1);
             fail("ArrayIndexOutOfBoundsException expected");
@@ -899,9 +899,9 @@ public class VectorTest extends junit.framework.TestCase {
         tVector.addElement(null);
         assertNull("Incorrect last element returned--wanted null", tVector
                 .lastElement());
-        
+
         tVector = new Vector(10);
-        
+
         try {
             tVector.lastElement();
             fail("NoSuchElementException expected");
@@ -957,7 +957,7 @@ public class VectorTest extends junit.framework.TestCase {
         assertTrue("Incorrect lastIndexOf returned for null: "
                 + tVector.lastIndexOf(null, 45),
                 tVector.lastIndexOf(null, 45) == 40);
-        
+
         try {
             tVector.lastIndexOf(null, tVector.size());
             fail("IndexOutOfBoundsException expected");
@@ -989,14 +989,14 @@ public class VectorTest extends junit.framework.TestCase {
         assertNotNull("Didn't remove null element", tVector.get(19));
         assertEquals("Failed to decrement size after removing null", 98, tVector
                 .size());
-        
+
         try {
             tVector.remove(-5);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.remove(tVector.size() + 1);
             fail("ArrayIndexOutOfBoundsException expected");
@@ -1064,7 +1064,7 @@ public class VectorTest extends junit.framework.TestCase {
         v.removeAll(l);
         assertEquals("Should only have one element", 1, v.size());
         assertEquals("Element should be 'Boom'", "Boom", v.firstElement());
-        
+
         try {
             v.removeAll(null);
             fail("NullPointerException expected");
@@ -1131,14 +1131,14 @@ public class VectorTest extends junit.framework.TestCase {
         tVector.removeElementAt(60);
         assertNotNull("Element at 60 should not be null after removal", tVector
                 .elementAt(60));
-        
+
         try {
             tVector.elementAt(-5);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.elementAt(tVector.size() + 1);
             fail("ArrayIndexOutOfBoundsException expected");
@@ -1167,13 +1167,13 @@ public class VectorTest extends junit.framework.TestCase {
         tVector.retainAll(s);
         assertTrue("Retained items other than specified", tVector.size() == 2
                 && tVector.contains(o) && tVector.contains(null));
-        
+
         Iterator i = s.iterator();
-        
+
         while (i.hasNext()) {
             assertTrue(tVector.contains(i.next()));
         }
-        
+
         try {
             tVector.retainAll(null);
             fail("NullPointerException expected");
@@ -1197,14 +1197,14 @@ public class VectorTest extends junit.framework.TestCase {
         Object o = new Object();
         tVector.set(23, o);
         assertTrue("Failed to set Object", tVector.get(23) == o);
-        
+
         try {
             tVector.set(-5, "Wrong position");
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.set(tVector.size() + 1, "Wrong position");
             fail("ArrayIndexOutOfBoundsException expected");
@@ -1229,14 +1229,14 @@ public class VectorTest extends junit.framework.TestCase {
         v.setElementAt("Inserted Element", 99);
         assertEquals("Element not set", "Inserted Element", ((String) v.elementAt(99))
                 );
-        
+
         try {
             tVector.setElementAt("Wrong position", -5);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch(ArrayIndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.setElementAt("Wrong position", tVector.size() + 1);
             fail("ArrayIndexOutOfBoundsException expected");
@@ -1259,7 +1259,7 @@ public class VectorTest extends junit.framework.TestCase {
         Vector v = vectorClone(tVector);
         v.setSize(10);
         assertEquals("Failed to set size", 10, v.size());
-        
+
         try {
             tVector.setSize(-5);
             fail("ArrayIndexOutOfBoundsException expected");
@@ -1327,21 +1327,21 @@ public class VectorTest extends junit.framework.TestCase {
 
         assertEquals("Not synchronized random access", "java.util.Collections$SynchronizedRandomAccessList", sl.getClass().getName()
                 );
-        
+
         try {
             tVector.subList(-10, 25);
             fail("IndexOutOfBoundsException expected");
         } catch(IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.subList(10, tVector.size() + 1);
             fail("IndexOutOfBoundsException expected");
         } catch(IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             tVector.subList(25, 10);
             fail("IllegalArgumentException expected");
@@ -1385,7 +1385,7 @@ public class VectorTest extends junit.framework.TestCase {
         assertNull("Failed to set slot to null", o[100]);
         for (int i = 0; i < tVector.size(); i++)
             assertTrue("Returned incorrect array", tVector.elementAt(i) == o[i]);
-        
+
         try {
             tVector.toArray(null);
             fail("NullPointerException expected");
@@ -1444,14 +1444,14 @@ public class VectorTest extends junit.framework.TestCase {
         v.trimToSize();
         assertEquals("Failed to trim capacity", 1, v.capacity());
     }
-    
+
     class Mock_Vector extends Vector {
         @Override
         protected void removeRange(int from, int to) {
             super.removeRange(from, to);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",

@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,11 +32,11 @@ public class ClassLoaderTest extends TestCase {
     public static volatile int flag;
 
     /**
-     * Tests that Classloader.defineClass() assigns appropriate 
+     * Tests that Classloader.defineClass() assigns appropriate
      * default domains to the defined classes.
      */
     public void test_defineClass_defaultDomain() throws Exception {
-        // Regression for HARMONY-765 
+        // Regression for HARMONY-765
         DynamicPolicy plc = new DynamicPolicy();
         Policy back = Policy.getPolicy();
         try {
@@ -54,11 +54,11 @@ public class ClassLoaderTest extends TestCase {
             Policy.setPolicy(back);
         }
     }
-    
+
     static class SyncTestClassLoader extends ClassLoader {
         Object lock;
         volatile int numFindClassCalled;
-        
+
         SyncTestClassLoader(Object o) {
             this.lock = o;
             numFindClassCalled = 0;
@@ -108,16 +108,16 @@ public class ClassLoaderTest extends TestCase {
             throw new ClassNotFoundException("Class " + name + " not found.");
         }
     }
-    
+
     static class SyncLoadTestThread extends Thread {
         volatile boolean started;
         ClassLoader cl;
         Class<?> cls;
-        
+
         SyncLoadTestThread(ClassLoader cl) {
             this.cl = cl;
         }
-        
+
         @Override
         public void run() {
             try {
@@ -128,15 +128,15 @@ public class ClassLoaderTest extends TestCase {
             }
         }
     }
-    
+
     /**
      * Regression test for HARMONY-1939:
-     * 2 threads simultaneously run Class.forName() method for the same classname 
+     * 2 threads simultaneously run Class.forName() method for the same classname
      * and the same classloader. It is expected that both threads succeed but
-     * class must be defined just once.  
+     * class must be defined just once.
      */
-    public void test_loadClass_concurrentLoad() throws Exception 
-    {    
+    public void test_loadClass_concurrentLoad() throws Exception
+    {
         Object lock = new Object();
         SyncTestClassLoader cl = new SyncTestClassLoader(lock);
         SyncLoadTestThread tt1 = new SyncLoadTestThread(cl);
@@ -155,7 +155,7 @@ public class ClassLoaderTest extends TestCase {
         }
         tt1.join();
         tt2.join();
-        
+
         assertSame("Bad or redefined class", tt1.cls, tt2.cls);
         assertEquals("Both threads tried to define class", 1, cl.numFindClassCalled);
     }
@@ -222,8 +222,8 @@ public class ClassLoaderTest extends TestCase {
         assertNotNull("Failed to find resource: hyts_Foo.c", ClassLoader
                 .getSystemResource("hyts_Foo.c"));
     }
-    
-    
+
+
     //Regression Test for JIRA-2047
     public void test_getResourceAsStream_withSharpChar() throws Exception {
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream(

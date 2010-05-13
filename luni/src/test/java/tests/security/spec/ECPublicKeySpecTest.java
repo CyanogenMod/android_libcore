@@ -59,7 +59,7 @@ public class ECPublicKeySpecTest extends TestCase {
 
     /**
      * test for constructor ECPublicKeySpec(ECPoint, ECParameterSpec)
-     * test covers following usecases: 
+     * test covers following usecases:
      * case 1: creating object with valid parameters
      * case 2: catch NullPointerException - if w is null.
      * case 3: catch NullPointerException - if params is null.

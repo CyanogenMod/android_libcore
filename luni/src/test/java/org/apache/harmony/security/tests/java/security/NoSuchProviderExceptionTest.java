@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>NoSuchProviderException</code> class constructors and
  * methods.
- * 
+ *
  */
 public class NoSuchProviderExceptionTest extends TestCase {
 

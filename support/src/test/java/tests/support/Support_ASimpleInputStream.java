@@ -30,7 +30,7 @@ public class Support_ASimpleInputStream extends InputStream {
         this();
         throwExceptionOnNextUse = throwException;
     }
-    
+
     public Support_ASimpleInputStream(String input) {
         buf = input.getBytes();
         pos = 0;

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import java.util.Stack;
 
 /**
  * A stack to store the parameters of a call, as well as the call stack.
- * 
+ *
  */
 public class CallVerificationStack extends Stack<Object> {
 
@@ -66,7 +66,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Gets the singleton instance.
-     * 
+     *
      * @return the singleton instance
      */
     public static CallVerificationStack getInstance() {
@@ -89,7 +89,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Gets the "current" calling class name.
-     * 
+     *
      * @return the "current" calling class name
      */
     public String getCurrentSourceClass() {
@@ -98,7 +98,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Gets the "current" calling method name.
-     * 
+     *
      * @return the "current" calling method name
      */
     public String getCurrentSourceMethod() {
@@ -107,7 +107,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Clear the parameter stack and the call stack.
-     * 
+     *
      */
     @Override
     public void clear() {
@@ -123,7 +123,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pushes a boolean onto the top of this stack.
-     * 
+     *
      * @param val
      *            the value to push
      */
@@ -133,7 +133,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pushes a char onto the top of this stack.
-     * 
+     *
      * @param val
      *            the value to push
      */
@@ -143,7 +143,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pushes a double onto the top of this stack.
-     * 
+     *
      * @param val
      *            the value to push
      */
@@ -153,7 +153,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pushes a float onto the top of this stack.
-     * 
+     *
      * @param val
      *            the value to push
      */
@@ -163,7 +163,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pushes an int onto the top of this stack.
-     * 
+     *
      * @param val
      *            the value to push
      */
@@ -173,7 +173,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pushes a long onto the top of this stack.
-     * 
+     *
      * @param val
      *            the value to push
      */
@@ -183,7 +183,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pushes a short onto the top of this stack.
-     * 
+     *
      * @param val
      *            the value to push
      */
@@ -193,7 +193,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pop an object.
-     * 
+     *
      * @return the object
      */
     @Override
@@ -204,7 +204,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pop a boolean.
-     * 
+     *
      * @return the value
      */
     public boolean popBoolean() {
@@ -215,7 +215,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pop a char.
-     * 
+     *
      * @return the value
      */
     public char popChar() {
@@ -226,7 +226,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pop a double.
-     * 
+     *
      * @return the value
      */
     public double popDouble() {
@@ -237,7 +237,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pop a float.
-     * 
+     *
      * @return the value
      */
     public float popFloat() {
@@ -248,7 +248,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pop a int.
-     * 
+     *
      * @return the value
      */
     public int popInt() {
@@ -259,7 +259,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pop a long.
-     * 
+     *
      * @return the value
      */
     public long popLong() {
@@ -270,7 +270,7 @@ public class CallVerificationStack extends Stack<Object> {
 
     /**
      * Pop a short.
-     * 
+     *
      * @return the value
      */
     public short popShort() {

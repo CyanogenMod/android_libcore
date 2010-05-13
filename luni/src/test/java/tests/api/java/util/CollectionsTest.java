@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +49,7 @@ import tests.support.Support_SetTest;
 import tests.support.Support_UnmodifiableCollectionTest;
 import tests.support.Support_UnmodifiableMapTest;
 
-@TestTargetClass(Collections.class) 
+@TestTargetClass(Collections.class)
 public class CollectionsTest extends junit.framework.TestCase {
 
     private LinkedList ll;
@@ -69,7 +69,7 @@ public class CollectionsTest extends junit.framework.TestCase {
     private Object[] objArray;
 
     private Object[] myobjArray;
-    
+
     public static class ReversedMyIntComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             return -((MyInt) o1).compareTo((MyInt) o2);
@@ -336,7 +336,7 @@ public class CollectionsTest extends junit.framework.TestCase {
             throw new UnsupportedOperationException();
         }
     }
-    
+
     /**
      * @tests java.util.Collections#copy(java.util.List, java.util.List)
      */
@@ -376,35 +376,35 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertTrue("Elements after copied elements affected by copy",
                 extraElement == al.get(llSize)
                         && extraElement2 == al.get(llSize + 1));
-        
+
         ArrayList ar1 = new ArrayList();
         ArrayList ar2 = new ArrayList();
-        
+
         int i;
-        
+
         for(i = 0; i < 5; i ++) {
             ar2.add(new Integer(i));
         }
-        
+
         for(i = 0; i < 10; i ++) {
             ar1.add(new Integer(i));
         }
-        
+
         try {
             Collections.copy(ar2, ar1);
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         Mock_ArrayList mal1 = new Mock_ArrayList();
         Mock_ArrayList mal2 = new Mock_ArrayList();
-        
+
         for(i = 0; i < 10; i ++) {
             mal1.add(new Integer(i));
             mal2.add(new Integer(10 - i));
         }
-        
+
         try {
             Collections.copy(mal1, mal2);
             fail("UnsupportedOperationException expected");
@@ -491,12 +491,12 @@ public class CollectionsTest extends junit.framework.TestCase {
         i = ll.iterator();
         while (i.hasNext())
             assertNull("Failed to fill with nulls", i.next());
-        
+
         Mock_ArrayList mal = new Mock_ArrayList();
-        
+
         mal.add("one");
         mal.add("two");
-        
+
         try {
             Collections.fill(mal, "value");
             fail("UnsupportedOperationException ecpected");
@@ -520,20 +520,20 @@ public class CollectionsTest extends junit.framework.TestCase {
         // assumes s, objArray are sorted
         assertTrue("Returned incorrect max element",
                 Collections.max(s) == objArray[objArray.length - 1]);
-        
+
         ArrayList al = new ArrayList();
-        
+
         try {
             Collections.max(al);
             fail("NoSuchElementException expected");
         } catch (NoSuchElementException e) {
             //expected
         }
-        
+
         al.add("String");
         al.add(new Integer(1));
         al.add(new Double(3.14));
-        
+
         try {
             Collections.max(al);
             fail("ClassCastException expected");
@@ -565,18 +565,18 @@ public class CollectionsTest extends junit.framework.TestCase {
                 Collections.max(mys, rmic) == myobjArray[0]);
 
         ArrayList al = new ArrayList();
-        
+
         try {
             Collections.max(al, rmic);
             fail("NoSuchElementException expected");
         } catch (NoSuchElementException e) {
             //expected
         }
-        
+
         al.add("String");
         al.add(new Integer(1));
         al.add(new Double(3.14));
-        
+
         try {
             Collections.max(al, rmic);
             fail("ClassCastException expected");
@@ -601,18 +601,18 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertTrue("Returned incorrect min element",
                 Collections.min(s) == objArray[0]);
         ArrayList al = new ArrayList();
-        
+
         try {
             Collections.min(al);
             fail("NoSuchElementException expected");
         } catch (NoSuchElementException e) {
             //expected
         }
-        
+
         al.add("String");
         al.add(new Integer(1));
         al.add(new Double(3.14));
-        
+
         try {
             Collections.min(al);
             fail("ClassCastException expected");
@@ -639,24 +639,24 @@ public class CollectionsTest extends junit.framework.TestCase {
         // With this custom (backwards) comparator the 'min' element should be
         // the largest in the list
         ReversedMyIntComparator rmic = new ReversedMyIntComparator();
-        
+
         assertTrue(
                 "Returned incorrect min element using custom comparator",
                 Collections.min(mys, rmic) == myobjArray[objArray.length - 1]);
 
         ArrayList al = new ArrayList();
-        
+
         try {
             Collections.min(al, rmic);
             fail("NoSuchElementException expected");
         } catch (NoSuchElementException e) {
             //expected
         }
-        
+
         al.add("String");
         al.add(new Integer(1));
         al.add(new Double(3.14));
-        
+
         try {
             Collections.min(al, rmic);
             fail("ClassCastException expected");
@@ -744,10 +744,10 @@ public class CollectionsTest extends junit.framework.TestCase {
                 + myList.get(1), myList.get(1));
 
         Mock_ArrayList mal = new Mock_ArrayList();
-        
+
         mal.add("First");
         mal.add("Second");
-        
+
         try {
             Collections.reverse(mal);
             fail("UnsupportedOperationException expected");
@@ -880,10 +880,10 @@ public class CollectionsTest extends junit.framework.TestCase {
 
 
         Mock_ArrayList mal = new Mock_ArrayList();
-        
+
         mal.add("First");
         mal.add("Second");
-        
+
         try {
             Collections.shuffle(mal, new Random(200));
             fail("UnsupportedOperationException expected");
@@ -957,23 +957,23 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
 
         ArrayList al = new ArrayList();
-        
+
         al.add("String");
         al.add(new Integer(1));
         al.add(new Double(3.14));
-        
+
         try {
             Collections.sort(al);
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         Mock_ArrayList mal = new Mock_ArrayList();
-        
+
         mal.add("First");
         mal.add("Second");
-        
+
         try {
             Collections.sort(mal);
             fail("UnsupportedOperationException expected");
@@ -1012,23 +1012,23 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
 
         ArrayList al = new ArrayList();
-        
+
         al.add("String");
         al.add(new Integer(1));
         al.add(new Double(3.14));
-        
+
         try {
             Collections.sort(al, comp);
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         Mock_ArrayList mal = new Mock_ArrayList();
-        
+
         mal.add(new MyInt(1));
         mal.add(new MyInt(2));
-        
+
         try {
             Collections.sort(mal, comp);
             fail("UnsupportedOperationException expected");
@@ -1193,12 +1193,12 @@ public class CollectionsTest extends junit.framework.TestCase {
                         "Test10: ReplaceAll shouldn't have replaced element at "
                                 + i, new Integer(i), smallList.get(i));
         }
-        
+
         Mock_ArrayList mal = new Mock_ArrayList();
-        
+
         mal.add("First");
         mal.add("Second");
-        
+
         try {
             Collections.replaceAll(mal, "Second", null);
             fail("UnsupportedOperationException expected");
@@ -2022,13 +2022,13 @@ public class CollectionsTest extends junit.framework.TestCase {
         if (!exception) {
             fail("Allowed modification of collection");
         }
-        
+
         try {
             c.remove(new Object());
             fail("Allowed modification of collection");
         } catch (UnsupportedOperationException e) {
             // Correct
-        }        
+        }
 
         Collection myCollection = new ArrayList();
         myCollection.add(new Integer(20));
@@ -2086,13 +2086,13 @@ public class CollectionsTest extends junit.framework.TestCase {
         if (!exception) {
             fail("Allowed modification of list");
         }
-        
+
         try {
             c.remove(new Object());
             fail("Allowed modification of list");
         } catch (UnsupportedOperationException e) {
             // Correct
-        }        
+        }
 
         // test with a Random Access List
         List smallList = new ArrayList();
@@ -2246,7 +2246,7 @@ public class CollectionsTest extends junit.framework.TestCase {
             fail("Allowed modification of set");
         } catch (UnsupportedOperationException e) {
             // Correct
-        }        
+        }
 
         Set mySet = Collections.unmodifiableSet(new HashSet());
         assertTrue("Should not contain null", !mySet.contains(null));
@@ -2376,7 +2376,7 @@ public class CollectionsTest extends junit.framework.TestCase {
         m.put("two", "2");
         Map um = Collections.unmodifiableMap(m);
         assertTrue("{one=1, two=2}".equals(um.toString()) ||
-                   "{two=2, one=1}".equals(um.toString())); 
+                   "{two=2, one=1}".equals(um.toString()));
     }
 
 
@@ -2417,7 +2417,7 @@ public class CollectionsTest extends junit.framework.TestCase {
         // java.util.Collections.singleton(java.lang.Object)
         Double key = new Double (3.14);
         String value = "Fundamental constant";
-        
+
         Map single = Collections.singletonMap(key, value);
         assertEquals(1, single.size());
         assertTrue(single.containsKey(key));
@@ -2428,14 +2428,14 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertFalse(Collections.singletonMap(null, null).containsValue(value));
         assertTrue(Collections.singletonMap(null, null).containsKey(null));
         assertTrue(Collections.singletonMap(null, null).containsValue(null));
-    
+
         try {
             single.clear();
             fail("UnsupportedOperationException expected");
         } catch (UnsupportedOperationException e) {
             //expected
         }
-        
+
         try {
             single.put(new Double(1), "one wrong value");
             fail("UnsupportedOperationException expected");
@@ -2443,7 +2443,7 @@ public class CollectionsTest extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.
@@ -2482,7 +2482,7 @@ public class CollectionsTest extends junit.framework.TestCase {
     protected void tearDown() {
         objArray = null;
         myobjArray = null;
-        
+
         ll = null;
         myll = null;
         reversedLinkedList = null;

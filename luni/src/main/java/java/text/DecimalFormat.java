@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -578,7 +578,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Constructs a new {@code DecimalFormat} using the specified non-localized
      * pattern and {@code DecimalFormatSymbols}.
-     * 
+     *
      * @param pattern
      *            the non-localized pattern.
      * @param value
@@ -612,7 +612,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Changes the pattern of this decimal format to the specified pattern which
      * uses localized pattern characters.
-     * 
+     *
      * @param pattern
      *            the localized pattern.
      * @throws IllegalArgumentException
@@ -625,7 +625,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Changes the pattern of this decimal format to the specified pattern which
      * uses non-localized pattern characters.
-     * 
+     *
      * @param pattern
      *            the non-localized pattern.
      * @throws IllegalArgumentException
@@ -638,7 +638,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Returns a new instance of {@code DecimalFormat} with the same pattern and
      * properties as this decimal format.
-     * 
+     *
      * @return a shallow copy of this decimal format.
      * @see java.lang.Cloneable
      */
@@ -654,7 +654,7 @@ public class DecimalFormat extends NumberFormat {
      * Compares the specified object to this decimal format and indicates if
      * they are equal. In order to be equal, {@code object} must be an instance
      * of {@code DecimalFormat} with the same pattern and properties.
-     * 
+     *
      * @param object
      *            the object to compare with this object.
      * @return {@code true} if the specified object is equal to this decimal
@@ -678,7 +678,7 @@ public class DecimalFormat extends NumberFormat {
      * Formats the specified object using the rules of this decimal format and
      * returns an {@code AttributedCharacterIterator} with the formatted number
      * and attributes.
-     * 
+     *
      * @param object
      *            the object to format.
      * @return an AttributedCharacterIterator with the formatted number and
@@ -738,7 +738,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Returns the {@code DecimalFormatSymbols} used by this decimal format.
-     * 
+     *
      * @return a copy of the {@code DecimalFormatSymbols} used by this decimal
      *         format.
      */
@@ -748,7 +748,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Returns the currency used by this decimal format.
-     * 
+     *
      * @return the currency used by this decimal format.
      * @see DecimalFormatSymbols#getCurrency()
      */
@@ -771,7 +771,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Returns the multiplier which is applied to the number before formatting
      * or after parsing.
-     * 
+     *
      * @return the multiplier.
      */
     public int getMultiplier() {
@@ -780,7 +780,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Returns the prefix which is formatted or parsed before a negative number.
-     * 
+     *
      * @return the negative prefix.
      */
     public String getNegativePrefix() {
@@ -789,7 +789,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Returns the suffix which is formatted or parsed after a negative number.
-     * 
+     *
      * @return the negative suffix.
      */
     public String getNegativeSuffix() {
@@ -798,7 +798,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Returns the prefix which is formatted or parsed before a positive number.
-     * 
+     *
      * @return the positive prefix.
      */
     public String getPositivePrefix() {
@@ -807,7 +807,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Returns the suffix which is formatted or parsed after a positive number.
-     * 
+     *
      * @return the positive suffix.
      */
     public String getPositiveSuffix() {
@@ -822,7 +822,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Indicates whether the decimal separator is shown when there are no
      * fractional digits.
-     * 
+     *
      * @return {@code true} if the decimal separator should always be formatted;
      *         {@code false} otherwise.
      */
@@ -833,7 +833,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * This value indicates whether the return object of the parse operation is
      * of type {@code BigDecimal}. This value defaults to {@code false}.
-     * 
+     *
      * @return {@code true} if parse always returns {@code BigDecimals},
      *         {@code false} if the type of the result is {@code Long} or
      *         {@code Double}.
@@ -848,7 +848,7 @@ public class DecimalFormat extends NumberFormat {
      * {@code true}, then the resulting numbers will be of type
      * {@code java.lang.Integer}. Special cases are NaN, positive and negative
      * infinity, which are still returned as {@code java.lang.Double}.
-     * 
+     *
      *
      * @param value
      *            {@code true} that the resulting numbers of parse operations
@@ -866,7 +866,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Indicates whether parsing with this decimal format will only
      * return numbers of type {@code java.lang.Integer}.
-     * 
+     *
      * @return {@code true} if this {@code DecimalFormat}'s parse method only
      *         returns {@code java.lang.Integer}; {@code false} otherwise.
      */
@@ -884,7 +884,7 @@ public class DecimalFormat extends NumberFormat {
      * updated to the index following the parsed text. On error, the index is
      * unchanged and the error index of {@code ParsePosition} is set to the
      * index where the error occurred.
-     * 
+     *
      * @param string
      *            the string to parse.
      * @param position
@@ -913,7 +913,7 @@ public class DecimalFormat extends NumberFormat {
         //     }
         //     if ((number instanceof Double) && !((Double) number).isInfinite()
         //             && !((Double) number).isNaN()) {
-        // 
+        //
         //         return new BigDecimal(number.doubleValue());
         //     }
         //     if (number instanceof BigInteger) {
@@ -958,7 +958,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Sets the {@code DecimalFormatSymbols} used by this decimal format.
-     * 
+     *
      * @param value
      *            the {@code DecimalFormatSymbols} to set.
      */
@@ -974,7 +974,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Sets the currency used by this decimal format. The min and max fraction
      * digits remain the same.
-     * 
+     *
      * @param currency
      *            the currency this {@code DecimalFormat} should use.
      * @see DecimalFormatSymbols#setCurrency(Currency)
@@ -990,7 +990,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Sets whether the decimal separator is shown when there are no fractional
      * digits.
-     * 
+     *
      * @param value
      *            {@code true} if the decimal separator should always be
      *            formatted; {@code false} otherwise.
@@ -1014,7 +1014,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Sets whether or not grouping will be used in this format. Grouping
      * affects both parsing and formatting.
-     * 
+     *
      * @param value
      *            {@code true} if grouping is used; {@code false} otherwise.
      */
@@ -1025,7 +1025,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Indicates whether grouping will be used in this format.
-     * 
+     *
      * @return {@code true} if grouping is used; {@code false} otherwise.
      */
     @Override
@@ -1037,7 +1037,7 @@ public class DecimalFormat extends NumberFormat {
      * Sets the maximum number of digits after the decimal point.
      * If the value passed is negative then it is replaced by 0.
      * Regardless of this setting, no more than 340 digits will be used.
-     * 
+     *
      * @param value the maximum number of fraction digits.
      */
     @Override
@@ -1052,7 +1052,7 @@ public class DecimalFormat extends NumberFormat {
      * Sets the maximum number of digits before the decimal point.
      * If the value passed is negative then it is replaced by 0.
      * Regardless of this setting, no more than 309 digits will be used.
-     * 
+     *
      * @param value the maximum number of integer digits.
      */
     @Override
@@ -1065,7 +1065,7 @@ public class DecimalFormat extends NumberFormat {
      * Sets the minimum number of digits after the decimal point.
      * If the value passed is negative then it is replaced by 0.
      * Regardless of this setting, no more than 340 digits will be used.
-     * 
+     *
      * @param value the minimum number of fraction digits.
      */
     @Override
@@ -1078,7 +1078,7 @@ public class DecimalFormat extends NumberFormat {
      * Sets the minimum number of digits before the decimal point.
      * If the value passed is negative then it is replaced by 0.
      * Regardless of this setting, no more than 309 digits will be used.
-     * 
+     *
      * @param value the minimum number of integer digits.
      */
     @Override
@@ -1090,7 +1090,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Sets the multiplier which is applied to the number before formatting or
      * after parsing.
-     * 
+     *
      * @param value
      *            the multiplier.
      */
@@ -1100,7 +1100,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Sets the prefix which is formatted or parsed before a negative number.
-     * 
+     *
      * @param value
      *            the negative prefix.
      */
@@ -1110,7 +1110,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Sets the suffix which is formatted or parsed after a negative number.
-     * 
+     *
      * @param value
      *            the negative suffix.
      */
@@ -1120,7 +1120,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Sets the prefix which is formatted or parsed before a positive number.
-     * 
+     *
      * @param value
      *            the positive prefix.
      */
@@ -1130,7 +1130,7 @@ public class DecimalFormat extends NumberFormat {
 
     /**
      * Sets the suffix which is formatted or parsed after a positive number.
-     * 
+     *
      * @param value
      *            the positive suffix.
      */
@@ -1141,7 +1141,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Sets the behaviour of the parse method. If set to {@code true} then all
      * the returned objects will be of type {@code BigDecimal}.
-     * 
+     *
      * @param newValue
      *            {@code true} if all the returned objects should be of type
      *            {@code BigDecimal}; {@code false} otherwise.
@@ -1153,7 +1153,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Returns the pattern of this decimal format using localized pattern
      * characters.
-     * 
+     *
      * @return the localized pattern.
      */
     public String toLocalizedPattern() {
@@ -1163,7 +1163,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Returns the pattern of this decimal format using non-localized pattern
      * characters.
-     * 
+     *
      * @return the non-localized pattern.
      */
     public String toPattern() {
@@ -1172,33 +1172,33 @@ public class DecimalFormat extends NumberFormat {
 
     // the fields list to be serialized
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("positivePrefix", String.class), 
-            new ObjectStreamField("positiveSuffix", String.class), 
-            new ObjectStreamField("negativePrefix", String.class), 
-            new ObjectStreamField("negativeSuffix", String.class), 
-            new ObjectStreamField("posPrefixPattern", String.class), 
-            new ObjectStreamField("posSuffixPattern", String.class), 
-            new ObjectStreamField("negPrefixPattern", String.class), 
-            new ObjectStreamField("negSuffixPattern", String.class), 
-            new ObjectStreamField("multiplier", int.class), 
-            new ObjectStreamField("groupingSize", byte.class), 
-            new ObjectStreamField("groupingUsed", boolean.class), 
-            new ObjectStreamField("decimalSeparatorAlwaysShown", boolean.class), 
-            new ObjectStreamField("parseBigDecimal", boolean.class), 
-            new ObjectStreamField("roundingMode", RoundingMode.class), 
-            new ObjectStreamField("symbols", DecimalFormatSymbols.class), 
-            new ObjectStreamField("useExponentialNotation", boolean.class), 
-            new ObjectStreamField("minExponentDigits", byte.class), 
-            new ObjectStreamField("maximumIntegerDigits", int.class), 
-            new ObjectStreamField("minimumIntegerDigits", int.class), 
-            new ObjectStreamField("maximumFractionDigits", int.class), 
-            new ObjectStreamField("minimumFractionDigits", int.class), 
-            new ObjectStreamField("serialVersionOnStream", int.class), }; 
+            new ObjectStreamField("positivePrefix", String.class),
+            new ObjectStreamField("positiveSuffix", String.class),
+            new ObjectStreamField("negativePrefix", String.class),
+            new ObjectStreamField("negativeSuffix", String.class),
+            new ObjectStreamField("posPrefixPattern", String.class),
+            new ObjectStreamField("posSuffixPattern", String.class),
+            new ObjectStreamField("negPrefixPattern", String.class),
+            new ObjectStreamField("negSuffixPattern", String.class),
+            new ObjectStreamField("multiplier", int.class),
+            new ObjectStreamField("groupingSize", byte.class),
+            new ObjectStreamField("groupingUsed", boolean.class),
+            new ObjectStreamField("decimalSeparatorAlwaysShown", boolean.class),
+            new ObjectStreamField("parseBigDecimal", boolean.class),
+            new ObjectStreamField("roundingMode", RoundingMode.class),
+            new ObjectStreamField("symbols", DecimalFormatSymbols.class),
+            new ObjectStreamField("useExponentialNotation", boolean.class),
+            new ObjectStreamField("minExponentDigits", byte.class),
+            new ObjectStreamField("maximumIntegerDigits", int.class),
+            new ObjectStreamField("minimumIntegerDigits", int.class),
+            new ObjectStreamField("maximumFractionDigits", int.class),
+            new ObjectStreamField("minimumFractionDigits", int.class),
+            new ObjectStreamField("serialVersionOnStream", int.class), };
 
     /**
      * Writes serialized fields following serialized forms specified by Java
      * specification.
-     * 
+     *
      * @param stream
      *            the output stream to write serialized bytes
      * @throws IOException
@@ -1240,7 +1240,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Reads serialized fields following serialized forms specified by Java
      * specification.
-     * 
+     *
      * @param stream
      *            the input stream to read serialized bytes
      * @throws IOException

@@ -136,12 +136,12 @@ public class LocaleTest extends junit.framework.TestCase {
 		assertTrue("Returned incorrect country: "
 				+ testLocale.getDisplayCountry(), testLocale
 				.getDisplayCountry().equals("Canada"));
-        
+
         // Regression for Harmony-1146
         // Non-bug difference for HARMONY-5442
-        Locale l_countryCD = new Locale("", "CD");  
-                assertEquals("Congo - Kinshasa", 
-                        l_countryCD.getDisplayCountry()); 
+        Locale l_countryCD = new Locale("", "CD");
+                assertEquals("Congo - Kinshasa",
+                        l_countryCD.getDisplayCountry());
 	}
 
 	/**
@@ -163,17 +163,17 @@ public class LocaleTest extends junit.framework.TestCase {
 		assertTrue("Returned incorrect language: "
 				+ testLocale.getDisplayLanguage(), testLocale
 				.getDisplayLanguage().equals("English"));
-        
+
 		// Regression for Harmony-1146
-        Locale l_languageAE = new Locale("ae", "");  
-        assertEquals("Avestan", l_languageAE.getDisplayLanguage()); 
-        
+        Locale l_languageAE = new Locale("ae", "");
+        assertEquals("Avestan", l_languageAE.getDisplayLanguage());
+
         // Regression for HARMONY-4402
         Locale defaultLocale = Locale.getDefault();
         try {
             Locale locale = new Locale("no", "NO");
             Locale.setDefault(locale);
-            assertEquals("norsk", locale.getDisplayLanguage()); 
+            assertEquals("norsk", locale.getDisplayLanguage());
         } finally {
             Locale.setDefault(defaultLocale);
         }
@@ -238,7 +238,7 @@ public class LocaleTest extends junit.framework.TestCase {
 		assertTrue("Returned incorrect ISO3 country: "
 				+ testLocale.getISO3Country(), testLocale.getISO3Country()
 				.equals("CAN"));
-        
+
         Locale l = new Locale("", "CD");
         assertEquals("COD", l.getISO3Country());
 	}
@@ -251,19 +251,19 @@ public class LocaleTest extends junit.framework.TestCase {
 		assertTrue("Returned incorrect ISO3 language: "
 				+ testLocale.getISO3Language(), testLocale.getISO3Language()
 				.equals("eng"));
-        
+
         Locale l = new Locale("ae");
         assertEquals("ave", l.getISO3Language());
-        
+
         // Regression for Harmony-1146
-        
+
         // Non-bug difference for HARMONY-5442
-        Locale l_CountryCS = new Locale("", "CS");  
-        assertEquals("SCG", l_CountryCS.getISO3Country()); 
-        
+        Locale l_CountryCS = new Locale("", "CS");
+        assertEquals("SCG", l_CountryCS.getISO3Country());
+
         // Regression for Harmony-1129
-        l = new Locale("ak", "");  
-        assertEquals("aka", l.getISO3Language()); 
+        l = new Locale("ak", "");
+        assertEquals("aka", l.getISO3Language());
 	}
 
 	/**
@@ -365,12 +365,12 @@ public class LocaleTest extends junit.framework.TestCase {
 		assertEquals("Wrong representation 6", "en_CA", l.toString());
 		l = new Locale("en", "CA", "VAR");
 		assertEquals("Wrong representation 7", "en_CA_VAR", l.toString());
-        
+
         l = new Locale("", "", "var");
         assertEquals("Wrong representation 8", "", l.toString());
 
 	}
-    
+
     // Regression Test for HARMONY-2953
     public void test_getISO() {
         Locale locale = new Locale("an");
@@ -381,7 +381,7 @@ public class LocaleTest extends junit.framework.TestCase {
 
         List<String> languages = Arrays.asList(Locale.getISOLanguages());
         assertTrue(languages.contains("ak"));
-        
+
 		// Non-bug difference for HARMONY-5442
         List<String> countries = Arrays.asList(Locale.getISOCountries());
         assertFalse(countries.contains("CS"));

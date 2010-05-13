@@ -17,11 +17,11 @@ import javax.xml.parsers.DocumentBuilder;
  * The method getElementsByTagNameNS returns a NodeList of all the Elements with
  * a given local name and namespace URI in the order in which they are
  * encountered in a preorder traversal of the Document tree.
- * 
+ *
  * Invoke the getElementsByTagNameNS method on a new Document object with the
  * values of namespaceURI=* and localName=*. This should return a nodeList of 1
  * item.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
@@ -31,7 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
-@TestTargetClass(Document.class) 
+@TestTargetClass(Document.class)
 public final class DocumentGetElementsByTagnameNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -57,7 +57,7 @@ public final class DocumentGetElementsByTagnameNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -94,7 +94,7 @@ public final class DocumentGetElementsByTagnameNS extends DOMTestCase {
         Element docElem;
         Element element;
         NodeList childList;
-        
+
         doc = (Document) load("staffNS", builder);
         docElem = doc.getDocumentElement();
         element = doc.createElementNS("test", "employeeId");

@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -40,11 +40,11 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The method createAttributeNS creates an attribute of the given qualified name
  * and namespace URI
- * 
+ *
  * Invoke the createAttributeNS method on this Document object with a null
  * namespaceURI, and a qualifiedName without a prefix. This should return a
  * valid Attr node object.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
@@ -52,7 +52,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrAttrNS</a>
  */
-@TestTargetClass(Document.class) 
+@TestTargetClass(Document.class)
 public final class DocumentCreateAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -78,7 +78,7 @@ public final class DocumentCreateAttributeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -96,17 +96,17 @@ public final class DocumentCreateAttributeNS extends DOMTestCase {
         String qualifiedName = "test";
 
         String nodeName;
-        
+
         doc = (Document) load("staffNS", builder);
         attribute = doc.createAttributeNS(namespaceURI, qualifiedName);
         nodeName = attribute.getNodeName();
-        
+
         assertEquals("documentcreateattributeNS01", "test", nodeName);
     }
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

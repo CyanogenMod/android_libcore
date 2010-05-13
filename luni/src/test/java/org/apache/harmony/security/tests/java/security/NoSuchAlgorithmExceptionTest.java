@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>NoSuchAlgorithmException</code> class constructors and
  * methods.
- * 
+ *
  */
 public class NoSuchAlgorithmExceptionTest extends TestCase {
 

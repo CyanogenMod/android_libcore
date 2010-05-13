@@ -151,7 +151,7 @@ public class SelectFunctionalityTest extends TestCase {
             assertEquals("expected value doesn't equal actual",
                     DatabaseCreator.defaultCharacter + id, result
                             .getString("fcharacter"));
-            
+
             // TODO getBigDecimal is not supported
 //            assertEquals("expected value doesn't equal actual", BigDecimal
 //                    .valueOf(id + 0.1), result.getBigDecimal("fdecimal"));
@@ -172,7 +172,7 @@ public class SelectFunctionalityTest extends TestCase {
                     time.toString(), result.getTime("ftime").toString());
             counter++;
         }
-         
+
         assertEquals("number of rows in ResultSet is wrong", 5, counter);
         result.close();
     }
@@ -220,7 +220,7 @@ public class SelectFunctionalityTest extends TestCase {
             assertEquals("expected value doesn't equal actual",
                     DatabaseCreator.defaultCharacter + id, result
                             .getString("fcharacter"));
-//            TODO getBigDecimal is not supported              
+//            TODO getBigDecimal is not supported
 //            assertEquals("expected value doesn't equal actual", BigDecimal
 //                    .valueOf(1.1), result.getBigDecimal("fdecimal"));
 //            assertEquals("expected value doesn't equal actual", BigDecimal
@@ -239,7 +239,7 @@ public class SelectFunctionalityTest extends TestCase {
                     time.toString(), result.getTime("ftime").toString());
             counter++;
         }
-//       TODO query wasn't executed due to "not supported" methods         
+//       TODO query wasn't executed due to "not supported" methods
 //        assertEquals("number of rows in ResultSet is wrong", 1, counter);
         prepStatement.close();
         result.close();
@@ -397,8 +397,8 @@ public class SelectFunctionalityTest extends TestCase {
     /**
      * @tests SelectFunctionalityTest#test_SelectRightOuterJoin(). Selects
      *        records from a table using right join
-     *        
-     * TODO RIGHT and FULL OUTER JOINs are not supported       
+     *
+     * TODO RIGHT and FULL OUTER JOINs are not supported
      */
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -580,7 +580,7 @@ public class SelectFunctionalityTest extends TestCase {
                 resDouble  = Double.parseDouble(result.getString(name));
                 res = (int) Math.rint(resDouble);
                 assertEquals(expected,res);
-                
+
             }
             assertFalse("wrong size of result set", result.next());
             result.close();

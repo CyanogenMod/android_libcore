@@ -33,7 +33,7 @@ import java.security.spec.ECGenParameterSpec;
 
 /**
  * Tests for <code>ECGenParameterSpec</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(ECGenParameterSpec.class)
 public class ECGenParameterSpecTest extends TestCase {
@@ -46,7 +46,7 @@ public class ECGenParameterSpecTest extends TestCase {
      * Test #1 for <code>ECGenParameterSpec</code> constructor<br>
      *
      * Assertion: creates new object of <code>ECGenParameterSpec</code> class
-     * using valid <code>name</code> 
+     * using valid <code>name</code>
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -62,7 +62,7 @@ public class ECGenParameterSpecTest extends TestCase {
      * Test #2 for <code>ECGenParameterSpec</code> constructor<br>
      *
      * Assertion: throws NullPointerException
-     * if <code>name</code> is <code>null</code>  
+     * if <code>name</code> is <code>null</code>
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -80,7 +80,7 @@ public class ECGenParameterSpecTest extends TestCase {
     /**
      * Test for <code>getName()</code> method<br>
      *
-     * Assertion: returns the <code>name</code>  
+     * Assertion: returns the <code>name</code>
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,

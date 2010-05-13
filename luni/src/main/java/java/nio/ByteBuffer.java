@@ -38,7 +38,7 @@ public abstract class ByteBuffer extends Buffer implements
 
     /**
      * Creates a byte buffer based on a newly allocated byte array.
-     * 
+     *
      * @param capacity
      *            the capacity of the new buffer
      * @return the created byte buffer.
@@ -54,7 +54,7 @@ public abstract class ByteBuffer extends Buffer implements
 
     /**
      * Creates a direct byte buffer based on a newly allocated memory block.
-     * 
+     *
      * @param capacity
      *            the capacity of the new buffer
      * @return the created byte buffer.
@@ -120,7 +120,7 @@ public abstract class ByteBuffer extends Buffer implements
 
     /**
      * Constructs a {@code ByteBuffer} with given capacity.
-     * 
+     *
      * @param capacity
      *            the capacity of the buffer.
      */
@@ -131,7 +131,7 @@ public abstract class ByteBuffer extends Buffer implements
 
     /**
      * Returns the byte array which this buffer is based on, if there is one.
-     * 
+     *
      * @return the byte array which this buffer is based on.
      * @exception ReadOnlyBufferException
      *                if this buffer is based on a read-only array.
@@ -294,7 +294,7 @@ public abstract class ByteBuffer extends Buffer implements
     /**
      * Compares the remaining bytes of this buffer to another byte buffer's
      * remaining bytes.
-     * 
+     *
      * @param otherBuffer
      *            another byte buffer.
      * @return a negative value if this is less than {@code other}; 0 if this
@@ -372,7 +372,7 @@ public abstract class ByteBuffer extends Buffer implements
 
     /**
      * Returns the byte at the current position and increases the position by 1.
-     * 
+     *
      * @return the byte at the current position.
      * @exception BufferUnderflowException
      *                if the position is equal or greater than limit.
@@ -400,7 +400,7 @@ public abstract class ByteBuffer extends Buffer implements
      * Reads bytes from the current position into the specified byte array,
      * starting at the specified offset, and increases the position by the
      * number of bytes read.
-     * 
+     *
      * @param dest
      *            the target byte array.
      * @param off
@@ -432,7 +432,7 @@ public abstract class ByteBuffer extends Buffer implements
 
     /**
      * Returns the byte at the specified index and does not change the position.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than limit.
      * @return the byte at the specified index.
@@ -459,7 +459,7 @@ public abstract class ByteBuffer extends Buffer implements
      * The 2 bytes starting from the specified index are composed into a char
      * according to the current byte order and returned. The position is not
      * changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and equal or less than
      *            {@code limit - 2}.
@@ -655,7 +655,7 @@ public abstract class ByteBuffer extends Buffer implements
 
     /**
      * Sets the byte order of this buffer.
-     * 
+     *
      * @param byteOrder
      *            the byte order to set. If {@code null} then the order
      *            will be {@link ByteOrder#LITTLE_ENDIAN LITTLE_ENDIAN}.
@@ -674,21 +674,21 @@ public abstract class ByteBuffer extends Buffer implements
 
     /**
      * Child class implements this method to realize {@code array()}.
-     * 
+     *
      * @see #array()
      */
     abstract byte[] protectedArray();
 
     /**
      * Child class implements this method to realize {@code arrayOffset()}.
-     * 
+     *
      * @see #arrayOffset()
      */
     abstract int protectedArrayOffset();
 
     /**
      * Child class implements this method to realize {@code hasArray()}.
-     * 
+     *
      * @see #hasArray()
      */
     abstract boolean protectedHasArray();
@@ -696,7 +696,7 @@ public abstract class ByteBuffer extends Buffer implements
     /**
      * Writes the given byte to the current position and increases the position
      * by 1.
-     * 
+     *
      * @param b
      *            the byte to write.
      * @return this buffer.
@@ -730,7 +730,7 @@ public abstract class ByteBuffer extends Buffer implements
      * Writes bytes in the given byte array, starting from the specified offset,
      * to the current position and increases the position by the number of bytes
      * written.
-     * 
+     *
      * @param src
      *            the source byte array.
      * @param off
@@ -766,7 +766,7 @@ public abstract class ByteBuffer extends Buffer implements
      * Writes all the remaining bytes of the {@code src} byte buffer to this
      * buffer's current position, and increases both buffers' position by the
      * number of bytes copied.
-     * 
+     *
      * @param src
      *            the source byte buffer.
      * @return this buffer.
@@ -794,7 +794,7 @@ public abstract class ByteBuffer extends Buffer implements
     /**
      * Write a byte to the specified index of this buffer without changing the
      * position.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than the limit.
      * @param b
@@ -1036,18 +1036,18 @@ public abstract class ByteBuffer extends Buffer implements
 
     /**
      * Returns a string representing the state of this byte buffer.
-     * 
+     *
      * @return a string representing the state of this byte buffer.
      */
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append(getClass().getName());
-        buf.append(", status: capacity="); 
+        buf.append(", status: capacity=");
         buf.append(capacity());
-        buf.append(" position="); 
+        buf.append(" position=");
         buf.append(position());
-        buf.append(" limit="); 
+        buf.append(" limit=");
         buf.append(limit());
         return buf.toString();
     }

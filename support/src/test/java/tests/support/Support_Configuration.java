@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -64,7 +64,7 @@ public class Support_Configuration {
     public static String InetTestAddress = "localhost";
 
     public static String InetTestIP = "127.0.0.1";
-    
+
     // BEGIN android-added
     public static byte[] InetTestAddr = {127, 0, 0, 1};
     // END android-added
@@ -102,17 +102,17 @@ public class Support_Configuration {
     // END android-changed
 
     public static String testURL = "harmony.apache.org";
-    
+
     public static String hTTPURLwExpiration = "http://phpwiki.sourceforge.net/phpwiki-1.2/";
-    
+
     public static String hTTPURLwLastModified = "http://www.php.net/manual/en/function.explode.php";
-    
+
     public static String hTTPURLyahoo = "http://news.yahoo.com/";
-    
+
     public static String hTTPURLgoogle = "http://www.google.com/ie";
-    
+
     public static String testContentEncoding = "http://www.amazon.com/";
-    
+
     public static int SpecialInetTestAddressNumber = 4;
 
     /**

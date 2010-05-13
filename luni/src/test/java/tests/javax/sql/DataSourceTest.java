@@ -26,7 +26,7 @@ public class DataSourceTest extends TestCase {
     public void testGetConnection() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * @tests {@link javax.sql.DataSource#getConnection(String, String)}
      */
@@ -79,7 +79,7 @@ public class DataSourceTest extends TestCase {
         fail("Not yet implemented");
     }
 
-    
+
     /**
      * @tests {@link javax.sql.DataSource#setLogWriter(java.io.PrintWriter)}
      */

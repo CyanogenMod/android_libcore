@@ -45,18 +45,18 @@ import junit.framework.TestCase;
 
 /**
  * tests for class Signer
- * 
+ *
  */
 @SuppressWarnings("deprecation")
 @TestTargetClass(Signer.class)
 public class SignerTest extends TestCase {
 
     public static class MySecurityManager extends SecurityManager {
-        public Permissions denied = new Permissions(); 
+        public Permissions denied = new Permissions();
         public void checkPermission(Permission permission){
             if (denied!=null && denied.implies(permission)) throw new SecurityException();
         }
-    }    
+    }
 
     /**
      * @tests java.security.Signer#toString()
@@ -95,7 +95,7 @@ public class SignerTest extends TestCase {
     public void testSigner() {
         Signer s = new SignerStub();
         assertNotNull(s);
-        //assertNull(s.getName(), s.getName());      
+        //assertNull(s.getName(), s.getName());
         assertNull(s.getPrivateKey());
     }
 
@@ -111,12 +111,12 @@ public class SignerTest extends TestCase {
     public void testSignerString() throws Exception {
         Signer s = new SignerStub("sss3");
         assertNotNull(s);
-        assertEquals("sss3", s.getName());      
+        assertEquals("sss3", s.getName());
         assertNull(s.getPrivateKey());
-        
+
         Signer s2 = new SignerStub(null);
         assertNull(s2.getName());
-        
+
     }
 
     /**
@@ -134,7 +134,7 @@ public class SignerTest extends TestCase {
         assertEquals("sss4", s.getName());
         assertSame(IdentityScope.getSystemScope(), s.getScope());
         assertNull(s.getPrivateKey());
-        
+
         try {
             Signer s2 = new SignerStub("sss4", IdentityScope.getSystemScope());
             fail("expected KeyManagementException not thrown");
@@ -142,11 +142,11 @@ public class SignerTest extends TestCase {
         {
             // ok
         }
-        
+
         Signer s2 = new SignerStub(null);
         assertNull(s2.getName());
-        
-        
+
+
     }
 
     /**
@@ -159,19 +159,19 @@ public class SignerTest extends TestCase {
         args = {}
     )
     public void testGetPrivateKey() throws Exception {
-        byte [] privateKeyData = { 1, 2, 3, 4, 5};  
+        byte [] privateKeyData = { 1, 2, 3, 4, 5};
         PrivateKeyStub privateKey = new PrivateKeyStub("private", "fff", privateKeyData);
         PublicKeyStub publicKey = new PublicKeyStub("public", "fff", null);
         KeyPair kp = new KeyPair(publicKey, privateKey);
-        
+
         Signer s = new SignerStub("sss5");
-        
+
         assertNull(s.getPrivateKey());
-        
-        s.setKeyPair(kp);                
+
+        s.setKeyPair(kp);
         assertSame(privateKey, s.getPrivateKey());
     }
-    
+
     /**
      * verify Signer.getPrivateKey() throws SecurityException if permission is denied
      */
@@ -201,7 +201,7 @@ public class SignerTest extends TestCase {
     }
 
     /**
-     * @tests java.security.Signer#setKeyPair(java.security.KeyPair) 
+     * @tests java.security.Signer#setKeyPair(java.security.KeyPair)
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -210,7 +210,7 @@ public class SignerTest extends TestCase {
         args = {java.security.KeyPair.class}
     )
     public void test_setKeyPairLjava_security_KeyPair() throws Exception {
-        
+
         // Regression for HARMONY-2408
         // test: NullPointerException if pair is null
         try {
@@ -218,7 +218,7 @@ public class SignerTest extends TestCase {
             fail("No expected NullPointerException");
         } catch (NullPointerException e) {
         }
-        
+
         // test: SecurityException if permission is denied
         SecurityManager oldSm = System.getSecurityManager();
         MySecurityManager sm = new MySecurityManager();
@@ -235,8 +235,8 @@ public class SignerTest extends TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
-        
+
+
         try {
             KeyPair kp = new KeyPair(null, null);
             SignerStub s = new SignerStub("name");
@@ -244,8 +244,8 @@ public class SignerTest extends TestCase {
         } catch (InvalidParameterException e) {
             // ok
         }
-        
-        
+
+
     }
 
 }

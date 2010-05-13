@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,7 +36,7 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
-@TestTargetClass(DecimalFormatSymbols.class) 
+@TestTargetClass(DecimalFormatSymbols.class)
 public class DecimalFormatSymbolsTest extends TestCase {
 
     DecimalFormatSymbols dfs;
@@ -75,12 +75,12 @@ public class DecimalFormatSymbolsTest extends TestCase {
         DecimalFormatSymbols dfs = new DecimalFormatSymbols(new Locale("en",
                 "us"));
         assertEquals("Returned incorrect symbols", '%', dfs.getPercent());
-        
+
         try {
             new DecimalFormatSymbols(null);
             fail("NullPointerException was not thrown.");
         } catch(NullPointerException npe) {
-            //expected  
+            //expected
         }
     }
 
@@ -851,7 +851,7 @@ public class DecimalFormatSymbolsTest extends TestCase {
         }
         assertDecimalFormatSymbolsRIFrance(dfs);
     }
-    
+
     static void assertDecimalFormatSymbolsRIFrance(DecimalFormatSymbols dfs) {
         // Values based on Java 1.5 RI DecimalFormatSymbols for Locale.FRANCE
         /*

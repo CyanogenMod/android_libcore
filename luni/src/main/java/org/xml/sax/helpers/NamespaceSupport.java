@@ -94,9 +94,9 @@ public class NamespaceSupport
      * The namespace declaration URI as a constant.
      * The value is <code>http://www.w3.org/xmlns/2000/</code>, as defined
      * in a backwards-incompatible erratum to the "Namespaces in XML"
-     * recommendation.  Because that erratum postdated SAX2, SAX2 defaults 
+     * recommendation.  Because that erratum postdated SAX2, SAX2 defaults
      * to the original recommendation, and does not normally use this URI.
-     * 
+     *
      *
      * <p>This is the Namespace URI that is optionally applied to
      * <em>xmlns</em> and <em>xmlns:*</em> attributes, which are used to
@@ -335,7 +335,7 @@ public class NamespaceSupport
      *        holding at least three members.
      * @param isAttribute A flag indicating whether this is an
      *        attribute name (true) or an element name (false).
-     * @return The supplied array holding three internalized strings 
+     * @return The supplied array holding three internalized strings
      *        representing the Namespace URI (or empty string), the
      *        local name, and the XML qualified name; or null if there
      *        is an undeclared prefix.
@@ -427,7 +427,7 @@ public class NamespaceSupport
      *
      * <p>This method returns prefixes mapped to a specific Namespace
      * URI.  The xml: prefix will be included.  If you want only one
-     * prefix that's mapped to the Namespace URI, and you don't care 
+     * prefix that's mapped to the Namespace URI, and you don't care
      * which one you get, use the {@link #getPrefix getPrefix}
      *  method instead.</p>
      *
@@ -459,7 +459,7 @@ public class NamespaceSupport
     /**
      * Return an enumeration of all prefixes declared in this context.
      *
-     * <p>The empty (default) prefix will be included in this 
+     * <p>The empty (default) prefix will be included in this
      * enumeration; note that this behaviour differs from that of
      * {@link #getPrefix} and {@link #getPrefixes}.</p>
      *
@@ -478,7 +478,7 @@ public class NamespaceSupport
      * into the {@link #NSDECL NSDECL} namespace
      * by {@link #processName processName()}.  This may only be
      * changed before any contexts have been pushed.
-     * 
+     *
      * @param value the namespace declaration attribute state. A value of true
      *              enables this feature, a value of false disables it.
      *
@@ -550,8 +550,8 @@ public class NamespaceSupport
     {
         copyTables();
     }
-    
-    
+
+
     /**
      * (Re)set the parent of this Namespace context.
      * The context must either have been freshly constructed,
@@ -587,8 +587,8 @@ public class NamespaceSupport
         attributeNameTable = null;
         defaultNS = null;
     }
-    
-    
+
+
     /**
      * Declare a Namespace prefix for this context.
      *
@@ -608,7 +608,7 @@ public class NamespaceSupport
         if (declarations == null) {
         declarations = new Vector();
         }
-        
+
         prefix = prefix.intern();
         uri = uri.intern();
         if ("".equals(prefix)) {
@@ -640,7 +640,7 @@ public class NamespaceSupport
     {
         String name[];
         Hashtable table;
-        
+
                     // detect errors in call sequence
         declsOK = false;
 
@@ -650,7 +650,7 @@ public class NamespaceSupport
         } else {
         table = elementNameTable;
         }
-        
+
                 // Start by looking in the cache, and
                 // return immediately if the name
                 // is already known in this content
@@ -658,7 +658,7 @@ public class NamespaceSupport
         if (name != null) {
         return name;
         }
-        
+
                 // We haven't seen this name in this
                 // context before.  Maybe in the parent
                 // context, but we can't assume prefix
@@ -666,8 +666,8 @@ public class NamespaceSupport
         name = new String[3];
         name[2] = qName.intern();
         int index = qName.indexOf(':');
-        
-        
+
+
                 // No prefix.
         if (index == -1) {
         if (isAttribute) {
@@ -682,7 +682,7 @@ public class NamespaceSupport
         }
         name[1] = name[2];
         }
-        
+
                 // Prefix
         else {
         String prefix = qName.substring(0, index);
@@ -700,20 +700,20 @@ public class NamespaceSupport
         name[0] = uri;
         name[1] = local.intern();
         }
-        
+
                 // Save in the cache for future use.
                 // (Could be shared with parent context...)
         table.put(name[2], name);
         return name;
     }
-    
+
 
     /**
      * Look up the URI associated with a prefix in this context.
      *
      * @param prefix The prefix to look up.
      * @return The associated Namespace URI, or null if none is
-     *         declared.    
+     *         declared.
      * @see org.xml.sax.helpers.NamespaceSupport#getURI
      */
     String getURI (String prefix)
@@ -746,8 +746,8 @@ public class NamespaceSupport
         return (String)uriTable.get(uri);
         }
     }
-    
-    
+
+
     /**
      * Return an enumeration of prefixes declared in this context.
      *
@@ -762,8 +762,8 @@ public class NamespaceSupport
         return declarations.elements();
         }
     }
-    
-    
+
+
     /**
      * Return an enumeration of all prefixes currently in force.
      *
@@ -781,8 +781,8 @@ public class NamespaceSupport
         return prefixTable.keys();
         }
     }
-    
-    
+
+
 
     ////////////////////////////////////////////////////////////////
     // Internal methods.
@@ -794,7 +794,7 @@ public class NamespaceSupport
      *
      * <p>This class is optimized for the normal case where most
      * elements do not contain Namespace declarations.</p>
-     */    
+     */
     private void copyTables ()
     {
         if (prefixTable != null) {
@@ -817,20 +817,20 @@ public class NamespaceSupport
     ////////////////////////////////////////////////////////////////
     // Protected state.
     ////////////////////////////////////////////////////////////////
-    
+
     Hashtable prefixTable;
     Hashtable uriTable;
     Hashtable elementNameTable;
     Hashtable attributeNameTable;
     String defaultNS = null;
     boolean declsOK = true;
-    
+
 
 
     ////////////////////////////////////////////////////////////////
     // Internal state.
     ////////////////////////////////////////////////////////////////
-    
+
     private Vector declarations = null;
     private boolean declSeen = false;
     private Context parent = null;

@@ -36,24 +36,24 @@ import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.internal.nls.Messages;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the following structure which is a part of X.509 certificate
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
- * 
+ *
  * <pre>
- * 
+ *
  *   NameConstraints ::= SEQUENCE {
  *        permittedSubtrees       [0]     GeneralSubtrees OPTIONAL,
  *        excludedSubtrees        [1]     GeneralSubtrees OPTIONAL }
- * 
+ *
  *   GeneralSubtrees ::= SEQUENCE SIZE (1..MAX) OF GeneralSubtree
- *  
+ *
  * </pre>
- * 
- * 
+ *
+ *
  * @see org.apache.harmony.security.x509.GeneralSubtree
  * @see org.apache.harmony.security.x509.GeneralName
  */
@@ -76,26 +76,26 @@ public class NameConstraints extends ExtensionValue {
     public NameConstraints() {
         this(null, null);
     }
-    
+
     /**
      * Constructs <code>NameConstrains</code> object
      * @param   permittedSubtrees:  GeneralSubtrees
      * @param   excludedSubtrees:   GeneralSubtrees
      */
-    public NameConstraints(GeneralSubtrees permittedSubtrees, 
+    public NameConstraints(GeneralSubtrees permittedSubtrees,
                            GeneralSubtrees excludedSubtrees) {
         if (permittedSubtrees != null) {
             List ps = permittedSubtrees.getSubtrees();
             if ((ps == null) || (ps.size() == 0)) {
-                throw 
-                    new IllegalArgumentException(Messages.getString("security.17D")); 
+                throw
+                    new IllegalArgumentException(Messages.getString("security.17D"));
             }
         }
         if (excludedSubtrees != null) {
             List es = excludedSubtrees.getSubtrees();
             if ((es == null) || (es.size() == 0)) {
-                throw 
-                    new IllegalArgumentException(Messages.getString("security.17E")); 
+                throw
+                    new IllegalArgumentException(Messages.getString("security.17E"));
             }
         }
         this.permittedSubtrees = permittedSubtrees;
@@ -108,7 +108,7 @@ public class NameConstraints extends ExtensionValue {
     // @param   excludedSubtrees:   GeneralSubtrees
     // @param   encoding:   byte[]
     //
-    private NameConstraints(GeneralSubtrees permittedSubtrees, 
+    private NameConstraints(GeneralSubtrees permittedSubtrees,
                             GeneralSubtrees excludedSubtrees, byte[] encoding) {
         this(permittedSubtrees, excludedSubtrees);
         this.encoding = encoding;
@@ -117,7 +117,7 @@ public class NameConstraints extends ExtensionValue {
     public static NameConstraints decode(byte[] encoding) throws IOException {
         return (NameConstraints) ASN1.decode(encoding);
     }
-    
+
     /**
      * Returns ASN.1 encoded form of this X.509 NameConstraints value.
      * @return a byte array containing ASN.1 encode form.
@@ -129,9 +129,9 @@ public class NameConstraints extends ExtensionValue {
         return encoding;
     }
 
-    // 
+    //
     // Prepare the data structure to speed up the checking process.
-    // 
+    //
     private void prepareNames() {
         // array of lists with permitted General Names divided by type
         permitted_names = new ArrayList[9];
@@ -162,10 +162,10 @@ public class NameConstraints extends ExtensionValue {
             }
         }
     }
-    
-    // 
+
+    //
     // Returns the value of certificate extension
-    // 
+    //
     private byte[] getExtensionValue(X509Certificate cert, String OID) {
         try {
             byte[] bytes = cert.getExtensionValue(OID);
@@ -177,17 +177,17 @@ public class NameConstraints extends ExtensionValue {
             return null;
         }
     }
-    
+
     /**
      * Apply the name restrictions specified by this NameConstraints
      * instance to the subject distinguished name and subject alternative
      * names of specified X509Certificate. Restrictions apply only
      * if specified name form is present in the certificate.
-     * The restrictions are applied according the RFC 3280 
+     * The restrictions are applied according the RFC 3280
      * (see 4.2.1.11 Name Constraints), excepting that restrictions are applied
-     * and to CA certificates, and to certificates which issuer and subject 
+     * and to CA certificates, and to certificates which issuer and subject
      * names the same (i.e. method does not check if it CA's certificate or not,
-     * or if the names differ or not. This check if it is needed should be done 
+     * or if the names differ or not. This check if it is needed should be done
      * by caller before calling this method).
      * @param   X509Certificate :   X.509 Certificate to be checked.
      * @return  true, if the certificate is acceptable according
@@ -198,10 +198,10 @@ public class NameConstraints extends ExtensionValue {
             prepareNames();
         }
 
-        byte[] bytes = getExtensionValue(cert, "2.5.29.17"); 
+        byte[] bytes = getExtensionValue(cert, "2.5.29.17");
         List names;
         try {
-            names = (bytes == null) 
+            names = (bytes == null)
                 ? new ArrayList(1) // will check the subject field only
                 : ((GeneralNames) GeneralNames.ASN1.decode(bytes)).getNames();
         } catch (IOException e) {
@@ -211,7 +211,7 @@ public class NameConstraints extends ExtensionValue {
         }
         if ((excluded_names[4] != null) || (permitted_names[4] != null)) {
             try {
-                names.add(new GeneralName(4, 
+                names.add(new GeneralName(4,
                         cert.getSubjectX500Principal().getName()));
             } catch (IOException e) {
                 // should never be happened
@@ -219,23 +219,23 @@ public class NameConstraints extends ExtensionValue {
         }
         return isAcceptable(names);
     }
-        
+
     /**
      * Check if this list of names is acceptable accoring to this
      * NameConstraints object.
      * @param   names:  List
-     * @return 
+     * @return
      */
     public boolean isAcceptable(List names) {
         if (permitted_names == null) {
             prepareNames();
         }
-        
+
         Iterator it = names.iterator();
-        // check map: shows which types of permitted alternative names are 
+        // check map: shows which types of permitted alternative names are
         // presented in the certificate
         boolean[] types_presented = new boolean[9];
-        // check map: shows if permitted name of presented type is found 
+        // check map: shows if permitted name of presented type is found
         // among the certificate's alternative names
         boolean[] permitted_found = new boolean[9];
         while (it.hasNext()) {
@@ -277,31 +277,31 @@ public class NameConstraints extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Name Constraints: [\n"); 
+        buffer.append(prefix).append("Name Constraints: [\n");
         if (permittedSubtrees != null) {
-            buffer.append(prefix).append("  Permitted: [\n"); 
+            buffer.append(prefix).append("  Permitted: [\n");
             for (Iterator it=permittedSubtrees.getSubtrees().iterator();
                     it.hasNext();) {
-                ((GeneralSubtree) it.next()).dumpValue(buffer, prefix + "    "); 
+                ((GeneralSubtree) it.next()).dumpValue(buffer, prefix + "    ");
             }
-            buffer.append(prefix).append("  ]\n"); 
+            buffer.append(prefix).append("  ]\n");
         }
         if (excludedSubtrees != null) {
-            buffer.append(prefix).append("  Excluded: [\n"); 
+            buffer.append(prefix).append("  Excluded: [\n");
             for (Iterator it=excludedSubtrees.getSubtrees().iterator();
                     it.hasNext();) {
-                ((GeneralSubtree) it.next()).dumpValue(buffer, prefix + "    "); 
+                ((GeneralSubtree) it.next()).dumpValue(buffer, prefix + "    ");
             }
-            buffer.append(prefix).append("  ]\n"); 
+            buffer.append(prefix).append("  ]\n");
         }
-        buffer.append('\n').append(prefix).append("]\n"); 
+        buffer.append('\n').append(prefix).append("]\n");
     }
-    
+
     /**
      * X.509 NameConstraints encoder/decoder.
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
-            new ASN1Implicit(0, GeneralSubtrees.ASN1), 
+            new ASN1Implicit(0, GeneralSubtrees.ASN1),
             new ASN1Implicit(1, GeneralSubtrees.ASN1) }) {
         {
             setOptional(0);
@@ -311,7 +311,7 @@ public class NameConstraints extends ExtensionValue {
         protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new NameConstraints(
-                    (GeneralSubtrees) values[0], 
+                    (GeneralSubtrees) values[0],
                     (GeneralSubtrees) values[1],
                     in.getEncoded());
         }

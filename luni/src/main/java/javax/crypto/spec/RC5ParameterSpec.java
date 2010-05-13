@@ -74,11 +74,11 @@ public class RC5ParameterSpec implements AlgorithmParameterSpec {
      */
     public RC5ParameterSpec(int version, int rounds, int wordSize, byte[] iv) {
         if (iv == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.31")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.31"));
         }
         if (iv.length < 2 * (wordSize / 8)) {
             throw new IllegalArgumentException(
-                    Messages.getString("crypto.32")); 
+                    Messages.getString("crypto.32"));
         }
         this.version = version;
         this.rounds = rounds;
@@ -115,14 +115,14 @@ public class RC5ParameterSpec implements AlgorithmParameterSpec {
     public RC5ParameterSpec(int version, int rounds,
                                 int wordSize, byte[] iv, int offset) {
         if (iv == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.31")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.31"));
         }
         if (offset < 0) {
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("crypto.33")); 
+            throw new ArrayIndexOutOfBoundsException(Messages.getString("crypto.33"));
         }
         if (iv.length - offset < 2 * (wordSize / 8)) {
             throw new IllegalArgumentException(
-                    Messages.getString("crypto.34")); 
+                    Messages.getString("crypto.34"));
         }
         this.version = version;
         this.rounds = rounds;

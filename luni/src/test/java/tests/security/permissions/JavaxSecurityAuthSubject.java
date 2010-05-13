@@ -60,7 +60,7 @@ import javax.security.auth.Subject;
         }
 )
 public class JavaxSecurityAuthSubject extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -74,7 +74,7 @@ public class JavaxSecurityAuthSubject extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies that getSubject() method calls checkPermission method of security permissions.",
@@ -110,7 +110,7 @@ public class JavaxSecurityAuthSubject extends TestCase {
                 "javax.security.auth.Subject.getSubject() must call checkPermission on security manager",
                 s.called);
     }
-    
+
     @TestTargets ({
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -193,7 +193,7 @@ public class JavaxSecurityAuthSubject extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         Subject.doAs(subject, new PrivilegedAction<Object>(){
             public Object run() {
@@ -217,7 +217,7 @@ public class JavaxSecurityAuthSubject extends TestCase {
                 "javax.security.auth.Subject.doAs must call checkPermission on security manager",
                 s.called);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.TODO,
@@ -233,7 +233,7 @@ public class JavaxSecurityAuthSubject extends TestCase {
         )
     })
     public void testDoAs() {
-        
+
     }
 
     @TestTargets({
@@ -297,7 +297,7 @@ public class JavaxSecurityAuthSubject extends TestCase {
                 "javax.security.auth.Subject.doAsPrivileged must call checkPermission on security manager",
                 s.called);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.TODO,
@@ -313,9 +313,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
         )
     })
     public void doAsPrivileged() {
-        
+
     }
-    
+
     @TestTargets({
         @TestTargetNew(
                 level = TestLevel.TODO,
@@ -331,9 +331,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
               )
     })
     public void testSetGetIsReadonly() {
-        
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "",
@@ -341,9 +341,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
       args = {}
     )
     public void testGetPrincipals() {
-        
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "",
@@ -351,9 +351,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
       args = {java.lang.Class.class}
     )
     public void testGetPrincipalsClass() {
-        
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "",
@@ -361,9 +361,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
       args = {}
     )
     public void testgetPrivateCredentials() {
-        
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "",
@@ -371,9 +371,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
       args = {java.lang.Class.class}
     )
     public void testgetPrivateCredentialsClass() {
-        
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "",
@@ -381,9 +381,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
       args = {}
     )
     public void testgetPublicCredentials() {
-        
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "",
@@ -391,9 +391,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
       args = {java.lang.Class.class}
     )
     public void testgetPublicCredentialsClass() {
-          
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "",
@@ -401,9 +401,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
       args = {java.security.AccessControlContext.class}
     )
     public void testgetSubject() {
-        
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "",
@@ -411,9 +411,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
       args = {}
     )
     public void testHashCode() {
-        
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "",
@@ -421,9 +421,9 @@ public class JavaxSecurityAuthSubject extends TestCase {
       args = {java.lang.Object.class}
     )
     public void testEquals() {
-        
+
     }
-    
+
     @TestTargetNew(
       level = TestLevel.PARTIAL,
       notes = "test only started please continue",
@@ -436,7 +436,7 @@ public class JavaxSecurityAuthSubject extends TestCase {
         assertEquals(0,s.getPrivateCredentials().size());
         assertEquals(0,s.getPublicCredentials().size());
     }
-    
+
     @TestTargetNew(
       level = TestLevel.TODO,
       notes = "test only started please continue. Throws exception InvalidKeySpecException line 455",
@@ -450,26 +450,26 @@ public class JavaxSecurityAuthSubject extends TestCase {
         KeyFactory factory = KeyFactory.getInstance("RSA");
         PublicKey pubKey = factory.generatePublic(spec);
         PrivateKey prKey = factory.generatePrivate(spec);
-        
+
         Set<PublicKey> pubKeySet = new HashSet<PublicKey>();
         pubKeySet.add(pubKey);
         Set<PrivateKey> prKeySet = new HashSet<PrivateKey>();
         prKeySet.add(prKey);
         Set<Principal> pSet = new HashSet<Principal>();
         pSet.add(p);
-        
+
         //positive test
         Subject s = new Subject(true,pSet,pubKeySet,prKeySet);
         assertTrue(s.isReadOnly())
-        
+
         //readonly false
         //TODO continue here
-        
+
         //wrong principal
-        
+
         */
-        
+
  ;   }
-    
+
 
 }

@@ -33,7 +33,7 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * Attempt to insert an element into an attribute list, should raise a
  * HIERARCHY_REQUEST_ERR.
- * 
+ *
  * @author Curt Arnold
  * @see <a
  *      href="http://www.w3.org/TR/1998/REC-DOM-Level-1-19981001/level-one-core#xpointer(id('ID-258A00AF')/constant[@name='HIERARCHY_REQUEST_ERR'])">http://www.w3.org/TR/1998/REC-DOM-Level-1-19981001/level-one-core#xpointer(id('ID-258A00AF')/constant[@name='HIERARCHY_REQUEST_ERR'])</a>
@@ -42,7 +42,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/2000/11/DOM-Level-2-errata#core-4">http://www.w3.org/2000/11/DOM-Level-2-errata#core-4</a>
  */
-@TestTargetClass(NamedNodeMap.class) 
+@TestTargetClass(NamedNodeMap.class)
 public final class HCNamedNodeMapInvalidType extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -68,7 +68,7 @@ public final class HCNamedNodeMapInvalidType extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

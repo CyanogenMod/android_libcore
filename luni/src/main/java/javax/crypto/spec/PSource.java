@@ -40,7 +40,7 @@ public class PSource {
      */
     protected PSource(String pSrcName) {
         if (pSrcName == null) {
-            throw new NullPointerException(Messages.getString("crypto.42")); 
+            throw new NullPointerException(Messages.getString("crypto.42"));
         }
         this.pSrcName = pSrcName;
     }
@@ -69,7 +69,7 @@ public class PSource {
         public static final PSpecified DEFAULT = new PSpecified();
 
         private PSpecified() {
-            super("PSpecified"); 
+            super("PSpecified");
             p = new byte[0];
         }
 
@@ -83,9 +83,9 @@ public class PSource {
          *             if <code>p</code> is null.
          */
         public PSpecified(byte[] p) {
-            super("PSpecified"); 
+            super("PSpecified");
             if (p == null) {
-                throw new NullPointerException(Messages.getString("crypto.43")); 
+                throw new NullPointerException(Messages.getString("crypto.43"));
             }
             //TODO: It is unknown which name should be used!
             //super("");

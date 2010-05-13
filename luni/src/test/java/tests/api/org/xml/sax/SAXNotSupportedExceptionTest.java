@@ -47,9 +47,9 @@ public class SAXNotSupportedExceptionTest extends TestCase {
     public void testSAXNotSupportedException_String() {
         SAXNotSupportedException e = new SAXNotSupportedException(ERR);
         assertEquals(ERR, e.getMessage());
-        
+
         e = new SAXNotSupportedException(null);
         assertNull(e.getMessage());
     }
-    
+
 }

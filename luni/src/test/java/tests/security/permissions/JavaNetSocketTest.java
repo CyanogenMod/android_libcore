@@ -36,7 +36,7 @@ import java.security.Permission;
  */
 @TestTargetClass(java.net.Socket.class)
 public class JavaNetSocketTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -50,7 +50,7 @@ public class JavaNetSocketTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -107,23 +107,23 @@ public class JavaNetSocketTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission permission) {
-                
+
             }
         }
-        
+
         String host = "www.google.ch";
         int port = 80;
         String hostAddress = InetAddress.getByName(host).getHostAddress();
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         new Socket(host, port);
         assertTrue("java.net.ServerSocket ctor must call checkConnect on security permissions", s.called);
         assertEquals("Argument of checkConnect is not correct", hostAddress, s.host);
         assertEquals("Argument of checkConnect is not correct", port, s.port);
-        
+
         s.reset();
         new Socket(host, port, true);
         assertTrue("java.net.ServerSocket ctor must call checkConnect on security permissions", s.called);
@@ -135,19 +135,19 @@ public class JavaNetSocketTest extends TestCase {
         assertTrue("java.net.ServerSocket ctor must call checkConnect on security permissions", s.called);
         assertEquals("Argument of checkConnect is not correct", hostAddress, s.host);
         assertEquals("Argument of checkConnect is not correct", port, s.port);
-        
+
         s.reset();
         new Socket(InetAddress.getByName(host), port);
         assertTrue("java.net.ServerSocket ctor must call checkConnect on security permissions", s.called);
         assertEquals("Argument of checkConnect is not correct", hostAddress, s.host);
         assertEquals("Argument of checkConnect is not correct", port, s.port);
-        
+
         s.reset();
         new Socket(InetAddress.getByName(host), port, true);
         assertTrue("java.net.ServerSocket ctor must call checkConnect on security permissions", s.called);
         assertEquals("Argument of checkConnect is not correct", hostAddress, s.host);
         assertEquals("Argument of checkConnect is not correct", port, s.port);
-        
+
         s.reset();
         new Socket(InetAddress.getByName(host), port,  InetAddress.getByAddress(new byte[] {0,0,0,0}), 0);
         assertTrue("java.net.ServerSocket ctor must call checkConnect on security permissions", s.called);
@@ -180,17 +180,17 @@ public class JavaNetSocketTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission permission) {
-                
+
             }
         }
-        
+
         String host = "www.google.ch";
         int port = 80;
         String hostAddress = InetAddress.getByName(host).getHostAddress();
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         new Socket(InetAddress.getByName(host), port,  InetAddress.getLocalHost(), 0);
         assertTrue("java.net.ServerSocket ctor must call checkConnect on security permissions", s.called);

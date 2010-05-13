@@ -162,13 +162,13 @@ class Socks4Message {
     public String getErrorString(int error) {
         switch (error) {
             case RETURN_FAILURE:
-                return Msg.getString("K00cd"); 
+                return Msg.getString("K00cd");
             case RETURN_CANNOT_CONNECT_TO_IDENTD:
-                return Msg.getString("K00ce"); 
+                return Msg.getString("K00ce");
             case RETURN_DIFFERENT_USER_IDS:
-                return Msg.getString("K00cf"); 
+                return Msg.getString("K00cf");
             default:
-                return Msg.getString("K00d0"); 
+                return Msg.getString("K00d0");
         }
     }
 
@@ -208,7 +208,7 @@ class Socks4Message {
             index++;
         }
         try {
-            result = new String(buffer, offset, index - offset, "ISO8859_1"); 
+            result = new String(buffer, offset, index - offset, "ISO8859_1");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.toString());
         }
@@ -236,7 +236,7 @@ class Socks4Message {
     private void setString(int offset, int maxLength, String theString) {
         byte[] stringBytes;
         try {
-            stringBytes = theString.getBytes("ISO8859_1"); 
+            stringBytes = theString.getBytes("ISO8859_1");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.toString());
         }

@@ -30,9 +30,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactorySpi;
 
 /**
- * Additional class for verification of SecretKeyFactorySpi 
+ * Additional class for verification of SecretKeyFactorySpi
  * and SecretKeyFactory functionality
- * 
+ *
  */
 
 public class MySecretKeyFactorySpi  extends SecretKeyFactorySpi {

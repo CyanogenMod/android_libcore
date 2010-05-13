@@ -45,18 +45,18 @@ import java.security.cert.CertificateException;
 import java.security.cert.PKIXParameters;
 /**
  * Tests for <code>CertPathValidator</code> class  methods.
- * 
+ *
  */
 @TestTargetClass(CertPathValidator.class)
 public class CertPathValidator3Test extends TestCase {
 
-    private static final String defaultType = CertPathBuilder1Test.defaultType;    
-    
+    private static final String defaultType = CertPathBuilder1Test.defaultType;
+
     private static boolean PKIXSupport = false;
 
     private static Provider defaultProvider;
     private static String defaultProviderName;
-    
+
     private static String NotSupportMsg = "";
 
     static {
@@ -66,7 +66,7 @@ public class CertPathValidator3Test extends TestCase {
         defaultProviderName = (PKIXSupport ? defaultProvider.getName() : null);
         NotSupportMsg = defaultType.concat(" is not supported");
     }
-    
+
     private static CertPathValidator[] createCPVs() {
         if (!PKIXSupport) {
             fail(NotSupportMsg);
@@ -83,13 +83,13 @@ public class CertPathValidator3Test extends TestCase {
         } catch (Exception e) {
             return null;
         }
-    }    
+    }
     /**
      * Test for <code>validate(CertPath certpath, CertPathParameters params)</code> method
-     * Assertion: throws InvalidAlgorithmParameterException 
+     * Assertion: throws InvalidAlgorithmParameterException
      * when params is instance of PKIXParameters and
      * certpath is not X.509 type
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -103,10 +103,10 @@ public class CertPathValidator3Test extends TestCase {
             return;
         }
         MyCertPath mCP = new MyCertPath(new byte[0]);
-        CertPathParameters params = new PKIXParameters(TestUtils.getTrustAnchorSet()); 
+        CertPathParameters params = new PKIXParameters(TestUtils.getTrustAnchorSet());
         CertPathValidator [] certPV = createCPVs();
         assertNotNull("CertPathValidator objects were not created", certPV);
-        for (int i = 0; i < certPV.length; i++) {            
+        for (int i = 0; i < certPV.length; i++) {
             try {
                 certPV[i].validate(mCP, null);
                 fail("InvalidAlgorithmParameterException must be thrown");

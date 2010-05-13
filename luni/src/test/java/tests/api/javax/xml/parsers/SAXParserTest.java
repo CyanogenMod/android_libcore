@@ -54,7 +54,7 @@ import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 
 @SuppressWarnings("deprecation")
-@TestTargetClass(SAXParser.class) 
+@TestTargetClass(SAXParser.class)
 public class SAXParserTest extends TestCase {
 
     private class MockSAXParser extends SAXParser {
@@ -121,7 +121,7 @@ public class SAXParserTest extends TestCase {
 
     private static final String LEXICAL_HANDLER_PROPERTY
             = "http://xml.org/sax/properties/lexical-handler";
-    
+
     SAXParserFactory spf;
 
     SAXParser parser;
@@ -142,9 +142,9 @@ public class SAXParserTest extends TestCase {
     boolean validating = false;
 
     private InputStream getResource(String name) {
-        return this.getClass().getResourceAsStream(name);        
+        return this.getClass().getResourceAsStream(name);
     }
-    
+
     public void initFiles() throws Exception {
         // we differntiate between a validating and a non validating parser
         try {
@@ -156,8 +156,8 @@ public class SAXParserTest extends TestCase {
 
         String tmpPath = System.getProperty("java.io.tmpdir");
 
-        // nwf = not well formed, wf = well formed 
-        list_wf = new File[] {new File(tmpPath + "/" + 
+        // nwf = not well formed, wf = well formed
+        list_wf = new File[] {new File(tmpPath + "/" +
                 SAXParserTestSupport.XML_WF + "staff.xml")};
         list_nwf = new File[] {new File(tmpPath + "/" +
                 SAXParserTestSupport.XML_NWF + "staff.xml")};
@@ -189,11 +189,11 @@ public class SAXParserTest extends TestCase {
         Support_Resources.copyLocalFileto(list_out_hb[0],
                 getResource(SAXParserTestSupport.XML_WF_OUT_HB + "staff.out"));
     }
-    
+
     @Override
     protected void setUp() throws Exception {
         spf = SAXParserFactory.newInstance();
-        parser = spf.newSAXParser(); 
+        parser = spf.newSAXParser();
         assertNotNull(parser);
 
         ns = new HashMap<String, String>();
@@ -205,14 +205,14 @@ public class SAXParserTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
     }
-    
+
 //    public static void main(String[] args) throws Exception {
 //        SAXParserTest st = new SAXParserTest();
 //        st.setUp();
 //        st.generateDataFromReferenceImpl();
-//        
+//
 //    }
-//    
+//
 //    private void generateDataFromReferenceImpl() {
 //        try {
 //            for(int i = 0; i < list_wf.length; i++) {
@@ -220,7 +220,7 @@ public class SAXParserTest extends TestCase {
 //                InputStream is = new FileInputStream(list_wf[i]);
 //                parser.parse(is, dh, ParsingSupport.XML_SYSTEM_ID);
 //                HashMap refHm = dh.createData();
-//                
+//
 //                StringBuilder sb = new StringBuilder();
 //                for (int j = 0; j < ParsingSupport.KEYS.length; j++) {
 //                    String key = ParsingSupport.KEYS[j];
@@ -231,13 +231,13 @@ public class SAXParserTest extends TestCase {
 //                fw.append(sb.toString());
 //                fw.close();
 //            }
-//            
+//
 //            for(int i = 0; i < list_nwf.length; i++) {
 //                MyHandler hb = new MyHandler();
 //                InputStream is = new FileInputStream(list_wf[i]);
 //                parser.parse(is, hb, ParsingSupport.XML_SYSTEM_ID);
 //                HashMap refHm = hb.createData();
-//                
+//
 //                StringBuilder sb = new StringBuilder();
 //                for (int j = 0; j < ParsingSupport.KEYS.length; j++) {
 //                    String key = ParsingSupport.KEYS[j];
@@ -249,7 +249,7 @@ public class SAXParserTest extends TestCase {
 //                fw.close();
 //            }
 //
-//            
+//
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
@@ -395,7 +395,7 @@ public class SAXParserTest extends TestCase {
                         list_out_hb[i].getPath());
                 MyHandler dh = new MyHandler();
                 parser.parse(list_wf[i], dh);
-                assertTrue(SAXParserTestSupport.equalsMaps(hm, 
+                assertTrue(SAXParserTestSupport.equalsMaps(hm,
                         dh.createData()));
             } catch (IOException ioe) {
                 fail("Unexpected IOException " + ioe.toString());
@@ -492,7 +492,7 @@ public class SAXParserTest extends TestCase {
         } catch(java.lang.IllegalArgumentException iae) {
             fail("java.lang.IllegalArgumentException is thrown");
         }
-        
+
         try {
             InputSource is = new InputSource(new BrokenInputStream(new FileInputStream(list_wf[0]), 10));
             parser.parse(is, (DefaultHandler) null);
@@ -516,7 +516,7 @@ public class SAXParserTest extends TestCase {
                 MyHandler dh = new MyHandler();
                 InputSource is = new InputSource(new FileInputStream(list_wf[i]));
                 parser.parse(is, dh);
-                assertTrue(SAXParserTestSupport.equalsMaps(hm, 
+                assertTrue(SAXParserTestSupport.equalsMaps(hm,
                         dh.createData()));
             } catch (IOException ioe) {
                 fail("Unexpected IOException " + ioe.toString());
@@ -579,7 +579,7 @@ public class SAXParserTest extends TestCase {
         } catch(SAXException sax) {
             fail("Unexpected SAXException " + sax.toString());
         }
-        
+
         // SystemID case
         try {
             InputSource is = new InputSource(list_wf[0].toURI().toString());
@@ -593,12 +593,12 @@ public class SAXParserTest extends TestCase {
         } catch(SAXException sax) {
             fail("Unexpected SAXException " + sax.toString());
         }
-        
+
         // Inject IOException
         try {
             InputStream is = new BrokenInputStream(
                     new FileInputStream(list_wf[0]), 10);
-            parser.parse(is, (HandlerBase) null, 
+            parser.parse(is, (HandlerBase) null,
                     SAXParserTestSupport.XML_SYSTEM_ID);
             fail("IOException expected");
         } catch(IOException e) {
@@ -702,7 +702,7 @@ public class SAXParserTest extends TestCase {
 
         try {
             MyDefaultHandler dh = new MyDefaultHandler();
-            parser.parse((InputStream) null, dh, 
+            parser.parse((InputStream) null, dh,
                     SAXParserTestSupport.XML_SYSTEM_ID);
             fail("java.lang.IllegalArgumentException is not thrown");
         } catch(java.lang.IllegalArgumentException iae) {
@@ -715,7 +715,7 @@ public class SAXParserTest extends TestCase {
 
         try {
             InputStream is = new FileInputStream(list_wf[0]);
-            parser.parse(is, (DefaultHandler) null, 
+            parser.parse(is, (DefaultHandler) null,
                     SAXParserTestSupport.XML_SYSTEM_ID);
         } catch(java.lang.IllegalArgumentException iae) {
             fail("java.lang.IllegalArgumentException is thrown");
@@ -726,7 +726,7 @@ public class SAXParserTest extends TestCase {
         } catch(SAXException sax) {
             fail("Unexpected SAXException " + sax.toString());
         }
-//        
+//
 //        for(int i = 0; i < list_wf.length; i++) {
 //
 //            HashMap<String, String> hm = new SAXParserTestSupport().readFile(
@@ -759,7 +759,7 @@ public class SAXParserTest extends TestCase {
 //
 //        try {
 //            InputStream is = new FileInputStream(list_wf[0]);
-//            parser.parse(is, (DefaultHandler) null, 
+//            parser.parse(is, (DefaultHandler) null,
 //                    SAXParserTestSupport.XML_SYSTEM_ID);
 //        } catch(java.lang.IllegalArgumentException iae) {
 //            fail("java.lang.IllegalArgumentException is thrown");
@@ -792,7 +792,7 @@ public class SAXParserTest extends TestCase {
                 MyHandler dh = new MyHandler();
                 InputStream is = new FileInputStream(list_wf[i]);
                 parser.parse(is, dh);
-                assertTrue(SAXParserTestSupport.equalsMaps(hm, 
+                assertTrue(SAXParserTestSupport.equalsMaps(hm,
                         dh.createData()));
             } catch (IOException ioe) {
                 fail("Unexpected IOException " + ioe.toString());
@@ -840,7 +840,7 @@ public class SAXParserTest extends TestCase {
         } catch(SAXException sax) {
             fail("Unexpected SAXException " + sax.toString());
         }
-        
+
         // Inject IOException
         try {
             InputStream is = new BrokenInputStream(
@@ -868,7 +868,7 @@ public class SAXParserTest extends TestCase {
                 MyHandler dh = new MyHandler();
                 InputStream is = new FileInputStream(list_wf[i]);
                 parser.parse(is, dh, SAXParserTestSupport.XML_SYSTEM_ID);
-                assertTrue(SAXParserTestSupport.equalsMaps(hm, 
+                assertTrue(SAXParserTestSupport.equalsMaps(hm,
                         dh.createData()));
             } catch (IOException ioe) {
                 fail("Unexpected IOException " + ioe.toString());
@@ -894,7 +894,7 @@ public class SAXParserTest extends TestCase {
 
         try {
             MyHandler dh = new MyHandler();
-            parser.parse((InputStream) null, dh, 
+            parser.parse((InputStream) null, dh,
                     SAXParserTestSupport.XML_SYSTEM_ID);
             fail("java.lang.IllegalArgumentException is not thrown");
         } catch(java.lang.IllegalArgumentException iae) {
@@ -907,7 +907,7 @@ public class SAXParserTest extends TestCase {
 
         try {
             InputStream is = new FileInputStream(list_wf[0]);
-            parser.parse(is, (HandlerBase) null, 
+            parser.parse(is, (HandlerBase) null,
                     SAXParserTestSupport.XML_SYSTEM_ID);
         } catch(java.lang.IllegalArgumentException iae) {
             fail("java.lang.IllegalArgumentException is thrown");
@@ -918,12 +918,12 @@ public class SAXParserTest extends TestCase {
         } catch(SAXException sax) {
             fail("Unexpected SAXException " + sax.toString());
         }
-        
+
         // Inject IOException
         try {
             InputStream is = new BrokenInputStream(
                     new FileInputStream(list_wf[0]), 10);
-            parser.parse(is, (HandlerBase) null, 
+            parser.parse(is, (HandlerBase) null,
                     SAXParserTestSupport.XML_SYSTEM_ID);
             fail("IOException expected");
         } catch(IOException e) {
@@ -993,7 +993,7 @@ public class SAXParserTest extends TestCase {
                         list_out_hb[i].getPath());
                 MyHandler dh = new MyHandler();
                 parser.parse(list_wf[i].toURI().toString(), dh);
-                assertTrue(SAXParserTestSupport.equalsMaps(hm, 
+                assertTrue(SAXParserTestSupport.equalsMaps(hm,
                         dh.createData()));
             } catch (IOException ioe) {
                 fail("Unexpected IOException " + ioe.toString());
@@ -1104,19 +1104,19 @@ public class SAXParserTest extends TestCase {
     public void testSetGetProperty() {
         // Ordinary case
         String validName = "http://xml.org/sax/properties/lexical-handler";
-        LexicalHandler validValue = new MockHandler(new MethodLogger());            
+        LexicalHandler validValue = new MockHandler(new MethodLogger());
 
         try {
             SAXParser parser = spf.newSAXParser();
             parser.setProperty(validName, validValue);
             assertEquals(validValue, parser.getProperty(validName));
-            
+
             parser.setProperty(validName, null);
             assertEquals(null, parser.getProperty(validName));
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         // Unsupported property
         try {
             SAXParser parser = spf.newSAXParser();
@@ -1127,7 +1127,7 @@ public class SAXParserTest extends TestCase {
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         try {
             SAXParser parser = spf.newSAXParser();
             parser.getProperty("foo");
@@ -1159,5 +1159,5 @@ public class SAXParserTest extends TestCase {
             throw new RuntimeException("Unexpected exception", e);
         }
     }
-    
+
 }

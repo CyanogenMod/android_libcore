@@ -45,7 +45,7 @@ public class Manifest implements Cloneable {
     private static final byte[] VALUE_SEPARATOR = new byte[] { ':', ' ' };
 
     private static final Attributes.Name NAME_ATTRIBUTE = new Attributes.Name(
-            "Name"); 
+            "Name");
 
     private Attributes mainAttributes = new Attributes();
 
@@ -257,7 +257,7 @@ public class Manifest implements Cloneable {
         // Does it look like a manifest?
         if (!containsLine(buffer, count)) {
             // archive.2E=Manifest is too long
-            throw new IOException(Messages.getString("archive.2E")); 
+            throw new IOException(Messages.getString("archive.2E"));
         }
 
         // Requires additional reads
@@ -382,7 +382,7 @@ public class Manifest implements Cloneable {
         byte[] out = name.getBytes();
         if (out.length > LINE_LENGTH_LIMIT) {
             throw new IOException(Messages.getString(
-                    "archive.33", name, Integer.valueOf(LINE_LENGTH_LIMIT))); 
+                    "archive.33", name, Integer.valueOf(LINE_LENGTH_LIMIT)));
         }
 
         os.write(out);

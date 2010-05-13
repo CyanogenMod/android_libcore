@@ -30,7 +30,7 @@ public class Support_ASimpleWriter extends Writer {
         this(DEFAULT_BUFFER_SIZE);
         throwExceptionOnNextUse = throwException;
     }
-    
+
     public Support_ASimpleWriter(int bufferSize) {
         buf = new char[bufferSize];
         pos = 0;
@@ -43,7 +43,7 @@ public class Support_ASimpleWriter extends Writer {
             throw new IOException("Exception thrown for testing purpose.");
         }
     }
-    
+
     @Override
     public void flush() throws IOException {
         if (throwExceptionOnNextUse) {
@@ -57,7 +57,7 @@ public class Support_ASimpleWriter extends Writer {
             throw new IOException("Exception thrown for testing purpose.");
         }
         if (offset < 0 || count < 0 || (offset + count) > buf.length) {
-            throw new IndexOutOfBoundsException(); 
+            throw new IndexOutOfBoundsException();
         }
         try {
             System.arraycopy(src, offset, buf, pos, count);

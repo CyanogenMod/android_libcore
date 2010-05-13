@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 @TestTargetClass(Key.class)
 /**
  * Tests for <code>Key</code> class field
- * 
+ *
  */
 
 public class KeyTest extends TestCase {
@@ -52,7 +52,7 @@ public class KeyTest extends TestCase {
         assertEquals("Incorrect serialVersionUID", mk.getSerVerUID(), //Key.serialVersionUID,
                 6603384152749567654L);
     }
-    
+
     public class checkKey implements Key {
         public String getAlgorithm() {
             return "Key";

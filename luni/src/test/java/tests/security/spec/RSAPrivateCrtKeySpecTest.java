@@ -36,7 +36,7 @@ import java.security.spec.RSAPrivateKeySpec;
 
 /**
  * Tests for <code>RSAPrivateCrtKeySpec</code> class fields and methods
- * 
+ *
  */
 @TestTargetClass(RSAPrivateCrtKeySpec.class)
 public class RSAPrivateCrtKeySpecTest extends TestCase {
@@ -111,7 +111,7 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
                 null,
                 null);
     }
-    
+
     /**
      * Test for <code>getCrtCoefficient()</code> method<br>
      * Assertion: returns crt coefficient
@@ -253,7 +253,7 @@ public class RSAPrivateCrtKeySpecTest extends TestCase {
     //
     // Tests for inherited methods
     //
-    
+
     /**
      * Test for <code>getModulus()</code> method<br>
      * Assertion: returns modulus

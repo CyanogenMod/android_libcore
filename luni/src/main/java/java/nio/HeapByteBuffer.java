@@ -29,7 +29,7 @@ import org.apache.harmony.luni.platform.Endianness;
  * <p>
  * All methods are marked final for runtime performance.
  * </p>
- * 
+ *
  */
 abstract class HeapByteBuffer extends BaseByteBuffer {
 
@@ -57,9 +57,9 @@ abstract class HeapByteBuffer extends BaseByteBuffer {
 
     /*
      * Override ByteBuffer.get(byte[], int, int) to improve performance.
-     * 
+     *
      * (non-Javadoc)
-     * 
+     *
      * @see java.nio.ByteBuffer#get(byte[], int, int)
      */
     @Override

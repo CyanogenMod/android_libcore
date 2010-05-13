@@ -52,7 +52,7 @@ public class Header implements Cloneable {
     /**
      * The alternative constructor which sets the input map as its initial
      * keyTable.
-     * 
+     *
      * @param map
      *            the initial keyTable as a map
      */
@@ -93,7 +93,7 @@ public class Header implements Cloneable {
 
     /**
      * Add a field with the specified value.
-     * 
+     *
      * @param key
      * @param value
      */
@@ -209,7 +209,7 @@ public class Header implements Cloneable {
     /**
      * Sets the status line in the header request example: GET / HTTP/1.1
      * response example: HTTP/1.1 200 OK
-     * 
+     *
      * @param statusLine
      */
     public void setStatusLine(String statusLine) {
@@ -228,7 +228,7 @@ public class Header implements Cloneable {
     /**
      * Gets the status line in the header request example: GET / HTTP/1.1
      * response example: HTTP/1.1 200 OK
-     * 
+     *
      * @return the status line
      */
     public String getStatusLine() {

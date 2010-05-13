@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,9 +27,9 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 
 public class HttpRetryExceptionTest extends TestCase {
 
-    private static final String LOCATION = "Http test"; 
+    private static final String LOCATION = "Http test";
 
-    private static final String DETAIL = "detail"; 
+    private static final String DETAIL = "detail";
 
     // comparator for HttpRetryException objects
     private static final SerializableAssert comparator = new SerializableAssert() {
@@ -44,7 +44,7 @@ public class HttpRetryExceptionTest extends TestCase {
             assertEquals("getMessage", ref.getMessage(), tst.getMessage());
         }
     };
-    
+
     /**
      * @tests serialization/deserialization.
      */

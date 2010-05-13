@@ -31,7 +31,7 @@ public class SignatureSpiTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     @SuppressWarnings("cast")
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -45,7 +45,7 @@ public class SignatureSpiTest extends TestCase {
             assertNotNull(ss1);
             assertTrue(ss1 instanceof SignatureSpi);
         } catch (Exception e) {
-            fail("Unexpected exception " + e.getMessage()); 
+            fail("Unexpected exception " + e.getMessage());
         }
     }
 
@@ -63,7 +63,7 @@ public class SignatureSpiTest extends TestCase {
         } catch (CloneNotSupportedException e) {
             fail("Unexpected CloneNotSupportedException " + e.getMessage());
         }
-        
+
         MySignatureSpi2 ss2 = new MySignatureSpi2();
         try {
             ss2.clone();
@@ -72,7 +72,7 @@ public class SignatureSpiTest extends TestCase {
             // expected
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -139,7 +139,7 @@ public class SignatureSpiTest extends TestCase {
             fail("Unexpected exception " + e.getMessage());
         }
     }
-    
+
     private boolean engineGetParametersCalled = false;
     private boolean engineGetParametersExceptionOcurred = false;
 
@@ -215,9 +215,9 @@ public class SignatureSpiTest extends TestCase {
         assertTrue(engineGetParametersCalled);
         assertTrue(engineGetParametersExceptionOcurred);
     }
-    
+
     class MySignatureSpi1 extends SignatureSpi implements Cloneable {
-        
+
         public Object engineGetParameter(String param) {
             return null;
         }
@@ -225,7 +225,7 @@ public class SignatureSpiTest extends TestCase {
         public Object clone() throws CloneNotSupportedException {
             return super.clone();
         }
-        
+
         public void engineInitSign(PrivateKey privateKey) {
         }
 
@@ -248,18 +248,18 @@ public class SignatureSpiTest extends TestCase {
         public boolean engineVerify(byte[] sigBytes) {
             return false;
         }
-       
+
     }
 
     class MySignatureSpi2 extends SignatureSpi {
         public Object engineGetParameter(String param) {
             return null;
         }
-        
+
         public Object clone() throws CloneNotSupportedException {
             return super.clone();
         }
-        
+
         public void engineInitSign(PrivateKey privateKey) {
         }
 
@@ -283,7 +283,7 @@ public class SignatureSpiTest extends TestCase {
             return false;
         }
     }
-    
+
     @SuppressWarnings("unused")
     class MySignature extends Signature {
 
@@ -341,47 +341,47 @@ public class SignatureSpiTest extends TestCase {
             methodCalled("engineVerify_[B");
             return false;
         }
-        
+
         @Override
         protected void engineInitSign(PrivateKey privateKey, SecureRandom random)
                 throws InvalidKeyException {
             methodCalled("engineInitSign_PrivateKey_SecureRandom");
         }
-        
+
         @Override
         protected void engineSetParameter(AlgorithmParameterSpec params)
                 throws InvalidAlgorithmParameterException {
             methodCalled("engineSetParameter_AlgorithmParameterSpec");
         }
-        
+
         @Override
         protected int engineSign(byte[] outbuf, int offset, int len)
                 throws SignatureException {
             methodCalled("engineSign_[BII");
             return 0;
         }
-        
+
         @Override
         protected void engineUpdate(ByteBuffer input) {
             methodCalled("engineUpdate_ByteBuffer");
         }
-        
+
         @Override
         protected boolean engineVerify(byte[] sigBytes, int offset, int length)
                 throws SignatureException {
             methodCalled("engineVerify_[BII");
             return false;
         }
-        
+
         boolean wasMethodCalled(String methodName) {
             return calledMethods.contains(methodName);
         }
-        
+
         void methodCalled(String methodName) {
             calledMethods.add(methodName);
         }
     }
-    
+
     @TestTargetNew(
             level=TestLevel.COMPLETE,
             method="engineInitSign",
@@ -398,7 +398,7 @@ public class SignatureSpiTest extends TestCase {
             fail("unexpected exception: " + e);
         }
     }
-    
+
     @TestTargetNew(
             level=TestLevel.COMPLETE,
             method="engineSetParameter",
@@ -418,7 +418,7 @@ public class SignatureSpiTest extends TestCase {
             fail("unexpected exception: " + e);
         }
     }
-    
+
     @TestTargetNew(
             level=TestLevel.COMPLETE,
             method="engineSign",
@@ -428,15 +428,15 @@ public class SignatureSpiTest extends TestCase {
         MySignature signature = new MySignature("dummy");
         try {
             signature.initSign(new PrivateKey() {
-            
+
                 public String getFormat() {
                     return null;
                 }
-            
+
                 public byte[] getEncoded() {
                     return null;
                 }
-            
+
                 public String getAlgorithm() {
                     return null;
                 }
@@ -453,7 +453,7 @@ public class SignatureSpiTest extends TestCase {
             fail("unexpected exception: " + e);
         }
     }
-    
+
     @TestTargetNew(
             level=TestLevel.COMPLETE,
             method="engineUpdate",
@@ -488,7 +488,7 @@ public class SignatureSpiTest extends TestCase {
             fail("unexpected exception");
         }
     }
-    
+
     @TestTargetNew(
             level=TestLevel.COMPLETE,
             method="engineVerify",
@@ -525,5 +525,5 @@ public class SignatureSpiTest extends TestCase {
             fail("unexpected exception");
         }
     }
-    
+
 }

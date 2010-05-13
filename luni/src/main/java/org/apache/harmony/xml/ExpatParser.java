@@ -224,7 +224,7 @@ class ExpatParser {
         ContentHandler contentHandler = xmlReader.contentHandler;
         if (contentHandler != null) {
             contentHandler.processingInstruction(target, data);
-        }        
+        }
     }
 
     /*package*/ void notationDecl(String name, String publicId, String systemId) throws SAXException {
@@ -340,7 +340,7 @@ class ExpatParser {
          * Expat complains if the external entity isn't wrapped with a root
          * element so we add one and ignore it later on during parsing.
          */
-        
+
         // Try the character stream.
         Reader reader = inputSource.getCharacterStream();
         if (reader != null) {
@@ -743,7 +743,7 @@ class ExpatParser {
                     + column + ": " + message;
         }
     }
-    
+
     /**
      * Opens an InputStream for the given URL.
      */
@@ -767,7 +767,7 @@ class ExpatParser {
      */
     private static class EntityParser extends ExpatParser {
 
-        private int depth = 0; 
+        private int depth = 0;
 
         private EntityParser(String encoding, ExpatReader xmlReader,
                 int pointer, String publicId, String systemId) {
@@ -786,7 +786,7 @@ class ExpatParser {
                         attributeCount);
             }
         }
-        
+
         @Override
         void endElement(String uri, String localName, String qName)
                 throws SAXException {

@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
 
-@TestTargetClass(AbstractList.class) 
+@TestTargetClass(AbstractList.class)
 public class AbstractListTest extends junit.framework.TestCase {
 
     static class SimpleList extends AbstractList {
@@ -68,7 +68,7 @@ public class AbstractListTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_hashCode() {
-        
+
         List list = new ArrayList();
         list.add(new Integer(3));
         list.add(new Integer(15));
@@ -281,7 +281,7 @@ public class AbstractListTest extends junit.framework.TestCase {
         al.add(2);
         al.add(3);
         al.add(4);
-        
+
         assertEquals(-1, al.indexOf(5));
         assertEquals(2, al.indexOf(2));
     }
@@ -303,7 +303,7 @@ public class AbstractListTest extends junit.framework.TestCase {
         al.add(2);
         al.add(3);
         al.add(4);
-        
+
         assertEquals(-1, al.lastIndexOf(5));
         assertEquals(6, al.lastIndexOf(2));
     }
@@ -325,22 +325,22 @@ public class AbstractListTest extends junit.framework.TestCase {
         al2.add(2);
         al2.add(3);
         al2.add(4);
-        
+
         Iterator li1 = al1.listIterator(2);
         Iterator li2 = al2.listIterator();
-        
+
         while(li1.hasNext()&&li2.hasNext()) {
             assertEquals(li1.next(), li2.next());
         }
         assertSame(li1.hasNext(),li2.hasNext());
-        
+
         try {
             al1.listIterator(-1);
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException ee) {
             //expected
         }
-        
+
         try {
             al1.listIterator(al1.size() + 1);
             fail("IndexOutOfBoundsException expected");

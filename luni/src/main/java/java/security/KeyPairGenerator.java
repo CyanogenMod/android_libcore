@@ -33,7 +33,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
 
     // Store KeyPairGenerator SERVICE name
-    private static final String SERVICE = "KeyPairGenerator"; 
+    private static final String SERVICE = "KeyPairGenerator";
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
@@ -70,7 +70,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     /**
      * Returns a new instance of {@code KeyPairGenerator} that utilizes the
      * specified algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use
      * @return a new instance of {@code KeyPairGenerator} that utilizes the
@@ -82,7 +82,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     public static KeyPairGenerator getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         KeyPairGenerator result;
         synchronized (engine) {
@@ -102,7 +102,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     /**
      * Returns a new instance of {@code KeyPairGenerator} that utilizes the
      * specified algorithm from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use
      * @param provider
@@ -118,7 +118,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.02")); 
+                    Messages.getString("security.02"));
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -130,7 +130,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     /**
      * Returns a new instance of {@code KeyPairGenerator} that utilizes the
      * specified algorithm from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use
      * @param provider
@@ -144,10 +144,10 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     public static KeyPairGenerator getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); 
+            throw new IllegalArgumentException(Messages.getString("security.04"));
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         KeyPairGenerator result;
         synchronized (engine) {
@@ -255,16 +255,16 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     }
 
     /**
-     * 
+     *
      * Internal class: KeyPairGenerator implementation
-     * 
+     *
      */
     private static class KeyPairGeneratorImpl extends KeyPairGenerator {
         // Save KeyPairGeneratorSpi
         private KeyPairGeneratorSpi spiImpl;
 
         // Implementation of KeyPaiGenerator constructor
-        // 
+        //
         // @param KeyPairGeneratorSpi
         // @param provider
         // @param algorithm

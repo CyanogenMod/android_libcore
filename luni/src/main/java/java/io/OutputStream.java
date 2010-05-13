@@ -112,10 +112,10 @@ public abstract class OutputStream implements Closeable, Flushable {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); 
+            throw new NullPointerException(Msg.getString("K0047"));
         }
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
         }
         // END android-changed
         for (int i = offset; i < offset + count; i++) {

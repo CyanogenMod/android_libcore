@@ -65,10 +65,10 @@ import org.apache.harmony.security.fortress.SecurityUtils;
  * which makes it run in the background. The latter also affects VM termination
  * behavior: the VM does not terminate automatically as long as there are
  * non-daemon threads running.
- *    
+ *
  * @see java.lang.Object
  * @see java.lang.ThreadGroup
- * 
+ *
  */
 public class Thread implements Runnable {
 

@@ -42,9 +42,9 @@ import java.util.Vector;
 
 /**
  * Automated Test Suite for class java.io.ObjectOutputStream
- * 
+ *
  */
-@TestTargetClass(Serializable.class) 
+@TestTargetClass(Serializable.class)
 public class SerializationStressTest0 extends SerializationStressTest {
 
     private static class ObjectInputStreamSubclass extends ObjectInputStream {
@@ -484,7 +484,7 @@ public class SerializationStressTest0 extends SerializationStressTest {
                 oos.writeUTF("HelloWorld");
                 oos.close();
                 ois = new ObjectInputStream(loadStream());
-                assertEquals("Wrote incorrect UTF value", 
+                assertEquals("Wrote incorrect UTF value",
                         "HelloWorld", ois.readUTF());
             } catch (IOException e) {
                 fail("IOException serializing data : " + e.getMessage());
@@ -915,7 +915,7 @@ public class SerializationStressTest0 extends SerializationStressTest {
                 fail("ClassNotFoundException serializing data : " + e.getMessage());
             }
         }
-        
+
         @TestTargetNew(
             level = TestLevel.COMPLETE,
             notes = "Verifies serialization.",
@@ -930,7 +930,7 @@ public class SerializationStressTest0 extends SerializationStressTest {
                 // expected
             }
         }
-        
+
         @TestTargetNew(
                 level = TestLevel.COMPLETE,
                 notes = "Verifies serialization.",
@@ -945,7 +945,7 @@ public class SerializationStressTest0 extends SerializationStressTest {
                 // expected
             }
         }
-        
+
         @TestTargetNew(
                 level = TestLevel.COMPLETE,
                 notes = "Verifies serialization.",
@@ -960,7 +960,7 @@ public class SerializationStressTest0 extends SerializationStressTest {
                 // expected
             }
         }
-        
+
         @TestTargetNew(
                 level = TestLevel.COMPLETE,
                 notes = "Verifies serialization.",

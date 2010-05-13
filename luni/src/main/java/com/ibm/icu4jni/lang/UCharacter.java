@@ -50,7 +50,7 @@ public final class UCharacter {
          * The indices of the entries of this table correspond with the value
          * of the ICU enum UBlockCode. When updating ICU it's necessary
          * to check if there where any changes for the properties
-         * used by java.lang.Character. 
+         * used by java.lang.Character.
          * The enum is defined in common/unicode/uchar.h
          */
         UnicodeBlock[] result = new UnicodeBlock[] { null,

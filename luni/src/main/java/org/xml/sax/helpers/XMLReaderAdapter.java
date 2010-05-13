@@ -36,11 +36,11 @@ import org.xml.sax.SAXNotSupportedException;
  * </blockquote>
  *
  * <p>This class wraps a SAX2 {@link org.xml.sax.XMLReader XMLReader}
- * and makes it act as a SAX1 {@link org.xml.sax.Parser Parser}.  The XMLReader 
- * must support a true value for the 
+ * and makes it act as a SAX1 {@link org.xml.sax.Parser Parser}.  The XMLReader
+ * must support a true value for the
  * http://xml.org/sax/features/namespace-prefixes property or parsing will fail
- * with a {@link org.xml.sax.SAXException SAXException}; if the XMLReader 
- * supports a false value for the http://xml.org/sax/features/namespaces 
+ * with a {@link org.xml.sax.SAXException SAXException}; if the XMLReader
+ * supports a false value for the http://xml.org/sax/features/namespaces
  * property, that will also be used to improve efficiency.</p>
  *
  * @since SAX 2.0
@@ -185,7 +185,7 @@ public class XMLReaderAdapter implements Parser, ContentHandler
      * Parse the document.
      *
      * <p>This method will throw an exception if the embedded
-     * XMLReader does not support the 
+     * XMLReader does not support the
      * http://xml.org/sax/features/namespace-prefixes property.</p>
      *
      * @param systemId The absolute URL of the document.
@@ -207,7 +207,7 @@ public class XMLReaderAdapter implements Parser, ContentHandler
      * Parse the document.
      *
      * <p>This method will throw an exception if the embedded
-     * XMLReader does not support the 
+     * XMLReader does not support the
      * http://xml.org/sax/features/namespace-prefixes property.</p>
      *
      * @param input An input source for the document.
@@ -452,7 +452,7 @@ public class XMLReaderAdapter implements Parser, ContentHandler
      * Set the embedded Attributes object.
      *
      * @param The embedded SAX2 Attributes.
-     */ 
+     */
     void setAttributes (Attributes attributes)
     {
         this.attributes = attributes;

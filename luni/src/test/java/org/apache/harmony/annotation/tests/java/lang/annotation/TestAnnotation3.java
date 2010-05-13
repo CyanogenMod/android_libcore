@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Target( {ElementType.METHOD})
 public @interface TestAnnotation3 {
     /*
-     * only primitive type, String, Class, annotation, 
-     * enumeration are permitted 
+     * only primitive type, String, Class, annotation,
+     * enumeration are permitted
      * or 1-dimensional arrays thereof
      */
     boolean z() default false;
@@ -18,10 +18,10 @@ public @interface TestAnnotation3 {
     short s() default 0;
     int i() default 100;
     long j() default 0;
-    
+
     float f() default 0.0f;
     double d() default 0.0d;
-    
+
     String aString() default "";
     Class aClazz() default Void.class;
     TestEnum1 aEnum() default TestEnum1.F;

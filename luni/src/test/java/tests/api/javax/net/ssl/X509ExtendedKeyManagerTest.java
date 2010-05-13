@@ -17,7 +17,7 @@
 
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -33,11 +33,11 @@ import junit.framework.TestCase;
 
 /**
  * Tests for <code>X509ExtendedKeyManager</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(X509ExtendedKeyManager.class) 
+@TestTargetClass(X509ExtendedKeyManager.class)
 public class X509ExtendedKeyManagerTest extends TestCase {
-    
+
     private class MockX509ExtendedKeyManager extends X509ExtendedKeyManager {
         public MockX509ExtendedKeyManager() {
             super();
@@ -91,9 +91,9 @@ public class X509ExtendedKeyManagerTest extends TestCase {
             return null;
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.X509ExtendedKeyManager#X509ExtendedKeyManager() 
+     * @tests javax.net.ssl.X509ExtendedKeyManager#X509ExtendedKeyManager()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -108,11 +108,11 @@ public class X509ExtendedKeyManagerTest extends TestCase {
             fail("Unexpected exception " + e.toString());
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.X509ExtendedKeyManager
      *     #chooseEngineClientAlias(java.lang.String[],
-     *     java.security.Principal[], javax.net.ssl.SSLEngine) 
+     *     java.security.Principal[], javax.net.ssl.SSLEngine)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -130,7 +130,7 @@ public class X509ExtendedKeyManagerTest extends TestCase {
     /**
      * @tests javax.net.ssl.X509ExtendedKeyManager
      *     #chooseEngineServerAlias(java.lang.String,
-     *     java.security.Principal[], javax.net.ssl.SSLEngine) 
+     *     java.security.Principal[], javax.net.ssl.SSLEngine)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,

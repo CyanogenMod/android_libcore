@@ -30,21 +30,21 @@ import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.ObjectIdentifier;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with PolicyInformation structure which is a subpart of certificatePolicies
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
- *   
+ *
  * <pre>
  *  PolicyInformation ::= SEQUENCE {
  *       policyIdentifier   CertPolicyId,
  *       policyQualifiers   SEQUENCE SIZE (1..MAX) OF
- *                               PolicyQualifierInfo OPTIONAL 
+ *                               PolicyQualifierInfo OPTIONAL
  *  }
  * </pre>
- * 
+ *
  * TODO: This class is not fully implemented, implemented only work
  * with OIDs.
  */
@@ -55,7 +55,7 @@ public class PolicyInformation {
     private String policyIdentifier;
     // the ASN.1 encoded form of PolicyInformation
     private byte[] encoding;
-    
+
     /**
      * TODO
      * @param   policyIdentifier:   String
@@ -84,11 +84,11 @@ public class PolicyInformation {
     }
 
     /**
-     * Places the string representation of extension value 
+     * Places the string representation of extension value
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer) {
-        buffer.append("Policy Identifier [") 
+        buffer.append("Policy Identifier [")
             .append(policyIdentifier).append(']');
     }
 

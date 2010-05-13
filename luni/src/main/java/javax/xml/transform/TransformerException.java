@@ -24,8 +24,8 @@ package javax.xml.transform;
  * during the transformation process.
  */
 public class TransformerException extends Exception {
-    
-    // Added serialVersionUID to preserve binary compatibility 
+
+    // Added serialVersionUID to preserve binary compatibility
     private static final long serialVersionUID = 975798773772956428L;
 
     /** Field locator specifies where the error occurred */

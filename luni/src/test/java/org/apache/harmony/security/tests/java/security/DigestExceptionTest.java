@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 @TestTargetClass(DigestException.class)
 /**
  * Tests for <code>DigestException</code> class constructors and methods.
- * 
+ *
  */
 public class DigestExceptionTest extends TestCase {
 

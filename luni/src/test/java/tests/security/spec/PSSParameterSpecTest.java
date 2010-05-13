@@ -35,7 +35,7 @@ import java.security.spec.PSSParameterSpec;
 
 /**
  * Tests for <code>PSSParameterSpec</code> class (1.5)
- * 
+ *
  */
 @TestTargetClass(PSSParameterSpec.class)
 public class PSSParameterSpecTest extends TestCase {
@@ -196,7 +196,7 @@ public class PSSParameterSpecTest extends TestCase {
      * PSSParameterSpec(String,String,AlgorithmParameterSpec,int,int)
      * </code> ctor<br>
      * Assertion: <code>AlgorithmParameterSpec</code> can be null
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -210,7 +210,7 @@ public class PSSParameterSpecTest extends TestCase {
 
     /**
      * Test for <code>getDigestAlgorithm()</code> method
-     * Assertion: returns message digest algorithm name 
+     * Assertion: returns message digest algorithm name
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -226,7 +226,7 @@ public class PSSParameterSpecTest extends TestCase {
 
     /**
      * Test for <code>getMGFAlgorithm()</code> method
-     * Assertion: returns mask generation function algorithm name 
+     * Assertion: returns mask generation function algorithm name
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -242,7 +242,7 @@ public class PSSParameterSpecTest extends TestCase {
 
     /**
      * Test #1 for <code>getMGFParameters()</code> method
-     * Assertion: returns mask generation function parameters 
+     * Assertion: returns mask generation function parameters
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -255,12 +255,12 @@ public class PSSParameterSpecTest extends TestCase {
                 MGF1ParameterSpec.SHA1, 20, 1);
         assertTrue(MGF1ParameterSpec.SHA1.equals(pssps.getMGFParameters()));
     }
-    
+
     /**
      * Test #2 for <code>getMGFParameters()</code> method
      * Assertion: returns <code>null</code>
      * if <code>null</code> had been passed as
-     * AlgorithmParameterSpec parameter to the ctor  
+     * AlgorithmParameterSpec parameter to the ctor
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -346,7 +346,7 @@ public class PSSParameterSpecTest extends TestCase {
         args = {}
     )
     public final void testDEFAULTmgfSpec() {
-        assertTrue(MGF1ParameterSpec.SHA1.equals(PSSParameterSpec.DEFAULT.getMGFParameters()));        
+        assertTrue(MGF1ParameterSpec.SHA1.equals(PSSParameterSpec.DEFAULT.getMGFParameters()));
     }
 
     /**

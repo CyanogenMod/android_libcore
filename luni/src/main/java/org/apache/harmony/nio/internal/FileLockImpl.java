@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ final class FileLockImpl extends FileLock {
 
     /**
      * Constructs a new file lock object with the given parameters.
-     * 
+     *
      * @param channel
      *            the file channel hosting the lock.
      * @param position
@@ -48,7 +48,7 @@ final class FileLockImpl extends FileLock {
     /**
      * Tests to see if the lock is valid. A lock can be invalidated if the
      * channel it is acquired on is closed or if it is released. (non-Javadoc)
-     * 
+     *
      * @see java.nio.channels.FileLock#isValid()
      */
     @Override
@@ -59,7 +59,7 @@ final class FileLockImpl extends FileLock {
     /**
      * Releases the file lock on the channel that acquired it. Releasing an
      * invalid lock has no effect.
-     * 
+     *
      * @see java.nio.channels.FileLock#release()
      */
     @Override

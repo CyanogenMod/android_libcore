@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,7 +28,7 @@ import java.security.spec.RSAPublicKeySpec;
 
 @TestTargetClass(RSAKey.class)
 public class RSAKeyTest extends TestCase {
-    
+
     /**
      * @tests java.security.interfaces.RSAKey
      * #getModulus()
@@ -47,12 +47,12 @@ public class RSAKeyTest extends TestCase {
         final BigInteger n = BigInteger.valueOf(3233);
         final BigInteger d = BigInteger.valueOf(2753);
         final BigInteger e = BigInteger.valueOf(17);
-        RSAKey key = null; 
-        
+        RSAKey key = null;
+
         // Case 1: check private key
         key = (RSAKey) gen.generatePrivate(new RSAPrivateKeySpec(n, d));
         assertEquals("invalid modulus", n, key.getModulus());
-        
+
         // Case 2: check public key
         key = (RSAKey) gen.generatePublic(new RSAPublicKeySpec(n, e));
         assertEquals("invalid modulus", n, key.getModulus());

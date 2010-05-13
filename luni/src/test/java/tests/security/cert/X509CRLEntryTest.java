@@ -88,7 +88,7 @@ public class X509CRLEntryTest extends TestCase {
             return null;
         }
     }
-    
+
     public X509CRLEntryTest() {
         tbt_crlentry = new TBTCRLEntry() {
             public byte[] getEncoded() throws CRLException {
@@ -108,7 +108,7 @@ public class X509CRLEntryTest extends TestCase {
     )
     public void testX509CRLEntry() {
         TBTCRLEntry tbt_crlentry = new TBTCRLEntry();
-        
+
         assertNull(tbt_crlentry.getCertificateIssuer());
         assertNull(tbt_crlentry.getCriticalExtensionOIDs());
         try {
@@ -209,10 +209,10 @@ public class X509CRLEntryTest extends TestCase {
         args = {}
     )
     public void testGetCertificateIssuer() {
-        assertNull("The default implementation should return null.", 
+        assertNull("The default implementation should return null.",
                 tbt_crlentry.getCertificateIssuer());
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -251,7 +251,7 @@ public class X509CRLEntryTest extends TestCase {
                 return new byte[] {1, 2, 3};
             }
         };
-        
+
         try {
             tbt.getEncoded();
             tbt.getRevocationDate();

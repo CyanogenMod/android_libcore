@@ -95,10 +95,10 @@ public class PipedOutputStream extends OutputStream {
         }
         synchronized (stream) {
             if (this.dest != null) {
-                throw new IOException(Msg.getString("K0079")); 
+                throw new IOException(Msg.getString("K0079"));
             }
             if (stream.isConnected) {
-                throw new IOException(Msg.getString("K007a")); 
+                throw new IOException(Msg.getString("K007a"));
             }
             stream.establishConnection();
             this.dest = stream;
@@ -182,7 +182,7 @@ public class PipedOutputStream extends OutputStream {
         PipedInputStream stream = dest;
         if (stream == null) {
             // K007b=Pipe Not Connected
-            throw new IOException(Msg.getString("K007b")); 
+            throw new IOException(Msg.getString("K007b"));
         }
         stream.receive(oneByte);
     }

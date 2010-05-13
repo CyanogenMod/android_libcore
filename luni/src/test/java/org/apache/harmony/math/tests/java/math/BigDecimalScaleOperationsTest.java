@@ -28,7 +28,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 /**
  * Class:  java.math.BigDecimal
- * Methods: movePointLeft, movePointRight, scale, setScale, unscaledValue * 
+ * Methods: movePointLeft, movePointRight, scale, setScale, unscaledValue *
  */
 public class BigDecimalScaleOperationsTest extends TestCase {
     /**
@@ -84,7 +84,7 @@ public class BigDecimalScaleOperationsTest extends TestCase {
         BigDecimal aNumber = new BigDecimal(bNumber, aScale);
         assertTrue("incorrect unscaled value", aNumber.unscaledValue().equals(bNumber));
     }
-    
+
     /**
      * Set a greater new scale
      */
@@ -236,7 +236,7 @@ public class BigDecimalScaleOperationsTest extends TestCase {
         assertTrue("incorrect scale", bNumber.scale() == newScale);
         assertTrue("incorrect value", bNumber.unscaledValue().toString().equals(b));
     }
-    
+
     /**
      * SetScale(int, RoundingMode)
      */
@@ -251,7 +251,7 @@ public class BigDecimalScaleOperationsTest extends TestCase {
         assertEquals("incorrect value", res, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Move the decimal point to the left; the shift value is positive
      */
@@ -265,7 +265,7 @@ public class BigDecimalScaleOperationsTest extends TestCase {
         assertTrue("incorrect scale", bNumber.scale() == resScale);
         assertTrue("incorrect value", bNumber.unscaledValue().toString().equals(a));
     }
-        
+
     /**
      * Move the decimal point to the left; the shift value is positive
      */
@@ -310,7 +310,7 @@ public class BigDecimalScaleOperationsTest extends TestCase {
         assertTrue("incorrect scale", bNumber.scale() == resScale);
         assertTrue("incorrect value", bNumber.unscaledValue().toString().equals(a));
     }
-        
+
     /**
      * Move the decimal point to the right; the shift value is positive
      */
@@ -325,7 +325,7 @@ public class BigDecimalScaleOperationsTest extends TestCase {
         assertTrue("incorrect scale", bNumber.scale() == resScale);
         assertTrue("incorrect value", bNumber.unscaledValue().toString().equals(b));
     }
-        
+
     /**
      * Move the decimal point to the right; the shift value is positive
      */
@@ -422,9 +422,9 @@ public class BigDecimalScaleOperationsTest extends TestCase {
         int prec = aNumber.precision();
         assertEquals(68, prec);
     }
-    
+
 /// ANDROID ADDED
-    
+
     /**
      * check that setScale with a scale greater to the existing scale does not
      * change the value.
@@ -432,20 +432,20 @@ public class BigDecimalScaleOperationsTest extends TestCase {
     public void testSetScale() {
         BigDecimal x1 = new BigDecimal(1.23400);
         BigDecimal x2 = x1.setScale(75);
-        
+
         assertEquals(0, x1.compareTo(x2));
         assertEquals(0, x2.compareTo(x1));
-        
+
         x1.precision();
-        
+
         assertEquals(0, x1.compareTo(x2));
         assertEquals(0, x2.compareTo(x1));
-       
+
         x2.precision();
-        
+
         assertEquals(0, x1.compareTo(x2));
         assertEquals(0, x2.compareTo(x1));
     }
-    
+
 
 }

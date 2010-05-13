@@ -39,7 +39,7 @@ import java.util.Set;
 /**
  * Additional class for verification CertificateFactorySpi and
  * CertificateFactory classes
- * 
+ *
  */
 
 public class MyCertificateFactorySpi extends CertificateFactorySpi {

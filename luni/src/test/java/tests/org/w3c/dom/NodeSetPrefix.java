@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -44,17 +44,17 @@ import javax.xml.parsers.DocumentBuilder;
  * setting this attribute, when permitted, changes the nodeName attribute, which
  * holds the qualified name, as well as the tagName and name attributes of the
  * Element and Attr interfaces, when applicable.
- * 
+ *
  * Create a new element node with a namespace prefix. Add it to a new
  * DocumentFragment Node without a prefix. Call setPrefix on the elemen node.
  * Check if the prefix was set correctly on the element.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSPrefix">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSPrefix</a>
  */
-@TestTargetClass(Node.class) 
+@TestTargetClass(Node.class)
 public final class NodeSetPrefix extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -80,7 +80,7 @@ public final class NodeSetPrefix extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -96,7 +96,7 @@ public final class NodeSetPrefix extends DOMTestCase {
         Element element;
         String elementTagName;
         String elementNodeName;
-        
+
         doc = (Document) load("staff", builder);
         docFragment = doc.createDocumentFragment();
         element = doc.createElementNS("http://www.w3.org/DOM/Test",
@@ -116,7 +116,7 @@ public final class NodeSetPrefix extends DOMTestCase {
 //        Element element;
 //        Attr attribute;
 //        Attr newAttribute;
-//        
+//
 //        NodeList elementList;
 //        String attrName;
 //        String newAttrName;

@@ -45,7 +45,7 @@ import junit.framework.TestCase;
 public class NullCipherTest extends TestCase {
 
     private Cipher c;
-    
+
     protected void setUp() throws Exception {
         super.setUp();
         c = new NullCipher();
@@ -139,7 +139,7 @@ public class NullCipherTest extends TestCase {
     )
     public void testInitintKey() throws Exception {
         c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(new byte[1], "algorithm"));
-    
+
     }
 
     /*
@@ -201,7 +201,7 @@ public class NullCipherTest extends TestCase {
         byte [] r = c.update(b, 0, 5);
         assertEquals("different length", b.length, r.length);
         assertTrue("different content", Arrays.equals(b, r));
-        
+
         r = c.update(b, 1, 3);
         assertEquals("different length", 3, r.length);
         for (int i = 0; i < 3; i++) {
@@ -220,9 +220,9 @@ public class NullCipherTest extends TestCase {
     )
     public void testUpdatebyteArrayintintbyteArray() throws Exception {
         byte [] b = {1, 2, 3, 4, 5};
-        byte [] r = new byte[5]; 
-        c.update(b, 0, 5, r);            
-        assertTrue("different content", Arrays.equals(b, r));        
+        byte [] r = new byte[5];
+        c.update(b, 0, 5, r);
+        assertTrue("different content", Arrays.equals(b, r));
     }
 
     /*
@@ -236,8 +236,8 @@ public class NullCipherTest extends TestCase {
     )
     public void testUpdatebyteArrayintintbyteArrayint() throws Exception {
         byte [] b = {1, 2, 3, 4, 5};
-        byte [] r = new byte[5]; 
-        c.update(b, 0, 5, r, 0);            
+        byte [] r = new byte[5];
+        c.update(b, 0, 5, r, 0);
         assertTrue("different content", Arrays.equals(b, r));
     }
 
@@ -279,10 +279,10 @@ public class NullCipherTest extends TestCase {
     )
     public void testDoFinalbyteArray() throws Exception {
         byte [] b = {1, 2, 3, 4, 5};
-        byte [] r = null; 
+        byte [] r = null;
         r = c.doFinal(b);
         assertEquals("different length", b.length, r.length);
-        assertTrue("different content", Arrays.equals(b, r));        
+        assertTrue("different content", Arrays.equals(b, r));
     }
 
     /*
@@ -300,7 +300,7 @@ public class NullCipherTest extends TestCase {
         r = c.doFinal(b, 0, 5);
         assertEquals("different length", b.length, r.length);
         assertTrue("different content", Arrays.equals(b, r));
-        
+
         r = c.doFinal(b, 1, 3);
         assertEquals("different length", 3, r.length);
         for (int i = 0; i < 3; i++) {
@@ -337,8 +337,8 @@ public class NullCipherTest extends TestCase {
     )
     public void testDoFinalbyteArrayintintbyteArray() throws Exception {
         byte [] b = {1, 2, 3, 4, 5};
-        byte [] r = new byte[5]; 
-        c.doFinal(b, 0, 5, r);            
+        byte [] r = new byte[5];
+        c.doFinal(b, 0, 5, r);
         assertTrue("different content", Arrays.equals(b, r));
     }
 
@@ -354,7 +354,7 @@ public class NullCipherTest extends TestCase {
     public void testDoFinalbyteArrayintintbyteArray2() throws Exception {
         //Regression for HARMONY-758
         try {
-            new NullCipher().update(new byte[1], 1, Integer.MAX_VALUE, 
+            new NullCipher().update(new byte[1], 1, Integer.MAX_VALUE,
                     new byte[1]);
             fail("Expected IllegalArgumentException was not thrown");
         } catch (IllegalArgumentException e) {
@@ -390,7 +390,7 @@ public class NullCipherTest extends TestCase {
     )
     public void testDoFinalbyteArrayintintbyteArrayint() throws Exception {
         byte [] b = {1, 2, 3, 4, 5};
-        byte [] r = new byte[5]; 
+        byte [] r = new byte[5];
         c.doFinal(b, 0, 5, r, 0);
         assertTrue("different content", Arrays.equals(b, r));
     }
@@ -407,7 +407,7 @@ public class NullCipherTest extends TestCase {
     public void testDoFinalbyteArrayintintbyteArrayint2() throws Exception {
         //Regression for HARMONY-758
         try {
-            new NullCipher().update(new byte[1], 1, Integer.MAX_VALUE, 
+            new NullCipher().update(new byte[1], 1, Integer.MAX_VALUE,
                     new byte[1], 0);
             fail("Expected IllegalArgumentException was not thrown");
         } catch (IllegalArgumentException e) {
@@ -426,7 +426,7 @@ public class NullCipherTest extends TestCase {
     public void testDoFinalbyteArrayintintbyteArrayint3() throws Exception {
         //Regression for HARMONY-758
         try {
-            new NullCipher().update(new byte[1], 0, 1, 
+            new NullCipher().update(new byte[1], 0, 1,
                     new byte[0], 0);
             fail("Expected IndexOutOfBoundsException was not thrown");
         } catch (IndexOutOfBoundsException e) {

@@ -363,7 +363,7 @@ public abstract class SSLEngine {
      * Decodes the incoming network data buffer into the application data
      * buffer. If a handshake has not been started yet, it will automatically be
      * started.
-     * 
+     *
      * @param src
      *            the buffer with incoming network data
      * @param dst
@@ -415,7 +415,7 @@ public abstract class SSLEngine {
      * Encodes the outgoing application data buffers into the network data
      * buffer. If a handshake has not been started yet, it will automatically be
      * started.
-     * 
+     *
      * @param srcs
      *            the array of source buffers of outgoing application data.
      * @param dst
@@ -442,7 +442,7 @@ public abstract class SSLEngine {
      * Encodes the outgoing application data buffer into the network data
      * buffer. If a handshake has not been started yet, it will automatically be
      * started.
-     * 
+     *
      * @param src
      *            the source buffers of outgoing application data.
      * @param dst

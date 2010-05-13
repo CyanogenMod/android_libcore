@@ -46,7 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-@TestTargetClass(DocumentBuilder.class) 
+@TestTargetClass(DocumentBuilder.class)
 public class DocumentBuilderTest extends TestCase {
 
     private class MockDocumentBuilder extends DocumentBuilder {
@@ -131,9 +131,9 @@ public class DocumentBuilderTest extends TestCase {
         TestEnvironment.reset();
 
         dbf = DocumentBuilderFactory.newInstance();
-        
+
         dbf.setIgnoringElementContentWhitespace(true);
-        
+
         db = dbf.newDocumentBuilder();
         super.setUp();
     }
@@ -183,13 +183,13 @@ public class DocumentBuilderTest extends TestCase {
     )
     public void testNewDocument() {
         Document d;
-        
+
         try {
             d = dbf.newDocumentBuilder().newDocument();
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         assertNotNull(d);
         assertNull(d.getDoctype());
         assertNull(d.getDocumentElement());
@@ -204,16 +204,16 @@ public class DocumentBuilderTest extends TestCase {
     )
     public void testGetImplementation() {
         DOMImplementation d;
-        
+
         try {
             d = dbf.newDocumentBuilder().getDOMImplementation();
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         assertNotNull(d);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -425,7 +425,7 @@ public class DocumentBuilderTest extends TestCase {
     public void testParseInputSource() {
         InputStream stream = getClass().getResourceAsStream("/simple.xml");
         InputSource is = new InputSource(stream);
-        
+
         // case 1: Trivial use.
         try {
             Document d = db.parse(is);
@@ -476,7 +476,7 @@ public class DocumentBuilderTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests javax.xml.parsers.DocumentBuilder#parse(java.io.InputStream,
      *     java.lang.String)
@@ -610,12 +610,12 @@ public class DocumentBuilderTest extends TestCase {
         // Make sure EntityResolver gets reset
         InputStream source = new ByteArrayInputStream("<a>&foo;</a>".getBytes());
         InputStream entity = new ByteArrayInputStream("bar".getBytes());
-        
+
         MockResolver resolver = new MockResolver();
         resolver.addEntity("foo", "foo", new InputSource(entity));
 
         Document d;
-        
+
         try {
             db = dbf.newDocumentBuilder();
             db.setEntityResolver(resolver);
@@ -624,7 +624,7 @@ public class DocumentBuilderTest extends TestCase {
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         Element root = (Element)d.getElementsByTagName("a").item(0);
         assertEquals("foo", ((EntityReference)root.getFirstChild()).getNodeName());
 
@@ -633,7 +633,7 @@ public class DocumentBuilderTest extends TestCase {
 
         MethodLogger logger = new MethodLogger();
         ErrorHandler handler = new MockHandler(logger);
-        
+
         try {
             db = dbf.newDocumentBuilder();
             db.setErrorHandler(handler);
@@ -642,7 +642,7 @@ public class DocumentBuilderTest extends TestCase {
         } catch (SAXParseException e) {
             // Expected
         } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception", e);            
+            throw new RuntimeException("Unexpected exception", e);
         }
 
         assertEquals(0, logger.size());
@@ -659,7 +659,7 @@ public class DocumentBuilderTest extends TestCase {
 
         MethodLogger logger = new MethodLogger();
         ErrorHandler handler = new MockHandler(logger);
-        
+
         try {
             db = dbf.newDocumentBuilder();
             db.setErrorHandler(handler);
@@ -667,13 +667,13 @@ public class DocumentBuilderTest extends TestCase {
         } catch (SAXParseException e) {
             // Expected, ErrorHandler does not mask exception
         } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception", e);            
+            throw new RuntimeException("Unexpected exception", e);
         }
 
         assertEquals("error", logger.getMethod());
         assertTrue(logger.getArgs()[0] instanceof SAXParseException);
-        
-        // null case 
+
+        // null case
         source = new ByteArrayInputStream("</a>".getBytes());
 
         try {
@@ -683,10 +683,10 @@ public class DocumentBuilderTest extends TestCase {
         } catch (SAXParseException e) {
             // Expected
         } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception", e);            
+            throw new RuntimeException("Unexpected exception", e);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "setEntityResolver",
@@ -696,12 +696,12 @@ public class DocumentBuilderTest extends TestCase {
         // Ordinary case
         InputStream source = new ByteArrayInputStream("<a>&foo;</a>".getBytes());
         InputStream entity = new ByteArrayInputStream("bar".getBytes());
-        
+
         MockResolver resolver = new MockResolver();
         resolver.addEntity("foo", "foo", new InputSource(entity));
 
         Document d;
-        
+
         try {
             db = dbf.newDocumentBuilder();
             db.setEntityResolver(resolver);
@@ -709,13 +709,13 @@ public class DocumentBuilderTest extends TestCase {
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         Element root = (Element)d.getElementsByTagName("a").item(0);
         assertEquals("bar", ((Text)root.getFirstChild()).getData());
-        
-        // null case 
+
+        // null case
         source = new ByteArrayInputStream("<a>&foo;</a>".getBytes());
-        
+
         try {
             db = dbf.newDocumentBuilder();
             db.setEntityResolver(null);
@@ -723,7 +723,7 @@ public class DocumentBuilderTest extends TestCase {
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         root = (Element)d.getElementsByTagName("a").item(0);
         assertEquals("foo", ((EntityReference)root.getFirstChild()).getNodeName());
     }

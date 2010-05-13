@@ -109,15 +109,15 @@ public class PermissionTest extends TestCase {
         } finally {
             System.setSecurityManager(old);
         }
-        
+
         class TestSecurityManager extends SecurityManager {
             boolean called = false;
             private final String permissionName;
-            
+
             public TestSecurityManager(String permissionName) {
                 this.permissionName = permissionName;
             }
-            
+
             @Override
             public void checkPermission(Permission permission) {
                 if (permission instanceof SecurityPermission
@@ -127,7 +127,7 @@ public class PermissionTest extends TestCase {
                 }
             }
         }
-        
+
         TestSecurityManager sm = new TestSecurityManager("testGuardPermission");
         try {
             System.setSecurityManager(sm);
@@ -137,7 +137,7 @@ public class PermissionTest extends TestCase {
         } finally {
             System.setSecurityManager(old);
         }
-        
+
     }
 
     /** newPermissionCollection() should return null */

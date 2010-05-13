@@ -53,7 +53,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(java.io.Serializable.class) 
+@TestTargetClass(java.io.Serializable.class)
 public class SerializationStressTest4 extends SerializationStressTest {
     // -----------------------------------------------------------------------------------
     private static class GuardImplementation implements java.security.Guard,
@@ -86,7 +86,7 @@ public class SerializationStressTest4 extends SerializationStressTest {
 
             // Has to have worked
             boolean equals;
-            equals = true; 
+            equals = true;
             // The the only data in EventObject that
             // differentiates between instantiations is transient
             assertTrue(MSG_TEST_FAILED + objToSave, equals);
@@ -1201,15 +1201,15 @@ public class SerializationStressTest4 extends SerializationStressTest {
     public void test_writeObject_Collections_UnmodifiableMap() {
         // Test for method void
         // java.io.ObjectOutputStream.writeObject(java.util.Collections.UnmodifiableMap)
- 
+
         Object objToSave = null;
         Object objLoaded = null;
- 
+
         try {
             objToSave = java.util.Collections.unmodifiableMap(MAP);
             if (DEBUG) System.out.println("Obj = " + objToSave);
             objLoaded = dumpAndReload(objToSave);
- 
+
             // Has to have worked
             assertEquals(MSG_TEST_FAILED, objToSave, objLoaded);
         } catch (IOException e) {
@@ -2074,7 +2074,7 @@ public class SerializationStressTest4 extends SerializationStressTest {
 
         try {
             // Thu Feb 01 01:01:01 EST 2001
-            objToSave = new java.util.Date(981007261000L); 
+            objToSave = new java.util.Date(981007261000L);
             if (DEBUG)
                 System.out.println("Obj = " + objToSave);
             objLoaded = dumpAndReload(objToSave);
@@ -2709,7 +2709,7 @@ public class SerializationStressTest4 extends SerializationStressTest {
                 objToSave = new URI[] {
                         // single arg constructor
                         new URI(
-                                "http://user%60%20info@host/a%20path?qu%60%20ery#fr%5E%20ag"), 
+                                "http://user%60%20info@host/a%20path?qu%60%20ery#fr%5E%20ag"),
                         // escaped octets for illegal chars
                         new URI(
                                 "http://user%C3%9F%C2%A3info@host:80/a%E2%82%ACpath?qu%C2%A9%C2%AEery#fr%C3%A4%C3%A8g"),
@@ -2740,7 +2740,7 @@ public class SerializationStressTest4 extends SerializationStressTest {
                         new URI("news", "comp.infosystems.www.servers.unix",
                                 null),
                         new URI(null, null, null, "fragment"),
-                        // only fragment 
+                        // only fragment
                         new URI("telnet://server.org"), // only host
                         new URI("http://reg:istry?query"),
                         // malformed hostname, therefore registry-based,

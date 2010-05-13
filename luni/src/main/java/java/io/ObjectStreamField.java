@@ -290,7 +290,7 @@ public class ObjectStreamField implements Comparable<Object> {
         if (typeString == null) {
             Class<?> t = getTypeInternal();
             String typeName = t.getName().replace('.', '/');
-            String str = (t.isArray()) ? typeName : ("L" + typeName + ';'); 
+            String str = (t.isArray()) ? typeName : ("L" + typeName + ';');
             typeString = str.intern();
         }
         return typeString;
@@ -381,7 +381,7 @@ public class ObjectStreamField implements Comparable<Object> {
     public boolean isUnshared() {
         return unshared;
     }
-    
+
     void setUnshared(boolean unshared) {
         this.unshared = unshared;
     }

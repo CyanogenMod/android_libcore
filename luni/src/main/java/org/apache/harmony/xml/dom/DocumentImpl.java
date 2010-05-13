@@ -104,17 +104,17 @@ public final class DocumentImpl extends InnerNodeImpl implements Document {
         if (s.length() == 0) {
             return false;
         }
-        
+
         if (!isXMLIdentifierStart(s.charAt(0))) {
             return false;
         }
-        
+
         for (int i = 1; i < s.length(); i++) {
             if (!isXMLIdentifierPart(s.charAt(i))) {
                 return false;
             }
         }
-        
+
         return true;
     }
 

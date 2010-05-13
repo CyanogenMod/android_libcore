@@ -187,7 +187,7 @@ public class CertificateTest extends TestCase {
         assertTrue("Equal objects should have the same hash codes.", tbt_cert
                 .hashCode() == tbt_cert_1.hashCode());
     }
-    
+
     public static Test suite() {
         return new TestSuite(CertificateTest.class);
     }

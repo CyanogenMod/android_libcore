@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,8 +36,8 @@ public interface Clob {
 
     /**
      * Gets the value of this {@code Clob} object as an ASCII stream.
-     * 
-     * @return an ASCII {@code InputStream} giving access to the 
+     *
+     * @return an ASCII {@code InputStream} giving access to the
      *            {@code Clob} data.
      * @throws SQLException
      *             if an error occurs accessing the {@code Clob}.
@@ -46,7 +46,7 @@ public interface Clob {
 
     /**
      * Gets the data of this {@code Clob} object in a {@code java.io.Reader}.
-     * 
+     *
      * @return a character stream Reader object giving access to the {@code
      *         Clob} data.
      * @throws SQLException
@@ -56,7 +56,7 @@ public interface Clob {
 
     /**
      * Gets a copy of a specified substring in this {@code Clob}.
-     * 
+     *
      * @param pos
      *            the index of the start of the substring in the {@code Clob}.
      * @param length
@@ -69,7 +69,7 @@ public interface Clob {
 
     /**
      * Retrieves the number of characters in this {@code Clob} object.
-     * 
+     *
      * @return a long value with the number of character in this {@code Clob}.
      * @throws SQLException
      *             if an error occurs accessing the {@code Clob}.
@@ -79,7 +79,7 @@ public interface Clob {
     /**
      * Retrieves the character position at which a specified {@code Clob} object
      * appears in this {@code Clob} object.
-     * 
+     *
      * @param searchstr
      *            the specified {@code Clob} to search for.
      * @param start
@@ -94,7 +94,7 @@ public interface Clob {
     /**
      * Retrieves the character position at which a specified substring appears
      * in this {@code Clob} object.
-     * 
+     *
      * @param searchstr
      *            the string to search for.
      * @param start
@@ -110,7 +110,7 @@ public interface Clob {
     /**
      * Retrieves a stream which can be used to write Ascii characters to this
      * {@code Clob} object, starting at specified position.
-     * 
+     *
      * @param pos
      *            the position at which to start the writing.
      * @return an OutputStream which can be used to write ASCII characters to
@@ -123,7 +123,7 @@ public interface Clob {
     /**
      * Retrieves a stream which can be used to write a stream of unicode
      * characters to this {@code Clob} object, at a specified position.
-     * 
+     *
      * @param pos
      *            the position at which to start the writing.
      * @return a Writer which can be used to write unicode characters to this
@@ -136,7 +136,7 @@ public interface Clob {
     /**
      * Writes a given Java String to this {@code Clob} object at a specified
      * position.
-     * 
+     *
      * @param pos
      *            the position at which to start the writing.
      * @param str
@@ -150,7 +150,7 @@ public interface Clob {
     /**
      * Writes {@code len} characters of a string, starting at a specified
      * character offset, to this {@code Clob}.
-     * 
+     *
      * @param pos
      *            the position at which to start the writing.
      * @param str
@@ -168,9 +168,9 @@ public interface Clob {
 
     /**
      * Truncates this {@code Clob} after the specified number of characters.
-     * 
+     *
      * @param len
-     *            the length in characters giving the place to 
+     *            the length in characters giving the place to
      *            truncate this {@code Clob}.
      * @throws SQLException
      *             if an error occurs accessing the {@code Clob}.

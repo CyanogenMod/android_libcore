@@ -33,7 +33,7 @@ import java.security.spec.MGF1ParameterSpec;
 
 /**
  * Test for MGF1ParameterSpec class
- * 
+ *
  */
 @TestTargetClass(MGF1ParameterSpec.class)
 public class MGF1ParameterSpecTest extends TestCase {

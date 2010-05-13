@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -93,8 +93,8 @@ public class LogRecordTest extends TestCase {
         lr.setResourceBundleName("test");
         assertEquals("test", lr.getResourceBundleName());
     }
-    
-    public void testGetSetLevelNormal() {           
+
+    public void testGetSetLevelNormal() {
         assertSame(lr.getLevel(), Level.CONFIG);
         lr.setLevel(Level.ALL);
         assertSame(lr.getLevel(), Level.ALL);
@@ -240,7 +240,7 @@ public class LogRecordTest extends TestCase {
         lr.setMillis(0);
         assertEquals(0, lr.getMillis());
     }
-    
+
     public void testGetSetTimeCheck() {
         long before = lr.getMillis();
         try {
@@ -250,9 +250,9 @@ public class LogRecordTest extends TestCase {
         }
         LogRecord lr2 = new LogRecord(Level.CONFIG, "MSG2");
         long after = lr2.getMillis();
-        assertTrue(after-before>0);    
+        assertTrue(after-before>0);
     }
-    
+
 
 
     public void testGetSetThreadID() {
@@ -264,7 +264,7 @@ public class LogRecordTest extends TestCase {
         lr = new LogRecord(Level.ALL, "a1");
         assertEquals(id, lr.getThreadID());
     }
-    
+
     /*
      * Check threadID are different
      */
@@ -277,7 +277,7 @@ public class LogRecordTest extends TestCase {
             thread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }  
+        }
         // Create and start the thread2
         MockThread thread2 = new MockThread();
         thread2.start();
@@ -489,19 +489,19 @@ public class LogRecordTest extends TestCase {
             }
         }
     }
-    
+
     public class MockThread extends Thread {
 
         public LogRecord lr = null; //will be update by the thread
-        
+
         public MockThread(){
             super();
         }
-        
+
         public void run() {
             update();
         }
-        
+
         public synchronized void update(){
             lr = new LogRecord(Level.CONFIG, "msg thread");
         }

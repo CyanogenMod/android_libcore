@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * Marks a test-case as either having a side-effect that other tests might
  * notice or suffering from such a side effect. Such tests should be run in an
  * isolated manner.
- * 
+ *
  * @hide
  */
 @Retention(RetentionPolicy.RUNTIME)

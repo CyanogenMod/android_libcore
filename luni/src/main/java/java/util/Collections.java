@@ -1593,7 +1593,7 @@ public class Collections {
             List<? extends T> source) {
         if (destination.size() < source.size()) {
             // K0032=Source size {0} does not fit into destination
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size())); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size()));
         }
         Iterator<? extends T> srcIt = source.iterator();
         ListIterator<? super T> destIt = destination.listIterator();
@@ -1602,7 +1602,7 @@ public class Collections {
                 destIt.next();
             } catch (NoSuchElementException e) {
                 // K0032=Source size {0} does not fit into destination
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size())); 
+                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size()));
             }
             destIt.set(srcIt.next());
         }
@@ -3531,7 +3531,7 @@ public class Collections {
             /**
              * Constructs a dynamically typesafe view of the specified entry
              * set.
-             * 
+             *
              * @param s -
              *            the entry set for which a dynamically typesafe view is
              *            to be constructed.
@@ -3681,7 +3681,7 @@ public class Collections {
                 /**
                  * Constructs a dynamically typesafe view of the specified entry
                  * iterator.
-                 * 
+                 *
                  * @param i -
                  *            the entry iterator for which a dynamically
                  *            typesafe view is to be constructed.
@@ -3730,7 +3730,7 @@ public class Collections {
 
         /**
          * Constructs a dynamically typesafe view of the specified sortedSet.
-         * 
+         *
          * @param s -
          *            the sortedSet for which a dynamically typesafe view is to
          *            be constructed.
@@ -3796,7 +3796,7 @@ public class Collections {
 
         /**
          * Constructs a dynamically typesafe view of the specified sortedMap.
-         * 
+         *
          * @param m -
          *            the sortedMap for which a dynamically typesafe view is to
          *            be constructed.

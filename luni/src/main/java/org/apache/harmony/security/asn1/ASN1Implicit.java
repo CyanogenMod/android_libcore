@@ -29,7 +29,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * Implicitly tagged ASN.1 type.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 public class ASN1Implicit extends ASN1Type {
@@ -54,8 +54,8 @@ public class ASN1Implicit extends ASN1Type {
 
     /**
      * Constructs implicitly tagged ASN.1 type
-     * with context-specific tag class and specified tag number. 
-     * 
+     * with context-specific tag class and specified tag number.
+     *
      * @param tagNumber - ASN.1 tag number
      * @param type - ASN.1 type to be tagged
      * @throws IllegalArgumentException - if tagNumber or type is invalid
@@ -66,7 +66,7 @@ public class ASN1Implicit extends ASN1Type {
 
     /**
      * Constructs implicitly tagged ASN.1 type
-     * 
+     *
      * @param tagClass - ASN.1 tag class.
      * @param tagNumber - ASN.1 tag number
      * @param type - ASN.1 type to be tagged
@@ -78,10 +78,10 @@ public class ASN1Implicit extends ASN1Type {
         if ((type instanceof ASN1Choice) || (type instanceof ASN1Any)) {
             // According to X.680:
             // 'The IMPLICIT alternative shall not be used if the type
-            // defined by "Type" is an untagged choice type or an 
+            // defined by "Type" is an untagged choice type or an
             // untagged open type'
             throw new IllegalArgumentException(
-                    Messages.getString("security.9F")); 
+                    Messages.getString("security.9F"));
         }
 
         this.type = type;
@@ -127,7 +127,7 @@ public class ASN1Implicit extends ASN1Type {
     public Object decode(BerInputStream in) throws IOException {
         if (!checkTag(in.tag)) {
             // FIXME need look for tagging type
-            throw new ASN1Exception(Messages.getString("security.100", 
+            throw new ASN1Exception(Messages.getString("security.100",
                     new Object[] { in.tagOffset, Integer.toHexString(id),
                             Integer.toHexString(in.tag) }));
         }

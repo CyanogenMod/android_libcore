@@ -26,7 +26,7 @@ import org.apache.harmony.security.internal.nls.Messages;
  * href="http://www.rsa.com/rsalabs/pubs/PKCS/html/pkcs-1.html">PKCS #1 v2.1</a>
  * standard.
  */
-public class PSSParameterSpec implements AlgorithmParameterSpec {   
+public class PSSParameterSpec implements AlgorithmParameterSpec {
 
     /**
      * The default parameter specification. It specifies the following parameters:
@@ -52,9 +52,9 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
     private final int saltLen;
 
     /**
-     * Creates a new {@code PSSParameterSpec} with the specified salt length 
+     * Creates a new {@code PSSParameterSpec} with the specified salt length
      * and the default values.
-     * 
+     *
      * @param saltLen
      *            the salt length (in bits).
      * @throws IllegalArgumentException
@@ -62,11 +62,11 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
      */
     public PSSParameterSpec(int saltLen) {
         if (saltLen < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.7F")); 
+            throw new IllegalArgumentException(Messages.getString("security.7F"));
         }
         this.saltLen = saltLen;
-        this.mdName = "SHA-1"; 
-        this.mgfName = "MGF1"; 
+        this.mdName = "SHA-1";
+        this.mgfName = "MGF1";
         this.mgfSpec = MGF1ParameterSpec.SHA1;
         this.trailerField = 1;
     }
@@ -75,7 +75,7 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
      * Creates a new {@code PSSParameterSpec} with the specified message digest
      * name, mask generation function name, mask generation function parameters,
      * salt length, and trailer field value.
-     * 
+     *
      * @param mdName
      *            the name of the message digest algorithm.
      * @param mgfName
@@ -93,16 +93,16 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
             AlgorithmParameterSpec mgfSpec, int saltLen, int trailerField) {
 
         if (mdName == null) {
-            throw new NullPointerException(Messages.getString("security.80")); 
+            throw new NullPointerException(Messages.getString("security.80"));
         }
         if (mgfName == null) {
-            throw new NullPointerException(Messages.getString("security.81")); 
+            throw new NullPointerException(Messages.getString("security.81"));
         }
         if (saltLen < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.7F")); 
+            throw new IllegalArgumentException(Messages.getString("security.7F"));
         }
         if (trailerField < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.82")); 
+            throw new IllegalArgumentException(Messages.getString("security.82"));
         }
         this.mdName = mdName;
         this.mgfName = mgfName;
@@ -113,7 +113,7 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
 
     /**
      * Returns the length of the salt (in bits).
-     * 
+     *
      * @return the length of the salt (in bits).
      */
     public int getSaltLength() {
@@ -122,7 +122,7 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
 
     /**
      * Returns the name of the message digest algorithm.
-     * 
+     *
      * @return the name of the message digest algorithm.
      */
     public String getDigestAlgorithm() {
@@ -131,7 +131,7 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
 
     /**
      * Returns the name of the mask generation function algorithm.
-     * 
+     *
      * @return the name of the mask generation function algorithm.
      */
     public String getMGFAlgorithm() {
@@ -140,7 +140,7 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
 
     /**
      * Returns the parameter for the mask generation function algorithm.
-     * 
+     *
      * @return the parameter for the mask generation function algorithm, or
      *         {@code null} if none specified.
      */
@@ -150,7 +150,7 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
 
     /**
      * Returns the trailer field value.
-     * 
+     *
      * @return the trailer field value.
      */
     public int getTrailerField() {

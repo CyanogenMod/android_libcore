@@ -35,19 +35,19 @@ import org.apache.harmony.security.fortress.PolicyUtils;
  * Only one instance of a {@code Policy} is active at any time.
  */
 public abstract class Policy {
-    
+
     // Key to security properties, defining default policy provider.
-    private static final String POLICY_PROVIDER = "policy.provider"; 
+    private static final String POLICY_PROVIDER = "policy.provider";
 
     // The SecurityPermission required to set custom Policy.
     private static final SecurityPermission SET_POLICY = new SecurityPermission(
-            "setPolicy"); 
+            "setPolicy");
 
     // The SecurityPermission required to get current Policy.
     private static final SecurityPermission GET_POLICY = new SecurityPermission(
-            "getPolicy"); 
+            "getPolicy");
 
-    // The policy currently in effect. 
+    // The policy currently in effect.
     private static Policy activePolicy;
 
     /**
@@ -148,16 +148,16 @@ public abstract class Policy {
     }
 
      // Reads name of default policy provider from security.properties,
-     // loads the class and instantiates the provider.<br> 
-     // In case of any error, including undefined provider name, 
-     // returns new instance of org.apache.harmony.security.FilePolicy provider. 
+     // loads the class and instantiates the provider.<br>
+     // In case of any error, including undefined provider name,
+     // returns new instance of org.apache.harmony.security.FilePolicy provider.
     private static Policy getDefaultProvider() {
         final String defaultClass = AccessController
                 .doPrivileged(new PolicyUtils.SecurityPropertyAccessor(
                         POLICY_PROVIDER));
         if (defaultClass == null) {
             //TODO log warning
-            //System.err.println("No policy provider specified. Loading the " 
+            //System.err.println("No policy provider specified. Loading the "
             //           + DefaultPolicy.class.getName());
             return new DefaultPolicy();
         }
@@ -171,10 +171,10 @@ public abstract class Policy {
                             ClassLoader.getSystemClassLoader()).newInstance();
                 }
                 catch (Exception e) {
-                    //TODO log error 
-                    //System.err.println("Error loading policy provider <" 
-                    //                 + defaultClass + "> : " + e 
-                    //                 + "\nSwitching to the default " 
+                    //TODO log error
+                    //System.err.println("Error loading policy provider <"
+                    //                 + defaultClass + "> : " + e
+                    //                 + "\nSwitching to the default "
                     //                 + DefaultPolicy.class.getName());
                     return new DefaultPolicy();
                 }
@@ -182,7 +182,7 @@ public abstract class Policy {
         });
 
     }
-    
+
     /**
      * Returns {@code true} if system policy provider is instantiated.
      */
@@ -192,7 +192,7 @@ public abstract class Policy {
 
     /**
      * Shortcut accessor for friendly classes, to skip security checks.
-     * If active policy was set to <code>null</code>, loads default provider, 
+     * If active policy was set to <code>null</code>, loads default provider,
      * so this method never returns <code>null</code>. <br>
      * This method is synchronized with setPolicy()
      */
@@ -200,7 +200,7 @@ public abstract class Policy {
         Policy current = activePolicy;
         if (current == null) {
             synchronized (Policy.class) {
-                // double check in case value has been reassigned 
+                // double check in case value has been reassigned
                 // while we've been awaiting monitor
                 if (activePolicy == null) {
                     activePolicy = getDefaultProvider();

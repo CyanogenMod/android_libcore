@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,7 +71,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      * Indicates whether this buffer's content is loaded. If the result is true
      * there is a high probability that the whole buffer memory is currently
      * loaded in RAM. If it is false it is unsure if it is loaded or not.
-     * 
+     *
      * @return {@code true} if this buffer's content is loaded, {@code false}
      *         otherwise.
      */
@@ -83,7 +83,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
     /**
      * Loads this buffer's content into memory but it is not guaranteed to
      * succeed.
-     * 
+     *
      * @return this buffer.
      */
     public final MappedByteBuffer load() {
@@ -97,7 +97,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      * is stored on a local device, it is guaranteed that the changes are
      * written to the file. No such guarantee is given if the file is located on
      * a remote device.
-     * 
+     *
      * @return this buffer.
      */
     public final MappedByteBuffer force() {

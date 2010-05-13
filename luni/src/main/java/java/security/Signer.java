@@ -20,7 +20,7 @@ package java.security;
 /**
  * {@link Signer} represents an identity (individual or corporation) that owns a
  * private key and the corresponding public key.
- * 
+ *
  * @deprecated Replaced by behavior in {@link java.security.cert
  *             java.security.cert} package and {@link java.security.Principal
  *             Principal}
@@ -80,7 +80,7 @@ public abstract class Signer extends Identity {
     public PrivateKey getPrivateKey() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("getSignerPrivateKey"); 
+            sm.checkSecurityAccess("getSignerPrivateKey");
         }
 
         return privateKey;
@@ -104,7 +104,7 @@ public abstract class Signer extends Identity {
      */
     public final void setKeyPair(KeyPair pair)
             throws InvalidParameterException, KeyException {
-        
+
         if (pair == null) {
             throw new NullPointerException();
         }
@@ -114,7 +114,7 @@ public abstract class Signer extends Identity {
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("setSignerKeyPair"); 
+            sm.checkSecurityAccess("setSignerKeyPair");
         }
         final PublicKey pk = pair.getPublic();
         try {
@@ -138,7 +138,7 @@ public abstract class Signer extends Identity {
      */
     @Override
     public String toString() {
-        String s = "[Signer]" + getName(); 
+        String s = "[Signer]" + getName();
         if (getScope() != null) {
             s = s + '[' + getScope().toString() + ']';
         }

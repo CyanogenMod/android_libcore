@@ -66,7 +66,7 @@ public class TrustAnchor {
      */
     public TrustAnchor(X509Certificate trustedCert, byte[] nameConstraints) {
         if (trustedCert == null) {
-            throw new NullPointerException(Messages.getString("security.5C")); 
+            throw new NullPointerException(Messages.getString("security.5C"));
         }
         this.trustedCert = trustedCert;
         // copy nameConstraints if not null
@@ -105,11 +105,11 @@ public class TrustAnchor {
     public TrustAnchor(String caName, PublicKey caPublicKey,
             byte[] nameConstraints) {
         if (caName == null) {
-            throw new NullPointerException(Messages.getString("security.5D")); 
+            throw new NullPointerException(Messages.getString("security.5D"));
         }
         this.caName = caName;
         if (caPublicKey == null) {
-            throw new NullPointerException(Messages.getString("security.5E")); 
+            throw new NullPointerException(Messages.getString("security.5E"));
         }
         this.caPublicKey = caPublicKey;
         // copy nameConstraints if not null
@@ -127,7 +127,7 @@ public class TrustAnchor {
         // X500Principal checks caName validity
         if (caName.length() == 0) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.5F")); 
+                    Messages.getString("security.5F"));
         }
         this.caPrincipal = new X500Principal(this.caName);
     }
@@ -139,7 +139,7 @@ public class TrustAnchor {
      * <p>
      * The name constraints will be used as additional constraints during the
      * validation of certification paths.
-     * 
+     *
      * @param caPrincipal
      *            the name of the certificate authority as X500 principal.
      * @param caPublicKey
@@ -153,11 +153,11 @@ public class TrustAnchor {
     public TrustAnchor(X500Principal caPrincipal,
             PublicKey caPublicKey, byte[] nameConstraints) {
         if (caPrincipal == null) {
-            throw new NullPointerException(Messages.getString("security.60")); 
+            throw new NullPointerException(Messages.getString("security.60"));
         }
         this.caPrincipal = caPrincipal;
         if (caPublicKey == null) {
-            throw new NullPointerException(Messages.getString("security.5E")); 
+            throw new NullPointerException(Messages.getString("security.5E"));
         }
         this.caPublicKey = caPublicKey;
         // copy nameConstraints if not null
@@ -176,7 +176,7 @@ public class TrustAnchor {
 
     /**
      * Returns a copy of the name constraints in ASN.1 DER encoded form.
-     * 
+     *
      * @return a copy of the name constraints in ASN.1 DER encoded form.
      */
     public final byte[] getNameConstraints() {
@@ -191,7 +191,7 @@ public class TrustAnchor {
 
     /**
      * Returns the certificate of this <i>trusted</i> certificate authority.
-     * 
+     *
      * @return the certificate of this CA or {@code null}, if the trust anchor
      *         of this instance was not created with a certificate.
      */
@@ -201,7 +201,7 @@ public class TrustAnchor {
 
     /**
      * Returns the name of the certificate authority as {@code X500Principal}.
-     * 
+     *
      * @return the name of the certificate authority or {@code null} if the
      *         trust anchor of this instance was not created with a {@code
      *         X500Principal}.
@@ -213,7 +213,7 @@ public class TrustAnchor {
     /**
      * Returns the name of the certificate authority as {@code String} in RFC
      * 2253 format.
-     * 
+     *
      * @return the name of the certificate authority as {@code String} in RFC
      *         2253 format or {@code null} if the trust anchor of this instance
      *         was not created with a CA name.
@@ -224,7 +224,7 @@ public class TrustAnchor {
 
     /**
      * Returns the public key of the certificate authority.
-     * 
+     *
      * @return the public key of the certificate authority or {@code null} if
      *         the trust anchor if this instance was not created with a public
      *         key.
@@ -235,32 +235,32 @@ public class TrustAnchor {
 
     /**
      * Returns a string representation of this {@code TrustAnchor} instance.
-     * 
+     *
      * @return a string representation of this {@code TrustAnchor} instance.
      */
     public String toString() {
-        StringBuilder sb = new StringBuilder("TrustAnchor: [\n"); 
+        StringBuilder sb = new StringBuilder("TrustAnchor: [\n");
         if (trustedCert != null) {
-            sb.append("Trusted CA certificate: "); 
+            sb.append("Trusted CA certificate: ");
             sb.append(trustedCert);
-            sb.append("\n"); 
+            sb.append("\n");
         }
         if (caPrincipal != null) {
-            sb.append("Trusted CA Name: "); 
+            sb.append("Trusted CA Name: ");
             sb.append(caPrincipal);
-            sb.append("\n"); 
+            sb.append("\n");
         }
         if (caPublicKey != null) {
-            sb.append("Trusted CA Public Key: "); 
+            sb.append("Trusted CA Public Key: ");
             sb.append(caPublicKey);
-            sb.append("\n"); 
+            sb.append("\n");
         }
         // FIXME if needed:
         if (nameConstraints != null) {
-            sb.append("Name Constraints:\n"); 
-            sb.append(Array.toString(nameConstraints, "    ")); 
+            sb.append("Name Constraints:\n");
+            sb.append(Array.toString(nameConstraints, "    "));
         }
-        sb.append("\n]"); 
+        sb.append("\n]");
         return sb.toString();
     }
 

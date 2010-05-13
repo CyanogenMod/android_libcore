@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,7 +47,7 @@ public class EncodedKeySpec2Test extends TestCase {
         args = {}
     )
     public void test_getEncoded() throws Exception {
-        
+
                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
 
                keyGen.initialize(1024);
@@ -61,7 +61,7 @@ public class EncodedKeySpec2Test extends TestCase {
                byte[] encoded = keys.getPublic().getEncoded();
                Key key = fact.generatePublic(new X509EncodedKeySpec(encoded));
 
-               assertTrue("public key encodings were different", 
+               assertTrue("public key encodings were different",
                            isEqual(key, keys.getPublic()));
 
                // check private key encoding

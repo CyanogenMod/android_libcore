@@ -28,7 +28,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * is false), non-CDATA attributes, or when it is set to true using
  * {@link #setDeclared}.
  * If you change an attribute's type by hand, you may need to modify
- * its <em>declared</em> flag to match. 
+ * its <em>declared</em> flag to match.
  * </p>
  *
  * @since SAX 2.0 (extensions 1.1 alpha)
@@ -192,7 +192,7 @@ public class Attributes2Impl extends AttributesImpl implements Attributes2
      * In that case those flag values are all copied.
      *
      * @param atts The attributes to copy.
-     * 
+     *
      * @see AttributesImpl#setAttributes
      */
     public void setAttributes (Attributes atts)
@@ -236,7 +236,7 @@ public class Attributes2Impl extends AttributesImpl implements Attributes2
      *        if qualified names are not available.
      * @param type The attribute type as a string.
      * @param value The attribute value.
-     * 
+     *
      * @see AttributesImpl#addAttribute
      */
     public void addAttribute (String uri, String localName, String qName,

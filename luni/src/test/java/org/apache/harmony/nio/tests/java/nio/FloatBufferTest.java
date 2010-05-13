@@ -31,11 +31,11 @@ import java.nio.InvalidMarkException;
 
 /**
  * Tests java.nio.FloatBuffer
- * 
+ *
  */
 @TestTargetClass(java.nio.FloatBuffer.class)
 public abstract class FloatBufferTest extends AbstractBufferTest {
-    
+
     protected static final int SMALL_TEST_LENGTH = 5;
 
     protected static final int BUFFER_LENGTH = 20;
@@ -155,7 +155,7 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         assertContentEquals(buf, array, offset, buf.capacity());
 
         FloatBuffer wrapped = FloatBuffer.wrap(array, 3, array.length - 3);
-        
+
         loadTestData1(array, wrapped.arrayOffset(), wrapped.capacity());
         assertContentEquals(buf, array, offset, buf.capacity());
 
@@ -213,7 +213,7 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         assertContentLikeTestData1(buf, 0, 0.0f, buf.capacity());
         try {
             buf.reset();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -230,9 +230,9 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         try {
             // Fails on RI. Spec doesn't specify the behavior if
             // actually nothing to be done by compact(). So RI doesn't reset
-            // mark position 
+            // mark position
             buf.reset();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -249,7 +249,7 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         assertContentLikeTestData1(buf, 0, 1.0f, 4);
         try {
             buf.reset();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -263,12 +263,12 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
     )
     public void testCompareTo() {
         try {
-            buf.compareTo(null);    
+            buf.compareTo(null);
             fail("Should throw NPE");
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         // compare to self
         assertEquals(0, buf.compareTo(buf));
 
@@ -385,7 +385,7 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         }
         try {
             buf.get();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (BufferUnderflowException e) {
             // expected
         }
@@ -414,14 +414,14 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
 
         try {
             buf.get(array);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (BufferUnderflowException e) {
             // expected
         }
 
         try {
             buf.get((float[])null);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (NullPointerException e) {
             // expected
         }
@@ -442,52 +442,52 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
 
         try {
             buf.get(new float[buf.capacity() + 1], 0, buf.capacity() + 1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (BufferUnderflowException e) {
             // expected
         }
         assertEquals(buf.position(), 0);
         try {
             buf.get(array, -1, array.length);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         buf.get(array, array.length, 0);
         try {
             buf.get(array, array.length + 1, 1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         assertEquals(buf.position(), 0);
         try {
             buf.get(array, 2, -1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.get((float[])null, 2, -1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (NullPointerException e) {
             // expected
         }
         try {
             buf.get(array, 2, array.length);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.get(array, 1, Integer.MAX_VALUE);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.get(array, Integer.MAX_VALUE, 1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -517,13 +517,13 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         }
         try {
             buf.get(-1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.get(buf.limit());
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -541,10 +541,10 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         } else {
             try {
                 buf.array();
-                fail("Should throw Exception"); 
+                fail("Should throw Exception");
             } catch (UnsupportedOperationException e) {
                 // expected
-                // Note:can not tell when to catch 
+                // Note:can not tell when to catch
                 // UnsupportedOperationException or
                 // ReadOnlyBufferException, so catch all.
             }
@@ -620,7 +620,7 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         }
         try {
             buf.put(0);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (BufferOverflowException e) {
             // expected
         }
@@ -647,14 +647,14 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         }
         try {
             buf.put(array);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (BufferOverflowException e) {
             // expected
         }
         try {
             buf.position(buf.limit());
             buf.put((float[])null);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (NullPointerException e) {
             // expected
         }
@@ -674,20 +674,20 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         float array[] = new float[buf.capacity()];
         try {
             buf.put(new float[buf.capacity() + 1], 0, buf.capacity() + 1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (BufferOverflowException e) {
             // expected
         }
         assertEquals(buf.position(), 0);
         try {
             buf.put(array, -1, array.length);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(array, array.length + 1, 0);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -695,31 +695,31 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         assertEquals(buf.position(), 0);
         try {
             buf.put(array, 0, -1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put((float[])null, 0, -1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (NullPointerException e) {
             // expected
         }
         try {
             buf.put(array, 2, array.length);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(array, Integer.MAX_VALUE, 1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(array, 1, Integer.MAX_VALUE);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -745,20 +745,20 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         FloatBuffer other = FloatBuffer.allocate(buf.capacity());
         try {
             buf.put(buf);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {
             buf.put(FloatBuffer.allocate(buf.capacity() + 1));
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (BufferOverflowException e) {
             // expected
         }
         try {
             buf.flip();
             buf.put((FloatBuffer)null);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (NullPointerException e) {
             // expected
         }
@@ -792,13 +792,13 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         }
         try {
             buf.put(-1, 0);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(buf.limit(), 0);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -824,7 +824,7 @@ public abstract class FloatBufferTest extends AbstractBufferTest {
         assertEquals(slice.capacity(), buf.remaining());
         try {
             slice.reset();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }

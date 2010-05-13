@@ -30,13 +30,13 @@ import javax.security.auth.DestroyFailedException;
 
 /**
  * Tests for <code>Destroyable</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(Destroyable.class) 
+@TestTargetClass(Destroyable.class)
 public class DestroyableTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.Destroyable#destroy() 
+     * @tests javax.security.auth.Destroyable#destroy()
      * @tests javax.security.auth.Destroyable#isDestroyed()
      */
     @TestTargets({
@@ -63,18 +63,18 @@ public class DestroyableTest extends TestCase {
             fail("Unexpected exception " + e);
         }
     }
-    
+
     private class myDestroyable implements Destroyable {
-        
+
         boolean destroyDone = false;
-        
+
         myDestroyable() {
         }
-        
+
         public void destroy() throws DestroyFailedException {
             destroyDone = true;
         }
-        
+
         public boolean isDestroyed() {
             return destroyDone;
         }

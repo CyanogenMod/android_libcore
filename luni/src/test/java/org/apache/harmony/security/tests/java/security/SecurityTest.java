@@ -142,18 +142,18 @@ public class SecurityTest extends TestCase {
     )
     @SuppressWarnings("deprecation")
     public final void testGetAlgorithmPropertyLjava_lang_String_java_lang_String() {
-        
+
         Provider provider = new MyProvider();
         Map<String, String> m = new HashMap<String, String>();
         m.clear();
         m.put("Alg.propName.algName", "value");
         provider.putAll(m);
-        
+
         try {
             Security.addProvider(provider);
-            
+
             assertNotNull(Security.getAlgorithmProperty("algName", "propName"));
-    
+
             assertNull(Security.getAlgorithmProperty("DSA", null));
             assertNull(Security.getAlgorithmProperty("DSA", "propName"));
         } finally {
@@ -173,14 +173,14 @@ public class SecurityTest extends TestCase {
     public final void testGetAlgorithmsLjava_lang_String() {
         String[] servicesNames = { "Signature", "MessageDigest", "Cipher",
                 "Mac", "KeyStore" };
-        
+
         String[] invalidServiceNames = { "Rubbish", "", null };
 
         for (int i = 0; i < servicesNames.length; i++) {
             Set<String> algs = Security.getAlgorithms(servicesNames[i]);
             assertTrue("no services with specified name: " + servicesNames[i], algs.size() > 0);
         }
-        
+
         for (int i = 0; i < invalidServiceNames.length; i++) {
             Set<String> algs = Security.getAlgorithms(invalidServiceNames[i]);
             assertTrue("services with specified name: " + invalidServiceNames[i], algs.size() == 0);
@@ -399,7 +399,7 @@ public class SecurityTest extends TestCase {
             Security.removeProvider(p.getName());
         }
     }
-    
+
     /**
      * @tests java.security.Security#getProviders()
      */
@@ -411,7 +411,7 @@ public class SecurityTest extends TestCase {
     )
     public void test_getProviders() {
         Provider[] prv;
-        
+
         MyProvider provider = new MyProvider();
         try {
             prv = Security.getProviders();
@@ -451,7 +451,7 @@ public class SecurityTest extends TestCase {
             fail("No expected NullPointerException.");
         } catch (NullPointerException e) {
         }
-        
+
         Security.setProperty("myprop","test white space    ");
         assertEquals("test white space", Security.getProperty("myprop"));
     }

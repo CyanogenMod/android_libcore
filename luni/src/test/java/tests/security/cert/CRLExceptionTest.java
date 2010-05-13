@@ -33,7 +33,7 @@ import java.security.cert.CRLException;
 
 /**
  * Tests for <code>CRLException</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CRLException.class)
 public class CRLExceptionTest extends TestCase {

@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,12 +26,12 @@ public final class ByteOrder {
     /**
      * This constant represents big endian.
      */
-    public static final ByteOrder BIG_ENDIAN = new ByteOrder("BIG_ENDIAN"); 
+    public static final ByteOrder BIG_ENDIAN = new ByteOrder("BIG_ENDIAN");
 
     /**
      * This constant represents little endian.
      */
-    public static final ByteOrder LITTLE_ENDIAN = new ByteOrder("LITTLE_ENDIAN"); 
+    public static final ByteOrder LITTLE_ENDIAN = new ByteOrder("LITTLE_ENDIAN");
 
     private static final ByteOrder NATIVE_ORDER;
 
@@ -45,7 +45,7 @@ public final class ByteOrder {
 
     /**
      * Returns the current platform byte order.
-     * 
+     *
      * @return the byte order object, which is either LITTLE_ENDIAN or
      *         BIG_ENDIAN.
      */
@@ -62,7 +62,7 @@ public final class ByteOrder {
 
     /**
      * Returns a string that describes this object.
-     * 
+     *
      * @return "BIG_ENDIAN" for {@link #BIG_ENDIAN ByteOrder.BIG_ENDIAN}
      *         objects, "LITTLE_ENDIAN" for
      *         {@link #LITTLE_ENDIAN ByteOrder.LITTLE_ENDIAN} objects.

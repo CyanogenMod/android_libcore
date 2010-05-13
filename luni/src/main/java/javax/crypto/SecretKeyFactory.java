@@ -44,7 +44,7 @@ import org.apache.harmony.security.fortress.Engine;
 public class SecretKeyFactory {
 
     // Used to access common engine functionality
-    private static final Engine engine = new Engine("SecretKeyFactory"); 
+    private static final Engine engine = new Engine("SecretKeyFactory");
 
     // Store used provider
     private final Provider provider;
@@ -105,7 +105,7 @@ public class SecretKeyFactory {
     public static final SecretKeyFactory getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("crypto.02")); 
+            throw new NullPointerException(Messages.getString("crypto.02"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -137,7 +137,7 @@ public class SecretKeyFactory {
             String provider) throws NoSuchAlgorithmException,
             NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("crypto.03")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.03"));
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -167,10 +167,10 @@ public class SecretKeyFactory {
     public static final SecretKeyFactory getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.04")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.04"));
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("crypto.02")); 
+            throw new NullPointerException(Messages.getString("crypto.02"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);

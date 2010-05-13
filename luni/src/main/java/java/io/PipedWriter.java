@@ -99,10 +99,10 @@ public class PipedWriter extends Writer {
         }
         synchronized (reader) {
             if (this.dest != null) {
-                throw new IOException(Msg.getString("K0079")); 
+                throw new IOException(Msg.getString("K0079"));
             }
             if (reader.isConnected) {
-                throw new IOException(Msg.getString("K0078")); 
+                throw new IOException(Msg.getString("K0078"));
             }
             reader.establishConnection();
             this.lock = reader;
@@ -165,7 +165,7 @@ public class PipedWriter extends Writer {
         PipedReader reader = dest;
         if (reader == null) {
             // K007b=Pipe Not Connected
-            throw new IOException(Msg.getString("K007b")); 
+            throw new IOException(Msg.getString("K007b"));
         }
         reader.receive(buffer, offset, count);
     }
@@ -195,7 +195,7 @@ public class PipedWriter extends Writer {
         PipedReader reader = dest;
         if (reader == null) {
             // K007b=Pipe Not Connected
-            throw new IOException(Msg.getString("K007b")); 
+            throw new IOException(Msg.getString("K007b"));
         }
         reader.receive((char) c);
     }

@@ -77,17 +77,17 @@ public abstract class Charset implements Comparable<Charset> {
      * The name of configuration files where charset provider class names can be
      * specified.
      */
-    private static final String PROVIDER_CONFIGURATION_FILE_NAME = "META-INF/services/java.nio.charset.spi.CharsetProvider"; 
+    private static final String PROVIDER_CONFIGURATION_FILE_NAME = "META-INF/services/java.nio.charset.spi.CharsetProvider";
 
     /*
      * The encoding of configuration files
      */
-    private static final String PROVIDER_CONFIGURATION_FILE_ENCODING = "UTF-8"; 
+    private static final String PROVIDER_CONFIGURATION_FILE_ENCODING = "UTF-8";
 
     /*
      * The comment string used in configuration files
      */
-    private static final String PROVIDER_CONFIGURATION_FILE_COMMENT = "#"; 
+    private static final String PROVIDER_CONFIGURATION_FILE_COMMENT = "#";
 
     private static ClassLoader systemClassLoader;
 
@@ -106,7 +106,7 @@ public abstract class Charset implements Comparable<Charset> {
     /**
      * Constructs a <code>Charset</code> object. Duplicated aliases are
      * ignored.
-     * 
+     *
      * @param canonicalName
      *            the canonical name of the charset.
      * @param aliases
@@ -484,7 +484,7 @@ public abstract class Charset implements Comparable<Charset> {
 
     /**
      * Gets a <code>Charset</code> instance for the specified charset name.
-     * 
+     *
      * @param charsetName
      *            the canonical name of the charset or an alias.
      * @return a <code>Charset</code> instance for the specified charset name.
@@ -503,7 +503,7 @@ public abstract class Charset implements Comparable<Charset> {
 
     /**
      * Determines whether the specified charset is supported by this runtime.
-     * 
+     *
      * @param charsetName
      *            the name of the charset.
      * @return true if the specified charset is supported, otherwise false.
@@ -516,7 +516,7 @@ public abstract class Charset implements Comparable<Charset> {
 
     /**
      * Determines whether this charset is a super set of the given charset.
-     * 
+     *
      * @param charset
      *            a given charset.
      * @return true if this charset is a super set of the given charset,
@@ -527,21 +527,21 @@ public abstract class Charset implements Comparable<Charset> {
 
     /**
      * Gets a new instance of an encoder for this charset.
-     * 
+     *
      * @return a new instance of an encoder for this charset.
      */
     public abstract CharsetEncoder newEncoder();
 
     /**
      * Gets a new instance of a decoder for this charset.
-     * 
+     *
      * @return a new instance of a decoder for this charset.
      */
     public abstract CharsetDecoder newDecoder();
 
     /**
      * Gets the canonical name of this charset.
-     * 
+     *
      * @return this charset's name in canonical form.
      */
     public final String name() {
@@ -550,7 +550,7 @@ public abstract class Charset implements Comparable<Charset> {
 
     /**
      * Gets the set of this charset's aliases.
-     * 
+     *
      * @return an unmodifiable set of this charset's aliases.
      */
     public final Set<String> aliases() {
@@ -559,7 +559,7 @@ public abstract class Charset implements Comparable<Charset> {
 
     /**
      * Gets the name of this charset for the default locale.
-     * 
+     *
      * <p>The default implementation returns the canonical name of this charset.
      * Subclasses may return a localized display name.
      *
@@ -586,18 +586,18 @@ public abstract class Charset implements Comparable<Charset> {
     /**
      * Indicates whether this charset is known to be registered in the IANA
      * Charset Registry.
-     * 
+     *
      * @return true if the charset is known to be registered, otherwise returns
      *         false.
      */
     public final boolean isRegistered() {
-        return !canonicalName.startsWith("x-") 
-                && !canonicalName.startsWith("X-"); 
+        return !canonicalName.startsWith("x-")
+                && !canonicalName.startsWith("X-");
     }
 
     /**
      * Returns true if this charset supports encoding, false otherwise.
-     * 
+     *
      * @return true if this charset supports encoding, false otherwise.
      */
     public boolean canEncode() {
@@ -647,7 +647,7 @@ public abstract class Charset implements Comparable<Charset> {
      * <p>
      * The default action in case of decoding errors is
      * <code>CodingErrorAction.REPLACE</code>.
-     * 
+     *
      * @param buffer
      *            the byte buffer containing the content to be decoded.
      * @return a character buffer containing the output of the decoding.
@@ -674,7 +674,7 @@ public abstract class Charset implements Comparable<Charset> {
     /**
      * Compares this charset with the given charset. This comparation is
      * based on the case insensitive canonical names of the charsets.
-     * 
+     *
      * @param charset
      *            the given object to be compared with.
      * @return a negative integer if less than the given object, a positive
@@ -693,7 +693,7 @@ public abstract class Charset implements Comparable<Charset> {
     /**
      * Determines whether this charset equals to the given object. They are
      * considered to be equal if they have the same canonical name.
-     * 
+     *
      * @param obj
      *            the given object to be compared with.
      * @return true if they have the same canonical name, otherwise false.
@@ -709,7 +709,7 @@ public abstract class Charset implements Comparable<Charset> {
 
     /**
      * Gets the hash code of this charset.
-     * 
+     *
      * @return the hash code of this charset.
      */
     @Override
@@ -720,17 +720,17 @@ public abstract class Charset implements Comparable<Charset> {
     /**
      * Gets a string representation of this charset. Usually this contains the
      * canonical name of the charset.
-     * 
+     *
      * @return a string representation of this charset.
      */
     @Override
     public final String toString() {
-        return "Charset[" + this.canonicalName + "]"; 
+        return "Charset[" + this.canonicalName + "]";
     }
 
     /**
      * Gets the system default charset from the virtual machine.
-     * 
+     *
      * @return the default charset.
      */
     public static Charset defaultCharset() {
@@ -738,13 +738,13 @@ public abstract class Charset implements Comparable<Charset> {
         String encoding = AccessController
                 .doPrivileged(new PrivilegedAction<String>() {
                     public String run() {
-                        return System.getProperty("file.encoding"); 
+                        return System.getProperty("file.encoding");
                     }
                 });
         try {
             defaultCharset = Charset.forName(encoding);
         } catch (UnsupportedCharsetException e) {
-            defaultCharset = Charset.forName("UTF-8"); 
+            defaultCharset = Charset.forName("UTF-8");
         }
         return defaultCharset;
     }

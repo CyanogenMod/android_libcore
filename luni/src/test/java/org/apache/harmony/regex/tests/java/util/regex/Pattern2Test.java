@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,16 +30,16 @@ import junit.framework.TestCase;
 @TestTargetClass(Pattern.class)
 /**
  * Tests simple Pattern compilation and Matcher methods
- * 
+ *
  */
 public class Pattern2Test extends TestCase {
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies matches(String regex, CharSequence input) method.",
         method = "matches",
         args = {java.lang.String.class, java.lang.CharSequence.class}
-    )    
+    )
     public void testSimpleMatch() throws PatternSyntaxException {
         Pattern p = Pattern.compile("foo.*");
 
@@ -223,7 +223,7 @@ public class Pattern2Test extends TestCase {
 
         /*
          * p = Pattern.compile ("\\p{Blank}");
-         * 
+         *
          * m = p.matcher ("fee fie foe fum"); assertTrue
          * (m.replaceFirst("-").equals ("fee-fie foe fum")); assertTrue
          * (m.replaceAll("-").equals ("fee-fie-foe-fum"));
@@ -552,7 +552,7 @@ public class Pattern2Test extends TestCase {
 
 // BEGIN android-removed
 // The "---" collides with ICU's "--" operator and is likely to be a user error
-// anyway, so we simply comment this one out. 
+// anyway, so we simply comment this one out.
 //        // Test ranges including the "-" character
 //        p = Pattern.compile("[\\*-/]_+[---]!+[--AP]");
 //        m = p.matcher("-_-!!A");
@@ -564,7 +564,7 @@ public class Pattern2Test extends TestCase {
 //        m = p.matcher(",______-!!!!!!!P");
 //        assertTrue(m.matches());
 // END android-removed
-        
+
         // Test nested ranges
         p = Pattern.compile("[pm[t]][a-z]+[[r]lp]");
         m = p.matcher("prop");
@@ -952,9 +952,9 @@ public class Pattern2Test extends TestCase {
         // Cs
         // Co
         // Cn
-        
+
         // TODO add more tests per category
-        //{"Cc", "\u0000", "-\u0041"}, 
+        //{"Cc", "\u0000", "-\u0041"},
         testCategory("Cf", "\u202B");
         testCategory("Co", "\uE000");
         testCategory("Cs", "\uD800");
@@ -982,7 +982,7 @@ public class Pattern2Test extends TestCase {
         // testCategory("Pi", "\u200C");
         testCategory("Zp", "\u2029");
     }
-    
+
     private void testCategory(String cat, String... matches) {
         String pa = "{"+cat+"}";
         String pat = "\\p"+pa;
@@ -992,13 +992,13 @@ public class Pattern2Test extends TestCase {
         for (int j = 0; j < matches.length; j++) {
             String t = matches[j];
             boolean invert = t.startsWith("-");
-            if (invert) { 
+            if (invert) {
                 // test negative case, expected to fail
                 t = t.substring(1);
                 assertFalse("expected '"+t+"' to not be matched " +
                         "by pattern '"+pat, p.matcher(t).matches());
                 assertTrue("expected '"+t+"' to  " +
-                        "be matched by pattern '"+npat, pn.matcher(t).matches());                
+                        "be matched by pattern '"+npat, pn.matcher(t).matches());
             } else {
                 assertTrue("expected '"+t+"' to be matched " +
                         "by pattern '"+pat, p.matcher(t).matches());
@@ -1007,7 +1007,7 @@ public class Pattern2Test extends TestCase {
             }
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies matcher(CharSequence input) method for input specified by Unicode blocks.",
@@ -1026,7 +1026,7 @@ public class Pattern2Test extends TestCase {
         for (i = 0; i < UBlocks.length; i++) {
             /*
              * p = Pattern.compile("\\p{"+UBlocks[i].name+"}");
-             * 
+             *
              * if (UBlocks[i].low > 0) { m =
              * p.matcher(Character.toString((char)(UBlocks[i].low-1)));
              * assertFalse(m.matches()); } for (j=UBlocks[i].low; j <=
@@ -1035,9 +1035,9 @@ public class Pattern2Test extends TestCase {
              * assertTrue(m.matches()); } if (UBlocks[i].high < 0xFFFF) { m =
              * p.matcher(Character.toString((char)(UBlocks[i].high+1)));
              * assertFalse(m.matches()); }
-             * 
+             *
              * p = Pattern.compile("\\P{"+UBlocks[i].name+"}");
-             * 
+             *
              * if (UBlocks[i].low > 0) { m =
              * p.matcher(Character.toString((char)(UBlocks[i].low-1)));
              * assertTrue(m.matches()); } for (j=UBlocks[i].low; j <
@@ -1051,7 +1051,7 @@ public class Pattern2Test extends TestCase {
             p = Pattern.compile("\\p{In" + UBlocks[i].name + "}");
 // BEGIN android-changed
 // Added the name of the block under test to the assertion to get more output.
-            
+
             if (UBlocks[i].low > 0) {
                 m = p.matcher(Character.toString((char) (UBlocks[i].low - 1)));
                 assertFalse(UBlocks[i].name, m.matches());
@@ -1079,7 +1079,7 @@ public class Pattern2Test extends TestCase {
                 m = p.matcher(Character.toString((char) (UBlocks[i].high + 1)));
                 assertTrue(UBlocks[i].name, m.matches());
             }
-            
+
 // END android-changed
         }
     }
@@ -1092,14 +1092,14 @@ public class Pattern2Test extends TestCase {
     public void testCapturingGroups() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
-        
+
         // Test simple capturing groups
         p = Pattern.compile("(a+)b");
         m = p.matcher("aaaaaaaab");
         assertTrue(m.matches());
         assertEquals(1, m.groupCount());
         assertEquals("aaaaaaaa", m.group(1));
-        
+
         p = Pattern.compile("((an)+)((as)+)");
         m = p.matcher("ananas");
         assertTrue(m.matches());
@@ -1122,7 +1122,7 @@ public class Pattern2Test extends TestCase {
         } catch (IndexOutOfBoundsException ioobe) {
             // expected
         }
-        
+
         // Test combination of grouping and capture
         // TODO
 
@@ -1133,14 +1133,14 @@ public class Pattern2Test extends TestCase {
         p = Pattern.compile("((an)+)as\\1");
         m = p.matcher("ananasanan");
         assertTrue(m.matches());
-        
+
         try {
             p = Pattern.compile("((an)+)as\\4");
             fail("expected PatternSyntaxException");
         } catch (PatternSyntaxException pse) {
             // expected
         }
-        
+
     }
     @TestTargetNew(
         level = TestLevel.ADDITIONAL,
@@ -1151,7 +1151,7 @@ public class Pattern2Test extends TestCase {
     public void testRepeats() {
         Pattern p;
         Matcher m;
-        
+
         // Test ?
         p = Pattern.compile("(abc)?c");
         m = p.matcher("abcc");
@@ -1162,7 +1162,7 @@ public class Pattern2Test extends TestCase {
         assertFalse(m.matches());
         m = p.matcher("abcabcc");
         assertFalse(m.matches());
-        
+
         // Test *
         p = Pattern.compile("(abc)*c");
         m = p.matcher("abcc");
@@ -1199,7 +1199,7 @@ public class Pattern2Test extends TestCase {
         assertFalse(m.matches());
         m = p.matcher("abcabcc");
         assertFalse(m.matches());
-        
+
         p = Pattern.compile("(abc){2}c");
         m = p.matcher("abcc");
         assertFalse(m.matches());
@@ -1225,7 +1225,7 @@ public class Pattern2Test extends TestCase {
     public void testAnchors() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
-        
+
         // Test ^, default and MULTILINE
         p = Pattern.compile("^abc\\n^abc", Pattern.MULTILINE);
         m = p.matcher("abc\nabc");
@@ -1751,5 +1751,5 @@ public class Pattern2Test extends TestCase {
 // Modified this to reflect current Unicode tables (or maybe it was a typo)
             new UBInfo(0xFFF0, 0xFFFF, "Specials") // Character.UnicodeBlock.SPECIALS
 // END android-changed
-    };    
+    };
 }

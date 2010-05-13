@@ -31,7 +31,7 @@ public abstract class KeyPairGeneratorTest extends TestCase {
 
     private final String algorithmName;
     private final TestHelper<KeyPair> helper;
-    
+
     private KeyPairGenerator generator;
 
     protected KeyPairGeneratorTest(String algorithmName, TestHelper<KeyPair> helper) {
@@ -46,7 +46,7 @@ public abstract class KeyPairGeneratorTest extends TestCase {
         super.setUp();
         generator = getKeyPairGenerator();
     }
-    
+
     private KeyPairGenerator getKeyPairGenerator() {
         try {
             return KeyPairGenerator.getInstance(algorithmName);

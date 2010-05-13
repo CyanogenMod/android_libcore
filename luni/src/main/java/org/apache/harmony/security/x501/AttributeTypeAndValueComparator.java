@@ -29,7 +29,7 @@ import org.apache.harmony.security.utils.ObjectIdentifier;
 
 /**
  * AttributeTypeAndValue comparator
- * 
+ *
  */
 public class AttributeTypeAndValueComparator implements Comparator, Serializable {
 
@@ -37,7 +37,7 @@ public class AttributeTypeAndValueComparator implements Comparator, Serializable
 
 	/**
      * compares two AttributeTypeAndValues
-     * 
+     *
      * @param obj1
      *            first AttributeTypeAndValue
      * @param obj2
@@ -66,10 +66,10 @@ public class AttributeTypeAndValueComparator implements Comparator, Serializable
 
         return compateOids(atav1.getType(), atav2.getType());
     }
-    
+
     /**
      * compares two Object identifiers
-     * 
+     *
      * @param oid1
      *            first OID
      * @param oid2

@@ -80,9 +80,9 @@ import java.security.PrivilegedAction;
  */
 public abstract class ResourceBundle {
 
-    private static final String UNDER_SCORE = "_"; 
+    private static final String UNDER_SCORE = "_";
 
-    private static final String EMPTY_STRING = ""; 
+    private static final String EMPTY_STRING = "";
 
     /**
      * The parent of this {@code ResourceBundle} that is used if this bundle doesn't
@@ -122,7 +122,7 @@ public abstract class ResourceBundle {
     /**
      * Finds the named resource bundle for the default {@code Locale} and the caller's
      * {@code ClassLoader}.
-     * 
+     *
      * @param bundleName
      *            the name of the {@code ResourceBundle}.
      * @return the requested {@code ResourceBundle}.
@@ -136,7 +136,7 @@ public abstract class ResourceBundle {
     /**
      * Finds the named {@code ResourceBundle} for the specified {@code Locale} and the caller
      * {@code ClassLoader}.
-     * 
+     *
      * @param bundleName
      *            the name of the {@code ResourceBundle}.
      * @param locale
@@ -151,7 +151,7 @@ public abstract class ResourceBundle {
 
     /**
      * Finds the named resource bundle for the specified {@code Locale} and {@code ClassLoader}.
-     * 
+     *
      * The passed base name and {@code Locale} are used to create resource bundle names.
      * The first name is created by concatenating the base name with the result
      * of {@link Locale#toString()}. From this name all parent bundle names are
@@ -227,13 +227,13 @@ public abstract class ResourceBundle {
 
     /**
      * Finds the named resource bundle for the specified base name and control.
-     * 
+     *
      * @param baseName
      *            the base name of a resource bundle
      * @param control
      *            the control that control the access sequence
      * @return the named resource bundle
-     * 
+     *
      * @since 1.6
      * @hide
      */
@@ -243,7 +243,7 @@ public abstract class ResourceBundle {
 
     /**
      * Finds the named resource bundle for the specified base name and control.
-     * 
+     *
      * @param baseName
      *            the base name of a resource bundle
      * @param targetLocale
@@ -251,7 +251,7 @@ public abstract class ResourceBundle {
      * @param control
      *            the control that control the access sequence
      * @return the named resource bundle
-     * 
+     *
      * @since 1.6
      * @hide
      */
@@ -275,7 +275,7 @@ public abstract class ResourceBundle {
 
     /**
      * Finds the named resource bundle for the specified base name and control.
-     * 
+     *
      * @param baseName
      *            the base name of a resource bundle
      * @param targetLocale
@@ -285,7 +285,7 @@ public abstract class ResourceBundle {
      * @param control
      *            the control that control the access sequence
      * @return the named resource bundle
-     * 
+     *
      * @since 1.6
      * @hide
      */
@@ -294,7 +294,7 @@ public abstract class ResourceBundle {
             ResourceBundle.Control control) {
         boolean expired = false;
         String bundleName = control.toBundleName(baseName, targetLocale);
-        Object cacheKey = loader != null ? (Object) loader : (Object) "null"; 
+        Object cacheKey = loader != null ? (Object) loader : (Object) "null";
         Hashtable<String, ResourceBundle> loaderCache;
         // try to find in cache
         synchronized (cache) {
@@ -432,7 +432,7 @@ public abstract class ResourceBundle {
 
     /**
      * Returns the names of the resources contained in this {@code ResourceBundle}.
-     * 
+     *
      * @return an {@code Enumeration} of the resource names.
      */
     public abstract Enumeration<String> getKeys();
@@ -441,7 +441,7 @@ public abstract class ResourceBundle {
      * Gets the {@code Locale} of this {@code ResourceBundle}. In case a bundle was not
      * found for the requested {@code Locale}, this will return the actual {@code Locale} of
      * this resource bundle that was found after doing a fallback.
-     * 
+     *
      * @return the {@code Locale} of this {@code ResourceBundle}.
      */
     public Locale getLocale() {
@@ -453,7 +453,7 @@ public abstract class ResourceBundle {
      * cannot be found in this bundle, it falls back to the parent bundle (if
      * it's not null) by calling the {@link #handleGetObject} method. If the resource still
      * can't be found it throws a {@code MissingResourceException}.
-     * 
+     *
      * @param key
      *            the name of the resource.
      * @return the resource object.
@@ -475,7 +475,7 @@ public abstract class ResourceBundle {
 
     /**
      * Returns the named string resource from this {@code ResourceBundle}.
-     * 
+     *
      * @param key
      *            the name of the resource.
      * @return the resource string.
@@ -491,7 +491,7 @@ public abstract class ResourceBundle {
 
     /**
      * Returns the named resource from this {@code ResourceBundle}.
-     * 
+     *
      * @param key
      *            the name of the resource.
      * @return the resource string array.
@@ -509,7 +509,7 @@ public abstract class ResourceBundle {
             boolean loadBase, final ClassLoader loader) {
         ResourceBundle bundle = null;
         String bundleName = base + locale;
-        Object cacheKey = loader != null ? (Object) loader : (Object) "null"; 
+        Object cacheKey = loader != null ? (Object) loader : (Object) "null";
         Hashtable<String, ResourceBundle> loaderCache;
         synchronized (cache) {
             loaderCache = cache.get(cacheKey);
@@ -555,9 +555,9 @@ public abstract class ResourceBundle {
                         public InputStream run() {
                             return loader == null ? ClassLoader
                                     .getSystemResourceAsStream(fileName
-                                            + ".properties") : loader 
+                                            + ".properties") : loader
                                     .getResourceAsStream(fileName
-                                            + ".properties"); 
+                                            + ".properties");
                         }
                     });
             if (stream != null) {
@@ -601,7 +601,7 @@ public abstract class ResourceBundle {
     /**
      * Returns the named resource from this {@code ResourceBundle}, or null if the
      * resource is not found.
-     * 
+     *
      * @param key
      *            the name of the resource.
      * @return the resource object.
@@ -611,7 +611,7 @@ public abstract class ResourceBundle {
     /**
      * Sets the parent resource bundle of this {@code ResourceBundle}. The parent is
      * searched for resources which are not found in this {@code ResourceBundle}.
-     * 
+     *
      * @param bundle
      *            the parent {@code ResourceBundle}.
      */
@@ -719,7 +719,7 @@ public abstract class ResourceBundle {
      * ResourceBundle.Control is a static utility class defines ResourceBundle
      * load access methods, its default access order is as the same as before.
      * However users can implement their own control.
-     * 
+     *
      * @since 1.6
      * @hide
      */
@@ -781,7 +781,7 @@ public abstract class ResourceBundle {
 
         /**
          * default constructor
-         * 
+         *
          */
         protected Control() {
             super();
@@ -886,7 +886,7 @@ public abstract class ResourceBundle {
 
         /**
          * Returns a new ResourceBundle.
-         * 
+         *
          * @param baseName
          *            the base name to use
          * @param locale
@@ -997,7 +997,7 @@ public abstract class ResourceBundle {
 
         /**
          * Returns true if the ResourceBundle needs to reload.
-         * 
+         *
          * @param baseName
          *            the base name of the ResourceBundle
          * @param locale
@@ -1042,7 +1042,7 @@ public abstract class ResourceBundle {
         /**
          * a utility method to answer the name of a resource bundle according to
          * the given base name and locale
-         * 
+         *
          * @param baseName
          *            the given base name
          * @param locale
@@ -1085,7 +1085,7 @@ public abstract class ResourceBundle {
         /**
          * a utility method to answer the name of a resource according to the
          * given bundleName and suffix
-         * 
+         *
          * @param bundleName
          *            the given bundle name
          * @param suffix

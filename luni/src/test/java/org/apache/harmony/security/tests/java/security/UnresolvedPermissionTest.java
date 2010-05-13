@@ -52,7 +52,7 @@ import junit.framework.TestCase;
 @TestTargetClass(UnresolvedPermission.class)
 /**
  * Tests for <code>UnresolvedPermission</code> class fields and methods
- * 
+ *
  */
 
 public class UnresolvedPermissionTest extends TestCase {
@@ -280,7 +280,7 @@ public class UnresolvedPermissionTest extends TestCase {
                             NoSuchAlgorithmException, InvalidKeyException,
                             NoSuchProviderException, SignatureException {
                         // TODO Auto-generated method stub
-                        
+
                     }
 
                     @Override
@@ -289,9 +289,9 @@ public class UnresolvedPermissionTest extends TestCase {
                             NoSuchAlgorithmException, InvalidKeyException,
                             NoSuchProviderException, SignatureException {
                         // TODO Auto-generated method stub
-                        
+
                     }
-                    
+
                 }
         };
         UnresolvedPermission up1 = new UnresolvedPermission("type1", "name1",
@@ -302,7 +302,7 @@ public class UnresolvedPermissionTest extends TestCase {
 
         assertNull(up1.getUnresolvedCerts());
         assertTrue(Arrays.equals(certificate, up3.getUnresolvedCerts()));
-        
+
         try {
             up2.getUnresolvedCerts();
             fail("NullPointerException expected");
@@ -391,24 +391,24 @@ public class UnresolvedPermissionTest extends TestCase {
         UnresolvedPermission up2 = new UnresolvedPermission("type1", "name1",
                 "action1", null);
         UnresolvedPermission up3 = null;
-        
+
         PermissionCollection pc = up1.newPermissionCollection();
         assertTrue(!pc.isReadOnly());
         pc.add(up1);
         pc.add(up2);
         Enumeration<Permission> permissions = pc.elements();
         assertNotNull(permissions);
-        
+
         assertTrue("Should imply", !pc.implies(up1));
         assertTrue("Should not imply", !pc.implies(up3));
-        
+
         try {
             up3.newPermissionCollection();
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             // expected
         }
-        
+
     }
 
     @TestTargetNew(

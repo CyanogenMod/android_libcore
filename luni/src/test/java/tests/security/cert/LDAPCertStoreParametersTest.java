@@ -35,7 +35,7 @@ import java.security.cert.LDAPCertStoreParameters;
 /**
  * Tests for <code>java.security.cert.LDAPCertStoreParameters</code>
  * fields and methods
- * 
+ *
  */
 @TestTargetClass(LDAPCertStoreParameters.class)
 public class LDAPCertStoreParametersTest extends TestCase {
@@ -186,7 +186,7 @@ public class LDAPCertStoreParametersTest extends TestCase {
             fail("NPE expected");
         } catch (NullPointerException e) {
         }
-        
+
         String serverName = "myhost";
         int[] portNumber = {-1, -100, Integer.MIN_VALUE, Integer.MAX_VALUE};
         for (int i = 0; i < portNumber.length; i++) {

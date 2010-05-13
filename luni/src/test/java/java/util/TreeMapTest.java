@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 import junit.framework.TestCase;
 
 public class TreeMapTest extends TestCase {
-    
+
     public void testConcurrentModificationDetection() {
         Map<String, String> map = new TreeMap<String, String>();
         map.put("A", "a");
@@ -300,7 +300,7 @@ public class TreeMapTest extends TestCase {
                 + "65654d61700cc1f63e2d256ae60300014c000a636f6d70617261746f727400164"
                 + "c6a6176612f7574696c2f436f6d70617261746f723b78707372002a6a6176612e"
                 + "6c616e672e537472696e672443617365496e73656e736974697665436f6d70617"
-                + "261746f7277035c7d5c50e5ce020000787077040000000471007e000471007e00" 
+                + "261746f7277035c7d5c50e5ce020000787077040000000471007e000471007e00"
                 + "047400016271007e000a7400016371007e000b7400016471007e000c7871007e0"
                 + "00b";
         TreeMap<String,String> map = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);

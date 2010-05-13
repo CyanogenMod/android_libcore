@@ -18,7 +18,7 @@ public class TestResult extends Object {
     protected Vector fListeners;
     protected int fRunTests;
     private boolean fStop;
-    
+
     public TestResult() {
         fFailures= new Vector();
         fErrors= new Vector();
@@ -122,7 +122,7 @@ public class TestResult extends Object {
     public void runProtected(final Test test, Protectable p) {
         try {
             p.protect();
-        } 
+        }
         catch (AssertionFailedError e) {
             addFailure(test, e);
         }

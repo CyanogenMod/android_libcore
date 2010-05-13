@@ -44,7 +44,7 @@ public class AbstractMethodErrorTest extends junit.framework.TestCase {
         assertEquals("msg", error.getMessage());
         assertNull(error.getCause());
     }
-    
+
     /**
      * @tests serialization/deserialization.
      */

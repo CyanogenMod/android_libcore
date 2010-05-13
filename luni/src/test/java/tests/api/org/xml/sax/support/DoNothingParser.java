@@ -51,5 +51,5 @@ public class DoNothingParser implements Parser {
 
     public void setLocale(Locale locale) {
     }
-    
+
 }

@@ -31,13 +31,13 @@ import javax.xml.namespace.QName;
  */
 
 public final class DatatypeConstants {
-    
+
     /**
      * <p>Private constructor to prevent instantiation.</p>
      */
     private DatatypeConstants() {
     }
-    
+
     /**
      * Value for first month of year.
      */
@@ -117,7 +117,7 @@ public final class DatatypeConstants {
      * <p>Comparison result.</p>
      */
     public static final int INDETERMINATE =  2;
-    
+
     /**
      * Designation that an "int" field is not set.
      */
@@ -127,50 +127,50 @@ public final class DatatypeConstants {
      * <p>A constant that represents the years field.</p>
      */
     public static final Field YEARS = new Field("YEARS", 0);
-    
+
     /**
      * <p>A constant that represents the months field.</p>
      */
     public static final Field MONTHS = new Field("MONTHS", 1);
-    
+
     /**
      * <p>A constant that represents the days field.</p>
      */
     public static final Field DAYS = new Field("DAYS", 2);
-    
+
     /**
      * <p>A constant that represents the hours field.</p>
      */
     public static final Field HOURS = new Field("HOURS", 3);
-    
+
     /**
      * <p>A constant that represents the minutes field.</p>
      */
     public static final Field MINUTES = new Field("MINUTES", 4);
-    
+
     /**
      * <p>A constant that represents the seconds field.</p>
      */
     public static final Field SECONDS = new Field("SECONDS", 5);
-    
+
     /**
      * Type-safe enum class that represents six fields
      * of the {@link Duration} class.
      */
     public static final class Field {
-        
+
         /**
          * <p><code>String</code> representation of <ode>Field</code>.</p>
          */
         private final String str;
         /**
          * <p>Unique id of the field.</p>
-         * 
+         *
          * <p>This value allows the {@link Duration} class to use switch
-         * statements to process fields.</p>  
+         * statements to process fields.</p>
          */
         private final int id;
-        
+
         /**
          * <p>Construct a <code>Field</code> with specified values.</p>
          * @param str <code>String</code> representation of <code>Field</code>
@@ -181,62 +181,62 @@ public final class DatatypeConstants {
             this.id = id;
         }
         /**
-         * Returns a field name in English. This method 
+         * Returns a field name in English. This method
          * is intended to be used for debugging/diagnosis
          * and not for display to end-users.
-         * 
+         *
          * @return
          *      a non-null valid String constant.
          */
         public String toString() { return str; }
-        
+
         /**
          * <p>Get id of this Field.</p>
-         * 
+         *
          * @return Id of field.
          */
         public int getId() {
             return id;
         }
     }
-    
+
     /**
-     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>dateTime</code>.</p> 
+     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>dateTime</code>.</p>
      */
     public static final QName DATETIME = new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "dateTime");
 
     /**
-     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>time</code>.</p> 
+     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>time</code>.</p>
      */
     public static final QName TIME = new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "time");
 
     /**
-     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>date</code>.</p> 
+     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>date</code>.</p>
      */
     public static final QName DATE = new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "date");
 
     /**
-     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gYearMonth</code>.</p> 
+     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gYearMonth</code>.</p>
      */
     public static final QName GYEARMONTH = new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "gYearMonth");
 
     /**
-     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gMonthDay</code>.</p> 
+     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gMonthDay</code>.</p>
      */
     public static final QName GMONTHDAY = new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "gMonthDay");
 
     /**
-     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gYear</code>.</p> 
+     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gYear</code>.</p>
      */
     public static final QName GYEAR = new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "gYear");
 
     /**
-     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gMonth</code>.</p> 
+     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gMonth</code>.</p>
      */
     public static final QName GMONTH = new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "gMonth");
 
     /**
-     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gDay</code>.</p> 
+     * <p>Fully qualified name for W3C XML Schema 1.0 datatype <code>gDay</code>.</p>
      */
     public static final QName GDAY = new QName(XMLConstants.W3C_XML_SCHEMA_NS_URI, "gDay");
 
@@ -264,5 +264,5 @@ public final class DatatypeConstants {
      * W3C XML Schema min timezone offset is +14:00. Zone offset is in minutes.
      */
     public static final int MIN_TIMEZONE_OFFSET = 14 * 60;
-    
+
 }

@@ -102,7 +102,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
                  driver +
                  " does not implement org.xml.sax.Parser");
     } catch (NullPointerException e5) {
-        throw new 
+        throw new
         SAXException("System property org.xml.sax.parser not specified");
     }
     }
@@ -164,7 +164,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
     /**
      * Set a feature flag for the parser.
      *
-     * <p>The only features recognized are namespaces and 
+     * <p>The only features recognized are namespaces and
      * namespace-prefixes.</p>
      *
      * @param name The feature name, as a complete URI.
@@ -202,7 +202,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
     /**
      * Check a parser feature flag.
      *
-     * <p>The only features recognized are namespaces and 
+     * <p>The only features recognized are namespaces and
      * namespace-prefixes.</p>
      *
      * @param name The feature name, as a complete URI.
@@ -501,7 +501,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
                 // OK, we're doing Namespace processing.
     nsSupport.pushContext();
     int length = qAtts.getLength();
-    
+
                 // First pass:  handle NS decls
     for (int i = 0; i < length; i++) {
         String attQName = qAtts.getName(i);
@@ -530,7 +530,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
         if (contentHandler != null)
         contentHandler.startPrefixMapping(prefix, value);
     }
-    
+
                 // Second pass: copy all relevant
                 // attributes into the SAX2 AttributeList
                 // using updated prefix bindings
@@ -569,7 +569,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
             }
             continue;
         }
-        } 
+        }
 
                 // Not a declaration -- report
         try {
@@ -583,7 +583,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
         atts.addAttribute("", attQName, attQName, type, value);
         }
     }
-    
+
     // now handle the deferred exception reports
     if (exceptions != null && errorHandler != null) {
         for (int i = 0; i < exceptions.size(); i++)
@@ -771,7 +771,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
         errorHandler.error(makeException(message));
     }
 
-    
+
     /**
      * Construct an exception for the current context.
      *
@@ -805,7 +805,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
         throw new SAXNotSupportedException("Cannot change " +
                            type + ' ' +
                            name + " while parsing");
-                           
+
     }
     }
 
@@ -855,7 +855,7 @@ public class ParserAdapter implements XMLReader, DocumentHandler
      *
      * <p>This wrapper class is used only when Namespace support
      * is disabled -- it provides pretty much a direct mapping
-     * from SAX1 to SAX2, except that names and types are 
+     * from SAX1 to SAX2, except that names and types are
      * interned whenever requested.</p>
      */
     final class AttributeListAdapter implements Attributes

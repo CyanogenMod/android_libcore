@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,7 +55,7 @@ import junit.framework.TestCase;
             notes = "ClosedByInterruptException can not easily be tested",
             method = "write",
             args = {java.nio.ByteBuffer[].class}
-        ) 
+        )
     }
 )
 public class SinkChannelTest extends TestCase {
@@ -105,7 +105,7 @@ public class SinkChannelTest extends TestCase {
         notes = "",
         method = "write",
         args = {java.nio.ByteBuffer[].class}
-    )    
+    )
     public void test_write_LByteBuffer() throws IOException {
         ByteBuffer[] bufArray = { buffer, positionedBuffer };
         boolean[] sinkBlockingMode = { true, true, false, false };
@@ -146,7 +146,7 @@ public class SinkChannelTest extends TestCase {
         notes = "",
         method = "write",
         args = {java.nio.ByteBuffer[].class}
-    )    
+    )
     public void test_write_LByteBuffer_mutliThread() throws IOException,
             InterruptedException {
         final int THREAD_NUM = 20;
@@ -170,7 +170,7 @@ public class SinkChannelTest extends TestCase {
             thread[i].join();
         }
         ByteBuffer readBuf = ByteBuffer.allocate(THREAD_NUM * BUFFER_SIZE);
-        
+
         long totalCount = 0;
         do {
             long count = source.read(readBuf);
@@ -179,7 +179,7 @@ public class SinkChannelTest extends TestCase {
             }
             totalCount += count;
         } while (totalCount != (THREAD_NUM * BUFFER_SIZE));
-        
+
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < THREAD_NUM; i++) {
             buf.append("bytes");
@@ -235,11 +235,11 @@ public class SinkChannelTest extends TestCase {
                 }
             }
         };
-        
+
         thread.start();
         Thread.currentThread().sleep(500);
         thread.interrupt();
-        
+
     }
 
     /**
@@ -250,7 +250,7 @@ public class SinkChannelTest extends TestCase {
         notes = "Verifies NullPointerException.",
         method = "write",
         args = {java.nio.ByteBuffer[].class}
-    )    
+    )
     public void test_write_LByteBuffer_Exception() throws IOException {
         // write null ByteBuffer
         ByteBuffer nullBuf = null;
@@ -270,7 +270,7 @@ public class SinkChannelTest extends TestCase {
         notes = "",
         method = "write",
         args = {java.nio.ByteBuffer[].class}
-    )     
+    )
     @AndroidOnly("seems to run on newer RI versions")
     public void test_write_LByteBuffer_SourceClosed() throws IOException {
         source.close();
@@ -286,7 +286,7 @@ public class SinkChannelTest extends TestCase {
         notes = "Verifies ClosedChannelException, NullPointerException.",
         method = "write",
         args = {java.nio.ByteBuffer[].class}
-    )     
+    )
     public void test_write_LByteBuffer_SinkClosed() throws IOException {
         sink.close();
         try {
@@ -440,7 +440,7 @@ public class SinkChannelTest extends TestCase {
         notes = "",
         method = "write",
         args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )    
+    )
     public void test_write_$LByteBufferII() throws IOException {
         ByteBuffer[] bufArray = { buffer, positionedBuffer };
         boolean[] sinkBlockingMode = { true, true, false, false };
@@ -475,7 +475,7 @@ public class SinkChannelTest extends TestCase {
         notes = "Verifies NullPointerException, IndexOutOfBoundsException.",
         method = "write",
         args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )        
+    )
     public void test_write_$LByteBufferII_Exception() throws IOException {
         // write null ByteBuffer[]
         ByteBuffer[] nullBufArrayRef = null;
@@ -555,7 +555,7 @@ public class SinkChannelTest extends TestCase {
         notes = "",
         method = "write",
         args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )        
+    )
     @AndroidOnly("seems to run on newer RI versions")
     public void test_write_$LByteBufferII_SourceClosed() throws IOException {
         ByteBuffer[] bufArray = { buffer };
@@ -572,7 +572,7 @@ public class SinkChannelTest extends TestCase {
         notes = "Verifies ClosedChannelException, NullPointerException, IndexOutOfBoundsException.",
         method = "write",
         args = {java.nio.ByteBuffer[].class, int.class, int.class}
-    )        
+    )
     public void test_write_$LByteBufferII_SinkClosed() throws IOException {
         ByteBuffer[] bufArray = { buffer };
         sink.close();
@@ -704,7 +704,7 @@ public class SinkChannelTest extends TestCase {
         ServerSocketChannel ssc = ServerSocketChannel.open();
         ssc.socket().bind(new InetSocketAddress(InetAddress.getLocalHost(),49999));
         SocketChannel sc = SocketChannel.open();
-        ByteBuffer buf = null;  
+        ByteBuffer buf = null;
         try{
             sc.write(buf);
             fail("should throw NPE");
@@ -712,7 +712,7 @@ public class SinkChannelTest extends TestCase {
             // expected
         }
         sc.connect(new InetSocketAddress(InetAddress.getLocalHost(),49999));
-        SocketChannel sock = ssc.accept();              
+        SocketChannel sock = ssc.accept();
         ssc.close();
         sc.close();
         try{
@@ -736,7 +736,7 @@ public class SinkChannelTest extends TestCase {
         SocketChannel sc = SocketChannel.open();
         sc.connect(new InetSocketAddress(InetAddress.getLocalHost(),49999));
         SocketChannel sock = ssc.accept();
-        ByteBuffer[] buf = {ByteBuffer.allocate(10),null};                
+        ByteBuffer[] buf = {ByteBuffer.allocate(10),null};
         try{
             sc.write(buf,0,2);
             fail("should throw NPE");

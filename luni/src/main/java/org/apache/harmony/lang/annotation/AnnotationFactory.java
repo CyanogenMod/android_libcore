@@ -38,34 +38,34 @@ import static org.apache.harmony.lang.annotation.AnnotationMember.ERROR;
 /**
  * The annotation implementation based on dynamically generated proxy instances.
  * It conforms to all requirements stated in public APIs, see in particular
- * {@link java.lang.reflect.AnnotatedElement java.lang.reflect.AnnotatedElement} 
+ * {@link java.lang.reflect.AnnotatedElement java.lang.reflect.AnnotatedElement}
  * and {@link java.lang.annotation.Annotation java.lang.annotation.Annotation}.
  * Namely, annotation instances are immutable and serializable; they provide
  * conforming access to annotation member values and required implementations of
  * methods declared in Annotation interface.
- * 
+ *
  * @see android.lang.annotation.AnnotationMember
  * @see java.lang.annotation.Annotation
- * 
+ *
  * @author Alexey V. Varlamov, Serguei S. Zapreyev
  * @version $Revision$
  */
 @SuppressWarnings({"serial"})
 public final class AnnotationFactory implements InvocationHandler, Serializable {
-    
-    private static final transient 
-    Map<Class<? extends Annotation>, AnnotationMember[]> 
+
+    private static final transient
+    Map<Class<? extends Annotation>, AnnotationMember[]>
     cache = new WeakHashMap<Class<? extends Annotation>, AnnotationMember[]>();
-    
+
     /**
-     * Reflects specified annotation type and returns an array 
+     * Reflects specified annotation type and returns an array
      * of member element definitions with default values.
      */
     public static AnnotationMember[] getElementsDescription(Class<? extends Annotation> annotationType ) {
         AnnotationMember[] desc = cache.get(annotationType);
         if (desc == null) {
             if (!annotationType.isAnnotation()) {
-                throw new IllegalArgumentException("Type is not annotation: " 
+                throw new IllegalArgumentException("Type is not annotation: "
                         + annotationType.getName());
             }
             Method[] m = annotationType.getDeclaredMethods();
@@ -75,7 +75,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
                 String name = element.getName();
                 Class<?> type = element.getReturnType();
                 try {
-                    desc[idx] = new AnnotationMember(name, 
+                    desc[idx] = new AnnotationMember(name,
                             element.getDefaultValue(), type, element);
                 } catch (Throwable t) {
                     desc[idx] = new AnnotationMember(name, t, type, element);
@@ -86,7 +86,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
         }
         return desc;
     }
-    
+
     /**
      * Provides a new annotation instance.
      * @param annotationType the annotation type definition
@@ -94,11 +94,11 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
      * @return a new annotation instance
      */
     public static Annotation createAnnotation(
-            Class<? extends Annotation> annotationType, 
-            AnnotationMember[] elements) 
+            Class<? extends Annotation> annotationType,
+            AnnotationMember[] elements)
     {
-        AnnotationFactory antn = new AnnotationFactory(annotationType, elements); 
-        return (Annotation)Proxy.newProxyInstance( annotationType.getClassLoader(), 
+        AnnotationFactory antn = new AnnotationFactory(annotationType, elements);
+        return (Annotation)Proxy.newProxyInstance( annotationType.getClassLoader(),
                 new Class[]{annotationType}, antn);
     }
 
@@ -111,7 +111,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
      * instead.
      *
      * @param klzz class defining the annotation type
-     * @param values actual element values 
+     * @param values actual element values
      */
     private AnnotationFactory(Class<? extends Annotation> klzz, AnnotationMember[] values) {
         klazz = klzz;
@@ -132,20 +132,20 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
             }
         }
     }
-    
+
     /**
-     * Reads the object, obtains actual member definitions for the annotation type, 
+     * Reads the object, obtains actual member definitions for the annotation type,
      * and merges deserialized values with the new definitions.
      */
-    private void readObject(ObjectInputStream os) throws IOException, 
+    private void readObject(ObjectInputStream os) throws IOException,
     ClassNotFoundException {
         os.defaultReadObject();
         // Annotation type members can be changed arbitrarily
-        // So there may be zombi elements from the previous life; 
-        // they hardly fit into this new annotation's incarnation, 
+        // So there may be zombi elements from the previous life;
+        // they hardly fit into this new annotation's incarnation,
         // as we have no defining methods for them.
-        // Reasonably just drop such elements, 
-        // but seems better to keep them for compatibility 
+        // Reasonably just drop such elements,
+        // but seems better to keep them for compatibility
         AnnotationMember[] defs = getElementsDescription(klazz);
         AnnotationMember[] old = elements;
         List<AnnotationMember> merged = new ArrayList<AnnotationMember>(
@@ -168,18 +168,18 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
                 }
             }
             merged.add(def); // brand new element
-        }  
+        }
         elements = merged.toArray(new AnnotationMember[merged.size()]);
     }
-    
+
     /**
      * Returns true if the specified object represents the same annotation instance.
-     * That is, if it implements the same annotation type and 
-     * returns the same element values. 
+     * That is, if it implements the same annotation type and
+     * returns the same element values.
      * <br>Note, actual underlying implementation mechanism does not matter - it may
      * differ completely from this class.
-     * @return true if the passed object is equivalent annotation instance, 
-     * false otherwise. 
+     * @return true if the passed object is equivalent annotation instance,
+     * false otherwise.
      * @see android.lang.annotation.AnnotationMember#equals(Object)
      */
     public boolean equals(Object obj) {
@@ -190,7 +190,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
             return false;
         }
         Object handler = null;
-        if (Proxy.isProxyClass(obj.getClass()) 
+        if (Proxy.isProxyClass(obj.getClass())
                 && (handler = Proxy.getInvocationHandler(obj)) instanceof AnnotationFactory ) {
             AnnotationFactory other = (AnnotationFactory) handler;
             if (elements.length != other.elements.length) {
@@ -207,7 +207,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
             return true;
         } else {
             // encountered foreign annotation implementaton
-            // so have to obtain element values via invocation 
+            // so have to obtain element values via invocation
             // of corresponding methods
             for (final AnnotationMember el : elements) {
                 if (el.tag == ERROR) {
@@ -227,7 +227,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
                     }
                     Object otherValue = el.definingMethod.invoke(obj);
                     if (otherValue != null ) {
-                        if (el.tag == ARRAY) { 
+                        if (el.tag == ARRAY) {
                             if (!el.equalArrayValue(otherValue)) {
                                 return false;
                             }
@@ -248,8 +248,8 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
     }
 
     /**
-     * Returns a hash code composed as a sum of hash codes of member elements, 
-     * including elements with default values. 
+     * Returns a hash code composed as a sum of hash codes of member elements,
+     * including elements with default values.
      * @see android.lang.annotation.AnnotationMember#hashCode()
      */
     public int hashCode() {
@@ -269,20 +269,20 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
         String res = "@" + klazz.getName() + "(";
         for(int i = 0; i < elements.length; i++) {
             if ( i != 0 ) {
-                res += ", ";    
+                res += ", ";
             }
             res += elements[i].toString();;
         }
         return res + ")";
     }
-    
+
     /**
      * Processes a method invocation request to this annotation instance.
-     * Recognizes the methods declared in the 
+     * Recognizes the methods declared in the
      * {@link java.lang.annotation.Annotation java.lang.annotation.Annotation}
      * interface, and member-defining methods of the implemented annotation type.
      * @throws IllegalArgumentException If the specified method is none of the above
-     * @return the invocation result 
+     * @return the invocation result
      */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
     {
@@ -296,14 +296,14 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
             } else if ("hashCode".equals(name)) {
                 return hashCode();
             }
-            
+
             // this must be element value request
             AnnotationMember element = null;
             for (AnnotationMember el : elements) {
                 if (name.equals(el.name)) {
                     element = el;
                     break;
-                }                
+                }
             }
             if (element == null || !method.equals(element.definingMethod)) {
                 throw new IllegalArgumentException(method.toString());

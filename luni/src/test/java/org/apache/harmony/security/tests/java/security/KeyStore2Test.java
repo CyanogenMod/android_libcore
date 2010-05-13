@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -188,14 +188,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         cert[0] = (X509Certificate) cf.generateCertificate(certArray);
         cert[1] = (X509Certificate) cf.generateCertificate(certArray2);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.aliases();
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, null);
 
         // KeyStore keyTest =
@@ -239,14 +239,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         cert[0] = (X509Certificate) cf.generateCertificate(certArray);
         cert[1] = (X509Certificate) cf.generateCertificate(certArray2);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.containsAlias("alias1");
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, null);
 
         // alias 1
@@ -258,7 +258,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         assertTrue("alias1 does not exist", keyTest.containsAlias("alias1"));
         assertTrue("alias2 does not exist", keyTest.containsAlias("alias2"));
         assertFalse("alias3 exists", keyTest.containsAlias("alias3"));
-        
+
         try {
             keyTest.containsAlias(null);
             fail("expected NullPointerException");
@@ -284,14 +284,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         cert[0] = (X509Certificate) cf.generateCertificate(certArray);
         cert[1] = (X509Certificate) cf.generateCertificate(certArray2);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.getCertificate("anAlias");
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, null);
 
         // alias 1
@@ -373,14 +373,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         cert[0] = (X509Certificate) cf.generateCertificate(certArray);
         cert[1] = (X509Certificate) cf.generateCertificate(certArray2);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.getCertificateChain("anAlias");
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, null);
 
         // alias 1
@@ -401,14 +401,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
                 .getCertificateChain("alias1");
         assertNull("the certificate chain returned from "
                 + "getCertificateChain is NOT null", certResNull);
-        
+
         try {
             keyTest.getCertificateChain(null);
             fail("expected NullPointerException");
         } catch (NullPointerException e) {
             // ok
         }
-        
+
     }
 
     /**
@@ -492,14 +492,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         cert[0] = (X509Certificate) cf.generateCertificate(certArray);
         cert[1] = (X509Certificate) cf.generateCertificate(certArray2);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.isCertificateEntry("alias");
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, null);
         // alias 1
         keyTest.setCertificateEntry("alias1", cert[0]);
@@ -531,14 +531,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         cert[0] = (X509Certificate) cf.generateCertificate(certArray);
         cert[1] = (X509Certificate) cf.generateCertificate(certArray2);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.isKeyEntry("alias");
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, null);
         // alias 1
         keyTest.setCertificateEntry("alias1", cert[0]);
@@ -601,12 +601,12 @@ public class KeyStore2Test extends junit.framework.TestCase {
         try {
             KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
             keyTest.load(null);
-            
+
         } catch (Exception e ) {
             fail("Unexpected Exception " + e);
         }
-        
-        
+
+
     }
     /**
      * @tests java.security.KeyStore#setCertificateEntry(java.lang.String,
@@ -627,14 +627,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         X509Certificate cert = (X509Certificate) cf
                 .generateCertificate(certArray);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.setCertificateEntry("alias", cert);
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, null);
 
         PublicKey pub = cert.getPublicKey();
@@ -647,8 +647,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
         assertTrue(
                 "the public key of the certificate from getCertificate() did not equal the original certificate",
                 resultCert.getPublicKey() == pub);
-        
-        
+
+
     }
 
     /**
@@ -673,27 +673,27 @@ public class KeyStore2Test extends junit.framework.TestCase {
         cert[0] = (X509Certificate) cf.generateCertificate(certArray);
         cert[1] = (X509Certificate) cf.generateCertificate(certArray2);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.setKeyEntry("alias3", privateKey, pssWord, cert);
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, null);
 
         keyTest.setKeyEntry("alias3", privateKey, pssWord, cert);
         assertTrue("the entry specified by the alias alias3 is not a keyEntry",
                 keyTest.isKeyEntry("alias3"));
-        
+
         try {
             keyTest.setKeyEntry("alias4", privateKey, pssWord, new Certificate[] {});
             fail("expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // ok
         }
-        
+
     }
 
     /**
@@ -713,14 +713,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         cert[0] = (X509Certificate) cf.generateCertificate(certArray);
         cert[1] = (X509Certificate) cf.generateCertificate(certArray2);
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.size();
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, null);
         // alias 1
         keyTest.setCertificateEntry("alias1", cert[0]);
@@ -752,7 +752,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("Unexpected Exception " + e);
         }
-        
+
         try {
             KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
             keyTest.load(null, null);
@@ -762,9 +762,9 @@ public class KeyStore2Test extends junit.framework.TestCase {
             // expected
         } catch (Exception e) {
             fail("Unexpected Exception " + e);
-        }        
+        }
     }
-    
+
     /**
      * @tests java.security.KeyStore#deleteEntry(String)
      */
@@ -798,7 +798,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
                     privateKey, chain);
 
             keyTest.setEntry("symKey", pkEntry, pp);
-            
+
             keyTest.deleteEntry("symKey");
 
         } catch (KeyStoreException e) {
@@ -828,14 +828,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
         String type = "DSA";
 
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyTest.getCreationDate("anAlias");
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyTest.load(null, pssWord);
 
         assertNull(keyTest.getCreationDate(""));
@@ -896,7 +896,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         assertEquals(yearExpected, yearActual2);
         assertEquals(hourExpected, hourActual2);
         assertEquals(minuteExpected, minuteActual2);
-        
+
         try {
             keyTest.getCreationDate(null);
             fail("expected NullPointerException");
@@ -925,7 +925,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             } catch (KeyStoreException e) {
                 fail("unexpected exception: " + e);
             }
-            
+
             try {
                 keyTest.getEntry("anAlias", new KeyStore.PasswordProtection(new char[] {}));
                 fail("expected KeyStoreException");
@@ -936,7 +936,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             } catch (UnrecoverableEntryException e) {
                 fail("unexpected exception: " + e);
             }
-            
+
             try {
                 keyTest.load(null, pssWord);
             } catch (NoSuchAlgorithmException e) {
@@ -946,7 +946,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             } catch (IOException e) {
                 fail("unexpected exception: " + e);
             }
-            
+
             try {
                 keyTest.getEntry(null, new KeyStore.PasswordProtection(new char[] {}));
                 fail("expected NullPointerException");
@@ -959,7 +959,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             } catch (KeyStoreException e) {
                 fail("unexpected exception: " + e);
             }
-            
+
             try {
                 keyTest.getEntry("anAlias", null);
             } catch (NullPointerException e) {
@@ -971,7 +971,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             } catch (KeyStoreException e) {
                 fail("unexpected exception: " + e);
             }
-            
+
             try {
                 keyTest.getEntry(null, null);
                 fail("expected NullPointerException");
@@ -984,7 +984,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             } catch (KeyStoreException e) {
                 fail("unexpected exception: " + e);
             }
-            
+
 
             try {
                 assertNull(keyTest.getEntry("alias", pp));
@@ -1089,7 +1089,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
             assertEquals(privateKey1.getParams().getG(), entryPrivateKey.getParams().getG());
             assertEquals(privateKey1.getParams().getP(), entryPrivateKey.getParams().getP());
             assertEquals(privateKey1.getParams().getQ(), entryPrivateKey.getParams().getQ());
-            
+
             assertEquals(new MyCertificate(type, testEncoding), pkeActual2
                     .getCertificate());
             try {
@@ -1214,14 +1214,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
     public void test_entryInstanceOf() throws Exception {
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyStore.entryInstanceOf("anAlias", KeyStore.SecretKeyEntry.class);
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyStore.load(null, "pwd".toCharArray());
 
         // put the key into keystore
@@ -1239,14 +1239,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         assertFalse(keyStore.entryInstanceOf(alias,
                 KeyStore.TrustedCertificateEntry.class));
-        
+
         try {
             keyStore.entryInstanceOf(null, KeyStore.SecretKeyEntry.class);
             fail("expected NullPointerException");
         } catch (NullPointerException e) {
             // ok
         }
-        
+
         try {
             keyStore.entryInstanceOf("anAlias", null);
             fail("expected NullPointerException");
@@ -1287,14 +1287,14 @@ public class KeyStore2Test extends junit.framework.TestCase {
     )
     public void test_store_java_io_OutputStream_char() throws Exception {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        
+
         try {
             keyStore.store(new ByteArrayOutputStream(), "pwd".toCharArray());
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         keyStore.load(null, "pwd".toCharArray());
         try {
             keyStore.store(null, "pwd".toCharArray());

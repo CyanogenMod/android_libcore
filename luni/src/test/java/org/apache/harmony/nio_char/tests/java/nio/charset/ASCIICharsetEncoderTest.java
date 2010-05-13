@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
     // charset for ascii
     private static final Charset cs = Charset.forName("ascii");
     private static final CharsetEncoder encoder = cs.newEncoder();
-    private static final int MAXCODEPOINT = 0x7F; 
+    private static final int MAXCODEPOINT = 0x7F;
     /*
      * @see CharsetEncoderTest#setUp()
      */
@@ -161,21 +161,21 @@ public class ASCIICharsetEncoderTest extends TestCase {
     )
     public void testEncodeMapping() throws CharacterCodingException {
         encoder.reset();
-        
+
         for (int i =0; i <= MAXCODEPOINT; i++) {
             char[] chars = Character.toChars(i);
             CharBuffer cb = CharBuffer.wrap(chars);
             ByteBuffer bb = encoder.encode(cb);
             assertEquals(i, bb.get(0));
         }
-        
+
         CharBuffer cb = CharBuffer.wrap("\u0080");
         try {
             encoder.encode(cb);
         } catch (UnmappableCharacterException e) {
             //expected
         }
-        
+
         cb = CharBuffer.wrap("\ud800");
         try {
             encoder.encode(cb);
@@ -193,7 +193,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             //expected
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -217,7 +217,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
     public void testInternalState() {
         CharBuffer in = CharBuffer.wrap("A");
         ByteBuffer out = ByteBuffer.allocate(0x10);
-        
+
         //normal encoding process
         encoder.reset();
         encoder.encode(in, out, false);
@@ -225,7 +225,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
         encoder.encode(in, out, true);
         encoder.flush(out);
     }
-    
+
     //reset could be called at any time
     @TestTargets({
         @TestTargetNew(
@@ -251,7 +251,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
         CharsetEncoder newEncoder = cs.newEncoder();
         //Init - > reset
         newEncoder.reset();
-        
+
         //reset - > reset
         newEncoder.reset();
 
@@ -279,7 +279,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             newEncoder.reset();
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "CoderMalfunctionError checking missed.",
@@ -294,27 +294,27 @@ public class ASCIICharsetEncoderTest extends TestCase {
             ByteBuffer out = ByteBuffer.allocate(0x10);
             newEncoder.encode(in, out, false);
         }
-        
+
         //reset - > encoding
         {
             CharBuffer in = CharBuffer.wrap("A");
             ByteBuffer out = ByteBuffer.allocate(0x10);
-            newEncoder.reset();            
+            newEncoder.reset();
             newEncoder.encode(in, out, false);
         }
         //reset - > encoding - > encoding
         {
-            newEncoder.reset();            
+            newEncoder.reset();
             CharBuffer in = CharBuffer.wrap("A");
             ByteBuffer out = ByteBuffer.allocate(0x10);
             newEncoder.encode(in, out, false);
             in = CharBuffer.wrap("BC");
             newEncoder.encode(in, out, false);
         }
-        
+
         //encoding_end - > encoding
         {
-            newEncoder.reset();            
+            newEncoder.reset();
             CharBuffer in = CharBuffer.wrap("A");
             ByteBuffer out = ByteBuffer.allocate(0x10);
             newEncoder.encode(in, out, true);
@@ -328,7 +328,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
         }
         //flushed - > encoding
         {
-            newEncoder.reset();            
+            newEncoder.reset();
             CharBuffer in = CharBuffer.wrap("A");
             ByteBuffer out = ByteBuffer.allocate(0x10);
             newEncoder.encode(in, out, true);
@@ -342,7 +342,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             }
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "CoderMalfunctionError checking missed.",
@@ -358,7 +358,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             ByteBuffer out = ByteBuffer.allocate(0x10);
             newEncoder.encode(in, out, true);
         }
-        
+
         //Reset -> encoding_end
         {
             CharBuffer in = CharBuffer.wrap("A");
@@ -376,7 +376,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             in = CharBuffer.wrap("BC");
             newEncoder.encode(in, out, true);
         }
-        
+
         //Reset -> encoding_end
         {
             newEncoder.reset();
@@ -386,7 +386,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             in = CharBuffer.wrap("BC");
             newEncoder.encode(in, out, true);
         }
-        
+
         //Flushed -> encoding_end
         {
             newEncoder.reset();
@@ -403,7 +403,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             }
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "CoderMalfunctionError checking missed.",
@@ -412,13 +412,13 @@ public class ASCIICharsetEncoderTest extends TestCase {
     )
     public void testInternalState_Flushed() {
         CharsetEncoder newEncoder = cs.newEncoder();
-        
+
         //init -> flushed
         {
             ByteBuffer out = ByteBuffer.allocate(0x10);
             newEncoder.flush(out);
         }
-        
+
         //reset - > flushed
         {
             newEncoder.reset();
@@ -428,7 +428,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             newEncoder.reset();
             newEncoder.flush(out);
         }
-        
+
         //encoding - > flushed
         {
             newEncoder.reset();
@@ -443,7 +443,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
                 // expected
             }
         }
-        
+
         //encoding_end -> flushed
         {
             newEncoder.reset();
@@ -452,7 +452,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             newEncoder.encode(in, out, true);
             newEncoder.flush(out);
         }
-        
+
         //flushd - > flushed
         {
             newEncoder.reset();
@@ -468,7 +468,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             }
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -496,14 +496,14 @@ public class ASCIICharsetEncoderTest extends TestCase {
             CharBuffer in = CharBuffer.wrap("A");
             newEncoder.encode(in);
         }
-        
+
         //Reset - > encode
         {
             newEncoder.reset();
             CharBuffer in = CharBuffer.wrap("A");
             newEncoder.encode(in);
         }
-        
+
         //Encoding -> encode
         {
             newEncoder.reset();
@@ -513,7 +513,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             in = CharBuffer.wrap("BC");
             newEncoder.encode(in);
         }
-        
+
         //Encoding_end -> encode
         {
             newEncoder.reset();
@@ -523,7 +523,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             in = CharBuffer.wrap("BC");
             newEncoder.encode(in);
         }
-        
+
         //Flushed -> reset
         {
             newEncoder.reset();
@@ -535,7 +535,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             out = newEncoder.encode(in);
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -564,14 +564,14 @@ public class ASCIICharsetEncoderTest extends TestCase {
     })
     public void testInternalState_from_Encode() throws CharacterCodingException {
         CharsetEncoder newEncoder = cs.newEncoder();
-        
+
         //Encode -> Reset
         {
             CharBuffer in = CharBuffer.wrap("A");
             newEncoder.encode(in);
             newEncoder.reset();
         }
-        
+
         // Encode -> encoding
         {
             CharBuffer in = CharBuffer.wrap("A");
@@ -584,7 +584,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
                 // expected
             }
         }
-        
+
         //Encode -> Encoding_end
         {
             CharBuffer in = CharBuffer.wrap("A");
@@ -608,7 +608,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
                 // expected
             }
         }
-        
+
         //Encode - > encode
         {
             CharBuffer in = CharBuffer.wrap("A");

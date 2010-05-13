@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Enumeration;
 import java.util.ListResourceBundle;
@@ -28,7 +28,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
-@TestTargetClass(java.util.ListResourceBundle.class) 
+@TestTargetClass(java.util.ListResourceBundle.class)
 public class ListResourceBundleTest extends junit.framework.TestCase {
 
     /**
@@ -73,7 +73,7 @@ public class ListResourceBundleTest extends junit.framework.TestCase {
         assertTrue("Missing key child3", result.contains("child3"));
     }
 
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,

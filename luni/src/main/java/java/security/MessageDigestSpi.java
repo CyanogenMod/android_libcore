@@ -26,33 +26,33 @@ import org.apache.harmony.security.internal.nls.Messages;
  * for {@link MessageDigest}. Examples of digest algorithms are MD5 and SHA. A
  * digest is a secure one way hash function for a stream of bytes. It acts like
  * a fingerprint for a stream of bytes.
- * 
+ *
  * @see MessageDigest
  */
 public abstract class MessageDigestSpi {
-    
+
     /**
      * Returns the engine digest length in bytes. If the implementation does not
      * implement this function {@code 0} is returned.
-     * 
+     *
      * @return the digest length in bytes, or {@code 0}.
      */
     protected int engineGetDigestLength() {
         return 0;
     }
-    
+
     /**
      * Updates this {@code MessageDigestSpi} using the given {@code byte}.
-     * 
+     *
      * @param input
      *            the {@code byte} to update this {@code MessageDigestSpi} with.
      * @see #engineReset()
      */
     protected abstract void engineUpdate(byte input);
-    
+
     /**
      * Updates this {@code MessageDigestSpi} using the given {@code byte[]}.
-     * 
+     *
      * @param input
      *            the {@code byte} array.
      * @param offset
@@ -64,10 +64,10 @@ public abstract class MessageDigestSpi {
      *             {@code input}.
      */
     protected abstract void engineUpdate(byte[] input, int offset, int len);
-    
+
     /**
      * Updates this {@code MessageDigestSpi} using the given {@code input}.
-     * 
+     *
      * @param input
      *            the {@code ByteBuffer}.
      */
@@ -87,24 +87,24 @@ public abstract class MessageDigestSpi {
             tmp = new byte[input.limit() - input.position()];
             input.get(tmp);
             engineUpdate(tmp, 0, tmp.length);
-        }    
+        }
     }
-    
+
     /**
      * Computes and returns the final hash value for this
      * {@link MessageDigestSpi}. After the digest is computed the receiver is
      * reset.
-     * 
+     *
      * @return the computed one way hash value.
      * @see #engineReset()
      */
     protected abstract byte[] engineDigest();
-    
+
     /**
      * Computes and stores the final hash value for this
      * {@link MessageDigestSpi}. After the digest is computed the receiver is
      * reset.
-     * 
+     *
      * @param buf
      *            the buffer to store the result in.
      * @param offset
@@ -123,30 +123,30 @@ public abstract class MessageDigestSpi {
                     throws DigestException {
         if (len < engineGetDigestLength()) {
             engineReset();
-            throw new DigestException(Messages.getString("security.1B"));  
+            throw new DigestException(Messages.getString("security.1B"));
         }
         if (offset < 0) {
             engineReset();
-            throw new DigestException(Messages.getString("security.1C")); 
+            throw new DigestException(Messages.getString("security.1C"));
         }
         if (offset + len > buf.length) {
             engineReset();
-            throw new DigestException(Messages.getString("security.1D")); 
+            throw new DigestException(Messages.getString("security.1D"));
         }
         byte tmp[] = engineDigest();
         if (len < tmp.length) {
-            throw new DigestException(Messages.getString("security.1B")); 
+            throw new DigestException(Messages.getString("security.1B"));
         }
         System.arraycopy(tmp, 0, buf, offset, tmp.length);
-        return tmp.length;            
+        return tmp.length;
     }
-    
+
     /**
      * Puts this {@code MessageDigestSpi} back in an initial state, such that it
      * is ready to compute a one way hash value.
      */
     protected abstract void engineReset();
-    
+
     @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();

@@ -17,7 +17,7 @@
 
 package tests.api.java.io;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestLevel;
@@ -25,7 +25,7 @@ import dalvik.annotation.TestLevel;
 import java.io.IOException;
 import java.io.StringReader;
 
-@TestTargetClass(StringReader.class) 
+@TestTargetClass(StringReader.class)
 public class StringReaderTest extends junit.framework.TestCase {
 
     String testString = "This is a test string";
@@ -40,7 +40,7 @@ public class StringReaderTest extends junit.framework.TestCase {
         notes = "",
         method = "StringReader",
         args = {java.lang.String.class}
-    )    
+    )
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.io.StringReader(java.lang.String)
         try {
@@ -73,7 +73,7 @@ public class StringReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.StringReader#mark(int)
      */
     @TestTargetNew(

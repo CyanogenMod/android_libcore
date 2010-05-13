@@ -65,7 +65,7 @@ public class IssuingDistributionPoint extends ExtensionValue {
     /**
      * Creates the extension object on the base of its encoded form.
      */
-    public static IssuingDistributionPoint decode(byte[] encoding) 
+    public static IssuingDistributionPoint decode(byte[] encoding)
             throws IOException {
         IssuingDistributionPoint idp =
             (IssuingDistributionPoint) ASN1.decode(encoding);
@@ -160,20 +160,20 @@ public class IssuingDistributionPoint extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Issuing Distribution Point: [\n"); 
+        buffer.append(prefix).append("Issuing Distribution Point: [\n");
         if (distributionPoint != null) {
-            distributionPoint.dumpValue(buffer, "  " + prefix); 
+            distributionPoint.dumpValue(buffer, "  " + prefix);
         }
-        buffer.append(prefix).append("  onlyContainsUserCerts: ") 
+        buffer.append(prefix).append("  onlyContainsUserCerts: ")
             .append(onlyContainsUserCerts).append('\n');
-        buffer.append(prefix).append("  onlyContainsCACerts: ") 
+        buffer.append(prefix).append("  onlyContainsCACerts: ")
             .append(onlyContainsCACerts).append('\n');
         if (onlySomeReasons != null) {
-            onlySomeReasons.dumpValue(buffer, prefix + "  "); 
+            onlySomeReasons.dumpValue(buffer, prefix + "  ");
         }
-        buffer.append(prefix).append("  indirectCRL: ") 
+        buffer.append(prefix).append("  indirectCRL: ")
             .append(indirectCRL).append('\n');
-        buffer.append(prefix).append("  onlyContainsAttributeCerts: ") 
+        buffer.append(prefix).append("  onlyContainsAttributeCerts: ")
             .append(onlyContainsAttributeCerts).append('\n');
     }
 

@@ -71,7 +71,7 @@ public class JavaLangThreadTest extends TestCase {
                 this.p = p;
             }
         }
-        
+
         Thread t = Thread.currentThread();
         ClassLoader cl = t.getContextClassLoader();
 
@@ -84,8 +84,8 @@ public class JavaLangThreadTest extends TestCase {
                 "Thread.setContextClassLoader must call checkPermission on security manager",
                 s.called);
         assertEquals(
-                "Argument of checkPermission is not correct", 
-                new RuntimePermission("setContextClassLoader"), 
+                "Argument of checkPermission is not correct",
+                new RuntimePermission("setContextClassLoader"),
                 s.p);
     }
 
@@ -114,27 +114,27 @@ public class JavaLangThreadTest extends TestCase {
 
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
-        
+
         Thread t = Thread.currentThread();
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
 
         s.reset();
         Thread.enumerate(new Thread[]{});
-        
+
         assertTrue(
                 "Thread.enumerate must call checkAccess on security manager",
                 s.called);
         assertEquals(
-                "Argument of checkAccess is not correct", 
+                "Argument of checkAccess is not correct",
                 t, s.t);
     }
-    
-    
+
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies that getContextClassLoader calls checkPermission " +
@@ -150,10 +150,10 @@ public class JavaLangThreadTest extends TestCase {
             void reset() {
                 called = false;
             }
-            
+
             @Override
             public void checkPermission(Permission p) {
-                if(p instanceof RuntimePermission 
+                if(p instanceof RuntimePermission
                 && "getClassLoader".equals(p.getName())) {
                     called = true;
                 }
@@ -166,18 +166,18 @@ public class JavaLangThreadTest extends TestCase {
         Thread t3 = new Thread();
         Thread t4 = new Thread();
         Thread t5 = new Thread();
-        
+
         assertNotNull("test assumption: caller's class loader must not be null",
                 this.getClass().getClassLoader());
 
         URL url;
-        
+
         try {
             url = new URL("file:");
         } catch (MalformedURLException ex) {
             throw new RuntimeException(ex);
         }
-        
+
         t1.setContextClassLoader(null);
         t2.setContextClassLoader(this.getClass().getClassLoader());
         t3.setContextClassLoader(this.getClass().getClassLoader().getParent());
@@ -193,7 +193,7 @@ public class JavaLangThreadTest extends TestCase {
         sm.reset();
         t1.getContextClassLoader();
         assertTrue("permission must be checked: caller's class loader is not " +
-                "equal to the requested class loader nor to any of its parents", 
+                "equal to the requested class loader nor to any of its parents",
                 sm.called);
 
         sm.reset();

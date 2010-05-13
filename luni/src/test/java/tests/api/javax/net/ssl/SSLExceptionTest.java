@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 @TestTargetClass(SSLException.class)
 /**
  * Tests for <code>SSLException</code> class constructors and methods.
- * 
+ *
  */
 public class SSLExceptionTest extends TestCase {
 

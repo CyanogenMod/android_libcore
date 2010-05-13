@@ -24,15 +24,15 @@ import javax.net.ssl.SSLProtocolException;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(SSLProtocolException.class) 
+@TestTargetClass(SSLProtocolException.class)
 public class SSLProtocolExceptionTest extends TestCase {
-    
+
     private static String[] msgs = {
             "",
             "Check new message",
             "Check new message Check new message Check new message Check new message Check new message" };
-    
-    
+
+
     /**
      * Test for <code>SSLProtocolException(String)</code> constructor Assertion:
      * constructs SSLProtocolException with detail message msg. Parameter
@@ -52,7 +52,7 @@ public class SSLProtocolExceptionTest extends TestCase {
             assertNull("getCause() must return null", sslE.getCause());
         }
     }
-    
+
     /**
      * Test for <code>SSLProtocolException(String)</code> constructor Assertion:
      * constructs SSLProtocolException with detail message msg. Parameter

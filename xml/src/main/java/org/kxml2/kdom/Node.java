@@ -132,38 +132,38 @@ public class Node { //implements XmlIO{
         return getElement(i);
     }
 
-    /* returns "#document-fragment". For elements, the element name is returned 
-    
+    /* returns "#document-fragment". For elements, the element name is returned
+
     public String getName() {
         return "#document-fragment";
     }
-    
+
     /** Returns the namespace of the current element. For Node
-        and Document, Xml.NO_NAMESPACE is returned. 
-    
+        and Document, Xml.NO_NAMESPACE is returned.
+
     public String getNamespace() {
         return "";
     }
-    
+
     public int getNamespaceCount () {
         return 0;
     }
-    
+
     /** returns the text content if the element has text-only
     content. Throws an exception for mixed content
-    
+
     public String getText() {
-    
+
         StringBuffer buf = new StringBuffer();
         int len = getChildCount();
-    
+
         for (int i = 0; i < len; i++) {
             if (isText(i))
                 buf.append(getText(i));
             else if (getType(i) == ELEMENT)
                 throw new RuntimeException("not text-only content!");
         }
-    
+
         return buf.toString();
     }
     */
@@ -175,7 +175,7 @@ public class Node { //implements XmlIO{
         return (isText(index)) ? (String) getChild(index) : null;
     }
 
-    /** Returns the type of the child at the given index. Possible 
+    /** Returns the type of the child at the given index. Possible
     types are ELEMENT, TEXT, COMMENT, and PROCESSING_INSTRUCTION */
 
     public int getType(int index) {
@@ -183,8 +183,8 @@ public class Node { //implements XmlIO{
     }
 
     /** Convenience method for indexOf (getNamespace (), name,
-        startIndex). 
-    
+        startIndex).
+
     public int indexOf(String name, int startIndex) {
         return indexOf(getNamespace(), name, startIndex);
     }
@@ -217,7 +217,7 @@ public class Node { //implements XmlIO{
     }
 
     /** Recursively builds the child elements from the given parser
-    until an end tag or end document is found. 
+    until an end tag or end document is found.
         The end tag is not consumed. */
 
     public void parse(XmlPullParser parser)
@@ -227,9 +227,9 @@ public class Node { //implements XmlIO{
 
         do {
             int type = parser.getEventType();
-            
+
    //         System.out.println(parser.getPositionDescription());
-            
+
             switch (type) {
 
                 case XmlPullParser.START_TAG :
@@ -241,7 +241,7 @@ public class Node { //implements XmlIO{
                         //    child.setAttributes (event.getAttributes ());
                         addChild(ELEMENT, child);
 
-                        // order is important here since 
+                        // order is important here since
                         // setparent may perform some init code!
 
                         child.parse(parser);
@@ -288,7 +288,7 @@ public class Node { //implements XmlIO{
     }
 
     /* returns a valid XML representation of this Element including
-        attributes and children. 
+        attributes and children.
     public String toString() {
         try {
             ByteArrayOutputStream bos =

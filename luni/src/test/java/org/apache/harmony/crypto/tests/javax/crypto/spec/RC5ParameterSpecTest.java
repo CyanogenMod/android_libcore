@@ -329,7 +329,7 @@ public class RC5ParameterSpecTest extends TestCase {
         assertTrue("Equal objects should have the same hash codes.",
                                             ps1.hashCode() == ps2.hashCode());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "RC5ParameterSpec",
@@ -342,7 +342,7 @@ public class RC5ParameterSpecTest extends TestCase {
         RC5ParameterSpec ps1 = new RC5ParameterSpec(version, rounds, wordSize);
         RC5ParameterSpec ps2 = new RC5ParameterSpec(version, rounds, wordSize);
         RC5ParameterSpec ps3 = new RC5ParameterSpec(version, rounds, wordSize + 1);
-        
+
         assertTrue(ps1.equals(ps2));
         assertFalse(ps1.equals(ps3));
     }

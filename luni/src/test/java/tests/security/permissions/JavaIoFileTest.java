@@ -35,7 +35,7 @@ import dalvik.annotation.TestTargets;
  */
 @TestTargetClass(java.io.File.class)
 public class JavaIoFileTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -49,7 +49,7 @@ public class JavaIoFileTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -68,12 +68,12 @@ public class JavaIoFileTest extends TestCase {
         class TestSecurityManager extends SecurityManager {
             boolean called;
             String filename;
-            
+
             void reset(){
                 called = false;
                 filename = null;
             }
-            
+
             @Override
             public void checkDelete(String file) {
                 called = true;
@@ -81,10 +81,10 @@ public class JavaIoFileTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
-        
+
         long id = new java.util.Date().getTime();
         String filename = "SecurityPermissionsTest_"+id;
         File f = File.createTempFile(filename, null);
@@ -93,18 +93,18 @@ public class JavaIoFileTest extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         f.delete();
         assertTrue("File.delete must call checkDelete on security manager", s.called);
         assertEquals("Argument of checkDelete is not correct", filename, s.filename);
-        
+
         s.reset();
         f.deleteOnExit();
-        assertTrue("File.deleteOnExit must call checkDelete on security manager", s.called);        
+        assertTrue("File.deleteOnExit must call checkDelete on security manager", s.called);
         assertEquals("Argument of checkDelete is not correct", filename, s.filename);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -194,7 +194,7 @@ public class JavaIoFileTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
 
@@ -206,62 +206,62 @@ public class JavaIoFileTest extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         f.exists();
         assertTrue("File.exists() must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.canRead();
         assertTrue("File.canRead() must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.isFile();
         assertTrue("File.isFile() must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.isDirectory();
         assertTrue("File.isDirectory() must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.isHidden();
         assertTrue("File.isHidden() must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.lastModified();
         assertTrue("File.lastModified() must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.length();
         assertTrue("File.length() must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.list();
         assertTrue("File.list() must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.list((FilenameFilter)null);
         assertTrue("File.list(FilenameFilter) must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.listFiles();
         assertTrue("File.listFiles() must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.listFiles((FilenameFilter)null);
         assertTrue("File.listFiles(FilenameFilter) must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         f.listFiles((FileFilter)null);
         assertTrue("File.listFiles(FileFilter) must call checkRead on security manager", s.called);
@@ -339,7 +339,7 @@ public class JavaIoFileTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
 
@@ -360,7 +360,7 @@ public class JavaIoFileTest extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         f.canWrite();
         assertTrue("File.canWrite() must call checkWrite on security manager", s.called);
@@ -382,22 +382,22 @@ public class JavaIoFileTest extends TestCase {
         tmp.mkdirs();
         assertTrue("File.mkdirs() must call checkWrite on security manager", s.called);
         assertEquals("Argument of checkWrite is not correct", tmpPath +"a"+id+"/b/c", s.file);
-        
+
         s.reset();
         f.renameTo(f2);
         assertTrue("File.renameTo(File) must call checkWrite on security manager", s.called);
         assertEquals("Argument of checkWrite is not correct", filename2, s.file);
-        
+
         s.reset();
         f.setLastModified(id);
         assertTrue("File.setLastModified() must call checkWrite on security manager", s.called);
         assertEquals("Argument of checkWrite is not correct", filename, s.file);
-        
+
         s.reset();
         f.setReadOnly();
         assertTrue("File.setReadOnly() must call checkWrite on security manager", s.called);
         assertEquals("Argument of checkWrite is not correct", filename, s.file);
-        
+
         s.reset();
         tmp = File.createTempFile("xxx", "yyy");
         tmp.deleteOnExit();
@@ -412,7 +412,7 @@ public class JavaIoFileTest extends TestCase {
         assertTrue("File.createTempFile(String,String,File) must call checkWrite on security manager", s.called);
         assertEquals("Argument of checkWrite is not correct", filename, s.file);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -434,7 +434,7 @@ public class JavaIoFileTest extends TestCase {
     public void test_File4() throws IOException {
         class TestSecurityManager extends SecurityManager {
             boolean checkPropertyAccessCalled;
-            
+
             void reset(){
                 checkPropertyAccessCalled = false;
             }
@@ -444,7 +444,7 @@ public class JavaIoFileTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
 
@@ -460,7 +460,7 @@ public class JavaIoFileTest extends TestCase {
             f.getCanonicalFile();
             assertTrue("File.getCanonicalFile() must call checkPropertyAccess " +
                     "on security manager", s.checkPropertyAccessCalled);
-            
+
             s.reset();
             f = new File(filename);
             filename = f.getCanonicalPath();
@@ -470,7 +470,7 @@ public class JavaIoFileTest extends TestCase {
             f.delete();
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -490,7 +490,7 @@ public class JavaIoFileTest extends TestCase {
     public void test_File5() throws IOException {
         class TestSecurityManager extends SecurityManager {
             boolean checkPropertyAccessCalled;
-            
+
             void reset(){
                 checkPropertyAccessCalled = false;
             }
@@ -500,7 +500,7 @@ public class JavaIoFileTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
 
@@ -516,7 +516,7 @@ public class JavaIoFileTest extends TestCase {
             f.getAbsoluteFile();
             assertTrue("File.getAbsoluteFile() must call checkPropertyAccess " +
                     "on security manager", s.checkPropertyAccessCalled);
-            
+
             s.reset();
             f = new File(filename);
             filename = f.getAbsolutePath();

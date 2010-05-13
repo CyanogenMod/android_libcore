@@ -45,7 +45,7 @@ import junit.framework.TestCase;
 @TestTargetClass(Permissions.class)
 /**
  * Tests for <code>Permissions</code>
- * 
+ *
  */
 
 public class PermissionsTest extends TestCase {
@@ -116,7 +116,7 @@ public class PermissionsTest extends TestCase {
         Enumeration<Permission> en = ps.elements();
         assertNotNull(en);
         assertFalse(en.hasMoreElements());
-        
+
         ps.add(up1);
         en = ps.elements();
         assertTrue(en.hasMoreElements());
@@ -142,10 +142,10 @@ public class PermissionsTest extends TestCase {
         //assertEquals(5, els.size());
         assertTrue(els.containsAll(Arrays.asList(arr)));
     }
-    
-     
+
+
     /**
-     * input parameter is null 
+     * input parameter is null
      */
     @TestTargets({
         @TestTargetNew(
@@ -166,8 +166,8 @@ public class PermissionsTest extends TestCase {
             fail("should throw NPE");
         } catch (NullPointerException e){
         }
-        
-        try {    
+
+        try {
             ps.add(null);
             fail("should throw NullPointerException");
         } catch (NullPointerException e){}

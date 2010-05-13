@@ -45,7 +45,7 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyPairGenerator.class)
 /**
  * Tests for <code>KeyPairGenerator</code> class constructors and methods.
- * 
+ *
  */
 
 public class KeyPairGenerator2Test extends TestCase {
@@ -55,7 +55,7 @@ public class KeyPairGenerator2Test extends TestCase {
     private static final String KeyPairGeneratorProviderClass2 = "org.apache.harmony.security.tests.support.MyKeyPairGenerator2";
     private static final String KeyPairGeneratorProviderClass3 = "org.apache.harmony.security.tests.support.MyKeyPairGenerator3";
     private static final String KeyPairGeneratorProviderClass4 = "org.apache.harmony.security.tests.support.MyKeyPairGeneratorSpi";
-    
+
     private static final String defaultAlg = "KPGen";
 
     private static final String[] invalidValues = SpiEngUtils.invalidValues;
@@ -63,7 +63,7 @@ public class KeyPairGenerator2Test extends TestCase {
     private static final String[] validValues;
 
     String post;
-    
+
     static {
         validValues = new String[4];
         validValues[0] = defaultAlg;
@@ -72,7 +72,7 @@ public class KeyPairGenerator2Test extends TestCase {
         validValues[3] = "kPGEn";
     }
 
-    Provider mProv; 
+    Provider mProv;
     String resAlg;
 
     /*
@@ -185,7 +185,7 @@ public class KeyPairGenerator2Test extends TestCase {
      * throws NullPointerException when algorithm is null throws
      * NoSuchAlgorithmException when algorithm is incorrect; returns
      * KeyPairGenerator object
-     *  
+     *
      */
     private void GetInstance01(int mode) throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
@@ -216,12 +216,12 @@ public class KeyPairGenerator2Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code>
-     * method 
-     * Assertions: 
+     * method
+     * Assertions:
      * throws NullPointerException  when algorithm is null
-     * throws NoSuchAlgorithmException when algorithm is incorrect; 
+     * throws NoSuchAlgorithmException when algorithm is incorrect;
      * throws IllegalArgumentException when provider is null;
-     * throws NoSuchProviderException when provider is available; 
+     * throws NoSuchProviderException when provider is available;
      * returns
      * KeyPairGenerator object
      */
@@ -278,10 +278,10 @@ public class KeyPairGenerator2Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, Provider provider)</code>
-     * method 
-     * Assertions: 
+     * method
+     * Assertions:
      * throws NullPointerException  when algorithm is null
-     * throws NoSuchAlgorithmException when algorithm is incorrect; 
+     * throws NoSuchAlgorithmException when algorithm is incorrect;
      * throws IllegalArgumentException when provider is null;
      * returns KeyPairGenerator object
      */
@@ -321,7 +321,7 @@ public class KeyPairGenerator2Test extends TestCase {
             checkResult(kpG, mode);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -336,7 +336,7 @@ public class KeyPairGenerator2Test extends TestCase {
         setProv();
         GetInstance01(1);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -352,7 +352,7 @@ public class KeyPairGenerator2Test extends TestCase {
         setProv();
         GetInstance02(1);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -367,7 +367,7 @@ public class KeyPairGenerator2Test extends TestCase {
         setProv();
         GetInstance03(1);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -382,7 +382,7 @@ public class KeyPairGenerator2Test extends TestCase {
         setProv();
         GetInstance01(2);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -398,7 +398,7 @@ public class KeyPairGenerator2Test extends TestCase {
         setProv();
         GetInstance02(2);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -413,7 +413,7 @@ public class KeyPairGenerator2Test extends TestCase {
         setProv();
         GetInstance03(2);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -428,7 +428,7 @@ public class KeyPairGenerator2Test extends TestCase {
         setProv();
         GetInstance01(3);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -444,7 +444,7 @@ public class KeyPairGenerator2Test extends TestCase {
         setProv();
         GetInstance02(3);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",

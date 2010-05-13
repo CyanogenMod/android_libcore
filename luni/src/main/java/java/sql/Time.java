@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@ package java.sql;
 import java.util.Date;
 
 /**
- * Java representation of an SQL {@code TIME} value. Provides utilities to 
+ * Java representation of an SQL {@code TIME} value. Provides utilities to
  * format and parse the time's representation as a String in JDBC escape format.
  */
 public class Time extends Date {
@@ -56,7 +56,7 @@ public class Time extends Date {
     /**
      * Constructs a {@code Time} object using a supplied time specified in
      * milliseconds.
-     * 
+     *
      * @param theTime
      *            a {@code Time} specified in milliseconds since the
      *            <i>Epoch</i> (January 1st 1970, 00:00:00.000).
@@ -163,7 +163,7 @@ public class Time extends Date {
     /**
      * Sets the time for this {@code Time} object to the supplied milliseconds
      * value.
-     * 
+     *
      * @param time
      *            A time value expressed as milliseconds since the <i>Epoch</i>.
      *            Negative values are milliseconds before the Epoch. The Epoch
@@ -177,7 +177,7 @@ public class Time extends Date {
     /**
      * Formats the {@code Time} as a String in JDBC escape format: {@code
      * hh:mm:ss}.
-     * 
+     *
      * @return A String representing the {@code Time} value in JDBC escape
      *         format: {@code HH:mm:ss}
      */
@@ -194,17 +194,17 @@ public class Time extends Date {
         return sb.toString();
     }
 
-    private static final String PADDING = "00";  
+    private static final String PADDING = "00";
 
-    /* 
-    * Private method to format the time 
-    */ 
-    private void format(int date, int digits, StringBuilder sb) { 
+    /*
+    * Private method to format the time
+    */
+    private void format(int date, int digits, StringBuilder sb) {
         String str = String.valueOf(date);
         if (digits - str.length() > 0) {
             sb.append(PADDING.substring(0, digits - str.length()));
         }
-        sb.append(str); 
+        sb.append(str);
     }
 
     /**

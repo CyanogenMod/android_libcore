@@ -43,7 +43,7 @@ import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import tests.util.TestEnvironment;
 
-@TestTargetClass(SAXParserFactory.class) 
+@TestTargetClass(SAXParserFactory.class)
 public class SAXParserFactoryTest extends TestCase {
 
     SAXParserFactory spf;
@@ -223,7 +223,7 @@ public class SAXParserFactoryTest extends TestCase {
         } catch(Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         // Exception case
         spf.setValidating(true);
         try {
@@ -248,12 +248,12 @@ public class SAXParserFactoryTest extends TestCase {
             notes = "ParserConfigurationException untested; unused on Android",
             args = {java.lang.String.class}
         )
-    })        
+    })
     public void test_setFeatureLjava_lang_StringZ() {
         // We can't verify ParserConfigurationException and
         // SAXNotSupportedException since these are never
         // thrown by Android.
-        
+
         String[] features = {
                 "http://xml.org/sax/features/namespaces",
                 "http://xml.org/sax/features/validation" };
@@ -490,7 +490,7 @@ public class SAXParserFactoryTest extends TestCase {
 
         }
 
-        public boolean getFeature(String name) throws 
+        public boolean getFeature(String name) throws
                 ParserConfigurationException, SAXNotRecognizedException,
                 SAXNotSupportedException {
             return true;

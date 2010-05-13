@@ -50,7 +50,7 @@ public abstract class AbstractCharsetTestCase extends TestCase {
 
     /*
      * Initialize the field "testingCharset" here.
-     * 
+     *
      * @see TestCase#setUp()
      */
     protected void setUp() throws Exception {
@@ -67,7 +67,7 @@ public abstract class AbstractCharsetTestCase extends TestCase {
 
     /**
      * Constructor for ConcreteCharsetTest.
-     * 
+     *
      */
     public AbstractCharsetTestCase(String canonicalName,
             String[] aliases, boolean canEncode, boolean isRegistered) {

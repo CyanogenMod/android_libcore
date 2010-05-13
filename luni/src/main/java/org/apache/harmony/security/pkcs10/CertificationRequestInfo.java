@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -44,7 +44,7 @@ import org.apache.harmony.security.x509.SubjectPublicKeyInfo;
 */
 
 public class CertificationRequestInfo {
-    // version 
+    // version
     private int version;
 
     // the value of subject field of the structure
@@ -55,7 +55,7 @@ public class CertificationRequestInfo {
 
     // the value of attributes field of the structure
     private List attributes;
-    
+
     // the ASN.1 encoded form of CertificationRequestInfo
     private byte [] encoding;
 
@@ -67,7 +67,7 @@ public class CertificationRequestInfo {
         this.attributes = attributes;
     }
 
-    // private constructor with encoding given 
+    // private constructor with encoding given
     private CertificationRequestInfo(int version, Name subject,
             SubjectPublicKeyInfo subjectPublicKeyInfo, List attributes, byte [] encoding) {
         this(version, subject, subjectPublicKeyInfo, attributes);
@@ -101,7 +101,7 @@ public class CertificationRequestInfo {
     public int getVersion() {
         return version;
     }
-    
+
     /**
      * Returns ASN.1 encoded form of this CertificationRequestInfo.
      * @return a byte array containing ASN.1 encode form.
@@ -116,22 +116,22 @@ public class CertificationRequestInfo {
 
     public String toString() {
         StringBuilder res = new StringBuilder();
-        res.append("-- CertificationRequestInfo:"); 
-        res.append("\n version: "); 
+        res.append("-- CertificationRequestInfo:");
+        res.append("\n version: ");
         res.append(version);
-        res.append("\n subject: "); 
+        res.append("\n subject: ");
         res.append(subject.getName(X500Principal.CANONICAL));
-        res.append("\n subjectPublicKeyInfo: "); 
-        res.append("\n\t algorithm: " 
+        res.append("\n subjectPublicKeyInfo: ");
+        res.append("\n\t algorithm: "
                 + subjectPublicKeyInfo.getAlgorithmIdentifier().getAlgorithm());
-        res.append("\n\t public key: " + subjectPublicKeyInfo.getPublicKey()); 
-        res.append("\n attributes: "); 
+        res.append("\n\t public key: " + subjectPublicKeyInfo.getPublicKey());
+        res.append("\n attributes: ");
         if (attributes != null) {
             res.append(attributes.toString());
         } else {
-            res.append("none"); 
+            res.append("none");
         }
-        res.append("\n-- CertificationRequestInfo End\n"); 
+        res.append("\n-- CertificationRequestInfo End\n");
         return res.toString();
     }
 
@@ -152,7 +152,7 @@ public class CertificationRequestInfo {
                     (List) values[3],
                     in.getEncoded());
         }
-        
+
         protected void getValues(Object object, Object[] values) {
             CertificationRequestInfo certReqInfo = (CertificationRequestInfo) object;
 

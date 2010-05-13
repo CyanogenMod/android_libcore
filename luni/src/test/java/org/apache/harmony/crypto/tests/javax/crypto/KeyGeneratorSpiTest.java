@@ -40,7 +40,7 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyGeneratorSpi.class)
 /**
  * Tests for <code>KeyGeneratorSpi</code> class constructors and methods.
- * 
+ *
  */
 
 public class KeyGeneratorSpiTest extends TestCase {

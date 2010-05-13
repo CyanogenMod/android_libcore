@@ -55,12 +55,12 @@ public class ElementImpl extends InnerNodeImpl implements Element {
         super(document);
 
         this.namespaceAware = false;
-        
+
         int p = name.lastIndexOf(":");
         if (p != -1) {
             String prefix = name.substring(0, p);
             String localName = name.substring(p + 1);
-            
+
             if (!DocumentImpl.isXMLIdentifier(prefix) || !DocumentImpl.isXMLIdentifier(localName)) {
                 throw new DOMException(DOMException.INVALID_CHARACTER_ERR, name);
             }
@@ -69,7 +69,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
                 throw new DOMException(DOMException.INVALID_CHARACTER_ERR, name);
             }
         }
-        
+
         this.localName = name;
     }
 
@@ -80,10 +80,10 @@ public class ElementImpl extends InnerNodeImpl implements Element {
                 return i;
             }
         }
-        
+
         return -1;
     }
-    
+
     private int indexOfAttributeNS(String namespaceURI, String localName) {
         for (int i = 0; i < attributes.size(); i++) {
             AttrImpl attr = attributes.get(i);
@@ -91,10 +91,10 @@ public class ElementImpl extends InnerNodeImpl implements Element {
                 return i;
             }
         }
-        
+
         return -1;
     }
-    
+
     public String getAttribute(String name) {
         Attr attr = getAttributeNode(name);
 
@@ -117,21 +117,21 @@ public class ElementImpl extends InnerNodeImpl implements Element {
 
     public AttrImpl getAttributeNode(String name) {
         int i = indexOfAttribute(name);
-        
+
         if (i == -1) {
             return null;
         }
-        
+
         return attributes.get(i);
     }
 
     public AttrImpl getAttributeNodeNS(String namespaceURI, String localName) {
         int i = indexOfAttributeNS(namespaceURI, localName);
-        
+
         if (i == -1) {
             return null;
         }
-        
+
         return attributes.get(i);
     }
 
@@ -203,7 +203,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
         if (matchesNameNS(namespaceURI, localName, true)) {
             list.add(this);
         }
-        
+
         for (NodeImpl node : children) {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 ((ElementImpl) node).getElementsByTagNameNS(list, namespaceURI,
@@ -257,7 +257,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
 
     public void removeAttribute(String name) throws DOMException {
         int i = indexOfAttribute(name);
-        
+
         if (i != -1) {
             attributes.remove(i);
         }
@@ -266,7 +266,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
     public void removeAttributeNS(String namespaceURI, String localName)
             throws DOMException {
         int i = indexOfAttributeNS(namespaceURI, localName);
-        
+
         if (i != -1) {
             attributes.remove(i);
         }
@@ -310,7 +310,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
 
     public Attr setAttributeNode(Attr newAttr) throws DOMException {
         AttrImpl newAttrImpl = (AttrImpl) newAttr;
-        
+
         if (newAttrImpl.document != this.document) {
             throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, null);
         }
@@ -320,13 +320,13 @@ public class ElementImpl extends InnerNodeImpl implements Element {
         }
 
         AttrImpl oldAttrImpl = null;
-        
+
         int i = indexOfAttribute(newAttr.getName());
         if (i != -1) {
             oldAttrImpl = attributes.get(i);
             attributes.remove(i);
         }
-        
+
         attributes.add(newAttrImpl);
         newAttrImpl.ownerElement = this;
 
@@ -345,13 +345,13 @@ public class ElementImpl extends InnerNodeImpl implements Element {
         }
 
         AttrImpl oldAttrImpl = null;
-        
+
         int i = indexOfAttributeNS(newAttr.getNamespaceURI(), newAttr.getLocalName());
         if (i != -1) {
             oldAttrImpl = attributes.get(i);
             attributes.remove(i);
         }
-        
+
         attributes.add(newAttrImpl);
         newAttrImpl.ownerElement = this;
 
@@ -372,7 +372,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
         private int indexOfItem(String name) {
             return ElementImpl.this.indexOfAttribute(name);
         }
-        
+
         private int indexOfItemNS(String namespaceURI, String localName) {
             return ElementImpl.this.indexOfAttributeNS(namespaceURI, localName);
         }
@@ -391,7 +391,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
 
         public Node removeNamedItem(String name) throws DOMException {
             int i = indexOfItem(name);
-            
+
             if (i == -1) {
                 throw new DOMException(DOMException.NOT_FOUND_ERR, null);
             }
@@ -402,7 +402,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
         public Node removeNamedItemNS(String namespaceURI, String localName)
                 throws DOMException {
             int i = indexOfItemNS(namespaceURI, localName);
-            
+
             if (i == -1) {
                 throw new DOMException(DOMException.NOT_FOUND_ERR, null);
             }
@@ -422,7 +422,7 @@ public class ElementImpl extends InnerNodeImpl implements Element {
             if (!(arg instanceof Attr)) {
                 throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, null);
             }
-            
+
             return ElementImpl.this.setAttributeNodeNS((Attr)arg);
         }
     }

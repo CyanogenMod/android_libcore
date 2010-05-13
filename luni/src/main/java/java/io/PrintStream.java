@@ -38,7 +38,7 @@ import org.apache.harmony.luni.util.PriviAction;
 public class PrintStream extends FilterOutputStream implements Appendable,
         Closeable {
 
-    private static final String TOKEN_NULL = "null"; 
+    private static final String TOKEN_NULL = "null";
 
     /**
      * indicates whether or not this PrintStream has incurred an error.
@@ -54,7 +54,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
     private String encoding;
 
     private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator")); 
+            .doPrivileged(new PriviAction<String>("line.separator"));
 
     // private Formatter formatter;
 
@@ -328,7 +328,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      */
     public PrintStream format(Locale l, String format, Object... args) {
         if (format == null) {
-            throw new NullPointerException(Msg.getString("K0351")); 
+            throw new NullPointerException(Msg.getString("K0351"));
         }
         new Formatter(this, l).format(format, args);
         return this;
@@ -487,7 +487,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
             return;
         }
         if (str == null) {
-            print("null"); 
+            print("null");
             return;
         }
 
@@ -668,11 +668,11 @@ public class PrintStream extends FilterOutputStream implements Appendable,
         // Force buffer null check first!
         if (offset > buffer.length || offset < 0) {
             // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
         }
         if (length < 0 || length > buffer.length - offset) {
             // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
         }
         synchronized (this) {
             if (out == null) {
@@ -712,7 +712,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
             out.write(oneByte);
             int b = oneByte & 0xFF;
             // 0x0A is ASCII newline, 0x15 is EBCDIC newline.
-            boolean isNewline = b == 0x0A || b == 0x15; 
+            boolean isNewline = b == 0x0A || b == 0x15;
             if (autoflush && isNewline) {
                 flush();
             }

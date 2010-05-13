@@ -52,7 +52,7 @@ public class XMLFilterImplTest extends TestCase {
     // properly. The rest is outside the scope of the specification.
 
     private MethodLogger logger = new MethodLogger();
-    
+
     private MockHandler handler = new MockHandler(logger);
 
     private XMLFilterImpl parent = new MockFilter(logger);
@@ -60,25 +60,25 @@ public class XMLFilterImplTest extends TestCase {
     private XMLFilterImpl child = new XMLFilterImpl(parent);
 
     private XMLFilterImpl orphan = new XMLFilterImpl();
-    
+
     private void assertEquals(Object[] a, Object[] b) {
         assertEquals(a.length, b.length);
-        
+
         for (int i = 0; i < a.length; i++) {
             assertEquals("Element #" + i + " must be equal", a[i], b[i]);
         }
     }
-    
+
     public void setUp() {
         parent.setContentHandler(handler);
         parent.setDTDHandler(handler);
         parent.setErrorHandler(handler);
-        
+
         child.setContentHandler(handler);
         child.setDTDHandler(handler);
         child.setErrorHandler(handler);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "XMLFilterImpl",
@@ -96,7 +96,7 @@ public class XMLFilterImplTest extends TestCase {
     public void testXMLFilterImplXMLReader() {
         // Ordinary case
         assertEquals(null, parent.getParent());
-        
+
         // null case
         XMLFilterImpl filter = new XMLFilterImpl(null);
         assertEquals(null, filter.getParent());
@@ -139,7 +139,7 @@ public class XMLFilterImplTest extends TestCase {
         try {
             child.setFeature("foo", true);
             assertEquals(true, child.getFeature("foo"));
-            
+
             child.setFeature("foo", false);
             assertEquals(false, child.getFeature("foo"));
         } catch (SAXNotRecognizedException e) {
@@ -176,7 +176,7 @@ public class XMLFilterImplTest extends TestCase {
         try {
             child.setProperty("foo", "bar");
             assertEquals("bar", child.getProperty("foo"));
-            
+
             child.setProperty("foo", null);
             assertEquals(null, child.getProperty("foo"));
         } catch (SAXNotRecognizedException e) {
@@ -213,7 +213,7 @@ public class XMLFilterImplTest extends TestCase {
 
         parent.setEntityResolver(resolver);
         assertEquals(resolver, parent.getEntityResolver());
-        
+
         parent.setEntityResolver(null);
         assertEquals(null, parent.getEntityResolver());
     }
@@ -233,7 +233,7 @@ public class XMLFilterImplTest extends TestCase {
     public void testGetSetDTDHandler() {
         parent.setDTDHandler(null);
         assertEquals(null, parent.getDTDHandler());
-        
+
         parent.setDTDHandler(handler);
         assertEquals(handler, parent.getDTDHandler());
     }
@@ -253,7 +253,7 @@ public class XMLFilterImplTest extends TestCase {
     public void testGetSetContentHandler() {
         parent.setContentHandler(null);
         assertEquals(null, parent.getContentHandler());
-        
+
         parent.setContentHandler(handler);
         assertEquals(handler, parent.getContentHandler());
     }
@@ -273,7 +273,7 @@ public class XMLFilterImplTest extends TestCase {
     public void testGetSetErrorHandler() {
         parent.setErrorHandler(null);
         assertEquals(null, parent.getErrorHandler());
-        
+
         parent.setErrorHandler(handler);
         assertEquals(handler, parent.getErrorHandler());
     }
@@ -294,10 +294,10 @@ public class XMLFilterImplTest extends TestCase {
         } catch (IOException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         assertEquals(1, logger.size());
         assertEquals("parse", logger.getMethod());
-        
+
         // No parent case
         try {
             orphan.parse(is);
@@ -325,10 +325,10 @@ public class XMLFilterImplTest extends TestCase {
         } catch (IOException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         assertEquals(1, logger.size());
         assertEquals("parse", logger.getMethod());
-        
+
         // No parent case
         try {
             orphan.parse("foo");
@@ -425,15 +425,15 @@ public class XMLFilterImplTest extends TestCase {
     )
     public void testSetDocumentLocator() {
         Locator l = new LocatorImpl();
-        
+
         child.setDocumentLocator(l);
 
         assertEquals(logger.size(), 1);
         assertEquals("setDocumentLocator", logger.getMethod());
         assertEquals(new Object[] { l }, logger.getArgs());
-        
+
         child.setDocumentLocator(null);
-        
+
         assertEquals(logger.size(), 2);
         assertEquals("setDocumentLocator", logger.getMethod());
         assertEquals(new Object[] { null }, logger.getArgs());
@@ -539,7 +539,7 @@ public class XMLFilterImplTest extends TestCase {
          } catch (SAXException e) {
              throw new RuntimeException("Unexpected exception", e);
          }
-         
+
          assertEquals(logger.size(), 1);
          assertEquals("endElement", logger.getMethod());
          assertEquals(new Object[] { "http://some.uri", "bar", "foo:bar" },
@@ -644,13 +644,13 @@ public class XMLFilterImplTest extends TestCase {
     )
     public void testError() {
         SAXParseException exception = new SAXParseException("Oops!", null);
-        
+
         try {
             parent.error(exception);
         } catch (SAXException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         assertEquals(logger.size(), 1);
         assertEquals("error", logger.getMethod());
         assertEquals(new Object[] { exception }, logger.getArgs());
@@ -663,13 +663,13 @@ public class XMLFilterImplTest extends TestCase {
     )
     public void testFatalError() {
         SAXParseException exception = new SAXParseException("Oops!", null);
-        
+
         try {
             parent.fatalError(exception);
         } catch (SAXException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         assertEquals(logger.size(), 1);
         assertEquals("fatalError", logger.getMethod());
         assertEquals(new Object[] { exception }, logger.getArgs());

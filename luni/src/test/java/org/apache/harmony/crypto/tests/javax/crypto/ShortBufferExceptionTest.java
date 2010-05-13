@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 @TestTargetClass(ShortBufferException.class)
 /**
  * Tests for <code>ShortBufferException</code> class constructors and methods.
- * 
+ *
  */
 public class ShortBufferExceptionTest extends TestCase {
 

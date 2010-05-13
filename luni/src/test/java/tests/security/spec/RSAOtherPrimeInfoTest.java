@@ -34,7 +34,7 @@ import java.security.spec.RSAOtherPrimeInfo;
 
 /**
  * Tests for <code>RSAOtherPrimeInfo</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(RSAOtherPrimeInfo.class)
 public class RSAOtherPrimeInfoTest extends TestCase {
@@ -57,7 +57,7 @@ public class RSAOtherPrimeInfoTest extends TestCase {
                                   BigInteger.valueOf(3L));
         assertTrue(o instanceof RSAOtherPrimeInfo);
     }
-    
+
     /**
      * Test #2 for <code>RSAOtherPrimeInfo(BigInteger,BigInteger,BigInteger)</code> ctor
      * Assertion: NullPointerException if prime is null
@@ -77,7 +77,7 @@ public class RSAOtherPrimeInfoTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #3 for <code>RSAOtherPrimeInfo(BigInteger,BigInteger,BigInteger)</code> ctor
      * Assertion: NullPointerException if primeExponent is null
@@ -97,7 +97,7 @@ public class RSAOtherPrimeInfoTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #4 for <code>RSAOtherPrimeInfo(BigInteger,BigInteger,BigInteger)</code> ctor
      * Assertion: NullPointerException if crtCoefficient is null
@@ -117,7 +117,7 @@ public class RSAOtherPrimeInfoTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #5 for <code>RSAOtherPrimeInfo(BigInteger,BigInteger,BigInteger)</code> ctor
      * Assertion: NullPointerException if prime and crtCoefficient is null
@@ -149,7 +149,7 @@ public class RSAOtherPrimeInfoTest extends TestCase {
         args = {}
     )
     public final void testGetCrtCoefficient() {
-        RSAOtherPrimeInfo ropi = 
+        RSAOtherPrimeInfo ropi =
             new RSAOtherPrimeInfo(BigInteger.valueOf(1L),
                                   BigInteger.valueOf(2L),
                                   BigInteger.valueOf(3L));
@@ -167,7 +167,7 @@ public class RSAOtherPrimeInfoTest extends TestCase {
         args = {}
     )
     public final void testGetPrime() {
-        RSAOtherPrimeInfo ropi = 
+        RSAOtherPrimeInfo ropi =
             new RSAOtherPrimeInfo(BigInteger.valueOf(1L),
                                   BigInteger.valueOf(2L),
                                   BigInteger.valueOf(3L));
@@ -185,7 +185,7 @@ public class RSAOtherPrimeInfoTest extends TestCase {
         args = {}
     )
     public final void testGetExponent() {
-        RSAOtherPrimeInfo ropi = 
+        RSAOtherPrimeInfo ropi =
             new RSAOtherPrimeInfo(BigInteger.valueOf(1L),
                                   BigInteger.valueOf(2L),
                                   BigInteger.valueOf(3L));

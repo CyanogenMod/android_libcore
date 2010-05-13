@@ -18,19 +18,19 @@ import javax.xml.parsers.DocumentBuilder;
  * name of the feature and the version is the version number of the feature to
  * test. XXX is NOT a legal value for the feature parameter. The method should
  * return "false" since XXX is not a valid feature.
- * 
+ *
  * Retrieve the root node of the DOM document by invoking the
  * "getDocumentElement()" method. This should create a node object on which the
  * "isSupported(feature,version)" method is invoked with "feature" equal to
  * "XXX" and version to "1.0". The method should return a boolean "false" since
  * XXX is not a valid feature.
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-Node-supports">http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-Node-supports</a>
  */
-@TestTargetClass(Document.class) 
+@TestTargetClass(Document.class)
 public final class IsSupported extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -56,7 +56,7 @@ public final class IsSupported extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -185,7 +185,7 @@ public final class IsSupported extends DOMTestCase {
         notes = "Verifies that isSupported method returns true.",
         method = "isSupported",
         args = {java.lang.String.class, java.lang.String.class}
-    )              
+    )
     public void testIsSupported11() throws Throwable {
         Document doc;
         Node rootNode;
@@ -195,13 +195,13 @@ public final class IsSupported extends DOMTestCase {
         state = rootNode.isSupported("XML", "2.0");
         assertTrue("throw_True", state);
     }
-              
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "",
         method = "isSupported",
         args = {java.lang.String.class, java.lang.String.class}
-    )       
+    )
     public void testIsSupported12() throws Throwable {
         List<String> features = new ArrayList<String>();
         features.add("Core");

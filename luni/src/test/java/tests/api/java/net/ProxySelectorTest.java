@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,7 @@
  */
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -36,7 +36,7 @@ import java.util.Properties;
 import junit.framework.TestCase;
 import tests.util.TestEnvironment;
 
-@TestTargetClass(ProxySelector.class) 
+@TestTargetClass(ProxySelector.class)
 public class ProxySelectorTest extends TestCase {
 
     private static final String HTTP_PROXY_HOST = "127.0.0.1";
@@ -62,11 +62,11 @@ public class ProxySelectorTest extends TestCase {
     private static URI httpsUri;
 
     private static URI tcpUri;
-    
+
     private List proxyList;
-    
+
     private ProxySelector selector = ProxySelector.getDefault();
-    
+
     static {
         try {
             httpUri = new URI("http://test.com");
@@ -218,15 +218,15 @@ public class ProxySelectorTest extends TestCase {
 
         proxyList = selector.select(httpsUri);
         assertProxyEquals(proxyList,Proxy.Type.HTTP,HTTPS_PROXY_HOST,HTTPS_PROXY_PORT);
-        
+
         proxyList = selector.select(ftpUri);
         assertProxyEquals(proxyList,Proxy.Type.HTTP,FTP_PROXY_HOST,FTP_PROXY_PORT);
-        
+
         proxyList = selector.select(tcpUri);
         assertProxyEquals(proxyList,Proxy.Type.SOCKS,SOCKS_PROXY_HOST,SOCKS_PROXY_PORT);
 
     }
-    
+
     /**
      * @tests java.net.ProxySelector#select(URI)
      */
@@ -304,10 +304,10 @@ public class ProxySelectorTest extends TestCase {
 
         proxyList = selector.select(httpsUri);
         assertProxyEquals(proxyList,Proxy.Type.HTTP,HTTPS_PROXY_HOST,HTTPS_PROXY_PORT);
-        
+
         proxyList = selector.select(ftpUri);
         assertProxyEquals(proxyList,Proxy.Type.HTTP,FTP_PROXY_HOST,FTP_PROXY_PORT);
-        
+
         proxyList = selector.select(tcpUri);
         assertProxyEquals(proxyList,Proxy.Type.SOCKS,SOCKS_PROXY_HOST,SOCKS_PROXY_PORT);
 
@@ -325,7 +325,7 @@ public class ProxySelectorTest extends TestCase {
     public void test_selectLjava_net_URI_SelectExact_InvalidPort()
             throws URISyntaxException {
         final String INVALID_PORT = "abc";
-        
+
         // set http proxy
         System.setProperty("http.proxyHost", HTTP_PROXY_HOST);
         System.setProperty("http.proxyPort", INVALID_PORT);
@@ -355,19 +355,19 @@ public class ProxySelectorTest extends TestCase {
     /**
      * @tests java.net.ProxySelector#select(URI)
      */
-    // RI may fail this test case. 
+    // RI may fail this test case.
     // Uncomment this test case when regex.jar is ready.
     /*
     public void test_selectLjava_net_URI_Select_NonProxyHosts()
             throws URISyntaxException {
-        // RI's bug. Some RIs may fail this test case. 
+        // RI's bug. Some RIs may fail this test case.
         URI[] httpUris = { new URI("http://test.com"),
                 new URI("http://10.10.1.2"), new URI("http://a"),
                 new URI("http://def.abc.com") };
         URI[] ftpUris = { new URI("ftp://test.com"),
                 new URI("ftp://10.10.1.2"), new URI("ftp://a"),
                 new URI("ftp://def.abc.com") };
-        
+
         // set http proxy
         System.setProperty("http.proxyHost", HTTP_PROXY_HOST);
         System.setProperty("http.nonProxyHosts", "a|b|tes*|10.10.*|*.abc.com");
@@ -660,7 +660,7 @@ public class ProxySelectorTest extends TestCase {
         assertEquals(1, selectedProxyList.size());
         assertEquals((Proxy) selectedProxyList.get(0), proxy);
     }
-    
+
     /*
      * asserts whether selectedProxyList contains one and only one element,
      * and the element equals proxy which is represented by arguments "type",
@@ -672,7 +672,7 @@ public class ProxySelectorTest extends TestCase {
         Proxy proxy = new Proxy(type, sa);
         assertProxyEquals(selectedProxyList, proxy);
     }
-    
+
     /*
      * Mock selector for setDefault test
      */

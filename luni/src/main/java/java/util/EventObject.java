@@ -23,11 +23,11 @@ import java.io.Serializable;
 /**
  * {@code EventObject}s represent events. Typically applications subclass this class to
  * add event specific information.
- * 
+ *
  * @see EventListener
  */
 public class EventObject implements Serializable {
-    
+
     private static final long serialVersionUID = 5516075349620653480L;
 
     /**
@@ -37,7 +37,7 @@ public class EventObject implements Serializable {
 
     /**
      * Constructs a new instance of this class.
-     * 
+     *
      * @param source
      *            the object which fired the event.
      */
@@ -51,7 +51,7 @@ public class EventObject implements Serializable {
 
     /**
      * Returns the event source.
-     * 
+     *
      * @return the object which fired the event.
      */
     public Object getSource() {
@@ -60,11 +60,11 @@ public class EventObject implements Serializable {
 
     /**
      * Returns the string representation of this {@code EventObject}.
-     * 
+     *
      * @return the string representation of this {@code EventObject}.
      */
     @Override
     public String toString() {
-        return getClass().getName() + "[source=" + source + ']'; 
+        return getClass().getName() + "[source=" + source + ']';
     }
 }

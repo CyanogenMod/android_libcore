@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         df.setMaximumFractionDigits(1);
         assertEquals("-0.2", df.format(-0.2));
     }
-    
+
     // Android fails this test, truncating to 127 digits.
     public void test_setMaximumIntegerDigits() throws Exception {
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
@@ -45,13 +45,13 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         assertEquals(309, numberFormat.format(123).length());
         assertEquals(309, numberFormat.format(BigInteger.valueOf(123)).length());
     }
-    
+
     // Regression test for http://b/1897917: BigDecimal does not take into account multiplier.
     public void testBigDecimalBug1897917() {
         // For example. the BigDecimal 0.17 formatted in PercentInstance is 0% instead of 17%:
         NumberFormat pf = NumberFormat.getPercentInstance();
         assertEquals("17%", pf.format(BigDecimal.valueOf(0.17)));
-        
+
         // Test long decimal formatted in PercentInstance with various fractions.
         String longDec = "11.2345678901234567890123456789012345678901234567890";
         BigDecimal bd = new BigDecimal(longDec);
@@ -60,7 +60,7 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         assertBigDecimalWithFraction(bd, "1,123.4567890123%", 10);
         assertBigDecimalWithFraction(bd, "1,123.45678901234567890123%", 20);
         assertBigDecimalWithFraction(bd, "1,123.456789012345678901234567890123%", 30);
-        
+
         // Test trailing zeros.
         assertDecFmtWithMultiplierAndFraction("3333.33333333", 3, 4, "10,000");
         assertDecFmtWithMultiplierAndFraction("3333.33333333", -3, 4, "-10,000");
@@ -68,7 +68,7 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         assertDecFmtWithMultiplierAndFraction("3330000000000000000000000000000000", 3, 4,
                 "9,990,000,000,000,000,000,000,000,000,000,000");
     }
-    
+
     public void testBigDecimalTestBigIntWithMultiplier() {
         // Big integer tests.
         assertDecFmtWithMultiplierAndFraction("123456789012345", 10, 0,
@@ -77,7 +77,7 @@ public class DecimalFormatTest extends junit.framework.TestCase {
                 "123,456,789,012,345,678,900");
         assertDecFmtWithMultiplierAndFraction("98765432109876543210987654321", 10, 0,
                 "987,654,321,098,765,432,109,876,543,210");
-        
+
         assertDecFmtWithMultiplierAndFraction("123456789012345", -10, 0,
                 "-1,234,567,890,123,450");
         assertDecFmtWithMultiplierAndFraction("12345678901234567890", -10, 0,
@@ -85,7 +85,7 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         assertDecFmtWithMultiplierAndFraction("98765432109876543210987654321", -10, 0,
                 "-987,654,321,098,765,432,109,876,543,210");
     }
-    
+
     public void testBigDecimalICUConsistency() {
         DecimalFormat df = (DecimalFormat) NumberFormat.getInstance();
         df.setMaximumFractionDigits(2);
@@ -119,13 +119,13 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         assertEquals(df.format(BigDecimal.valueOf(1.234567E100)),
         df.format(BigDecimal.valueOf(1.234567E100).doubleValue()));
     }
-    
+
     private void assertBigDecimalWithFraction(BigDecimal bd, String expectedResult, int fraction) {
         NumberFormat pf = NumberFormat.getPercentInstance();
         pf.setMaximumFractionDigits(fraction);
         assertEquals(expectedResult, pf.format(bd));
     }
-    
+
     private void assertDecFmtWithMultiplierAndFraction(String value, int multiplier, int fraction, String expectedResult) {
         DecimalFormat df = (DecimalFormat)NumberFormat.getInstance();
         df.setMultiplier(multiplier);

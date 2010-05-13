@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ public interface Blob {
 
     /**
      * Retrieves this {@code Blob} object as a binary stream.
-     * 
+     *
      * @return a binary {@code InputStream} giving access to the {@code Blob}
      *         data.
      * @throws SQLException
@@ -44,7 +44,7 @@ public interface Blob {
 
     /**
      * Gets a portion of the value of this {@code Blob} as an array of bytes.
-     * 
+     *
      * @param pos
      *            the position of the first byte in the {@code Blob} to get,
      *            where the first byte in the {@code Blob} has position 1.
@@ -59,7 +59,7 @@ public interface Blob {
 
     /**
      * Gets the number of bytes in this {@code Blob} object.
-     * 
+     *
      * @return a {@code long} value with the length of the {@code Blob} in
      *         bytes.
      * @throws SQLException
@@ -70,7 +70,7 @@ public interface Blob {
     /**
      * Search for the position in this {@code Blob} at which a specified pattern
      * begins, starting at a specified position within the {@code Blob}.
-     * 
+     *
      * @param pattern
      *            a {@code Blob} containing the pattern of data to search for in
      *            this {@code Blob}.
@@ -88,7 +88,7 @@ public interface Blob {
     /**
      * Search for the position in this {@code Blob} at which the specified
      * pattern begins, starting at a specified position within the {@code Blob}.
-     * 
+     *
      * @param pattern
      *            a byte array containing the pattern of data to search for in
      *            this {@code Blob}.
@@ -105,7 +105,7 @@ public interface Blob {
 
     /**
      * Gets a stream that can be used to write binary data to this {@code Blob}.
-     * 
+     *
      * @param pos
      *            the position within this {@code Blob} at which to start
      *            writing, where the first position in the {@code Blob} is
@@ -120,7 +120,7 @@ public interface Blob {
     /**
      * Writes a specified array of bytes to this {@code Blob} object, starting
      * at a specified position. Returns the number of bytes written.
-     * 
+     *
      * @param pos
      *            the position within this {@code Blob} at which to start
      *            writing, where the first position in the {@code Blob} is
@@ -137,7 +137,7 @@ public interface Blob {
     /**
      * Writes a portion of a specified byte array to this {@code Blob}. Returns
      * the number of bytes written.
-     * 
+     *
      * @param pos
      *            the position within this {@code Blob} at which to start
      *            writing, where the first position in the {@code Blob} is
@@ -160,7 +160,7 @@ public interface Blob {
     /**
      * Truncate the value of this {@code Blob} object to a specified length in
      * bytes.
-     * 
+     *
      * @param len
      *            the length of data in bytes after which this {@code Blob}
      *            is to be truncated.

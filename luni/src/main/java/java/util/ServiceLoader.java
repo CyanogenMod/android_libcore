@@ -25,12 +25,12 @@ import java.security.PrivilegedAction;
 
 /**
  * A service-provider loader.
- * 
+ *
  * <p>A service provider is a factory for creating all known implementations of a particular
  * class or interface {@code S}. The known implementations are read from a configuration file in
  * {@code META-INF/services/}. The file's name should match the class' binary name (such as
  * {@code java.util.Outer$Inner}).
- * 
+ *
  * <p>The file format is as follows.
  * The file's character encoding must be UTF-8.
  * Whitespace is ignored, and {@code #} is used to begin a comment that continues to the
@@ -39,7 +39,7 @@ import java.security.PrivilegedAction;
  * Otherwise, each line contains the binary name of one implementation class.
  * Duplicate entries are ignored, but entries are otherwise returned in order (that is, the file
  * is treated as an ordered set).
- * 
+ *
  * <p>Given these classes:
  * <pre>
  * package a.b.c;
@@ -61,12 +61,12 @@ import java.security.PrivilegedAction;
  *     }
  *   }
  * </pre>
- * 
+ *
  * <p>Note that each iteration creates new instances of the various service implementations, so
  * any heavily-used code will likely want to cache the known implementations itself and reuse them.
  * Note also that the candidate classes are instantiated lazily as you call {@code next} on the
  * iterator: construction of the iterator itself does not instantiate any of the providers.
- * 
+ *
  * @param <S> the service class or interface
  * @since 1.6
  * @hide
@@ -98,11 +98,11 @@ public final class ServiceLoader<S> implements Iterable<S> {
     /**
      * Returns an iterator over all the service providers offered by this service loader.
      * Note that {@code hasNext} and {@code next} may throw if the configuration is invalid.
-     * 
+     *
      * <p>Each iterator will return new instances of the classes it iterates over, so callers
      * may want to cache the results of a single call to this method rather than call it
      * repeatedly.
-     * 
+     *
      * <p>The returned iterator does not support {@code remove}.
      */
     public Iterator<S> iterator() {
@@ -112,7 +112,7 @@ public final class ServiceLoader<S> implements Iterable<S> {
     /**
      * Constructs a service loader. If {@code classLoader} is null, the system class loader
      * is used.
-     * 
+     *
      * @param service the service class or interface
      * @param classLoader the class loader
      * @return a new ServiceLoader
@@ -136,7 +136,7 @@ public final class ServiceLoader<S> implements Iterable<S> {
 
     /**
      * Constructs a service loader, using the current thread's context class loader.
-     * 
+     *
      * @param service the service class or interface
      * @return a new ServiceLoader
      */
@@ -146,7 +146,7 @@ public final class ServiceLoader<S> implements Iterable<S> {
 
     /**
      * Constructs a service loader, using the extension class loader.
-     * 
+     *
      * @param service the service class or interface
      * @return a new ServiceLoader
      */

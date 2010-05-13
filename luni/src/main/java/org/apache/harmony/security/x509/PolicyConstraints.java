@@ -32,13 +32,13 @@ import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with PolicyConstraints structure which is a part of X.509 certificate
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
- * 
+ *
  * <pre>
  *
  *  PolicyConstraints ::= SEQUENCE {
@@ -48,7 +48,7 @@ import org.apache.harmony.security.asn1.BerInputStream;
  *  SkipCerts ::= INTEGER (0..MAX)
  *
  * </pre>
- * 
+ *
  * TODO: This class is not fully implemented.
  *
  * @see org.apache.harmony.security.x509.GeneralSubtree
@@ -69,7 +69,7 @@ public class PolicyConstraints extends ExtensionValue {
     public PolicyConstraints() {
         this(null, null);
     }
-    
+
     /**
      * TODO
      * @param   requireExplicitPolicy:  GeneralSubtrees
@@ -105,12 +105,12 @@ public class PolicyConstraints extends ExtensionValue {
     // @param   inhibitPolicyMapping:   GeneralSubtrees
     // @param   encoding:   byte[]
     //
-    private PolicyConstraints(BigInteger requireExplicitPolicy, 
+    private PolicyConstraints(BigInteger requireExplicitPolicy,
                             BigInteger inhibitPolicyMapping, byte[] encoding) {
         this(requireExplicitPolicy, inhibitPolicyMapping);
         this.encoding = encoding;
     }
-    
+
     /**
      * Returns ASN.1 encoded form of this X.509 PolicyConstraints value.
      * @return a byte array containing ASN.1 encode form.
@@ -123,27 +123,27 @@ public class PolicyConstraints extends ExtensionValue {
     }
 
     /**
-     * Places the string representation of extension value 
+     * Places the string representation of extension value
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("PolicyConstraints: [\n"); 
+        buffer.append(prefix).append("PolicyConstraints: [\n");
         if (requireExplicitPolicy != null) {
-            buffer.append(prefix).append("  requireExplicitPolicy: ") 
+            buffer.append(prefix).append("  requireExplicitPolicy: ")
                 .append(requireExplicitPolicy).append('\n');
         }
         if (inhibitPolicyMapping != null) {
-            buffer.append(prefix).append("  inhibitPolicyMapping: ") 
+            buffer.append(prefix).append("  inhibitPolicyMapping: ")
                 .append(inhibitPolicyMapping).append('\n');
         }
-        buffer.append(prefix).append("]\n"); 
+        buffer.append(prefix).append("]\n");
     }
 
     /**
      * X.509 PolicyConstraints encoder/decoder.
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
-            new ASN1Implicit(0, ASN1Integer.getInstance()), 
+            new ASN1Implicit(0, ASN1Integer.getInstance()),
             new ASN1Implicit(1, ASN1Integer.getInstance()) }) {
         {
             setOptional(0);

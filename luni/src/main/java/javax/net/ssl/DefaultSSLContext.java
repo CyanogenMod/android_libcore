@@ -54,12 +54,12 @@ final class DefaultSSLContext {
                     SSLContext con = new SSLContext((SSLContextSpi) service.newInstance(null),
                             service.getProvider(), service.getAlgorithm());
 
-                    /* 
-                     * TODO 
-                     * javax.net.ssl.keyStoreProvider, 
+                    /*
+                     * TODO
+                     * javax.net.ssl.keyStoreProvider,
                      * javax.net.ssl.trustStoreProvider system property
                      */
-                    
+
                     // find KeyStore, KeyManagers
                     KeyManager[] keyManagers = null;
                     KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());

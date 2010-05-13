@@ -34,7 +34,7 @@ import javax.security.cert.CertificateExpiredException;
 
 /**
  * Tests for <code>DigestException</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CertificateExpiredException.class)
 public class CertificateExpiredExceptionTest extends TestCase {

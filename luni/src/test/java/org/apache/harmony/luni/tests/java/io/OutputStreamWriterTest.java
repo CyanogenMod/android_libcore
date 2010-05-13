@@ -399,7 +399,7 @@ public class OutputStreamWriterTest extends TestCase {
     }
 
     public void testHandleEarlyEOFChar_1() throws IOException {
-        String str = "All work and no play makes Jack a dull boy\n"; 
+        String str = "All work and no play makes Jack a dull boy\n";
         int NUMBER = 2048;
         int j = 0;
         int len = str.length() * NUMBER;
@@ -432,7 +432,7 @@ public class OutputStreamWriterTest extends TestCase {
         }
         String inputStr = new String(bytes);
         int len = inputStr.length();
-        File f = File.createTempFile("FileWriterBugTest ", null); 
+        File f = File.createTempFile("FileWriterBugTest ", null);
         f.deleteOnExit();
         FileWriter writer = new FileWriter(f);
         writer.write(inputStr);

@@ -41,7 +41,7 @@ public class IllegalStateExceptionTest extends TestCase {
         assertEquals("fixture", e.getMessage());
         assertNull(e.getCause());
     }
-    
+
     /**
      * @tests {@link java.land.IllegalStateException#IllIllegalStateException(java.lang.Throwable)}
      */

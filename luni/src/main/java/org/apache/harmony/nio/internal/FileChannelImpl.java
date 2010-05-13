@@ -46,7 +46,7 @@ import org.apache.harmony.luni.platform.PlatformAddressFactory;
  * The file channel impl class is the bridge between the logical channels
  * described by the NIO channel framework, and the file system implementation
  * provided by the port layer.
- * 
+ *
  * This class is non-API, but implements the API of the FileChannel interface.
  */
 public abstract class FileChannelImpl extends FileChannel {
@@ -78,7 +78,7 @@ public abstract class FileChannelImpl extends FileChannel {
     /*
      * Create a new file channel implementation class that wraps the given file
      * handle and operates in the specified mode.
-     * 
+     *
      */
     public FileChannelImpl(Object stream, int handle) {
         super();
@@ -99,7 +99,7 @@ public abstract class FileChannelImpl extends FileChannel {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.nio.channels.spi.AbstractInterruptibleChannel#implCloseChannel()
      */
     protected void implCloseChannel() throws IOException {
@@ -129,7 +129,7 @@ public abstract class FileChannelImpl extends FileChannel {
     /*
      * Acquire a lock on the receiver, blocks if the lock cannot be obtained
      * immediately.
-     * 
+     *
      * @see java.nio.channels.FileChannel#lock(long, long, boolean)
      */
     public final FileLock lock(long position, long size, boolean shared)
@@ -152,7 +152,7 @@ public abstract class FileChannelImpl extends FileChannel {
     /*
      * Attempts to acquire the given lock, but does not block. If the lock
      * cannot be acquired the method returns null.
-     * 
+     *
      * @see java.nio.channels.FileChannel#tryLock(long, long, boolean)
      */
     public final FileLock tryLock(long position, long size, boolean shared)
@@ -479,7 +479,7 @@ public abstract class FileChannelImpl extends FileChannel {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.nio.channels.WritableByteChannel#write(java.nio.ByteBuffer)
      */
 

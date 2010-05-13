@@ -41,7 +41,7 @@ public class PolicyQualifierInfo {
     /**
      * Creates a new {@code PolicyQualifierInfo} from the specified encoded
      * form.
-     * 
+     *
      * @param encoded
      *            the DER encoded policy qualifier.
      * @throws IOException
@@ -49,14 +49,14 @@ public class PolicyQualifierInfo {
      */
     public PolicyQualifierInfo(byte[] encoded) throws IOException {
         if (encoded == null) {
-            throw new NullPointerException(Messages.getString("security.0A")); 
+            throw new NullPointerException(Messages.getString("security.0A"));
         }
         if (encoded.length == 0) {
-            throw new IOException(Messages.getString("security.69")); 
+            throw new IOException(Messages.getString("security.69"));
         }
         this.encoded = new byte[encoded.length];
         System.arraycopy(encoded, 0, this.encoded, 0, this.encoded.length);
-        
+
         // DER Decoding:
         Object[] decoded = (Object[]) org.apache.harmony.security.x509.PolicyQualifierInfo.ASN1
                 .decode(this.encoded);
@@ -66,7 +66,7 @@ public class PolicyQualifierInfo {
 
     /**
      * Returns a ASN.1 DER encoded copy of policy qualifier info.
-     * 
+     *
      * @return a ASN.1 DER encoded copy of policy qualifier info.
      */
     public final byte[] getEncoded() {
@@ -77,7 +77,7 @@ public class PolicyQualifierInfo {
 
     /**
      * Returns the identifier (an OID) of this policy qualifier info.
-     * 
+     *
      * @return the identifier of this policy qualifier info.
      */
     public final String getPolicyQualifierId() {
@@ -87,7 +87,7 @@ public class PolicyQualifierInfo {
     /**
      * Returns a ASN.1 DER encoded copy of the qualifier of this policy
      * qualifier info.
-     * 
+     *
      * @return a ASN.1 DER encoded copy of the qualifier of this policy
      *         qualifier info.
      */
@@ -103,17 +103,17 @@ public class PolicyQualifierInfo {
     /**
      * Returns a string representation of this {@code PolicyQualifierInfo}
      * instance.
-     * 
+     *
      * @return a string representation of this {@code PolicyQualifierInfo}
      *         instance.
      */
     public String toString() {
         StringBuilder sb =
-            new StringBuilder("PolicyQualifierInfo: [\npolicyQualifierId: "); 
+            new StringBuilder("PolicyQualifierInfo: [\npolicyQualifierId: ");
         sb.append(policyQualifierId);
-        sb.append("\npolicyQualifier: \n"); 
-        sb.append(Array.toString(policyQualifier, " ")); 
-        sb.append("]"); 
+        sb.append("\npolicyQualifier: \n");
+        sb.append(Array.toString(policyQualifier, " "));
+        sb.append("]");
         return sb.toString();
     }
 }

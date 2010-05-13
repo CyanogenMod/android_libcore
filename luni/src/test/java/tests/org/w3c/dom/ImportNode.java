@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -50,7 +50,7 @@ import javax.xml.parsers.DocumentBuilder;
  * given importedNode into that Document. The importedNode is of type Attr. The
  * ownerElement is set to null. Specified flag is set to true. Children is
  * imported.
- * 
+ *
  * Create a new attribute whose name is "elem:attr1" in a different document.
  * Create a child Text node with value "importedText" for the attribute node
  * above. Invoke method importNode(importedNode,deep) on this document with
@@ -58,13 +58,13 @@ import javax.xml.parsers.DocumentBuilder;
  * whose name matches "elem:attr1" and a child node whose value equals
  * "importedText". The returned node should belong to this document whose
  * systemId is "staff.dtd"
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-@TestTargetClass(Document.class) 
+@TestTargetClass(Document.class)
 public final class ImportNode extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -90,7 +90,7 @@ public final class ImportNode extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -509,7 +509,7 @@ public final class ImportNode extends DOMTestCase {
         String system;
         String target;
         String data;
-        
+
         doc = (Document) load("staffNS", builder);
         aNewDoc = (Document) load("staffNS", builder);
         pi = aNewDoc.createProcessingInstruction("target1", "data1");

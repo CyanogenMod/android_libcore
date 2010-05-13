@@ -37,7 +37,7 @@ public class UnknownHostException extends IOException {
     /**
      * Constructs a new {@code UnknownHostException} instance with its walkback
      * and message filled in.
-     * 
+     *
      * @param detailMessage
      *            the detail message for this exception.
      */

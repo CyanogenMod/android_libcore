@@ -39,7 +39,7 @@ import org.apache.harmony.security.tests.support.cert.MyCertPathBuilderSpi;
 
 /**
  * Tests for <code>CertPathBuilderSpi</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CertPathBuilderSpi.class)
 public class CertPathBuilderSpiTest extends TestCase {
@@ -70,7 +70,7 @@ public class CertPathBuilderSpiTest extends TestCase {
             certPathBuilder.engineBuild(cpp);
             fail("CertPathBuilderException must be thrown");
         } catch (CertPathBuilderException e) {
-        }    
+        }
         CertPathBuilderResult cpbResult = certPathBuilder.engineBuild(cpp);
         assertNull("Not null CertPathBuilderResult", cpbResult);
     }

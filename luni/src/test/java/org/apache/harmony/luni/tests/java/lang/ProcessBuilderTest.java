@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@TestTargetClass(ProcessBuilder.class) 
+@TestTargetClass(ProcessBuilder.class)
 public class ProcessBuilderTest extends TestCase {
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -55,7 +55,7 @@ public class ProcessBuilderTest extends TestCase {
         List<String> list = Arrays.asList("command1", "command2", "command3");
         ProcessBuilder pb = new ProcessBuilder(list);
         assertEquals(list, pb.command());
-        
+
         try {
             new ProcessBuilder((List<String>) null);
             fail("no null pointer exception");
@@ -109,7 +109,7 @@ public class ProcessBuilderTest extends TestCase {
         assertSame(pb, pbReturn);
         assertEquals(1, pb.command().size());
         assertEquals("cmd", pb.command().get(0));
-        
+
         newCmd.add("arg");
         assertEquals(2, pb.command().size());
         assertEquals("cmd", pb.command().get(0));
@@ -137,7 +137,7 @@ public class ProcessBuilderTest extends TestCase {
         ProcessBuilder pbReturn = pb.directory(dir);
         assertSame(pb, pbReturn);
         assertEquals(dir, pb.directory());
-        
+
         pbReturn = pb.directory(null);
         assertSame(pb, pbReturn);
         assertNull(pb.directory());
@@ -244,7 +244,7 @@ public class ProcessBuilderTest extends TestCase {
         } else {
             assertTrue(err.read(buf) > 0);
         }
-        
+
         List<String> list = Arrays.asList(null, null, null);
         ProcessBuilder pbn = new ProcessBuilder(list);
         try {
@@ -253,7 +253,7 @@ public class ProcessBuilderTest extends TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         List<String> emptyList = Arrays.asList();
         ProcessBuilder pbe = new ProcessBuilder(emptyList);
         try {
@@ -262,14 +262,14 @@ public class ProcessBuilderTest extends TestCase {
         } catch(IndexOutOfBoundsException npe) {
             //expected
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkExec(String cmd) {
-                throw new SecurityException(); 
+                throw new SecurityException();
             }
         };
 
@@ -282,8 +282,8 @@ public class ProcessBuilderTest extends TestCase {
             // expected
         } finally {
             System.setSecurityManager(oldSm);
-        }      
-        
+        }
+
         pb.directory(new File(System.getProperty("java.class.path")));
     }
 }

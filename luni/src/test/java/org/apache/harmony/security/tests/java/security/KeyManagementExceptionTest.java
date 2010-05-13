@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>KeyManagementException</code> class constructors and
  * methods.
- * 
+ *
  */
 public class KeyManagementExceptionTest extends TestCase {
 

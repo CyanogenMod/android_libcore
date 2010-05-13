@@ -21,12 +21,12 @@ import dalvik.annotation.TestTargetNew;
 /**
  * Tests for <code>X509KeyManager</code> class constructors and methods.
  */
-@TestTargetClass(X509KeyManager.class) 
+@TestTargetClass(X509KeyManager.class)
 public class X509KeyManagerTest extends TestCase {
-    
+
     private X509KeyManager manager;
     private KeyManagerFactory factory;
-    
+
     private String keyType;
     private String client = "CLIENT";
     private String server = "SERVER";
@@ -36,7 +36,7 @@ public class X509KeyManagerTest extends TestCase {
     private PrivateKey[] keys = null;
     private String password = "1234";
 
-    
+
     /*
        Certificate:
            Data:
@@ -63,14 +63,14 @@ public class X509KeyManagerTest extends TestCase {
                            97:41:9a:f1:66:c5:09:82:0d
                        Exponent: 65537 (0x10001)
                X509v3 extensions:
-                   X509v3 Subject Key Identifier: 
+                   X509v3 Subject Key Identifier:
                        E7:9B:7D:90:29:EA:90:0B:7F:08:41:76:4E:41:23:E8:43:2C:A9:03
-                   X509v3 Authority Key Identifier: 
+                   X509v3 Authority Key Identifier:
                        keyid:E7:9B:7D:90:29:EA:90:0B:7F:08:41:76:4E:41:23:E8:43:2C:A9:03
                        DirName:/C=AN/ST=Android/O=Android/OU=Android/CN=Android/emailAddress=android@android.com
                        serial:00
 
-                   X509v3 Basic Constraints: 
+                   X509v3 Basic Constraints:
                        CA:TRUE
            Signature Algorithm: sha1WithRSAEncryption
                14:98:30:29:42:ef:ab:e6:b8:25:4b:55:85:04:a5:c4:dd:1d:
@@ -108,7 +108,7 @@ public class X509KeyManagerTest extends TestCase {
 
     /*
      * The key in DER format.
-     * Below is the same key in PEM format as reference 
+     * Below is the same key in PEM format as reference
      */
     byte[] keyBytes = new byte[] {
             (byte)0x30, (byte)0x82, (byte)0x02, (byte)0x77, (byte)0x02, (byte)0x01, (byte)0x00,
@@ -203,18 +203,18 @@ public class X509KeyManagerTest extends TestCase {
             (byte)0x4f, (byte)0x46, (byte)0xe6, (byte)0xce, (byte)0xd3, (byte)0x6c, (byte)0x84,
             (byte)0x9b, (byte)0xd2, (byte)0x10, (byte)0xb0, (byte)0xe1
     };
-       
+
     /*
      * The same key in PEM format.
      * The DER version of this key was created using
-     * 
+     *
      * openssl pkcs8 -topk8 -nocrypt -in key1.pem
      *         -inform PEM -out key1.der -outform DER
-     * 
+     *
      * -----BEGIN RSA PRIVATE KEY-----
      * Proc-Type: 4,ENCRYPTED
      * DEK-Info: DES-EDE3-CBC,69E26FCC3A7F136E
-     * 
+     *
      * YKiLXOwf2teog4IoOvbbROy9vqp0EMt1KF9eNKeKFCWGCS4RFATaAGjKrdA26bOV
      * MBdyB4V7qaxLC8/UwLlzFLpprouIfGqrEoR/NT0eKQ+4Pl25GlMvlPaR0pATBLZ2
      * OEaB3zcNygOQ02Jdrmw2+CS9qVtGGXjn6Qp6TVFm6edNCoOVZODLP9kkzPLn8Mkm
@@ -257,13 +257,13 @@ public class X509KeyManagerTest extends TestCase {
                            74:60:2a:a2:be:06:c2:9e:8d
                        Exponent: 65537 (0x10001)
                X509v3 extensions:
-                   X509v3 Basic Constraints: 
+                   X509v3 Basic Constraints:
                        CA:FALSE
-                   Netscape Comment: 
+                   Netscape Comment:
                        OpenSSL Generated Certificate
-                   X509v3 Subject Key Identifier: 
+                   X509v3 Subject Key Identifier:
                        95:3E:C3:46:69:52:78:08:05:46:B9:00:69:E5:E7:A7:99:E3:C4:67
-                   X509v3 Authority Key Identifier: 
+                   X509v3 Authority Key Identifier:
                        keyid:E7:9B:7D:90:29:EA:90:0B:7F:08:41:76:4E:41:23:E8:43:2C:A9:03
 
            Signature Algorithm: sha1WithRSAEncryption
@@ -300,7 +300,7 @@ public class X509KeyManagerTest extends TestCase {
 
        /*
         * The key in DER format.
-        * Below is the same key in PEM format as reference 
+        * Below is the same key in PEM format as reference
         */
        byte[] key2Bytes = new byte[] {
             (byte)0x30, (byte)0x82, (byte)0x02, (byte)0x75, (byte)0x02, (byte)0x01, (byte)0x00,
@@ -399,14 +399,14 @@ public class X509KeyManagerTest extends TestCase {
     /*
      * The same key in PEM format.
      * The DER version of this key was created using
-     * 
+     *
      * openssl pkcs8 -topk8 -nocrypt -in key1.pem
      *         -inform PEM -out key1.der -outform DER
-     * 
+     *
      * -----BEGIN RSA PRIVATE KEY-----
      * Proc-Type: 4,ENCRYPTED
      * DEK-Info: DES-EDE3-CBC,370723FFDC1B1CFA
-     * 
+     *
      * KJ20ODBEQujoOpnzNfHNoo5DF/qENhw9IaApChGMj+WhqYuFfKfPQKuRli8sJSEk
      * uoPmEqjJndHz5M5bI7wVxiafv/Up4+SaNKhn/vu6xjx/senJMX8HMUchqfvn0eCd
      * 31NHQeNbQ67O73xGIdltLzwTRsavTu/hwhnnJxiXzXnYtI5HTZUaRbVJQNpdlkNW
@@ -422,7 +422,7 @@ public class X509KeyManagerTest extends TestCase {
      * jdpp97fIMnQTl5IDNxOy5h9MDLs/SYAR7iyF19RkIGc=
      * -----END RSA PRIVATE KEY-----
      */
-       
+
     /*
        Certificate:
            Data:
@@ -449,13 +449,13 @@ public class X509KeyManagerTest extends TestCase {
                            f2:b0:f5:a7:e4:e1:80:a3:17
                        Exponent: 65537 (0x10001)
                X509v3 extensions:
-                   X509v3 Basic Constraints: 
+                   X509v3 Basic Constraints:
                        CA:FALSE
-                   Netscape Comment: 
+                   Netscape Comment:
                        OpenSSL Generated Certificate
-                   X509v3 Subject Key Identifier: 
+                   X509v3 Subject Key Identifier:
                        3B:5B:3D:DB:45:F5:8F:58:70:0B:FC:70:3E:31:2B:43:63:A9:FE:2B
-                   X509v3 Authority Key Identifier: 
+                   X509v3 Authority Key Identifier:
                        keyid:E7:9B:7D:90:29:EA:90:0B:7F:08:41:76:4E:41:23:E8:43:2C:A9:03
 
            Signature Algorithm: sha1WithRSAEncryption
@@ -492,7 +492,7 @@ public class X509KeyManagerTest extends TestCase {
 
     /*
      * The key in DER format.
-     * Below is the same key in PEM format as reference 
+     * Below is the same key in PEM format as reference
      */
     byte[] key3Bytes = new byte[] {
             (byte)0x30, (byte)0x82, (byte)0x02, (byte)0x76, (byte)0x02, (byte)0x01, (byte)0x00,
@@ -587,18 +587,18 @@ public class X509KeyManagerTest extends TestCase {
             (byte)0xbb, (byte)0x06, (byte)0x91, (byte)0xfe, (byte)0x27, (byte)0x2c, (byte)0x3a,
             (byte)0xed, (byte)0x96, (byte)0x3b, (byte)0xfe
     };
-    
+
     /*
      * The same key in PEM format.
      * The DER version of this key was created using
-     * 
+     *
      * openssl pkcs8 -topk8 -nocrypt -in key1.pem
      *         -inform PEM -out key1.der -outform DER
-     * 
+     *
      * -----BEGIN RSA PRIVATE KEY-----
      * Proc-Type: 4,ENCRYPTED
      * DEK-Info: DES-EDE3-CBC,0EE6B33EC2D92297
-     * 
+     *
      * r7lbWwtlmubgMG020XiOStqgrvPkP1hTrbOV7Gh2IVNTyXWyA8UriQlPyqBQNzy2
      * 5+Z+JUqzYoLCGY0fQ95ck+ya/wHJQX4OSKFOZwQKpU7pEY9wN1YPa7U9ZnyCPGtB
      * +ejvHuIMJhE5wq9Y1iEDIlON++onWTf4T36Sz3OQ8gEJbnx3x+UjcCINooj7kOeM
@@ -624,7 +624,7 @@ public class X509KeyManagerTest extends TestCase {
             fail("could not get default KeyManagerFactory");
         }
     }
-    
+
     void init(String name) {
       keyType = name;
       try {
@@ -666,9 +666,9 @@ public class X509KeyManagerTest extends TestCase {
       }
       manager = (X509KeyManager) factory.getKeyManagers()[0];
     }
-    
+
     /**
-     * @tests X509KeyManager#getClientAliases(String keyType, Principal[] issuers) 
+     * @tests X509KeyManager#getClientAliases(String keyType, Principal[] issuers)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -684,9 +684,9 @@ public class X509KeyManagerTest extends TestCase {
         assertNotNull(resArray);
         assertTrue("Incorrect result", compareC(resArray));
     }
-    
+
     /**
-     * @tests X509KeyManager#chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) 
+     * @tests X509KeyManager#chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -704,9 +704,9 @@ public class X509KeyManagerTest extends TestCase {
         assertNotNull(res);
         assertEquals("clientkey_03", res.toLowerCase().toLowerCase());
     }
-    
+
     /**
-     * @tests X509KeyManager#getServerAliases(String keyType, Principal[] issuers) 
+     * @tests X509KeyManager#getServerAliases(String keyType, Principal[] issuers)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -723,9 +723,9 @@ public class X509KeyManagerTest extends TestCase {
         assertEquals("Incorrect length", 1, resArray.length);
         assertEquals("Incorrect aliase", "serverkey_00", resArray[0].toLowerCase());
     }
-    
+
     /**
-     * @tests X509KeyManager#chooseServerAlias(String keyType, Principal[] issuers, Socket socket) 
+     * @tests X509KeyManager#chooseServerAlias(String keyType, Principal[] issuers, Socket socket)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -744,9 +744,9 @@ public class X509KeyManagerTest extends TestCase {
         assertNotNull(res);
         assertEquals("serverkey_00", res.toLowerCase());
     }
-   
+
     /**
-     * @tests X509KeyManager#getCertificateChain(String alias) 
+     * @tests X509KeyManager#getCertificateChain(String alias)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -761,9 +761,9 @@ public class X509KeyManagerTest extends TestCase {
         assertNull("Not NULL for clientAlias_01 parameter", manager.getCertificateChain("clientAlias_01"));
         assertNull("Not NULL for serverAlias_00 parameter", manager.getCertificateChain("serverAlias_00"));
     }
-    
+
     /**
-     * @tests X509KeyManager#getPrivateKey(String alias) 
+     * @tests X509KeyManager#getPrivateKey(String alias)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -777,8 +777,8 @@ public class X509KeyManagerTest extends TestCase {
         assertNull("Not NULL for serverAlias_00 parameter", manager.getPrivateKey("serverAlias_00"));
         assertNull("Not NULL for clientAlias_02 parameter", manager.getPrivateKey("clientAlias_02"));
     }
-    
-    
+
+
     private boolean compareC(String[] ar) {
         if (ar.length != 3) {
             return false;

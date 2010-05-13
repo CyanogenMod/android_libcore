@@ -78,7 +78,7 @@ public interface NamespaceContext {
      * table describes the returned Namespace URI value for all
      * possible prefix values:</p>
      *
-     * <table border="2" rules="all" cellpadding="4"> 
+     * <table border="2" rules="all" cellpadding="4">
      *   <thead>
      *     <tr>
      *       <td align="center" colspan="2">
@@ -95,7 +95,7 @@ public interface NamespaceContext {
      *     <tr>
      *       <td><code>DEFAULT_NS_PREFIX</code> ("")</td>
      *       <td>default Namespace URI in the current scope or
-     *         <code>{@link javax.xml.XMLConstants#NULL_NS_URI XMLConstants.NULL_NS_URI("")}</code>   
+     *         <code>{@link javax.xml.XMLConstants#NULL_NS_URI XMLConstants.NULL_NS_URI("")}</code>
      *         when there is no default Namespace URI in the current scope</td>
      *     </tr>
      *     <tr>
@@ -122,12 +122,12 @@ public interface NamespaceContext {
      *     </tr>
      *    </tbody>
      * </table>
-     *  
+     *
      * @param prefix prefix to look up
      * @return Namespace URI bound to prefix in the current scope
-     */ 
+     */
     String getNamespaceURI(String prefix);
-  
+
     /**
      * <p>Get prefix bound to Namespace URI in the current scope.</p>
      *

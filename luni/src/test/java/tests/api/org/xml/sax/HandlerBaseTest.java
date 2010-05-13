@@ -37,7 +37,7 @@ public class HandlerBaseTest extends TestCase {
      * Note: most of the tests have to check for an empty implementation of the
      * respective methods and, as a result, are somewhat trivial.
      */
-    
+
     private HandlerBase h = new HandlerBase();
 
     @TestTargetNew(
@@ -50,7 +50,7 @@ public class HandlerBaseTest extends TestCase {
             h.resolveEntity("publicID", "systemID");
         } catch (SAXException e) {
             throw new RuntimeException(e);
-        }        
+        }
     }
 
     @TestTargetNew(
@@ -210,7 +210,7 @@ public class HandlerBaseTest extends TestCase {
         } catch (SAXException e) {
             // Expected
         }
-        
+
         // No exception
         try {
             h.fatalError(null);
@@ -220,7 +220,7 @@ public class HandlerBaseTest extends TestCase {
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
     }
 
 }

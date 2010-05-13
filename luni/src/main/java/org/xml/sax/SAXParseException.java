@@ -19,12 +19,12 @@ package org.xml.sax;
  * in the original XML document, as if it came from a {@link Locator}
  * object.  Note that although the application
  * will receive a SAXParseException as the argument to the handlers
- * in the {@link org.xml.sax.ErrorHandler ErrorHandler} interface, 
- * the application is not actually required to throw the exception; 
- * instead, it can simply read the information in it and take a 
+ * in the {@link org.xml.sax.ErrorHandler ErrorHandler} interface,
+ * the application is not actually required to throw the exception;
+ * instead, it can simply read the information in it and take a
  * different action.</p>
  *
- * <p>Since this exception is a subclass of {@link org.xml.sax.SAXException 
+ * <p>Since this exception is a subclass of {@link org.xml.sax.SAXException
  * SAXException}, it inherits the ability to wrap another exception.</p>
  *
  * @since SAX 1.0
@@ -35,7 +35,7 @@ package org.xml.sax;
  * @see org.xml.sax.ErrorHandler
  */
 public class SAXParseException extends SAXException {
-    
+
     
     //////////////////////////////////////////////////////////////////////
     // Constructors.
@@ -63,8 +63,8 @@ public class SAXParseException extends SAXException {
         init(null, null, -1, -1);
     }
     }
-    
-    
+
+
     /**
      * Wrap an existing exception in a SAXParseException.
      *
@@ -90,8 +90,8 @@ public class SAXParseException extends SAXException {
         init(null, null, -1, -1);
     }
     }
-    
-    
+
+
     /**
      * Create a new SAXParseException.
      *
@@ -119,8 +119,8 @@ public class SAXParseException extends SAXException {
     super(message);
     init(publicId, systemId, lineNumber, columnNumber);
     }
-    
-    
+
+
     /**
      * Create a new SAXParseException with an embedded exception.
      *
@@ -171,8 +171,8 @@ public class SAXParseException extends SAXException {
     this.lineNumber = lineNumber;
     this.columnNumber = columnNumber;
     }
-    
-    
+
+
     /**
      * Get the public identifier of the entity where the exception occurred.
      *
@@ -184,8 +184,8 @@ public class SAXParseException extends SAXException {
     {
     return this.publicId;
     }
-    
-    
+
+
     /**
      * Get the system identifier of the entity where the exception occurred.
      *
@@ -200,8 +200,8 @@ public class SAXParseException extends SAXException {
     {
     return this.systemId;
     }
-    
-    
+
+
     /**
      * The line number of the end of the text where the exception occurred.
      *
@@ -215,8 +215,8 @@ public class SAXParseException extends SAXException {
     {
     return this.lineNumber;
     }
-    
-    
+
+
     /**
      * The column number of the end of the text where the exception occurred.
      *
@@ -230,7 +230,7 @@ public class SAXParseException extends SAXException {
     {
     return this.columnNumber;
     }
-    
+
     
     //////////////////////////////////////////////////////////////////////
     // Internal state.
@@ -240,7 +240,7 @@ public class SAXParseException extends SAXException {
     /**
      * @serial The public identifier, or null.
      * @see #getPublicId
-     */    
+     */
     private String publicId;
 
 
@@ -263,7 +263,7 @@ public class SAXParseException extends SAXException {
      * @see #getColumnNumber
      */
     private int columnNumber;
-    
+
 }
 
 // end of SAXParseException.java

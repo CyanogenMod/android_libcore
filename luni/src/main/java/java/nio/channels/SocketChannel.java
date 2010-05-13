@@ -61,7 +61,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
 
     /**
      * Constructs a new {@code SocketChannel}.
-     * 
+     *
      * @param selectorProvider
      *            an instance of SelectorProvider.
      */
@@ -121,7 +121,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
      * Gets the valid operations of this channel. Socket channels support
      * connect, read and write operation, so this method returns
      * {@code SelectionKey.OP_CONNECT | SelectionKey.OP_READ | SelectionKey.OP_WRITE}.
-     * 
+     *
      * @return the operations supported by this channel.
      * @see java.nio.channels.SelectableChannel#validOps()
      */
@@ -133,14 +133,14 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
     /**
      * Returns the socket assigned to this channel, which does not declare any public
      * methods that are not declared in {@code Socket}.
-     * 
+     *
      * @return the socket assigned to this channel.
      */
     public abstract Socket socket();
 
     /**
      * Indicates whether this channel's socket is connected.
-     * 
+     *
      * @return {@code true} if this channel's socket is connected, {@code false}
      *         otherwise.
      */
@@ -148,7 +148,7 @@ public abstract class SocketChannel extends AbstractSelectableChannel implements
 
     /**
      * Indicates whether this channel's socket is still trying to connect.
-     * 
+     *
      * @return {@code true} if the connection is initiated but not finished;
      *         {@code false} otherwise.
      */

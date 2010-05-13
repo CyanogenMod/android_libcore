@@ -100,12 +100,12 @@ public abstract class InnerNodeImpl extends LeafNodeImpl {
      * node is already child of another node, it is first removed from there.
      * This method is the generalization of the appendChild() and insertBefore()
      * methods.
-     * 
+     *
      * @param newChild The new child node to add.
      * @param index The index at which to insert the new child node.
-     * 
+     *
      * @return The node added.
-     * 
+     *
      * @throws DOMException If the attempted operation violates the XML/DOM
      *         well-formedness rules.
      */

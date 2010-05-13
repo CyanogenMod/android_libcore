@@ -44,7 +44,7 @@ import dalvik.annotation.TestTargetNew;
 @TestTargetClass(KeyAgreementSpi.class)
 /**
  * Tests for <code>KeyAgreementSpi</code> class constructors and methods.
- * 
+ *
  */
 
 public class KeyAgreementSpiTest extends TestCase {
@@ -97,7 +97,7 @@ public class KeyAgreementSpiTest extends TestCase {
         args = {}
     )
     public void testKeyAgreementSpi01() throws InvalidKeyException,
-            ShortBufferException, NoSuchAlgorithmException, 
+            ShortBufferException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
         Mock_KeyAgreementSpi kaSpi = new Mock_KeyAgreementSpi();
 

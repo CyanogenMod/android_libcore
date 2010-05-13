@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 /**
  * Test java.nio.ByteOrder
- * 
+ *
  */
 @TestTargetClass(ByteOrder.class)
 public class ByteOrderTest extends TestCase {

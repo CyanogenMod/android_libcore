@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001-2004 World Wide Web Consortium, 
+ Copyright (c) 2001-2004 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -21,7 +21,7 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -36,12 +36,12 @@ import org.w3c.dom.NodeList;
  * The "removeAttributeNS(namespaceURI,localName)" method for an attribute
  * causes the DOMException NO_MODIFICATION_ALLOWED_ERR to be raised if the node
  * is readonly.
- * 
+ *
  * Obtain the children of the THIRD "gender" element. The elements content is an
  * entity reference. Try to remove an attribute from the entity reference by
  * executing the "removeAttributeNS(namespaceURI,localName)" method. This causes
  * a NO_MODIFICATION_ALLOWED_ERR DOMException to be thrown.
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
@@ -51,7 +51,7 @@ import org.w3c.dom.NodeList;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElRemAtNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='NO_MODIFICATION_ALLOWED_ERR'])">http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElRemAtNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='NO_MODIFICATION_ALLOWED_ERR'])</a>
  */
-@TestTargetClass(Attr.class) 
+@TestTargetClass(Attr.class)
 public final class RemoveAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -77,7 +77,7 @@ public final class RemoveAttributeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

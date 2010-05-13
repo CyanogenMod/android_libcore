@@ -35,7 +35,7 @@ import java.security.spec.RSAPrivateKeySpec;
 
 /**
  * Tests for <code>RSAPrivateKeySpec</code> class fields and methods
- * 
+ *
  */
 @TestTargetClass(RSAPrivateKeySpec.class)
 public class RSAPrivateKeySpecTest extends TestCase {

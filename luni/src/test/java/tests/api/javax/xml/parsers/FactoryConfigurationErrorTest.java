@@ -22,7 +22,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(FactoryConfigurationError.class) 
+@TestTargetClass(FactoryConfigurationError.class)
 public class FactoryConfigurationErrorTest extends TestCase {
 
     @TestTargetNew(

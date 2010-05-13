@@ -54,13 +54,13 @@ import java.util.Vector;
 
 /**
  * Tests for <code>CertificateFactory</code> class methods and constructor
- * 
+ *
  */
 @TestTargetClass(CertificateFactory.class)
 public class CertificateFactory1Test extends TestCase {
 
     public static final String srvCertificateFactory = "CertificateFactory";
-    
+
     private static String defaultProviderName = null;
 
     private static Provider defaultProvider = null;
@@ -69,7 +69,7 @@ public class CertificateFactory1Test extends TestCase {
 
     public static String defaultType = "X.509";
 
-    public static final String[] validValues = { 
+    public static final String[] validValues = {
             "X.509", "x.509" };
 
     private final static String[] invalidValues = SpiEngUtils.invalidValues;
@@ -107,7 +107,7 @@ public class CertificateFactory1Test extends TestCase {
     }
 
     /**
-     * Test for <code>getInstance(String type)</code> method 
+     * Test for <code>getInstance(String type)</code> method
      * Assertion: returns CertificateFactory if type is X.509
      */
     @TestTargetNew(
@@ -120,7 +120,7 @@ public class CertificateFactory1Test extends TestCase {
         if (!X509Support) {
             fail(NotSupportMsg);
             return;
-        }       
+        }
         for (int i = 0; i < validValues.length; i++) {
             CertificateFactory certF = CertificateFactory
                     .getInstance(validValues[i]);
@@ -129,9 +129,9 @@ public class CertificateFactory1Test extends TestCase {
     }
 
     /**
-     * Test for <code>getInstance(String type)</code> method 
+     * Test for <code>getInstance(String type)</code> method
      * Assertion:
-     * throws NullPointerException when type is null 
+     * throws NullPointerException when type is null
      * throws CertificateException when type is not available
      */
     @TestTargetNew(
@@ -190,8 +190,8 @@ public class CertificateFactory1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String type, String provider)</code> method
-     * Assertion: 
-     * throws NullPointerException when type is null 
+     * Assertion:
+     * throws NullPointerException when type is null
      * throws CertificateException when type is not available
      */
     @TestTargetNew(
@@ -252,7 +252,7 @@ public class CertificateFactory1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String type, Provider provider)</code>
-     * method 
+     * method
      * Assertion: throws IllegalArgumentException when provider is null
      */
     @TestTargetNew(
@@ -278,9 +278,9 @@ public class CertificateFactory1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String type, Provider provider)</code>
-     * method 
-     * Assertion: 
-     * throws NullPointerException when type is null 
+     * method
+     * Assertion:
+     * throws NullPointerException when type is null
      * throws CertificateException when type is not available
      */
     @TestTargetNew(
@@ -314,7 +314,7 @@ public class CertificateFactory1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String type, Provider provider)</code>
-     * method 
+     * method
      * Assertion: returns CertificateFactorythrows when type and provider
      * have valid values
      */
@@ -340,7 +340,7 @@ public class CertificateFactory1Test extends TestCase {
     }
 
     /**
-     * Test for <code>getCertPathEncodings()</code> method 
+     * Test for <code>getCertPathEncodings()</code> method
      * Assertion: returns encodings
      */
     @TestTargetNew(
@@ -395,7 +395,7 @@ public class CertificateFactory1Test extends TestCase {
      * <code>generateCertificates(InputStream inStream)</code>
      * <code>generateCRL(InputStream inStream)</code>
      * <code>generateCRLs(InputStream inStream)</code>
-     * methods 
+     * methods
      * Assertion: throw CertificateException and CRLException when
      * inStream is null or empty
      */
@@ -498,10 +498,10 @@ public class CertificateFactory1Test extends TestCase {
     /*
      * Test for <code> generateCertificate(InputStream inStream) </code><code>
      * generateCertificates(InputStream inStream) </code><code>
-     * generateCRL(InputStream inStream) </code><code> 
-     * generateCRLs(InputStream inStream) </code> 
-     * methods 
-     * Assertion: throw CertificateException and CRLException when inStream 
+     * generateCRL(InputStream inStream) </code><code>
+     * generateCRLs(InputStream inStream) </code>
+     * methods
+     * Assertion: throw CertificateException and CRLException when inStream
      * contains incompatible datas
      */
     @TestTargets({
@@ -586,7 +586,7 @@ public class CertificateFactory1Test extends TestCase {
     /**
      * Test for <code>generateCertPath(InputStream inStream)</code>
      * <code>generateCertPath(InputStream inStream, String encoding)</code>
-     * methods 
+     * methods
      * Assertion: throws CertificateException when inStream is null or
      * when isStream contains invalid datas
      */
@@ -649,7 +649,7 @@ public class CertificateFactory1Test extends TestCase {
     /**
      * Test for <code>generateCertPath(InputStream inStream)</code>
      * <code>generateCertPath(InputStream inStream, String encoding)</code>
-     * methods 
+     * methods
      * Assertion: throw CertificateException when isStream contains invalid datas
      */
     @TestTargets({
@@ -694,7 +694,7 @@ public class CertificateFactory1Test extends TestCase {
             }
             Iterator<String> it = certFs[i].getCertPathEncodings();
             while (it.hasNext()) {
-                try { 
+                try {
                     certFs[i].generateCertPath(is, it.next());
                     fail("CertificateException must be thrown because input stream contains incorrect datas");
                 } catch (CertificateException e) {
@@ -746,13 +746,13 @@ public class CertificateFactory1Test extends TestCase {
             return;
         }
         CertificateFactory[] certFs = initCertFs();
-        assertNotNull("CertificateFactory objects were not created", certFs); 
+        assertNotNull("CertificateFactory objects were not created", certFs);
         List<Certificate> list = new Vector<Certificate>();
         for (int i = 0; i < certFs.length; i++) {
             CertPath cp = certFs[i].generateCertPath(list);
             List<? extends Certificate> list1 = cp.getCertificates();
             assertTrue("List should be empty", list1.isEmpty());
-        }        
+        }
     }
 
     /**
@@ -786,7 +786,7 @@ public class CertificateFactory1Test extends TestCase {
     }
 
     /**
-     * Test for <code>CertificateFactory</code> constructor 
+     * Test for <code>CertificateFactory</code> constructor
      * Assertion: returns CertificateFactory object
      */
     @TestTargetNew(
@@ -800,7 +800,7 @@ public class CertificateFactory1Test extends TestCase {
             fail(NotSupportMsg);
             return;
         }
-        CertificateFactorySpi spi = new MyCertificateFactorySpi(); 
+        CertificateFactorySpi spi = new MyCertificateFactorySpi();
         CertificateFactory cf = new myCertificateFactory(spi, defaultProvider,
                 defaultType);
         assertEquals("Incorrect type", cf.getType(), defaultType);
@@ -810,7 +810,7 @@ public class CertificateFactory1Test extends TestCase {
             fail("CRLException must be thrown");
         } catch (CRLException e) {
         }
-                
+
         cf = new myCertificateFactory(null, null, null);
         assertNull("Incorrect type", cf.getType());
         assertNull("Incorrect provider", cf.getProvider());
@@ -820,7 +820,7 @@ public class CertificateFactory1Test extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test for <code>getType()</code> method
      */
@@ -844,19 +844,19 @@ public class CertificateFactory1Test extends TestCase {
                 certF = CertificateFactory.getInstance(validValues[i],
                         defaultProviderName);
                 assertEquals("Incorrect type", certF.getType(), validValues[i]);
-                
+
                 certF = CertificateFactory.getInstance(validValues[i],
                         defaultProvider);
                 assertEquals("Incorrect provider", certF.getProvider(),
                         defaultProvider);
                 assertEquals("Incorrect type", certF.getType(), validValues[i]);
-                
+
             } catch (NoSuchProviderException e) {
                 fail("Unexpected NoSuchProviderException " + e.getMessage());
             }
         }
     }
-    
+
     @SuppressWarnings("cast")
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -880,7 +880,7 @@ public class CertificateFactory1Test extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception" + e);
         }
-        
+
         try {
             cf = new myCertificateFactory(null, null, null);
         } catch (Exception e) {

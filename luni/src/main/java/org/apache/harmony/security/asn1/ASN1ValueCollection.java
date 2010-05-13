@@ -27,10 +27,10 @@ import java.util.Collection;
 
 /**
  * This abstract class represents ASN.1 collection type.
- * 
+ *
  * The value for such type is a collection of zero or
- * more occurrences of a provided type. 
- * 
+ * more occurrences of a provided type.
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -43,7 +43,7 @@ public abstract class ASN1ValueCollection extends ASN1Constructured {
 
     /**
      * Constructs ASN1 collection type.
-     * 
+     *
      * @param tagNumber - ASN.1 tag number
      * @param type - ASN.1 type
      */
@@ -55,12 +55,12 @@ public abstract class ASN1ValueCollection extends ASN1Constructured {
 
     /**
      * Provides an object's values to be encoded
-     * 
+     *
      * Derived classes should override this method to provide
-     * encoding for a selected class of objects. 
-     * 
+     * encoding for a selected class of objects.
+     *
      * @param - an object to be encoded
-     * @return - a collection of object's values to be encoded 
+     * @return - a collection of object's values to be encoded
      */
     public Collection getValues(Object object) {
         return (Collection)object;

@@ -43,11 +43,11 @@ public class SystemUtils {
      */
     public static int getOS() {
         if (os == 0) {
-            String osname = System.getProperty("os.name").substring(0,3); 
-            if (osname.compareToIgnoreCase("win") == 0) { 
+            String osname = System.getProperty("os.name").substring(0,3);
+            if (osname.compareToIgnoreCase("win") == 0) {
                 os = OS_WINDOWS;
             } else {
-                if (osname.compareToIgnoreCase("lin") == 0) { 
+                if (osname.compareToIgnoreCase("lin") == 0) {
                     os = OS_LINUX;
                 } else
                     os = OS_UNKNOWN;

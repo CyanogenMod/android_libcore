@@ -22,7 +22,7 @@ import java.lang.annotation.IncompleteAnnotationException;
 import junit.framework.TestCase;
 
 /**
- * 
+ *
  */
 public class IncompleteAnnotationExceptionTest extends TestCase {
 

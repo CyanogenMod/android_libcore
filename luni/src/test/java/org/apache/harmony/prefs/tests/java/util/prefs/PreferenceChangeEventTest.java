@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,7 @@ import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.Preferences;
 
 /**
- * 
+ *
  */
 @TestTargetClass(PreferenceChangeEvent.class)
 public class PreferenceChangeEventTest extends TestCase {
@@ -121,7 +121,7 @@ public class PreferenceChangeEventTest extends TestCase {
         } catch (NotSerializableException e) {
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Test is correct, functionality checked in separate Mock class.",
@@ -146,7 +146,7 @@ public class PreferenceChangeEventTest extends TestCase {
             pref.removePreferenceChangeListener(pl);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Test is correct, functionality checked in separate Mock class.",
@@ -167,7 +167,7 @@ public class PreferenceChangeEventTest extends TestCase {
             assertEquals(1, pl.getChanged());
             assertTrue(pl.getResult());
             pl.reset();
-            
+
             pref.putInt("key_int", Integer.MAX_VALUE);
             assertEquals(1, pl.getChanged());
             assertTrue(pl.getResult());
@@ -176,7 +176,7 @@ public class PreferenceChangeEventTest extends TestCase {
             pref.removePreferenceChangeListener(pl);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Test is correct, functionality checked in separate Mock class.",

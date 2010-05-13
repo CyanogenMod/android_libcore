@@ -70,7 +70,7 @@ class BitLevel {
         if (val.sign == 0) {
             return 0;
         }
-        
+
         int i = val.getFirstNonzeroDigit();;
         if (val.sign > 0) {
             for ( ; i < val.numberLength; i++) {
@@ -102,7 +102,7 @@ class BitLevel {
 
     /**
      * Check if there are 1s in the lowest bits of this BigInteger
-     * 
+     *
      * @param numberOfBits the number of the lowest bits to check
      * @return false if all bits are 0s, true otherwise
      */
@@ -125,13 +125,13 @@ class BitLevel {
     //      int resLength = source.numberLength + intCount
     //              + ( ( count == 0 ) ? 0 : 1 );
     //      int resDigits[] = new int[resLength];
-    // 
+    //
     //      shiftLeft(resDigits, source.digits, intCount, count);
     //         BigInteger result = new BigInteger(source.sign, resLength, resDigits);
     //         result.cutOffLeadingZeroes();
     //     return result;
     // }
-    // 
+    //
     // /**
     //  * Performs {@code val <<= count}.
     //  */
@@ -146,11 +146,11 @@ class BitLevel {
     //     val.cutOffLeadingZeroes();
     //     val.unCache();
     // }
-    // 
+    //
     // /**
     //  * Abstractly shifts left an array of integers in little endian (i.e. shift
     //  * it right). Total shift distance in bits is intCount * 32 + count
-    //  * 
+    //  *
     //  * @param result the destination array
     //  * @param source the source array
     //  * @param intCount the shift distance in integers
@@ -162,14 +162,14 @@ class BitLevel {
     //                 - intCount);
     //     } else {
     //         int rightShiftCount = 32 - count;
-    // 
+    //
     //         result[result.length - 1] = 0;
     //         for (int i = result.length - 1; i > intCount; i--) {
     //             result[i] |= source[i - intCount - 1] >>> rightShiftCount;
     //             result[i - 1] = source[i - intCount - 1] << count;
     //         }
     //     }
-    //     
+    //
     //     for (int i = 0; i < intCount; i++) {
     //         result[i] = 0;
     //     }
@@ -271,7 +271,7 @@ class BitLevel {
     /**
      * Shifts right an array of integers. Total shift distance in bits is
      * intCount * 32 + count.
-     * 
+     *
      * @param result
      *            the destination array
      * @param resultLen
@@ -304,11 +304,11 @@ class BitLevel {
             result[i] = ( source[i + intCount] >>> count );
             i++;
         }
-        
+
         return allZero;
     }
 
-    
+
     /**
      * Performs a flipBit on the BigInteger, returning a BigInteger with the the
      * specified bit flipped.
@@ -325,10 +325,10 @@ class BitLevel {
         int resLength = Math.max(intCount + 1, val.numberLength) + 1;
         int resDigits[] = new int[resLength];
         int i;
-        
+
         int bitNumber = 1 << bitN;
         System.arraycopy(val.digits, 0, resDigits, 0, val.numberLength);
-        
+
         if (val.sign < 0) {
             if (intCount >= val.numberLength) {
                 resDigits[intCount] = bitNumber;

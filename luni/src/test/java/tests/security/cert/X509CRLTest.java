@@ -60,7 +60,7 @@ import tests.security.cert.X509CRL2Test.MyX509CRL;
 public class X509CRLTest extends TestCase {
 
     private X509CRL tbt_crl;
-    
+
     String certificate = "-----BEGIN CERTIFICATE-----\n"
         + "MIICZTCCAdICBQL3AAC2MA0GCSqGSIb3DQEBAgUAMF8xCzAJBgNVBAYTAlVTMSAw\n"
         + "HgYDVQQKExdSU0EgRGF0YSBTZWN1cml0eSwgSW5jLjEuMCwGA1UECxMlU2VjdXJl\n"
@@ -76,7 +76,7 @@ public class X509CRLTest extends TestCase {
         + "H9T5hNMEL9Tk6aI7yZPXcw/xI2K6pOR/FrMp0UwJmdxX7ljV6ZtUZf7pY492UqwC\n"
         + "1777XQ9UEZyrKJvF5ntleeO0ayBqLGVKCWzWZX9YsXCpv47FNLZbupE=\n"
         + "-----END CERTIFICATE-----\n";
-    
+
     ByteArrayInputStream certArray = new ByteArrayInputStream(certificate
         .getBytes());
 
@@ -175,7 +175,7 @@ public class X509CRLTest extends TestCase {
     public X509CRLTest() {
 
     }
-    
+
     public void setUp() {
         tbt_crl = new TBTCRL() {
             public byte[] getEncoded() {
@@ -314,8 +314,8 @@ public class X509CRLTest extends TestCase {
                         + "in the case of null input data.");
         } catch (NullPointerException e) {
         }
-        
-        
+
+
         try {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             X509Certificate cert = (X509Certificate) cf.generateCertificate(certArray);
@@ -324,7 +324,7 @@ public class X509CRLTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -417,7 +417,7 @@ public class X509CRLTest extends TestCase {
                 return TestUtils.getX509CRL_v1();
             }
         };
-        
+
         try {
             crl.getEncoded();
             crl.getIssuerDN();
@@ -431,14 +431,14 @@ public class X509CRLTest extends TestCase {
             crl.getTBSCertList();
             crl.getThisUpdate();
             crl.getVersion();
-            
+
             crl.verify(null);
             crl.verify(null, "test");
         } catch (Exception e) {
             fail("Unexpected exception for constructor");
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",

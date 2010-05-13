@@ -235,7 +235,7 @@ public class RC2ParameterSpecTest extends TestCase {
         assertTrue("Equal objects should have the same hash codes.",
                                             ps1.hashCode() == ps2.hashCode());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -247,7 +247,7 @@ public class RC2ParameterSpecTest extends TestCase {
 
         RC2ParameterSpec ps1 = new RC2ParameterSpec(effectiveKeyBits);
         RC2ParameterSpec ps2 = new RC2ParameterSpec(effectiveKeyBits);
-        
+
         assertTrue(ps1.equals(ps2));
     }
 

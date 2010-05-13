@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     // Name of this ThreadGroup
     private String name;
     // BEGIN android-note
-    // VM needs this field name for debugging. 
+    // VM needs this field name for debugging.
     // END android-note
 
     // Maximum priority for Threads inside this ThreadGroup
@@ -37,7 +37,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     // The ThreadGroup to which this ThreadGroup belongs
     ThreadGroup parent;
     // BEGIN android-note
-    // VM needs this field name for debugging. 
+    // VM needs this field name for debugging.
     // END android-note
 
     int numThreads;
@@ -84,7 +84,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Constructs a new {@code ThreadGroup} with the given name. The new {@code ThreadGroup}
      * will be child of the {@code ThreadGroup} to which the calling thread belongs.
-     * 
+     *
      * @param name the name
      * @throws SecurityException if {@code checkAccess()} for the parent
      *         group fails with a SecurityException
@@ -98,7 +98,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Constructs a new {@code ThreadGroup} with the given name, as a child of the
      * given {@code ThreadGroup}.
-     * 
+     *
      * @param parent the parent
      * @param name the name
      * @throws NullPointerException if {@code parent == null}
@@ -131,13 +131,13 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      */
     ThreadGroup() {
         this.name = "system";
-        this.setParent(null); 
+        this.setParent(null);
     }
 
     /**
      * Returns the number of running {@code Thread}s which are children of this thread group,
      * directly or indirectly.
-     * 
+     *
      * @return the number of children
      */
     public int activeCount() {
@@ -164,7 +164,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Returns the number of {@code ThreadGroup}s which are children of this group,
      * directly or indirectly.
-     * 
+     *
      * @return the number of children
      */
     public int activeGroupCount() {
@@ -183,7 +183,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Adds a {@code Thread} to this thread group. This should only be visible to class
      * java.lang.Thread, and should only be called when a new Thread is created
      * and initialized by the constructor.
-     * 
+     *
      * @param thread Thread to add
      * @throws IllegalThreadStateException if this group has been destroyed already
      * @see #remove(java.lang.Thread)
@@ -207,7 +207,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
     /**
      * Adds a {@code ThreadGroup} to this thread group.
-     * 
+     *
      * @param g ThreadGroup to add
      * @throws IllegalThreadStateException if this group has been destroyed already
      */
@@ -232,10 +232,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Does nothing. The definition of this method depends on the deprecated
      * method {@link #suspend()}. The exact behavior of this call was never
      * specified.
-     * 
+     *
      * @param b Used to control low memory implicit suspension
      * @return {@code true} (always)
-     * 
+     *
      * @deprecated Required deprecated method suspend().
      */
     @Deprecated
@@ -262,7 +262,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * to destroy a {@code ThreadGroup} that has no threads in it. Any daemon
      * {@code ThreadGroup} is destroyed automatically when it becomes empty (no threads
      * or thread groups in it).
-     * 
+     *
      * @throws IllegalThreadStateException if this thread group or any of its
      *         subgroups has been destroyed already or if it still contains
      *         threads.
@@ -310,7 +310,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /*
      * Auxiliary method that destroys this thread group and recursively all its
      * subgroups if this is a daemon ThreadGroup.
-     * 
+     *
      * @see #destroy
      * @see #setDaemon
      * @see #isDaemon
@@ -332,10 +332,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Iterates over all active threads in this group (and its sub-groups) and
      * stores the threads in the given array. Returns when the array is full or
      * no more threads remain, whichever happens first.
-     * 
+     *
      * <p>Note that this method will silently ignore any threads that don't fit in the
      * supplied array.
-     * 
+     *
      * @param threads the array into which the {@code Thread}s will be copied
      * @return the number of {@code Thread}s that were copied
      */
@@ -347,10 +347,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Iterates over all active threads in this group (and, optionally, its
      * sub-groups) and stores the threads in the given array. Returns when the
      * array is full or no more threads remain, whichever happens first.
-     * 
+     *
      * <p>Note that this method will silently ignore any threads that don't fit in the
      * supplied array.
-     * 
+     *
      * @param threads the array into which the {@code Thread}s will be copied
      * @param recurse indicates whether {@code Thread}s in subgroups should be
      *        recursively copied as well
@@ -364,10 +364,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Iterates over all thread groups in this group (and its sub-groups) and
      * and stores the groups in the given array. Returns when the array is full
      * or no more groups remain, whichever happens first.
-     * 
+     *
      * <p>Note that this method will silently ignore any thread groups that don't fit in the
      * supplied array.
-     * 
+     *
      * @param groups the array into which the {@code ThreadGroup}s will be copied
      * @return the number of {@code ThreadGroup}s that were copied
      */
@@ -379,10 +379,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Iterates over all thread groups in this group (and, optionally, its
      * sub-groups) and stores the groups in the given array. Returns when
      * the array is full or no more groups remain, whichever happens first.
-     * 
+     *
      * <p>Note that this method will silently ignore any thread groups that don't fit in the
      * supplied array.
-     * 
+     *
      * @param groups the array into which the {@code ThreadGroup}s will be copied
      * @param recurse indicates whether {@code ThreadGroup}s in subgroups should be
      *        recursively copied as well or not
@@ -397,10 +397,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * <param>enumerationIndex</param> all Threads or ThreadGroups in the
      * receiver. If <param>recurse</param> is true, recursively enumerate the
      * elements in subgroups.
-     * 
+     *
      * If the array passed as parameter is too small no exception is thrown -
      * the extra elements are simply not copied.
-     * 
+     *
      * @param enumeration array into which the elements will be copied
      * @param recurse Indicates whether subgroups should be enumerated or not
      * @param enumerationIndex Indicates in which position of the enumeration
@@ -444,9 +444,9 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
     /**
      * Returns the maximum allowed priority for a {@code Thread} in this thread group.
-     * 
+     *
      * @return the maximum priority
-     * 
+     *
      * @see #setMaxPriority
      */
     public final int getMaxPriority() {
@@ -455,7 +455,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
     /**
      * Returns the name of this thread group.
-     * 
+     *
      * @return the group's name
      */
     public final String getName() {
@@ -465,7 +465,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Returns this thread group's parent {@code ThreadGroup}. It can be null if this
      * is the the root ThreadGroup.
-     * 
+     *
      * @return the parent
      */
     public final ThreadGroup getParent() {
@@ -478,10 +478,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Interrupts every {@code Thread} in this group and recursively in all its
      * subgroups.
-     * 
+     *
      * @throws SecurityException if {@code this.checkAccess()} fails with
      *         a SecurityException
-     * 
+     *
      * @see Thread#interrupt
      */
     public final void interrupt() {
@@ -502,9 +502,9 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
     /**
      * Checks whether this thread group is a daemon {@code ThreadGroup}.
-     * 
+     *
      * @return true if this thread group is a daemon {@code ThreadGroup}
-     * 
+     *
      * @see #setDaemon
      * @see #destroy
      */
@@ -514,7 +514,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
     /**
      * Checks whether this thread group has already been destroyed.
-     * 
+     *
      * @return true if this thread group has already been destroyed
      * @see #destroy
      */
@@ -538,7 +538,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Outputs to {@code System.out}a text representation of the
      * hierarchy of Threads and ThreadGroups in this thread group (and recursively).
      * The indentation will be four spaces per level of nesting.
-     * 
+     *
      * @param levels How many levels of nesting, so that proper indentation can
      * be output.
      */
@@ -570,7 +570,7 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Checks whether this thread group is a direct or indirect parent group of a
      * given {@code ThreadGroup}.
-     * 
+     *
      * @param g the potential child {@code ThreadGroup}
      * @return true if this thread group is parent of {@code g}
      */
@@ -587,9 +587,9 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Removes a {@code Thread} from this group. This should only be visible to class
      * java.lang.Thread, and should only be called when a Thread dies.
-     * 
+     *
      * @param thread Thread to remove
-     * 
+     *
      * @see #add(Thread)
      */
     final void remove(java.lang.Thread thread) {
@@ -610,9 +610,9 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
     /**
      * Removes an immediate subgroup.
-     * 
+     *
      * @param g ThreadGroup to remove
-     * 
+     *
      * @see #add(Thread)
      * @see #add(ThreadGroup)
      */
@@ -633,13 +633,13 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Resumes every thread in this group and recursively in all its
      * subgroups.
-     * 
+     *
      * @throws SecurityException if {@code this.checkAccess()} fails with
      *         a SecurityException
-     * 
+     *
      * @see Thread#resume
      * @see #suspend
-     * 
+     *
      * @deprecated Requires deprecated method Thread.resume().
      */
     @SuppressWarnings("deprecation")
@@ -663,11 +663,11 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Sets whether this is a daemon {@code ThreadGroup} or not. Daemon
      * thread groups are automatically destroyed when they become empty.
-     * 
+     *
      * @param isDaemon the new value
      * @throws SecurityException if {@code checkAccess()} for the parent
      *         group fails with a SecurityException
-     * 
+     *
      * @see #isDaemon
      * @see #destroy
      */
@@ -679,18 +679,18 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Configures the maximum allowed priority for a {@code Thread} in this group and
      * recursively in all its subgroups.
-     * 
+     *
      * <p>A caller can never increase the maximum priority of a thread group.
      * Such an attempt will not result in an exception, it will
      * simply leave the thread group with its current maximum priority.
-     * 
+     *
      * @param newMax the new maximum priority to be set
-     * 
+     *
      * @throws SecurityException if {@code checkAccess()} fails with a
      *         SecurityException
      * @throws IllegalArgumentException if the new priority is greater than
      *         Thread.MAX_PRIORITY or less than Thread.MIN_PRIORITY
-     * 
+     *
      * @see #getMaxPriority
      */
     public final void setMaxPriority(int newMax) {
@@ -717,10 +717,10 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Sets the parent {@code ThreadGroup} of this thread group, and adds this
      * thread group to the parent's collection of immediate children (if {@code parent} is
      * not {@code null}).
-     * 
+     *
      * @param parent The parent ThreadGroup, or null to make this thread group
      *        the root ThreadGroup
-     * 
+     *
      * @see #getParent
      * @see #parentOf
      */
@@ -733,14 +733,14 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
 
     /**
      * Stops every thread in this group and recursively in all its subgroups.
-     * 
+     *
      * @throws SecurityException if {@code this.checkAccess()} fails with
      *         a SecurityException
-     * 
+     *
      * @see Thread#stop()
      * @see Thread#stop(Throwable)
      * @see ThreadDeath
-     * 
+     *
      * @deprecated Requires deprecated method Thread.stop().
      */
     @SuppressWarnings("deprecation")
@@ -783,13 +783,13 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     /**
      * Suspends every thread in this group and recursively in all its
      * subgroups.
-     * 
+     *
      * @throws SecurityException if {@code this.checkAccess()} fails with
      *         a SecurityException
-     * 
+     *
      * @see Thread#suspend
      * @see #resume
-     * 
+     *
      * @deprecated Requires deprecated method Thread.suspend().
      */
     @SuppressWarnings("deprecation")
@@ -839,9 +839,9 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * Handles uncaught exceptions. Any uncaught exception in any {@code Thread}
      * is forwarded to the thread's {@code ThreadGroup} by invoking this
      * method.
-     * 
+     *
      * <p>New code should use {@link Thread#setUncaughtExceptionHandler} instead of thread groups.
-     * 
+     *
      * @param t the Thread that terminated with an uncaught exception
      * @param e the uncaught exception itself
      */
@@ -862,27 +862,27 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
     // BEGIN android-added
     /**
      * Non-standard method for adding a thread to a group, required by Dalvik.
-     * 
+     *
      * @param thread Thread to add
-     * 
+     *
      * @throws IllegalThreadStateException if the thread has been destroyed
      *         already
-     * 
+     *
      * @see #add(java.lang.Thread)
      * @see #removeThread(java.lang.Thread)
      */
     void addThread(Thread thread) throws IllegalThreadStateException {
         add(thread);
     }
-    
+
     /**
      * Non-standard method for adding a thread to a group, required by Dalvik.
-     * 
+     *
      * @param thread Thread to add
-     * 
+     *
      * @throws IllegalThreadStateException if the thread has been destroyed
      *         already
-     * 
+     *
      * @see #remove(java.lang.Thread)
      * @see #addThread(java.lang.Thread)
      */

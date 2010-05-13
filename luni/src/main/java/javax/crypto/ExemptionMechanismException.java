@@ -32,7 +32,7 @@ public class ExemptionMechanismException extends GeneralSecurityException {
     /**
      * Creates a new {@code ExemptionMechanismException} with the specified
      * message.
-     * 
+     *
      * @param msg
      *            the exception message.
      */

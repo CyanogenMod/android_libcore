@@ -55,37 +55,37 @@ import org.apache.harmony.auth.internal.nls.Messages;
 public final class Subject implements Serializable {
 
     private static final long serialVersionUID = -8308522755600156056L;
-    
-    private static final AuthPermission _AS = new AuthPermission("doAs"); 
+
+    private static final AuthPermission _AS = new AuthPermission("doAs");
 
     private static final AuthPermission _AS_PRIVILEGED = new AuthPermission(
-            "doAsPrivileged"); 
+            "doAsPrivileged");
 
     private static final AuthPermission _SUBJECT = new AuthPermission(
-            "getSubject"); 
+            "getSubject");
 
     private static final AuthPermission _PRINCIPALS = new AuthPermission(
-            "modifyPrincipals"); 
+            "modifyPrincipals");
 
     private static final AuthPermission _PRIVATE_CREDENTIALS = new AuthPermission(
-            "modifyPrivateCredentials"); 
+            "modifyPrivateCredentials");
 
     private static final AuthPermission _PUBLIC_CREDENTIALS = new AuthPermission(
-            "modifyPublicCredentials"); 
+            "modifyPublicCredentials");
 
     private static final AuthPermission _READ_ONLY = new AuthPermission(
-            "setReadOnly"); 
+            "setReadOnly");
 
     private final Set<Principal> principals;
 
     private boolean readOnly;
-    
+
     // set of private credentials
     private transient SecureSet<Object> privateCredentials;
 
     // set of public credentials
     private transient SecureSet<Object> publicCredentials;
-    
+
     /**
      * The default constructor initializing the sets of public and private
      * credentials and principals with the empty set.
@@ -430,18 +430,18 @@ public final class Subject implements Serializable {
     @Override
     public String toString() {
 
-        StringBuffer buf = new StringBuffer("Subject:\n"); 
+        StringBuffer buf = new StringBuffer("Subject:\n");
 
         Iterator<?> it = principals.iterator();
         while (it.hasNext()) {
-            buf.append("\tPrincipal: "); 
+            buf.append("\tPrincipal: ");
             buf.append(it.next());
             buf.append('\n');
         }
 
         it = publicCredentials.iterator();
         while (it.hasNext()) {
-            buf.append("\tPublic Credential: "); 
+            buf.append("\tPublic Credential: ");
             buf.append(it.next());
             buf.append('\n');
         }
@@ -450,13 +450,13 @@ public final class Subject implements Serializable {
         it = privateCredentials.iterator();
         try {
             while (it.hasNext()) {
-                buf.append("\tPrivate Credential: "); 
+                buf.append("\tPrivate Credential: ");
                 buf.append(it.next());
                 buf.append('\n');
             }
         } catch (SecurityException e) {
             buf.delete(offset, buf.length());
-            buf.append("\tPrivate Credentials: no accessible information\n"); 
+            buf.append("\tPrivate Credentials: no accessible information\n");
         }
         return buf.toString();
     }
@@ -487,7 +487,7 @@ public final class Subject implements Serializable {
     public static Subject getSubject(final AccessControlContext context) {
         checkPermission(_SUBJECT);
         if (context == null) {
-            throw new NullPointerException(Messages.getString("auth.09")); 
+            throw new NullPointerException(Messages.getString("auth.09"));
         }
         PrivilegedAction<DomainCombiner> action = new PrivilegedAction<DomainCombiner>() {
             public DomainCombiner run() {
@@ -513,7 +513,7 @@ public final class Subject implements Serializable {
     // FIXME is used only in two places. remove?
     private void checkState() {
         if (readOnly) {
-            throw new IllegalStateException(Messages.getString("auth.0A")); 
+            throw new IllegalStateException(Messages.getString("auth.0A"));
         }
     }
 
@@ -528,14 +528,14 @@ public final class Subject implements Serializable {
 
         /*
          * Is used to define a set type for serialization.
-         * 
+         *
          * A type can be principal, priv. or pub. credential set. The spec.
          * doesn't clearly says that priv. and pub. credential sets can be
          * serialized and what classes they are. It is only possible to figure
          * out from writeObject method comments that priv. credential set is
          * serializable and it is an instance of SecureSet class. So pub.
          * credential was implemented by analogy
-         * 
+         *
          * Compatibility issue: the class follows its specified serial form.
          * Also according to the serialization spec. adding new field is a
          * compatible change. So is ok for principal set (because the default
@@ -569,8 +569,8 @@ public final class Subject implements Serializable {
 
             // Subject's constructor receives a Set, we can trusts if a set is from bootclasspath,
             // and not to check whether it contains duplicates or not
-            boolean trust = s.getClass().getClassLoader() == null; 
-            
+            boolean trust = s.getClass().getClassLoader() == null;
+
             Iterator<? extends SST> it = s.iterator();
             while (it.hasNext()) {
                 SST o = it.next();
@@ -588,7 +588,7 @@ public final class Subject implements Serializable {
                 throw new NullPointerException();
             }
             if (permission == _PRINCIPALS && !(Principal.class.isAssignableFrom(o.getClass()))) {
-                throw new IllegalArgumentException(Messages.getString("auth.0B")); 
+                throw new IllegalArgumentException(Messages.getString("auth.0B"));
             }
         }
 
@@ -669,7 +669,7 @@ public final class Subject implements Serializable {
 
                     if (!c.isAssignableFrom(o.getClass())) {
                         throw new IllegalArgumentException(
-                                Messages.getString("auth.0C", c.getName())); 
+                                Messages.getString("auth.0C", c.getName()));
                     }
 
                     if (elements.contains(o)) {

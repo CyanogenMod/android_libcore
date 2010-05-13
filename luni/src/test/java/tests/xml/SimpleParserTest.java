@@ -39,7 +39,7 @@ import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-@TestTargetClass(SAXParser.class) 
+@TestTargetClass(SAXParser.class)
 public class SimpleParserTest extends TestCase implements ContentHandler {
 
     private SAXParser parser;
@@ -272,7 +272,7 @@ public class SimpleParserTest extends TestCase implements ContentHandler {
         args = {java.io.InputStream.class, org.xml.sax.helpers.DefaultHandler.class}
     )
     public void testGetValue() throws Exception{
-        parser.parse(getClass().getResourceAsStream("/staffNS.xml"), 
+        parser.parse(getClass().getResourceAsStream("/staffNS.xml"),
                 new DefaultHandler() {
             boolean firstAddressElem = true;
             @Override

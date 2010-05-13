@@ -27,5 +27,5 @@ public class AlgorithmParameterGeneratorTestDSA extends
         super("DSA", new AlgorithmParameterSignatureHelper<DSAParameterSpec>("DSA", DSAParameterSpec.class));
     }
 
-    
+
 }

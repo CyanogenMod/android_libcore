@@ -32,7 +32,7 @@ import junit.framework.TestCase;
 @TestTargetClass(PrivateKey.class)
 /**
  * Tests for <code>PrivateKey</code> class field
- * 
+ *
  */
 
 public class PrivateKeyTest extends TestCase {
@@ -47,7 +47,7 @@ public class PrivateKeyTest extends TestCase {
         args = {}
     )
     public void testField() {
-        checkPrivateKey cPrKey = new checkPrivateKey(); 
+        checkPrivateKey cPrKey = new checkPrivateKey();
         assertEquals("Incorrect serialVersionUID", cPrKey.getSerVerUID(), //PrivateKey.serialVersionUID,
                 6034044314589513430L);
     }

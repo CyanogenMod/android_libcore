@@ -39,25 +39,25 @@ import org.xml.sax.XMLReader;
 public class MockReader implements XMLReader {
 
     private MethodLogger logger;
-    
+
     private ContentHandler contentHandler;
-    
+
     private DTDHandler dtdHandler;
 
     private EntityResolver resolver;
-    
+
     private ErrorHandler errorHandler;
-    
+
     private Set<String> features = new HashSet<String>();
 
     private Map<String, Object> properties = new HashMap<String, Object>();
-    
+
     public MockReader(MethodLogger logger) {
         super();
         this.logger = logger;
     }
 
-    
+
     public ContentHandler getContentHandler() {
         return contentHandler;
     }

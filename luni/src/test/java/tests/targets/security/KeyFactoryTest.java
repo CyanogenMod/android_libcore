@@ -119,9 +119,9 @@ public abstract class KeyFactoryTest<PublicKeySpec extends KeySpec, PrivateKeySp
         } catch (InvalidKeySpecException e) {
             fail(e.getMessage());
         }
-        
+
         KeyPair keyPair = new KeyPair(publicKey, privateKey);
-        
+
         helper.test(keyPair);
     }
 }

@@ -30,7 +30,7 @@ import java.util.TimeZone;
 
 /**
  * This class represents ASN.1 GeneralizedTime type.
- * 
+ *
  * @see http://asn1.elibel.tm.fr/en/standards/index.htm
  */
 
@@ -41,7 +41,7 @@ public class ASN1GeneralizedTime extends ASN1Time {
 
     /**
      * Constructs ASN.1 GeneralizedTime type
-     * 
+     *
      * The constructor is provided for inheritance purposes
      * when there is a need to create a custom ASN.1 GeneralizedTime type.
      * To get a default implementation it is recommended to use
@@ -53,7 +53,7 @@ public class ASN1GeneralizedTime extends ASN1Time {
 
     /**
      * Returns ASN.1 GeneralizedTime type default implementation
-     * 
+     *
      * The default implementation works with encoding
      * that is represented as Date object.
      *
@@ -94,12 +94,12 @@ public class ASN1GeneralizedTime extends ASN1Time {
     // four digit year, seconds always presented
     // and fractional-seconds elements without
     // trailing 0's (must be cut later from content)
-    private final static String GEN_PATTERN = "yyyyMMddHHmmss.SSS"; 
+    private final static String GEN_PATTERN = "yyyyMMddHHmmss.SSS";
 
     public void setEncodingContent(BerOutputStream out) {
 
         SimpleDateFormat sdf = new SimpleDateFormat(GEN_PATTERN);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC")); 
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         String temp = sdf.format(out.content);
         // cut off trailing 0s
         int nullId;
@@ -114,11 +114,11 @@ public class ASN1GeneralizedTime extends ASN1Time {
         }
 
         try {
-            out.content = (temp + "Z").getBytes("UTF-8");  
+            out.content = (temp + "Z").getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage());
         }
-        
+
         out.length = ((byte[]) out.content).length;
     }
 }

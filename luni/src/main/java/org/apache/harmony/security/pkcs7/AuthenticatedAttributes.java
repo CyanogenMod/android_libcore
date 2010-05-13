@@ -28,7 +28,7 @@ import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.x501.AttributeTypeAndValue;
 
 /**
- * 
+ *
  * As defined in PKCS #7: Cryptographic Message Syntax Standard
  * (http://www.ietf.org/rfc/rfc2315.txt):
  * authenticatedAttributes is a set of attributes that are signed (i.e., authenticated) by the signer
@@ -36,7 +36,7 @@ import org.apache.harmony.security.x501.AttributeTypeAndValue;
 class AuthenticatedAttributes {
     private byte[] encoding;
     private List authenticatedAttributes;
-    
+
     public AuthenticatedAttributes(byte[] encoding, List authenticatedAttributes) {
         this.encoding = encoding;
         this.authenticatedAttributes = authenticatedAttributes;

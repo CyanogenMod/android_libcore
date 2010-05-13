@@ -44,7 +44,7 @@ import java.util.Arrays;
 
 /**
  * Tests for <code>CertPath</code> fields and methods
- * 
+ *
  */
 @TestTargetClass(CertPath.class)
 public class CertPathTest extends TestCase {
@@ -54,7 +54,7 @@ public class CertPathTest extends TestCase {
     private static final byte[] testEncoding = new byte[] {
             (byte)1, (byte)2, (byte)3, (byte)4, (byte)5
     };
-    
+
     private static final byte[] testEncoding1 = new byte[] {
         (byte)1, (byte)2, (byte)3, (byte)4, (byte)5, (byte)6
     };
@@ -81,7 +81,7 @@ public class CertPathTest extends TestCase {
         } catch (CertificateEncodingException e) {
             fail("Unexpected CertificateEncodingException " + e.getMessage());
         }
-        
+
         try {
             CertPath cp1 = new MyCertPath(null);
         } catch (Exception e) {
@@ -140,7 +140,7 @@ public class CertPathTest extends TestCase {
 
     /**
      * Test #1 for <code>equals(Object)</code> method<br>
-     * Assertion: object equals to itself 
+     * Assertion: object equals to itself
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -302,7 +302,7 @@ public class CertPathTest extends TestCase {
             fail("Unexpected ObjectStreamException " + e.getMessage());
         }
     }
-    
+
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
             notes = "verifies ObjectStreamException.",
@@ -318,7 +318,7 @@ public class CertPathTest extends TestCase {
             // ok
         }
     }
-    
+
     /**
      * @tests serialization/deserialization compatibility.
      */

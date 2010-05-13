@@ -28,13 +28,13 @@ import javax.security.auth.AuthPermission;
 
 /**
  * Tests for <code>AuthPermission</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(AuthPermission.class) 
+@TestTargetClass(AuthPermission.class)
 public class AuthPermissionTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.AuthPermission#AuthPermission(String name) 
+     * @tests javax.security.auth.AuthPermission#AuthPermission(String name)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -44,7 +44,7 @@ public class AuthPermissionTest extends TestCase {
     )
     public void test_Constructor_01() {
         String[] strParam = {"", null};
-        
+
         try {
             AuthPermission ap = new AuthPermission("AuthPermissionName");
             assertNotNull("Null object returned", ap);
@@ -52,7 +52,7 @@ public class AuthPermissionTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         for (int i = 0; i < strParam.length; i++) {
             try {
                 AuthPermission ap = new AuthPermission(strParam[i]);
@@ -60,9 +60,9 @@ public class AuthPermissionTest extends TestCase {
             }
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.AuthPermission#AuthPermission(String name, String actions) 
+     * @tests javax.security.auth.AuthPermission#AuthPermission(String name, String actions)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -73,7 +73,7 @@ public class AuthPermissionTest extends TestCase {
     public void test_Constructor_02() {
         String[] strParam = {"", null};
         String[] actionParam = {"", null, "ActionName"};
-        
+
         try {
             AuthPermission ap = new AuthPermission("AuthPermissionName", null);
             assertNotNull("Null object returned", ap);
@@ -89,7 +89,7 @@ public class AuthPermissionTest extends TestCase {
             } catch (Exception e) {
             }
         }
-        
+
         for (int i = 0; i < actionParam.length; i++) {
             try {
                 AuthPermission ap = new AuthPermission("AuthPermissionName", actionParam[i]);

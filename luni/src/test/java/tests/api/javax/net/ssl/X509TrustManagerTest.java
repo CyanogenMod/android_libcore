@@ -1,6 +1,6 @@
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -19,9 +19,9 @@ import org.apache.harmony.xnet.tests.support.X509TrustManagerImpl;
 /**
  * Tests for <code>X509TrustManager</code> class constructors and methods.
  */
-@TestTargetClass(X509TrustManager.class) 
+@TestTargetClass(X509TrustManager.class)
 public class X509TrustManagerTest extends TestCase {
-    
+
     private X509Certificate[] setX509Certificate() {
         try {
             CertificateFactory certFact = CertificateFactory.getInstance("X.509");
@@ -49,9 +49,9 @@ public class X509TrustManagerTest extends TestCase {
         }
         return null;
     }
-    
+
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType) 
+     * @tests javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType)
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -69,9 +69,9 @@ public class X509TrustManagerTest extends TestCase {
         } catch (IllegalArgumentException iae) {
             //expected
         } catch (Exception e) {
-            fail(e + " was thrown instead of IllegalArgumentException");            
+            fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         xcert = new X509Certificate[0];
         try {
             xtm.checkClientTrusted(xcert, "SSL");
@@ -79,9 +79,9 @@ public class X509TrustManagerTest extends TestCase {
         } catch (IllegalArgumentException iae) {
             //expected
         } catch (Exception e) {
-            fail(e + " was thrown instead of IllegalArgumentException");            
+            fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         xcert = setX509Certificate();
         try {
             xtm.checkClientTrusted(xcert, null);
@@ -89,21 +89,21 @@ public class X509TrustManagerTest extends TestCase {
         } catch (IllegalArgumentException iae) {
             //expected
         } catch (Exception e) {
-            fail(e + " was thrown instead of IllegalArgumentException");            
+            fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             xtm.checkClientTrusted(xcert, "");
             fail("IllegalArgumentException wasn't thrown");
         } catch (IllegalArgumentException iae) {
             //expected
         } catch (Exception e) {
-            fail(e + " was thrown instead of IllegalArgumentException");            
+            fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType) 
+     * @tests javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType)
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -122,9 +122,9 @@ public class X509TrustManagerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType) 
+     * @tests javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[] chain, String authType)
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -142,9 +142,9 @@ public class X509TrustManagerTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType) 
+     * @tests javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType)
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -162,9 +162,9 @@ public class X509TrustManagerTest extends TestCase {
         } catch (IllegalArgumentException iae) {
             //expected
         } catch (Exception e) {
-            fail(e + " was thrown instead of IllegalArgumentException");            
+            fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         xcert = new X509Certificate[0];
         try {
             xtm.checkServerTrusted(xcert, "SSL");
@@ -172,9 +172,9 @@ public class X509TrustManagerTest extends TestCase {
         } catch (IllegalArgumentException iae) {
             //expected
         } catch (Exception e) {
-            fail(e + " was thrown instead of IllegalArgumentException");            
+            fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         xcert = setX509Certificate();
         try {
             xtm.checkServerTrusted(xcert, null);
@@ -182,21 +182,21 @@ public class X509TrustManagerTest extends TestCase {
         } catch (IllegalArgumentException iae) {
             //expected
         } catch (Exception e) {
-            fail(e + " was thrown instead of IllegalArgumentException");            
+            fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             xtm.checkServerTrusted(xcert, "");
             fail("IllegalArgumentException wasn't thrown");
         } catch (IllegalArgumentException iae) {
             //expected
         } catch (Exception e) {
-            fail(e + " was thrown instead of IllegalArgumentException");            
+            fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType) 
+     * @tests javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType)
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -215,9 +215,9 @@ public class X509TrustManagerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType) 
+     * @tests javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[] chain, String authType)
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -235,9 +235,9 @@ public class X509TrustManagerTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.X509TrustManager#getAcceptedIssuers() 
+     * @tests javax.net.ssl.X509TrustManager#getAcceptedIssuers()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -254,5 +254,5 @@ public class X509TrustManagerTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
 }

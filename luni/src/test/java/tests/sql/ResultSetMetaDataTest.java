@@ -79,7 +79,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             fail("SQLException is thrown: " + e.getMessage());
         }
-        
+
         try {
             conn.close();
             rsmd.getCatalogName(0);
@@ -114,7 +114,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             fail("SQLException is thrown");
         }
-        
+
         try {
             String name  = rsmd.getColumnClassName(4);
             assertNull(name);
@@ -139,7 +139,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             fail("SQLException is thrown: " + e.getMessage());
         }
-        
+
         try {
             rs.close();
             rsmd.getColumnCount();
@@ -147,7 +147,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             //ok
         }
-        
+
     }
 
     /**
@@ -170,14 +170,14 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             fail("SQLException is thrown: " + e.getMessage());
         }
-        
+
         try {
             String label = rsmd.getColumnLabel(0);
             fail("SQLException expected");
         } catch (SQLException e) {
             //ok
         }
-        
+
         try {
             String label = rsmd.getColumnLabel(5);
             fail("SQLException expected");
@@ -213,7 +213,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             //ok
         }
-        
+
         try {
             String label = rsmd.getColumnName(5);
             fail("SQLException is not thrown");
@@ -224,7 +224,7 @@ public class ResultSetMetaDataTest extends SQLTest {
 
     /**
      * @test java.sql.ResultSetMetaData#getColumnType(int column)
-     * 
+     *
      * for extensive tests see: ResultSetGetterTest.testGetMetaData
      */
     @TestTargetNew(
@@ -260,7 +260,7 @@ public class ResultSetMetaDataTest extends SQLTest {
 
     /**
      * @test java.sql.ResultSetMetaData#getColumnTypeName(int column)
-     * 
+     *
      * for extensive tests see: ResultSetGetterTest.testGetMetaData
      */
     @TestTargetNew(
@@ -293,7 +293,7 @@ public class ResultSetMetaDataTest extends SQLTest {
     }
 
     /**
-     * @throws SQLException 
+     * @throws SQLException
      * @test java.sql.ResultSetMetaData#getTableName(int column)
      */
     @TestTargetNew(
@@ -312,7 +312,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         Statement st1 = null;
         ResultSet rs1 = null;
         try {
-            
+
             String create = "create table hutch (id integer not null, animal_id integer, address char(20), primary key (id));";
             String insert1 = "insert into hutch (id, animal_id, address) values (1, 2, 'Birds-house, 1');";
             String insert2 = "insert into hutch (id, animal_id, address) values (2, 1, 'Horse-house, 5');";
@@ -321,7 +321,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             st1.executeUpdate(create);
             st1.executeUpdate(insert1);
             st1.executeUpdate(insert2);
-            
+
             rs1 = st1.executeQuery(query);
             assertNotNull(rs1);
             ResultSetMetaData rsmd1 = rs1.getMetaData();
@@ -347,7 +347,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             // ok
         }
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#getPrecision(int column)}
      */
@@ -374,20 +374,20 @@ public class ResultSetMetaDataTest extends SQLTest {
         st2 = conn.createStatement();
         st2.executeUpdate(createTable);
         st2.executeUpdate(insert);
-        
+
         st2.close();
-        
+
         st3 = conn.createStatement();
         rs = st3.executeQuery(select);
         assertTrue(rs.next());
         rsmd2 = rs.getMetaData();
-        
+
         assertNotNull(rsmd2);
         assertEquals(precicisionReal, rsmd2.getPrecision(4));
         assertEquals(precisionNum,rsmd2.getPrecision(3));
         assertTrue(rsmd2.getPrecision(2) > 0);
         assertTrue(rsmd2.getPrecision(1) > 0);
-        
+
         // non numeric field
         try {
             rsmd.getPrecision(3);
@@ -395,8 +395,8 @@ public class ResultSetMetaDataTest extends SQLTest {
             System.out.println("ResultSetMetaDataTest.testGetPrecision()"+e1.getMessage());
             e1.printStackTrace();
         }
-        
-        
+
+
         try {
             rsmd.getPrecision(0);
             fail("SQLException is not thrown");
@@ -409,7 +409,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             // expected
         }
-        
+
         try {
             rs.close();
             rsmd.getPrecision(1);
@@ -422,7 +422,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             if (st3 != null) st3.close();
         }
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#getScale(int column)}
      */
@@ -442,19 +442,19 @@ public class ResultSetMetaDataTest extends SQLTest {
         "valueFloat FLOAT , scaleTest NUMERIC(10,"+scale+")  );";
         String insert = "insert into DecimalNumbers values (1.5, 20.55, 30.666);";
         String select = "select * from DecimalNumbers;";
-        
+
         Statement st = conn.createStatement();
         st.executeUpdate(createTable);
         st.executeUpdate(insert);
-        
+
         rs = st.executeQuery(select);
         ResultSetMetaData rsmd2 = rs.getMetaData();
-        
+
         assertNotNull(rsmd2);
         assertEquals(scale,rsmd2.getScale(3));
         assertTrue(rsmd2.getScale(1) > 0);
         assertTrue(rsmd2.getScale(2) > 0);
-        
+
         try {
             rsmd.getScale(0);
             fail("SQLException is not thrown");
@@ -467,8 +467,8 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             // expected
         }
-        
-        
+
+
         try {
             conn.close();
             rsmd.getScale(1);
@@ -480,7 +480,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             st.cancel();
         }
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#getSchemaName(int column)}
      */
@@ -492,16 +492,16 @@ public class ResultSetMetaDataTest extends SQLTest {
     )
     @KnownFailure("not supported")
     public void testGetSchema() {
-        
+
         try {
             assertNull("Functionality is now supported. Change test",rsmd.getSchemaName(2));
         } catch (SQLException e1) {
             fail("ResultSetMetaDataTest.testGetScale()"+e1.getMessage());
             e1.printStackTrace();
         }
-        
-        
-        
+
+
+
         try {
             rsmd.getSchemaName(0);
             fail("SQLException is not thrown");
@@ -514,8 +514,8 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             // expected
         }
-        
-        
+
+
         try {
             conn.close();
             rsmd.getSchemaName(2);
@@ -525,7 +525,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         }
 
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#isAutoIncrement(int column)}
      */
@@ -537,17 +537,17 @@ public class ResultSetMetaDataTest extends SQLTest {
     )
     @KnownFailure("not supported")
     public void testisAutoIncrement() {
-        
+
         try {
             assertFalse(rsmd.isAutoIncrement(1));
         } catch (SQLException e1) {
             fail("ResultSetMetaDataTest.testGetScale()"+e1.getMessage());
             e1.printStackTrace();
         }
-        
+
         /*
         // Exception testing
-        
+
         try {
             rsmd.isAutoIncrement(0);
             fail("SQLException is not thrown");
@@ -561,7 +561,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
         */
-        
+
         try {
             conn.close();
             rsmd.getSchemaName(2);
@@ -569,9 +569,9 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             //ok
         }
-        
+
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#isCaseSensitive(int column)}
      */
@@ -583,7 +583,7 @@ public class ResultSetMetaDataTest extends SQLTest {
     )
     @KnownFailure("not supported")
     public void testIsCaseSensitive() {
-        
+
         try {
             assertFalse(rsmd.isCaseSensitive(1));
             assertFalse(rsmd.isCaseSensitive(2));
@@ -592,10 +592,10 @@ public class ResultSetMetaDataTest extends SQLTest {
             fail("ResultSetMetaDataTest.testGetScale()"+e1.getMessage());
             e1.printStackTrace();
         }
-        
+
         /*
         // Exception testing
-        
+
         try {
             rsmd.isCaseSensitive(0);
             fail("SQLException is not thrown");
@@ -609,7 +609,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
         */
-        
+
         try {
             conn.close();
             rsmd.isCaseSensitive(1);
@@ -618,7 +618,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             //ok
         }
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#isCurrency(int column)}
      */
@@ -630,17 +630,17 @@ public class ResultSetMetaDataTest extends SQLTest {
     )
     @KnownFailure("not supported")
     public void testIsCurrency() {
-        
+
         try {
             assertFalse(rsmd.isCurrency(1));
         } catch (SQLException e1) {
             fail("ResultSetMetaDataTest.testGetScale()"+e1.getMessage());
             e1.printStackTrace();
         }
-        
-        
+
+
         // Exception testing
-        
+
         try {
             rsmd.isCurrency(0);
             fail("SQLException is not thrown");
@@ -653,8 +653,8 @@ public class ResultSetMetaDataTest extends SQLTest {
         } catch (SQLException e) {
             // expected
         }
- 
-        
+
+
         try {
             rs.close();
             rsmd.isCurrency(1);
@@ -663,7 +663,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             //ok
         }
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#isDefinitelyWritable(int column)}
      */
@@ -699,7 +699,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#isNullable(int column)}
      */
@@ -723,7 +723,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             fail("ResultSetMetaDataTest.isNullable()" + e1.getMessage());
             e1.printStackTrace();
         }
-        
+
         /*
         // Exception testing
 
@@ -742,7 +742,7 @@ public class ResultSetMetaDataTest extends SQLTest {
         */
 
     }
-   
+
     /**
      * @test {@link java.sql.ResultSetMetaData#isReadOnly(int column)}
      */
@@ -771,7 +771,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#isSearchable(int column)}
      */
@@ -802,7 +802,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#isSigned(int column)}
      */
@@ -831,7 +831,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
     }
-    
+
     /**
      * @test {@link java.sql.ResultSetMetaData#isWritable(int column)}
      */
@@ -852,7 +852,7 @@ public class ResultSetMetaDataTest extends SQLTest {
             fail("ResultSetMetaDataTest.isWritable" + e1.getMessage());
             e1.printStackTrace();
         }
-        
+
         // Exception testing
 
         try {
@@ -862,8 +862,8 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
     }
-    
-    
+
+
     /**
      * @test {@link java.sql.ResultSetMetaData#getColumnDisplaySize(int Column)}
      */
@@ -900,5 +900,5 @@ public class ResultSetMetaDataTest extends SQLTest {
             // expected
         }
     }
-    
+
 }

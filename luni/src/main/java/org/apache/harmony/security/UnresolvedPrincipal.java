@@ -29,20 +29,20 @@ import org.apache.harmony.security.internal.nls.Messages;
 /**
  * Descriptive implementation of Principal, which holds a name and a classname
  * of unresolved principal. It is used to define an arbitrary Principal which
- * may be not yet instantiated and authenticated. 
+ * may be not yet instantiated and authenticated.
  * <br>
- * This concept is somewhat similar to UnresolvedPermission. A principal-based 
- * policy may grant permissions depending on what Principals own the current 
- * execution thread. So the policy refers to this model definition of 
- * acceptable principal and compares it with the actual principal. 
- * 
+ * This concept is somewhat similar to UnresolvedPermission. A principal-based
+ * policy may grant permissions depending on what Principals own the current
+ * execution thread. So the policy refers to this model definition of
+ * acceptable principal and compares it with the actual principal.
+ *
  * @see org.apache.harmony.security.PolicyEntry
  * @see org.apache.harmony.security.fortress.DefaultPolicy
  */
 public final class UnresolvedPrincipal implements Principal {
 
-    /** 
-     * Wildcard value denotes any class and/or any name. 
+    /**
+     * Wildcard value denotes any class and/or any name.
      */
     public static final String WILDCARD = DefaultPolicyScanner.PrincipalEntry.WILDCARD;
 
@@ -54,15 +54,15 @@ public final class UnresolvedPrincipal implements Principal {
 
     /**
      * Constructs a a new definition of a Principal with specified
-     * parameters. 
+     * parameters.
      * @param klass fully qualified class name, may be wildcard
      * @param name name of principal, may be wildcard
-     * @throws IllegalArgumentException if <code>klass</code> value 
-     * is <code>null </code> or is empty string 
+     * @throws IllegalArgumentException if <code>klass</code> value
+     * is <code>null </code> or is empty string
      */
     public UnresolvedPrincipal(String klass, String name) {
         if (klass == null || klass.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("security.91")); 
+            throw new IllegalArgumentException(Messages.getString("security.91"));
         }
 
         this.klass = klass;
@@ -70,16 +70,16 @@ public final class UnresolvedPrincipal implements Principal {
     }
 
     /**
-     * Returns name of a modeled Principal, or wildcard 
+     * Returns name of a modeled Principal, or wildcard
      * if any name is acceptable.
      */
     public String getName() {
         return name;
     }
 
-    /** 
+    /**
      * Returns fully qualified class name of a modeled Principal,
-     * or wildcard if any class is acceptable. 
+     * or wildcard if any class is acceptable.
      */
     public String getClassName() {
         return klass;
@@ -87,8 +87,8 @@ public final class UnresolvedPrincipal implements Principal {
 
     /**
      * Returns <code>true</code> if compared object is a Principal
-     * matching this definition, or if it is an UnresolvedPrincipal, 
-     * which defines the same Principal; <code>false</code> otherwise.  
+     * matching this definition, or if it is an UnresolvedPrincipal,
+     * which defines the same Principal; <code>false</code> otherwise.
      */
     public boolean equals(Object that) {
         if (that instanceof UnresolvedPrincipal) {
@@ -102,26 +102,26 @@ public final class UnresolvedPrincipal implements Principal {
         return false;
     }
 
-    /** 
+    /**
      * Returns <code>true</code> if compared object is a Principal
-     * exactly matching this definition. Namely, if the fully qualified name 
+     * exactly matching this definition. Namely, if the fully qualified name
      * of class of passed Principal is equal to the class name value
-     * of this definition and the name of passed Principal is equal to 
+     * of this definition and the name of passed Principal is equal to
      * the name value of this definition, or if this definition allows
-     * any class or name, respectively.  
+     * any class or name, respectively.
      * Otherwise returns <code>false</code> .
      */
     public boolean implies(Principal another) {
         return (another != null)
-                && (WILDCARD.equals(klass) 
+                && (WILDCARD.equals(klass)
                     || klass.equals(another.getClass().getName())
-                && (WILDCARD.equals(name) 
-                    || (name == null ? another.getName() == null 
+                && (WILDCARD.equals(name)
+                    || (name == null ? another.getName() == null
                         : name.equals(another.getName()))));
     }
 
-    /** 
-     * Returns the hash code value for this object. 
+    /**
+     * Returns the hash code value for this object.
      */
     public int hashCode() {
         int hash = 0;
@@ -134,11 +134,11 @@ public final class UnresolvedPrincipal implements Principal {
         return hash;
     }
 
-    /** 
+    /**
      * Returns a string describing this model of Principal.
      * The format is 'Principal classname &quot;name&quot;'.
      */
     public String toString() {
-        return "Principal " + klass + " \"" + name + "\"";   
+        return "Principal " + klass + " \"" + name + "\"";
     }
 }

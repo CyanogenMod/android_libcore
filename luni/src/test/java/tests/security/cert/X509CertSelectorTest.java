@@ -85,7 +85,7 @@ import org.apache.harmony.security.x509.PrivateKeyUsagePeriod;
  */
 @TestTargetClass(X509CertSelector.class)
 public class X509CertSelectorTest extends TestCase {
-    
+
     byte[][] constraintBytes = new byte[][] {
             {
                     48, 34, -96, 15, 48, 13, -127, 8, 56, 50, 50, 46, 78,
@@ -211,10 +211,10 @@ public class X509CertSelectorTest extends TestCase {
                 // expected
             }
         }
-        
-        
+
+
     }
-    
+
     /**
      * @tests java.security.cert.X509CertSelector#X509CertSelector()
      */
@@ -701,7 +701,7 @@ public class X509CertSelectorTest extends TestCase {
 
         selector.setPolicy(p1);
         assertEquals("The returned date should be equal to specified", p1, selector.getPolicy());
-        
+
         selector.setPolicy(p2);
         assertEquals("The returned date should be equal to specified", p2, selector.getPolicy());
     }
@@ -1519,7 +1519,7 @@ public class X509CertSelectorTest extends TestCase {
                 selector.match(cert1));
         assertFalse("The certificate should not match the selection criteria.",
                 selector.match(cert2));
-        
+
         selector.setPolicy(p2);
         assertFalse("The certificate should not match the selection criteria.",
                 selector.match(cert1));
@@ -1785,7 +1785,7 @@ public class X509CertSelectorTest extends TestCase {
             fail("Unexpected IOException was thrown.");
         }
     }
-    
+
     /**
      * @tests java.security.cert.X509CertSelector#setSubjectKeyIdentifier(byte[])
      */
@@ -1938,7 +1938,7 @@ public class X509CertSelectorTest extends TestCase {
                 fail("Unexpected exception " + e.getMessage());
             }
         }
-        
+
         String[] invalidOIDs = { "0.20", "1.25", "2.39", "3.10"};
         for (int i = 0; i < invalidOIDs.length; i++) {
             try {
@@ -2375,9 +2375,9 @@ public class X509CertSelectorTest extends TestCase {
         public boolean hasUnsupportedCriticalExtension() {
             return false;
         }
-        
+
     }
-    
+
     public X509Certificate rootCertificate;
 
     public X509Certificate endCertificate;
@@ -2387,7 +2387,7 @@ public class X509CertSelectorTest extends TestCase {
     private X509CertSelector theCertSelector;
 
     private CertPathBuilder builder;
-    
+
     private void setupEnvironment() throws Exception {
         // create certificates and CRLs
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -2416,12 +2416,12 @@ public class X509CertSelectorTest extends TestCase {
         theCertSelector.setCertificate(endCertificate);
         theCertSelector.setIssuer(endCertificate.getIssuerX500Principal()
                 .getEncoded());
-        
+
      // build the path
         builder = CertPathBuilder.getInstance("PKIX");
 
     }
-    
+
     private CertPath buildCertPath() throws InvalidAlgorithmParameterException {
         PKIXCertPathBuilderResult result = null;
         PKIXBuilderParameters buildParams = new PKIXBuilderParameters(
@@ -2435,7 +2435,7 @@ public class X509CertSelectorTest extends TestCase {
         }
         return result.getCertPath();
     }
-    
+
     /**
      * @tests java.security.cert.X509CertSelector#addPathToName(int, byte[])
      */
@@ -2455,22 +2455,22 @@ public class X509CertSelectorTest extends TestCase {
         bytes = new byte[] {-127, 8, 56, 50, 50, 46, 78, 97, 109, 101};
         bytesName = new byte[] {22, 8, 56, 50, 50, 46, 78, 97, 109, 101};
         bytes[bytes.length-3] = (byte) 200;
-        
+
         try {
             theCertSelector.addPathToName(1, bytes);
         } catch (IOException e) {
             // ok
         }
-        
+
         theCertSelector.setPathToNames(null);
-        
+
         theCertSelector.addPathToName(1, bytesName);
         assertNotNull(theCertSelector.getPathToNames());
         CertPath p = buildCertPath();
         assertNull(p);
-        
+
         theCertSelector.setPathToNames(null);
-        
+
 //        name = new GeneralName(new Name("O=Android"));
 //        theCertSelector.addPathToName(4, endCertificate.getSubjectDN().getName());
         theCertSelector.addPathToName(4, TestUtils.rootCertificateSS.getIssuerX500Principal().getEncoded());
@@ -2478,7 +2478,7 @@ public class X509CertSelectorTest extends TestCase {
         p = TestUtils.buildCertPathSSCertChain();
         assertNotNull(p);
     }
-    
+
     /**
      * @tests java.security.cert.X509CertSelector#addPathToName(int, String)
      */
@@ -2500,28 +2500,28 @@ public class X509CertSelectorTest extends TestCase {
         byte[] b = new byte[bytes.length];
         b = bytes;
         b[bytes.length-3] = (byte) 200;
-        
+
         try {
         theCertSelector.addPathToName(1, new String(b));
         } catch (IOException e) {
             // ok
         }
-        
+
         theCertSelector.setPathToNames(null);
-        
+
         theCertSelector.addPathToName(1, new String(bytesName));
         assertNotNull(theCertSelector.getPathToNames());
-        
+
         CertPath p = buildCertPath();
         assertNull(p);
-        
+
         theCertSelector.setPathToNames(null);
         theCertSelector.addPathToName(1, rootCertificate.getIssuerX500Principal().getName());
         assertNotNull(theCertSelector.getPathToNames());
         //p = buildCertPath();
         //assertNotNull(p);
     }
-    
+
     /**
      * @tests java.security.cert.X509CertSelector#addSubjectAlternativeName(int, byte[])
      */
@@ -2533,8 +2533,8 @@ public class X509CertSelectorTest extends TestCase {
     )
     public void test_addSubjectAlternativeNameLintLbyte_array2()
             throws Exception {
-        
-      
+
+
         GeneralName san0 = new GeneralName(new OtherName("1.2.3.4.5",
                 new byte[] {1, 2, 0, 1}));
         GeneralName san1 = new GeneralName(1, "rfc@822.Name");
@@ -2559,7 +2559,7 @@ public class X509CertSelectorTest extends TestCase {
 
         assertTrue(selector.match(cert1));
         assertFalse(selector.match(cert2));
-        
+
         selector.setSubjectAlternativeNames(null);
 
         GeneralName name = new GeneralName(new Name("O=Android"));
@@ -2589,7 +2589,7 @@ public class X509CertSelectorTest extends TestCase {
         sans1.addName(san2);
 
         X509CertSelector selector = new X509CertSelector();
-        
+
         selector.addSubjectAlternativeName(6, "http://uniform.Resource.Id");
         selector.addSubjectAlternativeName(2, "dNSName");
 
@@ -2601,7 +2601,7 @@ public class X509CertSelectorTest extends TestCase {
 
         assertTrue(selector.match(cert1));
         assertFalse(selector.match(cert2));
-        
+
         selector.setSubjectAlternativeNames(null);
 
         GeneralName name = new GeneralName(new Name("O=Android"));

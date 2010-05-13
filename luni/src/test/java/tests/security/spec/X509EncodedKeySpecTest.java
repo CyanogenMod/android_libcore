@@ -36,7 +36,7 @@ import java.util.Arrays;
 
 /**
  * Tests for <code>X509EncodedKeySpec</code> class fields and methods
- * 
+ *
  */
 @TestTargetClass(X509EncodedKeySpec.class)
 public class X509EncodedKeySpecTest extends TestCase {
@@ -58,9 +58,9 @@ public class X509EncodedKeySpecTest extends TestCase {
     )
     public final void testX509EncodedKeySpec() {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
-        
+
         EncodedKeySpec eks = new X509EncodedKeySpec(encodedKey);
-        
+
         assertTrue(eks instanceof X509EncodedKeySpec);
         try {
             eks = new X509EncodedKeySpec(null);
@@ -82,11 +82,11 @@ public class X509EncodedKeySpecTest extends TestCase {
     )
     public final void testGetEncoded() {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
-        
+
         X509EncodedKeySpec eks = new X509EncodedKeySpec(encodedKey);
-        
+
         byte[] ek = eks.getEncoded();
-        
+
         assertTrue(Arrays.equals(encodedKey, ek));
     }
 
@@ -102,12 +102,12 @@ public class X509EncodedKeySpecTest extends TestCase {
     )
     public final void testGetFormat() {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
-        
+
         X509EncodedKeySpec meks = new X509EncodedKeySpec(encodedKey);
-        
+
         assertEquals("X.509", meks.getFormat());
     }
-    
+
     /**
      * Tests that internal state of the object
      * can not be changed by modifying initial
@@ -124,24 +124,24 @@ public class X509EncodedKeySpecTest extends TestCase {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
         // Reference array's copy will be used for test
         byte[] encodedKeyCopy = encodedKey.clone();
-        
+
         X509EncodedKeySpec meks = new X509EncodedKeySpec(encodedKeyCopy);
-        
+
         // Modify initial array's value
         encodedKeyCopy[3] = (byte)5;
-        
+
         // Get encoded key
         byte[] ek = meks.getEncoded();
-        
+
         // Check  using reference array that
         // byte value has not been changed
         assertTrue(Arrays.equals(encodedKey, ek));
     }
-    
+
     /**
      * Tests that internal state of the object
      * can not be modified using returned value
-     * of <code>getEncoded()</code> method 
+     * of <code>getEncoded()</code> method
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -154,17 +154,17 @@ public class X509EncodedKeySpecTest extends TestCase {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
         // Reference array's copy will be used for test
         byte[] encodedKeyCopy = encodedKey.clone();
-        
+
         X509EncodedKeySpec meks = new X509EncodedKeySpec(encodedKeyCopy);
-        
-        byte[] ek = meks.getEncoded();        
+
+        byte[] ek = meks.getEncoded();
 
         // Modify returned array
         ek[3] = (byte)5;
-        
+
         // Get encoded key again
         byte[] ek1 = meks.getEncoded();
-        
+
         // Check using reference array that
         // byte value has not been changed
         assertTrue(Arrays.equals(encodedKey, ek1));

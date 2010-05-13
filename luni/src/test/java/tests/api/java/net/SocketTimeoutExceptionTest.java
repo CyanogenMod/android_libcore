@@ -8,10 +8,10 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(SocketTimeoutException.class) 
+@TestTargetClass(SocketTimeoutException.class)
 public class SocketTimeoutExceptionTest extends TestCase {
 
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -22,7 +22,7 @@ public class SocketTimeoutExceptionTest extends TestCase {
         SocketTimeoutException ste = new SocketTimeoutException();
         assertNull(ste.getMessage());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -30,11 +30,11 @@ public class SocketTimeoutExceptionTest extends TestCase {
         args = {String.class}
     )
     public void test_ConstructorLString() {
-        
+
         String [] strs = {"", null, "Test String"};
         for(String str:strs) {
             SocketTimeoutException ste = new SocketTimeoutException(str);
             assertEquals(str, ste.getMessage());
-        } 
+        }
     }
 }

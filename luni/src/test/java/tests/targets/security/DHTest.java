@@ -48,13 +48,13 @@ public class DHTest extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail(e.getMessage());
         }
-        
+
         AlgorithmParameterGenerator algorithmparametergenerator = AlgorithmParameterGenerator.getInstance("DH");
         algorithmparametergenerator.init(1024, new SecureRandom());
         AlgorithmParameters algorithmparameters = algorithmparametergenerator.generateParameters();
         DHParameterSpec dhparameterspec = algorithmparameters.getParameterSpec(DHParameterSpec.class);
 
-        
+
         //gen.initialize(1024);
         gen.initialize(dhparameterspec);
         KeyPair key = gen.generateKeyPair();

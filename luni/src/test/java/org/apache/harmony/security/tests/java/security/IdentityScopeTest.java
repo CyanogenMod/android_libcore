@@ -39,18 +39,18 @@ import junit.framework.TestCase;
 @TestTargetClass(IdentityScope.class)
 /**
  * Tests for <code>IdentityScope</code>
- * 
+ *
  */
 @SuppressWarnings("deprecation")
 public class IdentityScopeTest extends TestCase {
 
     public static class MySecurityManager extends SecurityManager {
-        public Permissions denied = new Permissions(); 
+        public Permissions denied = new Permissions();
         public void checkPermission(Permission permission){
             if (denied!=null && denied.implies(permission)) throw new SecurityException();
         }
     }
-    
+
     IdentityScope is;
 
     /**
@@ -123,7 +123,7 @@ public class IdentityScopeTest extends TestCase {
     public final void testGetSystemScope() {
         String name = Security.getProperty("system.scope");
         assertNotNull(name);
-        IdentityScope scope = IdentityScope.getSystemScope(); 
+        IdentityScope scope = IdentityScope.getSystemScope();
         assertNotNull(scope);
         assertEquals(name, scope.getClass().getName());
     }
@@ -150,7 +150,7 @@ public class IdentityScopeTest extends TestCase {
     public final void testSetSystemScope() {
 //      default implementation is specified by security property system.scope
         IdentityScope systemScope = IdentityScope.getSystemScope();
-        
+
         try {
             // all permissions are granted - sm is not installed
             is = new IdentityScopeStub("Aleksei Semenov");
@@ -162,12 +162,12 @@ public class IdentityScopeTest extends TestCase {
             try {
                 is = new IdentityScopeStub("aaa");
                 IdentityScopeStub.mySetSystemScope(is);
-                assertSame(is, IdentityScope.getSystemScope());       
+                assertSame(is, IdentityScope.getSystemScope());
                 // permission is denied
                 sm.denied.add(new SecurityPermission("setSystemScope"));
                 IdentityScope is2 = new IdentityScopeStub("bbb");
                 try{
-                    IdentityScopeStub.mySetSystemScope(is2); 
+                    IdentityScopeStub.mySetSystemScope(is2);
                     fail("SecurityException should be thrown");
                 } catch (SecurityException e){
                     assertSame(is, IdentityScope.getSystemScope());

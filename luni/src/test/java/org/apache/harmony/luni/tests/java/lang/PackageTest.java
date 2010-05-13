@@ -234,7 +234,7 @@ public class PackageTest extends junit.framework.TestCase {
         } catch (NullPointerException compatible) {
             /*
              * RI throws NPE instead of NFE...
-             */ 
+             */
         }
 
         try {
@@ -290,7 +290,7 @@ public class PackageTest extends junit.framework.TestCase {
         assertTrue("Package toString returns wrong string", p.toString()
                 .length() > 0);
     }
-    
+
     public void test_SealedPackage_forName() throws Exception {
         Support_Resources.copyFile(resources, "Package", "hyts_c.jar");
         Support_Resources.copyFile(resources, "Package", "hyts_d.jar");

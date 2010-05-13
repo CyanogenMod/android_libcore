@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -37,17 +37,17 @@ import javax.xml.parsers.DocumentBuilder;
  * The method hasAttributeNS returns true when an attribute with a given local
  * name and namespace URI is specified on this element or has a default value,
  * false otherwise.
- * 
+ *
  * Retreive the first employee element node. Invoke the hasAttributeNS method to
  * check if it has the xmlns attribute that belongs to the namespace
  * http://www.w3.org/2000/xmlns/.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttrNS</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class ElementHasAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -73,7 +73,7 @@ public final class ElementHasAttributeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -106,7 +106,7 @@ public final class ElementHasAttributeNS extends DOMTestCase {
         Element element;
         boolean state;
         Attr attribute;
-        
+
         doc = (Document) load("staff", builder);
         element = doc.createElementNS("http://www.w3.org/DOM", "address");
         attribute = doc.createAttributeNS("http://www.w3.org/DOM", "domestic");
@@ -125,7 +125,7 @@ public final class ElementHasAttributeNS extends DOMTestCase {
         Element element;
         boolean state;
         Attr attribute;
-        
+
         String nullNS = null;
 
         doc = (Document) load("staff", builder);

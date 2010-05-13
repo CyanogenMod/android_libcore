@@ -74,17 +74,17 @@ public class PBEKeySpec implements KeySpec {
     public PBEKeySpec(char[] password, byte[] salt, int iterationCount,
                       int keyLength) {
         if (salt == null) {
-            throw new NullPointerException(Messages.getString("crypto.3B")); 
+            throw new NullPointerException(Messages.getString("crypto.3B"));
         }
         if (salt.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.3C")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.3C"));
         }
         if (iterationCount <= 0) {
             throw new IllegalArgumentException(
-                    Messages.getString("crypto.3D")); 
+                    Messages.getString("crypto.3D"));
         }
         if (keyLength <= 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.3E")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.3E"));
         }
 
         if (password == null) {
@@ -116,14 +116,14 @@ public class PBEKeySpec implements KeySpec {
      */
     public PBEKeySpec(char[] password, byte[] salt, int iterationCount) {
         if (salt == null) {
-            throw new NullPointerException(Messages.getString("crypto.3B")); 
+            throw new NullPointerException(Messages.getString("crypto.3B"));
         }
         if (salt.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.3C")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.3C"));
         }
         if (iterationCount <= 0) {
             throw new IllegalArgumentException(
-                    Messages.getString("crypto.3D")); 
+                    Messages.getString("crypto.3D"));
         }
 
         if (password == null) {
@@ -155,7 +155,7 @@ public class PBEKeySpec implements KeySpec {
      */
     public final char[] getPassword() {
         if (password == null) {
-            throw new IllegalStateException(Messages.getString("crypto.3F")); 
+            throw new IllegalStateException(Messages.getString("crypto.3F"));
         }
         char[] result = new char[password.length];
         System.arraycopy(password, 0, result, 0, password.length);

@@ -53,7 +53,7 @@ public final class CDATASectionImpl extends TextImpl implements CDATASection {
         if (!needsSplitting()) {
             return;
         }
-        
+
         Node parent = getParentNode();
         String[] parts = getData().split("\\]\\]>");
         parent.insertBefore(new CDATASectionImpl(document, parts[0] + "]]"), this);

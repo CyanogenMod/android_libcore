@@ -36,11 +36,11 @@ import javax.crypto.ShortBufferException;
 /**
  * Additional class for verification of KeyAgreementSpi
  * and KeyAgreement functionality
- * 
+ *
  */
 
 public class MyKeyAgreementSpi extends KeyAgreementSpi {
-    
+
     @Override
     protected Key engineDoPhase(Key key, boolean lastPhase)
             throws InvalidKeyException, IllegalStateException {

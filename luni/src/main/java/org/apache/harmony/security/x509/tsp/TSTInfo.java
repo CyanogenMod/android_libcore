@@ -14,7 +14,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
- * under the License.    
+ * under the License.
  */
 
 package org.apache.harmony.security.x509.tsp;
@@ -37,9 +37,9 @@ import org.apache.harmony.security.x509.Extensions;
 import org.apache.harmony.security.x509.GeneralName;
 
 /**
- * As defined in Time-Stamp Protocol (TSP) 
+ * As defined in Time-Stamp Protocol (TSP)
  * (http://www.ietf.org/rfc/rfc3161.txt)
- * 
+ *
  * TSTInfo ::= SEQUENCE  {
  *    version                      INTEGER  { v1(1) },
  *    policy                       TSAPolicyId,
@@ -58,33 +58,33 @@ import org.apache.harmony.security.x509.GeneralName;
  *    tsa                          [0] GeneralName          OPTIONAL,
  *    extensions                   [1] IMPLICIT Extensions   OPTIONAL
  * }
- *  
+ *
  * TSAPolicyId ::= OBJECT IDENTIFIER
- * 
- * "tsa [0] GeneralName OPTIONAL" is EXPLICIT and the word EXPLICIT is omitted. 
+ *
+ * "tsa [0] GeneralName OPTIONAL" is EXPLICIT and the word EXPLICIT is omitted.
  */
 public class TSTInfo {
-    
+
     private final int version;
-    
+
     private final String policy;
-    
+
     private final MessageImprint messageImprint;
-    
+
     private final BigInteger serialNumber;
-    
+
     private final Date genTime;
-    
+
     private final int [] accuracy;
-    
+
     private final Boolean ordering;
-    
+
     private final BigInteger nonce;
-    
+
     private final GeneralName tsa;
-    
+
     private final Extensions extensions;
-    
+
     public TSTInfo(int version, String policy, MessageImprint messageImprint,
             BigInteger serialNumber, Date genTime, int[] accuracy,
             Boolean ordering, BigInteger nonce, GeneralName tsa,
@@ -100,7 +100,7 @@ public class TSTInfo {
         this.tsa = tsa;
         this.extensions = extensions;
     }
-    
+
     public String toString() {
         StringBuilder res = new StringBuilder();
         res.append("-- TSTInfo:");
@@ -218,10 +218,10 @@ public class TSTInfo {
             setOptional(1);
             setOptional(2);
         }
-        
+
         protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
-            
+
             int [] accuracy = new int [3];
             for (int i = 0; i < 3; i++) {
                 if (values[i] != null) {
@@ -235,7 +235,7 @@ public class TSTInfo {
             }
             return accuracy;
         }
-        
+
         protected void getValues(Object object, Object[] values) {
             int [] accuracy = (int []) object;
             for (int i = 0; i < 3; i++) {
@@ -248,15 +248,15 @@ public class TSTInfo {
             }
         }
     };
-    
-    public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] { 
+
+    public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
             ASN1Integer.getInstance(),              // version
             ASN1Oid.getInstance(),                  // policy
             MessageImprint.ASN1,                    // messageImprint
             ASN1Integer.getInstance(),              // serialNumber
             ASN1GeneralizedTime.getInstance(),      // genTime
             ACCURACY,                               // accuracy
-            ASN1Boolean.getInstance(),              // ordering  
+            ASN1Boolean.getInstance(),              // ordering
             ASN1Integer.getInstance(),              // nonce
             new ASN1Explicit(0, GeneralName.ASN1),  // tsa
             new ASN1Implicit(1, Extensions.ASN1) }) {// extensions
@@ -270,10 +270,10 @@ public class TSTInfo {
 
         protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
-            
+
             BigInteger nonce = (values[7] == null) ? null : new BigInteger(
                     (byte[]) values[7]);
-            
+
             return new TSTInfo(
                     ASN1Integer.toIntValue(values[0]),
                     ObjectIdentifier.toString((int[]) values[1]),
@@ -289,7 +289,7 @@ public class TSTInfo {
 
         protected void getValues(Object object, Object[] values) {
             TSTInfo info = (TSTInfo) object;
-            
+
             values[0] = ASN1Integer.fromIntValue(info.version);
             values[1] = ObjectIdentifier.toIntArray(info.policy);
             values[2] = info.messageImprint;

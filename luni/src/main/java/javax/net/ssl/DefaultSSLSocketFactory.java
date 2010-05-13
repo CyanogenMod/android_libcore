@@ -25,7 +25,7 @@ import java.net.UnknownHostException;
 
 /**
  * Default inoperative implementation of javax.net.ssl.SSLSocketFactory
- * 
+ *
  */
 class DefaultSSLSocketFactory extends SSLSocketFactory {
 

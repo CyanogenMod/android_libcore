@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -86,7 +86,7 @@ public class CoderResult {
 
     /**
      * Constructs a <code>CoderResult</code> object with its text description.
-     * 
+     *
      * @param type
      *            the type of this result
      * @param length
@@ -101,7 +101,7 @@ public class CoderResult {
     /**
      * Gets a <code>CoderResult</code> object indicating a malformed-input
      * error.
-     * 
+     *
      * @param length
      *            the length of the malformed-input.
      * @return a <code>CoderResult</code> object indicating a malformed-input
@@ -128,7 +128,7 @@ public class CoderResult {
     /**
      * Gets a <code>CoderResult</code> object indicating an unmappable
      * character error.
-     * 
+     *
      * @param length
      *            the length of the input unit sequence denoting the unmappable
      *            character.
@@ -155,7 +155,7 @@ public class CoderResult {
 
     /**
      * Returns true if this result is an underflow condition.
-     * 
+     *
      * @return true if an underflow, otherwise false.
      */
     public boolean isUnderflow() {
@@ -165,7 +165,7 @@ public class CoderResult {
     /**
      * Returns true if this result represents a malformed-input error or an
      * unmappable-character error.
-     * 
+     *
      * @return true if this is a malformed-input error or an
      *         unmappable-character error, otherwise false.
      */
@@ -176,7 +176,7 @@ public class CoderResult {
 
     /**
      * Returns true if this result represents a malformed-input error.
-     * 
+     *
      * @return true if this is a malformed-input error, otherwise false.
      */
     public boolean isMalformed() {
@@ -185,7 +185,7 @@ public class CoderResult {
 
     /**
      * Returns true if this result is an overflow condition.
-     * 
+     *
      * @return true if this is an overflow, otherwise false.
      */
     public boolean isOverflow() {
@@ -194,7 +194,7 @@ public class CoderResult {
 
     /**
      * Returns true if this result represents an unmappable-character error.
-     * 
+     *
      * @return true if this is an unmappable-character error, otherwise false.
      */
     public boolean isUnmappable() {
@@ -204,7 +204,7 @@ public class CoderResult {
     /**
      * Gets the length of the erroneous input. The length is only meaningful to
      * a malformed-input error or an unmappble character error.
-     * 
+     *
      * @return the length, as an integer, of this object's erroneous input.
      * @throws UnsupportedOperationException
      *             if this result is an overflow or underflow.
@@ -218,7 +218,7 @@ public class CoderResult {
 
     /**
      * Throws an exception corresponding to this coder result.
-     * 
+     *
      * @throws BufferUnderflowException
      *             in case this is an underflow.
      * @throws BufferOverflowException
@@ -249,7 +249,7 @@ public class CoderResult {
 
     /**
      * Returns a text description of this result.
-     * 
+     *
      * @return a text description of this result.
      */
     @Override
@@ -257,24 +257,24 @@ public class CoderResult {
         String dsc = null;
         switch (this.type) {
             case TYPE_UNDERFLOW:
-                dsc = "UNDERFLOW error"; 
+                dsc = "UNDERFLOW error";
                 break;
             case TYPE_OVERFLOW:
-                dsc = "OVERFLOW error"; 
+                dsc = "OVERFLOW error";
                 break;
             case TYPE_UNMAPPABLE_CHAR:
-                dsc = "Unmappable-character error with erroneous input length " 
+                dsc = "Unmappable-character error with erroneous input length "
                         + this.length;
                 break;
             case TYPE_MALFORMED_INPUT:
-                dsc = "Malformed-input error with erroneous input length " 
+                dsc = "Malformed-input error with erroneous input length "
                         + this.length;
                 break;
             default:
-                dsc = ""; 
+                dsc = "";
                 break;
         }
-        return "CoderResult[" + dsc + "]";  
+        return "CoderResult[" + dsc + "]";
 
     }
 

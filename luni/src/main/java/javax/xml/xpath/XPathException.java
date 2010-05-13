@@ -31,7 +31,7 @@ import java.io.PrintWriter;
 public class XPathException extends Exception {
 
     private final Throwable cause;
-    
+
     /**
      * <p>Stream Unique Identifier.</p>
      */
@@ -70,7 +70,7 @@ public class XPathException extends Exception {
             throw new NullPointerException ( "cause can't be null");
         }
     }
-    
+
     public Throwable getCause() {
         return cause;
     }
@@ -83,7 +83,7 @@ public class XPathException extends Exception {
 
         super.printStackTrace(s);
     }
- 
+
     public void printStackTrace() {
         printStackTrace(System.err);
     }

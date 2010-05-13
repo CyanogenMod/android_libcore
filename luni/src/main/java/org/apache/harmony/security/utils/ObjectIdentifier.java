@@ -27,15 +27,15 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * Instance of this class represents ObjectIdentifier (OID).
- * 
+ *
  * OID is represented as a sequence of subidentifier.
  * Each subidentifier is represented as non negative integer value.
  * There are at least 2 subidentifiers in the sequence.
- * 
+ *
  * Valid values for first subidentifier are 0, 1 and 2.
  * If the first subidentifier has 0 or 1 value the second
  * subidentifier MUST be less then 40.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -61,7 +61,7 @@ public final class ObjectIdentifier {
 
     /**
      * Creates ObjectIdentifier(OID) from array of integers.
-     * 
+     *
      * @param oid - array of integers
      * @return - OID object
      * @throws NullPointerException     - if oid is null
@@ -76,7 +76,7 @@ public final class ObjectIdentifier {
 
     /**
      * Creates ObjectIdentifier(OID) from array of integers.
-     * 
+     *
      * @param oid - array of integers
      * @param name - name of OID
      * @param oidGroup - OID's group. Is used to separate different OID's
@@ -88,7 +88,7 @@ public final class ObjectIdentifier {
         this(oid);
 
         if (oidGroup == null) {
-            throw new NullPointerException(Messages.getString("security.172")); 
+            throw new NullPointerException(Messages.getString("security.172"));
         }
         this.group = oidGroup;
 
@@ -98,16 +98,16 @@ public final class ObjectIdentifier {
 
     /**
      * Gets OID.
-     * 
+     *
      * @return oid
      */
     public int[] getOid() {
         return oid;
     }
-    
+
     /**
      * Gets OID's name.
-     * 
+     *
      * @return name
      */
     public String getName() {
@@ -116,7 +116,7 @@ public final class ObjectIdentifier {
 
     /**
      * Gets OID's group.
-     * 
+     *
      * @return group
      */
     public Object getGroup() {
@@ -125,7 +125,7 @@ public final class ObjectIdentifier {
 
     /**
      * Compares object with OID for equality.
-     * 
+     *
      * @return true if object is ObjectIdentifier and it has the same
      *         representation as array of integers, otherwise false
      */
@@ -141,19 +141,19 @@ public final class ObjectIdentifier {
 
     /**
      * Add "OID." to the beginning of string representation.
-     * 
+     *
      * @return oid as string
      */
     public String toOIDString() {
         if (sOID == null) {
-            sOID = "OID." + toString(); 
+            sOID = "OID." + toString();
         }
         return sOID;
     }
 
     /**
      * Overrides Object.toString()
-     * 
+     *
      * @return oid as string
      */
     public String toString() {
@@ -182,7 +182,7 @@ public final class ObjectIdentifier {
 
     /**
      * Validates ObjectIdentifier (OID).
-     * 
+     *
      * @param oid - oid as array of integers
      * @throws NullPointerException     - if oid is null
      * @throws IllegalArgumentException - if oid is invalid
@@ -190,26 +190,26 @@ public final class ObjectIdentifier {
     public static void validateOid(int[] oid) {
 
         if (oid == null) {
-            throw new NullPointerException(Messages.getString("security.98")); 
+            throw new NullPointerException(Messages.getString("security.98"));
         }
 
         if (oid.length < 2) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.99")); 
+                    Messages.getString("security.99"));
         }
 
         if (oid[0] > 2) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.9A")); 
+                    Messages.getString("security.9A"));
         } else if (oid[0] != 2 && oid[1] > 39) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.9B")); 
+                    Messages.getString("security.9B"));
         }
     }
 
     /**
      * Returns hash code for array of integers
-     * 
+     *
      * @param oid - array of integers
      */
     public static int hashIntArray(int[] array) {

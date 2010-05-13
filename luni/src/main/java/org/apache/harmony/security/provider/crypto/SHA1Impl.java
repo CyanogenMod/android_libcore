@@ -32,7 +32,7 @@ package org.apache.harmony.security.provider.crypto;
  * "void updateHash(int[], byte[], int, int)" and "void computeHash(int[])", -
  * performing the following operations. <BR>
  * <BR>
- * The "updateHash(..)" method appends new bytes to existing ones 
+ * The "updateHash(..)" method appends new bytes to existing ones
  * within limit of a frame of 64 bytes (16 words).
  * Once a length of accumulated bytes reaches the limit
  * the "computeHash(int[])" method is invoked on the frame to compute updated hash,
@@ -40,7 +40,7 @@ package org.apache.harmony.security.provider.crypto;
  * Thus, after appending all bytes, the frame contain only those bytes
  * that were not used in computing final hash value yet. <BR>
  * <BR>
- * The "computeHash(..)" method generates a 160 bit hash value using 
+ * The "computeHash(..)" method generates a 160 bit hash value using
  * a 512 bit message stored in first 16 words of int[] array argument and
  * current hash value stored in five words, beginning HASH_OFFSET, of the array argument.
  * Computation is done according to SHA-1 algorithm. <BR>
@@ -54,7 +54,7 @@ public class SHA1Impl implements SHA1_Data {
 
 
     /**
-     * The method generates a 160 bit hash value using 
+     * The method generates a 160 bit hash value using
      * a 512 bit message stored in first 16 words of int[] array argument and
      * current hash value stored in five words, beginning OFFSET+1, of the array argument.
      * Computation is done according to SHA-1 algorithm.
@@ -67,7 +67,7 @@ public class SHA1Impl implements SHA1_Data {
      * In case of incorrect array passed to the method
      * either NPE or IndexOutOfBoundException gets thrown by JVM.
      *
-     * @params 
+     * @params
      *        arrW - integer array; arrW.length >= (BYTES_OFFSET+6); <BR>
      *               only first (BYTES_OFFSET+6) words are used
      */
@@ -97,8 +97,8 @@ public class SHA1Impl implements SHA1_Data {
 
         for ( int t = 0 ; t < 20 ; t++ ) {
 
-            temp = ( ( a<<5 ) | ( a>>>27 )   ) + 
-                   ( ( b & c) | ((~b) & d)   ) + 
+            temp = ( ( a<<5 ) | ( a>>>27 )   ) +
+                   ( ( b & c) | ((~b) & d)   ) +
                    ( e + arrW[t] + 0x5A827999 ) ;
             e = d;
             d = c;
@@ -143,7 +143,7 @@ public class SHA1Impl implements SHA1_Data {
     }
 
     /**
-     * The method appends new bytes to existing ones 
+     * The method appends new bytes to existing ones
      * within limit of a frame of 64 bytes (16 words).
      *
      * Once a length of accumulated bytes reaches the limit
@@ -152,8 +152,8 @@ public class SHA1Impl implements SHA1_Data {
      * Thus, after appending all bytes, the array contain only those bytes
      * that were not used in computing final hash value yet.
      *
-     * No checks on arguments passed to the method, that is, 
-     * a calling method is responsible for such checks. 
+     * No checks on arguments passed to the method, that is,
+     * a calling method is responsible for such checks.
      *
      * @params
      *        intArray  - int array containing bytes to which to append;
@@ -163,7 +163,7 @@ public class SHA1Impl implements SHA1_Data {
      * @params
      *        from      - the offset to start in the "byteInput" array
      * @params
-     *        to        - a number of the last byte in the input array to use, 
+     *        to        - a number of the last byte in the input array to use,
      *                that is, for first byte "to"==0, for last byte "to"==input.length-1
      */
     static void updateHash(int intArray[], byte byteInput[], int fromByte, int toByte) {

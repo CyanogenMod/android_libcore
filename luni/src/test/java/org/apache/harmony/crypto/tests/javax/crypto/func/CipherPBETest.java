@@ -62,7 +62,7 @@ public class CipherPBETest extends TestCase {
                 PBEWITHSHAAND3KEYTRIPLEDESCBC.getTotalFailuresNumber());
     }
 
-    // Supported, but not part of mandatory components for Android 
+    // Supported, but not part of mandatory components for Android
     public void disabled_test_PBEWithSHA1And40BitRC2() throws Exception {
         CipherPBEThread PBEWithSHA1AndRC2_40 = new CipherPBEThread(
                 "PBEWITHSHAAND40BITRC2-CBC", new int[] {40},

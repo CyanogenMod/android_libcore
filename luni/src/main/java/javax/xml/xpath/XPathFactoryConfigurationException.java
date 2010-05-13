@@ -27,19 +27,19 @@ package javax.xml.xpath;
  * @since 1.5
  */
 public class XPathFactoryConfigurationException extends XPathException {
-    
+
     /**
      * <p>Stream Unique Identifier.</p>
      */
-    private static final long serialVersionUID = -1837080260374986980L;    
-    
+    private static final long serialVersionUID = -1837080260374986980L;
+
     /**
      * <p>Constructs a new <code>XPathFactoryConfigurationException</code> with the specified detail <code>message</code>.</p>
-     * 
+     *
      * <p>The <code>cause</code> is not initialized.</p>
-     * 
+     *
      * <p>If <code>message</code> is <code>null</code>, then a <code>NullPointerException</code> is thrown.</p>
-     * 
+     *
      * @param message The detail message.
      */
     public XPathFactoryConfigurationException(String message) {
@@ -48,11 +48,11 @@ public class XPathFactoryConfigurationException extends XPathException {
 
     /**
      * <p>Constructs a new <code>XPathFactoryConfigurationException</code> with the specified <code>cause</code>.</p>
-     * 
+     *
      * <p>If <code>cause</code> is <code>null</code>, then a <code>NullPointerException</code> is thrown.</p>
-     * 
+     *
      * @param cause The cause.
-     * 
+     *
      * @throws NullPointerException if <code>cause</code> is <code>null</code>.
      */
     public XPathFactoryConfigurationException(Throwable cause) {

@@ -22,7 +22,7 @@ import java.math.BigInteger;
 import org.apache.harmony.security.internal.nls.Messages;
 
 /**
- * The parameters specifying an Elliptic Curve (EC) private key. 
+ * The parameters specifying an Elliptic Curve (EC) private key.
  */
 public class ECPrivateKeySpec implements KeySpec {
     // Private value associated with this key
@@ -33,7 +33,7 @@ public class ECPrivateKeySpec implements KeySpec {
     /**
      * Creates a new {@code ECPrivateKeySpec} with the specified private value
      * {@code S} and parameter specification.
-     * 
+     *
      * @param s
      *            the private value {@code S}.
      * @param params
@@ -44,16 +44,16 @@ public class ECPrivateKeySpec implements KeySpec {
         this.params = params;
         // throw NullPointerException if s or params is null
         if (this.s == null) {
-            throw new NullPointerException(Messages.getString("security.83", "s"));  
+            throw new NullPointerException(Messages.getString("security.83", "s"));
         }
         if (this.params == null) {
-            throw new NullPointerException(Messages.getString("security.83", "params"));  
+            throw new NullPointerException(Messages.getString("security.83", "params"));
         }
     }
 
     /**
      * Returns the domain parameter specification.
-     * 
+     *
      * @return the domain parameter specification.
      */
     public ECParameterSpec getParams() {
@@ -62,7 +62,7 @@ public class ECPrivateKeySpec implements KeySpec {
 
     /**
      * Returns the private value {@code S}.
-     * 
+     *
      * @return the private value {@code S}.
      */
     public BigInteger getS() {

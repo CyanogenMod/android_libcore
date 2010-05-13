@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -78,7 +78,7 @@ import java.net.URL;
  * followed by calling the {@code ResultSet.insertRow} method.
  * <p>
  * A {@code ResultSet} is closed if the statement which generated it closes, the
- * statement is executed again, or the same statement's next {@code ResultSet} 
+ * statement is executed again, or the same statement's next {@code ResultSet}
  * is retrieved (if the statement returned of multiple results).
  */
 public interface ResultSet {
@@ -145,7 +145,7 @@ public interface ResultSet {
 
     /**
      * Moves the cursor to a specified row number in the {@code ResultSet}.
-     * 
+     *
      * @param row
      *            the index of the row starting at index 1. Index {@code -1}
      *            returns the last row.
@@ -158,7 +158,7 @@ public interface ResultSet {
 
     /**
      * Moves the cursor to the end of the {@code ResultSet}, after the last row.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens.
      */
@@ -167,7 +167,7 @@ public interface ResultSet {
     /**
      * Moves the cursor to the start of the {@code ResultSet}, before the first
      * row.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens.
      */
@@ -175,7 +175,7 @@ public interface ResultSet {
 
     /**
      * Cancels any updates made to the current row in the {@code ResultSet}.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens.
      */
@@ -183,7 +183,7 @@ public interface ResultSet {
 
     /**
      * Clears all warnings related to this {@code ResultSet}.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens.
      */
@@ -196,7 +196,7 @@ public interface ResultSet {
      * garbage collection process. Note that the {@code close()} method might
      * take some time to complete since it is dependent on the behavior of the
      * connection to the database and the database itself.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens.
      */
@@ -205,7 +205,7 @@ public interface ResultSet {
     /**
      * Deletes the current row from the {@code ResultSet} and from the
      * underlying database.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens.
      */
@@ -214,7 +214,7 @@ public interface ResultSet {
     /**
      * Gets the index number for a column in the {@code ResultSet} from the
      * provided column name.
-     * 
+     *
      * @param columnName
      *            the column name.
      * @return the column's index in the {@code ResultSet} identified by column
@@ -226,7 +226,7 @@ public interface ResultSet {
 
     /**
      * Shifts the cursor position to the first row in the {@code ResultSet}.
-     * 
+     *
      * @return {@code true} if the position is in a legitimate row, {@code
      *         false} if the {@code ResultSet} contains no rows.
      * @throws SQLException
@@ -237,7 +237,7 @@ public interface ResultSet {
     /**
      * Gets the content of a column specified by column index in the current row
      * of this {@code ResultSet} as a {@code java.sql.Array}.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read
      * @return a {@code java.sql.Array} with the data from the column.
@@ -249,7 +249,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name as a {@code
      * java.sql.Array}.
-     * 
+     *
      * @param colName
      *            the name of the column to read.
      * @return a {@code java.sql.Array} with the data from the specified column.
@@ -261,7 +261,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as an ASCII
      * character stream.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return an {@code InputStream} with the data from the column.
@@ -273,7 +273,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name as an ASCII character
      * stream.
-     * 
+     *
      * @param columnName
      *            the name of the column to read
      * @return an {@code InputStream} with the data from the column.
@@ -285,7 +285,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.math.BigDecimal}.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code BigDecimal} with the value of the column.
@@ -297,7 +297,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.math.BigDecimal}.
-     * 
+     *
      * @deprecated use {@link #getBigDecimal(int)} or
      *             {@link #getBigDecimal(String)}
      * @param columnIndex
@@ -315,7 +315,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name, as a {@code
      * java.math.BigDecimal}.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a BigDecimal with value of the column.
@@ -327,7 +327,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name, as a {@code
      * java.math.BigDecimal}.
-     * 
+     *
      * @deprecated use {@link #getBigDecimal(int)} or
      *             {@link #getBigDecimal(String)}
      * @param columnName
@@ -380,7 +380,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.sql.Blob} object.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code java.sql.Blob} with the value of the column.
@@ -392,7 +392,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name, as a {@code
      * java.sql.Blob} object.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a {@code java.sql.Blob} with the value of the column.
@@ -404,7 +404,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code boolean}
      * .
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code boolean} value from the column. If the column is SQL
@@ -417,7 +417,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name, as a {@code boolean}
      * .
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a {@code boolean} value from the column. If the column is SQL
@@ -429,7 +429,7 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column index as a {@code byte}.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code byte} equal to the value of the column. 0 if the value
@@ -441,7 +441,7 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column name as a {@code byte}.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a {@code byte} equal to the value of the column. 0 if the value
@@ -453,7 +453,7 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column index as a byte array.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a byte array containing the value of the column. {@code null} if
@@ -465,7 +465,7 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column name as a byte array.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a byte array containing the value of the column. {@code null} if
@@ -478,7 +478,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.io.Reader} object.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code Reader} holding the value of the column. {@code null} if
@@ -492,7 +492,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name as a {@code
      * java.io.Reader} object.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a {@code Reader} holding the value of the column. {@code null} if
@@ -505,7 +505,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.sql.Clob}.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code Clob} object representing the value in the column.
@@ -518,7 +518,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name as a {@code
      * java.sql.Clob}.
-     * 
+     *
      * @param colName
      *            the name of the column to read.
      * @return a {@code Clob} object representing the value in the column.
@@ -530,7 +530,7 @@ public interface ResultSet {
 
     /**
      * Gets the concurrency mode of this {@code ResultSet}.
-     * 
+     *
      * @return the concurrency mode - one of: {@code ResultSet.CONCUR_READ_ONLY}
      *         , {@code ResultSet.CONCUR_UPDATABLE}.
      * @throws SQLException
@@ -540,7 +540,7 @@ public interface ResultSet {
 
     /**
      * Gets the name of the SQL cursor of this {@code ResultSet}.
-     * 
+     *
      * @return the SQL cursor name.
      * @throws SQLException
      *             if a database error happens.
@@ -550,7 +550,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.sql.Date}.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code java.sql.Date} matching the column value. {@code null}
@@ -563,7 +563,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.sql.Date}. This method uses a supplied calendar to compute the Date.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @param cal
@@ -578,7 +578,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name as a {@code
      * java.sql.Date}.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a {@code java.sql.Date} matching the column value. {@code null}
@@ -591,7 +591,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name, as a {@code
      * java.sql.Date} object.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @param cal
@@ -606,7 +606,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code double}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code double} equal to the column value. {@code 0.0} if the
@@ -619,7 +619,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name as a {@code double}
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a {@code double} equal to the column value. {@code 0.0} if the
@@ -632,7 +632,7 @@ public interface ResultSet {
     /**
      * Gets the direction in which rows are fetched for this {@code ResultSet}
      * object.
-     * 
+     *
      * @return the fetch direction. Will be one of:
      *         <ul>
      *         <li>ResultSet.FETCH_FORWARD</li><li>ResultSet.FETCH_REVERSE</li>
@@ -645,7 +645,7 @@ public interface ResultSet {
 
     /**
      * Gets the fetch size (in number of rows) for this {@code ResultSet}.
-     * 
+     *
      * @return the fetch size as an int
      * @throws SQLException
      *             if a database error happens.
@@ -655,7 +655,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code float}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code float} equal to the column value. {@code 0.0} if the
@@ -668,7 +668,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name as a {@code float}
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a {@code float} equal to the column value. {@code 0.0} if the
@@ -681,7 +681,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as an {@code int}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return an {@code int} equal to the column value. {@code 0} if the
@@ -694,7 +694,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name, as an {@code int}
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return an {@code int} equal to the column value. {@code 0} if the
@@ -707,7 +707,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code long}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a {@code long} equal to the column value. {@code 0} if the
@@ -720,7 +720,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name, as a {@code long}
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a {@code long} equal to the column value. {@code 0} if the
@@ -733,7 +733,7 @@ public interface ResultSet {
     /**
      * Gets the metadata for this {@code ResultSet}. This defines the number,
      * types and properties of the columns in the {@code ResultSet}.
-     * 
+     *
      * @return a {@code ResultSetMetaData} object with information about this
      *         {@code ResultSet}.
      * @throws SQLException
@@ -821,7 +821,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a Java {@code
      * java.sql.Ref}.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a Ref representing the value of the SQL REF in the column
@@ -833,7 +833,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name as a Java {@code
      * java.sql.Ref}.
-     * 
+     *
      * @param colName
      *            the name of the column to read.
      * @return a Ref representing the value of the SQL {@code REF} in the column
@@ -845,7 +845,7 @@ public interface ResultSet {
     /**
      * Gets the number of the current row in the {@code ResultSet}. Row numbers
      * start at 1 for the first row.
-     * 
+     *
      * @return the index number of the current row. {@code 0} is returned if
      *         there is no current row.
      * @throws SQLException
@@ -855,7 +855,7 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column index as a short value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a short value equal to the value of the column. {@code 0} if
@@ -867,7 +867,7 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column name, as a short value.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a short value equal to the value of the column. {@code 0} if
@@ -882,7 +882,7 @@ public interface ResultSet {
      * ResultSet} was not created by a statement (i.e. because it was returned
      * from one of the {@link DatabaseMetaData} methods), {@code null} is
      * returned.
-     * 
+     *
      * @return the Statement which produced this {@code ResultSet}, or {@code
      *         null} if the {@code ResultSet} was not created by a Statement.
      * @throws SQLException
@@ -892,7 +892,7 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column index as a String.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return the String representing the value of the column, {@code null} if
@@ -904,7 +904,7 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column name, as a String.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return the String representing the value of the column, {@code null} if
@@ -917,7 +917,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.sql.Time} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a Time representing the column value, {@code null} if the column
@@ -929,9 +929,9 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column index as a {@code
-     * java.sql.Time} value. The supplied {@code Calendar} is used to 
+     * java.sql.Time} value. The supplied {@code Calendar} is used to
      * map the SQL {@code Time} value to a Java Time value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @param cal
@@ -946,7 +946,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name, as a {@code
      * java.sql.Time} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return the column value, {@code null} if the column value is SQL {@code
@@ -958,9 +958,9 @@ public interface ResultSet {
 
     /**
      * Gets the value of a column specified by column index, as a {@code
-     * java.sql.Time} value. The supplied {@code Calendar} is used to 
+     * java.sql.Time} value. The supplied {@code Calendar} is used to
      * map the SQL {@code Time} value to a Java Time value.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @param cal
@@ -975,7 +975,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.sql.Timestamp} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a timestamp representing the column value, {@code null} if the
@@ -989,7 +989,7 @@ public interface ResultSet {
      * Gets the value of a column specified by column index, as a {@code
      * java.sql.Timestamp} value. The supplied Calendar is used when mapping
      * the SQL {@code Timestamp} value to a Java {@code Timestamp} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @param cal
@@ -1005,7 +1005,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name, as a {@code
      * java.sql.Timestamp} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return a timestamp representing the column value, {@code null} if the
@@ -1019,7 +1019,7 @@ public interface ResultSet {
      * Gets the value of a column specified by column name, as a {@code
      * java.sql.Timestamp} value. The supplied Calendar is used when mapping
      * the SQL {@code Timestamp} value to a Java {@code Timestamp} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @param cal
@@ -1034,7 +1034,7 @@ public interface ResultSet {
 
     /**
      * Gets the type of the {@code ResultSet}.
-     * 
+     *
      * @return The {@code ResultSet} type, one of:
      *         <ul>
      *         <li>{@code ResultSet.TYPE_FORWARD_ONLY}</li> <li>{@code
@@ -1049,7 +1049,7 @@ public interface ResultSet {
     /**
      * Gets the value of the column as an {@code InputStream} of unicode
      * characters.
-     * 
+     *
      * @deprecated Use {@link #getCharacterStream}.
      * @param columnIndex
      *            the index of the column to read.
@@ -1064,7 +1064,7 @@ public interface ResultSet {
     /**
      * Gets the value of the column as an {@code InputStream} of Unicode
      * characters.
-     * 
+     *
      * @deprecated Use {@link #getCharacterStream}
      * @param columnName
      *            the name of the column to read.
@@ -1079,7 +1079,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column index as a {@code
      * java.net.URL}.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to read.
      * @return a URL. {@code null} if the column value is SQL {@code NULL}.
@@ -1091,7 +1091,7 @@ public interface ResultSet {
     /**
      * Gets the value of a column specified by column name as a {@code
      * java.net.URL} object.
-     * 
+     *
      * @param columnName
      *            the name of the column to read.
      * @return the column vaule as a URL. {@code null} if the column value is SQL {@code NULL}.
@@ -1112,7 +1112,7 @@ public interface ResultSet {
      * <p>
      * An {@code SQLException} is generated if this method is called on a closed
      * {@code ResultSet}.
-     * 
+     *
      * @return an SQLWarning which is the first warning for this {@code
      *         ResultSet}. {@code null} if there are no warnings.
      * @throws SQLException
@@ -1124,7 +1124,7 @@ public interface ResultSet {
      * Insert the insert row into the {@code ResultSet} and into the underlying
      * database. The cursor must be set to the Insert Row before this method is
      * invoked.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens. Particular cases include the
      *             cursor not being on the Insert Row or if any columns in the
@@ -1135,7 +1135,7 @@ public interface ResultSet {
 
     /**
      * Gets if the cursor is after the last row of the {@code ResultSet}.
-     * 
+     *
      * @return {@code true} if the cursor is after the last row in the {@code
      *         ResultSet}, {@code false} if the cursor is at any other position
      *         in the {@code ResultSet}.
@@ -1146,7 +1146,7 @@ public interface ResultSet {
 
     /**
      * Gets if the cursor is before the first row of the {@code ResultSet}.
-     * 
+     *
      * @return {@code true} if the cursor is before the first row in the {@code
      *         ResultSet}, {@code false} if the cursor is at any other position
      *         in the {@code ResultSet}.
@@ -1157,7 +1157,7 @@ public interface ResultSet {
 
     /**
      * Gets if the cursor is on the first row of the {@code ResultSet}.
-     * 
+     *
      * @return {@code true} if the cursor is on the first row in the {@code
      *         ResultSet}, {@code false} if the cursor is at any other position
      *         in the {@code ResultSet}.
@@ -1168,7 +1168,7 @@ public interface ResultSet {
 
     /**
      * Gets if the cursor is on the last row of the {@code ResultSet}
-     * 
+     *
      * @return {@code true} if the cursor is on the last row in the {@code
      *         ResultSet}, {@code false} if the cursor is at any other position
      *         in the {@code ResultSet}.
@@ -1179,7 +1179,7 @@ public interface ResultSet {
 
     /**
      * Shifts the cursor position to the last row of the {@code ResultSet}.
-     * 
+     *
      * @return {@code true} if the new position is in a legitimate row, {@code
      *         false} if the {@code ResultSet} contains no rows.
      * @throws SQLException
@@ -1188,10 +1188,10 @@ public interface ResultSet {
     public boolean last() throws SQLException;
 
     /**
-     * Moves the cursor to the remembered position, namely the 
+     * Moves the cursor to the remembered position, namely the
      * row that was the current row before a call to {@code moveToInsertRow}.
      * This only applies if the cursor is on the Insert Row.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens.
      */
@@ -1202,7 +1202,7 @@ public interface ResultSet {
      * remembered and the cursor is positioned at the Insert Row. The columns in
      * the Insert Row should be filled in with the appropriate update methods,
      * before calling {@code insertRow} to insert the new row into the database.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens.
      */
@@ -1225,7 +1225,7 @@ public interface ResultSet {
     /**
      * Relocates the cursor position to the preceding row in this {@code
      * ResultSet}.
-     * 
+     *
      * @return {@code true} if the new position is in a legitimate row, {@code
      *         false} if the cursor is now before the first row.
      * @throws SQLException
@@ -1251,7 +1251,7 @@ public interface ResultSet {
      * Moves the cursor position up or down by a specified number of rows. If
      * the new position is beyond the start row (or end row), the cursor position is
      * set before the first row (or, respectively, after the last row).
-     * 
+     *
      * @param rows
      *            a number of rows to move the cursor - may be positive or
      *            negative
@@ -1265,7 +1265,7 @@ public interface ResultSet {
     /**
      * Indicates whether a row has been deleted. This method depends on whether
      * the JDBC driver and database can detect deletions.
-     * 
+     *
      * @return {@code true} if a row has been deleted and if deletions are
      *         detected, {@code false} otherwise.
      * @throws SQLException
@@ -1277,7 +1277,7 @@ public interface ResultSet {
      * Indicates whether the current row has had an insertion operation. This
      * method depends on whether the JDBC driver and database can detect
      * insertions.
-     * 
+     *
      * @return {@code true} if a row has been inserted and if insertions are
      *         detected, {@code false} otherwise.
      * @throws SQLException
@@ -1288,7 +1288,7 @@ public interface ResultSet {
     /**
      * Indicates whether the current row has been updated. This method depends
      * on whether the JDBC driver and database can detect updates.
-     * 
+     *
      * @return {@code true} if the current row has been updated and if updates
      *         can be detected, {@code false} otherwise.
      * @throws SQLException
@@ -1300,7 +1300,7 @@ public interface ResultSet {
      * Indicates which direction (forward/reverse) will be used to process the
      * rows of this {@code ResultSet} object. This is treated as a hint by the
      * JDBC driver.
-     * 
+     *
      * @param direction
      *            can be {@code ResultSet.FETCH_FORWARD}, {@code
      *            ResultSet.FETCH_REVERSE}, or {@code ResultSet.FETCH_UNKNOWN}
@@ -1313,7 +1313,7 @@ public interface ResultSet {
      * Indicates the number of rows to fetch from the database when extra rows
      * are required for this {@code ResultSet}. This used as a hint to the JDBC
      * driver.
-     * 
+     *
      * @param rows
      *            the number of rows to fetch. {@code 0} implies that the JDBC
      *            driver can make its own decision about the fetch size. The
@@ -1328,7 +1328,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a {@code
      * java.sql.Array} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1341,7 +1341,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column name with a {@code java.sql.Array}
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1353,7 +1353,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with an ASCII stream value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1368,7 +1368,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with an Ascii stream value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1384,7 +1384,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a {@code
      * java.sql.BigDecimal} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1398,7 +1398,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column name with a {@code
      * java.sql.BigDecimal} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1411,7 +1411,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with a binary stream value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1426,7 +1426,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a binary stream value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1442,7 +1442,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a {@code java.sql.Blob}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1455,7 +1455,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column name with a {@code java.sql.Blob}
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1468,7 +1468,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a {@code boolean}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1480,7 +1480,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a {@code boolean} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1492,7 +1492,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with a {@code byte} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1504,7 +1504,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a {@code byte} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1517,7 +1517,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a {@code byte} array
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1529,7 +1529,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a byte array value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1542,7 +1542,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a character stream
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1558,7 +1558,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column name with a character stream
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param reader
@@ -1574,7 +1574,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a {@code java.sql.Clob}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1587,7 +1587,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column name with a {@code java.sql.Clob}
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1600,7 +1600,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a {@code java.sql.Date}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1613,7 +1613,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column name with a {@code java.sql.Date}
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1625,7 +1625,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with a {@code double} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1637,7 +1637,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a {@code double} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1649,7 +1649,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with a {@code float} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1661,7 +1661,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a {@code float} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1673,7 +1673,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with an {@code int} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1685,7 +1685,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with an {@code int} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1697,7 +1697,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with a {@code long} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1709,7 +1709,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a {@code long} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1721,7 +1721,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with a {@code null} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @throws SQLException
@@ -1731,7 +1731,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a {@code null} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @throws SQLException
@@ -1742,7 +1742,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with an {@code Object}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1755,7 +1755,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with an {@code Object}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1772,7 +1772,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with an {@code Object} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1784,7 +1784,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with an {@code Object} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1802,7 +1802,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a {@code java.sql.Ref}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1815,7 +1815,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column name with a {@code java.sql.Ref}
      * value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1828,7 +1828,7 @@ public interface ResultSet {
     /**
      * Updates the database with the new contents of the current row of this
      * {@code ResultSet} object.
-     * 
+     *
      * @throws SQLException
      *             if a database error happens.
      */
@@ -1836,7 +1836,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with a {@code short} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1848,7 +1848,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a {@code short} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1860,7 +1860,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with a {@code String} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1872,7 +1872,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a {@code String} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1884,7 +1884,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column index with a {@code Time} value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1896,7 +1896,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by a column name with a {@code Time} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1909,7 +1909,7 @@ public interface ResultSet {
     /**
      * Updates a column specified by a column index with a {@code Timestamp}
      * value.
-     * 
+     *
      * @param columnIndex
      *            the index of the column to update.
      * @param x
@@ -1922,7 +1922,7 @@ public interface ResultSet {
 
     /**
      * Updates a column specified by column name with a {@code Timestamp} value.
-     * 
+     *
      * @param columnName
      *            the name of the column to update.
      * @param x
@@ -1936,7 +1936,7 @@ public interface ResultSet {
     /**
      * Determines whether the last column read from this {@code ResultSet}
      * contained SQL {@code NULL}.
-     * 
+     *
      * @return {@code {@code true} if the last column contained SQL {@code
      *         NULL}, {@code false} otherwise
      * @throws SQLException

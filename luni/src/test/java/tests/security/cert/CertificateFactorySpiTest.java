@@ -47,13 +47,13 @@ import java.util.List;
 
 /**
  * Tests for <code>CertificateFactorySpi</code> class constructors and methods
- * 
+ *
  */
 @TestTargetClass(CertificateFactorySpi.class)
 public class CertificateFactorySpiTest extends TestCase {
 
     /**
-     * Test for <code>CertificateFactorySpi</code> constructor 
+     * Test for <code>CertificateFactorySpi</code> constructor
      * Assertion: constructs CertificateFactorySpi
      */
     @TestTargetNew(
@@ -120,7 +120,7 @@ public class CertificateFactorySpiTest extends TestCase {
     }
 
     /**
-     * Test for <code>CertificateFactorySpi</code> constructor 
+     * Test for <code>CertificateFactorySpi</code> constructor
      * Assertion: constructs CertificateFactorySpi
      */
     @TestTargets({
@@ -194,17 +194,17 @@ public class CertificateFactorySpiTest extends TestCase {
         assertNull("Result must be null", colcrl);
 
         List<Certificate> list = null;
-        try { 
+        try {
             certFactorySpi.engineGenerateCertPath(list);
             fail("NullPointerException must be thrown");
-        } catch (NullPointerException e) {            
+        } catch (NullPointerException e) {
         }
         Iterator<String> enc = certFactorySpi.engineGetCertPathEncodings();
         assertTrue("Incorrect Iterator", enc.hasNext());
     }
-    
+
     /**
-     * Test for <code>CertificateFactorySpi</code> constructor 
+     * Test for <code>CertificateFactorySpi</code> constructor
      * Assertion: constructs CertificateFactorySpi
      */
     @TestTargetNew(
@@ -407,7 +407,7 @@ public class CertificateFactorySpiTest extends TestCase {
         } catch (CertificateException e) {
             fail("Unexpected CertificateException " + e.getMessage());
         }
-        
+
         try {
             certFactorySpi.engineGenerateCertPath((List<? extends Certificate>)null);
             fail("expected NullPointerException");
@@ -443,7 +443,7 @@ public class CertificateFactorySpiTest extends TestCase {
             fail("Unexpected CertificateException " + e.getMessage());
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -484,7 +484,7 @@ public class CertificateFactorySpiTest extends TestCase {
             fail("Unexpected exception " + e.getMessage());
         }
     }
-    
+
     private static class extCertificateFactorySpi extends CertificateFactorySpi {
         public Certificate engineGenerateCertificate(InputStream inStream)
                 throws CertificateException {

@@ -57,7 +57,7 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyAgreement.class)
 /**
  * Tests for KeyAgreement constructor and methods
- * 
+ *
  */
 
 public class KeyAgreementTest extends TestCase {
@@ -359,7 +359,7 @@ public class KeyAgreementTest extends TestCase {
 
     /**
      * Test for the methods: <code>init(Key key)</code>
-     * <code>generateSecret()</code> 
+     * <code>generateSecret()</code>
      * <code>generateSecret(byte[] sharedsecret, int offset)</code>
      * <code>generateSecret(String algorithm)</code>
      * Assertions: initializes KeyAgreement; returns sharedSecret; puts
@@ -825,7 +825,7 @@ public class KeyAgreementTest extends TestCase {
             super(arg0, arg1, arg2);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -867,7 +867,7 @@ public class KeyAgreementTest extends TestCase {
             assertNotNull(keyA.getProvider());
         }
     }
-    
+
 @TestTargets({
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,

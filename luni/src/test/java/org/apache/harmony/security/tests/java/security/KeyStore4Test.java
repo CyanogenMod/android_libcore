@@ -36,33 +36,33 @@ public class KeyStore4Test extends TestCase {
     KeyStore keyStore;
     KeyStore uninitialized;
     KeyStore failing;
-    
+
     public static final String KEY_STORE_TYPE = "TestKeyStore";
-    
+
     protected void setUp() throws Exception{
         super.setUp();
-        
+
         Security.addProvider(new MyProvider());
-        
+
         try {
             keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
             keyStore.load(null, "PASSWORD".toCharArray());
         } catch (KeyStoreException e) {
             fail("test class not available");
         }
-        
+
         try {
             uninitialized = KeyStore.getInstance(KEY_STORE_TYPE);
         } catch (KeyStoreException e) {
             fail("test keystore not available");
         }
-        
+
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        
+
         Security.removeProvider(provider.getName());
     }
 
@@ -79,14 +79,14 @@ public class KeyStore4Test extends TestCase {
         } catch (KeyStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             KeyStore.getInstance("UnknownKeyStore");
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         try {
             KeyStore.getInstance(null);
             fail("expected NullPointerException");
@@ -112,7 +112,7 @@ public class KeyStore4Test extends TestCase {
         } catch (NoSuchProviderException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             KeyStore.getInstance("UnknownKeyStore", provider.getName());
             fail("expected KeyStoreException");
@@ -121,7 +121,7 @@ public class KeyStore4Test extends TestCase {
         } catch (NoSuchProviderException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             KeyStore.getInstance("TestKeyStore", (String)null);
             fail("expected IllegalArgumentException");
@@ -143,7 +143,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IllegalArgumentException e) {
             // ok
         }
-        
+
         try {
             KeyStore.getInstance(null, provider.getName());
             fail("expected KeyStoreException");
@@ -152,9 +152,9 @@ public class KeyStore4Test extends TestCase {
         } catch (NoSuchProviderException e) {
             fail("unexpected exception: " + e);
         } catch (NullPointerException e) {
-            // also ok            
+            // also ok
         }
-        
+
         try {
             KeyStore.getInstance("TestKeyStore", "UnknownProvider");
             fail("expected NoSuchProviderException");
@@ -178,14 +178,14 @@ public class KeyStore4Test extends TestCase {
         } catch (KeyStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             KeyStore.getInstance("UnknownKeyStore", provider);
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok;
         }
-        
+
         try {
             KeyStore.getInstance("TestKeyStore", (Provider)null);
             fail("expected IllegalArgumentException");
@@ -194,7 +194,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IllegalArgumentException e) {
             // ok
         }
-        
+
         try {
             KeyStore.getInstance(null, provider);
             fail("expected NullPointerException");
@@ -222,7 +222,7 @@ public class KeyStore4Test extends TestCase {
         } catch (UnrecoverableKeyException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.getKey("certalias", null);
             fail("expected NoSuchAlgorithmException");
@@ -233,7 +233,7 @@ public class KeyStore4Test extends TestCase {
         } catch (UnrecoverableKeyException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             uninitialized.getKey("keyalias", null);
             fail("expected KeyStoreException");
@@ -244,7 +244,7 @@ public class KeyStore4Test extends TestCase {
         } catch (UnrecoverableKeyException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.getKey("unknownalias", null);
             fail("expected NoSuchAlgorithmException");
@@ -255,7 +255,7 @@ public class KeyStore4Test extends TestCase {
         } catch (UnrecoverableKeyException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.getKey("unknownalias", "PASSWORD".toCharArray());
             fail("expected UnrecoverableKeyException");
@@ -266,7 +266,7 @@ public class KeyStore4Test extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
     }
 
 
@@ -283,14 +283,14 @@ public class KeyStore4Test extends TestCase {
         } catch (KeyStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             uninitialized.getCertificateAlias(TestKeyStoreSpi.CERT);
             fail("expected KeyStoreException");
         } catch (KeyStoreException e) {
             // ok
         }
-        
+
         try {
             keyStore.getCertificateAlias(null);
             fail("expected NullPointerException");
@@ -299,7 +299,7 @@ public class KeyStore4Test extends TestCase {
         } catch (NullPointerException e) {
             // ok
         }
-        
+
         try {
             String certificateAlias = keyStore.getCertificateAlias(new MyCertificate("dummy", null));
             assertNull("alias was not null", certificateAlias);
@@ -316,7 +316,7 @@ public class KeyStore4Test extends TestCase {
     public void testStoreOutputStreamCharArray() {
         OutputStream os = new ByteArrayOutputStream();
         char[] password = "PASSWORD".toCharArray();
-        
+
         try {
             keyStore.store(os, password);
         } catch (KeyStoreException e) {
@@ -328,7 +328,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.store(os, null);
             fail("expected NoSuchAlgorithmException");
@@ -341,7 +341,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             // ok
         }
-        
+
         try {
             keyStore.store(os, "".toCharArray());
             fail("expected CertificateException");
@@ -354,7 +354,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.store(null, null);
             fail("expected IOException");
@@ -367,7 +367,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             // ok
         }
-        
+
         try {
             uninitialized.store(null, null);
             fail("expected KeyStoreException");
@@ -380,10 +380,10 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             fail("unexpected exception: " + e);
         }
-        
 
-        
-        
+
+
+
     }
 
     @TestTargetNew(
@@ -407,7 +407,7 @@ public class KeyStore4Test extends TestCase {
         } catch (KeyStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.store(null);
             fail("expected IOException");
@@ -420,7 +420,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             // ok
         }
-        
+
         try {
             keyStore.store(new KeyStore.LoadStoreParameter() {
 
@@ -439,7 +439,7 @@ public class KeyStore4Test extends TestCase {
         } catch (UnsupportedOperationException e) {
             // ok
         }
-        
+
         try {
             keyStore.store(new KeyStore.LoadStoreParameter() {
 
@@ -455,7 +455,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.store(new KeyStore.LoadStoreParameter() {
 
@@ -471,7 +471,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             uninitialized.store(null);
             fail("expected KeyStoreException");
@@ -506,7 +506,7 @@ public class KeyStore4Test extends TestCase {
         } catch (KeyStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.load(new ByteArrayInputStream("".getBytes()), password);
             fail("expected IOException");
@@ -517,7 +517,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             // ok
         }
-        
+
         try {
             keyStore.load(is, null);
             fail("expected NoSuchAlgorithmException");
@@ -528,7 +528,7 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.load(is, new char[] {});
             fail("expected CertificateException");
@@ -557,14 +557,14 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.load(new KeyStore.LoadStoreParameter() {
 
                 public ProtectionParameter getProtectionParameter() {
                     return new KeyStore.PasswordProtection("PASSWORD".toCharArray());
                 }
-                
+
             });
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
@@ -573,14 +573,14 @@ public class KeyStore4Test extends TestCase {
         } catch (IOException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.load(new KeyStore.LoadStoreParameter() {
 
                 public ProtectionParameter getProtectionParameter() {
                     return null;
                 }
-                
+
             });
             fail("expected NoSuchAlgorithmException");
         } catch (NoSuchAlgorithmException e) {
@@ -597,7 +597,7 @@ public class KeyStore4Test extends TestCase {
                 public ProtectionParameter getProtectionParameter() {
                     return new KeyStore.ProtectionParameter() {};
                 }
-                
+
             });
             fail("expected CertificateException");
         } catch (NoSuchAlgorithmException e) {
@@ -626,7 +626,7 @@ public class KeyStore4Test extends TestCase {
         } catch (KeyStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             Entry entry = keyStore.getEntry("certalias", new KeyStore.ProtectionParameter() {});
             assertNotNull(entry);
@@ -639,7 +639,7 @@ public class KeyStore4Test extends TestCase {
         } catch (UnsupportedOperationException e) {
             // ok
         }
-        
+
         try {
             Entry entry = keyStore.getEntry("keyalias", new KeyStore.PasswordProtection(new char[] {} ));
             assertNotNull(entry);
@@ -651,7 +651,7 @@ public class KeyStore4Test extends TestCase {
         } catch (KeyStoreException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         try {
             keyStore.getEntry("unknownalias", new KeyStore.PasswordProtection(new char[] {}));
             fail("expected NoSuchAlgorithmException");
@@ -664,7 +664,7 @@ public class KeyStore4Test extends TestCase {
         } catch (UnsupportedOperationException e) {
             // also ok
         }
-        
+
         try {
             keyStore.getEntry(null, new KeyStore.ProtectionParameter() {});
             fail("expected NullPointerException");
@@ -679,7 +679,7 @@ public class KeyStore4Test extends TestCase {
         }
     }
 
-    
+
 
     @TestTargetNew(
             level=TestLevel.COMPLETE,
@@ -688,7 +688,7 @@ public class KeyStore4Test extends TestCase {
     public void testGetType() {
         assertEquals(KEY_STORE_TYPE, keyStore.getType());
     }
-    
+
     @TestTargetNew(
             level=TestLevel.COMPLETE,
             method="getProvider"

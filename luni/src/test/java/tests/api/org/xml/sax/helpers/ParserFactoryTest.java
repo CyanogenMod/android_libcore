@@ -59,53 +59,53 @@ public class ParserFactoryTest extends TestCase {
 
         // Unknown class
         System.setProperty("org.xml.sax.parser", "foo.bar.SAXParser");
-        
+
         try {
             ParserFactory.makeParser();
             fail("expected ClassNotFoundException was not thrown");
         } catch (ClassNotFoundException e) {
             // Expected
         }
-        
+
         // Non-accessible class
         System.setProperty("org.xml.sax.parser",
                 "tests.api.org.xml.sax.support.NoAccessParser");
-        
+
         try {
             ParserFactory.makeParser();
             fail("expected IllegalAccessException was not thrown");
         } catch (IllegalAccessException e) {
             // Expected
         }
-        
+
         // Non-instantiable class
         System.setProperty("org.xml.sax.parser",
                 "tests.api.org.xml.sax.support.NoInstanceParser");
-        
+
         try {
             ParserFactory.makeParser();
             fail("expected InstantiationException was not thrown");
         } catch (InstantiationException e) {
             // Expected
         }
-        
+
         // Non-Parser class
         System.setProperty("org.xml.sax.parser",
                 "tests.api.org.xml.sax.support.NoSubclassParser");
-        
+
         try {
             ParserFactory.makeParser();
             fail("expected ClassCastException was not thrown");
         } catch (ClassCastException e) {
             // Expected
         }
-        
+
         // Good one, finally
         System.setProperty("org.xml.sax.parser",
                 "tests.api.org.xml.sax.support.DoNothingParser");
-        
+
         ParserFactory.makeParser();
-        
+
     }
 
     @TestTargetNew(
@@ -130,7 +130,7 @@ public class ParserFactoryTest extends TestCase {
         } catch (ClassNotFoundException e) {
             // Expected
         }
-        
+
         // Non-accessible class
         try {
             ParserFactory.makeParser(
@@ -139,7 +139,7 @@ public class ParserFactoryTest extends TestCase {
         } catch (IllegalAccessException e) {
             // Expected
         }
-        
+
         // Non-instantiable class
         try {
             ParserFactory.makeParser(
@@ -148,7 +148,7 @@ public class ParserFactoryTest extends TestCase {
         } catch (InstantiationException e) {
             // Expected
         }
-        
+
         // Non-Parser class
         try {
             ParserFactory.makeParser(
@@ -157,7 +157,7 @@ public class ParserFactoryTest extends TestCase {
         } catch (ClassCastException e) {
             // Expected
         }
-        
+
         // Good one, finally
         ParserFactory.makeParser(
                 "tests.api.org.xml.sax.support.DoNothingParser");

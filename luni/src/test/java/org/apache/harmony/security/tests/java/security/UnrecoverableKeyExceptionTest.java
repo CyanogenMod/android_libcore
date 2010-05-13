@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>UnrecoverableKeyException</code> class constructors and
  * methods.
- * 
+ *
  */
 public class UnrecoverableKeyExceptionTest extends TestCase {
 

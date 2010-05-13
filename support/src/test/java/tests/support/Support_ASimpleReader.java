@@ -30,7 +30,7 @@ public class Support_ASimpleReader extends Reader {
         this();
         throwExceptionOnNextUse = throwException;
     }
-    
+
     public Support_ASimpleReader(String input) {
         buf = input.toCharArray();
         pos = 0;

@@ -62,7 +62,7 @@ public class Name {
 
     /**
      * Creates new <code>Name</code> instance from its DER encoding
-     * 
+     *
      * @param encoding - ASN.1 DER encoding
      * @throws IOException - if encoding is wrong
      */
@@ -71,7 +71,7 @@ public class Name {
         DerInputStream in = new DerInputStream(encoding);
 
         if (in.getEndOffset() != encoding.length) {
-            throw new IOException(Messages.getString("security.111")); 
+            throw new IOException(Messages.getString("security.111"));
         }
 
         ASN1.decode(in);
@@ -81,7 +81,7 @@ public class Name {
 
     /**
      * Creates new <code>Name</code> instance
-     * 
+     *
      * @param name - Name as String
      * @throws IOException - if string is wrong
      */
@@ -97,17 +97,17 @@ public class Name {
     /**
      * Returns <code>X500Principal</code> instance corresponding to this
      * <code>Name</code> instance
-     * 
+     *
      * @return equivalent X500Principal object
      */
     public X500Principal getX500Principal(){
         return new X500Principal(getName0(X500Principal.RFC2253));
     }
-    
+
     /**
      * Returns Relative Distinguished Name as <code>String</code> according
      * the format requested
-     * 
+     *
      * @param format
      *            Name format requested
      * @return Relative Distinguished Name as <code>String</code> according
@@ -165,21 +165,21 @@ public class Name {
             return canonicalString;
 
         } else {
-            throw new IllegalArgumentException(Messages.getString("security.177", format)); 
+            throw new IllegalArgumentException(Messages.getString("security.177", format));
         }
     }
 
     /**
      * Returns Relative Distinguished Name as <code>String</code> according
      * the format requested, format is int value
-     * 
+     *
      * @param format
      *            Name format requested
      * @return Relative Distinguished Name as <code>String</code> according
      *         the format requested
      */
     private String getName0(String format) {
-        
+
         StringBuffer name = new StringBuffer();
 
         // starting with the last element and moving to the first.
@@ -201,7 +201,7 @@ public class Name {
                 if (it.hasNext()) {
                     // multi-valued RDN
                     if (X500Principal.RFC1779 == format) {
-                        name.append(" + "); 
+                        name.append(" + ");
                     } else {
                         name.append('+');
                     }
@@ -225,7 +225,7 @@ public class Name {
 
     /**
      * Gets encoded form of DN
-     * 
+     *
      * @return return encoding, no copying is performed
      */
     public byte[] getEncoded() {
@@ -236,17 +236,17 @@ public class Name {
     }
 
     /**
-     * According to RFC 3280 (http://www.ietf.org/rfc/rfc3280.txt) 
+     * According to RFC 3280 (http://www.ietf.org/rfc/rfc3280.txt)
      * X.501 Name structure is defined as follows:
-     * 
+     *
      * Name ::= CHOICE {
      *     RDNSequence }
-     *  
+     *
      * RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
-     *  
+     *
      * RelativeDistinguishedName ::=
      *     SET OF AttributeTypeAndValue
-     * 
+     *
      */
 
     public static final ASN1SetOf ASN1_RDN = new ASN1SetOf(

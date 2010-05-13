@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -218,7 +218,7 @@ import java.util.Vector;
  * A pattern containing any invalid pattern letter will result in an exception
  * thrown during formatting or parsing.
  * <h4>Examples Using the US Locale</h4> <blockquote>
- * 
+ *
  * <pre>
  * Format Pattern                       Result
  * --------------                       -------
@@ -229,25 +229,25 @@ import java.util.Vector;
  * "K:mm a, vvv"                     &rarr;  0:00 PM, PT
  * "yyyyy.MMMMM.dd GGG hh:mm aaa"    &rarr;  01996.July.10 AD 12:08 PM
  * </pre>
- * 
+ *
  * </blockquote> <h4>Code Sample:</h4> <blockquote>
- * 
+ *
  * <pre>
  * SimpleTimeZone pdt = new SimpleTimeZone(-8 * 60 * 60 * 1000, "PST");
  * pdt.setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
  * pdt.setEndRule(Calendar.OCTOBER, -1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
- * 
+ *
  * // Format the current time.
  * SimpleDateFormat formatter = new SimpleDateFormat(
  *         "yyyy.MM.dd G 'at' hh:mm:ss a zzz");
  * Date currentTime_1 = new Date();
  * String dateString = formatter.format(currentTime_1);
- * 
+ *
  * // Parse the previous string back into a Date.
  * ParsePosition pos = new ParsePosition(0);
  * Date currentTime_2 = formatter.parse(dateString, pos);
  * </pre>
- * 
+ *
  * </blockquote>
  * <p>
  * In the example, the time value {@code currentTime_2} obtained from parsing
@@ -296,7 +296,7 @@ import java.util.Vector;
  * <h4>Synchronization</h4> Date formats are not synchronized. It is recommended
  * to create separate format instances for each thread. If multiple threads
  * access a format concurrently, it must be synchronized externally.
- * 
+ *
  * @see Calendar
  * @see GregorianCalendar
  * @see java.util.TimeZone
@@ -334,7 +334,7 @@ public class SimpleDateFormat extends DateFormat {
      * non-localized pattern and the {@code DateFormatSymbols} and {@code
      * Calendar} for the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param pattern
      *            the pattern.
      * @throws NullPointerException
@@ -346,7 +346,7 @@ public class SimpleDateFormat extends DateFormat {
     public SimpleDateFormat(String pattern) {
         this(pattern, Locale.getDefault());
     }
-    
+
     /**
      * Validates the format character.
      *
@@ -421,13 +421,13 @@ public class SimpleDateFormat extends DateFormat {
             throw new IllegalArgumentException("Unterminated quote");
         }
     }
-    
+
     /**
      * Constructs a new {@code SimpleDateFormat} using the specified
      * non-localized pattern and {@code DateFormatSymbols} and the {@code
      * Calendar} for the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param template
      *            the pattern.
      * @param value
@@ -448,7 +448,7 @@ public class SimpleDateFormat extends DateFormat {
      * Constructs a new {@code SimpleDateFormat} using the specified
      * non-localized pattern and the {@code DateFormatSymbols} and {@code
      * Calendar} for the specified locale.
-     * 
+     *
      * @param template
      *            the pattern.
      * @param locale
@@ -487,7 +487,7 @@ public class SimpleDateFormat extends DateFormat {
     /**
      * Changes the pattern of this simple date format to the specified pattern
      * which uses localized pattern characters.
-     * 
+     *
      * @param template
      *            the localized pattern.
      */
@@ -501,7 +501,7 @@ public class SimpleDateFormat extends DateFormat {
     /**
      * Changes the pattern of this simple date format to the specified pattern
      * which uses non-localized pattern characters.
-     * 
+     *
      * @param template
      *            the non-localized pattern.
      * @throws NullPointerException
@@ -525,7 +525,7 @@ public class SimpleDateFormat extends DateFormat {
 
     /**
      * Converts the Java-spec pattern into an equivalent pattern used by ICU.
-     * 
+     *
      * @param p
      *            the Java-spec style pattern.
      * @return the ICU-style pattern.
@@ -556,7 +556,7 @@ public class SimpleDateFormat extends DateFormat {
     /**
      * Returns a new {@code SimpleDateFormat} with the same pattern and
      * properties as this simple date format.
-     * 
+     *
      * @return a shallow copy of this simple date format.
      * @see java.lang.Cloneable
      */
@@ -578,7 +578,7 @@ public class SimpleDateFormat extends DateFormat {
      * if they are equal. In order to be equal, {@code object} must be an
      * instance of {@code SimpleDateFormat} and have the same {@code DateFormat}
      * properties, pattern, {@code DateFormatSymbols} and creation year.
-     * 
+     *
      * @param object
      *            the object to compare with this object.
      * @return {@code true} if the specified object is equal to this simple date
@@ -602,7 +602,7 @@ public class SimpleDateFormat extends DateFormat {
      * Formats the specified object using the rules of this simple date format
      * and returns an {@code AttributedCharacterIterator} with the formatted
      * date and attributes.
-     * 
+     *
      * @param object
      *            the object to format.
      * @return an {@code AttributedCharacterIterator} with the formatted date
@@ -626,9 +626,9 @@ public class SimpleDateFormat extends DateFormat {
                     .longValue()));
         }
         throw new IllegalArgumentException();
-        
+
     }
-    
+
     private AttributedCharacterIterator formatToCharacterIteratorImpl(Date date) {
         StringBuffer buffer = new StringBuffer();
         Vector<FieldPosition> fields = new Vector<FieldPosition>();
@@ -661,7 +661,7 @@ public class SimpleDateFormat extends DateFormat {
      * If the Vector {@code fields} is not null, find fields of this
      * date, set FieldPositions with these fields, and add them to the fields
      * vector.
-     * 
+     *
      * @param date
      *            Date to Format
      * @param buffer
@@ -728,7 +728,7 @@ public class SimpleDateFormat extends DateFormat {
         }
         return buffer;
     }
-    
+
     private void append(StringBuffer buffer, FieldPosition position,
             Vector<FieldPosition> fields, char format, int count) {
         int field = -1;
@@ -864,10 +864,10 @@ public class SimpleDateFormat extends DateFormat {
             }
         }
     }
-    
+
     /**
      * Append a representation of the time zone of 'calendar' to 'buffer'.
-     * 
+     *
      * @param count the number of z or Z characters in the format string; "zzz" would be 3,
      * for example.
      * @param generalTimeZone true if we should use a display name ("PDT") if available;
@@ -1340,7 +1340,7 @@ public class SimpleDateFormat extends DateFormat {
 
     /**
      * Sets the {@code DateFormatSymbols} used by this simple date format.
-     * 
+     *
      * @param value
      *            the new {@code DateFormatSymbols} object.
      */
@@ -1356,7 +1356,7 @@ public class SimpleDateFormat extends DateFormat {
     /**
      * Returns the pattern of this simple date format using localized pattern
      * characters.
-     * 
+     *
      * @return the localized pattern.
      */
     public String toLocalizedPattern() {
@@ -1369,7 +1369,7 @@ public class SimpleDateFormat extends DateFormat {
     /**
      * Returns the pattern of this simple date format using non-localized
      * pattern characters.
-     * 
+     *
      * @return the non-localized pattern.
      */
     public String toPattern() {

@@ -34,7 +34,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 /**
  * Specific {@code PermissionCollection} for storing {@code BasicPermissions} of
  * arbitrary type.
- * 
+ *
  * @see BasicPermission
  * @see PermissionCollection
  */
@@ -43,9 +43,9 @@ final class BasicPermissionCollection extends PermissionCollection {
     private static final long serialVersionUID = 739301742472979399L;
 
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("all_allowed", Boolean.TYPE), 
-        new ObjectStreamField("permissions", Hashtable.class), 
-        new ObjectStreamField("permClass", Class.class), }; 
+        new ObjectStreamField("all_allowed", Boolean.TYPE),
+        new ObjectStreamField("permissions", Hashtable.class),
+        new ObjectStreamField("permClass", Class.class), };
 
     //should be final, but because of writeObject() cannot be
     private transient Map<String, Permission> items = new HashMap<String, Permission>();
@@ -59,32 +59,32 @@ final class BasicPermissionCollection extends PermissionCollection {
      * Adds a permission to the collection. The first added permission must be a
      * subclass of BasicPermission, next permissions must be of the same class
      * as the first one.
-     * 
+     *
      * @see java.security.PermissionCollection#add(java.security.Permission)
      */
     @Override
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15")); 
+            throw new SecurityException(Messages.getString("security.15"));
         }
         if (permission == null) {
-            throw new IllegalArgumentException(Messages.getString("security.20")); 
+            throw new IllegalArgumentException(Messages.getString("security.20"));
         }
 
         Class<? extends Permission> inClass = permission.getClass();
         if (permClass != null) {
             if (permClass != inClass) {
-                throw new IllegalArgumentException(Messages.getString("security.16", 
+                throw new IllegalArgumentException(Messages.getString("security.16",
                     permission));
             }
         } else if( !(permission instanceof BasicPermission)) {
-            throw new IllegalArgumentException(Messages.getString("security.16", 
+            throw new IllegalArgumentException(Messages.getString("security.16",
                 permission));
-        } else { 
+        } else {
             // this is the first element provided that another thread did not add
             synchronized (this) {
                 if (permClass != null && inClass != permClass) {
-                    throw new IllegalArgumentException(Messages.getString("security.16", 
+                    throw new IllegalArgumentException(Messages.getString("security.16",
                         permission));
                 }
                 permClass = inClass;
@@ -106,7 +106,7 @@ final class BasicPermissionCollection extends PermissionCollection {
 
     /**
      * Indicates whether the argument permission is implied by the receiver.
-     * 
+     *
      * @return boolean {@code true} if the argument permission is implied by the
      *         receiver, and {@code false} if it is not.
      * @param permission
@@ -127,18 +127,18 @@ final class BasicPermissionCollection extends PermissionCollection {
             return true;
         }
         //now check if there are suitable wildcards
-        //suppose we have "a.b.c", let's check "a.b.*" and "a.*" 
+        //suppose we have "a.b.c", let's check "a.b.*" and "a.*"
         char[] name = checkName.toCharArray();
-        //I presume that "a.b.*" does not imply "a.b." 
-        //so the dot at end is ignored 
-        int pos = name.length - 2; 
+        //I presume that "a.b.*" does not imply "a.b."
+        //so the dot at end is ignored
+        int pos = name.length - 2;
         for (; pos >= 0; pos--) {
             if (name[pos] == '.') {
                 break;
             }
         }
         while (pos >= 0) {
-            name[pos + 1] = '*'; 
+            name[pos + 1] = '*';
             if (items.containsKey(new String(name, 0, pos + 2))) {
                 return true;
             }
@@ -169,9 +169,9 @@ final class BasicPermissionCollection extends PermissionCollection {
      */
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         ObjectOutputStream.PutField fields = out.putFields();
-        fields.put("all_allowed", allEnabled); 
-        fields.put("permissions", new Hashtable<String, Permission>(items)); 
-        fields.put("permClass", permClass); 
+        fields.put("all_allowed", allEnabled);
+        fields.put("permissions", new Hashtable<String, Permission>(items));
+        fields.put("permClass", permClass);
         out.writeFields();
     }
 
@@ -185,17 +185,17 @@ final class BasicPermissionCollection extends PermissionCollection {
 
         items = new HashMap<String, Permission>();
         synchronized (this) {
-            permClass = (Class<? extends Permission>)fields.get("permClass", null); 
+            permClass = (Class<? extends Permission>)fields.get("permClass", null);
             items.putAll((Hashtable<String, Permission>) fields.get(
-                    "permissions", new Hashtable<String, Permission>())); 
+                    "permissions", new Hashtable<String, Permission>()));
             for (Iterator<Permission> iter = items.values().iterator(); iter.hasNext();) {
                 if (iter.next().getClass() != permClass) {
-                    throw new InvalidObjectException(Messages.getString("security.24")); 
+                    throw new InvalidObjectException(Messages.getString("security.24"));
                 }
             }
-            allEnabled = fields.get("all_allowed", false); 
-            if (allEnabled && !items.containsKey("*")) { 
-                throw new InvalidObjectException(Messages.getString("security.25")); 
+            allEnabled = fields.get("all_allowed", false);
+            if (allEnabled && !items.containsKey("*")) {
+                throw new InvalidObjectException(Messages.getString("security.25"));
             }
         }
     }

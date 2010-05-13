@@ -6,14 +6,14 @@ The source document contained the following notice:
 
 
 
-Copyright (c) 2001-2003 World Wide Web Consortium, 
+Copyright (c) 2001-2003 World Wide Web Consortium,
 (Massachusetts Institute of Technology, Institut National de
-Recherche en Informatique et en Automatique, Keio University).  All 
+Recherche en Informatique et en Automatique, Keio University).  All
 Rights Reserved.  This program is distributed under the W3C's Software
-Intellectual Property License.  This program is distributed in the 
+Intellectual Property License.  This program is distributed in the
 hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.  
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
 
 See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -37,7 +37,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 /**
  *     The method getInternalSubset() returns the public identifier of the external subset.
- *   
+ *
  *     Create a new DocumentType node with the value "PUB" for its publicId.
  *     Check the value of the publicId attribute using getPublicId().
 * @author IBM
@@ -45,7 +45,7 @@ import javax.xml.parsers.DocumentBuilder;
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-publicId">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-publicId</a>
 * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
 */
-@TestTargetClass(DocumentType.class) 
+@TestTargetClass(DocumentType.class)
 public final class DocumentTypePublicId extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -92,6 +92,6 @@ public final class DocumentTypePublicId extends DOMTestCase {
       publicId = docType.getPublicId();
       assertEquals("documenttypepublicid01", "PUB", publicId);
       }
-   
+
 }
 

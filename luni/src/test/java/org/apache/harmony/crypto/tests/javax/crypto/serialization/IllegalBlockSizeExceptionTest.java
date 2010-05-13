@@ -29,7 +29,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Test for IllegalBlockSizeException serialization
- * 
+ *
  */
 
 public class IllegalBlockSizeExceptionTest extends SerializationTest {

@@ -32,7 +32,7 @@ public class HeaderTest extends junit.framework.TestCase {
         assertEquals("text/plain", h.get("CONTENT-TYPE"));
         // ...but case-preserving:
         assertEquals("Content-Type", h.getFieldMap().keySet().toArray()[0]);
-        
+
         // We differ from the RI in that the Map we return is also case-insensitive.
         // Our behavior seems more consistent. (And code that works on the RI will work on Android.)
         assertEquals(Arrays.asList("text/plain"), h.getFieldMap().get("Content-Type"));

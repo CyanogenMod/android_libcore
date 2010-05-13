@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,18 +33,18 @@ import org.apache.harmony.security.tests.support.interfaces.DSAKeyPairGeneratorI
 
 @TestTargetClass(DSAKeyPairGenerator.class)
 public class DSAKeyPairGeneratorTest extends TestCase {
-    
+
     private final BigInteger p = new BigInteger("4");
     private final BigInteger q = BigInteger.TEN;
     private final BigInteger g = BigInteger.ZERO;
-    
-    
+
+
     class MyDSA extends DSAKeyPairGeneratorImpl {
         public MyDSA(DSAParams dsaParams) {
             super(dsaParams);
         }
     }
-    
+
     /**
      * @tests java.security.interfaces.DSAKeyPairGenerator
      * #initialize(DSAParams params, SecureRandom random)
@@ -64,13 +64,13 @@ public class DSAKeyPairGeneratorTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception for SecureRandom: " + e);
         }
-        
+
         try {
             dsa.initialize(dsaParams, random);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             dsa.initialize(dsaParams, null);
             fail("InvalidParameterException was not thrown");
@@ -88,7 +88,7 @@ public class DSAKeyPairGeneratorTest extends TestCase {
             fail(e + " was thrown instead of InvalidParameterException");
         }
     }
-    
+
     /**
      * @tests java.security.interfaces.DSAKeyPairGenerator
      * #initialize(int modlen, boolean genParams, SecureRandom randomm)
@@ -109,7 +109,7 @@ public class DSAKeyPairGeneratorTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception for SecureRandom: " + e);
         }
-        
+
         //exception case
         try {
             dsa.initialize(520, false, random);
@@ -122,7 +122,7 @@ public class DSAKeyPairGeneratorTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of InvalidParameterException");
         }
-        
+
         //exception case
         for (int i = 0; i < invalidLen.length; i++) {
             try {
@@ -135,9 +135,9 @@ public class DSAKeyPairGeneratorTest extends TestCase {
                 }
             } catch (Exception e) {
                 fail(e + " was thrown instead of InvalidParameterException");
-            }            
+            }
         }
-        
+
         //positive case
         dsa = new MyDSA(dsaParams);
         try {
@@ -145,7 +145,7 @@ public class DSAKeyPairGeneratorTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown for subcase 1");
         }
-        
+
         //positive case
         try {
             dsa.initialize(520, false, random);

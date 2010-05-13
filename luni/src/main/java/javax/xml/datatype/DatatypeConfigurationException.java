@@ -34,13 +34,13 @@ import java.lang.reflect.Method;
  */
 
 public class DatatypeConfigurationException extends Exception {
-    
+
     /** Stream Unique Identifier. */
     private static final long serialVersionUID = -1699373159027047238L;
 
     /** This field is required to store the cause on JDK 1.3 and below. */
     private Throwable causeOnJDK13OrBelow;
-    
+
     /** Indicates whether this class is being used in a JDK 1.4 context. */
     private transient boolean isJDK14OrAbove = false;
 
@@ -48,22 +48,22 @@ public class DatatypeConfigurationException extends Exception {
      * <p>Create a new <code>DatatypeConfigurationException</code> with
      * no specified detail message and cause.</p>
      */
-    
+
     public DatatypeConfigurationException() {
         super();
     }
-    
+
     /**
      * <p>Create a new <code>DatatypeConfigurationException</code> with
      * the specified detail message.</p>
      *
      * @param message The detail message.
      */
-    
+
     public DatatypeConfigurationException(String message) {
         super(message);
     }
-    
+
     /**
      * <p>Create a new <code>DatatypeConfigurationException</code> with
      * the specified detail message and cause.</p>
@@ -71,24 +71,24 @@ public class DatatypeConfigurationException extends Exception {
      * @param message The detail message.
      * @param cause The cause.  A <code>null</code> value is permitted, and indicates that the cause is nonexistent or unknown.
      */
-    
+
     public DatatypeConfigurationException(String message, Throwable cause) {
         super(message);
         initCauseByReflection(cause);
     }
-    
+
     /**
      * <p>Create a new <code>DatatypeConfigurationException</code> with
      * the specified cause.</p>
      *
      * @param cause The cause.  A <code>null</code> value is permitted, and indicates that the cause is nonexistent or unknown.
      */
-    
+
     public DatatypeConfigurationException(Throwable cause) {
         super(cause == null ? null : cause.toString());
         initCauseByReflection(cause);
     }
-    
+
     /**
      * Print the the trace of methods from where the error
      * originated.  This will trace all nested exception
@@ -132,13 +132,13 @@ public class DatatypeConfigurationException extends Exception {
             super.printStackTrace(s);
         }
     }
-    
+
     private void printStackTrace0(PrintWriter s) {
         causeOnJDK13OrBelow.printStackTrace(s);
         s.println("------------------------------------------");
         super.printStackTrace(s);
     }
-    
+
     private void initCauseByReflection(Throwable cause) {
         causeOnJDK13OrBelow = cause;
         try {
@@ -149,8 +149,8 @@ public class DatatypeConfigurationException extends Exception {
         // Ignore exception
         catch (Exception e) {}
     }
-    
-    private void readObject(ObjectInputStream in) 
+
+    private void readObject(ObjectInputStream in)
         throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         try {

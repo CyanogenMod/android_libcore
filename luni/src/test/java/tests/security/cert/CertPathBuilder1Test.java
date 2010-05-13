@@ -49,24 +49,24 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>CertPathBuilder</code> class constructors and
  * methods.
- * 
+ *
  */
 @TestTargetClass(CertPathBuilder.class)
 public class CertPathBuilder1Test extends TestCase {
 
     public static final String srvCertPathBuilder = "CertPathBuilder";
 
-    public static final String defaultType = "PKIX";    
+    public static final String defaultType = "PKIX";
     public static final String [] validValues = {
             "PKIX", "pkix", "PkiX", "pKiX" };
-     
+
     private static String [] invalidValues = SpiEngUtils.invalidValues;
-    
+
     private static boolean PKIXSupport = false;
 
     private static Provider defaultProvider;
     private static String defaultProviderName;
-    
+
     private static String NotSupportMsg = "";
 
     public static final String DEFAULT_TYPE_PROPERTY = "certpathbuilder.type";
@@ -94,8 +94,8 @@ public class CertPathBuilder1Test extends TestCase {
         } catch (Exception e) {
             return null;
         }
-    }    
-    
+    }
+
     /**
      * @tests java.security.cert.CertPathBuilder#getDefaultType()
      */
@@ -109,7 +109,7 @@ public class CertPathBuilder1Test extends TestCase {
 
         // Regression for HARMONY-2785
 
-        // test: default value  
+        // test: default value
         assertNull(Security.getProperty(DEFAULT_TYPE_PROPERTY));
         assertEquals("PKIX", CertPathBuilder.getDefaultType());
     }
@@ -117,7 +117,7 @@ public class CertPathBuilder1Test extends TestCase {
     /**
      * Test for <code>getInstance(String algorithm)</code> method
      * Assertion:
-     * throws NullPointerException when algorithm is null 
+     * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm  is not correct
      * or it is not available
      */
@@ -141,11 +141,11 @@ public class CertPathBuilder1Test extends TestCase {
             }
         }
     }
-    
+
     /**
      * Test for <code>getInstance(String algorithm)</code> method
      * Assertion: returns CertPathBuilder object
-     */ 
+     */
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies positive functionality.",
@@ -165,9 +165,9 @@ public class CertPathBuilder1Test extends TestCase {
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code> method
      * Assertion: throws IllegalArgumentException when provider is null or empty
-     * 
+     *
      * FIXME: verify what exception will be thrown if provider is empty
-     */  
+     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies IllegalArgumentException.",
@@ -181,7 +181,7 @@ public class CertPathBuilder1Test extends TestCase {
             return;
         }
         String provider = null;
-        for (int i = 0; i < validValues.length; i++) {        
+        for (int i = 0; i < validValues.length; i++) {
             try {
                 CertPathBuilder.getInstance(validValues[i], provider);
                 fail("IllegalArgumentException must be thrown thrown");
@@ -194,10 +194,10 @@ public class CertPathBuilder1Test extends TestCase {
             }
         }
     }
-    
+
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code> method
-     * Assertion: 
+     * Assertion:
      * throws NoSuchProviderException when provider has invalid value
      */
     @TestTargetNew(
@@ -220,12 +220,12 @@ public class CertPathBuilder1Test extends TestCase {
                 } catch (NoSuchProviderException e1) {
                 }
             }
-        }        
+        }
     }
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code> method
-     * Assertion: 
-     * throws NullPointerException when algorithm is null 
+     * Assertion:
+     * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm  is not correct
      */
     @TestTargetNew(
@@ -251,9 +251,9 @@ public class CertPathBuilder1Test extends TestCase {
                 fail("NoSuchAlgorithmException must be thrown");
             } catch (NoSuchAlgorithmException e1) {
             }
-        }        
+        }
     }
-    
+
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code> method
      * Assertion: returns CertPathBuilder object
@@ -275,7 +275,7 @@ public class CertPathBuilder1Test extends TestCase {
             certPB = CertPathBuilder.getInstance(validValues[i], defaultProviderName);
             assertEquals("Incorrect algorithm", certPB.getAlgorithm(), validValues[i]);
             assertEquals("Incorrect provider name", certPB.getProvider().getName(), defaultProviderName);
-        }        
+        }
     }
 
     /**
@@ -301,13 +301,13 @@ public class CertPathBuilder1Test extends TestCase {
                 fail("IllegalArgumentException must be thrown");
             } catch (IllegalArgumentException e1) {
             }
-        }        
+        }
     }
-    
+
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code> method
-     * Assertion: 
-     * throws NullPointerException when algorithm is null 
+     * Assertion:
+     * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm  is not correct
      */
     @TestTargetNew(
@@ -356,7 +356,7 @@ public class CertPathBuilder1Test extends TestCase {
             certPB = CertPathBuilder.getInstance(validValues[i], defaultProvider);
             assertEquals("Incorrect algorithm", certPB.getAlgorithm(), validValues[i]);
             assertEquals("Incorrect provider name", certPB.getProvider(), defaultProvider);
-        }        
+        }
     }
     /**
      * Test for <code>build(CertPathParameters params)</code> method
@@ -369,12 +369,12 @@ public class CertPathBuilder1Test extends TestCase {
         args = {java.security.cert.CertPathParameters.class}
     )
     public void testCertPathBuilder11()
-            throws NoSuchAlgorithmException, NoSuchProviderException, 
+            throws NoSuchAlgorithmException, NoSuchProviderException,
             CertPathBuilderException {
         if (!PKIXSupport) {
             fail(NotSupportMsg);
             return;
-        }        
+        }
         CertPathBuilder [] certPB = createCPBs();
         assertNotNull("CertPathBuilder objects were not created", certPB);
         for (int i = 0; i < certPB.length; i++ ){
@@ -385,7 +385,7 @@ public class CertPathBuilder1Test extends TestCase {
             }
         }
     }
-    
+
     @TestTargetNew(
             level=TestLevel.PARTIAL_COMPLETE,
             notes = "Verifies normal case",
@@ -398,7 +398,7 @@ public class CertPathBuilder1Test extends TestCase {
         TestUtils.initCertPathSSCertChain();
         CertPathParameters params = TestUtils.getCertPathParameters();
         CertPathBuilder builder = TestUtils.getCertPathBuilder();
-        
+
         try {
             CertPathBuilderResult result = builder.build(params);
             assertNotNull("builder result is null", result);
@@ -407,10 +407,10 @@ public class CertPathBuilder1Test extends TestCase {
         } catch (InvalidAlgorithmParameterException e) {
             fail("unexpected Exception: " + e);
         }
-        
+
     }
     /**
-     * Test for 
+     * Test for
      * <code>CertPathBuilder</code> constructor
      * Assertion: returns CertPathBuilder object
      */
@@ -421,7 +421,7 @@ public class CertPathBuilder1Test extends TestCase {
         args = {java.security.cert.CertPathBuilderSpi.class, java.security.Provider.class, java.lang.String.class}
     )
     public void testCertPathBuilder12()
-            throws CertificateException, NoSuchProviderException, 
+            throws CertificateException, NoSuchProviderException,
             NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             CertPathBuilderException {
         if (!PKIXSupport) {
@@ -429,22 +429,22 @@ public class CertPathBuilder1Test extends TestCase {
             return;
         }
         CertPathBuilderSpi spi = new MyCertPathBuilderSpi();
-        CertPathBuilder certPB = new myCertPathBuilder(spi, 
+        CertPathBuilder certPB = new myCertPathBuilder(spi,
                     defaultProvider, defaultType);
         assertEquals("Incorrect algorithm", certPB.getAlgorithm(), defaultType);
         assertEquals("Incorrect provider", certPB.getProvider(), defaultProvider);
         try {
             certPB.build(null);
             fail("CertPathBuilderException must be thrown ");
-        } catch (CertPathBuilderException e) {            
+        } catch (CertPathBuilderException e) {
         }
         certPB = new myCertPathBuilder(null, null, null);
         assertNull("Incorrect algorithm", certPB.getAlgorithm());
-        assertNull("Incorrect provider", certPB.getProvider());            
+        assertNull("Incorrect provider", certPB.getProvider());
         try {
             certPB.build(null);
             fail("NullPointerException must be thrown ");
-        } catch (NullPointerException e) {            
+        } catch (NullPointerException e) {
         }
     }
 

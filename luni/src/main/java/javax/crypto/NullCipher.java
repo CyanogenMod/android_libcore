@@ -41,9 +41,9 @@ public class NullCipher extends Cipher {
     public NullCipher() {
         super(new NullCipherSpi(), null, null);
         try {
-            this.init(Cipher.ENCRYPT_MODE, (Key)null, (SecureRandom)null);    
-        } catch (InvalidKeyException e) {        
+            this.init(Cipher.ENCRYPT_MODE, (Key)null, (SecureRandom)null);
+        } catch (InvalidKeyException e) {
         }
     }
-    
+
 }

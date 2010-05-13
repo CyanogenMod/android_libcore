@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001-2003 World Wide Web Consortium, 
+ Copyright (c) 2001-2003 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -34,11 +34,11 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The "getElementById(elementId)" method for a Document should return an
  * element whose ID matches elementId.
- * 
+ *
  * Invoke method getElementById(elementId) on this document with elementId
  * equals "CANADA". Method should return an element whose tag name is
  * "emp:address".
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
@@ -46,7 +46,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=383">http://www.w3.org/Bugs/Public/show_bug.cgi?id=383</a>
  */
-@TestTargetClass(Document.class) 
+@TestTargetClass(Document.class)
 public final class GetElementById extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -72,7 +72,7 @@ public final class GetElementById extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

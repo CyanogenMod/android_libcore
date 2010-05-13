@@ -78,7 +78,7 @@ public abstract class AbstractPreferences extends Preferences {
             }
         });
     }
-    
+
     /*
      * -----------------------------------------------------------
      * Instance fields (package-private)
@@ -99,7 +99,7 @@ public abstract class AbstractPreferences extends Preferences {
      * The object used to lock this node.
      */
     protected final Object lock;
-    
+
     /**
      * This field is true if this node is created while it doesn't exist in the
      * backing store. This field's default value is false, and it is checked
@@ -168,7 +168,7 @@ public abstract class AbstractPreferences extends Preferences {
      */
     /**
      * Returns an array of all cached child nodes.
-     * 
+     *
      * @return the array of cached child nodes.
      */
     protected final AbstractPreferences[] cachedChildren() {
@@ -181,7 +181,7 @@ public abstract class AbstractPreferences extends Preferences {
      * method will be a valid node name string (conforming to the node naming
      * format) and will not correspond to a node that has been cached or
      * removed.
-     * 
+     *
      * @param name
      *            the name of the desired child node.
      * @return the child node with the given name or {@code null} if it doesn't
@@ -231,7 +231,7 @@ public abstract class AbstractPreferences extends Preferences {
      *             failure.
      */
     protected abstract void flushSpi() throws BackingStoreException;
-    
+
     /**
      * Returns the names of all of the child nodes of this node or an empty
      * array if this node has no children. The names of cached children are not
@@ -255,7 +255,7 @@ public abstract class AbstractPreferences extends Preferences {
      * The new creation is not required to be persisted immediately until the
      * flush method will be invoked.
      * </p>
-     * 
+     *
      * @param name
      *            the name of the child preference to be returned.
      * @return the child preference node.
@@ -318,7 +318,7 @@ public abstract class AbstractPreferences extends Preferences {
      * Removes the preference with the specified key. The caller of this method
      * should ensure that the given key is valid and that this node has not been
      * removed.
-     * 
+     *
      * @param key
      *            the key of the preference that is to be removed.
      */
@@ -329,7 +329,7 @@ public abstract class AbstractPreferences extends Preferences {
      * synchronize this node and should not include the descendant nodes. An
      * implementation that wants to provide functionality to synchronize all
      * nodes at once should override the method {@link #sync() sync()}.
-     * 
+     *
      * @throws BackingStoreException
      *             if the backing store is unavailable or causes an operation
      *             failure.
@@ -442,7 +442,7 @@ public abstract class AbstractPreferences extends Preferences {
         if (svalue == null) {
             return deflt;
         }
-        if (svalue.length() == 0) { 
+        if (svalue.length() == 0) {
             return new byte[0];
         }
         try {
@@ -729,7 +729,7 @@ public abstract class AbstractPreferences extends Preferences {
                     cachedNode.put(childrenNames[i], child);
                 }
             }
-            
+
             final Collection<AbstractPreferences> values = cachedNode.values();
             final AbstractPreferences[] children = values.toArray(new AbstractPreferences[values.size()]);
             for (AbstractPreferences child : children) {
@@ -838,7 +838,7 @@ public abstract class AbstractPreferences extends Preferences {
         EventDispatcher(String name){
             super(name);
         }
-        
+
         @Override
         public void run() {
             while (true) {
@@ -922,7 +922,7 @@ public abstract class AbstractPreferences extends Preferences {
     private static class NodeRemoveEvent extends NodeChangeEvent {
         //The base class is NOT serializable, so this class isn't either.
         private static final long serialVersionUID = 1L;
-        
+
         public NodeRemoveEvent(Preferences p, Preferences c) {
             super(p, c);
         }

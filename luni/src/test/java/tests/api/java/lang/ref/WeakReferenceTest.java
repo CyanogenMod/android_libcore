@@ -25,7 +25,7 @@ import dalvik.annotation.TestTargetClass;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 
-@TestTargetClass(WeakReference.class) 
+@TestTargetClass(WeakReference.class)
 public class WeakReferenceTest extends junit.framework.TestCase {
     static Boolean bool;
 

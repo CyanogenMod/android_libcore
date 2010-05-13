@@ -19,7 +19,7 @@
   * TODO
   * 1. The class extends the PublicKeyImpl class in "org.apache.harmony.security" package.
   *
-  * 2. The class uses methods in the auxiliary non-public "ThreeIntegerSequence" class 
+  * 2. The class uses methods in the auxiliary non-public "ThreeIntegerSequence" class
   *    defined along with the "DSAPrivateKeyImpl" class.
   *
   * 3. See a compatibility with RI comments
@@ -73,7 +73,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
      */
     public DSAPublicKeyImpl(DSAPublicKeySpec keySpec) {
 
-        super("DSA"); 
+        super("DSA");
 
         SubjectPublicKeyInfo spki;
 
@@ -85,7 +85,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
                 .toByteArray(), q.toByteArray(), g.toByteArray());
 
         AlgorithmIdentifier ai = new AlgorithmIdentifier(AlgNameMapper
-                .map2OID("DSA"), 
+                .map2OID("DSA"),
                 threeInts.getEncoded());
 
         y = keySpec.getY();
@@ -107,7 +107,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
     public DSAPublicKeyImpl(X509EncodedKeySpec keySpec)
             throws InvalidKeySpecException {
 
-        super("DSA"); 
+        super("DSA");
 
         AlgorithmIdentifier ai;
         ThreeIntegerSequence threeInts = null;
@@ -123,7 +123,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
                     .decode(encoding);
         } catch (IOException e) {
             throw new InvalidKeySpecException(Messages.getString(
-                    "security.19A", e)); 
+                    "security.19A", e));
         }
 
         try {
@@ -131,7 +131,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
                     subjectPublicKeyInfo.getSubjectPublicKey()));
         } catch (IOException e) {
             throw new InvalidKeySpecException(Messages.getString(
-                    "security.19B", e)); 
+                    "security.19B", e));
         }
 
         ai = subjectPublicKeyInfo.getAlgorithmIdentifier();
@@ -141,7 +141,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
                     .decode(ai.getParameters());
         } catch (IOException e) {
             throw new InvalidKeySpecException(Messages.getString(
-                    "security.19B", e)); 
+                    "security.19B", e));
         }
         p = new BigInteger(threeInts.p);
         q = new BigInteger(threeInts.q);
@@ -150,7 +150,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
 
         setEncoding(encoding);
 
-        /* 
+        /*
          * the following code implements RI behavior
          */
         alg = ai.getAlgorithm();
@@ -159,7 +159,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
     }
 
     /**
-     * @return 
+     * @return
      *      a value of a public key (y).
      */
     public BigInteger getY() {
@@ -167,13 +167,13 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
     }
 
     /**
-     * @return  
+     * @return
      *     DSA key parameters (p, q, g).
      */
     public DSAParams getParams() {
         return params;
     }
-    
+
     private void readObject(java.io.ObjectInputStream in) throws NotActiveException, IOException, ClassNotFoundException {
     	in.defaultReadObject();
     	params = new DSAParameterSpec(p, q, g);    	

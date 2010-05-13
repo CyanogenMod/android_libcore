@@ -55,7 +55,7 @@ public class ExpatPullParser implements XmlPullParser {
     public void setFeature(String name, boolean state)
             throws XmlPullParserException {
         if (name == null) {
-            // Required by API.          
+            // Required by API.
             throw new IllegalArgumentException("Null feature name");
         }
 
@@ -392,7 +392,7 @@ public class ExpatPullParser implements XmlPullParser {
             // This node has an index of -1 since the actual first node in the
             // stack has index 0.
             this.index = -1;
-            
+
             // The actual first node will have a depth of 1.
             this.depth = 0;
         }
@@ -453,7 +453,7 @@ public class ExpatPullParser implements XmlPullParser {
             while (depth < node.depth) {
                 node = node.parent;
             }
-            return node.index + 1;         
+            return node.index + 1;
         }
 
         /** Builds a NamespaceStack. */
@@ -500,7 +500,7 @@ public class ExpatPullParser implements XmlPullParser {
         /** The namespace stack at the time of this event. */
         final NamespaceStack namespaceStack;
 
-        /** Next event in the queue. */ 
+        /** Next event in the queue. */
         Event next = null;
 
         Event(int depth, NamespaceStack namespaceStack) {
@@ -734,7 +734,7 @@ public class ExpatPullParser implements XmlPullParser {
         /** Namespace stack builder. */
         NamespaceStack.Builder namespaceStackBuilder
                 = new NamespaceStack.Builder();
-        
+
         Event currentEvent = new StartDocumentEvent();
         Event last = currentEvent;
 

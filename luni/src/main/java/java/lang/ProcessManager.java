@@ -223,7 +223,7 @@ final class ProcessManager {
             try {
                 pid = exec(command, environment, workingPath, in, out, err, redirectErrorStream);
             } catch (IOException e) {
-                IOException wrapper = new IOException("Error running exec()." 
+                IOException wrapper = new IOException("Error running exec()."
                         + " Command: " + Arrays.toString(command)
                         + " Working Directory: " + workingDirectory
                         + " Environment: " + Arrays.toString(environment));
@@ -321,7 +321,7 @@ final class ProcessManager {
 
         @Override
         public String toString() {
-            return "Process[id=" + id + "]";  
+            return "Process[id=" + id + "]";
         }
     }
 

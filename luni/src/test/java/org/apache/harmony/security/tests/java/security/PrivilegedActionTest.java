@@ -24,7 +24,7 @@ public class PrivilegedActionTest extends TestCase {
             return "ok";
         }
     }
-    
+
     private class MyPrivilegedAction2 implements PrivilegedAction<String> {
 
         private boolean called=false;
@@ -32,7 +32,7 @@ public class PrivilegedActionTest extends TestCase {
             called = true;
             throw new RuntimeException("fail");
         }
-        
+
     }
 
     @TestTargetNew(

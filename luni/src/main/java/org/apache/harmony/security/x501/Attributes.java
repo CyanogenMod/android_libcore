@@ -30,26 +30,26 @@ import org.apache.harmony.security.asn1.InformationObjectSet;
 
 /**
  * X.501 Attributes
- * 
+ *
  * This is a draft class for Module InformationFramework (X.501).
- * 
+ *
  * @see <a href="http://www.itu.int/ITU-T/asn1/database/itu-t/x/x501/2001/InformationFramework.html">X.501</a>
  */
 
 public class Attributes {
 
-    
+
     /**
      * The class corresponds to following ASN.1 type:
-     * 
+     *
      * Attribute ::= SEQUENCE {
      *     type  AttributeType,
      *     values SET SIZE (0..MAX) OF AttributeValue }
-     * 
+     *
      * AttributeType ::= OBJECT IDENTIFIER
-     * 
+     *
      * AttributeValue ::= ANY DEFINED BY AttributeType
-     * 
+     *
      */
     public static ASN1Sequence getASN1(InformationObjectSet set) {
         ASN1OpenType.Id id = new ASN1OpenType.Id();

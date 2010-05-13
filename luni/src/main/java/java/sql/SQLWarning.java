@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,7 @@ public class SQLWarning extends SQLException implements Serializable {
      * Creates an {@code SQLWarning} object. The reason string is set to the
      * given reason string, the {@code SQLState} string is set to {@code null}
      * and the error code is set to 0.
-     * 
+     *
      * @param theReason
      *            the reason why this warning is issued.
      */
@@ -51,7 +51,7 @@ public class SQLWarning extends SQLException implements Serializable {
      * Creates an {@code SQLWarning} object. The reason string is set to the
      * given reason string, the {@code SQLState} string is set to the given
      * {@code SQLState} string and the error code is set to 0.
-     * 
+     *
      * @param theReason
      *            the reason why this warning is issued.
      * @param theSQLState
@@ -66,7 +66,7 @@ public class SQLWarning extends SQLException implements Serializable {
      * given reason string, the {@code SQLState} string is set to the given
      * {@code SQLState} string and the error code is set to the given error code
      * value.
-     * 
+     *
      * @param theReason
      *            the reason why this warning is issued.
      * @param theSQLState
@@ -80,7 +80,7 @@ public class SQLWarning extends SQLException implements Serializable {
 
     /**
      * Gets the next {@code SQLWarning} chained to this {@code SQLWarning} object.
-     * 
+     *
      * @return the {@code SQLWarning} chained to this {@code SQLWarning}.
      *         {@code null} if no {@code SQLWarning} is chained to this {@code
      *         SQLWarning}.
@@ -98,7 +98,7 @@ public class SQLWarning extends SQLException implements Serializable {
 
     /**
      * Chains a supplied {@code SQLWarning} to this {@code SQLWarning}.
-     * 
+     *
      * @param w
      *            the {@code SQLWarning} linked to this {@code SQLWarning}.
      */

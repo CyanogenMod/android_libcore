@@ -29,7 +29,7 @@ public class InvalidPreferencesFormatException extends Exception {
     /**
      * Constructs a new {@code InvalidPreferencesFormatException} instance with
      * a detailed exception message.
-     * 
+     *
      * @param s
      *            the detailed exception message.
      */
@@ -40,7 +40,7 @@ public class InvalidPreferencesFormatException extends Exception {
     /**
      * Constructs a new {@code InvalidPreferencesFormatException} instance with
      * a detailed exception message and a nested {@code Throwable}.
-     * 
+     *
      * @param s
      *            the detailed exception message.
      * @param t

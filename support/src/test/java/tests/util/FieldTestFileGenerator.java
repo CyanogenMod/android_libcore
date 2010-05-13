@@ -28,7 +28,7 @@ import tests.support.Support_GetPutFieldsDefaulted;
  * Writes three test files that are used as reference in
  * {@code tests.api.java.io.ObjectInputStreamGetFieldTest} and
  * {@code tests.api.java.io.ObjectOutputStreamPutFieldTest}.
- * These files must be moved to 
+ * These files must be moved to
  * {@code $ANDROID_BUILD_TOP/dalvik/libcore/luni/src/test/resources/tests/api/java/io}
  * to be included at the correct location in the core tests package.
  * <p>
@@ -42,12 +42,12 @@ public class FieldTestFileGenerator {
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
         Support_GetPutFields toSerialize = new Support_GetPutFields();
-        Support_GetPutFieldsDeprecated toSerializeDeprecated = 
+        Support_GetPutFieldsDeprecated toSerializeDeprecated =
                 new Support_GetPutFieldsDeprecated();
-        Support_GetPutFieldsDefaulted toSerializeDefaulted = 
+        Support_GetPutFieldsDefaulted toSerializeDefaulted =
                 new Support_GetPutFieldsDefaulted();
         boolean success = true;
-        
+
         toSerialize.initTestValues();
         toSerializeDeprecated.initTestValues();
         toSerializeDefaulted.initTestValues();
@@ -66,7 +66,7 @@ public class FieldTestFileGenerator {
         finally {
             if (fos != null) fos.close();
         }
-        
+
         System.out.println("Trying to write the test file 'testFieldsDeprecated.ser'...");
         try {
             fos = new FileOutputStream("testFieldsDeprecated.ser");
@@ -77,11 +77,11 @@ public class FieldTestFileGenerator {
         catch (Exception e) {
             System.out.println("Exception occured while writing the file: " + e);
             success = false;
-        }       
+        }
         finally {
             if (fos != null) fos.close();
         }
-        
+
         System.out.println("Trying to write the test file 'testFieldsDefaulted.ser'...");
         try {
             fos = new FileOutputStream("testFieldsDefaulted.ser");
@@ -92,12 +92,12 @@ public class FieldTestFileGenerator {
         catch (Exception e) {
             System.out.println("Exception occured while writing the file: " + e);
             success = false;
-        }       
+        }
         finally {
             if (fos != null) fos.close();
         }
 
-        if (success) { 
+        if (success) {
             System.out.println("Success!");
         } else {
             System.out.println("Failure!");

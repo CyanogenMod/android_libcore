@@ -36,9 +36,9 @@ import java.security.PrivilegedExceptionAction;
  * Security related methods that only work on J2SE 1.2 and newer.
  */
 final class SecuritySupport  {
-    
+
     private SecuritySupport() {}
-    
+
     static ClassLoader getContextClassLoader() {
     return (ClassLoader)
         AccessController.doPrivileged(new PrivilegedAction() {

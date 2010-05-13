@@ -35,7 +35,7 @@ import dalvik.annotation.TestTargets;
                 method = "finalize",
                 args = {}
             )
-        }        
+        }
 
 )
 public class MatcherTest extends TestCase {
@@ -57,7 +57,7 @@ public class MatcherTest extends TestCase {
         notes = "",
         method = "appendReplacement",
         args = {java.lang.StringBuffer.class, java.lang.String.class}
-    )  
+    )
     public void testAppendReplacement() {
         Pattern pat = Pattern.compile("XX");
         Matcher m = pat.matcher("Today is XX-XX-XX ...");
@@ -68,7 +68,7 @@ public class MatcherTest extends TestCase {
         }
         m.appendTail(sb);
         assertEquals("Today is 0-11-22 ...", sb.toString());
-        
+
         pat = Pattern.compile("cat");
         m = pat.matcher("one-cat-two-cats-in-the-yard");
         sb = new StringBuffer();
@@ -95,7 +95,7 @@ public class MatcherTest extends TestCase {
         notes = "",
         method = "appendReplacement",
         args = {java.lang.StringBuffer.class, java.lang.String.class}
-    )  
+    )
     public void testAppendReplacementRef() {
         Pattern p = Pattern.compile("xx (rur|\\$)");
         Matcher m = p.matcher("xx $ equals to xx rur.");
@@ -132,7 +132,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the reset(CharSequence input) method.",
         method = "reset",
         args = {java.lang.CharSequence.class}
-    )            
+    )
     public void test_resetLjava_lang_String() {
         String testPattern = "(abb)";
         String testString1 = "babbabbcccabbabbabbabbabb";
@@ -152,7 +152,7 @@ public class MatcherTest extends TestCase {
         notes = "",
         method = "appendReplacement",
         args = {java.lang.StringBuffer.class, java.lang.String.class}
-    )  
+    )
     public void testAppendSlashes() {
         Pattern p = Pattern.compile("\\\\");
         Matcher m = p.matcher("one\\cat\\two\\cats\\in\\the\\yard");
@@ -170,7 +170,7 @@ public class MatcherTest extends TestCase {
         notes = "",
         method = "appendTail",
         args = {java.lang.StringBuffer.class}
-    )  
+    )
     public void testAppendTail() {
         Pattern p = Pattern.compile("cat");
         Matcher m = p.matcher("one-cat-two-cats-in-the-yard");
@@ -190,7 +190,7 @@ public class MatcherTest extends TestCase {
         assertEquals("one-dog-two-dogs-in-the-dog", sb.toString());
         m.appendTail(sb);
         assertEquals("one-dog-two-dogs-in-the-dog", sb.toString());
-        
+
         p = Pattern.compile("cat");
         m = p.matcher("one-cat-two-cats-in-the-yard");
         sb = new StringBuffer();
@@ -205,7 +205,7 @@ public class MatcherTest extends TestCase {
         }
         assertNotNull(t);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies replaceFirst(String replacement) method. ",
@@ -247,7 +247,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the reset() method. ",
         method = "reset",
         args = {}
-    )        
+    )
     public void test_reset() {
         String testPattern = "(abb)";
         String testString = "babbabbcccabbabbabbabbabb";
@@ -267,7 +267,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies group(int group) method.",
         method = "group",
         args = {int.class}
-    ) 
+    )
     public void testGroupint() {
         String positiveTestString = "ababababbaaabb";
         String negativeTestString = "gjhfgdsjfhgcbv";
@@ -324,7 +324,7 @@ public class MatcherTest extends TestCase {
             method = "group",
             args = {int.class}
         )
-    }) 
+    })
     public void testGroup() {
         String positiveTestString = "ababababbaaabb";
         String negativeTestString = "gjhfgdsjfhgcbv";
@@ -356,7 +356,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies group(int group) method.",
         method = "group",
         args = {int.class}
-    ) 
+    )
     public void testGroupPossessive() {
         Pattern pat = Pattern.compile("((a)|(b))++c");
         Matcher mat = pat.matcher("aac");
@@ -374,7 +374,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies that hasAnchoringBounds method returns correct value.",
         method = "hasAnchoringBounds",
         args = {}
-    )          
+    )
     public void test_hasAnchoringBounds() {
         String testPattern = "abb";
         String testString = "abb";
@@ -402,7 +402,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies that hasTransparentBound method returns correct value.",
         method = "hasTransparentBounds",
         args = {}
-    )  
+    )
     public void test_hasTransparentBounds() {
         String testPattern = "abb";
         String testString = "ab\nb";
@@ -430,7 +430,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the start(int group) method.",
         method = "start",
         args = {int.class}
-    )     
+    )
     public void test_startI() {
         String testPattern = "(((abb)a)(bb))";
         String testString = "cccabbabbabbabbabb";
@@ -462,7 +462,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the basic functionality of end(int group) method.",
         method = "end",
         args = {int.class}
-    )        
+    )
     public void test_endI() {
         String testPattern = "(((abb)a)(bb))";
         String testString = "cccabbabbabbabbabb";
@@ -489,7 +489,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies matches() method in miscellaneous cases.",
         method = "matches",
         args = {}
-    ) 
+    )
     public void testMatchesMisc() {
         String[][] posSeq = {
                 { "abb", "ababb", "abababbababb", "abababbababbabababbbbbabb" },
@@ -602,7 +602,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies that lookingAt() method returns correct value.",
         method = "lookingAt",
         args = {}
-    )          
+    )
     public void test_lookingAt() {
         String testPattern = "(((abb)a)(bb))";
         String testString1 = "babbabbcccabbabbabbabbabb";
@@ -625,7 +625,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies that find() method returns correct value.",
         method = "find",
         args = {}
-    )      
+    )
     public void testFind() {
         String testPattern = "(abb)";
         String testString = "cccabbabbabbabbabb";
@@ -664,7 +664,7 @@ public class MatcherTest extends TestCase {
         notes = "",
         method = "find",
         args = {int.class}
-    )          
+    )
     public void test_findI() {
         String testPattern = "(abb)";
         String testString = "cccabbabbabbabbabb";
@@ -703,13 +703,13 @@ public class MatcherTest extends TestCase {
         // Starting index out of region
         Pattern pat3 = Pattern.compile("new");
         Matcher mat3 = pat3.matcher("Brave new world");
-        
+
         assertTrue(mat3.find(-1));
         assertTrue(mat3.find(6));
         assertFalse(mat3.find(7));
 
         mat3.region(7, 10);
-        
+
         assertFalse(mat3.find(3));
         assertFalse(mat3.find(6));
         assertFalse(mat3.find(7));
@@ -736,7 +736,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the start() method.",
         method = "start",
         args = {}
-    )      
+    )
     public void test_start() {
         String testPattern = "(abb)";
         String testString = "cccabbabbabbabbabb";
@@ -749,7 +749,7 @@ public class MatcherTest extends TestCase {
         for (j = 0; j < 3; j++) {
             while (mat.find()) {
                 assertEquals("Start is wrong", start, mat.start());
-               
+
                 start = end;
                 end += 3;
             }
@@ -765,7 +765,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the basic functionality of end() method. ",
         method = "end",
         args = {}
-    )        
+    )
     public void test_end() {
         String testPattern = "(abb)";
         String testString = "cccabbabbabbabbabb";
@@ -778,7 +778,7 @@ public class MatcherTest extends TestCase {
         for (j = 0; j < 3; j++) {
             while (mat.find()) {
                 assertEquals("Start is wrong", end, mat.end());
-               
+
                 start = end;
                 end += 3;
             }
@@ -789,7 +789,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies groupCount() method.",
         method = "groupCount",
         args = {}
-    ) 
+    )
     public void testGroupCount() {
         for (int i = 0; i < groupPatterns.length; i++) {
             Pattern test = Pattern.compile(groupPatterns[i]);
@@ -798,14 +798,14 @@ public class MatcherTest extends TestCase {
             assertEquals(i + 1, mat.groupCount());
         }
     }
-    
-    
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
         method = "region",
         args = {int.class, int.class}
-    )          
+    )
     public void testRegion() {
         Pattern p = Pattern.compile("abba");
         Matcher m = p.matcher("Gabba gabba hey");
@@ -814,23 +814,23 @@ public class MatcherTest extends TestCase {
         assertTrue(m.find());
         assertTrue(m.find());
         assertFalse(m.find());
-        
+
         m.region(5, 15);
         assertTrue(m.find());
         assertFalse(m.find());
 
         m.region(10, 15);
         assertFalse(m.find());
-        
+
         Throwable t = null;
-        
+
         try {
             m.region(-1, 15);
         } catch (IllegalArgumentException e) {
             t = e;
         }
         assertNotNull(t);
-        
+
         t = null;
         try {
             m.region(0, 16);
@@ -839,7 +839,7 @@ public class MatcherTest extends TestCase {
         }
         assertNotNull(t);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -869,7 +869,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies find() method.",
         method = "find",
         args = {}
-    )  
+    )
     public void testEnhancedFind() {
         String input = "foob";
         String pattern = "a*b";
@@ -926,7 +926,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies  matches() method for specific patterns.",
         method = "matches",
         args = {}
-    )   
+    )
     public void testPosAltGroup() {
         String[] posExamples = { "aacc", "bbcc", "cc" };
         String[] negExamples = { "bb", "aa" };
@@ -1008,7 +1008,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies matches() method for case insensitive pattern.",
         method = "matches",
         args = {}
-    ) 
+    )
     public void testIgnoreCase() {
         Pattern pat = Pattern.compile("(aa|bb)*", Pattern.CASE_INSENSITIVE);
         Matcher mat = pat.matcher("aAbb");
@@ -1126,7 +1126,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies that find() method works correctly with $ pattern.",
         method = "find",
         args = {}
-    )  
+    )
     public void testFindDollar() {
         Matcher mat = Pattern.compile("a$").matcher("a\n");
         assertTrue(mat.find());
@@ -1141,7 +1141,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies matches() method for the specified region.",
         method = "matches",
         args = {}
-    )    
+    )
     public void testMatchesRegionChanged() {
         // Regression for HARMONY-610
         String input = " word ";
@@ -1160,7 +1160,7 @@ public class MatcherTest extends TestCase {
         clazz = String.class,
         method = "matches",
         args = {java.lang.String.class}
-    )  
+    )
     public void testAllCodePoints() {
         // Regression for HARMONY-3145
         int[] codePoint = new int[1];
@@ -1204,7 +1204,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies find() method for specified region in positive case.",
         method = "find",
         args = {}
-    )      
+    )
     public void testFindRegionChanged() {
         // Regression for HARMONY-625
         Pattern pattern = Pattern.compile("(?s).*");
@@ -1228,7 +1228,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies find() method for specified region in negative case.",
         method = "find",
         args = {}
-    )      
+    )
     public void testFindRegionChanged2() {
         // Regression for HARMONY-713
         Pattern pattern = Pattern.compile("c");
@@ -1249,7 +1249,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the regionStart() method.",
         method = "regionStart",
         args = {}
-    )        
+    )
     public void test_regionStart() {
         String testPattern = "(abb)";
         String testString = "cccabbabbabbabbabb";
@@ -1272,7 +1272,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the regionEnd() method.",
         method = "regionEnd",
         args = {}
-    )          
+    )
     public void test_regionEnd() {
         String testPattern = "(abb)";
         String testString = "cccabbabbabbabbabb";
@@ -1295,7 +1295,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the toMatchResult method.",
         method = "toMatchResult",
         args = {}
-    ) 
+    )
     public void test_toMatchResult() {
         String testPattern = "(((abb)a)(bb))";
         String testString = "babbabbcccabbabbabbabbabb";
@@ -1322,7 +1322,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the usePattern(Pattern newPattern) method.",
         method = "usePattern",
         args = {java.util.regex.Pattern.class}
-    )        
+    )
     public void test_usePatternLjava_util_regex_Pattern() {
         String testPattern1 = "(((abb)a)(bb))";
         String testPattern2 = "(abbabb)";
@@ -1338,7 +1338,7 @@ public class MatcherTest extends TestCase {
         assertEquals("", mat, mat.usePattern(Pattern.compile(testPattern3)));
         assertFalse("matcher should not find pattern in given region", mat.matches());
    }
-    
+
     /**
      * @test java.util.regex.Matcher#useAchoringBounds()
      * test useAchoringBounds() method.
@@ -1348,7 +1348,7 @@ public class MatcherTest extends TestCase {
         notes = "",
         method = "useAnchoringBounds",
         args = {boolean.class}
-    )    
+    )
     public void test_anchoringBounds() {
         String testPattern = "^ro$";
         String testString = "android";
@@ -1373,7 +1373,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the useTransparentBounds(boolean b) method.",
         method = "useTransparentBounds",
         args = {boolean.class}
-    )     
+    )
     public void test_transparentBounds() {
         String testPattern = "and(?=roid)";
         String testString = "android";
@@ -1386,7 +1386,7 @@ public class MatcherTest extends TestCase {
 
         mat.useTransparentBounds(true);
         assertTrue("Should find pattern transparent bounds", mat.matches()); // ***
-        
+
         testPattern = "and(?!roid)";
         testString = "android";
         pat = Pattern.compile(testPattern);
@@ -1399,7 +1399,7 @@ public class MatcherTest extends TestCase {
         mat.useTransparentBounds(true);
         assertFalse("Shouldn't find pattern transparent bounds", mat.matches()); // ***
     }
-    
+
     /**
      * @test java.util.regex.Matcher#hitEnd()
      * test hitEnd() method.
@@ -1409,7 +1409,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies that hitEnd() method returns correct value. ",
         method = "hitEnd",
         args = {}
-    )      
+    )
     public void test_hitEnd() {
         String testPattern = "abb";
         String testString = "babbabbcccabbabbabbabbabb";
@@ -1431,7 +1431,7 @@ public class MatcherTest extends TestCase {
         notes = "Verifies the requireEnd() method.",
         method = "requireEnd",
         args = {}
-    )       
+    )
     public void test_requireEnd() {
         String testPattern = "bba";
         String testString = "abbbbba";
@@ -1440,7 +1440,7 @@ public class MatcherTest extends TestCase {
 
         assertTrue(mat.find());
         assertFalse(mat.requireEnd());
-        
+
         testPattern = "bba$";
         testString = "abbbbba";
         pat = Pattern.compile(testPattern);
@@ -1449,7 +1449,7 @@ public class MatcherTest extends TestCase {
         assertTrue(mat.find());
         assertTrue(mat.requireEnd());
     }
-    
+
     /*
      * Regression test for HARMONY-674
      */
@@ -1458,7 +1458,7 @@ public class MatcherTest extends TestCase {
         notes = "Special regression test for matches() method.",
         method = "matches",
         args = {}
-    )    
+    )
     public void testPatternMatcher() throws Exception {
         Pattern pattern = Pattern.compile("(?:\\d+)(?:pt)");
         assertTrue(pattern.matcher("14pt").matches());

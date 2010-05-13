@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,7 +66,7 @@ public interface PooledConnection {
      * PooledConnection}. Once registered, the {@code ConnectionEventListener}
      * will receive {@link ConnectionEvent} events when they occur in the
      * {@code PooledConnection}.
-     * 
+     *
      * @param theListener
      *            an object which implements the {@code ConnectionEventListener}
      *            interface.
@@ -78,7 +78,7 @@ public interface PooledConnection {
      * PooledConnection}. This method should not be called directly by
      * application code - it is intended only for the connection pool manager
      * component.
-     * 
+     *
      * @throws SQLException
      *             if there is a problem accessing the database.
      */
@@ -89,7 +89,7 @@ public interface PooledConnection {
      * the connection pool manager when an application invokes the method
      * {@code DataSource.getConnection()} and there are no {@code
      * PooledConnection} objects available in the connection pool.
-     * 
+     *
      * @return a {@code Connection} object.
      * @throws SQLException
      *             if there is a problem accessing the database.
@@ -100,7 +100,7 @@ public interface PooledConnection {
      * Unregisters the supplied {@code ConnectionEventListener} from this {@code
      * PooledConnection}. Once unregistered, the {@code ConnectionEventListener}
      * will no longer receive events occurring in the {@code PooledConnection}.
-     * 
+     *
      * @param theListener
      *            an object which implements the {@code ConnectionEventListener}
      *            interface. This object should have previously been registered

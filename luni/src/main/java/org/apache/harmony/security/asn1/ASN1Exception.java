@@ -36,15 +36,15 @@ public class ASN1Exception extends IOException {
     private static final long serialVersionUID = -3561981263989123987L;
 
     /**
-     * Constructs an ASN1Exception without a message. 
+     * Constructs an ASN1Exception without a message.
      */
     public ASN1Exception(){
     }
 
     /**
-     * Constructs an ASN1Exception with a message. 
-     * 
-     * @param message - a string that describes encoding violation 
+     * Constructs an ASN1Exception with a message.
+     *
+     * @param message - a string that describes encoding violation
      */
     public ASN1Exception(String message){
         super(message);

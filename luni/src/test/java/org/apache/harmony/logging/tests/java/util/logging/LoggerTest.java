@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -431,8 +431,8 @@ public class LoggerTest extends TestCase {
         // parent created between
         assertEquals("testGetLogger_WithParent_ParentLogger1.child", notChild
                 .getName());
-        assertSame(child.getParent().getParent(), root); 
-        assertNotSame(child.getParent(), root); 
+        assertSame(child.getParent().getParent(), root);
+        assertNotSame(child.getParent(), root);
 
         // abnormal cases
         assertNotSame(root.getParent(), root);
@@ -517,10 +517,10 @@ public class LoggerTest extends TestCase {
 
         assertNotNull(LogManager.getLogManager().getLogger(""));
         // The root logger always exists TODO
-        try { 
-            Logger.getLogger("", INVALID_RESOURCE_BUNDLE);         
-        } catch (MissingResourceException e) { 
-            //correct 
+        try {
+            Logger.getLogger("", INVALID_RESOURCE_BUNDLE);
+        } catch (MissingResourceException e) {
+            //correct
         }
     }
 
@@ -2247,7 +2247,7 @@ public class LoggerTest extends TestCase {
     /*
      * Test log(Level, String, Object[]) with normal values.
      */
-            
+
     public void testLog_LevelStringObjects_Normal() {
         Object[] params = new Object[2];
         params[0] = new Object();
@@ -2868,7 +2868,7 @@ public class LoggerTest extends TestCase {
     /*
      * Test logrb(Level, String, String, String, String, Object[]) with normal
      * values.
-     */      
+     */
     public void testLogrb_LevelStringStringStringObjects_Normal() {
         Object[] params = new Object[2];
         params[0] = new Object();
@@ -3478,7 +3478,7 @@ public class LoggerTest extends TestCase {
      * Test whether privileged code is used to load resource bundles.
      */
     public void testLoadResourceBundle() {
-        // 
+        //
         SecurityManager oldMan = System.getSecurityManager();
         System.setSecurityManager(new MockNoLoadingClassSecurityManager());
         try {

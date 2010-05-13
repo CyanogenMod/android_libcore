@@ -34,7 +34,7 @@ public class MapEntryTest extends TestCase {
     Map.Entry me = null;
     HashMap   hm = null;
     Iterator  i  = null;
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -77,7 +77,7 @@ public class MapEntryTest extends TestCase {
             if (((String)val).equals("Wrong element")) throw new IllegalArgumentException();
             throw new UnsupportedOperationException();
         }
-        
+
         public Object fakePut(Object key, Object val) {
             return super.put(key, val);
         }
@@ -91,15 +91,15 @@ public class MapEntryTest extends TestCase {
     )
     public void testSetValue() {
         Mock_HashMap mhm = new Mock_HashMap();
-        
+
         mhm.fakePut(new Integer(1), "One");
         mhm.fakePut(new Integer(2), "Two");
-        
+
         i = mhm.entrySet().iterator();
         me = (Map.Entry)i.next();
-        
+
         me.setValue("Wrong element");
-        
+
         hm.clear();
         try {
             me.setValue("");
@@ -136,13 +136,13 @@ public class MapEntryTest extends TestCase {
 
     protected void setUp() throws Exception {
         hm = new HashMap();
-        
+
         hm.put(new Integer(1), "one");
         hm.put(new Integer(2), "two");
-        
+
         i = hm.entrySet().iterator();
         me = (Map.Entry)i.next();
-        
+
         super.setUp();
     }
 }

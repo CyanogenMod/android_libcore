@@ -21,7 +21,7 @@ package java.security;
 /**
  * {@code UnrecoverableEntryException} indicates, that a {@code KeyStore.Entry}
  * cannot be recovered from a {@code KeyStore}.
- * 
+ *
  * @see KeyStore
  * @see KeyStore.Entry
  */

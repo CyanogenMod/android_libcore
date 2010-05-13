@@ -20,7 +20,7 @@ package java.lang.reflect;
 /**
  * Indicates that a malformed signature has been encountered via a reflective
  * method.
- * 
+ *
  * @since 1.5
  */
 public class GenericSignatureFormatError extends ClassFormatError {

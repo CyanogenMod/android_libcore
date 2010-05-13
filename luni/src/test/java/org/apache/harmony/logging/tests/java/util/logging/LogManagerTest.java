@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,9 +43,9 @@ import org.apache.harmony.logging.tests.java.util.logging.util.EnvironmentHelper
 import tests.util.TestEnvironment;
 
 /**
- * 
+ *
  * add/get logger(dot)
- * 
+ *
  */
 public class LogManagerTest extends TestCase {
 
@@ -94,7 +94,7 @@ public class LogManagerTest extends TestCase {
         props.put("LogManagerTestFoo.handlers", "java.util.logging.ConsoleHandler");
         props.put("LogManagerTestFoo.level", "WARNING");
     }
-    
+
 
 
     /*
@@ -116,7 +116,7 @@ public class LogManagerTest extends TestCase {
        TestLogManager tlm = new TestLogManager();
        assertNotNull(tlm.toString());
     }
-    
+
     public void testAddGetLogger() {
         Logger log = new MockLogger(FOO, null);
         Logger foo = mockManager.getLogger(FOO);
@@ -321,7 +321,7 @@ public class LogManagerTest extends TestCase {
         System.setSecurityManager(new SecurityManager() {
             @Override
             public void checkPermission(Permission perm) {
-                
+
             }
         });
         try {
@@ -347,37 +347,37 @@ public class LogManagerTest extends TestCase {
 
         Logger oldGlobal = global;
         Logger oldRoot = root;
-        
+
         // root properties
         manager.readConfiguration(EnvironmentHelper.PropertiesToInputStream(props));
-        
+
         global = manager.getLogger("global");
         root = manager.getLogger("");
 
         assertSame(oldGlobal, global);
         assertSame(oldRoot, root);
-        
+
         assertNull(root.getFilter());
         assertEquals(2, root.getHandlers().length);
         assertEquals(Level.FINE, root.getLevel());
         assertEquals("", root.getName());
         assertSame(root.getParent(), null);
         assertTrue(root.getUseParentHandlers());
-        
+
         // The following two fail if other tests are run before this one.
         assertNull(root.getResourceBundle());
         assertNull(root.getResourceBundleName());
     }
 
     /*
-     * test for method public Logger getLogger(String name) 
-     * test covers following usecases: 
-     * case 1: test default and valid value 
-     * case 2: test throw NullPointerException 
+     * test for method public Logger getLogger(String name)
+     * test covers following usecases:
+     * case 1: test default and valid value
+     * case 2: test throw NullPointerException
      * case 3: test bad name
      * case 4: check correct tested value
      */
-    
+
     public void testGetLogger() throws Exception {
 
         // case 1: test default and valid value
@@ -584,7 +584,7 @@ public class LogManagerTest extends TestCase {
         }
 
     }
-    
+
     private static void checkPropertyNull(LogManager m) {
         // assertNull(m.getProperty(".level"));
         assertNull(m.getProperty("java.util.logging.FileHandler.limit"));
@@ -854,7 +854,7 @@ public class LogManagerTest extends TestCase {
         assertEquals(0, root.getHandlers().length);
     }
 
-    
+
     public void testGlobalPropertyConfig() throws Exception {
         PrintStream err = System.err;
         try {
@@ -943,11 +943,11 @@ public class LogManagerTest extends TestCase {
     }
 
     /*
-     * ---------------------------------------------------- 
+     * ----------------------------------------------------
      * mock classes
      * ----------------------------------------------------
      */
-    
+
 
     public static class ConfigClass {
         public ConfigClass() throws Exception {
@@ -1261,7 +1261,7 @@ public class LogManagerTest extends TestCase {
 
     /*
      * Test config class loading
-     * java -Djava.util.logging.config.class=badConfigClassName ClassLoadingTest 
+     * java -Djava.util.logging.config.class=badConfigClassName ClassLoadingTest
      */
     public static class ClassLoadingTest {
         public static void main(String[] args) {
@@ -1282,7 +1282,7 @@ public class LogManagerTest extends TestCase {
         static class MockError extends Error {
         }
     }
-    
+
     public static class MockInputStream extends InputStream {
 
         @Override
@@ -1290,8 +1290,8 @@ public class LogManagerTest extends TestCase {
             throw new IOException();
         }
 
-      
+
     }
-    
-    
+
+
 }

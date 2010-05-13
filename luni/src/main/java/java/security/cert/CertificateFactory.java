@@ -40,7 +40,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 public class CertificateFactory {
 
     // Store CertificateFactory service name
-    private static final String SERVICE = "CertificateFactory"; 
+    private static final String SERVICE = "CertificateFactory";
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
@@ -74,7 +74,7 @@ public class CertificateFactory {
     /**
      * Creates a new {@code CertificateFactory} instance that provides the
      * requested certificate type.
-     * 
+     *
      * @param type
      *            the certificate type.
      * @return the new {@code CertificateFactory} instance.
@@ -87,7 +87,7 @@ public class CertificateFactory {
     public static final CertificateFactory getInstance(String type)
             throws CertificateException {
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07")); 
+            throw new NullPointerException(Messages.getString("security.07"));
         }
         try {
             synchronized (engine) {
@@ -103,7 +103,7 @@ public class CertificateFactory {
     /**
      * Creates a new {@code CertificateFactory} instance from the specified
      * provider that provides the requested certificate type.
-     * 
+     *
      * @param type
      *            the certificate type.
      * @param provider
@@ -124,7 +124,7 @@ public class CertificateFactory {
             String provider) throws CertificateException,
             NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02")); 
+            throw new IllegalArgumentException(Messages.getString("security.02"));
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -136,7 +136,7 @@ public class CertificateFactory {
     /**
      * Creates a new {@code CertificateFactory} instance from the specified
      * provider that provides the requested certificate type.
-     * 
+     *
      * @param type
      *            the certificate type.
      * @param provider
@@ -154,10 +154,10 @@ public class CertificateFactory {
     public static final CertificateFactory getInstance(String type,
             Provider provider) throws CertificateException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); 
+            throw new IllegalArgumentException(Messages.getString("security.04"));
         }
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07")); 
+            throw new NullPointerException(Messages.getString("security.07"));
         }
         try {
             synchronized (engine) {
@@ -173,7 +173,7 @@ public class CertificateFactory {
     /**
      * Returns the {@code Provider} of the certificate factory represented by
      * the certificate.
-     * 
+     *
      * @return the provider of this certificate factory.
      */
     public final Provider getProvider() {
@@ -182,7 +182,7 @@ public class CertificateFactory {
 
     /**
      * Returns the Certificate type.
-     * 
+     *
      * @return type of certificate being used.
      */
     public final String getType() {
@@ -192,7 +192,7 @@ public class CertificateFactory {
     /**
      * Generates and initializes a {@code Certificate} from the provided input
      * stream.
-     * 
+     *
      * @param inStream
      *            the stream from where data is read to create the {@code
      *            Certificate}.
@@ -208,7 +208,7 @@ public class CertificateFactory {
     /**
      * Returns an {@code Iterator} over the supported {@code CertPath} encodings
      * (as Strings). The first element is the default encoding scheme to apply.
-     * 
+     *
      * @return an iterator over supported {@link CertPath} encodings (as
      *         Strings).
      */
@@ -219,7 +219,7 @@ public class CertificateFactory {
     /**
      * Generates a {@code CertPath} (a certificate chain) from the provided
      * {@code InputStream}. The default encoding scheme is applied.
-     * 
+     *
      * @param inStream
      *            {@code InputStream} with encoded data.
      * @return a {@code CertPath} initialized from the provided data.
@@ -230,7 +230,7 @@ public class CertificateFactory {
             throws CertificateException {
         Iterator<String> it = getCertPathEncodings();
         if (!it.hasNext()) {
-            throw new CertificateException(Messages.getString("security.74")); 
+            throw new CertificateException(Messages.getString("security.74"));
         }
         return spiImpl.engineGenerateCertPath(inStream, it.next());
     }
@@ -238,7 +238,7 @@ public class CertificateFactory {
     /**
      * Generates a {@code CertPath} (a certificate chain) from the provided
      * {@code InputStream} and the specified encoding scheme.
-     * 
+     *
      * @param inStream
      *            {@code InputStream} containing certificate path data in
      *            specified encoding.
@@ -258,7 +258,7 @@ public class CertificateFactory {
     /**
      * Generates a {@code CertPath} from the provided list of certificates. The
      * encoding is the default encoding.
-     * 
+     *
      * @param certificates
      *            the list containing certificates in a format supported by the
      *            {@code CertificateFactory}.
@@ -276,7 +276,7 @@ public class CertificateFactory {
     /**
      * Generates and initializes a collection of (unrelated) certificates from
      * the provided input stream.
-     * 
+     *
      * @param inStream
      *            the stream from which the data is read to create the
      *            collection.
@@ -292,7 +292,7 @@ public class CertificateFactory {
     /**
      * Generates and initializes a <i>Certificate Revocation List</i> (CRL) from
      * the provided input stream.
-     * 
+     *
      * @param inStream
      *            the stream from where data is read to create the CRL.
      * @return an initialized CRL.
@@ -306,7 +306,7 @@ public class CertificateFactory {
     /**
      * Generates and initializes a collection of <i>Certificate Revocation
      * List</i> (CRL) from the provided input stream.
-     * 
+     *
      * @param inStream
      *            the stream from which the data is read to create the CRLs.
      * @return an initialized collection of CRLs.

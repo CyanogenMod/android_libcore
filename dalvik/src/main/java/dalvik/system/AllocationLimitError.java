@@ -31,7 +31,7 @@ public class AllocationLimitError extends VirtualMachineError {
 
     /**
      * Creates a new exception instance and initializes it with a given message.
-     * 
+     *
      * @param detailMessage the error message
      */
     public AllocationLimitError(String detailMessage) {

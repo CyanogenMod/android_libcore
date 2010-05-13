@@ -117,7 +117,7 @@ public class GZIPInputStream extends InflaterInputStream {
             readFully(header, 0, 2);
             int crc16 = getShort(header, 0);
             if ((crc.getValue() & 0xffff) != crc16) {
-                throw new IOException(Messages.getString("archive.20")); 
+                throw new IOException(Messages.getString("archive.20"));
             }
             crc.reset();
         }
@@ -199,10 +199,10 @@ public class GZIPInputStream extends InflaterInputStream {
         readFully(b, copySize, trailerSize - copySize);
 
         if (getLong(b, 0) != crc.getValue()) {
-            throw new IOException(Messages.getString("archive.20")); 
+            throw new IOException(Messages.getString("archive.20"));
         }
         if ((int) getLong(b, 4) != inf.getTotalOut()) {
-            throw new IOException(Messages.getString("archive.21")); 
+            throw new IOException(Messages.getString("archive.21"));
         }
     }
 

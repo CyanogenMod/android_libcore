@@ -34,7 +34,7 @@ public class MalformedInputException extends CharacterCodingException {
 
     /**
      * Constructs a new {@code MalformedInputException}.
-     * 
+     *
      * @param length
      *            the length of the malformed input.
      */
@@ -44,7 +44,7 @@ public class MalformedInputException extends CharacterCodingException {
 
     /**
      * Gets the length of the malformed input.
-     * 
+     *
      * @return the length of the malformed input.
      */
     public int getInputLength() {

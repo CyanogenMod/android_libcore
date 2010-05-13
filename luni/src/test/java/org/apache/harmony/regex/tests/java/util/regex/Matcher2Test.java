@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,11 +26,11 @@ import java.util.regex.*;
 
 /**
  * Tests Matcher methods
- * 
+ *
  */
 @TestTargetClass(java.util.regex.Matcher.class)
 public class Matcher2Test extends TestCase {
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies the basic functionality of toString() method.",
@@ -42,7 +42,7 @@ public class Matcher2Test extends TestCase {
         Matcher m = p.matcher("bar");
         assertNotNull(m.toString());
     }
-   
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -128,7 +128,7 @@ public class Matcher2Test extends TestCase {
             fail("IllegalStateException expected");
         } catch (IllegalStateException e) {
         }
-        
+
                // regression test for HARMONY-2418
         try {
             m.usePattern(null);
@@ -301,7 +301,7 @@ public class Matcher2Test extends TestCase {
         } catch (IllegalStateException e) {
         }
     }
-    
+
     /*
      * Regression test for HARMONY-997
      */
@@ -310,7 +310,7 @@ public class Matcher2Test extends TestCase {
         notes = "Verifies that IndexOutOfBoundsException exception is thrown while calling of replaceAll method with incorrect string.",
         method = "replaceAll",
         args = {java.lang.String.class}
-    )    
+    )
     public void testReplacementBackSlash() {
         String str = "replace me";
         String replacedString = "me";

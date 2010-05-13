@@ -23,12 +23,12 @@ import java.util.Arrays;
  * Encapsulates a syntax error that occurred during the compilation of a
  * {@link Pattern}. Might include a detailed description, the original regular
  * expression, and the index at which the error occurred.
- * 
+ *
  * @see Pattern#compile(String)
  * @see Pattern#compile(java.lang.String,int)
  */
 public class PatternSyntaxException extends IllegalArgumentException {
-    
+
     private static final long serialVersionUID = -3864639126226059218L;
 
     /**
@@ -52,7 +52,7 @@ public class PatternSyntaxException extends IllegalArgumentException {
     /**
      * Creates a new PatternSyntaxException for a given message, pattern, and
      * error index.
-     * 
+     *
      * @param description
      *            the description of the syntax error, or {@code null} if the
      *            description is not known.
@@ -71,9 +71,9 @@ public class PatternSyntaxException extends IllegalArgumentException {
 
     /**
      * Returns the syntactically incorrect regular expression.
-     * 
+     *
      * @return the regular expression.
-     * 
+     *
      */
     public String getPattern() {
         return pattern;
@@ -83,14 +83,14 @@ public class PatternSyntaxException extends IllegalArgumentException {
      * Returns a detailed error message for the exception. The message is
      * potentially multi-line, and it might include a detailed description, the
      * original regular expression, and the index at which the error occured.
-     * 
+     *
      * @return the error message.
      */
     @Override
     public String getMessage() {
         // BEGIN android-changed
         StringBuilder builder = new StringBuilder("Syntax error");
-        
+
         if (desc != null) {
             builder.append(' ');
             builder.append(desc);
@@ -99,11 +99,11 @@ public class PatternSyntaxException extends IllegalArgumentException {
         if (index >= 0) {
             builder.append(" near index " + index + ":");
         }
-        
+
         if (pattern != null) {
             builder.append('\n');
             builder.append(pattern);
-            
+
             if (index >= 0) {
                 char[] spaces = new char[index];
                 Arrays.fill(spaces, ' ');
@@ -112,7 +112,7 @@ public class PatternSyntaxException extends IllegalArgumentException {
                 builder.append('^');
             }
         }
-        
+
         return builder.toString();
         // END android-changed
     }
@@ -120,7 +120,7 @@ public class PatternSyntaxException extends IllegalArgumentException {
     /**
      * Returns the description of the syntax error, or {@code null} if the
      * description is not known.
-     * 
+     *
      * @return the description.
      */
     public String getDescription() {
@@ -130,9 +130,9 @@ public class PatternSyntaxException extends IllegalArgumentException {
     /**
      * Returns the character index around which the error occurred, or -1 if the
      * index is not known.
-     * 
+     *
      * @return the index.
-     * 
+     *
      */
     public int getIndex() {
         return index;

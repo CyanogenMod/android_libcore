@@ -39,7 +39,7 @@ import tests.support.Support_UnmodifiableCollectionTest;
 /**
  * @tests java.util.LinkedHashMap
  */
-@TestTargetClass(LinkedHashMap.class) 
+@TestTargetClass(LinkedHashMap.class)
 public class LinkedHashMapTest extends junit.framework.TestCase {
 
     LinkedHashMap hm;
@@ -63,7 +63,7 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
             return size() > 5;
         }
     }
-    
+
     private static class MockMapNull extends AbstractMap {
         @Override
         public Set entrySet() {
@@ -163,7 +163,7 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         for (int counter = 0; counter < hmSize; counter++)
             assertTrue("Failed to construct correct LinkedHashMap", hm
                     .get(objArray2[counter]) == hm2.get(objArray2[counter]));
-        
+
         try {
             new LinkedHashMap(null);
             fail("NullPointerException expected");
@@ -210,7 +210,7 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         // Test for method java.lang.Object
         // java.util.LinkedHashMap.put(java.lang.Object, java.lang.Object)
         hm.put("KEY", "VALUE");
-        assertEquals("Failed to install key/value pair", 
+        assertEquals("Failed to install key/value pair",
                 "VALUE", hm.get("KEY"));
 
         LinkedHashMap m = new LinkedHashMap();
@@ -265,7 +265,7 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // expected.
         }
-    } 
+    }
 
     /**
      * @tests java.util.LinkedHashMap#entrySet()
@@ -449,23 +449,23 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         // get the keySet() and values() on the original Map
         Set keys = map.keySet();
         Collection values = map.values();
-        assertEquals("values() does not work", 
+        assertEquals("values() does not work",
                 "value", values.iterator().next());
-        assertEquals("keySet() does not work", 
+        assertEquals("keySet() does not work",
                 "key", keys.iterator().next());
         AbstractMap map2 = (AbstractMap) map.clone();
         map2.put("key", "value2");
         Collection values2 = map2.values();
         assertTrue("values() is identical", values2 != values);
-        
+
         // values() and keySet() on the cloned() map should be different
-        assertEquals("values() was not cloned", 
+        assertEquals("values() was not cloned",
                 "value2", values2.iterator().next());
         map2.clear();
         map2.put("key2", "value3");
         Set key2 = map2.keySet();
         assertTrue("keySet() is identical", key2 != keys);
-        assertEquals("keySet() was not cloned", 
+        assertEquals("keySet() was not cloned",
                 "key2", key2.iterator().next());
     }
 
@@ -759,7 +759,7 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         }
         assertTrue("Entries left in map", !it1.hasNext());
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -788,7 +788,7 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         map.get(id);
         try {
             iterator.next();
-            // A LinkedHashMap is supposed to throw this Exception when a 
+            // A LinkedHashMap is supposed to throw this Exception when a
             // iterator.next() Operation takes place after a get
             // Operation. This is because the get Operation is considered
             // a structural modification if the LinkedHashMap is in
@@ -797,9 +797,9 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         } catch(ConcurrentModificationException e) {
             // expected
         }
-        
+
         LinkedHashMap mapClone = (LinkedHashMap) map.clone();
-        
+
         iterator = map.keySet().iterator();
         id = (String) iterator.next();
         mapClone.get(id);
@@ -808,7 +808,7 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         } catch(ConcurrentModificationException e) {
             fail("expected ConcurrentModificationException was not thrown.");
         }
-        
+
         try {
             new LinkedHashMap<String, String>(-10, 0.75f, true);
             fail("IllegalArgumentException expected");

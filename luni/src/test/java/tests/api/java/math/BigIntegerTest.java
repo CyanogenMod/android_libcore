@@ -88,7 +88,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
         } catch (NegativeArraySizeException e) {
             // PASSED
         }
-        
+
         bi = new BigInteger(70, rand);
         bi2 = new BigInteger(70, rand);
         assertTrue("Random number is negative", bi.compareTo(zero) >= 0);
@@ -184,13 +184,13 @@ public class BigIntegerTest extends junit.framework.TestCase {
             // correct
         }
     }
-    
+
     /**
      * @tests java.math.BigInteger#BigInteger(java.lang.String)
      */
     public void test_constructor_String_empty() {
         try {
-            new BigInteger("");            
+            new BigInteger("");
             fail("Expected NumberFormatException for new BigInteger(\"\")");
         } catch (NumberFormatException e) {
         }
@@ -478,13 +478,13 @@ public class BigIntegerTest extends junit.framework.TestCase {
         BigInteger bi3p2 = bi3.add(bi2);
         assertTrue("bi2p3=bi3p2", bi2p3.equals(bi3p2));
 
-        
+
         // BESSER UEBERGREIFENDE TESTS MACHEN IN FORM VON STRESS TEST.
         // add large positive + small positive
         BigInteger sum = aZillion;
         BigInteger increment = one;
         for (int i = 0; i < 20; i++) {
-            
+
         }
 
         // add large positive + small negative
@@ -1039,7 +1039,7 @@ public class BigIntegerTest extends junit.framework.TestCase {
         BigInteger bi = new BigInteger(0, new byte[]{});
         assertEquals(BigInteger.ZERO, bi.andNot(BigInteger.ZERO));
     }
-    
+
 
     public void testClone() {
         // Regression test for HARMONY-1770

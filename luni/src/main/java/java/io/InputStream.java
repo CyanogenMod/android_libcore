@@ -186,11 +186,11 @@ public abstract class InputStream extends Object implements Closeable {
         // Force null check for b first!
         if (offset > b.length || offset < 0) {
             // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); 
-        } 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
+        }
         if (length < 0 || length > b.length - offset) {
             // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
         }
         for (int i = 0; i < length; i++) {
             int c;

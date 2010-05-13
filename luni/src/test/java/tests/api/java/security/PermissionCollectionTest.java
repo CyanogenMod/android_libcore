@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -78,7 +78,7 @@ public class PermissionCollectionTest extends junit.framework.TestCase {
         CodeSource codeSource = protectionDomain.getCodeSource();
 
         assertNotNull("CodeSource is null", codeSource);
-        
+
         URL classURL = codeSource.getLocation();
         assertNotNull("Could not get this class' location", classURL);
 
@@ -87,7 +87,7 @@ public class PermissionCollectionTest extends junit.framework.TestCase {
 
         URL signedBKS = getResourceURL("PermissionCollection/signedBKS.jar");
         URL keystoreBKS = getResourceURL("PermissionCollection/keystore.bks");
-        
+
         // Create the policy file (and save the existing one if any)
         FileOutputStream fileOut = null;
         try {
@@ -134,7 +134,7 @@ public class PermissionCollectionTest extends junit.framework.TestCase {
             towrite.append(linebreak);
             towrite.append("keystore \"");
             towrite.append(keystoreBKS.toExternalForm());
-            towrite.append("\",\"BKS\";");            
+            towrite.append("\",\"BKS\";");
             fileOut.write(towrite.toString().getBytes());
             fileOut.flush();
         } finally {

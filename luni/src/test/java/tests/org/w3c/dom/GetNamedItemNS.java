@@ -16,18 +16,18 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The "getNamedItemNS(namespaceURI,localName)" method for a NamedNodeMap should
  * return a node specified by localName and namespaceURI
- * 
+ *
  * Retrieve a list of elements with tag name "address". Access the second
  * element from the list and get its attributes. Try to retrieve the attribute
  * node with local name "domestic" and namespace uri "http://www.usa.com" with
  * method getNamedItemNS(namespaceURI,localName).
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-F68D095">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-F68D095</a>
  */
-@TestTargetClass(NamedNodeMap.class) 
+@TestTargetClass(NamedNodeMap.class)
 public final class GetNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -53,7 +53,7 @@ public final class GetNamedItemNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

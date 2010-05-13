@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,47 +47,47 @@ public class Level implements Serializable {
     /**
      * The OFF level provides no logging messages.
      */
-    public static final Level OFF = new Level("OFF", Integer.MAX_VALUE); 
+    public static final Level OFF = new Level("OFF", Integer.MAX_VALUE);
 
     /**
      * The SEVERE level provides severe failure messages.
      */
-    public static final Level SEVERE = new Level("SEVERE", 1000); 
+    public static final Level SEVERE = new Level("SEVERE", 1000);
 
     /**
      * The WARNING level provides warnings.
      */
-    public static final Level WARNING = new Level("WARNING", 900); 
+    public static final Level WARNING = new Level("WARNING", 900);
 
     /**
      * The INFO level provides informative messages.
      */
-    public static final Level INFO = new Level("INFO", 800); 
+    public static final Level INFO = new Level("INFO", 800);
 
     /**
      * The CONFIG level provides static configuration messages.
      */
-    public static final Level CONFIG = new Level("CONFIG", 700); 
+    public static final Level CONFIG = new Level("CONFIG", 700);
 
     /**
      * The FINE level provides tracing messages.
      */
-    public static final Level FINE = new Level("FINE", 500); 
+    public static final Level FINE = new Level("FINE", 500);
 
     /**
      * The FINER level provides more detailed tracing messages.
      */
-    public static final Level FINER = new Level("FINER", 400); 
+    public static final Level FINER = new Level("FINER", 400);
 
     /**
      * The FINEST level provides highly detailed tracing messages.
      */
-    public static final Level FINEST = new Level("FINEST", 300); 
+    public static final Level FINEST = new Level("FINEST", 300);
 
     /**
      * The ALL level provides all logging messages.
      */
-    public static final Level ALL = new Level("ALL", Integer.MIN_VALUE); 
+    public static final Level ALL = new Level("ALL", Integer.MIN_VALUE);
 
     /**
      * Parses a level name into a {@code Level} object.

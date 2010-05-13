@@ -6,14 +6,14 @@ The source document contained the following notice:
 
 
 
-Copyright (c) 2001 World Wide Web Consortium, 
+Copyright (c) 2001 World Wide Web Consortium,
 (Massachusetts Institute of Technology, Institut National de
-Recherche en Informatique et en Automatique, Keio University).  All 
+Recherche en Informatique et en Automatique, Keio University).  All
 Rights Reserved.  This program is distributed under the W3C's Software
-Intellectual Property License.  This program is distributed in the 
+Intellectual Property License.  This program is distributed in the
 hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.  
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
 
 See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -35,7 +35,7 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  *     The "getPublicId()" method of a documenttype node contains
  *    the public identifier associated with the external subset.
- *    
+ *
  *    Retrieve the documenttype.
  *    Apply the "getPublicId()" method.  The string "STAFF" should be
  *    returned.
@@ -43,7 +43,7 @@ import javax.xml.parsers.DocumentBuilder;
 * @author Mary Brady
 * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-publicId">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-publicId</a>
 */
-@TestTargetClass(DocumentType.class) 
+@TestTargetClass(DocumentType.class)
 public final class PublicId extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -86,6 +86,6 @@ public final class PublicId extends DOMTestCase {
       publicId = docType.getPublicId();
       assertEquals("throw_Equals", "STAFF", publicId);
       }
-   
+
 }
 

@@ -20,7 +20,7 @@ package tests.api.java.io;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.ObjectInputStream;
 
@@ -47,10 +47,10 @@ import tests.support.Support_GetPutFieldsDefaulted;
  * package {@code tests.support} ({@code Support_GetPutFields},
  * {@code Support_GetPutFieldsDeprecated} and
  * {@code Support_GetPutFieldsDefaulted}) implement
- * {@code readObject(ObjectInputStream)} to read data from an input stream. 
- * This input stream in turn reads from one of the corresponding files 
- * ({@code testFields.ser}, {@code testFieldsDeprecated.ser} and 
- * {@code testFieldsDefaulted.ser}) that have been created with 
+ * {@code readObject(ObjectInputStream)} to read data from an input stream.
+ * This input stream in turn reads from one of the corresponding files
+ * ({@code testFields.ser}, {@code testFieldsDeprecated.ser} and
+ * {@code testFieldsDefaulted.ser}) that have been created with
  * {@code tests.util.FieldTestFileGenerator} on a reference platform.
  * </p>
  * <p>
@@ -58,21 +58,21 @@ import tests.support.Support_GetPutFieldsDefaulted;
  * resource stored at {@code tests/api/java/io}.
  * </p>
  */
-@TestTargetClass(ObjectInputStream.GetField.class) 
+@TestTargetClass(ObjectInputStream.GetField.class)
 public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
 
     private ObjectInputStream ois = null;
-    
-    private final String FILENAME = 
+
+    private final String FILENAME =
             "/tests/api/java/io/testFields.ser";
-    private final String DEFAULTED_FILENAME = 
+    private final String DEFAULTED_FILENAME =
             "/tests/api/java/io/testFieldsDefaulted.ser";
 
     public boolean booleanValue;
     public byte byteValue;
     public char charValue;
     public int intValue;
-    
+
 
     @TestTargets({
         @TestTargetNew(
@@ -131,35 +131,35 @@ public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
         )
     })
     public void test_get() throws Exception {
-        
+
         initOis(FILENAME);
         Support_GetPutFields object = (Support_GetPutFields) ois.readObject();
         Support_GetPutFields newObject = new Support_GetPutFields();
         newObject.initTestValues();
-        
-        assertTrue("Test 1: The object read from the reference file does " + 
-                   "not match a locally created instance of the same class.", 
+
+        assertTrue("Test 1: The object read from the reference file does " +
+                   "not match a locally created instance of the same class.",
                    object.equals(newObject));
-        
+
         initOis(DEFAULTED_FILENAME);
-        Support_GetPutFieldsDefaulted defaulted = 
+        Support_GetPutFieldsDefaulted defaulted =
                 (Support_GetPutFieldsDefaulted) ois.readObject();
-        Support_GetPutFieldsDefaulted newDefaulted = 
+        Support_GetPutFieldsDefaulted newDefaulted =
                 new Support_GetPutFieldsDefaulted();
         newDefaulted.initTestValues();
-        
-        assertTrue("Test 2: The object read from the reference file does " + 
-                   "not match a locally created instance of the same class.", 
+
+        assertTrue("Test 2: The object read from the reference file does " +
+                   "not match a locally created instance of the same class.",
                    defaulted.equals(newDefaulted));
-        
+
         // Executing the same procedure against the file created with the
         // deprecated ObjectOutputStream.PutFields.write(ObjectOutput) method
         // is not possible since there is no corresponding read(ObjectInput)
-        // method. When trying to do it as in tests 1 and 2, a 
+        // method. When trying to do it as in tests 1 and 2, a
         // NullPointerException is thrown.
     }
-   
-    
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Verifies defaulted(String).",
@@ -171,27 +171,27 @@ public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
         initOis(FILENAME);
         Support_GetPutFields object = (Support_GetPutFields) ois.readObject();
         ObjectInputStream.GetField fields = object.getField;
-        
+
         try {
             fields.defaulted("noField");
             fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException e) {}
 
-        assertFalse("The field longValue should not be defaulted.", 
+        assertFalse("The field longValue should not be defaulted.",
                    fields.defaulted("longValue"));
 
         // Now the same with defaulted fields.
         initOis(DEFAULTED_FILENAME);
-        Support_GetPutFieldsDefaulted defaultedObject = 
+        Support_GetPutFieldsDefaulted defaultedObject =
             (Support_GetPutFieldsDefaulted) ois.readObject();
         fields = defaultedObject.getField;
-        
-        assertTrue("The field longValue should be defaulted.", 
+
+        assertTrue("The field longValue should be defaulted.",
                    fields.defaulted("longValue"));
-        
+
     }
-    
-    
+
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -253,14 +253,14 @@ public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
         initOis(FILENAME);
         Support_GetPutFields object = (Support_GetPutFields) ois.readObject();
         ObjectInputStream.GetField fields = object.getField;
-        
+
         // Methods called with invalid field name.
         try {
             fields.get("noValue", false);
             fail("IllegalArgumentException expected for not existing name " +
                  "argument in get(String, boolean).");
         } catch (IllegalArgumentException e) {}
-        
+
         try {
             fields.get("noValue", (byte) 0);
             fail("IllegalArgumentException expected for not existing name " +
@@ -272,7 +272,7 @@ public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
             fail("IllegalArgumentException expected for not existing name " +
                  "argument in get(String, char).");
         } catch (IllegalArgumentException e) {}
-        
+
         try {
             fields.get("noValue", 0.0);
             fail("IllegalArgumentException expected for not existing name " +
@@ -315,7 +315,7 @@ public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
             fail("IllegalArgumentException expected for non-matching name " +
                  "and type arguments in get(String, boolean).");
         } catch (IllegalArgumentException e) {}
-        
+
         try {
             fields.get("booleanValue", (byte) 0);
             fail("IllegalArgumentException expected for non-matching name " +
@@ -327,7 +327,7 @@ public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
             fail("IllegalArgumentException expected for non-matching name " +
                  "and type arguments in get(String, char).");
         } catch (IllegalArgumentException e) {}
-        
+
         try {
             fields.get("floatValue", 0.0);
             fail("IllegalArgumentException expected for non-matching name " +
@@ -354,18 +354,18 @@ public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
 
         try {
             fields.get("booleanValue", new Object());
-            fail("IllegalArgumentException expected for non-matching name " + 
+            fail("IllegalArgumentException expected for non-matching name " +
                  "and type arguments in get(String, Object).");
         } catch (IllegalArgumentException e) {}
 
         try {
             fields.get("longValue", (short) 0);
-            fail("IllegalArgumentException expected for non-matching name " + 
+            fail("IllegalArgumentException expected for non-matching name " +
                  "and type arguments in get(String, short).");
         } catch (IllegalArgumentException e) {}
     }
-    
-    
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Verifies that getObjectStreamClass() does not return null.",
@@ -373,14 +373,14 @@ public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_getObjectStreamClass() throws Exception {
-        
+
         initOis(FILENAME);
         Support_GetPutFields object = (Support_GetPutFields) ois.readObject();
         assertNotNull("Return value of getObjectStreamClass() should not be null.",
                       object.getField.getObjectStreamClass());
     }
-    
-    
+
+
     private void initOis(String fileName) throws Exception {
         if (ois != null) {
             ois.close();
@@ -388,9 +388,9 @@ public class ObjectInputStreamGetFieldTest extends junit.framework.TestCase {
         ois = new ObjectInputStream(
                     getClass().getResourceAsStream(fileName));
     }
-    
+
     protected void tearDown() throws Exception {
-        
+
         if (ois != null) {
             ois.close();
         }

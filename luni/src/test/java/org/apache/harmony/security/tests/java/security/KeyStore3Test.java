@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,13 +46,13 @@ import java.util.Enumeration;
 
 @TestTargetClass(KeyStore.class)
 public class KeyStore3Test extends TestCase {
-    
+
     private KeyStore mockKeyStore;
-    
+
     private KeyPair keyPair;
-    
+
     private Certificate certificate;
-    
+
     public KeyStore3Test() throws Exception {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
         keyPair = keyPairGenerator.generateKeyPair();
@@ -78,7 +78,7 @@ public class KeyStore3Test extends TestCase {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         certificate = cf.generateCertificate(certArray);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies method with null parameter only.",
@@ -103,7 +103,7 @@ public class KeyStore3Test extends TestCase {
         } catch (KeyStoreException e) {
             // expected
         }
-        
+
         // No exception should be thrown out.
         mockKeyStore.load(null, null);
         mockKeyStore.store(null);
@@ -116,11 +116,11 @@ public class KeyStore3Test extends TestCase {
         args = {java.lang.String.class, java.security.Key.class, char[].class, java.security.cert.Certificate[].class}
     )
     public void test_setKeyEntry_null() throws Exception {
-        mockKeyStore.load(null, null); 
+        mockKeyStore.load(null, null);
         // No exception should be thrown out.
-        mockKeyStore.setKeyEntry(null, null, null, null);        
+        mockKeyStore.setKeyEntry(null, null, null, null);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies method with null parameters only",
@@ -130,9 +130,9 @@ public class KeyStore3Test extends TestCase {
     public void test_setKeyEntry_key_is_null() throws Exception {
         mockKeyStore.load(null, null);
         // No exception should be thrown out.
-        mockKeyStore.setKeyEntry("Alias", null, null, new Certificate[]{certificate});        
+        mockKeyStore.setKeyEntry("Alias", null, null, new Certificate[]{certificate});
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies method with null parameters",
@@ -148,7 +148,7 @@ public class KeyStore3Test extends TestCase {
         } catch (IllegalArgumentException e) {
             // expected
         }
-        
+
         try {
             mockKeyStore.setKeyEntry("Alias", key, null,
                     new Certificate[0]);
@@ -156,10 +156,10 @@ public class KeyStore3Test extends TestCase {
         } catch (IllegalArgumentException e) {
             // expected
         }
-        
-        mockKeyStore.setKeyEntry("Alias", key, null, new Certificate[]{certificate});        
+
+        mockKeyStore.setKeyEntry("Alias", key, null, new Certificate[]{certificate});
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies method with null parameters",
@@ -175,7 +175,7 @@ public class KeyStore3Test extends TestCase {
                 new Certificate[0]);
         mockKeyStore.setKeyEntry("Alias3", key, null, new Certificate[]{certificate});
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies method with null parameters",
@@ -191,7 +191,7 @@ public class KeyStore3Test extends TestCase {
 
         mockKeyStore.setCertificateEntry("Alias", null);
     }
-    
+
     @SuppressWarnings("cast")
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -208,7 +208,7 @@ public class KeyStore3Test extends TestCase {
         } catch (Exception e) {
             fail("Exception should be not thrown");
         }
-        
+
         try {
             MyKeyStore ks = new MyKeyStore(null, null, null);
             assertNotNull(ks);
@@ -218,12 +218,12 @@ public class KeyStore3Test extends TestCase {
         }
 
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
         mockKeyStore = new MyKeyStore(new MyKeyStoreSpi(), null, "MyKeyStore");
     }
-    
+
     private static class MyKeyStore extends KeyStore {
 
         public MyKeyStore(KeyStoreSpi keyStoreSpi, Provider provider,
@@ -296,21 +296,21 @@ public class KeyStore3Test extends TestCase {
             return;
         }
 
-        public int engineSize() { 
-            return 0; 
+        public int engineSize() {
+            return 0;
         }
 
-        public void engineStore(KeyStore.LoadStoreParameter param){ 
-            return; 
+        public void engineStore(KeyStore.LoadStoreParameter param){
+            return;
         }
 
-        public void engineStore(OutputStream arg0, char[] arg1) 
-                throws IOException, NoSuchAlgorithmException, 
-                CertificateException { 
-            return; 
-        }        
-    }    
-    
+        public void engineStore(OutputStream arg0, char[] arg1)
+                throws IOException, NoSuchAlgorithmException,
+                CertificateException {
+            return;
+        }
+    }
+
     @SuppressWarnings("serial")
     private class MyProvider extends Provider {
         MyProvider() {

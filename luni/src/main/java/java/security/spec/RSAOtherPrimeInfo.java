@@ -40,7 +40,7 @@ public class RSAOtherPrimeInfo {
     /**
      * Creates a new {@code RSAOtherPrimeInfo} with the specified prime,
      * exponent, and CRT coefficient.
-     * 
+     *
      * @param prime
      *            the prime factor.
      * @param primeExponent
@@ -51,13 +51,13 @@ public class RSAOtherPrimeInfo {
     public RSAOtherPrimeInfo(BigInteger prime,
             BigInteger primeExponent, BigInteger crtCoefficient) {
         if (prime == null) {
-            throw new NullPointerException(Messages.getString("security.83", "prime"));  
+            throw new NullPointerException(Messages.getString("security.83", "prime"));
         }
         if (primeExponent == null) {
-            throw new NullPointerException(Messages.getString("security.83", "primeExponent"));  
+            throw new NullPointerException(Messages.getString("security.83", "primeExponent"));
         }
         if (crtCoefficient == null) {
-            throw new NullPointerException(Messages.getString("security.83", "crtCoefficient"));  
+            throw new NullPointerException(Messages.getString("security.83", "crtCoefficient"));
         }
         this.prime = prime;
         this.primeExponent = primeExponent;
@@ -66,7 +66,7 @@ public class RSAOtherPrimeInfo {
 
     /**
      * Returns the CRT coefficient.
-     * 
+     *
      * @return the CRT coefficient.
      */
     public final BigInteger getCrtCoefficient() {
@@ -75,7 +75,7 @@ public class RSAOtherPrimeInfo {
 
     /**
      * Returns the prime factor.
-     * 
+     *
      * @return the prime factor.
      */
     public final BigInteger getPrime() {
@@ -84,7 +84,7 @@ public class RSAOtherPrimeInfo {
 
     /**
      * Returns the exponent.
-     * 
+     *
      * @return the exponent.
      */
     public final BigInteger getExponent() {

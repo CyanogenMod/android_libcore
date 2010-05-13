@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ package java.lang.ref;
  * references. Once the garbage collector decides that an object {@code obj} is
  * is weakly-reachable, the following
  * happens:
- * 
+ *
  * <ul>
  *   <li>
  *     A set {@code ref} of references is determined. {@code ref} contains the
@@ -64,13 +64,13 @@ package java.lang.ref;
  *     with their corresponding reference queues, if any.
  *   </li>
  * </ul>
- * 
+ *
  * Weak references are useful for mappings that should have their entries
  * removed automatically once they are not referenced any more (from outside).
  * The difference between a {@code SoftReference} and a {@code WeakReference} is
  * the point of time at which the decision is made to clear and enqueue the
  * reference:
- * 
+ *
  * <ul>
  *   <li>
  *     A {@code SoftReference} should be cleared and enqueued <em>as late as
@@ -79,7 +79,7 @@ package java.lang.ref;
  *   </li>
  *   <li>
  *     A {@code WeakReference} may be cleared and enqueued as soon as is
- *     known to be weakly-referenced.  
+ *     known to be weakly-referenced.
  *   </li>
  * </ul>
  */
@@ -88,7 +88,7 @@ public class WeakReference<T> extends Reference<T> {
     /**
      * Constructs a new weak reference to the given referent. The newly created
      * reference is not registered with any reference queue.
-     * 
+     *
      * @param r the referent to track
      */
     public WeakReference(T r) {
@@ -99,7 +99,7 @@ public class WeakReference<T> extends Reference<T> {
     /**
      * Constructs a new weak reference to the given referent. The newly created
      * reference is registered with the given reference queue.
-     * 
+     *
      * @param r the referent to track
      * @param q the queue to register to the reference object with. A null value
      *          results in a weak reference that is not associated with any

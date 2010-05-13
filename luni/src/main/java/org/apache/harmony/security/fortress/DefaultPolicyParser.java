@@ -57,20 +57,20 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 
 /**
- * This is a basic loader of policy files. It delegates lexical analysis to 
- * a pluggable scanner and converts received tokens to a set of 
- * {@link org.apache.harmony.security.PolicyEntry PolicyEntries}. 
- * For details of policy format, see the 
+ * This is a basic loader of policy files. It delegates lexical analysis to
+ * a pluggable scanner and converts received tokens to a set of
+ * {@link org.apache.harmony.security.PolicyEntry PolicyEntries}.
+ * For details of policy format, see the
  * {@link org.apache.harmony.security.DefaultPolicy default policy description}.
  * <br>
- * For ordinary uses, this class has just one public method <code>parse()</code>, 
+ * For ordinary uses, this class has just one public method <code>parse()</code>,
  * which performs the main task.
- * Extensions of this parser may redefine specific operations separately, 
- * by overriding corresponding protected methods. 
+ * Extensions of this parser may redefine specific operations separately,
+ * by overriding corresponding protected methods.
  * <br>
- * This implementation is effectively thread-safe, as it has no field references 
+ * This implementation is effectively thread-safe, as it has no field references
  * to data being processed (that is, passes all the data as method parameters).
- * 
+ *
  * @see org.apache.harmony.security.DefaultPolicy
  * @see org.apache.harmony.security.DefaultPolicyScanner
  * @see org.apache.harmony.security.PolicyEntry
@@ -80,16 +80,16 @@ public class DefaultPolicyParser {
     // Pluggable scanner for a specific file format
     private final DefaultPolicyScanner scanner;
 
-    /** 
-     * Default constructor, 
-     * {@link org.apache.harmony.security.DefaultPolicyScanner DefaultPolicyScanner} 
-     * is used. 
+    /**
+     * Default constructor,
+     * {@link org.apache.harmony.security.DefaultPolicyScanner DefaultPolicyScanner}
+     * is used.
      */
     public DefaultPolicyParser() {
         scanner = new DefaultPolicyScanner();
     }
 
-    /** 
+    /**
      * Extension constructor for plugging-in custom scanner.
      */
     public DefaultPolicyParser(DefaultPolicyScanner s) {
@@ -98,18 +98,18 @@ public class DefaultPolicyParser {
 
     /**
      * This is the main business method. It manages loading process as follows:
-     * the associated scanner is used to parse the stream to a set of 
+     * the associated scanner is used to parse the stream to a set of
      * {@link org.apache.harmony.security.DefaultPolicyScanner.GrantEntry composite tokens},
      * then this set is iterated and each token is translated to a PolicyEntry.
      * Semantically invalid tokens are ignored, the same as void PolicyEntries.
      * <br>
      * A policy file may refer to some KeyStore(s), and in this case the first
-     * valid reference is initialized and used in processing tokens.   
-     * 
+     * valid reference is initialized and used in processing tokens.
+     *
      * @param location an URL of a policy file to be loaded
      * @param system system properties, used for property expansion
      * @return a collection of PolicyEntry objects, may be empty
-     * @throws Exception IO error while reading location or file syntax error 
+     * @throws Exception IO error while reading location or file syntax error
      */
     public Collection<PolicyEntry>parse(URL location, Properties system)
             throws Exception {
@@ -153,33 +153,33 @@ public class DefaultPolicyParser {
     }
 
     /**
-     * Translates GrantEntry token to PolicyEntry object. It goes step by step, 
+     * Translates GrantEntry token to PolicyEntry object. It goes step by step,
      * trying to resolve each component of the GrantEntry:
      * <ul>
      * <li> If <code>codebase</code> is specified, expand it and construct an URL.
-     * <li> If <code>signers</code> is specified, expand it and obtain 
+     * <li> If <code>signers</code> is specified, expand it and obtain
      * corresponding Certificates.
-     * <li> If <code>principals</code> collection is specified, iterate over it. 
-     * For each PrincipalEntry, expand name and if no class specified, 
-     * resolve actual X500Principal from a KeyStore certificate; otherwise keep it 
-     * as UnresolvedPrincipal. 
+     * <li> If <code>principals</code> collection is specified, iterate over it.
+     * For each PrincipalEntry, expand name and if no class specified,
+     * resolve actual X500Principal from a KeyStore certificate; otherwise keep it
+     * as UnresolvedPrincipal.
      * <li> Iterate over <code>permissions</code> collection. For each PermissionEntry,
-     * try to resolve (see method 
-     * {@link #resolvePermission(DefaultPolicyScanner.PermissionEntry, DefaultPolicyScanner.GrantEntry, KeyStore, Properties, boolean) resolvePermission()}) 
-     * a corresponding permission. If resolution failed, ignore the PermissionEntry. 
+     * try to resolve (see method
+     * {@link #resolvePermission(DefaultPolicyScanner.PermissionEntry, DefaultPolicyScanner.GrantEntry, KeyStore, Properties, boolean) resolvePermission()})
+     * a corresponding permission. If resolution failed, ignore the PermissionEntry.
      * </ul>
      * In fact, property expansion in the steps above is conditional and is ruled by
-     * the parameter <i>resolve</i>.  
+     * the parameter <i>resolve</i>.
      * <br>
-     * Finally a new PolicyEntry is created, which associates the trinity 
+     * Finally a new PolicyEntry is created, which associates the trinity
      * of resolved URL, Certificates and Principals to a set of granted Permissions.
-     * 
+     *
      * @param ge GrantEntry token to be resolved
-     * @param ks KeyStore for resolving Certificates, may be <code>null</code> 
-     * @param system system properties, used for property expansion 
+     * @param ks KeyStore for resolving Certificates, may be <code>null</code>
+     * @param system system properties, used for property expansion
      * @param resolve flag enabling/disabling property expansion
      * @return resolved PolicyEntry
-     * @throws Exception if unable to resolve codebase, signers or principals 
+     * @throws Exception if unable to resolve codebase, signers or principals
      * of the GrantEntry
      * @see DefaultPolicyScanner.PrincipalEntry
      * @see DefaultPolicyScanner.PermissionEntry
@@ -236,21 +236,21 @@ public class DefaultPolicyParser {
     /**
      * Translates PermissionEntry token to Permission object.
      * First, it performs general expansion for non-null <code>name</code> and
-     * properties expansion for non-null <code>name</code>, <code>action</code> 
+     * properties expansion for non-null <code>name</code>, <code>action</code>
      * and <code>signers</code>.
-     * Then, it obtains signing Certificates(if any), tries to find a class specified by 
+     * Then, it obtains signing Certificates(if any), tries to find a class specified by
      * <code>klass</code> name and instantiate a corresponding permission object.
      * If class is not found or it is signed improperly, returns UnresolvedPermission.
      *
      * @param pe PermissionEntry token to be resolved
-     * @param ge parental GrantEntry of the PermissionEntry 
+     * @param ge parental GrantEntry of the PermissionEntry
      * @param ks KeyStore for resolving Certificates, may be <code>null</code>
      * @param system system properties, used for property expansion
      * @param resolve flag enabling/disabling property expansion
      * @return resolved Permission object, either of concrete class or UnresolvedPermission
-     * @throws Exception if failed to expand properties, 
-     * or to get a Certificate, 
-     * or to create an instance of a successfully found class 
+     * @throws Exception if failed to expand properties,
+     * or to get a Certificate,
+     * or to create an instance of a successfully found class
      */
     protected Permission resolvePermission(
             DefaultPolicyScanner.PermissionEntry pe,
@@ -285,8 +285,8 @@ public class DefaultPolicyParser {
         return new UnresolvedPermission(pe.klass, pe.name, pe.actions, signers);
     }
 
-    /** 
-     * Specific handler for expanding <i>self</i> and <i>alias</i> protocols. 
+    /**
+     * Specific handler for expanding <i>self</i> and <i>alias</i> protocols.
      */
     class PermissionExpander implements PolicyUtils.GeneralExpansionHandler {
 
@@ -296,8 +296,8 @@ public class DefaultPolicyParser {
         // Store GrantEntry
         private DefaultPolicyScanner.GrantEntry ge;
 
-        /** 
-         * Combined setter of all required fields. 
+        /**
+         * Combined setter of all required fields.
          */
         public PermissionExpander configure(DefaultPolicyScanner.GrantEntry ge,
                 KeyStore ks) {
@@ -310,24 +310,24 @@ public class DefaultPolicyParser {
          * Resolves the following protocols:
          * <dl>
          * <dt>self
-         * <dd>Denotes substitution to a principal information of the parental 
-         * GrantEntry. Returns a space-separated list of resolved Principals 
+         * <dd>Denotes substitution to a principal information of the parental
+         * GrantEntry. Returns a space-separated list of resolved Principals
          * (including wildcarded), formatting each as <b>class &quot;name&quot;</b>.
          * If parental GrantEntry has no Principals, throws ExpansionFailedException.
          * <dt>alias:<i>name</i>
-         * <dd>Denotes substitution of a KeyStore alias. Namely, if a KeyStore has 
-         * an X.509 certificate associated with the specified name, then returns 
-         * <b>javax.security.auth.x500.X500Principal &quot;<i>DN</i>&quot;</b> string, 
-         * where <i>DN</i> is a certificate's subject distinguished name.  
+         * <dd>Denotes substitution of a KeyStore alias. Namely, if a KeyStore has
+         * an X.509 certificate associated with the specified name, then returns
+         * <b>javax.security.auth.x500.X500Principal &quot;<i>DN</i>&quot;</b> string,
+         * where <i>DN</i> is a certificate's subject distinguished name.
          * </dl>
-         * @throws ExpansionFailedException - if protocol is other than 
-         * <i>self</i> or <i>alias</i>, or if data resolution failed 
+         * @throws ExpansionFailedException - if protocol is other than
+         * <i>self</i> or <i>alias</i>, or if data resolution failed
          */
         public String resolve(String protocol, String data)
                 throws PolicyUtils.ExpansionFailedException {
 
-            if ("self".equals(protocol)) { 
-                //need expanding to list of principals in grant clause 
+            if ("self".equals(protocol)) {
+                //need expanding to list of principals in grant clause
                 if (ge.principals != null && ge.principals.size() != 0) {
                     StringBuilder sb = new StringBuilder();
                     for (Iterator<PrincipalEntry> iter = ge.principals.iterator(); iter
@@ -342,62 +342,62 @@ public class DefaultPolicyParser {
                             }
                             catch (Exception e) {
                                 throw new PolicyUtils.ExpansionFailedException(
-                                        Messages.getString("security.143", pr.name), e); 
+                                        Messages.getString("security.143", pr.name), e);
                             }
                         } else {
-                            sb.append(pr.klass).append(" \"").append(pr.name) 
-                                    .append("\" "); 
+                            sb.append(pr.klass).append(" \"").append(pr.name)
+                                    .append("\" ");
                         }
                     }
                     return sb.toString();
                 } else {
                     throw new PolicyUtils.ExpansionFailedException(
-                            Messages.getString("security.144")); 
+                            Messages.getString("security.144"));
                 }
             }
-            if ("alias".equals(protocol)) { 
+            if ("alias".equals(protocol)) {
                 try {
                     return pc2str(getPrincipalByAlias(ks, data));
                 }
                 catch (Exception e) {
                     throw new PolicyUtils.ExpansionFailedException(
-                            Messages.getString("security.143", data), e); 
+                            Messages.getString("security.143", data), e);
                 }
             }
             throw new PolicyUtils.ExpansionFailedException(
-                    Messages.getString("security.145", protocol)); 
+                    Messages.getString("security.145", protocol));
         }
 
-        // Formats a string describing the passed Principal. 
+        // Formats a string describing the passed Principal.
         private String pc2str(Principal pc) {
             String klass = pc.getClass().getName();
             String name = pc.getName();
             StringBuilder sb = new StringBuilder(klass.length() + name.length()
                     + 5);
-            return sb.append(klass).append(" \"").append(name).append("\"")  
+            return sb.append(klass).append(" \"").append(name).append("\"")
                     .toString();
         }
     }
 
     /**
-     * Takes a comma-separated list of aliases and obtains corresponding 
+     * Takes a comma-separated list of aliases and obtains corresponding
      * certificates.
-     * @param ks KeyStore for resolving Certificates, may be <code>null</code> 
-     * @param signers comma-separated list of certificate aliases, 
+     * @param ks KeyStore for resolving Certificates, may be <code>null</code>
+     * @param signers comma-separated list of certificate aliases,
      * must be not <code>null</code>
      * @return an array of signing Certificates
-     * @throws Exception if KeyStore is <code>null</code> 
-     * or if it failed to provide a certificate  
+     * @throws Exception if KeyStore is <code>null</code>
+     * or if it failed to provide a certificate
      */
     protected Certificate[] resolveSigners(KeyStore ks, String signers)
             throws Exception {
         if (ks == null) {
-            throw new KeyStoreException(Messages.getString("security.146", 
+            throw new KeyStoreException(Messages.getString("security.146",
                     signers));
         }
 
         Collection<Certificate> certs = new HashSet<Certificate>();
-        StringTokenizer snt = new StringTokenizer(signers, ","); 
+        StringTokenizer snt = new StringTokenizer(signers, ",");
         while (snt.hasMoreTokens()) {
             //XXX cache found certs ??
             certs.add(ks.getCertificate(snt.nextToken().trim()));
@@ -406,29 +406,29 @@ public class DefaultPolicyParser {
     }
 
     /**
-     * Returns a subject's X500Principal of an X509Certificate, 
-     * which is associated with the specified keystore alias. 
+     * Returns a subject's X500Principal of an X509Certificate,
+     * which is associated with the specified keystore alias.
      * @param ks KeyStore for resolving Certificate, may be <code>null</code>
      * @param alias alias to a certificate
      * @return X500Principal with a subject distinguished name
-     * @throws KeyStoreException if KeyStore is <code>null</code> 
+     * @throws KeyStoreException if KeyStore is <code>null</code>
      * or if it failed to provide a certificate
-     * @throws CertificateException if found certificate is not 
-     * an X509Certificate 
+     * @throws CertificateException if found certificate is not
+     * an X509Certificate
      */
     protected Principal getPrincipalByAlias(KeyStore ks, String alias)
             throws KeyStoreException, CertificateException {
 
         if (ks == null) {
             throw new KeyStoreException(
-                    Messages.getString("security.147", alias)); 
+                    Messages.getString("security.147", alias));
         }
         //XXX cache found certs ??
         Certificate x509 = ks.getCertificate(alias);
         if (x509 instanceof X509Certificate) {
             return ((X509Certificate) x509).getSubjectX500Principal();
         } else {
-            throw new CertificateException(Messages.getString("security.148", 
+            throw new CertificateException(Messages.getString("security.148",
                     alias, x509));
         }
     }
@@ -437,9 +437,9 @@ public class DefaultPolicyParser {
      * Returns the first successfully loaded KeyStore, from the specified list of
      * possible locations. This method iterates over the list of KeystoreEntries;
      * for each entry expands <code>url</code> and <code>type</code>,
-     * tries to construct instances of specified URL and KeyStore and to load 
-     * the keystore. If it is loaded, returns the keystore, otherwise proceeds to 
-     * the next KeystoreEntry. 
+     * tries to construct instances of specified URL and KeyStore and to load
+     * the keystore. If it is loaded, returns the keystore, otherwise proceeds to
+     * the next KeystoreEntry.
      * <br>
      * <b>Note:</b> an url may be relative to the policy file location or absolute.
      * @param keystores list of available KeystoreEntries

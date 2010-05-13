@@ -108,7 +108,7 @@ public class DatagramSocket {
      */
     void checkListen(int aPort) {
         if (aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0325", aPort)); 
+            throw new IllegalArgumentException(Msg.getString("K0325", aPort));
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -140,7 +140,7 @@ public class DatagramSocket {
      */
     public void connect(InetAddress anAddress, int aPort) {
         if (anAddress == null || aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0032")); 
+            throw new IllegalArgumentException(Msg.getString("K0032"));
         }
 
         synchronized (lock) {
@@ -355,7 +355,7 @@ public class DatagramSocket {
                     senderAddr = tempPack.getAddress();
                 } catch (SocketException e) {
                     if (e.getMessage().equals(
-                            "The socket does not support the operation")) { 
+                            "The socket does not support the operation")) {
                         // receive packet to temporary buffer
                         tempPack = new DatagramPacket(new byte[pack.getCapacity()],
                                 pack.getCapacity());
@@ -429,7 +429,7 @@ public class DatagramSocket {
         if (address != null) { // The socket is connected
             if (packAddr != null) {
                 if (!address.equals(packAddr) || port != pack.getPort()) {
-                    throw new IllegalArgumentException(Msg.getString("K0034")); 
+                    throw new IllegalArgumentException(Msg.getString("K0034"));
                 }
             } else {
                 pack.setAddress(address);
@@ -440,7 +440,7 @@ public class DatagramSocket {
             if (packAddr == null) {
                 if (pack.getPort() == -1) {
                     // KA019 Destination address is null
-                    throw new NullPointerException(Msg.getString("KA019")); 
+                    throw new NullPointerException(Msg.getString("KA019"));
                 }
                 return;
             }
@@ -470,7 +470,7 @@ public class DatagramSocket {
      */
     public synchronized void setSendBufferSize(int size) throws SocketException {
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035")); 
+            throw new IllegalArgumentException(Msg.getString("K0035"));
         }
         checkClosedAndBind(false);
         impl.setOption(SocketOptions.SO_SNDBUF, Integer.valueOf(size));
@@ -490,7 +490,7 @@ public class DatagramSocket {
     public synchronized void setReceiveBufferSize(int size)
             throws SocketException {
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035")); 
+            throw new IllegalArgumentException(Msg.getString("K0035"));
         }
         checkClosedAndBind(false);
         impl.setOption(SocketOptions.SO_RCVBUF, Integer.valueOf(size));
@@ -511,7 +511,7 @@ public class DatagramSocket {
      */
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         if (timeout < 0) {
-            throw new IllegalArgumentException(Msg.getString("K0036")); 
+            throw new IllegalArgumentException(Msg.getString("K0036"));
         }
         checkClosedAndBind(false);
         impl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(timeout));
@@ -538,7 +538,7 @@ public class DatagramSocket {
             security.checkSetFactory();
         }
         if (factory != null) {
-            throw new SocketException(Msg.getString("K0044")); 
+            throw new SocketException(Msg.getString("K0044"));
         }
         factory = fac;
     }
@@ -574,7 +574,7 @@ public class DatagramSocket {
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
                 throw new IllegalArgumentException(Msg.getString(
-                        "K0316", localAddr.getClass())); 
+                        "K0316", localAddr.getClass()));
             }
             checkListen(((InetSocketAddress) localAddr).getPort());
         }
@@ -595,7 +595,7 @@ public class DatagramSocket {
 
     void checkClosedAndBind(boolean bind) throws SocketException {
         if (isClosed()) {
-            throw new SocketException(Msg.getString("K003d")); 
+            throw new SocketException(Msg.getString("K003d"));
         }
         if (bind && !isBound()) {
             checkListen(0);
@@ -624,13 +624,13 @@ public class DatagramSocket {
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
                 throw new IllegalArgumentException(Msg.getString(
-                        "K0316", localAddr.getClass())); 
+                        "K0316", localAddr.getClass()));
             }
             InetSocketAddress inetAddr = (InetSocketAddress) localAddr;
             addr = inetAddr.getAddress();
             if (addr == null) {
                 throw new SocketException(Msg.getString(
-                        "K0317", inetAddr.getHostName())); 
+                        "K0317", inetAddr.getHostName()));
             }
             localPort = inetAddr.getPort();
             checkListen(localPort);
@@ -652,18 +652,18 @@ public class DatagramSocket {
      */
     public void connect(SocketAddress remoteAddr) throws SocketException {
         if (remoteAddr == null) {
-            throw new IllegalArgumentException(Msg.getString("K0318")); 
+            throw new IllegalArgumentException(Msg.getString("K0318"));
         }
 
         if (!(remoteAddr instanceof InetSocketAddress)) {
             throw new IllegalArgumentException(Msg.getString(
-                    "K0316", remoteAddr.getClass())); 
+                    "K0316", remoteAddr.getClass()));
         }
 
         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
         if (inetAddr.getAddress() == null) {
             throw new SocketException(Msg.getString(
-                    "K0317", inetAddr.getHostName())); 
+                    "K0317", inetAddr.getHostName()));
         }
 
         synchronized (lock) {

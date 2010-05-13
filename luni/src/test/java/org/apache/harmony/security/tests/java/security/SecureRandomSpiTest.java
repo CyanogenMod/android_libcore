@@ -29,7 +29,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>SecureRandomSpi</code> class constructors
  * and methods.
- * 
+ *
  */
 @TestTargetClass(SecureRandomSpi.class)
 public class SecureRandomSpiTest extends TestCase {
@@ -71,7 +71,7 @@ public class SecureRandomSpiTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception");
         }
-        
+
         try {
             MySecureRandomSpi srs = new MySecureRandomSpi();
             srs.engineGenerateSeed(10);

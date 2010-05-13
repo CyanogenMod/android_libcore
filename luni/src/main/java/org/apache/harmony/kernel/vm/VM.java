@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,7 +49,7 @@ public final class VM {
      * NOT the classes of receivers.</li>
      * <li>The item at depth zero is the caller of this method</li>
      * </ul>
-     * 
+     *
      * @param depth the stack depth of the requested ClassLoader
      * @return the ClassLoader at the specified depth
      * @see java.lang.ClassLoader#getStackClassLoader
@@ -68,7 +68,7 @@ public final class VM {
      * stack of the calling thread. If no such ClassLoader is found, null is
      * returned. Notes: 1) This method operates on the defining classes of
      * methods on stack. NOT the classes of receivers.
-     * 
+     *
      * @return the first non-bootstrap ClassLoader on the stack
      */
     static public final ClassLoader getNonBootstrapClassLoader() {
@@ -77,7 +77,7 @@ public final class VM {
 
     /**
      * Initialize the classloader.
-     * 
+     *
      * @param loader ClassLoader the ClassLoader instance
      * @param bootLoader boolean true for the bootstrap class loader
      */
@@ -87,14 +87,14 @@ public final class VM {
 
     /**
      * This method must be provided by the vm vendor.
-     * 
+     *
      * Searches an internal table of strings for a string equal to the specified
      * String. If the string is not in the table, it is added. Returns the
      * string contained in the table which is equal to the specified String. The
      * same string object is always answered for strings which are equal.
-     * 
+     *
      * @param string the String to intern
-     * 
+     *
      * @return the interned string equal to the specified String
      */
     public static final String intern(String string) {
@@ -103,7 +103,7 @@ public final class VM {
 
     /**
      * Native used to find and load a class using the VM
-     * 
+     *
      * @return java.lang.Class the class or null.
      * @param className String the name of the class to search for.
      * @param classLoader the classloader to do the work
@@ -119,7 +119,7 @@ public final class VM {
      * Returns the ClassLoader of the method that called the caller. i.e. A.x()
      * calls B.y() calls callerClassLoader(), A's ClassLoader will be returned.
      * Returns null for the bootstrap ClassLoader.
-     * 
+     *
      * @return a ClassLoader or null for the bootstrap ClassLoader
      * @throws SecurityException when called from a non-bootstrap Class
      */
@@ -133,13 +133,13 @@ public final class VM {
      * ClassLoader. MsgHelp uses the bootstrap ClassLoader to find the resource
      * bundle of messages packaged with the bootstrap classes. The reference
      * implementation of this method uses the getStackClassLoader() method.
-     * 
+     *
      * Returns the ClassLoader of the method that called the caller. i.e. A.x()
      * calls B.y() calls callerClassLoader(), A's ClassLoader will be returned.
      * Returns null for the bootstrap ClassLoader.
-     * 
+     *
      * @return a ClassLoader
-     * 
+     *
      * @throws SecurityException when called from a non-bootstrap Class
      */
     public static ClassLoader bootCallerClassLoader() {
@@ -148,7 +148,7 @@ public final class VM {
 
     /**
      * Native used to dump a string to the system console for debugging.
-     * 
+     *
      * @param str String the String to display
      */
     public static void dumpString(String str) {
@@ -159,7 +159,7 @@ public final class VM {
      * Get the classpath entry that was used to load the class that is the arg.
      * <p>
      * This method is for internal use only.
-     * 
+     *
      * @param targetClass Class the class to set the classpath of.
      * @see java.lang.Class
      */
@@ -169,7 +169,7 @@ public final class VM {
 
     /**
      * Does internal initialization required by VM.
-     * 
+     *
      */
     static void initializeVM() {
     }
@@ -177,7 +177,7 @@ public final class VM {
     /**
      * Registers a new virtual-machine shutdown hook. This is equivalent to the
      * 1.3 API of the same name.
-     * 
+     *
      * @param hook the hook (a Thread) to register
      */
     public static void addShutdownHook(Thread hook) {
@@ -187,7 +187,7 @@ public final class VM {
     /**
      * De-registers a previously-registered virtual-machine shutdown hook. This
      * is equivalent to the 1.3 API of the same name.
-     * 
+     *
      * @param hook the hook (a Thread) to de-register
      * @return true if the hook could be de-registered
      */
@@ -230,10 +230,10 @@ public final class VM {
      * Return the type of the specified entry on the class path for a
      * ClassLoader. Valid types are: CPE_TYPE_UNKNOWN CPE_TYPE_DIRECTORY
      * CPE_TYPE_JAR CPE_TYPE_TCP - this is obsolete CPE_TYPE_UNUSABLE
-     * 
+     *
      * @param classLoader the ClassLoader
      * @param cpIndex the index on the class path
-     * 
+     *
      * @return a int which specifies the class path entry type
      */
     static final int getClassPathEntryType(Object classLoader, int cpIndex) {
@@ -245,7 +245,7 @@ public final class VM {
      * broken into optionString and extraInfo. This only returns the
      * optionString part.
      * <p>
-     * 
+     *
      * @return a String array containing the optionString part of command line
      *         arguments
      */
@@ -255,7 +255,7 @@ public final class VM {
 
     /**
      * Return the number of entries on the bootclasspath.
-     * 
+     *
      * @return an int which is the number of entries on the bootclasspath
      */
     static int getClassPathCount() {
@@ -264,9 +264,9 @@ public final class VM {
 
     /**
      * Return the specified bootclasspath entry.
-     * 
-     * @param index the index of the bootclasspath entry 
-     * 
+     *
+     * @param index the index of the bootclasspath entry
+     *
      * @return a byte array containing the bootclasspath entry
      *             specified in the vm options
      */

@@ -67,7 +67,7 @@ public class PushbackInputStream extends FilterInputStream {
     public PushbackInputStream(InputStream in, int size) {
         super(in);
         if (size <= 0) {
-            throw new IllegalArgumentException(Msg.getString("K0058")); 
+            throw new IllegalArgumentException(Msg.getString("K0058"));
         }
         buf = (in == null) ? null : new byte[size];
         pos = size;
@@ -168,16 +168,16 @@ public class PushbackInputStream extends FilterInputStream {
     public int read(byte[] buffer, int offset, int length) throws IOException {
         if (buf == null) {
             // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); 
+            throw new IOException(Msg.getString("K0059"));
         }
         // Force buffer null check first!
         if (offset > buffer.length || offset < 0) {
             // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
         }
         if (length < 0 || length > buffer.length - offset) {
             // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
         }
 
         int copiedBytes = 0, copyLength = 0, newOffset = offset;
@@ -218,7 +218,7 @@ public class PushbackInputStream extends FilterInputStream {
     @Override
     public long skip(long count) throws IOException {
         if (in == null) {
-            throw new IOException(Msg.getString("K0059")); 
+            throw new IOException(Msg.getString("K0059"));
         }
         if (count <= 0) {
             return 0;
@@ -284,19 +284,19 @@ public class PushbackInputStream extends FilterInputStream {
             throws IOException {
         if (length > pos) {
             // K007e=Pushback buffer full
-            throw new IOException(Msg.getString("K007e")); 
+            throw new IOException(Msg.getString("K007e"));
         }
         if (offset > buffer.length || offset < 0) {
             // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
         }
         if (length < 0 || length > buffer.length - offset) {
             // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); 
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
         }
         if (buf == null) {
             // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); 
+            throw new IOException(Msg.getString("K0059"));
         }
 
         System.arraycopy(buffer, offset, buf, pos - length, length);
@@ -323,7 +323,7 @@ public class PushbackInputStream extends FilterInputStream {
             throw new IOException();
         }
         if (pos == 0) {
-            throw new IOException(Msg.getString("K007e")); 
+            throw new IOException(Msg.getString("K007e"));
         }
         buf[--pos] = (byte) oneByte;
     }

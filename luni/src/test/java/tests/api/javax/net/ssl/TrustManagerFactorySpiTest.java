@@ -15,7 +15,7 @@
  */
 package tests.api.javax.net.ssl;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 import org.apache.harmony.xnet.tests.support.TrustManagerFactorySpiImpl;
 import org.apache.harmony.xnet.tests.support.MyTrustManagerFactorySpi.Parameters;
 
-@TestTargetClass(TrustManagerFactorySpi.class) 
+@TestTargetClass(TrustManagerFactorySpi.class)
 public class TrustManagerFactorySpiTest extends TestCase {
 
     private TrustManagerFactorySpiImpl factory = new TrustManagerFactorySpiImpl();
@@ -55,10 +55,10 @@ public class TrustManagerFactorySpiTest extends TestCase {
             fail("Unexpected exception " + e.toString());
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
-     * @throws KeyStoreException 
+     * @throws NoSuchAlgorithmException
+     * @throws KeyStoreException
      * @tests javax.net.ssl.TrustManagerFactorySpi#engineInit(KeyStore ks)
      */
     @TestTargetNew(
@@ -88,10 +88,10 @@ public class TrustManagerFactorySpiTest extends TestCase {
         assertTrue(factory.isEngineInitCalled());
         assertNull(factory.getKs());
     }
-    
+
     /**
-     * @throws InvalidAlgorithmParameterException 
-     * @throws NoSuchAlgorithmException 
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.TrustManagerFactorySpi#engineInit(ManagerFactoryParameters spec)
      */
     @TestTargetNew(
@@ -122,9 +122,9 @@ public class TrustManagerFactorySpiTest extends TestCase {
         assertTrue(factory.isEngineInitCalled());
         assertNull(factory.getSpec());
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.TrustManagerFactorySpi#engineGetTrustManagers()
      */
     @TestTargetNew(

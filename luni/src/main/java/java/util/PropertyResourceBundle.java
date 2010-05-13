@@ -25,7 +25,7 @@ import java.io.Reader;
  * {@code PropertyResourceBundle} loads resources from an {@code InputStream}. All resources are
  * Strings. The resources must be of the form {@code key=value}, one
  * resource per line (see Properties).
- * 
+ *
  * @see ResourceBundle
  * @see Properties
  * @since 1.1
@@ -37,7 +37,7 @@ public class PropertyResourceBundle extends ResourceBundle {
     /**
      * Constructs a new instance of {@code PropertyResourceBundle} and loads the
      * properties file from the specified {@code InputStream}.
-     * 
+     *
      * @param stream
      *            the {@code InputStream}.
      * @throws IOException
@@ -51,10 +51,10 @@ public class PropertyResourceBundle extends ResourceBundle {
         resources = new Properties();
         resources.load(stream);
     }
-    
+
     /**
      * Constructs a new resource bundle with properties read from {@code reader}.
-     * 
+     *
      * @param reader the {@code Reader}
      * @throws IOException
      * @since 1.6
@@ -64,11 +64,11 @@ public class PropertyResourceBundle extends ResourceBundle {
         resources = new Properties();
         resources.load(reader);
     }
-    
-    protected Set<String> handleKeySet(){                
+
+    protected Set<String> handleKeySet(){
         return resources.stringPropertyNames();
     }
-    
+
     @SuppressWarnings("unchecked")
     private Enumeration<String> getLocalKeys() {
         return (Enumeration<String>) resources.propertyNames();

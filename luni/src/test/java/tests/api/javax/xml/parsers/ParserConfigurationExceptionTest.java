@@ -22,7 +22,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(ParserConfigurationException.class) 
+@TestTargetClass(ParserConfigurationException.class)
 public class ParserConfigurationExceptionTest extends TestCase{
 
     @TestTargetNew(

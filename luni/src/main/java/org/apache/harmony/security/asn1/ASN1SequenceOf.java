@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * This class represents ASN.1 Sequence OF type.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -73,7 +73,7 @@ public class ASN1SequenceOf extends ASN1ValueCollection {
      * Creates array wrapper of provided ASN1 type
      *
      * @param type - ASN1 type to be wrapped
-     * @return - a wrapper for ASN1 set of type. 
+     * @return - a wrapper for ASN1 set of type.
      * @throws IOException
      * @see org.apache.harmony.security.asn1.ASN1ValueCollection
      */

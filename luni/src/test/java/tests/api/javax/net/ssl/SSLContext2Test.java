@@ -40,15 +40,15 @@ import junit.framework.TestCase;
 
 /**
  * Tests for SSLContext class constructors and methods
- * 
+ *
  */
-@TestTargetClass(SSLContext.class) 
+@TestTargetClass(SSLContext.class)
 public class SSLContext2Test extends TestCase {
-    
+
     private static String srvSSLContext = "SSLContext";
-    
+
     private static final String defaultProtocol = "S+S+L";
-    
+
     public static final String SSLContextProviderClass = "org.apache.harmony.xnet.tests.support.MySSLContextSpi";
 
     private static final String[] invalidValues = SpiEngUtils.invalidValues;
@@ -79,10 +79,10 @@ public class SSLContext2Test extends TestCase {
         super.tearDown();
         Security.removeProvider(mProv.getName());
     }
-    
-    private void checkSSLContext(SSLContext sslC) 
+
+    private void checkSSLContext(SSLContext sslC)
             throws KeyManagementException {
-        
+
         try {
             sslC.getSocketFactory();
             fail("RuntimeException must be thrown");
@@ -106,7 +106,7 @@ public class SSLContext2Test extends TestCase {
             fail("RuntimeException must be thrown");
         } catch (RuntimeException e) {
             assertEquals("Incorrect message", "Not initialiazed", e.getMessage());
-        }      
+        }
         try {
             sslC.createSSLEngine();
             fail("RuntimeException must be thrown");
@@ -127,7 +127,7 @@ public class SSLContext2Test extends TestCase {
         } catch (KeyManagementException e) {
         }
         sslC.init(km, tm, new SecureRandom());
-        
+
         SSLEngine sslE = sslC.createSSLEngine();
         assertTrue("Not null result",sslE instanceof SSLEngine);
         assertNull("Incorrect host", sslE.getPeerHost());
@@ -142,14 +142,14 @@ public class SSLContext2Test extends TestCase {
             assertNull("Not null result", sslC.getServerSessionContext());
         } catch (NullPointerException e) {
         }
-        try {            
+        try {
             assertNull("Not null result", sslC.getClientSessionContext());
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
-     * Test for <code>getInstance(String protocol)</code> method 
+     * Test for <code>getInstance(String protocol)</code> method
      * Assertions:
      * throws NullPointerException when protocol is null;
      * throws NoSuchAlgorithmException when protocol is not correct;
@@ -161,7 +161,7 @@ public class SSLContext2Test extends TestCase {
         method = "getInstance",
         args = {java.lang.String.class}
     )
-    public void test_getInstanceLjava_lang_String() throws NoSuchAlgorithmException, 
+    public void test_getInstanceLjava_lang_String() throws NoSuchAlgorithmException,
             KeyManagementException {
         try {
             SSLContext.getInstance(null);
@@ -191,11 +191,11 @@ public class SSLContext2Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String protocol, String provider)</code>
-     * method 
-     * Assertions: 
+     * method
+     * Assertions:
      * throws NullPointerException when protocol is null;
      * throws NoSuchAlgorithmException when protocol is not correct;
-     * throws IllegalArgumentException when provider is null or empty; 
+     * throws IllegalArgumentException when provider is null or empty;
      * throws NoSuchProviderException when provider is available;
      * returns SSLContext object
      */
@@ -206,7 +206,7 @@ public class SSLContext2Test extends TestCase {
         args = {java.lang.String.class, java.lang.String.class}
     )
     public void test_getInstanceLjava_lang_StringLjava_lang_String() throws NoSuchAlgorithmException,
-            NoSuchProviderException, IllegalArgumentException, 
+            NoSuchProviderException, IllegalArgumentException,
             KeyManagementException {
         try {
             SSLContext.getInstance(null, mProv.getName());
@@ -263,8 +263,8 @@ public class SSLContext2Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String protocol, Provider provider)</code>
-     * method 
-     * Assertions: 
+     * method
+     * Assertions:
      * throws NullPointerException when protocol is null;
      * throws NoSuchAlgorithmException when protocol is not correct;
      * throws IllegalArgumentException when provider is null;
@@ -315,9 +315,9 @@ public class SSLContext2Test extends TestCase {
     }
 
     class TManager implements TrustManager {
-        
+
     }
     class KManager implements KeyManager {
-        
+
     }
 }

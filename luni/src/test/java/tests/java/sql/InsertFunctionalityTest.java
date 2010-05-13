@@ -153,7 +153,7 @@ public class InsertFunctionalityTest extends TestCase {
         try {
             statement.execute("INSERT INTO " + DatabaseCreator.FKSTRICT_TABLE
                     + " VALUES(4, 4, 'testInsert')");
-           // TODO Foreign key functionality isn't supported 
+           // TODO Foreign key functionality isn't supported
            // fail("expecting SQLException");
         } catch (SQLException ex) {
             // expected
@@ -161,7 +161,7 @@ public class InsertFunctionalityTest extends TestCase {
         try {
             statement.execute("INSERT INTO " + DatabaseCreator.FKCASCADE_TABLE
                     + " VALUES(4, 4, 'testInsert')");
-           // TODO Foreign key functionality isn't supported 
+           // TODO Foreign key functionality isn't supported
            // fail("expecting SQLException");
         } catch (SQLException ex) {
             // expected

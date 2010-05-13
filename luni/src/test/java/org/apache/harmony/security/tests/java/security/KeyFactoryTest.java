@@ -28,31 +28,31 @@ public class KeyFactoryTest extends TestCase {
 
     Provider provider;
     boolean exceptionThrown;
-    
+
     Provider existingProvider;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         exceptionThrown = false;
-        
+
         Provider[] providers = Security.getProviders();
         if (providers.length == 0) {
             fail("no providers found");
         }
-        
+
         existingProvider = providers[0];
-        
+
         provider = new TestKeyFactoryProvider();
         Security.addProvider(provider);
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         Security.removeProvider(provider.getName());
     }
-    
+
     @SuppressWarnings("unchecked")
     @TestTargetNew(
             level=TestLevel.COMPLETE,
@@ -66,17 +66,17 @@ public class KeyFactoryTest extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         String[] parameters = {
                 "UnknownKeyFactory",
                 null
         };
-        
+
         Class[] exceptions = {
                 NoSuchAlgorithmException.class,
                 NullPointerException.class
         };
-        
+
         for (int i = 0; i < parameters.length; i++) {
             String algorithm = parameters[i];
             exceptionThrown = false;
@@ -89,7 +89,7 @@ public class KeyFactoryTest extends TestCase {
                 checkException(message, null, exceptions[i]);
             }
         }
-        
+
     }
 
     @SuppressWarnings("unchecked")
@@ -107,7 +107,7 @@ public class KeyFactoryTest extends TestCase {
         } catch (NoSuchProviderException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         String[][] combinations = {
                 { "UnknownKeyFactory", TEST_PROVIDER_NAME},
                 { TEST_KEYFACTORY_NAME, "UnknownProvider"},
@@ -116,7 +116,7 @@ public class KeyFactoryTest extends TestCase {
                 { TEST_KEYFACTORY_NAME, null },
                 { null, null}
         };
-        
+
         Class[] exceptions = {
                 NoSuchAlgorithmException.class,
                 NoSuchProviderException.class,
@@ -125,7 +125,7 @@ public class KeyFactoryTest extends TestCase {
                 IllegalArgumentException.class,
                 IllegalArgumentException.class
         };
-        
+
         for (int i = 0; i < combinations.length; i++) {
             String[] combination = combinations[i];
             String message = "getInstance(\"" + combination[0] + "\", \"" + combination[1] + "\")";
@@ -153,28 +153,28 @@ public class KeyFactoryTest extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         String[] algorithms = {
                 "UnknownKeyFactory",
                 null,
                 TEST_KEYFACTORY_NAME,
                 TEST_KEYFACTORY_NAME
         };
-        
+
         Provider[] providers = {
                 provider,
                 provider,
                 existingProvider,
                 null
         };
-        
+
         Class[] exceptions = {
                 NoSuchAlgorithmException.class,
                 NullPointerException.class,
                 NoSuchAlgorithmException.class,
                 IllegalArgumentException.class
         };
-        
+
         for (int i = 0; i < algorithms.length; i++) {
             String algorithm = algorithms[i];
             Provider provider = providers[i];
@@ -190,7 +190,7 @@ public class KeyFactoryTest extends TestCase {
             } finally {
                 checkException(message, null, exceptions[i]);
             }
-            
+
         }
     }
 
@@ -207,9 +207,9 @@ public class KeyFactoryTest extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         assertNotNull(factory);
-        
+
         try {
             TestPublicKey key = new TestPublicKey();
             TestPublicKeySpec keySpec = new TestPublicKeySpec(key);
@@ -219,24 +219,24 @@ public class KeyFactoryTest extends TestCase {
         } catch (InvalidKeySpecException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         KeySpec[] keySpecs = {
                 new TestPrivateKeySpec(new TestPrivateKey()),
                 null,
                 new DSAPublicKeySpec(null, null, null, null)
         };
-        
+
         Class[] exceptions = {
                 InvalidKeySpecException.class,
                 NullPointerException.class,
                 InvalidKeySpecException.class
         };
-        
+
         for (int i = 0; i < keySpecs.length; i++) {
             KeySpec keySpec = keySpecs[i];
             String message = "generatePublic(" +
                 (keySpec == null ? "null" : keySpec.toString()) + ")";
-            
+
             try {
                 PublicKey generatePublic = factory.generatePublic(keySpec);
                 assertNotNull(generatePublic);
@@ -261,9 +261,9 @@ public class KeyFactoryTest extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         assertNotNull(factory);
-        
+
         try {
             TestPrivateKey key = new TestPrivateKey();
             TestPrivateKeySpec keySpec = new TestPrivateKeySpec(key);
@@ -273,19 +273,19 @@ public class KeyFactoryTest extends TestCase {
         } catch (InvalidKeySpecException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         KeySpec[] keySpecs = {
                 new TestPublicKeySpec(new TestPublicKey()),
                 null,
                 new DSAPublicKeySpec(null, null, null, null)
         };
-        
+
         Class[] exceptions = {
                 InvalidKeySpecException.class,
                 NullPointerException.class,
                 InvalidKeySpecException.class
         };
-        
+
         for (int i = 0; i < keySpecs.length; i++) {
             KeySpec keySpec = keySpecs[i];
             exceptionThrown = false;
@@ -314,9 +314,9 @@ public class KeyFactoryTest extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         assertNotNull(factory);
-        
+
         {
             Key[] keys = {
                     new TestPrivateKey(),
@@ -324,14 +324,14 @@ public class KeyFactoryTest extends TestCase {
                     new TestPrivateKey(new byte[] { 42, 41, 40 }),
                     new TestPublicKey(new byte[] { 40, 41, 42 })
             };
-            
+
             Class[] keySpecs = {
                     TestPrivateKeySpec.class,
                     TestPublicKeySpec.class,
                     TestPrivateKeySpec.class,
                     TestPublicKeySpec.class,
             };
-            
+
             for (int i = 0; i < keys.length; i++) {
                 Key key = keys[i];
                 Class keySpec = keySpecs[i];
@@ -345,7 +345,7 @@ public class KeyFactoryTest extends TestCase {
                 }
             }
         }
-        
+
         {
             Key[] keys = {
                     new AnotherKey(),
@@ -353,21 +353,21 @@ public class KeyFactoryTest extends TestCase {
                     new TestPrivateKey(),
                     null,
             };
-            
+
             Class[] keySpecs = {
                     KeySpec.class,
                     TestPrivateKeySpec.class,
                     null,
                     null,
             };
-            
+
             Class[] exceptions = {
                     InvalidKeySpecException.class,
                     NullPointerException.class,
                     InvalidKeySpecException.class,
                     NullPointerException.class
             };
-            
+
             for (int i = 0; i < keys.length; i++) {
                 Key key = keys[i];
                 Class keySpec = keySpecs[i];
@@ -383,7 +383,7 @@ public class KeyFactoryTest extends TestCase {
                 } finally {
                     checkException(message, null, exceptions[i]);
                 }
-                
+
             }
         }
     }
@@ -401,20 +401,20 @@ public class KeyFactoryTest extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         assertNotNull(factory);
-        
+
         {
             Key[] keys = {
                     new TestPrivateKey(),
                     new TestPublicKey()
             };
-            
+
             Class[] translated = {
                     TestPublicKey.class,
                     TestPrivateKey.class
             };
-            
+
             for (int i = 0; i < keys.length; i++) {
                 Key key = keys[i];
                 Class translate = translated[i];
@@ -427,18 +427,18 @@ public class KeyFactoryTest extends TestCase {
                 }
             }
         }
-        
+
         {
             Key[] keys = {
                     new AnotherKey(),
                     null
             };
-            
+
             Class[] exceptions = {
                     InvalidKeyException.class,
                     NullPointerException.class
             };
-            
+
             for (int i = 0; i < keys.length; i++) {
                 Key key = keys[i];
                 String message = "translateKey(" +
@@ -457,7 +457,7 @@ public class KeyFactoryTest extends TestCase {
 
     private static final String TEST_PROVIDER_NAME = "TestKeyFactoryProvider";
     private static final String TEST_KEYFACTORY_NAME = "TestKeyFactory";
-    
+
     static class TestKeyFactoryProvider extends Provider {
 
         protected TestKeyFactoryProvider() {
@@ -490,11 +490,11 @@ public class KeyFactoryTest extends TestCase {
         @Override
         protected <T extends KeySpec> T engineGetKeySpec(Key key,
                 Class<T> keySpec) throws InvalidKeySpecException {
-            
+
             if (key == null) {
                 throw new NullPointerException();
             }
-            
+
             Constructor<T> constructor = null;
             if (TestPrivateKeySpec.class == keySpec) {
                 try {
@@ -564,15 +564,15 @@ public class KeyFactoryTest extends TestCase {
     static class TestPrivateKey implements PrivateKey {
 
         private final byte[] encoded;
-        
+
         public TestPrivateKey() {
-            encoded = new byte[] {3, 4, 5}; 
+            encoded = new byte[] {3, 4, 5};
         }
-        
+
         public TestPrivateKey(byte[] encoded) {
-            this.encoded = encoded; 
+            this.encoded = encoded;
         }
-        
+
         public String getAlgorithm() {
             return "TestPrivateKey";
         }
@@ -593,7 +593,7 @@ public class KeyFactoryTest extends TestCase {
         public TestPublicKey() {
             encoded = new byte[] {3, 4, 5};
         }
-        
+
         public TestPublicKey(byte[] encoded) {
             this.encoded = encoded;
         }
@@ -610,7 +610,7 @@ public class KeyFactoryTest extends TestCase {
             return "TestFormat";
         }
     }
-    
+
     static class AnotherKey implements Key {
 
         public String getAlgorithm() {
@@ -624,7 +624,7 @@ public class KeyFactoryTest extends TestCase {
         public String getFormat() {
             return "AnotherFormat";
         }
-        
+
     }
 
     private void checkException(String message, Exception thrown, Class<? extends Exception> expected) {

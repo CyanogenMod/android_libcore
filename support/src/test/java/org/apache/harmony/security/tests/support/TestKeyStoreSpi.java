@@ -27,7 +27,7 @@ import javax.crypto.SecretKey;
 public class TestKeyStoreSpi extends KeyStoreSpi {
 
     Map<String, Object> aliases = new HashMap<String, Object>();
-    
+
     public static final Certificate CERT = new MyCertificate("certtype",
             new byte[] {});
     public static final Certificate[] CERTCHAIN = new Certificate[] {
@@ -49,9 +49,9 @@ public class TestKeyStoreSpi extends KeyStoreSpi {
         }
 
     };
-    
-    public static final Object DUMMY = new Object(); 
-    
+
+    public static final Object DUMMY = new Object();
+
     public TestKeyStoreSpi() {
         aliases.put("certalias", CERT);
         aliases.put("chainalias", CERTCHAIN);
@@ -84,13 +84,13 @@ public class TestKeyStoreSpi extends KeyStoreSpi {
         if (cert == null) {
             throw new NullPointerException();
         }
-        
+
         for (Map.Entry<String, Object> alias : aliases.entrySet()) {
             if (alias.getValue() == cert) {
                 return alias.getKey();
             }
         }
-        
+
         return null;
     }
 
@@ -114,11 +114,11 @@ public class TestKeyStoreSpi extends KeyStoreSpi {
                 } else {
                     throw new UnrecoverableKeyException();
                 }
-                
+
             }
             return (Key) aliases.get(alias);
         }
-        
+
         throw new UnrecoverableKeyException();
     }
 
@@ -157,7 +157,7 @@ public class TestKeyStoreSpi extends KeyStoreSpi {
             throw new CertificateException();
         }
     }
-    
+
     @Override
     public void engineLoad(LoadStoreParameter param) throws IOException,
             NoSuchAlgorithmException, CertificateException {
@@ -201,14 +201,14 @@ public class TestKeyStoreSpi extends KeyStoreSpi {
                 throw new KeyStoreException("alias is not a key enrty");
             }
         }
-        
+
         if (key instanceof PrivateKey)
         {
             if (chain == null || chain.length == 0) {
                 throw new IllegalArgumentException();
             }
         }
-        
+
         aliases.put(alias, key);
     }
 
@@ -229,21 +229,21 @@ public class TestKeyStoreSpi extends KeyStoreSpi {
         if (stream == null) {
             throw new IOException("store failed");
         }
-        
+
         if (password == null) {
             throw new NoSuchAlgorithmException();
-        } else if (password.length == 0) { 
+        } else if (password.length == 0) {
             throw new CertificateException();
         }
     }
-    
+
     @Override
     public void engineStore(LoadStoreParameter param) throws IOException,
             NoSuchAlgorithmException, CertificateException {
         if (param == null) {
             throw new IOException();
         }
-        
+
         ProtectionParameter pParam = param.getProtectionParameter();
         if (pParam instanceof PasswordProtection) {
             char[] password = ((PasswordProtection) pParam).getPassword();

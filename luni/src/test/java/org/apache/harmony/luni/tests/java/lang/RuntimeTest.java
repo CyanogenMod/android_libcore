@@ -36,7 +36,7 @@ import java.util.Vector;
 import tests.support.resource.Support_Resources;
 import tests.util.TestEnvironment;
 
-@TestTargetClass(Runtime.class) 
+@TestTargetClass(Runtime.class)
 public class RuntimeTest extends junit.framework.TestCase {
 
     Runtime r = Runtime.getRuntime();
@@ -48,7 +48,7 @@ public class RuntimeTest extends junit.framework.TestCase {
     static boolean flag = false;
 
     static boolean ranFinalize = false;
-    
+
     int statusCode = -1;
 
     class HasFinalizer {
@@ -111,11 +111,11 @@ public class RuntimeTest extends junit.framework.TestCase {
         // we are just doing some basic sanity
         // checks here.
         assertTrue("must have some free memory",
-                r.freeMemory() > 0); 
+                r.freeMemory() > 0);
 
         assertTrue("must not exceed total memory",
-                r.freeMemory() < r.totalMemory()); 
-        
+                r.freeMemory() < r.totalMemory());
+
         long before = r.totalMemory() - r.freeMemory();
         Vector<byte[]> v = new Vector<byte[]>();
         for (int i = 1; i < 10; i++) {
@@ -123,8 +123,8 @@ public class RuntimeTest extends junit.framework.TestCase {
         }
         long after =  r.totalMemory() - r.freeMemory();
 
-        assertTrue("free memory must change with allocations", 
-                after != before);            
+        assertTrue("free memory must change with allocations",
+                after != before);
     }
 
     /**
@@ -227,9 +227,9 @@ public class RuntimeTest extends junit.framework.TestCase {
                 } catch(IllegalStateException ise) {
                     //expected
                 }
-            }  
+            }
         };
-        
+
         try {
             Runtime.getRuntime().addShutdownHook(thrException);
         } catch (Throwable t) {
@@ -238,11 +238,11 @@ public class RuntimeTest extends junit.framework.TestCase {
 
         try {
             Runtime.getRuntime().addShutdownHook(thrException);
-            fail("IllegalArgumentException was not thrown.");            
+            fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException  iae) {
             // expected
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
@@ -255,7 +255,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         // remove previously added hook so we're not depending on the priority
         // of the Exceptions to be thrown.
         Runtime.getRuntime().removeShutdownHook(thrException);
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -266,13 +266,13 @@ public class RuntimeTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
- 
+
         try {
             Thread.currentThread().sleep(1000);
         } catch (InterruptedException ie) {
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -290,12 +290,12 @@ public class RuntimeTest extends junit.framework.TestCase {
         args = {java.lang.String.class, java.lang.String[].class}
     )
     public void test_execLjava_lang_StringLjava_lang_StringArray() {
-        
+
         String [] envp =  getEnv();
 
         checkExec(0, envp, null);
         checkExec(0, null, null);
-      
+
         try {
             Runtime.getRuntime().exec((String)null, null);
             fail("NullPointerException should be thrown.");
@@ -304,7 +304,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
@@ -312,15 +312,15 @@ public class RuntimeTest extends junit.framework.TestCase {
                     throw new SecurityException();
                 }
             }
-           
+
             public void checkExec(String cmd) {
                 throw new SecurityException();
             }
         };
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
-        
+
         try {
             Runtime.getRuntime().exec("ls", envp);
             fail("SecurityException should be thrown.");
@@ -330,18 +330,18 @@ public class RuntimeTest extends junit.framework.TestCase {
             fail("IOException was thrown.");
         } finally {
             System.setSecurityManager(oldSm);
-        }  
-        
+        }
+
         try {
             Runtime.getRuntime().exec("", envp);
-            fail("IllegalArgumentException should be thrown.");            
+            fail("IllegalArgumentException should be thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         } catch (IOException e) {
             fail("IOException was thrown.");
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -353,7 +353,7 @@ public class RuntimeTest extends junit.framework.TestCase {
 
         checkExec(4, envp, null);
         checkExec(4, null, null);
-      
+
         try {
             Runtime.getRuntime().exec((String[])null, null);
             fail("NullPointerException should be thrown.");
@@ -362,7 +362,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         try {
             Runtime.getRuntime().exec(new String[]{"ls", null}, null);
             fail("NullPointerException should be thrown.");
@@ -371,7 +371,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
@@ -379,15 +379,15 @@ public class RuntimeTest extends junit.framework.TestCase {
                     throw new SecurityException();
                 }
             }
-           
+
             public void checkExec(String cmd) {
                 throw new SecurityException();
             }
         };
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
-        
+
         try {
             Runtime.getRuntime().exec(new String[]{"ls"}, envp);
             fail("SecurityException should be thrown.");
@@ -397,16 +397,16 @@ public class RuntimeTest extends junit.framework.TestCase {
             fail("IOException was thrown.");
         } finally {
             System.setSecurityManager(oldSm);
-        }  
-        
+        }
+
         try {
             Runtime.getRuntime().exec(new String[]{}, envp);
-            fail("IndexOutOfBoundsException should be thrown.");            
+            fail("IndexOutOfBoundsException should be thrown.");
         } catch(IndexOutOfBoundsException ioob) {
             //expected
         } catch (IOException e) {
             fail("IOException was thrown.");
-        } 
+        }
 
         try {
             Runtime.getRuntime().exec(new String[]{""}, envp);
@@ -421,14 +421,14 @@ public class RuntimeTest extends junit.framework.TestCase {
         args = {java.lang.String.class, java.lang.String[].class, java.io.File.class}
     )
     public void test_execLjava_lang_StringLjava_lang_StringArrayLjava_io_File() {
-        
+
         String [] envp =  getEnv();
-        
+
         File workFolder = Support_Resources.createTempFolder();
-        
+
         checkExec(2, envp, workFolder);
         checkExec(2, null, null);
-      
+
         try {
             Runtime.getRuntime().exec((String)null, null, workFolder);
             fail("NullPointerException should be thrown.");
@@ -437,7 +437,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
@@ -445,15 +445,15 @@ public class RuntimeTest extends junit.framework.TestCase {
                     throw new SecurityException();
                 }
             }
-           
+
             public void checkExec(String cmd) {
                 throw new SecurityException();
             }
         };
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
-        
+
         try {
             Runtime.getRuntime().exec("ls",  envp, workFolder);
             fail("SecurityException should be thrown.");
@@ -463,18 +463,18 @@ public class RuntimeTest extends junit.framework.TestCase {
             fail("IOException was thrown.");
         } finally {
             System.setSecurityManager(oldSm);
-        }  
-        
+        }
+
         try {
             Runtime.getRuntime().exec("",  envp, workFolder);
-            fail("SecurityException should be thrown.");            
+            fail("SecurityException should be thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         } catch (IOException e) {
             fail("IOException was thrown.");
-        }        
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -483,12 +483,12 @@ public class RuntimeTest extends junit.framework.TestCase {
     )
     public void test_execLjava_lang_StringArrayLjava_lang_StringArrayLjava_io_File() {
         String [] envp =  getEnv();
-        
+
         File workFolder = Support_Resources.createTempFolder();
-        
+
         checkExec(5, envp, workFolder);
         checkExec(5, null, null);
-      
+
         try {
             Runtime.getRuntime().exec((String[])null, null, workFolder);
             fail("NullPointerException should be thrown.");
@@ -497,7 +497,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         try {
             Runtime.getRuntime().exec(new String[]{"ls", null}, null, workFolder);
             fail("NullPointerException should be thrown.");
@@ -506,7 +506,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
@@ -514,15 +514,15 @@ public class RuntimeTest extends junit.framework.TestCase {
                     throw new SecurityException();
                 }
             }
-           
+
             public void checkExec(String cmd) {
                 throw new SecurityException();
             }
         };
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
-        
+
         try {
             Runtime.getRuntime().exec(new String[] {"ls"},  envp, workFolder);
             fail("SecurityException should be thrown.");
@@ -532,8 +532,8 @@ public class RuntimeTest extends junit.framework.TestCase {
             fail("IOException was thrown.");
         } finally {
             System.setSecurityManager(oldSm);
-        }  
-        
+        }
+
         try {
             Runtime.getRuntime().exec(new String[]{""}, envp, workFolder);
             fail("IOException should be thrown.");
@@ -541,47 +541,47 @@ public class RuntimeTest extends junit.framework.TestCase {
             //expected
         }
     }
-  
+
     String [] getEnv() {
         Object [] valueSet = System.getenv().values().toArray();
-        Object [] keySet = System.getenv().keySet().toArray();  
+        Object [] keySet = System.getenv().keySet().toArray();
         String [] envp = new String[valueSet.length];
         for(int i = 0; i < envp.length; i++) {
             envp[i] = keySet[i] + "=" + valueSet[i];
         }
         return envp;
     }
-    
+
     void checkExec(int testCase, String [] envp, File file) {
         String dirName = "Test_Directory";
         String dirParentName = "Parent_Directory";
         File resources = Support_Resources.createTempFolder();
         String folder = resources.getAbsolutePath() + "/" + dirName;
-        String folderWithParent = resources.getAbsolutePath() + "/"  + 
+        String folderWithParent = resources.getAbsolutePath() + "/"  +
                                     dirParentName + "/" + dirName;
         String command = "mkdir " + folder;
-        String [] commandArguments = {"mkdir", folder};        
+        String [] commandArguments = {"mkdir", folder};
         try {
             Process proc = null;
             switch(testCase) {
-                case 0: 
+                case 0:
                     proc = Runtime.getRuntime().exec(command, envp);
                     break;
-                case 1: 
+                case 1:
                     proc = Runtime.getRuntime().exec(command);
                     break;
-                case 2: 
+                case 2:
                     proc = Runtime.getRuntime().exec(command, envp, file);
-                    break; 
+                    break;
                 case 3:
                     proc = Runtime.getRuntime().exec(commandArguments);
                     break;
                 case 4:
                     proc = Runtime.getRuntime().exec(commandArguments, envp);
-                    break;  
+                    break;
                 case 5:
                     proc = Runtime.getRuntime().exec(commandArguments, envp, file);
-                    break; 
+                    break;
             }
             assertNotNull(proc);
             try {
@@ -596,9 +596,9 @@ public class RuntimeTest extends junit.framework.TestCase {
             }
         } catch(IOException io) {
             fail("IOException was thrown.");
-        }  
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -606,8 +606,8 @@ public class RuntimeTest extends junit.framework.TestCase {
         args = {java.lang.String.class}
     )
     public void test_execLjava_lang_String() {
-        checkExec(1, null, null);        
-        
+        checkExec(1, null, null);
+
         try {
             Runtime.getRuntime().exec((String) null);
             fail("NullPointerException was not thrown.");
@@ -616,7 +616,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("IOException was thrown.");
         }
-        
+
         try {
             Runtime.getRuntime().exec("");
             fail("IllegalArgumentException was not thrown.");
@@ -624,13 +624,13 @@ public class RuntimeTest extends junit.framework.TestCase {
             //expected
         } catch (IOException e) {
             fail("IOException was thrown.");
-        }  
-        
+        }
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkExec(String cmd) {
                 throw new SecurityException();
             }
@@ -647,9 +647,9 @@ public class RuntimeTest extends junit.framework.TestCase {
             fail("IOException was thrown.");
         } finally {
             System.setSecurityManager(oldSm);
-        }   
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -657,9 +657,9 @@ public class RuntimeTest extends junit.framework.TestCase {
         args = {java.lang.String[].class}
     )
     public void test_execLjava_lang_StringArray() {
-        
-        checkExec(3, null, null);        
-        
+
+        checkExec(3, null, null);
+
         try {
             Runtime.getRuntime().exec((String[]) null);
             fail("NullPointerException was not thrown.");
@@ -668,7 +668,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("IOException was thrown.");
         }
-        
+
         try {
             Runtime.getRuntime().exec(new String[]{"ls", null});
             fail("NullPointerException was not thrown.");
@@ -676,8 +676,8 @@ public class RuntimeTest extends junit.framework.TestCase {
             //expected
         } catch (IOException e) {
             fail("IOException was thrown.");
-        }        
-        
+        }
+
         try {
             Runtime.getRuntime().exec(new String[]{});
             fail("IndexOutOfBoundsException was not thrown.");
@@ -685,13 +685,13 @@ public class RuntimeTest extends junit.framework.TestCase {
             //expected
         } catch (IOException e) {
             fail("IOException was thrown.");
-        }  
-        
+        }
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkExec(String cmd) {
                 throw new SecurityException();
             }
@@ -708,16 +708,16 @@ public class RuntimeTest extends junit.framework.TestCase {
             fail("IOException was thrown.");
         } finally {
             System.setSecurityManager(oldSm);
-        }          
-        
+        }
+
         try {
             Runtime.getRuntime().exec(new String[]{""});
             fail("IOException should be thrown.");
         } catch (IOException e) {
             //expected
         }
-    }   
-    
+    }
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -726,12 +726,12 @@ public class RuntimeTest extends junit.framework.TestCase {
     )
     public void test_runFinalizersOnExit() {
         Runtime.getRuntime().runFinalizersOnExit(true);
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkExit(int status) {
                 throw new SecurityException();
             }
@@ -746,9 +746,9 @@ public class RuntimeTest extends junit.framework.TestCase {
             // expected
         } finally {
             System.setSecurityManager(oldSm);
-        }        
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -763,25 +763,25 @@ public class RuntimeTest extends junit.framework.TestCase {
                 } catch(IllegalStateException ise) {
                     fail("IllegalStateException shouldn't be thrown.");
                 }
-            }  
+            }
         };
-        
+
         try {
             Runtime.getRuntime().addShutdownHook(thr1);
             Runtime.getRuntime().removeShutdownHook(thr1);
         } catch (Throwable t) {
             fail(t.getMessage());
         }
-        
+
         Thread thr2 = new Thread () {
             public void run() {
                 try {
                     Runtime.getRuntime().removeShutdownHook(this);
-                    fail("IllegalStateException wasn't thrown.");                    
+                    fail("IllegalStateException wasn't thrown.");
                 } catch(IllegalStateException ise) {
                     //expected
                 }
-            }  
+            }
         };
 
         try {
@@ -809,13 +809,13 @@ public class RuntimeTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
- 
+
         try {
             Thread.currentThread().sleep(1000);
         } catch (InterruptedException ie) {
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -825,7 +825,7 @@ public class RuntimeTest extends junit.framework.TestCase {
     public void test_maxMemory() {
         assertTrue(Runtime.getRuntime().maxMemory() < Long.MAX_VALUE);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -837,7 +837,7 @@ public class RuntimeTest extends junit.framework.TestCase {
         Runtime.getRuntime().traceInstructions(true);
         Runtime.getRuntime().traceInstructions(false);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -859,7 +859,7 @@ public class RuntimeTest extends junit.framework.TestCase {
             }
         }
     }
-    
+
     @SuppressWarnings("deprecation")
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -876,15 +876,15 @@ public class RuntimeTest extends junit.framework.TestCase {
 
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(
-                    simpleString.getBytes("UTF-8")); 
-        
-            InputStream lcIn = 
+                    simpleString.getBytes("UTF-8"));
+
+            InputStream lcIn =
                     Runtime.getRuntime().getLocalizedInputStream(bais);
             try {
                 lcIn.read(returned);
             } catch(IOException ioe) {
                 fail("IOException was thrown.");
-            }  
+            }
 
             assertTrue("wrong result for String: " + simpleString,
                     Arrays.equals(expected, returned));
@@ -892,7 +892,7 @@ public class RuntimeTest extends junit.framework.TestCase {
             fail("UnsupportedEncodingException was thrown.");
         }
     }
- 
+
     @SuppressWarnings("deprecation")
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -909,9 +909,9 @@ public class RuntimeTest extends junit.framework.TestCase {
         System.setProperty("file.encoding", "UTF-16LE");
 
         try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream(); 
-        
-            OutputStream lcOut = 
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            OutputStream lcOut =
                     Runtime.getRuntime().getLocalizedOutputStream(out);
             try {
                 lcOut.write(simpleString.getBytes("UTF-8"));
@@ -923,15 +923,15 @@ public class RuntimeTest extends junit.framework.TestCase {
 
             returned = out.toByteArray();
 
-            assertTrue("wrong result for String: " + returned.toString() + 
+            assertTrue("wrong result for String: " + returned.toString() +
                     " expected string: " + expected.toString(),
-                    Arrays.equals(expected, returned));  
+                    Arrays.equals(expected, returned));
         } finally {
             System.setProperty("file.encoding", oldEncoding);
         }
-    }   
-    
-    
+    }
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -939,27 +939,27 @@ public class RuntimeTest extends junit.framework.TestCase {
         args = {java.lang.String.class}
     )
     public void test_load() {
-       
+
         try {
             Runtime.getRuntime().load("nonExistentLibrary");
             fail("UnsatisfiedLinkError was not thrown.");
         } catch(UnsatisfiedLinkError ule) {
             //expected
         }
-        
+
         try {
             Runtime.getRuntime().load(null);
             fail("NullPointerException was not thrown.");
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
-                
+
             }
-            
+
             public void checkLink(String lib) {
                 if (lib.endsWith("libjvm.so")) {
                     throw new SecurityException();
@@ -976,9 +976,9 @@ public class RuntimeTest extends junit.framework.TestCase {
             // expected
         } finally {
             System.setSecurityManager(oldSm);
-        }        
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -992,20 +992,20 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch(UnsatisfiedLinkError ule) {
             //expected
         }
-        
+
         try {
             Runtime.getRuntime().loadLibrary(null);
             fail("NullPointerException was not thrown.");
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
-                
+
             }
-            
+
             public void checkLink(String lib) {
                 if (lib.endsWith("libjvm.so")) {
                     throw new SecurityException();
@@ -1022,24 +1022,24 @@ public class RuntimeTest extends junit.framework.TestCase {
             // expected
         } finally {
             System.setSecurityManager(oldSm);
-        }               
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "This method never returns normally, " +
                 "and can't be tested. Only SecurityException can be checked.",
         method = "exit",
         args = {int.class}
-    )    
+    )
     public void test_exit() {
-        statusCode = -1;        
+        statusCode = -1;
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
-                
+
             }
-            
+
             public void checkExit(int status) {
                 statusCode = status;
                 throw new SecurityException();
@@ -1054,11 +1054,11 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch (SecurityException e) {
             // expected
         } finally {
-            assertTrue("Incorrect status code was received: " + statusCode, 
-                    statusCode == 0);            
+            assertTrue("Incorrect status code was received: " + statusCode,
+                    statusCode == 0);
             System.setSecurityManager(oldSm);
-        }  
-        
+        }
+
     }
 
     @TestTargetNew(
@@ -1067,13 +1067,13 @@ public class RuntimeTest extends junit.framework.TestCase {
                 "running VM. Only SecurityException can be checked.",
         method = "halt",
         args = {int.class}
-    )         
+    )
     public void test_halt() {
         statusCode = -1;
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
-                
+
             }
 
             public void checkExit(int status) {
@@ -1090,12 +1090,12 @@ public class RuntimeTest extends junit.framework.TestCase {
         } catch (SecurityException e) {
             // expected
         } finally {
-            assertTrue("Incorrect status code was received: " + statusCode, 
+            assertTrue("Incorrect status code was received: " + statusCode,
                     statusCode == 0);
             System.setSecurityManager(oldSm);
-        }  
+        }
     }
-    
+
     public RuntimeTest() {
     }
 

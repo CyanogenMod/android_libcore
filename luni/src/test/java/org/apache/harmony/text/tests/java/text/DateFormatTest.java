@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-@TestTargetClass(DateFormat.class) 
+@TestTargetClass(DateFormat.class)
 public class DateFormatTest extends junit.framework.TestCase {
 
     private class MockDateFormat extends DateFormat {
@@ -782,29 +782,29 @@ public class DateFormatTest extends junit.framework.TestCase {
     )
     public void test_parseLString() {
         DateFormat format = DateFormat.getInstance();
-             
+
         try {
             format.parse("not a Date");
             fail("should throw ParseException first");
         } catch (ParseException pe) {
             assertNotNull(pe.getMessage());
         }
-        
+
         Date current = new Date();
-        
+
         try {
             Date date = format.parse(format.format(current).toString());
             assertEquals(current.getDate(), date.getDate());
             assertEquals(current.getDay(), date.getDay());
             assertEquals(current.getMonth(), date.getMonth());
             assertEquals(current.getYear(), date.getYear());
-            assertEquals(current.getHours(), date.getHours()); 
-            assertEquals(current.getMinutes(), date.getMinutes());     
-            assertEquals(0, date.getSeconds());   
+            assertEquals(current.getHours(), date.getHours());
+            assertEquals(current.getMinutes(), date.getMinutes());
+            assertEquals(0, date.getSeconds());
         } catch(ParseException pe) {
             fail("ParseException was thrown for current Date.");
         }
-        
+
         try {
             format.parse("27/08/1998");
             fail("ParseException was not thrown.");
@@ -823,7 +823,7 @@ public class DateFormatTest extends junit.framework.TestCase {
         } catch(ParseException pe) {
             //expected
         }
-        
+
         format = DateFormat.getDateInstance();
         try {
             Date date = format.parse(format.format(current).toString());
@@ -831,27 +831,27 @@ public class DateFormatTest extends junit.framework.TestCase {
             assertEquals(current.getDay(), date.getDay());
             assertEquals(current.getMonth(), date.getMonth());
             assertEquals(current.getYear(), date.getYear());
-            assertEquals(0, date.getHours()); 
-            assertEquals(0, date.getMinutes());  
-            assertEquals(0, date.getSeconds());            
+            assertEquals(0, date.getHours());
+            assertEquals(0, date.getMinutes());
+            assertEquals(0, date.getSeconds());
         } catch(ParseException pe) {
             fail("ParseException was thrown for current Date.");
         }
-        
+
         try {
             format.parse("Jan 16 1970");
             fail("ParseException was not thrown.");
         } catch(ParseException pe) {
             //expected
         }
-        
+
         try {
             format.parse("27/08/1998");
             fail("ParseException was not thrown.");
         } catch(ParseException pe) {
             //expected
         }
-        
+
         format = DateFormat.getDateInstance(DateFormat.LONG);
         try {
             Date date = format.parse(format.format(current).toString());
@@ -859,13 +859,13 @@ public class DateFormatTest extends junit.framework.TestCase {
             assertEquals(current.getDay(), date.getDay());
             assertEquals(current.getMonth(), date.getMonth());
             assertEquals(current.getYear(), date.getYear());
-            assertEquals(0, date.getHours()); 
+            assertEquals(0, date.getHours());
             assertEquals(0, date.getMinutes());
-            assertEquals(0, date.getSeconds());             
+            assertEquals(0, date.getSeconds());
         } catch(ParseException pe) {
             fail("ParseException was thrown for current Date.");
         }
-        
+
         format = DateFormat.getDateInstance(DateFormat.MEDIUM);
         try {
             Date date = format.parse(format.format(current).toString());
@@ -873,32 +873,32 @@ public class DateFormatTest extends junit.framework.TestCase {
             assertEquals(current.getDay(), date.getDay());
             assertEquals(current.getMonth(), date.getMonth());
             assertEquals(current.getYear(), date.getYear());
-            assertEquals(0, date.getHours()); 
+            assertEquals(0, date.getHours());
             assertEquals(0, date.getMinutes());
-            assertEquals(0, date.getSeconds());             
+            assertEquals(0, date.getSeconds());
         } catch(ParseException pe) {
             fail("ParseException was thrown for current Date.");
         }
-        
+
         format = DateFormat.getTimeInstance();
         try {
             Date date = format.parse(format.format(current).toString());
             assertEquals(1, date.getDate());
             assertEquals(0, date.getMonth());
             assertEquals(70, date.getYear());
-            assertEquals(current.getHours(), date.getHours()); 
-            assertEquals(current.getMinutes(), date.getMinutes());             
+            assertEquals(current.getHours(), date.getHours());
+            assertEquals(current.getMinutes(), date.getMinutes());
         } catch(ParseException pe) {
             fail("ParseException was thrown for current Date.");
         }
-        
+
         try {
             format.parse("8:58:44");
             fail("ParseException was not thrown.");
         } catch(ParseException pe) {
             //expected
         }
-        
+
         format = DateFormat.getDateTimeInstance();
         try {
             Date date = format.parse(format.format(current).toString());
@@ -906,26 +906,26 @@ public class DateFormatTest extends junit.framework.TestCase {
             assertEquals(current.getDay(), date.getDay());
             assertEquals(current.getMonth(), date.getMonth());
             assertEquals(current.getYear(), date.getYear());
-            assertEquals(current.getHours(), date.getHours()); 
-            assertEquals(current.getMinutes(), date.getMinutes());             
+            assertEquals(current.getHours(), date.getHours());
+            assertEquals(current.getMinutes(), date.getMinutes());
         } catch(ParseException pe) {
             fail("ParseException was thrown for current Date.");
         }
-        
+
         try {
             format.parse("January 31 1970 7:52:34 AM PST");
             fail("ParseException was not thrown.");
         } catch(ParseException pe) {
             //expected
         }
-        
+
         try {
             format.parse("January 31 1970");
             fail("ParseException was not thrown.");
         } catch(ParseException pe) {
             //expected
-        }        
-        
+        }
+
         format = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
         try {
             Date date = format.parse(format.format(current).toString());
@@ -933,18 +933,18 @@ public class DateFormatTest extends junit.framework.TestCase {
             assertEquals(current.getDay(), date.getDay());
             assertEquals(current.getMonth(), date.getMonth());
             assertEquals(current.getYear(), date.getYear());
-            assertEquals(current.getHours(), date.getHours()); 
-            assertEquals(current.getMinutes(), date.getMinutes());             
+            assertEquals(current.getHours(), date.getHours());
+            assertEquals(current.getMinutes(), date.getMinutes());
         } catch(ParseException pe) {
             fail("ParseException was thrown for current Date.");
         }
-        
+
         try {
-            format.parse("January 16, 1970 8:03:52 PM CET");  
+            format.parse("January 16, 1970 8:03:52 PM CET");
             fail("ParseException was not thrown.");
         } catch(ParseException pe) {
             //expected
-        }        
+        }
     }
 
     /**
@@ -968,14 +968,14 @@ public class DateFormatTest extends junit.framework.TestCase {
             ParsePosition pp = new ParsePosition(0);
             int parseIndex = pp.getIndex();
             Date result = (Date) df.parseObject(df.format(current), pp);
-            
+
             assertEquals("Dates are different.", current.getDate(), result.getDate());
             assertEquals("Days are different.", current.getDay(), result.getDay());
             assertEquals("Months are different.", current.getMonth(), result.getMonth());
             assertEquals("Years are different.", current.getYear(), result.getYear());
-            assertEquals("Hours are different", current.getHours(), result.getHours()); 
-            assertEquals("Minutes are diffetrent,", current.getMinutes(), result.getMinutes()); 
-            
+            assertEquals("Hours are different", current.getHours(), result.getHours());
+            assertEquals("Minutes are diffetrent,", current.getMinutes(), result.getMinutes());
+
             assertTrue("Parse operation return null", result != null);
             assertTrue("ParseIndex is incorrect", pp.getIndex() != parseIndex);
 
@@ -989,7 +989,7 @@ public class DateFormatTest extends junit.framework.TestCase {
             assertTrue("ParseIndex is incorrect", pp.getIndex() == 0);
             assertTrue("ParseErrorIndex is incorrect",
                     pp.getErrorIndex() == cur.length / 2);
-            
+
             pp.setIndex(2);
             char[] curDate = df.format(current).toCharArray();
             char [] newArray = new char[curDate.length + pp.getIndex()];
@@ -998,13 +998,13 @@ public class DateFormatTest extends junit.framework.TestCase {
             }
             result = (Date) df.parseObject(new String(newArray), pp);
             //assertEquals(current, result);
-            
+
             assertEquals("Dates are different.", current.getDate(), result.getDate());
             assertEquals("Days are different.", current.getDay(), result.getDay());
             assertEquals("Months are different.", current.getMonth(), result.getMonth());
             assertEquals("Years are different.", current.getYear(), result.getYear());
-            assertEquals("Hours are different", current.getHours(), result.getHours()); 
-            assertEquals("Minutes are diffetrent,", current.getMinutes(), result.getMinutes()); 
+            assertEquals("Hours are different", current.getHours(), result.getHours());
+            assertEquals("Minutes are diffetrent,", current.getMinutes(), result.getMinutes());
 
             // case 3: Try to use argument ParsePosition as null.
             try {
@@ -1013,9 +1013,9 @@ public class DateFormatTest extends junit.framework.TestCase {
             } catch (NullPointerException e) {
                 // expected
             }
-            
+
             assertNull(df.parseObject("test", pp));
-            
+
         } catch (Exception e) {
             fail("Unexpected exception " + e.toString());
         }

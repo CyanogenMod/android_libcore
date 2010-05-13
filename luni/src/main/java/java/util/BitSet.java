@@ -240,7 +240,7 @@ public class BitSet implements Serializable, Cloneable {
     public boolean get(int pos) {
         if (pos < 0) {
             // Negative index specified
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         int arrayPos = pos >> OFFSET;
@@ -267,7 +267,7 @@ public class BitSet implements Serializable, Cloneable {
      */
     public BitSet get(int pos1, int pos2) {
         if (pos1 < 0 || pos2 < 0 || pos2 < pos1) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         int last = actualArrayLength << OFFSET;
@@ -338,7 +338,7 @@ public class BitSet implements Serializable, Cloneable {
      */
     public void set(int pos) {
         if (pos < 0) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         int len = (pos >> OFFSET) + 1;
@@ -388,7 +388,7 @@ public class BitSet implements Serializable, Cloneable {
      */
     public void set(int pos1, int pos2) {
         if (pos1 < 0 || pos2 < 0 || pos2 < pos1) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         if (pos1 == pos2) {
@@ -477,7 +477,7 @@ public class BitSet implements Serializable, Cloneable {
     public void clear(int pos) {
         if (pos < 0) {
             // Negative index specified
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         if (!needClear) {
@@ -507,7 +507,7 @@ public class BitSet implements Serializable, Cloneable {
      */
     public void clear(int pos1, int pos2) {
         if (pos1 < 0 || pos2 < 0 || pos2 < pos1) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         if (!needClear) {
@@ -552,7 +552,7 @@ public class BitSet implements Serializable, Cloneable {
      */
     public void flip(int pos) {
         if (pos < 0) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         int len = (pos >> OFFSET) + 1;
@@ -582,7 +582,7 @@ public class BitSet implements Serializable, Cloneable {
      */
     public void flip(int pos1, int pos2) {
         if (pos1 < 0 || pos2 < 0 || pos2 < pos1) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         if (pos1 == pos2) {
@@ -830,7 +830,7 @@ public class BitSet implements Serializable, Cloneable {
             for (int j = 0; j < ELM_SIZE; j++) {
                 if (((bits[i] & (TWO_N_ARRAY[j])) != 0)) {
                     if (comma) {
-                        sb.append(", "); 
+                        sb.append(", ");
                     }
                     sb.append(bitCount);
                     comma = true;
@@ -851,7 +851,7 @@ public class BitSet implements Serializable, Cloneable {
      */
     public int nextSetBit(int pos) {
         if (pos < 0) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         if (pos >= actualArrayLength << OFFSET) {
@@ -897,7 +897,7 @@ public class BitSet implements Serializable, Cloneable {
      */
     public int nextClearBit(int pos) {
         if (pos < 0) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); 
+            throw new IndexOutOfBoundsException(Msg.getString("K0006"));
         }
 
         int length = actualArrayLength;

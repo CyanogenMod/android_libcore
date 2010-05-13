@@ -237,7 +237,7 @@ public class MessageDigest1Test extends TestCase {
             }
         };
         assertEquals("returned status", status, md.digest(bytes, offset, len));
-        
+
         try {
             MessageDigest digest = MessageDigest.getInstance("TestDigest", new TestProvider());
             digest.digest(new byte[5], 0, 5);
@@ -325,7 +325,7 @@ public class MessageDigest1Test extends TestCase {
         } catch (NoSuchAlgorithmException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         byte[] bytes = new byte[] { 1, 1, 1, 1, 1 };
 
         // Regression for HARMONY-1120
@@ -358,48 +358,48 @@ public class MessageDigest1Test extends TestCase {
         } catch (DigestException e) {
         }
 
-        
+
         try {
             md = MessageDigest.getInstance("UnknownDigest");
             fail("expected NoSuchAlgorithmException");
         } catch (NoSuchAlgorithmException e) {
             // ok
         }
-         
+
     }
-    
+
     class TestProvider extends Provider {
         public TestProvider() {
             super("TestProvider", 1.0, "info");
             put("MessageDigest.TestDigest", TestMessageDigestSpi.class.getName());
         }
     }
-    
+
     public static class TestMessageDigestSpi extends MessageDigestSpi {
 
         public TestMessageDigestSpi() {
         }
-        
+
         @Override
         protected byte[] engineDigest() {
-            return new byte[]{3,4,5,6,7,8,9,3,45,6,7,}; 
+            return new byte[]{3,4,5,6,7,8,9,3,45,6,7,};
         }
 
         @Override
         protected void engineReset() {
-            
+
         }
 
         @Override
         protected void engineUpdate(byte input) {
-            
+
         }
 
         @Override
         protected void engineUpdate(byte[] input, int offset, int len) {
-            
+
         }
-        
+
         @Override
         protected int engineGetDigestLength() {
             return 42;

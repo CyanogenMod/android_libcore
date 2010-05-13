@@ -45,8 +45,8 @@ package org.xml.sax;
  * @see org.xml.sax.HandlerBase
  */
 public interface DocumentHandler {
-    
-    
+
+
     /**
      * Receive an object for locating the origin of SAX document events.
      *
@@ -73,8 +73,8 @@ public interface DocumentHandler {
      * @see org.xml.sax.Locator
      */
     public abstract void setDocumentLocator (Locator locator);
-    
-    
+
+
     /**
      * Receive notification of the beginning of a document.
      *
@@ -87,8 +87,8 @@ public interface DocumentHandler {
      */
     public abstract void startDocument ()
     throws SAXException;
-    
-    
+
+
     /**
      * Receive notification of the end of a document.
      *
@@ -103,8 +103,8 @@ public interface DocumentHandler {
      */
     public abstract void endDocument ()
     throws SAXException;
-    
-    
+
+
     /**
      * Receive notification of the beginning of an element.
      *
@@ -125,12 +125,12 @@ public interface DocumentHandler {
      * @exception org.xml.sax.SAXException Any SAX exception, possibly
      *            wrapping another exception.
      * @see #endElement
-     * @see org.xml.sax.AttributeList 
+     * @see org.xml.sax.AttributeList
      */
     public abstract void startElement (String name, AttributeList atts)
     throws SAXException;
-    
-    
+
+
     /**
      * Receive notification of the end of an element.
      *
@@ -148,8 +148,8 @@ public interface DocumentHandler {
      */
     public abstract void endElement (String name)
     throws SAXException;
-    
-    
+
+
     /**
      * Receive notification of character data.
      *
@@ -172,13 +172,13 @@ public interface DocumentHandler {
      * @param length The number of characters to read from the array.
      * @exception org.xml.sax.SAXException Any SAX exception, possibly
      *            wrapping another exception.
-     * @see #ignorableWhitespace 
+     * @see #ignorableWhitespace
      * @see org.xml.sax.Locator
      */
     public abstract void characters (char ch[], int start, int length)
     throws SAXException;
-    
-    
+
+
     /**
      * Receive notification of ignorable whitespace in element content.
      *
@@ -205,8 +205,8 @@ public interface DocumentHandler {
      */
     public abstract void ignorableWhitespace (char ch[], int start, int length)
     throws SAXException;
-    
-    
+
+
     /**
      * Receive notification of a processing instruction.
      *
@@ -226,7 +226,7 @@ public interface DocumentHandler {
      */
     public abstract void processingInstruction (String target, String data)
     throws SAXException;
-    
+
 }
 
 // end of DocumentHandler.java

@@ -28,7 +28,7 @@ import java.lang.reflect.TypeVariable;
 /**
  * Tests bounded type parameters declared on methods.
  */
-@TestTargetClass(Method.class) 
+@TestTargetClass(Method.class)
 public class BoundedGenericMethodsTests extends GenericReflectionTestsBase {
     @SuppressWarnings("unchecked")
     static class BoundedGenericMethods<S> {
@@ -49,7 +49,7 @@ public class BoundedGenericMethodsTests extends GenericReflectionTestsBase {
     /**
      * Tests whether the type parameter is upper bounded by BoundedGenericMethods.
      * <T extends BoundedGenericMethods>.
-     * 
+     *
      * @param method
      *            the declaring method
      */
@@ -67,7 +67,7 @@ public class BoundedGenericMethodsTests extends GenericReflectionTestsBase {
     /**
      * Tests whether the specified method declares a parameter with the type of
      * the type parameter.
-     * 
+     *
      * @param method
      *            the declaring method
      */
@@ -102,7 +102,7 @@ public class BoundedGenericMethodsTests extends GenericReflectionTestsBase {
         assertEquals(BoundedGenericMethods.class, bound);
     }
 
-    
+
 
     /**
      * Tests that there are is one Type Parameter on the Class itself.

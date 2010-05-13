@@ -29,24 +29,24 @@ import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the GeneralSubtree structure which is a part of X.509 certificate:
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
- * 
+ *
  * <pre>
- * 
+ *
  *   GeneralSubtree ::= SEQUENCE {
  *        base                    GeneralName,
  *        minimum         [0]     BaseDistance DEFAULT 0,
  *        maximum         [1]     BaseDistance OPTIONAL }
- * 
+ *
  *   BaseDistance ::= INTEGER (0..MAX)
- *  
+ *
  * </pre>
- * 
+ *
  * @see org.apache.harmony.security.x509.NameConstraints
  * @see org.apache.harmony.security.x509.GeneralName
  */
@@ -68,7 +68,7 @@ public class GeneralSubtree {
     public GeneralSubtree(GeneralName base) {
         this(base, 0, -1);
     }
-    
+
     /**
      * TODO
      * @param   base:   GeneralName
@@ -77,7 +77,7 @@ public class GeneralSubtree {
     public GeneralSubtree(GeneralName base, int minimum) {
         this(base, minimum, -1);
     }
-    
+
     /**
      * TODO
      * @param   base:   GeneralName
@@ -89,7 +89,7 @@ public class GeneralSubtree {
         this.minimum = minimum;
         this.maximum = maximum;
     }
-    
+
     /**
      * Returns the value of base field of the structure.
      * @return  base
@@ -130,15 +130,15 @@ public class GeneralSubtree {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("General Subtree: [\n"); 
-        buffer.append(prefix).append("  base: ").append(base).append('\n'); 
-        buffer.append(prefix).append("  minimum: ") 
+        buffer.append(prefix).append("General Subtree: [\n");
+        buffer.append(prefix).append("  base: ").append(base).append('\n');
+        buffer.append(prefix).append("  minimum: ")
             .append(minimum).append('\n');
         if (maximum >= 0) {
-            buffer.append(prefix).append("  maximum: ") 
+            buffer.append(prefix).append("  maximum: ")
                 .append(maximum).append('\n');
         }
-        buffer.append(prefix).append("]\n"); 
+        buffer.append(prefix).append("]\n");
     }
 
     /**
@@ -146,7 +146,7 @@ public class GeneralSubtree {
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
             GeneralName.ASN1,
-            new ASN1Implicit(0, ASN1Integer.getInstance()), 
+            new ASN1Implicit(0, ASN1Integer.getInstance()),
             new ASN1Implicit(1, ASN1Integer.getInstance()) }) {
         {
             setDefault(new byte[] {0}, 1);  // minimum 0

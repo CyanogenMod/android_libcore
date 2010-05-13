@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,14 +36,14 @@ import org.apache.harmony.security.tests.support.acl.*;
 
 @TestTargetClass(Acl.class)
 public class IAclTest extends TestCase {
-    
+
     class MyAcl extends AclImpl {
         public MyAcl(Principal principal, String str) {
             super(principal, str);
         }
     }
 
-    
+
     /**
      * @tests java.security.acl.Acl#addEntry(Principal caller, AclEntry entry)
      * @tests java.security.acl.Acl#removeEntry(Principal caller, AclEntry entry)
@@ -75,14 +75,14 @@ public class IAclTest extends TestCase {
         } catch (Exception ex) {
             fail("Unexpected exception " + ex);
         }
-        
+
         try {
             acl.addEntry(new PrincipalImpl("NewPrincipal"), ae);
             fail("NotOwnerException was not thrown");
         } catch (NotOwnerException noe) {
             //expected
         }
-        
+
         try {
             acl.removeEntry(new PrincipalImpl("NewPrincipal"), ae);
             fail("NotOwnerException was not thrown");
@@ -90,7 +90,7 @@ public class IAclTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests java.security.acl.Acl#setName(Principal caller, String name)
      * @tests java.security.acl.Acl#getName()
@@ -121,7 +121,7 @@ public class IAclTest extends TestCase {
         } catch (Exception ex) {
             fail("Unexpected exception " + ex);
         }
-        
+
         try {
             acl.setName(new PrincipalImpl("NewPrincipal"), str);
             fail("NotOwnerException was not thrown");
@@ -129,7 +129,7 @@ public class IAclTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests java.security.acl.Acl#toString()
      */
@@ -154,7 +154,7 @@ public class IAclTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests java.security.acl.Acl#entries()
      */
@@ -182,7 +182,7 @@ public class IAclTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
      * @tests java.security.acl.Acl#checkPermission(Principal principal, Permission permission)
      * @tests java.security.acl.Acl#getPermissions(Principal principal)
@@ -210,11 +210,11 @@ public class IAclTest extends TestCase {
         try {
             ae.addPermission(perm);
             acl.addEntry(pr, ae);
-            
+
             //checkPermission verification
             assertTrue("Incorrect permission", acl.checkPermission(pr, perm));
             assertFalse(acl.checkPermission(pr, new PermissionImpl("Permission_2")));
-            
+
             //getPermissions
             Enumeration en = acl.getPermissions(pr);
             Vector v = new Vector();

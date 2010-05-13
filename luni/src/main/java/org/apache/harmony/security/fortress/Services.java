@@ -39,7 +39,7 @@ import org.apache.harmony.security.Util;
 /**
  * This class contains information about all registered providers and preferred
  * implementations for all "serviceName.algName".
- * 
+ *
  */
 
 public class Services {
@@ -82,7 +82,7 @@ public class Services {
         ClassLoader cl = ClassLoader.getSystemClassLoader();
         Provider p;
 
-        while ((providerClassName = Security.getProperty("security.provider." 
+        while ((providerClassName = Security.getProperty("security.provider."
                 + i++)) != null) {
             try {
                 p = (Provider) Class
@@ -101,7 +101,7 @@ public class Services {
 
     /**
      * Returns registered providers
-     * 
+     *
      * @return
      */
     public static Provider[] getProviders() {
@@ -110,7 +110,7 @@ public class Services {
 
     /**
      * Returns registered providers as List
-     * 
+     *
      * @return
      */
     public static List<Provider> getProvidersList() {
@@ -119,7 +119,7 @@ public class Services {
 
     /**
      * Returns the provider with the specified name
-     * 
+     *
      * @param name
      * @return
      */
@@ -132,7 +132,7 @@ public class Services {
 
     /**
      * Inserts a provider at a specified position
-     * 
+     *
      * @param provider
      * @param position
      * @return
@@ -150,7 +150,7 @@ public class Services {
 
     /**
      * Removes the provider
-     * 
+     *
      * @param providerNumber
      */
     public static void removeProvider(int providerNumber) {
@@ -160,9 +160,9 @@ public class Services {
     }
 
     /**
-     * 
+     *
      * Adds information about provider services into HashMap.
-     * 
+     *
      * @param p
      */
     public static void initServiceInfo(Provider p) {
@@ -176,7 +176,7 @@ public class Services {
             serv = it1.next();
             type = serv.getType();
             sb.delete(0, sb.length());
-            key = sb.append(type).append(".").append( 
+            key = sb.append(type).append(".").append(
                     Util.toUpperCase(serv.getAlgorithm())).toString();
             if (!services.containsKey(key)) {
                 services.put(key, serv);
@@ -184,7 +184,7 @@ public class Services {
             for (Iterator<String> it2 = Engine.door.getAliases(serv); it2.hasNext();) {
                 alias = it2.next();
                 sb.delete(0, sb.length());
-                key = sb.append(type).append(".").append(Util.toUpperCase(alias)) 
+                key = sb.append(type).append(".").append(Util.toUpperCase(alias))
                         .toString();
                 if (!services.containsKey(key)) {
                     services.put(key, serv);
@@ -194,9 +194,9 @@ public class Services {
     }
 
     /**
-     * 
+     *
      * Updates services hashtable for all registered providers
-     *  
+     *
      */
     public static void updateServiceInfo() {
         services.clear();
@@ -207,18 +207,18 @@ public class Services {
     }
 
     /**
-     * Returns true if services contain any provider information  
+     * Returns true if services contain any provider information
      * @return
      */
     public static boolean isEmpty() {
         return services.isEmpty();
     }
-    
+
     /**
-     * 
+     *
      * Returns service description.
      * Call refresh() before.
-     * 
+     *
      * @param key
      * @return
      */
@@ -227,7 +227,7 @@ public class Services {
     }
 
     /**
-     * Prints Services content  
+     * Prints Services content
      */
     // FIXME remove debug function
     public static void printServices() {
@@ -235,12 +235,12 @@ public class Services {
         Set<String> s = services.keySet();
         for (Iterator<String> i = s.iterator(); i.hasNext();) {
             String key = i.next();
-            System.out.println(key + "=" + services.get(key)); 
+            System.out.println(key + "=" + services.get(key));
         }
     }
 
     /**
-     * Set flag needRefresh 
+     * Set flag needRefresh
      *
      */
     public static void setNeedRefresh() {

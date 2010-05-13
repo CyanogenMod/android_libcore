@@ -29,7 +29,7 @@ final class BufferFactory {
 
     /**
      * Returns a new byte buffer based on the specified byte array.
-     * 
+     *
      * @param array
      *            The byte array
      * @return A new byte buffer based on the specified byte array.
@@ -40,7 +40,7 @@ final class BufferFactory {
 
     /**
      * Returns a new array based byte buffer with the specified capacity.
-     * 
+     *
      * @param capacity
      *            The capacity of the new buffer
      * @return A new array based byte buffer with the specified capacity.
@@ -51,7 +51,7 @@ final class BufferFactory {
 
     /**
      * Returns a new char buffer based on the specified char array.
-     * 
+     *
      * @param array
      *            The char array
      * @return A new char buffer based on the specified char array.
@@ -62,7 +62,7 @@ final class BufferFactory {
 
     /**
      * Returns a new readonly char buffer based on the specified char sequence.
-     * 
+     *
      * @param chseq
      *            The char sequence
      * @return A new readonly char buffer based on the specified char sequence.
@@ -73,7 +73,7 @@ final class BufferFactory {
 
     /**
      * Returns a new array based char buffer with the specified capacity.
-     * 
+     *
      * @param capacity
      *            The capacity of the new buffer
      * @return A new array based char buffer with the specified capacity.
@@ -84,7 +84,7 @@ final class BufferFactory {
 
     /**
      * Returns a new direct byte buffer with the specified capacity.
-     * 
+     *
      * @param capacity
      *            The capacity of the new buffer
      * @return A new direct byte buffer with the specified capacity.
@@ -95,7 +95,7 @@ final class BufferFactory {
 
     /**
      * Returns a new double buffer based on the specified double array.
-     * 
+     *
      * @param array
      *            The double array
      * @return A new double buffer based on the specified double array.
@@ -106,7 +106,7 @@ final class BufferFactory {
 
     /**
      * Returns a new array based double buffer with the specified capacity.
-     * 
+     *
      * @param capacity
      *            The capacity of the new buffer
      * @return A new array based double buffer with the specified capacity.
@@ -117,7 +117,7 @@ final class BufferFactory {
 
     /**
      * Returns a new float buffer based on the specified float array.
-     * 
+     *
      * @param array
      *            The float array
      * @return A new float buffer based on the specified float array.
@@ -128,7 +128,7 @@ final class BufferFactory {
 
     /**
      * Returns a new array based float buffer with the specified capacity.
-     * 
+     *
      * @param capacity
      *            The capacity of the new buffer
      * @return A new array based float buffer with the specified capacity.
@@ -139,7 +139,7 @@ final class BufferFactory {
 
     /**
      * Returns a new array based int buffer with the specified capacity.
-     * 
+     *
      * @param capacity
      *            The capacity of the new buffer
      * @return A new array based int buffer with the specified capacity.
@@ -150,7 +150,7 @@ final class BufferFactory {
 
     /**
      * Returns a new int buffer based on the specified int array.
-     * 
+     *
      * @param array
      *            The int array
      * @return A new int buffer based on the specified int array.
@@ -161,7 +161,7 @@ final class BufferFactory {
 
     /**
      * Returns a new array based long buffer with the specified capacity.
-     * 
+     *
      * @param capacity
      *            The capacity of the new buffer
      * @return A new array based long buffer with the specified capacity.
@@ -172,7 +172,7 @@ final class BufferFactory {
 
     /**
      * Returns a new long buffer based on the specified long array.
-     * 
+     *
      * @param array
      *            The long array
      * @return A new long buffer based on the specified long array.
@@ -183,7 +183,7 @@ final class BufferFactory {
 
     /**
      * Returns a new array based short buffer with the specified capacity.
-     * 
+     *
      * @param capacity
      *            The capacity of the new buffer
      * @return A new array based short buffer with the specified capacity.
@@ -194,7 +194,7 @@ final class BufferFactory {
 
     /**
      * Returns a new short buffer based on the specified short array.
-     * 
+     *
      * @param array
      *            The short array
      * @return A new short buffer based on the specified short array.

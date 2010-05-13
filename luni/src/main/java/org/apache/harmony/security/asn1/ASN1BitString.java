@@ -28,7 +28,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * This class represents ASN.1 Bitstring type.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -39,7 +39,7 @@ public class ASN1BitString extends ASN1StringType {
 
     /**
      * Constructs ASN.1 Bitstring type
-     * 
+     *
      * The constructor is provided for inheritance purposes
      * when there is a need to create a custom ASN.1 Bitstring type.
      * To get a default implementation it is recommended to use
@@ -51,7 +51,7 @@ public class ASN1BitString extends ASN1StringType {
 
     /**
      * Returns ASN.1 Bitstring type default implementation
-     * 
+     *
      * The default implementation works with encoding
      * that is represented as BitString object.
      *
@@ -110,8 +110,8 @@ public class ASN1BitString extends ASN1StringType {
     //
 
     /**
-     * Default implementation for ASN.1 Named Bitstring type 
-     * 
+     * Default implementation for ASN.1 Named Bitstring type
+     *
      * The default implementation works with encoding
      * that is mapped to array of boolean.
      */
@@ -164,7 +164,7 @@ public class ASN1BitString extends ASN1StringType {
             } else {
                 if (bitsNumber > maxBits) {
                     throw new ASN1Exception(
-                            Messages.getString("security.97")); //FIXME message 
+                            Messages.getString("security.97")); //FIXME message
                 }
                 value = new boolean[maxBits];
             }

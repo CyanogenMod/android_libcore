@@ -62,7 +62,7 @@ public interface TransformerHandler
     /**
      * <p>Get the <code>Transformer</code> associated with this handler, which
      * is needed in order to set parameters and output properties.</p>
-     * 
+     *
      * @return <code>Transformer</code> associated with this
      *   <code>TransformerHandler</code>.
      */

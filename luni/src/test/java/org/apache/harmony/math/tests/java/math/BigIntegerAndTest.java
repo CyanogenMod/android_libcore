@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 /**
  * Class:  java.math.BigInteger
- * Method: and 
+ * Method: and
  */
 public class BigIntegerAndTest extends TestCase {
     /**
@@ -37,7 +37,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {0};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = 0;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {0};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -57,7 +57,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {0};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = 0;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {0};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -71,13 +71,13 @@ public class BigIntegerAndTest extends TestCase {
     }
 
     /**
-     * And for a positive number and zero 
+     * And for a positive number and zero
      */
     public void testPosZero() {
         byte aBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         byte bBytes[] = {0};
         int aSign = 1;
-        int bSign = 0;        
+        int bSign = 0;
         byte rBytes[] = {0};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -91,13 +91,13 @@ public class BigIntegerAndTest extends TestCase {
     }
 
     /**
-     * And for a negative number and zero  
+     * And for a negative number and zero
      */
     public void testNegPos() {
         byte aBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         byte bBytes[] = {0};
         int aSign = -1;
-        int bSign = 0;        
+        int bSign = 0;
         byte rBytes[] = {0};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -117,7 +117,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {0};
         byte bBytes[] = {0};
         int aSign = 0;
-        int bSign = 0;        
+        int bSign = 0;
         byte rBytes[] = {0};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -159,7 +159,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-128, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = 1;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {0, -128, 56, 100, 4, 4, 17, 37, 16, 1, 64, 1, 10, 3};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -179,7 +179,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-128, 9, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117, 23, 87, -25, -75};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = 1;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {0, -2, -76, 88, 44, 1, 2, 17, 35, 16, 9, 2, 5, 6, 21};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -199,7 +199,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         byte bBytes[] = {-128, 9, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117, 23, 87, -25, -75};
         int aSign = 1;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {0, -2, -76, 88, 44, 1, 2, 17, 35, 16, 9, 2, 5, 6, 21};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -219,7 +219,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-128, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = -1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {-1, 1, 2, 3, 3, 0, 65, -96, -48, -124, -60, 12, -40, -31, 97};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -239,7 +239,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-128, 9, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117, 23, 87, -25, -75};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = -1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {-1, 127, -10, -57, -101, 1, 2, 2, 2, -96, -16, 8, -40, -59, 68, -88, -88, 16, 73};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -259,7 +259,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         byte bBytes[] = {-128, 9, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117, 23, 87, -25, -75};
         int aSign = -1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {-1, 127, -10, -57, -101, 1, 2, 2, 2, -96, -16, 8, -40, -59, 68, -88, -88, 16, 73};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -279,7 +279,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-128, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = 1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {0, -6, -80, 72, 8, 75, 2, -79, 34, 16, -119};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -299,7 +299,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-128, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = -1;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {0, -2, 125, -60, -104, 1, 10, 6, 2, 32, 56, 2, 4, 4, 21};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -319,7 +319,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-128, 9, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117, 23, 87, -25, -75};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = -1;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {73, -92, -48, 4, 12, 6, 4, 32, 48, 64, 0, 8, 3};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -339,7 +339,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         byte bBytes[] = {-128, 9, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117, 23, 87, -25, -75};
         int aSign = -1;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {0, -128, 9, 56, 100, 0, 0, 1, 1, 90, 1, -32, 0, 10, -126, 21, 82, -31, -95};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -359,7 +359,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-128, 9, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117, 23, 87, -25, -75};
         byte bBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         int aSign = 1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {0, -128, 9, 56, 100, 0, 0, 1, 1, 90, 1, -32, 0, 10, -126, 21, 82, -31, -95};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -379,7 +379,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-2, -3, -4, -4, 5, 14, 23, 39, 48, 57, 66, 5, 14, 23};
         byte bBytes[] = {-128, 9, 56, 100, -2, -76, 89, 45, 91, 3, -15, 35, 26, -117, 23, 87, -25, -75};
         int aSign = 1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {73, -92, -48, 4, 12, 6, 4, 32, 48, 64, 0, 8, 3};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -399,7 +399,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-1, -1, -1, -1};
         byte bBytes[] = {5, -4, -3, -2};
         int aSign = -1;
-        int bSign = -1;        
+        int bSign = -1;
         byte rBytes[] = {-1, 0, 0, 0, 0};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);
@@ -419,7 +419,7 @@ public class BigIntegerAndTest extends TestCase {
         byte aBytes[] = {-51};
         byte bBytes[] = {-52, -51, -50, -49, -48};
         int aSign = -1;
-        int bSign = 1;        
+        int bSign = 1;
         byte rBytes[] = {0, -52, -51, -50, -49, 16};
         BigInteger aNumber = new BigInteger(aSign, aBytes);
         BigInteger bNumber = new BigInteger(bSign, bBytes);

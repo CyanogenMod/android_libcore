@@ -98,7 +98,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
         if (source == null) {
             throw new IllegalArgumentException();
         }
-        
+
         String namespaceURI = null;
         String qualifiedName = null;
         DocumentType doctype = null;
@@ -143,7 +143,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
             if(ex.getDetail() instanceof RuntimeException) {
                 throw (RuntimeException)ex.getDetail();
             }
-            
+
             LocatorImpl locator = new LocatorImpl();
 
             locator.setPublicId(source.getPublicId());
@@ -171,13 +171,13 @@ class DocumentBuilderImpl extends DocumentBuilder {
      * approach to parsing does accept some illegal documents (more than one
      * root element, for example). The assumption is that the DOM implementation
      * throws the proper exceptions in these cases.
-     * 
+     *
      * @param parser The XML pull parser we're reading from.
      * @param document The document we're building.
      * @param node The node we're currently on (initially the document itself).
      * @param endToken The token that will end this recursive call. Either
      *        XmlPullParser.END_DOCUMENT or XmlPullParser.END_TAG.
-     * 
+     *
      * @throws XmlPullParserException If a parsing error occurs.
      * @throws IOException If a general IO error occurs.
      */
@@ -219,10 +219,10 @@ class DocumentBuilderImpl extends DocumentBuilder {
                     String name = tokenizer.nextToken();
                     String pubid = null;
                     String sysid = null;
-                    
+
                     if (tokenizer.hasMoreTokens()) {
                         String text = tokenizer.nextToken();
-                        
+
                         if ("SYSTEM".equals(text)) {
                             if (tokenizer.hasMoreTokens()) {
                                 sysid = tokenizer.nextToken();
@@ -236,18 +236,18 @@ class DocumentBuilderImpl extends DocumentBuilder {
                             }
                         }
                     }
-                    
+
                     if (pubid != null && pubid.length() >= 2 && pubid.startsWith("\"") && pubid.endsWith("\"")) {
                         pubid = pubid.substring(1, pubid.length() - 1);
                     }
-                    
+
                     if (sysid != null && sysid.length() >= 2 && sysid.startsWith("\"") && sysid.endsWith("\"")) {
                         sysid = sysid.substring(1, sysid.length() - 1);
                     }
 
                     document.appendChild(new DocumentTypeImpl(document, name, pubid, sysid));
                 }
-                
+
             } else if (token == XmlPullParser.COMMENT) {
                 /*
                  * Found a comment. We simply take the token text, but we only
@@ -308,7 +308,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
                     if ("".equals(namespace)) {
                         namespace = null;
                     }
-                    
+
                     // Create element node and wire it correctly
                     Element element = document.createElementNS(namespace, name);
                     element.setPrefix(prefix);
@@ -324,21 +324,21 @@ class DocumentBuilderImpl extends DocumentBuilder {
                         if ("".equals(attrNamespace)) {
                             attrNamespace = null;
                         }
-                        
+
                         // Create attribute node and wire it correctly
                         Attr attr = document.createAttributeNS(attrNamespace, attrName);
                         attr.setPrefix(attrPrefix);
                         attr.setValue(attrValue);
                         element.setAttributeNodeNS(attr);
                     }
-                    
+
                     // Recursive descent
                     token = parser.nextToken();
                     parse(parser, document, element, XmlPullParser.END_TAG);
 
                     // Expect the element's end tag here
                     parser.require(XmlPullParser.END_TAG, namespace, name);
-                    
+
                 } else {
                     // Collect info for element node
                     String name = parser.getName();
@@ -374,7 +374,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
     /**
      * @param token the XML pull parser token type, such as XmlPullParser.CDSECT
      *      or XmlPullParser.ENTITY_REF.
-     */ 
+     */
     private void appendText(DocumentImpl document, Node parent, int token, String text) {
         // Ignore empty runs.
         if (text.length() == 0) {
@@ -407,7 +407,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
 
     /**
      * Controls whether this DocumentBuilder ignores comments.
-     * 
+     *
      * @param value Turns comment ignorance on or off.
      */
     public void setIgnoreComments(boolean value) {
@@ -420,7 +420,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
 
     /**
      * Controls whether this DocumentBuilder ignores element content whitespace.
-     * 
+     *
      * @param value Turns element whitespace content ignorance on or off.
      */
     public void setIgnoreElementContentWhitespace(boolean value) {
@@ -429,7 +429,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
 
     /**
      * Controls whether this DocumentBuilder is namespace-aware.
-     * 
+     *
      * @param value Turns namespace awareness on or off.
      */
     public void setNamespaceAware(boolean value) {
@@ -438,10 +438,10 @@ class DocumentBuilderImpl extends DocumentBuilder {
 
     /**
      * Resolves predefined XML character or entity references.
-     * 
+     *
      * @param entity The reference to resolve, not including
      *               the ampersand or the semicolon.
-     * 
+     *
      * @return The proper replacement, or null, if the entity is unknown.
      */
     private String resolveStandardEntity(String entity) {

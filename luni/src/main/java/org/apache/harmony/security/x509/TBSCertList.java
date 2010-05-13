@@ -41,7 +41,7 @@ import org.apache.harmony.security.x501.Name;
 
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with TBSCertList structure which is the part of X.509 CRL
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -70,9 +70,9 @@ import org.apache.harmony.security.x501.Name;
 public class TBSCertList {
 
     // the value of version field of the structure
-    private final int version; 
+    private final int version;
     // the value of signature field of the structure
-    private final AlgorithmIdentifier signature; 
+    private final AlgorithmIdentifier signature;
     // the value of issuer field of the structure
     private final Name issuer;
     // the value of thisUpdate of the structure
@@ -90,7 +90,7 @@ public class TBSCertList {
         private final BigInteger userCertificate;
         private final Date revocationDate;
         private final Extensions crlEntryExtensions;
-        
+
         private boolean issuerRetrieved;
         private X500Principal issuer;
         private byte[] encoding;
@@ -124,7 +124,7 @@ public class TBSCertList {
             }
             if (!issuerRetrieved) {
                 try {
-                    issuer =  
+                    issuer =
                         crlEntryExtensions.valueOfCertificateIssuerExtension();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -133,27 +133,27 @@ public class TBSCertList {
             }
             return issuer;
         }
-        
+
         public byte[] getEncoded() {
             if (encoding == null) {
                 encoding = ASN1.encode(this);
             }
             return encoding;
         }
-        
+
         public boolean equals(Object rc) {
             if (!(rc instanceof RevokedCertificate)) {
                 return false;
             }
             RevokedCertificate rcert = (RevokedCertificate) rc;
             return userCertificate.equals(rcert.userCertificate)
-                && ((revocationDate.getTime() / 1000) 
+                && ((revocationDate.getTime() / 1000)
                         == (rcert.revocationDate.getTime() / 1000))
                 && ((crlEntryExtensions == null)
                     ? rcert.crlEntryExtensions == null
                     : crlEntryExtensions.equals(rcert.crlEntryExtensions));
         }
-        
+
         public int hashCode() {
         	return userCertificate.hashCode() * 37 + (int)revocationDate.getTime() / 1000
         	+ (crlEntryExtensions == null ? 0 : crlEntryExtensions.hashCode());
@@ -164,18 +164,18 @@ public class TBSCertList {
          * into the StringBuffer object.
          */
         public void dumpValue(StringBuffer buffer, String prefix) {
-            buffer.append(prefix).append("Certificate Serial Number: ") 
+            buffer.append(prefix).append("Certificate Serial Number: ")
                 .append(userCertificate).append('\n');
-            buffer.append(prefix).append("Revocation Date: ") 
+            buffer.append(prefix).append("Revocation Date: ")
                 .append(revocationDate);
             if (crlEntryExtensions != null) {
                 buffer.append('\n').append(prefix)
-                    .append("CRL Entry Extensions: ["); 
-                crlEntryExtensions.dumpValue(buffer, prefix + "  "); 
+                    .append("CRL Entry Extensions: [");
+                crlEntryExtensions.dumpValue(buffer, prefix + "  ");
                 buffer.append(prefix).append(']');
             }
         }
-        
+
         public static final ASN1Sequence ASN1 = new ASN1Sequence(
                 new ASN1Type[] {ASN1Integer.getInstance(), Time.ASN1,
                 Extensions.ASN1}) {
@@ -219,10 +219,10 @@ public class TBSCertList {
      * @param   issuer: Name
      * @param   thisUpdate: Time
      */
-    public TBSCertList(AlgorithmIdentifier signature, 
+    public TBSCertList(AlgorithmIdentifier signature,
             Name issuer, Date thisUpdate) {
-        this.version = 1; 
-        this.signature = signature; 
+        this.version = 1;
+        this.signature = signature;
         this.issuer = issuer;
         this.thisUpdate = thisUpdate;
         this.nextUpdate = null;
@@ -232,7 +232,7 @@ public class TBSCertList {
 
     /**
      * Constructs the instance of TBSCertList with all optional fields
-     * @param   version: version of the CRL. Should be 1 or 2. 
+     * @param   version: version of the CRL. Should be 1 or 2.
      * Note that if the version of CRL is 1, then nextUpdate,
      * crlExtensions fields of CRL and crlEntryExtensions field
      * of CRL entry must not be presented in CRL.
@@ -244,11 +244,11 @@ public class TBSCertList {
      * @param   revokedCertificates:    List
      * @param   crlExtensions:  Extensions
      */
-    public TBSCertList(int version, AlgorithmIdentifier signature, 
-            Name issuer, Date thisUpdate, Date nextUpdate, 
+    public TBSCertList(int version, AlgorithmIdentifier signature,
+            Name issuer, Date thisUpdate, Date nextUpdate,
             List revokedCertificates, Extensions crlExtensions) {
-        this.version = version; 
-        this.signature = signature; 
+        this.version = version;
+        this.signature = signature;
         this.issuer = issuer;
         this.thisUpdate = thisUpdate;
         this.nextUpdate = nextUpdate;
@@ -257,12 +257,12 @@ public class TBSCertList {
     }
 
     // Constructs the object with associated ASN.1 encoding
-    private TBSCertList(int version, AlgorithmIdentifier signature, 
-            Name issuer, Date thisUpdate, Date nextUpdate, 
+    private TBSCertList(int version, AlgorithmIdentifier signature,
+            Name issuer, Date thisUpdate, Date nextUpdate,
             List revokedCertificates, Extensions crlExtensions,
             byte[] encoding) {
-        this.version = version; 
-        this.signature = signature; 
+        this.version = version;
+        this.signature = signature;
         this.issuer = issuer;
         this.thisUpdate = thisUpdate;
         this.nextUpdate = nextUpdate;
@@ -286,7 +286,7 @@ public class TBSCertList {
     public AlgorithmIdentifier getSignature() {
         return signature;
     }
-    
+
     /**
      * Returns the value of issuer field of the structure.
      * @return  issuer
@@ -294,7 +294,7 @@ public class TBSCertList {
     public Name getIssuer() {
         return issuer;
     }
-    
+
     /**
      * Returns the value of thisUpdate field of the structure.
      * @return thisUpdate
@@ -302,7 +302,7 @@ public class TBSCertList {
     public Date getThisUpdate() {
         return thisUpdate;
     }
-    
+
     /**
      * Returns the value of nextUpdate field of the structure.
      * @return nextUpdate
@@ -310,7 +310,7 @@ public class TBSCertList {
     public Date getNextUpdate() {
         return nextUpdate;
     }
-    
+
     /**
      * Returns the value of revokedCertificates field of the structure.
      * @return revokedCertificates
@@ -337,7 +337,7 @@ public class TBSCertList {
         }
         return encoding;
     }
-    
+
     public boolean equals(Object tbs) {
         if (!(tbs instanceof TBSCertList)) {
             return false;
@@ -347,23 +347,23 @@ public class TBSCertList {
             && (signature.equals(tbscert.signature))
             // FIXME use Name.equals when it will be implemented
             && (Arrays.equals(issuer.getEncoded(), tbscert.issuer.getEncoded()))
-            && ((thisUpdate.getTime() / 1000) 
+            && ((thisUpdate.getTime() / 1000)
                     == (tbscert.thisUpdate.getTime() / 1000))
-            && ((nextUpdate == null) 
+            && ((nextUpdate == null)
                     ? tbscert.nextUpdate == null
-                    : ((nextUpdate.getTime() / 1000) 
+                    : ((nextUpdate.getTime() / 1000)
                         == (tbscert.nextUpdate.getTime() / 1000)))
-            && ((((revokedCertificates == null) 
+            && ((((revokedCertificates == null)
                             || (tbscert.revokedCertificates == null))
                     && (revokedCertificates == tbscert.revokedCertificates))
                 || (revokedCertificates.containsAll(tbscert.revokedCertificates)
-                    && (revokedCertificates.size() 
+                    && (revokedCertificates.size()
                         == tbscert.revokedCertificates.size())))
             && ((crlExtensions == null)
                     ? tbscert.crlExtensions == null
                     : crlExtensions.equals(tbscert.crlExtensions));
     }
-    
+
     public int hashCode() {
     	return ((version * 37 + signature.hashCode()) * 37
     		+ issuer.getEncoded().hashCode()) * 37
@@ -375,29 +375,29 @@ public class TBSCertList {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer) {
-        buffer.append("X.509 CRL v").append(version); 
-        buffer.append("\nSignature Algorithm: ["); 
+        buffer.append("X.509 CRL v").append(version);
+        buffer.append("\nSignature Algorithm: [");
         signature.dumpValue(buffer);
         buffer.append(']');
-        buffer.append("\nIssuer: ").append(issuer.getName(X500Principal.RFC2253)); 
-        buffer.append("\n\nThis Update: ").append(thisUpdate); 
-        buffer.append("\nNext Update: ").append(nextUpdate).append('\n'); 
+        buffer.append("\nIssuer: ").append(issuer.getName(X500Principal.RFC2253));
+        buffer.append("\n\nThis Update: ").append(thisUpdate);
+        buffer.append("\nNext Update: ").append(nextUpdate).append('\n');
         if (revokedCertificates != null) {
-            buffer.append("\nRevoked Certificates: ") 
-                .append(revokedCertificates.size()).append(" ["); 
+            buffer.append("\nRevoked Certificates: ")
+                .append(revokedCertificates.size()).append(" [");
             int number = 1;
             for (Iterator it = revokedCertificates.iterator();it.hasNext();) {
-                buffer.append("\n  [").append(number++).append(']'); 
-                ((RevokedCertificate) it.next()).dumpValue(buffer, "  "); 
+                buffer.append("\n  [").append(number++).append(']');
+                ((RevokedCertificate) it.next()).dumpValue(buffer, "  ");
                 buffer.append('\n');
             }
-            buffer.append("]\n"); 
+            buffer.append("]\n");
         }
         if (crlExtensions != null) {
-            buffer.append("\nCRL Extensions: ") 
-                .append(crlExtensions.size()).append(" ["); 
-            crlExtensions.dumpValue(buffer, "  "); 
-            buffer.append("]\n"); 
+            buffer.append("\nCRL Extensions: ")
+                .append(crlExtensions.size()).append(" [");
+            crlExtensions.dumpValue(buffer, "  ");
+            buffer.append("]\n");
         }
     }
 
@@ -420,17 +420,17 @@ public class TBSCertList {
             setOptional(6);
         }
 
-        protected Object getDecodedObject(BerInputStream in) 
+        protected Object getDecodedObject(BerInputStream in)
                         throws IOException {
             Object[] values = (Object[]) in.content;
             return new TBSCertList(
-                        (values[0] == null) 
+                        (values[0] == null)
                             ? 1
                             : ASN1Integer.toIntValue(values[0])+1,
                         (AlgorithmIdentifier) values[1],
-                        (Name) values[2], 
-                        (Date) values[3], 
-                        (Date) values[4], 
+                        (Name) values[2],
+                        (Date) values[3],
+                        (Date) values[4],
                         (List) values[5],
                         (Extensions) values[6],
                         in.getEncoded()
@@ -442,7 +442,7 @@ public class TBSCertList {
             values[0] = (tbs.version > 1)
                 ? ASN1Integer.fromIntValue(tbs.version - 1) : null;
             values[1] = tbs.signature;
-            values[2] = tbs.issuer; 
+            values[2] = tbs.issuer;
             values[3] = tbs.thisUpdate;
             values[4] = tbs.nextUpdate;
             values[5] = tbs.revokedCertificates;

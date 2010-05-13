@@ -43,7 +43,7 @@ import org.apache.harmony.security.x509.AlgorithmIdentifier;
 /**
  * As defined in PKCS #7: Cryptographic Message Syntax Standard
  * (http://www.ietf.org/rfc/rfc2315.txt)
- * 
+ *
  * SignerInfo ::= SEQUENCE {
  *   version Version,
  *   issuerAndSerialNumber IssuerAndSerialNumber,
@@ -56,14 +56,14 @@ import org.apache.harmony.security.x509.AlgorithmIdentifier;
  *   unauthenticatedAttributes
  *     [1] IMPLICIT Attributes OPTIONAL
  *  }
- * 
+ *
  */
 public class SignerInfo {
 
     private int version;
     private X500Principal issuer;
     private BigInteger serialNumber;
-    
+
     private AlgorithmIdentifier digestAlgorithm;
     private AuthenticatedAttributes authenticatedAttributes;
     private AlgorithmIdentifier digestEncryptionAlgorithm;
@@ -93,11 +93,11 @@ public class SignerInfo {
     public X500Principal getIssuer() {
         return issuer;
     }
-    
+
     public BigInteger getSerialNumber() {
         return serialNumber;
-    }    
-    
+    }
+
     public String getDigestAlgorithm() {
         return digestAlgorithm.getAlgorithm();
     }
@@ -128,38 +128,38 @@ public class SignerInfo {
         return encryptedDigest;
     }
 
-    
+
     public String toString() {
         StringBuilder res = new StringBuilder();
-        res.append("-- SignerInfo:"); 
-        res.append("\n version : "); 
+        res.append("-- SignerInfo:");
+        res.append("\n version : ");
         res.append(version);
-        res.append("\nissuerAndSerialNumber:  "); 
+        res.append("\nissuerAndSerialNumber:  ");
         res.append(issuer);
-        res.append("   "); 
+        res.append("   ");
         res.append(serialNumber);
-        res.append("\ndigestAlgorithm:  "); 
+        res.append("\ndigestAlgorithm:  ");
         res.append(digestAlgorithm.toString());
-        res.append("\nauthenticatedAttributes:  "); 
+        res.append("\nauthenticatedAttributes:  ");
         if (authenticatedAttributes != null) {
             res.append(authenticatedAttributes.toString());
         }
-        res.append("\ndigestEncryptionAlgorithm: "); 
+        res.append("\ndigestEncryptionAlgorithm: ");
         res.append(digestEncryptionAlgorithm.toString());
-        res.append("\nunauthenticatedAttributes: "); 
+        res.append("\nunauthenticatedAttributes: ");
         if (unauthenticatedAttributes != null) {
             res.append(unauthenticatedAttributes.toString());
         }
-        res.append("\n-- SignerInfo End\n"); 
+        res.append("\n-- SignerInfo End\n");
         return res.toString();
     }
 
-    
-    public static final ASN1Sequence ISSUER_AND_SERIAL_NUMBER = 
-            new ASN1Sequence(new ASN1Type[] { 
+
+    public static final ASN1Sequence ISSUER_AND_SERIAL_NUMBER =
+            new ASN1Sequence(new ASN1Type[] {
                 Name.ASN1,                       // issuer
                 ASN1Integer.getInstance(),       // serialNumber
-            }) 
+            })
         {
             // method to encode
             public void getValues(Object object, Object[] values) {
@@ -168,8 +168,8 @@ public class SignerInfo {
                 values[1] = issAndSerial[1];
         }
     };
-    
-    public static final ASN1Sequence ASN1 = 
+
+    public static final ASN1Sequence ASN1 =
         new ASN1Sequence(new ASN1Type[] {
                 ASN1Integer.getInstance(),         //version
                 ISSUER_AND_SERIAL_NUMBER,
@@ -193,27 +193,27 @@ public class SignerInfo {
                         si.serialNumber.toByteArray() };
             } catch (IOException e) {
                 // The exception is never thrown, because si.issuer
-                // is created using Name.getX500Principal(). 
+                // is created using Name.getX500Principal().
                 // Throw a RuntimeException just to be safe.
                 throw new RuntimeException(
                         // Msg: "Failed to encode issuer name
                         Messages.getString("security.1A2"), e);
-            } 
+            }
             values[2] = si.digestAlgorithm;
             values[3] = si.authenticatedAttributes;
             values[4] = si.digestEncryptionAlgorithm;
             values[5] = si.encryptedDigest;
             values[6] = si.unauthenticatedAttributes;
         }
- 
+
         protected Object getDecodedObject(BerInputStream in) {
             Object[] values = (Object[]) in.content;
             return new SignerInfo(
                         ASN1Integer.toIntValue(values[0]),
-                        (Object[]) values[1], 
+                        (Object[]) values[1],
                         (AlgorithmIdentifier) values[2],
-                        (AuthenticatedAttributes) values[3], 
-                        (AlgorithmIdentifier) values[4], 
+                        (AuthenticatedAttributes) values[3],
+                        (AlgorithmIdentifier) values[4],
                         (byte[]) values[5],
                         (List) values[6]
                     );

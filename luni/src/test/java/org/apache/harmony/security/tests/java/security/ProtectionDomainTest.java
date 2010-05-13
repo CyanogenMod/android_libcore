@@ -43,7 +43,7 @@ import junit.framework.TestCase;
 @TestTargetClass(ProtectionDomain.class)
 /**
  * Unit tests for java.security.ProtectionDomain.
- * 
+ *
  */
 
 public class ProtectionDomainTest extends TestCase {
@@ -233,8 +233,8 @@ public class ProtectionDomainTest extends TestCase {
     }
 
     /**
-     * ProtectionDomain created with a static set of permissions must not query 
-     * policy. 
+     * ProtectionDomain created with a static set of permissions must not query
+     * policy.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -244,7 +244,7 @@ public class ProtectionDomainTest extends TestCase {
     )
     public void testImplies_02() {
         TestPolicy policy = new TestPolicy();
-        // null set of permissions [must] force the PD to use Policy - for 
+        // null set of permissions [must] force the PD to use Policy - for
         // dynamic permissions
         ProtectionDomain pd = new ProtectionDomain(cs, null);
         policy.setTrackPD(pd);
@@ -258,8 +258,8 @@ public class ProtectionDomainTest extends TestCase {
     }
 
     /**
-     * ProtectionDomain created with dynamic set of permissions must query 
-     * policy. 
+     * ProtectionDomain created with dynamic set of permissions must query
+     * policy.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,7 @@ import org.apache.harmony.logging.tests.java.util.logging.HandlerTest.NullOutput
 import org.apache.harmony.logging.tests.java.util.logging.util.EnvironmentHelper;
 
 /**
- * 
+ *
  */
 public class MemoryHandlerTest extends TestCase {
 
@@ -53,10 +53,10 @@ public class MemoryHandlerTest extends TestCase {
     final static StringWriter writer = new StringWriter();
 
     final static SecurityManager securityManager = new MockSecurityManager();
-    
+
     private final PrintStream err = System.err;
 
-    private OutputStream errSubstituteStream = null;    
+    private OutputStream errSubstituteStream = null;
 
     MemoryHandler handler;
 
@@ -73,11 +73,11 @@ public class MemoryHandlerTest extends TestCase {
                 .PropertiesToInputStream(props));
         handler = new MemoryHandler();
         errSubstituteStream = new NullOutputStream();
-        System.setErr(new PrintStream(errSubstituteStream));        
+        System.setErr(new PrintStream(errSubstituteStream));
     }
 
     /**
-     * 
+     *
      */
     private void initProps() {
         props.put("java.util.logging.MemoryHandler.level", "FINE");
@@ -98,7 +98,7 @@ public class MemoryHandlerTest extends TestCase {
         super.tearDown();
         manager.readConfiguration();
         props.clear();
-        System.setErr(err);        
+        System.setErr(err);
     }
 
     public void testGlobalSecurity() {
@@ -172,7 +172,7 @@ public class MemoryHandlerTest extends TestCase {
         assertTrue(handler.isLoggable(new LogRecord(Level.INFO, "1")));
         assertTrue(handler.isLoggable(new LogRecord(Level.WARNING, "2")));
         assertTrue(handler.isLoggable(new LogRecord(Level.SEVERE, "3")));
-        
+
         record = new LogRecord(Level.CONFIG, "MSG3");
         assertTrue(handler.isLoggable(record));
 
@@ -210,7 +210,7 @@ public class MemoryHandlerTest extends TestCase {
         assertNotNull(handler.getErrorManager());
         assertEquals(handler.getLevel(), Level.ALL);
         assertEquals(handler.getPushLevel(), Level.SEVERE);
- 
+
     }
 
     public void testMemoryHandlerInvalidProps() throws IOException {
@@ -367,11 +367,11 @@ public class MemoryHandlerTest extends TestCase {
         handler.publish(new LogRecord(Level.SEVERE, "MSG2"));
         assertEquals(writer.toString(), "MSG1MSG2");
         writer.getBuffer().setLength(0);
-        
+
         // regression test for Harmony-1292
         handler.publish(new LogRecord(Level.WARNING, "MSG"));
         assertEquals("MSG",writer.toString());
-        
+
         writer.getBuffer().setLength(0);
         // push nothing
         handler.push();

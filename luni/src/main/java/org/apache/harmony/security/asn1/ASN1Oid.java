@@ -27,7 +27,7 @@ import java.io.IOException;
 
 /**
  * This class represents ASN.1 Object Identifier type.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -38,7 +38,7 @@ public class ASN1Oid extends ASN1Primitive {
 
     /**
      * Constructs ASN.1 Object Identifier type
-     * 
+     *
      * The constructor is provided for inheritance purposes
      * when there is a need to create a custom ASN.1 Object Identifier type.
      * To get a default implementation it is recommended to use
@@ -50,7 +50,7 @@ public class ASN1Oid extends ASN1Primitive {
 
     /**
      * Returns ASN.1 Object Identifier type default implementation
-     * 
+     *
      * The default implementation works with encoding
      * that is represented as array of integers.
      *
@@ -146,7 +146,7 @@ public class ASN1Oid extends ASN1Primitive {
 
     //
     //
-    // OID encoder/decoder for mapping to string 
+    // OID encoder/decoder for mapping to string
     //
     //
 
@@ -210,7 +210,7 @@ public class ASN1Oid extends ASN1Primitive {
 
     /**
      * Returns ASN.1 Object Identifier type implementation
-     * 
+     *
      * This implementation works with encoding
      * that is mapped to java.lang.String object.
      *

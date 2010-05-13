@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,7 +55,7 @@ public interface DataSource {
     /**
      * Creates a connection to the database represented by this {@code
      * DataSource}.
-     * 
+     *
      * @return a {@code Connection} object which is a connection to the
      *         database.
      * @throws SQLException
@@ -66,7 +66,7 @@ public interface DataSource {
     /**
      * Creates a connection to the database represented by this {@code
      * DataSource}, using the supplied user name and password.
-     * 
+     *
      * @param theUsername
      *            the a user name for the database login.
      * @param thePassword
@@ -86,7 +86,7 @@ public interface DataSource {
      * wait when opening a connection to a database. A timeout value of 0
      * implies either the system default timeout value (if there is one) or that
      * there is no timeout. The default value for the login timeout is 0.
-     * 
+     *
      * @return the login timeout value in seconds.
      * @throws SQLException
      *             if there is a problem accessing the database.
@@ -117,7 +117,7 @@ public interface DataSource {
      * wait when opening a connection to a database. A timeout value of 0
      * implies either the system default timeout value (if there is one) or that
      * there is no timeout. The default value for the login timeout is 0.
-     * 
+     *
      * @param theTimeout
      *            the new login timeout value in seconds.
      * @throws SQLException
@@ -134,7 +134,7 @@ public interface DataSource {
      * log writer when a {@code DataSource} is created is {@code null}. Note
      * that the log writer for a {@code DataSource} is not the same as the log
      * writer used by a {@code DriverManager}.
-     * 
+     *
      * @param theWriter
      *            a {@code PrintWriter} to use as the log writer for this
      *            {@code DataSource}.

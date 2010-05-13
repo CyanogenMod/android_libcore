@@ -28,7 +28,7 @@ public class AllTests {
         TestSuite suite = new TestSuite("Test for java.lang");
 
         // $JUnit-BEGIN$
-        
+
         suite.addTestSuite(Process2Test.class);
         suite.addTestSuite(ProcessTest.class);
         suite.addTestSuite(ProcessManagerTest.class);

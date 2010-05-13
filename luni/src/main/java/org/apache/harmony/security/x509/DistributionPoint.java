@@ -32,7 +32,7 @@ import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.internal.nls.Messages;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the DistributionPoint structure which is the part of X.509 CRL
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -45,12 +45,12 @@ import org.apache.harmony.security.internal.nls.Messages;
  *  DistributionPoint ::= SEQUENCE {
  *        distributionPoint       [0]     DistributionPointName OPTIONAL,
  *        reasons                 [1]     ReasonFlags OPTIONAL,
- *        cRLIssuer               [2]     GeneralNames OPTIONAL 
+ *        cRLIssuer               [2]     GeneralNames OPTIONAL
  *  }
  *
  *  DistributionPointName ::= CHOICE {
  *        fullName                [0]     GeneralNames,
- *        nameRelativeToCRLIssuer [1]     RelativeDistinguishedName 
+ *        nameRelativeToCRLIssuer [1]     RelativeDistinguishedName
  *  }
  *
  *  ReasonFlags ::= BIT STRING {
@@ -62,16 +62,16 @@ import org.apache.harmony.security.internal.nls.Messages;
  *        cessationOfOperation    (5),
  *        certificateHold         (6),
  *        privilegeWithdrawn      (7),
- *        aACompromise            (8) 
+ *        aACompromise            (8)
  *  }
  * </pre>
  */
 public class DistributionPoint {
-   
+
     private final DistributionPointName distributionPoint;
     private final ReasonFlags reasons;
     private final GeneralNames cRLIssuer;
-    
+
     public DistributionPoint() {
         distributionPoint = null;
         reasons = null;
@@ -80,10 +80,10 @@ public class DistributionPoint {
 
     public DistributionPoint(DistributionPointName distributionPoint,
             ReasonFlags reasons, GeneralNames cRLIssuer) {
-        if ((reasons != null) && (distributionPoint == null) 
+        if ((reasons != null) && (distributionPoint == null)
                 && (cRLIssuer == null)) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.17F")); 
+                    Messages.getString("security.17F"));
         }
         this.distributionPoint = distributionPoint;
         this.reasons = reasons;
@@ -96,22 +96,22 @@ public class DistributionPoint {
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
         buffer.append(prefix);
-        buffer.append("Distribution Point: [\n"); 
+        buffer.append("Distribution Point: [\n");
         if (distributionPoint != null) {
-            distributionPoint.dumpValue(buffer, prefix + "  "); 
+            distributionPoint.dumpValue(buffer, prefix + "  ");
         }
         if (reasons != null) {
-            reasons.dumpValue(buffer, prefix + "  "); 
+            reasons.dumpValue(buffer, prefix + "  ");
         }
         if (cRLIssuer != null) {
             buffer.append(prefix);
-            buffer.append("  CRL Issuer: [\n"); 
-            cRLIssuer.dumpValue(buffer, prefix + "    "); 
+            buffer.append("  CRL Issuer: [\n");
+            cRLIssuer.dumpValue(buffer, prefix + "    ");
             buffer.append(prefix);
-            buffer.append("  ]\n"); 
+            buffer.append("  ]\n");
         }
         buffer.append(prefix);
-        buffer.append("]\n"); 
+        buffer.append("]\n");
     }
 
     /**
@@ -130,7 +130,7 @@ public class DistributionPoint {
 
         protected Object getDecodedObject(BerInputStream in) throws IOException {
             Object[] values = (Object[]) in.content;
-            return new DistributionPoint((DistributionPointName) values[0], 
+            return new DistributionPoint((DistributionPointName) values[0],
                     (ReasonFlags) values[1], (GeneralNames) values[2]);
         }
 

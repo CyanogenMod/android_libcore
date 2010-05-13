@@ -41,9 +41,9 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 import tests.support.Support_Configuration;
 import tests.util.TestEnvironment;
 
-@TestTargetClass(InetAddress.class) 
+@TestTargetClass(InetAddress.class)
 public class InetAddressTest extends junit.framework.TestCase {
-    
+
     private static boolean someoneDone[] = new boolean[2];
 
     protected static boolean threadedTestSucceeded;
@@ -117,8 +117,8 @@ public class InetAddressTest extends junit.framework.TestCase {
                     String hostName = ia.getHostName();
                     String hostAddress = ia.getHostAddress();
 
-                    // Intentionally not looking for exact name match so that 
-                    // the test works across different platforms that may or 
+                    // Intentionally not looking for exact name match so that
+                    // the test works across different platforms that may or
                     // may not include a domain suffix on the hostname
                     if (!hostName.startsWith(correctName)) {
                         threadedTestSucceeded = false;
@@ -221,7 +221,7 @@ public class InetAddressTest extends junit.framework.TestCase {
             assertTrue(alias.getHostName().startsWith(
                     Support_Configuration.SpecialInetTestAddress));
         }// end for all aliases
-        
+
         // check the getByName if there is a security manager.
         SecurityManager oldman = System.getSecurityManager();
         System.setSecurityManager(new MockSecurityManager());
@@ -238,7 +238,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldman);
         }
-        
+
         // Regression for HARMONY-56
         InetAddress[] addresses = InetAddress.getAllByName(null);
         assertTrue("getAllByName(null): no results", addresses.length > 0);
@@ -247,7 +247,7 @@ public class InetAddressTest extends junit.framework.TestCase {
             assertTrue("Assert 1: getAllByName(null): " + address +
                     " is not loopback", address.isLoopbackAddress());
         }
-        
+
         try {
             InetAddress.getAllByName("unknown.host");
             fail("UnknownHostException was not thrown.");
@@ -270,7 +270,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         // java.net.InetAddress.getByName(java.lang.String)
         InetAddress ia2 = InetAddress
                 .getByName(Support_Configuration.InetTestIP);
-        
+
         // Intentionally not testing for exact string match
         /* FIXME: comment the assertion below because it is platform/configuration dependent
          * Please refer to HARMONY-1664 (https://issues.apache.org/jira/browse/HARMONY-1664)
@@ -294,8 +294,8 @@ public class InetAddressTest extends junit.framework.TestCase {
         // i = InetAddress.getByName(s);
         // assertEquals("222.222.222.222",i.getHostAddress());
         // END android-removed
-        
-        class MockSecurityManager extends SecurityManager {        
+
+        class MockSecurityManager extends SecurityManager {
             public void checkPermission(Permission permission) {
                 if (permission.getName().equals("setSecurityManager")){
                     return;
@@ -305,7 +305,7 @@ public class InetAddressTest extends junit.framework.TestCase {
                 }
                 super.checkPermission(permission);
             }
-            
+
             public void checkConnect(String host, int port) {
                 if(host.equals("google.com")) {
                     throw new SecurityException();
@@ -327,7 +327,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldman);
         }
-        
+
         try {
             InetAddress.getByName("0.0.0.0.0");
             fail("UnknownHostException was not thrown.");
@@ -373,7 +373,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         // Test for method java.lang.String java.net.InetAddress.getHostName()
         InetAddress ia = InetAddress
                 .getByName(Support_Configuration.InetTestIP);
-        
+
         // Intentionally not testing for exact string match
         /* FIXME: comment the assertion below because it is platform/configuration dependent
          * Please refer to HARMONY-1664 (https://issues.apache.org/jira/browse/HARMONY-1664)
@@ -581,9 +581,9 @@ public class InetAddressTest extends junit.framework.TestCase {
             fail("Unexpected problem creating IP Address "
                     + ipAddress.length);
         }
-        
+
         try {
-            InetAddress addr = InetAddress.getByAddress(addressStr, 
+            InetAddress addr = InetAddress.getByAddress(addressStr,
                     new byte [] {0, 0, 0, 0, 0});
             fail("UnknownHostException was thrown.");
         } catch(UnknownHostException uhe) {
@@ -611,17 +611,17 @@ public class InetAddressTest extends junit.framework.TestCase {
         // test against an expected value
         InetAddress ia = InetAddress
                 .getByName(Support_Configuration.InetTestIP);
-        
+
         // Intentionally not testing for exact string match
         /* FIXME: comment the assertion below because it is platform/configuration dependent
          * Please refer to HARMONY-1664 (https://issues.apache.org/jira/browse/HARMONY-1664)
          * for details
          */
 //        assertTrue(
-//           "Expected " + Support_Configuration.InetTestAddress + "*", 
+//           "Expected " + Support_Configuration.InetTestAddress + "*",
 //           ia.getCanonicalHostName().startsWith(Support_Configuration.InetTestAddress));
     }
-    
+
     /**
      * @tests java.net.InetAddress#isReachableI
      */
@@ -683,14 +683,14 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertFalse(ia.isReachable(null, 0, 1000));
 
         // Regression test for HARMONY-1842.
-        ia = InetAddress.getByName("localhost"); 
+        ia = InetAddress.getByName("localhost");
         Enumeration<NetworkInterface> nif = NetworkInterface.getNetworkInterfaces();
         NetworkInterface netif;
         while(nif.hasMoreElements()) {
             netif = nif.nextElement();
             ia.isReachable(netif, 10, 1000);
         }
-    } 
+    }
 
     // comparator for InetAddress objects
     private static final SerializableAssert COMPARATOR = new SerializableAssert() {
@@ -708,7 +708,7 @@ public class InetAddressTest extends junit.framework.TestCase {
             assertEquals(initAddr.getHostName(), desrAddr.getHostName());
         }
     };
-    
+
     // Regression Test for Harmony-2290
     @TestTargetNew(
         level = TestLevel.ADDITIONAL,
@@ -719,7 +719,7 @@ public class InetAddressTest extends junit.framework.TestCase {
     public void test_isReachableLjava_net_NetworkInterfaceII_loopbackInterface() throws IOException {
         final int TTL = 20;
         final int TIME_OUT = 3000;
-        
+
         NetworkInterface loopbackInterface = null;
         ArrayList<InetAddress> localAddresses = new ArrayList<InetAddress>();
         Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
@@ -797,7 +797,7 @@ public class InetAddressTest extends junit.framework.TestCase {
             fail("Unexpected problem creating IP Address "
                     + ipAddress.length);
         }
-        
+
         byte ipAddress2[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 127, 0, 0,
                 1 };
         try {
@@ -806,7 +806,7 @@ public class InetAddressTest extends junit.framework.TestCase {
             fail("Unexpected problem creating IP Address "
                     + ipAddress.length);
         }
-   
+
         // Regression for HARMONY-61
         try {
             InetAddress.getByAddress(null);
@@ -814,16 +814,16 @@ public class InetAddressTest extends junit.framework.TestCase {
         } catch (UnknownHostException e) {
             // Expected
         }
-        
+
         try {
             byte [] byteArray = new byte[] {};
             InetAddress.getByAddress(byteArray);
             fail("Assert 1: UnknownHostException must be thrown");
         } catch (UnknownHostException e) {
             // Expected
-        }        
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -834,12 +834,12 @@ public class InetAddressTest extends junit.framework.TestCase {
         byte [] ipAddress1 = { 127, 42, 42, 42 };
         InetAddress ia1 = InetAddress.getByAddress(ipAddress1);
         assertFalse(ia1.isAnyLocalAddress());
-        
+
         byte [] ipAddress2 = { 0, 0, 0, 0 };
         InetAddress ia2 = InetAddress.getByAddress(ipAddress2);
-        assertTrue(ia2.isAnyLocalAddress());        
+        assertTrue(ia2.isAnyLocalAddress());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -863,7 +863,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         addr = Inet6Address.getByName(addrName);
         assertTrue("IPv6 address " + addrName
                 + " detected incorrectly as a link local address.", !addr
-                .isLinkLocalAddress()); 
+                .isLinkLocalAddress());
 
         addrName = "42.42.42.42";
         addr = Inet4Address.getByName(addrName);
@@ -871,7 +871,7 @@ public class InetAddressTest extends junit.framework.TestCase {
                 + " incorrectly reporting as a link local address.", !addr
                 .isLinkLocalAddress());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -884,17 +884,17 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertTrue("Loopback address " + addrName + " not detected.", addr
                 .isLoopbackAddress());
 
-        addrName = "127.42.42.42"; 
+        addrName = "127.42.42.42";
         addr = InetAddress.getByName(addrName);
         assertTrue("Loopback address " + addrName + " not detected.", addr
                 .isLoopbackAddress());
 
-        addrName = "42.42.42.42"; 
+        addrName = "42.42.42.42";
         addr = Inet4Address.getByName(addrName);
         assertTrue("Address incorrectly " + addrName
                 + " detected as a loopback address.", !addr
                 .isLoopbackAddress());
-        
+
 
         addrName = "::FFFF:127.42.42.42";
         addr = InetAddress.getByName(addrName);
@@ -905,9 +905,9 @@ public class InetAddressTest extends junit.framework.TestCase {
         addr = InetAddress.getByName(addrName);
         assertTrue("IPv4-compatible IPv6 address incorrectly " + addrName
                 + " detected as a loopback address.", !addr
-                .isLoopbackAddress());        
+                .isLoopbackAddress());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -915,7 +915,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_isMCGlobal() throws Exception {
-        String addrName = "224.0.0.255"; 
+        String addrName = "224.0.0.255";
         InetAddress addr = InetAddress.getByName(addrName);
         assertTrue("IPv4 link-local multicast address " + addrName
                 + " incorrectly identified as a global multicast address.",
@@ -926,7 +926,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertTrue("IPv4 global multicast address " + addrName
                 + " not identified as a global multicast address.", addr
                 .isMCGlobal());
-        
+
         addrName = "FFFE:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF";
         addr = InetAddress.getByName(addrName);
         assertTrue("IPv6 global multicast address " + addrName
@@ -936,9 +936,9 @@ public class InetAddressTest extends junit.framework.TestCase {
         addr = InetAddress.getByName(addrName);
         assertTrue("IPv6 mulitcast organizational " + addrName
                 + " incorrectly indicated as a global address.", !addr
-                .isMCGlobal());        
+                .isMCGlobal());
     }
-   
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -959,8 +959,8 @@ public class InetAddressTest extends junit.framework.TestCase {
                         + addrName
                         + " incorrectly identified as a link-local " +
                                 "multicast address.",
-                !addr.isMCLinkLocal());    
-        
+                !addr.isMCLinkLocal());
+
         addrName = "FFF2:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF";
         addr = InetAddress.getByName(addrName);
         assertTrue("IPv6 link local multicast address " + addrName
@@ -973,9 +973,9 @@ public class InetAddressTest extends junit.framework.TestCase {
                         + addrName
                         + " incorrectly indicated as a link-local " +
                                 "mulitcast address.",
-                !addr.isMCLinkLocal());        
+                !addr.isMCLinkLocal());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -983,7 +983,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_isMCNodeLocal() throws Exception {
-        String addrName = "224.42.42.42"; 
+        String addrName = "224.42.42.42";
         InetAddress addr = InetAddress.getByName(addrName);
         assertTrue(
                 "IPv4 multicast address "
@@ -1003,7 +1003,7 @@ public class InetAddressTest extends junit.framework.TestCase {
                 + " incorrectly indicated as a node-local address.", !addr
                 .isMCNodeLocal());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1024,7 +1024,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertTrue("IPv4 org-local multicast address " + addrName
                 + " not identified as a org-local multicast address.", addr
                 .isMCOrgLocal());
-        
+
         addrName = "FFF8:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF";
         addr = InetAddress.getByName(addrName);
         assertTrue("IPv6 organization-local multicast address " + addrName
@@ -1038,7 +1038,7 @@ public class InetAddressTest extends junit.framework.TestCase {
                         + " incorrectly indicated as an organization-local mulitcast address.",
                 !addr.isMCOrgLocal());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1060,8 +1060,8 @@ public class InetAddressTest extends junit.framework.TestCase {
                         + " incorrectly indicated as a site-local " +
                                 "mulitcast address.",
                 !addr.isMCSiteLocal());
-        
-        addrName = "239.0.0.0"; 
+
+        addrName = "239.0.0.0";
         addr = Inet4Address.getByName(addrName);
         assertTrue(
                 "IPv4 reserved multicast address "
@@ -1074,9 +1074,9 @@ public class InetAddressTest extends junit.framework.TestCase {
         addr = Inet4Address.getByName(addrName);
         assertTrue("IPv4 site-local multicast address " + addrName
                 + " not identified as a site-local multicast address.",
-                addr.isMCSiteLocal());        
+                addr.isMCSiteLocal());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1089,7 +1089,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertTrue("IPv4 address " + addrName
                 + " incorrectly reporting as a site local address.", !addr
                 .isSiteLocalAddress());
-        
+
         addrName = "FEFF::FFFF:FFFF:FFFF:FFFF:FFFF";
         addr = InetAddress.getByName(addrName);
         assertTrue(
@@ -1102,8 +1102,8 @@ public class InetAddressTest extends junit.framework.TestCase {
                 + " detected incorrectly as a site local address.", !addr
                 .isSiteLocalAddress());
     }
-    
-    class MockSecurityManager extends SecurityManager {        
+
+    class MockSecurityManager extends SecurityManager {
         public void checkPermission(Permission permission) {
             if (permission.getName().equals("setSecurityManager")){
                 return;

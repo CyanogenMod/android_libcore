@@ -18,17 +18,17 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The createDocument method with valid arguments, should create a DOM Document
  * of the specified type.
- * 
+ *
  * Call the createDocument on this DOMImplementation with createDocument
  * ("http://www.w3.org/DOMTest/L2",see the array below for valid QNames,null).
  * Check if the returned Document object is is empty with no Document Element.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocument">http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocument</a>
  */
-@TestTargetClass(DOMImplementation.class) 
+@TestTargetClass(DOMImplementation.class)
 public final class DOMImplementationCreateDocument extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -54,7 +54,7 @@ public final class DOMImplementationCreateDocument extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

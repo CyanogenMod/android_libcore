@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.KnownFailure;
 import tests.support.Support_Locale;
 
@@ -34,7 +34,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 
-@TestTargetClass(GregorianCalendar.class) 
+@TestTargetClass(GregorianCalendar.class)
 public class GregorianCalendarTest extends junit.framework.TestCase {
 
     /**
@@ -197,7 +197,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         gc2.setTime(date);
         assertTrue("Incorrect calendar returned",
                 gc1.get(Calendar.HOUR) == ((gc2.get(Calendar.HOUR) + 1) % 12));
-        
+
         // Regression test for HARMONY-2961
         SimpleTimeZone timezone = new SimpleTimeZone(-3600 * 24 * 1000 * 2,
                 "GMT");
@@ -278,7 +278,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         gc1 = new GregorianCalendar(TimeZone.getTimeZone("EST"));
         gc1.set(1999, Calendar.APRIL, 3, 16, 0); // day before DST change
         gc1.add(Calendar.MILLISECOND, 24 * 60 * 60 * 1000);
-        
+
         assertEquals("Wrong time after MILLISECOND change", 16, gc1
               .get(Calendar.HOUR_OF_DAY));
         gc1.set(1999, Calendar.APRIL, 3, 16, 0); // day before DST change
@@ -394,17 +394,17 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
                 .getActualMaximum(Calendar.HOUR));
         assertEquals("Wrong actual maximum value for DAY_OF_WEEK_IN_MONTH", 4, gc6
                 .getActualMaximum(Calendar.DAY_OF_WEEK_IN_MONTH));
-        
-        
+
+
         // Regression test for harmony 2954
         Date date = new Date(Date.parse("Jan 15 00:00:01 GMT 2000"));
         GregorianCalendar gc = new GregorianCalendar();
         gc.setTimeInMillis(Date.parse("Dec 15 00:00:01 GMT 1582"));
-        assertEquals(355, gc.getActualMaximum(Calendar.DAY_OF_YEAR)); 
+        assertEquals(355, gc.getActualMaximum(Calendar.DAY_OF_YEAR));
         gc.setGregorianChange(date);
         gc.setTimeInMillis(Date.parse("Jan 16 00:00:01 GMT 2000"));
-        assertEquals(353, gc.getActualMaximum(Calendar.DAY_OF_YEAR)); 
-        
+        assertEquals(353, gc.getActualMaximum(Calendar.DAY_OF_YEAR));
+
         //Regression test for HARMONY-3004
         gc = new GregorianCalendar(1900, 7, 1);
         String[] ids = TimeZone.getAvailableIDs();
@@ -536,7 +536,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         }
         assertTrue("Wrong least max for " + result + " = " + values, result
                 .length() == 0);
-        
+
         // Regression test for harmony-2947
         Date date = new Date(Date.parse("Jan 1 00:00:01 GMT 2000"));
         gc = new GregorianCalendar();
@@ -745,7 +745,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_clone() {
-        
+
         // Regression for HARMONY-498
         GregorianCalendar gCalend = new GregorianCalendar();
 
@@ -755,12 +755,12 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         // create clone object and change date
         GregorianCalendar gCalendClone = (GregorianCalendar) gCalend.clone();
         gCalendClone.add(Calendar.DATE, 1);
-        
+
         assertEquals("Before", dayOfMonth, gCalend.get(Calendar.DAY_OF_MONTH));
         gCalend.set(Calendar.MILLISECOND, 0);//changes nothing
         assertEquals("After", dayOfMonth, gCalend.get(Calendar.DAY_OF_MONTH));
     }
-    
+
     /**
      * @tests java.util.GregorianCalendar#getMinimalDaysInFirstWeek()
      */
@@ -781,7 +781,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
                 new Locale("fr", "FR"));
         minimalDaysInFirstWeek = g.getMinimalDaysInFirstWeek();
         assertEquals(4, minimalDaysInFirstWeek);
-        
+
         g = new GregorianCalendar(TimeZone.getTimeZone("Europe/London"),
                 new Locale("fr", "CA"));
         minimalDaysInFirstWeek = g.getMinimalDaysInFirstWeek();
@@ -798,7 +798,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_computeTime() {
-    
+
         // Regression for Harmony-493
         GregorianCalendar g = new GregorianCalendar(
             TimeZone.getTimeZone("Europe/London"),
@@ -852,7 +852,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         assertEquals(17,                 g.get(Calendar.HOUR_OF_DAY));
         assertEquals(0,                  g.get(Calendar.MINUTE));
     }
-    
+
     /**
      * @tests java.util.GregorianCalendar#get(int)
      */
@@ -863,14 +863,14 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         args = {int.class}
     )
     @SuppressWarnings("deprecation")
-    public void test_getI() { 
+    public void test_getI() {
         // Regression test for HARMONY-2959
-        Date date = new Date(Date.parse("Jan 15 00:00:01 GMT 2000")); 
-        GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("GMT")); 
-        gc.setGregorianChange(date); 
-        gc.setTimeInMillis(Date.parse("Dec 24 00:00:01 GMT 2000")); 
-        assertEquals(346, gc.get(Calendar.DAY_OF_YEAR)); 
-        
+        Date date = new Date(Date.parse("Jan 15 00:00:01 GMT 2000"));
+        GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        gc.setGregorianChange(date);
+        gc.setTimeInMillis(Date.parse("Dec 24 00:00:01 GMT 2000"));
+        assertEquals(346, gc.get(Calendar.DAY_OF_YEAR));
+
         // Regression test for HARMONY-3003
         date = new Date(Date.parse("Feb 28 00:00:01 GMT 2000"));
         gc = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
@@ -879,7 +879,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         assertEquals(1, gc.get(Calendar.DAY_OF_MONTH));
         assertEquals(11, gc.get(Calendar.MONTH));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -911,7 +911,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         GregorianCalendar g = new GregorianCalendar(
                 TimeZone.getTimeZone("Europe/London"),
                 new Locale("en", "GB"));
-        
+
         for (int i = 0; i < 10; i++) {
             g.setFirstDayOfWeek(i);
             assertEquals(i, g.getFirstDayOfWeek());
@@ -920,7 +920,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         g.setFirstDayOfWeek(10);
         g.setFirstDayOfWeek(-10);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -931,7 +931,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         GregorianCalendar g = new GregorianCalendar(
                 TimeZone.getTimeZone("Europe/London"),
                 new Locale("en", "GB"));
-        
+
         for (int i = 0; i < 10; i++) {
             g.setMinimalDaysInFirstWeek(i);
             assertEquals(i, g.getMinimalDaysInFirstWeek());

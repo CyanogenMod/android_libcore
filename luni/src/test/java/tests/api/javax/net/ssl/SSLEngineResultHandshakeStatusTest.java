@@ -26,11 +26,11 @@ import junit.framework.TestCase;
 
 /**
  * Tests for SSLEngineResult.Status class
- * 
+ *
  */
-@TestTargetClass(SSLEngineResult.HandshakeStatus.class) 
+@TestTargetClass(SSLEngineResult.HandshakeStatus.class)
 public class SSLEngineResultHandshakeStatusTest extends TestCase {
-    
+
     /**
      * Test for <code> SSLEngineResult.HandshakeStatus.values() </code>
      */
@@ -52,7 +52,7 @@ public class SSLEngineResultHandshakeStatusTest extends TestCase {
             fail("Incorrect number of enum constant was returned");
         }
     }
-    
+
     /**
      * Test for <code> SSLEngineResult.HandshakeStatus.valueOf(String name) </code>
      */
@@ -67,7 +67,7 @@ public class SSLEngineResultHandshakeStatusTest extends TestCase {
         String[] str_invalid = {"", "FINISHED1", "NEED_task", "NEED_UN",
                 "NEED_WRAP_WRAP", "not_HANDSHAKING", "Bad string for verification valueOf method"};
         SSLEngineResult.HandshakeStatus enS;
-        
+
         //Correct parameter
         for (int i = 0; i < str.length; i++) {
             try {
@@ -77,7 +77,7 @@ public class SSLEngineResultHandshakeStatusTest extends TestCase {
                 fail("Unexpected exception " + e + " was thrown for " + str[i]);
             }
         }
-        
+
        //Incorrect parameter
         for (int i = 0; i < str_invalid.length; i++) {
             try {
@@ -87,7 +87,7 @@ public class SSLEngineResultHandshakeStatusTest extends TestCase {
                 //expected
             }
         }
-        
+
         //Null parameter
         try {
             enS = SSLEngineResult.HandshakeStatus.valueOf(null);

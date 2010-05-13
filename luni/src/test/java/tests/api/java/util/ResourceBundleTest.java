@@ -21,7 +21,7 @@ import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -38,7 +38,7 @@ import java.util.Vector;
 import tests.api.java.util.support.B;
 import tests.support.resource.Support_Resources;
 
-@TestTargetClass(ResourceBundle.class) 
+@TestTargetClass(ResourceBundle.class)
 public class ResourceBundleTest extends junit.framework.TestCase {
     SecurityManager sm = new SecurityManager() {
 
@@ -67,7 +67,7 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         assertEquals("Wrong bundle fr_FR_VAR", "frFRVARValue4", bundle.getString("parent4")
                 );
         bundle = ResourceBundle.getBundle(name, new Locale("fr", "FR", "v1"));
-        assertEquals("Wrong bundle fr_FR_v1", 
+        assertEquals("Wrong bundle fr_FR_v1",
                 "frFRValue4", bundle.getString("parent4"));
         bundle = ResourceBundle.getBundle(name, new Locale("fr", "US", "VAR"));
         assertEquals("Wrong bundle fr_US_var", "frValue4", bundle.getString("parent4")
@@ -111,7 +111,7 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         try {
             ResourceBundle.getBundle(null, Locale.getDefault());
             fail("NullPointerException expected");
@@ -170,23 +170,23 @@ public class ResourceBundleTest extends junit.framework.TestCase {
                 .getDefault());
             assertEquals("Wrong value read", "parent", bundle.getString("property"));
         bundle = ResourceBundle.getBundle(name, Locale.getDefault(), loader);
-        assertEquals("Wrong cached value", 
+        assertEquals("Wrong cached value",
                 "resource", bundle.getString("property"));
-        
+
         try {
             ResourceBundle.getBundle(null, Locale.getDefault(), loader);
             fail("NullPointerException expected");
         } catch (NullPointerException ee) {
             //expected
         }
-        
+
         try {
             ResourceBundle.getBundle(name, null, loader);
             fail("NullPointerException expected");
         } catch (NullPointerException ee) {
             //expected
         }
-        
+
         try {
             ResourceBundle.getBundle(name, Locale.getDefault(), (ClassLoader) null);
             fail("NullPointerException expected");
@@ -222,21 +222,21 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         String name = "tests.support.Support_TestResource";
         Locale.setDefault(new Locale("en", "US"));
         bundle = ResourceBundle.getBundle(name, new Locale("fr", "FR", "VAR"));
-        assertEquals("Wrong value parent4", 
+        assertEquals("Wrong value parent4",
                 "frFRVARValue4", bundle.getString("parent4"));
-        assertEquals("Wrong value parent3", 
+        assertEquals("Wrong value parent3",
                 "frFRValue3", bundle.getString("parent3"));
-        assertEquals("Wrong value parent2", 
+        assertEquals("Wrong value parent2",
                 "frValue2", bundle.getString("parent2"));
-        assertEquals("Wrong value parent1", 
+        assertEquals("Wrong value parent1",
                 "parentValue1", bundle.getString("parent1"));
-        assertEquals("Wrong value child3", 
+        assertEquals("Wrong value child3",
                 "frFRVARChildValue3", bundle.getString("child3"));
-        assertEquals("Wrong value child2", 
+        assertEquals("Wrong value child2",
                 "frFRVARChildValue2", bundle.getString("child2"));
-        assertEquals("Wrong value child1", 
+        assertEquals("Wrong value child1",
                 "frFRVARChildValue1", bundle.getString("child1"));
-        
+
         try {
             bundle.getString(null);
             fail("NullPointerException expected");
@@ -275,7 +275,7 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         } catch (MissingResourceException e) {
             assertEquals(nonExistentBundle + "_" + locale, e.getClassName());
         }
-        
+
         try {
             ResourceBundle.getBundle(nonExistentBundle, locale);
             fail("MissingResourceException expected!");
@@ -291,7 +291,7 @@ public class ResourceBundleTest extends junit.framework.TestCase {
             assertEquals(nonExistentBundle + "_" + locale, e.getClassName());
         }
     }
-    
+
     class Mock_ResourceBundle extends ResourceBundle {
         @Override
         public Enumeration<String> getKeys() {
@@ -303,7 +303,7 @@ public class ResourceBundleTest extends junit.framework.TestCase {
             return null;
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -328,7 +328,7 @@ public class ResourceBundleTest extends junit.framework.TestCase {
 
         bundle = ResourceBundle.getBundle(name, new Locale("fr", "FR", "VAR"));
         assertEquals("fr_FR_VAR", bundle.getLocale().toString());
-        
+
         bundle = ResourceBundle.getBundle(name, new Locale("fr", "FR", "v1"));
         assertEquals("fr_FR", bundle.getLocale().toString());
 
@@ -358,23 +358,23 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         String name = "tests.support.Support_TestResource";
         Locale.setDefault(new Locale("en", "US"));
         bundle = ResourceBundle.getBundle(name, new Locale("fr", "FR", "VAR"));
-        assertEquals("Wrong value parent4", 
+        assertEquals("Wrong value parent4",
                 "frFRVARValue4", (String)bundle.getObject("parent4"));
-        assertEquals("Wrong value parent3", 
+        assertEquals("Wrong value parent3",
                 "frFRValue3", (String)bundle.getObject("parent3"));
-        assertEquals("Wrong value parent2", 
+        assertEquals("Wrong value parent2",
                 "frValue2", (String)bundle.getObject("parent2"));
-        assertEquals("Wrong value parent1", 
+        assertEquals("Wrong value parent1",
                 "parentValue1", (String)bundle.getObject("parent1"));
-        assertEquals("Wrong value child3", 
+        assertEquals("Wrong value child3",
                 "frFRVARChildValue3", (String)bundle.getObject("child3"));
-        assertEquals("Wrong value child2", 
+        assertEquals("Wrong value child2",
                 "frFRVARChildValue2", (String)bundle.getObject("child2"));
-        assertEquals("Wrong value child1", 
+        assertEquals("Wrong value child1",
                 "frFRVARChildValue1", (String)bundle.getObject("child1"));
-        assertEquals("Wrong value IntegerVal", 
+        assertEquals("Wrong value IntegerVal",
                 1, bundle.getObject("IntegerVal"));
-        
+
         try {
             bundle.getObject(null);
             fail("NullPointerException expected");
@@ -409,12 +409,12 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         String name = "tests.support.Support_TestResource";
         Locale.setDefault(new Locale("en", "US"));
         bundle = ResourceBundle.getBundle(name, new Locale("fr", "FR", "VAR"));
-        
+
         String[] array = bundle.getStringArray("StringArray");
         for(int i = 0; i < array.length; i++) {
             assertEquals("Str" + (i + 1), array[i]);
         }
-        
+
         try {
             bundle.getStringArray(null);
             fail("NullPointerException expected");
@@ -454,7 +454,7 @@ public class ResourceBundleTest extends junit.framework.TestCase {
                 );
         Locale.setDefault(new Locale("fr", "FR", "v1"));
         bundle = ResourceBundle.getBundle(name);
-        assertEquals("Wrong bundle fr_FR_v1", 
+        assertEquals("Wrong bundle fr_FR_v1",
                 "frFRValue4", bundle.getString("parent4"));
         Locale.setDefault(new Locale("fr", "US", "VAR"));
         bundle = ResourceBundle.getBundle(name);
@@ -472,7 +472,7 @@ public class ResourceBundleTest extends junit.framework.TestCase {
         bundle = ResourceBundle.getBundle(name);
         assertEquals("Wrong bundle de_FR_var 2", "parentValue4", bundle.getString("parent4")
                 );
-        
+
         try {
             ResourceBundle.getBundle(null);
             fail("NullPointerException expected");

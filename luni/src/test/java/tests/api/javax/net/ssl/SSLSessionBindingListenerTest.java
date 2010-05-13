@@ -37,19 +37,19 @@ import junit.framework.TestCase;
 
 /**
  * Tests for SSLSessionBindingListener class
- * 
+ *
  */
-@TestTargetClass(SSLSessionBindingListener.class) 
+@TestTargetClass(SSLSessionBindingListener.class)
 public class SSLSessionBindingListenerTest extends TestCase {
-    
+
     public class mySSLSessionBindingListener implements SSLSessionBindingListener {
-        
+
         public boolean boundDone = false;
         public boolean unboundDone = false;
-        
+
         mySSLSessionBindingListener() {
         }
-        
+
         public void valueBound(SSLSessionBindingEvent event) {
             if (event != null) boundDone = true;
         }
@@ -57,11 +57,11 @@ public class SSLSessionBindingListenerTest extends TestCase {
             if (event != null) unboundDone = true;
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws UnknownHostException 
-     * @throws InterruptedException 
+     * @throws IOException
+     * @throws UnknownHostException
+     * @throws InterruptedException
      * @tests javax.net.ssl.SSLSessionBindingListener#valueBound(SSLSessionBindingEvent event)
      */
     @TestTargetNew(
@@ -79,10 +79,10 @@ public class SSLSessionBindingListenerTest extends TestCase {
         ss.putValue("test", sbl);
         assertTrue("valueBound was not called.", sbl.boundDone);
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws UnknownHostException 
+     * @throws IOException
+     * @throws UnknownHostException
      * @tests javax.net.ssl.SSLSessionBindingListener#valueUnbound(SSLSessionBindingEvent event)
      */
     @TestTargetNew(

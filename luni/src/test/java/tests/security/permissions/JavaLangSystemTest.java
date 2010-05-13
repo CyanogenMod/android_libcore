@@ -36,7 +36,7 @@ import java.util.PropertyPermission;
  */
 @TestTargetClass(java.lang.System.class)
 public class JavaLangSystemTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -51,7 +51,7 @@ public class JavaLangSystemTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -69,11 +69,11 @@ public class JavaLangSystemTest extends TestCase {
     public void test_Properties() {
         class TestSecurityManager extends SecurityManager {
             boolean called;
-            
+
             void reset(){
                 called = false;
             }
-            
+
             @Override
             public void checkPropertiesAccess() {
                 called = true;
@@ -84,14 +84,14 @@ public class JavaLangSystemTest extends TestCase {
                 // nothing to do
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         Properties props = System.getProperties();
         assertTrue("System.getProperties must call checkPropertiesAccess on security manager", s.called);
-        
+
         s.reset();
         System.setProperties(props);
         assertTrue("System.setProperties must call checkPropertiesAccess on security manager", s.called);
@@ -115,12 +115,12 @@ public class JavaLangSystemTest extends TestCase {
         class TestSecurityManager extends SecurityManager {
             boolean called;
             String key;
-            
+
             void reset(){
                 called = false;
                 key = null;
             }
-            
+
             @Override
             public void checkPropertyAccess(String key) {
                 called = true;
@@ -132,21 +132,21 @@ public class JavaLangSystemTest extends TestCase {
                 // nothing to do
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         System.getProperty("key");
         assertTrue("System.getProperty must call checkPropertyAccess on security manager", s.called);
         assertEquals("Argument of checkPropertyAccess is not correct", "key", s.key);
-        
+
         s.reset();
         System.getProperty("key", "value");
         assertTrue("System.getProperty must call checkPropertyAccess on security manager", s.called);
         assertEquals("Argument of checkPropertyAccess is not correct", "key", s.key);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies that System.setProperty method calls checkPermission of security manager.",
@@ -157,28 +157,28 @@ public class JavaLangSystemTest extends TestCase {
         class TestSecurityManager extends SecurityManager {
             boolean called;
             Permission p;
-            
+
             void reset(){
                 called = false;
                 p = null;
             }
-            
+
             @Override
             public void checkPermission(Permission p) {
                 called = true;
                 this.p = p;
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         System.setProperty("key", "value");
         assertTrue("System.setProperty must call checkPermission on security manager", s.called);
         assertEquals("Argument of checkPermission is not correct", new PropertyPermission("key", "write"), s.p);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies that System.setSecurityManager method checks security permissions.",
@@ -191,18 +191,18 @@ public class JavaLangSystemTest extends TestCase {
             @Override
             public void checkPermission(Permission permission) {
                 if(permission instanceof RuntimePermission && "setSecurityManager".equals(permission.getName())){
-                    called = true;              
+                    called = true;
                 }
             }
-            
+
         }
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         System.setSecurityManager(s);
         assertTrue("System.setSecurityManager must check security permissions", s.called);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -231,19 +231,19 @@ public class JavaLangSystemTest extends TestCase {
         class TestSecurityManager extends SecurityManager {
             boolean called;
             Permission p;
-            
+
             void reset(){
                 called = false;
                 p = null;
             }
-            
+
             @Override
             public void checkPermission(Permission p) {
                 called = true;
                 this.p = p;
             }
         }
-        
+
         InputStream in = System.in;
         PrintStream out = System.out;
         PrintStream err = System.err;
@@ -251,7 +251,7 @@ public class JavaLangSystemTest extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         System.setIn(in);
         assertTrue("System.setIn(Inputstream) must call checkPermission on security manager", s.called);
@@ -293,7 +293,7 @@ public class JavaLangSystemTest extends TestCase {
                 // nothing to do
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
 
@@ -334,7 +334,7 @@ public class JavaLangSystemTest extends TestCase {
                 // nothing to do
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
 
@@ -365,9 +365,9 @@ public class JavaLangSystemTest extends TestCase {
     })
     public void test_load() {
         final String library = "library";
-        
+
         class CheckLinkCalledException extends RuntimeException {}
-        
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkLink(String lib){
@@ -382,7 +382,7 @@ public class JavaLangSystemTest extends TestCase {
                 // nothing to do
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
 
@@ -396,7 +396,7 @@ public class JavaLangSystemTest extends TestCase {
         catch(Throwable t){
             fail("System.load must call checkLink on security manager with argument \"" + library + "\"");
         }
-        
+
         try {
             System.loadLibrary(library);
             fail("System.loadLibrary must call checkLink on security manager with argument \"" + library + "\"");
@@ -407,6 +407,6 @@ public class JavaLangSystemTest extends TestCase {
         catch(Throwable t){
             fail("System.loadLibrary must call checkLink on security manager with argument \"" + library + "\"");
         }
-        
+
     }
 }

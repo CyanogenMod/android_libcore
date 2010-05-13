@@ -31,7 +31,7 @@ import org.apache.harmony.nio.internal.DirectBuffer;
  * <p>
  * All methods are marked final for runtime performance.
  * </p>
- * 
+ *
  */
 abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
@@ -85,9 +85,9 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
 
     /*
      * Override ByteBuffer.get(byte[], int, int) to improve performance.
-     * 
+     *
      * (non-Javadoc)
-     * 
+     *
      * @see java.nio.ByteBuffer#get(byte[], int, int)
      */
     @Override
@@ -252,7 +252,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
      * #free() method on this instance -- generally applications will rely on
      * the garbage collector to autofree this memory.
      * </p>
-     * 
+     *
      * @return the effective address of the start of the buffer.
      * @throws IllegalStateException
      *             if this buffer address is known to have been freed

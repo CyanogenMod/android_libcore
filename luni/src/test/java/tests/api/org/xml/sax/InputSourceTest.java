@@ -40,7 +40,7 @@ public class InputSourceTest extends TestCase {
     )
     public void testInputSource() {
         InputSource i = new InputSource();
-        
+
         assertNull(i.getByteStream());
         assertNull(i.getCharacterStream());
         assertNull(i.getEncoding());
@@ -55,7 +55,7 @@ public class InputSourceTest extends TestCase {
     )
     public void testInputSourceString() {
         InputSource i = new InputSource("Foo");
-        
+
         assertNull(i.getByteStream());
         assertNull(i.getCharacterStream());
         assertNull(i.getEncoding());
@@ -70,10 +70,10 @@ public class InputSourceTest extends TestCase {
     )
     public void testInputSourceInputStream() {
         ByteArrayInputStream bais = new ByteArrayInputStream(new byte[0]);
-        
+
         // Ordinary case
         InputSource i = new InputSource(bais);
-        
+
         assertEquals(bais, i.getByteStream());
         assertNull(i.getCharacterStream());
         assertNull(i.getEncoding());
@@ -82,7 +82,7 @@ public class InputSourceTest extends TestCase {
 
         // No input stream
         i = new InputSource((InputStream)null);
-        
+
         assertNull(i.getByteStream());
         assertNull(i.getCharacterStream());
         assertNull(i.getEncoding());
@@ -97,10 +97,10 @@ public class InputSourceTest extends TestCase {
     )
     public void testInputSourceReader() {
         StringReader sr = new StringReader("Hello, world.");
-        
+
         // Ordinary case
         InputSource i = new InputSource(sr);
-        
+
         assertNull(i.getByteStream());
         assertEquals(sr, i.getCharacterStream());
         assertNull(i.getEncoding());
@@ -109,7 +109,7 @@ public class InputSourceTest extends TestCase {
 
         // No reader
         i = new InputSource((Reader)null);
-        
+
         assertNull(i.getByteStream());
         assertNull(i.getCharacterStream());
         assertNull(i.getEncoding());
@@ -131,10 +131,10 @@ public class InputSourceTest extends TestCase {
     })
     public void testSetPublicIdGetPublicId() {
         InputSource i = new InputSource();
-        
+
         i.setPublicId("Foo");
         assertEquals("Foo", i.getPublicId());
-        
+
         i.setPublicId(null);
         assertNull(i.getPublicId());
     }
@@ -153,10 +153,10 @@ public class InputSourceTest extends TestCase {
     })
     public void testSetSystemIdGetSystemId() {
         InputSource i = new InputSource();
-        
+
         i.setSystemId("Foo");
         assertEquals("Foo", i.getSystemId());
-        
+
         i.setSystemId(null);
         assertNull(i.getSystemId());
     }
@@ -175,17 +175,17 @@ public class InputSourceTest extends TestCase {
     })
     public void testSetByteStreamGetByteStream() {
         ByteArrayInputStream bais = new ByteArrayInputStream(new byte[0]);
-        
+
         InputSource i = new InputSource();
-        
+
         // Ordinary case
         i.setByteStream(bais);
-        
+
         assertEquals(bais, i.getByteStream());
 
         // No input stream
         i.setByteStream(null);
-        
+
         assertNull(i.getByteStream());
     }
 
@@ -203,15 +203,15 @@ public class InputSourceTest extends TestCase {
     })
     public void testSetEncodingGetEncoding() {
         InputSource i = new InputSource();
-        
+
         // Ordinary case
         i.setEncoding("Klingon");
-        
+
         assertEquals("Klingon", i.getEncoding());
 
         // No encoding
         i.setEncoding(null);
-        
+
         assertNull(i.getEncoding());
     }
 
@@ -229,12 +229,12 @@ public class InputSourceTest extends TestCase {
     })
     public void testSetCharacterStreamGetCharacterStream() {
         StringReader sr = new StringReader("Hello, world.");
-        
+
         InputSource i = new InputSource();
-        
+
         // Ordinary case
         i.setCharacterStream(sr);
-        
+
         assertNull(i.getByteStream());
         assertEquals(sr, i.getCharacterStream());
         assertNull(i.getEncoding());
@@ -243,7 +243,7 @@ public class InputSourceTest extends TestCase {
 
         // No reader
         i.setCharacterStream(null);
-        
+
         assertNull(i.getByteStream());
         assertNull(i.getCharacterStream());
         assertNull(i.getEncoding());

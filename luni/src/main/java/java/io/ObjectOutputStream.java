@@ -293,7 +293,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         if (implementationClass != thisClass) {
             boolean mustCheck = false;
             try {
-                Method method = implementationClass.getMethod("putFields", 
+                Method method = implementationClass.getMethod("putFields",
                         ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
                 mustCheck = method.getDeclaringClass() != thisClass;
             } catch (NoSuchMethodException e) {
@@ -301,7 +301,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
             if (!mustCheck) {
                 try {
                     Method method = implementationClass.getMethod(
-                            "writeUnshared", 
+                            "writeUnshared",
                             ObjectStreamClass.UNSHARED_PARAM_TYPES);
                     mustCheck = method.getDeclaringClass() != thisClass;
                 } catch (NoSuchMethodException e) {
@@ -720,12 +720,12 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
     public void useProtocolVersion(int version) throws IOException {
         if (!objectsWritten.isEmpty()) {
             // KA028=Cannot set protocol version when stream in use
-            throw new IllegalStateException(Msg.getString("KA028")); 
+            throw new IllegalStateException(Msg.getString("KA028"));
         }
         if (version != ObjectStreamConstants.PROTOCOL_VERSION_1
                 && version != ObjectStreamConstants.PROTOCOL_VERSION_2) {
             // K00b3=Unknown protocol\: {0}
-            throw new IllegalArgumentException(Msg.getString("K00b3", version)); 
+            throw new IllegalArgumentException(Msg.getString("K00b3", version));
         }
         protocolVersion = version;
     }
@@ -1141,7 +1141,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
                         default:
                             throw new IOException(
                                     org.apache.harmony.luni.util.Msg.getString(
-                                            "K00d5", fieldDesc.getTypeCode())); 
+                                            "K00d5", fieldDesc.getTypeCode()));
                     }
                 } else {
                     // Object type (array included).
@@ -1370,7 +1370,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
             } else {
                 throw new InvalidClassException(
                         org.apache.harmony.luni.util.Msg.getString(
-                                "K00d7", arrayClass.getName())); 
+                                "K00d7", arrayClass.getName()));
             }
         } else {
             // Array of Objects

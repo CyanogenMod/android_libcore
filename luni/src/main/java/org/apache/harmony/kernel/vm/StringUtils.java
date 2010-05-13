@@ -26,11 +26,11 @@ public final class StringUtils {
     private StringUtils() {
         // This space intentionally left blank.
     }
-    
+
     /**
      * Combine a list of strings in an <code>Object[]</code> into a single
      * string.
-     * 
+     *
      * @param list non-null; the strings to combine
      * @return non-null; the combined form
      */
@@ -53,11 +53,11 @@ public final class StringUtils {
         }
 
         StringBuilder sb = new StringBuilder(strLength);
-        
+
         for (int i = 0; i < listLength; i++) {
             sb.append(list[i]);
         }
-        
+
         return sb.toString();
     }
 }

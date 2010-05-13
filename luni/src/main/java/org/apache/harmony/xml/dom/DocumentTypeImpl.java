@@ -46,12 +46,12 @@ public final class DocumentTypeImpl extends LeafNodeImpl implements DocumentType
         if (qualifiedName == null || "".equals(qualifiedName)) {
             throw new DOMException(DOMException.NAMESPACE_ERR, qualifiedName);
         }
-        
+
         int prefixSeparator = qualifiedName.lastIndexOf(":");
         if (prefixSeparator != -1) {
             String prefix = qualifiedName.substring(0, prefixSeparator);
             String localName = qualifiedName.substring(prefixSeparator + 1);
-            
+
             if (!DocumentImpl.isXMLIdentifier(prefix)) {
                 throw new DOMException(DOMException.NAMESPACE_ERR, qualifiedName);
             }
@@ -64,7 +64,7 @@ public final class DocumentTypeImpl extends LeafNodeImpl implements DocumentType
                 throw new DOMException(DOMException.INVALID_CHARACTER_ERR, qualifiedName);
             }
         }
-        
+
         this.qualifiedName = qualifiedName;
         this.publicId = publicId;
         this.systemId = systemId;

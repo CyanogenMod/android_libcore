@@ -40,7 +40,7 @@ public class Handler extends URLStreamHandler {
             throws IOException {
         if ((url == null) || (proxy == null)) {
             // K034b=url and proxy can not be null
-            throw new IllegalArgumentException(Msg.getString("K034b")); 
+            throw new IllegalArgumentException(Msg.getString("K034b"));
         }
         return new HttpsURLConnectionImpl(url, getDefaultPort(), proxy);
     }

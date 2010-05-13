@@ -20,7 +20,7 @@ package java.security;
 /**
  * {@code UnrecoverableKeyException} indicates, that a key cannot be recovered
  * from a {@code KeyStore}.
- * 
+ *
  * @see KeyStore
  */
 public class UnrecoverableKeyException extends GeneralSecurityException {

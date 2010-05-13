@@ -12,7 +12,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 @TestTargetClass(UndeclaredThrowableException.class)
 public class UndeclaredThrowableExceptionTests extends TestCase {
-    
+
     private static EOFException throwable = new EOFException();
     private static String msg = "TEST_MSG";
     /**
@@ -29,7 +29,7 @@ public class UndeclaredThrowableExceptionTests extends TestCase {
                 throwable);
         assertSame("Wrong cause returned", throwable, ute.getCause());
     }
-    
+
     /**
      * @tests java.lang.reflect.UndeclaredThrowableException#getUndeclaredThrowable()
      */
@@ -45,7 +45,7 @@ public class UndeclaredThrowableExceptionTests extends TestCase {
         assertSame("Wrong undeclared throwable returned", throwable, ute
                 .getUndeclaredThrowable());
     }
-    
+
     /**
      * @tests java.lang.reflect.UndeclaredThrowableException#UndeclaredThrowableException(java.lang.Throwable)
      */
@@ -62,7 +62,7 @@ public class UndeclaredThrowableExceptionTests extends TestCase {
         assertEquals("Wrong throwable returned", throwable, e
                 .getUndeclaredThrowable());
     }
-    
+
     /**
      * @tests java.lang.reflect.UndeclaredThrowableException#UndeclaredThrowableException(java.lang.Throwable, java.lang.String)
      */

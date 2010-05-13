@@ -30,9 +30,9 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 
 /**
- * 
+ *
  * This class implements common functionality for all engine classes
- * 
+ *
  */
 public class Engine {
 
@@ -65,7 +65,7 @@ public class Engine {
 
     /**
      * Creates a Engine object
-     * 
+     *
      * @param service
      */
     public Engine(String service) {
@@ -73,10 +73,10 @@ public class Engine {
     }
 
     /**
-     * 
+     *
      * Finds the appropriate service implementation and creates instance of the
      * class that implements corresponding Service Provider Interface.
-     * 
+     *
      * @param algorithm
      * @param service
      * @throws NoSuchAlgorithmException
@@ -86,7 +86,7 @@ public class Engine {
         Provider.Service serv;
 
         if (algorithm == null) {
-            throw new NoSuchAlgorithmException(Messages.getString("security.149")); 
+            throw new NoSuchAlgorithmException(Messages.getString("security.149"));
         }
         Services.refresh();
         if (returnedService != null
@@ -95,14 +95,14 @@ public class Engine {
             serv = returnedService;
         } else {
             if (Services.isEmpty()) {
-                throw new NoSuchAlgorithmException(Messages.getString("security.14A", 
+                throw new NoSuchAlgorithmException(Messages.getString("security.14A",
                         serviceName, algorithm));
             }
             serv = Services.getService(new StringBuilder(128)
-                    .append(serviceName).append(".").append( 
+                    .append(serviceName).append(".").append(
                             Util.toUpperCase(algorithm)).toString());
             if (serv == null) {
-                throw new NoSuchAlgorithmException(Messages.getString("security.14A", 
+                throw new NoSuchAlgorithmException(Messages.getString("security.14A",
                         serviceName, algorithm));
             }
             returnedService = serv;
@@ -114,10 +114,10 @@ public class Engine {
     }
 
     /**
-     * 
+     *
      * Finds the appropriate service implementation and creates instance of the
      * class that implements corresponding Service Provider Interface.
-     * 
+     *
      * @param algorithm
      * @param service
      * @param provider
@@ -129,11 +129,11 @@ public class Engine {
         Provider.Service serv = null;
         if (algorithm == null) {
             throw new NoSuchAlgorithmException(
-                    Messages.getString("security.14B", serviceName)); 
+                    Messages.getString("security.14B", serviceName));
         }
         serv = provider.getService(serviceName, algorithm);
         if (serv == null) {
-            throw new NoSuchAlgorithmException(Messages.getString("security.14A", 
+            throw new NoSuchAlgorithmException(Messages.getString("security.14A",
                     serviceName, algorithm));
         }
         spi = serv.newInstance(param);

@@ -9,31 +9,31 @@ public class MockPreferenceChangeListener implements PreferenceChangeListener {
     private int changed = 0;
 
     private boolean addDispatched = false;
-    
+
     public static final int TEST_GET_KEY = 1;
 
     public static final int TEST_GET_NEW_VALUE = 2;
-    
+
     public static final int TEST_GET_NODE = 3;
-    
+
     boolean result = false;
-    
+
     int testNum = 0;
-    
-    
+
+
     public MockPreferenceChangeListener() {
-        
+
     }
-    
+
     public MockPreferenceChangeListener(int test) {
         testNum = test;
     }
-    
+
     public void waitForEvent() {
         waitForEvent(1);
     }
-    
-    
+
+
     public void waitForEvent(int count) {
         for (int i = 0; i < count; i++) {
             try {
@@ -55,22 +55,22 @@ public class MockPreferenceChangeListener implements PreferenceChangeListener {
                         if(pce.getKey().equals("key_int")) {
                             result = true;
                         }
-                    } 
+                    }
                     break;
                 case TEST_GET_NEW_VALUE:
                     if(pce != null) {
                         if(pce.getNewValue().equals(new Integer(Integer.MAX_VALUE).toString())) {
                             result = true;
                         }
-                    }                     
+                    }
                     break;
                 case TEST_GET_NODE:
                     if(pce != null) {
                         if("mock".equals(pce.getNode().name())) {
                             result = true;
                         }
-                    }                     
-    
+                    }
+
                     break;
             }
             changed++;
@@ -94,7 +94,7 @@ public class MockPreferenceChangeListener implements PreferenceChangeListener {
             return result;
         }
     }
-    
+
     public int getChanged() {
         synchronized (lock) {
 

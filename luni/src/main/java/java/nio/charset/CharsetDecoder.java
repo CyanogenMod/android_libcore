@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -120,7 +120,7 @@ public abstract class CharsetDecoder {
      * <code>Charset</code>, average number and maximum number of characters
      * created by this decoder for one input byte, and the default replacement
      * string "\uFFFD".
-     * 
+     *
      * @param charset
      *            the <code>Charset</code> to be used by this decoder.
      * @param averageCharsPerByte
@@ -153,7 +153,7 @@ public abstract class CharsetDecoder {
     /**
      * Gets the average number of characters created by this decoder for a
      * single input byte.
-     * 
+     *
      * @return the average number of characters created by this decoder for a
      *         single input byte.
      */
@@ -163,7 +163,7 @@ public abstract class CharsetDecoder {
 
     /**
      * Gets the <code>Charset</code> which this decoder uses.
-     * 
+     *
      * @return the <code>Charset</code> which this decoder uses.
      */
     public final Charset charset() {
@@ -422,7 +422,7 @@ public abstract class CharsetDecoder {
      * <p>
      * Note that some implementations may pre-scan the input buffer and return a
      * <code>CoderResult.UNDERFLOW</code> until it receives sufficient input.
-     * 
+     *
      * @param in
      *            the input buffer.
      * @param out
@@ -459,7 +459,7 @@ public abstract class CharsetDecoder {
 
     /**
      * Flushes this decoder.
-     * 
+     *
      * This method will call {@link #implFlush(CharBuffer) implFlush}. Some
      * decoders may need to write some characters to the output buffer when they
      * have read all input bytes; subclasses can override
@@ -504,7 +504,7 @@ public abstract class CharsetDecoder {
      * Flushes this decoder. The default implementation does nothing and always
      * returns <code>CoderResult.UNDERFLOW</code>; this method can be
      * overridden if needed.
-     * 
+     *
      * @param out
      *            the output buffer.
      * @return <code>CoderResult.UNDERFLOW</code> or
@@ -518,7 +518,7 @@ public abstract class CharsetDecoder {
      * Notifies that this decoder's <code>CodingErrorAction</code> specified
      * for malformed input error has been changed. The default implementation
      * does nothing; this method can be overridden if needed.
-     * 
+     *
      * @param newAction
      *            the new action.
      */
@@ -530,7 +530,7 @@ public abstract class CharsetDecoder {
      * Notifies that this decoder's <code>CodingErrorAction</code> specified
      * for unmappable character error has been changed. The default
      * implementation does nothing; this method can be overridden if needed.
-     * 
+     *
      * @param newAction
      *            the new action.
      */
@@ -541,7 +541,7 @@ public abstract class CharsetDecoder {
     /**
      * Notifies that this decoder's replacement has been changed. The default
      * implementation does nothing; this method can be overridden if needed.
-     * 
+     *
      * @param newReplacement
      *            the new replacement string.
      */
@@ -559,7 +559,7 @@ public abstract class CharsetDecoder {
 
     /**
      * Indicates whether this decoder implements an auto-detecting charset.
-     * 
+     *
      * @return <code>true</code> if this decoder implements an auto-detecting
      *         charset.
      */
@@ -586,7 +586,7 @@ public abstract class CharsetDecoder {
      * The default implementation always throws an
      * <code>UnsupportedOperationException</code>; it should be overridden by
      * a subclass if needed.
-     * 
+     *
      * @return <code>true</code> if this decoder has detected a charset.
      * @throws UnsupportedOperationException
      *             if this decoder doesn't implement an auto-detecting charset.
@@ -598,7 +598,7 @@ public abstract class CharsetDecoder {
     /**
      * Gets this decoder's <code>CodingErrorAction</code> when malformed input
      * occurred during the decoding process.
-     * 
+     *
      * @return this decoder's <code>CodingErrorAction</code> when malformed
      *         input occurred during the decoding process.
      */
@@ -609,7 +609,7 @@ public abstract class CharsetDecoder {
     /**
      * Gets the maximum number of characters which can be created by this
      * decoder for one input byte, must be positive.
-     * 
+     *
      * @return the maximum number of characters which can be created by this
      *         decoder for one input byte, must be positive.
      */
@@ -619,11 +619,11 @@ public abstract class CharsetDecoder {
 
     /**
      * Sets this decoder's action on malformed input errors.
-     * 
+     *
      * This method will call the
      * {@link #implOnMalformedInput(CodingErrorAction) implOnMalformedInput}
      * method with the given new action as argument.
-     * 
+     *
      * @param newAction
      *            the new action on malformed input error.
      * @return this decoder.
@@ -641,11 +641,11 @@ public abstract class CharsetDecoder {
 
     /**
      * Sets this decoder's action on unmappable character errors.
-     * 
+     *
      * This method will call the
      * {@link #implOnUnmappableCharacter(CodingErrorAction) implOnUnmappableCharacter}
      * method with the given new action as argument.
-     * 
+     *
      * @param newAction
      *            the new action on unmappable character error.
      * @return this decoder.
@@ -664,7 +664,7 @@ public abstract class CharsetDecoder {
 
     /**
      * Gets the replacement string, which is never null or empty.
-     * 
+     *
      * @return the replacement string, cannot be null or empty.
      */
     public final String replacement() {
@@ -673,12 +673,12 @@ public abstract class CharsetDecoder {
 
     /**
      * Sets the new replacement string.
-     * 
+     *
      * This method first checks the given replacement's validity, then changes
      * the replacement value, and at last calls the
      * {@link #implReplaceWith(String) implReplaceWith} method with the given
      * new replacement as argument.
-     * 
+     *
      * @param newReplacement
      *            the replacement string, cannot be null or empty. Its length
      *            cannot be larger than {@link #maxCharsPerByte()}.
@@ -703,7 +703,7 @@ public abstract class CharsetDecoder {
      * Resets this decoder. This method will reset the internal status, and then
      * calls <code>implReset()</code> to reset any status related to the
      * specific charset.
-     * 
+     *
      * @return this decoder.
      */
     public final CharsetDecoder reset() {
@@ -715,7 +715,7 @@ public abstract class CharsetDecoder {
     /**
      * Gets this decoder's <code>CodingErrorAction</code> when an unmappable
      * character error occurred during the decoding process.
-     * 
+     *
      * @return this decoder's <code>CodingErrorAction</code> when an
      *         unmappable character error occurred during the decoding process.
      */

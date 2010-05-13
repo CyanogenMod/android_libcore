@@ -35,7 +35,7 @@ import java.security.spec.RSAPublicKeySpec;
 
 /**
  * Tests for <code>RSAPublicKeySpec</code> class fields and methods
- * 
+ *
  */
 @TestTargetClass(RSAPublicKeySpec.class)
 public class RSAPublicKeySpecTest extends TestCase {
@@ -55,7 +55,7 @@ public class RSAPublicKeySpecTest extends TestCase {
         KeySpec ks =
             new RSAPublicKeySpec(BigInteger.valueOf(1234567890L),
                                  BigInteger.valueOf(3L));
-        
+
         assertTrue(ks instanceof RSAPublicKeySpec);
     }
 
@@ -76,7 +76,7 @@ public class RSAPublicKeySpecTest extends TestCase {
 
         assertTrue(ks instanceof RSAPublicKeySpec);
     }
-    
+
     /**
      * Test for <code>getModulus()</code> method<br>
      * Assertion: returns modulus

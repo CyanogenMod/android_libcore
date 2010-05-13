@@ -28,7 +28,7 @@ public class AllTests {
         TestSuite suite = new TestSuite("Test for java.lang.ref");
 
         // $JUnit-BEGIN$
-        
+
         suite.addTestSuite(PhantomReferenceTest.class);
         suite.addTestSuite(ReferenceQueueTest.class);
         suite.addTestSuite(ReferenceTest.class);

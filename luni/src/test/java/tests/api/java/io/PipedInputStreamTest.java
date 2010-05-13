@@ -379,7 +379,7 @@ public class PipedInputStreamTest extends junit.framework.TestCase {
         super.tearDown();
 	}
 	
-	    
+	
      /**
      * @tests java.io.PipedInputStream#PipedInputStream(java.io.PipedOutputStream,
      *        int)
@@ -392,17 +392,17 @@ public class PipedInputStreamTest extends junit.framework.TestCase {
                 new PipedOutputStream(), 100);
         int bufferLength = mpis.bufferLength();
         assertEquals(100, bufferLength);
-        
+
         try {
             pis = new PipedInputStream(null, -1);
-            fail("Should throw IllegalArgumentException"); 
+            fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }
-        
+
         try {
             pis = new PipedInputStream(null, 0);
-            fail("Should throw IllegalArgumentException"); 
+            fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -420,14 +420,14 @@ public class PipedInputStreamTest extends junit.framework.TestCase {
 
         try {
             pis = new PipedInputStream(-1);
-            fail("Should throw IllegalArgumentException"); 
+            fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }
-        
+
         try {
             pis = new PipedInputStream(0);
-            fail("Should throw IllegalArgumentException"); 
+            fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }

@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -41,13 +41,13 @@ import javax.xml.parsers.DocumentBuilder;
  * any attributes. Retreive an element node without attributes. Verify if
  * hasAttributes returns false. Retreive another element node with attributes.
  * Verify if hasAttributes returns true.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeHasAttrs">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeHasAttrs</a>
  */
-@TestTargetClass(Node.class) 
+@TestTargetClass(Node.class)
 public final class NodeHasAttributes extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -73,7 +73,7 @@ public final class NodeHasAttributes extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -147,8 +147,8 @@ public final class NodeHasAttributes extends DOMTestCase {
         Element elementTest;
         Element elementDoc;
         Attr attribute;
-        
-        
+
+
         NodeList elementList;
         boolean hasAttributes;
         doc = (Document) load("staffNS", builder);

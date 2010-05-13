@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -307,7 +307,7 @@ public class RuleBasedCollator extends Collator {
      * Obtains a {@code CollationElementIterator} for the given
      * {@code CharacterIterator}. The source iterator's integrity will be
      * preserved since a new copy will be created for use.
-     * 
+     *
      * @param source
      *            the source character iterator.
      * @return a {@code CollationElementIterator} for {@code source}.
@@ -323,7 +323,7 @@ public class RuleBasedCollator extends Collator {
 
     /**
      * Obtains a {@code CollationElementIterator} for the given string.
-     * 
+     *
      * @param source
      *            the source string.
      * @return the {@code CollationElementIterator} for {@code source}.
@@ -356,7 +356,7 @@ public class RuleBasedCollator extends Collator {
     /**
      * Returns a new collator with the same collation rules, decomposition mode and
      * strength value as this collator.
-     * 
+     *
      * @return a shallow copy of this collator.
      * @see java.lang.Cloneable
      */
@@ -378,7 +378,7 @@ public class RuleBasedCollator extends Collator {
      * {@code CollationKey.compareTo(CollationKey)} for the comparisons. If each
      * string is compared to only once, using
      * {@code RuleBasedCollator.compare(String, String)} has better performance.
-     * 
+     *
      * @param source
      *            the source text.
      * @param target
@@ -397,7 +397,7 @@ public class RuleBasedCollator extends Collator {
 
     /**
      * Returns the {@code CollationKey} for the given source text.
-     * 
+     *
      * @param source
      *            the specified source text.
      * @return the {@code CollationKey} for the given source text.
@@ -417,7 +417,7 @@ public class RuleBasedCollator extends Collator {
      * indicates if they are equal. In order to be equal, {@code object} must be
      * an instance of {@code Collator} with the same collation rules and the
      * same attributes.
-     * 
+     *
      * @param obj
      *            the object to compare with this object.
      * @return {@code true} if the specified object is equal to this

@@ -35,7 +35,7 @@ import java.security.spec.KeySpec;
 
 /**
  * Tests for <code>DSAPrivateKeySpec</code>
- * 
+ *
  */
 @TestTargetClass(DSAPrivateKeySpec.class)
 public class DSAPrivateKeySpecTest extends TestCase {
@@ -55,7 +55,7 @@ public class DSAPrivateKeySpecTest extends TestCase {
                 new BigInteger("2"),
                 new BigInteger("3"),
                 new BigInteger("4"));
-        
+
         assertTrue(ks instanceof DSAPrivateKeySpec);
     }
 
@@ -74,7 +74,7 @@ public class DSAPrivateKeySpecTest extends TestCase {
                 new BigInteger("2"),
                 new BigInteger("3"),
                 new BigInteger("4"));
-        
+
         assertEquals(4, dpks.getG().intValue());
     }
 
@@ -93,7 +93,7 @@ public class DSAPrivateKeySpecTest extends TestCase {
                 new BigInteger("2"),
                 new BigInteger("3"),
                 new BigInteger("4"));
-        
+
         assertEquals(2, dpks.getP().intValue());
     }
 
@@ -112,7 +112,7 @@ public class DSAPrivateKeySpecTest extends TestCase {
                 new BigInteger("2"),
                 new BigInteger("3"),
                 new BigInteger("4"));
-        
+
         assertEquals(3, dpks.getQ().intValue());
     }
 
@@ -131,7 +131,7 @@ public class DSAPrivateKeySpecTest extends TestCase {
                 new BigInteger("2"),
                 new BigInteger("3"),
                 new BigInteger("4"));
-        
+
         assertEquals(1, dpks.getX().intValue());
     }
 

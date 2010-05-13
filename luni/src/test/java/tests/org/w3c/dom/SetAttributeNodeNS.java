@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001-2004 World Wide Web Consortium, 
+ Copyright (c) 2001-2004 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -38,14 +38,14 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The "setAttributeNode(newAttr)" method raises an "INUSE_ATTRIBUTE_ERR
  * DOMException if the "newAttr" is already an attribute of another element.
- * 
+ *
  * Retrieve the first emp:address and append a newly created element. The
  * "createAttributeNS(namespaceURI,qualifiedName)" and
  * "setAttributeNodeNS(newAttr)" methods are invoked to create and add a new
  * attribute to the newly created Element. The "setAttributeNodeNS(newAttr)"
  * method is once again called to add the new attribute causing an exception to
  * be raised since the attribute is already an attribute of another element.
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
@@ -55,7 +55,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElSetAtNodeNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='INUSE_ATTRIBUTE_ERR'])">http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElSetAtNodeNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='INUSE_ATTRIBUTE_ERR'])</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class SetAttributeNodeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -81,7 +81,7 @@ public final class SetAttributeNodeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -130,7 +130,7 @@ public final class SetAttributeNodeNS extends DOMTestCase {
 //        NodeList gList;
 //        Element genElement;
 //        Attr newAttr;
-//        
+//
 //        doc = (Document) load("staffNS", builder);
 //
 //        if (!factory.isExpandEntityReferences()) {

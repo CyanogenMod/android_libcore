@@ -32,32 +32,32 @@ import org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl;
  * cryptographically secure pseudo-random numbers.
  */
 public class SecureRandom extends Random {
-    
+
     private static final long serialVersionUID = 4940670005562187L;
-    
+
     // The service name.
-    private static final transient String SERVICE = "SecureRandom"; 
-    
+    private static final transient String SERVICE = "SecureRandom";
+
     // Used to access common engine functionality
     private static transient Engine engine = new Engine(SERVICE);
-    
+
     private Provider provider;
-    
+
     private SecureRandomSpi secureRandomSpi;
-    
+
     private String algorithm;
-    
+
     private byte[] state;
-    
+
     private byte[] randomBytes;
-    
+
     private int randomBytesUsed;
-    
+
     private long counter;
-    
+
     // Internal SecureRandom used for getSeed(int)
     private static transient SecureRandom internalSecureRandom;
-    
+
     /**
      * Constructs a new instance of {@code SecureRandom}. An implementation for
      * the highest-priority provider is returned. The constructed instance will
@@ -69,7 +69,7 @@ public class SecureRandom extends Random {
         if (service == null) {
             this.provider = null;
             this.secureRandomSpi = new SHA1PRNG_SecureRandomImpl();
-            this.algorithm = "SHA1PRNG"; 
+            this.algorithm = "SHA1PRNG";
         } else {
             try {
                 this.provider = service.getProvider();
@@ -77,15 +77,15 @@ public class SecureRandom extends Random {
                 this.algorithm = service.getAlgorithm();
             } catch (Exception e) {
                 throw new RuntimeException(e);
-            }            
-        }    
+            }
+        }
     }
 
     /**
      * Constructs a new instance of {@code SecureRandom}. An implementation for
      * the highest-priority provider is returned. The constructed instance will
      * be seeded with the parameter.
-     * 
+     *
      * @param seed
      *            the seed for this generator.
      */
@@ -93,24 +93,24 @@ public class SecureRandom extends Random {
         this();
         setSeed(seed);
     }
-    
+
     //Find SecureRandom service.
     private Provider.Service findService() {
         Set s;
         Provider.Service service;
         for (Iterator it1 = Services.getProvidersList().iterator(); it1.hasNext();) {
-            service = ((Provider)it1.next()).getService("SecureRandom"); 
+            service = ((Provider)it1.next()).getService("SecureRandom");
             if (service != null) {
                 return service;
             }
         }
         return null;
     }
-    
+
     /**
      * Constructs a new instance of {@code SecureRandom} using the given
      * implementation from the specified provider.
-     * 
+     *
      * @param secureRandomSpi
      *            the implementation.
      * @param provider
@@ -118,9 +118,9 @@ public class SecureRandom extends Random {
      */
     protected SecureRandom(SecureRandomSpi secureRandomSpi,
                            Provider provider) {
-        this(secureRandomSpi, provider, "unknown"); 
+        this(secureRandomSpi, provider, "unknown");
     }
-    
+
     // Constructor
     private SecureRandom(SecureRandomSpi secureRandomSpi,
                          Provider provider,
@@ -134,7 +134,7 @@ public class SecureRandom extends Random {
     /**
      * Returns a new instance of {@code SecureRandom} that utilizes the
      * specified algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use.
      * @return a new instance of {@code SecureRandom} that utilizes the
@@ -147,7 +147,7 @@ public class SecureRandom extends Random {
     public static SecureRandom getInstance(String algorithm)
                                 throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -158,7 +158,7 @@ public class SecureRandom extends Random {
     /**
      * Returns a new instance of {@code SecureRandom} that utilizes the
      * specified algorithm from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use.
      * @param provider
@@ -176,19 +176,19 @@ public class SecureRandom extends Random {
                                 throws NoSuchAlgorithmException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.02")); 
+                    Messages.getString("security.02"));
         }
         Provider p = Security.getProvider(provider);
         if (p == null) {
-            throw new NoSuchProviderException(Messages.getString("security.03", provider));  
+            throw new NoSuchProviderException(Messages.getString("security.03", provider));
         }
-        return getInstance(algorithm, p);    
+        return getInstance(algorithm, p);
     }
 
     /**
      * Returns a new instance of {@code SecureRandom} that utilizes the
      * specified algorithm from the specified provider.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use.
      * @param provider
@@ -203,10 +203,10 @@ public class SecureRandom extends Random {
     public static SecureRandom getInstance(String algorithm, Provider provider)
                                 throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); 
+            throw new IllegalArgumentException(Messages.getString("security.04"));
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);
@@ -216,16 +216,16 @@ public class SecureRandom extends Random {
 
     /**
      * Returns the provider associated with this {@code SecureRandom}.
-     * 
+     *
      * @return the provider associated with this {@code SecureRandom}.
      */
     public final Provider getProvider() {
         return provider;
     }
-    
+
     /**
      * Returns the name of the algorithm of this {@code SecureRandom}.
-     * 
+     *
      * @return the name of the algorithm of this {@code SecureRandom}.
      */
     public String getAlgorithm() {
@@ -236,7 +236,7 @@ public class SecureRandom extends Random {
      * Reseeds this {@code SecureRandom} instance with the specified {@code
      * seed}. The seed of this {@code SecureRandom} instance is supplemented,
      * not replaced.
-     * 
+     *
      * @param seed
      *            the new seed.
      */
@@ -248,7 +248,7 @@ public class SecureRandom extends Random {
      * Reseeds this this {@code SecureRandom} instance with the eight bytes
      * described by the representation of the given {@code long seed}. The seed
      * of this {@code SecureRandom} instance is supplemented, not replaced.
-     * 
+     *
      * @param seed
      *            the new seed.
      */
@@ -273,7 +273,7 @@ public class SecureRandom extends Random {
     /**
      * Generates and stores random bytes in the given {@code byte[]} for each
      * array element.
-     * 
+     *
      * @param bytes
      *            the {@code byte[]} to be filled with random bytes.
      */
@@ -285,7 +285,7 @@ public class SecureRandom extends Random {
     /**
      * Generates and returns an {@code int} containing the specified number of
      * random bits (right justified, with leading zeros).
-     * 
+     *
      * @param numBits
      *            number of bits to be generated. An input value should be in
      *            the range [0, 32].
@@ -303,11 +303,11 @@ public class SecureRandom extends Random {
         int bytes = (numBits+7)/8;
         byte[] next = new byte[bytes];
         int ret = 0;
-         
+
         nextBytes(next);
         for (int i = 0; i < bytes; i++) {
             ret = (next[i] & 0xFF) | (ret << 8);
-        }    
+        }
         ret = ret >>> (bytes*8 - numBits);
         return ret;
     }
@@ -315,7 +315,7 @@ public class SecureRandom extends Random {
     /**
      * Generates and returns the specified number of seed bytes, computed using
      * the seed generation algorithm used by this {@code SecureRandom}.
-     * 
+     *
      * @param numBytes
      *            the number of seed bytes.
      * @return the seed bytes
@@ -330,7 +330,7 @@ public class SecureRandom extends Random {
     /**
      * Generates and returns the specified number of seed bytes, computed using
      * the seed generation algorithm used by this {@code SecureRandom}.
-     * 
+     *
      * @param numBytes
      *            the number of seed bytes.
      * @return the seed bytes.
@@ -338,5 +338,5 @@ public class SecureRandom extends Random {
     public byte[] generateSeed(int numBytes) {
         return secureRandomSpi.engineGenerateSeed(numBytes);
     }
-    
+
 }

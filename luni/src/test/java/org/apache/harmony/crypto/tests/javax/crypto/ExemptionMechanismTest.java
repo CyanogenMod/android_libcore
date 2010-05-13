@@ -51,7 +51,7 @@ import junit.framework.TestCase;
 @TestTargetClass(ExemptionMechanism.class)
 /**
  * Tests for <code>ExemptionMechanism</code> class constructors and methods
- * 
+ *
  */
 
 public class ExemptionMechanismTest extends TestCase {
@@ -63,7 +63,7 @@ public class ExemptionMechanismTest extends TestCase {
     private static final String ExemptionMechanismProviderClass = "org.apache.harmony.crypto.tests.support.MyExemptionMechanismSpi";
 
     /**
-     * Test for <code>ExemptionMechanism</code> constructor 
+     * Test for <code>ExemptionMechanism</code> constructor
      * Assertion: creates new object using provider and mechanism name
      */
     @TestTargetNew(
@@ -132,9 +132,9 @@ public class ExemptionMechanismTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
-     * Test for <code>isCryptoAllowed(Key key)</code> method 
+     * Test for <code>isCryptoAllowed(Key key)</code> method
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -171,7 +171,7 @@ public class ExemptionMechanismTest extends TestCase {
         em.init(key1);
         assertFalse(em.isCryptoAllowed(key));
     }
-    
+
     /**
      * Test for <code>genExemptionBlob((byte[] output, int outputOffset)</code> method
      */
@@ -215,7 +215,7 @@ public class ExemptionMechanismTest extends TestCase {
             super.finalize();
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -257,7 +257,7 @@ public class ExemptionMechanismTest extends TestCase {
         @Override
         protected int engineGenExemptionBlob(byte[] output, int outputOffset)
         throws ShortBufferException, ExemptionMechanismException {
-            if (output.length - outputOffset < 
+            if (output.length - outputOffset <
                     super.engineGenExemptionBlob(output, outputOffset)) {
                 throw new ShortBufferException();
             }
@@ -283,7 +283,7 @@ public class ExemptionMechanismTest extends TestCase {
             args = {}
         )
     })
-    public void test_genExemptionBlob() throws InvalidKeyException, 
+    public void test_genExemptionBlob() throws InvalidKeyException,
     ExemptionMechanismException {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
                 "Provider for ExemptionMechanism testing",
@@ -295,7 +295,7 @@ public class ExemptionMechanismTest extends TestCase {
         };
 
         Key key = new MyExemptionMechanismSpi().new tmpKey("Proba", new byte[0]);
-        
+
         try {
             em.genExemptionBlob();
             fail("IllegalStateException expected");
@@ -304,15 +304,15 @@ public class ExemptionMechanismTest extends TestCase {
         }
 
         em.init(key);
-        
+
         assertNotNull(em.genExemptionBlob());
-        
+
         em = new ExemptionMechanism(
                 new Mock_ExemptionMechanismSpi(), mProv, defaultAlg) {
         };
         key = new Mock_ExemptionMechanismSpi().new tmpKey("Proba", new byte[0]);
         em.init(key);
-        
+
         try {
             em.genExemptionBlob();
             fail("ExemptionMechanismException expected");
@@ -327,30 +327,30 @@ public class ExemptionMechanismTest extends TestCase {
         method = "genExemptionBlob",
         args = {byte[].class}
     )
-    public void test_genExemptionBlob$B() throws InvalidKeyException, 
+    public void test_genExemptionBlob$B() throws InvalidKeyException,
     ExemptionMechanismException, ShortBufferException {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
                 "Provider for ExemptionMechanism testing",
                 srvExemptionMechanism.concat(".").concat(defaultAlg),
                 ExemptionMechanismProviderClass);
-    
+
         ExemptionMechanism em = new ExemptionMechanism(
                 new Mock_ExemptionMechanismSpi(), mProv, defaultAlg) {
         };
-    
+
         Key key = new Mock_ExemptionMechanismSpi().new tmpKey("Proba", new byte[0]);
-        
+
         try {
             em.genExemptionBlob(new byte[10]);
             fail("IllegalStateException expected");
         } catch (IllegalStateException e) {
             //failed
         }
-    
+
         em.init(key);
-        
+
         assertEquals(5, (em.genExemptionBlob(new byte[10])));
-        
+
         try {
             em.genExemptionBlob(new byte[2]);
             fail("ShortBufferException expected");
@@ -358,7 +358,7 @@ public class ExemptionMechanismTest extends TestCase {
             //failed
         }
         byte[] b = new byte[] {0,0,0,33,0};
-        
+
         try {
             em.genExemptionBlob(b);
             fail("ExemptionMechanismException expected");
@@ -382,30 +382,30 @@ public class ExemptionMechanismTest extends TestCase {
             args = {byte[].class, int.class}
         )
     })
-    public void test_genExemptionBlob$BI() throws InvalidKeyException, 
+    public void test_genExemptionBlob$BI() throws InvalidKeyException,
     ExemptionMechanismException, ShortBufferException {
         Provider mProv = (new SpiEngUtils()).new MyProvider("MyExMechProvider",
                 "Provider for ExemptionMechanism testing",
                 srvExemptionMechanism.concat(".").concat(defaultAlg),
                 ExemptionMechanismProviderClass);
-    
+
         ExemptionMechanism em = new ExemptionMechanism(
                 new Mock_ExemptionMechanismSpi(), mProv, defaultAlg) {
         };
-    
+
         Key key = new Mock_ExemptionMechanismSpi().new tmpKey("Proba", new byte[0]);
-        
+
         try {
             em.genExemptionBlob(new byte[10], 2);
             fail("IllegalStateException expected");
         } catch (IllegalStateException e) {
             //failed
         }
-    
+
         em.init(key);
-        
+
         assertEquals(5, (em.genExemptionBlob(new byte[10], 5)));
-        
+
         try {
             em.genExemptionBlob(new byte[7], 3);
             fail("ShortBufferException expected");
@@ -413,7 +413,7 @@ public class ExemptionMechanismTest extends TestCase {
             //failed
         }
         byte[] b = new byte[] {0, 0, 0, 1, 2, 3, 33, 0};
-        
+
         try {
             em.genExemptionBlob(b, 3);
             fail("ExemptionMechanismException expected");
@@ -440,7 +440,7 @@ public class ExemptionMechanismTest extends TestCase {
                 "Provider for ExemptionMechanism testing",
                 srvExemptionMechanism.concat(".").concat(defaultAlg),
                 ExemptionMechanismProviderClass);
-    
+
         ExemptionMechanism em = new ExemptionMechanism(
                 new Mock_ExemptionMechanismSpi(), mProv, defaultAlg) {
         };
@@ -472,7 +472,7 @@ public class ExemptionMechanismTest extends TestCase {
         } catch (NullPointerException e) {
             //expected
         }
-    
+
         ExemptionMechanism em = new ExemptionMechanism(
                 new Mock_ExemptionMechanismSpi(), mProv, defaultAlg) {
         };
@@ -539,7 +539,7 @@ public class ExemptionMechanismTest extends TestCase {
         };
 
         Key key = new MyExemptionMechanismSpi().new tmpKey("Proba", new byte[0]);
-        
+
         try {
             em.getOutputSize(10);
             fail("IllegalStateException expected");
@@ -592,13 +592,13 @@ public class ExemptionMechanismTest extends TestCase {
                 "Provider for ExemptionMechanism testing",
                 srvExemptionMechanism.concat(".").concat(defaultAlg),
                 ExemptionMechanismProviderClass);
-    
+
         ExemptionMechanism em = new ExemptionMechanism(
                 new MyExemptionMechanismSpi(), mProv, defaultAlg) {
         };
-    
+
         Key key = new MyExemptionMechanismSpi().new tmpKey("Proba", new byte[0]);
-    
+
         em.init(key);
 
         KeyGenerator kg = KeyGenerator.getInstance("DES");
@@ -641,13 +641,13 @@ public class ExemptionMechanismTest extends TestCase {
                 "Provider for ExemptionMechanism testing",
                 srvExemptionMechanism.concat(".").concat(defaultAlg),
                 ExemptionMechanismProviderClass);
-    
+
         ExemptionMechanism em = new ExemptionMechanism(
                 new MyExemptionMechanismSpi(), mProv, defaultAlg) {
         };
-    
+
         Key key = new MyExemptionMechanismSpi().new tmpKey("Proba", new byte[0]);
-    
+
         em.init(key, AlgorithmParameters.getInstance("DES"));
 
         try {
@@ -697,13 +697,13 @@ public class ExemptionMechanismTest extends TestCase {
                 "Provider for ExemptionMechanism testing",
                 srvExemptionMechanism.concat(".").concat(defaultAlg),
                 ExemptionMechanismProviderClass);
-    
+
         ExemptionMechanism em = new ExemptionMechanism(
                 new MyExemptionMechanismSpi(), mProv, defaultAlg) {
         };
-    
+
         Key key = new MyExemptionMechanismSpi().new tmpKey("Proba", new byte[0]);
-    
+
         em.init(key, new RSAKeyGenParameterSpec(10, new BigInteger("10")));
 
         try {

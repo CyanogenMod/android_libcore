@@ -27,7 +27,7 @@ import java.io.IOException;
 
 /**
  * This class represents ASN.1 Sequence type.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 

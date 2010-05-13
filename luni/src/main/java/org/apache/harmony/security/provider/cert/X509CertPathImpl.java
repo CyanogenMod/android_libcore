@@ -86,7 +86,7 @@ public class X509CertPathImpl extends CertPath {
 
     // supported encoding names
     private static final String[] encodingsArr =
-                                        new String[] {"PkiPath", "PKCS7"};  
+                                        new String[] {"PkiPath", "PKCS7"};
     static final List encodings = Collections.unmodifiableList(
                                             Arrays.asList(encodingsArr));
     // the list of certificates representing this certification path
@@ -103,14 +103,14 @@ public class X509CertPathImpl extends CertPath {
      * is not an instance of subclass of X509Certificate.
      */
     public X509CertPathImpl(List certs) throws CertificateException {
-        super("X.509"); 
+        super("X.509");
         int size = certs.size();
         certificates = new ArrayList(size);
         for (int i=0; i<size; i++) {
             Object cert = certs.get(i);
             if (!(cert instanceof X509Certificate) ) {
                 throw new CertificateException(
-                        Messages.getString("security.15D")); 
+                        Messages.getString("security.15D"));
             }
             certificates.add(cert);
         }
@@ -126,7 +126,7 @@ public class X509CertPathImpl extends CertPath {
      * @param encoding - encoded form of certification path.
      */
     private X509CertPathImpl(List certs, int type, byte[] encoding) {
-        super("X.509"); 
+        super("X.509");
         if (type == PKI_PATH) {
             this.pkiPathEncoding = encoding;
         } else { // PKCS7
@@ -148,7 +148,7 @@ public class X509CertPathImpl extends CertPath {
         try {
             return (X509CertPathImpl) ASN1.decode(in);
         } catch (IOException e) {
-            throw new CertificateException(Messages.getString("security.15E", 
+            throw new CertificateException(Messages.getString("security.15E",
                     e.getMessage()));
         }
     }
@@ -164,7 +164,7 @@ public class X509CertPathImpl extends CertPath {
         throws CertificateException {
         if (!encodings.contains(encoding)) {
             throw new CertificateException(
-                    Messages.getString("security.15F", encoding)); 
+                    Messages.getString("security.15F", encoding));
         }
         try {
             if (encodingsArr[0].equals(encoding)) {
@@ -176,7 +176,7 @@ public class X509CertPathImpl extends CertPath {
                 SignedData sd = ci.getSignedData();
                 if (sd == null) {
                     throw new CertificateException(
-                        Messages.getString("security.160")); 
+                        Messages.getString("security.160"));
                 }
                 List certs = sd.getCertificates();
                 if (certs == null) {
@@ -190,7 +190,7 @@ public class X509CertPathImpl extends CertPath {
                 return new X509CertPathImpl(result, PKCS7, ci.getEncoded());
             }
         } catch (IOException e) {
-            throw new CertificateException(Messages.getString("security.15E", 
+            throw new CertificateException(Messages.getString("security.15E",
                     e.getMessage()));
         }
     }
@@ -206,7 +206,7 @@ public class X509CertPathImpl extends CertPath {
         try {
             return (X509CertPathImpl) ASN1.decode(in);
         } catch (IOException e) {
-            throw new CertificateException(Messages.getString("security.15E", 
+            throw new CertificateException(Messages.getString("security.15E",
                     e.getMessage()));
         }
     }
@@ -222,7 +222,7 @@ public class X509CertPathImpl extends CertPath {
         throws CertificateException {
         if (!encodings.contains(encoding)) {
             throw new CertificateException(
-                    Messages.getString("security.15F", encoding)); 
+                    Messages.getString("security.15F", encoding));
         }
         try {
             if (encodingsArr[0].equals(encoding)) {
@@ -234,7 +234,7 @@ public class X509CertPathImpl extends CertPath {
                 SignedData sd = ci.getSignedData();
                 if (sd == null) {
                     throw new CertificateException(
-                        Messages.getString("security.160")); 
+                        Messages.getString("security.160"));
                 }
                 List certs = sd.getCertificates();
                 if (certs == null) {
@@ -247,7 +247,7 @@ public class X509CertPathImpl extends CertPath {
                 return new X509CertPathImpl(result, PKCS7, ci.getEncoded());
             }
         } catch (IOException e) {
-            throw new CertificateException(Messages.getString("security.15E", 
+            throw new CertificateException(Messages.getString("security.15E",
                     e.getMessage()));
         }
     }
@@ -285,7 +285,7 @@ public class X509CertPathImpl extends CertPath {
         throws CertificateEncodingException {
         if (!encodings.contains(encoding)) {
             throw new CertificateEncodingException(
-                    Messages.getString("security.15F", encoding)); 
+                    Messages.getString("security.15F", encoding));
         }
         if (encodingsArr[0].equals(encoding)) {
             // PkiPath encoded form
@@ -361,12 +361,12 @@ public class X509CertPathImpl extends CertPath {
                                 cp.certificates.get(i)).getEncoded());
                 }
             } catch (CertificateEncodingException e) {
-                throw new IllegalArgumentException(Messages.getString("security.161")); 
+                throw new IllegalArgumentException(Messages.getString("security.161"));
             }
             return encodings;
         }
     };
-    
+
 
     //
     // encoder for PKCS#7 SignedData
@@ -408,7 +408,7 @@ public class X509CertPathImpl extends CertPath {
                     "Invalid use of encoder for PKCS#7 SignedData object");
         }
     };
-    
+
     private static final ASN1Sequence PKCS7_SIGNED_DATA_OBJECT = new ASN1Sequence(
             new ASN1Type[] { ASN1Any.getInstance(), // contentType
                     new ASN1Explicit(0, ASN1_SIGNED_DATA) // SignedData

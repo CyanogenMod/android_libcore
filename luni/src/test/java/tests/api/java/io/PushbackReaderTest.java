@@ -29,7 +29,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(PushbackReader.class) 
+@TestTargetClass(PushbackReader.class)
 public class PushbackReaderTest extends junit.framework.TestCase {
 
     Support_ASimpleReader underlying = new Support_ASimpleReader();
@@ -57,7 +57,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // Expected
         }
-        
+
         try {
             pbr = new PushbackReader(null);
         } catch (NullPointerException e) {
@@ -66,7 +66,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackReader#PushbackReader(java.io.Reader, int)
      */
     @TestTargetNew(
@@ -97,7 +97,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackReader#close()
      */
     @TestTargetNew(
@@ -157,12 +157,12 @@ public class PushbackReaderTest extends junit.framework.TestCase {
         args = {}
     )
     public void test_markSupported() {
-        assertFalse("Test 1: markSupported() must return false.", 
+        assertFalse("Test 1: markSupported() must return false.",
                 pbr.markSupported());
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackReader#read()
      */
     @TestTargetNew(
@@ -198,7 +198,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackReader#read(char[], int, int)
      */
     @TestTargetNew(
@@ -236,7 +236,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
             fail("IOException during read test : " + e.getMessage());
         }
     }
-    
+
     /**
      * @tests java.io.PushbackReader#read(char[], int, int)
      */
@@ -248,52 +248,52 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     )
     public void test_read_$CII_Exception() throws IOException {
         pbr = new PushbackReader(new StringReader(pbString), 10);
-        
+
         char[] nullCharArray = null;
         char[] charArray = new char[10];
-        
+
         try {
             pbr.read(nullCharArray, 0, 1);
             fail("should throw NullPointerException");
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         try {
             pbr.read(charArray, 0, -1);
             fail("should throw IndexOutOfBoundsException");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
-        
+
         try {
             pbr.read(charArray, -1, 0);
             fail("should throw IndexOutOfBoundsException");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
-        
+
         try {
             pbr.read(charArray, charArray.length + 1, 0);
             fail("should throw IndexOutOfBoundsException");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
-        
+
         try {
             pbr.read(charArray, charArray.length, 1);
             fail("should throw IndexOutOfBoundsException");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
-        
+
         try {
             pbr.read(charArray, 1, charArray.length);
             fail("should throw IndexOutOfBoundsException");
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
-        
+
         try {
             pbr.read(charArray, 0, charArray.length + 1);
             fail("should throw IndexOutOfBoundsException");
@@ -312,7 +312,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackReader#ready()
      */
     @TestTargetNew(
@@ -364,7 +364,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackReader#unread(char[])
      */
     @TestTargetNew(
@@ -410,7 +410,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackReader#skip(long)
      */
     @TestTargetNew(
@@ -495,7 +495,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackReader#unread(char[], int, int)
      */
     @TestTargetNew(
@@ -552,7 +552,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     public void test_unread_$CII_NullPointerException() throws IOException {
         //a pushback reader with one character buffer
         pbr = new PushbackReader(new StringReader(pbString));
-        
+
         try {
             pbr.unread(null, 0, 1);
             fail("should throw NullPointerException");
@@ -560,7 +560,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests java.io.PushbackReader#unread(char[], int, int)
      */
@@ -572,7 +572,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
     public void test_unread_$CII_Exception_InsufficientBuffer() throws IOException {
         //a pushback reader with one character buffer
         pbr = new PushbackReader(new StringReader(pbString));
-        
+
         //if count > buffer's size , should throw IOException
         try {
             pbr.unread(new char[pbString.length()], 0, 2);
@@ -581,7 +581,7 @@ public class PushbackReaderTest extends junit.framework.TestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests java.io.PushbackReader#unread(char[], int, int)
      */
@@ -613,9 +613,9 @@ public class PushbackReaderTest extends junit.framework.TestCase {
             // expected
         }
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.PushbackReader#unread(int)
      */
     @TestTargetNew(

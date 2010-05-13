@@ -9,7 +9,7 @@ import java.util.Iterator;
 class NodeSet implements NodeList {
 
     ArrayList<Node> list = new ArrayList<Node>();
-    
+
     public NodeSet(Iterator<Node> nodes) {
         while(nodes.hasNext()) {
             list.add(nodes.next());
@@ -28,7 +28,7 @@ class NodeSet implements NodeList {
             // TODO log this event?
             return null;
         }
-        
+
         return result;
     }
 }

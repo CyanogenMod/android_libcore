@@ -37,7 +37,7 @@ import dalvik.annotation.TestTargetNew;
  */
 @TestTargetClass(java.io.ObjectOutputStream.class)
 public class JavaIoObjectOutputStreamTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -74,7 +74,7 @@ public class JavaIoObjectOutputStreamTest extends TestCase {
                 }
             }
         }
-        
+
         // TestObjectOutputStream is necessary in order to call enableReplaceObject
         class TestObjectOutputStream extends ObjectOutputStream  {
             TestObjectOutputStream(OutputStream s) throws StreamCorruptedException, IOException {
@@ -95,7 +95,7 @@ public class JavaIoObjectOutputStreamTest extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         ois.enableReplaceObject(true);
         assertTrue("ObjectOutputStream.enableReplaceObject(boolean) must call checkPermission on security manager", s.called);
@@ -125,10 +125,10 @@ public class JavaIoObjectOutputStreamTest extends TestCase {
                 }
             }
         }
-        
+
         // Beginning with J2SE 1.4.0, ObjectOutputStream's public one-argument constructor
         // requires the "enableSubclassImplementation" SerializablePermission when invoked
-        // (either directly or indirectly) by a subclass which overrides 
+        // (either directly or indirectly) by a subclass which overrides
         // ObjectOutputStream.putFields or ObjectOutputStream.writeUnshared.
 
         class TestObjectOutputStream extends ObjectOutputStream  {
@@ -136,54 +136,54 @@ public class JavaIoObjectOutputStreamTest extends TestCase {
                 super(s);
             }
         }
-        
+
         class TestObjectOutputStream_putFields extends ObjectOutputStream  {
             TestObjectOutputStream_putFields(OutputStream s) throws StreamCorruptedException, IOException {
                 super(s);
             }
-            @Override 
+            @Override
             public PutField putFields() throws IOException {
                 return super.putFields();
             }
         }
-        
+
         class TestObjectOutputStream_writeUnshared extends ObjectOutputStream  {
             TestObjectOutputStream_writeUnshared(OutputStream s) throws StreamCorruptedException, IOException {
                 super(s);
             }
-            @Override 
+            @Override
             public void writeUnshared(Object object) throws IOException {
                 super.writeUnshared(object);
             }
 
         }
-        
+
         long id = new java.util.Date().getTime();
         String filename  = "SecurityPermissionsTest_"+id;
         File f = File.createTempFile(filename, null);
         f.deleteOnExit();
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         new ObjectOutputStream(new FileOutputStream(f));
         assertTrue("ObjectOutputStream(OutputStream) ctor must not call checkPermission on security manager on a class which neither overwrites writeUnshared nor putFields", !s.called);
-        
+
         s.reset();
         new TestObjectOutputStream(new FileOutputStream(f));
         assertTrue("ObjectOutputStream(OutputStream) ctor must not call checkPermission on security manager on a class which neither overwrites writeUnshared nor putFields", !s.called);
-        
+
         s.reset();
         new TestObjectOutputStream_writeUnshared(new FileOutputStream(f));
         assertTrue("ObjectOutputStream(OutputStream) ctor must call checkPermission on security manager on a class which overwrites method writeUnshared", s.called);
         assertEquals("Name of SerializablePermission is not correct", "enableSubclassImplementation", s.permission.getName());
-        
+
         s.reset();
         new TestObjectOutputStream_putFields(new FileOutputStream(f));
         assertTrue("ObjectOutputStream(OutputStream) ctor must call checkPermission on security manager on a class which overwrites method putFields", s.called);
         assertEquals("Name of SerializablePermission is not correct", "enableSubclassImplementation", s.permission.getName());
-      
+
     }
-    
+
 }

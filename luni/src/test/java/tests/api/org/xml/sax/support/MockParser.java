@@ -29,9 +29,9 @@ import org.xml.sax.SAXException;
 
 @SuppressWarnings("deprecation")
 public class MockParser implements Parser {
-    
+
     private MethodLogger logger;
-    
+
     public MockParser(MethodLogger logger) {
         super();
         this.logger = logger;

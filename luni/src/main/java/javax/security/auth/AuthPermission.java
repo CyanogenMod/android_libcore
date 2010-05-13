@@ -56,15 +56,15 @@ public final class AuthPermission extends BasicPermission {
 
     private static final long serialVersionUID = 5806031445061587174L;
 
-    private static final String CREATE_LOGIN_CONTEXT = "createLoginContext"; 
+    private static final String CREATE_LOGIN_CONTEXT = "createLoginContext";
 
-    private static final String CREATE_LOGIN_CONTEXT_ANY = "createLoginContext.*"; 
+    private static final String CREATE_LOGIN_CONTEXT_ANY = "createLoginContext.*";
 
     // inits permission name.
     private static String init(String name) {
 
         if (name == null) {
-            throw new NullPointerException(Messages.getString("auth.13")); 
+            throw new NullPointerException(Messages.getString("auth.13"));
         }
 
         if (CREATE_LOGIN_CONTEXT.equals(name)) {

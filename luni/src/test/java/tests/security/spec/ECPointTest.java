@@ -34,7 +34,7 @@ import java.security.spec.ECPoint;
 
 /**
  * Tests for <code>ECPoint</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(ECPoint.class)
 public class ECPointTest extends TestCase {
@@ -44,7 +44,7 @@ public class ECPointTest extends TestCase {
     //
 
     /**
-     * Test #1 for <code>ECPoint(BigInteger, BigInteger)</code> constructor<br> 
+     * Test #1 for <code>ECPoint(BigInteger, BigInteger)</code> constructor<br>
      * Assertion: creates <code>ECPoint</code> instance<br>
      * Test preconditions: valid parameters passed<br>
      * Expected: must pass without any exceptions
@@ -64,7 +64,7 @@ public class ECPointTest extends TestCase {
     }
 
     /**
-     * Test #2 for <code>ECPoint(BigInteger x, BigInteger y)</code> constructor<br> 
+     * Test #2 for <code>ECPoint(BigInteger x, BigInteger y)</code> constructor<br>
      * Assertion: throws <code>NullPointerException</code> if <code>x</code>or
      * <code>y</code> is <code>null</code><br>
      * Test preconditions: pass <code>null</code> as mentioned parameters<br>
@@ -248,7 +248,7 @@ public class ECPointTest extends TestCase {
      * Test #1 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * repeatedly on the same object. 
+     * repeatedly on the same object.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -268,7 +268,7 @@ public class ECPointTest extends TestCase {
                    hc == f.hashCode() &&
                    hc == f.hashCode());
 
-        
+
         // the same for POINT_INFINITY
         hc = ECPoint.POINT_INFINITY.hashCode();
         assertTrue(hc == ECPoint.POINT_INFINITY.hashCode() &&
@@ -285,7 +285,7 @@ public class ECPointTest extends TestCase {
      * Test #2 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * on equal (according to the <code>equals(Object)</code> method) objects. 
+     * on equal (according to the <code>equals(Object)</code> method) objects.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,

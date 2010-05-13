@@ -40,7 +40,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 
-@TestTargetClass(SSLServerSocket.class) 
+@TestTargetClass(SSLServerSocket.class)
 public class SSLServerSocketTest extends TestCase {
 
     // set to true if on Android, false if on RI
@@ -90,7 +90,7 @@ public class SSLServerSocketTest extends TestCase {
         public void setEnabledProtocols(String[] protocols) {
 
         }
-        
+
         public void setEnableSessionCreation(boolean flag) {
 
         }
@@ -98,7 +98,7 @@ public class SSLServerSocketTest extends TestCase {
         public boolean getEnableSessionCreation() {
             return false;
         }
-        
+
         public void setNeedClientAuth(boolean need) {
 
         }
@@ -106,7 +106,7 @@ public class SSLServerSocketTest extends TestCase {
         public boolean getNeedClientAuth() {
             return false;
         }
-        
+
         public boolean getUseClientMode() {
             return false;
         }
@@ -114,7 +114,7 @@ public class SSLServerSocketTest extends TestCase {
         public void setUseClientMode(boolean mode) {
 
         }
-        
+
         public boolean getWantClientAuth() {
             return false;
         }
@@ -122,9 +122,9 @@ public class SSLServerSocketTest extends TestCase {
 
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.SSLServerSocket#SSLServerSocket() 
+     * @tests javax.net.ssl.SSLServerSocket#SSLServerSocket()
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -139,9 +139,9 @@ public class SSLServerSocketTest extends TestCase {
             fail("Unexpected exception was thrown " + ex);
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.SSLServerSocket#SSLServerSocket(int port) 
+     * @tests javax.net.ssl.SSLServerSocket#SSLServerSocket(int port)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -153,14 +153,14 @@ public class SSLServerSocketTest extends TestCase {
         SSLServerSocket ssl;
         int portNumber = Support_PortManager.getNextPort();
         int[] port_invalid = {-1, 65536, Integer.MIN_VALUE, Integer.MAX_VALUE};
-        
+
         try {
             ssl = new mySSLServerSocket(portNumber);
             assertEquals(portNumber, ssl.getLocalPort());
         } catch (Exception ex) {
             fail("Unexpected exception was thrown " + ex);
         }
-        
+
         for (int i = 0; i < port_invalid.length; i++) {
             try {
                 ssl = new mySSLServerSocket(port_invalid[i]);
@@ -171,7 +171,7 @@ public class SSLServerSocketTest extends TestCase {
                 fail(e + " was thrown instead of IllegalArgumentException");
             }
         }
-        
+
         try {
             ssl = new mySSLServerSocket(portNumber);
             new mySSLServerSocket(portNumber);
@@ -182,9 +182,9 @@ public class SSLServerSocketTest extends TestCase {
             fail("Unexpected exception was thrown " + ex);
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.SSLServerSocket#SSLServerSocket(int port, int backlog) 
+     * @tests javax.net.ssl.SSLServerSocket#SSLServerSocket(int port, int backlog)
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -196,14 +196,14 @@ public class SSLServerSocketTest extends TestCase {
         mySSLServerSocket ssl;
         int portNumber = Support_PortManager.getNextPort();
         int[] port_invalid = {-1, Integer.MIN_VALUE, Integer.MAX_VALUE};
-        
+
         try {
             ssl = new mySSLServerSocket(portNumber, 1);
             assertEquals(portNumber, ssl.getLocalPort());
         } catch (Exception ex) {
             fail("Unexpected exception was thrown");
         }
-        
+
         for (int i = 0; i < port_invalid.length; i++) {
             try {
                 ssl = new mySSLServerSocket(port_invalid[i], 1);
@@ -214,7 +214,7 @@ public class SSLServerSocketTest extends TestCase {
                 fail(e + " was thrown instead of IllegalArgumentException");
             }
         }
-        
+
         portNumber = Support_PortManager.getNextPort();
         try {
             ssl = new mySSLServerSocket(portNumber, 1);
@@ -223,9 +223,9 @@ public class SSLServerSocketTest extends TestCase {
         } catch (IOException ioe) {
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.SSLServerSocket#SSLServerSocket(int port, int backlog, InetAddress address) 
+     * @tests javax.net.ssl.SSLServerSocket#SSLServerSocket(int port, int backlog, InetAddress address)
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -238,14 +238,14 @@ public class SSLServerSocketTest extends TestCase {
         InetAddress ia = null;
         int portNumber = Support_PortManager.getNextPort();
         int[] port_invalid = {-1, 65536, Integer.MIN_VALUE, Integer.MAX_VALUE};
-        
+
         try {
             ssl = new mySSLServerSocket(portNumber, 0, ia);
             assertEquals(portNumber, ssl.getLocalPort());
         } catch (Exception ex) {
             fail("Unexpected exception was thrown");
         }
-        
+
         portNumber = Support_PortManager.getNextPort();
         try {
             ssl = new mySSLServerSocket(portNumber, 0, InetAddress.getLocalHost());
@@ -253,7 +253,7 @@ public class SSLServerSocketTest extends TestCase {
         } catch (Exception ex) {
             fail("Unexpected exception was thrown");
         }
-       
+
         for (int i = 0; i < port_invalid.length; i++) {
             try {
                 ssl = new mySSLServerSocket(port_invalid[i], 1, InetAddress.getLocalHost());
@@ -264,7 +264,7 @@ public class SSLServerSocketTest extends TestCase {
                 fail(e + " was thrown instead of IllegalArgumentException");
             }
         }
-        
+
         portNumber = Support_PortManager.getNextPort();
         try {
            ssl = new mySSLServerSocket(portNumber, 0, InetAddress.getLocalHost());
@@ -272,10 +272,10 @@ public class SSLServerSocketTest extends TestCase {
            fail("IOException should be thrown for");
         } catch (IOException ioe) {
         }
-    } 
-    
+    }
+
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests javax.net.ssl.SSLServerSocket#getSupportedCipherSuites()
      */
     @TestTargetNew(
@@ -292,7 +292,7 @@ public class SSLServerSocketTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLServerSocket#getEnabledCipherSuites()
      * @tests javax.net.ssl.SSLServerSocket#setEnabledCipherSuites(String[] suites)
      */
@@ -309,7 +309,7 @@ public class SSLServerSocketTest extends TestCase {
             method = "setEnabledCipherSuites",
             args = {String[].class}
         )
-    }) 
+    })
     public void test_EnabledCipherSuites() throws Exception {
         SSLServerSocket sss = getSSLServerSocket();
         try {
@@ -332,9 +332,9 @@ public class SSLServerSocketTest extends TestCase {
                      Arrays.asList(sss.getSupportedCipherSuites()),
                      Arrays.asList(res));
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLServerSocket#getSupportedProtocols()
      */
     @TestTargetNew(
@@ -349,9 +349,9 @@ public class SSLServerSocketTest extends TestCase {
         assertNotNull("NULL result", res);
         assertTrue("no supported protocols available.", res.length > 0);
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLServerSocket#getEnabledProtocols()
      * @tests javax.net.ssl.SSLServerSocket#setEnabledProtocols(String[] protocols)
      */
@@ -389,10 +389,10 @@ public class SSLServerSocketTest extends TestCase {
         assertNotNull("NULL result", res);
         assertTrue("no enabled protocols.", res.length == count);
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.SSLServerSocket#setEnableSessionCreation(boolean flag) 
+     * @throws IOException
+     * @tests javax.net.ssl.SSLServerSocket#setEnableSessionCreation(boolean flag)
      * @tests javax.net.ssl.SSLServerSocket#getEnableSessionCreation()
      */
     @TestTargets({
@@ -417,10 +417,10 @@ public class SSLServerSocketTest extends TestCase {
         sss.setEnableSessionCreation(true);
         assertTrue(sss.getEnableSessionCreation());
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.SSLServerSocket#setNeedClientAuth(boolean need) 
+     * @throws IOException
+     * @tests javax.net.ssl.SSLServerSocket#setNeedClientAuth(boolean need)
      * @tests javax.net.ssl.SSLServerSocket#getNeedClientAuthCreation()
      */
     @TestTargets({
@@ -444,9 +444,9 @@ public class SSLServerSocketTest extends TestCase {
         sss.setNeedClientAuth(false);
         assertFalse(sss.getNeedClientAuth());
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests javax.net.ssl.SSLServerSocket#getUseClientMode()
      * @tests javax.net.ssl.SSLServerSocket#setUseClientMode(boolean mode)
      */
@@ -471,10 +471,10 @@ public class SSLServerSocketTest extends TestCase {
         sss.setUseClientMode(true);
         assertTrue(sss.getUseClientMode());
     }
-    
+
     /**
-     * @throws IOException 
-     * @tests javax.net.ssl.SSLServerSocket#setWantClientAuth(boolean want) 
+     * @throws IOException
+     * @tests javax.net.ssl.SSLServerSocket#setWantClientAuth(boolean want)
      * @tests javax.net.ssl.SSLServerSocket#getWantClientAuthCreation()
      */
     @TestTargets({
@@ -500,11 +500,11 @@ public class SSLServerSocketTest extends TestCase {
     }
 
 
-    /** 
+    /**
      * Defines the keystore contents for the server, BKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
      */
-    private static final String SERVER_KEYS_BKS = 
+    private static final String SERVER_KEYS_BKS =
         "AAAAAQAAABQDkebzoP1XwqyWKRCJEpn/t8dqIQAABDkEAAVteWtleQAAARpYl20nAAAAAQAFWC41" +
         "MDkAAAJNMIICSTCCAbKgAwIBAgIESEfU1jANBgkqhkiG9w0BAQUFADBpMQswCQYDVQQGEwJVUzET" +
         "MBEGA1UECBMKQ2FsaWZvcm5pYTEMMAoGA1UEBxMDTVRWMQ8wDQYDVQQKEwZHb29nbGUxEDAOBgNV" +
@@ -530,11 +530,11 @@ public class SSLServerSocketTest extends TestCase {
         "1gaEjsC/0wGmmBDg1dTDH+F1p9TInzr3EFuYD0YiQ7YlAHq3cPuyGoLXJ5dXYuSBfhDXJSeddUkl" +
         "k1ufZyOOcskeInQge7jzaRfmKg3U94r+spMEvb0AzDQVOKvjjo1ivxMSgFRZaDb/4qw=";
 
-    /** 
+    /**
      * Defines the keystore contents for the server, JKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
      */
-    private static final String SERVER_KEYS_JKS = 
+    private static final String SERVER_KEYS_JKS =
         "/u3+7QAAAAIAAAABAAAAAQAFbXlrZXkAAAEaWFfBeAAAArowggK2MA4GCisGAQQBKgIRAQEFAASC" +
         "AqI2kp5XjnF8YZkhcF92YsJNQkvsmH7zqMM87j23zSoV4DwyE3XeC/gZWq1ToScIhoqZkzlbWcu4" +
         "T/Zfc/DrfGk/rKbBL1uWKGZ8fMtlZk8KoAhxZk1JSyJvdkyKxqmzUbxk1OFMlN2VJNu97FPVH+du" +
@@ -568,17 +568,17 @@ public class SSLServerSocketTest extends TestCase {
      */
     private KeyManager[] getKeyManagers() throws Exception {
         String keys = (useBKS ? SERVER_KEYS_BKS : SERVER_KEYS_JKS);
-        byte[] bytes = new Base64().decode(keys.getBytes());                    
+        byte[] bytes = new Base64().decode(keys.getBytes());
         InputStream inputStream = new ByteArrayInputStream(bytes);
-        
+
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(inputStream, PASSWORD.toCharArray());
         inputStream.close();
-        
+
         String algorithm = KeyManagerFactory.getDefaultAlgorithm();
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(algorithm);
         keyManagerFactory.init(keyStore, PASSWORD.toCharArray());
-        
+
         return keyManagerFactory.getKeyManagers();
     }
 
@@ -589,7 +589,7 @@ public class SSLServerSocketTest extends TestCase {
                 .createServerSocket();
         return sss;
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Guard against native resource leakage.",
@@ -604,7 +604,7 @@ public class SSLServerSocketTest extends TestCase {
         for (int i = 0; i < 2048; ++i) {
             sslContext.getServerSocketFactory().createServerSocket();
         }
-        
+
         // Test the other codepath, which copies a seed from a byte[].
         sslContext.init(keyManagers, null, new SecureRandom());
         for (int i = 0; i < 2048; ++i) {

@@ -52,7 +52,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
 
     /**
      * Constructs a new {@code AbstractSelectableChannel}.
-     * 
+     *
      * @param selectorProvider
      *            the selector provider that creates this channel.
      */
@@ -63,7 +63,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
 
     /**
      * Returns the selector provider that has created this channel.
-     * 
+     *
      * @see java.nio.channels.SelectableChannel#provider()
      * @return this channel's selector provider.
      */
@@ -109,7 +109,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      * the corresponding selection key is returned. If the channel is not yet
      * registered, this method calls the {@code register} method of
      * {@code selector} and adds the selection key to this channel's key set.
-     * 
+     *
      * @param selector
      *            the selector with which to register this channel.
      * @param interestSet
@@ -172,7 +172,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      * {@code implCloseSelectableChannel()} first, then loops through the list
      * of selection keys and cancels them, which unregisters this channel from
      * all selectors it is registered with.
-     * 
+     *
      * @throws IOException
      *             if a problem occurs while closing the channel.
      */
@@ -190,7 +190,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
     /**
      * Implements the closing function of the SelectableChannel. This method is
      * called from {@code implCloseChannel()}.
-     * 
+     *
      * @throws IOException
      *             if an I/O exception occurs.
      */
@@ -225,7 +225,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      * other calls to this method or to {@code register} are executing. The
      * actual setting of the mode is done by calling
      * {@code implConfigureBlocking(boolean)}.
-     * 
+     *
      * @see java.nio.channels.SelectableChannel#configureBlocking(boolean)
      * @param blockingMode
      *            {@code true} for setting this channel's mode to blocking,
@@ -260,7 +260,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
 
     /**
      * Implements the setting of the blocking mode.
-     * 
+     *
      * @param blockingMode
      *            {@code true} for setting this channel's mode to blocking,
      *            {@code false} to set it to non-blocking.

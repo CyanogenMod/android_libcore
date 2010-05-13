@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ public class Support_StringReader extends Reader {
      * Construct a StringReader on the String <code>str</code>. The size of
      * the reader is set to the <code>length()</code> of the String and the
      * Object to synchronize access through is set to <code>str</code>.
-     * 
+     *
      * @param str
      *            the String to filter reads on.
      */
@@ -47,7 +47,7 @@ public class Support_StringReader extends Reader {
      * This method closes this StringReader. Once it is closed, you can no
      * longer read from it. Only the first invocation of this method has any
      * effect.
-     * 
+     *
      */
     @Override
     public void close() {
@@ -69,10 +69,10 @@ public class Support_StringReader extends Reader {
      * Set a Mark position in this Reader. The parameter <code>readLimit</code>
      * is ignored for StringReaders. Sending reset() will reposition the reader
      * back to the marked position provided the mark has not been invalidated.
-     * 
+     *
      * @param readlimit
      *            ignored for StringReaders.
-     * 
+     *
      * @exception java.io.IOException
      *                If an error occurs attempting mark this StringReader.
      */
@@ -94,7 +94,7 @@ public class Support_StringReader extends Reader {
     /**
      * Answers a boolean indicating whether or not this StringReader supports
      * mark() and reset(). This method always returns true.
-     * 
+     *
      * @return <code>true</code> if mark() and reset() are supported,
      *         <code>false</code> otherwise. This implementation always
      *         returns <code>true</code>.
@@ -108,9 +108,9 @@ public class Support_StringReader extends Reader {
      * Reads a single character from this StringReader and returns the result as
      * an int. The 2 higher-order bytes are set to 0. If the end of reader was
      * encountered then return -1.
-     * 
+     *
      * @return the character read or -1 if end of reader.
-     * 
+     *
      * @exception java.io.IOException
      *                If the StringReader is already closed.
      */
@@ -132,7 +132,7 @@ public class Support_StringReader extends Reader {
      * stores them at <code>offset</code> in the character array
      * <code>buf</code>. Returns the number of characters actually read or -1
      * if the end of reader was encountered.
-     * 
+     *
      * @param buf
      *            character array to store the read characters
      * @param offset
@@ -140,7 +140,7 @@ public class Support_StringReader extends Reader {
      * @param count
      *            maximum number of characters to read
      * @return the number of characters read or -1 if end of reader.
-     * 
+     *
      * @exception java.io.IOException
      *                If the StringReader is closed.
      */
@@ -174,11 +174,11 @@ public class Support_StringReader extends Reader {
      * the result is <code>false</code> this Reader may or may not block when
      * <code>read()</code> is sent. The implementation in StringReader always
      * returns <code>true</code> even when it has been closed.
-     * 
+     *
      * @return <code>true</code> if the receiver will not block when
      *         <code>read()</code> is called, <code>false</code> if unknown
      *         or blocking will occur.
-     * 
+     *
      * @exception java.io.IOException
      *                If an IO error occurs.
      */
@@ -197,7 +197,7 @@ public class Support_StringReader extends Reader {
      * location. Invocations of <code>read()/skip()</code> will occur from
      * this new location. If this Reader was not marked, the StringReader is
      * reset to the beginning of the String.
-     * 
+     *
      * @exception java.io.IOException
      *                If this StringReader has already been closed.
      */
@@ -216,11 +216,11 @@ public class Support_StringReader extends Reader {
      * Skips <code>count</code> number of characters in this StringReader.
      * Subsequent <code>read()</code>'s will not return these characters
      * unless <code>reset()</code> is used.
-     * 
+     *
      * @param count
      *            The number of characters to skip.
      * @return the number of characters actually skipped.
-     * 
+     *
      * @exception java.io.IOException
      *                If this StringReader has already been closed.
      */

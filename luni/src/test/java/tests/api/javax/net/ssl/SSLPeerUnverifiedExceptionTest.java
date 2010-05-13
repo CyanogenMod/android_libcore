@@ -24,15 +24,15 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(SSLPeerUnverifiedException.class) 
+@TestTargetClass(SSLPeerUnverifiedException.class)
 public class SSLPeerUnverifiedExceptionTest extends TestCase {
-    
+
     private static String[] msgs = {
             "",
             "Check new message",
             "Check new message Check new message Check new message Check new message Check new message" };
-    
-    
+
+
     /**
      * Test for <code>SSLPeerUnverifiedException(String)</code> constructor Assertion:
      * constructs SSLPeerUnverifiedException with detail message msg. Parameter
@@ -52,7 +52,7 @@ public class SSLPeerUnverifiedExceptionTest extends TestCase {
             assertNull("getCause() must return null", sslE.getCause());
         }
     }
-    
+
     /**
      * Test for <code>SSLPeerUnverifiedException(String)</code> constructor Assertion:
      * constructs SSLPeerUnverifiedException with detail message msg. Parameter

@@ -25,7 +25,7 @@ package org.apache.harmony.security.asn1;
 
 /**
  * Encodes ASN.1 types with DER (X.690)
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -140,7 +140,7 @@ public final class DerOutputStream extends BerOutputStream {
     }
 
     /*
-     * LENGTH 
+     * LENGTH
      */
 
     public void getChoiceLength(ASN1Choice choice) {

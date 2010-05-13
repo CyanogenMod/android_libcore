@@ -64,8 +64,8 @@ abstract class CipherHelper<T/*, U*/> extends TestHelper<T/*, Key*/> {
         this.mode1 = mode1;
         this.mode2 = mode2;
     }
-    
-    
+
+
 
 //    @Override
     void test(Key encryptKey, Key decryptKey) {
@@ -120,7 +120,7 @@ class CipherAsymmetricCryptHelper extends CipherHelper<KeyPair/*, U*/> {
         super(algorithmName, plainData, Cipher.ENCRYPT_MODE,
                 Cipher.DECRYPT_MODE);
     }
-    
+
     @Override
     void test(KeyPair keyPair) {
         test(keyPair.getPrivate(), keyPair.getPublic());
@@ -136,7 +136,7 @@ class CipherSymmetricCryptHelper extends CipherHelper<SecretKey/*, U*/> {
         super(algorithmName, plainData, Cipher.ENCRYPT_MODE,
                 Cipher.DECRYPT_MODE);
     }
-    
+
     @Override
     void test(SecretKey key) {
         test(key, key);
@@ -151,7 +151,7 @@ class SignatureHelper extends TestHelper<KeyPair> {
     protected SignatureHelper(String algorithmName) {
         this.algorithmName = algorithmName;
     }
-    
+
     @Override
     void test(KeyPair keyPair) {
         test(keyPair.getPrivate(), keyPair.getPublic());
@@ -252,26 +252,26 @@ class AlgorithmParameterAsymmetricHelper extends TestHelper<AlgorithmParameters>
 
     private static final String plainData = "some data to encrypt and decrypt";
     private final String algorithmName;
-    
+
     protected AlgorithmParameterAsymmetricHelper(String algorithmName) {
         this.algorithmName = algorithmName;
     }
 
     @Override
     void test(AlgorithmParameters parameters) {
-        
+
         KeyPairGenerator generator = null;
         try {
             generator = KeyPairGenerator.getInstance(algorithmName);
         } catch (NoSuchAlgorithmException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         generator.initialize(1024);
-        
+
         KeyPair keyPair = generator.generateKeyPair();
-        
-     
+
+
         Cipher cipher = null;
         try {
             cipher = Cipher.getInstance(algorithmName);
@@ -280,7 +280,7 @@ class AlgorithmParameterAsymmetricHelper extends TestHelper<AlgorithmParameters>
         } catch (NoSuchPaddingException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         try {
             cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic(), parameters);
         } catch (InvalidKeyException e) {
@@ -288,7 +288,7 @@ class AlgorithmParameterAsymmetricHelper extends TestHelper<AlgorithmParameters>
         } catch (InvalidAlgorithmParameterException e) {
             Assert.fail(e.getMessage());
         }
-    
+
         byte[] bs = null;
         try {
             bs = cipher.doFinal(plainData.getBytes());
@@ -297,7 +297,7 @@ class AlgorithmParameterAsymmetricHelper extends TestHelper<AlgorithmParameters>
         } catch (BadPaddingException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         try {
             cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), parameters);
         } catch (InvalidKeyException e) {
@@ -305,7 +305,7 @@ class AlgorithmParameterAsymmetricHelper extends TestHelper<AlgorithmParameters>
         } catch (InvalidAlgorithmParameterException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         byte[] decrypted = null;
         try {
             decrypted = cipher.doFinal(bs);
@@ -314,7 +314,7 @@ class AlgorithmParameterAsymmetricHelper extends TestHelper<AlgorithmParameters>
         } catch (BadPaddingException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         Assert.assertTrue(Arrays.equals(plainData.getBytes(), decrypted));
     }
 }
@@ -325,12 +325,12 @@ class AlgorithmParameterSymmetricHelper extends TestHelper<AlgorithmParameters> 
     private final String algorithmName;
     private final int keySize;
     private String blockmode;
-    
+
     protected AlgorithmParameterSymmetricHelper(String algorithmName, int keySize) {
         this.algorithmName = algorithmName;
         this.keySize = keySize;
     }
-    
+
     protected AlgorithmParameterSymmetricHelper(String algorithmName, String blockmode, int keySize) {
         this(algorithmName, keySize);
         this.blockmode = blockmode;
@@ -338,19 +338,19 @@ class AlgorithmParameterSymmetricHelper extends TestHelper<AlgorithmParameters> 
 
     @Override
     void test(AlgorithmParameters parameters) {
-        
+
         KeyGenerator generator = null;
         try {
             generator = KeyGenerator.getInstance(algorithmName);
         } catch (NoSuchAlgorithmException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         generator.init(keySize);
-        
+
         Key key = generator.generateKey();
-        
-     
+
+
         Cipher cipher = null;
         try {
             String transformation = algorithmName;
@@ -364,7 +364,7 @@ class AlgorithmParameterSymmetricHelper extends TestHelper<AlgorithmParameters> 
         } catch (NoSuchPaddingException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         try {
             cipher.init(Cipher.ENCRYPT_MODE, key, parameters);
         } catch (InvalidKeyException e) {
@@ -372,7 +372,7 @@ class AlgorithmParameterSymmetricHelper extends TestHelper<AlgorithmParameters> 
         } catch (InvalidAlgorithmParameterException e) {
             Assert.fail(e.getMessage());
         }
-    
+
         byte[] bs = null;
         try {
             bs = cipher.doFinal(plainData.getBytes());
@@ -381,7 +381,7 @@ class AlgorithmParameterSymmetricHelper extends TestHelper<AlgorithmParameters> 
         } catch (BadPaddingException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         try {
             cipher.init(Cipher.DECRYPT_MODE, key, parameters);
         } catch (InvalidKeyException e) {
@@ -389,7 +389,7 @@ class AlgorithmParameterSymmetricHelper extends TestHelper<AlgorithmParameters> 
         } catch (InvalidAlgorithmParameterException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         byte[] decrypted = null;
         try {
             decrypted = cipher.doFinal(bs);
@@ -398,7 +398,7 @@ class AlgorithmParameterSymmetricHelper extends TestHelper<AlgorithmParameters> 
         } catch (BadPaddingException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         Assert.assertTrue(Arrays.equals(plainData.getBytes(), decrypted));
     }
 }
@@ -424,28 +424,28 @@ class AlgorithmParameterSignatureHelper<T extends AlgorithmParameterSpec> extend
         } catch (NoSuchAlgorithmException e) {
             Assert.fail(e.getMessage());
         }
-        
-        
+
+
         T parameterSpec = null;
         try {
             parameterSpec = parameters.getParameterSpec(parameterSpecClass);
         } catch (InvalidParameterSpecException e) {
             Assert.fail(e.getMessage());
         }
-                
+
         KeyPairGenerator generator = null;
         try {
             generator = KeyPairGenerator.getInstance(algorithmName);
         } catch (NoSuchAlgorithmException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         try {
             generator.initialize(parameterSpec);
         } catch (InvalidAlgorithmParameterException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         KeyPair keyPair = generator.genKeyPair();
 
         try {
@@ -505,11 +505,11 @@ class AlgorithmParameterKeyAgreementHelper extends TestHelper<AlgorithmParameter
         } catch (NoSuchAlgorithmException e) {
             Assert.fail(e.getMessage());
         }
-        
+
         generator.initialize(1024);
-        
+
         KeyPair keyPair = generator.generateKeyPair();
-        
+
         KeyAgreement keyAgreement = null;
         try {
             keyAgreement = KeyAgreement.getInstance(algorithmName);

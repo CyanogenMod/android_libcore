@@ -44,11 +44,11 @@ import org.apache.harmony.security.tests.support.acl.PrincipalImpl;
 
 /**
  * Tests for <code>Subject</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(Subject.class) 
+@TestTargetClass(Subject.class)
 public class SubjectTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -64,7 +64,7 @@ public class SubjectTest extends TestCase {
     }
 
     /**
-     * @tests javax.security.auth.Subject#Subject() 
+     * @tests javax.security.auth.Subject#Subject()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -83,7 +83,7 @@ public class SubjectTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#Subject(boolean readOnly,
      *                                            Set<? extends Principal> principals,
@@ -112,7 +112,7 @@ public class SubjectTest extends TestCase {
         Object privCredential2 = new Object();
         privCredentials.add(privCredential1);
         privCredentials.add(privCredential2);
-        
+
         try {
             Subject s = new Subject(true, principal, pubCredentials, privCredentials);
             assertNotNull("Null object returned", s);
@@ -123,7 +123,7 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Subject s = new Subject(false, principal, pubCredentials, privCredentials);
             assertNotNull("Null object returned", s);
@@ -134,32 +134,32 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Subject s = new Subject(true, null, pubCredentials, privCredentials);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
-        
+
         try {
             Subject s = new Subject(true, principal, null, privCredentials);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
-        
+
         try {
             Subject s = new Subject(true, principal, pubCredentials, null);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
-        
+
         try {
             Subject s = new Subject(true, null, null, null);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#doAs(Subject subject, PrivilegedAction action)
      */
@@ -173,25 +173,25 @@ public class SubjectTest extends TestCase {
         Subject subj = new Subject();
         PrivilegedAction<Object> pa = new myPrivilegedAction();
         PrivilegedAction<Object> paNull = null;
-        
+
         try {
             Object obj = Subject.doAs(null, pa);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Object obj = Subject.doAs(subj, pa);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Object obj = Subject.doAs(subj, paNull);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
-        
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkPermission(Permission permission) {
@@ -210,7 +210,7 @@ public class SubjectTest extends TestCase {
         } catch (SecurityException se) {
         }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#doAs(Subject subject, PrivilegedExceptionAction action)
      */
@@ -224,19 +224,19 @@ public class SubjectTest extends TestCase {
         Subject subj = new Subject();
         PrivilegedExceptionAction<Object> pea = new myPrivilegedExceptionAction();
         PrivilegedExceptionAction<Object> peaNull = null;
-        
+
         try {
             Object obj = Subject.doAs(null, pea);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Object obj = Subject.doAs(subj, pea);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Object obj = Subject.doAs(subj, peaNull);
             fail("NullPointerException wasn't thrown");
@@ -244,7 +244,7 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of NullPointerException");
         }
-        
+
         try {
             Subject.doAs(subj, new PrivilegedExceptionAction<Object>(){
                 public Object run() throws PrivilegedActionException {
@@ -254,7 +254,7 @@ public class SubjectTest extends TestCase {
             fail("PrivilegedActionException wasn't thrown");
         } catch (PrivilegedActionException e) {
         }
-        
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkPermission(Permission permission) {
@@ -275,9 +275,9 @@ public class SubjectTest extends TestCase {
             fail(e + " was thrown instead of SecurityException");
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.Subject#doAsPrivileged(Subject subject, 
+     * @tests javax.security.auth.Subject#doAsPrivileged(Subject subject,
      *                                                   PrivilegedAction action,
      *                                                   AccessControlContext acc)
      */
@@ -292,25 +292,25 @@ public class SubjectTest extends TestCase {
         PrivilegedAction<Object> pa = new myPrivilegedAction();
         PrivilegedAction<Object> paNull = null;
         AccessControlContext acc = AccessController.getContext();
-        
+
         try {
             Object obj = Subject.doAsPrivileged(null, pa, acc);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Object obj = Subject.doAsPrivileged(subj, pa, acc);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Object obj = Subject.doAsPrivileged(subj, paNull, acc);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
-        
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkPermission(Permission permission) {
@@ -329,9 +329,9 @@ public class SubjectTest extends TestCase {
         } catch (SecurityException se) {
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.Subject#doAsPrivileged(Subject subject, 
+     * @tests javax.security.auth.Subject#doAsPrivileged(Subject subject,
      *                                                   PrivilegedExceptionAction action,
      *                                                   AccessControlContext acc)
      */
@@ -346,19 +346,19 @@ public class SubjectTest extends TestCase {
         PrivilegedExceptionAction<Object> pea = new myPrivilegedExceptionAction();
         PrivilegedExceptionAction<Object> peaNull = null;
         AccessControlContext acc = AccessController.getContext();
-        
+
         try {
             Object obj = Subject.doAsPrivileged(null, pea, acc);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Object obj = Subject.doAsPrivileged(subj, pea, acc);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Object obj = Subject.doAsPrivileged(subj, peaNull, acc);
             fail("NullPointerException wasn't thrown");
@@ -366,7 +366,7 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of NullPointerException");
         }
-        
+
         try {
             Subject.doAsPrivileged(subj, new PrivilegedExceptionAction<Object>(){
                 public Object run() throws PrivilegedActionException {
@@ -376,7 +376,7 @@ public class SubjectTest extends TestCase {
             fail("PrivilegedActionException wasn't thrown");
         } catch (PrivilegedActionException e) {
         }
-        
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkPermission(Permission permission) {
@@ -397,7 +397,7 @@ public class SubjectTest extends TestCase {
             fail(e + " was thrown instead of SecurityException");
         }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#equals(Object o)
      */
@@ -425,11 +425,11 @@ public class SubjectTest extends TestCase {
         Object privCredential2 = new Object();
         privCredentials.add(privCredential1);
         privCredentials.add(privCredential2);
-        
+
         Subject s1 = new Subject(true, principal, pubCredentials, privCredentials);
         Subject s2 = new Subject(true, principal1, pubCredentials, privCredentials);
         Subject s3 = new Subject(true, principal, pubCredentials, privCredentials);
-        
+
         try {
             assertTrue(s1.equals(s1));
             assertFalse(s1.equals(s2));
@@ -438,8 +438,8 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
-               
+
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkPermission(Permission permission) {
@@ -456,9 +456,9 @@ public class SubjectTest extends TestCase {
             s1.equals(s1);
             //fail("SecurityException wasn't thrown");
         } catch (SecurityException se) {
-        } 
+        }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#getPrincipals()
      * @tests javax.security.auth.Subject#getPrivateCredentials()
@@ -500,9 +500,9 @@ public class SubjectTest extends TestCase {
         Object privCredential2 = new Object();
         privCredentials.add(privCredential1);
         privCredentials.add(privCredential2);
-        
+
         Subject s = new Subject(false, principal, pubCredentials, privCredentials);
-        
+
         try {
             Set<Principal> pr = s.getPrincipals();
             assertNotNull(pr);
@@ -510,7 +510,7 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Set<Object> privC = s.getPrivateCredentials();
             assertNotNull(privC);
@@ -518,7 +518,7 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Set<Object> pubC = s.getPublicCredentials();
             assertNotNull(pubC);
@@ -527,7 +527,7 @@ public class SubjectTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#isReadOnly()
      * @tests javax.security.auth.Subject#setReadOnly()
@@ -560,9 +560,9 @@ public class SubjectTest extends TestCase {
         Object privCredential2 = new Object();
         privCredentials.add(privCredential1);
         privCredentials.add(privCredential2);
-        
+
         Subject s = new Subject(false, principal, pubCredentials, privCredentials);
-        
+
         try {
             assertFalse(s.isReadOnly());
             s.setReadOnly();
@@ -570,7 +570,7 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e);
         }
-        
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkPermission(Permission permission) {
@@ -589,7 +589,7 @@ public class SubjectTest extends TestCase {
         } catch (SecurityException se) {
         }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#getSubject(AccessControlContext acc)
      */
@@ -602,13 +602,13 @@ public class SubjectTest extends TestCase {
     public void test_getSubject() {
         Subject subj = new Subject();
         AccessControlContext acc = new AccessControlContext(new ProtectionDomain[0]);
-        
+
         try {
             assertNull(Subject.getSubject(acc));
         } catch (Exception e) {
             fail("Unexpected exception " + e);
         }
-        
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkPermission(Permission permission) {
@@ -625,9 +625,9 @@ public class SubjectTest extends TestCase {
             Subject.getSubject(acc);
             fail("SecurityException wasn't thrown");
         } catch (SecurityException se) {
-        } 
+        }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#toString()
      */
@@ -639,14 +639,14 @@ public class SubjectTest extends TestCase {
     )
     public void test_toString() {
         Subject subj = new Subject();
-        
+
         try {
             assertNotNull("Null returned", subj.toString());
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#hashCode()
      */
@@ -658,13 +658,13 @@ public class SubjectTest extends TestCase {
     )
     public void test_hashCode() {
         Subject subj = new Subject();
-        
+
         try {
             assertNotNull("Null returned", subj.hashCode());
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkPermission(Permission permission) {
@@ -683,7 +683,7 @@ public class SubjectTest extends TestCase {
         } catch (SecurityException se) {
         }
     }
-    
+
     /**
      * @tests javax.security.auth.Subject#getPrincipals(Class<T> c)
      * @tests javax.security.auth.Subject#getPrivateCredentials(Class<T> c)
@@ -723,27 +723,27 @@ public class SubjectTest extends TestCase {
         Object privCredential2 = new Object();
         privCredentials.add(privCredential1);
         privCredentials.add(privCredential2);
-        
+
         Subject s = new Subject(true, principal, pubCredentials, privCredentials);
-        
+
         try {
             Set<Principal> pr = s.getPrincipals(null);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
-        
+
         try {
             Set<Object> privC = s.getPrivateCredentials(null);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
-        
+
         try {
             Set<Object> pubC = s.getPublicCredentials(null);
             fail("NullPointerException wasn't thrown");
         } catch (NullPointerException npe) {
         }
-        
+
         try {
             Set<Principal> pr = s.getPrincipals(Principal.class);
             assertNotNull(pr);
@@ -751,7 +751,7 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Set<Object> privC = s.getPrivateCredentials(Object.class);
             assertNotNull(privC);
@@ -759,7 +759,7 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             Set<Object> pubC = s.getPublicCredentials(Object.class);
             assertNotNull(pubC);

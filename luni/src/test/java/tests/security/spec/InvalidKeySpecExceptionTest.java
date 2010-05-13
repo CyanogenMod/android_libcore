@@ -34,7 +34,7 @@ import java.security.spec.InvalidKeySpecException;
 /**
  * Tests for <code>InvalidKeySpecException</code> class constructors and
  * methods.
- * 
+ *
  */
 @TestTargetClass(InvalidKeySpecException.class)
 public class InvalidKeySpecExceptionTest extends TestCase {

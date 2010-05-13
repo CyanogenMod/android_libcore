@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,8 +71,8 @@ public class CharsetEncoderTest extends AbstractCharsetEncoderTestCase {
         assertTrue(encoder.averageBytesPerChar() == AVER_BYTES);
         assertTrue(encoder.maxBytesPerChar() == MAX_BYTES);
     }
-    
-    
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -85,8 +85,8 @@ public class CharsetEncoderTest extends AbstractCharsetEncoderTestCase {
                 .pubImplFlush(null));
 
     }
-    
-    
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -96,7 +96,7 @@ public class CharsetEncoderTest extends AbstractCharsetEncoderTestCase {
     public void testImplOnUnmappableCharacter() {
         encoder = new MockCharsetEncoder(cs, 1, 3);
         ((MockCharsetEncoder) encoder).pubImplOnUnmappableCharacter(null);
-    }    
+    }
 
     @TestTargets({
         @TestTargetNew(
@@ -145,8 +145,8 @@ public class CharsetEncoderTest extends AbstractCharsetEncoderTestCase {
         }
 
     }
-    
-    
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -158,7 +158,7 @@ public class CharsetEncoderTest extends AbstractCharsetEncoderTestCase {
         ((MockCharsetEncoder) encoder).pubImplReset();
     }
 
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -415,7 +415,7 @@ public class CharsetEncoderTest extends AbstractCharsetEncoderTestCase {
 
 
     boolean enCodeLoopCalled = false;
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "",
@@ -439,8 +439,8 @@ public class CharsetEncoderTest extends AbstractCharsetEncoderTestCase {
         }
         assertTrue(enCodeLoopCalled);
     }
-    
-    
+
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -450,10 +450,10 @@ public class CharsetEncoderTest extends AbstractCharsetEncoderTestCase {
     public void testImplReplaceWith() {
         encoder = new MockCharsetEncoder(cs, 1, 3);
         ((MockCharsetEncoder) encoder).pubImplReplaceWith(null);
-    }    
+    }
 
 
-    
+
     protected byte[] getLegalByteArray() {
         return new byte[] { 'a' };
     }
@@ -549,19 +549,19 @@ public class CharsetEncoderTest extends AbstractCharsetEncoderTestCase {
         protected void implReplaceWith(byte[] ba) {
             assertSame(ba, replacement());
         }
-        
+
         public void pubImplReplaceWith(byte[] newReplacement) {
             super.implReplaceWith(newReplacement);
         }
-        
+
         public CoderResult pubImplFlush(ByteBuffer out) {
             return super.implFlush(out);
         }
-        
+
         public void pubImplOnUnmappableCharacter(CodingErrorAction newAction) {
             super.implOnUnmappableCharacter(newAction);
         }
-        
+
         public void pubImplReset() {
             super.implReset();
         }

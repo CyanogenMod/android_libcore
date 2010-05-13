@@ -24,7 +24,7 @@ public class CertificateFactoryTestX509 extends CertificateFactoryTest {
         super("X509", encodedCertificate.getBytes());
     }
 
-    public static final String encodedCertificate = 
+    public static final String encodedCertificate =
         "-----BEGIN CERTIFICATE-----\n"
         + "MIID0jCCAzugAwIBAgIBAjANBgkqhkiG9w0BAQQFADCBmjELMAkGA1UEBhMCVUsx\n"
         + "EjAQBgNVBAgTCUhhbXBzaGlyZTETMBEGA1UEBxMKV2luY2hlc3RlcjETMBEGA1UE\n"

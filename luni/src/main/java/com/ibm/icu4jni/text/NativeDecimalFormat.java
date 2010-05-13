@@ -164,9 +164,9 @@ public final class NativeDecimalFormat {
      * native DecimalFormatSymbols objects are equal. It is assumed that the
      * caller (DecimalFormat) will check the DecimalFormatSymbols objects
      * instead, for performance.
-     * 
+     *
      * This is also unreasonably expensive, calling down to JNI multiple times.
-     * 
+     *
      * TODO: remove this and just have DecimalFormat.equals do the right thing itself.
      */
     @Override
@@ -214,7 +214,7 @@ public final class NativeDecimalFormat {
        // Get new value by multiplying multiplier.
        return valBigDecimal.multiply(multiplierBigDecimal);
     }
-    
+
     public StringBuffer formatBigDecimal(BigDecimal value, StringBuffer buffer, FieldPosition field) {
         if (buffer == null || field == null) {
             throw new NullPointerException();
@@ -230,7 +230,7 @@ public final class NativeDecimalFormat {
         String result = format(this.addr, val.toString(), field, fieldType, null, scale);
         return buffer.append(result);
     }
-    
+
     public StringBuffer formatBigInteger(BigInteger value, StringBuffer buffer, FieldPosition field) {
         if (buffer == null || field == null) {
             throw new NullPointerException();

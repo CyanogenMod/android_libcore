@@ -57,7 +57,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Tests for <code>Certificate</code> fields and methods
- * 
+ *
  */
 @TestTargetClass(Certificate.class)
 public class CertificateTest extends TestCase {
@@ -94,13 +94,13 @@ public class CertificateTest extends TestCase {
             assertEquals("TEST_TYPE", c1.getType());
         } catch (CertificateEncodingException e) {
             fail("Unexpected CertificateEncodingException " + e.getMessage());
-        }  
+        }
     }
 
     /**
      * Test for <code>hashCode()</code> method<br>
      * Assertion: returns hash of the <code>Certificate</code> instance
-     * @throws CertificateEncodingException 
+     * @throws CertificateEncodingException
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -109,7 +109,7 @@ public class CertificateTest extends TestCase {
         args = {}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")   
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testHashCode() throws CertificateEncodingException {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         Certificate c2 = new MyCertificate("TEST_TYPE", testEncoding);
@@ -132,7 +132,7 @@ public class CertificateTest extends TestCase {
         args = {}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")    
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testHashCodeEqualsObject() {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         Certificate c2 = new MyCertificate("TEST_TYPE", testEncoding);
@@ -144,7 +144,7 @@ public class CertificateTest extends TestCase {
 
     /**
      * Test for <code>getType()</code> method<br>
-     * Assertion: returns this certificate type 
+     * Assertion: returns this certificate type
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -153,7 +153,7 @@ public class CertificateTest extends TestCase {
         args = {}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")      
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testGetType() {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         assertEquals("TEST_TYPE", c1.getType());
@@ -161,7 +161,7 @@ public class CertificateTest extends TestCase {
 
     /**
      * Test #1 for <code>equals(Object)</code> method<br>
-     * Assertion: object equals to itself 
+     * Assertion: object equals to itself
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -170,7 +170,7 @@ public class CertificateTest extends TestCase {
         args = {java.lang.Object.class}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")      
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testEqualsObject01() {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         assertTrue(c1.equals(c1));
@@ -186,9 +186,9 @@ public class CertificateTest extends TestCase {
         notes = "Verifies positive case.",
         method = "equals",
         args = {java.lang.Object.class}
-    )    
+    )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")      
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testEqualsObject02() {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         Certificate c2 = new MyCertificate("TEST_TYPE", testEncoding);
@@ -206,7 +206,7 @@ public class CertificateTest extends TestCase {
         args = {java.lang.Object.class}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")      
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testEqualsObject03() {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         assertFalse(c1.equals(null));
@@ -224,7 +224,7 @@ public class CertificateTest extends TestCase {
         args = {java.lang.Object.class}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")      
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testEqualsObject04() {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         assertFalse(c1.equals("TEST_TYPE"));
@@ -238,7 +238,7 @@ public class CertificateTest extends TestCase {
 
     /**
      * This test just calls <code>getEncoded()</code> method<br>
-     * @throws CertificateException 
+     * @throws CertificateException
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -247,18 +247,18 @@ public class CertificateTest extends TestCase {
         args = {}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")    
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     @KnownFailure("Assertion does not evaluate to true... Works in javax.Certificate")
     public final void testGetEncoded() throws CertificateException {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         assertNotNull(c1.getEncoded());
-        
+
         assertTrue(Arrays.equals(TestUtils.rootCert.getBytes(),cert.getEncoded()));
-        
+
         byte[] b = TestUtils.rootCert.getBytes();
-        
+
         b[4] = (byte) 200;
-        
+
         try {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         ByteArrayInputStream stream = new ByteArrayInputStream(b);
@@ -270,7 +270,7 @@ public class CertificateTest extends TestCase {
 
     /**
      * This test just calls <code>verify(PublicKey)</code> method<br>
-     * 
+     *
      * @throws InvalidKeyException
      * @throws CertificateException
      * @throws NoSuchAlgorithmException
@@ -284,7 +284,7 @@ public class CertificateTest extends TestCase {
         args = {java.security.PublicKey.class}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")    
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testVerifyPublicKey()
         throws InvalidKeyException,
                CertificateException,
@@ -311,7 +311,7 @@ public class CertificateTest extends TestCase {
         args = {java.security.PublicKey.class, java.lang.String.class}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")    
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testVerifyPublicKeyString()
         throws InvalidKeyException,
                CertificateException,
@@ -332,7 +332,7 @@ public class CertificateTest extends TestCase {
         args = {}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")    
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testToString() {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         c1.toString();
@@ -348,7 +348,7 @@ public class CertificateTest extends TestCase {
         args = {}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")    
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testGetPublicKey() {
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         c1.getPublicKey();
@@ -364,10 +364,10 @@ public class CertificateTest extends TestCase {
         args = {}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")    
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testWriteReplace() {
         MyCertificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
-        
+
         try {
             Object obj = c1.writeReplace();
             assertTrue(obj.toString().contains(
@@ -376,9 +376,9 @@ public class CertificateTest extends TestCase {
             fail("Unexpected ObjectStreamException " + e.getMessage());
         }
     }
-    
+
 public class MyModifiablePublicKey implements PublicKey {
-        
+
         private PublicKey key;
         private boolean modifiedAlgo;
         private String algo;
@@ -386,7 +386,7 @@ public class MyModifiablePublicKey implements PublicKey {
         private boolean modifiedFormat;
         private boolean modifiedEncoding;
         private byte[] encoding;
-        
+
         public MyModifiablePublicKey(PublicKey k) {
             super();
             this.key = k;
@@ -406,7 +406,7 @@ public class MyModifiablePublicKey implements PublicKey {
             } else {
                 return key.getFormat();
             }
-            
+
         }
 
         public byte[] getEncoded() {
@@ -415,35 +415,35 @@ public class MyModifiablePublicKey implements PublicKey {
             } else {
                 return key.getEncoded();
             }
-            
+
         }
 
         public long getSerVerUID() {
             return key.serialVersionUID;
         }
-        
+
         public void setAlgorithm(String myAlgo) {
             modifiedAlgo = true;
             this.algo = myAlgo;
         }
-        
+
         public void setFormat(String myFormat) {
             modifiedFormat = true;
             format = myFormat;
         }
-        
+
         public void setEncoding(byte[] myEncoded) {
             modifiedEncoding = true;
             encoding = myEncoded;
         }
     }
-    
+
     private Certificate cert;
 
     private Provider wrongProvider;
 
     private Provider useFulProvider;
-   
+
     public void setUp() throws Exception {
         super.setUp();
         TestUtils.initCertPathSSCertChain();
@@ -452,7 +452,7 @@ public class MyModifiablePublicKey implements PublicKey {
         wrongProvider = cf.getProvider();
         useFulProvider = Security.getProviders("Signature.sha1WithRSAEncryption")[0];
     }
-    
+
     /**
      * This test just calls <code>verify(PublicKey,String)</code> method<br>
      *
@@ -469,7 +469,7 @@ public class MyModifiablePublicKey implements PublicKey {
         args = {java.security.PublicKey.class, java.lang.String.class}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")     
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testVerifyPublicKeyString2() throws InvalidKeyException,
             CertificateException, NoSuchAlgorithmException,
             NoSuchProviderException, SignatureException {
@@ -489,15 +489,15 @@ public class MyModifiablePublicKey implements PublicKey {
         // on in the same vm instance. Maybe a better way would be to first add
         // a new provider, test if it works, then remove it and test if the
         // exception is thrown.
-        // 
+        //
         // Security.removeProvider(wrongProvider.getName());
-        // 
+        //
         // try {
         //     cert.verify(cert.getPublicKey(), wrongProvider.getName());
         // } catch (NoSuchAlgorithmException e) {
         //     // ok
         // }
-        // 
+        //
         // Security.insertProviderAt(wrongProvider, oldPosition);
 
         /*
@@ -510,7 +510,7 @@ public class MyModifiablePublicKey implements PublicKey {
         } catch (SignatureException e) {
             // ok
         }
-        
+
         try {
             cert.verify(c1.getPublicKey(), provs[0].getName());
         } catch (InvalidKeyException e) {
@@ -518,17 +518,17 @@ public class MyModifiablePublicKey implements PublicKey {
         }
         */
     }
-    
+
     /**
      * This test just calls <code>verify(PublicKey)</code> method<br>
-     * 
+     *
      * @throws InvalidKeyException
      * @throws CertificateException
      * @throws NoSuchAlgorithmException
      * @throws NoSuchProviderException
      * @throws SignatureException
-     * @throws IOException 
-     * @throws InvalidAlgorithmParameterException 
+     * @throws IOException
+     * @throws InvalidAlgorithmParameterException
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -537,22 +537,22 @@ public class MyModifiablePublicKey implements PublicKey {
         args = {java.security.PublicKey.class}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")     
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testVerifyPublicKey2() throws InvalidKeyException,
             CertificateException, NoSuchAlgorithmException,
             NoSuchProviderException, SignatureException, InvalidAlgorithmParameterException, IOException {
-        
+
         Certificate c1 = new MyCertificate("TEST_TYPE", testEncoding);
         c1.verify(null);
 
         cert.verify(cert.getPublicKey());
-        
+
         PublicKey k = cert.getPublicKey();
 
         MyModifiablePublicKey changedEncoding = new MyModifiablePublicKey(k);
         changedEncoding
                 .setEncoding(new byte[cert.getEncoded().length - 1]);
-        
+
         try {
             cert.verify(c1.getPublicKey());
             fail("expected InvalidKeyException");
@@ -565,9 +565,9 @@ public class MyModifiablePublicKey implements PublicKey {
             fail("Exception expected");
         } catch (Exception e) {
             // ok
-        }        
+        }
     }
-    
+
     /**
      * This test just calls <code>writeReplace()</code> method<br>
      */
@@ -578,17 +578,17 @@ public class MyModifiablePublicKey implements PublicKey {
         args = {}
     )
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")     
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public final void testWriteReplace2() {
         MyCertificate c1 = new MyFailingCertificate("TEST_TYPE", testEncoding);
-        
+
         try {
             Object obj = c1.writeReplace();
         } catch (ObjectStreamException e) {
             //ok
         }
     }
-    
+
     /**
      * @tests serialization/deserialization compatibility.
      */
@@ -613,7 +613,7 @@ public class MyModifiablePublicKey implements PublicKey {
         )
     })
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")     
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public void testSerializationSelf() throws Exception {
         TestUtils.initCertPathSSCertChain();
 
@@ -644,7 +644,7 @@ public class MyModifiablePublicKey implements PublicKey {
         )
     })
     @AndroidOnly("Gets security providers with specific signature algorithm: " +
-            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")     
+            "Security.getProviders(\"Signature.sha1WithRSAEncryption\")")
     public void testSerializationCompatibility() throws Exception {
         //create test file (once)
 //        SerializationTest.createGoldenFile("device/dalvik/libcore/security/src/test/resources/serialization", this, TestUtils.rootCertificateSS);

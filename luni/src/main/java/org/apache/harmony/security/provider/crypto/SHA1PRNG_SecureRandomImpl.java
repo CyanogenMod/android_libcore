@@ -46,7 +46,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
     private static final long serialVersionUID = 283736797212159675L;
 
     // constants to use in expressions operating on bytes in int and long variables:
-    // END_FLAGS - final bytes in words to append to message; 
+    // END_FLAGS - final bytes in words to append to message;
     //             see "ch.5.1 Padding the Message, FIPS 180-2"
     // RIGHT1    - shifts to right for left half of long
     // RIGHT2    - shifts to right for right half of long
@@ -78,7 +78,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
     //                note, that the exact value is not defined in STANDARD
     // HASHCOPY_OFFSET   - offset for copy of current hash in "copies" array
     // EXTRAFRAME_OFFSET - offset for extra frame in "copies" array;
-    //                     as the extra frame follows the current hash frame, 
+    //                     as the extra frame follows the current hash frame,
     //                     EXTRAFRAME_OFFSET is equal to length of current hash frame
     // FRAME_OFFSET      - offset for frame in "copies" array
     // MAX_BYTES - maximum # of seed bytes processing which doesn't require extra frame
@@ -107,9 +107,9 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
 
     private static SHA1PRNG_SecureRandomImpl myRandom;
 
-    // Structure of "seed" array: 
+    // Structure of "seed" array:
     // -  0-79 - words for computing hash
-    // - 80    - unused 
+    // - 80    - unused
     // - 81    - # of seed bytes in current seed frame
     // - 82-86 - 5 words, current seed hash
     private transient int seed[];
@@ -119,8 +119,8 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
 
     // Structure of "copies" array
     // -  0-4  - 5 words, copy of current seed hash
-    // -  5-20 - extra 16 words frame; 
-    //           is used if final padding exceeds 512-bit length 
+    // -  5-20 - extra 16 words frame;
+    //           is used if final padding exceeds 512-bit length
     // - 21-36 - 16 word frame to store a copy of remaining bytes
     private transient int copies[];
 
@@ -133,7 +133,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
     // variable required according to "SECURE HASH STANDARD"
     private transient long counter;
 
-    // contains int value corresponding to engine's current state 
+    // contains int value corresponding to engine's current state
     private transient int state;
 
     // The "seed" array is used to compute both "current seed hash" and "next bytes".
@@ -148,11 +148,11 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
     // to preserve the latter for following "setSeed(..)" commands,
     // the following technique is used:
     // - upon getting "nextBytes(byte[])" invoked, single or first in row,
-    //   which requires computing new hash, that is, 
+    //   which requires computing new hash, that is,
     //   there is no more bytes remaining from previous "next bytes" computation,
     //   remaining bytes are copied into the 21-36 word frame of the "copies" array;
     // - upon getting "setSeed(byte[])" invoked, single or first in row,
-    //   remaining bytes are copied back. 
+    //   remaining bytes are copied back.
 
     /**
      *  Creates object and sets implementation variables to their initial values
@@ -178,7 +178,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
      * The method invokes the SHA1Impl's "updateHash(..)" method
      * to update current seed frame and
      * to compute new intermediate hash value if the frame is full.
-     * 
+     *
      * After that it computes a length of whole seed.
      */
     private void updateSeed(byte[] bytes) {
@@ -207,7 +207,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
 
         if (seed == null) {
             throw new NullPointerException(
-                    Messages.getString("security.83", "seed"));  
+                    Messages.getString("security.83", "seed"));
         }
 
         if (state == NEXT_BYTES) { // first setSeed after NextBytes; restoring hash
@@ -238,7 +238,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
         byte[] myBytes; // byte[] for bytes returned by "nextBytes()"
 
         if (numBytes < 0) {
-            throw new NegativeArraySizeException(Messages.getString("security.171", numBytes)); 
+            throw new NegativeArraySizeException(Messages.getString("security.171", numBytes));
         }
         if (numBytes == 0) {
             return new byte[0];
@@ -283,7 +283,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
 
         if (bytes == null) {
             throw new NullPointerException(
-                    Messages.getString("security.83", "bytes"));  
+                    Messages.getString("security.83", "bytes"));
         }
 
         lastWord = seed[BYTES_OFFSET] == 0 ? 0
@@ -302,7 +302,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
 
             // possible cases for 64-byte frame:
             //
-            // seed bytes < 48      - remaining bytes are enough for all, 8 counter bytes, 
+            // seed bytes < 48      - remaining bytes are enough for all, 8 counter bytes,
             //                        0x80, and 8 seedLength bytes; no extra frame required
             // 48 < seed bytes < 56 - remaining 9 bytes are for 0x80 and 8 counter bytes
             //                        extra frame contains only seedLength value at the end
@@ -311,15 +311,15 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
             //                        note, that beginning extra bytes are not more than 8,
             //                        that is, only 2 extra words may be used
 
-            // no need to set to "0" 3 words after "lastWord" and  
-            // more than two words behind frame 
+            // no need to set to "0" 3 words after "lastWord" and
+            // more than two words behind frame
             for (i = lastWord + 3; i < FRAME_LENGTH + 2; i++) {
                 seed[i] = 0;
             }
 
             bits = seedLength << 3 + 64; // transforming # of bytes into # of bits
 
-            // putting # of bits into two last words (14,15) of 16 word frame in 
+            // putting # of bits into two last words (14,15) of 16 word frame in
             // seed or copies array depending on total length after padding
             if (seed[BYTES_OFFSET] < MAX_BYTES) {
                 seed[14] = (int) (bits >>> 32);
@@ -339,7 +339,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
 
         nextByteToReturn = 0;
 
-        // possibly not all of HASHBYTES_TO_USE bytes were used previous time 
+        // possibly not all of HASHBYTES_TO_USE bytes were used previous time
         n = (HASHBYTES_TO_USE - nextBIndex) < (bytes.length - nextByteToReturn) ? HASHBYTES_TO_USE
                 - nextBIndex
                 : bytes.length - nextByteToReturn;
@@ -429,7 +429,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
         // result may be 0
         if (state != NEXT_BYTES) {
 
-            // either the state is UNDEFINED or previous method was "setSeed(..)" 
+            // either the state is UNDEFINED or previous method was "setSeed(..)"
             // so in "seed[]" to serialize are remaining bytes (seed[0-nRemaining]) and
             // current hash (seed[82-86])
 
@@ -516,7 +516,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
             for (int i = 0; i < FRAME_LENGTH; i++) {
                 seed[i] = ois.readInt();
             }
-            // reading remaining seed bytes 
+            // reading remaining seed bytes
             for (int i = 0; i < nRemaining; i++) {
                 copies[FRAME_LENGTH + EXTRAFRAME_OFFSET + i] = ois.readInt();
             }

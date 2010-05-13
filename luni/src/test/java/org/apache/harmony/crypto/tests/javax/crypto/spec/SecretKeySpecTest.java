@@ -153,7 +153,7 @@ public class SecretKeySpecTest extends TestCase {
             //expected
         }
     }
-    
+
     @TestTargetNew(
             level = TestLevel.COMPLETE,
             notes = "",
@@ -165,7 +165,7 @@ public class SecretKeySpecTest extends TestCase {
         int offset = 1;
         int len = 4;
         String algorithm = "Algorithm";
-        
+
         try {
             new SecretKeySpec(key, -1, key.length, algorithm);
             fail("An ArrayIndexOutOfBoundsException should be thrown "
@@ -173,7 +173,7 @@ public class SecretKeySpecTest extends TestCase {
         } catch (IllegalArgumentException e) {
             fail("Not expected IllegalArgumentException was thrown.");
         } catch (ArrayIndexOutOfBoundsException e) {
-        }        
+        }
     }
 
     /**

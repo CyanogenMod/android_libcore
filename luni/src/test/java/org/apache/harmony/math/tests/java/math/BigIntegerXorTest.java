@@ -57,7 +57,7 @@ public class BigIntegerXorTest extends TestCase {
     }
 
     /**
-     * Xor for a positive number and zero 
+     * Xor for a positive number and zero
      */
     public void testPosZero() {
         String numA = "27384627835298756289327365";
@@ -70,7 +70,7 @@ public class BigIntegerXorTest extends TestCase {
     }
 
     /**
-     * Xor for a negative number and zero  
+     * Xor for a negative number and zero
      */
     public void testNegPos() {
         String numA = "-27384627835298756289327365";

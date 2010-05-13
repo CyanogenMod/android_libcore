@@ -106,7 +106,7 @@ final public class XMLReaderFactory
     {
     String        className = null;
     ClassLoader    loader = NewInstance.getClassLoader ();
-    
+
     // 1. try the JVM-instance-wide system property
     try { className = System.getProperty (property); }
     catch (RuntimeException e) { /* normally fails for applets */ }
@@ -142,7 +142,7 @@ final public class XMLReaderFactory
 
 // END DISTRIBUTION-SPECIFIC
     }
-    
+
     // do we know the XMLReader implementation class yet?
     if (className != null)
         return loadClass (loader, className);
@@ -162,7 +162,7 @@ final public class XMLReaderFactory
      *
      * <p>Given a class name, this method attempts to load
      * and instantiate the class as an XML reader.</p>
-     * 
+     *
      * @param className the name of the class that should be instantiated.
      *
      * <p>Note that this method will not be usable in environments where

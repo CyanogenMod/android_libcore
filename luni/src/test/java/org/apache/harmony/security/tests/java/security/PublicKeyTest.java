@@ -31,7 +31,7 @@ import dalvik.annotation.TestTargetNew;
 @TestTargetClass(PublicKey.class)
 /**
  * Tests for <code>PublicKey</code> class field
- * 
+ *
  */
 
 public class PublicKeyTest extends TestCase {
@@ -50,7 +50,7 @@ public class PublicKeyTest extends TestCase {
         assertEquals("Incorrect serialVersionUID", cPK.getSerVerUID(), //PublicKey.serialVersionUID,
                 7187392471159151072L);
     }
-    
+
     public class checkPublicKey implements PublicKey {
         public String getAlgorithm() {
             return "PublicKey";
@@ -63,6 +63,6 @@ public class PublicKeyTest extends TestCase {
         }
         public long getSerVerUID() {
             return serialVersionUID;
-        }        
+        }
     }
 }

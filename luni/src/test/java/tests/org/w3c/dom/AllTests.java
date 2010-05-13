@@ -44,7 +44,7 @@ public class AllTests {
         suite.addTestSuite(DocumentTypeInternalSubset.class);
         suite.addTestSuite(DocumentTypePublicId.class);
         suite.addTestSuite(DocumentTypeSystemId.class);
-// Is empty. Only test assumes validation. Leave disabled.        
+// Is empty. Only test assumes validation. Leave disabled.
 //        suite.addTestSuite(ElementGetAttributeNS.class);
         suite.addTestSuite(ElementGetAttributeNodeNS.class);
         suite.addTestSuite(ElementGetElementsByTagNameNS.class);
@@ -58,15 +58,15 @@ public class AllTests {
         suite.addTestSuite(GetElementById.class);
         suite.addTestSuite(GetElementsByTagNameNS.class);
         suite.addTestSuite(GetNamedItemNS.class);
-// Is empty. Only test assumes validation. Leave disabled.        
+// Is empty. Only test assumes validation. Leave disabled.
 //        suite.addTestSuite(HCEntitiesRemoveNamedItemNS.class);
-// Is empty. Only test assumes validation. Leave disabled.        
+// Is empty. Only test assumes validation. Leave disabled.
 //        suite.addTestSuite(HCEntitiesSetNamedItemNS.class);
         suite.addTestSuite(HCNamedNodeMapInvalidType.class);
         suite.addTestSuite(HCNodeDocumentFragmentNormalize.class);
-// Is empty. Only test assumes validation. Leave disabled.        
+// Is empty. Only test assumes validation. Leave disabled.
 //        suite.addTestSuite(HCNotationsRemoveNamedItemNS.class);
-// Is empty. Only test assumes validation. Leave disabled.        
+// Is empty. Only test assumes validation. Leave disabled.
 //        suite.addTestSuite(HCNotationsSetNamedItemNS.class);
         suite.addTestSuite(HasAttribute.class);
         suite.addTestSuite(HasAttributeNS.class);
@@ -92,7 +92,7 @@ public class AllTests {
         suite.addTestSuite(OwnerElement.class);
         suite.addTestSuite(Prefix.class);
         suite.addTestSuite(PublicId.class);
-// Is empty. Only test assumes validation. Leave disabled.        
+// Is empty. Only test assumes validation. Leave disabled.
 //        suite.addTestSuite(RemoveAttributeNS.class);
         suite.addTestSuite(RemoveNamedItemNS.class);
         suite.addTestSuite(SetAttributeNS.class);

@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001-2003 World Wide Web Consortium, 
+ Copyright (c) 2001-2003 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -43,19 +43,19 @@ import javax.xml.parsers.DocumentBuilder;
  * The method "isSupported(feature,version)" Tests whether the DOM
  * implementation implements a specific feature and that feature is supported by
  * this node.
- * 
+ *
  * Call the isSupported method on the document element node with a combination
  * of features versions and versions as below. Valid feature names are case
  * insensitive and versions "2.0", "1.0" and if the version is not specified,
  * supporting any version of the feature should return true. Check if the value
  * returned value was true.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-Node-supports">http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-Node-supports</a>
  */
-@TestTargetClass(Node.class) 
+@TestTargetClass(Node.class)
 public final class NodeIsSupported extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -81,7 +81,7 @@ public final class NodeIsSupported extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

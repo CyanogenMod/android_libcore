@@ -28,7 +28,7 @@ public abstract class SecureRandomTest extends TestCase {
 
 
     private final String algorithmName;
-    
+
     private int counter=0;
 
     protected SecureRandomTest(String name) {

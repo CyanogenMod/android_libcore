@@ -44,7 +44,7 @@ import org.apache.harmony.security.utils.AlgNameMapper;
  * <pre>
  *  AlgorithmIdentifier ::= SEQUENCE {
  *      algorithm OBJECT IDENTIFIER,
- *      parameters ANY DEFINED BY algorithm OPTIONAL 
+ *      parameters ANY DEFINED BY algorithm OPTIONAL
  *  }
  * </pre>
  */
@@ -58,7 +58,7 @@ public class AlgorithmIdentifier {
     private byte[] parameters;
     // the encoding of AlgorithmIdentifier value
     private byte[] encoding;
-    
+
     /**
      * TODO
      * @param   algorithm:  String
@@ -66,7 +66,7 @@ public class AlgorithmIdentifier {
     public AlgorithmIdentifier(String algorithm) {
         this(algorithm, null, null);
     }
-    
+
     /**
      * TODO
      * @param   algorithm:  String
@@ -76,19 +76,19 @@ public class AlgorithmIdentifier {
         this(algorithm, parameters, null);
     }
 
-    // 
+    //
     // TODO
     // @param   algorithm:  String
     // @param   parameters: byte[]
     // @param   encoding:   byte[]
-    // 
-    private AlgorithmIdentifier(String algorithm, byte[] parameters, 
+    //
+    private AlgorithmIdentifier(String algorithm, byte[] parameters,
                                 byte[] encoding) {
         this.algorithm = algorithm;
         this.parameters = parameters;
         this.encoding = encoding;
     }
-        
+
     /**
      * Returns the value of algorithm field of the structure.
      * @return  algorithm
@@ -120,7 +120,7 @@ public class AlgorithmIdentifier {
     public byte[] getParameters() {
         return parameters;
     }
-    
+
     /**
      * Returns ASN.1 encoded form of this X.509 AlgorithmIdentifier value.
      * @return a byte array containing ASN.1 encode form.
@@ -131,7 +131,7 @@ public class AlgorithmIdentifier {
         }
         return encoding;
     }
-    
+
     public boolean equals(Object ai) {
         if (!(ai instanceof AlgorithmIdentifier)) {
             return false;
@@ -142,23 +142,23 @@ public class AlgorithmIdentifier {
                     ? algid.parameters == null
                     : Arrays.equals(parameters, algid.parameters));
     }
-    
+
     public int hashCode() {
-    	return algorithm.hashCode() * 37 + 
+    	return algorithm.hashCode() * 37 +
     		(parameters != null ? parameters.hashCode() : 0);
     }
-    
+
     /**
      * Places the string representation into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer) {
         buffer.append(getAlgorithmName());
         if (parameters == null) {
-            buffer.append(", no params, "); 
+            buffer.append(", no params, ");
         } else {
-            buffer.append(", params unparsed, "); 
+            buffer.append(", params unparsed, ");
         }
-        buffer.append("OID = "); 
+        buffer.append("OID = ");
         buffer.append(getAlgorithm());
     }
 

@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,9 +28,9 @@ import java.security.spec.DSAParameterSpec;
 
 @TestTargetClass(DSAKey.class)
 public class DSAKeyTest extends TestCase {
-    
+
     /**
-     * @tests java.security.interfaces.DSAKey 
+     * @tests java.security.interfaces.DSAKey
      * #getParams()
      * test covers following use cases
      *   Case 1: check private key
@@ -44,20 +44,20 @@ public class DSAKeyTest extends TestCase {
     )
     public void test_getParams() throws Exception {
         DSAParams param = new DSAParameterSpec(Util.P, Util.Q, Util.G);
-        
+
         KeyPairGenerator gen = KeyPairGenerator.getInstance("DSA");
         gen.initialize((DSAParameterSpec) param);
         DSAKey key = null;
-        
+
         // Case 1: check private key
         key = (DSAKey) gen.generateKeyPair().getPrivate();
         assertDSAParamsEquals(param, key.getParams());
-        
+
         // Case 2: check public key
-        key = (DSAKey) gen.generateKeyPair().getPublic();                
+        key = (DSAKey) gen.generateKeyPair().getPublic();
         assertDSAParamsEquals(param, key.getParams());
     }
-    
+
     private void assertDSAParamsEquals(DSAParams expected, DSAParams actual) {
         assertEquals("P differ", expected.getP(), actual.getP());
         assertEquals("Q differ", expected.getQ(), actual.getQ());

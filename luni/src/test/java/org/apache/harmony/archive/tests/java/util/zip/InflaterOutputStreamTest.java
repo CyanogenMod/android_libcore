@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -140,7 +140,7 @@ public class InflaterOutputStreamTest extends TestCase {
         } catch (IOException e) {
             // expected
         }
-        
+
         ios = new InflaterOutputStream(os);
         ios.flush();
         ios.flush();
@@ -158,52 +158,52 @@ public class InflaterOutputStreamTest extends TestCase {
         } catch (IOException e) {
             // expected
         }
-        
+
         ios = new InflaterOutputStream(os);
         ios.finish();
         ios.finish();
         ios.flush();
         ios.flush();
         ios.finish();
-        
+
         byte[] bytes1 = {10,20,30,40,50};
         Deflater defaultDeflater = new Deflater(Deflater.BEST_SPEED);
         defaultDeflater.setInput(bytes1);
         defaultDeflater.finish();
         int length1 = defaultDeflater.deflate(compressedBytes);
-        
+
         byte[] bytes2 = {100,90,80,70,60};
         Deflater bestDeflater = new Deflater(Deflater.BEST_COMPRESSION );
         bestDeflater.setInput(bytes2);
         bestDeflater.finish();
         int length2 = bestDeflater.deflate(compressedBytes,length1,compressedBytes.length-length1);
-        
+
         ios = new InflaterOutputStream(os);
         for (int i = 0; i < length1; i++) {
             ios.write(compressedBytes[i]);
         }
         ios.finish();
         ios.close();
-        
+
         byte[] result = os.toByteArray();
         for(int i =0;i<bytes1.length; i++){
             assertEquals(bytes1[i],result[i]);
         }
-        
+
         ios = new InflaterOutputStream(os);
         for (int i = length1; i < length2*2; i++) {
             ios.write(compressedBytes[i]);
         }
         ios.finish();
         ios.close();
-        
+
         result = os.toByteArray();
         for(int i =0;i<bytes2.length; i++){
             assertEquals(bytes2[i],result[bytes1.length+i]);
         }
-        
+
     }
-    
+
     /**
      * @tests java.util.zip.InflaterOutputStream#write(int)
      */
@@ -356,7 +356,7 @@ public class InflaterOutputStreamTest extends TestCase {
 
         ios = new InflaterOutputStream(os);
         ios.finish();
-        
+
         try {
             ios.write(bytes, -1,-100);
             fail("Should throw IndexOutOfBoundsException");
@@ -369,7 +369,7 @@ public class InflaterOutputStreamTest extends TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         ios = new InflaterOutputStream(os);
         ios.flush();
         try {

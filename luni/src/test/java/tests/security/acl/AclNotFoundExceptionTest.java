@@ -33,13 +33,13 @@ import java.security.acl.AclNotFoundException;
 
 /**
  * Unit test for AclNotFoundException.
- * 
+ *
  */
 @TestTargetClass(AclNotFoundException.class)
 public class AclNotFoundExceptionTest extends TestCase {
     /**
-     * check default constructor 
-     */  
+     * check default constructor
+     */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",

@@ -39,7 +39,7 @@ import java.security.cert.CertPathValidatorSpi;
 import org.apache.harmony.security.tests.support.cert.MyCertPathValidatorSpi;
 /**
  * Tests for <code>CertPathValidatorSpi</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CertPathValidatorSpi.class)
 public class CertPathValidatorSpiTest extends TestCase {
@@ -73,12 +73,12 @@ public class CertPathValidatorSpiTest extends TestCase {
         try {
             certPathValid.engineValidate(certPath, params);
             fail("CertPathValidatorException must be thrown");
-        } catch (CertPathValidatorException e) {            
+        } catch (CertPathValidatorException e) {
         }
         try {
             certPathValid.engineValidate(certPath, params);
             fail("InvalidAlgorithmParameterException must be thrown");
-        } catch (InvalidAlgorithmParameterException e) {            
+        } catch (InvalidAlgorithmParameterException e) {
         }
     }
 }

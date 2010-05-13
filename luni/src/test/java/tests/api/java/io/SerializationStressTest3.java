@@ -20,7 +20,7 @@ import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,7 +42,7 @@ import java.util.PropertyPermission;
 import java.util.TimeZone;
 import java.util.Vector;
 
-@TestTargetClass(java.io.Serializable.class) 
+@TestTargetClass(java.io.Serializable.class)
 public class SerializationStressTest3 extends SerializationStressTest {
 
     // -----------------------------------------------------------------------------------

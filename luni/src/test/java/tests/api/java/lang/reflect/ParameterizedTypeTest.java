@@ -29,12 +29,12 @@ import java.lang.reflect.Type;
 /**
  * Tests parameterized types and their properties.
  */
-@TestTargetClass(ParameterizedType.class) 
+@TestTargetClass(ParameterizedType.class)
 public class ParameterizedTypeTest extends GenericReflectionTestsBase {
-    
+
     static class A<T>{}
     static class B extends A<String>{}
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.SUFFICIENT,
@@ -62,15 +62,15 @@ public class ParameterizedTypeTest extends GenericReflectionTestsBase {
         ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
         assertEquals(ParameterizedTypeTest.class, parameterizedType.getOwnerType());
         assertEquals(A.class, parameterizedType.getRawType());
-        
+
         Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
         assertLenghtOne(actualTypeArguments);
         assertEquals(String.class, actualTypeArguments[0]);
     }
-    
+
     static class C<T>{}
     static class D<T> extends C<T>{}
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.SUFFICIENT,
@@ -98,17 +98,17 @@ public class ParameterizedTypeTest extends GenericReflectionTestsBase {
         ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
         assertEquals(ParameterizedTypeTest.class, parameterizedType.getOwnerType());
         assertEquals(C.class, parameterizedType.getRawType());
-        
+
         Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
         assertLenghtOne(actualTypeArguments);
         assertEquals(getTypeParameter(D.class), actualTypeArguments[0]);
     }
-    
+
     static class E<T>{}
     static class F<T>{
         E<T> e;
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.SUFFICIENT,
@@ -136,7 +136,7 @@ public class ParameterizedTypeTest extends GenericReflectionTestsBase {
         ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
         assertEquals(ParameterizedTypeTest.class, parameterizedType.getOwnerType());
         assertEquals(E.class, parameterizedType.getRawType());
-        
+
         Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
         assertLenghtOne(actualTypeArguments);
         assertEquals(getTypeParameter(clazz), actualTypeArguments[0]);

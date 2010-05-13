@@ -167,7 +167,7 @@ public final class UUID implements Serializable, Comparable<UUID> {
 
         byte[] hash;
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5"); 
+            MessageDigest md = MessageDigest.getInstance("MD5");
             hash = md.digest(name);
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError(e);
@@ -218,14 +218,14 @@ public final class UUID implements Serializable, Comparable<UUID> {
 
         int i = 0;
         for (; i < position.length && lastPosition > 0; i++) {
-            position[i] = uuid.indexOf("-", startPosition); 
+            position[i] = uuid.indexOf("-", startPosition);
             lastPosition = position[i];
             startPosition = position[i] + 1;
         }
 
         // should have and only can have four "-" in UUID
         if (i != position.length || lastPosition != -1) {
-            throw new IllegalArgumentException(Msg.getString("KA014") + uuid); 
+            throw new IllegalArgumentException(Msg.getString("KA014") + uuid);
         }
 
         long m1 = Long.parseLong(uuid.substring(0, position[0]), 16);

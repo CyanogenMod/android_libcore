@@ -35,7 +35,7 @@ import java.util.Arrays;
 
 /**
  * Tests for <code>PKCS8EncodedKeySpec</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(PKCS8EncodedKeySpec.class)
 public class PKCS8EncodedKeySpecTest extends TestCase {
@@ -43,7 +43,7 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
     //
     // Tests
     //
-    
+
     /**
      * Test for <code>PKCS8EncodedKeySpec</code> constructor<br>
      * Assertion: constructs new <code>PKCS8EncodedKeySpec</code>
@@ -57,9 +57,9 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
     )
     public final void testPKCS8EncodedKeySpec() {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
-        
+
         EncodedKeySpec eks = new PKCS8EncodedKeySpec(encodedKey);
-        
+
         assertTrue(eks instanceof PKCS8EncodedKeySpec);
         try {
             eks = new PKCS8EncodedKeySpec(null);
@@ -81,14 +81,14 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
     )
     public final void testGetEncoded() {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
-        
+
         PKCS8EncodedKeySpec meks = new PKCS8EncodedKeySpec(encodedKey);
-        
+
         byte[] ek = meks.getEncoded();
-        
+
         assertTrue(Arrays.equals(encodedKey, ek));
     }
-    
+
     /**
      * Test for <code>getFormat()</code> method
      * Assertion: returns format name (always "PKCS#8")
@@ -101,12 +101,12 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
     )
     public final void testGetFormat() {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
-        
+
         PKCS8EncodedKeySpec meks = new PKCS8EncodedKeySpec(encodedKey);
-        
+
         assertEquals("PKCS#8", meks.getFormat());
     }
-    
+
     /**
      * Tests that internal state of the object
      * can not be changed by modifying initial
@@ -123,24 +123,24 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
         // Reference array's copy will be used for test
         byte[] encodedKeyCopy = encodedKey.clone();
-        
+
         PKCS8EncodedKeySpec meks = new PKCS8EncodedKeySpec(encodedKeyCopy);
-        
+
         // Modify initial array's value
         encodedKeyCopy[3] = (byte)5;
-        
+
         // Get encoded key
         byte[] ek = meks.getEncoded();
-        
+
         // Check  using reference array that
         // byte value has not been changed
         assertTrue(Arrays.equals(encodedKey, ek));
     }
-    
+
     /**
      * Tests that internal state of the object
      * can not be modified using returned value
-     * of <code>getEncoded()</code> method 
+     * of <code>getEncoded()</code> method
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -153,17 +153,17 @@ public class PKCS8EncodedKeySpecTest extends TestCase {
         byte[] encodedKey = new byte[] {(byte)1,(byte)2,(byte)3,(byte)4};
         // Reference array's copy will be used for test
         byte[] encodedKeyCopy = encodedKey.clone();
-        
+
         PKCS8EncodedKeySpec meks = new PKCS8EncodedKeySpec(encodedKeyCopy);
-        
-        byte[] ek = meks.getEncoded();        
+
+        byte[] ek = meks.getEncoded();
 
         // Modify returned array
         ek[3] = (byte)5;
-        
+
         // Get encoded key again
         byte[] ek1 = meks.getEncoded();
-        
+
         // Check using reference array that
         // byte value has not been changed
         assertTrue(Arrays.equals(encodedKey, ek1));

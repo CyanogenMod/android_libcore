@@ -33,7 +33,7 @@ import java.security.SecurityPermission;
  */
 @TestTargetClass(java.security.Policy.class)
 public class JavaSecurityPolicyTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -47,7 +47,7 @@ public class JavaSecurityPolicyTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies that java.security.Policy.getPolicy() method calls checkPermission on security manager.",
@@ -63,18 +63,18 @@ public class JavaSecurityPolicyTest extends TestCase {
             @Override
             public void checkPermission(Permission permission) {
                 if(permission instanceof SecurityPermission && "getPolicy".equals(permission.getName())){
-                    called = true;              
+                    called = true;
                 }
             }
         }
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         Policy.getPolicy();
         assertTrue("java.security.Policy.getPolicy() must call checkPermission on security permissions", s.called);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "Verifies that java.security.Policy.setPolicy() method calls checkPermission on security manager.",
@@ -90,16 +90,16 @@ public class JavaSecurityPolicyTest extends TestCase {
             @Override
             public void checkPermission(Permission permission) {
                 if(permission instanceof SecurityPermission && "setPolicy".equals(permission.getName())){
-                    called = true;              
+                    called = true;
                 }
             }
         }
-        
+
         Policy p = Policy.getPolicy();
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         Policy.setPolicy(p);
         assertTrue("java.security.Policy.setPolicy() must call checkPermission on security permissions", s.called);

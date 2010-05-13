@@ -32,14 +32,14 @@ public class AttributeListImplTest extends TestCase {
     private AttributeListImpl empty = new AttributeListImpl();
 
     private AttributeListImpl multi = new AttributeListImpl();
-    
+
     @Override
     public void setUp() {
         multi.addAttribute("foo", "string", "abc");
         multi.addAttribute("bar", "string", "xyz");
         multi.addAttribute("answer", "int", "42");
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "AttributeListImpl",
@@ -59,7 +59,7 @@ public class AttributeListImplTest extends TestCase {
         // Ordinary case
         AttributeListImpl ai = new AttributeListImpl(empty);
         assertEquals(0, ai.getLength());
-        
+
         // Another ordinary case
         ai = new AttributeListImpl(multi);
         assertEquals(3, ai.getLength());
@@ -83,19 +83,19 @@ public class AttributeListImplTest extends TestCase {
         // Ordinary cases
         AttributeListImpl attrs = new AttributeListImpl();
         attrs.addAttribute("doe", "boolean", "false");
-        
+
         attrs.setAttributeList(empty);
         assertEquals(0, attrs.getLength());
-        
+
         attrs.setAttributeList(multi);
         assertEquals(multi.getLength(), attrs.getLength());
-        
+
         for (int i = 0; i < multi.getLength(); i++) {
             assertEquals(multi.getName(i), attrs.getName(i));
             assertEquals(multi.getType(i), attrs.getType(i));
             assertEquals(multi.getValue(i), attrs.getValue(i));
         }
-        
+
         // null case
         try {
             attrs.setAttributeList(null);
@@ -114,18 +114,18 @@ public class AttributeListImplTest extends TestCase {
     public void testAddAttribute() {
         // Ordinary case
         multi.addAttribute("doe", "boolean", "false");
-        
+
         assertEquals("doe", multi.getName(3));
         assertEquals("boolean", multi.getType(3));
         assertEquals("false", multi.getValue(3));
-        
+
         // Duplicate case
         multi.addAttribute("doe", "boolean", "false");
-        
+
         assertEquals("doe", multi.getName(4));
         assertEquals("boolean", multi.getType(4));
         assertEquals("false", multi.getValue(4));
-        
+
         // null case
         multi.addAttribute(null, null, null);
         assertEquals(null, multi.getName(5));
@@ -144,7 +144,7 @@ public class AttributeListImplTest extends TestCase {
         assertEquals("bar", multi.getName(0));
         assertEquals("string", multi.getType(0));
         assertEquals("xyz", multi.getValue(0));
-        
+
         // Unknown attribute
         multi.removeAttribute("john");
         assertEquals(2, multi.getLength());
@@ -176,7 +176,7 @@ public class AttributeListImplTest extends TestCase {
 
         ai = new AttributeListImpl(multi);
         assertEquals(3, ai.getLength());
-        
+
         for (int i = 2; i >= 0; i--) {
             ai.removeAttribute(ai.getName(i));
             assertEquals(i, ai.getLength());
@@ -193,7 +193,7 @@ public class AttributeListImplTest extends TestCase {
         assertEquals("foo", multi.getName(0));
         assertEquals("bar", multi.getName(1));
         assertEquals("answer", multi.getName(2));
-        
+
         // Out of range
         assertEquals(null, multi.getName(-1));
         assertEquals(null, multi.getName(3));
@@ -209,7 +209,7 @@ public class AttributeListImplTest extends TestCase {
         assertEquals("string", multi.getType(0));
         assertEquals("string", multi.getType(1));
         assertEquals("int", multi.getType(2));
-        
+
         // Out of range
         assertEquals(null, multi.getType(-1));
         assertEquals(null, multi.getType(3));
@@ -225,7 +225,7 @@ public class AttributeListImplTest extends TestCase {
         assertEquals("abc", multi.getValue(0));
         assertEquals("xyz", multi.getValue(1));
         assertEquals("42", multi.getValue(2));
-        
+
         // Out of range
         assertEquals(null, multi.getValue(-1));
         assertEquals(null, multi.getValue(5));
@@ -241,10 +241,10 @@ public class AttributeListImplTest extends TestCase {
         assertEquals("string", multi.getType("foo"));
         assertEquals("string", multi.getType("bar"));
         assertEquals("int", multi.getType("answer"));
-        
+
         // Not found
         assertEquals(null, multi.getType("john"));
-        
+
         // null case
         assertEquals(null, multi.getType(null));
     }
@@ -259,7 +259,7 @@ public class AttributeListImplTest extends TestCase {
         assertEquals("abc", multi.getValue("foo"));
         assertEquals("xyz", multi.getValue("bar"));
         assertEquals("42", multi.getValue("answer"));
-        
+
         // Not found
         assertEquals(null, multi.getValue("john"));
 

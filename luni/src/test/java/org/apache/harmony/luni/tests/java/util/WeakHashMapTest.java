@@ -243,7 +243,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         assertTrue("Assert 8:  iterator not empty", !entrySet.iterator()
                 .hasNext());
     }
-    
+
 	/**
 	 * @tests java.util.WeakHashMap#entrySet()
 	 */
@@ -318,7 +318,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 		map.remove("nothing"); // Cause objects in queue to be removed
 		assertEquals("null key was removed", 1, map.size());
 	}
-    
+
     /**
      * @tests java.util.WeakHashMap#putAll(java.util.Map)
      */

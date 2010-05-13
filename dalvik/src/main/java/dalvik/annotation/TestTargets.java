@@ -33,7 +33,7 @@ import dalvik.annotation.TestTargetNew;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
 public @interface TestTargets {
-    
+
     /**
      * Specifies the API methods that are tested by the annotated test method.
      */

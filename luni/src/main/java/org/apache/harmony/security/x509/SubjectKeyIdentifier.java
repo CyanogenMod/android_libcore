@@ -75,9 +75,9 @@ public class SubjectKeyIdentifier extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("SubjectKeyIdentifier: [\n"); 
+        buffer.append(prefix).append("SubjectKeyIdentifier: [\n");
         buffer.append(Array.toString(keyIdentifier, prefix));
-        buffer.append(prefix).append("]\n"); 
+        buffer.append(prefix).append("]\n");
     }
 }
 

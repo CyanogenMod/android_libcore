@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -40,13 +40,13 @@ import javax.xml.parsers.DocumentBuilder;
  * The "createDocument(namespaceURI,qualifiedName,doctype)" method for a
  * DOMImplementation should raise NAMESPACE_ERR DOMException if parameter
  * qualifiedName is malformed.
- * 
+ *
  * Retrieve the DOMImplementation on the XMLNS Document. Invoke method
  * createDocument(namespaceURI,qualifiedName,doctype) on the retrieved
  * DOMImplementation with namespaceURI being the literal string
  * "http://www.ecommerce.org/", qualifiedName as "prefix::local", and doctype as
  * null. Method should raise NAMESPACE_ERR DOMException.
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
@@ -56,7 +56,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('Level-2-Core-DOM-createDocument')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='NAMESPACE_ERR'])">http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('Level-2-Core-DOM-createDocument')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='NAMESPACE_ERR'])</a>
  */
-@TestTargetClass(DOMImplementation.class) 
+@TestTargetClass(DOMImplementation.class)
 public final class CreateDocument extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -82,7 +82,7 @@ public final class CreateDocument extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

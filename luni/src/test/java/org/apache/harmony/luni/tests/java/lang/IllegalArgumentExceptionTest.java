@@ -41,7 +41,7 @@ public class IllegalArgumentExceptionTest extends TestCase {
         assertEquals("fixture", e.getMessage());
         assertNull(e.getCause());
 	}
-    
+
     /**
      * @tests {@link java.lang.IllegalArgumentException#IllegalArgumentException(Throwable)}
      */
@@ -58,7 +58,7 @@ public class IllegalArgumentExceptionTest extends TestCase {
         assertEquals(exception.getClass().getName(), emptyException.getLocalizedMessage());
         assertEquals(exception.getClass().getName(), emptyException.getCause().toString());
     }
-    
+
     /**
      * @tests java.lang.IllegalArgumentException#IllegalArgumentException(String,Throwable)
      */

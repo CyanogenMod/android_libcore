@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,7 @@ import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 
 /**
- * 
+ *
  */
 @TestTargetClass(Preferences.class)
 public class PreferencesTest extends TestCase {
@@ -47,9 +47,9 @@ public class PreferencesTest extends TestCase {
     MockSecurityManager manager = new MockSecurityManager();
 
     MockInputStream stream = null;
-    
+
     final static String longKey;
-    
+
     final static String longValue;
 
     InputStream in;
@@ -59,7 +59,7 @@ public class PreferencesTest extends TestCase {
             key.append('a');
         }
         longKey = key.toString();
-        
+
         StringBuffer value = new StringBuffer(Preferences.MAX_VALUE_LENGTH);
         for (int i = 0; i < Preferences.MAX_VALUE_LENGTH; i++) {
             value.append('a');
@@ -206,7 +206,7 @@ public class PreferencesTest extends TestCase {
         // assertEquals(p.keys().length, 0);
     }
 
-    
+
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
             notes = "SecurityException & IOException checking missed.",
@@ -751,7 +751,7 @@ public class PreferencesTest extends TestCase {
         pref.clear();
         assertNull(pref.get("testClearKey", null));
         assertNull(pref.get("testClearKey1", null));
-    }    
+    }
 
     /**
      * @test java.util.prefs.Preferences#get(String key, String def)
@@ -820,7 +820,7 @@ public class PreferencesTest extends TestCase {
         assertFalse(pref.getBoolean("testGetBooleanKey", true));
         assertTrue(pref.getBoolean("testGetBooleanKey2", true));
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#getByteArray(String key, byte[] def)
      *
@@ -857,7 +857,7 @@ public class PreferencesTest extends TestCase {
         assertTrue(Arrays.equals("abc".getBytes(), pref.getByteArray(
                 "testGetByteArrayKey4", new byte[0])));
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#getDouble(String key, double def)
      *
@@ -905,7 +905,7 @@ public class PreferencesTest extends TestCase {
         }
         pref.put("testGetFloatKey", "1");
         pref.put("testGetFloatKey2", "value");
-        assertEquals(1f, pref.getFloat("testGetFloatKey", 0f), 0); 
+        assertEquals(1f, pref.getFloat("testGetFloatKey", 0f), 0);
         assertEquals(0f, pref.getFloat("testGetFloatKey2", 0f), 0);
     }
 
@@ -956,7 +956,7 @@ public class PreferencesTest extends TestCase {
         assertEquals(1, pref.getInt("testGetLongKey", 0));
         assertEquals(0, pref.getInt("testGetLongKey2", 0));
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#isUserNode()
      *
@@ -974,7 +974,7 @@ public class PreferencesTest extends TestCase {
         Preferences pref2 = Preferences.systemNodeForPackage(Preferences.class);
         assertFalse(pref2.isUserNode());
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#keys()
      *
@@ -988,7 +988,7 @@ public class PreferencesTest extends TestCase {
     public void testKeys() throws BackingStoreException {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         pref.clear();
-        
+
         pref.put("key0", "value");
         pref.put("key1", "value1");
         pref.put("key2", "value2");
@@ -1017,7 +1017,7 @@ public class PreferencesTest extends TestCase {
         Preferences child = pref.node("mock");
         assertEquals("mock", child.name());
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#node(String pathName)
      *
@@ -1034,12 +1034,12 @@ public class PreferencesTest extends TestCase {
             name.append('a');
         }
         String longName = name.toString();
-        
+
         Preferences root = Preferences.userRoot();
         Preferences parent = Preferences
                 .userNodeForPackage(Preferences.class);
         Preferences pref = parent.node("mock");
-        
+
         try {
             pref.node(null);
             fail();
@@ -1114,7 +1114,7 @@ public class PreferencesTest extends TestCase {
         Preferences parent = Preferences
                 .userNodeForPackage(Preferences.class);
         Preferences pref = parent.node("mock");
-        
+
         try {
             pref.nodeExists(null);
             fail();
@@ -1165,11 +1165,11 @@ public class PreferencesTest extends TestCase {
         Preferences parent = Preferences
                 .userNodeForPackage(Preferences.class);
         Preferences pref = parent.node("mock");
-        
+
         assertSame(parent, pref.parent());
-        
+
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#put(String key, String value)
      *
@@ -1257,7 +1257,7 @@ public class PreferencesTest extends TestCase {
         assertEquals("false", pref.get("testPutBooleanKey", null));
         assertFalse(pref.getBoolean("testPutBooleanKey", true));
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#putDouble(String key, double value)
      *
@@ -1373,7 +1373,7 @@ public class PreferencesTest extends TestCase {
         assertEquals("3", pref.get("testPutLongKey", null));
         assertEquals(3L, pref.getLong("testPutLongKey", 0));
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#putByteArray(String key, byte[] value)
      *
@@ -1423,7 +1423,7 @@ public class PreferencesTest extends TestCase {
         assertTrue(Arrays.equals(new byte[] { 'a', 'b', 'c' }, pref
                 .getByteArray("testPutByteArrayKey3", null)));
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#remove(String key)
      *
@@ -1484,8 +1484,8 @@ public class PreferencesTest extends TestCase {
         assertFalse(grandchild.nodeExists(""));
         assertFalse(pref.nodeExists(""));
     }
-    
-    
+
+
     /**
      * @test java.util.prefs.Preferences#addNodeChangeListener(NodeChangeListener ncl)
      *
@@ -1507,7 +1507,7 @@ public class PreferencesTest extends TestCase {
         Preferences child1 = null;
         Preferences child2 = null;
         Preferences child3 = null;
-        
+
         MockNodeChangeListener nl = null;
         // To get existed node doesn't create the change event
         try {
@@ -1602,7 +1602,7 @@ public class PreferencesTest extends TestCase {
         }
 
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#addPreferenceChangeListener(PreferenceChangeListener pcl)
      *
@@ -1614,10 +1614,10 @@ public class PreferencesTest extends TestCase {
         args = {java.util.prefs.PreferenceChangeListener.class}
     )
     public void testAddPreferenceChangeListener() {
-        
+
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         MockPreferenceChangeListener pl = null;
-        
+
         try {
             pref.addPreferenceChangeListener(null);
             fail();
@@ -1648,7 +1648,7 @@ public class PreferencesTest extends TestCase {
             pref.removePreferenceChangeListener(pl);
             //child1.removeNode();
         }
-                      
+
         // same listener can be added twice, and must be removed twice
         try {
             pl = new MockPreferenceChangeListener();
@@ -1701,7 +1701,7 @@ public class PreferencesTest extends TestCase {
         }
 
     }
-    
+
     /**
      * @test java.util.prefs.Preferences#removeNodeChangeListener(NodeChangeListener ncl)
      *
@@ -1773,7 +1773,7 @@ public class PreferencesTest extends TestCase {
         }
 
     }
-    
+
     static class MockInputStream extends InputStream {
 
         static final int normal = 0;

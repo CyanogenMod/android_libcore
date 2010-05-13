@@ -47,22 +47,22 @@ import org.xml.sax.Parser;
  * @version 2.0.1 (sax2r2)
  */
 public class ParserFactory {
-    
-    
+
+
     /**
      * Private null constructor.
      */
     private ParserFactory ()
     {
     }
-    
-    
+
+
     /**
      * Create a new SAX parser using the `org.xml.sax.parser' system property.
      *
      * <p>The named class must exist and must implement the
      * {@link org.xml.sax.Parser Parser} interface.</p>
-     * 
+     *
      * @return the newly created parser.
      *
      * @exception java.lang.NullPointerException There is no value
@@ -82,7 +82,7 @@ public class ParserFactory {
      */
     public static Parser makeParser ()
     throws ClassNotFoundException,
-    IllegalAccessException, 
+    IllegalAccessException,
     InstantiationException,
     NullPointerException,
     ClassCastException
@@ -94,8 +94,8 @@ public class ParserFactory {
         return makeParser(className);
     }
     }
-    
-    
+
+
     /**
      * Create a new SAX parser object using the class name provided.
      *
@@ -121,13 +121,13 @@ public class ParserFactory {
      */
     public static Parser makeParser (String className)
     throws ClassNotFoundException,
-    IllegalAccessException, 
+    IllegalAccessException,
     InstantiationException,
     ClassCastException
     {
     return (Parser) NewInstance.newInstance (
         NewInstance.getClassLoader (), className);
     }
-    
+
 }
 

@@ -33,7 +33,7 @@ public class DocumentBuilderFactoryImpl extends DocumentBuilderFactory {
 
     private static final String VALIDATION =
             "http://xml.org/sax/features/validation";
-    
+
     @Override
     public Object getAttribute(String name) throws IllegalArgumentException {
         throw new IllegalArgumentException(name);
@@ -44,7 +44,7 @@ public class DocumentBuilderFactoryImpl extends DocumentBuilderFactory {
         if (name == null) {
             throw new NullPointerException();
         }
-        
+
         if (NAMESPACES.equals(name)) {
             return isNamespaceAware();
         } else if (VALIDATION.equals(name)) {
@@ -61,13 +61,13 @@ public class DocumentBuilderFactoryImpl extends DocumentBuilderFactory {
             throw new ParserConfigurationException(
                     "No validating DocumentBuilder implementation available");
         }
-        
+
         /**
          * TODO If Android is going to support a different DocumentBuilder
          * implementations, this should be wired here. If we wanted to
          * allow different implementations, these could be distinguished by
          * a special feature (like http://www.org.apache.harmony.com/xml/expat)
-         * or by throwing the full SPI monty at it.  
+         * or by throwing the full SPI monty at it.
          */
         DocumentBuilderImpl builder = new DocumentBuilderImpl();
         builder.setCoalescing(isCoalescing());
@@ -76,10 +76,10 @@ public class DocumentBuilderFactoryImpl extends DocumentBuilderFactory {
         builder.setNamespaceAware(isNamespaceAware());
 
         // TODO What about expandEntityReferences?
-        
+
         return builder;
     }
-    
+
     @Override
     public void setAttribute(String name, Object value)
             throws IllegalArgumentException {

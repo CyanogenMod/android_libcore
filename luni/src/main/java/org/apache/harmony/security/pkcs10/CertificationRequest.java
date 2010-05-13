@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,19 +27,19 @@ import org.apache.harmony.security.x509.AlgorithmIdentifier;
 /**
  * The class implements the ASN.1 DER encoding and decoding of the PKCS#10
  * Certificate Signing Request (CSR). Its ASN notation is as follows:
- * 
+ *
  * CertificationRequest ::= SEQUENCE {
  *   certificationRequestInfo CertificationRequestInfo,
  *   signatureAlgorithm SignatureAlgorithmIdentifier,
- *   signature Signature 
+ *   signature Signature
  * }
- * 
+ *
  * SignatureAlgorithmIdentifier ::= AlgorithmIdentifier
- * 
+ *
  * Signature ::= BIT STRING
  */
 public class CertificationRequest {
-    
+
     // the value of certificationRequestInfo field of the structure
     private CertificationRequestInfo info;
 
@@ -59,7 +59,7 @@ public class CertificationRequest {
         this.signature = new byte[signature.length];
         System.arraycopy(signature, 0, this.signature, 0, signature.length);
     }
-    
+
     // private constructor with encoding given
     private CertificationRequest(CertificationRequestInfo info,
             AlgorithmIdentifier algId, byte[] signature, byte[] encoding) {
@@ -100,7 +100,7 @@ public class CertificationRequest {
         }
         return encoding;
     }
-    
+
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
             CertificationRequestInfo.ASN1,  // info
             AlgorithmIdentifier.ASN1,       // signatureAlgorithm
@@ -113,7 +113,7 @@ public class CertificationRequest {
             return new CertificationRequest(
                     (CertificationRequestInfo) values[0],
                     (AlgorithmIdentifier) values[1],
-                    ((BitString) values[2]).bytes, 
+                    ((BitString) values[2]).bytes,
                     in.getEncoded());
         }
 

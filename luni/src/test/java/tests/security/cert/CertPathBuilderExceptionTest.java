@@ -35,7 +35,7 @@ import java.security.cert.CertPathBuilderException;
 /**
  * Tests for <code>CertPathBuilderException</code> class constructors and
  * methods.
- * 
+ *
  */
 @TestTargetClass(CertPathBuilderException.class)
 public class CertPathBuilderExceptionTest extends TestCase {

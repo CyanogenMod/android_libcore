@@ -18,7 +18,7 @@
 
 package tests.org.w3c.dom;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -30,14 +30,14 @@ import org.w3c.dom.NamedNodeMap;
 /**
  * An attempt to add remove an entity using removeNamedItemNS should result in a
  * NO_MODIFICATION_ERR or a NOT_FOUND_ERR.
- * 
+ *
  * @author Curt Arnold
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1788794630">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1788794630</a>
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-removeNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-removeNamedItemNS</a>
  */
-@TestTargetClass(NamedNodeMap.class) 
+@TestTargetClass(NamedNodeMap.class)
 public final class HCEntitiesRemoveNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -63,7 +63,7 @@ public final class HCEntitiesRemoveNamedItemNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -72,7 +72,7 @@ public final class HCEntitiesRemoveNamedItemNS extends DOMTestCase {
 //        Document doc;
 //        NamedNodeMap entities;
 //        DocumentType docType;
-//        
+//
 //        doc = (Document) load("hc_staff", builder);
 //        docType = doc.getDoctype();
 //

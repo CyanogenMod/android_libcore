@@ -15,14 +15,14 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * Create a document fragment with two adjacent text nodes, normalize and see if
  * the text nodes were combined.
- * 
+ *
  * @author Curt Arnold
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-F68D095">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-F68D095</a>
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-B63ED1A3">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-B63ED1A3</a>
  */
-@TestTargetClass(Node.class) 
+@TestTargetClass(Node.class)
 public final class HCNodeDocumentFragmentNormalize extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -48,7 +48,7 @@ public final class HCNodeDocumentFragmentNormalize extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -72,7 +72,7 @@ public final class HCNodeDocumentFragmentNormalize extends DOMTestCase {
         String nodeValue;
         Text txtNode;
         Node retval;
-        
+
         doc = (Document) load("hc_staff", builder);
         docFragment = doc.createDocumentFragment();
         txtNode = doc.createTextNode("foo");
@@ -96,7 +96,7 @@ public final class HCNodeDocumentFragmentNormalize extends DOMTestCase {
         Document doc;
         DocumentFragment docFragment;
         Text txtNode;
-        
+
         doc = (Document) load("hc_staff", builder);
         docFragment = doc.createDocumentFragment();
         txtNode = doc.createTextNode("");

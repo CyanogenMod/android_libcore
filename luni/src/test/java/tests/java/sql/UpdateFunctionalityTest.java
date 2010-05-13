@@ -63,7 +63,7 @@ public class UpdateFunctionalityTest extends TestCase {
         deleteTestTables();
         statement.close();
         conn.close();
-        
+
         super.tearDown();
     }
 

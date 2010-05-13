@@ -9,9 +9,9 @@ import java.nio.charset.IllegalCharsetNameException;
  * @hide
  */
 public interface Charsets {
-    
+
     /**
-     * @hide 
+     * @hide
      */
     static abstract class _Abstract extends Charset {
 

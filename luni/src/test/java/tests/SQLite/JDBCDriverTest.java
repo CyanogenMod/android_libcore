@@ -32,16 +32,16 @@ import java.sql.SQLException;
 
 @TestTargetClass(JDBCDriver.class)
 public class JDBCDriverTest extends JDBCDriverFunctionalTest {
-    
+
     /**
      * The SQLite db file.
      */
     private JDBCDriver jDriver;
-    
+
     private Driver returnedDriver;
 
     public void setUp() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, Exception  {
-        
+
         try {
             super.setUp();
             returnedDriver = DriverManager.getDriver(getConnectionURL());
@@ -88,7 +88,7 @@ public class JDBCDriverTest extends JDBCDriverFunctionalTest {
             clazz = Driver.class,
             method = "acceptsURL",
             args = {java.lang.String.class}
-        )        
+        )
     })
     public void testAcceptsURL() {
         try {
@@ -106,7 +106,7 @@ public class JDBCDriverTest extends JDBCDriverFunctionalTest {
     /**
      * @tests JDBCDriver#connect(String, java.util.Properties)
      */
-    @TestTargets({    
+    @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
             notes = "method test",
@@ -141,7 +141,7 @@ public class JDBCDriverTest extends JDBCDriverFunctionalTest {
     /**
      * @tests JDBCDriver#getMajorVersion()
      */
-   @TestTargets({    
+   @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
             notes = "method test",
@@ -169,7 +169,7 @@ public class JDBCDriverTest extends JDBCDriverFunctionalTest {
     /**
      * @tests JDBCDriver#getMinorVersion()
      */
-   @TestTargets({       
+   @TestTargets({
        @TestTargetNew(
             level = TestLevel.COMPLETE,
             notes = "method test",
@@ -181,7 +181,7 @@ public class JDBCDriverTest extends JDBCDriverFunctionalTest {
             notes = "method test",
             // we have to list the Driver target explicitly, since SQLite
             // is not part of the target packages
-            clazz = Driver.class,            
+            clazz = Driver.class,
             method = "getMinorVersion",
             args = {}
         )
@@ -209,7 +209,7 @@ public class JDBCDriverTest extends JDBCDriverFunctionalTest {
             notes = "method test",
             // we have to list the Driver target explicitly, since SQLite
             // is not part of the target packages
-            clazz = Driver.class,            
+            clazz = Driver.class,
             method = "getPropertyInfo",
             args = {java.lang.String.class, java.util.Properties.class}
         )
@@ -228,15 +228,15 @@ public class JDBCDriverTest extends JDBCDriverFunctionalTest {
             fail("Driver property details not available");
             e.printStackTrace();
         }
-        
+
         assertNotNull(info);
-     
+
     }
 
     /**
      * @tests JDBCDriver#jdbcCompliant()
      */
-   @TestTargets({    
+   @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
             notes = "method test",
@@ -252,7 +252,7 @@ public class JDBCDriverTest extends JDBCDriverFunctionalTest {
             method = "jdbcCompliant",
             args = {}
         )
-    }) 
+    })
     public void testJdbcCompliant() {
         if (this.jDriver != null) {
             assertFalse(jDriver.jdbcCompliant());

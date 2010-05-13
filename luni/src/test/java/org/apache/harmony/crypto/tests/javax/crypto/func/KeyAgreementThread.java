@@ -34,30 +34,30 @@ public class KeyAgreementThread extends TestThread {
     class KeyAgreementGen {
         private PrivateKey privateKey = null;
         private byte[] publicKeyBytes = null;
-    
+
         KeyAgreementGen(DHParameterSpec parameterSpec)
                 throws Exception {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
             keyGen.initialize(parameterSpec);
             KeyPair keypair = keyGen.generateKeyPair();
-        
+
             privateKey     = keypair.getPrivate();
             publicKeyBytes = keypair.getPublic().getEncoded();
         }
-        
+
         public byte[] getPublicKeyBytes () {
             return publicKeyBytes;
         }
-        
+
         public byte[] getSecretKey(String alg, byte[] publicKey) throws Exception {
             X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(publicKey);
             KeyFactory keyFact = KeyFactory.getInstance("DH");
             PublicKey pubKey = keyFact.generatePublic(x509KeySpec);
-        
+
             KeyAgreement ka = KeyAgreement.getInstance("DH");
             ka.init(privateKey);
             ka.doPhase(pubKey, true);
-        
+
             return ka.generateSecret();
         }
     }
@@ -75,13 +75,13 @@ public class KeyAgreementThread extends TestThread {
 
         KeyAgreementGen kag1 = new KeyAgreementGen(ps);
         KeyAgreementGen kag2 = new KeyAgreementGen(ps);
-        
+
         byte[] bArray1 = kag1.getPublicKeyBytes();
         byte[] bArray2 = kag2.getPublicKeyBytes();
-        
+
         byte[] sk1 = kag1.getSecretKey(algName, bArray2);
         byte[] sk2 = kag2.getSecretKey(algName, bArray1);
-        
+
         if (Arrays.areEqual(sk1, sk2) == false) {
             throw new Exception ("Generated keys are not the same");
         }

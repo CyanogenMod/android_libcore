@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -97,7 +97,7 @@ public interface Statement {
      * driver support aborting an SQL statement in flight. This method can be
      * used by one thread to stop a statement that is executed on another
      * thread.
-     * 
+     *
      * @throws SQLException
      *             if an error occurs accessing the database.
      */
@@ -105,7 +105,7 @@ public interface Statement {
 
     /**
      * Clears the current list of SQL commands for this statement.
-     * 
+     *
      * @throws SQLException
      *             if an error occurs accessing the database or the database
      *             does not support batch updates.
@@ -114,7 +114,7 @@ public interface Statement {
 
     /**
      * Clears all {@code SQLWarnings} from this statement.
-     * 
+     *
      * @throws SQLException
      *             if an error occurs accessing the database.
      */
@@ -235,7 +235,7 @@ public interface Statement {
      * driver continues processing, the array of results returned contains the
      * same number of elements as there are commands in the batch, with a
      * minimum of one of the elements having the {@code EXECUTE_FAILED} value.
-     * 
+     *
      * @return an array of update counts, with one entry for each command in the
      *         batch. The elements are ordered according to the order in which
      *         the commands were added to the batch.
@@ -258,7 +258,7 @@ public interface Statement {
 
     /**
      * Executes a supplied SQL statement. Returns a single {@code ResultSet}.
-     * 
+     *
      * @param sql
      *            an SQL statement to execute. Typically a {@code SELECT}
      *            statement
@@ -274,7 +274,7 @@ public interface Statement {
      * Executes the supplied SQL statement. The statement may be an {@code
      * INSERT}, {@code UPDATE} or {@code DELETE} statement or a statement which
      * returns nothing.
-     * 
+     *
      * @param sql
      *            an SQL statement to execute - an SQL {@code INSERT}, {@code
      *            UPDATE}, {@code DELETE} or a statement which returns nothing
@@ -289,7 +289,7 @@ public interface Statement {
     /**
      * Executes the supplied SQL statement. This method allows control of
      * whether auto-generated Keys should be made available for retrieval.
-     * 
+     *
      * @param sql
      *            an SQL statement to execute - an SQL {@code INSERT}, {@code
      *            UPDATE}, {@code DELETE} or a statement which does not return
@@ -311,7 +311,7 @@ public interface Statement {
     /**
      * Executes the supplied SQL statement. This method allows retrieval of auto
      * generated keys specified by the supplied array of column indexes.
-     * 
+     *
      * @param sql
      *            an SQL statement to execute - an SQL {@code INSERT}, {@code
      *            UPDATE}, {@code DELETE} or a statement which returns nothing
@@ -331,7 +331,7 @@ public interface Statement {
     /**
      * Executes the supplied SQL statement. This method allows retrieval of auto
      * generated keys specified by the supplied array of column names.
-     * 
+     *
      * @param sql
      *            an SQL statement to execute - an SQL {@code INSERT}, {@code
      *            UPDATE}, {@code DELETE} or a statement which returns nothing
@@ -350,7 +350,7 @@ public interface Statement {
 
     /**
      * Gets the {@code Connection} object which created this statement.
-     * 
+     *
      * @return the {@code Connection} through which this statement is
      *         transmitted to the database.
      * @throws SQLException
@@ -361,7 +361,7 @@ public interface Statement {
     /**
      * Gets the default direction for fetching rows for {@code ResultSet}s
      * generated from this statement.
-     * 
+     *
      * @return the default fetch direction, one of:
      *         <ul>
      *         <li>ResultSet.FETCH_FORWARD</li> <li>ResultSet.FETCH_REVERSE</li>
@@ -375,7 +375,7 @@ public interface Statement {
     /**
      * Gets the default number of rows for a fetch for the {@code ResultSet}
      * objects returned from this statement.
-     * 
+     *
      * @return the default fetch size for {@code ResultSet}s produced by this
      *         statement.
      * @throws SQLException
@@ -385,7 +385,7 @@ public interface Statement {
 
     /**
      * Returns auto generated keys created by executing this statement.
-     * 
+     *
      * @return a {@code ResultSet} containing the auto generated keys - empty if
      *         no keys are generated by this statement.
      * @throws SQLException
@@ -400,7 +400,7 @@ public interface Statement {
      * {@code LONGVARBINARY}, {@code CHAR}, {@code VARCHAR}, and {@code
      * LONGVARCHAR} types. Any data exceeding the maximum size is abandoned
      * without announcement.
-     * 
+     *
      * @return the current size limit, where {@code 0} means that there is no
      *         limit.
      * @throws SQLException
@@ -412,7 +412,7 @@ public interface Statement {
      * Gets the maximum number of rows that a {@code ResultSet} can contain when
      * produced from this statement. If the limit is exceeded, the excess rows
      * are discarded silently.
-     * 
+     *
      * @return the current row limit, where {@code 0} means that there is no
      *         limit.
      * @throws SQLException
@@ -424,7 +424,7 @@ public interface Statement {
      * Moves to this statement's next result. Returns {@code true} if it is a
      * {@code ResultSet}. Any current {@code ResultSet} objects previously
      * obtained with {@code getResultSet()} are closed implicitly.
-     * 
+     *
      * @return {@code true} if the next result is a {@code ResultSet}, {@code
      *         false} if the next result is not a {@code ResultSet} or if there
      *         are no more results. Note that if there is no more data, this
@@ -440,7 +440,7 @@ public interface Statement {
      * result is a {@code ResultSet}. Any current {@code ResultSet} objects
      * previously obtained with {@code getResultSet()} are handled as indicated
      * by a supplied Flag parameter.
-     * 
+     *
      * @param current
      *            a flag indicating what to do with existing {@code ResultSet}s.
      *            This parameter must be one of {@code
@@ -461,7 +461,7 @@ public interface Statement {
      * Gets the timeout value for the statement's execution time. The JDBC
      * driver will wait up to this value for the execution to complete - after
      * the limit is exceeded an SQL {@code Exception} is thrown.
-     * 
+     *
      * @return the current query timeout value, where {@code 0} indicates that
      *         there is no current timeout.
      * @throws SQLException
@@ -471,7 +471,7 @@ public interface Statement {
 
     /**
      * Gets the current result. Should only be called once per result.
-     * 
+     *
      * @return the {@code ResultSet} for the current result. {@code null} if the
      *         result is an update count or if there are no more results.
      * @throws SQLException
@@ -482,7 +482,7 @@ public interface Statement {
     /**
      * Gets the concurrency setting for {@code ResultSet} objects generated by
      * this statement.
-     * 
+     *
      * @return {@code ResultSet.CONCUR_READ_ONLY} or {@code
      *         ResultSet.CONCUR_UPDATABLE}.
      * @throws SQLException
@@ -493,7 +493,7 @@ public interface Statement {
     /**
      * Gets the cursor hold setting for {@code ResultSet} objects generated by
      * this statement.
-     * 
+     *
      * @return {@code ResultSet.HOLD_CURSORS_OVER_COMMIT} or {@code
      *         ResultSet.CLOSE_CURSORS_AT_COMMIT}
      * @throws SQLException
@@ -504,7 +504,7 @@ public interface Statement {
     /**
      * Gets the {@code ResultSet} type setting for {@code ResultSet}s derived
      * from this statement.
-     * 
+     *
      * @return {@code ResultSet.TYPE_FORWARD_ONLY} for a {@code ResultSet} where
      *         the cursor can only move forwards, {@code
      *         ResultSet.TYPE_SCROLL_INSENSITIVE} for a {@code ResultSet} which
@@ -519,7 +519,7 @@ public interface Statement {
     /**
      * Gets an update count for the current result if it is not a {@code
      * ResultSet}.
-     * 
+     *
      * @return the current result as an update count. {@code -1} if the current
      *         result is a {@code ResultSet} or if there are no more results.
      * @throws SQLException
@@ -581,7 +581,7 @@ public interface Statement {
      * Sets the fetch direction - a hint to the JDBC driver about the direction
      * of processing of rows in {@code ResultSet}s created by this statement.
      * The default fetch direction is {@code FETCH_FORWARD}.
-     * 
+     *
      * @param direction
      *            which fetch direction to use. This parameter should be one of
      *            <ul>
@@ -599,7 +599,7 @@ public interface Statement {
      * Sets the fetch size. This is a hint to the JDBC driver about how many
      * rows should be fetched from the database when more are required by
      * application processing.
-     * 
+     *
      * @param rows
      *            the number of rows that should be fetched. {@code 0} tells the driver
      *            to ignore the hint. Should be less than {@code getMaxRows} for
@@ -616,7 +616,7 @@ public interface Statement {
      * {@code VARBINARY}, {@code LONGVARBINARY}, {@code CHAR}, {@code VARCHAR},
      * and {@code LONGVARCHAR} fields. Any data exceeding the maximum size is
      * abandoned without announcement.
-     * 
+     *
      * @param max
      *            the maximum field size in bytes. {@code 0} means "no limit".
      * @throws SQLException
@@ -629,7 +629,7 @@ public interface Statement {
      * Sets the maximum number of rows that any {@code ResultSet} can contain.
      * If the number of rows exceeds this value, the additional rows are
      * silently discarded.
-     * 
+     *
      * @param max
      *            the maximum number of rows. {@code 0} means "no limit".
      * @throws SQLException
@@ -642,7 +642,7 @@ public interface Statement {
      * Sets the timeout, in seconds, for queries - how long the driver will
      * allow for completion of a statement execution. If the timeout is
      * exceeded, the query will throw an {@code SQLException}.
-     * 
+     *
      * @param seconds
      *            timeout in seconds. 0 means no timeout ("wait forever")
      * @throws SQLException

@@ -43,7 +43,7 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
 
     private final byte[] key;
     private final String algorithm;
-    private final String format = "RAW"; 
+    private final String format = "RAW";
 
     /**
      * Creates a new <code>SecretKeySpec</code> for the specified key data and
@@ -59,13 +59,13 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
      */
     public SecretKeySpec(byte[] key, String algorithm) {
         if (key == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.05")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.05"));
         }
         if (key.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.35")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.35"));
         }
         if (algorithm == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.02")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.02"));
         }
 
         this.algorithm = algorithm;
@@ -95,21 +95,21 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
      */
     public SecretKeySpec(byte[] key, int offset, int len, String algorithm) {
         if (key == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.05")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.05"));
         }
         if (key.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.35")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.35"));
         }
         // BEGIN android-changed
         if (len < 0 || offset < 0) {
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("crypto.36")); 
+            throw new ArrayIndexOutOfBoundsException(Messages.getString("crypto.36"));
         }
         // END android-changed
         if ((key.length - offset < len)) {
-            throw new IllegalArgumentException(Messages.getString("crypto.37")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.37"));
         }
         if (algorithm == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.02")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.02"));
         }
         this.algorithm = algorithm;
         this.key = new byte[len];

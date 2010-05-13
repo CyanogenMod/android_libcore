@@ -46,7 +46,7 @@ public class DESKeySpecTest extends TestCase {
     // Got from:
     // FIP PUB 74
     // FEDERAL INFORMATION PROCESSING STANDARDS PUBLICATION 1981
-    // GUIDELINES FOR IMPLEMENTING AND USING THE NBS DATA ENCRYPTION STANDARD 
+    // GUIDELINES FOR IMPLEMENTING AND USING THE NBS DATA ENCRYPTION STANDARD
     // http://www.dice.ucl.ac.be/crypto/standards/fips/fip74/fip74-1.pdf
     private static final byte[][] semiweaks = {
                 {(byte) 0xE0, (byte) 0x01, (byte) 0xE0, (byte) 0x01,
@@ -85,7 +85,7 @@ public class DESKeySpecTest extends TestCase {
                 {(byte) 0xFE, (byte) 0xE0, (byte) 0xFE, (byte) 0xE0,
                  (byte) 0xFE, (byte) 0xF1, (byte) 0xFE, (byte) 0xF1},
 
-                {(byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01, 
+                {(byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,
                  (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01},
 
                 {(byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
@@ -176,7 +176,7 @@ public class DESKeySpecTest extends TestCase {
     /**
      * getKey() method testing. Checks that modification of returned key
      * does not affect the internal key. Also test check an equality of
-     * the key with the key specified in the constructor. The object under 
+     * the key with the key specified in the constructor. The object under
      * the test is created by different constructors.
      */
     @TestTargetNew(
@@ -274,7 +274,7 @@ public class DESKeySpecTest extends TestCase {
     /**
      * isWeak(byte[] key, int offset) method testing. Tests if the
      * method throws appropriate exceptions on incorrect byte array, if
-     * it returns true on weak or semi-weak keys, and if it returns 
+     * it returns true on weak or semi-weak keys, and if it returns
      * false on other keys.
      */
     @TestTargetNew(

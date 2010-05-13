@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -109,12 +109,12 @@ public abstract class Handler {
         LogManager manager = LogManager.getLogManager();
 
         // set filter
-        final String filterName = manager.getProperty(prefix + ".filter"); 
+        final String filterName = manager.getProperty(prefix + ".filter");
         if (null != filterName) {
             try {
                 filter = (Filter) getCustomizeInstance(filterName);
             } catch (Exception e1) {
-                printInvalidPropMessage("filter", filterName, e1); 
+                printInvalidPropMessage("filter", filterName, e1);
                 filter = (Filter) getDefaultInstance(defaultFilter);
             }
         } else {
@@ -122,12 +122,12 @@ public abstract class Handler {
         }
 
         // set level
-        String levelName = manager.getProperty(prefix + ".level"); 
+        String levelName = manager.getProperty(prefix + ".level");
         if (null != levelName) {
             try {
                 level = Level.parse(levelName);
             } catch (Exception e) {
-                printInvalidPropMessage("level", levelName, e); 
+                printInvalidPropMessage("level", levelName, e);
                 level = Level.parse(defaultLevel);
             }
         } else {
@@ -135,12 +135,12 @@ public abstract class Handler {
         }
 
         // set formatter
-        final String formatterName = manager.getProperty(prefix + ".formatter"); 
+        final String formatterName = manager.getProperty(prefix + ".formatter");
         if (null != formatterName) {
             try {
                 formatter = (Formatter) getCustomizeInstance(formatterName);
             } catch (Exception e) {
-                printInvalidPropMessage("formatter", formatterName, e); 
+                printInvalidPropMessage("formatter", formatterName, e);
                 formatter = (Formatter) getDefaultInstance(defaultFormatter);
             }
         } else {
@@ -148,11 +148,11 @@ public abstract class Handler {
         }
 
         // set encoding
-        final String encodingName = manager.getProperty(prefix + ".encoding"); 
+        final String encodingName = manager.getProperty(prefix + ".encoding");
         try {
             internalSetEncoding(encodingName);
         } catch (UnsupportedEncodingException e) {
-            printInvalidPropMessage("encoding", encodingName, e); 
+            printInvalidPropMessage("encoding", encodingName, e);
         }
     }
 

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,7 @@ public interface Driver {
     /**
      * Returns whether the driver thinks that it can open a connection to the
      * given URL.
-     * 
+     *
      * @param url
      *            the URL to connect to.
      * @return {@code true} if the driver thinks that is can open a connection
@@ -54,7 +54,7 @@ public interface Driver {
     /**
      * Attempts to make a database connection to a data source specified by a
      * supplied URL.
-     * 
+     *
      * @param url
      *            the URL to connect.
      * @param info
@@ -71,14 +71,14 @@ public interface Driver {
 
     /**
      * Gets the driver's major version number.
-     * 
+     *
      * @return the major version number of the driver - typically starts at 1.
      */
     public int getMajorVersion();
 
     /**
      * Gets the driver's minor version number.
-     * 
+     *
      * @return the minor version number of the driver - typically starts at 0.
      */
     public int getMinorVersion();
@@ -97,11 +97,11 @@ public interface Driver {
      *            when displaying a dialog to an end-user as part of the
      *            database login process.
      * @param info
-     *            a set of tag/value pairs giving data that a user may be 
+     *            a set of tag/value pairs giving data that a user may be
      *            prompted to provide in order to connect to the database.
      * @return an array of {@code DriverPropertyInfo} records which provide
      *         details on which additional properties are required (in addition
-     *         to those supplied in the {@code info} parameter) in order to 
+     *         to those supplied in the {@code info} parameter) in order to
      *         connect to the database.
      * @throws SQLException
      *             if a database error occurs.

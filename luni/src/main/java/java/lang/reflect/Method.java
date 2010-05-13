@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,17 +46,17 @@ import org.apache.harmony.luni.lang.reflect.Types;
  * and the method can be invoked dynamically.
  */
 public final class Method extends AccessibleObject implements GenericDeclaration, Member {
-    
+
     private int slot;
-    
+
     private Class<?> declaringClass;
-    
+
     private String name;
-    
+
     private Class<?>[] parameterTypes;
-    
+
     private Class<?>[] exceptionTypes;
-    
+
     private Class<?> returnType;
 
     private ListOfTypes genericExceptionTypes;
@@ -119,7 +119,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
 
         return StringUtils.combineStrings(annotation);
     }
-    
+
     /**
      * Returns the Signature annotation for this method. Returns {@code null} if
      * not found.
@@ -135,13 +135,13 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      */
     public String toGenericString() {
         StringBuilder sb = new StringBuilder(80);
-        
+
         initGenericTypes();
 
         // append modifiers if any
         int modifier = getModifiers();
         if (modifier != 0) {
-            sb.append(Modifier.toString(modifier & ~(Modifier.BRIDGE + 
+            sb.append(Modifier.toString(modifier & ~(Modifier.BRIDGE +
                     Modifier.VARARGS))).append(' ');
         }
         // append type parameters
@@ -163,7 +163,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         sb.append("."+getName());
         // append parameters
         sb.append('(');
-        appendArrayGenericType(sb, 
+        appendArrayGenericType(sb,
                 Types.getClonedTypeArray(genericParameterTypes));
         sb.append(')');
         // append exceptions if any
@@ -182,7 +182,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      * returned.
      *
      * @return the parameter types
-     * 
+     *
      * @throws GenericSignatureFormatError
      *             if the generic method signature is invalid
      * @throws TypeNotPresentException
@@ -199,9 +199,9 @@ public final class Method extends AccessibleObject implements GenericDeclaration
     /**
      * Returns the exception types as an array of {@code Type} instances. If
      * this method has no declared exceptions, an empty array will be returned.
-     * 
+     *
      * @return an array of generic exception types
-     * 
+     *
      * @throws GenericSignatureFormatError
      *             if the generic method signature is invalid
      * @throws TypeNotPresentException
@@ -219,7 +219,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      * Returns the return type of this method as a {@code Type} instance.
      *
      * @return the return type of this method
-     * 
+     *
      * @throws GenericSignatureFormatError
      *             if the generic method signature is invalid
      * @throws TypeNotPresentException
@@ -306,9 +306,9 @@ public final class Method extends AccessibleObject implements GenericDeclaration
     /**
      * Returns the default value for the annotation member represented by this
      * method.
-     * 
+     *
      * @return the default value, or {@code null} if none
-     * 
+     *
      * @throws TypeNotPresentException
      *             if this annotation member is of type {@code Class} and no
      *             definition can be found
@@ -323,13 +323,13 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      * method. To be equal, the specified object must be an instance
      * of {@code Method} with the same declaring class and parameter types
      * as this method.
-     * 
+     *
      * @param object
      *            the object to compare
-     *            
+     *
      * @return {@code true} if the specified object is equal to this
      *         method, {@code false} otherwise
-     *         
+     *
      * @see #hashCode
      */
     @Override
@@ -349,7 +349,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
     /**
      * Returns the exception types as an array of {@code Class} instances. If
      * this method has no declared exceptions, an empty array is returned.
-     * 
+     *
      * @return the declared exception classes
      */
     public Class<?>[] getExceptionTypes() {
@@ -365,7 +365,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      * be used to decode the result.
      *
      * @return the modifiers for this method
-     * 
+     *
      * @see Modifier
      */
     public int getModifiers() {
@@ -377,7 +377,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
     /**
      * Returns the name of the method represented by this {@code Method}
      * instance.
-     * 
+     *
      * @return the name of this method
      */
     public String getName() {
@@ -388,7 +388,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      * Returns an array of {@code Class} objects associated with the parameter
      * types of this method. If the method was declared with no parameters, an
      * empty array will be returned.
-     * 
+     *
      * @return the parameter types
      */
     public Class<?>[] getParameterTypes() {
@@ -398,7 +398,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
     /**
      * Returns the {@code Class} associated with the return type of this
      * method.
-     * 
+     *
      * @return the return type
      */
     public Class<?> getReturnType() {
@@ -409,9 +409,9 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      * Returns an integer hash code for this method. Objects which are equal
      * return the same value for this method. The hash code for this Method is
      * the hash code of the name of this method.
-     * 
+     *
      * @return hash code for this method
-     * 
+     *
      * @see #equals
      */
     @Override
@@ -452,14 +452,14 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      * return value is first wrapped. If the return type is void, null is
      * returned.</li>
      * </ul>
-     * 
+     *
      * @param receiver
      *            the object on which to call this method
      * @param args
      *            the arguments to the method
-     * 
+     *
      * @return the new, initialized, object
-     * 
+     *
      * @throws NullPointerException
      *             if the receiver is null for a non-static method
      * @throws IllegalAccessException
@@ -470,7 +470,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      *             could not be converted by a widening conversion
      * @throws InvocationTargetException
      *             if an exception was thrown by the invoked method
-     * 
+     *
      * @see AccessibleObject
      */
     public Object invoke(Object receiver, Object... args)
@@ -491,7 +491,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
     /**
      * Returns a string containing a concise, human-readable description of this
      * method. The format of the string is:
-     * 
+     *
      * <ol>
      *   <li>modifiers (if any)
      *   <li>return type or 'void'
@@ -506,7 +506,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      * java.lang.Method.invoke(Object,Object) throws
      * IllegalAccessException,IllegalArgumentException
      * ,InvocationTargetException}
-     * 
+     *
      * @return a printable representation for this method
      */
     @Override
@@ -527,10 +527,10 @@ public final class Method extends AccessibleObject implements GenericDeclaration
             result.append(" throws ");
             result.append(toString(exceptionTypes));
         }
-        
+
         return result.toString();
     }
-    
+
     /**
      * Returns the constructor's signature in non-printable form. This is called
      * (only) from IO native code and needed for deriving the serialVersionUID
@@ -541,15 +541,15 @@ public final class Method extends AccessibleObject implements GenericDeclaration
     @SuppressWarnings("unused")
     private String getSignature() {
         StringBuilder result = new StringBuilder();
-        
+
         result.append('(');
-        for(int i = 0; i < parameterTypes.length; i++) {            
+        for(int i = 0; i < parameterTypes.length; i++) {
             result.append(getSignature(parameterTypes[i]));
         }
         result.append(')');
         result.append(getSignature(returnType));
-        
+
         return result.toString();
     }
-    
+
 }

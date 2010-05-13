@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
      * Sets automatic numbering for a specified column in the {@code RowSet}. If
      * automatic numbering is on, the column is read-only. The default value for
      * the auto increment parameter is {@code false}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -54,7 +54,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
     /**
      * Sets the case sensitive property for a specified column in the {@code
      * RowSet}. The default is that the column is not case sensitive.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -69,7 +69,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
 
     /**
      * Sets the catalog name for a specified column in the {@code RowSet}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -83,7 +83,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
 
     /**
      * Sets the number of columns contained in the row set.
-     * 
+     *
      * @param columnCount
      *            the number of columns contained in the {@code RowSet}.
      * @throws SQLException
@@ -94,7 +94,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
     /**
      * Sets the normal maximum width in characters for a specified column in the
      * {@code RowSet}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -109,7 +109,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
     /**
      * Sets the suggested name as label for the column contained in the {@code
      * RowSet}. The label is an alias for printing and displaying purposes.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -123,7 +123,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
 
     /**
      * Sets the column name for a specified column in the {@code RowSet}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -137,7 +137,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
 
     /**
      * Sets the SQL type for a specified column in the {@code RowSet}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -152,7 +152,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
     /**
      * Sets the type name for a specified column in the {@code RowSet}, where
      * the data type is specific to the data source.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -167,7 +167,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
     /**
      * Sets whether a specified column is a currency value. The default value is
      * {@code false}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -183,7 +183,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
 
     /**
      * Sets whether a specified column can contain SQL {@code NULL} values.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -206,7 +206,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
     /**
      * Sets the number of decimal digits for a specified column in the {@code
      * RowSet}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -221,7 +221,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
     /**
      * Declares how many decimal digits there should be after a decimal point
      * for the column specified by {@code columnIndex}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -234,7 +234,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
 
     /**
      * Sets the schema name for a specified column in the {@code RowSet}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -249,7 +249,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
     /**
      * Sets whether a specified column can be used in a search involving a
      * {@code WHERE} clause. The default value is {@code false}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -264,7 +264,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
 
     /**
      * Sets if a specified column can contain signed numbers.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.
@@ -279,7 +279,7 @@ public interface RowSetMetaData extends ResultSetMetaData {
 
     /**
      * Sets the table name for a specified column in the {@code RowSet}.
-     * 
+     *
      * @param columnIndex
      *            the index number for the column; the first column's index is
      *            1.

@@ -27,7 +27,7 @@ import java.io.IOException;
 
 /**
  * This class represents ASN.1 Set type.
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -50,7 +50,7 @@ public class ASN1Set extends ASN1TypeCollection {
 
     public Object decode(BerInputStream in) throws IOException {
         in.readSet(this);
-        
+
         if(in.isVerify){
             return null;
         }

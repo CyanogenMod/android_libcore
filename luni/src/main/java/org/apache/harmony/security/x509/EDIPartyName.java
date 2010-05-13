@@ -29,25 +29,25 @@ import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.x501.DirectoryString;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the following structure which is a subpart of GeneralName
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
- *   
+ *
  * <pre>
  *   EDIPartyName ::= SEQUENCE {
  *        nameAssigner            [0]     DirectoryString OPTIONAL,
- *        partyName               [1]     DirectoryString 
+ *        partyName               [1]     DirectoryString
  *   }
- * 
+ *
  *   DirectoryString ::= CHOICE {
  *        teletexString             TeletexString   (SIZE (1..MAX)),
  *        printableString           PrintableString (SIZE (1..MAX)),
  *        universalString           UniversalString (SIZE (1..MAX)),
  *        utf8String              UTF8String      (SIZE (1..MAX)),
- *        bmpString               BMPString       (SIZE (1..MAX)) 
+ *        bmpString               BMPString       (SIZE (1..MAX))
  *   }
  * </pre>
  */
@@ -58,7 +58,7 @@ public class EDIPartyName {
     private String partyName;
     // the ASN.1 encoded form of EDIPartyName
     private byte[] encoding;
-    
+
     /**
      * TODO
      * @param   nameAssigner:   String
@@ -68,20 +68,20 @@ public class EDIPartyName {
         this.nameAssigner = nameAssigner;
         this.partyName = partyName;
     }
-    
-    // 
+
+    //
     // TODO
     // @param   nameAssigner:   String
     // @param   partyName:  String
     // @param   encoding:   byte[]
-    // 
-    private EDIPartyName(String nameAssigner, String partyName, 
+    //
+    private EDIPartyName(String nameAssigner, String partyName,
                          byte[] encoding) {
         this.nameAssigner = nameAssigner;
         this.partyName = partyName;
         this.encoding = encoding;
     }
-    
+
     /**
      * Returns the value of nameAssigner field of the structure.
      * @return  nameAssigner
@@ -89,7 +89,7 @@ public class EDIPartyName {
     public String getNameAssigner() {
         return nameAssigner;
     }
-    
+
     /**
      * Returns the value of partyName field of the structure.
      * @return  partyName
@@ -97,7 +97,7 @@ public class EDIPartyName {
     public String getPartyName() {
         return partyName;
     }
-    
+
     /**
      * Returns ASN.1 encoded form of this X.509 EDIPartyName value.
      * @return a byte array containing ASN.1 encode form.
@@ -114,7 +114,7 @@ public class EDIPartyName {
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(
             new ASN1Type[] {
-                new ASN1Explicit(0, DirectoryString.ASN1), 
+                new ASN1Explicit(0, DirectoryString.ASN1),
                 new ASN1Explicit(1, DirectoryString.ASN1)
             }) {
         {

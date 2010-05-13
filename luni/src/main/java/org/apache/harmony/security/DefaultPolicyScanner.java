@@ -36,24 +36,24 @@ import org.apache.harmony.security.internal.nls.Messages;
  * analyzes data read from it and returns a set of structured tokens. <br>
  * This implementation recognizes text files, consisting of clauses with the
  * following syntax:
- * 
+ *
  * <pre>
- * 
+ *
  *     keystore &quot;some_keystore_url&quot;, &quot;keystore_type&quot;;
- *  
+ *
  * </pre>
  * <pre>
- * 
+ *
  *     grant [SignedBy &quot;signer_names&quot;] [, CodeBase &quot;URL&quot;]
  *      [, Principal [principal_class_name] &quot;principal_name&quot;]
  *      [, Principal [principal_class_name] &quot;principal_name&quot;] ... {
- *      permission permission_class_name [ &quot;target_name&quot; ] [, &quot;action&quot;] 
+ *      permission permission_class_name [ &quot;target_name&quot; ] [, &quot;action&quot;]
  *      [, SignedBy &quot;signer_names&quot;];
  *      permission ...
  *      };
- *  
+ *
  * </pre>
- * 
+ *
  * For semantical details of this format, see the
  * {@link org.apache.harmony.security.fortress.DefaultPolicy default policy description}.
  * <br>
@@ -64,14 +64,14 @@ import org.apache.harmony.security.internal.nls.Messages;
  * <br>
  * This implementation is effectively thread-safe, as it has no field references
  * to data being processed (that is, passes all the data as method parameters).
- * 
+ *
  * @see org.apache.harmony.security.fortress.DefaultPolicyParser
  */
 public class DefaultPolicyScanner {
 
     /**
      * Specific exception class to signal policy file syntax error.
-     * 
+     *
      */
     public static class InvalidFormatException extends Exception {
 
@@ -80,8 +80,8 @@ public class DefaultPolicyScanner {
          */
         private static final long serialVersionUID = 5789786270390222184L;
 
-        /** 
-         * Constructor with detailed message parameter. 
+        /**
+         * Constructor with detailed message parameter.
          */
         public InvalidFormatException(String arg0) {
             super(arg0);
@@ -104,7 +104,7 @@ public class DefaultPolicyScanner {
      * StreamTokenizer instance; then tries to recognize <i>keystore </i> or
      * <i>grant </i> keyword. When found, invokes read method corresponding to
      * the clause and collects result to the passed collection.
-     * 
+     *
      * @param r
      *            policy stream reader
      * @param grantEntries
@@ -127,12 +127,12 @@ public class DefaultPolicyScanner {
                 break parsing;
 
             case StreamTokenizer.TT_WORD:
-                if (Util.equalsIgnoreCase("keystore", st.sval)) { 
+                if (Util.equalsIgnoreCase("keystore", st.sval)) {
                     keystoreEntries.add(readKeystoreEntry(st));
-                } else if (Util.equalsIgnoreCase("grant", st.sval)) { 
+                } else if (Util.equalsIgnoreCase("grant", st.sval)) {
                     grantEntries.add(readGrantEntry(st));
                 } else {
-                    handleUnexpectedToken(st, Messages.getString("security.89")); 
+                    handleUnexpectedToken(st, Messages.getString("security.89"));
                 }
                 break;
 
@@ -148,13 +148,13 @@ public class DefaultPolicyScanner {
 
     /**
      * Tries to read <i>keystore </i> clause fields. The expected syntax is
-     * 
+     *
      * <pre>
-     * 
+     *
      *     &quot;some_keystore_url&quot;[, &quot;keystore_type&quot;];
-     *  
+     *
      * </pre>
-     * 
+     *
      * @return successfully parsed KeystoreEntry
      * @throws IOException
      *             if stream reading failed
@@ -173,7 +173,7 @@ public class DefaultPolicyScanner {
                 st.pushBack();
             }
         } else {
-            handleUnexpectedToken(st, Messages.getString("security.8A")); 
+            handleUnexpectedToken(st, Messages.getString("security.8A"));
         }
         return ke;
     }
@@ -187,14 +187,14 @@ public class DefaultPolicyScanner {
      * Principal entries (if any) are read by invoking readPrincipalEntry()
      * method, obtained PrincipalEntries are accumulated. <br>
      * The expected syntax is
-     * 
+     *
      * <pre>
-     * 
-     *     [ [codebase &quot;url&quot;] | [signedby &quot;name1,...,nameN&quot;] | 
+     *
+     *     [ [codebase &quot;url&quot;] | [signedby &quot;name1,...,nameN&quot;] |
      *          principal ...] ]* { ... }
-     *  
+     *
      * </pre>
-     * 
+     *
      * @return successfully parsed GrantEntry
      * @throws IOException
      *             if stream reading failed
@@ -208,19 +208,19 @@ public class DefaultPolicyScanner {
             switch (st.nextToken()) {
 
             case StreamTokenizer.TT_WORD:
-                if (Util.equalsIgnoreCase("signedby", st.sval)) { 
+                if (Util.equalsIgnoreCase("signedby", st.sval)) {
                     if (st.nextToken() == '"') {
                         ge.signers = st.sval;
                     } else {
-                        handleUnexpectedToken(st, Messages.getString("security.8B")); 
+                        handleUnexpectedToken(st, Messages.getString("security.8B"));
                     }
-                } else if (Util.equalsIgnoreCase("codebase", st.sval)) { 
+                } else if (Util.equalsIgnoreCase("codebase", st.sval)) {
                     if (st.nextToken() == '"') {
                         ge.codebase = st.sval;
                     } else {
-                        handleUnexpectedToken(st, Messages.getString("security.8C")); 
+                        handleUnexpectedToken(st, Messages.getString("security.8C"));
                     }
-                } else if (Util.equalsIgnoreCase("principal", st.sval)) { 
+                } else if (Util.equalsIgnoreCase("principal", st.sval)) {
                     ge.addPrincipal(readPrincipalEntry(st));
                 } else {
                     handleUnexpectedToken(st);
@@ -245,16 +245,16 @@ public class DefaultPolicyScanner {
 
     /**
      * Tries to read <i>Principal </i> entry fields. The expected syntax is
-     * 
+     *
      * <pre>
-     * 
+     *
      *     [ principal_class_name ] &quot;principal_name&quot;
-     *  
+     *
      * </pre>
-     * 
+     *
      * Both class and name may be wildcards, wildcard names should not
      * surrounded by quotes.
-     * 
+     *
      * @return successfully parsed PrincipalEntry
      * @throws IOException
      *             if stream reading failed
@@ -276,7 +276,7 @@ public class DefaultPolicyScanner {
         } else if (st.ttype == '*') {
             pe.name = PrincipalEntry.WILDCARD;
         } else {
-            handleUnexpectedToken(st, Messages.getString("security.8D")); 
+            handleUnexpectedToken(st, Messages.getString("security.8D"));
         }
         return pe;
     }
@@ -284,17 +284,17 @@ public class DefaultPolicyScanner {
     /**
      * Tries to read a list of <i>permission </i> entries. The expected syntax
      * is
-     * 
+     *
      * <pre>
-     * 
+     *
      *     permission permission_class_name
      *          [ &quot;target_name&quot; ] [, &quot;action_list&quot;]
      *          [, signedby &quot;name1,name2,...&quot;];
-     *  
+     *
      * </pre>
-     * 
+     *
      * List is terminated by '}' (closing curly brace) symbol.
-     * 
+     *
      * @return collection of successfully parsed PermissionEntries
      * @throws IOException
      *             if stream reading failed
@@ -308,7 +308,7 @@ public class DefaultPolicyScanner {
             switch (st.nextToken()) {
 
             case StreamTokenizer.TT_WORD:
-                if (Util.equalsIgnoreCase("permission", st.sval)) { 
+                if (Util.equalsIgnoreCase("permission", st.sval)) {
                     PermissionEntry pe = new PermissionEntry();
                     if (st.nextToken() == StreamTokenizer.TT_WORD) {
                         pe.klass = st.sval;
@@ -326,7 +326,7 @@ public class DefaultPolicyScanner {
                             }
                         }
                         if (st.ttype == StreamTokenizer.TT_WORD
-                                && Util.equalsIgnoreCase("signedby", st.sval)) { 
+                                && Util.equalsIgnoreCase("signedby", st.sval)) {
                             if (st.nextToken() == '"') {
                                 pe.signers = st.sval;
                             } else {
@@ -339,7 +339,7 @@ public class DefaultPolicyScanner {
                         continue parsing;
                     }
                 }
-                handleUnexpectedToken(st, Messages.getString("security.8E")); 
+                handleUnexpectedToken(st, Messages.getString("security.8E"));
                 break;
 
             case ';': //just delimiter of entries
@@ -367,7 +367,7 @@ public class DefaultPolicyScanner {
 
     /**
      * Throws InvalidFormatException with detailed diagnostics.
-     * 
+     *
      * @param st
      *            a tokenizer holding the erroneous token
      * @param message
@@ -377,27 +377,27 @@ public class DefaultPolicyScanner {
      */
     protected final void handleUnexpectedToken(StreamTokenizer st,
             String message) throws InvalidFormatException {
-        throw new InvalidFormatException(Messages.getString("security.8F", 
+        throw new InvalidFormatException(Messages.getString("security.8F",
                 composeStatus(st), message));
     }
 
     /**
      * Throws InvalidFormatException with error status: which token is
      * unexpected on which line.
-     * 
+     *
      * @param st
      *            a tokenizer holding the erroneous token
      */
     protected final void handleUnexpectedToken(StreamTokenizer st)
             throws InvalidFormatException {
-        throw new InvalidFormatException(Messages.getString("security.90", 
+        throw new InvalidFormatException(Messages.getString("security.90",
                 composeStatus(st)));
     }
 
     /**
      * Compound token representing <i>keystore </i> clause. See policy format
      * {@link org.apache.harmony.security.fortress.DefaultPolicy description}for details.
-     * 
+     *
      * @see org.apache.harmony.security.fortress.DefaultPolicyParser
      * @see org.apache.harmony.security.DefaultPolicyScanner
      */
@@ -417,7 +417,7 @@ public class DefaultPolicyScanner {
     /**
      * Compound token representing <i>grant </i> clause. See policy format
      * {@link org.apache.harmony.security.fortress.DefaultPolicy description}for details.
-     * 
+     *
      * @see org.apache.harmony.security.fortress.DefaultPolicyParser
      * @see org.apache.harmony.security.DefaultPolicyScanner
      */
@@ -462,7 +462,7 @@ public class DefaultPolicyScanner {
      * Compound token representing <i>principal </i> entry of a <i>grant </i>
      * clause. See policy format
      * {@link org.apache.harmony.security.fortress.DefaultPolicy description}for details.
-     * 
+     *
      * @see org.apache.harmony.security.fortress.DefaultPolicyParser
      * @see org.apache.harmony.security.DefaultPolicyScanner
      */
@@ -470,11 +470,11 @@ public class DefaultPolicyScanner {
 
         /**
          * Wildcard value denotes any class and/or any name.
-         * Must be asterisk, for proper general expansion and 
+         * Must be asterisk, for proper general expansion and
          * PrivateCredentialsPermission wildcarding
          */
-        public static final String WILDCARD = "*"; 
-        
+        public static final String WILDCARD = "*";
+
         /**
          * The classname part of principal clause.
          */
@@ -490,7 +490,7 @@ public class DefaultPolicyScanner {
      * Compound token representing <i>permission </i> entry of a <i>grant </i>
      * clause. See policy format
      * {@link org.apache.harmony.security.fortress.DefaultPolicy description}for details.
-     * 
+     *
      * @see org.apache.harmony.security.fortress.DefaultPolicyParser
      * @see org.apache.harmony.security.DefaultPolicyScanner
      */

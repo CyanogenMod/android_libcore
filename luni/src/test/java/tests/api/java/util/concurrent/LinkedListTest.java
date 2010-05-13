@@ -2,8 +2,8 @@
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/licenses/publicdomain
- * Other contributors include Andrew Wright, Jeffrey Hayes, 
- * Pat Fisher, Mike Judd. 
+ * Other contributors include Andrew Wright, Jeffrey Hayes,
+ * Pat Fisher, Mike Judd.
  */
 
 package tests.api.java.util.concurrent;
@@ -30,7 +30,7 @@ public class LinkedListTest extends JSR166TestCase {
         assertEquals(n, q.size());
         return q;
     }
- 
+
     /**
      * new queue is empty
      */
@@ -101,13 +101,13 @@ public class LinkedListTest extends JSR166TestCase {
         try {
             LinkedList q = new LinkedList();
             q.offer(null);
-        } catch (NullPointerException ie) { 
+        } catch (NullPointerException ie) {
             unexpectedException();
-        }   
+        }
     }
 
     /**
-     * Offer succeeds 
+     * Offer succeeds
      */
     public void testOffer() {
         LinkedList q = new LinkedList();
@@ -237,7 +237,7 @@ public class LinkedListTest extends JSR166TestCase {
             q.remove();
             shouldThrow();
         } catch (NoSuchElementException success){
-        }   
+        }
     }
 
     /**
@@ -254,7 +254,7 @@ public class LinkedListTest extends JSR166TestCase {
         }
         assertTrue(q.isEmpty());
     }
-        
+
     /**
      * contains(x) reports true when elements added but not yet removed
      */
@@ -376,7 +376,7 @@ public class LinkedListTest extends JSR166TestCase {
             shouldThrow();
         } catch(ArrayStoreException  success){}
     }
-    
+
     /**
      *  iterator iterates through all elements
      */
@@ -435,7 +435,7 @@ public class LinkedListTest extends JSR166TestCase {
         for (int i = 0; i < SIZE; ++i) {
             assertTrue(s.indexOf(String.valueOf(i)) >= 0);
         }
-    }        
+    }
 
     /**
      * peek returns element inserted with addFirst
@@ -444,6 +444,6 @@ public class LinkedListTest extends JSR166TestCase {
         LinkedList q = populatedQueue(3);
         q.addFirst(four);
         assertEquals(four,q.peek());
-    }        
+    }
 
 }

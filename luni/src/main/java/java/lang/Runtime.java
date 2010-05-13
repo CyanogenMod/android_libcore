@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,11 +56,11 @@ import dalvik.system.VMStack;
  * Allows Java applications to interface with the environment in which they are
  * running. Applications can not create an instance of this class, but they can
  * get a singleton instance by invoking {@link #getRuntime()}.
- * 
+ *
  * @see System
  */
 public class Runtime {
-    
+
     /**
      * Holds the Singleton global instance of Runtime.
      */
@@ -70,7 +70,7 @@ public class Runtime {
      * Holds the library paths, used for native library lookup.
      */
     private final String[] mLibPaths;
-    
+
     /**
      * Holds the list of threads to run when the VM terminates
      */
@@ -81,17 +81,17 @@ public class Runtime {
      * when the VM terminates.
      */
     private static boolean finalizeOnExit;
-    
+
     /**
      * Reflects whether we are already shutting down the VM.
-     */ 
+     */
     private boolean shuttingDown;
 
     /**
      * Reflects whether we are tracing method calls.
      */
     private boolean tracingMethods;
-    
+
     /**
      * Prevent this class from being instantiated.
      */
@@ -116,12 +116,12 @@ public class Runtime {
                 System.out.println("  " + mLibPaths[i]);
         }
     }
-    
+
     /**
      * Executes the specified command and its arguments in a separate native
      * process. The new process inherits the environment of the caller. Calling
      * this method is equivalent to calling {@code exec(progArray, null, null)}.
-     * 
+     *
      * @param progArray
      *            the array containing the program to execute as well as any
      *            arguments to the program.
@@ -143,7 +143,7 @@ public class Runtime {
      * process. The new process uses the environment provided in {@code envp}.
      * Calling this method is equivalent to calling
      * {@code exec(progArray, envp, null)}.
-     * 
+     *
      * @param progArray
      *            the array containing the program to execute as well as any
      *            arguments to the program.
@@ -158,7 +158,7 @@ public class Runtime {
      *             if the current {@code SecurityManager} disallows program
      *             execution.
      * @see SecurityManager#checkExec
-     */    
+     */
     public Process exec(String[] progArray, String[] envp) throws java.io.IOException {
         return exec(progArray, envp, null);
     }
@@ -167,7 +167,7 @@ public class Runtime {
      * Executes the specified command and its arguments in a separate native
      * process. The new process uses the environment provided in {@code envp}
      * and the working directory specified by {@code directory}.
-     * 
+     *
      * @param progArray
      *            the array containing the program to execute as well as any
      *            arguments to the program.
@@ -196,7 +196,7 @@ public class Runtime {
      * Executes the specified program in a separate native process. The new
      * process inherits the environment of the caller. Calling this method is
      * equivalent to calling {@code exec(prog, null, null)}.
-     * 
+     *
      * @param prog
      *            the name of the program to execute.
      * @return the new {@code Process} object that represents the native
@@ -216,7 +216,7 @@ public class Runtime {
      * Executes the specified program in a separate native process. The new
      * process uses the environment provided in {@code envp}. Calling this
      * method is equivalent to calling {@code exec(prog, envp, null)}.
-     * 
+     *
      * @param prog
      *            the name of the program to execute.
      * @param envp
@@ -239,7 +239,7 @@ public class Runtime {
      * Executes the specified program in a separate native process. The new
      * process uses the environment provided in {@code envp} and the working
      * directory specified by {@code directory}.
-     * 
+     *
      * @param prog
      *            the name of the program to execute.
      * @param envp
@@ -264,7 +264,7 @@ public class Runtime {
         } else if (prog.length() == 0) {
             throw new IllegalArgumentException();
         }
-        
+
         // Break down into tokens, as described in Java docs
         StringTokenizer tokenizer = new StringTokenizer(prog);
         int length = tokenizer.countTokens();
@@ -272,7 +272,7 @@ public class Runtime {
         for (int i = 0; i < length; i++) {
             progArray[i] = tokenizer.nextToken();
         }
-        
+
         // Delegate
         return exec(progArray, envp, directory);
     }
@@ -282,7 +282,7 @@ public class Runtime {
      * {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
      * {@code true} argument, then all objects will be properly
      * garbage-collected and finalized first.
-     * 
+     *
      * @param code
      *            the return code. By convention, non-zero return codes indicate
      *            abnormal terminations.
@@ -338,7 +338,7 @@ public class Runtime {
     /**
      * Returns the amount of free memory resources which are available to the
      * running program.
-     * 
+     *
      * @return the approximate amount of free memory, measured in bytes.
      */
     public native long freeMemory();
@@ -352,7 +352,7 @@ public class Runtime {
 
     /**
      * Returns the single {@code Runtime} instance.
-     * 
+     *
      * @return the {@code Runtime} object for the current application.
      */
     public static Runtime getRuntime() {
@@ -364,7 +364,7 @@ public class Runtime {
      * specified path. This method is similar to {@link #loadLibrary(String)},
      * but it accepts a full path specification whereas {@code loadLibrary} just
      * accepts the name of the library to load.
-     * 
+     *
      * @param pathName
      *            the absolute (platform dependent) path to the library to load.
      * @throws UnsatisfiedLinkError
@@ -396,12 +396,12 @@ public class Runtime {
                     "Library " + filename + " not found");
         }
     }
-    
+
     /**
      * Loads and links the library with the specified name. The mapping of the
      * specified library name to the full path for loading the library is
      * implementation-dependent.
-     * 
+     *
      * @param libName
      *            the name of the library to load.
      * @throws UnsatisfiedLinkError
@@ -445,15 +445,15 @@ public class Runtime {
 
         throw new UnsatisfiedLinkError("Library " + libname + " not found");
     }
-    
+
     private static native void nativeExit(int code, boolean isExit);
-    
+
     private static native boolean nativeLoad(String filename,
             ClassLoader loader);
-    
+
     /**
      * Requests proper finalization for all Objects on the heap.
-     * 
+     *
      * @param forced Decides whether the VM really needs to do this (true)
      *               or if this is just a suggestion that can safely be ignored
      *               (false).
@@ -463,7 +463,7 @@ public class Runtime {
     /**
      * Provides a hint to the virtual machine that it would be useful to attempt
      * to perform any outstanding object finalizations.
-     * 
+     *
      */
     public void runFinalization() {
         runFinalization(false);
@@ -474,7 +474,7 @@ public class Runtime {
      * virtual machine is about to exit. Note that all finalization which occurs
      * when the system is exiting is performed after all running threads have
      * been terminated.
-     * 
+     *
      * @param run
      *            {@code true} to enable finalization on exit, {@code false} to
      *            disable it.
@@ -492,7 +492,7 @@ public class Runtime {
     /**
      * Returns the total amount of memory which is available to the running
      * program.
-     * 
+     *
      * @return the total amount of memory, measured in bytes.
      */
     public native long totalMemory();
@@ -500,7 +500,7 @@ public class Runtime {
     /**
      * Switches the output of debug information for instructions on or off.
      * For the Android 1.0 reference implementation, this method does nothing.
-     * 
+     *
      * @param enable
      *            {@code true} to switch tracing on, {@code false} to switch it
      *            off.
@@ -512,7 +512,7 @@ public class Runtime {
 
     /**
      * Switches the output of debug information for methods on or off.
-     * 
+     *
      * @param enable
      *            {@code true} to switch tracing on, {@code false} to switch it
      *            off.
@@ -533,7 +533,7 @@ public class Runtime {
      * stream that is returned automatically converts all characters from the
      * local character set to Unicode after reading them from the underlying
      * stream.
-     * 
+     *
      * @param stream
      *            the input stream to localize.
      * @return the localized input stream.
@@ -552,12 +552,12 @@ public class Runtime {
      * stream that is returned automatically converts all characters from
      * Unicode to the local character set before writing them to the underlying
      * stream.
-     * 
+     *
      * @param stream
      *            the output stream to localize.
      * @return the localized output stream.
      * @deprecated Use {@link OutputStreamWriter}.
-     */    
+     */
     @Deprecated
     public OutputStream getLocalizedOutputStream(OutputStream stream) {
         if (System.getProperty("file.encoding", "UTF-8").equals("UTF-8")) {
@@ -591,7 +591,7 @@ public class Runtime {
      * It is recommended that shutdown hooks do not do any time-consuming
      * activities, in order to not hold up the shutdown process longer than
      * necessary.
-     * 
+     *
      * @param hook
      *            the shutdown hook to register.
      * @throws IllegalArgumentException
@@ -621,19 +621,19 @@ public class Runtime {
         if (sm != null) {
             sm.checkPermission(new RuntimePermission("shutdownHooks"));
         }
-        
+
         synchronized (shutdownHooks) {
             if (shutdownHooks.contains(hook)) {
                 throw new IllegalArgumentException("Hook already registered.");
             }
-    
+
             shutdownHooks.add(hook);
         }
     }
 
     /**
      * Unregisters a previously registered virtual machine shutdown hook.
-     * 
+     *
      * @param hook
      *            the shutdown hook to remove.
      * @return {@code true} if the hook has been removed successfully; {@code
@@ -649,7 +649,7 @@ public class Runtime {
         if (hook == null) {
             throw new NullPointerException("Hook may not be null.");
         }
-        
+
         if (shuttingDown) {
             throw new IllegalStateException("VM already shutting down");
         }
@@ -667,7 +667,7 @@ public class Runtime {
     /**
      * Causes the virtual machine to stop running, and the program to exit.
      * Neither shutdown hooks nor finalizers are run before.
-     * 
+     *
      * @param code
      *            the return code. By convention, non-zero return codes indicate
      *            abnormal terminations.
@@ -685,7 +685,7 @@ public class Runtime {
         if (smgr != null) {
             smgr.checkExit(code);
         }
-        
+
         // Get out of here...
         nativeExit(code, false);
     }
@@ -693,7 +693,7 @@ public class Runtime {
     /**
      * Returns the number of processors available to the virtual machine. The
      * Android reference implementation (currently) always returns 1.
-     * 
+     *
      * @return the number of available processors, at least 1.
      */
     public int availableProcessors() {
@@ -703,7 +703,7 @@ public class Runtime {
     /**
      * Returns the maximum amount of memory that may be used by the virtual
      * machine, or {@code Long.MAX_VALUE} if there is no such limit.
-     * 
+     *
      * @return the maximum amount of memory that the virtual machine will try to
      *         allocate, measured in bytes.
      */
@@ -718,19 +718,19 @@ public class Runtime {
 class ReaderInputStream extends InputStream {
 
     private Reader reader;
-    
+
     private Writer writer;
 
     ByteArrayOutputStream out = new ByteArrayOutputStream(256);
-    
+
     private byte[] bytes;
-    
+
     private int nextByte;
-    
+
     private int numBytes;
-    
+
     String encoding = System.getProperty("file.encoding", "UTF-8");
-    
+
     public ReaderInputStream(InputStream stream) {
         try {
             reader = new InputStreamReader(stream, "UTF-8");
@@ -764,8 +764,8 @@ class ReaderInputStream extends InputStream {
         bytes = out.toByteArray();
         numBytes = bytes.length;
         nextByte = 0;
-    }        
-    
+    }
+
 }
 
 /*

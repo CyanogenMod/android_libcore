@@ -33,7 +33,7 @@ public class NoInstanceParser implements Parser {
 
     public NoInstanceParser(int i) {
     }
-    
+
     public void parse(InputSource source)  {
     }
 
@@ -54,5 +54,5 @@ public class NoInstanceParser implements Parser {
 
     public void setLocale(Locale locale) {
     }
-    
+
 }

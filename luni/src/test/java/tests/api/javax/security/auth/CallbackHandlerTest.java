@@ -29,13 +29,13 @@ import javax.security.auth.callback.CallbackHandler;
 
 /**
  * Tests for <code>CallbackHandler</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(CallbackHandler.class) 
+@TestTargetClass(CallbackHandler.class)
 public class CallbackHandlerTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.callback.CallbackHandler#handle(Callback[] callbacks) 
+     * @tests javax.security.auth.callback.CallbackHandler#handle(Callback[] callbacks)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -49,7 +49,7 @@ public class CallbackHandlerTest extends TestCase {
         ch.handle(null);
         assertTrue(ch.called);
     }
-    
+
     private class CallbackHandlerImpl implements CallbackHandler {
         boolean called = false;
         public void handle(Callback[] callbacks) {

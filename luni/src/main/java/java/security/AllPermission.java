@@ -31,10 +31,10 @@ public final class AllPermission extends Permission {
     private static final long serialVersionUID = -2916474571451318075L;
 
     // Permission name
-    private static final String ALL_PERMISSIONS = "<all permissions>"; 
+    private static final String ALL_PERMISSIONS = "<all permissions>";
 
     // Actions name
-    private static final String ALL_ACTIONS = "<all actions>"; 
+    private static final String ALL_ACTIONS = "<all actions>";
 
     /**
      * Constructs a new instance of {@code AllPermission}. The two argument

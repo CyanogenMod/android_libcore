@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -93,7 +93,7 @@ public class SQLWarningTest extends TestCase {
     )
     public void testSQLWarningString() {
 
-        String[] init1 = { "a", "1", "valid1", "----", "&valid*", null, 
+        String[] init1 = { "a", "1", "valid1", "----", "&valid*", null,
                 "", "\u0000" };
 
         String[] theFinalStates1 = init1;
@@ -364,7 +364,7 @@ public class SQLWarningTest extends TestCase {
         } // end for
 
     } // end method testSetNextWarningSQLWarning
-       
+
     /**
      * @tests java.sql.SQLWarning#setNextWarning(java.sql.SQLWarning)
      */
@@ -387,22 +387,22 @@ public class SQLWarningTest extends TestCase {
         SQLWarning sw1 = new SQLWarning("reason", "SQLState", 1);
         SQLWarning sw2 = new SQLWarning("reason", "SQLState", 2);
         SQLWarning sw3 = new SQLWarning("reason", "SQLState", 3);
-        
+
         SQLException se = new SQLException("reason", "SQLState", 4);
-        
+
         sw.setNextWarning(sw1);
         assertSame(sw1, sw.getNextException());
         assertSame(sw1, sw.getNextWarning());
-        
-        
+
+
         sw.setNextWarning(sw2);
         assertSame(sw2, sw1.getNextException());
         assertSame(sw2, sw1.getNextWarning());
-        
+
         sw.setNextException(sw3);
         assertSame(sw3, sw2.getNextException());
         assertSame(sw3, sw2.getNextWarning());
-        
+
         sw.setNextException(se);
         assertSame(se, sw3.getNextException());
         try {
@@ -412,7 +412,7 @@ public class SQLWarningTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests serialization/deserialization compatibility.
      */
@@ -438,10 +438,10 @@ public class SQLWarningTest extends TestCase {
     )
     public void testSerializationCompatibility() throws Exception {
         SQLWarning object = new SQLWarning();
-        
+
         SQLWarning nextSQLWarning = new SQLWarning("nextReason",
                 "nextSQLState", 10);
-      
+
         object.setNextWarning(nextSQLWarning);
 
         SerializationTest.verifyGolden(this, object, SQLWARNING_COMPARATOR);

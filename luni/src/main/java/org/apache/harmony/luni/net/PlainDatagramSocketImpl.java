@@ -107,8 +107,8 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void bind(int port, InetAddress addr) throws SocketException {
-        String prop = AccessController.doPrivileged(new PriviAction<String>("bindToDevice")); 
-        boolean useBindToDevice = prop != null && prop.toLowerCase().equals("true"); 
+        String prop = AccessController.doPrivileged(new PriviAction<String>("bindToDevice"));
+        boolean useBindToDevice = prop != null && prop.toLowerCase().equals("true");
         netImpl.bind(fd, addr, port);
         if (0 != port) {
             localPort = port;
@@ -249,7 +249,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     /**
      * Set the nominated socket option. As the timeouts are not set as options
      * in the IP stack, the value is stored in an instance field.
-     * 
+     *
      * @throws SocketException thrown if the option value is unsupported or
      *         invalid
      */
@@ -311,7 +311,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         } catch (UnknownHostException e) {
             // this is never expected to happen as we should not have gotten
             // here if the address is not resolvable
-            throw new SocketException(Msg.getString("K0317", inetAddr.getHostName())); 
+            throw new SocketException(Msg.getString("K0317", inetAddr.getHostName()));
         }
         connectedPort = port;
         isNativeConnected = true;
@@ -353,7 +353,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
      * Datagram socket is connected at the native level and the
      * recvConnnectedDatagramImpl does not update the packet with address from
      * which the packet was received
-     * 
+     *
      * @param packet
      *            the packet to be updated
      */

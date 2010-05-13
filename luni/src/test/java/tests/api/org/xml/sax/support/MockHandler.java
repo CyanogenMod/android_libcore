@@ -36,12 +36,12 @@ public class MockHandler implements ContentHandler, DTDHandler, DocumentHandler,
         ErrorHandler, LexicalHandler {
 
     private MethodLogger logger;
-    
+
     public MockHandler(MethodLogger logger) {
         super();
         this.logger = logger;
     }
-    
+
     public void characters(char[] ch, int start, int length) throws SAXException {
         logger.add("characters", ch, start, length);
     }
@@ -143,5 +143,5 @@ public class MockHandler implements ContentHandler, DTDHandler, DocumentHandler,
     public void startEntity(String name) throws SAXException {
         logger.add("startEntity", name);
     }
-    
+
 }

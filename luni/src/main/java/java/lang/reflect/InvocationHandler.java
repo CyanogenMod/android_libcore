@@ -19,7 +19,7 @@ package java.lang.reflect;
 
 /**
  * Implementors of this interface dispatch methods invoked on proxy instances.
- * 
+ *
  * @see Proxy
  */
 public interface InvocationHandler {
@@ -27,18 +27,18 @@ public interface InvocationHandler {
     /**
      * Handles the method which was originally invoked on the proxy instance. A
      * typical usage pattern follows below:
-     * 
+     *
      * <pre>
      * public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
      *     //do some processing before the method invocation
-     * 
+     *
      *     //invoke the method
      *     Object result = method.invoke(proxy, args);
-     * 
+     *
      *     //do some processing after the method invocation
      *     return result;
      * }</pre>
-     * 
+     *
      * @param proxy
      *            the proxy instance on which the method was invoked
      * @param method
@@ -47,10 +47,10 @@ public interface InvocationHandler {
      *            an array of objects containing the parameters passed to the
      *            method, or {@code null} if no arguments are expected.
      *            Primitive types are wrapped in the appropriate wrapper type
-     *            
+     *
      * @return the result of executing the method. Primitive types need to be
      *         wrapped in the appropriate wrapper type
-     *         
+     *
      * @throws Throwable
      *             the exception to throw from the invoked method on the proxy.
      *             The exception must match one of the declared exception types

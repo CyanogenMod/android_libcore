@@ -37,7 +37,7 @@ import java.security.spec.RSAPrivateKeySpec;
 
 /**
  * Tests for <code>RSAMultiPrimePrivateCrtKeySpec</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(RSAMultiPrimePrivateCrtKeySpec.class)
 public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
@@ -49,7 +49,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
             new RSAOtherPrimeInfo(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE),
             new RSAOtherPrimeInfo(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE)
     };
-    
+
     // Test-cases:
 
     /**
@@ -123,7 +123,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #3 for
      * <code>RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
@@ -160,7 +160,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #4 for
      * <code>RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
@@ -197,7 +197,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #5 for
      * <code>RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
@@ -234,7 +234,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #6 for
      * <code>RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
@@ -271,7 +271,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #7 for
      * <code>RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
@@ -308,7 +308,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #8 for
      * <code>RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
@@ -345,7 +345,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #9 for
      * <code>RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
@@ -382,7 +382,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * Test #10 for
      * <code>RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
@@ -419,7 +419,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
             fail("Unexpected exception is thrown");
         }
     }
-    
+
     /**
      * Test #11 for
      * <code>RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
@@ -492,7 +492,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
                 opi);
         assertTrue(ks instanceof RSAPrivateKeySpec);
     }
-    
+
     /**
      * Test for <code>getCrtCoefficient()</code> method<br>
      * Assertion: returns crt coefficient
@@ -697,7 +697,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
     //
     // immutability tests
     //
-    
+
     /**
      * Tests that internal state of the object
      * can not be modified by modifying initial array
@@ -719,7 +719,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
     public final void testIsStatePreserved1() {
         // Create initial array
         RSAOtherPrimeInfo[] opi1 = opi.clone();
-        
+
         RSAMultiPrimePrivateCrtKeySpec ks = new RSAMultiPrimePrivateCrtKeySpec(
                 BigInteger.ONE,
                 BigInteger.ONE,
@@ -730,22 +730,22 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
                 BigInteger.ONE,
                 BigInteger.ONE,
                 opi1);
-        
+
         // Modify initial array
         opi1[2] = new RSAOtherPrimeInfo(BigInteger.ZERO,
                                         BigInteger.ZERO,
                                         BigInteger.ZERO);
-        
+
         // Check that above modification
         // does not affect internal state
         assertTrue(checkOtherPrimeInfo(ks.getOtherPrimeInfo()));
     }
-    
+
     /**
      * Tests that internal state of the object
      * can not be modified using array reference
      * returned by <code>getOtherPrimeInfo()</code>
-     * method 
+     * method
      */
     @TestTargets({
         @TestTargetNew(
@@ -764,7 +764,7 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
     public final void testIsStatePreserved2() {
         // Create initial array
         RSAOtherPrimeInfo[] opi1 = opi.clone();
-        
+
         RSAMultiPrimePrivateCrtKeySpec ks = new RSAMultiPrimePrivateCrtKeySpec(
                 BigInteger.ONE,
                 BigInteger.ONE,
@@ -775,23 +775,23 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
                 BigInteger.ONE,
                 BigInteger.ONE,
                 opi1);
-        
+
         RSAOtherPrimeInfo[] ret = ks.getOtherPrimeInfo();
-        
+
         // Modify returned array
         ret[2] = new RSAOtherPrimeInfo(BigInteger.ZERO,
                 BigInteger.ZERO,
                 BigInteger.ZERO);
-        
+
         // Check that above modification
         // does not affect internal state
         assertTrue(checkOtherPrimeInfo(ks.getOtherPrimeInfo()));
     }
-    
+
     //
     // Tests for inherited methods
     //
-    
+
     /**
      * Test for <code>getModulus()</code> method<br>
      * Assertion: returns modulus
@@ -843,12 +843,12 @@ public class RSAMultiPrimePrivateCrtKeySpecTest extends TestCase {
     }
 
 // private stuff
-//    
+//
     /**
      * Compares array passed as a parameter with reference one<br>
-     * 
+     *
      *  <code>private static final RSAOtherPrimeInfo[] opi</code>
-     * 
+     *
      * @param toBeChecked
      *  Array to be compared
      * @return

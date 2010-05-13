@@ -38,7 +38,7 @@ public abstract class Identity implements Principal, Serializable {
 
     private PublicKey publicKey;
 
-    private String info = "no additional info"; 
+    private String info = "no additional info";
 
     private IdentityScope scope;
 
@@ -100,12 +100,12 @@ public abstract class Identity implements Principal, Serializable {
             throws KeyManagementException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("addIdentityCertificate"); 
+            sm.checkSecurityAccess("addIdentityCertificate");
         }
         PublicKey certPK = certificate.getPublicKey();
         if (publicKey != null) {
             if (!checkKeysEqual(publicKey, certPK)) {
-                throw new KeyManagementException(Messages.getString("security.13")); 
+                throw new KeyManagementException(Messages.getString("security.13"));
             }
         } else {
             publicKey = certPK;
@@ -117,7 +117,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     private static boolean checkKeysEqual(PublicKey pk1, PublicKey pk2) {
         // first, they should have the same format
@@ -138,7 +138,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Removes the specified {@code Certificate} from this {@code Identity}.
@@ -160,7 +160,7 @@ public abstract class Identity implements Principal, Serializable {
             throws KeyManagementException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("removeIdentityCertificate"); 
+            sm.checkSecurityAccess("removeIdentityCertificate");
         }
         if (certificates != null) {
             // BEGIN android-added
@@ -173,7 +173,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Returns the certificates for this {@code Identity}. External
@@ -192,7 +192,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Compares the specified {@code Identity} with this {@code Identity} for
@@ -220,7 +220,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Returns a string containing a concise, human-readable description of the
@@ -233,13 +233,13 @@ public abstract class Identity implements Principal, Serializable {
     public String toString(boolean detailed) {
         String s = toString();
         if (detailed) {
-            s += " " + info; 
+            s += " " + info;
         }
         return s;
     }
 
 
-      
+
 
     /**
      * Returns the {@code IdentityScope} of this {@code Identity}.
@@ -251,7 +251,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Sets the specified {@code PublicKey} to this {@code Identity}.
@@ -272,14 +272,14 @@ public abstract class Identity implements Principal, Serializable {
     public void setPublicKey(PublicKey key) throws KeyManagementException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("setIdentityPublicKey"); 
+            sm.checkSecurityAccess("setIdentityPublicKey");
         }
-        // this check does not always work  
+        // this check does not always work
         if ((scope != null) && (key != null)) {
             Identity i = scope.getIdentity(key);
             //System.out.println("###DEBUG## Identity: "+i);
             if ((i != null) && (i != this)) {
-                throw new KeyManagementException(Messages.getString("security.14")); 
+                throw new KeyManagementException(Messages.getString("security.14"));
             }
         }
         this.publicKey = key;
@@ -287,7 +287,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Returns the {@code PublicKey} associated with this {@code Identity}.
@@ -299,7 +299,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Sets an information string for this {@code Identity}.
@@ -317,13 +317,13 @@ public abstract class Identity implements Principal, Serializable {
     public void setInfo(String info) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("setIdentityInfo"); 
+            sm.checkSecurityAccess("setIdentityInfo");
         }
         this.info = info;
     }
 
 
-      
+
 
     /**
      * Returns the information string of this {@code Identity}.
@@ -335,7 +335,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Compares the specified object with this {@code Identity} for equality and
@@ -366,7 +366,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Returns the name of this {@code Identity}.
@@ -378,7 +378,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Returns the hash code value for this {@code Identity}. Returns the same
@@ -402,7 +402,7 @@ public abstract class Identity implements Principal, Serializable {
     }
 
 
-      
+
 
     /**
      * Returns a string containing a concise, human-readable description of the

@@ -84,7 +84,7 @@ public final class NetworkInterface extends Object {
     /**
      * This constructor is used by the native method in order to construct the
      * NetworkInterface objects in the array that it returns.
-     * 
+     *
      * @param name
      *            internal name associated with the interface.
      * @param displayName
@@ -110,7 +110,7 @@ public final class NetworkInterface extends Object {
     /**
      * Returns the index for the network interface. Unless the system supports
      * IPV6 this will be 0.
-     * 
+     *
      * @return the index
      */
     int getIndex() {
@@ -121,7 +121,7 @@ public final class NetworkInterface extends Object {
      * Returns the first address for the network interface. This is used in the
      * natives when we need one of the addresses for the interface and any one
      * will do
-     * 
+     *
      * @return the first address if one exists, otherwise null.
      */
     InetAddress getFirstAddress() {
@@ -133,7 +133,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Gets the name associated with this network interface.
-     * 
+     *
      * @return the name of this {@code NetworkInterface} instance.
      */
     public String getName() {
@@ -142,7 +142,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Gets a list of addresses bound to this network interface.
-     * 
+     *
      * @return the address list of the represented network interface.
      */
     public Enumeration<InetAddress> getInetAddresses() {
@@ -165,7 +165,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Gets the human-readable name associated with this network interface.
-     * 
+     *
      * @return the display name of this network interface or the name if the
      *         display name is not available.
      */
@@ -174,7 +174,7 @@ public final class NetworkInterface extends Object {
          * we should return the display name unless it is blank in this case
          * return the name so that something is displayed.
          */
-        if (!(displayName.equals(""))) { 
+        if (!(displayName.equals(""))) {
             return displayName;
         }
         return name;
@@ -182,7 +182,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Gets the specific network interface according to a given name.
-     * 
+     *
      * @param interfaceName
      *            the name to identify the searched network interface.
      * @return the network interface with the specified name if one exists or
@@ -195,7 +195,7 @@ public final class NetworkInterface extends Object {
      */
     public static NetworkInterface getByName(String interfaceName) throws SocketException {
         if (interfaceName == null) {
-            throw new NullPointerException(Msg.getString("K0330")); 
+            throw new NullPointerException(Msg.getString("K0330"));
         }
         for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
             if (networkInterface.name.equals(interfaceName)) {
@@ -220,7 +220,7 @@ public final class NetworkInterface extends Object {
      */
     public static NetworkInterface getByInetAddress(InetAddress address) throws SocketException {
         if (address == null) {
-            throw new NullPointerException(Msg.getString("K0331")); 
+            throw new NullPointerException(Msg.getString("K0331"));
         }
         for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
             if (networkInterface.addresses.contains(address)) {
@@ -233,7 +233,7 @@ public final class NetworkInterface extends Object {
     /**
      * Gets a list of all network interfaces available on the local system or
      * {@code null} if no interface is available.
-     * 
+     *
      * @return the list of {@code NetworkInterface} instances representing the
      *         available interfaces.
      * @throws SocketException
@@ -294,7 +294,7 @@ public final class NetworkInterface extends Object {
      * returns whether they are equal or not. The object must be an instance of
      * {@code NetworkInterface} with the same name, {@code displayName} and list
      * of network interfaces to be equal.
-     * 
+     *
      * @param obj
      *            the object to compare with this instance.
      * @return {@code true} if the specified object is equal to this {@code
@@ -329,21 +329,21 @@ public final class NetworkInterface extends Object {
     /**
      * Gets a string containing a concise, human-readable description of this
      * network interface.
-     * 
+     *
      * @return the textual representation for this network interface.
      */
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder(25);
-        string.append("["); 
+        string.append("[");
         string.append(name);
-        string.append("]["); 
+        string.append("][");
         string.append(displayName);
         // BEGIN android-added: the RI shows this, and it's useful for IPv6 users.
-        string.append("]["); 
+        string.append("][");
         string.append(interfaceIndex);
         // END android-added
-        string.append("]"); 
+        string.append("]");
 
         /*
          * get the addresses through this call to make sure we only reveal those
@@ -353,9 +353,9 @@ public final class NetworkInterface extends Object {
         if (theAddresses != null) {
             while (theAddresses.hasMoreElements()) {
                 InetAddress nextAddress = theAddresses.nextElement();
-                string.append("["); 
+                string.append("[");
                 string.append(nextAddress.toString());
-                string.append("]"); 
+                string.append("]");
             }
         }
         return string.toString();
@@ -367,7 +367,7 @@ public final class NetworkInterface extends Object {
      * If there is a security manager, its checkConnect method is called with
      * the InetAddress for each InterfaceAddress. Only InterfaceAddresses where
      * the checkConnect doesn't throw a SecurityException will be returned.
-     * 
+     *
      * @return a List of the InterfaceAddresses for this network interface.
      * @since 1.6
      * @hide
@@ -395,7 +395,7 @@ public final class NetworkInterface extends Object {
      * Sub-interfaces are also known as virtual interfaces.
      * <p>
      * For example, {@code eth0:1} would be a sub-interface of {@code eth0}.
-     * 
+     *
      * @return an Enumeration of all the sub-interfaces of this network interface
      * @since 1.6
      * @hide
@@ -407,7 +407,7 @@ public final class NetworkInterface extends Object {
     /**
      * Returns the parent NetworkInterface of this interface if this is a
      * sub-interface, or null if it's a physical (non virtual) interface.
-     * 
+     *
      * @return the NetworkInterface this interface is attached to.
      * @since 1.6
      * @hide
@@ -418,7 +418,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Returns true if this network interface is up.
-     * 
+     *
      * @return true if the interface is up.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
@@ -434,7 +434,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Returns true if this network interface is a loopback interface.
-     * 
+     *
      * @return true if the interface is a loopback interface.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
@@ -451,7 +451,7 @@ public final class NetworkInterface extends Object {
     /**
      * Returns true if this network interface is a point-to-point interface.
      * (For example, a PPP connection using a modem.)
-     * 
+     *
      * @return true if the interface is point-to-point.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
@@ -467,7 +467,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Returns true if this network interface supports multicast.
-     * 
+     *
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
      * @hide
@@ -483,7 +483,7 @@ public final class NetworkInterface extends Object {
     /**
      * Returns the hardware address of the interface, if it has one, and the
      * user has the necessary privileges to access the address.
-     * 
+     *
      * @return a byte array containing the address or null if the address
      *         doesn't exist or is not accessible.
      * @throws SocketException if an I/O error occurs.
@@ -500,7 +500,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Returns the Maximum Transmission Unit (MTU) of this interface.
-     * 
+     *
      * @return the value of the MTU for the interface.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
@@ -522,7 +522,7 @@ public final class NetworkInterface extends Object {
      * the parent followed by a colon (:) and a number identifying the child,
      * since there can be several virtual interfaces attached to a single
      * physical interface.
-     * 
+     *
      * @return true if this interface is a virtual interface.
      * @since 1.6
      * @hide

@@ -26,7 +26,7 @@ import java.sql.ResultSet;
 
 @TestTargetClass(ResultSet.class)
 public class ResultSetNotSupportedTests extends SQLTest {
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getArray(int)}.
      */
@@ -37,7 +37,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
         args = {int.class}
     )
     public void testGetArrayInt() {
-        
+
         fail();
     }
 
@@ -55,7 +55,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
         fail("Not yet implemented");
     }
 
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getAsciiStream(int)}.
      */
@@ -195,7 +195,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testGetBlobString() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getBoolean(int)}.
      */
@@ -215,17 +215,17 @@ public class ResultSetNotSupportedTests extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             boolean b = res.getBoolean(5);
             fail("Should get exception");
         } catch (SQLException e) {
             //ok
         }
-        
-        
-        
-        // null value 
+
+
+
+        // null value
         try {
             assertTrue(res.next());
             boolean b = res.getBoolean(1);
@@ -235,7 +235,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
         }
         */
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getBoolean(java.lang.String)}.
      */
@@ -250,7 +250,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
         fail("Not yet implemented");
     }
 
-    
+
 
     /**
      * Test method for {@link java.sql.ResultSet#getByte(java.lang.String)}.
@@ -266,7 +266,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
         fail("Not yet implemented");
     }
 
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getByte(int)}.
      */
@@ -287,15 +287,15 @@ public class ResultSetNotSupportedTests extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             byte b = res.getByte(5);
             fail("Should get exception");
         } catch (SQLException e) {
             //ok
         }
-        
-        // null value 
+
+        // null value
         try {
             assertTrue(res.next());
             byte b = res.getByte(14);
@@ -305,8 +305,8 @@ public class ResultSetNotSupportedTests extends SQLTest {
         }
         */
     }
-    
-    
+
+
     /**
      * Test method for {@link java.sql.ResultSet#getCharacterStream(int)}.
      */
@@ -362,7 +362,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testGetClobString() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getCursorName()}.
      */
@@ -406,7 +406,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
         }
         */
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getFetchDirection()}.
      */
@@ -426,8 +426,8 @@ public class ResultSetNotSupportedTests extends SQLTest {
         }
         */
     }
-    
-    
+
+
     /**
      * Test method for {@link java.sql.ResultSet#getFetchSize()}.
      */
@@ -441,7 +441,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testGetFetchSize() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getObject(int, java.util.Map)}.
      */
@@ -455,7 +455,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testGetObjectIntMapOfStringClassOfQ() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getObject(java.lang.String, java.util.Map)}.
      */
@@ -497,7 +497,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testGetRefString() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getUnicodeStream(int)}.
      */
@@ -525,7 +525,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testGetUnicodeStreamString() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#getWarnings()}.
      */
@@ -547,7 +547,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
         }
         */
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#cancelRowUpdates()}.
      */
@@ -561,7 +561,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testCancelRowUpdates() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#deleteRow()}.
      */
@@ -575,7 +575,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testDeleteRow() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#insertRow()}.
      */
@@ -590,7 +590,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
         fail("Not yet implemented");
     }
 
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#moveToCurrentRow()}.
      */
@@ -618,7 +618,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testMoveToInsertRow() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#refreshRow()}.
      */
@@ -632,7 +632,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testRefreshRow() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#rowDeleted()}.
      */
@@ -674,7 +674,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testRowUpdated() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#setFetchDirection(int)}.
      */
@@ -702,8 +702,8 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testSetFetchSize() {
         fail("Not yet implemented");
     }
-    
-    
+
+
     /**
      * Test method for {@link java.sql.ResultSet#updateArray(int, java.sql.Array)}.
      */
@@ -1151,7 +1151,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testUpdateNullString() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateObject(int, java.lang.Object)}.
      */
@@ -1179,7 +1179,7 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testUpdateObjectIntObjectInt() {
         fail("Not yet implemented");
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateObject(String, Object) }.
      */
@@ -1191,9 +1191,9 @@ public class ResultSetNotSupportedTests extends SQLTest {
     )
     @KnownFailure("Not Supported")
     public void testUpdateStringObject() {
-        
+
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateObject(String, Object, int) }.
      */
@@ -1205,9 +1205,9 @@ public class ResultSetNotSupportedTests extends SQLTest {
     )
     @KnownFailure("Not Supported")
     public void testUpdateStringObjectInt() {
-        
+
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateRef(int, java.sql.Ref) }.
      */
@@ -1219,9 +1219,9 @@ public class ResultSetNotSupportedTests extends SQLTest {
     )
     @KnownFailure("Not Supported")
     public void testUpdateRefIntRef() {
-        
+
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateRef(String, Ref) }.
      */
@@ -1233,9 +1233,9 @@ public class ResultSetNotSupportedTests extends SQLTest {
     )
     @KnownFailure("Not Supported")
     public void testUpdateRefStringRef() {
-        
+
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateRow() }.
      */
@@ -1247,9 +1247,9 @@ public class ResultSetNotSupportedTests extends SQLTest {
     )
     @KnownFailure("Not Supported")
     public void testUpdateRow() {
-        
+
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateShort(int, short) }.
      */
@@ -1261,9 +1261,9 @@ public class ResultSetNotSupportedTests extends SQLTest {
     )
     @KnownFailure("Not Supported")
     public void testUpdateShortIntShort() {
-        
+
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateShort(String, short) }.
      */
@@ -1275,9 +1275,9 @@ public class ResultSetNotSupportedTests extends SQLTest {
     )
     @KnownFailure("Not Supported")
     public void testUpdateShortStringShort() {
-        
+
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateString(int, String) }.
      */
@@ -1289,10 +1289,10 @@ public class ResultSetNotSupportedTests extends SQLTest {
     )
     @KnownFailure("Not Supported")
     public void testUpdateStringIntString() {
-        
+
     }
 
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateTime(int, java.sql.Time)}.
      */
@@ -1348,5 +1348,5 @@ public class ResultSetNotSupportedTests extends SQLTest {
     public void testUpdateTimestampStringTimestamp() {
         fail("Not yet implemented");
     }
-   
+
 }

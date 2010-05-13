@@ -46,7 +46,7 @@ import junit.framework.TestCase;
 
 /**
  * Tests for <code>KeyManagerFactory</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(KeyManagerFactory.class)
 public class KeyManagerFactory1Test extends TestCase {
@@ -71,7 +71,7 @@ public class KeyManagerFactory1Test extends TestCase {
                 .getProperty("ssl.KeyManagerFactory.algorithm");
         if (defaultAlgorithm != null) {
             defaultProvider = SpiEngUtils.isSupport(defaultAlgorithm,
-                    srvKeyManagerFactory);            
+                    srvKeyManagerFactory);
             DEFSupported = (defaultProvider != null);
             defaultProviderName = (DEFSupported ? defaultProvider.getName()
                     : null);
@@ -101,7 +101,7 @@ public class KeyManagerFactory1Test extends TestCase {
     }
 
     /**
-     * @tests avax.net.ssl.KeyManagerFactory#getAlgorithm() 
+     * @tests avax.net.ssl.KeyManagerFactory#getAlgorithm()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -150,19 +150,19 @@ public class KeyManagerFactory1Test extends TestCase {
         }
         String defA = "Proba.keymanagerfactory.defaul.type";
         Security.setProperty("ssl.KeyManagerFactory.algorithm", defA);
-        assertEquals("Incorrect defaultAlgorithm", 
+        assertEquals("Incorrect defaultAlgorithm",
                 KeyManagerFactory.getDefaultAlgorithm(), defA);
         if (def == null) {
             def = "";
         }
-        Security.setProperty("ssl.KeyManagerFactory.algorithm", def); 
-        assertEquals("Incorrect defaultAlgorithm", 
-                KeyManagerFactory.getDefaultAlgorithm(), def);        
+        Security.setProperty("ssl.KeyManagerFactory.algorithm", def);
+        assertEquals("Incorrect defaultAlgorithm",
+                KeyManagerFactory.getDefaultAlgorithm(), def);
     }
-    
+
     /**
      * Test for <code>getInstance(String algorithm)</code> method
-     * Assertions: 
+     * Assertions:
      * returns security property "ssl.KeyManagerFactory.algorithm";
      * returns instance of KeyManagerFactory
      */
@@ -187,7 +187,7 @@ public class KeyManagerFactory1Test extends TestCase {
     }
 
     /**
-     * Test for <code>getInstance(String algorithm)</code> method 
+     * Test for <code>getInstance(String algorithm)</code> method
      * Assertion:
      * throws NullPointerException when algorithm is null;
      * throws NoSuchAlgorithmException when algorithm is not correct;
@@ -217,7 +217,7 @@ public class KeyManagerFactory1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code>
-     * method 
+     * method
      * Assertion: throws IllegalArgumentException when provider is null or empty
      */
     @TestTargetNew(
@@ -249,8 +249,8 @@ public class KeyManagerFactory1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code>
-     * method 
-     * Assertion: 
+     * method
+     * Assertion:
      * throws NullPointerException when algorithm is null;
      * throws NoSuchAlgorithmException when algorithm is not correct;
      */
@@ -284,7 +284,7 @@ public class KeyManagerFactory1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code>
-     * method 
+     * method
      * Assertion: throws NoSuchProviderException when provider has
      * invalid value
      */
@@ -345,7 +345,7 @@ public class KeyManagerFactory1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, Provider provider)</code>
-     * method 
+     * method
      * Assertion: throws IllegalArgumentException when provider is null
      */
     @TestTargetNew(
@@ -372,8 +372,8 @@ public class KeyManagerFactory1Test extends TestCase {
 
     /**
      * Test for <code>getInstance(String algorithm, Provider provider)</code>
-     * method 
-     * Assertion: 
+     * method
+     * Assertion:
      * throws NullPointerException when algorithm is null;
      * throws NoSuchAlgorithmException when algorithm is not correct;
      */
@@ -387,7 +387,7 @@ public class KeyManagerFactory1Test extends TestCase {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
             return;
-        }        
+        }
         try {
             KeyManagerFactory.getInstance(null, defaultProvider);
             fail("NoSuchAlgorithmException or NullPointerException should be thrown (algorithm is null");
@@ -401,12 +401,12 @@ public class KeyManagerFactory1Test extends TestCase {
                 fail("Expected NuSuchAlgorithmException was not thrown");
             } catch (NoSuchAlgorithmException e) {
             }
-        } 
+        }
     }
 
     /**
      * Test for <code>getInstance(String algorithm, Provider provider)</code>
-     * method 
+     * method
      * Assertion: returns instance of KeyManagerFactory
      */
     @TestTargetNew(
@@ -433,7 +433,7 @@ public class KeyManagerFactory1Test extends TestCase {
     }
 
     /**
-     * Test for <code>KeyManagerFactory</code> constructor 
+     * Test for <code>KeyManagerFactory</code> constructor
      * Assertion: returns KeyManagerFactory object
      */
     @TestTargetNew(
@@ -471,10 +471,10 @@ public class KeyManagerFactory1Test extends TestCase {
 
     /**
      * @tests avax.net.ssl.KeyManagerFactory#getKeyManagers()
-     * @throws NoSuchAlgorithmException 
-     * @throws KeyStoreException 
-     * @throws IOException 
-     * @throws CertificateException 
+     * @throws NoSuchAlgorithmException
+     * @throws KeyStoreException
+     * @throws IOException
+     * @throws CertificateException
      * @throws UnrecoverableKeyException
      */
     @TestTargetNew(
@@ -493,7 +493,7 @@ public class KeyManagerFactory1Test extends TestCase {
         assertEquals("Incorrect size of array",
                 1, kmf.getKeyManagers().length);
     }
-    
+
     /**
      * @tests avax.net.ssl.KeyManagerFactory#getProvider()
      */
@@ -523,7 +523,7 @@ public class KeyManagerFactory1Test extends TestCase {
 
     /**
      * Test for <code>init(KeyStore keyStore, char[] password)</code> and
-     * <code>getKeyManagers()</code> 
+     * <code>getKeyManagers()</code>
      * Assertion: returns not empty KeyManager array
      */
     @TestTargetNew(
@@ -564,18 +564,18 @@ public class KeyManagerFactory1Test extends TestCase {
         for (int i = 0; i < keyMF.length; i++) {
             try {
                 keyMF[i].init(ks, new char[10]);
-            } catch (KeyStoreException e) {              
+            } catch (KeyStoreException e) {
             }
             km = keyMF[i].getKeyManagers();
             assertNotNull("Result has not be null", km);
             assertTrue("Length of result KeyManager array should not be 0",
                     (km.length > 0));
         }
-      
+
     }
 
     /**
-     * Test for <code>init(ManagerFactoryParameters params)</code> 
+     * Test for <code>init(ManagerFactoryParameters params)</code>
      * Assertion:
      * throws InvalidAlgorithmParameterException when params is null
      */
@@ -602,11 +602,11 @@ public class KeyManagerFactory1Test extends TestCase {
             } catch (InvalidAlgorithmParameterException e) {
             }
         }
-        
+
         KeyStore.ProtectionParameter pp = new ProtectionParameterImpl();
         KeyStore.Builder bld = KeyStore.Builder.newInstance("testType", null, pp);
         assertNotNull("Null object KeyStore.Builder", bld);
-        
+
         try {
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(defaultAlgorithm);
             KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters(bld);
@@ -616,7 +616,7 @@ public class KeyManagerFactory1Test extends TestCase {
         } catch (InvalidAlgorithmParameterException e) {
         }
     }
-    
+
 }
 
 /**

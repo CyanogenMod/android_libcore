@@ -31,7 +31,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-@TestTargetClass(InvocationTargetException.class) 
+@TestTargetClass(InvocationTargetException.class)
 public class InvocationTargetExceptionTest extends junit.framework.TestCase {
 
     static class TestMethod {
@@ -114,9 +114,9 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
     abstract class AbstractTestMethod {
         public abstract void puabs();
     }
-    
+
     class SubInvocationTargetException extends InvocationTargetException {}
-    
+
     /**
      * @tests java.lang.reflect.InvocationTargetException#InvocationTargetException()
      */
@@ -218,7 +218,7 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
         }
         fail("Failed to throw exception");
     }
-    
+
     /**
      * @tests java.lang.reflect.InvocationTargetException#getCause()
      */
@@ -308,7 +308,7 @@ public class InvocationTargetExceptionTest extends junit.framework.TestCase {
         notes = "",
         method = "printStackTrace",
         args = {java.io.PrintWriter.class}
-    )    
+    )
     public void test_printStackTraceLjava_io_PrintWriter() {
         // Test for method void
         // java.lang.reflect.InvocationTargetException.printStackTrace(java.io.PrintWriter)

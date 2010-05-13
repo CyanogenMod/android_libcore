@@ -20,8 +20,8 @@ import org.xml.sax.Attributes;
  * </blockquote>
  *
  * <p>This class provides a default implementation of the SAX2
- * {@link org.xml.sax.Attributes Attributes} interface, with the 
- * addition of manipulators so that the list can be modified or 
+ * {@link org.xml.sax.Attributes Attributes} interface, with the
+ * addition of manipulators so that the list can be modified or
  * reused.</p>
  *
  * <p>There are two typical uses of this class:</p>
@@ -32,11 +32,11 @@ import org.xml.sax.Attributes;
  * <li>to construct or modify an Attributes object in a SAX2 driver or filter.</li>
  * </ol>
  *
- * <p>This class replaces the now-deprecated SAX1 {@link 
+ * <p>This class replaces the now-deprecated SAX1 {@link
  * org.xml.sax.helpers.AttributeListImpl AttributeListImpl}
  * class; in addition to supporting the updated Attributes
  * interface rather than the deprecated {@link org.xml.sax.AttributeList
- * AttributeList} interface, it also includes a much more efficient 
+ * AttributeList} interface, it also includes a much more efficient
  * implementation using a single array rather than a set of Vectors.</p>
  *
  * @since SAX 2.0
@@ -116,7 +116,7 @@ public class AttributesImpl implements Attributes
      * Return an attribute's local name.
      *
      * @param index The attribute's index (zero-based).
-     * @return The attribute's local name, the empty string if 
+     * @return The attribute's local name, the empty string if
      *         none is available, or null if the index if out of range.
      * @see org.xml.sax.Attributes#getLocalName
      */
@@ -134,7 +134,7 @@ public class AttributesImpl implements Attributes
      * Return an attribute's qualified (prefixed) name.
      *
      * @param index The attribute's index (zero-based).
-     * @return The attribute's qualified name, the empty string if 
+     * @return The attribute's qualified name, the empty string if
      *         none is available, or null if the index is out of bounds.
      * @see org.xml.sax.Attributes#getQName
      */
@@ -203,7 +203,7 @@ public class AttributesImpl implements Attributes
         if (data[i].equals(uri) && data[i+1].equals(localName)) {
         return i / 5;
         }
-    } 
+    }
     return -1;
     }
 
@@ -222,7 +222,7 @@ public class AttributesImpl implements Attributes
         if (data[i+2].equals(qName)) {
         return i / 5;
         }
-    } 
+    }
     return -1;
     }
 
@@ -244,7 +244,7 @@ public class AttributesImpl implements Attributes
         if (data[i].equals(uri) && data[i+1].equals(localName)) {
         return data[i+3];
         }
-    } 
+    }
     return null;
     }
 
@@ -321,7 +321,7 @@ public class AttributesImpl implements Attributes
      * Clear the attribute list for reuse.
      *
      * <p>Note that little memory is freed by this call:
-     * the current array is kept so it can be 
+     * the current array is kept so it can be
      * reused.</p>
      */
     public void clear ()
@@ -339,7 +339,7 @@ public class AttributesImpl implements Attributes
      *
      * <p>It may be more efficient to reuse an existing object
      * rather than constantly allocating new ones.</p>
-     * 
+     *
      * @param atts The attributes to copy.
      */
     public void setAttributes (Attributes atts)

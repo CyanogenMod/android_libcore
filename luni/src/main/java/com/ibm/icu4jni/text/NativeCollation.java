@@ -15,13 +15,13 @@ package com.ibm.icu4jni.text;
 * @author syn wee quek
 * @internal ICU 2.4
 */
-    
+
 final class NativeCollation
 {
   // collator methods ---------------------------------------------
-  
+
   public NativeCollation() {
-      
+
   }
 
   /**
@@ -31,7 +31,7 @@ final class NativeCollation
   * @internal ICU 2.4
   */
   static native int openCollator(String locale);
-  
+
   /**
   * Method to create a new C Collator using the argument rules.
   * @param rules , set of collation rules
@@ -44,14 +44,14 @@ final class NativeCollation
                                            int normalizationmode,
                                            int collationstrength);
 
-  /** 
+  /**
   * Close a C collator
   * Once closed, a UCollatorOld should not be used.
   * @param collatoraddress The UCollatorOld to close
   * @internal ICU 2.4
   */
   static native void closeCollator(int collatoraddress);
-  
+
   /**
   * Compare two strings.
   * The strings will be compared using the normalization mode and options
@@ -59,17 +59,17 @@ final class NativeCollation
   * @param collatoraddress address of the c collator
   * @param source The source string.
   * @param target The target string.
-  * @return result of the comparison, Collation.EQUAL, 
+  * @return result of the comparison, Collation.EQUAL,
   *         Collation.GREATER or Collation.LESS
   * @internal ICU 2.4
   */
-  static native int compare(int collatoraddress, String source, 
+  static native int compare(int collatoraddress, String source,
                             String target);
-                             
+
   /**
   * Get the normalization mode for this object.
   * The normalization mode influences how strings are compared.
-  * @param collatoraddress 
+  * @param collatoraddress
   * @return normalization mode; one of the values from Normalization
   * @internal ICU 2.4
   */
@@ -79,11 +79,11 @@ final class NativeCollation
   * Set the normalization mode used int this object
   * The normalization mode influences how strings are compared.
   * @param collatoraddress the address of the C collator
-  * @param normalizationmode desired normalization mode; one of the values 
+  * @param normalizationmode desired normalization mode; one of the values
   *        from Normalization
   * @internal ICU 2.4
   */
-  static native void setNormalization(int collatoraddress, 
+  static native void setNormalization(int collatoraddress,
                                       int normalizationmode);
 
   /**
@@ -104,9 +104,9 @@ final class NativeCollation
   * @internal ICU 2.4
   */
   static native byte[] getSortKey(int collatoraddress, String source);
-                                   
+
   /**
-  * Gets the version information for collation. 
+  * Gets the version information for collation.
   * @param collatoraddress address of the C collator
   * @return version information
   * @internal ICU 2.4
@@ -141,22 +141,22 @@ final class NativeCollation
   * @internal ICU 2.4
   */
   static native int safeClone(int collatoraddress);
-  
-  /** 
-  * Create a CollationElementIterator object that will iterator over the 
-  * elements in a string, using the collation rules defined in this 
+
+  /**
+  * Create a CollationElementIterator object that will iterator over the
+  * elements in a string, using the collation rules defined in this
   * RuleBasedCollator
   * @param collatoraddress address of C collator
   * @param source string to iterate over
   * @return address of C collationelementiterator
   * @internal ICU 2.4
   */
-  static native int getCollationElementIterator(int collatoraddress, 
+  static native int getCollationElementIterator(int collatoraddress,
                                                  String source);
 
-    
+
   // collationelementiterator methods -------------------------------------
-  
+
   /**
   * Close a C collation element iterator.
   * @param address of C collation element iterator to close.
@@ -176,7 +176,7 @@ final class NativeCollation
   * Get the ordering priority of the next collation element in the text.
   * A single character may contain more than one collation element.
   * @param address if C collation elements containing the text.
-  * @return next collation elements ordering, or NULLORDER if the end of the 
+  * @return next collation elements ordering, or NULLORDER if the end of the
   *         text is reached.
   * @internal ICU 2.4
   */
@@ -186,18 +186,18 @@ final class NativeCollation
   * Get the ordering priority of the previous collation element in the text.
   * A single character may contain more than one collation element.
   * @param address of the C collation element iterator containing the text.
-  * @return previous collation element ordering, or NULLORDER if the end of 
+  * @return previous collation element ordering, or NULLORDER if the end of
   *         the text is reached.
   * @internal ICU 2.4
   */
   static native int previous(int address);
 
   /**
-  * Get the maximum length of any expansion sequences that end with the 
+  * Get the maximum length of any expansion sequences that end with the
   * specified comparison order.
   * @param address of the C collation element iterator containing the text.
   * @param order collation order returned by previous or next.
-  * @return maximum length of any expansion sequences ending with the 
+  * @return maximum length of any expansion sequences ending with the
   *         specified order.
   * @internal ICU 2.4
   */

@@ -33,7 +33,7 @@ import java.security.cert.CertStoreException;
 
 /**
  * Tests for <code>CertStoreException</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CertStoreException.class)
 public class CertStoreExceptionTest extends TestCase {

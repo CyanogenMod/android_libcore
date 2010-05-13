@@ -43,7 +43,7 @@ public class StreamSource implements Source {
      */
     public static final String FEATURE =
         "http://javax.xml.transform.stream.StreamSource/feature";
-    
+
     /**
      * <p>Zero-argument default constructor.  If this constructor is used, and
      * no Stream source is set using
@@ -52,9 +52,9 @@ public class StreamSource implements Source {
      * <code>Transformer</code> will
      * create an empty source {@link java.io.InputStream} using
      * {@link java.io.InputStream#InputStream() new InputStream()}.</p>
-     * 
+     *
      * @see javax.xml.transform.Transformer#transform(Source xmlSource, Result outputTarget)
-     */    
+     */
     public StreamSource() { }
 
     /**

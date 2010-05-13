@@ -32,7 +32,7 @@ public abstract class URLStreamHandler {
      * Establishes a new connection to the resource specified by the URL {@code
      * u}. Since different protocols also have unique ways of connecting, it
      * must be overwritten by the subclass.
-     * 
+     *
      * @param u
      *            the URL to the resource where a connection has to be opened.
      * @return the opened URLConnection to the specified resource.
@@ -45,7 +45,7 @@ public abstract class URLStreamHandler {
      * Establishes a new connection to the resource specified by the URL {@code
      * u} using the given {@code proxy}. Since different protocols also have
      * unique ways of connecting, it must be overwritten by the subclass.
-     * 
+     *
      * @param u
      *            the URL to the resource where a connection has to be opened.
      * @param proxy
@@ -61,7 +61,7 @@ public abstract class URLStreamHandler {
      */
     protected URLConnection openConnection(URL u, Proxy proxy)
             throws IOException {
-        throw new UnsupportedOperationException(Msg.getString("K034d")); 
+        throw new UnsupportedOperationException(Msg.getString("K034d"));
     }
 
     /**
@@ -72,7 +72,7 @@ public abstract class URLStreamHandler {
      * <p>
      * The string is parsed in HTTP format. If the protocol has a different URL
      * format this method must be overridden.
-     * 
+     *
      * @param u
      *            the URL to fill in the parsed clear text URL parts.
      * @param str
@@ -86,7 +86,7 @@ public abstract class URLStreamHandler {
      */
     protected void parseURL(URL u, String str, int start, int end) {
         // For compatibility, refer to Harmony-2941
-        if (str.startsWith("//", start) 
+        if (str.startsWith("//", start)
                 && str.indexOf('/', start + 2) == -1
                 && end <= Integer.MIN_VALUE + 1) {
             throw new StringIndexOutOfBoundsException(end - 2 - start);
@@ -97,7 +97,7 @@ public abstract class URLStreamHandler {
             }
             return;
         }
-        String parseString = ""; 
+        String parseString = "";
         if (start < end) {
             parseString = str.substring(start, end);
         }
@@ -114,7 +114,7 @@ public abstract class URLStreamHandler {
         String userInfo = u.getUserInfo();
 
         int refIdx = parseString.indexOf('#', 0);
-        if (parseString.startsWith("//")) { 
+        if (parseString.startsWith("//")) {
             int hostIdx = 2, portIdx = -1;
             port = -1;
             fileIdx = parseString.indexOf('/', hostIdx);
@@ -126,7 +126,7 @@ public abstract class URLStreamHandler {
             if (fileIdx == -1) {
                 fileIdx = end;
                 // Use default
-                file = ""; 
+                file = "";
             }
             int hostEnd = fileIdx;
             if (refIdx != -1 && refIdx < fileIdx) {
@@ -183,9 +183,9 @@ public abstract class URLStreamHandler {
         if (queryIdx > -1) {
             query = parseString.substring(queryIdx + 1, fileEnd);
             if (queryIdx == 0 && file != null) {
-                if (file.equals("")) { 
-                    file = "/"; 
-                } else if (file.startsWith("/")) { 
+                if (file.equals("")) {
+                    file = "/";
+                } else if (file.startsWith("/")) {
                     canonicalize = true;
                 }
                 int last = file.lastIndexOf('/') + 1;
@@ -203,10 +203,10 @@ public abstract class URLStreamHandler {
                 file = parseString.substring(fileIdx, fileEnd);
             } else if (fileEnd > fileIdx) {
                 if (file == null) {
-                    file = ""; 
-                } else if (file.equals("")) { 
-                    file = "/"; 
-                } else if (file.startsWith("/")) { 
+                    file = "";
+                } else if (file.equals("")) {
+                    file = "/";
+                } else if (file.startsWith("/")) {
                     canonicalize = true;
                 }
                 int last = file.lastIndexOf('/') + 1;
@@ -219,11 +219,11 @@ public abstract class URLStreamHandler {
             }
         }
         if (file == null) {
-            file = ""; 
+            file = "";
         }
 
         if (host == null) {
-            host = ""; 
+            host = "";
         }
 
         if (canonicalize) {
@@ -238,7 +238,7 @@ public abstract class URLStreamHandler {
     /**
      * Sets the fields of the URL {@code u} to the values of the supplied
      * arguments.
-     * 
+     *
      * @param u
      *            the non-null URL object to be set.
      * @param protocol
@@ -266,7 +266,7 @@ public abstract class URLStreamHandler {
     /**
      * Sets the fields of the URL {@code u} to the values of the supplied
      * arguments.
-     * 
+     *
      * @param u
      *            the non-null URL object to be set.
      * @param protocol
@@ -297,7 +297,7 @@ public abstract class URLStreamHandler {
 
     /**
      * Returns the clear text representation of a given URL using HTTP format.
-     * 
+     *
      * @param url
      *            the URL object to be converted.
      * @return the clear text representation of the specified URL.
@@ -310,7 +310,7 @@ public abstract class URLStreamHandler {
         answer.append(':');
         String authority = url.getAuthority();
         if (authority != null && authority.length() > 0) {
-            answer.append("//"); 
+            answer.append("//");
             answer.append(url.getAuthority());
         }
 
@@ -330,7 +330,7 @@ public abstract class URLStreamHandler {
      * Compares two URL objects whether they represent the same URL. Two URLs
      * are equal if they have the same file, host, port, protocol, query, and
      * reference components.
-     * 
+     *
      * @param url1
      *            the first URL to compare.
      * @param url2
@@ -382,7 +382,7 @@ public abstract class URLStreamHandler {
 
     /**
      * Returns the hashcode value for the given URL object.
-     * 
+     *
      * @param url
      *            the URL to determine the hashcode.
      * @return the hashcode of the given URL.
@@ -418,7 +418,7 @@ public abstract class URLStreamHandler {
     /**
      * Compares two URL objects whether they refer to the same file. In the
      * comparison included are the URL components protocol, host, port and file.
-     * 
+     *
      * @param url1
      *            the first URL to be compared.
      * @param url2
@@ -458,9 +458,9 @@ public abstract class URLStreamHandler {
      */
     private static String getHost(URL url) {
         String host = url.getHost();
-        if ("file".equals(url.getProtocol()) 
-                && "".equals(host)) { 
-            host = "localhost"; 
+        if ("file".equals(url.getProtocol())
+                && "".equals(host)) {
+            host = "localhost";
         }
         return host;
     }

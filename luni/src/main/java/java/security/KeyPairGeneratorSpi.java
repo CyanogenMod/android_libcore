@@ -24,7 +24,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 /**
  * {@code KeyPairGeneratorSpi} is the Service Provider Interface (SPI)
  * definition for {@link KeyPairGenerator}.
- * 
+ *
  * @see KeyPairGenerator
  */
 public abstract class KeyPairGeneratorSpi {
@@ -66,6 +66,6 @@ public abstract class KeyPairGeneratorSpi {
      */
     public void initialize(AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidAlgorithmParameterException {
-        throw new UnsupportedOperationException(Messages.getString("security.2E")); 
+        throw new UnsupportedOperationException(Messages.getString("security.2E"));
     }
 }

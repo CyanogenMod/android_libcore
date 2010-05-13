@@ -27,9 +27,9 @@ import org.apache.harmony.security.asn1.ObjectIdentifier;
 
 /**
  * X.501 Attribute Type
- * 
+ *
  * This is a draft class for Module InformationFramework (X.501).
- * 
+ *
  * @see <a href="http://www.itu.int/ITU-T/asn1/database/itu-t/x/x501/2001/InformationFramework.html">X.501</a>
  */
 

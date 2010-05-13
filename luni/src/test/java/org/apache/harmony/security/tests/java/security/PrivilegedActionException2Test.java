@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ import java.security.PrivilegedActionException;
 
 @TestTargetClass(PrivilegedActionException.class)
 public class PrivilegedActionException2Test extends junit.framework.TestCase {
-    
+
     private static Throwable tCause = new Throwable("Test cause");
 
     /**
@@ -66,7 +66,7 @@ public class PrivilegedActionException2Test extends junit.framework.TestCase {
         assertEquals("Did not encapsulate test IOException!", e, pe
                 .getException());
     }
-    
+
     /**
      * @tests java.security.PrivilegedActionException#getCause()
      */
@@ -79,7 +79,7 @@ public class PrivilegedActionException2Test extends junit.framework.TestCase {
     public void test_getCause() {
         Exception ex = new Exception("Test message", tCause);
         PrivilegedActionException pe = new PrivilegedActionException(ex);
-        
+
         try {
             Throwable res = pe.getCause();
             if (!res.equals(ex)) {

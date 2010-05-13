@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The TextAttribute class defines attribute keys and attribute values 
+ * The TextAttribute class defines attribute keys and attribute values
  * for text rendering. Each TextAttributes should have the following
  * information:
  * <ul>
@@ -38,7 +38,7 @@ import java.util.Map;
  * </ul>
  */
 public final class TextAttribute extends Attribute {
-    
+
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 7744112784117861702L;
 
@@ -48,7 +48,7 @@ public final class TextAttribute extends Attribute {
 
     /**
      * Instantiates a new TextAttribute with the specified name.
-     * 
+     *
      * @param name the name of TextAttribute.
      */
     protected TextAttribute(String name) {
@@ -58,9 +58,9 @@ public final class TextAttribute extends Attribute {
 
     /**
      * Resolves the instance being deserialized.
-     * 
+     *
      * @return the Object.
-     * 
+     *
      * @throws InvalidObjectException the InvalidObjectException.
      */
     @Override
@@ -72,51 +72,51 @@ public final class TextAttribute extends Attribute {
         throw new InvalidObjectException("Unknown attribute name");
     }
 
-    /** 
-     * The BACKGROUND text attribute. 
+    /**
+     * The BACKGROUND text attribute.
      */
-    public static final TextAttribute BACKGROUND = new TextAttribute("background"); 
+    public static final TextAttribute BACKGROUND = new TextAttribute("background");
 
     /** The BIDI_EMBEDDING text attribute key. */
-    public static final TextAttribute BIDI_EMBEDDING = new TextAttribute("bidi_embedding"); 
+    public static final TextAttribute BIDI_EMBEDDING = new TextAttribute("bidi_embedding");
 
     /** The CHAR_REPLACEMENT text attribute key. */
-    public static final TextAttribute CHAR_REPLACEMENT = new TextAttribute("char_replacement"); 
+    public static final TextAttribute CHAR_REPLACEMENT = new TextAttribute("char_replacement");
 
     /** The FAMILY text attribute key. */
-    public static final TextAttribute FAMILY = new TextAttribute("family"); 
+    public static final TextAttribute FAMILY = new TextAttribute("family");
 
     /** The FONT text attribute key. */
-    public static final TextAttribute FONT = new TextAttribute("font"); 
+    public static final TextAttribute FONT = new TextAttribute("font");
 
     /** The FOREGROUND text attribute key. */
-    public static final TextAttribute FOREGROUND = new TextAttribute("foreground"); 
+    public static final TextAttribute FOREGROUND = new TextAttribute("foreground");
 
     /** The INPUT_METHOD_HIGHLIGHT text attribute key. */
     public static final TextAttribute INPUT_METHOD_HIGHLIGHT = new TextAttribute(
-            "input method highlight"); 
+            "input method highlight");
 
     /** The INPUT_METHOD_UNDERLINE text attribute key. */
     public static final TextAttribute INPUT_METHOD_UNDERLINE = new TextAttribute(
-            "input method underline"); 
+            "input method underline");
 
     /** The JUSTIFICATION text attribute key. */
-    public static final TextAttribute JUSTIFICATION = new TextAttribute("justification"); 
+    public static final TextAttribute JUSTIFICATION = new TextAttribute("justification");
 
     /** The Constant JUSTIFICATION_indicates the full requested width. */
     public static final Float JUSTIFICATION_FULL = new Float(1.0f);
 
-    /** 
-     * The Constant JUSTIFICATION_NONE indicates that line is not 
-     * allowed for justification. 
+    /**
+     * The Constant JUSTIFICATION_NONE indicates that line is not
+     * allowed for justification.
      */
     public static final Float JUSTIFICATION_NONE = new Float(0.0f);
 
     /** The NUMERIC_SHAPING text attribute. */
-    public static final TextAttribute NUMERIC_SHAPING = new TextAttribute("numeric_shaping"); 
+    public static final TextAttribute NUMERIC_SHAPING = new TextAttribute("numeric_shaping");
 
     /** The POSTURE text attribute. */
-    public static final TextAttribute POSTURE = new TextAttribute("posture"); 
+    public static final TextAttribute POSTURE = new TextAttribute("posture");
 
     /** The Constant POSTURE_REGULAR indicates regular posture. */
     public static final Float POSTURE_REGULAR = new Float(0.0f);
@@ -125,31 +125,31 @@ public final class TextAttribute extends Attribute {
     public static final Float POSTURE_OBLIQUE = new Float(0.20f);
 
     /** The RUN_DIRECTION text attribute. */
-    public static final TextAttribute RUN_DIRECTION = new TextAttribute("run_direction"); 
+    public static final TextAttribute RUN_DIRECTION = new TextAttribute("run_direction");
 
-    /** 
-     * The Constant RUN_DIRECTION_LTR indicates left-to-right run 
-     * direction. 
+    /**
+     * The Constant RUN_DIRECTION_LTR indicates left-to-right run
+     * direction.
      */
     public static final Boolean RUN_DIRECTION_LTR = false;
 
-    /** 
+    /**
      * The Constant RUN_DIRECTION_RTL indicates right-to-left run
-     * direction. 
+     * direction.
      */
     public static final Boolean RUN_DIRECTION_RTL = true;
 
     /** The SIZE text attribute. */
-    public static final TextAttribute SIZE = new TextAttribute("size"); 
+    public static final TextAttribute SIZE = new TextAttribute("size");
 
     /** The STRIKETHROUGH text attribute. */
-    public static final TextAttribute STRIKETHROUGH = new TextAttribute("strikethrough"); 
+    public static final TextAttribute STRIKETHROUGH = new TextAttribute("strikethrough");
 
     /** The Constant STRIKETHROUGH_ON indicates a single strikethrough. */
     public static final Boolean STRIKETHROUGH_ON = true;
 
     /** The SUPERSCRIPT text attribute. */
-    public static final TextAttribute SUPERSCRIPT = new TextAttribute("superscript"); 
+    public static final TextAttribute SUPERSCRIPT = new TextAttribute("superscript");
 
     /** The Constant SUPERSCRIPT_SUB indicates a standard subscript. */
     public static final Integer SUPERSCRIPT_SUB = -1;
@@ -158,92 +158,92 @@ public final class TextAttribute extends Attribute {
     public static final Integer SUPERSCRIPT_SUPER = 1;
 
     /** The SWAP_COLORS text attribute. */
-    public static final TextAttribute SWAP_COLORS = new TextAttribute("swap_colors"); 
+    public static final TextAttribute SWAP_COLORS = new TextAttribute("swap_colors");
 
-    /** 
-     * The Constant SWAP_COLORS_ON indicates a swap of foreground 
+    /**
+     * The Constant SWAP_COLORS_ON indicates a swap of foreground
      * and background.
      */
     public static final Boolean SWAP_COLORS_ON = true;
 
     /** The TRANSFORM text attribute. */
-    public static final TextAttribute TRANSFORM = new TextAttribute("transform"); 
+    public static final TextAttribute TRANSFORM = new TextAttribute("transform");
 
     /** The Constant UNDERLINE text attribute. */
-    public static final TextAttribute UNDERLINE = new TextAttribute("underline"); 
+    public static final TextAttribute UNDERLINE = new TextAttribute("underline");
 
-    /** 
-     * The Constant UNDERLINE_ON indicates a standard underline 
+    /**
+     * The Constant UNDERLINE_ON indicates a standard underline
      * at the roman baseline for roman text.
      */
     public static final Integer UNDERLINE_ON = 0;
 
-    /** 
-     * The Constant UNDERLINE_LOW_ONE_PIXEL indicates a single 
-     * pixel solid low underline. 
+    /**
+     * The Constant UNDERLINE_LOW_ONE_PIXEL indicates a single
+     * pixel solid low underline.
      */
     public static final Integer UNDERLINE_LOW_ONE_PIXEL = 1;
 
-    /** 
-     * The Constant UNDERLINE_LOW_TWO_PIXEL indicates a double 
-     * pixel solid low underline. 
+    /**
+     * The Constant UNDERLINE_LOW_TWO_PIXEL indicates a double
+     * pixel solid low underline.
      */
     public static final Integer UNDERLINE_LOW_TWO_PIXEL = 2;
 
-    /** 
-     * The Constant UNDERLINE_LOW_DOTTED indicates a 
-     * single pixel dotted low underline. 
+    /**
+     * The Constant UNDERLINE_LOW_DOTTED indicates a
+     * single pixel dotted low underline.
      */
     public static final Integer UNDERLINE_LOW_DOTTED = 3;
 
-    /** 
-     * The Constant UNDERLINE_LOW_GRAY indicates double pixel 
-     * gray low underline. 
+    /**
+     * The Constant UNDERLINE_LOW_GRAY indicates double pixel
+     * gray low underline.
      */
     public static final Integer UNDERLINE_LOW_GRAY = 4;
 
-    /** 
-     * The Constant UNDERLINE_LOW_DASHED indicates single pixel dashed 
-     * low underline. 
+    /**
+     * The Constant UNDERLINE_LOW_DASHED indicates single pixel dashed
+     * low underline.
      */
     public static final Integer UNDERLINE_LOW_DASHED = 5;
 
     /** The WEIGHT text attribute. */
-    public static final TextAttribute WEIGHT = new TextAttribute("weight"); 
+    public static final TextAttribute WEIGHT = new TextAttribute("weight");
 
-    /** 
-     * The Constant WEIGHT_EXTRA_LIGHT indicates the lightest 
-     * predefined weight. 
+    /**
+     * The Constant WEIGHT_EXTRA_LIGHT indicates the lightest
+     * predefined weight.
      */
     public static final Float WEIGHT_EXTRA_LIGHT = new Float(0.5f);
 
-    /** 
-     * The Constant WEIGHT_LIGHT indicates the standard light weight. 
+    /**
+     * The Constant WEIGHT_LIGHT indicates the standard light weight.
      */
     public static final Float WEIGHT_LIGHT = new Float(0.75f);
 
-    /** 
-     * The Constant WEIGHT_DEMILIGHT indicates an intermediate weight 
-     * between LIGHT and STANDARD. 
+    /**
+     * The Constant WEIGHT_DEMILIGHT indicates an intermediate weight
+     * between LIGHT and STANDARD.
      */
     public static final Float WEIGHT_DEMILIGHT = new Float(0.875f);
 
-    /** 
-     * The Constant WEIGHT_REGULAR indicates the standart weight. 
+    /**
+     * The Constant WEIGHT_REGULAR indicates the standart weight.
      */
     public static final Float WEIGHT_REGULAR = new Float(1.0f);
 
-    /** 
-     * The Constant WEIGHT_SEMIBOLD indicates a semi weight 
-     * of REGULAR. 
+    /**
+     * The Constant WEIGHT_SEMIBOLD indicates a semi weight
+     * of REGULAR.
      */
     public static final Float WEIGHT_SEMIBOLD = new Float(1.25f);
 
-    /** The Constant WEIGHT_MEDIUM indicates average weight 
+    /** The Constant WEIGHT_MEDIUM indicates average weight
      * between the REGULAR and BOLD. */
     public static final Float WEIGHT_MEDIUM = new Float(1.5f);
 
-    /** The Constant WEIGHT_DEMIBOLD indicates 
+    /** The Constant WEIGHT_DEMIBOLD indicates
      * a lighter weight than BOLD. */
     public static final Float WEIGHT_DEMIBOLD = new Float(1.75f);
 
@@ -256,39 +256,39 @@ public final class TextAttribute extends Attribute {
     /** The Constant WEIGHT_EXTRABOLD indicates an extra heavy weight. */
     public static final Float WEIGHT_EXTRABOLD = new Float(2.5f);
 
-    /** 
-     * The Constant WEIGHT_ULTRABOLD indicates the heaviest predefined 
+    /**
+     * The Constant WEIGHT_ULTRABOLD indicates the heaviest predefined
      * weight.
      */
     public static final Float WEIGHT_ULTRABOLD = new Float(2.75f);
 
     /** The WIDTH text attribute. */
-    public static final TextAttribute WIDTH = new TextAttribute("width"); 
+    public static final TextAttribute WIDTH = new TextAttribute("width");
 
-    /** 
-     * The Constant WIDTH_CONDENSED indicates the most condensed 
+    /**
+     * The Constant WIDTH_CONDENSED indicates the most condensed
      * predefined width.
      */
     public static final Float WIDTH_CONDENSED = new Float(0.75f);
 
-    /** 
-     * The Constant WIDTH_SEMI_CONDENSED indicates 
-     * a semi condensed width. 
+    /**
+     * The Constant WIDTH_SEMI_CONDENSED indicates
+     * a semi condensed width.
      */
     public static final Float WIDTH_SEMI_CONDENSED = new Float(0.875f);
 
-    /** 
-     * The Constant WIDTH_REGULAR indicates the standard width. 
+    /**
+     * The Constant WIDTH_REGULAR indicates the standard width.
      */
     public static final Float WIDTH_REGULAR = new Float(1.0f);
 
-    /** 
-     * The Constant WIDTH_SEMI_EXTENDED indicates semi extended width. 
+    /**
+     * The Constant WIDTH_SEMI_EXTENDED indicates semi extended width.
      */
     public static final Float WIDTH_SEMI_EXTENDED = new Float(1.25f);
 
-    /** 
-     * The Constant WIDTH_EXTENDED indicates extended width. 
+    /**
+     * The Constant WIDTH_EXTENDED indicates extended width.
      */
     public static final Float WIDTH_EXTENDED = new Float(1.5f);
 

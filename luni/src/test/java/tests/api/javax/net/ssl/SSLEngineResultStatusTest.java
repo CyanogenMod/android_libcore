@@ -26,11 +26,11 @@ import junit.framework.TestCase;
 
 /**
  * Tests for SSLEngineResult.Status class
- * 
+ *
  */
-@TestTargetClass(SSLEngineResult.Status.class) 
+@TestTargetClass(SSLEngineResult.Status.class)
 public class SSLEngineResultStatusTest extends TestCase {
-    
+
     /**
      * Test for <code> SSLEngineResult.Status.values() </code>
      */
@@ -59,7 +59,7 @@ public class SSLEngineResultStatusTest extends TestCase {
             fail("Incorrect number of enum constant was returned");
         }
     }
-    
+
     /**
      * Test for <code> SSLEngineResult.Status.valueOf(String name) </code>
      */
@@ -74,7 +74,7 @@ public class SSLEngineResultStatusTest extends TestCase {
         String[] str_invalid = {"", "OK1", "BUFFER_overflow", "BUFFER_UND",
                 "CLOSED_CLOSED", "Bad string for verification valueOf method"};
         SSLEngineResult.Status enS;
-        
+
         //Correct parameter
         for (int i = 0; i < str.length; i++) {
             try {
@@ -84,7 +84,7 @@ public class SSLEngineResultStatusTest extends TestCase {
                 fail("Unexpected exception " + e + " was thrown for " + str[i]);
             }
         }
-        
+
        //Incorrect parameter
         for (int i = 0; i < str_invalid.length; i++) {
             try {
@@ -94,7 +94,7 @@ public class SSLEngineResultStatusTest extends TestCase {
                 //expected
             }
         }
-        
+
         //Null parameter
         try {
             enS = SSLEngineResult.Status.valueOf(null);

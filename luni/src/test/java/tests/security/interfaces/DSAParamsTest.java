@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -26,11 +26,11 @@ import java.security.spec.DSAParameterSpec;
 
 @TestTargetClass(DSAParams.class)
 public class DSAParamsTest extends TestCase {
-    
+
     private final BigInteger p = new BigInteger("4");
     private final BigInteger q = BigInteger.TEN;
     private final BigInteger g = BigInteger.ZERO;
-    
+
     /**
      * @tests java.security.interfaces.DSAParams
      * #getG()
@@ -45,7 +45,7 @@ public class DSAParamsTest extends TestCase {
         DSAParams params = new DSAParameterSpec(p, q, g);
         assertEquals("Invalid G", g, params.getG());
     }
-    
+
     /**
      * @tests java.security.interfaces.DSAParams
      * #getP()
@@ -60,7 +60,7 @@ public class DSAParamsTest extends TestCase {
         DSAParams params = new DSAParameterSpec(p, q, g);
         assertEquals("Invalid P", p, params.getP());
     }
-    
+
     /**
      * @tests java.security.interfaces.DSAParams
      * #getQ()

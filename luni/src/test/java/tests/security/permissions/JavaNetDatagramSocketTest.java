@@ -39,7 +39,7 @@ import java.security.Permission;
  */
 @TestTargetClass(DatagramSocket.class)
 public class JavaNetDatagramSocketTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -53,7 +53,7 @@ public class JavaNetDatagramSocketTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -89,10 +89,10 @@ public class JavaNetDatagramSocketTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
 
@@ -120,7 +120,7 @@ public class JavaNetDatagramSocketTest extends TestCase {
         assertEquals("Argument of checkListen is not correct", port, s.port);
 
     }
-   
+
 
     @TestTargetNew(
         level = TestLevel.PARTIAL,
@@ -141,14 +141,14 @@ public class JavaNetDatagramSocketTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
-        
+
         final int port = Support_PortManager.getNextPortForUDP();
         DatagramSocket s1 = new DatagramSocket(port);
         //s1.setSoTimeout(100);
-        
+
         Thread sender = new Thread(){
             public void run(){
                 try {
@@ -170,7 +170,7 @@ public class JavaNetDatagramSocketTest extends TestCase {
         sender.start();
 
         DatagramPacket p = new DatagramPacket(new byte[256], 0, 256);
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
 
@@ -184,5 +184,5 @@ public class JavaNetDatagramSocketTest extends TestCase {
         sender.interrupt();
         assertTrue("java.net.DatagramSocket.receive must call checkAccept on security manager", s.called);
     }
-    
+
 }

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,7 +69,7 @@ import static java.lang.ClassCache.findFieldByName;
  * called "reflection". There are basically three types of {@code Class}
  * instances: those representing real classes and interfaces, those representing
  * primitive types, and those representing array classes.
- * 
+ *
  * <h4>Class instances representing object types (classes or interfaces)</h4>
  * <p>
  * These represent an ordinary class or interface as found in the class
@@ -132,7 +132,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * reference
      */
     private transient volatile SoftReference<ClassCache<T>> cacheRef;
-    
+
     private Class() {
         // Prevent this class to be instantiated, instance
         // should be created by JVM only
@@ -165,8 +165,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * If the class has not been loaded so far, it is being loaded and linked
      * first. This is done through either the class loader of the calling class
      * or one of its parent class loaders. The class is also being initialized,
-     * which means that a possible static initializer block is executed.  
-     * 
+     * which means that a possible static initializer block is executed.
+     *
      * @param className
      *            the name of the non-primitive-type class to find.
      * @return the named {@code Class} instance.
@@ -193,8 +193,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * first. This is done through either the specified class loader or one of
      * its parent class loaders. The caller can also request the class to be
      * initialized, which means that a possible static initializer block is
-     * executed.  
-     * 
+     * executed.
+     *
      * @param className
      *            the name of the non-primitive-type class to find.
      * @param initializeBoolean
@@ -212,7 +212,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public static Class<?> forName(String className, boolean initializeBoolean,
             ClassLoader classLoader) throws ClassNotFoundException {
-        
+
         if (classLoader == null) {
             SecurityManager smgr = System.getSecurityManager();
             if (smgr != null) {
@@ -221,7 +221,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
                     smgr.checkPermission(new RuntimePermission("getClassLoader"));
                 }
             }
-            
+
             classLoader = ClassLoader.getSystemClassLoader();
         }
         // Catch an Exception thrown by the underlying native code. It wraps
@@ -235,7 +235,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             result = classForName(className, initializeBoolean,
                     classLoader);
         } catch (ClassNotFoundException e) {
-            Throwable cause = e.getCause(); 
+            Throwable cause = e.getCause();
             if (cause instanceof ExceptionInInitializerError) {
                 throw (ExceptionInInitializerError) cause;
             }
@@ -256,14 +256,14 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     static native Class<?> classForName(String className, boolean initializeBoolean,
             ClassLoader classLoader) throws ClassNotFoundException;
-    
+
     /**
      * Returns an array containing {@code Class} objects for all public classes
      * and interfaces that are members of this class. This includes public
      * members inherited from super classes and interfaces. If there are no such
      * class members or if this object represents a primitive type then an array
      * of length 0 is returned.
-     * 
+     *
      * @return the public class members of the class represented by this object.
      * @throws SecurityException
      *             if a security manager exists and it does not allow member
@@ -281,7 +281,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Returns the annotation of the given type. If there is no such annotation
      * then the method returns {@code null}.
-     * 
+     *
      * @param annotationClass
      *            the annotation type.
      * @return the annotation of the given type, or {@code null} if there is no
@@ -295,16 +295,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
                 return (A)list[i];
             }
         }
-        
+
         return null;
     }
 
     /**
      * Returns all the annotations of this class. If there are no annotations
      * then an empty array is returned.
-     * 
+     *
      * @return a copy of the array containing this class' annotations.
-     * @see #getDeclaredAnnotations()         
+     * @see #getDeclaredAnnotations()
      */
     public Annotation[] getAnnotations() {
         /*
@@ -345,7 +345,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns the canonical name of this class. If this class does not have a
      * canonical name as defined in the Java Language Specification, then the
      * method returns {@code null}.
-     * 
+     *
      * @return this class' canonical name, or {@code null} if it does not have a
      *         canonical name.
      */
@@ -356,16 +356,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (isArray()) {
             /*
              * The canonical name of an array type depends on the (existence of)
-             * the component type's canonical name. 
+             * the component type's canonical name.
              */
             String name = getComponentType().getCanonicalName();
             if (name != null) {
                 return name + "[]";
-            } 
+            }
         } else if (isMemberClass()) {
             /*
              * The canonical name of an inner class depends on the (existence
-             * of) the declaring class' canonical name. 
+             * of) the declaring class' canonical name.
              */
             String name = getDeclaringClass().getCanonicalName();
             if (name != null) {
@@ -374,11 +374,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         } else {
             /*
              * The canonical name of a top-level class or primitive type is
-             * equal to the fully qualified name. 
+             * equal to the fully qualified name.
              */
             return getName();
         }
-        
+
         /*
          * Other classes don't have a canonical name.
          */
@@ -391,7 +391,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * classes that were loaded by the bootstrap class loader. The Android
      * reference implementation, though, returns a reference to an actual
      * representation of the bootstrap class loader.
-     * 
+     *
      * @return the class loader for the represented class.
      * @throws SecurityException
      *             if a security manager exists and it does not allow accessing
@@ -408,15 +408,15 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
                 smgr.checkPermission(new RuntimePermission("getClassLoader"));
             }
         }
-        
+
         if (this.isPrimitive()) {
             return null;
         }
-        
+
         if (loader == null) {
             loader = BootClassLoader.getInstance();
         }
-        
+
         return loader;
     }
 
@@ -428,7 +428,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * this Class without doing any security checks. The bootstrap ClassLoader
      * is returned, unlike getClassLoader() which returns null in place of the
      * bootstrap ClassLoader.
-     * 
+     *
      * @return the ClassLoader
      * @see ClassLoader#isSystemClassLoader()
      */
@@ -439,18 +439,18 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /*
      * Returns the defining class loader for the given class.
-     * 
+     *
      * @param clazz the class the class loader of which we want
      * @return the class loader
      */
     private static native ClassLoader getClassLoader(Class<?> clazz);
-    
+
     /**
      * Returns a {@code Class} object which represents the component type if
      * this class represents an array type. Returns {@code null} if this class
      * does not represent an array type. The component type of an array type is
      * the type of the elements of the array.
-     * 
+     *
      * @return the component type of this class.
      */
     public native Class<?> getComponentType();
@@ -458,7 +458,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Returns a {@code Constructor} object which represents the public
      * constructor matching the specified parameter types.
-     * 
+     *
      * @param parameterTypes
      *            the parameter types of the requested constructor.
      *            {@code (Class[]) null} is equivalent to the empty array.
@@ -482,7 +482,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * constructors for the class represented by this {@code Class}. If there
      * are no public constructors or if this {@code Class} represents an array
      * class, a primitive type or void then an empty array is returned.
-     * 
+     *
      * @return an array with the public constructors of the class represented by
      *         this {@code Class}.
      * @throws SecurityException
@@ -504,7 +504,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * represented by this {@code Class}. Annotations that are inherited are not
      * included in the result. If there are no annotations at all, an empty
      * array is returned.
-     * 
+     *
      * @return a copy of the array containing the annotations defined for the
      *         class that this {@code Class} represents.
      * @see #getAnnotations()
@@ -517,7 +517,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Class} represents. If there are no classes or interfaces declared or if
      * this class represents an array class, a primitive type or void, then an
      * empty array is returned.
-     * 
+     *
      * @return an array with {@code Class} objects for all the classes and
      *         interfaces that are used in member declarations.
      * @throws SecurityException
@@ -537,13 +537,13 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns the list of member classes without performing any security checks
      * first. This includes the member classes inherited from superclasses. If no
      * member classes exist at all, an empty array is returned.
-     * 
+     *
      * @param publicOnly reflects whether we want only public members or all of them
      * @return the list of classes
      */
     private Class<?>[] getFullListOfClasses(boolean publicOnly) {
         Class<?>[] result = getDeclaredClasses(this, publicOnly);
-        
+
         // Traverse all superclasses
         Class<?> clazz = this.getSuperclass();
         while (clazz != null) {
@@ -551,29 +551,29 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             if (temp.length != 0) {
                 result = arraycopy(new Class[result.length + temp.length], result, temp);
             }
-            
+
             clazz = clazz.getSuperclass();
         }
-        
+
         return result;
     }
 
     /*
      * Returns the list of member classes of the given class. No security checks
      * are performed. If no members exist, an empty array is returned.
-     * 
+     *
      * @param clazz the class the members of which we want
      * @param publicOnly reflects whether we want only public member or all of them
      * @return the class' class members
      */
     native private static Class<?>[] getDeclaredClasses(Class<?> clazz,
         boolean publicOnly);
-    
+
     /**
      * Returns a {@code Constructor} object which represents the constructor
      * matching the specified parameter types that is declared by the class
      * represented by this {@code Class}.
-     * 
+     *
      * @param parameterTypes
      *            the parameter types of the requested constructor.
      *            {@code (Class[]) null} is equivalent to the empty array.
@@ -597,10 +597,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * constructors declared in the class represented by this {@code Class}. If
      * there are no constructors or if this {@code Class} represents an array
      * class, a primitive type or void then an empty array is returned.
-     * 
+     *
      * @return an array with the constructors declared in the class represented
      *         by this {@code Class}.
-     * 
+     *
      * @throws SecurityException
      *             if a security manager exists and it does not allow member
      *             access.
@@ -627,7 +627,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /*
      * Finds a constructor with a given signature.
-     * 
+     *
      * @param list the list of constructors to search through
      * @param parameterTypes the formal parameter list
      * @return the matching constructor
@@ -641,7 +641,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
                 return list[i];
             }
         }
-        
+
         // BEGIN android-changed
         StringBuilder sb = new StringBuilder();
         sb.append(getSimpleName());
@@ -660,11 +660,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         throw new NoSuchMethodException(sb.toString());
         // END android-changed
     }
-    
+
     /**
      * Returns a {@code Field} object for the field with the specified name
      * which is declared in the class represented by this {@code Class}.
-     * 
+     *
      * @param name
      *            the name of the requested field.
      * @return the requested field in the class represented by this class.
@@ -694,7 +694,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * in the class represented by this {@code Class}. If there are no fields or
      * if this {@code Class} represents an array class, a primitive type or void
      * then an empty array is returned.
-     * 
+     *
      * @return an array with the fields declared in the class represented by
      *         this class.
      * @throws SecurityException
@@ -709,14 +709,14 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         Field[] fields = getClassCache().getDeclaredFields();
         return ClassCache.deepCopy(fields);
     }
-    
+
     /*
      * Returns the list of fields without performing any security checks
      * first. If no fields exist at all, an empty array is returned.
-     * 
+     *
      * @param clazz the class of interest
      * @param publicOnly reflects whether we want only public fields or all of them
-     * @return the list of fields 
+     * @return the list of fields
      */
     static native Field[] getDeclaredFields(Class<?> clazz, boolean publicOnly);
 
@@ -724,7 +724,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns a {@code Method} object which represents the method matching the
      * specified name and parameter types that is declared by the class
      * represented by this {@code Class}.
-     * 
+     *
      * @param name
      *            the requested method's name.
      * @param parameterTypes
@@ -753,13 +753,13 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
          */
         return REFLECT.clone(method);
     }
-    
+
     /**
      * Returns an array containing {@code Method} objects for all methods
      * declared in the class represented by this {@code Class}. If there are no
      * methods or if this {@code Class} represents an array class, a primitive
      * type or void then an empty array is returned.
-     * 
+     *
      * @return an array with the methods declared in the class represented by
      *         this {@code Class}.
      * @throws SecurityException
@@ -774,7 +774,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         Method[] methods = getClassCache().getDeclaredMethods();
         return ClassCache.deepCopy(methods);
     }
-    
+
     /**
      * Returns the list of methods without performing any security checks
      * first. If no methods exist, an empty array is returned.
@@ -809,7 +809,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns the declaring {@code Class} of this {@code Class}. Returns
      * {@code null} if the class is not a member of another class or if this
      * {@code Class} represents an array class, a primitive type or void.
-     * 
+     *
      * @return the declaring {@code Class} or {@code null}.
      */
     native public Class<?> getDeclaringClass();
@@ -817,7 +817,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Returns the enclosing {@code Class} of this {@code Class}. If there is no
      * enclosing class the method returns {@code null}.
-     * 
+     *
      * @return the enclosing {@code Class} or {@code null}.
      */
     native public Class<?> getEnclosingClass();
@@ -825,7 +825,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Gets the enclosing {@code Constructor} of this {@code Class}, if it is an
      * anonymous or local/automatic class; otherwise {@code null}.
-     * 
+     *
      * @return the enclosing {@code Constructor} instance or {@code null}.
      */
     native public Constructor<?> getEnclosingConstructor();
@@ -833,7 +833,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Gets the enclosing {@code Method} of this {@code Class}, if it is an
      * anonymous or local/automatic class; otherwise {@code null}.
-     * 
+     *
      * @return the enclosing {@code Method} instance or {@code null}.
      */
     native public Method getEnclosingMethod();
@@ -842,7 +842,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Gets the {@code enum} constants associated with this {@code Class}.
      * Returns {@code null} if this {@code Class} does not represent an {@code
      * enum} type.
-     * 
+     *
      * @return an array with the {@code enum} constants or {@code null}.
      */
     @SuppressWarnings("unchecked")
@@ -854,16 +854,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             // Copy the private (to the package) array.
             return (T[]) values.clone();
         }
-        
+
         return null;
     }
-        
+
     /**
      * Returns a {@code Field} object which represents the public field with the
      * specified name. This method first searches the class C represented by
      * this {@code Class}, then the interfaces implemented by C and finally the
      * superclasses of C.
-     * 
+     *
      * @param name
      *            the name of the requested field.
      * @return the public field specified by {@code name}.
@@ -896,7 +896,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * If there are no public fields or if this class represents an array class,
      * a primitive type or {@code void} then an empty array is returned.
      * </p>
-     * 
+     *
      * @return an array with the public fields of the class represented by this
      *         {@code Class}.
      * @throws SecurityException
@@ -916,7 +916,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Gets the {@link Type}s of the interfaces that this {@code Class} directly
      * implements. If the {@code Class} represents a primitive type or {@code
      * void} then an empty array is returned.
-     * 
+     *
      * @return an array of {@link Type} instances directly implemented by the
      *         class represented by this {@code class}.
      */
@@ -926,11 +926,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         parser.parseForClass(this, getSignatureAttribute());
         return Types.getClonedTypeArray(parser.interfaceTypes);
     }
-    
+
     /**
      * Gets the {@code Type} that represents the superclass of this {@code
      * class}.
-     * 
+     *
      * @return an instance of {@code Type} representing the superclass.
      */
     public Type getGenericSuperclass() {
@@ -946,7 +946,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * by this {@code Class}. The order of the elements in the array is
      * identical to the order in the original class declaration. If the class
      * does not implement any interfaces, an empty array is returned.
-     * 
+     *
      * @return an array with the interfaces of the class represented by this
      *         class.
      */
@@ -963,7 +963,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * class C represented by this {@code Class}, then the superclasses of C and
      * finally the interfaces implemented by C and finally the superclasses of C
      * for a method with matching name.
-     * 
+     *
      * @param name
      *            the requested method's name.
      * @param parameterTypes
@@ -977,7 +977,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             access.
      * @see #getDeclaredMethod(String, Class...)
      */
-    public Method getMethod(String name, Class... parameterTypes) throws NoSuchMethodException, 
+    public Method getMethod(String name, Class... parameterTypes) throws NoSuchMethodException,
             SecurityException {
         checkPublicMemberAccess();
 
@@ -1000,7 +1000,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * If there are no public methods or if this {@code Class} represents a
      * primitive type or {@code void} then an empty array is returned.
      * </p>
-     * 
+     *
      * @return an array with the methods of the class represented by this
      *         {@code Class}.
      * @throws SecurityException
@@ -1015,11 +1015,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         Method[] methods = getClassCache().getAllPublicMethods();
         return ClassCache.deepCopy(methods);
     }
-    
+
     /**
      * Performs the security checks regarding the access of a public
      * member of this {@code Class}.
-     * 
+     *
      * <p><b>Note:</b> Because of the {@code getCallingClassLoader2()}
      * check, this method must be called exactly one level deep into a
      * public method on this instance.</p>
@@ -1032,7 +1032,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
             ClassLoader calling = VMStack.getCallingClassLoader2();
             ClassLoader current = getClassLoader();
-            
+
             if (calling != null && !calling.isAncestorOf(current)) {
                 smgr.checkPackageAccess(this.getPackage().getName());
             }
@@ -1042,7 +1042,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Performs the security checks regarding the access of a declared
      * member of this {@code Class}.
-     * 
+     *
      * <p><b>Note:</b> Because of the {@code getCallingClassLoader2()}
      * check, this method must be called exactly one level deep into a
      * public method on this instance.</p>
@@ -1051,7 +1051,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         SecurityManager smgr = System.getSecurityManager();
         if (smgr != null) {
             smgr.checkMemberAccess(this, Member.DECLARED);
-            
+
             ClassLoader calling = VMStack.getCallingClassLoader2();
             ClassLoader current = getClassLoader();
 
@@ -1060,12 +1060,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             }
         }
     }
-    
+
     /**
      * Returns an integer that represents the modifiers of the class represented
      * by this {@code Class}. The returned value is a combination of bits
      * defined by constants in the {@link Modifier} class.
-     * 
+     *
      * @return the modifiers of the class represented by this {@code Class}.
      */
     public int getModifiers() {
@@ -1074,18 +1074,18 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /*
      * Return the modifiers for the given class.
-     * 
+     *
      * @param clazz the class of interest
      * @ignoreInnerClassesAttrib determines whether we look for and use the
      *     flags from an "inner class" attribute
      */
     private static native int getModifiers(Class<?> clazz, boolean ignoreInnerClassesAttrib);
-    
+
     /**
      * Returns the name of the class represented by this {@code Class}. For a
      * description of the format which is used, see the class definition of
      * {@link Class}.
-     * 
+     *
      * @return the name of the class represented by this {@code Class}.
      */
     public native String getName();
@@ -1096,16 +1096,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * anonymous) then an empty string is returned. If the receiver is an array
      * then the name of the underlying type with square braces appended (for
      * example {@code &quot;Integer[]&quot;}) is returned.
-     * 
+     *
      * @return the simple name of the class represented by this {@code Class}.
      */
     public String getSimpleName() {
         if (isArray()) {
             return getComponentType().getSimpleName() + "[]";
         }
-        
+
         String name = getName();
-        
+
         if (isAnonymousClass()) {
             return "";
         }
@@ -1113,22 +1113,22 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (isMemberClass() || isLocalClass()) {
             return getInnerClassName();
         }
-        
+
         int dot = name.lastIndexOf('.');
         if (dot != -1) {
             return name.substring(dot + 1);
         }
-        
+
         return name;
     }
 
     /*
-     * Returns the simple name of a member or local class, or null otherwise. 
-     * 
+     * Returns the simple name of a member or local class, or null otherwise.
+     *
      * @return The name.
      */
     private native String getInnerClassName();
-    
+
     /**
      * Returns the {@code ProtectionDomain} of the class represented by this
      * class.
@@ -1139,7 +1139,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * always given full permissions (that is, AllPermission). This can not be
      * changed through the {@link java.security.Policy} class.
      * </p>
-     * 
+     *
      * @return the {@code ProtectionDomain} of the class represented by this
      *         class.
      * @throws SecurityException
@@ -1152,7 +1152,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             // Security check is independent of calling class loader.
             smgr.checkPermission(new RuntimePermission("getProtectionDomain"));
         }
-        
+
         return pd;
     }
 
@@ -1160,7 +1160,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns the URL of the resource specified by {@code resName}. The mapping
      * between the resource name and the URL is managed by the class' class
      * loader.
-     * 
+     *
      * @param resName
      *            the name of the resource.
      * @return the requested resource's {@code URL} object or {@code null} if
@@ -1179,10 +1179,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             } else {
                 pkg = "";
             }
-            
+
             resName = pkg + "/" + resName;
         }
-        
+
         // Delegate to proper class loader
         ClassLoader loader = getClassLoader();
         if (loader != null) {
@@ -1196,13 +1196,13 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns a read-only stream for the contents of the resource specified by
      * {@code resName}. The mapping between the resource name and the stream is
      * managed by the class' class loader.
-     * 
+     *
      * @param resName
      *            the name of the resource.
      * @return a stream for the requested resource or {@code null} if no
      *         resource with the specified name can be found.
      * @see ClassLoader
-     */    
+     */
     public InputStream getResourceAsStream(String resName) {
         // Get absolute resource name, but without the leading slash
         if (resName.startsWith("/")) {
@@ -1215,10 +1215,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             } else {
                 pkg = "";
             }
-            
+
             resName = pkg + "/" + resName;
         }
-        
+
         // Delegate to proper class loader
         ClassLoader loader = getClassLoader();
         if (loader != null) {
@@ -1233,7 +1233,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * All classes from any given dex file will have the same signers, but different dex
      * files may have different signers. This does not fit well with the original
      * {@code ClassLoader}-based model of {@code getSigners}.)
-     * 
+     *
      * @return null.
      */
     public Object[] getSigners() {
@@ -1247,7 +1247,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * the {@code Object} class, a primitive type, an interface or void then the
      * method returns {@code null}. If this {@code Class} represents an array
      * class then the {@code Object} class is returned.
-     * 
+     *
      * @return the superclass of the class represented by this {@code Class}.
      */
     public native Class<? super T> getSuperclass();
@@ -1256,7 +1256,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns an array containing {@code TypeVariable} objects for type
      * variables declared by the generic class represented by this {@code
      * Class}. Returns an empty array if the class is not generic.
-     * 
+     *
      * @return an array with the type variables of the class represented by this
      *         class.
      */
@@ -1270,7 +1270,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /**
      * Indicates whether this {@code Class} represents an annotation class.
-     * 
+     *
      * @return {@code true} if this {@code Class} represents an annotation
      *         class; {@code false} otherwise.
      */
@@ -1283,7 +1283,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Indicates whether the specified annotation is present for the class
      * represented by this {@code Class}.
-     * 
+     *
      * @param annotationClass
      *            the annotation to look for.
      * @return {@code true} if the class represented by this {@code Class} is
@@ -1296,7 +1296,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Indicates whether the class represented by this {@code Class} is
      * anonymously declared.
-     * 
+     *
      * @return {@code true} if the class represented by this {@code Class} is
      *         anonymous; {@code false} otherwise.
      */
@@ -1305,7 +1305,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Indicates whether the class represented by this {@code Class} is an array
      * class.
-     * 
+     *
      * @return {@code true} if the class represented by this {@code Class} is an
      *         array class; {@code false} otherwise.
      */
@@ -1319,7 +1319,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * conversion or a widening reference conversion (if either the receiver or
      * the argument represent primitive types, only the identity conversion
      * applies).
-     * 
+     *
      * @param cls
      *            the class to check.
      * @return {@code true} if {@code cls} can be converted to the class
@@ -1332,7 +1332,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Indicates whether the class represented by this {@code Class} is an
      * {@code enum}.
-     * 
+     *
      * @return {@code true} if the class represented by this {@code Class} is an
      *         {@code enum}; {@code false} otherwise.
      */
@@ -1344,7 +1344,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Indicates whether the specified object can be cast to the class
      * represented by this {@code Class}. This is the runtime version of the
      * {@code instanceof} operator.
-     * 
+     *
      * @param object
      *            the object to check.
      * @return {@code true} if {@code object} can be cast to the type
@@ -1355,7 +1355,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /**
      * Indicates whether this {@code Class} represents an interface.
-     * 
+     *
      * @return {@code true} if this {@code Class} represents an interface;
      *         {@code false} otherwise.
      */
@@ -1364,7 +1364,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Indicates whether the class represented by this {@code Class} is defined
      * locally.
-     * 
+     *
      * @return {@code true} if the class represented by this {@code Class} is
      *         defined locally; {@code false} otherwise.
      */
@@ -1377,7 +1377,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Indicates whether the class represented by this {@code Class} is a member
      * class.
-     * 
+     *
      * @return {@code true} if the class represented by this {@code Class} is a
      *         member class; {@code false} otherwise.
      */
@@ -1387,7 +1387,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /**
      * Indicates whether this {@code Class} represents a primitive type.
-     * 
+     *
      * @return {@code true} if this {@code Class} represents a primitive type;
      *         {@code false} otherwise.
      */
@@ -1395,7 +1395,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /**
      * Indicates whether this {@code Class} represents a synthetic type.
-     * 
+     *
      * @return {@code true} if this {@code Class} represents a synthetic type;
      *         {@code false} otherwise.
      */
@@ -1413,7 +1413,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * constructor), an {@code InstantiationException} is thrown. If the default
      * constructor exists but is not accessible from the context where this
      * method is invoked, an {@code IllegalAccessException} is thrown.
-     * 
+     *
      * @return a new instance of the class represented by this {@code Class}.
      * @throws IllegalAccessException
      *             if the default constructor is not visible.
@@ -1424,7 +1424,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             new instances.
      */
     public T newInstance() throws InstantiationException, IllegalAccessException {
-        checkPublicMemberAccess();        
+        checkPublicMemberAccess();
         return newInstanceImpl();
     }
 
@@ -1444,7 +1444,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns the {@code Package} of which the class represented by this
      * {@code Class} is a member. Returns {@code null} if no {@code Package}
      * object was created by the class loader of the class.
-     * 
+     *
      * @return Package the {@code Package} of which this {@code Class} is a
      *         member or {@code null}.
      */
@@ -1456,7 +1456,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             int dot = name.lastIndexOf('.');
             return (dot != -1 ? ClassLoader.getPackage(loader, name.substring(0, dot)) : null);
         }
-        
+
         return null;
     }
 
@@ -1464,7 +1464,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns the assertion status for the class represented by this {@code
      * Class}. Assertion is enabled / disabled based on the class loader,
      * package or class default at runtime.
-     * 
+     *
      * @return the assertion status for the class represented by this {@code
      *         Class}.
      */
@@ -1474,7 +1474,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Casts this {@code Class} to represent a subclass of the specified class.
      * If successful, this {@code Class} is returned; otherwise a {@code
      * ClassCastException} is thrown.
-     * 
+     *
      * @param clazz
      *            the required type.
      * @return this {@code Class} cast as a subclass of the given type.
@@ -1492,7 +1492,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Casts the specified object to the type represented by this {@code Class}.
      * If the object is {@code null} then the result is also {@code null}.
-     * 
+     *
      * @param obj
      *            the object to cast.
      * @return the object that has been cast.
@@ -1504,7 +1504,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (obj == null) {
             return null;
         } else if (this.isInstance(obj)) {
-            return (T)obj;            
+            return (T)obj;
         }
         throw new ClassCastException();
     }
@@ -1512,22 +1512,22 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Set the "accessible" flag of the given object, without doing any
      * access checks.
-     * 
+     *
      * <p><b>Note:</b> This method is implemented in native code, and,
      * as such, is less efficient than using {@link ClassCache#REFLECT}
      * to achieve the same goal. This method exists solely to help
      * bootstrap the reflection bridge.</p>
-     * 
+     *
      * @param ao non-null; the object to modify
      * @param flag the new value for the accessible flag
      */
     /*package*/ static native void setAccessibleNoCheck(AccessibleObject ao,
             boolean flag);
-    
+
     /**
      * Copies two arrays into one. Assumes that the destination array is large
-     * enough. 
-     * 
+     * enough.
+     *
      * @param result the destination array
      * @param head the first source array
      * @param tail the second source array
@@ -1538,7 +1538,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         System.arraycopy(tail, 0, result, head.length, tail.length);
         return result;
     }
-    
+
     /**
      * This must be provided by the vm vendor, as it is used by other provided
      * class implementations in this package. This method is used by
@@ -1565,7 +1565,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * <li>The item at index zero in the result array describes the caller of
      * the caller of this method.</li>
      * </ul>
-     * 
+     *
      * @param maxDepth
      *            maximum depth to walk the stack, -1 for the entire stack
      * @param stopAtPrivileged
@@ -1575,5 +1575,5 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     static final Class<?>[] getStackClasses(int maxDepth, boolean stopAtPrivileged) {
         return VMStack.getClasses(maxDepth, stopAtPrivileged);
     }
-    
+
 }

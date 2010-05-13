@@ -53,7 +53,7 @@ public class SecretKeyFactoryFunctionalTest extends TestCase {
 
         SecretKeyFactoryThread skft = new SecretKeyFactoryThread(algArray);
         skft.launcher();
-        
+
         assertEquals(skft.getFailureMessages(), 0, skft.getTotalFailuresNumber());
     }
 }

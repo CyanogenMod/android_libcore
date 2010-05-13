@@ -43,7 +43,7 @@ public class Support_SQL {
     public static int sqlMaxConnections = 5;
 
     public static int sqlMaxTasks = 1;
-    
+
     private static File dbFile = null;
 
     public static void loadDriver() {
@@ -104,7 +104,7 @@ public class Support_SQL {
                 .getProperty("sqlMaxConnections"));
         sqlMaxTasks = Integer.parseInt(properties.getProperty("sqlMaxTasks"));
     }
-    
+
     public static String getFilename() {
         return dbFile.getPath();
     }

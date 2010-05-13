@@ -54,16 +54,16 @@ public final class PrivateCredentialPermission extends Permission {
     private static final long serialVersionUID = 5284372143517237068L;
 
     // allowed action
-    private static final String READ = "read"; 
+    private static final String READ = "read";
 
     private String credentialClass;
 
-    // current offset        
+    // current offset
     private transient int offset;
 
     // owners set
     private transient CredOwner[] set;
-    
+
     /**
      * Creates a new permission for private credentials specified by the target
      * name {@code name} and an {@code action}. The action is always
@@ -79,14 +79,14 @@ public final class PrivateCredentialPermission extends Permission {
         if (READ.equalsIgnoreCase(action)) {
             initTargetName(name);
         } else {
-            throw new IllegalArgumentException(Messages.getString("auth.11")); 
+            throw new IllegalArgumentException(Messages.getString("auth.11"));
         }
     }
 
     /**
      * Creates a {@code PrivateCredentialPermission} from the {@code Credential}
      * class and set of principals.
-     * 
+     *
      * @param credentialClass
      *            the credential class name.
      * @param principals
@@ -121,19 +121,19 @@ public final class PrivateCredentialPermission extends Permission {
     private void initTargetName(String name) {
 
         if (name == null) {
-            throw new NullPointerException(Messages.getString("auth.0E")); 
+            throw new NullPointerException(Messages.getString("auth.0E"));
         }
 
         // check empty string
         name = name.trim();
         if (name.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("auth.0F")); 
+            throw new IllegalArgumentException(Messages.getString("auth.0F"));
         }
 
         // get CredentialClass
         int beg = name.indexOf(' ');
         if (beg == -1) {
-            throw new IllegalArgumentException(Messages.getString("auth.10")); 
+            throw new IllegalArgumentException(Messages.getString("auth.10"));
         }
         credentialClass = name.substring(0, beg);
 
@@ -146,13 +146,13 @@ public final class PrivateCredentialPermission extends Permission {
             j = name.indexOf('"', i + 2);
 
             if (i == -1 || j == -1 || name.charAt(i + 1) != '"') {
-                throw new IllegalArgumentException(Messages.getString("auth.10")); 
+                throw new IllegalArgumentException(Messages.getString("auth.10"));
             }
         }
 
         // name MUST have one pair at least
         if (count < 1) {
-            throw new IllegalArgumentException(Messages.getString("auth.10")); 
+            throw new IllegalArgumentException(Messages.getString("auth.10"));
         }
 
         beg = name.indexOf(' ');
@@ -265,7 +265,7 @@ public final class PrivateCredentialPermission extends Permission {
 
         PrivateCredentialPermission that = (PrivateCredentialPermission) permission;
 
-        if (!("*".equals(credentialClass) || credentialClass 
+        if (!("*".equals(credentialClass) || credentialClass
                 .equals(that.getCredentialClass()))) {
             return false;
         }
@@ -337,26 +337,26 @@ public final class PrivateCredentialPermission extends Permission {
         // whether pname contains wildcards
         private transient boolean isPNameWildcard;
 
-        // Creates a new CredOwner with the specified Principal Class and Principal Name 
+        // Creates a new CredOwner with the specified Principal Class and Principal Name
         CredOwner(String principalClass, String principalName) {
             super();
-            if ("*".equals(principalClass)) { 
+            if ("*".equals(principalClass)) {
                 isClassWildcard = true;
             }
 
-            if ("*".equals(principalName)) { 
+            if ("*".equals(principalName)) {
                 isPNameWildcard = true;
             }
 
             if (isClassWildcard && !isPNameWildcard) {
-                throw new IllegalArgumentException(Messages.getString("auth.12")); 
+                throw new IllegalArgumentException(Messages.getString("auth.12"));
             }
 
             this.principalClass = principalClass;
             this.principalName = principalName;
         }
 
-        // Checks if this CredOwner implies the specified Object. 
+        // Checks if this CredOwner implies the specified Object.
         boolean implies(Object obj) {
             if (obj == this) {
                 return true;
@@ -372,7 +372,7 @@ public final class PrivateCredentialPermission extends Permission {
             return false;
         }
 
-        // Checks two CredOwner objects for equality. 
+        // Checks two CredOwner objects for equality.
         @Override
         public boolean equals(Object obj) {
             return principalClass.equals(((CredOwner) obj).principalClass)

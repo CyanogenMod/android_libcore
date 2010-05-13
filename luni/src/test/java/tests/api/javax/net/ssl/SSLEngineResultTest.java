@@ -28,26 +28,26 @@ import junit.framework.TestCase;
 
 /**
  * Tests for SSLEngineResult class
- * 
+ *
  */
-@TestTargetClass(SSLEngineResult.class) 
+@TestTargetClass(SSLEngineResult.class)
 public class SSLEngineResultTest extends TestCase {
 
     /**
      * Test for <code>SSLEngineResult(SSLEngineResult.Status status,
      *              SSLEngineResult.HandshakeStatus handshakeStatus,
      *              int bytesConsumed,
-     *              int bytesProduced) </code> constructor and 
+     *              int bytesProduced) </code> constructor and
      * <code>getHandshakeStatus()</code>
      * <code>getStatus()</code>
      * <code>bytesConsumed()</code>
      * <code>bytesProduced()</code>
      * <code>toString()</code>
      * methods
-     * Assertions: 
+     * Assertions:
      * constructor throws IllegalArgumentException when bytesConsumed
      * or bytesProduced is negative or when status or handshakeStatus
-     * is null  
+     * is null
      *
      */
     @TestTargetNew(
@@ -57,7 +57,7 @@ public class SSLEngineResultTest extends TestCase {
         args = {javax.net.ssl.SSLEngineResult.Status.class, javax.net.ssl.SSLEngineResult.HandshakeStatus.class, int.class, int.class}
     )
     public void test_ConstructorLjavax_net_ssl_SSLEngineResult_StatusLjavax_net_ssl_SSLEngineResult_HandshakeStatusII() {
-    
+
         int[] neg = { -1, -10, -1000, Integer.MIN_VALUE,
                 (Integer.MIN_VALUE + 1) };
         try {
@@ -88,7 +88,7 @@ public class SSLEngineResultTest extends TestCase {
             } catch (IllegalArgumentException e) {
             }
         }
-        
+
         try {
             SSLEngineResult res = new SSLEngineResult(SSLEngineResult.Status.BUFFER_OVERFLOW,
                     SSLEngineResult.HandshakeStatus.FINISHED, 1, 2);
@@ -99,7 +99,7 @@ public class SSLEngineResultTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * Test for <code>bytesConsumed()</code> method
      */

@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 /**
  * The <i>Service-Provider Interface</i> (<b>SPI</b>) definition for the {@code
  * Mac} class.
- * 
+ *
  * @see Mac
  */
 public abstract class MacSpi {

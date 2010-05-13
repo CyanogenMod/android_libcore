@@ -35,7 +35,7 @@ import java.security.Permission;
  */
 @TestTargetClass(java.net.ServerSocket.class)
 public class JavaNetServerSocketTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -49,7 +49,7 @@ public class JavaNetServerSocketTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -91,36 +91,36 @@ public class JavaNetServerSocketTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission permission) {
-                
+
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         ServerSocket ss = new ServerSocket(8888);
         assertTrue("java.net.ServerSocket ctor must call checkListen on security permissions", s.called);
-        assertEquals("Argument of checkListen is not correct", 8888, s.port);    
+        assertEquals("Argument of checkListen is not correct", 8888, s.port);
         ss.close();
-        
+
         s.reset();
         ss = new ServerSocket(8888, 55);
         assertTrue("java.net.ServerSocket ctor must call checkListen on security permissions", s.called);
-        assertEquals("Argument of checkListen is not correct", 8888, s.port);    
+        assertEquals("Argument of checkListen is not correct", 8888, s.port);
         ss.close();
-        
+
         s.reset();
         ss = new ServerSocket();
         ss.bind(new InetSocketAddress(0));
         assertTrue("java.net.ServerSocket ctor must call checkListen on security permissions", s.called);
-        assertEquals("Argument of checkListen is not correct", 0, s.port);    
+        assertEquals("Argument of checkListen is not correct", 0, s.port);
         ss.close();
-        
+
         s.reset();
         ss = new ServerSocket(8888, 55, InetAddress.getLocalHost());
         assertTrue("java.net.ServerSocket ctor must call checkListen on security permissions", s.called);
-        assertEquals("Argument of checkListen is not correct", 8888, s.port);    
+        assertEquals("Argument of checkListen is not correct", 8888, s.port);
         ss.close();
     }
 }

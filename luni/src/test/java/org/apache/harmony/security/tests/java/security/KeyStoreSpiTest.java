@@ -51,7 +51,7 @@ import java.security.cert.CertificateException;
 import java.util.Date;
 
 @TestTargetClass(value=KeyStoreSpi.class,
-        untestedMethods={        
+        untestedMethods={
             @TestTargetNew(
                 level = TestLevel.NOT_NECESSARY,
                 notes = "",
@@ -156,7 +156,7 @@ import java.util.Date;
         )
 /**
  * Tests for <code>KeyStoreSpi</code> constructor and methods
- * 
+ *
  */
 
 public class KeyStoreSpiTest extends TestCase {
@@ -169,7 +169,7 @@ public class KeyStoreSpiTest extends TestCase {
         args = {}
     )
     public void test_KeyStoreSpi() {
-        
+
         try {
             MyKeyStoreSpi ksSpi = new MyKeyStoreSpi();
             assertNotNull(ksSpi);
@@ -178,7 +178,7 @@ public class KeyStoreSpiTest extends TestCase {
             fail("Unexpected exception");
         }
     }
-    
+
     /*
      * @tests java.security.KeyStore.engineEntryInstanceOf(String, Class<?
      * extends Entry>)
@@ -211,14 +211,14 @@ public class KeyStoreSpiTest extends TestCase {
         } catch (NullPointerException e) {
             // ok
         }
-        
+
         try {
             assertFalse(ksSpi.engineEntryInstanceOf(
                     "test_engineEntryInstanceOf_Alias1", null));
         } catch (NullPointerException e) {
             // ok
         }
-        
+
 
     }
 

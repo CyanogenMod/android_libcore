@@ -36,12 +36,12 @@ import java.sql.SQLException;
 
 @TestTargetClass(Stmt.class)
 public class StmtTest extends SQLiteTest {
-    
+
     private static Database db = null;
-    
+
     private static Stmt st = null;
-    
-    private static final String createAllTypes = 
+
+    private static final String createAllTypes =
     "create table type (" +
 
     " BoolVal BOOLEAN," + " IntVal INT," + " LongVal LONG,"
@@ -60,15 +60,15 @@ public class StmtTest extends SQLiteTest {
             + " MBlob MEDIUMBLOB, " + " LBlob LONGBLOB, " +
 
             " TText TINYTEXT, " + " TextVal TEXT, "
-            + " MText MEDIUMTEXT, " + " LText LONGTEXT, " + 
-            
+            + " MText MEDIUMTEXT, " + " LText LONGTEXT, " +
+
             " MaxLongVal BIGINT, MinLongVal BIGINT, "+
-            
+
             " validURL URL, invalidURL URL "+
-            
+
             ");";
-    
-    static final String insertAllTypes = 
+
+    static final String insertAllTypes =
         "insert into type (BoolVal, IntVal, LongVal, Bint, Tint, Sint, Mint,"
         + "IntegerVal, RealVal, DoubleVal, FloatVal, DecVal,"
         + "NumVal, charStr, dateVal, timeVal, TS,"
@@ -85,9 +85,9 @@ public class StmtTest extends SQLiteTest {
         + Long.MAX_VALUE+", "+Long.MIN_VALUE+", "
         + "null, null "+
         ");";
-    
+
     static final String allTypesTable = "type";
-    
+
     public void setUp() throws java.lang.Exception {
         super.setUp();
         Support_SQL.loadDriver();
@@ -95,7 +95,7 @@ public class StmtTest extends SQLiteTest {
         db.open(dbFile.getPath(), 0);
         db.exec(DatabaseCreator.CREATE_TABLE_SIMPLE1, null);
         DatabaseCreator.fillSimpleTable1(conn);
-       
+
     }
 
     public void tearDown() {
@@ -103,7 +103,7 @@ public class StmtTest extends SQLiteTest {
             try {
             st.close();
             } catch (Exception e) {
-                
+
             }
         }
         try {
@@ -118,7 +118,7 @@ public class StmtTest extends SQLiteTest {
         }
         super.tearDown();
     }
-    
+
     /**
      * @tests {@link Stmt#Stmt()}
      */
@@ -139,7 +139,7 @@ public class StmtTest extends SQLiteTest {
             fail("Statement setup fails: "+e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
                st.step();
                fail("Cannot execute non prepared Stmt");
@@ -147,7 +147,7 @@ public class StmtTest extends SQLiteTest {
             //ok
         }
     }
-    
+
     /**
      * @tests {@link Stmt#finalize()}
      */
@@ -158,7 +158,7 @@ public class StmtTest extends SQLiteTest {
         args = {}
     )
     public void testFinalize() {
-        
+
     }
 
     /**
@@ -209,7 +209,7 @@ public class StmtTest extends SQLiteTest {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * @tests {@link Stmt#step()}
      */
@@ -226,17 +226,17 @@ public class StmtTest extends SQLiteTest {
         } catch (Exception e) {
             assertEquals("stmt already closed", e.getMessage());
         }
-        
+
         try {
             st = new Stmt();
             st = db.prepare("select name from sqlite_master where type = 'table'");
             st.step();
         } catch (Exception e) {
-           fail("test fails"); 
+           fail("test fails");
         }
-        
+
     }
-    
+
     /**
      * @tests {@link Stmt#close()}
      */
@@ -255,7 +255,7 @@ public class StmtTest extends SQLiteTest {
             fail("Test fails");
             e.printStackTrace();
         }
-        
+
         try {
             st.step();
             fail("Test fails");
@@ -263,9 +263,9 @@ public class StmtTest extends SQLiteTest {
             assertEquals("stmt already closed", e.getMessage());
         }
     }
-    
+
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Stmt#reset()}
      */
     @TestTargetNew(
@@ -276,22 +276,22 @@ public class StmtTest extends SQLiteTest {
     )
     public void testReset() throws Exception {
         db.exec("create table TEST (res integer not null)", null);
-        
+
         st = db.prepare("insert into TEST values (:one);");
         st.bind(1, 1);
         st.step();
-        
+
         // verify that parameter is still bound
         st.reset();
         assertEquals(1,st.bind_parameter_count());
         st.step();
-        
+
         TableResult count = db.get_table("select count(*) from TEST where res=1", null);
-        
+
         String[] row0 = (String[]) count.rows.elementAt(0);
         assertEquals(2, Integer.parseInt(row0[0]));
     }
-    
+
     /**
      * @tests {@link Stmt#clear_bindings()}
      */
@@ -308,7 +308,7 @@ public class StmtTest extends SQLiteTest {
             assertEquals("unsupported", e.getMessage());
         }
     }
-    
+
     /**
      * @tests {@link Stmt#bind(int, int)}
      */
@@ -323,28 +323,28 @@ public class StmtTest extends SQLiteTest {
             int input = 0;
             int maxVal = Integer.MAX_VALUE;
             int minVal = Integer.MIN_VALUE;
-           
+
             db.exec("create table TEST (res integer)", null);
             st = db.prepare("insert into TEST values (:one);");
             st.bind(1, input);
             st.step();
-            
+
             st.reset();
             st.bind(1,maxVal);
             st.step();
-            
+
             st.reset();
             st.bind(1,minVal);
             st.step();
-            
-            TableResult r = db.get_table("select * from TEST");          
-            
+
+            TableResult r = db.get_table("select * from TEST");
+
             String[] row0 = (String[]) r.rows.elementAt(0);
             assertEquals(input,Integer.parseInt(row0[0]));
-            
+
             String[] row1 = (String[]) r.rows.elementAt(1);
             assertEquals(maxVal,Integer.parseInt(row1[0]));
-            
+
             String[] row2 = (String[]) r.rows.elementAt(2);
             assertEquals(minVal,Integer.parseInt(row2[0]));
 
@@ -352,7 +352,7 @@ public class StmtTest extends SQLiteTest {
             fail("Error in test setup: "+e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             st.close();
             st.bind(1,Integer.MIN_VALUE);
@@ -361,7 +361,7 @@ public class StmtTest extends SQLiteTest {
             //ok
         }
     }
-    
+
     /**
      * @tests {@link Stmt#bind(int, long)}
      */
@@ -376,28 +376,28 @@ public class StmtTest extends SQLiteTest {
             long input = 0;
             long maxVal = Long.MAX_VALUE;
             long minVal = Long.MIN_VALUE;
-           
+
             db.exec("create table TEST (res long)", null);
             st = db.prepare("insert into TEST values (:one);");
             st.bind(1, input);
             st.step();
-            
+
             st.reset();
             st.bind(1,maxVal);
             st.step();
-            
+
             st.reset();
             st.bind(1,minVal);
             st.step();
-          
+
             TableResult r = db.get_table("select * from TEST");
-            
+
             String[] row0 = (String[]) r.rows.elementAt(0);
             assertEquals(input,Long.parseLong(row0[0]));
-            
+
             String[] row1 = (String[]) r.rows.elementAt(1);
             assertEquals(maxVal,Long.parseLong(row1[0]));
-            
+
             String[] row2 = (String[]) r.rows.elementAt(2);
             assertEquals(minVal,Long.parseLong(row2[0]));
 
@@ -405,7 +405,7 @@ public class StmtTest extends SQLiteTest {
             fail("Error in test setup: "+e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             st.close();
             st.bind(1,Long.MIN_VALUE);
@@ -414,7 +414,7 @@ public class StmtTest extends SQLiteTest {
             //ok
         }
     }
-    
+
     /**
      * @tests {@link Stmt#bind(int, double)}
      */
@@ -487,7 +487,7 @@ public class StmtTest extends SQLiteTest {
             fail("Error in test setup: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             st.close();
             st.bind(1,0.0);
@@ -507,38 +507,38 @@ public class StmtTest extends SQLiteTest {
         args = {int.class, byte[].class}
     )
     public void testBindIntByteArray() {
-        
+
         String name = "Hello World";
-        
+
         try {
             byte[] b = new byte[name.getBytes().length];
             b = name.getBytes();
             String stringInHex = "";
-            
+
             db.exec(DatabaseCreator.CREATE_TABLE_PARENT, null);
             st = db.prepare("insert into " + DatabaseCreator.PARENT_TABLE
                     + " values (:one, :two);");
             st.bind(1, 2);
             st.bind(2, b);
             st.step();
-            
+
             //compare what was stored with input based on Hex representation
             // since type of column is CHAR
             TableResult r = db.get_table("select * from "
-                    + DatabaseCreator.PARENT_TABLE);          
+                    + DatabaseCreator.PARENT_TABLE);
             String[] row = (String[]) r.rows.elementAt(0);
-            
+
             for (byte aByte : b) {
                 stringInHex += Integer.toHexString(aByte);
             }
             stringInHex = "X'" + stringInHex + "'";
             assertTrue(stringInHex.equalsIgnoreCase(row[1]));
-            
+
         } catch (Exception e) {
             fail("Error in test setup: "+e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             st.close();
             st.bind(1,name.getBytes());
@@ -559,18 +559,18 @@ public class StmtTest extends SQLiteTest {
     )
     public void testBindIntString() {
         String name = "Hello World";
-        
+
         try {
-           
+
             db.exec(DatabaseCreator.CREATE_TABLE_PARENT, null);
             st = db.prepare("insert into " + DatabaseCreator.PARENT_TABLE
                     + " values (:one, :two);");
             st.bind(1, 2);
             st.bind(2, name);
             st.step();
-            
+
             TableResult r = db.get_table("select * from "
-                    + DatabaseCreator.PARENT_TABLE);          
+                    + DatabaseCreator.PARENT_TABLE);
             String[] row = (String[]) r.rows.elementAt(0);
             assertEquals(name,row[1]);
 
@@ -578,7 +578,7 @@ public class StmtTest extends SQLiteTest {
             fail("Error in test setup: "+e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             st.close();
             st.bind(1,name);
@@ -587,7 +587,7 @@ public class StmtTest extends SQLiteTest {
             //ok
         }
     }
-    
+
     /**
      * @tests {@link Stmt#bind(int)}
      */
@@ -598,7 +598,7 @@ public class StmtTest extends SQLiteTest {
         args = {int.class}
     )
     public void testBindInt() {
-        
+
         try {
             st = db.prepare("insert into " + DatabaseCreator.SIMPLE_TABLE1
                     + " values (:one,:two,:three)");
@@ -612,9 +612,9 @@ public class StmtTest extends SQLiteTest {
             // What happens if null is bound to non existing variable position
             assertEquals("parameter position out of bounds" , e.getMessage());
         }
-        
+
         // functional tests
-        
+
         try {
             st.reset();
             st.bind(1);
@@ -638,7 +638,7 @@ public class StmtTest extends SQLiteTest {
         }
 
     }
-    
+
     /**
      * @tests {@link Stmt#bind_zeroblob(int, int)}
      */
@@ -655,7 +655,7 @@ public class StmtTest extends SQLiteTest {
             assertEquals("unsupported", e.getMessage());
         }
     }
-    
+
     /**
      * @tests {@link Stmt#bind_parameter_count()}
      */
@@ -671,7 +671,7 @@ public class StmtTest extends SQLiteTest {
         } catch (Exception e) {
             assertEquals("stmt already closed", e.getMessage());
         }
-        
+
         try {
             st = db.prepare("insert into " + DatabaseCreator.SIMPLE_TABLE1
                     + " values (:one,:two,:three)");
@@ -680,7 +680,7 @@ public class StmtTest extends SQLiteTest {
             fail("Error in test setup : " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             st = db.prepare("insert into " + DatabaseCreator.SIMPLE_TABLE1
                     + " values (?, ?, ?)");
@@ -689,7 +689,7 @@ public class StmtTest extends SQLiteTest {
             fail("Error in test setup : " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             st = db.prepare("select * from " + DatabaseCreator.SIMPLE_TABLE1);
             assertEquals(0, st.bind_parameter_count());
@@ -697,7 +697,7 @@ public class StmtTest extends SQLiteTest {
             fail("Error in test setup : " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             st.close();
             st.bind_parameter_count();
@@ -705,7 +705,7 @@ public class StmtTest extends SQLiteTest {
         } catch (Exception e) {
             //ok
         }
-        
+
     }
 
     /**
@@ -724,7 +724,7 @@ public class StmtTest extends SQLiteTest {
         } catch (Exception e) {
             assertEquals("stmt already closed", e.getMessage());
         }
-        
+
         try {
             st = db.prepare("insert into " + DatabaseCreator.SIMPLE_TABLE1
                     + " values (:one,:two,:three)");
@@ -763,7 +763,7 @@ public class StmtTest extends SQLiteTest {
             fail("Error in test setup : " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         try {
             st = db.prepare("insert into " + DatabaseCreator.SIMPLE_TABLE1
                     + " values (:one,:two,:three)");
@@ -785,7 +785,7 @@ public class StmtTest extends SQLiteTest {
     }
 
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Stmt#column_int(int)}
      */
     @TestTargetNew(
@@ -797,27 +797,27 @@ public class StmtTest extends SQLiteTest {
     public void testColumn_int() throws Exception {
         db.exec(createAllTypes, null);
         db.exec(insertAllTypes, null);
-        
+
         int columnObjectCastFromLong;
         Object columnObject  = null;
         int intColumn = 0;
         String selectStmt = "select * from "+DatabaseCreator.SIMPLE_TABLE1;
-        
+
         st = db.prepare(selectStmt);
         st.step();
         // select 'speed' value
         columnObject = st.column(1);
         intColumn = st.column_int(1);
         assertNotNull(intColumn);
-        
+
         assertTrue("Integer".equalsIgnoreCase(st.column_decltype(1)));
         int stSpeed = Integer.parseInt(columnObject.toString());
         assertNotNull(stSpeed);
         assertEquals( intColumn, stSpeed);
         assertEquals(10,stSpeed);
-        
+
         selectStmt = "select TextVal from "+allTypesTable;
-        
+
         st = db.prepare(selectStmt);
         st.step();
         // select double value
@@ -827,7 +827,7 @@ public class StmtTest extends SQLiteTest {
             //ok
         }
     }
-    
+
     /**
      * @tests {@link Stmt#column_long(int)}
      */
@@ -856,15 +856,15 @@ public class StmtTest extends SQLiteTest {
         } catch (Exception e) {
             fail("Error in test setup : " + e.getMessage());
             e.printStackTrace();
-        } 
-        
+        }
+
         try {
             st.column_long(4);
             fail("Exception expected");
         } catch (Exception e) {
             assertEquals( "column out of bounds" , e.getMessage());
         }
-        
+
         try {
             st.column_long(-1);
             fail("Exception expected");
@@ -872,9 +872,9 @@ public class StmtTest extends SQLiteTest {
             assertEquals( "column out of bounds" , e.getMessage());
         }
     }
-    
+
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Stmt#column_double(int)}
      */
     @TestTargetNew(
@@ -886,25 +886,25 @@ public class StmtTest extends SQLiteTest {
     public void testColumn_double() throws Exception {
         db.exec(createAllTypes, null);
         db.exec(insertAllTypes, null);
-       
+
         Object columnObject  = null;
         double doubleColumn = 0;
         double actualVal = 23.2;
         String selectStmt = "select DoubleVal from "+allTypesTable;
-        
+
         st = db.prepare(selectStmt);
         st.step();
         // select double value
         doubleColumn = st.column_double(0);
         assertNotNull(doubleColumn);
-        
+
         assertTrue("DOUBLE".equalsIgnoreCase(st.column_decltype(0)));
         assertNotNull(doubleColumn);
         assertEquals( actualVal, doubleColumn);
-        
+
         // Exception test
         selectStmt = "select dateVal from "+allTypesTable;
-        
+
         st = db.prepare(selectStmt);
         st.step();
         // select double value
@@ -913,12 +913,12 @@ public class StmtTest extends SQLiteTest {
         } catch (Exception e) {
             //ok
         }
-        
-        
+
+
     }
 
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Stmt#column_bytes(int)}
      */
     @TestTargetNew(
@@ -928,7 +928,7 @@ public class StmtTest extends SQLiteTest {
         args = {int.class}
     )
     public void testColumn_bytes() throws Exception {
-        
+
         db.exec("create table B(id integer primary key, val blob)",null);
         db.exec("insert into B values(1, zeroblob(128))", null);
         st = db.prepare("select val from B where id = 1");
@@ -941,7 +941,7 @@ public class StmtTest extends SQLiteTest {
     }
 
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Stmt#column_string(int)}
      */
     @TestTargetNew(
@@ -953,25 +953,25 @@ public class StmtTest extends SQLiteTest {
     public void testColumn_string() throws Exception {
         db.exec(createAllTypes, null);
         db.exec(insertAllTypes, null);
-       
+
         Object columnObject  = null;
         String stringColumn = "";
         String actualVal = "test string";
         String selectStmt = "select charStr from "+allTypesTable;
-        
+
         st = db.prepare(selectStmt);
         st.step();
         // select string value
         stringColumn = st.column_string(0);
         assertNotNull(stringColumn);
-        
+
         assertTrue("CHAR(20)".equalsIgnoreCase(st.column_decltype(0)));
         assertNotNull(stringColumn);
         assertEquals( actualVal, stringColumn);
-        
+
         // Exception test
         selectStmt = "select DoubleVal from "+allTypesTable;
-        
+
         st = db.prepare(selectStmt);
         st.step();
         // select double value
@@ -981,7 +981,7 @@ public class StmtTest extends SQLiteTest {
             //ok
         }
     }
-    
+
     public void testColumn_type() throws Exception {
         db.exec(createAllTypes, null);
         db.exec(insertAllTypes, null);
@@ -994,10 +994,10 @@ public class StmtTest extends SQLiteTest {
         } catch (Exception e) {
             // ok
         }
-        
+
         /*
         Dictionary
-        
+
         public static final int SQLITE_INTEGER = 1;
         public static final int SQLITE_FLOAT = 2;
         public static final int SQLITE_BLOB = 4;
@@ -1024,7 +1024,7 @@ public class StmtTest extends SQLiteTest {
         // Failing tests
         assertTrue("INTEGER".equalsIgnoreCase(st.column_decltype(12)));
         assertEquals(Constants.SQLITE_INTEGER, st.column_type(12));
-        
+
         assertTrue("FLOAT".equalsIgnoreCase(st.column_decltype(11)));
         assertEquals(Constants.SQLITE_FLOAT, st.column_type(11)); // FLOAT ->
                                                                   // got INTEGER
@@ -1035,7 +1035,7 @@ public class StmtTest extends SQLiteTest {
     }
 
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Stmt#column_count() )}
      */
     @TestTargetNew(
@@ -1047,33 +1047,33 @@ public class StmtTest extends SQLiteTest {
     @KnownFailure("Wrong value is returned in case of a prepared statment to "+
             "which a '*' bound ")
     public void testColumn_count() throws Exception {
-        
+
         String selectStmt = "select * from "+DatabaseCreator.SIMPLE_TABLE1;
         st = db.prepare(selectStmt);
-        
+
         assertEquals(3, st.column_count());
-        
+
         st.step();
         int columnCount = st.column_count();
         assertNotNull(columnCount);
         assertEquals( 3, columnCount);
-        
+
         // actual prepared statement
         selectStmt = "select ? from "+DatabaseCreator.SIMPLE_TABLE1;
         st = db.prepare(selectStmt);
-        
+
         assertEquals(3, st.column_count());
-        
+
         st.bind(1, "*");
         st.step();
         columnCount = st.column_count();
         assertNotNull(columnCount);
         assertEquals( 3, columnCount);
-      
+
     }
 
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Stmt#column(int) )}
      */
     @TestTargetNew(
@@ -1101,8 +1101,8 @@ public class StmtTest extends SQLiteTest {
         } catch (Exception e) {
             fail("Error in test setup : " + e.getMessage());
             e.printStackTrace();
-        } 
-        
+        }
+
         try {
             assertNotNull(columnObject);
             int dummy = ((Integer) columnObject).intValue();
@@ -1110,14 +1110,14 @@ public class StmtTest extends SQLiteTest {
         } catch (ClassCastException e) {
             assertEquals("java.lang.Long", e.getMessage());
         }
-        
+
         try {
             st.column(4);
             fail("Exception expected");
         } catch (Exception e) {
             assertEquals( "column out of bounds" , e.getMessage());
         }
-        
+
         try {
             st.column(-1);
             fail("Exception expected");
@@ -1163,11 +1163,11 @@ public class StmtTest extends SQLiteTest {
         } catch (Exception e) {
             assertEquals("unsupported", e.getMessage());
         }
-        
+
     }
 
     /**
-     * @throws Exception 
+     * @throws Exception
      * @tests {@link Stmt#column_decltype(int)}
      */
     @TestTargetNew(
@@ -1228,7 +1228,7 @@ public class StmtTest extends SQLiteTest {
         assertTrue(st.column_decltype(29), "URL".equalsIgnoreCase(st
                 .column_decltype(29)));
     }
- 
+
     /**
      * @tests {@link Stmt#column_origin_name(int)}
      */

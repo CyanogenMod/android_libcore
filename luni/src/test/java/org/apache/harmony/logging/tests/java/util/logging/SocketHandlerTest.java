@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,11 +52,11 @@ public class SocketHandlerTest extends TestCase {
     private static final LogManager LOG_MANAGER = LogManager.getLogManager();
 
     private final static String INVALID_LEVEL = "impossible_level";
-    
+
     private final PrintStream err = System.err;
 
-    private OutputStream errSubstituteStream = null;    
-    
+    private OutputStream errSubstituteStream = null;
+
     private static String className = SocketHandlerTest.class.getName();
 
     private SocketHandler h = null;
@@ -69,7 +69,7 @@ public class SocketHandlerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         errSubstituteStream = new NullOutputStream();
-        System.setErr(new PrintStream(errSubstituteStream));  
+        System.setErr(new PrintStream(errSubstituteStream));
     }
 
     /*
@@ -92,8 +92,8 @@ public class SocketHandlerTest extends TestCase {
         props.put("foo.handlers", "java.util.logging.ConsoleHandler");
         props.put("foo.level", "WARNING");
         props.put("com.xyz.foo.level", "SEVERE");
-        
-        
+
+
         LOG_MANAGER.reset();
         LOG_MANAGER.readConfiguration(EnvironmentHelper
                 .PropertiesToInputStream(props));
@@ -105,7 +105,7 @@ public class SocketHandlerTest extends TestCase {
         System.setErr(err);
         super.tearDown();
     }
-    
+
 
     /*
      * Test the constructor with no relevant log manager properties are set.
@@ -728,7 +728,7 @@ public class SocketHandlerTest extends TestCase {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see java.util.logging.Formatter#getHead(java.util.logging.Handler)
          */
         public String getHead(Handler h) {
@@ -737,7 +737,7 @@ public class SocketHandlerTest extends TestCase {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see java.util.logging.Formatter#getTail(java.util.logging.Handler)
          */
         public String getTail(Handler h) {

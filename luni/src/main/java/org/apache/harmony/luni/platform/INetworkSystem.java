@@ -53,13 +53,13 @@ public interface INetworkSystem {
 
     public int read(FileDescriptor aFD, byte[] data, int offset, int count,
             int timeout) throws IOException;
-    
+
     public int readDirect(FileDescriptor aFD, int address, int count,
             int timeout) throws IOException;
 
     public int write(FileDescriptor fd, byte[] data, int offset, int count)
             throws IOException;
-    
+
     public int writeDirect(FileDescriptor fd, int address, int offset, int count)
             throws IOException;
 
@@ -75,7 +75,7 @@ public interface INetworkSystem {
     public int sendDatagram(FileDescriptor fd, byte[] data, int offset,
             int length, int port, boolean bindToDevice, int trafficClass,
             InetAddress inetAddress) throws IOException;
-    
+
     public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
             int length, int port, boolean bindToDevice, int trafficClass,
             InetAddress inetAddress) throws IOException;
@@ -83,7 +83,7 @@ public interface INetworkSystem {
     public int receiveDatagram(FileDescriptor aFD, DatagramPacket packet,
             byte[] data, int offset, int length, int receiveTimeout,
             boolean peek) throws IOException;
-    
+
     public int receiveDatagramDirect(FileDescriptor aFD, DatagramPacket packet,
             int address, int offset, int length, int receiveTimeout,
             boolean peek) throws IOException;
@@ -91,17 +91,17 @@ public interface INetworkSystem {
     public int recvConnectedDatagram(FileDescriptor aFD, DatagramPacket packet,
             byte[] data, int offset, int length, int receiveTimeout,
             boolean peek) throws IOException;
-    
+
     public int recvConnectedDatagramDirect(FileDescriptor aFD,
             DatagramPacket packet, int address, int offset, int length,
             int receiveTimeout, boolean peek) throws IOException;
-    
+
     public int peekDatagram(FileDescriptor aFD, InetAddress sender,
             int receiveTimeout) throws IOException;
 
     public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
             int offset, int length, boolean bindToDevice) throws IOException;
-    
+
     public int sendConnectedDatagramDirect(FileDescriptor fd, int address,
             int offset, int length, boolean bindToDevice) throws IOException;
 
@@ -126,7 +126,7 @@ public interface INetworkSystem {
 
     public void createStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
             throws SocketException;
-    
+
     public void listen(FileDescriptor aFD, int backlog) throws SocketException;
 
     public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int aport,
@@ -174,7 +174,7 @@ public interface INetworkSystem {
 
     /*
      * Query the IP stack for the local port to which this socket is bound.
-     * 
+     *
      * @param aFD the socket descriptor
      * @return int the local port to which the socket is bound
      */
@@ -182,10 +182,10 @@ public interface INetworkSystem {
 
     /*
      * Query the IP stack for the nominated socket option.
-     * 
+     *
      * @param aFD the socket descriptor @param opt the socket option type
      * @return the nominated socket option value
-     * 
+     *
      * @throws SocketException if the option is invalid
      */
     public Object getSocketOption(FileDescriptor aFD, int opt)
@@ -193,10 +193,10 @@ public interface INetworkSystem {
 
     /*
      * Set the nominated socket option in the IP stack.
-     * 
+     *
      * @param aFD the socket descriptor @param opt the option selector @param
      * optVal the nominated option value
-     * 
+     *
      * @throws SocketException if the option is invalid or cannot be set
      */
     public void setSocketOption(FileDescriptor aFD, int opt, Object optVal)

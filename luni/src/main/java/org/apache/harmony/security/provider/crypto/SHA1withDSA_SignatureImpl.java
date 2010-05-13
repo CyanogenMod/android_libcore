@@ -49,9 +49,9 @@ public class SHA1withDSA_SignatureImpl extends Signature {
      */
     public SHA1withDSA_SignatureImpl() throws NoSuchAlgorithmException {
 
-        super("SHA1withDSA"); 
+        super("SHA1withDSA");
 
-        msgDigest = MessageDigest.getInstance("SHA1"); 
+        msgDigest = MessageDigest.getInstance("SHA1");
     }
 
     /**
@@ -63,13 +63,13 @@ public class SHA1withDSA_SignatureImpl extends Signature {
     protected Object engineGetParameter(String param)
             throws InvalidParameterException {
         if (param == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         return null;
     }
 
     /**
-     * Initializes this signature object with PrivateKey object 
+     * Initializes this signature object with PrivateKey object
      * passed as argument to the method.
      *
      * @params
@@ -89,7 +89,7 @@ public class SHA1withDSA_SignatureImpl extends Signature {
 
         if (privateKey == null || !(privateKey instanceof DSAPrivateKey)) {
             throw new InvalidKeyException(
-                    Messages.getString("security.168")); 
+                    Messages.getString("security.168"));
         }
 
         params = ((DSAPrivateKey) privateKey).getParams();
@@ -101,13 +101,13 @@ public class SHA1withDSA_SignatureImpl extends Signature {
         n = p.bitLength();
         if (p.compareTo(BigInteger.valueOf(1)) != 1 || n < 512 || n > 1024
                 || (n & 077) != 0) {
-            throw new InvalidKeyException(Messages.getString("security.169")); 
+            throw new InvalidKeyException(Messages.getString("security.169"));
         }
         if (q.signum() != 1 && q.bitLength() != 160) {
-            throw new InvalidKeyException(Messages.getString("security.16A")); 
+            throw new InvalidKeyException(Messages.getString("security.16A"));
         }
         if (x.signum() != 1 || x.compareTo(q) != -1) {
-            throw new InvalidKeyException(Messages.getString("security.16B")); 
+            throw new InvalidKeyException(Messages.getString("security.16B"));
         }
 
         dsaKey = (DSAKey) privateKey;
@@ -116,7 +116,7 @@ public class SHA1withDSA_SignatureImpl extends Signature {
     }
 
     /**
-     * Initializes this signature object with PublicKey object 
+     * Initializes this signature object with PublicKey object
      * passed as argument to the method.
      *
      * @params
@@ -134,7 +134,7 @@ public class SHA1withDSA_SignatureImpl extends Signature {
 
         if (publicKey == null || !(publicKey instanceof DSAPublicKey)) {
             throw new InvalidKeyException(
-                    Messages.getString("security.16C")); 
+                    Messages.getString("security.16C"));
         }
 
         DSAParams params = ((DSAPublicKey) publicKey).getParams();
@@ -146,13 +146,13 @@ public class SHA1withDSA_SignatureImpl extends Signature {
         n1 = p.bitLength();
         if (p.compareTo(BigInteger.valueOf(1)) != 1 || n1 < 512 || n1 > 1024
                 || (n1 & 077) != 0) {
-            throw new InvalidKeyException(Messages.getString("security.169")); 
+            throw new InvalidKeyException(Messages.getString("security.169"));
         }
         if (q.signum() != 1 || q.bitLength() != 160) {
-            throw new InvalidKeyException(Messages.getString("security.16A")); 
+            throw new InvalidKeyException(Messages.getString("security.16A"));
         }
         if (y.signum() != 1) {
-            throw new InvalidKeyException(Messages.getString("security.16D")); 
+            throw new InvalidKeyException(Messages.getString("security.16D"));
         }
 
         dsaKey = (DSAKey) publicKey;
@@ -169,24 +169,24 @@ public class SHA1withDSA_SignatureImpl extends Signature {
     protected void engineSetParameter(String param, Object value)
             throws InvalidParameterException {
         if (param == null) {
-            throw new NullPointerException(Messages.getString("security.83", "param"));  
+            throw new NullPointerException(Messages.getString("security.83", "param"));
         }
-        throw new InvalidParameterException(Messages.getString("security.16E")); 
+        throw new InvalidParameterException(Messages.getString("security.16E"));
     }
 
     /**
-     * Returns signature bytes as byte array containing 
+     * Returns signature bytes as byte array containing
      * ASN1 representation for two BigInteger objects
      * which is SEQUENCE of two INTEGERS.
      * Length of sequence varies from less than 46 to 48.
      *
-     * Resets object to the state it was in 
+     * Resets object to the state it was in
      * when previous call to either "initSign" method was called.
      *
      * @return
      *    byte array containing signature in ASN1 representation
      * @throws
-     *    SignatureException if object's state is not SIGN or 
+     *    SignatureException if object's state is not SIGN or
      *                       signature algorithm cannot process data
      */
 
@@ -200,7 +200,7 @@ public class SHA1withDSA_SignatureImpl extends Signature {
         // parameters and private key
         BigInteger p, q, g, x;
 
-        // BigInteger for message digest 
+        // BigInteger for message digest
         BigInteger digestBI;
 
         // various byte array being used in computing signature
@@ -249,7 +249,7 @@ public class SHA1withDSA_SignatureImpl extends Signature {
         }
 
         // forming signature's ASN1 representation which is SEQUENCE of two INTEGERs
-        // 
+        //
         rBytes = r.toByteArray();
         n1 = rBytes.length;
         if ((rBytes[0] & 0x80) != 0) {
@@ -345,12 +345,12 @@ public class SHA1withDSA_SignatureImpl extends Signature {
                     || sigBytes[offset + 1] != (n1 + n2 + 4) || n1 > 21
                     || n2 > 21
                     || (length != 0 && (sigBytes[offset + 1] + 2) > length)) {
-                throw new SignatureException(Messages.getString("security.16F")); 
+                throw new SignatureException(Messages.getString("security.16F"));
             }
 
             dummy = sigBytes[5 + n1 + n2]; // to check length of sigBytes
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new SignatureException(Messages.getString("security.170")); 
+            throw new SignatureException(Messages.getString("security.170"));
         }
 
         digest = msgDigest.digest();
@@ -404,7 +404,7 @@ public class SHA1withDSA_SignatureImpl extends Signature {
     protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
 
         if (sigBytes == null) {
-            throw new NullPointerException(Messages.getString("security.83", "sigBytes"));  
+            throw new NullPointerException(Messages.getString("security.83", "sigBytes"));
         }
 
         return checkSignature(sigBytes, 0, 0);

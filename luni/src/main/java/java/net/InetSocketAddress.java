@@ -186,7 +186,7 @@ public class InetSocketAddress extends SocketAddress {
         } else {
             host = hostname;
         }
-        return host + ":" + port; 
+        return host + ":" + port;
     }
 
     /**

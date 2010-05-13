@@ -28,7 +28,7 @@ import java.security.UnrecoverableKeyException;
  * {@code KeyManagerFactory} class.
  */
 public abstract class KeyManagerFactorySpi {
-    
+
     /**
      * Creates a new {@code KeyManagerFactorySpi} instance.
      */

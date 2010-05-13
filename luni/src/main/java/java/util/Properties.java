@@ -467,7 +467,7 @@ public class Properties extends Hashtable<Object, Object> {
     /**
      * Returns those property names (keys) in this {@code Properties} object for which
      * both key and value are strings.
-     * 
+     *
      * @return a set of keys in the property list
      * @since 1.6
      * @hide
@@ -541,7 +541,7 @@ public class Properties extends Hashtable<Object, Object> {
      * Stores the mappings in this {@code Properties} object to {@code out},
      * putting the specified comment at the beginning. The encoding is
      * ISO8859-1.
-     * 
+     *
      * @param out the {@code OutputStream}
      * @param comment an optional comment to be written, or null
      * @throws IOException
@@ -556,7 +556,7 @@ public class Properties extends Hashtable<Object, Object> {
     /**
      * Stores the mappings in this {@code Properties} object to {@code out},
      * putting the specified comment at the beginning.
-     * 
+     *
      * @param out the {@code Writer}
      * @param comment an optional comment to be written, or null
      * @throws IOException

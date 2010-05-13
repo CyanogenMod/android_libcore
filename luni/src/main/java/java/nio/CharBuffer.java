@@ -39,7 +39,7 @@ public abstract class CharBuffer extends Buffer implements
 
     /**
      * Creates a char buffer based on a newly allocated char array.
-     * 
+     *
      * @param capacity
      *            the capacity of the new buffer.
      * @return the created char buffer.
@@ -147,7 +147,7 @@ public abstract class CharBuffer extends Buffer implements
 
     /**
      * Constructs a {@code CharBuffer} with given capacity.
-     * 
+     *
      * @param capacity
      *            the capacity of the buffer.
      */
@@ -182,7 +182,7 @@ public abstract class CharBuffer extends Buffer implements
     /**
      * Returns the character located at the specified index in the buffer. The
      * index value is referenced from the current buffer position.
-     * 
+     *
      * @param index
      *            the index referenced from the current buffer position. It must
      *            not be less than zero but less than the value obtained from a
@@ -215,7 +215,7 @@ public abstract class CharBuffer extends Buffer implements
     /**
      * Compare the remaining chars of this buffer to another char
      * buffer's remaining chars.
-     * 
+     *
      * @param otherBuffer
      *            another char buffer.
      * @return a negative value if this is less than {@code otherBuffer}; 0 if
@@ -293,7 +293,7 @@ public abstract class CharBuffer extends Buffer implements
 
     /**
      * Returns the char at the current position and increases the position by 1.
-     * 
+     *
      * @return the char at the current position.
      * @exception BufferUnderflowException
      *                if the position is equal or greater than limit.
@@ -321,7 +321,7 @@ public abstract class CharBuffer extends Buffer implements
      * Reads chars from the current position into the specified char array,
      * starting from the specified offset, and increases the position by the
      * number of chars read.
-     * 
+     *
      * @param dest
      *            the target char array.
      * @param off
@@ -353,7 +353,7 @@ public abstract class CharBuffer extends Buffer implements
 
     /**
      * Returns a char at the specified index; the position is not changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than limit.
      * @return a char at the specified index.
@@ -396,7 +396,7 @@ public abstract class CharBuffer extends Buffer implements
 
     /**
      * Returns the number of remaining chars.
-     * 
+     *
      * @return the number of remaining chars.
      */
     public final int length() {
@@ -439,7 +439,7 @@ public abstract class CharBuffer extends Buffer implements
     /**
      * Writes the given char to the current position and increases the position
      * by 1.
-     * 
+     *
      * @param c
      *            the char to write.
      * @return this buffer.
@@ -473,7 +473,7 @@ public abstract class CharBuffer extends Buffer implements
      * Writes chars from the given char array, starting from the specified offset,
      * to the current position and increases the position by the number of chars
      * written.
-     * 
+     *
      * @param src
      *            the source char array.
      * @param off
@@ -509,7 +509,7 @@ public abstract class CharBuffer extends Buffer implements
      * Writes all the remaining chars of the {@code src} char buffer to this
      * buffer's current position, and increases both buffers' position by the
      * number of chars copied.
-     * 
+     *
      * @param src
      *            the source char buffer.
      * @return this buffer.
@@ -538,7 +538,7 @@ public abstract class CharBuffer extends Buffer implements
     /**
      * Writes a char to the specified index of this buffer; the position is not
      * changed.
-     * 
+     *
      * @param index
      *            the index, must be no less than zero and less than the limit.
      * @param c
@@ -573,7 +573,7 @@ public abstract class CharBuffer extends Buffer implements
     /**
      * Writes chars of the given string to the current position of this buffer,
      * and increases the position by the number of chars written.
-     * 
+     *
      * @param str
      *            the string to write.
      * @param start
@@ -654,7 +654,7 @@ public abstract class CharBuffer extends Buffer implements
 
     /**
      * Returns a string representing the current remaining chars of this buffer.
-     * 
+     *
      * @return a string representing the current remaining chars of this buffer.
      */
     @Override
@@ -703,7 +703,7 @@ public abstract class CharBuffer extends Buffer implements
         if (csq != null) {
             return put(csq.toString());
         }
-        return put("null"); 
+        return put("null");
     }
 
     /**
@@ -728,7 +728,7 @@ public abstract class CharBuffer extends Buffer implements
      */
     public CharBuffer append(CharSequence csq, int start, int end) {
         if (csq == null) {
-            csq = "null"; 
+            csq = "null";
         }
         CharSequence cs = csq.subSequence(start, end);
         if (cs.length() > 0) {

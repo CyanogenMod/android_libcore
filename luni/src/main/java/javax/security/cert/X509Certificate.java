@@ -54,13 +54,13 @@ import org.apache.harmony.security.internal.nls.Messages;
 public abstract class X509Certificate extends Certificate {
 
     private static Constructor constructor;
-    
+
     static {
         try {
             String classname = (String) AccessController.doPrivileged(
                 new java.security.PrivilegedAction() {
                     public Object run() {
-                        return Security.getProperty("cert.provider.x509v1"); 
+                        return Security.getProperty("cert.provider.x509v1");
                     }
                 }
             );
@@ -70,7 +70,7 @@ public abstract class X509Certificate extends Certificate {
         } catch (Throwable e) {
         }
     }
-    
+
     /**
      * Creates a new {@code X509Certificate}.
      */
@@ -91,11 +91,11 @@ public abstract class X509Certificate extends Certificate {
     public static final X509Certificate getInstance(InputStream inStream)
                                              throws CertificateException {
         if (inStream == null) {
-            throw new CertificateException(Messages.getString("security.87")); 
+            throw new CertificateException(Messages.getString("security.87"));
         }
         if (constructor != null) {
             try {
-                return (X509Certificate) 
+                return (X509Certificate)
                     constructor.newInstance(new Object[] {inStream});
             } catch (Throwable e) {
                 throw new CertificateException(e.getMessage());
@@ -104,7 +104,7 @@ public abstract class X509Certificate extends Certificate {
 
         final java.security.cert.X509Certificate cert;
         try {
-            CertificateFactory cf = CertificateFactory.getInstance("X.509"); 
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
             cert = (java.security.cert.X509Certificate)
                                             cf.generateCertificate(inStream);
         } catch (java.security.cert.CertificateException e) {
@@ -161,7 +161,7 @@ public abstract class X509Certificate extends Certificate {
                 }
             }
 
-            public void checkValidity(Date date) 
+            public void checkValidity(Date date)
                             throws CertificateExpiredException,
                                    CertificateNotYetValidException {
                 try {
@@ -224,7 +224,7 @@ public abstract class X509Certificate extends Certificate {
     public static final X509Certificate getInstance(byte[] certData)
                                              throws CertificateException {
         if (certData == null) {
-            throw new CertificateException(Messages.getString("security.88")); 
+            throw new CertificateException(Messages.getString("security.88"));
         }
         ByteArrayInputStream bais = new ByteArrayInputStream(certData);
         return getInstance(bais);

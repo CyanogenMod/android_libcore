@@ -19,16 +19,16 @@ package java.util;
 
 /**
  * An iterator over a sequence of objects, such as a collection.
- * 
+ *
  * <p>If a collection has been changed since the iterator was created,
  * methods {@code next} and {@code hasNext()} may throw a {@code ConcurrentModificationException}.
  * It is not possible to guarantee that this mechanism works in all cases of unsynchronized
  * concurrent modification. It should only be used for debugging purposes. Iterators with this
  * behavior are called fail-fast iterators.
- * 
+ *
  * <p>Implementing {@link Iterable} and returning an {@code Iterator} allows your
  * class to be used as a collection with the enhanced for loop.
- * 
+ *
  * @param <E>
  *            the type of object returned by the iterator.
  */
@@ -41,7 +41,7 @@ public interface Iterator<E> {
 
     /**
      * Returns the next object and advances the iterator.
-     * 
+     *
      * @return the next object.
      * @throws NoSuchElementException
      *             if there are no more elements.
@@ -52,7 +52,7 @@ public interface Iterator<E> {
     /**
      * Removes the last object returned by {@code next} from the collection.
      * This method can only be called once between each call to {@code next}.
-     * 
+     *
      * @throws UnsupportedOperationException
      *             if removing is not supported by the collection being
      *             iterated.

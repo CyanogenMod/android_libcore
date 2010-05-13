@@ -94,12 +94,12 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
      */
     public void test_putLjava_lang_ObjectLjava_lang_Object() {
         IdentityHashMap<Object, Object> map = new IdentityHashMap<Object, Object>();
-        
+
         // Test null as a key.
         Object value = "Some value";
         map.put(null, value);
         assertSame("Assert 0: Failure getting null key", value, map.get(null));
-        
+
         // Test null as a value
         Object key = "Some key";
         map.put(key, null);

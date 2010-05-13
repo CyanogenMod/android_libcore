@@ -32,7 +32,7 @@ import java.security.Permission;
  */
 @TestTargetClass(java.lang.Runtime.class)
 public class JavaLangRuntimeTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -46,7 +46,7 @@ public class JavaLangRuntimeTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -88,31 +88,31 @@ public class JavaLangRuntimeTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
-        
+
         String cmd = "ls";
         String arg = "-al";
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         Runtime.getRuntime().exec(cmd);
         assertTrue("Runtime.exec must call checkExcec on security manager", s.called);
         assertEquals("Argument of checkExec is not correct", cmd, s.cmd);
-        
+
         s.reset();
         Runtime.getRuntime().exec(cmd, null);
         assertTrue("Runtime.exec must call checkExcec on security manager", s.called);
         assertEquals("Argument of checkExec is not correct", cmd, s.cmd);
-        
+
         s.reset();
         Runtime.getRuntime().exec(new String[]{cmd, arg});
         assertTrue("Runtime.exec must call checkExcec on security manager", s.called);
         assertEquals("Argument of checkExec is not correct", cmd, s.cmd);
-        
+
         s.reset();
         Runtime.getRuntime().exec(new String[]{cmd, arg}, null);
         assertTrue("Runtime.exec must call checkExcec on security manager", s.called);
@@ -149,7 +149,7 @@ public class JavaLangRuntimeTest extends TestCase {
                 }
             }
         }
-        
+
         Thread hook = new Thread(){};
 
         TestSecurityManager s = new TestSecurityManager();
@@ -189,10 +189,10 @@ public class JavaLangRuntimeTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
 
@@ -229,10 +229,10 @@ public class JavaLangRuntimeTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
 
@@ -263,9 +263,9 @@ public class JavaLangRuntimeTest extends TestCase {
     })
     public void test_load() {
         final String library = "library";
-        
+
         class CheckLinkCalledException extends RuntimeException {}
-        
+
         class TestSecurityManager extends SecurityManager {
             @Override
             public void checkLink(String lib){
@@ -275,10 +275,10 @@ public class JavaLangRuntimeTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
-        
+
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
 
@@ -292,7 +292,7 @@ public class JavaLangRuntimeTest extends TestCase {
         catch(Throwable t){
             fail("System.load must call checkLink on security manager with argument "+library);
         }
-        
+
         try {
             Runtime.getRuntime().loadLibrary(library);
             fail("System.load must call checkLink on security manager with argument "+library);

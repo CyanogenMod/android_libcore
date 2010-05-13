@@ -197,9 +197,9 @@ public abstract class Certificate implements Serializable {
     protected Object writeReplace() throws ObjectStreamException {
         try {
             return new CertificateRep(getType(), getEncoded());
-        } catch (CertificateEncodingException e) {  
+        } catch (CertificateEncodingException e) {
             throw new NotSerializableException (
-                    Messages.getString("security.66", e)); 
+                    Messages.getString("security.66", e));
         }
     }
 
@@ -218,8 +218,8 @@ public abstract class Certificate implements Serializable {
         // Force default serialization to use writeUnshared/readUnshared
         // for the certificate data
         private static final ObjectStreamField[] serialPersistentFields = {
-             new ObjectStreamField("type", String.class), 
-             new ObjectStreamField("data", byte[].class, true) 
+             new ObjectStreamField("type", String.class),
+             new ObjectStreamField("data", byte[].class, true)
         };
 
         /**
@@ -250,7 +250,7 @@ public abstract class Certificate implements Serializable {
                 return cf.generateCertificate(new ByteArrayInputStream(data));
             } catch (Throwable t) {
                 throw new NotSerializableException(
-                        Messages.getString("security.68", t)); 
+                        Messages.getString("security.68", t));
             }
         }
     }

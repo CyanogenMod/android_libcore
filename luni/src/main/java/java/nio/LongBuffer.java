@@ -35,7 +35,7 @@ public abstract class LongBuffer extends Buffer implements
 
     /**
      * Creates a long buffer based on a newly allocated long array.
-     * 
+     *
      * @param capacity
      *            the capacity of the new buffer.
      * @return the created long buffer.
@@ -146,7 +146,7 @@ public abstract class LongBuffer extends Buffer implements
     /**
      * Compare the remaining longs of this buffer to another long buffer's
      * remaining longs.
-     * 
+     *
      * @param otherBuffer
      *            another long buffer.
      * @return a negative value if this is less than {@code otherBuffer}; 0 if
@@ -226,7 +226,7 @@ public abstract class LongBuffer extends Buffer implements
 
     /**
      * Returns the long at the current position and increase the position by 1.
-     * 
+     *
      * @return the long at the current position.
      * @exception BufferUnderflowException
      *                if the position is equal or greater than limit.
@@ -239,7 +239,7 @@ public abstract class LongBuffer extends Buffer implements
      * <p>
      * Calling this method has the same effect as
      * {@code get(dest, 0, dest.length)}.
-     * 
+     *
      * @param dest
      *            the destination long array.
      * @return this buffer.
@@ -254,7 +254,7 @@ public abstract class LongBuffer extends Buffer implements
      * Reads longs from the current position into the specified long array,
      * starting from the specified offset, and increase the position by the
      * number of longs read.
-     * 
+     *
      * @param dest
      *            the target long array.
      * @param off
@@ -286,7 +286,7 @@ public abstract class LongBuffer extends Buffer implements
 
     /**
      * Returns the long at the specified index; the position is not changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than limit.
      * @return the long at the specified index.
@@ -365,7 +365,7 @@ public abstract class LongBuffer extends Buffer implements
     /**
      * Writes the given long to the current position and increases the position
      * by 1.
-     * 
+     *
      * @param l
      *            the long to write.
      * @return this buffer.
@@ -399,7 +399,7 @@ public abstract class LongBuffer extends Buffer implements
      * Writes longs from the given long array, starting from the specified
      * offset, to the current position and increases the position by the number
      * of longs written.
-     * 
+     *
      * @param src
      *            the source long array.
      * @param off
@@ -435,7 +435,7 @@ public abstract class LongBuffer extends Buffer implements
      * Writes all the remaining longs of the {@code src} long buffer to this
      * buffer's current position, and increases both buffers' position by the
      * number of longs copied.
-     * 
+     *
      * @param src
      *            the source long buffer.
      * @return this buffer.
@@ -463,7 +463,7 @@ public abstract class LongBuffer extends Buffer implements
     /**
      * Writes a long to the specified index of this buffer; the position is not
      * changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than the limit.
      * @param l
@@ -495,18 +495,18 @@ public abstract class LongBuffer extends Buffer implements
 
     /**
      * Returns a string representing the state of this long buffer.
-     * 
+     *
      * @return a string representing the state of this long buffer.
      */
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append(getClass().getName());
-        buf.append(", status: capacity="); 
+        buf.append(", status: capacity=");
         buf.append(capacity());
-        buf.append(" position="); 
+        buf.append(" position=");
         buf.append(position());
-        buf.append(" limit="); 
+        buf.append(" limit=");
         buf.append(limit());
         return buf.toString();
     }

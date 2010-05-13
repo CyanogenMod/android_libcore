@@ -37,14 +37,14 @@ import org.apache.harmony.security.asn1.ASN1UTCTime;
  * <pre>
  * Time ::= CHOICE {
  *       utcTime        UTCTime,
- *       generalTime    GeneralizedTime 
+ *       generalTime    GeneralizedTime
  * }
  * </pre>
  */
 public class Time {
-    
+
     private static final long JAN_01_2050 = 2524608000000L;
-    
+
     public static final ASN1Choice ASN1 = new ASN1Choice(new ASN1Type[] {
             ASN1GeneralizedTime.getInstance(), ASN1UTCTime.getInstance() }) {
 

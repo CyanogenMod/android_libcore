@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>AlgorithmParameterGeneratorSpi</code> class constructors
  * and methods.
- * 
+ *
  */
 @TestTargetClass(java.security.AlgorithmParameterGeneratorSpi.class)
 public class AlgorithmParameterGeneratorSpiTest extends TestCase {
@@ -101,5 +101,5 @@ public class AlgorithmParameterGeneratorSpiTest extends TestCase {
         }
     }
 
-    
+
 }

@@ -624,7 +624,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Quote illegal chars for each component, but not the others
-     * 
+     *
      * @param component java.lang.String the component to be converted
      * @param legalSet the legal character set allowed in the component
      * @return java.lang.String the converted string
@@ -946,7 +946,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the decoded fragment part of this URI.
-     * 
+     *
      * @return the decoded fragment part or {@code null} if undefined.
      */
     public String getFragment() {
@@ -955,7 +955,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the host part of this URI.
-     * 
+     *
      * @return the host part or {@code null} if undefined.
      */
     public String getHost() {
@@ -964,7 +964,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the decoded path part of this URI.
-     * 
+     *
      * @return the decoded path part or {@code null} if undefined.
      */
     public String getPath() {
@@ -973,7 +973,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the port number of this URI.
-     * 
+     *
      * @return the port number or {@code -1} if undefined.
      */
     public int getPort() {
@@ -982,7 +982,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the decoded query part of this URI.
-     * 
+     *
      * @return the decoded query part or {@code null} if undefined.
      */
     public String getQuery() {
@@ -991,7 +991,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the authority part of this URI in raw form.
-     * 
+     *
      * @return the encoded authority part or {@code null} if undefined.
      */
     public String getRawAuthority() {
@@ -1000,7 +1000,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the fragment part of this URI in raw form.
-     * 
+     *
      * @return the encoded fragment part or {@code null} if undefined.
      */
     public String getRawFragment() {
@@ -1009,7 +1009,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the path part of this URI in raw form.
-     * 
+     *
      * @return the encoded path part or {@code null} if undefined.
      */
     public String getRawPath() {
@@ -1018,7 +1018,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the query part of this URI in raw form.
-     * 
+     *
      * @return the encoded query part or {@code null} if undefined.
      */
     public String getRawQuery() {
@@ -1027,7 +1027,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the scheme-specific part of this URI in raw form.
-     * 
+     *
      * @return the encoded scheme-specific part or {@code null} if undefined.
      */
     public String getRawSchemeSpecificPart() {
@@ -1036,7 +1036,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the user-info part of this URI in raw form.
-     * 
+     *
      * @return the encoded user-info part or {@code null} if undefined.
      */
     public String getRawUserInfo() {
@@ -1045,7 +1045,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the scheme part of this URI.
-     * 
+     *
      * @return the scheme part or {@code null} if undefined.
      */
     public String getScheme() {
@@ -1054,7 +1054,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the decoded scheme-specific part of this URI.
-     * 
+     *
      * @return the decoded scheme-specific part or {@code null} if undefined.
      */
     public String getSchemeSpecificPart() {
@@ -1063,7 +1063,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
     /**
      * Gets the decoded user-info part of this URI.
-     * 
+     *
      * @return the decoded user-info part or {@code null} if undefined.
      */
     public String getUserInfo() {
@@ -1086,7 +1086,7 @@ public final class URI implements Comparable<URI>, Serializable {
     /**
      * Indicates whether this URI is absolute, which means that a scheme part is
      * defined in this URI.
-     * 
+     *
      * @return {@code true} if this URI is absolute, {@code false} otherwise.
      */
     public boolean isAbsolute() {
@@ -1098,7 +1098,7 @@ public final class URI implements Comparable<URI>, Serializable {
      * and has a scheme-specific part which does not start with a slash
      * character. All parts except scheme, scheme-specific and fragment are
      * undefined.
-     * 
+     *
      * @return {@code true} if the URI is opaque, {@code false} otherwise.
      */
     public boolean isOpaque() {
@@ -1384,7 +1384,7 @@ public final class URI implements Comparable<URI>, Serializable {
     /**
      * Encode unicode chars that are not part of US-ASCII char set into the
      * escaped form
-     * 
+     *
      * i.e. The Euro currency symbol is encoded as "%E2%82%AC".
      */
     private String encodeNonAscii(String s) {

@@ -47,7 +47,7 @@ import org.apache.harmony.security.tests.support.MyAlgorithmParameterGeneratorSp
 /**
  * Tests for <code>AlgorithmParameters</code> class constructors and
  * methods.
- * 
+ *
  */
 public class AlgorithmParametersTest extends TestCase {
 
@@ -55,7 +55,7 @@ public class AlgorithmParametersTest extends TestCase {
      * Provider
      */
     Provider p;
-    
+
     /*
      * @see TestCase#setUp()
      */
@@ -172,7 +172,7 @@ public class AlgorithmParametersTest extends TestCase {
         //
         params.init(new MyAlgorithmParameterSpec());
         assertSame(enc, params.getEncoded(strFormatParam));
-        
+
         //
         // test: if format param is null
         // Regression test for HARMONY-2680
@@ -208,7 +208,7 @@ public class AlgorithmParametersTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception");
         }
-        
+
         for(int i = 0; i < str.length; i++) {
             try {
                 AlgorithmParameters ap = AlgorithmParameters.getInstance(str[i]);
@@ -240,7 +240,7 @@ public class AlgorithmParametersTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception");
         }
-        
+
         for (int i = 0; i < alg.length; i++) {
             try {
                 AlgorithmParameters ap = AlgorithmParameters.getInstance(alg[i], "MyProvider");
@@ -251,7 +251,7 @@ public class AlgorithmParametersTest extends TestCase {
                 fail("Incorrect exception " + e + " was thrown for " + alg[i]);
             }
         }
-        
+
         for (int i = 0; i < prv.length; i++) {
             try {
                 AlgorithmParameters ap = AlgorithmParameters.getInstance("ABC", prv[i]);
@@ -262,7 +262,7 @@ public class AlgorithmParametersTest extends TestCase {
                 fail("Incorrect exception " + e + " was thrown for " + prv[i]);
             }
         }
-        
+
         for (int i = 0; i < prv1.length; i++) {
             try {
                 AlgorithmParameters ap = AlgorithmParameters.getInstance("ABC", prv1[i]);
@@ -351,7 +351,7 @@ public class AlgorithmParametersTest extends TestCase {
     public void test_getInstanceLjava_lang_StringLjava_security_Provider() {
         String[] alg = {"", "qwertyu", "!@#$%^&*()"};
         Provider pp = null;
-        
+
         try {
             AlgorithmParameters ap = AlgorithmParameters.getInstance("ABC", p);
             checkUnititialized(ap);
@@ -360,7 +360,7 @@ public class AlgorithmParametersTest extends TestCase {
         } catch (Exception e){
             fail("Unexpected exception");
         }
-        
+
         for (int i = 0; i < alg.length; i++) {
             try {
                 AlgorithmParameters ap = AlgorithmParameters.getInstance(alg[i], p);
@@ -371,7 +371,7 @@ public class AlgorithmParametersTest extends TestCase {
                 fail("Incorrect exception " + e + " was thrown for " + alg[i]);
             }
         }
-        
+
         try {
             AlgorithmParameters ap = AlgorithmParameters.getInstance("ABC", pp);
             fail("IllegalArgumentException was not thrown for NULL provider");
@@ -729,9 +729,9 @@ public class AlgorithmParametersTest extends TestCase {
 
         assertEquals("Algorithm", "OAEP", params.getAlgorithm());
     }
-    
+
     /**
-     * Test for <code>AlgorithmParameters</code> constructor 
+     * Test for <code>AlgorithmParameters</code> constructor
      * Assertion: returns AlgorithmParameters object
      */
     @TestTargetNew(
@@ -749,7 +749,7 @@ public class AlgorithmParametersTest extends TestCase {
         checkUnititialized(ap);
         ap.init(new byte[6], "aaa");
         checkAP(ap, p);
-        
+
         //NULL parameters
         try {
             ap = new myAlgP(null, null, null);
@@ -757,11 +757,11 @@ public class AlgorithmParametersTest extends TestCase {
             fail("Exception should be not thrown");
         }
     }
-    
+
     private void checkUnititialized(AlgorithmParameters ap) {
         assertNull("Uninitialized: toString() failed", ap.toString());
     }
-    
+
     private void checkAP(AlgorithmParameters ap, Provider p) throws Exception {
 
         assertSame("getProvider() failed", p, ap.getProvider());
@@ -783,17 +783,17 @@ public class AlgorithmParametersTest extends TestCase {
             super(name, version, info);
         }
     }
-    
+
     private class MyAlgorithmParameterSpec implements java.security.spec.AlgorithmParameterSpec{
     }
-    
+
     private class DummyAlgorithmParameters extends AlgorithmParameters {
-        public DummyAlgorithmParameters(AlgorithmParametersSpi paramSpi, 
+        public DummyAlgorithmParameters(AlgorithmParametersSpi paramSpi,
                 Provider provider, String algorithm) {
             super(paramSpi, provider, algorithm);
         }
     }
-    
+
     public static class MyAlgorithmParameters extends AlgorithmParametersSpi {
 
         public boolean runEngineInit_AlgParamSpec = false;
@@ -833,7 +833,7 @@ public class AlgorithmParametersTest extends TestCase {
             return "AlgorithmParameters";
         }
     }
-    
+
     /**
      * Additional class to verify AlgorithmParameters constructor
      */

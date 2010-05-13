@@ -87,5 +87,5 @@ public class AlgorithmParametersTestDH extends AlgorithmParametersTest {
     public void testAlgorithmParameters() {
         super.testAlgorithmParameters();
     }
-    
+
 }

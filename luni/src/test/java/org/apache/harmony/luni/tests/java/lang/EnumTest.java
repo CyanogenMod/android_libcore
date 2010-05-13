@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,25 +36,25 @@ public class EnumTest extends TestCase {
 
     enum Empty {
     }
-    
+
     enum Bogus {
         UNUSED
-    }   
-    
+    }
+
     enum Color {
         Red, Green, Blue {};
     }
-    
+
     enum MockCloneEnum {
         ONE;
-        
+
         public void callClone() throws CloneNotSupportedException{
             super.clone();
         }
     }
-    
+
     /**
-     * @tests java.lang.Enum#compareTo(java.lang.Enum) 
+     * @tests java.lang.Enum#compareTo(java.lang.Enum)
      */
     public void test_compareToLjava_lang_Enum() {
         assertTrue(0 < Sample.MOE.compareTo(Sample.LARRY));
@@ -138,7 +138,7 @@ public class EnumTest extends TestCase {
             // other compilers will throw this
         }
 
-        
+
         Sample s = Enum.valueOf(Sample.class, "CURLY");
         assertSame(s, Sample.CURLY);
         s = Enum.valueOf(Sample.class, "LARRY");
@@ -187,7 +187,7 @@ public class EnumTest extends TestCase {
         assertEquals(Sample.LARRY, myValues[0]);
         assertEquals(Sample.MOE, myValues[1]);
         assertEquals(Sample.CURLY, myValues[2]);
-        
+
         assertEquals(0, Empty.values().length);
     }
 
@@ -203,16 +203,16 @@ public class EnumTest extends TestCase {
         }
 
     }
-    
+
     /**
      * @test Serialization/deserilazation compatibility with Harmony.
      */
     public void test_compatibilitySerialization_inClass_Complex_Harmony() throws Exception{
-        // TODO migrate to the new testing framework 
+        // TODO migrate to the new testing framework
         assertTrue(SerializationTester.assertCompabilityEquals(new MockEnum2(),
             "serialization/org/apache/harmony/luni/tests/java/lang/EnumTest.harmony.ser"));
     }
-    
+
     /**
      * @tests serialization/deserialization compatibility.
      */

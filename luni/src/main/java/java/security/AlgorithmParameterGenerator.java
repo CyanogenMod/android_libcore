@@ -29,7 +29,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 public class AlgorithmParameterGenerator {
 
     // Store spi service name
-    private static final String SERVICE = "AlgorithmParameterGenerator"; 
+    private static final String SERVICE = "AlgorithmParameterGenerator";
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
@@ -77,7 +77,7 @@ public class AlgorithmParameterGenerator {
     /**
      * Returns a new instance of {@code AlgorithmParameterGenerator} for the
      * specified algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use.
      * @return a new instance of {@code AlgorithmParameterGenerator} for the
@@ -90,7 +90,7 @@ public class AlgorithmParameterGenerator {
     public static AlgorithmParameterGenerator getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -103,7 +103,7 @@ public class AlgorithmParameterGenerator {
     /**
      * Returns a new instance of {@code AlgorithmParameterGenerator} from the
      * specified provider for the specified algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use.
      * @param provider
@@ -123,7 +123,7 @@ public class AlgorithmParameterGenerator {
             NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.02")); 
+                    Messages.getString("security.02"));
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -135,7 +135,7 @@ public class AlgorithmParameterGenerator {
     /**
      * Returns a new instance of {@code AlgorithmParameterGenerator} from the
      * specified provider for the specified algorithm.
-     * 
+     *
      * @param algorithm
      *            the name of the algorithm to use.
      * @param provider
@@ -150,10 +150,10 @@ public class AlgorithmParameterGenerator {
     public static AlgorithmParameterGenerator getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); 
+            throw new IllegalArgumentException(Messages.getString("security.04"));
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); 
+            throw new NullPointerException(Messages.getString("security.01"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);

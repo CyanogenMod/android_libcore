@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,7 @@
 package tests.api.java.net;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -50,8 +50,8 @@ import tests.support.Support_TestWebServer;
 @TestTargetClass(value = ResponseCache.class)
 public class ResponseCacheTest extends TestCase {
 
-    
-    
+
+
     /**
      * @tests java.net.ResponseCache#getDefault()
      */
@@ -168,7 +168,7 @@ public class ResponseCacheTest extends TestCase {
         try {
             Thread.sleep(5000);
         } catch(Exception e) {}
-        
+
         InputStream is = httpCon.getInputStream();
         byte[] array = new byte [10];
         is.read(array);
@@ -197,14 +197,14 @@ public class ResponseCacheTest extends TestCase {
         try {
             s.initServer(port, 10000, false);
             Thread.currentThread().sleep(2500);
-    
+
             // Create connection to server
             URL url  = new URL("http://localhost:" + port + "/test1");
             HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
             httpCon.setUseCaches(true);
             httpCon.connect();
             Thread.currentThread().sleep(2500);
-    
+
             // Check that a call to the cache was made.
             assertEquals(url.toURI(), cache.getWasCalled);
             // Make the HttpConnection get the content. It should try to
@@ -212,10 +212,10 @@ public class ResponseCacheTest extends TestCase {
             httpCon.getContent();
             // Check if put was called
             assertEquals(url.toURI(), cache.putWasCalled);
-    
-            // get the 
+
+            // get the
             InputStream is = httpCon.getInputStream();
-    
+
             byte[] array = new byte[Support_TestWebData.test1.length];
             is.read(array);
             assertTrue(Arrays.equals(Support_TestWebData.tests[0], array));
@@ -225,7 +225,7 @@ public class ResponseCacheTest extends TestCase {
             s.close();
         }
     }
-    
+
     /*
      * MockResponseCache for testSetDefault(ResponseCache)
      */
@@ -256,7 +256,7 @@ public class ResponseCacheTest extends TestCase {
 
             if (permission instanceof NetPermission) {
                 if ("getResponseCache".equals(permission.getName())) {
-                    
+
                     throw new SecurityException();
                 }
             }
@@ -268,11 +268,11 @@ public class ResponseCacheTest extends TestCase {
             }
         }
     }
-    
+
     class TestCacheResponse extends CacheResponse {
         InputStream is = null;
         Map<String, List<String>> headers = null;
-        
+
         public TestCacheResponse(String filename) {
             String path = getClass().getPackage().getName().replace(".", "/");
             is = getClass().getResourceAsStream("/" + path + "/" + filename);
@@ -300,7 +300,7 @@ public class ResponseCacheTest extends TestCase {
         public void abort() {
         }
     }
-    
+
     class TestResponseCache extends ResponseCache {
 
         URI uri1 = null;
@@ -311,7 +311,7 @@ public class ResponseCacheTest extends TestCase {
 
         TestResponseCache(String uri, boolean testGet) {
             try {
-                uri1  = new URI(uri);            
+                uri1  = new URI(uri);
             } catch (URISyntaxException e) {
             }
             this.testGet = testGet;

@@ -43,13 +43,13 @@ import junit.framework.TestCase;
 
 /**
  * Tests for <code>HttpsURLConnection</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(HttpsURLConnection.class) 
+@TestTargetClass(HttpsURLConnection.class)
 public class HttpsURLConnectionTest extends TestCase {
-    
+
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#HttpsURLConnection(java_net_URL) 
+     * @tests javax.net.ssl.HttpsURLConnection#HttpsURLConnection(java_net_URL)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -69,9 +69,9 @@ public class HttpsURLConnectionTest extends TestCase {
             fail("Unexpected exception " + e.toString());
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getCipherSuite() 
+     * @tests javax.net.ssl.HttpsURLConnection#getCipherSuite()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -92,7 +92,7 @@ public class HttpsURLConnectionTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e + " for exception case");
         }
-        
+
         try {
             HttpsURLConnection con = new MyHttpsURLConnection(new URL("https://www.fortify.net/"));
             assertEquals("CipherSuite", con.getCipherSuite());
@@ -100,9 +100,9 @@ public class HttpsURLConnectionTest extends TestCase {
             fail("Unexpected exception " + e);
         }
     }
-    
+
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getLocalCertificates() 
+     * @tests javax.net.ssl.HttpsURLConnection#getLocalCertificates()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -123,7 +123,7 @@ public class HttpsURLConnectionTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e + " for exception case");
         }
-        
+
         try {
             HttpsURLConnection con = new MyHttpsURLConnection(new URL("https://www.fortify.net/"), "X.508");
             assertNull(con.getLocalCertificates());
@@ -137,7 +137,7 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getDefaultHostnameVerifier() 
+     * @tests javax.net.ssl.HttpsURLConnection#getDefaultHostnameVerifier()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -150,9 +150,9 @@ public class HttpsURLConnectionTest extends TestCase {
             HttpsURLConnection.getDefaultHostnameVerifier();
         assertNotNull("Default hostname verifyer is null", verifyer);
     }
-    
+
     /**
-     * @tests javax.net.ssl.HttpsURLConnection#getDefaultSSLSocketFactory() 
+     * @tests javax.net.ssl.HttpsURLConnection#getDefaultSSLSocketFactory()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -166,7 +166,7 @@ public class HttpsURLConnectionTest extends TestCase {
             fail("incorrect DefaultSSLSocketFactory");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.HttpsURLConnection#getHostnameVerifier()
      */
@@ -182,7 +182,7 @@ public class HttpsURLConnectionTest extends TestCase {
                 new URL("https://www.fortify.net/"));
         HostnameVerifier verifyer = con.getHostnameVerifier();
         assertNotNull("Hostname verifyer is null", verifyer);
-        assertEquals("Incorrect value of hostname verirfyer", 
+        assertEquals("Incorrect value of hostname verirfyer",
                 HttpsURLConnection.getDefaultHostnameVerifier(), verifyer);
     }
 
@@ -208,7 +208,7 @@ public class HttpsURLConnectionTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e + " for exception case");
         }
-        
+
         try {
             HttpsURLConnection con = new MyHttpsURLConnection(new URL("https://www.fortify.net/"), "X.508");
             assertNull(con.getLocalPrincipal());
@@ -248,7 +248,7 @@ public class HttpsURLConnectionTest extends TestCase {
         } catch (SSLPeerUnverifiedException e) {
             //expected
         }
-        
+
         con = new MyHttpsURLConnection(new URL("https://www.fortify.net/"), "X.509");
         try {
             Principal p = con.getPeerPrincipal();
@@ -257,7 +257,7 @@ public class HttpsURLConnectionTest extends TestCase {
             fail("Unexpected exception " + e);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.HttpsURLConnection#getServerCertificates()
      */
@@ -280,7 +280,7 @@ public class HttpsURLConnectionTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e + " for exception case");
         }
-        
+
         HttpsURLConnection con = new MyHttpsURLConnection(new URL("https://www.fortify.net/"), "X.508");
         try {
             Certificate[] cert = con.getServerCertificates();
@@ -288,7 +288,7 @@ public class HttpsURLConnectionTest extends TestCase {
         } catch (SSLPeerUnverifiedException e) {
             //expected
         }
-        
+
         con = new MyHttpsURLConnection(new URL("https://www.fortify.net/"), "X.509");
         try {
             Certificate[] cert = con.getServerCertificates();
@@ -415,13 +415,13 @@ public class HttpsURLConnectionTest extends TestCase {
 }
 
 class MyHttpsURLConnection extends javax.net.ssl.HttpsURLConnection {
-    
+
     private String typeDone;
-    
+
     public MyHttpsURLConnection(URL url) {
         super(url);
     }
-    
+
     public MyHttpsURLConnection(URL url, String type) {
         super(url);
         typeDone = type;
@@ -449,7 +449,7 @@ class MyHttpsURLConnection extends javax.net.ssl.HttpsURLConnection {
         }
         return cert == null ? null : new Certificate[]{cert};
     }
-    
+
     /*
      * @see javax.net.ssl.HttpsURLConnection#getServerCertificates()
      */
@@ -485,10 +485,10 @@ class MyHttpsURLConnection extends javax.net.ssl.HttpsURLConnection {
 }
 
 class myHostnameVerifier implements HostnameVerifier {
-    
+
     myHostnameVerifier() {
     }
-    
+
     public boolean verify(String hostname, SSLSession session) {
         if (hostname == session.getPeerHost()) {
             return true;

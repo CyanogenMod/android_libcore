@@ -61,10 +61,10 @@ public final class Util {
 				return name.getBytes(defaultEncoding);
 			} catch (java.io.UnsupportedEncodingException e) {
 			}
-		}      
+		}
         return name.getBytes();
 	}
-    
+
     /**
      * Get bytes from String with UTF8 encoding
      * @param name
@@ -91,8 +91,8 @@ public final class Util {
 
     public static String toUTF8String(byte[] bytes) {
         return toUTF8String(bytes, 0, bytes.length);
-    }    
-    
+    }
+
 	public static String toString(byte[] bytes, int offset, int length) {
 		if (defaultEncoding != null) {
 			try {
@@ -110,11 +110,11 @@ public final class Util {
             return toString(bytes, offset, length);
         }
     }
-    
+
 	/**
 	 * Returns the millisecond value of the date and time parsed from the
 	 * specified String. Many date/time formats are recognized
-	 * 
+	 *
 	 * @param string
 	 *            the String to parse
 	 * @return the millisecond value parsed from the String
@@ -269,7 +269,7 @@ public final class Util {
 	 * '%' and two following hex digit characters are converted to the
 	 * equivalent byte value. All other characters are passed through
 	 * unmodified. e.g. "ABC %24%25" -> "ABC $%"
-	 * 
+	 *
 	 * @param s
 	 *            java.lang.String The encoded string.
 	 * @return java.lang.String The decoded version.
@@ -282,7 +282,7 @@ public final class Util {
      * '%' and two following hex digit characters are converted to the
      * equivalent byte value. All other characters are passed through
      * unmodified. e.g. "ABC %24%25" -> "ABC $%"
-     * 
+     *
      * @param s
      *            java.lang.String The encoded string.
      * @param encoding

@@ -23,7 +23,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(ObjectStreamException.class) 
+@TestTargetClass(ObjectStreamException.class)
 public class ObjectStreamExceptionTest extends junit.framework.TestCase {
 
     class MyObjectStreamException extends ObjectStreamException {
@@ -32,12 +32,12 @@ public class ObjectStreamExceptionTest extends junit.framework.TestCase {
         public MyObjectStreamException() {
             super();
         }
-        
+
         public MyObjectStreamException(String detailMessage) {
             super(detailMessage);
         }
     }
-    
+
     /**
      * @tests java.io.ObjectStreamException#ObjectStreamException()
      */
@@ -45,7 +45,7 @@ public class ObjectStreamExceptionTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "ObjectStreamException",
             args = {}
-        )     
+        )
     public void test_Constructor() {
         try {
             if (true) // To avoid unreachable code compilation error.
@@ -64,7 +64,7 @@ public class ObjectStreamExceptionTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "ObjectStreamException",
             args = {java.lang.String.class}
-        )     
+        )
     public void test_ConstructorLjava_lang_String() {
         try {
             if (true) // To avoid unreachable code compilation error.

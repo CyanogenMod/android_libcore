@@ -113,7 +113,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * abstract} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -126,7 +126,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * final} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -139,7 +139,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * interface} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -152,7 +152,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * native} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -165,7 +165,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * private} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -178,7 +178,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * protected} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -191,7 +191,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * public} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -204,7 +204,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * static} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -217,7 +217,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * strict} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -230,7 +230,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * synchronized} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -243,7 +243,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * transient} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code
@@ -256,7 +256,7 @@ public class Modifier {
     /**
      * Indicates whether or not the specified modifiers contain the {@code
      * volatile} modifier.
-     * 
+     *
      * @param modifiers
      *            the modifiers to test
      * @return {@code true} if the specified modifiers contain the {@code

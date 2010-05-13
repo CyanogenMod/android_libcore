@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,7 +61,7 @@ public final class AccessControlContext {
      * If a {@code SecurityManager} is installed, code calling this constructor
      * need the {@code SecurityPermission} {@code createAccessControlContext} to
      * be granted, otherwise a {@code SecurityException} will be thrown.
-     * 
+     *
      * @param acc
      *            the {@code AccessControlContext} related to the given {@code
      *            DomainCombiner}
@@ -89,7 +89,7 @@ public final class AccessControlContext {
     /**
      * Constructs a new instance of {@code AccessControlContext} with the
      * specified array of {@code ProtectionDomain}s.
-     * 
+     *
      * @param context
      *            the {@code ProtectionDomain}s that are used to perform access
      *            checks in the context of this {@code AccessControlContext}
@@ -114,21 +114,21 @@ public final class AccessControlContext {
             }
         }
         if (this.context == null) {
-            // Prevent numerous checks for 'context==null' 
+            // Prevent numerous checks for 'context==null'
             this.context = new ProtectionDomain[0];
         }
     }
 
     /**
      * Package-level ctor which is used in AccessController.<br>
-     * ProtectionDomains passed as <code>stack</code> is then passed into 
+     * ProtectionDomains passed as <code>stack</code> is then passed into
      * {@link #AccessControlContext(ProtectionDomain[])}, therefore:<br>
      * <il>
      * <li>it must not be null
      * <li>duplicates will be removed
      * <li>null-s will be removed
      * </li>
-     *   
+     *
      * @param stack - array of ProtectionDomains
      * @param inherited - inherited context, which may be null
      */
@@ -140,14 +140,14 @@ public final class AccessControlContext {
 
     /**
      * Package-level ctor which is used in AccessController.<br>
-     * ProtectionDomains passed as <code>stack</code> is then passed into 
+     * ProtectionDomains passed as <code>stack</code> is then passed into
      * {@link #AccessControlContext(ProtectionDomain[])}, therefore:<br>
      * <il>
      * <li>it must not be null
      * <li>duplicates will be removed
      * <li>null-s will be removed
      * </li>
-     *   
+     *
      * @param stack - array of ProtectionDomains
      * @param combiner - combiner
      */
@@ -175,7 +175,7 @@ public final class AccessControlContext {
      * If inherited methods are on the call stack, the protection domains of the
      * declaring classes are checked, not the protection domains of the classes
      * on which the method is invoked.
-     * 
+     *
      * @param perm
      *            the permission to check against the policy
      * @throws AccessControlException
@@ -206,7 +206,7 @@ public final class AccessControlContext {
      * instance of {@code AccessControlContext}, and the two contexts
      * encapsulate the same {@code ProtectionDomain}s. The order of the {@code
      * ProtectionDomain}s is ignored by this method.
-     * 
+     *
      * @param obj
      *            object to be compared for equality with this {@code
      *            AccessControlContext}
@@ -241,7 +241,7 @@ public final class AccessControlContext {
      * If a {@code SecurityManager} is installed, code calling this method needs
      * the {@code SecurityPermission} {@code getDomainCombiner} to be granted,
      * otherwise a {@code SecurityException} will be thrown.
-     * 
+     *
      * @return the {@code DomainCombiner} associated with this {@code
      *         AccessControlContext}
      * @throws SecurityException
@@ -262,7 +262,7 @@ public final class AccessControlContext {
      * Returns the same hash code for {@code AccessControlContext}s that are
      * equal to each other as required by the general contract of
      * {@link Object#hashCode}.
-     * 
+     *
      * @return the hash code value for this {@code AccessControlContext}
      * @see Object#equals(Object)
      * @see AccessControlContext#equals(Object)

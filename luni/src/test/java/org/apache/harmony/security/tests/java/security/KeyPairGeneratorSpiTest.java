@@ -40,13 +40,13 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyPairGeneratorSpi.class)
 /**
  * Tests for <code>KeyPairGeneratorSpi</code> class constructors and methods.
- * 
+ *
  */
 
 public class KeyPairGeneratorSpiTest extends TestCase {
 
     /**
-     * Test for <code>KeyPairGeneratorSpi</code> constructor 
+     * Test for <code>KeyPairGeneratorSpi</code> constructor
      * Assertion: constructs KeyPairGeneratorSpi
      */
     @TestTargets({
@@ -86,7 +86,7 @@ public class KeyPairGeneratorSpiTest extends TestCase {
             fail("UnsupportedOperationException must be thrown");
         } catch (UnsupportedOperationException e) {
         }
-        
+
         keyPairGen.initialize(pp, new SecureRandom());
         keyPairGen.initialize(1024, new SecureRandom());
         try {
@@ -104,7 +104,7 @@ public class KeyPairGeneratorSpiTest extends TestCase {
         KeyPair kp = keyPairGen.generateKeyPair();
         assertNull("Not null KeyPair", kp);
     }
-    
+
     class MyAlgorithmParameterSpec implements AlgorithmParameterSpec {}
 
 }

@@ -46,8 +46,8 @@ public final class Permissions extends PermissionCollection implements
     private static final long serialVersionUID = 4858622370623524688L;
 
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("perms", Hashtable.class), 
-        new ObjectStreamField("allPermission", PermissionCollection.class), }; 
+        new ObjectStreamField("perms", Hashtable.class),
+        new ObjectStreamField("allPermission", PermissionCollection.class), };
 
     // Hash to store PermissionCollection's
     private transient Map klasses = new HashMap();
@@ -69,11 +69,11 @@ public final class Permissions extends PermissionCollection implements
      */
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15")); 
+            throw new SecurityException(Messages.getString("security.15"));
         }
 
         if (permission == null) {
-            throw new NullPointerException(Messages.getString("security.20")); 
+            throw new NullPointerException(Messages.getString("security.20"));
         }
 
         Class klass = permission.getClass();
@@ -107,7 +107,7 @@ public final class Permissions extends PermissionCollection implements
     /**
      * An auxiliary implementation for enumerating individual permissions from a
      * collection of PermissionCollections.
-     * 
+     *
      */
     final static class MetaEnumeration implements Enumeration {
 
@@ -117,7 +117,7 @@ public final class Permissions extends PermissionCollection implements
 
         /**
          * Initiates this enumeration.
-         * 
+         *
          * @param outer an iterator over external collection of
          *        PermissionCollections
          */
@@ -157,14 +157,14 @@ public final class Permissions extends PermissionCollection implements
 
                 return next;
             }
-            throw new NoSuchElementException(Messages.getString("security.17")); 
+            throw new NoSuchElementException(Messages.getString("security.17"));
         }
     }
 
     public boolean implies(Permission permission) {
         if (permission == null) {
             // RI compatible
-            throw new NullPointerException(Messages.getString("security.21")); 
+            throw new NullPointerException(Messages.getString("security.21"));
         }
         if (allEnabled) {
             return true;
@@ -212,7 +212,7 @@ public final class Permissions extends PermissionCollection implements
     private void readObject(java.io.ObjectInputStream in) throws IOException,
         ClassNotFoundException {
         ObjectInputStream.GetField fields = in.readFields();
-        Map perms = (Map)fields.get("perms", null); 
+        Map perms = (Map)fields.get("perms", null);
         klasses = new HashMap();
         synchronized (klasses) {
             for (Iterator iter = perms.entrySet().iterator(); iter.hasNext();) {
@@ -220,14 +220,14 @@ public final class Permissions extends PermissionCollection implements
                 Class key = (Class) entry.getKey();
                 PermissionCollection pc = (PermissionCollection) entry.getValue();
                 if (key != pc.elements().nextElement().getClass()) {
-                    throw new InvalidObjectException(Messages.getString("security.22")); 
+                    throw new InvalidObjectException(Messages.getString("security.22"));
                 }
                 klasses.put(key, pc);
             }
         }
-        allEnabled = fields.get("allPermission", null) != null; 
+        allEnabled = fields.get("allPermission", null) != null;
         if (allEnabled && !klasses.containsKey(AllPermission.class)) {
-            throw new InvalidObjectException(Messages.getString("security.23")); 
+            throw new InvalidObjectException(Messages.getString("security.23"));
         }
     }
 
@@ -236,8 +236,8 @@ public final class Permissions extends PermissionCollection implements
      */
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         ObjectOutputStream.PutField fields = out.putFields();
-        fields.put("perms", new Hashtable(klasses)); 
-        fields.put("allPermission", allEnabled ? klasses 
+        fields.put("perms", new Hashtable(klasses));
+        fields.put("allPermission", allEnabled ? klasses
             .get(AllPermission.class) : null);
         out.writeFields();
     }

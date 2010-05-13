@@ -41,7 +41,7 @@ public class UnsupportedOperationExceptionTest extends TestCase {
         assertEquals("fixture", e.getMessage());
         assertNull(e.getCause());
     }
-    
+
     /**
      * @tests {@link java.land.UnsupportedOperationException#UnsupportedOperationException(java.lang.Throwable)}
      */
@@ -79,7 +79,7 @@ public class UnsupportedOperationExceptionTest extends TestCase {
         assertEquals(throwable.getClass().getName() + ": " + throwable.getMessage(), exception
                 .getCause().toString());
     }
-    
+
 	
     /**
      * @tests serialization/deserialization.

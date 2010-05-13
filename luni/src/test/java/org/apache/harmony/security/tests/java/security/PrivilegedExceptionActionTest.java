@@ -61,7 +61,7 @@ public class PrivilegedExceptionActionTest extends TestCase {
         } catch (PrivilegedActionException e) {
             fail("unexpected exception : " + e);
         }
-        
+
         Exception[] exceptions = {new NullPointerException(), new IOException(), null};
         for (int i = 0; i < exceptions.length; i++) {
             Exception exception = exceptions[i];

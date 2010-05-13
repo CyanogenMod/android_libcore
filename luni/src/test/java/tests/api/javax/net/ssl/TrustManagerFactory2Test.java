@@ -39,9 +39,9 @@ import junit.framework.TestCase;
 
 /**
  * Tests for TrustManagerFactory class constructors and methods
- * 
+ *
  */
-@TestTargetClass(TrustManagerFactory.class) 
+@TestTargetClass(TrustManagerFactory.class)
 public class TrustManagerFactory2Test extends TestCase {
     private static final String srvTrustManagerFactory = "TrustManagerFactory";
     private static final String defaultAlg = "TMF";
@@ -80,7 +80,7 @@ public class TrustManagerFactory2Test extends TestCase {
     private void checkResult(TrustManagerFactory tmf) throws Exception {
         KeyStore kStore = null;
         ManagerFactoryParameters mfp = null;
-        
+
         try {
             tmf.init(kStore);
             fail("KeyStoreException must be thrown");
@@ -92,11 +92,11 @@ public class TrustManagerFactory2Test extends TestCase {
         } catch (InvalidAlgorithmParameterException e) {
         }
         assertNull("getTrustManagers() should return null object", tmf
-                .getTrustManagers());     
-        
+                .getTrustManagers());
+
         try {
             kStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            kStore.load(null, null);            
+            kStore.load(null, null);
         } catch (KeyStoreException e) {
             fail("default keystore is not supported");
             return;
@@ -112,7 +112,7 @@ public class TrustManagerFactory2Test extends TestCase {
         mfp = (ManagerFactoryParameters) new MyTrustManagerFactorySpi.Parameters(kStore);
         tmf.init(mfp);
     }
-    
+
     /**
      * Test for <code>getInstance(String algorithm)</code> method
      * Assertions:
@@ -156,7 +156,7 @@ public class TrustManagerFactory2Test extends TestCase {
     /**
      * Test for <code>getInstance(String algorithm, String provider)</code>
      * method
-     * Assertions: 
+     * Assertions:
      * throws NullPointerException when algorithm is null;
      * throws NoSuchAlgorithmException when algorithm is not correct;
      * throws IllegalArgumentException when provider is null or empty;

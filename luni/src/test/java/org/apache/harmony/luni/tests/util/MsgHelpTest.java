@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.tests.util;  
+package org.apache.harmony.luni.tests.util;
 
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
@@ -41,7 +41,7 @@ public class MsgHelpTest extends TestCase {
         notes = "",
         method = "format",
         args = {java.lang.String.class, java.lang.Object[].class}
-    )        
+    )
     public void testFormatLjava_lang_String$Ljava_lang_Object() {
         assertEquals("empty", MsgHelp.format("empty", new Object[0]));
 
@@ -68,13 +68,13 @@ public class MsgHelpTest extends TestCase {
                 "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
                 new Object[] { "0", "1", "2", "3", "4", "5", "6", "7", "8",
                         "9", "10" }));
-        
+
         try {
             MsgHelp.format(null, new Object[0]);
             fail("No NPE");
         } catch (NullPointerException e) {
         }
-        
+
         try {
             MsgHelp.format("fixture", null);
             fail("No NPE");

@@ -33,7 +33,7 @@ public class IllegalBlockSizeException extends GeneralSecurityException {
     /**
      * Creates a new {@code IllegalBlockSizeException} with the specified
      * message.
-     * 
+     *
      * @param msg
      *            the message
      */

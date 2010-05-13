@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,10 +25,10 @@ import junit.framework.TestCase;
 
 import java.util.Properties;
 
-@TestTargetClass(Long.class) 
+@TestTargetClass(Long.class)
 public class LongTest extends TestCase {
     private Properties orgProps;
-    
+
     @Override
     protected void setUp() {
         orgProps = System.getProperties();
@@ -73,7 +73,7 @@ public class LongTest extends TestCase {
                 .compareTo(new Long(-2L)));
         assertTrue("3 compared to 2 gave non-positive answer", new Long(3L)
                 .compareTo(new Long(2L)) > 0);
-        
+
         try {
             new Long(0).compareTo(null);
             fail("No NPE");
@@ -194,7 +194,7 @@ public class LongTest extends TestCase {
         assertNull("returned incorrect default Long",
                 Long.getLong("ff"));
         assertNull("returned incorrect default Long",
-                Long.getLong("testIncLong"));        
+                Long.getLong("testIncLong"));
     }
 
     /**
@@ -211,14 +211,14 @@ public class LongTest extends TestCase {
         // java.lang.Long.getLong(java.lang.String, long)
         Properties tProps = new Properties();
         tProps.put("testLong", "99");
-        tProps.put("testIncLong", "string");        
+        tProps.put("testIncLong", "string");
         System.setProperties(tProps);
         assertTrue("returned incorrect Long", Long.getLong("testLong", 4L)
                 .equals(new Long(99)));
         assertTrue("returned incorrect default Long", Long.getLong("ff", 4L)
                 .equals(new Long(4)));
         assertTrue("returned incorrect default Long", Long.getLong("testIncLong", 4L)
-                .equals(new Long(4)));        
+                .equals(new Long(4)));
     }
 
     /**
@@ -235,14 +235,14 @@ public class LongTest extends TestCase {
         // java.lang.Long.getLong(java.lang.String, java.lang.Long)
         Properties tProps = new Properties();
         tProps.put("testLong", "99");
-        tProps.put("testIncLong", "string");         
+        tProps.put("testIncLong", "string");
         System.setProperties(tProps);
         assertTrue("returned incorrect Long", Long.getLong("testLong",
                 new Long(4)).equals(new Long(99)));
         assertTrue("returned incorrect default Long", Long.getLong("ff",
                 new Long(4)).equals(new Long(4)));
         assertTrue("returned incorrect default Long", Long.getLong("testIncLong",
-                new Long(4)).equals(new Long(4)));        
+                new Long(4)).equals(new Long(4)));
     }
 
     /**
@@ -388,12 +388,12 @@ public class LongTest extends TestCase {
         assertEquals("Incorrect binary string returned", "11011001010010010000", Long.toBinaryString(
                 890000L));
         assertEquals("Incorrect binary string returned",
-                
+
                                 "1000000000000000000000000000000000000000000000000000000000000000", Long
                         .toBinaryString(Long.MIN_VALUE)
                         );
         assertEquals("Incorrect binary string returned",
-                
+
                                 "111111111111111111111111111111111111111111111111111111111111111", Long
                         .toBinaryString(Long.MAX_VALUE)
                         );
@@ -449,7 +449,7 @@ public class LongTest extends TestCase {
     public void test_toString2() {
         // Test for method java.lang.String java.lang.Long.toString()
         Long l = new Long(89000000005L);
-        assertEquals("Returned incorrect String", 
+        assertEquals("Returned incorrect String",
                 "89000000005", l.toString());
         assertEquals("Returned incorrect String", "-9223372036854775808", new Long(Long.MIN_VALUE)
                 .toString());
@@ -494,7 +494,7 @@ public class LongTest extends TestCase {
                 16));
         assertEquals("Returned incorrect oct string", "77777777777", Long.toString(8589934591L,
                 8));
-        assertEquals("Returned incorrect bin string", 
+        assertEquals("Returned incorrect bin string",
                 "1111111111111111111111111111111111111111111", Long.toString(
                 8796093022207L, 2));
         assertEquals("Returned incorrect min string", "-9223372036854775808", Long.toString(
@@ -637,7 +637,7 @@ public class LongTest extends TestCase {
             lng++;
         }
     }
-    
+
     /**
      * @tests java.lang.Long#hashCode()
      */
@@ -667,7 +667,7 @@ public class LongTest extends TestCase {
         assertEquals(new Long(0), new Long("0"));
         assertEquals(new Long(1), new Long("1"));
         assertEquals(new Long(-1), new Long("-1"));
-        
+
         try {
             new Long("0x1");
             fail("Expected NumberFormatException with hex string.");
@@ -682,7 +682,7 @@ public class LongTest extends TestCase {
             new Long("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             new Long(null);
             fail("Expected NumberFormatException with null string.");
@@ -715,7 +715,7 @@ public class LongTest extends TestCase {
         args = {}
     )
     public void test_byteValue2() {
-        assertEquals(1, new Long(1).byteValue());    
+        assertEquals(1, new Long(1).byteValue());
         assertEquals(2, new Long(2).byteValue());
         assertEquals(0, new Long(0).byteValue());
         assertEquals(-1, new Long(-1).byteValue());
@@ -734,7 +734,7 @@ public class LongTest extends TestCase {
         assertEquals(new Long(0), Long.valueOf(0));
         assertEquals(new Long(1), Long.valueOf(1));
         assertEquals(new Long(-1), Long.valueOf(-1));
-        
+
         Long fixture = new Long(25);
         assertEquals(fixture, fixture);
         assertFalse(fixture.equals(null));
@@ -786,7 +786,7 @@ public class LongTest extends TestCase {
         assertEquals(new Long(0), Long.valueOf("0"));
         assertEquals(new Long(1), Long.valueOf("1"));
         assertEquals(new Long(-1), Long.valueOf("-1"));
-        
+
         try {
             Long.valueOf("0x1");
             fail("Expected NumberFormatException with hex string.");
@@ -801,13 +801,13 @@ public class LongTest extends TestCase {
             Long.valueOf("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Long.valueOf(null);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Long#valueOf(String,long)
      */
@@ -821,11 +821,11 @@ public class LongTest extends TestCase {
         assertEquals(new Long(0), Long.valueOf("0", 10));
         assertEquals(new Long(1), Long.valueOf("1", 10));
         assertEquals(new Long(-1), Long.valueOf("-1", 10));
-        
+
         //must be consistent with Character.digit()
         assertEquals(Character.digit('1', 2), Long.valueOf("1", 2).byteValue());
         assertEquals(Character.digit('F', 16), Long.valueOf("F", 16).byteValue());
-        
+
         try {
             Long.valueOf("0x1", 10);
             fail("Expected NumberFormatException with hex string.");
@@ -840,13 +840,13 @@ public class LongTest extends TestCase {
             Long.valueOf("", 10);
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Long.valueOf(null, 10);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Long#parseLong(String)
      */
@@ -860,7 +860,7 @@ public class LongTest extends TestCase {
         assertEquals(0, Long.parseLong("0"));
         assertEquals(1, Long.parseLong("1"));
         assertEquals(-1, Long.parseLong("-1"));
-        
+
         try {
             Long.parseLong("0x1");
             fail("Expected NumberFormatException with hex string.");
@@ -875,13 +875,13 @@ public class LongTest extends TestCase {
             Long.parseLong("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Long.parseLong(null);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Long#parseLong(String,long)
      */
@@ -895,11 +895,11 @@ public class LongTest extends TestCase {
         assertEquals(0, Long.parseLong("0", 10));
         assertEquals(1, Long.parseLong("1", 10));
         assertEquals(-1, Long.parseLong("-1", 10));
-        
+
         //must be consistent with Character.digit()
         assertEquals(Character.digit('1', 2), Long.parseLong("1", 2));
         assertEquals(Character.digit('F', 16), Long.parseLong("F", 16));
-        
+
         try {
             Long.parseLong("0x1", 10);
             fail("Expected NumberFormatException with hex string.");
@@ -914,13 +914,13 @@ public class LongTest extends TestCase {
             Long.parseLong("", 10);
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Long.parseLong(null, 10);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Long#decode(String)
      */
@@ -938,7 +938,7 @@ public class LongTest extends TestCase {
         assertEquals(new Long(0xF), Long.decode("#F"));
         assertEquals(new Long(0xF), Long.decode("0XF"));
         assertEquals(new Long(07), Long.decode("07"));
-        
+
         try {
             Long.decode("9.2");
             fail("Expected NumberFormatException with floating point string.");
@@ -948,14 +948,14 @@ public class LongTest extends TestCase {
             Long.decode("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Long.decode(null);
             //undocumented NPE, but seems consistent across JREs
             fail("Expected NullPointerException with null string.");
         } catch (NullPointerException e) {}
     }
-    
+
     /**
      * @tests java.lang.Long#doubleValue()
      */
@@ -970,7 +970,7 @@ public class LongTest extends TestCase {
         assertEquals(0D, new Long(0).doubleValue(), 0D);
         assertEquals(1D, new Long(1).doubleValue(), 0D);
     }
-    
+
     /**
      * @tests java.lang.Long#floatValue()
      */
@@ -984,11 +984,11 @@ public class LongTest extends TestCase {
         assertEquals(-1F, new Long(-1).floatValue(), 0F);
         assertEquals(0F, new Long(0).floatValue(), 0F);
         assertEquals(1F, new Long(1).floatValue(), 0F);
-        
+
         assertEquals(Long.MAX_VALUE, new Long(Long.MAX_VALUE).floatValue(), 0F);
-        assertEquals(Long.MIN_VALUE, new Long(Long.MIN_VALUE).floatValue(), 0F);        
+        assertEquals(Long.MIN_VALUE, new Long(Long.MIN_VALUE).floatValue(), 0F);
     }
-    
+
     /**
      * @tests java.lang.Long#intValue()
      */
@@ -1002,11 +1002,11 @@ public class LongTest extends TestCase {
         assertEquals(-1, new Long(-1).intValue());
         assertEquals(0, new Long(0).intValue());
         assertEquals(1, new Long(1).intValue());
-        
+
         assertEquals(-1, new Long(Long.MAX_VALUE).intValue());
-        assertEquals(0, new Long(Long.MIN_VALUE).intValue());        
+        assertEquals(0, new Long(Long.MIN_VALUE).intValue());
     }
-    
+
     /**
      * @tests java.lang.Long#longValue()
      */
@@ -1020,11 +1020,11 @@ public class LongTest extends TestCase {
         assertEquals(-1L, new Long(-1).longValue());
         assertEquals(0L, new Long(0).longValue());
         assertEquals(1L, new Long(1).longValue());
-        
+
         assertEquals(Long.MAX_VALUE, new Long(Long.MAX_VALUE).longValue());
         assertEquals(Long.MIN_VALUE, new Long(Long.MIN_VALUE).longValue());
     }
-    
+
     /**
      * @tests java.lang.Long#shortValue()
      */
@@ -1038,9 +1038,9 @@ public class LongTest extends TestCase {
         assertEquals(-1, new Long(-1).shortValue());
         assertEquals(0, new Long(0).shortValue());
         assertEquals(1, new Long(1).shortValue());
-        
+
         assertEquals(-1, new Long(Long.MAX_VALUE).shortValue());
-        assertEquals(0, new Long(Long.MIN_VALUE).shortValue());        
+        assertEquals(0, new Long(Long.MIN_VALUE).shortValue());
     }
     /**
      * @tests java.lang.Long#highestOneBit(long)
@@ -1057,17 +1057,17 @@ public class LongTest extends TestCase {
         assertEquals(0x08, Long.highestOneBit(0x0C));
         assertEquals(0x08, Long.highestOneBit(0x0F));
         assertEquals(0x80, Long.highestOneBit(0xFF));
-        
+
         assertEquals(0x080000, Long.highestOneBit(0x0F1234));
         assertEquals(0x800000, Long.highestOneBit(0xFF9977));
-        
+
         assertEquals(0x8000000000000000L, Long.highestOneBit(0xFFFFFFFFFFFFFFFFL));
-        
+
         assertEquals(0, Long.highestOneBit(0));
         assertEquals(1, Long.highestOneBit(1));
         assertEquals(0x8000000000000000L, Long.highestOneBit(-1));
     }
-    
+
     /**
      * @tests java.lang.Long#lowestOneBit(long)
      */
@@ -1079,25 +1079,25 @@ public class LongTest extends TestCase {
     )
     public void test_lowestOneBitJ() {
         assertEquals(0x10, Long.lowestOneBit(0xF0));
-        
+
         assertEquals(0x10, Long.lowestOneBit(0x90));
         assertEquals(0x10, Long.lowestOneBit(0xD0));
-        
+
         assertEquals(0x10, Long.lowestOneBit(0x123490));
         assertEquals(0x10, Long.lowestOneBit(0x1234D0));
-        
+
         assertEquals(0x100000, Long.lowestOneBit(0x900000));
         assertEquals(0x100000, Long.lowestOneBit(0xD00000));
-        
+
         assertEquals(0x40, Long.lowestOneBit(0x40));
         assertEquals(0x40, Long.lowestOneBit(0xC0));
-        
+
         assertEquals(0x4000, Long.lowestOneBit(0x4000));
         assertEquals(0x4000, Long.lowestOneBit(0xC000));
-        
+
         assertEquals(0x4000, Long.lowestOneBit(0x99994000));
         assertEquals(0x4000, Long.lowestOneBit(0x9999C000));
-        
+
         assertEquals(0, Long.lowestOneBit(0));
         assertEquals(1, Long.lowestOneBit(1));
         assertEquals(1, Long.lowestOneBit(-1));
@@ -1149,11 +1149,11 @@ public class LongTest extends TestCase {
         assertEquals(35, Long.numberOfLeadingZeros(0x10000000));
         assertEquals(0, Long.numberOfLeadingZeros(0x80000000));
         assertEquals(0, Long.numberOfLeadingZeros(0xF0000000));
-        
+
         assertEquals(1, Long.numberOfLeadingZeros(Long.MAX_VALUE));
         assertEquals(0, Long.numberOfLeadingZeros(Long.MIN_VALUE));
     }
-    
+
     /**
      * @tests java.lang.Long#numberOfTrailingZeros(long)
      */
@@ -1167,40 +1167,40 @@ public class LongTest extends TestCase {
         assertEquals(64, Long.numberOfTrailingZeros(0x0));
         assertEquals(63, Long.numberOfTrailingZeros(Long.MIN_VALUE));
         assertEquals(0, Long.numberOfTrailingZeros(Long.MAX_VALUE));
-        
+
         assertEquals(0, Long.numberOfTrailingZeros(0x1));
         assertEquals(3, Long.numberOfTrailingZeros(0x8));
         assertEquals(0, Long.numberOfTrailingZeros(0xF));
-        
+
         assertEquals(4, Long.numberOfTrailingZeros(0x10));
         assertEquals(7, Long.numberOfTrailingZeros(0x80));
         assertEquals(4, Long.numberOfTrailingZeros(0xF0));
-        
+
         assertEquals(8, Long.numberOfTrailingZeros(0x100));
         assertEquals(11, Long.numberOfTrailingZeros(0x800));
         assertEquals(8, Long.numberOfTrailingZeros(0xF00));
-        
+
         assertEquals(12, Long.numberOfTrailingZeros(0x1000));
         assertEquals(15, Long.numberOfTrailingZeros(0x8000));
         assertEquals(12, Long.numberOfTrailingZeros(0xF000));
-        
+
         assertEquals(16, Long.numberOfTrailingZeros(0x10000));
         assertEquals(19, Long.numberOfTrailingZeros(0x80000));
         assertEquals(16, Long.numberOfTrailingZeros(0xF0000));
-        
+
         assertEquals(20, Long.numberOfTrailingZeros(0x100000));
         assertEquals(23, Long.numberOfTrailingZeros(0x800000));
         assertEquals(20, Long.numberOfTrailingZeros(0xF00000));
-        
+
         assertEquals(24, Long.numberOfTrailingZeros(0x1000000));
         assertEquals(27, Long.numberOfTrailingZeros(0x8000000));
         assertEquals(24, Long.numberOfTrailingZeros(0xF000000));
-        
+
         assertEquals(28, Long.numberOfTrailingZeros(0x10000000));
         assertEquals(31, Long.numberOfTrailingZeros(0x80000000));
         assertEquals(28, Long.numberOfTrailingZeros(0xF0000000));
     }
-    
+
     /**
      * @tests java.lang.Long#bitCount(long)
      */
@@ -1227,7 +1227,7 @@ public class LongTest extends TestCase {
         assertEquals(3, Long.bitCount(0xD));
         assertEquals(3, Long.bitCount(0xE));
         assertEquals(4, Long.bitCount(0xF));
-        
+
         assertEquals(8, Long.bitCount(0xFF));
         assertEquals(12, Long.bitCount(0xFFF));
         assertEquals(16, Long.bitCount(0xFFFF));
@@ -1236,7 +1236,7 @@ public class LongTest extends TestCase {
         assertEquals(28, Long.bitCount(0xFFFFFFF));
         assertEquals(64, Long.bitCount(0xFFFFFFFFFFFFFFFFL));
     }
-    
+
     /**
      * @tests java.lang.Long#rotateLeft(long,long)
      */
@@ -1257,7 +1257,7 @@ public class LongTest extends TestCase {
         assertEquals(0xF0000000L, Long.rotateLeft(0xF, 28));
         assertEquals(0xF000000000000000L, Long.rotateLeft(0xF000000000000000L, 64));
     }
-    
+
     /**
      * @tests java.lang.Long#rotateRight(long,long)
      */
@@ -1277,9 +1277,9 @@ public class LongTest extends TestCase {
         assertEquals(0xF, Long.rotateRight(0xF0000000L, 28));
         assertEquals(0xF000000000000000L, Long.rotateRight(0xF000000000000000L, 64));
         assertEquals(0xF000000000000000L, Long.rotateRight(0xF000000000000000L, 0));
-        
+
     }
-    
+
     /**
      * @tests java.lang.Long#reverseBytes(long)
      */
@@ -1295,7 +1295,7 @@ public class LongTest extends TestCase {
         assertEquals(0x0011223344556677L, Long.reverseBytes(0x7766554433221100L));
         assertEquals(0x2000000000000002L, Long.reverseBytes(0x0200000000000020L));
     }
-    
+
     /**
      * @tests java.lang.Long#reverse(long)
      */
@@ -1310,7 +1310,7 @@ public class LongTest extends TestCase {
         assertEquals(-1, Long.reverse(-1));
         assertEquals(0x8000000000000000L,Long.reverse(1));
     }
-    
+
     /**
      * @tests java.lang.Long#signum(long)
      */

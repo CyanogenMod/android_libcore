@@ -35,14 +35,14 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyStore.PasswordProtection.class)
 /**
  * Tests for <code>KeyStore.PasswordProtection</code> class constructor and methods
- * 
+ *
  */
 
 public class KSPasswordProtectionTest extends TestCase {
 
     /**
      * Test for <code>KeyStore.PasswordProtection(char[] password)</code> constructor
-     * and the following methods 
+     * and the following methods
      * <code>getPassword()<code>
      * <code>destroy()<code>
      * <code>isDestroyed()<code>
@@ -80,7 +80,7 @@ public class KSPasswordProtectionTest extends TestCase {
         char [] pass = {'a', 'b', 'c'};
         KeyStore.PasswordProtection ksPWP = new KeyStore.PasswordProtection(pass);
         char [] rPass = ksPWP.getPassword();
-        assertFalse("PasswordProtection Should not be destroyed", ksPWP.isDestroyed());        
+        assertFalse("PasswordProtection Should not be destroyed", ksPWP.isDestroyed());
         assertEquals("Incorrect password length", pass.length, rPass.length);
         for (int i = 0; i < pass.length; i++) {
             assertEquals("Incorrect password (item: ".concat(Integer.toString(i))
@@ -93,7 +93,7 @@ public class KSPasswordProtectionTest extends TestCase {
             fail("IllegalStateException must be thrown because PasswordProtection is destroyed");
         } catch (IllegalStateException e) {
         }
-        
+
         try {
             ksPWP = new KeyStore.PasswordProtection(null);
         } catch (Exception e) {

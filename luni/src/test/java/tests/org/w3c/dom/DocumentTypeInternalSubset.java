@@ -13,10 +13,10 @@ import javax.xml.parsers.DocumentBuilder;
 
 /**
  * The method getInternalSubset() returns the internal subset as a string.
- * 
+ *
  * Create a new DocumentType node with null values for publicId and systemId.
  * Verify that its internal subset is null.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
@@ -24,7 +24,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
-@TestTargetClass(DocumentType.class) 
+@TestTargetClass(DocumentType.class)
 public final class DocumentTypeInternalSubset extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -50,7 +50,7 @@ public final class DocumentTypeInternalSubset extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

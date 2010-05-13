@@ -27,7 +27,7 @@ import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the ORAddress structure which is a part of X.509 certificate:
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -39,7 +39,7 @@ import org.apache.harmony.security.asn1.BerInputStream;
  *   built-in-standard-attributes BuiltInStandardAttributes,
  *   built-in-domain-defined-attributes
  *                   BuiltInDomainDefinedAttributes OPTIONAL,
- *   extension-attributes ExtensionAttributes OPTIONAL 
+ *   extension-attributes ExtensionAttributes OPTIONAL
  * }
  * </pre>
  *
@@ -54,7 +54,7 @@ public class ORAddress {
      * TODO
      */
     public ORAddress() {}
-    
+
     /**
      * Returns ASN.1 encoded form of this X.509 ORAddress value.
      * @return a byte array containing ASN.1 encode form.

@@ -33,7 +33,7 @@ import javax.security.cert.CertificateEncodingException;
 
 /**
  * Tests for <code>DigestException</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CertificateEncodingException.class)
 public class CertificateEncodingExceptionTest extends TestCase {

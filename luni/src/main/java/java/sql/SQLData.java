@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,7 +51,7 @@ public interface SQLData {
      * Gets the SQL name of the <i>User Defined Type</i> (UDT) that this object
      * represents. This method, usually invoked by the JDBC driver, retrieves
      * the name of the UDT instance associated with this {@code SQLData} object.
-     * 
+     *
      * @return a string with UDT type name for this object mapping, passed to
      *         {@code readSQL} when the object was created.
      * @throws SQLException
@@ -102,7 +102,7 @@ public interface SQLData {
      * Write a single data element for a distinct type. For a structured type,
      * write a value for each attribute of the the SQL type.</li>
      * </ul>
-     * 
+     *
      * @param stream
      *            the {@code SQLOutput} stream to use to write out the data for
      *            the custom mapping.

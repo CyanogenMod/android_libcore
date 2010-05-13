@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
 
     /**
      * @tests java.nio.ByteBuffer#allocateDirect(int)
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -49,7 +49,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
     public void testAllocatedByteBuffer_IllegalArg() {
         try {
             ByteBuffer.allocateDirect(-1);
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -64,7 +64,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
     public void testArray() {
         try {
             buf.array();
-            fail("Should throw UnsupportedOperationException"); 
+            fail("Should throw UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
         }
@@ -79,7 +79,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
     public void testArrayOffset() {
         try {
             buf.arrayOffset();
-            fail("Should throw UnsupportedOperationException"); 
+            fail("Should throw UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
         }
@@ -105,7 +105,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
         assertFalse(buf.hasArray());
         try {
             buf.array();
-            fail("Should throw Exception"); 
+            fail("Should throw Exception");
         } catch (UnsupportedOperationException e) {
             // expected
         }

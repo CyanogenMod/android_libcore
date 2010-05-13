@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -143,7 +143,7 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     public void test_ConstructorLjava_lang_String() {
         String[] str = {"test", "", null};
         IdentityScopeSubclass iss;
-        
+
         for (int i = 0; i < str.length; i++) {
             try {
                 iss = new IdentityScopeSubclass(str[i]);
@@ -170,7 +170,7 @@ public class IdentityScope2Test extends junit.framework.TestCase {
         String[] str = {"test", "", "!@#$%^&*()", "identity name"};
         IdentityScope is;
         IdentityScope iss = new IdentityScopeSubclass("test scope");
-        
+
         for (int i = 0; i < str.length; i++) {
             try {
                 is = new IdentityScopeSubclass(str[i], new IdentityScopeSubclass());
@@ -180,14 +180,14 @@ public class IdentityScope2Test extends junit.framework.TestCase {
                 fail("Unexpected exception for parameter " + str[i]);
             }
         }
-        
+
         try {
             is = new IdentityScopeSubclass(nameNull, new IdentityScopeSubclass());
         } catch (NullPointerException npe) {
         } catch (Exception e) {
             fail("Incorrect exception " + e + " was thrown");
         }
-        
+
         try {
             is = new IdentityScopeSubclass("test", iss);
             is = new IdentityScopeSubclass("test", iss);
@@ -292,13 +292,13 @@ public class IdentityScope2Test extends junit.framework.TestCase {
 
         sub.addIdentity(id);
         Identity returnedId = sub.getIdentity(id);
-        assertEquals("Test 2: Returned Identity not the same as the added one;", 
+        assertEquals("Test 2: Returned Identity not the same as the added one;",
                 id, returnedId);
 
         Identity id2 = new IdentitySubclass("Another identity");
         id2.setPublicKey(pubKey);
 
-        assertNull("Test 3: Null value expected.", 
+        assertNull("Test 3: Null value expected.",
                 sub.getIdentity(id2));
 
         try {
@@ -325,14 +325,14 @@ public class IdentityScope2Test extends junit.framework.TestCase {
         id.setPublicKey(pubKey);
         sub.addIdentity(id);
         Identity returnedId = sub.getIdentity(pubKey);
-        assertEquals("Test 1: Returned Identity not the same as the added one;", 
+        assertEquals("Test 1: Returned Identity not the same as the added one;",
                 id, returnedId);
 
-        assertNull("Test 2: Null value expected.", 
+        assertNull("Test 2: Null value expected.",
                 sub.getIdentity((PublicKey) null));
 
         PublicKey anotherKey = KeyPairGenerator.getInstance("DSA").genKeyPair().getPublic();
-        assertNull("Test 3: Null value expected.", 
+        assertNull("Test 3: Null value expected.",
                 sub.getIdentity(anotherKey));
     }
 
@@ -392,7 +392,7 @@ public class IdentityScope2Test extends junit.framework.TestCase {
             assertNotNull("toString returned a null", sub.toString());
             assertTrue("Not a valid String ", sub.toString().length() > 0);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Regression test",
@@ -401,7 +401,7 @@ public class IdentityScope2Test extends junit.framework.TestCase {
     )
     public void test_getIdentity() throws Exception {
         //Regression for HARMONY-1173
-        IdentityScope scope = IdentityScope.getSystemScope(); 
+        IdentityScope scope = IdentityScope.getSystemScope();
         try {
             scope.getIdentity((String) null);
             fail("NPE expected");

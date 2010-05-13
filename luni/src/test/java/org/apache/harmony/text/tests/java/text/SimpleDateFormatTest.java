@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ import java.util.Locale;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
-@TestTargetClass(SimpleDateFormat.class) 
+@TestTargetClass(SimpleDateFormat.class)
 public class SimpleDateFormatTest extends junit.framework.TestCase {
 
     static SimpleDateFormat format = new SimpleDateFormat("", Locale.ENGLISH);
@@ -91,7 +91,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
                 int start, int end) {
             pFormat.applyPattern(pattern);
             ParsePosition position = new ParsePosition(start);
-            
+
             Date result = pFormat.parse(input, position);
             assertTrue("Wrong result: " + pattern + " input: " + input
                     + " expected: " + expected + " result: " + result, expected
@@ -200,20 +200,20 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         assertTrue("Wrong symbols", f2.getDateFormatSymbols().equals(symbols));
         assertTrue("Doesn't work",
                 f2.format(new Date()).getClass() == String.class);
-        
+
         try {
             new SimpleDateFormat(null, symbols);
             fail("NullPointerException was not thrown.");
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         try {
             new SimpleDateFormat("eee", symbols);
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
-        }        
+        }
     }
 
     /**
@@ -237,7 +237,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
                 new DateFormatSymbols(Locale.GERMAN)));
         assertTrue("Doesn't work",
                 f2.format(new Date()).getClass() == String.class);
-        
+
         try {
             new SimpleDateFormat(null, Locale.GERMAN);
             fail("NullPointerException was not thrown.");
@@ -249,7 +249,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
-        }  
+        }
     }
 
     /**
@@ -271,12 +271,12 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         // test fails because the pattern template contains characters that are
         // not part of the standard pattern returned for every locale.
         // The default pattern characters are: GyMdkHmsSEDFwWahKzZ
-        // 
+        //
         // f2.applyLocalizedPattern("GuMtkHmsSEDFwWahKz");
         // String pattern = f2.toPattern();
         // assertTrue("Wrong pattern: " + pattern, pattern
         //         .equals("GyMdkHmsSEDFwWahKz"));
-        // 
+        //
         // test the new "Z" pattern char
         // f2 = new SimpleDateFormat("y", new Locale("de", "CH"));
         // f2.applyLocalizedPattern("G u M t Z");
@@ -472,7 +472,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         // Test for method java.lang.StringBuffer
         // java.text.SimpleDateFormat.format(java.util.Date,
         // java.lang.StringBuffer, java.text.FieldPosition)
-        
+
         // Android doesn't support EST time zone
         // new Support_SimpleDateFormat(
         //        "test_formatLjava_util_DateLjava_lang_StringBufferLjava_text_FieldPosition")
@@ -630,7 +630,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         } catch (Throwable ex) {
             fail("Expected test to throw NPE, not " + ex.getClass().getName());
         }
-        
+
         format.setTimeZone(TimeZone.getTimeZone("EST"));
         test.test(" z", cal, " EDT", DateFormat.TIMEZONE_FIELD);
         Calendar temp2 = new GregorianCalendar(1999, Calendar.JANUARY, 12);
@@ -683,7 +683,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
                 "-0700, -0700", winterDate);
 
         // Pacific/Kiritimati is one of the timezones supported only in Java
-//         Android doesn't support this time zone 
+//         Android doesn't support this time zone
 //        test.verifyFormatTimezone("Pacific/Kiritimati", "LINT, Line Is. Time",
 //                "+1400, +1400", summerDate);
 //        test.verifyFormatTimezone("Pacific/Kiritimati", "LINT, Line Is. Time",
@@ -804,7 +804,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
 
         cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
         cal.set(Calendar.ERA, GregorianCalendar.BC);
-        
+
         test.parse("G", "Bc ", cal.getTime(), 0, 2);
 
         test.parse("y", "00", new GregorianCalendar(2000, Calendar.JANUARY, 1)
@@ -969,14 +969,14 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         } catch (ParseException e) {
             fail("unexpected: " + e);
         }
-        
+
         try {
             format.parse("240 11 2002 March", null);
             fail("ParsePosition is null: NullPointerException was not thrown.");
         } catch(NullPointerException pe) {
             //expected
         }
-        
+
         try {
             format.parse(null, new ParsePosition(0));
             fail("String is null: NullPointerException was not thrown.");
@@ -1043,7 +1043,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         symbols.setEras(new String[] { "before", "after" });
         assertTrue("Identical symbols", !f1.getDateFormatSymbols().equals(
                 symbols));
-        
+
         try {
             f1.setDateFormatSymbols(null);
             fail("NullPointerException was not thrown.");
@@ -1071,12 +1071,12 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         // the default localized pattern characters are the same for all locales
         // since icu has droped support for this. the default pattern characters
         // are these: GyMdkHmsSEDFwWahKz
-        // 
+        //
         // assertTrue("Wrong pattern: " + pattern, pattern
         //         .equals("GuMtkHmsSEDFwWahKz"));
         assertTrue("Wrong pattern: " + pattern, pattern
                 .equals("GyMdkHmsSEDFwWahKzZ"));
-        
+
 
         // test the new "Z" pattern char
         f2 = new SimpleDateFormat("G y M d Z", new Locale("de", "CH"));

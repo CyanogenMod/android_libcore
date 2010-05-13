@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 
 @TestTargetClass(AccessController.class)
 public class AccessControllerTest extends TestCase {
-    
+
     private static void setProtectionDomain(Class<?> c, ProtectionDomain pd){
         Field fields[] = Class.class.getDeclaredFields();
         for(Field f : fields){
@@ -56,7 +56,7 @@ public class AccessControllerTest extends TestCase {
     TestPermission p;
     CodeSource codeSource;
     PermissionCollection c0, c1, c2;
-    
+
     public static void main(String[] args) throws Exception {
         AccessControllerTest t = new AccessControllerTest();
         t.setUp();
@@ -80,7 +80,7 @@ public class AccessControllerTest extends TestCase {
         System.setSecurityManager(old);
         super.tearDown();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -98,7 +98,7 @@ public class AccessControllerTest extends TestCase {
         setProtectionDomain(T0.class, new ProtectionDomain(codeSource, c0));
         setProtectionDomain(T1.class, new ProtectionDomain(codeSource, c1));
         setProtectionDomain(T2.class, new ProtectionDomain(codeSource, c2));
-        
+
         System.setSecurityManager(new SecurityManager());
         try {
             T0.f0();
@@ -111,7 +111,7 @@ public class AccessControllerTest extends TestCase {
             fail("expected java.security.AccessControlException, got "+e.getClass().getName());
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -171,7 +171,7 @@ public class AccessControllerTest extends TestCase {
         setProtectionDomain(T0.class, new ProtectionDomain(codeSource, c0));
         setProtectionDomain(T1.class, new ProtectionDomain(codeSource, c1));
         setProtectionDomain(T2.class, new ProtectionDomain(codeSource, c2));
-        
+
         System.setSecurityManager(new SecurityManager());
         try {
             String res = T0.f0_priv();
@@ -184,7 +184,7 @@ public class AccessControllerTest extends TestCase {
             fail("expected no exception, got "+e.getClass().getName());
         }
     }
-    
+
     static class T0 {
         static String f0(){
             return T1.f1();
@@ -193,7 +193,7 @@ public class AccessControllerTest extends TestCase {
             return T1.f1_priv();
         }
     }
-    
+
     static class T1 {
         static String f1(){
             return T2.f2();
@@ -208,7 +208,7 @@ public class AccessControllerTest extends TestCase {
             );
         }
     }
-    
+
     static class T2 {
         static String f2(){
             SecurityManager s = System.getSecurityManager();
@@ -217,16 +217,16 @@ public class AccessControllerTest extends TestCase {
             return "ok";
         }
     }
-    
+
     static class TestPermission extends BasicPermission {
         private static final long serialVersionUID = 1L;
 
         public TestPermission(){ super("TestPermission"); }
-    
+
         @Override
         public boolean implies(Permission permission) {
             return permission instanceof TestPermission;
         }
     }
-    
+
 }

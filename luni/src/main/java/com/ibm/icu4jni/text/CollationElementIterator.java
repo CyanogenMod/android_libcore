@@ -15,12 +15,12 @@ import java.text.CharacterIterator;
 /**
 * Collation element iterator JNI wrapper.
 * Iterates over the collation elements of a data string.
-* The iterator supports both forward and backwards full iteration, ie if 
-* backwards iteration is performed in the midst of a forward iteration, the 
-* result is undefined. 
-* To perform a backwards iteration in the midst of a forward iteration, 
-* reset() has to be called. 
-* This will shift the position to either the start or the last character in the 
+* The iterator supports both forward and backwards full iteration, ie if
+* backwards iteration is performed in the midst of a forward iteration, the
+* result is undefined.
+* To perform a backwards iteration in the midst of a forward iteration,
+* reset() has to be called.
+* This will shift the position to either the start or the last character in the
 * data string depending on whether next() is called or previous().
 * <pre>
 *   RuleBasedCollator coll = Collator.getInstance();
@@ -37,18 +37,18 @@ import java.text.CharacterIterator;
 * @author syn wee quek
 * @stable ICU 2.4
 */
-    
+
 public final class CollationElementIterator
 {
   // public data member -------------------------------------------
-  
+
   /**
    * @stable ICU 2.4
    */
   public static final int NULLORDER = 0xFFFFFFFF;
-  
+
   // public methods -----------------------------------------------
-  
+
   /**
   * Reset the collation elements to their initial state.
   * This will move the 'cursor' to the beginning of the text.
@@ -62,7 +62,7 @@ public final class CollationElementIterator
   /**
   * Get the ordering priority of the next collation element in the text.
   * A single character may contain more than one collation element.
-  * @return next collation elements ordering, or NULLORDER if the end of the 
+  * @return next collation elements ordering, or NULLORDER if the end of the
   *         text is reached.
   * @stable ICU 2.4
   */
@@ -74,7 +74,7 @@ public final class CollationElementIterator
   /**
   * Get the ordering priority of the previous collation element in the text.
   * A single character may contain more than one collation element.
-  * @return previous collation element ordering, or NULLORDER if the end of 
+  * @return previous collation element ordering, or NULLORDER if the end of
   *         the text is reached.
   * @stable ICU 2.4
   */
@@ -84,11 +84,11 @@ public final class CollationElementIterator
   }
 
   /**
-  * Get the maximum length of any expansion sequences that end with the 
+  * Get the maximum length of any expansion sequences that end with the
   * specified comparison order.
   * @param order collation order returned by previous or next.
-  * @return maximum size of the expansion sequences ending with the collation 
-  *              element or 1 if collation element does not occur at the end of 
+  * @return maximum size of the expansion sequences ending with the collation
+  *              element or 1 if collation element does not occur at the end of
   *              any expansion sequence
   * @stable ICU 2.4
   */
@@ -136,14 +136,14 @@ public final class CollationElementIterator
   {
     NativeCollation.setOffset(m_collelemiterator_, offset);
   }
-  
+
   /**
   * Gets the primary order of a collation order.
   * @param order the collation order
   * @return the primary order of a collation order.
   * @stable ICU 2.4
   */
-  public static int primaryOrder(int order) 
+  public static int primaryOrder(int order)
   {
     return ((order & PRIMARY_ORDER_MASK_) >> PRIMARY_ORDER_SHIFT_) &
                                                        UNSIGNED_16_BIT_MASK_;
@@ -170,13 +170,13 @@ public final class CollationElementIterator
   {
     return order & TERTIARY_ORDER_MASK_;
   }
-  
+
   // protected constructor ----------------------------------------
-  
+
   /**
-  * CollationElementIteratorJNI constructor. 
-  * The only caller of this class should be 
-  * RuleBasedCollator.getCollationElementIterator(). 
+  * CollationElementIteratorJNI constructor.
+  * The only caller of this class should be
+  * RuleBasedCollator.getCollationElementIterator().
   * @param collelemiteratoraddress address of C collationelementiterator
   */
   CollationElementIterator(int collelemiteratoraddress)
@@ -185,7 +185,7 @@ public final class CollationElementIterator
   }
 
   // protected methods --------------------------------------------
-  
+
   /**
   * Garbage collection.
   * Close C collator and reclaim memory.
@@ -195,32 +195,32 @@ public final class CollationElementIterator
   {
     NativeCollation.closeElements(m_collelemiterator_);
   }
-  
+
   // private data members -----------------------------------------
- 
+
   /**
   * C collator
   */
   private int m_collelemiterator_;
-  
-  /** 
-  * ICU constant primary order mask for collation elements 
+
+  /**
+  * ICU constant primary order mask for collation elements
   */
   private static final int PRIMARY_ORDER_MASK_ = 0xffff0000;
-  /** 
-  * ICU constant secondary order mask for collation elements 
+  /**
+  * ICU constant secondary order mask for collation elements
   */
   private static final int SECONDARY_ORDER_MASK_ = 0x0000ff00;
-  /** 
-  * ICU constant tertiary order mask for collation elements 
+  /**
+  * ICU constant tertiary order mask for collation elements
   */
   private static final int TERTIARY_ORDER_MASK_ = 0x000000ff;
-  /** 
-  * ICU constant primary order shift for collation elements 
+  /**
+  * ICU constant primary order shift for collation elements
   */
   private static final int PRIMARY_ORDER_SHIFT_ = 16;
-  /** 
-  * ICU constant secondary order shift for collation elements 
+  /**
+  * ICU constant secondary order shift for collation elements
   */
   private static final int SECONDARY_ORDER_SHIFT_ = 8;
   /**

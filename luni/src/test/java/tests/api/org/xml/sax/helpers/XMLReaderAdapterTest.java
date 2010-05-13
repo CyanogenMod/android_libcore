@@ -52,16 +52,16 @@ public class XMLReaderAdapterTest extends TestCase {
     // properly. The rest is outside the scope of the specification.
 
     private MethodLogger logger = new MethodLogger();
-    
+
     private MockHandler handler = new MockHandler(logger);
-    
+
     private XMLReader reader = new MockReader(logger);
-    
+
     private XMLReaderAdapter adapter = new XMLReaderAdapter(reader);
-    
+
     private void assertEquals(Object[] a, Object[] b) {
         assertEquals(a.length, b.length);
-        
+
         for (int i = 0; i < a.length; i++) {
             assertEquals("Element #" + i + " must be equal", a[i], b[i]);
         }
@@ -88,7 +88,7 @@ public class XMLReaderAdapterTest extends TestCase {
     public void testXMLReaderAdapter() {
         System.setProperty("org.xml.sax.driver",
                 "tests.api.org.xml.sax.support.DoNothingXMLReader");
-        
+
         try {
             new XMLReaderAdapter();
         } catch (SAXException e) {
@@ -141,7 +141,7 @@ public class XMLReaderAdapterTest extends TestCase {
         // Ordinary case
         adapter.setEntityResolver(resolver);
         assertEquals(resolver, reader.getEntityResolver());
-        
+
         // null case
         adapter.setEntityResolver(null);
         assertEquals(null, reader.getEntityResolver());
@@ -155,7 +155,7 @@ public class XMLReaderAdapterTest extends TestCase {
     public void testSetDTDHandler() {
         // Ordinary case
         assertEquals(handler, reader.getDTDHandler());
-        
+
         // null case
         adapter.setDTDHandler(null);
         assertEquals(null, reader.getDTDHandler());
@@ -190,7 +190,7 @@ public class XMLReaderAdapterTest extends TestCase {
     public void testSetErrorHandler() {
         // Ordinary case
         assertEquals(handler, reader.getErrorHandler());
-        
+
         // null case
         adapter.setErrorHandler(null);
         assertEquals(null, reader.getErrorHandler());
@@ -223,7 +223,7 @@ public class XMLReaderAdapterTest extends TestCase {
     )
     public void testParseInputSource() {
         InputSource source = new InputSource("foo");
-        
+
         try {
             adapter.parse(source);
         } catch (SAXException e) {
@@ -231,7 +231,7 @@ public class XMLReaderAdapterTest extends TestCase {
         } catch (IOException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         assertEquals("parse", logger.getMethod());
         assertEquals(new Object[] { source }, logger.getArgs());
     }
@@ -245,7 +245,7 @@ public class XMLReaderAdapterTest extends TestCase {
         // Ordinary case
         LocatorImpl locator = new LocatorImpl();
         adapter.setDocumentLocator(locator);
-        
+
         assertEquals("setDocumentLocator", logger.getMethod());
         assertEquals(new Object[] { locator }, logger.getArgs());
 
@@ -397,7 +397,7 @@ public class XMLReaderAdapterTest extends TestCase {
         } catch (SAXException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         assertEquals(logger.size(), 1);
         assertEquals("processingInstruction", logger.getMethod());
         assertEquals(new Object[] { "foo" , "bar" }, logger.getArgs());
@@ -414,7 +414,7 @@ public class XMLReaderAdapterTest extends TestCase {
         } catch (SAXException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
-        
+
         assertEquals(logger.size(), 0);
     }
 

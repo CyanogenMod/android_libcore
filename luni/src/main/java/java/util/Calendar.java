@@ -1417,10 +1417,10 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * Returns a human-readable string for the value of {@code field}
      * using the given style and locale. If no string is available, returns null.
      * The value is retrieved by invoking {@code get(field)}.
-     * 
+     *
      * <p>For example, {@code getDisplayName(MONTH, SHORT, Locale.US)} will return "Jan"
      * while {@code getDisplayName(MONTH, LONG, Locale.US)} will return "January".
-     * 
+     *
      * @param field the field
      * @param style {@code SHORT} or {@code LONG}
      * @param locale the locale
@@ -1469,10 +1469,10 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * Returns a map of human-readable strings to corresponding values,
      * for the given field, style, and locale.
      * Returns null if no strings are available.
-     * 
+     *
      * <p>For example, {@code getDisplayNames(MONTH, ALL_STYLES, Locale.US)} would
      * contain mappings from "Jan" and "January" to {@link JANUARY}, and so on.
-     * 
+     *
      * @param field the field
      * @param style {@code SHORT}, {@code LONG}, or {@code ALL_STYLES}
      * @param locale the locale
@@ -1508,33 +1508,33 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
 
     @SuppressWarnings("nls")
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("areFieldsSet", Boolean.TYPE), 
-            new ObjectStreamField("fields", int[].class), 
-            new ObjectStreamField("firstDayOfWeek", Integer.TYPE), 
-            new ObjectStreamField("isSet", boolean[].class), 
-            new ObjectStreamField("isTimeSet", Boolean.TYPE), 
-            new ObjectStreamField("lenient", Boolean.TYPE), 
-            new ObjectStreamField("minimalDaysInFirstWeek", Integer.TYPE), 
-            new ObjectStreamField("nextStamp", Integer.TYPE), 
-            new ObjectStreamField("serialVersionOnStream", Integer.TYPE), 
-            new ObjectStreamField("time", Long.TYPE), 
-            new ObjectStreamField("zone", TimeZone.class), }; 
+            new ObjectStreamField("areFieldsSet", Boolean.TYPE),
+            new ObjectStreamField("fields", int[].class),
+            new ObjectStreamField("firstDayOfWeek", Integer.TYPE),
+            new ObjectStreamField("isSet", boolean[].class),
+            new ObjectStreamField("isTimeSet", Boolean.TYPE),
+            new ObjectStreamField("lenient", Boolean.TYPE),
+            new ObjectStreamField("minimalDaysInFirstWeek", Integer.TYPE),
+            new ObjectStreamField("nextStamp", Integer.TYPE),
+            new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
+            new ObjectStreamField("time", Long.TYPE),
+            new ObjectStreamField("zone", TimeZone.class), };
 
     @SuppressWarnings("nls")
     private void writeObject(ObjectOutputStream stream) throws IOException {
         complete();
         ObjectOutputStream.PutField putFields = stream.putFields();
-        putFields.put("areFieldsSet", areFieldsSet); 
-        putFields.put("fields", this.fields); 
-        putFields.put("firstDayOfWeek", firstDayOfWeek); 
-        putFields.put("isSet", isSet); 
-        putFields.put("isTimeSet", isTimeSet); 
-        putFields.put("lenient", lenient); 
-        putFields.put("minimalDaysInFirstWeek", minimalDaysInFirstWeek); 
-        putFields.put("nextStamp", 2 /* MINIMUM_USER_STAMP */); 
-        putFields.put("serialVersionOnStream", 1); 
-        putFields.put("time", time); 
-        putFields.put("zone", zone); 
+        putFields.put("areFieldsSet", areFieldsSet);
+        putFields.put("fields", this.fields);
+        putFields.put("firstDayOfWeek", firstDayOfWeek);
+        putFields.put("isSet", isSet);
+        putFields.put("isTimeSet", isTimeSet);
+        putFields.put("lenient", lenient);
+        putFields.put("minimalDaysInFirstWeek", minimalDaysInFirstWeek);
+        putFields.put("nextStamp", 2 /* MINIMUM_USER_STAMP */);
+        putFields.put("serialVersionOnStream", 1);
+        putFields.put("time", time);
+        putFields.put("zone", zone);
         stream.writeFields();
     }
 
@@ -1542,14 +1542,14 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
         ObjectInputStream.GetField readFields = stream.readFields();
-        areFieldsSet = readFields.get("areFieldsSet", false); 
-        this.fields = (int[]) readFields.get("fields", null); 
-        firstDayOfWeek = readFields.get("firstDayOfWeek", Calendar.SUNDAY); 
-        isSet = (boolean[]) readFields.get("isSet", null); 
-        isTimeSet = readFields.get("isTimeSet", false); 
-        lenient = readFields.get("lenient", true); 
-        minimalDaysInFirstWeek = readFields.get("minimalDaysInFirstWeek", 1); 
-        time = readFields.get("time", 0L); 
-        zone = (TimeZone) readFields.get("zone", null); 
+        areFieldsSet = readFields.get("areFieldsSet", false);
+        this.fields = (int[]) readFields.get("fields", null);
+        firstDayOfWeek = readFields.get("firstDayOfWeek", Calendar.SUNDAY);
+        isSet = (boolean[]) readFields.get("isSet", null);
+        isTimeSet = readFields.get("isTimeSet", false);
+        lenient = readFields.get("lenient", true);
+        minimalDaysInFirstWeek = readFields.get("minimalDaysInFirstWeek", 1);
+        time = readFields.get("time", 0L);
+        zone = (TimeZone) readFields.get("zone", null);
     }
 }

@@ -21,7 +21,7 @@ package java.util;
  * {@code ListResourceBundle} is the abstract superclass of classes which provide
  * resources by implementing the {@code getContents()} method to return
  * the list of resources.
- * 
+ *
  * @see ResourceBundle
  * @since 1.1
  */
@@ -40,7 +40,7 @@ public abstract class ListResourceBundle extends ResourceBundle {
      * {@code ListResourceBundle}. Each element in the array is an array of two
      * elements, the first is the resource key string and the second is the
      * resource.
-     * 
+     *
      * @return a {@code Object} array containing the resources.
      */
     protected abstract Object[][] getContents();
@@ -126,10 +126,10 @@ public abstract class ListResourceBundle extends ResourceBundle {
             }
         }
     }
-    
+
     /**
      * Returns a set of the keys in this ResourceBundle but not in its parents.
-     * 
+     *
      * @return a set of the keys in this ResourceBundle but not in its parents.
      * @since 1.6
      * @hide

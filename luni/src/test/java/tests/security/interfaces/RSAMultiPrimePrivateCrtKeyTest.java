@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,7 +31,7 @@ import org.apache.harmony.security.tests.support.interfaces.RSAMultiPrimePrivate
 
 @TestTargetClass(RSAMultiPrimePrivateCrtKey.class)
 public class RSAMultiPrimePrivateCrtKeyTest extends TestCase {
-    
+
     /**
      * Reference array of RSAOtherPrimeInfo. DO NOT MODIFY
      */
@@ -40,26 +40,26 @@ public class RSAMultiPrimePrivateCrtKeyTest extends TestCase {
             new RSAOtherPrimeInfo(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE),
             new RSAOtherPrimeInfo(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE)
     };
-    
+
     private final BigInteger publicExponent = BigInteger.ONE;
     private final BigInteger primeExponentP = BigInteger.ONE;
     private final BigInteger primeExponentQ = BigInteger.ONE;
     private final BigInteger primeP = BigInteger.ONE;
     private final BigInteger primeQ = BigInteger.ONE;
     private final BigInteger crtCoefficient = BigInteger.ONE;
-    
+
     class RSAMulti extends RSAMultiPrimePrivateCrtKeyImpl {
         public RSAMulti(BigInteger publicExp,
-                        BigInteger primeExpP, 
-                        BigInteger primeExpQ, 
-                        BigInteger prP, 
-                        BigInteger prQ, 
-                        BigInteger crtCft, 
+                        BigInteger primeExpP,
+                        BigInteger primeExpQ,
+                        BigInteger prP,
+                        BigInteger prQ,
+                        BigInteger crtCft,
                         RSAOtherPrimeInfo[] otherPrmInfo) {
             super(publicExp, primeExpP, primeExpQ, prP, prQ, crtCft, otherPrmInfo);
         }
     }
-    
+
     /**
      * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getCrtCoefficient()
      * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getPrimeExponentP()
@@ -120,7 +120,7 @@ public class RSAMultiPrimePrivateCrtKeyTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * @tests java.security.interfaces.RSAMultiPrimePrivateCrtKey#getOtherPrimeInfo()
      */
@@ -140,7 +140,7 @@ public class RSAMultiPrimePrivateCrtKeyTest extends TestCase {
         }
         rsam = new RSAMulti(publicExponent, primeExponentP, primeExponentQ,
                             primeP, primeQ, crtCoefficient, opi);
-        
+
         try {
             assertEquals(rsam.getOtherPrimeInfo(), opi);
         } catch (Exception e) {

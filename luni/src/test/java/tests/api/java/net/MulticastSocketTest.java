@@ -64,7 +64,7 @@ public class MulticastSocketTest extends SocketTestCase {
 		volatile public byte[] rbuf = new byte[512];
 
         volatile DatagramPacket rdp = null;
-        
+
         private InetAddress groupAddr = null;
         private SocketAddress groupSockAddr = null;
         private NetworkInterface groupNI = null;
@@ -74,11 +74,11 @@ public class MulticastSocketTest extends SocketTestCase {
                 byte[] tmpbuf = new byte[512];
                 DatagramPacket tmpPack =
                         new DatagramPacket(tmpbuf, tmpbuf.length);
-                
+
                 while (running) {
 					try {
                         ms.receive(tmpPack);
-                        
+
                         System.arraycopy(tmpPack.getData(), 0, rdp.getData(),
                                 rdp.getOffset(), tmpPack.getLength());
                         rdp.setLength(tmpPack.getLength());
@@ -116,8 +116,8 @@ public class MulticastSocketTest extends SocketTestCase {
             groupAddr = anAddress;
             ms.joinGroup(groupAddr);
         }
-        
-        
+
+
         public MulticastServer(SocketAddress anAddress, int aPort,
 				NetworkInterface netInterface) throws java.io.IOException {
 			rbuf = new byte[512];
@@ -348,8 +348,8 @@ public class MulticastSocketTest extends SocketTestCase {
 	}
 
 	/**
-	 * @throws IOException 
-	 * @throws InterruptedException 
+	 * @throws IOException
+	 * @throws InterruptedException
 	 * @tests java.net.MulticastSocket#joinGroup(java.net.SocketAddress,java.net.NetworkInterface)
 	 */
     @KnownFailure("Fails in CTS but passes under run-core-tests")
@@ -467,7 +467,7 @@ public class MulticastSocketTest extends SocketTestCase {
                         .getByInetAddress(InetAddress.getByName("127.0.0.1"));
 
                 boolean anyLoop = networkInterface1.equals(loopbackInterface) || networkInterface2.equals(loopbackInterface);
-                
+
                 ArrayList<NetworkInterface> realInterfaces = new ArrayList<NetworkInterface>();
                 theInterfaces = NetworkInterface.getNetworkInterfaces();
                 while (theInterfaces.hasMoreElements()) {
@@ -478,11 +478,11 @@ public class MulticastSocketTest extends SocketTestCase {
                         realInterfaces.add(thisInterface);
                     }
                 }
-                
+
                 for (int i = 0; i < realInterfaces.size(); i++) {
                     final int SECOND = 1;
                     NetworkInterface thisInterface = realInterfaces.get(i);
-                   
+
                         // get the first address on the interface
 
                         // start server which is joined to the group and has
@@ -548,7 +548,7 @@ public class MulticastSocketTest extends SocketTestCase {
 
                         server.stopServer();
                     }
-                
+
 
                 // validate that we can join the same address on two
                 // different interfaces but not on the same interface
@@ -786,8 +786,8 @@ public class MulticastSocketTest extends SocketTestCase {
 	}
 
 	/**
-	 * @throws IOException 
-	 * @throws InterruptedException 
+	 * @throws IOException
+	 * @throws InterruptedException
 	 * @tests java.net.MulticastSocket#setNetworkInterface(java.net.NetworkInterface)
 	 */
 	public void test_setNetworkInterfaceLjava_net_NetworkInterface() throws IOException, InterruptedException {
@@ -933,7 +933,7 @@ public class MulticastSocketTest extends SocketTestCase {
         // regression test for Harmony-1162
         InetSocketAddress addr = new InetSocketAddress("0.0.0.0", 0);
         MulticastSocket s = new MulticastSocket(addr);
-        assertTrue(s.getReuseAddress()); 
+        assertTrue(s.getReuseAddress());
 	}
 
 	/**
@@ -972,7 +972,7 @@ public class MulticastSocketTest extends SocketTestCase {
 			handleException(e, SO_USELOOPBACK);
 		}
 	}
-    
+
     /**
      * @tests java.net.MulticastSocket#setLoopbackMode(boolean)
      */
@@ -1011,8 +1011,8 @@ public class MulticastSocketTest extends SocketTestCase {
                 socket.close();
         }
     }
-    
-    
+
+
 	/**
 	 * @tests java.net.MulticastSocket#setReuseAddress(boolean)
 	 */

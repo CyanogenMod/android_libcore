@@ -41,7 +41,7 @@ public class MethodLogger {
     public void add(String method, Object ... args) {
         Object[] argsCopy = new Object[args.length];
         System.arraycopy(args, 0, argsCopy, 0, args.length);
-        
+
         methods.add(method);
         argLists.add(argsCopy);
     }

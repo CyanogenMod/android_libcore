@@ -24,7 +24,7 @@ import dalvik.annotation.TestTargetClass;
 
 import java.lang.reflect.ReflectPermission;
 
-@TestTargetClass(ReflectPermission.class) 
+@TestTargetClass(ReflectPermission.class)
 public class ReflectPermissionTest extends junit.framework.TestCase {
 
     /**

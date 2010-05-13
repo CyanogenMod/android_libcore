@@ -16,11 +16,11 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The method createElementNS creates an element of the given valid
  * qualifiedName and NamespaceURI.
- * 
+ *
  * Invoke the createElementNS method on this Document object with a valid
  * namespaceURI and qualifiedName. Check if a valid Element object is returned
  * with the same node attributes.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
@@ -28,7 +28,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrElNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrElNS</a>
  */
-@TestTargetClass(Document.class) 
+@TestTargetClass(Document.class)
 public final class DocumentCreateElementNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -54,7 +54,7 @@ public final class DocumentCreateElementNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -96,7 +96,7 @@ public final class DocumentCreateElementNS extends DOMTestCase {
     )
     public void testCreateElementNS2() throws Throwable {
         Document doc;
-        
+
         String namespaceURI = null;
 
         String qualifiedName = "^^";
@@ -120,7 +120,7 @@ public final class DocumentCreateElementNS extends DOMTestCase {
     )
     public void testCreateElementNS5() throws Throwable {
         Document doc;
-        
+
         String namespaceURI = null;
 
         String qualifiedName = "null:xml";
@@ -148,7 +148,7 @@ public final class DocumentCreateElementNS extends DOMTestCase {
         DocumentType docType = null;
 
         DOMImplementation domImpl;
-        
+
         String namespaceURI = "http://www.w3.org/xml/1998/namespace ";
         String qualifiedName = "xml:root";
         doc = (Document) load("staffNS", builder);

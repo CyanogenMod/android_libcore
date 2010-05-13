@@ -40,7 +40,7 @@ import org.apache.harmony.security.tests.support.cert.TestUtils;
 
 /**
  * Tests for <code>PKIXCertPathValidatorResult</code>
- * 
+ *
  */
 @TestTargetClass(PKIXCertPathValidatorResult.class)
 public class PKIXCertPathValidatorResultTest extends TestCase {
@@ -69,7 +69,7 @@ public class PKIXCertPathValidatorResultTest extends TestCase {
      * PolicyNode, PublicKey)</code> constructor<br>
      * Assertion: creates an instance of
      * <code>PKIXCertPathValidatorResult</code>
-     * 
+     *
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
      */

@@ -39,7 +39,7 @@ import junit.framework.TestCase;
  * Tests for <code>MessageDigestSpi</code> constructor and methods
  */
 public class MessageDigestSpiTest extends TestCase {
-    
+
     /**
     * java.security.MessageDigestSpi#MessageDigestSpi()
     */
@@ -84,11 +84,11 @@ public class MessageDigestSpiTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e.getMessage());
         }
-        
+
         try {
             mds = new MyMessageDigest();
             byte[] ba = {0, 1, 2, 3, 4, 5};
-            
+
             mds.engineDigest();
             mds.engineReset();
             mds.engineUpdate(ba[0]);
@@ -135,14 +135,14 @@ public class MessageDigestSpiTest extends TestCase {
             fail("No expected DigestException");
         } catch (DigestException e) {
         }
-        
+
         try {
             //test: offset param > digest length
             md.engineDigest(b, b.length + 1, b.length);
             fail("No expected DigestException - 1");
         } catch (DigestException e) {
         }
-        
+
         try {
             //test: negative param
             md.engineDigest(b, -1, b.length);
@@ -155,7 +155,7 @@ public class MessageDigestSpiTest extends TestCase {
 
         assertEquals("incorrect result", DIGEST_LENGTH, md
                 .engineDigest(b, 1, 3));
-        
+
         // Regression for HARMONY-3045
         md = new MyMessageDigest();
         try {
@@ -178,7 +178,7 @@ public class MessageDigestSpiTest extends TestCase {
     public void test_engineGetDigestLength() {
         MyMessageDigest md = new MyMessageDigest();
         assertEquals(0, md.engineGetDigestLength());
-        
+
         MessageDigest md5Digest = null;
         try {
             md5Digest = MessageDigest.getInstance("MD5");

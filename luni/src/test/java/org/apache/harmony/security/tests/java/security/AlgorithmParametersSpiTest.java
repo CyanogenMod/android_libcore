@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>AlgorithmParametersSpi</code> class constructors
  * and methods.
- * 
+ *
  */
 @TestTargetClass(AlgorithmParametersSpi.class)
 public class AlgorithmParametersSpiTest extends TestCase {
@@ -95,7 +95,7 @@ public class AlgorithmParametersSpiTest extends TestCase {
         MyAlgorithmParametersSpi algParSpi = new MyAlgorithmParametersSpi();
         assertTrue(algParSpi instanceof AlgorithmParametersSpi);
         assertNotNull(algParSpi);
-        
+
         algParSpi.engineInit(new MyAlgorithmParameterSpec());
         algParSpi.engineInit(bt);
         algParSpi.engineInit(bt, "Format");
@@ -125,6 +125,6 @@ public class AlgorithmParametersSpiTest extends TestCase {
             return null;
         }
     }
-    
+
     class MyAlgorithmParameterSpec implements AlgorithmParameterSpec {}
 }

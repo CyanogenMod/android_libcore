@@ -51,7 +51,7 @@ import org.apache.harmony.luni.platform.Platform;
  * Note also that on Android &ndash; unlike the RI &ndash; the cache is not unbounded. The current
  * implementation caches around 512 entries, removed on a least-recently-used basis.
  * (Obviously, you should not rely on these details.)
- * 
+ *
  * @see Inet4Address
  * @see Inet6Address
  */

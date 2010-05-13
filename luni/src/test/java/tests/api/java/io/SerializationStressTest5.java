@@ -18,7 +18,7 @@
 package tests.api.java.io;
 
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
 import java.io.File;
@@ -31,7 +31,7 @@ import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-@TestTargetClass(java.io.Serializable.class) 
+@TestTargetClass(java.io.Serializable.class)
 public class SerializationStressTest5 extends SerializationStressTest {
 
     transient Throwable current;
@@ -64,7 +64,7 @@ public class SerializationStressTest5 extends SerializationStressTest {
         notes = "",
         method = "!Serialization:test ThrowableClasses",
         args = {}
-    )        
+    )
     public void _test_writeObject_Throwables() {
         try {
             oos.close();

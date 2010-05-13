@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@ import org.apache.harmony.luni.util.Msg;
 /**
  * An {@code UnknownFormatConversionException} will be thrown if the format
  * conversion is unknown.
- * 
+ *
  * @see java.lang.RuntimeException
  */
 public class UnknownFormatConversionException extends IllegalFormatException {
@@ -31,8 +31,8 @@ public class UnknownFormatConversionException extends IllegalFormatException {
     /**
      * Constructs an {@code UnknownFormatConversionException} with the unknown
      * format conversion.
-     * 
-     * @param s 
+     *
+     * @param s
      *           the unknown format conversion.
      */
     public UnknownFormatConversionException(String s) {
@@ -44,7 +44,7 @@ public class UnknownFormatConversionException extends IllegalFormatException {
 
     /**
      * Returns the conversion associated with the exception.
-     * 
+     *
      * @return the conversion associated with the exception.
      */
     public String getConversion() {
@@ -53,7 +53,7 @@ public class UnknownFormatConversionException extends IllegalFormatException {
 
     /**
      * Returns the message of the exception.
-     * 
+     *
      * @return the message of the exception.
      */
     @Override

@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,7 +69,7 @@ public class CharsetProviderTest extends TestCase {
         if (!tmpdir.isDirectory()) {
             fail("java.io.tmpdir is not a directory");
         }
-        
+
         String sep = System.getProperty("file.separator");
 
         if (!tmpDir.endsWith(sep)) {
@@ -78,30 +78,30 @@ public class CharsetProviderTest extends TestCase {
 
         CONFIG_FILE1 = tmpDir +  "META-INF" + sep + "services" + sep
                 + "java.nio.charset.spi.CharsetProvider";
-        
+
         URL url = null;
         try {
             url = new URL("file://" + tmpDir);
         } catch (MalformedURLException e) {
             fail("unexpected exception: " + e);
         }
-        
+
         ClassLoader parent = Thread.currentThread().getContextClassLoader();
         if (parent == null) {
             parent = ClassLoader.getSystemClassLoader();
         }
-        
+
         URLClassLoader urlc = new URLClassLoader(new URL[] { url }, parent);
-        
+
         Thread.currentThread().setContextClassLoader(urlc);
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         Thread.currentThread().setContextClassLoader(null);
     }
-    
+
     /*
      * Write the string to the config file.
      */
@@ -110,7 +110,7 @@ public class CharsetProviderTest extends TestCase {
         int sepIndex = path.lastIndexOf(sep);
         File f = new File(path.substring(0, sepIndex));
         f.mkdirs();
-        
+
         FileOutputStream fos = new FileOutputStream(path);
         OutputStreamWriter writer = new OutputStreamWriter(fos);// , "UTF-8");
         try {
@@ -289,7 +289,7 @@ public class CharsetProviderTest extends TestCase {
             System.setSecurityManager(oldMan);
         }
     }
-    
+
     /*
      * Test the method isSupported(String) with insufficient privilege to use
      * charset provider.
@@ -325,7 +325,7 @@ public class CharsetProviderTest extends TestCase {
         } finally {
             System.setSecurityManager(oldMan);
         }
-    }    
+    }
 
     /*
      * Test the method forName(String) when the charset provider supports a
@@ -344,7 +344,7 @@ public class CharsetProviderTest extends TestCase {
             method = "charsetForName",
             args = {String.class}
         )
-    }) 
+    })
     public void testForName_DuplicateWithBuiltInCharset() throws Exception {
         try {
             StringBuffer sb = new StringBuffer();
@@ -371,7 +371,7 @@ public class CharsetProviderTest extends TestCase {
         args = {String.class}
     )
     @AndroidOnly("Looks like RI doesn't use current thread's context class "+
-    "loader to lookup charset providers")    
+    "loader to lookup charset providers")
     public void testForName_NonExistingClass() throws Exception {
         try {
             StringBuffer sb = new StringBuffer();
@@ -398,7 +398,7 @@ public class CharsetProviderTest extends TestCase {
         args = {String.class}
     )
     @AndroidOnly("Looks like RI doesn't use current thread's context class "+
-    "loader to lookup charset providers")    
+    "loader to lookup charset providers")
     public void testForName_NotCharsetProviderClass() throws Exception {
         try {
             StringBuffer sb = new StringBuffer();
@@ -425,7 +425,7 @@ public class CharsetProviderTest extends TestCase {
         args = {}
     )
     @AndroidOnly("Looks like RI doesn't use current thread's context class "+
-    "loader to lookup charset providers")    
+    "loader to lookup charset providers")
     public void testAvailableCharsets_NormalProvider() throws Exception {
         try {
             assertFalse(Charset.availableCharsets()
@@ -521,7 +521,7 @@ public class CharsetProviderTest extends TestCase {
         args = {}
     )
     @AndroidOnly("Looks like RI doesn't use current thread's context class "+
-    "loader to lookup charset providers")    
+    "loader to lookup charset providers")
     public void testAvailableCharsets_NotCharsetProviderClass()
             throws Exception {
         try {
@@ -562,7 +562,7 @@ public class CharsetProviderTest extends TestCase {
             cleanupFile(CONFIG_FILE1);
         }
     }
-    
+
     /*
      * Mock charset provider.
      */
@@ -583,7 +583,7 @@ public class CharsetProviderTest extends TestCase {
             return v.iterator();
         }
     }
-    
+
     /*
      * Another mock charset provider providing build-in charset "ascii".
      */

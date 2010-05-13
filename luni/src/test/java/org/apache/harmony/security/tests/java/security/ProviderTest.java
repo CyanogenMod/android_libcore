@@ -49,7 +49,7 @@ import dalvik.annotation.TestTargetNew;
 @TestTargetClass(Provider.class)
 /**
  * Tests for <code>Provider</code> constructor and methods
- * 
+ *
  */
 public class ProviderTest extends TestCase {
     /*
@@ -58,9 +58,9 @@ public class ProviderTest extends TestCase {
      * sure there are not side-effects on other tests. Simply inserting SHA-1
      * destroys the existing provider infrastructure.
      */
-    
+
     Provider[] storedProviders;
-    
+
     Provider p;
 
     /*
@@ -68,20 +68,20 @@ public class ProviderTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         storedProviders = Security.getProviders();
-        
+
         p = new MyProvider();
     }
 
     @Override
     protected void tearDown() throws Exception {
         System.setSecurityManager(null);
-        
+
         p.remove("MessageDigest.ASH-1");
         p.remove("MessageDigest.abc");
         p.remove("Alg.Alias.MessageDigest.ASH1");
-        
+
         for (Provider p: Security.getProviders()) {
             Security.removeProvider(p.getName());
         }
@@ -89,10 +89,10 @@ public class ProviderTest extends TestCase {
         for (Provider p: storedProviders) {
             Security.addProvider(p);
         }
-        
+
         super.tearDown();
     }
-    
+
     /*
      * Class under test for void Provider()
      */
@@ -131,7 +131,7 @@ public class ProviderTest extends TestCase {
         p.clear();
         assertNull(p.getProperty("MessageDigest.SHA-1"));
     }
-    
+
     /*
      * Class under test for void Provider(String, double, String)
      */
@@ -207,16 +207,16 @@ public class ProviderTest extends TestCase {
     )
     public final void testEntrySet() {
         p.put("MessageDigest.SHA-256", "aaa.bbb.ccc.ddd");
-        
+
         Set s = p.entrySet();
         try {
             s.clear();
             fail("Must return unmodifiable set");
         } catch (UnsupportedOperationException e) {
         }
-        
+
         assertEquals("Incorrect set size", 8, s.size());
-        
+
         for (Iterator it = s.iterator(); it.hasNext();) {
             Entry e = (Entry)it.next();
             String key = (String)e.getKey();
@@ -328,10 +328,10 @@ public class ProviderTest extends TestCase {
         p.put("Type.Algorithm", "className");
         assertEquals("aaa.bbb.ccc.ddd", p.getProperty("MessageDigest.SHA-1")
                 .trim());
-        
+
         Set services = p.getServices();
         assertEquals(3, services.size());
-        
+
         for (Iterator it = services.iterator(); it.hasNext();) {
             Provider.Service s = (Provider.Service)it.next();
             if ("Type".equals(s.getType()) &&
@@ -369,7 +369,7 @@ public class ProviderTest extends TestCase {
         assertNull(p.getProperty("MessageDigest.SHA-1"));
         assertEquals(1, p.getServices().size());
     }
- 
+
     public final void testService1() {
         p.put("MessageDigest.SHA-1", "AnotherClassName");
         Provider.Service s = p.getService("MessageDigest", "SHA-1");
@@ -399,23 +399,23 @@ public class ProviderTest extends TestCase {
             put("MessageDigest.abc", "SomeClassName");
             put("Alg.Alias.MessageDigest.SHA1", "SHA-1");
         }
-        
+
         MyProvider(String name, double version, String info) {
             super(name, version, info);
         }
-        
+
         // BEGIN android-added
         public void putService(Provider.Service s) {
             super.putService(s);
         }
         // END android-added
-        
+
         // BEGIN android-added
         public void removeService(Provider.Service s) {
             super.removeService(s);
         }
         // END android-added
-        
+
         // BEGIN android-added
         public int getNumServices() {
             return getServices().size();
@@ -720,7 +720,7 @@ public class ProviderTest extends TestCase {
             notes = "",
             method = "load",
             args = {java.io.InputStream.class}
-        )    
+        )
     public final void testLoad2() {
         class TestInputStream extends InputStream {
             @Override
@@ -728,7 +728,7 @@ public class ProviderTest extends TestCase {
                 throw new IOException();
             }
         }
-        
+
         MyProvider p = new MyProvider();
         try {
             p.load(new TestInputStream());
@@ -755,11 +755,11 @@ public class ProviderTest extends TestCase {
     static class TestSecurityManager extends SecurityManager {
         boolean called = false;
         private final String permissionName;
-        
+
         public TestSecurityManager(String permissionName) {
             this.permissionName = permissionName;
         }
-        
+
         @Override
         public void checkPermission(Permission permission) {
             if (permission instanceof SecurityPermission) {

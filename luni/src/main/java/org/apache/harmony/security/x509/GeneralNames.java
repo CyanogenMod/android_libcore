@@ -33,18 +33,18 @@ import org.apache.harmony.security.asn1.BerInputStream;
 
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the GeneralNames structure which is a part of X.509 certificate
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
  *
- * 
+ *
  * <pre>
  *   GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
  * </pre>
- * 
+ *
  * @see org.apache.harmony.security.x509.NameConstraints
  * @see org.apache.harmony.security.x509.GeneralSubtree
  */
@@ -54,14 +54,14 @@ public class GeneralNames {
     private List generalNames;
     // the ASN.1 encoded form of GeneralNames
     private byte[] encoding;
-    
+
     /**
      * Constructs an object representing the value of GeneralNames.
      */
     public GeneralNames() {
         generalNames = new ArrayList();
     }
-    
+
     /**
      * TODO
      * @param   generalNames:   List
@@ -69,12 +69,12 @@ public class GeneralNames {
     public GeneralNames(List generalNames) {
         this.generalNames = generalNames;
     }
-    
-    // 
+
+    //
     // TODO
     // @param   generalNames:   List
     // @param   encoding:   byte[]
-    // 
+    //
     private GeneralNames(List generalNames, byte[] encoding) {
         this.generalNames = generalNames;
         this.encoding = encoding;
@@ -124,7 +124,7 @@ public class GeneralNames {
      * TODO
      * @param   name:   GeneralName
      * @return
-     * 
+     *
     public GeneralName getNameByTag(int tag) {
         encoding = null;
         if ((generalNames == null) || (generalNames.size() == 0)) {

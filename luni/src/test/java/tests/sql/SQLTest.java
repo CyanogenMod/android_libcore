@@ -84,8 +84,8 @@ public class SQLTest extends TestCase {
                 "create table zoo(id smallint,  name varchar(10), family varchar(10))",
                 "insert into zoo values (1, 'Kesha', 'parrot')",
                 "insert into zoo values (2, 'Yasha', 'sparrow')" };
-        
-        Statement st = null;    
+
+        Statement st = null;
         try {
             st = conn.createStatement();
             for (int i = 0; i < queries.length; i++) {
@@ -99,7 +99,7 @@ public class SQLTest extends TestCase {
                 if (st != null) {
                     st.close();
                 }
-             } catch (SQLException ee) {} 
+             } catch (SQLException ee) {}
         }
     }
 
@@ -118,7 +118,7 @@ public class SQLTest extends TestCase {
         } finally {
             try {
                 st.close();
-             } catch (SQLException ee) {} 
+             } catch (SQLException ee) {}
         }
     }
 

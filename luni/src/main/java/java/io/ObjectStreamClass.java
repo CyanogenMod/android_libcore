@@ -53,7 +53,7 @@ public class ObjectStreamClass implements Serializable {
     private static final long serialVersionUID = -6120832682080437368L;
 
     // Name of the field that contains the SUID value (if present)
-    private static final String UID_FIELD_NAME = "serialVersionUID"; 
+    private static final String UID_FIELD_NAME = "serialVersionUID";
 
     static final long CONSTRUCTOR_IS_NOT_RESOLVED = -1;
 
@@ -106,18 +106,18 @@ public class ObjectStreamClass implements Serializable {
 
     static {
         try {
-            ARRAY_OF_FIELDS = Class.forName("[Ljava.io.ObjectStreamField;"); 
+            ARRAY_OF_FIELDS = Class.forName("[Ljava.io.ObjectStreamField;");
         } catch (ClassNotFoundException e) {
             // This should not happen
             throw new AssertionError(e);
         }
     }
 
-    private static final String CLINIT_NAME = "<clinit>"; 
+    private static final String CLINIT_NAME = "<clinit>";
 
     private static final int CLINIT_MODIFIERS = Modifier.STATIC;
 
-    private static final String CLINIT_SIGNATURE = "()V"; 
+    private static final String CLINIT_SIGNATURE = "()V";
 
     // Used to determine if an object is Serializable or Externalizable
     private static final Class<Serializable> SERIALIZABLE = Serializable.class;
@@ -292,14 +292,14 @@ public class ObjectStreamClass implements Serializable {
         } else if (serializable) {
             flags |= ObjectStreamConstants.SC_SERIALIZABLE;
         }
-        result.methodWriteReplace = findMethod(cl, "writeReplace"); 
-        result.methodReadResolve = findMethod(cl, "readResolve"); 
-        result.methodWriteObject = findPrivateMethod(cl, "writeObject", 
+        result.methodWriteReplace = findMethod(cl, "writeReplace");
+        result.methodReadResolve = findMethod(cl, "readResolve");
+        result.methodWriteObject = findPrivateMethod(cl, "writeObject",
                 WRITE_PARAM_TYPES);
-        result.methodReadObject = findPrivateMethod(cl, "readObject", 
+        result.methodReadObject = findPrivateMethod(cl, "readObject",
                 READ_PARAM_TYPES);
         result.methodReadObjectNoData = findPrivateMethod(cl,
-                "readObjectNoData", EMPTY_CONSTRUCTOR_PARAM_TYPES); 
+                "readObjectNoData", EMPTY_CONSTRUCTOR_PARAM_TYPES);
         if (result.hasMethodWriteObject()) {
             flags |= ObjectStreamConstants.SC_WRITE_METHOD;
         }
@@ -415,7 +415,7 @@ public class ObjectStreamClass implements Serializable {
                             return field.getLong(null);
                         } catch (IllegalAccessException iae) {
                             throw new RuntimeException(Msg.getString(
-                                    "K0071", iae)); 
+                                    "K0071", iae));
                         }
                     }
                 }
@@ -424,7 +424,7 @@ public class ObjectStreamClass implements Serializable {
 
         MessageDigest digest;
         try {
-            digest = MessageDigest.getInstance("SHA"); 
+            digest = MessageDigest.getInstance("SHA");
         } catch (NoSuchAlgorithmException e) {
             throw new Error(e);
         }
@@ -545,7 +545,7 @@ public class ObjectStreamClass implements Serializable {
                      * constructor.getName() returns the constructor name as
                      * typed, not the VM name
                      */
-                    output.writeUTF("<init>"); 
+                    output.writeUTF("<init>");
                     output.writeInt(modifiers);
                     output.writeUTF(descriptorForSignature(
                             getConstructorSignature(constructor)).replace('/',
@@ -616,7 +616,7 @@ public class ObjectStreamClass implements Serializable {
      * @return containing the descriptor
      */
     private static String descriptorForSignature(String signature) {
-        return signature.substring(signature.indexOf("(")); 
+        return signature.substring(signature.indexOf("("));
     }
 
     /**
@@ -631,7 +631,7 @@ public class ObjectStreamClass implements Serializable {
      */
     static Field fieldSerialPersistentFields(Class<?> cl) {
         try {
-            Field f = cl.getDeclaredField("serialPersistentFields"); 
+            Field f = cl.getDeclaredField("serialPersistentFields");
             int modifiers = f.getModifiers();
             if (Modifier.isStatic(modifiers) && Modifier.isPrivate(modifiers)
                     && Modifier.isFinal(modifiers)) {
@@ -955,7 +955,7 @@ public class ObjectStreamClass implements Serializable {
     /**
      * Returns the descriptor for any class, whether or not the class
      * implements Serializable or Externalizable.
-     * 
+     *
      * @param cl
      *            a java.lang.Class for which to obtain the corresponding
      *            descriptor
@@ -1196,8 +1196,8 @@ public class ObjectStreamClass implements Serializable {
      */
     @Override
     public String toString() {
-        return getName() + ": static final long serialVersionUID =" 
-                + getSerialVersionUID() + "L;"; 
+        return getName() + ": static final long serialVersionUID ="
+                + getSerialVersionUID() + "L;";
     }
 
     static class OSCThreadLocalCache extends ThreadLocalCache {

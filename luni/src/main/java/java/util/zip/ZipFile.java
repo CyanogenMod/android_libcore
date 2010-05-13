@@ -436,7 +436,7 @@ public class ZipFile implements ZipConstants {
             return n;
         }
     }
-    
+
     static class ZipInflaterInputStream extends InflaterInputStream {
 
         ZipEntry entry;

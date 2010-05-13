@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,7 +50,7 @@ public class ShortTest extends TestCase {
         x = new Short((short) 1);
         assertEquals("Should have returned zero when compared to equal short",
                              0, s.compareTo(x));
-        
+
         try {
             new Short((short)0).compareTo(null);
             fail("No NPE");
@@ -355,7 +355,7 @@ public class ShortTest extends TestCase {
 			s++;
 		}
 	}
-    
+
     /**
      * @tests java.lang.Short#hashCode()
      */
@@ -373,7 +373,7 @@ public class ShortTest extends TestCase {
         assertEquals(new Short((short)0), new Short("0"));
         assertEquals(new Short((short)1), new Short("1"));
         assertEquals(new Short((short)-1), new Short("-1"));
-        
+
         try {
             new Short("0x1");
             fail("Expected NumberFormatException with hex string.");
@@ -388,7 +388,7 @@ public class ShortTest extends TestCase {
             new Short("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             new Short(null);
             fail("Expected NumberFormatException with null string.");
@@ -409,7 +409,7 @@ public class ShortTest extends TestCase {
      * @tests java.lang.Short#byteValue()
      */
     public void test_booleanValue() {
-        assertEquals(1, new Short((short)1).byteValue());    
+        assertEquals(1, new Short((short)1).byteValue());
         assertEquals(2, new Short((short)2).byteValue());
         assertEquals(0, new Short((short)0).byteValue());
         assertEquals(-1, new Short((short)-1).byteValue());
@@ -422,7 +422,7 @@ public class ShortTest extends TestCase {
         assertEquals(new Short((short)0), Short.valueOf((short)0));
         assertEquals(new Short((short)1), Short.valueOf((short)1));
         assertEquals(new Short((short)-1), Short.valueOf((short)-1));
-        
+
         Short fixture = new Short((short)25);
         assertEquals(fixture, fixture);
         assertFalse(fixture.equals(null));
@@ -456,7 +456,7 @@ public class ShortTest extends TestCase {
         assertEquals(new Short((short)0), Short.valueOf("0"));
         assertEquals(new Short((short)1), Short.valueOf("1"));
         assertEquals(new Short((short)-1), Short.valueOf("-1"));
-        
+
         try {
             Short.valueOf("0x1");
             fail("Expected NumberFormatException with hex string.");
@@ -471,13 +471,13 @@ public class ShortTest extends TestCase {
             Short.valueOf("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Short.valueOf(null);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Short#valueOf(String,int)
      */
@@ -485,11 +485,11 @@ public class ShortTest extends TestCase {
         assertEquals(new Short((short)0), Short.valueOf("0", 10));
         assertEquals(new Short((short)1), Short.valueOf("1", 10));
         assertEquals(new Short((short)-1), Short.valueOf("-1", 10));
-        
+
         //must be consistent with Character.digit()
         assertEquals(Character.digit('1', 2), Short.valueOf("1", 2).byteValue());
         assertEquals(Character.digit('F', 16), Short.valueOf("F", 16).byteValue());
-        
+
         try {
             Short.valueOf("0x1", 10);
             fail("Expected NumberFormatException with hex string.");
@@ -504,13 +504,13 @@ public class ShortTest extends TestCase {
             Short.valueOf("", 10);
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Short.valueOf(null, 10);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Short#parseShort(String)
      */
@@ -518,7 +518,7 @@ public class ShortTest extends TestCase {
         assertEquals(0, Short.parseShort("0"));
         assertEquals(1, Short.parseShort("1"));
         assertEquals(-1, Short.parseShort("-1"));
-        
+
         try {
             Short.parseShort("0x1");
             fail("Expected NumberFormatException with hex string.");
@@ -533,13 +533,13 @@ public class ShortTest extends TestCase {
             Short.parseShort("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Short.parseShort(null);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Short#parseShort(String,int)
      */
@@ -547,11 +547,11 @@ public class ShortTest extends TestCase {
         assertEquals(0, Short.parseShort("0", 10));
         assertEquals(1, Short.parseShort("1", 10));
         assertEquals(-1, Short.parseShort("-1", 10));
-        
+
         //must be consistent with Character.digit()
         assertEquals(Character.digit('1', 2), Short.parseShort("1", 2));
         assertEquals(Character.digit('F', 16), Short.parseShort("F", 16));
-        
+
         try {
             Short.parseShort("0x1", 10);
             fail("Expected NumberFormatException with hex string.");
@@ -566,13 +566,13 @@ public class ShortTest extends TestCase {
             Short.parseShort("", 10);
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Short.parseShort(null, 10);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Short#decode(String)
      */
@@ -584,7 +584,7 @@ public class ShortTest extends TestCase {
         assertEquals(new Short((short)0xF), Short.decode("#F"));
         assertEquals(new Short((short)0xF), Short.decode("0XF"));
         assertEquals(new Short((short)07), Short.decode("07"));
-        
+
         try {
             Short.decode("9.2");
             fail("Expected NumberFormatException with floating point string.");
@@ -594,14 +594,14 @@ public class ShortTest extends TestCase {
             Short.decode("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Short.decode(null);
             //undocumented NPE, but seems consistent across JREs
             fail("Expected NullPointerException with null string.");
         } catch (NullPointerException e) {}
     }
-    
+
     /**
      * @tests java.lang.Short#doubleValue()
      */
@@ -610,7 +610,7 @@ public class ShortTest extends TestCase {
         assertEquals(0D, new Short((short)0).doubleValue(), 0D);
         assertEquals(1D, new Short((short)1).doubleValue(), 0D);
     }
-    
+
     /**
      * @tests java.lang.Short#floatValue()
      */
@@ -619,7 +619,7 @@ public class ShortTest extends TestCase {
         assertEquals(0F, new Short((short)0).floatValue(), 0F);
         assertEquals(1F, new Short((short)1).floatValue(), 0F);
     }
-    
+
     /**
      * @tests java.lang.Short#intValue()
      */
@@ -628,7 +628,7 @@ public class ShortTest extends TestCase {
         assertEquals(0, new Short((short)0).intValue());
         assertEquals(1, new Short((short)1).intValue());
     }
-    
+
     /**
      * @tests java.lang.Short#longValue()
      */
@@ -637,7 +637,7 @@ public class ShortTest extends TestCase {
         assertEquals(0L, new Short((short)0).longValue());
         assertEquals(1L, new Short((short)1).longValue());
     }
-    
+
     /**
      * @tests java.lang.Short#shortValue()
      */
@@ -646,7 +646,7 @@ public class ShortTest extends TestCase {
         assertEquals(0, new Short((short)0).shortValue());
         assertEquals(1, new Short((short)1).shortValue());
     }
-    
+
     /**
      * @tests java.lang.Short#reverseBytes(short)
      */
@@ -656,5 +656,5 @@ public class ShortTest extends TestCase {
         assertEquals((short)0x0011, Short.reverseBytes((short)0x1100));
         assertEquals((short)0x2002, Short.reverseBytes((short)0x0220));
     }
-    
+
 }

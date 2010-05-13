@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,7 +69,7 @@ public final class AccessController {
      * If an instance of {@code RuntimeException} is thrown during the execution
      * of the {@code PrivilegedAction#run()} method of the given action, it will
      * be propagated through this method.
-     * 
+     *
      * @param action
      *            the action to be executed with privileges
      * @return the result of executing the privileged action
@@ -93,7 +93,7 @@ public final class AccessController {
      * If an instance of {@code RuntimeException} is thrown during the execution
      * of the {@code PrivilegedAction#run()} method of the given action, it will
      * be propagated through this method.
-     * 
+     *
      * @param action
      *            the action to be executed with privileges
      * @param context
@@ -124,7 +124,7 @@ public final class AccessController {
      * If an instance of {@code RuntimeException} is thrown during the execution
      * of the {@code PrivilegedAction#run()} method of the given action, it will
      * be propagated through this method.
-     * 
+     *
      * @param action
      *            the action to be executed with privileges
      * @return the result of executing the privileged action
@@ -154,7 +154,7 @@ public final class AccessController {
      * If an instance of {@code RuntimeException} is thrown during the execution
      * of the {@code PrivilegedAction#run()} method of the given action, it will
      * be propagated through this method.
-     * 
+     *
      * @param action
      *            the action to be executed with privileges
      * @param context
@@ -284,7 +284,7 @@ public final class AccessController {
      * This method delegates the permission check to
      * {@link AccessControlContext#checkPermission(Permission)} on the current
      * callers' context obtained by {@link #getContext()}.
-     * 
+     *
      * @param perm
      *            the permission to check against the policy
      * @throws AccessControlException
@@ -292,7 +292,7 @@ public final class AccessController {
      * @throws NullPointerException
      *             if the specified permission is {@code null}
      * @see AccessControlContext#checkPermission(Permission)
-     * 
+     *
      */
     public static void checkPermission(Permission perm)
             throws AccessControlException {
@@ -319,7 +319,7 @@ public final class AccessController {
      * <p>
      * The returned context may be used to perform access checks at a later
      * point in time, possibly by another thread.
-     * 
+     *
      * @return the {@code AccessControlContext} for the current {@code Thread}
      * @see Thread#currentThread
      */

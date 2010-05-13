@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,7 +59,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
     /**
      * Constructs a priority queue with the specified capacity and natural
      * ordering.
-     * 
+     *
      * @param initialCapacity
      *            the specified capacity.
      * @throws IllegalArgumentException
@@ -71,7 +71,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
 
     /**
      * Constructs a priority queue with the specified capacity and comparator.
-     * 
+     *
      * @param initialCapacity
      *            the specified capacity.
      * @param comparator
@@ -93,7 +93,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
      * The constructed priority queue has the initial capacity of 110% of the
      * size of the collection. The queue uses natural ordering to order its
      * elements.
-     * 
+     *
      * @param c
      *            the collection whose elements will be added to the priority
      *            queue to be constructed.
@@ -118,7 +118,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
      * priority queue. The constructed priority queue has the initial capacity
      * of 110% of the specified one. Both priority queues have the same
      * comparator.
-     * 
+     *
      * @param c
      *            the priority queue whose elements will be added to the
      *            priority queue to be constructed.
@@ -132,7 +132,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
      * The constructed priority queue has the initial capacity of 110% of the
      * size of the sorted set. The priority queue will have the same comparator
      * as the sorted set.
-     * 
+     *
      * @param c
      *            the sorted set whose elements will be added to the priority
      *            queue to be constructed.
@@ -144,7 +144,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
     /**
      * Gets the iterator of the priority queue, which will not return elements
      * in any specified ordering.
-     * 
+     *
      * @return the iterator of the priority queue.
      */
     @Override
@@ -155,7 +155,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
     /**
      * Gets the size of the priority queue. If the size of the queue is greater
      * than the Integer.MAX, then it returns Integer.MAX.
-     * 
+     *
      * @return the size of the priority queue.
      */
     @Override
@@ -174,7 +174,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
 
     /**
      * Inserts the element to the priority queue.
-     * 
+     *
      * @param o
      *            the element to add to the priority queue.
      * @return always true
@@ -196,7 +196,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
 
     /**
      * Gets and removes the head of the queue.
-     * 
+     *
      * @return the head of the queue or null if the queue is empty.
      */
     public E poll() {
@@ -210,7 +210,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
 
     /**
      * Gets but does not remove the head of the queue.
-     * 
+     *
      * @return the head of the queue or null if the queue is empty.
      */
     public E peek() {
@@ -222,7 +222,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
 
     /**
      * Gets the comparator of the priority queue.
-     * 
+     *
      * @return the comparator of the priority queue or null if the natural
      *         ordering is used.
      */
@@ -232,7 +232,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
 
     /**
      * Removes the specified object from the priority queue.
-     * 
+     *
      * @param o
      *            the object to be removed.
      * @return true if the object was in the priority queue, false if the object
@@ -255,7 +255,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
 
     /**
      * Adds the specified object to the priority queue.
-     * 
+     *
      * @param o
      *            the object to be added.
      * @return always true.

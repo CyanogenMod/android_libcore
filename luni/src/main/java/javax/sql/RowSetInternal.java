@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,7 @@ public interface RowSetInternal {
 
     /**
      * Gets the connection associated with this {@code RowSet} object.
-     * 
+     *
      * @return the connection or {@code null}.
      * @throws SQLException
      *             if there is a problem accessing the database.
@@ -43,7 +43,7 @@ public interface RowSetInternal {
      * <p>
      * The {@code ResultSet}'s cursor is positioned before the first row of
      * data.
-     * 
+     *
      * @return the {@code ResultSet} that contained the original data value of
      *         the {@code RowSet}.
      * @throws SQLException
@@ -54,7 +54,7 @@ public interface RowSetInternal {
     /**
      * Gets the original value of the current row only. If the current row did
      * not have an original value, then an empty value is returned.
-     * 
+     *
      * @return a {@code ResultSet} containing the value of the current row only.
      * @throws SQLException
      *             if there is a problem accessing the database, or if the
@@ -66,7 +66,7 @@ public interface RowSetInternal {
     /**
      * Gets the parameter values that have been set for this {@code RowSet}'s
      * command.
-     * 
+     *
      * @return the values of parameters that have been set.
      * @throws SQLException
      *             if there is a problem accessing the database.
@@ -77,7 +77,7 @@ public interface RowSetInternal {
      * Sets {@code RowSetMetaData} for this {@code RowSet}. The {@code
      * RowSetMetaData} is used by a {@code RowSetReader} to set values giving
      * information about the {@code RowSet}'s columns.
-     * 
+     *
      * @param theMetaData
      *            holds the metadata about the {@code RowSet}'s columns.
      * @throws SQLException

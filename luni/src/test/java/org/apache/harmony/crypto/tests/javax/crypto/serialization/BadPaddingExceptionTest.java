@@ -29,7 +29,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Test for BadPaddingException serialization
- * 
+ *
  */
 
 public class BadPaddingExceptionTest extends SerializationTest {

@@ -100,7 +100,7 @@ public class ExemptionMechanism {
     public static final ExemptionMechanism getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("crypto.02")); 
+            throw new NullPointerException(Messages.getString("crypto.02"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -132,14 +132,14 @@ public class ExemptionMechanism {
             String provider) throws NoSuchAlgorithmException,
             NoSuchProviderException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.04")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.04"));
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
             throw new NoSuchProviderException(provider);
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("crypto.02")); 
+            throw new NullPointerException(Messages.getString("crypto.02"));
         }
         return getInstance(algorithm, impProvider);
     }
@@ -164,10 +164,10 @@ public class ExemptionMechanism {
     public static final ExemptionMechanism getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("crypto.02")); 
+            throw new NullPointerException(Messages.getString("crypto.02"));
         }
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.04")); 
+            throw new IllegalArgumentException(Messages.getString("crypto.04"));
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);

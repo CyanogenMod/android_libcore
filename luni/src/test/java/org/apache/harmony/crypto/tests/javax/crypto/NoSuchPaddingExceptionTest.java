@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>NoSuchPaddingException</code> class constructors and
  * methods.
- * 
+ *
  */
 public class NoSuchPaddingExceptionTest extends TestCase {
 

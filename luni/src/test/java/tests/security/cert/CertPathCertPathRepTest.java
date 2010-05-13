@@ -49,7 +49,7 @@ public class CertPathCertPathRepTest extends TestCase {
         }
 
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Checks ObjectStreamException",
@@ -59,7 +59,7 @@ public class CertPathCertPathRepTest extends TestCase {
     public final void testReadResolve() {
         MyCertPath cp = new MyCertPath(testEncoding);
         MyCertPathRep rep = cp.new MyCertPathRep("MyEncoding", testEncoding);
-        
+
         try {
             Object obj = rep.readResolve();
             fail("ObjectStreamException was not thrown.");

@@ -36,7 +36,7 @@ import java.security.Permission;
  */
 @TestTargetClass(java.io.FileOutputStream.class)
 public class JavaIoFileOutputStreamTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -81,7 +81,7 @@ public class JavaIoFileOutputStreamTest extends TestCase {
             method = "FileOutputStream",
             args = {java.lang.String.class, boolean.class}
         )
-    })    
+    })
     public void test_FileOutputStream1() throws IOException {
         class TestSecurityManager extends SecurityManager {
             boolean called;
@@ -106,7 +106,7 @@ public class JavaIoFileOutputStreamTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
 
@@ -118,32 +118,32 @@ public class JavaIoFileOutputStreamTest extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         FileDescriptor fd = new FileDescriptor();
         new FileOutputStream(fd);
         assertTrue("FileOutputStream(FileDescriptor) ctor must call checkWrite on security manager", s.called);
         assertEquals("Argument of checkWrite is not correct", fd, s.fd);
-        
+
         s.reset();
         new FileOutputStream(f);
         assertTrue("FileOutputStream(File) ctor must call checkWrite on security manager", s.called);
-        assertEquals("Argument of checkWrite is not correct", filename, s.file); 
-        
+        assertEquals("Argument of checkWrite is not correct", filename, s.file);
+
         s.reset();
         new FileOutputStream(f, true);
         assertTrue("FileOutputStream(File) ctor must call checkWrite on security manager", s.called);
-        assertEquals("Argument of checkWrite is not correct", filename, s.file); 
-        
+        assertEquals("Argument of checkWrite is not correct", filename, s.file);
+
         s.reset();
         new FileOutputStream(filename);
         assertTrue("FileOutputStream(String) ctor must call checkWrite on security manager", s.called);
         assertEquals("Argument of checkWrite is not correct", filename, s.file);
-        
+
         s.reset();
         new FileOutputStream(filename, true);
         assertTrue("FileOutputStream(String,boolean) ctor must call checkWrite on security manager", s.called);
-        assertEquals("Argument of checkWrite is not correct", filename, s.file); 
+        assertEquals("Argument of checkWrite is not correct", filename, s.file);
     }
-    
+
 }

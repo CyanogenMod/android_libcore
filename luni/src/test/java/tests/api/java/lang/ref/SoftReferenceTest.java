@@ -28,7 +28,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.Vector;
 
-@TestTargetClass(SoftReference.class) 
+@TestTargetClass(SoftReference.class)
 public class SoftReferenceTest extends junit.framework.TestCase {
     static Boolean bool;
     SoftReference r;
@@ -135,7 +135,7 @@ public class SoftReferenceTest extends junit.framework.TestCase {
             TestThread t = new TestThread();
             t.start();
             t.join();
-            Vector<StringBuffer> v = new Vector<StringBuffer>();     
+            Vector<StringBuffer> v = new Vector<StringBuffer>();
             try {
                 while(true) {
                     v.add(new StringBuffer(10000));
@@ -164,7 +164,7 @@ public class SoftReferenceTest extends junit.framework.TestCase {
             fail("Exception : " + e.getMessage());
         }
     }
-    
+
     protected void setUp() {
     }
 

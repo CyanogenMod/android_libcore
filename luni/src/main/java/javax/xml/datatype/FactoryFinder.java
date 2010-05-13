@@ -29,7 +29,7 @@ import java.util.Properties;
 
 /**
  * <p>Implement pluggabile Datatypes.</p>
- * 
+ *
  * <p>This class is duplicated for each JAXP subpackage so keep it in
  * sync.  It is package private for secure class loading.</p>
  *
@@ -38,38 +38,38 @@ import java.util.Properties;
  * @since 1.5
  */
 final class FactoryFinder {
-    
+
     /**
      * <p>Name of class to display in output messages.</p>
      */
     private static final String CLASS_NAME = "javax.xml.datatype.FactoryFinder";
-    
+
     /**
      * <p>Debug flag to trace loading process.</p>
      */
     private static boolean debug = false;
-    
+
     /**
      * <p>Cache properties for performance.</p>
      */
     private static Properties cacheProps = new Properties();
-    
+
     /**
      * <p>First time requires initialization overhead.</p>
      */
     private static boolean firstTime = true;
-    
+
     /**
      * Default columns per line.
      */
     private static final int DEFAULT_LINE_LENGTH = 80;
-    
+
     /**
      * <p>Check to see if debugging enabled by property.</p>
-     * 
+     *
      * <p>Use try/catch block to support applets, which throws
      * SecurityException out of this code.</p>
-     * 
+     *
      */
     static {
         try {
@@ -80,12 +80,12 @@ final class FactoryFinder {
             debug = false;
         }
     }
-    
+
     private FactoryFinder() {}
 
     /**
      * <p>Output debugging messages.</p>
-     * 
+     *
      * @param msg <code>String</code> to print to <code>stderr</code>.
      */
     private static void debugPrintln(String msg) {
@@ -99,12 +99,12 @@ final class FactoryFinder {
 
     /**
      * <p>Find the appropriate <code>ClassLoader</code> to use.</p>
-     * 
+     *
      * <p>The context ClassLoader is prefered.</p>
-     * 
+     *
      * @return <code>ClassLoader</code> to use.
-     * 
-     * @throws ConfigurationError If a valid <code>ClassLoader</code> cannot be identified. 
+     *
+     * @throws ConfigurationError If a valid <code>ClassLoader</code> cannot be identified.
      */
     private static ClassLoader findClassLoader()
         throws ConfigurationError {
@@ -113,7 +113,7 @@ final class FactoryFinder {
         // Figure out which ClassLoader to use for loading the provider
         // class.  If there is a Context ClassLoader then use it.
 
-        classLoader = SecuritySupport.getContextClassLoader();            
+        classLoader = SecuritySupport.getContextClassLoader();
 
         if (debug) debugPrintln(
             "Using context class loader: "
@@ -125,27 +125,27 @@ final class FactoryFinder {
             classLoader = FactoryFinder.class.getClassLoader();
             if (debug) debugPrintln(
                 "Using the class loader of FactoryFinder: "
-                + classLoader);                
+                + classLoader);
         }
-                    
+
         return classLoader;
     }
 
     /**
      * <p>Create an instance of a class using the specified ClassLoader.</p>
-     * 
+     *
      * @param className Name of class to create.
      * @param classLoader ClassLoader to use to create named class.
-     * 
+     *
      * @return New instance of specified class created using the specified ClassLoader.
-     * 
+     *
      * @throws ConfigurationError If class could not be created.
      */
     static Object newInstance(
         String className,
         ClassLoader classLoader)
         throws ConfigurationError {
-            
+
         try {
             Class spiClass;
             if (classLoader == null) {
@@ -153,11 +153,11 @@ final class FactoryFinder {
             } else {
                 spiClass = classLoader.loadClass(className);
             }
-            
+
             if (debug) {
                 debugPrintln("Loaded " + className + " from " + which(spiClass));
             }
-             
+
             return spiClass.newInstance();
         } catch (ClassNotFoundException x) {
             throw new ConfigurationError(
@@ -178,12 +178,12 @@ final class FactoryFinder {
      * @param fallbackClassName Implementation class name, if nothing else is found.  Use null to mean no fallback.
      *
      * @return Class Object of factory, never null
-     * 
+     *
      * @throws ConfigurationError If Class cannot be found.
      */
     static Object find(String factoryId, String fallbackClassName)
         throws ConfigurationError {
-            
+
         ClassLoader classLoader = findClassLoader();
 
         // Use the system property first
@@ -215,17 +215,17 @@ final class FactoryFinder {
                 }
             }
             factoryClassName = cacheProps.getProperty(factoryId);
-            if (debug) debugPrintln("found " + factoryClassName + " in $java.home/jaxp.properties"); 
-            
+            if (debug) debugPrintln("found " + factoryClassName + " in $java.home/jaxp.properties");
+
             if (factoryClassName != null) {
                 return newInstance(factoryClassName, classLoader);
             }
         } catch (Exception ex) {
             if (debug) {
                 ex.printStackTrace();
-            } 
+            }
         }
-        
+
         // Try Jar Service Provider Mechanism
         Object provider = findJarServiceProvider(factoryId);
         if (provider != null) {
@@ -284,23 +284,23 @@ final class FactoryFinder {
         } catch (java.io.UnsupportedEncodingException e) {
             rd = new BufferedReader(new InputStreamReader(is), DEFAULT_LINE_LENGTH);
         }
-        
+
         String factoryClassName = null;
         try {
             // XXX Does not handle all possible input as specified by the
             // Jar Service Provider specification
             factoryClassName = rd.readLine();
-        } 
+        }
         catch (IOException x) {
             // No provider found
             return null;
         }
         finally {
-            try { 
-                // try to close the reader. 
-                rd.close(); 
-            } 
-            // Ignore the exception. 
+            try {
+                // try to close the reader.
+                rd.close();
+            }
+            // Ignore the exception.
             catch (IOException exc) {}
         }
 
@@ -315,14 +315,14 @@ final class FactoryFinder {
         // No provider found
         return null;
     }
-    
+
     /**
      * <p>Configuration Error.</p>
      */
     static class ConfigurationError extends Error {
-        
+
         private static final long serialVersionUID = -3644413026244211347L;
-        
+
         /**
          * <p>Exception that caused the error.</p>
          */
@@ -331,7 +331,7 @@ final class FactoryFinder {
         /**
          * <p>Construct a new instance with the specified detail string and
          * exception.</p>
-         * 
+         *
          * @param msg Detail message for this error.
          * @param x Exception that caused the error.
          */
@@ -342,7 +342,7 @@ final class FactoryFinder {
 
         /**
          * <p>Get the Exception that caused the error.</p>
-         * 
+         *
          * @return Exception that caused the error.
          */
         Exception getException() {
@@ -354,28 +354,28 @@ final class FactoryFinder {
 
     /**
      * Returns the location where the given Class is loaded from.
-     * 
+     *
      * @param clazz Class to find load location.
-     * 
+     *
      * @return Location where class would be loaded from.
      */
     private static String which(Class clazz) {
         try {
             String classnameAsResource = clazz.getName().replace('.', '/') + ".class";
-    
+
             ClassLoader loader = clazz.getClassLoader();
-            
+
             URL it;
-    
+
             if (loader != null) {
                 it = loader.getResource(classnameAsResource);
             } else {
                 it = ClassLoader.getSystemResource(classnameAsResource);
-            } 
-    
+            }
+
             if (it != null) {
                 return it.toString();
-            } 
+            }
         }
         // The VM ran out of memory or there was some other serious problem. Re-throw.
         catch (VirtualMachineError vme) {
@@ -389,7 +389,7 @@ final class FactoryFinder {
             // work defensively.
             if (debug) {
                 t.printStackTrace();
-            } 
+            }
         }
         return "unknown location";
     }

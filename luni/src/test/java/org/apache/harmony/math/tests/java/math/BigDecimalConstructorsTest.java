@@ -80,7 +80,7 @@ public class BigDecimalConstructorsTest extends TestCase {
             //expected
         }
     }
-     
+
     /**
      * new BigDecimal(BigInteger value, int scale)
      */
@@ -336,7 +336,7 @@ public class BigDecimalConstructorsTest extends TestCase {
     }
 
     /**
-     * new BigDecimal(char[] value); 
+     * new BigDecimal(char[] value);
      */
     public void testConstrChar() {
         char value[] = {'-', '1', '2', '3', '8', '0', '.', '4', '7', '3', '8', 'E', '-', '4', '2', '3'};
@@ -345,7 +345,7 @@ public class BigDecimalConstructorsTest extends TestCase {
         int resScale = 427;
         assertEquals("incorrect value", res, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
-        
+
         try {
             // Regression for HARMONY-783
             new BigDecimal(new char[] {});
@@ -353,9 +353,9 @@ public class BigDecimalConstructorsTest extends TestCase {
         } catch (NumberFormatException e) {
         }
      }
-    
+
     /**
-     * new BigDecimal(char[] value, int offset, int len); 
+     * new BigDecimal(char[] value, int offset, int len);
      */
     public void testConstrCharIntInt() {
         char value[] = {'-', '1', '2', '3', '8', '0', '.', '4', '7', '3', '8', 'E', '-', '4', '2', '3'};
@@ -366,7 +366,7 @@ public class BigDecimalConstructorsTest extends TestCase {
         int resScale = 46;
         assertEquals("incorrect value", res, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
-        
+
         try {
             // Regression for HARMONY-783
             new BigDecimal(new char[] {}, 0, 0);
@@ -376,7 +376,7 @@ public class BigDecimalConstructorsTest extends TestCase {
      }
 
     /**
-     * new BigDecimal(char[] value, int offset, int len, MathContext mc); 
+     * new BigDecimal(char[] value, int offset, int len, MathContext mc);
      */
     public void testConstrCharIntIntMathContext() {
         char value[] = {'-', '1', '2', '3', '8', '0', '.', '4', '7', '3', '8', 'E', '-', '4', '2', '3'};
@@ -390,14 +390,14 @@ public class BigDecimalConstructorsTest extends TestCase {
         int resScale = 43;
         assertEquals("incorrect value", res, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
-        
+
         try {
             // Regression for HARMONY-783
             new BigDecimal(new char[] {}, 0, 0, MathContext.DECIMAL32);
             fail("NumberFormatException has not been thrown");
         } catch (NumberFormatException e) {
         }
-     
+
         // Now test more than just RoundingMode.CEILING:
         //
         // ATTENTION:
@@ -467,9 +467,9 @@ public class BigDecimalConstructorsTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
-     * new BigDecimal(char[] value, int offset, int len, MathContext mc); 
+     * new BigDecimal(char[] value, int offset, int len, MathContext mc);
      */
     public void testConstrCharIntIntMathContextException1() {
         char value[] = {'-', '1', '2', '3', '8', '0', '.', '4', '7', '3', '8', 'E', '-', '4', '2', '3'};
@@ -892,7 +892,7 @@ public class BigDecimalConstructorsTest extends TestCase {
         assertEquals("incorrect value", bA, aNumber.unscaledValue());
         assertEquals("incorrect scale", aScale, aNumber.scale());
     }
-     
+
     /**
      * new BigDecimal(String value)
      * when value is not a valid representation of BigDecimal.
@@ -980,7 +980,7 @@ public class BigDecimalConstructorsTest extends TestCase {
            new BigDecimal(a);
            fail("NumberFormatException expected");
        } catch (NumberFormatException e) {
-           assertEquals("Improper exception message","Scale out of range.", 
+           assertEquals("Improper exception message","Scale out of range.",
                e.getMessage());
        }
     }
@@ -1008,7 +1008,7 @@ public class BigDecimalConstructorsTest extends TestCase {
         assertEquals("incorrect value", bA, aNumber.unscaledValue());
         assertEquals("incorrect scale", aScale, aNumber.scale());
     }
-       
+
     /**
      * new BigDecimal(String value); value does not contain exponent
      */
@@ -1020,7 +1020,7 @@ public class BigDecimalConstructorsTest extends TestCase {
         assertEquals("incorrect value", bA, aNumber.unscaledValue());
         assertEquals("incorrect scale", aScale, aNumber.scale());
     }
-    
+
     /**
      * new BigDecimal(String value); value does not contain exponent
      * and decimal point
@@ -1033,7 +1033,7 @@ public class BigDecimalConstructorsTest extends TestCase {
         assertEquals("incorrect value", bA, aNumber.unscaledValue());
         assertEquals("incorrect scale", aScale, aNumber.scale());
     }
-    
+
     /**
      * new BigDecimal(String value); value contains exponent
      * and does not contain decimal point
@@ -1059,7 +1059,7 @@ public class BigDecimalConstructorsTest extends TestCase {
         assertEquals("incorrect value", bA, aNumber.unscaledValue());
         assertEquals("incorrect scale", aScale, aNumber.scale());
     }
-    
+
     /**
      * new BigDecimal(String value); value contains exponent
      * and does not contain decimal point
@@ -1100,7 +1100,7 @@ public class BigDecimalConstructorsTest extends TestCase {
     }
 
     /**
-     * new BigDecimal(String value); 
+     * new BigDecimal(String value);
      * value contains both exponent and decimal point
      */
     public void testConstrStringWithExponentWithPoint1() {
@@ -1113,7 +1113,7 @@ public class BigDecimalConstructorsTest extends TestCase {
     }
 
     /**
-     * new BigDecimal(String value); 
+     * new BigDecimal(String value);
      * value contains both exponent and decimal point
      */
     public void testConstrStringWithExponentWithPoint2() {
@@ -1126,7 +1126,7 @@ public class BigDecimalConstructorsTest extends TestCase {
     }
 
     /**
-     * new BigDecimal(String value); 
+     * new BigDecimal(String value);
      * value contains both exponent and decimal point
      */
     public void testConstrStringWithExponentWithPoint3() {
@@ -1137,9 +1137,9 @@ public class BigDecimalConstructorsTest extends TestCase {
         assertEquals("incorrect value", bA, aNumber.unscaledValue());
         assertEquals("incorrect scale", aScale, aNumber.scale());
     }
-     
+
     /**
-     * new BigDecimal(String value); 
+     * new BigDecimal(String value);
      * value contains both exponent and decimal point
      */
     public void testConstrStringWithExponentWithPoint4() {
@@ -1150,9 +1150,9 @@ public class BigDecimalConstructorsTest extends TestCase {
         assertEquals("incorrect value", bA, aNumber.unscaledValue());
         assertEquals("incorrect scale", aScale, aNumber.scale());
     }
-     
+
     /**
-     * new BigDecimal(String value); 
+     * new BigDecimal(String value);
      * value contains both exponent and decimal point
      */
     public void testConstrStringWithExponentWithPoint5() {
@@ -1163,7 +1163,7 @@ public class BigDecimalConstructorsTest extends TestCase {
         assertEquals("incorrect value", bA, aNumber.unscaledValue());
         assertEquals("incorrect scale", aScale, aNumber.scale());
     }
-    
+
     /**
      * new BigDecimal(String value, MathContext)
      */
@@ -1229,13 +1229,13 @@ public class BigDecimalConstructorsTest extends TestCase {
     public void test_Constructor_java_math_BigInteger_int() {
         BigInteger value = new BigInteger("12345908");
         BigDecimal big = new BigDecimal(value);
-        assertTrue("the BigDecimal value is not initialized properly", 
+        assertTrue("the BigDecimal value is not initialized properly",
                 big.unscaledValue().equals(value)
                 && big.scale() == 0);
 
         BigInteger value2 = new BigInteger("12334560000");
         BigDecimal big2 = new BigDecimal(value2, 5);
-        assertTrue("the BigDecimal value is not initialized properly", 
+        assertTrue("the BigDecimal value is not initialized properly",
                 big2.unscaledValue().equals(value2)
                 && big2.scale() == 5);
         assertTrue("the BigDecimal value is not represented properly", big2.toString().equals(

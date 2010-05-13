@@ -37,8 +37,8 @@ import java.util.Set;
 import junit.framework.TestCase;
 @TestTargetClass(KeyRep.class)
 /**
- * 
- * 
+ *
+ *
  */
 public class KeyRepTest extends TestCase {
 
@@ -59,13 +59,13 @@ public class KeyRepTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e.getMessage());
         }
-        
+
         try {
             assertNotNull(new KeyRep(KeyRep.Type.PUBLIC, "", "", new byte[] {}));
         } catch (Exception e) {
             fail("Unexpected exception " + e.getMessage());
         }
-        
+
         try {
             assertNotNull(new KeyRep(KeyRep.Type.PRIVATE, "", "", new byte[] {}));
         } catch (Exception e) {

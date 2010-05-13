@@ -133,7 +133,7 @@ public class ShellTest extends TestCase {
     public void testNewrow() {
         fail("Not yet implemented");
     }
-    
+
     @TestTargetNew(
       level = TestLevel.NOT_FEASIBLE,
       notes = "",
@@ -141,7 +141,7 @@ public class ShellTest extends TestCase {
       args = {String[].class}
     )
     public void testMain() {
-        
+
     }
 
 }

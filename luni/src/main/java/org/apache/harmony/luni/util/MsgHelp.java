@@ -43,7 +43,7 @@ public final class MsgHelp {
     // A HashMap mapping a resource name to a SoftReference to a ResourceBundle
     // holding the messages for that resource.
     private static HashMap<String, SoftReference<ResourceBundle>> sRefMap = null;
-    
+
     public synchronized static ResourceBundle loadBundle(String resource) {
         if (sRefMap == null) {
             sRefMap = new HashMap<String, SoftReference<ResourceBundle>>();
@@ -66,7 +66,7 @@ public final class MsgHelp {
             return bundleRef.get();
         }
     }
-    
+
     public static String getString(String resource, String msg) {
         ResourceBundle bundle = MsgHelp.loadBundle(resource);
         if (bundle == null) {
@@ -78,7 +78,7 @@ public final class MsgHelp {
             return "Missing message: " + msg;
         }
     }
-    
+
     static public String getString(String resource, String msg, Object[] args) {
         String format = msg;
         ResourceBundle bundle = MsgHelp.loadBundle(resource);
@@ -102,7 +102,7 @@ public final class MsgHelp {
      * To insert the "{" character into the output, use a single backslash
      * character to escape it (i.e. "\{"). The "}" character does not need to be
      * escaped.
-     * 
+     *
      * @param format
      *            String the format to use when printing.
      * @param args
@@ -160,7 +160,7 @@ public final class MsgHelp {
 
     /**
      * Changes the locale of the messages.
-     * 
+     *
      * @param locale
      *            Locale the locale to change to.
      * @param resource

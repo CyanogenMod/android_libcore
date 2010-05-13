@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * 
+ *
  * tests for various cases of java -jar ... execution with .zip files as args
  * some tests are just copy of JarExecTest ones
  */
@@ -71,7 +71,7 @@ public class ZipExecTest extends junit.framework.TestCase {
 
     /**
      * tests Class-Path entry in manifest
-     * 
+     *
      * @throws Exception in case of troubles
      */
     public void test_zip_class_path() throws Exception {
@@ -208,14 +208,14 @@ public class ZipExecTest extends junit.framework.TestCase {
         ProcessBuilder builder = javaProcessBuilder();
         builder.command().add("-jar");
         builder.command().add(fooZip.getAbsolutePath());
-        assertTrue("Error executing ZIP", 
+        assertTrue("Error executing ZIP",
                 execAndGetOutput(builder).startsWith("FOOBAR"));
     }
 
     /**
      * tests case when Main-Class is not in the zip launched but in another zip
      * referenced by Class-Path
-     * 
+     *
      * @throws Exception in case of troubles
      */
     public void test_main_class_in_another_zip() throws Exception {

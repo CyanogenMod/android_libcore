@@ -35,7 +35,7 @@ import org.apache.harmony.security.asn1.ObjectIdentifier;
 import org.apache.harmony.security.utils.Array;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the Extension part of X.509 certificate
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -46,7 +46,7 @@ import org.apache.harmony.security.utils.Array;
  *  Extension  ::=  SEQUENCE  {
  *       extnID      OBJECT IDENTIFIER,
  *       critical    BOOLEAN DEFAULT FALSE,
- *       extnValue   OCTET STRING  
+ *       extnValue   OCTET STRING
  *  }
  * </pre>
  */
@@ -55,7 +55,7 @@ public class Extension {
     // critical constants
     public static final boolean CRITICAL = true;
     public static final boolean NON_CRITICAL = false;
-    
+
     // constants: the extension OIDs
     // certificate extensions:
     static final int[] SUBJ_DIRECTORY_ATTRS = {2, 5, 29, 9};
@@ -86,7 +86,7 @@ public class Extension {
     static final int[] INVALIDITY_DATE = {2, 5, 29, 24};
     static final int[] REASON_CODE = {2, 5, 29, 21};
     static final int[] ISSUING_DISTR_POINTS = {2, 5, 29, 28};
-    
+
     // the value of extnID field of the structure
     private final int[] extnID;
     private String extnID_str;
@@ -109,7 +109,7 @@ public class Extension {
      * @param   critical:   boolean
      * @param   extnValue:  byte[]
      */
-    public Extension(String extnID, boolean critical, 
+    public Extension(String extnID, boolean critical,
             ExtensionValue extnValueObject) {
         this.extnID_str = extnID;
         this.extnID = ObjectIdentifier.toIntArray(extnID);
@@ -118,7 +118,7 @@ public class Extension {
         this.valueDecoded = true;
         this.extnValue = extnValueObject.getEncoded();
     }
-        
+
     /**
      * TODO
      * @param   extnID: String
@@ -131,7 +131,7 @@ public class Extension {
         this.critical = critical;
         this.extnValue = extnValue;
     }
-        
+
     /**
      * TODO
      * @param   extnID: int[]
@@ -143,7 +143,7 @@ public class Extension {
         this.critical = critical;
         this.extnValue = extnValue;
     }
-        
+
     /**
      * TODO
      * @param   extnID: String
@@ -162,15 +162,15 @@ public class Extension {
         this(extnID, NON_CRITICAL, extnValue);
     }
 
-    // 
+    //
     // TODO
     // @param   extnID: int[]
     // @param   critical:   boolean
     // @param   extnValue:  byte[]
     // @param   encoding:   byte[]
-    // 
+    //
     private Extension(int[] extnID, boolean critical, byte[] extnValue,
-            byte[] rawExtnValue, byte[] encoding, 
+            byte[] rawExtnValue, byte[] encoding,
             ExtensionValue decodedExtValue) {
         this(extnID, critical, extnValue);
         this.rawExtnValue = rawExtnValue;
@@ -178,7 +178,7 @@ public class Extension {
         this.extnValueObject = decodedExtValue;
         this.valueDecoded = (decodedExtValue != null);
     }
-    
+
     /**
      * Returns the value of extnID field of the structure.
      * @return  extnID
@@ -189,7 +189,7 @@ public class Extension {
         }
         return extnID_str;
     }
-    
+
     /**
      * Returns the value of critical field of the structure.
      * @return  critical
@@ -207,7 +207,7 @@ public class Extension {
     }
 
     /**
-     * Returns the raw (undecoded octet string) value of extnValue 
+     * Returns the raw (undecoded octet string) value of extnValue
      * field of the structure.
      * @return  rawExtnValue
      */
@@ -234,11 +234,11 @@ public class Extension {
             return false;
         }
         Extension extn = (Extension) ext;
-        return Arrays.equals(extnID, extn.extnID) 
+        return Arrays.equals(extnID, extn.extnID)
             && (critical == extn.critical)
             && Arrays.equals(extnValue, extn.extnValue);
     }
-    
+
     public int hashCode() {
     	return (extnID.hashCode() * 37 + (critical ? 1 : 0)) * 37 + extnValue.hashCode();
     }
@@ -330,8 +330,8 @@ public class Extension {
      * Places the string representation into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append("OID: ").append(getExtnID()) 
-            .append(", Critical: ").append(critical).append('\n'); 
+        buffer.append("OID: ").append(getExtnID())
+            .append(", Critical: ").append(critical).append('\n');
         if (!valueDecoded) {
             try {
                 decodeExtensionValue();
@@ -344,50 +344,50 @@ public class Extension {
         // else: dump unparsed hex representation
         buffer.append(prefix);
         if (oidEquals(extnID, SUBJ_DIRECTORY_ATTRS)) {
-            buffer.append("Subject Directory Attributes Extension"); 
+            buffer.append("Subject Directory Attributes Extension");
         } else if (oidEquals(extnID, SUBJ_KEY_ID)) {
-            buffer.append("Subject Key Identifier Extension"); 
+            buffer.append("Subject Key Identifier Extension");
         } else if (oidEquals(extnID, KEY_USAGE)) {
-            buffer.append("Key Usage Extension"); 
+            buffer.append("Key Usage Extension");
         } else if (oidEquals(extnID, PRIVATE_KEY_USAGE_PERIOD)) {
-            buffer.append("Private Key Usage Period Extension"); 
+            buffer.append("Private Key Usage Period Extension");
         } else if (oidEquals(extnID, SUBJECT_ALT_NAME)) {
-            buffer.append("Subject Alternative Name Extension"); 
+            buffer.append("Subject Alternative Name Extension");
         } else if (oidEquals(extnID, ISSUER_ALTERNATIVE_NAME)) {
-            buffer.append("Issuer Alternative Name Extension"); 
+            buffer.append("Issuer Alternative Name Extension");
         } else if (oidEquals(extnID, BASIC_CONSTRAINTS)) {
-            buffer.append("Basic Constraints Extension"); 
+            buffer.append("Basic Constraints Extension");
         } else if (oidEquals(extnID, NAME_CONSTRAINTS)) {
-            buffer.append("Name Constraints Extension"); 
+            buffer.append("Name Constraints Extension");
         } else if (oidEquals(extnID, CRL_DISTR_POINTS)) {
-            buffer.append("CRL Distribution Points Extension"); 
+            buffer.append("CRL Distribution Points Extension");
         } else if (oidEquals(extnID, CERTIFICATE_POLICIES)) {
-            buffer.append("Certificate Policies Extension"); 
+            buffer.append("Certificate Policies Extension");
         } else if (oidEquals(extnID, POLICY_MAPPINGS)) {
-            buffer.append("Policy Mappings Extension"); 
+            buffer.append("Policy Mappings Extension");
         } else if (oidEquals(extnID, AUTH_KEY_ID)) {
-            buffer.append("Authority Key Identifier Extension"); 
+            buffer.append("Authority Key Identifier Extension");
         } else if (oidEquals(extnID, POLICY_CONSTRAINTS)) {
-            buffer.append("Policy Constraints Extension"); 
+            buffer.append("Policy Constraints Extension");
         } else if (oidEquals(extnID, EXTENDED_KEY_USAGE)) {
-            buffer.append("Extended Key Usage Extension"); 
+            buffer.append("Extended Key Usage Extension");
         } else if (oidEquals(extnID, INHIBIT_ANY_POLICY)) {
-            buffer.append("Inhibit Any-Policy Extension"); 
+            buffer.append("Inhibit Any-Policy Extension");
         } else if (oidEquals(extnID, AUTHORITY_INFO_ACCESS)) {
-            buffer.append("Authority Information Access Extension"); 
+            buffer.append("Authority Information Access Extension");
         } else if (oidEquals(extnID, SUBJECT_INFO_ACCESS)) {
-            buffer.append("Subject Information Access Extension"); 
+            buffer.append("Subject Information Access Extension");
         } else if (oidEquals(extnID, INVALIDITY_DATE)) {
-            buffer.append("Invalidity Date Extension"); 
+            buffer.append("Invalidity Date Extension");
         } else if (oidEquals(extnID, CRL_NUMBER)) {
-            buffer.append("CRL Number Extension"); 
+            buffer.append("CRL Number Extension");
         } else if (oidEquals(extnID, REASON_CODE)) {
-            buffer.append("Reason Code Extension"); 
+            buffer.append("Reason Code Extension");
         } else {
-            buffer.append("Unknown Extension"); 
+            buffer.append("Unknown Extension");
         }
         buffer.append('\n').append(prefix)
-            .append("Unparsed Extension Value:\n"); 
+            .append("Unparsed Extension Value:\n");
         buffer.append(Array.toString(extnValue, prefix));
     }
 
@@ -405,19 +405,19 @@ public class Extension {
         }
         return true;
     }
-    
+
     /**
      * X.509 Extension encoder/decoder.
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
-            ASN1Oid.getInstance(), 
+            ASN1Oid.getInstance(),
             ASN1Boolean.getInstance(),
             new ASN1OctetString() {
-                public Object getDecodedObject(BerInputStream in) 
+                public Object getDecodedObject(BerInputStream in)
                                                 throws IOException {
                     // first - decoded octet string,
                     // second - raw encoding of octet string
-                    return new Object[] 
+                    return new Object[]
                         {super.getDecodedObject(in), in.getEncoded()};
                 }
             }
@@ -432,7 +432,7 @@ public class Extension {
             int[] oid = (int[]) values[0];
             byte[] extnValue = (byte[]) ((Object[]) values[2])[0];
             byte[] rawExtnValue = (byte[]) ((Object[]) values[2])[1];
-            
+
             ExtensionValue decodedExtValue = null;
             // decode Key Usage and Basic Constraints extension values
             if (oidEquals(oid, KEY_USAGE)) {
@@ -441,7 +441,7 @@ public class Extension {
                 decodedExtValue = new BasicConstraints(extnValue);
             }
 
-            return 
+            return
                 new Extension((int[]) values[0],
                     ((Boolean) values[1]).booleanValue(),
                     extnValue, rawExtnValue, in.getEncoded(), decodedExtValue);

@@ -44,7 +44,7 @@ public class StressTest extends TestCase {
     private static Connection conn;
 
     private static Statement statement;
-    
+
     public void setUp() throws Exception {
         super.setUp();
         Support_SQL.loadDriver();
@@ -87,7 +87,7 @@ public class StressTest extends TestCase {
         }
         return;
     }
-    
+
 //    /**
 //     * @see junit.framework.TestCase#setUp()
 //     */
@@ -106,7 +106,7 @@ public class StressTest extends TestCase {
 //        statement.execute("DELETE FROM " + DatabaseCreator.TEST_TABLE2);
 //        super.tearDown();
 //    }
-    
+
     /**
      * @tests StressTest#testManyConnectionsUsingOneThread(). Create many
      *        connections to the DataBase using one thread.
@@ -224,7 +224,7 @@ public class StressTest extends TestCase {
 
         int numConnections = getConnectionNum();
         int tasksPerConnection = Support_SQL.sqlMaxTasks / numConnections;
-        
+
         Logger.global.info("Opening "+numConnections+" to database "+Support_SQL.getFilename());
 
         ThreadPool threadPool = new ThreadPool(numConnections);

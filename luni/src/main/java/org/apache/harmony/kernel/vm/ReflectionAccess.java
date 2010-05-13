@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 public interface ReflectionAccess {
     /**
      * Gets a clone of the given method.
-     * 
+     *
      * @param method non-null; the method to clone
      * @return non-null; the clone
      */
@@ -37,7 +37,7 @@ public interface ReflectionAccess {
 
     /**
      * Gets a clone of the given field.
-     * 
+     *
      * @param field non-null; the field to clone
      * @return non-null; the clone
      */
@@ -46,7 +46,7 @@ public interface ReflectionAccess {
     /**
      * Gets a clone of the given method, where the clone has
      * its "accessible" flag set to <code>true</code>
-     * 
+     *
      * @param method non-null; the method to clone
      * @return non-null; the accessible clone
      */
@@ -55,7 +55,7 @@ public interface ReflectionAccess {
     /**
      * Sets the accessible flag on a given {@link AccessibleObject}
      * without doing any checks.
-     * 
+     *
      * @param ao non-null; the instance in question
      * @param flag the new value for the accessible flag
      */

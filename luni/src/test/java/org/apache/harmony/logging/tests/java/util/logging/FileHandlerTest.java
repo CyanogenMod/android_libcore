@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -77,7 +77,7 @@ public class FileHandlerTest extends TestCase {
         super.setUp();
         TestEnvironment.reset();
         manager.reset();
-        
+
         //initProp
         props.clear();
         props.put("java.util.logging.FileHandler.level", "FINE");
@@ -112,7 +112,7 @@ public class FileHandlerTest extends TestCase {
     /*
      * @see TestCase#tearDown()
      */
-    
+
     protected void tearDown() throws Exception {
         if (null != handler) {
             handler.close();
@@ -222,7 +222,7 @@ public class FileHandlerTest extends TestCase {
                 .getFormatter());
         file = new File(TEMPPATH + SEP + "log");
         assertTrue("length list of file is incorrect", file.list().length <= 2);
-        
+
         try {
             new FileHandler("");
             fail("IllegalArgumentException expected");
@@ -264,7 +264,7 @@ public class FileHandlerTest extends TestCase {
                         new LogRecord[] { r }, new MockFormatter());
             }
         } while (append);
-        
+
         try {
             new FileHandler("", true);
             fail("IllegalArgumentException expected");
@@ -299,21 +299,21 @@ public class FileHandlerTest extends TestCase {
         }
         assertFileContent(TEMPPATH + SEP + "log", "/string", new LogRecord[] {
                 r, null, r, null, r, null, r }, new MockFormatter());
-        
+
         try {
             new FileHandler("", limit, count);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new FileHandler("%t/log/string", -1, count);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new FileHandler("%t/log/string", limit, 0);
             fail("IllegalArgumentException expected");
@@ -358,21 +358,21 @@ public class FileHandlerTest extends TestCase {
                         new LogRecord[] { r }, new MockFormatter());
             }
         } while (append);
-        
+
         try {
             new FileHandler("", limit, count, true);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new FileHandler("%t/log/string", -1, count, false);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new FileHandler("%t/log/string", limit, 0, true);
             fail("IllegalArgumentException expected");
@@ -457,7 +457,7 @@ public class FileHandlerTest extends TestCase {
 
     /**
      * Does a cleanup of given file
-     * 
+     *
      * @param homepath
      * @param filename
      */
@@ -728,7 +728,7 @@ public class FileHandlerTest extends TestCase {
         }
         file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
         assertFalse(file.exists());
-        
+
         // bad directory, IOException, append
         try {
             h1 = new FileHandler("%t/baddir/multi%g", true);
@@ -736,7 +736,7 @@ public class FileHandlerTest extends TestCase {
         } catch (IOException e) {
         }
         file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
-        assertFalse(file.exists());  
+        assertFalse(file.exists());
         try {
             h1 = new FileHandler("%t/baddir/multi%g", false);
             fail("should throw IO exception");
@@ -744,7 +744,7 @@ public class FileHandlerTest extends TestCase {
         }
         file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
         assertFalse(file.exists());
-        
+
         try {
             h1 = new FileHandler("%t/baddir/multi%g", 12, 4);
             fail("should throw IO exception");
@@ -752,7 +752,7 @@ public class FileHandlerTest extends TestCase {
         }
         file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
         assertFalse(file.exists());
-        
+
         try {
             h1 = new FileHandler("%t/baddir/multi%g", 12, 4, true);
             fail("should throw IO exception");
@@ -760,7 +760,7 @@ public class FileHandlerTest extends TestCase {
         }
         file = new File(TEMPPATH + SEP + "baddir" + SEP + "multi0");
         assertFalse(file.exists());
-        
+
 
         try {
             new FileHandler(null);
@@ -843,7 +843,7 @@ public class FileHandlerTest extends TestCase {
         assertEquals(msg, f.getHead(handler) + f.format(r) + f.getTail(handler));
         assertFileContent(HOMEPATH, "setoutput.log", handler.getFormatter());
     }
-    
+
     public void testEmptyPattern_3params() throws SecurityException,
             IOException {
         try {

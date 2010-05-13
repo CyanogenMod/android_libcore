@@ -25,7 +25,7 @@ package dalvik.system;
 public final class VMStack {
     /**
      * Returns the defining class loader of the caller's caller.
-     * 
+     *
      * @return the requested class loader, or {@code null} if this is the
      *         bootstrap class loader.
      */
@@ -33,7 +33,7 @@ public final class VMStack {
 
     /**
      * Returns the defining class loader of the caller's caller's caller.
-     * 
+     *
      * @return the requested class loader, or {@code null} if this is the
      *         bootstrap class loader.
      */

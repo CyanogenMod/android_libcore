@@ -34,7 +34,7 @@ import java.security.spec.ECFieldFp;
 
 /**
  * Tests for <code>ECFieldFp</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(ECFieldFp.class)
 public class ECFieldFpTest extends TestCase {
@@ -61,7 +61,7 @@ public class ECFieldFpTest extends TestCase {
 
     /**
      * Test #2 for <code>ECFieldFp</code> constructor
-     * 
+     *
      * Assertion: creates new object of <code>ECFieldFp</code> class
      * using valid <code>p</code> (odd but not prime)
      */
@@ -77,7 +77,7 @@ public class ECFieldFpTest extends TestCase {
 
     /**
      * Test #3 for <code>ECFieldFp</code> constructor
-     * 
+     *
      * Assertion: IllegalArgumentException if <code>p</code> is not positive
      */
     @TestTargetNew(
@@ -88,7 +88,7 @@ public class ECFieldFpTest extends TestCase {
     )
     public final void testECFieldFp03() {
         try {
-            new ECFieldFp(BigInteger.valueOf(-1L)); 
+            new ECFieldFp(BigInteger.valueOf(-1L));
             fail(getName() +
                     " FAILED: expected exception has not been thrown");
         } catch (IllegalArgumentException e) {
@@ -97,7 +97,7 @@ public class ECFieldFpTest extends TestCase {
 
     /**
      * Test #4 for <code>ECFieldFp</code> constructor
-     * 
+     *
      * Assertion: IllegalArgumentException if <code>p</code> is not positive
      */
     @TestTargetNew(
@@ -117,7 +117,7 @@ public class ECFieldFpTest extends TestCase {
 
     /**
      * Test #4 for <code>ECFieldFp</code> constructor
-     * 
+     *
      * Assertion: NullPointerException if <code>p</code> is null
      */
     @TestTargetNew(
@@ -139,7 +139,7 @@ public class ECFieldFpTest extends TestCase {
      * Test #1 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * repeatedly on the same object. 
+     * repeatedly on the same object.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -164,7 +164,7 @@ public class ECFieldFpTest extends TestCase {
      * Test #2 for <code>hashCode()</code> method.<br>
      *
      * Assertion: must return the same value if invoked
-     * on equal (according to the <code>equals(Object)</code> method) objects. 
+     * on equal (according to the <code>equals(Object)</code> method) objects.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -195,7 +195,7 @@ public class ECFieldFpTest extends TestCase {
     /**
      * Test for <code>getP()</code> method.<br>
      *
-     * Assertion: returns prime 
+     * Assertion: returns prime
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -211,7 +211,7 @@ public class ECFieldFpTest extends TestCase {
     /**
      * Test #1 for <code>equals()</code> method.<br>
      *
-     * Assertion: object equals to itself. 
+     * Assertion: object equals to itself.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -258,7 +258,7 @@ public class ECFieldFpTest extends TestCase {
     /**
      * Test #4 for <code>equals()</code> method.<br>
      *
-     * Assertion: true if prime values match. 
+     * Assertion: true if prime values match.
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,

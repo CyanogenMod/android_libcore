@@ -34,7 +34,7 @@ import java.util.Enumeration;
 @SuppressWarnings("deprecation")
 public class IdentityScopeStub extends IdentityScope {
 
-    
+
     /**
      * Stub constructor
      */
@@ -66,7 +66,7 @@ public class IdentityScopeStub extends IdentityScope {
      * @see java.security.IdentityScope#size()
      */
     public int size() {
-        
+
         return 0;
     }
 
@@ -75,7 +75,7 @@ public class IdentityScopeStub extends IdentityScope {
      * @see java.security.IdentityScope#getIdentity(java.lang.String)
      */
     public Identity getIdentity(String name) {
-        
+
         return this;
     }
 
@@ -92,7 +92,7 @@ public class IdentityScopeStub extends IdentityScope {
      * @see java.security.IdentityScope#addIdentity(java.security.Identity)
      */
     public void addIdentity(Identity identity) throws KeyManagementException {
-        
+
 
     }
 
@@ -101,7 +101,7 @@ public class IdentityScopeStub extends IdentityScope {
      * @see java.security.IdentityScope#removeIdentity(java.security.Identity)
      */
     public void removeIdentity(Identity identity) throws KeyManagementException {
-        
+
 
     }
 
@@ -112,14 +112,14 @@ public class IdentityScopeStub extends IdentityScope {
     public Enumeration identities() {
         return null;
     }
-    
+
     /**
      * Sets the system's identity scope
      * @param scope
      */
     public static void mySetSystemScope(IdentityScope scope) {
-        
+
         IdentityScope.setSystemScope(scope);
     }
-    
+
 }

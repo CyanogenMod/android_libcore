@@ -50,7 +50,7 @@ public class MappedByteBufferTest extends DirectByteBufferTest {
 
     File tmpFile;
     FileChannel fc;
-    
+
     /**
      * A regression test for failing to correctly set capacity of underlying
      * wrapped buffer from a mapped byte buffer.
@@ -63,12 +63,12 @@ public class MappedByteBufferTest extends DirectByteBufferTest {
     )
     public void test_asIntBuffer() {
         int len = buf.capacity();
-        assertEquals("Got wrong number of bytes", BUFFER_LENGTH, len); 
+        assertEquals("Got wrong number of bytes", BUFFER_LENGTH, len);
 
         // Read in our 26 bytes
         for (int i = 0; i < BUFFER_LENGTH - 20; i++) {
             byte b = buf.get();
-            assertEquals("Got wrong byte value", (byte) i, b); 
+            assertEquals("Got wrong byte value", (byte) i, b);
         }
 
         // Now convert to an IntBuffer to read our ints
@@ -76,10 +76,10 @@ public class MappedByteBufferTest extends DirectByteBufferTest {
         for (int i = BUFFER_LENGTH - 20; i < BUFFER_LENGTH; i+=4) {
             int val = ibuffer.get();
             int res = i * 16777216 + (i + 1) * 65536 + (i + 2) * 256 + (i + 3);
-            assertEquals("Got wrong int value", res, val); 
+            assertEquals("Got wrong int value", res, val);
         }
     }
-    
+
     /**
      * @tests {@link java.nio.MappedByteBuffer#force()}
      */
@@ -124,7 +124,7 @@ public class MappedByteBufferTest extends DirectByteBufferTest {
 
         // Invoking force() will change the buffer
         assertFalse(mmbReadWrite.equals(resultReadWrite));
-        
+
         fileChannelRead.close();
         fileChannelR.close();
         fileChannelReadWrite.close();
@@ -161,7 +161,7 @@ public class MappedByteBufferTest extends DirectByteBufferTest {
 
     protected void setUp() throws IOException {
         // Create temp file with 26 bytes and 5 ints
-        tmpFile = File.createTempFile("MappedByteBufferTest", ".tmp");  
+        tmpFile = File.createTempFile("MappedByteBufferTest", ".tmp");
         tmpFile.createNewFile();
         tmpFile.deleteOnExit();
 
@@ -174,7 +174,7 @@ public class MappedByteBufferTest extends DirectByteBufferTest {
         buf = fc.map(FileChannel.MapMode.READ_WRITE, 0, capacity);
         baseBuf = buf;
     }
-    
+
     protected void tearDown() throws IOException {
         fc.close();
     }

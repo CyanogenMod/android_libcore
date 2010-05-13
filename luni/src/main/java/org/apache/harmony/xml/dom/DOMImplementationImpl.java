@@ -73,7 +73,7 @@ public final class DOMImplementationImpl implements DOMImplementation {
     /**
      * Requests the singleton instance of the class. Creates it first, if
      * necessary.
-     * 
+     *
      * @return The singleton Android DOMImplementationImpl instance.
      */
     public static DOMImplementationImpl getInstance() {

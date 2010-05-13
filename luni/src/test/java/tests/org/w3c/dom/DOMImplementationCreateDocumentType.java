@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -38,17 +38,17 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The method createDocumentType with valid values for qualifiedName, publicId
  * and systemId should create an empty DocumentType node.
- * 
+ *
  * Invoke createDocument on this DOMImplementation with a valid qualifiedName
  * and different publicIds and systemIds. Check if the the DocumentType node was
  * created with its ownerDocument attribute set to null.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocument">http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocument</a>
  */
-@TestTargetClass(DOMImplementation.class) 
+@TestTargetClass(DOMImplementation.class)
 public final class DOMImplementationCreateDocumentType extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -74,7 +74,7 @@ public final class DOMImplementationCreateDocumentType extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

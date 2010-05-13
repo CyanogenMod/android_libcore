@@ -55,9 +55,9 @@ public class ECParameterSpecTest extends TestCase {
 
     /**
      * test for ECParameterSpec(EllipticCurve, ECPoint, BigInteger, int) constructor
-     * test covers following usecases: 
+     * test covers following usecases:
      * case 1: creating object with valid parameters
-     * case 2: NullPointerException - if curve is null 
+     * case 2: NullPointerException - if curve is null
      * case 3: NullPointerException - if g is null
      * case 4: NullPointerException - if n is null
      * case 5: IllegalArgumentException - if n is not positive
@@ -70,7 +70,7 @@ public class ECParameterSpecTest extends TestCase {
         args = {java.security.spec.EllipticCurve.class, java.security.spec.ECPoint.class, java.math.BigInteger.class, int.class}
     )
     public void test_constructorLjava_security_spec_EllipticCurveLjava_security_spec_ECPointLjava_math_BigIntegerI() {
-        
+
         // case 1: creating object with valid parameters
         assertEquals("wrong cofactor was returned", 1, ecps.getCofactor());
         assertEquals("wrong elliptic curve", curve, ecps.getCurve());
@@ -86,7 +86,7 @@ public class ECParameterSpecTest extends TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         // case 3: NullPointerException - if g is null.
         try {
             new ECParameterSpec(curve, null, BigInteger.valueOf(1), 1);

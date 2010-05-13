@@ -34,7 +34,7 @@ import javax.security.cert.CertificateException;
 
 /**
  * Tests for <code>DigestException</code> class constructors and methods.
- * 
+ *
  */
 @TestTargetClass(CertificateException.class)
 public class CertificateExceptionTest extends TestCase {

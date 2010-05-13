@@ -51,5 +51,5 @@ class NoAccessParser implements Parser {
 
     public void setLocale(Locale locale) {
     }
-    
+
 }

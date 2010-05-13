@@ -49,9 +49,9 @@ import dalvik.annotation.TestTargetNew;
 
 /**
  * Tests for <code>SSLContext</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(SSLContext.class) 
+@TestTargetClass(SSLContext.class)
 public class SSLContext1Test extends TestCase {
 
     private static String srvSSLContext = "SSLContext";
@@ -148,7 +148,7 @@ public class SSLContext1Test extends TestCase {
     }
 
     /**
-     * @throws KeyManagementException 
+     * @throws KeyManagementException
      * @tests javax.net.ssl.SSLContext#createSSLEngine()
      */
     @TestTargetNew(
@@ -162,13 +162,13 @@ public class SSLContext1Test extends TestCase {
         SSLContextSpi spi = new MySSLContextSpi();
         SSLContext sslContext = new MySslContext(spi, defaultProvider,
                 defaultProtocol);
-        sslContext.init(null, null, new SecureRandom());        
+        sslContext.init(null, null, new SecureRandom());
         SSLEngine sslEngine = sslContext.createSSLEngine();
         assertNotNull("SSL engine is null", sslEngine);
     }
-    
+
     /**
-     * @throws KeyManagementException 
+     * @throws KeyManagementException
      * @tests javax.net.ssl.SSLContext#createSSLEngine(java.lang.String, int)
      */
     @TestTargetNew(
@@ -183,7 +183,7 @@ public class SSLContext1Test extends TestCase {
         SSLContextSpi spi = new MySSLContextSpi();
         SSLContext sslContext = new MySslContext(spi, defaultProvider,
                 defaultProtocol);
-        sslContext.init(null, null, new SecureRandom());        
+        sslContext.init(null, null, new SecureRandom());
         SSLEngine sslEngine = sslContext.createSSLEngine("www.fortify.net", 80);
         assertNotNull("SSL engine is null", sslEngine);
     }
@@ -192,7 +192,7 @@ public class SSLContext1Test extends TestCase {
      * Test for <code>getClientSessionContext()</code>
      * <code>getServiceSessionContext()</code>
      * methods Assertion: returns correspondent object
-     * @throws KeyManagementException 
+     * @throws KeyManagementException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -209,9 +209,9 @@ public class SSLContext1Test extends TestCase {
         assertNotNull("SSLContext objects were not created", sslC);
         for (int i = 0; i < sslC.length; i++) {
             sslC[i].init(null, null, null);
-            assertNotNull("Client session is incorrectly instantiated: " + i, 
+            assertNotNull("Client session is incorrectly instantiated: " + i,
                     sslC[i].getClientSessionContext());
-            assertNotNull("Server session is incorrectly instantiated: " + i, 
+            assertNotNull("Server session is incorrectly instantiated: " + i,
                     sslC[i].getServerSessionContext());
         }
     }
@@ -470,10 +470,10 @@ public class SSLContext1Test extends TestCase {
             assertEquals("Invalid provider", defaultProvider, sslContext.getProvider());
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
-     * @throws NoSuchProviderException 
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchProviderException
      * @tests javax.net.ssl.SSLContext#getProtocol()
      */
     @TestTargetNew(
@@ -503,10 +503,10 @@ public class SSLContext1Test extends TestCase {
         assertEquals("Incorrect protocol",
                 defaultProtocol, sslContext.getProtocol());
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
-     * @throws NoSuchProviderException 
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchProviderException
      * @tests javax.net.ssl.SSLContext#getProvider()
      */
     @TestTargetNew(
@@ -515,7 +515,7 @@ public class SSLContext1Test extends TestCase {
         method = "getProvider",
         args = {}
     )
-    public void test_getProvider() 
+    public void test_getProvider()
         throws NoSuchAlgorithmException, NoSuchProviderException {
         if (!DEFSupported) fail(NotSupportMsg);
         SSLContextSpi spi = new MySSLContextSpi();
@@ -570,7 +570,7 @@ public class SSLContext1Test extends TestCase {
      * <code>getSocketFactory()</code>
      * <code>init(KeyManager[] km, TrustManager[] tm, SecureRandom random)</code>
      * methods Assertion: returns correspondent object
-     * 
+     *
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -653,10 +653,10 @@ public class SSLContext1Test extends TestCase {
      }
 
      /**
-      * @throws NoSuchAlgorithmException 
-     * @throws KeyStoreException 
-     * @throws FileNotFoundException 
-     * @throws KeyManagementException 
+      * @throws NoSuchAlgorithmException
+     * @throws KeyStoreException
+     * @throws FileNotFoundException
+     * @throws KeyManagementException
      * @tests javax.net.ssl.SSLContext#
       *     init(javax.net.ssl.KeyManager[], javax.net.ssl.TrustManager[],
       *     java.security.SecureRandom)
@@ -679,14 +679,14 @@ public class SSLContext1Test extends TestCase {
          } catch (RuntimeException rte) {
              // expected
          }
-         
+
          try {
              sslContext.init(null, null, null);
              fail("KeyManagementException wasn't thrown");
          } catch (KeyManagementException kme) {
              //expected
          }
-         
+
          try {
              String tAlg = TrustManagerFactory.getDefaultAlgorithm();
              String kAlg = KeyManagerFactory.getDefaultAlgorithm();

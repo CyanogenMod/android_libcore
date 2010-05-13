@@ -35,7 +35,7 @@ public class PKIXCertPathBuilderResult extends PKIXCertPathValidatorResult
      * Creates a new {@code PKIXCertPathBuilderResult} instance with the
      * specified validated certification path, the trust anchor of the
      * certification path, the policy tree and the public key of the subject.
-     * 
+     *
      * @param certPath
      *            the validated certification path.
      * @param trustAnchor
@@ -53,13 +53,13 @@ public class PKIXCertPathBuilderResult extends PKIXCertPathValidatorResult
         super(trustAnchor, policyTree, subjectPublicKey);
         this.certPath = certPath;
         if (this.certPath == null) {
-            throw new NullPointerException(Messages.getString("security.55")); 
+            throw new NullPointerException(Messages.getString("security.55"));
         }
     }
 
     /**
      * Returns the validated certification path.
-     * 
+     *
      * @return the validated certification path.
      */
     public CertPath getCertPath() {
@@ -69,15 +69,15 @@ public class PKIXCertPathBuilderResult extends PKIXCertPathValidatorResult
     /**
      * Returns a string representation of this {@code PKIXCertPathBuilderResult}
      * instance.
-     * 
+     *
      * @return a string representation of this {@code PKIXCertPathBuilderResult}
      *         instance.
      */
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
-        sb.append("\n Certification Path: "); 
+        sb.append("\n Certification Path: ");
         sb.append(certPath.toString());
-        sb.append("\n]"); 
+        sb.append("\n]");
         return sb.toString();
     }
 }

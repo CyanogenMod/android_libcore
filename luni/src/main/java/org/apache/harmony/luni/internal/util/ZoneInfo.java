@@ -45,14 +45,14 @@ public class ZoneInfo extends TimeZone {
         {
             return null;
         }
-        
+
         try {
             return ZoneInfoDB._getTimeZone(name);
         } catch (IOException e) {
             return null;
         }
     }
-    
+
     private static String nullName(byte[] data, int where, int off) {
         if (off < 0)
             return null;
@@ -219,14 +219,14 @@ public class ZoneInfo extends TimeZone {
     private boolean mUseDst;
     private String mDaylightName;
     private String mStandardName;
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
         if (!(obj instanceof ZoneInfo)) {
-           return false; 
+           return false;
         }
         ZoneInfo other = (ZoneInfo) obj;
         return mUseDst == other.mUseDst
@@ -241,7 +241,7 @@ public class ZoneInfo extends TimeZone {
                 && Arrays.equals(mTypes, other.mTypes)
                 && Arrays.equals(mTransitions, other.mTransitions);
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;

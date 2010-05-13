@@ -45,12 +45,12 @@ package org.xml.sax;
 public class HandlerBase
     implements EntityResolver, DTDHandler, DocumentHandler, ErrorHandler
 {
-    
+
 
     ////////////////////////////////////////////////////////////////////
     // Default implementation of the EntityResolver interface.
     ////////////////////////////////////////////////////////////////////
-    
+
     /**
      * Resolve an external entity.
      *
@@ -62,7 +62,7 @@ public class HandlerBase
      *
      * @param publicId The public identifer, or null if none is
      *                 available.
-     * @param systemId The system identifier provided in the XML 
+     * @param systemId The system identifier provided in the XML
      *                 document.
      * @return The new input source, or null to require the
      *         default behaviour.
@@ -75,14 +75,14 @@ public class HandlerBase
     {
     return null;
     }
-    
-    
+
+
 
     ////////////////////////////////////////////////////////////////////
     // Default implementation of DTDHandler interface.
     ////////////////////////////////////////////////////////////////////
-    
-    
+
+
     /**
      * Receive notification of a notation declaration.
      *
@@ -100,8 +100,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Receive notification of an unparsed entity declaration.
      *
@@ -121,14 +121,14 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
 
     ////////////////////////////////////////////////////////////////////
     // Default implementation of DocumentHandler interface.
     ////////////////////////////////////////////////////////////////////
-    
-    
+
+
     /**
      * Receive a Locator object for document events.
      *
@@ -144,8 +144,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Receive notification of the beginning of the document.
      *
@@ -163,8 +163,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Receive notification of the end of the document.
      *
@@ -182,8 +182,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Receive notification of the start of an element.
      *
@@ -203,8 +203,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Receive notification of the end of an element.
      *
@@ -223,8 +223,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Receive notification of character data inside an element.
      *
@@ -246,8 +246,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Receive notification of ignorable whitespace in element content.
      *
@@ -269,8 +269,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Receive notification of a processing instruction.
      *
@@ -291,14 +291,14 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
 
     ////////////////////////////////////////////////////////////////////
     // Default implementation of the ErrorHandler interface.
     ////////////////////////////////////////////////////////////////////
-    
-    
+
+
     /**
      * Receive notification of a parser warning.
      *
@@ -318,8 +318,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Receive notification of a recoverable parser error.
      *
@@ -339,8 +339,8 @@ public class HandlerBase
     {
     // no op
     }
-    
-    
+
+
     /**
      * Report a fatal XML parsing error.
      *
@@ -363,7 +363,7 @@ public class HandlerBase
     {
     throw e;
     }
-    
+
 }
 
 // end of HandlerBase.java

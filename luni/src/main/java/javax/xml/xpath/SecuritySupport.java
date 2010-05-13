@@ -38,9 +38,9 @@ import java.util.Enumeration;
  * Security related methods that only work on J2SE 1.2 and newer.
  */
 final class SecuritySupport  {
-    
+
     private SecuritySupport() {}
-    
+
     static ClassLoader getContextClassLoader() {
     return (ClassLoader)
         AccessController.doPrivileged(new PrivilegedAction() {
@@ -102,7 +102,7 @@ final class SecuritySupport  {
                     URL url;
                     if (cl == null) {
                         url = ClassLoader.getSystemResource(name);
-                    } 
+                    }
                     else {
                         url = cl.getResource(name);
                     }
@@ -121,7 +121,7 @@ final class SecuritySupport  {
                     Enumeration enumeration;
                     if (cl == null) {
                         enumeration = ClassLoader.getSystemResources(name);
-                    } 
+                    }
                     else {
                         enumeration = cl.getResources(name);
                     }
@@ -132,7 +132,7 @@ final class SecuritySupport  {
             throw (IOException)e.getException();
         }
     }
-    
+
     static InputStream getResourceAsStream(final ClassLoader cl,
                                            final String name)
     {

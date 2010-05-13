@@ -43,7 +43,7 @@ public abstract class PermissionCollection implements Serializable {
 
     /**
      * Adds the specified {@code Permission} to this collection.
-     * 
+     *
      * @param permission
      *            the {@code Permission} to add.
      * @throws IllegalStateException
@@ -54,7 +54,7 @@ public abstract class PermissionCollection implements Serializable {
     /**
      * Returns an enumeration over all {@link Permission}s encapsulated by this
      * {@code PermissionCollection}.
-     * 
+     *
      * @return an enumeration over all {@link Permission}s.
      */
     public abstract Enumeration<Permission> elements();
@@ -62,7 +62,7 @@ public abstract class PermissionCollection implements Serializable {
     /**
      * Indicates whether the specified permission is implied by this {@code
      * PermissionCollection}.
-     * 
+     *
      * @param permission
      *            the permission to check.
      * @return {@code true} if the given permission is implied by the
@@ -73,7 +73,7 @@ public abstract class PermissionCollection implements Serializable {
     /**
      * Indicates whether new permissions can be added to this {@code
      * PermissionCollection}.
-     * 
+     *
      * @return {@code true} if the receiver is read only, {@code false} if new
      *         elements can still be added to this {@code PermissionCollection}.
      */
@@ -92,7 +92,7 @@ public abstract class PermissionCollection implements Serializable {
     /**
      * Returns a string containing a concise, human-readable description of this
      * {@code PermissionCollection}.
-     * 
+     *
      * @return a printable representation for this {@code PermissionCollection}.
      */
     @Override
@@ -111,10 +111,10 @@ public abstract class PermissionCollection implements Serializable {
         int esize = elist.size();
         totalLength += esize * 4;
         StringBuilder result = new StringBuilder(totalLength).append(superStr)
-            .append(" ("); 
+            .append(" (");
         for (int i = 0; i < esize; i++) {
-            result.append("\n ").append(elist.get(i).toString()); 
+            result.append("\n ").append(elist.get(i).toString());
         }
-        return result.append("\n)\n").toString(); 
+        return result.append("\n)\n").toString();
     }
 }

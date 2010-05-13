@@ -130,7 +130,7 @@ public class DigestOutputStream extends FilterOutputStream {
      */
     @Override
     public String toString() {
-        return super.toString() + ", " + digest.toString() + 
-            (isOn ? ", is on" : ", is off");  
+        return super.toString() + ", " + digest.toString() +
+            (isOn ? ", is on" : ", is off");
     }
 }

@@ -27,7 +27,7 @@ package org.apache.harmony.security.x509;
  */
 
 public class Utils {
-    
+
     /**
      * Checks if the string is PrintableString (see X.680)
      * @param str input string
@@ -35,11 +35,11 @@ public class Utils {
      */
     public static boolean isPrintableString(String str) {
         for (int i= 0; i< str.length(); ++i) {
-            char ch= str.charAt(i); 
-            if (!(ch== 0x20 
+            char ch= str.charAt(i);
+            if (!(ch== 0x20
                 || ch>= 0x27 && ch<= 0x29 // '()
                 || ch>= 0x2B && ch<= 0x3A // +,-./0-9:
-                || ch== '=' 
+                || ch== '='
                 || ch== '?'
                 || ch>= 'A' && ch<= 'Z'
                 || ch>= 'a' && ch<= 'z')) {
@@ -48,4 +48,4 @@ public class Utils {
         }
         return true;
     }
-}    
+}

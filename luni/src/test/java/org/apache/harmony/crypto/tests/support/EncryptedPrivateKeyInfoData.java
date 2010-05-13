@@ -23,7 +23,7 @@ import java.util.HashMap;
 /**
  *
  * Support class for EncryptedPrivateKeyInfo_ImplTest and EncryptedPrivateKeyInfo_Test
- * 
+ *
  * All binary data for these tests were generated using
  * BEA JRockit j2sdk1.4.2_04 (http://www.bea.com) with
  * security providers list extended by Bouncy Castle's one
@@ -98,7 +98,7 @@ public class EncryptedPrivateKeyInfoData {
             (byte) 0x1d, (byte) 0x92, (byte) 0x80, (byte) 0xe5, (byte) 0xe4,
             (byte) 0x05, (byte) 0x28, (byte) 0x48, (byte) 0x5c, // 38
             (byte) 0x34, (byte) 0xc8, (byte) 0x22, (byte) 0x04, (byte) 0x82,
-            (byte) 0x04, (byte) 0x00, (byte) 0x00, // 
+            (byte) 0x04, (byte) 0x00, (byte) 0x00, //
             (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05,
             (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0a,
             (byte) 0x0b, (byte) 0x0c, (byte) 0x0d, (byte) 0x0e, (byte) 0x0f,
@@ -1169,7 +1169,7 @@ public class EncryptedPrivateKeyInfoData {
     public final static String[][] algName0 = new String[][] {
             { "DSA", "DSA" },
             { "DH", "DiffieHellman", "Diffie-Hellman" },
-            { "1.2.840.10040.4.1", "DSA" }, 
+            { "1.2.840.10040.4.1", "DSA" },
             { "1.2.840.113549.1.1.1", "RSA" },
             { "1.2.840.113549.1.3.1", "DiffieHellman" },
             { "1.2.840.113549.1.5.3", "pbeWithMD5AndDES-CBC" },
@@ -1188,7 +1188,7 @@ public class EncryptedPrivateKeyInfoData {
     /**
      * Returns valid encoding of EncryptedPrivateKeyInfo However encoded private
      * key field (encryptedData) does not contain valid encrypted data.
-     * 
+     *
      * @throws NoSuchAlgorithmException
      */
     public static byte[] getValidEncryptedPrivateKeyInfoEncoding(
@@ -1212,7 +1212,7 @@ public class EncryptedPrivateKeyInfoData {
     /**
      * Returns valid encoding of EncryptedPrivateKeyInfo However encoded private
      * key field (encryptedData) does not contain valid encrypted data.
-     * 
+     *
      * @throws NoSuchAlgorithmException
      */
     public static byte[] getParametersEncoding(String algName)

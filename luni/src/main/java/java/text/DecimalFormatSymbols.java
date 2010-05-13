@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -77,7 +77,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
      * Best practice is to create a {@code DecimalFormat}
      * and then to get the {@code DecimalFormatSymbols} from that object by
      * calling {@link DecimalFormat#getDecimalFormatSymbols()}.
-     * 
+     *
      * @param locale
      *            the locale.
      */
@@ -110,7 +110,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
     /**
      * Returns a new {@code DecimalFormatSymbols} instance for the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @return an instance of {@code DecimalFormatSymbols}
      * @since 1.6
      * @hide
@@ -158,7 +158,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
      * Compares the specified object to this {@code DecimalFormatSymbols} and
      * indicates if they are equal. In order to be equal, {@code object} must be
      * an instance of {@code DecimalFormatSymbols} and contain the same symbols.
-     * 
+     *
      * @param object
      *            the object to compare with this object.
      * @return {@code true} if the specified object is equal to this
@@ -232,7 +232,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the international currency symbol.
-     * 
+     *
      * @return the international currency symbol as string.
      */
     public String getInternationalCurrencySymbol() {
@@ -241,7 +241,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the currency symbol.
-     * 
+     *
      * @return the currency symbol as string.
      */
     public String getCurrencySymbol() {
@@ -250,7 +250,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the character which represents the decimal point in a number.
-     * 
+     *
      * @return the decimal separator character.
      */
     public char getDecimalSeparator() {
@@ -260,7 +260,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
     /**
      * Returns the character which represents a single digit in a format
      * pattern.
-     * 
+     *
      * @return the digit pattern character.
      */
     public char getDigit() {
@@ -269,7 +269,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the character used as the thousands separator in a number.
-     * 
+     *
      * @return the thousands separator character.
      */
     public char getGroupingSeparator() {
@@ -278,7 +278,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the string which represents infinity.
-     * 
+     *
      * @return the infinity symbol as a string.
      */
     public String getInfinity() {
@@ -287,7 +287,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the minus sign character.
-     * 
+     *
      * @return the minus sign as a character.
      */
     public char getMinusSign() {
@@ -297,7 +297,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
     /**
      * Returns the character which represents the decimal point in a monetary
      * value.
-     * 
+     *
      * @return the monetary decimal point as a character.
      */
     public char getMonetaryDecimalSeparator() {
@@ -306,7 +306,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the string which represents NaN.
-     * 
+     *
      * @return the symbol NaN as a string.
      */
     public String getNaN() {
@@ -316,7 +316,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
     /**
      * Returns the character which separates the positive and negative patterns
      * in a format pattern.
-     * 
+     *
      * @return the pattern separator character.
      */
     public char getPatternSeparator() {
@@ -325,7 +325,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the percent character.
-     * 
+     *
      * @return the percent character.
      */
     public char getPercent() {
@@ -334,7 +334,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the per mill sign character.
-     * 
+     *
      * @return the per mill sign character.
      */
     public char getPerMill() {
@@ -343,7 +343,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Returns the character which represents zero.
-     * 
+     *
      * @return the zero character.
      */
     public char getZeroDigit() {
@@ -385,7 +385,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
      * The international currency symbol and the currency symbol are updated,
      * but the min and max number of fraction digits stays the same.
      * <p>
-     * 
+     *
      * @param currency
      *            the new currency.
      * @throws NullPointerException
@@ -410,7 +410,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
      * valid ISO4217 currency code.
      * <p>
      * The min and max number of fraction digits stay the same.
-     * 
+     *
      * @param value
      *            the currency code.
      */
@@ -436,7 +436,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the currency symbol.
-     * 
+     *
      * @param value
      *            the currency symbol.
      */
@@ -446,7 +446,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the character which represents the decimal point in a number.
-     * 
+     *
      * @param value
      *            the decimal separator character.
      */
@@ -456,7 +456,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the character which represents a single digit in a format pattern.
-     * 
+     *
      * @param value
      *            the digit character.
      */
@@ -466,7 +466,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the character used as the thousands separator in a number.
-     * 
+     *
      * @param value
      *            the grouping separator character.
      */
@@ -476,7 +476,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the string which represents infinity.
-     * 
+     *
      * @param value
      *            the string representing infinity.
      */
@@ -486,7 +486,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the minus sign character.
-     * 
+     *
      * @param value
      *            the minus sign character.
      */
@@ -497,7 +497,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
     /**
      * Sets the character which represents the decimal point in a monetary
      * value.
-     * 
+     *
      * @param value
      *            the monetary decimal separator character.
      */
@@ -507,7 +507,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the string which represents NaN.
-     * 
+     *
      * @param value
      *            the string representing NaN.
      */
@@ -518,7 +518,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
     /**
      * Sets the character which separates the positive and negative patterns in
      * a format pattern.
-     * 
+     *
      * @param value
      *            the pattern separator character.
      */
@@ -528,7 +528,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the percent character.
-     * 
+     *
      * @param value
      *            the percent character.
      */
@@ -538,7 +538,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the per mill sign character.
-     * 
+     *
      * @param value
      *            the per mill character.
      */
@@ -548,7 +548,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Sets the character which represents zero.
-     * 
+     *
      * @param value
      *            the zero digit character.
      */

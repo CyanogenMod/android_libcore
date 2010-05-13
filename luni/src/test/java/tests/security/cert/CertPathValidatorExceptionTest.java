@@ -41,7 +41,7 @@ import java.util.Vector;
 /**
  * Tests for <code>CertPathValidatorException</code> class constructors and
  * methods.
- * 
+ *
  */
 @TestTargetClass(CertPathValidatorException.class)
 public class CertPathValidatorExceptionTest extends TestCase {
@@ -419,7 +419,7 @@ public class CertPathValidatorExceptionTest extends TestCase {
             }
         }
     }
-    
+
     /**
      * Test for <code>getCertPath()</code>. Returns the certification path
      * that was being validated when the exception was thrown.

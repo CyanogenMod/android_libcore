@@ -31,7 +31,7 @@ class SocketOutputStream extends OutputStream {
     /**
      * Constructs a SocketOutputStream for the <code>socket</code>. Write
      * operations are forwarded to the <code>socket</code>.
-     * 
+     *
      * @param socket the socket to be written
      * @see Socket
      */

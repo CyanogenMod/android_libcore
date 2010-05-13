@@ -36,7 +36,7 @@ import java.security.Permission;
  */
 @TestTargetClass(java.io.FileInputStream.class)
 public class JavaIoFileInputStreamTest extends TestCase {
-    
+
     SecurityManager old;
 
     @Override
@@ -94,7 +94,7 @@ public class JavaIoFileInputStreamTest extends TestCase {
             }
             @Override
             public void checkPermission(Permission p) {
-                
+
             }
         }
 
@@ -106,22 +106,22 @@ public class JavaIoFileInputStreamTest extends TestCase {
 
         TestSecurityManager s = new TestSecurityManager();
         System.setSecurityManager(s);
-        
+
         s.reset();
         FileDescriptor fd = new FileDescriptor();
         new FileInputStream(fd);
         assertTrue("FileInputStream(FileDescriptor) ctor must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", fd, s.fd);
-        
+
         s.reset();
         new FileInputStream(filename);
         assertTrue("FileInputStream(String) ctor must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
-        
+
         s.reset();
         new FileInputStream(f);
         assertTrue("FileInputStream(File) ctor must call checkRead on security manager", s.called);
         assertEquals("Argument of checkRead is not correct", filename, s.file);
     }
-    
+
 }

@@ -29,13 +29,13 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * with the same regular expression, it may be more efficient to compile it once and reuse it.
  * The {@code Pattern} class and its companion, {@link Matcher}, are also a lot more powerful
  * than the small amount of functionality exposed by {@code String}.
- * 
+ *
  * <pre>
  * // String convenience methods:
  * boolean sawFailures = s.matches("Failures: \d+");
  * String farewell = s.replaceAll("Hello, (\S+)", "Goodbye, $1");
  * String[] fields = s.split(":");
- * 
+ *
  * // Direct use of Pattern:
  * Pattern p = Pattern.compile("Hello, (\S+)");
  * Matcher m = p.matcher(inputString);
@@ -43,18 +43,18 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  *     String name = m.group(1); // Access a submatch group; String can't do this.
  * }
  * </pre>
- * 
+ *
  * <h3>Regular expression syntax</h3>
  * <span class="datatable">
  * <style type="text/css">
  * .datatable td { padding-right: 20px; }
  * </style>
- * 
+ *
  * <p>Java supports a subset of Perl 5 regular expression syntax. An important gotcha is that Java
  * has no regular expression literals, and uses plain old string literals instead. This means that
  * you need an extra level of escaping. For example, the regular expression {@code \s+} has to
  * be represented as the string {@code "\\s+"}.
- * 
+ *
  * <h3>Escape sequences</h3>
  * <p><table>
  * <tr> <td> \ </td> <td>Quote the following metacharacter (so {@code \.} matches a literal {@code .}).</td> </tr>
@@ -63,7 +63,7 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * <tr> <td> \\ </td> <td>A literal backslash.</td> </tr>
  * <tr> <td> &#x005c;<i>hhhh</i> </td> <td>The Unicode character U+hhhh (in hex).</td> </tr>
  * <tr> <td> \c<i>x</i> </td> <td>The ASCII control character <i>x</i> (so {@code \cI} would be U+0009).</td> </tr>
- * 
+ *
  * <tr> <td> \a </td> <td>The ASCII bell character (U+0007).</td> </tr>
  * <tr> <td> \e </td> <td>The ASCII ESC character (U+001b).</td> </tr>
  * <tr> <td> \f </td> <td>The ASCII form feed character (U+000c).</td> </tr>
@@ -71,7 +71,7 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * <tr> <td> \r </td> <td>The ASCII carriage return character (U+000d).</td> </tr>
  * <tr> <td> \t </td> <td>The ASCII tab character (U+0009).</td> </tr>
  * </table>
- * 
+ *
  * <h3>Character classes</h3>
  * <p>It's possible to construct arbitrary character classes using set operations:
  * <table>
@@ -104,7 +104,7 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * whose name starts with {@code is}, but with the {@code is} replaced by {@code java}.
  * For example, {@code \p{javaLowerCase}}.
  * </ul>
- * 
+ *
  * <h3>Quantifiers</h3>
  * <p>Quantifiers match some number of instances of the preceding regular expression.
  * <table>
@@ -136,7 +136,7 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * <tr> <td> {<i>n,</i>}+ </td> <td>At least <i>n</i> (possessive).</td> </tr>
  * <tr> <td> {<i>n</i>,<i>m</i>}+ </td> <td>At least <i>n</i> but not more than <i>m</i> (possessive).</td> </tr>
  * </table>
- * 
+ *
  * <h3>Zero-width assertions</h3>
  * <p><table>
  * <tr> <td> ^ </td> <td>At beginning of line.</td> </tr>
@@ -148,7 +148,7 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * <tr> <td> \z </td> <td>At end of input.</td> </tr>
  * <tr> <td> \Z </td> <td>At end of input, or before newline at end.</td> </tr>
  * </table>
- * 
+ *
  * <h3>Look-around assertions</h3>
  * <p>Look-around assertions assert that the subpattern does (positive) or doesn't (negative) match
  * after (look-ahead) or before (look-behind) the current position, without including the matched
@@ -160,9 +160,9 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * <tr> <td> (?&lt;=<i>a</i>) </td> <td>Zero-width positive look-behind.</td> </tr>
  * <tr> <td> (?&lt;!<i>a</i>) </td> <td>Zero-width negative look-behind.</td> </tr>
  * </table>
- * 
+ *
  * <h3>Groups</h3>
- * 
+ *
  * <p><table>
  * <tr> <td> (<i>a</i>) </td> <td>A capturing group.</td> </tr>
  * <tr> <td> (?:<i>a</i>) </td> <td>A non-capturing group.</td> </tr>
@@ -171,19 +171,19 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * </table>
  * <p>Explicit capturing groups are numbered from 1, and available via {@link Matcher#group}.
  * Group 0 represents the whole match.
- * 
+ *
  * <h3>Operators</h3>
  * <p><table>
  * <tr> <td> <i>ab</i> </td> <td>Expression <i>a</i> followed by expression <i>b</i>.</td> </tr>
  * <tr> <td> <i>a</i>|<i>b</i> </td> <td>Either expression <i>a</i> or expression <i>b</i>.</td> </tr>
  * </table>
- * 
+ *
  * <a name="flags"><h3>Flags</h3></a>
  * <p><table>
  * <tr> <td> (?dimsux-dimsux:<i>a</i>) </td> <td>Evaluates the expression <i>a</i> with the given flags enabled/disabled.</td> </tr>
  * <tr> <td> (?dimsux-dimsux) </td> <td>Evaluates the rest of the pattern with the given flags enabled/disabled.</td> </tr>
  * </table>
- * 
+ *
  * <p>The flags are:
  * <table>
  * <tr><td>{@code i}</td> <td>{@link #CASE_INSENSITIVE}</td> <td>case insensitive matching</td></tr>
@@ -201,26 +201,26 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * <p>There are two other flags not settable via this mechanism: {@link #CANON_EQ} and
  * {@link #LITERAL}. Attempts to use {@link #CANON_EQ} on Android will throw an exception.
  * </span>
- * 
+ *
  * <h3>Implementation notes</h3>
- * 
+ *
  * The regular expression implementation used in Android is provided by
  * <a href="http://www.icu-project.org">ICU</a>. The notation for the regular
  * expressions is mostly a superset of those used in other Java language
  * implementations. This means that existing applications will normally work as
  * expected, but in rare cases Android may accept a regular expression that is
  * not accepted by other implementations.
- * 
+ *
  * <p>In some cases, Android will recognize that a regular expression is a simple
  * special case that can be handled more efficiently. This is true of both the convenience methods
  * in {@code String} and the methods in {@code Pattern}.
- * 
+ *
  * @see Matcher
  */
 public final class Pattern implements Serializable {
-    
+
     private static final long serialVersionUID = 5073258162644648461L;
-    
+
     /**
      * This constant specifies that a pattern matches Unix line endings ('\n')
      * only against the '.', '^', and '$' meta characters. Corresponds to {@code (?d)}.
@@ -284,7 +284,7 @@ public final class Pattern implements Serializable {
      * Holds a handle (a pointer, actually) for the native ICU pattern.
      */
     transient int mNativePattern;
-    
+
     /**
      * Holds the number of groups in the pattern.
      */
@@ -361,9 +361,9 @@ public final class Pattern implements Serializable {
     /**
      * Returns a compiled form of the given {@code regularExpression}, as modified by the
      * given {@code flags}. See the <a href="#flags">flags overview</a> for more on flags.
-     * 
+     *
      * @throws PatternSyntaxException if the regular expression is syntactically incorrect.
-     * 
+     *
      * @see #CANON_EQ
      * @see #CASE_INSENSITIVE
      * @see #COMMENTS
@@ -397,15 +397,15 @@ public final class Pattern implements Serializable {
         if (pattern == null) {
             throw new NullPointerException();
         }
-        
+
         if ((flags & LITERAL) != 0) {
             pattern = quote(pattern);
         }
-        
+
         // These are the flags natively supported by ICU.
         // They even have the same value in native code.
         flags = flags & (CASE_INSENSITIVE | COMMENTS | MULTILINE | DOTALL | UNIX_LINES);
-        
+
         mNativePattern = NativeRegEx.open(pattern, flags);
         mGroupCount = NativeRegEx.groupCount(mNativePattern);
     }
@@ -415,7 +415,7 @@ public final class Pattern implements Serializable {
      * Equivalent to {@code Pattern.compile(regularExpression).matcher(input).matches()}.
      * If the same regular expression is to be used for multiple operations, it may be more
      * efficient to reuse a compiled {@code Pattern}.
-     * 
+     *
      * @see Pattern#compile(java.lang.String, int)
      * @see Matcher#matches()
      */
@@ -441,7 +441,7 @@ public final class Pattern implements Serializable {
         }
         return sb.append(string.substring(apos)).append("\\E").toString();
     }
-    
+
     @Override
     protected void finalize() throws Throwable {
         try {

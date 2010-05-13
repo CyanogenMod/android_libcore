@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,7 @@
 package org.apache.harmony.luni.tests.java.net;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
-@TestTargetClass(InetSocketAddress.class) 
+@TestTargetClass(InetSocketAddress.class)
 public class InetSocketAddressTest extends TestCase {
 
     /**
@@ -52,32 +52,32 @@ public class InetSocketAddressTest extends TestCase {
             clazz = SocketAddress.class,
             method = "SocketAddress",
             args = {}
-        )  
+        )
     })
     public void test_ConstructorLjava_lang_StringI() throws Exception {
         // regression test for Harmony-1042
         InetSocketAddress address = new InetSocketAddress("127.0.0.1", 0);
         assertNotNull(address.getHostName());
-        
+
         try {
             new InetSocketAddress("127.0.0.1", -1);
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
             new InetSocketAddress("127.0.0.1", 65536);
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
-        }      
-        
-        class MockSecurityManager extends SecurityManager {        
+        }
+
+        class MockSecurityManager extends SecurityManager {
             public void checkPermission(Permission permission) {
 
             }
-            
+
             public void checkConnect(String host, int port) {
                 if(host.equals("google.com")) {
                     throw new SecurityException();
@@ -99,9 +99,9 @@ public class InetSocketAddressTest extends TestCase {
         } finally {
             System.setSecurityManager(oldman);
         }
-        
+
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -127,32 +127,32 @@ public class InetSocketAddressTest extends TestCase {
                 clazz = SocketAddress.class,
                 method = "SocketAddress",
                 args = {}
-        )  
+        )
     })
     public void test_ConstructorLInetAddressI() {
         String validIPAddresses[] = { "::1.2.3.4", "::", "::", "1::0", "1::",
-                "::1", "0", 
+                "::1", "0",
                 "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF",
                 "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:255.255.255.255",
                 "0:0:0:0:0:0:0:0", "0:0:0:0:0:0:0.0.0.0",
                 "127.0.0.1", "localhost", "1.1", "42.42.42.42", "0.0.0.0"};
-        
-        String results [] = { "0:0:0:0:0:0:102:304", "0:0:0:0:0:0:0:0", 
+
+        String results [] = { "0:0:0:0:0:0:102:304", "0:0:0:0:0:0:0:0",
                 "0:0:0:0:0:0:0:0", "1:0:0:0:0:0:0:0", "1:0:0:0:0:0:0:0",
-                "0:0:0:0:0:0:0:1", "0.0.0.0", 
+                "0:0:0:0:0:0:0:1", "0.0.0.0",
                 "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
                 "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
                 "0:0:0:0:0:0:0:0", "0:0:0:0:0:0:0:0",
                 "localhost", "localhost", "1.0.0.1", "42.42.42.42", "0.0.0.0"};
-        
+
         for(int i = 0; i < validIPAddresses.length; i++) {
             try {
-                InetAddress ia = InetAddress.getByName(validIPAddresses[i]);             
-                InetSocketAddress isa = new InetSocketAddress(ia, 80);  
+                InetAddress ia = InetAddress.getByName(validIPAddresses[i]);
+                InetSocketAddress isa = new InetSocketAddress(ia, 80);
                 assertEquals(80,isa.getPort());
                 //assertEquals(results[i], isa.getHostName());
             } catch(UnknownHostException uhe) {
-                fail("UnknownHostException was thrown for: " + 
+                fail("UnknownHostException was thrown for: " +
                         validIPAddresses[i]);
             }
         }
@@ -162,9 +162,9 @@ public class InetSocketAddressTest extends TestCase {
         } catch(Exception e) {
             fail("Unexpected exception was thrown.");
         }
-        
+
         try {
-            InetAddress isa = InetAddress.getByName("localhost");  
+            InetAddress isa = InetAddress.getByName("localhost");
             new InetSocketAddress(isa, 65536);
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
@@ -172,9 +172,9 @@ public class InetSocketAddressTest extends TestCase {
         } catch (UnknownHostException e) {
             fail("UnknownHostException was thrown.");
         }
-        
+
         try {
-            InetAddress isa = InetAddress.getByName("localhost");  
+            InetAddress isa = InetAddress.getByName("localhost");
             new InetSocketAddress(isa, -1);
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
@@ -196,21 +196,21 @@ public class InetSocketAddressTest extends TestCase {
                 clazz = SocketAddress.class,
                 method = "SocketAddress",
                 args = {}
-        )        
+        )
     })
     public void test_ConstructorI() {
-        
+
         InetSocketAddress isa = new  InetSocketAddress(65535);
         assertEquals("0.0.0.0", isa.getHostName());
         assertEquals(65535, isa.getPort());
-        
+
         try {
             new  InetSocketAddress(-1);
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException  iae) {
             //expected
-        }        
-        
+        }
+
         try {
             new  InetSocketAddress(65536);
             fail("IllegalArgumentException was not thrown.");
@@ -218,7 +218,7 @@ public class InetSocketAddressTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests java.net.InetSocketAddress#createUnresolved(String, int)
      */
@@ -332,7 +332,7 @@ public class InetSocketAddressTest extends TestCase {
 
         SerializationTest.verifyGolden(this, testCases, COMPARATOR);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -345,12 +345,12 @@ public class InetSocketAddressTest extends TestCase {
         assertFalse(isa1.equals(isa2));
         InetSocketAddress isa3 = new InetSocketAddress(1);
         assertTrue(isa1.equals(isa3));
-        
+
         isa1 = new InetSocketAddress("localhost", 80);
         isa2 = new InetSocketAddress("127.0.0.1", 80);
         assertTrue(isa1.equals(isa2));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -360,26 +360,26 @@ public class InetSocketAddressTest extends TestCase {
     public void test_getAddress() {
 
         String validIPAddresses[] = { "::1.2.3.4", "::", "::", "1::0", "1::",
-                "::1", "0", 
+                "::1", "0",
                 "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF",
                 "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:255.255.255.255",
                 "0:0:0:0:0:0:0:0", "0:0:0:0:0:0:0.0.0.0",
                 "127.0.0.1", "localhost", "1.1", "42.42.42.42", "0.0.0.0"};
-        
+
         for(int i = 0; i < validIPAddresses.length; i++) {
             try {
-                InetAddress ia = InetAddress.getByName(validIPAddresses[i]);             
+                InetAddress ia = InetAddress.getByName(validIPAddresses[i]);
                 InetSocketAddress isa = new InetSocketAddress(ia, 0);
                 assertEquals(ia, isa.getAddress());
             } catch(UnknownHostException uhe) {
-                fail("UnknownHostException was thrown for: " + 
+                fail("UnknownHostException was thrown for: " +
                         validIPAddresses[i]);
             }
         }
         InetSocketAddress isa = new InetSocketAddress((InetAddress) null, 0);
         assertNotNull(isa.getAddress());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -390,11 +390,11 @@ public class InetSocketAddressTest extends TestCase {
         InetSocketAddress isa1 = new InetSocketAddress("localhost", 8080);
         InetSocketAddress isa2 = new InetSocketAddress("127.0.0.1", 8080);
         assertTrue(isa1.hashCode() == isa2.hashCode());
-        
+
         InetSocketAddress isa3 = new InetSocketAddress("0.0.0.0", 8080);
         assertFalse(isa1.hashCode() == isa3.hashCode());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -404,11 +404,11 @@ public class InetSocketAddressTest extends TestCase {
     public void test_isUnresolved() {
         InetSocketAddress isa1 = new InetSocketAddress("localhost", 80);
         assertFalse(isa1.isUnresolved());
-        
+
         InetSocketAddress sockAddr = new InetSocketAddress("unknown.host", 1000);
         assertTrue(sockAddr.isUnresolved());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",

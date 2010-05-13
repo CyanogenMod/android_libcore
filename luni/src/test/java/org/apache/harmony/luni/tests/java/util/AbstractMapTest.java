@@ -439,7 +439,7 @@ public class AbstractMapTest extends junit.framework.TestCase {
         assertFalse("assert 3", amt1.equals(amt2));
         amt1.put("2", "two");
         amt1.put("3", "three");
-    
+
         amt2.put("1", "one");
         amt2.put("2", "two");
         amt2.put("3", "three");

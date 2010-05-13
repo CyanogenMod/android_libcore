@@ -29,17 +29,17 @@ import javax.security.auth.callback.Callback;
 
 /**
  * Tests for <code>UnsupportedCallbackException</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(UnsupportedCallbackException.class) 
+@TestTargetClass(UnsupportedCallbackException.class)
 public class UnsupportedCallbackExceptionTest extends TestCase {
-    
+
     public static void main(String[] args) {
     }
 
     /**
      * Constructor for UnsupportedCallbackExceptionTest.
-     * 
+     *
      * @param arg0
      */
     public UnsupportedCallbackExceptionTest(String arg0) {
@@ -54,7 +54,7 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
 
     /**
      * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback)
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#getCallback() 
+     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#getCallback()
      * Assertion: constructs with null parameter.
      */
     @TestTargets({
@@ -77,10 +77,10 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
         assertNull("getMessage() must return null.", ucE.getMessage());
         assertNull("getCallback() must return null", ucE.getCallback());
     }
-    
+
     /**
      * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback)
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#getCallback() 
+     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#getCallback()
      * Assertion: constructs with not null parameter.
      */
     @TestTargets({
@@ -104,9 +104,9 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
         assertNull("getMessage() must return null.", ucE.getMessage());
         assertEquals("Incorrect callback object was returned", c, ucE.getCallback());
     }
-    
+
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg) 
+     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
      * Assertion: constructs with null callback parameter and null message.
      */
     @TestTargetNew(
@@ -120,9 +120,9 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
         assertNull("getMessage() must return null.", ucE.getMessage());
         assertNull("getCallback() must return null.", ucE.getCallback());
     }
-    
+
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg) 
+     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
      * Assertion: constructs with null callback parameter and not null message.
      */
     @TestTargetNew(
@@ -139,9 +139,9 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
             assertNull("getCallback() must return null.", ucE.getCallback());
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg) 
+     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
      * Assertion: constructs with not null callback parameter and null message.
      */
     @TestTargetNew(
@@ -157,9 +157,9 @@ public class UnsupportedCallbackExceptionTest extends TestCase {
         assertNull("getMessage() must return null.", ucE.getMessage());
         assertEquals("Incorrect callback object was returned", c, ucE.getCallback());
     }
-    
+
     /**
-     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg) 
+     * @tests javax.security.auth.callback.UnsupportedCallbackExceptionTest#UnsupportedCallbackException(Callback callback, String msg)
      * Assertion: constructs with not null parameters.
      */
     @TestTargetNew(

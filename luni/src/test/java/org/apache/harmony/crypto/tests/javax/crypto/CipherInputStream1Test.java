@@ -309,19 +309,19 @@ public class CipherInputStream1Test extends TestCase {
         method = "CipherInputStream",
         args = {java.io.InputStream.class, javax.crypto.Cipher.class}
     )
-    public void test_ConstructorLjava_io_InputStreamLjavax_crypto_Cipher () throws 
+    public void test_ConstructorLjava_io_InputStreamLjavax_crypto_Cipher () throws
     NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         ByteArrayInputStream bais = new ByteArrayInputStream(new byte[100]);
 
         KeyGenerator kg = KeyGenerator.getInstance("DES");
         kg.init(56, new SecureRandom());
         Key key = kg.generateKey();
-        
+
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
         c.init(Cipher.ENCRYPT_MODE, key);
-        
+
         CipherInputStream cis = new CipherInputStream(bais, c);
-        
+
         assertNotNull(cis);
     }
 

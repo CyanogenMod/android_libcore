@@ -33,13 +33,13 @@ import org.apache.harmony.security.tests.support.cert.TestUtils;
 
 /**
  * Tests for <code>X500Principal</code> class constructors and methods.
- * 
+ *
  */
-@TestTargetClass(X500Principal.class) 
+@TestTargetClass(X500Principal.class)
 public class X500PrincipalTest extends TestCase {
 
     /**
-     * @tests javax.security.auth.x500.X500Principal#X500Principal(String name) 
+     * @tests javax.security.auth.x500.X500Principal#X500Principal(String name)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -49,7 +49,7 @@ public class X500PrincipalTest extends TestCase {
     )
     public void test_X500Principal_01() {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
-        
+
         try {
             X500Principal xpr = new X500Principal(name);
             assertNotNull("Null object returned", xpr);
@@ -58,7 +58,7 @@ public class X500PrincipalTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             X500Principal xpr = new X500Principal((String)null);
             fail("NullPointerException wasn't thrown");
@@ -75,9 +75,9 @@ public class X500PrincipalTest extends TestCase {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.x500.X500Principal#X500Principal(InputStream is) 
+     * @tests javax.security.auth.x500.X500Principal#X500Principal(InputStream is)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -90,7 +90,7 @@ public class X500PrincipalTest extends TestCase {
         byte[] ba = getByteArray(TestUtils.getX509Certificate_v1());
         ByteArrayInputStream is = new ByteArrayInputStream(ba);
         InputStream isNull = null;
-        
+
         try {
             X500Principal xpr = new X500Principal(is);
             assertNotNull("Null object returned", xpr);
@@ -99,7 +99,7 @@ public class X500PrincipalTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             X500Principal xpr = new X500Principal(isNull);
             fail("NullPointerException wasn't thrown");
@@ -107,7 +107,7 @@ public class X500PrincipalTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of NullPointerException");
         }
-        
+
         is = new ByteArrayInputStream(name.getBytes());
         try {
             X500Principal xpr = new X500Principal(is);
@@ -117,9 +117,9 @@ public class X500PrincipalTest extends TestCase {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.x500.X500Principal#X500Principal(byte[] name) 
+     * @tests javax.security.auth.x500.X500Principal#X500Principal(byte[] name)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -131,7 +131,7 @@ public class X500PrincipalTest extends TestCase {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
         byte[] ba = getByteArray(TestUtils.getX509Certificate_v1());
         byte[] baNull = null;
-        
+
         try {
             X500Principal xpr = new X500Principal(ba);
             assertNotNull("Null object returned", xpr);
@@ -140,7 +140,7 @@ public class X500PrincipalTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             X500Principal xpr = new X500Principal(baNull);
             fail("IllegalArgumentException wasn't thrown");
@@ -148,7 +148,7 @@ public class X500PrincipalTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         ba = name.getBytes();
         try {
             X500Principal xpr = new X500Principal(ba);
@@ -158,9 +158,9 @@ public class X500PrincipalTest extends TestCase {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.x500.X500Principal#getName() 
+     * @tests javax.security.auth.x500.X500Principal#getName()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -170,7 +170,7 @@ public class X500PrincipalTest extends TestCase {
     )
     public void test_getName() {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
-        X500Principal xpr = new X500Principal(name);        
+        X500Principal xpr = new X500Principal(name);
         try {
             String resName = xpr.getName();
             assertEquals(name, resName);
@@ -178,9 +178,9 @@ public class X500PrincipalTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.x500.X500Principal#getName(String format) 
+     * @tests javax.security.auth.x500.X500Principal#getName(String format)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -198,7 +198,7 @@ public class X500PrincipalTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         expectedName = "CN=Duke, OU=JavaSoft, O=Sun Microsystems, C=US";
         try {
             String resName = xpr.getName(X500Principal.RFC1779);
@@ -206,14 +206,14 @@ public class X500PrincipalTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             String resName = xpr.getName(X500Principal.RFC2253);
             assertEquals(name, resName);
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
-        
+
         try {
             String resName = xpr.getName(null);
             fail("IllegalArgumentException  wasn't thrown");
@@ -225,9 +225,9 @@ public class X500PrincipalTest extends TestCase {
         } catch (IllegalArgumentException  iae) {
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.x500.X500Principal#hashCode() 
+     * @tests javax.security.auth.x500.X500Principal#hashCode()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -237,7 +237,7 @@ public class X500PrincipalTest extends TestCase {
     )
     public void test_hashCode() {
         String name = "CN=Duke,OU=JavaSoft,O=Sun Microsystems,C=US";
-        X500Principal xpr = new X500Principal(name);        
+        X500Principal xpr = new X500Principal(name);
         try {
             int res = xpr.hashCode();
             assertNotNull(res);
@@ -245,9 +245,9 @@ public class X500PrincipalTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.x500.X500Principal#toString() 
+     * @tests javax.security.auth.x500.X500Principal#toString()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -257,7 +257,7 @@ public class X500PrincipalTest extends TestCase {
     )
     public void test_toString() {
         String name = "CN=Duke, OU=JavaSoft, O=Sun Microsystems, C=US";
-        X500Principal xpr = new X500Principal(name);        
+        X500Principal xpr = new X500Principal(name);
         try {
             String res = xpr.toString();
             assertNotNull(res);
@@ -266,9 +266,9 @@ public class X500PrincipalTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.x500.X500Principal#getEncoded() 
+     * @tests javax.security.auth.x500.X500Principal#getEncoded()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -278,7 +278,7 @@ public class X500PrincipalTest extends TestCase {
     )
     public void test_getEncoded() {
         byte[] ba = getByteArray(TestUtils.getX509Certificate_v1());
-        X500Principal xpr = new X500Principal(ba);        
+        X500Principal xpr = new X500Principal(ba);
         try {
             byte[] res = xpr.getEncoded();
             assertNotNull(res);
@@ -287,9 +287,9 @@ public class X500PrincipalTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @tests javax.security.auth.x500.X500Principal#equals(Object o) 
+     * @tests javax.security.auth.x500.X500Principal#equals(Object o)
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -301,7 +301,7 @@ public class X500PrincipalTest extends TestCase {
         String name1 = "CN=Duke, OU=JavaSoft, O=Sun Microsystems, C=US";
         String name2 = "cn=duke,ou=javasoft,o=sun microsystems,c=us";
         String name3 = "CN=Alex Astapchuk, OU=SSG, O=Intel ZAO, C=RU";
-        X500Principal xpr1 = new X500Principal(name1);        
+        X500Principal xpr1 = new X500Principal(name1);
         X500Principal xpr2 = new X500Principal(name2);
         X500Principal xpr3 = new X500Principal(name3);
         try {
@@ -311,7 +311,7 @@ public class X500PrincipalTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     private byte[] getByteArray(byte[] array) {
         byte[] x = null;
         try {
@@ -322,7 +322,7 @@ public class X500PrincipalTest extends TestCase {
             x = xx.getEncoded();
         } catch (Exception e) {
             return null;
-        }  
+        }
         return x;
     }
 }

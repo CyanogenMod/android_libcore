@@ -36,8 +36,8 @@ import org.apache.harmony.security.tests.support.cert.MyCertificate;
 import junit.framework.TestCase;
 @TestTargetClass(KeyStore.TrustedCertificateEntry.class)
 /**
- * Tests for <code>KeyStore.TrustedCertificateEntry</code> class constructor and methods 
- * 
+ * Tests for <code>KeyStore.TrustedCertificateEntry</code> class constructor and methods
+ *
  */
 
 public class KSTrustedCertificateEntryTest extends TestCase {
@@ -60,7 +60,7 @@ public class KSTrustedCertificateEntryTest extends TestCase {
             fail("NullPointerException must be thrown when trustCert is null");
         } catch (NullPointerException e) {
         }
-        
+
         cert = new MyCertificate("TEST", new byte[10]);
         try {
             KeyStore.TrustedCertificateEntry ksTCE = new KeyStore.TrustedCertificateEntry(cert);
@@ -70,10 +70,10 @@ public class KSTrustedCertificateEntryTest extends TestCase {
             fail("Unexpected exception was thrown when trustCert is not null");
         }
     }
-    
+
     /**
      * Test for <codfe>getTrustedCertificate()</code> method
-     * Assertion: returns trusted Certificate from goven entry 
+     * Assertion: returns trusted Certificate from goven entry
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -83,14 +83,14 @@ public class KSTrustedCertificateEntryTest extends TestCase {
     )
     public void testGetTrustedCertificate() {
         Certificate cert = new MyCertificate("TEST", new byte[10]);
-        KeyStore.TrustedCertificateEntry ksTCE = 
+        KeyStore.TrustedCertificateEntry ksTCE =
                 new KeyStore.TrustedCertificateEntry(cert);
         assertEquals("Incorrect certificate", cert, ksTCE.getTrustedCertificate());
     }
 
     /**
      * Test for <codfe>toString()</code> method
-     * Assertion: returns non null string 
+     * Assertion: returns non null string
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -100,7 +100,7 @@ public class KSTrustedCertificateEntryTest extends TestCase {
     )
     public void testToString() {
         Certificate cert = new MyCertificate("TEST", new byte[10]);
-        KeyStore.TrustedCertificateEntry ksTCE = 
+        KeyStore.TrustedCertificateEntry ksTCE =
                 new KeyStore.TrustedCertificateEntry(cert);
         assertNotNull("toString() returns null string", ksTCE.toString());
     }

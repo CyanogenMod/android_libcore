@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 @TestTargetClass( KeyPair.class)
 /**
  * Tests for fields and methods of class <code>KeyPair</code>
- * 
+ *
  */
 public class KeyPairTest extends TestCase {
 
@@ -51,7 +51,7 @@ public class KeyPairTest extends TestCase {
                 }
                 public byte[] getEncoded() {
                     return null;
-                }                
+                }
             };
         }
         static PrivateKey getPrivate() {
@@ -64,8 +64,8 @@ public class KeyPairTest extends TestCase {
                 }
                 public byte[] getEncoded() {
                     return null;
-                }                
-            };                
+                }
+            };
         }
     }
 
@@ -84,7 +84,7 @@ public class KeyPairTest extends TestCase {
     public final void testKeyPair01() {
         Object kp = new KeyPair(null, null);
         assertTrue(kp instanceof KeyPair);
-        
+
         kp = new KeyPair(null, TestKeyPair.getPrivate());
         assertTrue(kp instanceof KeyPair);
         kp = new KeyPair(TestKeyPair.getPublic(), null);

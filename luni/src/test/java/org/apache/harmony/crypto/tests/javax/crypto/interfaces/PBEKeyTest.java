@@ -35,7 +35,7 @@ import javax.crypto.interfaces.PBEKey;
 
 /**
  * Tests for <code>PBEKey</code> class field
- * 
+ *
  */
 @TestTargetClass(PBEKey.class)
 public class PBEKeyTest extends TestCase {
@@ -48,14 +48,14 @@ public class PBEKeyTest extends TestCase {
         level = TestLevel.COMPLETE,
         notes = "tests serialVersionUID for a fixed value",
         method = "!field:serialVersionUID"
-    )    
+    )
     public void testField() {
         checkPBEKey key = new checkPBEKey();
-        assertEquals("Incorrect serialVersionUID", 
+        assertEquals("Incorrect serialVersionUID",
                 key.getSerVerUID(), //PBEKey.serialVersionUID
                 -1430015993304333921L);
     }
-    
+
 @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "getIterationCount",
@@ -63,7 +63,7 @@ public class PBEKeyTest extends TestCase {
       )
     public void test_getIterationCount() throws Exception {
         checkPBEKey key = new checkPBEKey();
-        
+
         key.getIterationCount();
     }
 
@@ -85,10 +85,10 @@ public class PBEKeyTest extends TestCase {
       )
     public void test_getSalt() throws Exception {
         checkPBEKey key = new checkPBEKey();
-        
+
         key.getSalt();
     }
-    
+
     public class checkPBEKey implements PBEKey {
         public String getAlgorithm() {
             return "SecretKey";

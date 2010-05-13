@@ -29,7 +29,7 @@ import java.util.Enumeration;
 
 @TestTargetClass(Dictionary.class)
 public class DictionaryTest extends TestCase {
-    
+
     class Mock_Dictionary extends Dictionary {
 
         @Override

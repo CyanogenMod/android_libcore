@@ -32,11 +32,11 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Additional class for verification of MacGeneratorSpi and MacSpi
- * 
+ *
  */
 
 public class MyMacSpi extends MacSpi {
-   
+
     private int length = 0;
     @Override
     protected int engineGetMacLength() {
@@ -72,5 +72,5 @@ public class MyMacSpi extends MacSpi {
     @Override
     protected void engineReset() {
         length++;
-    }  
+    }
 }

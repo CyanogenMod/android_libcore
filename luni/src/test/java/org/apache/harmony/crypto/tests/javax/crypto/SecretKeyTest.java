@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 @TestTargetClass(SecretKey.class)
 /**
  * Tests for <code>SecretKey</code> class field
- * 
+ *
  */
 public class SecretKeyTest extends TestCase {
 
@@ -50,11 +50,11 @@ public class SecretKeyTest extends TestCase {
     )
     public void testField() {
         checkSecretKey sk = new checkSecretKey();
-        assertEquals("Incorrect serialVersionUID", 
+        assertEquals("Incorrect serialVersionUID",
                 sk.getSerVerUID(), //SecretKey.serialVersionUID
                 -4795878709595146952L);
     }
-    
+
     public class checkSecretKey implements SecretKey {
         public String getAlgorithm() {
             return "SecretKey";

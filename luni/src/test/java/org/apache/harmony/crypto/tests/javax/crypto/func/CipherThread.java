@@ -24,8 +24,8 @@ public abstract class CipherThread implements Runnable {
     private int kCounter = 0;
     private int mCounter = 0;
     private int pCounter = 0;
-    private StringBuffer errorSB = null; 
-    
+    private StringBuffer errorSB = null;
+
     private boolean flagTestResult = false;
     private String data = "    Albert Einstein was a German-born " +
                 "theoretical physicist.    ";
@@ -46,7 +46,7 @@ public abstract class CipherThread implements Runnable {
         mCounter = 0;
         pCounter = 0;
     }
-    
+
     public void checkEncodedData(byte[] original, byte[] encoded)
             throws Exception {
         for(int i = 0; i < original.length; i++) {
@@ -99,32 +99,32 @@ public abstract class CipherThread implements Runnable {
         }
         flagTestResult = true;
     }
-    
+
     public String getAlgName() {
         return algName;
     }
-    
+
     public int getKeyLength() {
         return keyLength;
     }
-    
+
     public String getData() {
         return data;
     }
-    
+
     public String getPadding() {
         return paddingMode;
     }
-    
+
     public String getMode() {
         return mode;
     }
-    
+
     public String getCipherParameters() {
         return "Alg name:" + algName + " Key:" + keyLength + " Mode:" + mode +
         " Padding:" + paddingMode;
     }
-    
+
     public boolean getTestStatus() {
         return flagTestResult;
     }
@@ -132,42 +132,42 @@ public abstract class CipherThread implements Runnable {
     public String getAlgorithmName() {
         return algName;
     }
-    
+
     public boolean hasNextKey() {
         return (kCounter < keyLengthAr.length);
     }
-    
+
     public boolean hasNextMode() {
         return (mCounter < modeAr.length);
     }
-    
+
     public boolean hasNextPadding() {
         return (pCounter < paddingModeAr.length);
     }
-    
+
     public int getNextKey() {
         kCounter = (hasNextKey()) ? kCounter : 0;
         return keyLengthAr[kCounter++];
     }
-    
+
     public String getNextMode() {
         mCounter = (hasNextMode()) ? mCounter : 0;
         return modeAr[mCounter++];
     }
-    
+
     public String getNextPadding() {
         pCounter = (hasNextPadding()) ? pCounter : 0;
         return paddingModeAr[pCounter++];
     }
-    
+
     public long getTotalCasesNumber() {
         return keyLengthAr.length * modeAr.length * paddingModeAr.length;
     }
-    
+
     public long getTotalFailuresNumber() {
         return fails;
     }
-    
+
     public String getFailureMessages() {
         return (errorSB == null) ? "" : new String(errorSB);
     }

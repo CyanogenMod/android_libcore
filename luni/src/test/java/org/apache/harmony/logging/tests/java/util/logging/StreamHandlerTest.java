@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,10 +51,10 @@ import tests.util.CallVerificationStack;
 public class StreamHandlerTest extends TestCase {
 
 	private final static String INVALID_LEVEL = "impossible_level";
-    
+
     private final PrintStream err = System.err;
 
-    private OutputStream errSubstituteStream = null;     
+    private OutputStream errSubstituteStream = null;
 
 	private static String className = StreamHandlerTest.class.getName();
 
@@ -72,7 +72,7 @@ public class StreamHandlerTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
         errSubstituteStream = new NullOutputStream();
-        System.setErr(new PrintStream(errSubstituteStream));          
+        System.setErr(new PrintStream(errSubstituteStream));
 	}
 
 	/*
@@ -81,7 +81,7 @@ public class StreamHandlerTest extends TestCase {
 	protected void tearDown() throws Exception {
 		LogManager.getLogManager().reset();
 		CallVerificationStack.getInstance().clear();
-        System.setErr(err);        
+        System.setErr(err);
         super.tearDown();
 	}
 
@@ -951,7 +951,7 @@ public class StreamHandlerTest extends TestCase {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.util.logging.Formatter#getHead(java.util.logging.Handler)
 		 */
 		public String getHead(Handler h) {
@@ -960,7 +960,7 @@ public class StreamHandlerTest extends TestCase {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.util.logging.Formatter#getTail(java.util.logging.Handler)
 		 */
 		public String getTail(Handler h) {
@@ -985,7 +985,7 @@ public class StreamHandlerTest extends TestCase {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.io.OutputStream#close()
 		 */
 		public void close() throws IOException {
@@ -995,7 +995,7 @@ public class StreamHandlerTest extends TestCase {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.io.OutputStream#flush()
 		 */
 		public void flush() throws IOException {
@@ -1005,7 +1005,7 @@ public class StreamHandlerTest extends TestCase {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.io.OutputStream#write(int)
 		 */
 		public void write(int oneByte) {
@@ -1021,7 +1021,7 @@ public class StreamHandlerTest extends TestCase {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.io.OutputStream#close()
 		 */
 		public void close() throws IOException {
@@ -1030,7 +1030,7 @@ public class StreamHandlerTest extends TestCase {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.io.OutputStream#flush()
 		 */
 		public void flush() throws IOException {
@@ -1039,7 +1039,7 @@ public class StreamHandlerTest extends TestCase {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.io.OutputStream#write(byte[], int, int)
 		 */
 		public synchronized void write(byte[] buffer, int offset, int count) {
@@ -1048,7 +1048,7 @@ public class StreamHandlerTest extends TestCase {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.io.OutputStream#write(int)
 		 */
 		public synchronized void write(int oneByte) {

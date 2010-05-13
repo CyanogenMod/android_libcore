@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,10 +30,10 @@ import java.io.IOException;
  * Please note that although the class is marked as {@code Serializable} by
  * inheritance from {@code EventObject}, this type is not intended to be serialized
  * so the serialization methods do nothing but throw a {@code NotSerializableException}.
- * 
+ *
  * @see java.util.prefs.Preferences
  * @see java.util.prefs.NodeChangeListener
- * 
+ *
  * @since 1.4
  */
 public class NodeChangeEvent extends EventObject implements Serializable {
@@ -45,7 +45,7 @@ public class NodeChangeEvent extends EventObject implements Serializable {
 
     /**
      * Constructs a new {@code NodeChangeEvent} instance.
-     * 
+     *
      * @param p
      *            the {@code Preferences} instance that fired this event; this object is
      *            considered as the event source.
@@ -60,7 +60,7 @@ public class NodeChangeEvent extends EventObject implements Serializable {
 
     /**
      * Gets the {@code Preferences} instance that fired this event.
-     * 
+     *
      * @return the {@code Preferences} instance that fired this event.
      */
     public Preferences getParent() {
@@ -69,7 +69,7 @@ public class NodeChangeEvent extends EventObject implements Serializable {
 
     /**
      * Gets the child {@code Preferences} node that was added or removed.
-     * 
+     *
      * @return the added or removed child {@code Preferences} node.
      */
     public Preferences getChild() {

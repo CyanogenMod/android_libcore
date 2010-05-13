@@ -21,8 +21,8 @@ package java.io;
  * An EmulatedFieldsForDumping is an object that represents a set of emulated
  * fields for an object being dumped. It is a concrete implementation for
  * ObjectOutputStream.PutField
- * 
- * 
+ *
+ *
  * @see ObjectOutputStream.PutField
  * @see EmulatedFieldsForLoading
  */
@@ -33,7 +33,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
 
     /**
      * Constructs a new instance of EmulatedFieldsForDumping.
-     * 
+     *
      * @param streamClass
      *            a ObjectStreamClass, which describe the fields to be emulated
      *            (names, types, etc).
@@ -48,7 +48,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
      * Return the actual EmulatedFields instance used by the receiver. We have
      * the actual work in a separate class so that the code can be shared. The
      * receiver has to be of a subclass of PutField.
-     * 
+     *
      * @return array of ObjectSlot the receiver represents.
      */
     EmulatedFields emulatedFields() {
@@ -58,7 +58,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
     /**
      * Find and set the byte value of a given field named <code>name</code> in
      * the receiver.
-     * 
+     *
      * @param name
      *            A String, the name of the field to set
      * @param value
@@ -72,7 +72,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
     /**
      * Find and set the char value of a given field named <code>name</code> in
      * the receiver.
-     * 
+     *
      * @param name
      *            A String, the name of the field to set
      * @param value
@@ -86,7 +86,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
     /**
      * Find and set the double value of a given field named <code>name</code>
      * in the receiver.
-     * 
+     *
      * @param name
      *            A String, the name of the field to set
      * @param value
@@ -100,7 +100,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
     /**
      * Find and set the float value of a given field named <code>name</code>
      * in the receiver.
-     * 
+     *
      * @param name
      *            A String, the name of the field to set
      * @param value
@@ -114,7 +114,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
     /**
      * Find and set the int value of a given field named <code>name</code> in
      * the receiver.
-     * 
+     *
      * @param name
      *            A String, the name of the field to set
      * @param value
@@ -128,7 +128,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
     /**
      * Find and set the long value of a given field named <code>name</code> in
      * the receiver.
-     * 
+     *
      * @param name
      *            A String, the name of the field to set
      * @param value
@@ -142,7 +142,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
     /**
      * Find and set the Object value of a given field named <code>name</code>
      * in the receiver.
-     * 
+     *
      * @param name
      *            A String, the name of the field to set
      * @param value
@@ -156,7 +156,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
     /**
      * Find and set the short value of a given field named <code>name</code>
      * in the receiver.
-     * 
+     *
      * @param name
      *            A String, the name of the field to set
      * @param value
@@ -170,7 +170,7 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
     /**
      * Find and set the boolean value of a given field named <code>name</code>
      * in the receiver.
-     * 
+     *
      * @param name
      *            A String, the name of the field to set
      * @param value
@@ -183,10 +183,10 @@ class EmulatedFieldsForDumping extends ObjectOutputStream.PutField {
 
     /**
      * Write the field values to the specified ObjectOutput.
-     * 
+     *
      * @param output
      *            the ObjectOutput
-     * 
+     *
      * @throws IOException
      *             If an IO exception happened when writing the field values.
      */

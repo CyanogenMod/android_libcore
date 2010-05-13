@@ -33,14 +33,14 @@ import org.apache.harmony.security.x501.AttributeValue;
 
 /**
  * Distinguished Name Parser.
- * 
+ *
  * Parses a distinguished name(DN) string according
  * BNF syntax specified in RFC 2253 and RFC 1779
- * 
+ *
  * RFC 2253: Lightweight Directory Access Protocol (v3):
  *           UTF-8 String Representation of Distinguished Names
  *   http://www.ietf.org/rfc/rfc2253.txt
- * 
+ *
  * RFC 1779: A String Representation of Distinguished Names
  *   http://www.ietf.org/rfc/rfc1779.txt
  */
@@ -65,7 +65,7 @@ public class DNParser {
 
     /**
      * Constructs DN parser
-     * 
+     *
      * @param dn - distinguished name string to be parsed
      */
     public DNParser(String dn) throws IOException {
@@ -98,7 +98,7 @@ public class DNParser {
         if (pos >= length) {
             // unexpected end of DN
             throw new IOException(
-                    Messages.getString("security.192")); 
+                    Messages.getString("security.192"));
         }
 
         // mark the end of attribute type
@@ -113,7 +113,7 @@ public class DNParser {
             if (chars[pos] != '=' || pos == length) {
                 // unexpected end of DN
                 throw new IOException(
-                        Messages.getString("security.192")); 
+                        Messages.getString("security.192"));
             }
         }
 
@@ -136,7 +136,7 @@ public class DNParser {
         return new String(chars, beg, end - beg);
     }
 
-    // gets quoted attribute value: QUOTATION *( quotechar / pair ) QUOTATION 
+    // gets quoted attribute value: QUOTATION *( quotechar / pair ) QUOTATION
     protected String quotedAV() throws IOException {
 
         pos++;
@@ -147,7 +147,7 @@ public class DNParser {
             if (pos == length) {
                 // unexpected end of DN
                 throw new IOException(
-                        Messages.getString("security.192")); 
+                        Messages.getString("security.192"));
             }
 
             if (chars[pos] == '"') {
@@ -178,14 +178,14 @@ public class DNParser {
         if (pos + 4 >= length) {
             // encoded byte array  must be not less then 4 c
             throw new IOException(
-                    Messages.getString("security.192")); 
+                    Messages.getString("security.192"));
         }
 
         beg = pos; // store '#' position
         pos++;
         while (true) {
 
-            // check for end of attribute value 
+            // check for end of attribute value
             // looks for space and component separators
             if (pos == length || chars[pos] == '+' || chars[pos] == ','
                     || chars[pos] == ';') {
@@ -213,7 +213,7 @@ public class DNParser {
         int hexLen = end - beg; // skip first '#' char
         if (hexLen < 5 || (hexLen & 1) == 0) {
             throw new IOException(
-                    Messages.getString("security.192")); 
+                    Messages.getString("security.192"));
         }
 
         // get byte encoding from string representation
@@ -250,7 +250,7 @@ public class DNParser {
                 break;
             case ' ':
                 // need to figure out whether space defines
-                // the end of attribute value or not                 
+                // the end of attribute value or not
                 cur = end;
 
                 pos++;
@@ -278,7 +278,7 @@ public class DNParser {
         pos++;
         if (pos == length) {
             throw new IOException(
-                    Messages.getString("security.192")); 
+                    Messages.getString("security.192"));
         }
 
         switch (chars[pos]) {
@@ -296,10 +296,10 @@ public class DNParser {
         case '*':
         case '%':
         case '_':
-            //FIXME: escaping is allowed only for leading or trailing space char 
+            //FIXME: escaping is allowed only for leading or trailing space char
             return chars[pos];
         default:
-            // RFC doesn't explicitly say that escaped hex pair is 
+            // RFC doesn't explicitly say that escaped hex pair is
             // interpreted as UTF-8 char. It only contains an example of such DN.
             return getUTF8();
         }
@@ -361,7 +361,7 @@ public class DNParser {
         if ((position + 1) >= length) {
             // to avoid ArrayIndexOutOfBoundsException
             throw new IOException(
-                    Messages.getString("security.192")); 
+                    Messages.getString("security.192"));
         }
 
         int b1, b2;
@@ -375,7 +375,7 @@ public class DNParser {
             b1 = b1 - 55; // 55 = 'A' - 10
         } else {
             throw new IOException(
-                    Messages.getString("security.192")); 
+                    Messages.getString("security.192"));
         }
 
         b2 = chars[position + 1];
@@ -387,7 +387,7 @@ public class DNParser {
             b2 = b2 - 55; // 55 = 'A' - 10
         } else {
             throw new IOException(
-                    Messages.getString("security.192")); 
+                    Messages.getString("security.192"));
         }
 
         return (b1 << 4) + b2;
@@ -406,7 +406,7 @@ public class DNParser {
         String attValue;
         String attType = nextAT();
         if (attType == null) {
-            return list; //empty list of RDNs 
+            return list; //empty list of RDNs
         }
 
         List atav = new ArrayList();
@@ -416,7 +416,7 @@ public class DNParser {
 
                 //empty Attribute Value
                 atav.add(new AttributeTypeAndValue(attType, new AttributeValue(
-                        "", false))); 
+                        "", false)));
                 list.add(0, atav);
 
                 return list;
@@ -439,7 +439,7 @@ public class DNParser {
             case ';': // compatibility with RFC 1779: semicolon can separate RDNs
                 //empty attribute value
                 atav.add(new AttributeTypeAndValue(attType, new AttributeValue(
-                        "", false))); 
+                        "", false)));
                 break;
             default:
                 attValue = escapedAV();
@@ -457,14 +457,14 @@ public class DNParser {
                 atav = new ArrayList();
             } else if (chars[pos] != '+') {
                 throw new IOException(
-                        Messages.getString("security.192")); 
+                        Messages.getString("security.192"));
             }
 
             pos++;
             attType = nextAT();
             if (attType == null) {
                 throw new IOException(
-                        Messages.getString("security.192")); 
+                        Messages.getString("security.192"));
             }
         }
     }

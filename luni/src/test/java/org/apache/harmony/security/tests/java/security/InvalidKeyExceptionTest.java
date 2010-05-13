@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 @TestTargetClass(InvalidKeyException.class)
 /**
  * Tests for <code>InvalidKeyException</code> class constructors and methods.
- * 
+ *
  */
 public class InvalidKeyExceptionTest extends TestCase {
 

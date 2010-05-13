@@ -30,7 +30,7 @@ public class NoInstanceXMLReader implements XMLReader {
 
     public NoInstanceXMLReader(int i) {
     }
-    
+
     public ContentHandler getContentHandler() {
         return null;
     }

@@ -22,13 +22,13 @@ import javax.xml.parsers.DocumentBuilder;
  * a new attribute node to it using the setAttributeNS method. Check if the
  * attribute was correctly set by invoking the getAttributeNodeNS method and
  * checking the nodeName and nodeValue of the returned nodes.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAttrNS</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class ElementSetAttributeNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -54,7 +54,7 @@ public final class ElementSetAttributeNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -252,7 +252,7 @@ public final class ElementSetAttributeNS extends DOMTestCase {
           doc = (Document) load("staff", builder);
           elementList = doc.getElementsByTagName("employee");
           testAddr = elementList.item(0);
-          
+
           {
              boolean success = false;
              try {

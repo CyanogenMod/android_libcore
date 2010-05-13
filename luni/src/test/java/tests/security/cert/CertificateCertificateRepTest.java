@@ -36,7 +36,7 @@ public class CertificateCertificateRepTest extends TestCase {
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
-        method = "Certificate.CertificateRep.CertificateRep", 
+        method = "Certificate.CertificateRep.CertificateRep",
         args = { String.class, byte[].class}
     )
     public final void testCertificateCertificateRep() {

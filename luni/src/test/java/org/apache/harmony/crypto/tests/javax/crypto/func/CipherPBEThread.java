@@ -40,12 +40,12 @@ public class CipherPBEThread extends CipherThread {
         SecureRandom sr = new SecureRandom();
 
         PBEKeySpec keySpec = new PBEKeySpec("top sicret password".toCharArray());
-        SecretKeyFactory skf = SecretKeyFactory.getInstance(getAlgName()); 
+        SecretKeyFactory skf = SecretKeyFactory.getInstance(getAlgName());
         SecretKey key = skf.generateSecret(keySpec);
 
         Cipher cip = Cipher.getInstance(getAlgName() + "/" + getMode() + "/" +
                 getPadding());
-        
+
         sr.nextBytes(salt);
         PBEParameterSpec parSpec = new PBEParameterSpec(salt, getKeyLength());
 

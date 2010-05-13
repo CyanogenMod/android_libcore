@@ -45,7 +45,7 @@ import java.security.cert.Certificate;
                     notes = "cannot be tested",
                     method = "defineClass",
                     args = {
-                        java.lang.String.class, byte[].class, int.class, 
+                        java.lang.String.class, byte[].class, int.class,
                         int.class, java.security.CodeSource.class}
             ),
             @TestTargetNew(
@@ -55,11 +55,11 @@ import java.security.cert.Certificate;
                     args = {
                         java.lang.String.class, java.nio.ByteBuffer.class,
                         java.security.CodeSource.class}
-            )           
+            )
 })
 /**
  * Unit test for SecureClassLoader.
- * 
+ *
  */
 
 public class SecureClassLoaderTest extends TestCase {
@@ -73,8 +73,8 @@ public class SecureClassLoaderTest extends TestCase {
      * Class src:<br>
      * <p>
      * <code>public class HiWorld {
-     *     public static void main(String[] args) 
-     *         {System.out.println("Hi, world!"); } 
+     *     public static void main(String[] args)
+     *         {System.out.println("Hi, world!"); }
      *    }
      * </code>
      */
@@ -197,7 +197,7 @@ public class SecureClassLoaderTest extends TestCase {
     )
     public void testSecureClassLoader() {
         new MyClassLoader();
-        
+
         class TestSecurityManager extends SecurityManager {
             boolean called;
             @Override
@@ -205,7 +205,7 @@ public class SecureClassLoaderTest extends TestCase {
                 called = true;
                 super.checkCreateClassLoader();
             }
-            
+
             @Override
             public void checkPermission(Permission permission) {
                 if (permission instanceof RuntimePermission) {
@@ -215,7 +215,7 @@ public class SecureClassLoaderTest extends TestCase {
                 }
             }
         }
-        
+
         TestSecurityManager sm = new TestSecurityManager();
         try {
             System.setSecurityManager(sm);
@@ -243,13 +243,13 @@ public class SecureClassLoaderTest extends TestCase {
         URL[] urls = new URL[] { new URL("http://localhost") };
         URLClassLoader ucl = URLClassLoader.newInstance(urls);
         new MyClassLoader(ucl);
-        
+
         try {
             new MyClassLoader(null);
         } catch (Exception e) {
             fail("unexpected exception: " + e);
         }
-        
+
         class TestSecurityManager extends SecurityManager {
             boolean called;
             @Override
@@ -257,7 +257,7 @@ public class SecureClassLoaderTest extends TestCase {
                 called = true;
                 super.checkCreateClassLoader();
             }
-            
+
             @Override
             public void checkPermission(Permission permission) {
                 if (permission instanceof RuntimePermission) {
@@ -267,7 +267,7 @@ public class SecureClassLoaderTest extends TestCase {
                 }
             }
         }
-        
+
         TestSecurityManager sm = new TestSecurityManager();
         try {
             System.setSecurityManager(sm);
@@ -276,7 +276,7 @@ public class SecureClassLoaderTest extends TestCase {
         } catch (SecurityException e) {
             // ok
             assertTrue("checkCreateClassLoader was not called", sm.called);
-            
+
         } finally {
             System.setSecurityManager(null);
         }

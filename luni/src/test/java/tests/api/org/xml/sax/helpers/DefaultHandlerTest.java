@@ -38,9 +38,9 @@ public class DefaultHandlerTest extends TestCase {
      * Note: most of the tests have to check for an empty implementation of the
      * respective methods and, as a result, are somewhat trivial.
      */
-    
+
     private DefaultHandler h = new DefaultHandler();
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "resolveEntity",
@@ -53,7 +53,7 @@ public class DefaultHandlerTest extends TestCase {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }        
+        }
     }
 
     @TestTargetNew(
@@ -66,7 +66,7 @@ public class DefaultHandlerTest extends TestCase {
             h.notationDecl("name", "publicID", "systemID");
         } catch (SAXException e) {
             throw new RuntimeException(e);
-        }        
+        }
     }
 
     @TestTargetNew(
@@ -80,7 +80,7 @@ public class DefaultHandlerTest extends TestCase {
                     "notationName");
         } catch (SAXException e) {
             throw new RuntimeException(e);
-        }        
+        }
     }
 
     @TestTargetNew(
@@ -262,7 +262,7 @@ public class DefaultHandlerTest extends TestCase {
         } catch (SAXException e) {
             // Expected
         }
-        
+
         // No exception
         try {
             h.fatalError(null);
@@ -272,7 +272,7 @@ public class DefaultHandlerTest extends TestCase {
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
     }
 
 }

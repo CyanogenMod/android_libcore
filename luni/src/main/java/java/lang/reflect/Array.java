@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,14 +36,14 @@ package java.lang.reflect;
  * This class provides static methods to create and access arrays dynamically.
  */
 public final class Array {
-    
+
     /**
      * Prevent this class from being instantiated.
      */
     private Array(){
         //do nothing
     }
-    
+
     /**
      * Returns the element of the array at the specified index. This reproduces
      * the effect of {@code array[index]}. If the array component is a primitive
@@ -53,9 +53,9 @@ public final class Array {
      *            the array
      * @param index
      *            the index
-     *            
+     *
      * @return the requested element, possibly wrapped
-     * 
+     *
      * @throws NullPointerException
      *             if the array is null
      * @throws IllegalArgumentException
@@ -67,34 +67,34 @@ public final class Array {
             throws IllegalArgumentException, ArrayIndexOutOfBoundsException {
         if (array instanceof Object[])
             return ((Object[]) array)[index];
-        
+
         if (array instanceof boolean[])
             return ((boolean[]) array)[index] ? Boolean.TRUE : Boolean.FALSE;
-        
+
         if (array instanceof byte[])
             return Byte.valueOf(((byte[]) array)[index]);
-        
+
         if (array instanceof char[])
             return Character.valueOf(((char[]) array)[index]);
-        
+
         if (array instanceof short[])
             return Short.valueOf(((short[]) array)[index]);
-        
+
         if (array instanceof int[])
             return Integer.valueOf(((int[]) array)[index]);
-        
+
         if (array instanceof long[])
             return Long.valueOf(((long[]) array)[index]);
-        
+
         if (array instanceof float[])
             return new Float(((float[]) array)[index]);
-        
+
         if (array instanceof double[])
             return new Double(((double[]) array)[index]);
-        
+
         if (array == null)
             throw new NullPointerException();
-        
+
         throw new IllegalArgumentException("Not an array");
     }
 
@@ -102,14 +102,14 @@ public final class Array {
      * Returns the element of the array at the specified index, converted to a
      * {@code boolean}, if possible. This reproduces the effect of {@code
      * array[index]}
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
-     * 
+     *
      * @return the requested element
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -135,14 +135,14 @@ public final class Array {
      * Returns the element of the array at the specified index, converted to a
      * {@code byte}, if possible. This reproduces the effect of {@code
      * array[index]}
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
-     * 
+     *
      * @return the requested element
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -164,14 +164,14 @@ public final class Array {
      * Returns the element of the array at the specified index, converted to a
      * {@code char}, if possible. This reproduces the effect of {@code
      * array[index]}
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
-     * 
+     *
      * @return the requested element
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -197,14 +197,14 @@ public final class Array {
      * Returns the element of the array at the specified index, converted to a
      * {@code double}, if possible. This reproduces the effect of {@code
      * array[index]}
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
-     * 
+     *
      * @return the requested element
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -226,14 +226,14 @@ public final class Array {
      * Returns the element of the array at the specified index, converted to a
      * {@code float}, if possible. This reproduces the effect of {@code
      * array[index]}
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
-     * 
+     *
      * @return the requested element
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -255,14 +255,14 @@ public final class Array {
      * Returns the element of the array at the specified index, converted to an
      * {@code int}, if possible. This reproduces the effect of {@code
      * array[index]}
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
-     * 
+     *
      * @return the requested element
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -283,12 +283,12 @@ public final class Array {
     /**
      * Returns the length of the array. This reproduces the effect of {@code
      * array.length}
-     * 
+     *
      * @param array
      *            the array
-     * 
+     *
      * @return the length of the array
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -297,34 +297,34 @@ public final class Array {
     public static int getLength(Object array) {
         if (array instanceof Object[])
             return ((Object[]) array).length;
-        
+
         if (array instanceof boolean[])
             return ((boolean[]) array).length;
-        
+
         if (array instanceof byte[])
             return ((byte[]) array).length;
-        
+
         if (array instanceof char[])
             return ((char[]) array).length;
-        
+
         if (array instanceof short[])
             return ((short[]) array).length;
-        
+
         if (array instanceof int[])
             return ((int[]) array).length;
-        
+
         if (array instanceof long[])
             return ((long[]) array).length;
-        
+
         if (array instanceof float[])
             return ((float[]) array).length;
-        
+
         if (array instanceof double[])
             return ((double[]) array).length;
-        
+
         if (array == null)
             throw new NullPointerException();
-        
+
         throw new IllegalArgumentException("Not an array");
     }
 
@@ -332,14 +332,14 @@ public final class Array {
      * Returns the element of the array at the specified index, converted to a
      * {@code long}, if possible. This reproduces the effect of {@code
      * array[index]}
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
-     * 
+     *
      * @return the requested element
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -361,14 +361,14 @@ public final class Array {
      * Returns the element of the array at the specified index, converted to a
      * {@code short}, if possible. This reproduces the effect of {@code
      * array[index]}
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
-     * 
+     *
      * @return the requested element
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -381,7 +381,7 @@ public final class Array {
             throws IllegalArgumentException, ArrayIndexOutOfBoundsException {
         if (array instanceof short[])
             return ((short[]) array)[index];
-        
+
         return getByte(array, index);
     }
 
@@ -390,14 +390,14 @@ public final class Array {
      * dimensions. This reproduces the effect of {@code new
      * componentType[d0][d1]...[dn]} for a dimensions array of { d0, d1, ... ,
      * dn }.
-     * 
+     *
      * @param componentType
      *            the component type of the new array
      * @param dimensions
      *            the dimensions of the new array
-     * 
+     *
      * @return the new array
-     * 
+     *
      * @throws NullPointerException
      *             if the component type is {@code null}
      * @throws NegativeArraySizeException
@@ -410,13 +410,13 @@ public final class Array {
             throws NegativeArraySizeException, IllegalArgumentException {
         if (dimensions.length <= 0 || dimensions.length > 255)
             throw new IllegalArgumentException("Bad number of dimensions");
-        
+
         if (componentType == Void.TYPE)
             throw new IllegalArgumentException();
-        
+
         if (componentType == null)
             throw new NullPointerException();
-        
+
         return createMultiArray(componentType, dimensions);
     }
 
@@ -434,9 +434,9 @@ public final class Array {
      *            the component type of the new array
      * @param size
      *            the length of the new array
-     * 
+     *
      * @return the new array
-     * 
+     *
      * @throws NullPointerException
      *             if the component type is null
      * @throws NegativeArraySizeException
@@ -446,31 +446,31 @@ public final class Array {
             throws NegativeArraySizeException {
         if (!componentType.isPrimitive())
             return createObjectArray(componentType, size);
-        
+
         if (componentType == Boolean.TYPE)
             return new boolean[size];
-        
+
         if (componentType == Byte.TYPE)
             return new byte[size];
-        
+
         if (componentType == Character.TYPE)
             return new char[size];
-        
+
         if (componentType == Short.TYPE)
             return new short[size];
-        
+
         if (componentType == Integer.TYPE)
             return new int[size];
-        
+
         if (componentType == Long.TYPE)
             return new long[size];
-        
+
         if (componentType == Float.TYPE)
             return new float[size];
-        
+
         if (componentType == Double.TYPE)
             return new double[size];
-        
+
         if (componentType == Void.TYPE)
             throw new IllegalArgumentException();
 
@@ -482,19 +482,19 @@ public final class Array {
      */
     native private static Object createObjectArray(Class<?> componentType,
         int length) throws NegativeArraySizeException;
-    
+
     /**
      * Sets the element of the array at the specified index to the value. This
      * reproduces the effect of {@code array[index] = value}. If the array
      * component is a primitive type, the value is automatically unwrapped.
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
      * @param value
      *            the new value
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -508,20 +508,20 @@ public final class Array {
         if (!array.getClass().isArray()) {
             throw new IllegalArgumentException("Not an array type");
         }
-        
+
         if (array instanceof Object[]) {
             if (value != null &&
                 !array.getClass().getComponentType().isInstance(value)) {
                 // incompatible object type for this array
                 throw new IllegalArgumentException("Wrong array type");
             }
-            
+
             ((Object[]) array)[index] = value;
         } else {
             if (value == null) {
                 throw new IllegalArgumentException("Primitive array can't take null values.");
             }
-            
+
             if (value instanceof Boolean)
                 setBoolean(array, index, ((Boolean) value).booleanValue());
             else if (value instanceof Byte)
@@ -545,14 +545,14 @@ public final class Array {
      * Sets the element of the array at the specified index to the {@code
      * boolean} value. This reproduces the effect of {@code array[index] =
      * value}.
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
      * @param value
      *            the new value
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -572,14 +572,14 @@ public final class Array {
     /**
      * Sets the element of the array at the specified index to the {@code byte}
      * value. This reproduces the effect of {@code array[index] = value}.
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
      * @param value
      *            the new value
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -600,14 +600,14 @@ public final class Array {
     /**
      * Set the element of the array at the specified index to the {@code char}
      * value. This reproduces the effect of {@code array[index] = value}.
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
      * @param value
      *            the new value
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -632,14 +632,14 @@ public final class Array {
     /**
      * Set the element of the array at the specified index to the {@code double}
      * value. This reproduces the effect of {@code array[index] = value}.
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
      * @param value
      *            the new value
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -664,14 +664,14 @@ public final class Array {
     /**
      * Set the element of the array at the specified index to the {@code float}
      * value. This reproduces the effect of {@code array[index] = value}.
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
      * @param value
      *            the new value
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -692,14 +692,14 @@ public final class Array {
     /**
      * Set the element of the array at the specified index to the {@code int}
      * value. This reproduces the effect of {@code array[index] = value}.
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
      * @param value
      *            the new value
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -720,14 +720,14 @@ public final class Array {
     /**
      * Set the element of the array at the specified index to the {@code long}
      * value. This reproduces the effect of {@code array[index] = value}.
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
      * @param value
      *            the new value
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException
@@ -748,14 +748,14 @@ public final class Array {
     /**
      * Set the element of the array at the specified index to the {@code short}
      * value. This reproduces the effect of {@code array[index] = value}.
-     * 
+     *
      * @param array
      *            the array
      * @param index
      *            the index
      * @param value
      *            the new value
-     * 
+     *
      * @throws NullPointerException
      *             if the {@code array} is {@code null}
      * @throws IllegalArgumentException

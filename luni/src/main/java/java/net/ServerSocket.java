@@ -145,7 +145,7 @@ public class ServerSocket {
     public Socket accept() throws IOException {
         checkClosedAndCreate(false);
         if (!isBound()) {
-            throw new SocketException(Msg.getString("K031f")); 
+            throw new SocketException(Msg.getString("K031f"));
         }
 
         Socket aSocket = new Socket();
@@ -171,7 +171,7 @@ public class ServerSocket {
      */
     void checkListen(int aPort) {
         if (aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0325", aPort)); 
+            throw new IllegalArgumentException(Msg.getString("K0325", aPort));
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -294,7 +294,7 @@ public class ServerSocket {
             security.checkSetFactory();
         }
         if (factory != null) {
-            throw new SocketException(Msg.getString("K0042")); 
+            throw new SocketException(Msg.getString("K0042"));
         }
         factory = aFactory;
     }
@@ -312,7 +312,7 @@ public class ServerSocket {
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         checkClosedAndCreate(true);
         if (timeout < 0) {
-            throw new IllegalArgumentException(Msg.getString("K0036")); 
+            throw new IllegalArgumentException(Msg.getString("K0036"));
         }
         impl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(timeout));
     }
@@ -327,15 +327,15 @@ public class ServerSocket {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder(64);
-        result.append("ServerSocket["); 
+        result.append("ServerSocket[");
         if (!isBound()) {
-            return result.append("unbound]").toString(); 
+            return result.append("unbound]").toString();
         }
-        return result.append("addr=") 
-                .append(getInetAddress().getHostName()).append("/") 
+        return result.append("addr=")
+                .append(getInetAddress().getHostName()).append("/")
                 .append(getInetAddress().getHostAddress()).append(
-                        ",port=0,localport=") 
-                .append(getLocalPort()).append("]") 
+                        ",port=0,localport=")
+                .append(getLocalPort()).append("]")
                 .toString();
     }
 
@@ -378,19 +378,19 @@ public class ServerSocket {
     public void bind(SocketAddress localAddr, int backlog) throws IOException {
         checkClosedAndCreate(true);
         if (isBound()) {
-            throw new BindException(Msg.getString("K0315")); 
+            throw new BindException(Msg.getString("K0315"));
         }
         int port = 0;
         InetAddress addr = Inet4Address.ANY;
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
                 throw new IllegalArgumentException(Msg.getString(
-                        "K0316", localAddr.getClass())); 
+                        "K0316", localAddr.getClass()));
             }
             InetSocketAddress inetAddr = (InetSocketAddress) localAddr;
             if ((addr = inetAddr.getAddress()) == null) {
                 throw new SocketException(Msg.getString(
-                        "K0317", inetAddr.getHostName())); 
+                        "K0317", inetAddr.getHostName()));
             }
             port = inetAddr.getPort();
         }
@@ -448,7 +448,7 @@ public class ServerSocket {
      */
     private void checkClosedAndCreate(boolean create) throws SocketException {
         if (isClosed()) {
-            throw new SocketException(Msg.getString("K003d")); 
+            throw new SocketException(Msg.getString("K003d"));
         }
 
         if (!create || isCreated) {
@@ -510,7 +510,7 @@ public class ServerSocket {
     public void setReceiveBufferSize(int size) throws SocketException {
         checkClosedAndCreate(true);
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035")); 
+            throw new IllegalArgumentException(Msg.getString("K0035"));
         }
         impl.setOption(SocketOptions.SO_RCVBUF, Integer.valueOf(size));
     }

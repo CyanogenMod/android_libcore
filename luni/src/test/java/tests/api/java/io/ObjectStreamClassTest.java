@@ -25,8 +25,8 @@ import java.io.ObjectOutput;
 import java.io.ObjectStreamClass;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.net.URL;                                                                                                                 
-import java.net.URLClassLoader; 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.lang.reflect.Proxy;
 
 import junit.framework.TestCase;
@@ -44,7 +44,7 @@ public class ObjectStreamClassTest extends TestCase {
 			return serialVersionUID;
 		}
 	}
-    
+
     /**
      * @tests java.io.ObjectStreamClass#forClass()
      */
@@ -53,7 +53,7 @@ public class ObjectStreamClassTest extends TestCase {
         // returned
         ObjectStreamClass osc = ObjectStreamClass.lookup(DummyClass.class);
         assertEquals("forClass returned an object: " + osc.forClass(),
-                DummyClass.class, osc.forClass()); 
+                DummyClass.class, osc.forClass());
     }
 
     /**
@@ -204,9 +204,9 @@ public class ObjectStreamClassTest extends TestCase {
         assertEquals("Enum classes should have no serialized fields", 0,
                 enumFields.length);
     }
-    
+
         /**
-     * @since 1.6 
+     * @since 1.6
      */
     static class NonSerialzableClass {
         private static final long serialVersionUID = 1l;
@@ -214,7 +214,7 @@ public class ObjectStreamClassTest extends TestCase {
             return serialVersionUID;
         }
     }
-    
+
     /**
      * @since 1.6
      */
@@ -229,7 +229,7 @@ public class ObjectStreamClassTest extends TestCase {
         public void writeExternal(ObjectOutput output) throws IOException {
             throw new IOException();
         }
-        
+
 	}
 	
     /**
@@ -243,21 +243,21 @@ public class ObjectStreamClassTest extends TestCase {
         assertEquals("lookup returned wrong class: " + osc.getName(),
                 "tests.api.java.io.ObjectStreamClassTest$DummyClass", osc  // android-changed
                         .getName());
-        
+
         osc = ObjectStreamClass.lookupAny(NonSerialzableClass.class);
         assertEquals("lookup returned wrong class: " + osc.getName(),
                 "tests.api.java.io.ObjectStreamClassTest$NonSerialzableClass", // android-changed
                 osc.getName());
-        
-        osc = ObjectStreamClass.lookupAny(ExternalizableClass.class);        
+
+        osc = ObjectStreamClass.lookupAny(ExternalizableClass.class);
         assertEquals("lookup returned wrong class: " + osc.getName(),
                 "tests.api.java.io.ObjectStreamClassTest$ExternalizableClass", // android-changed
                 osc.getName());
 
         osc = ObjectStreamClass.lookup(NonSerialzableClass.class);
         assertNull(osc);
-        
+
     }
-    
-    
+
+
 }

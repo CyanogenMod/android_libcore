@@ -36,7 +36,7 @@ import org.apache.harmony.security.fortress.PolicyUtils;
  * This class represents an elementary block of a security policy. It associates
  * a CodeSource of an executable code, Principals allowed to execute the code,
  * and a set of granted Permissions.
- * 
+ *
  * @see org.apache.harmony.security.fortress.DefaultPolicy
  */
 public class PolicyEntry {
@@ -44,7 +44,7 @@ public class PolicyEntry {
     // Store CodeSource
     private final CodeSource cs;
 
-    // Array of principals 
+    // Array of principals
     private final Principal[] principals;
 
     // Permissions collection

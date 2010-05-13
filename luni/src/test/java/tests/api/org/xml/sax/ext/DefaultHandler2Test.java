@@ -31,7 +31,7 @@ import java.io.IOException;
 public class DefaultHandler2Test extends TestCase {
 
     private DefaultHandler2 h = new DefaultHandler2();
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "DefaultHandler2",

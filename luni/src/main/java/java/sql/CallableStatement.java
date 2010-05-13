@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,7 +59,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code ARRAY} parameter as a
      * {@code java.sql.Array}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter index, where the first parameter has
      *            index 1.
@@ -72,7 +72,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code ARRAY} parameter as a {@code
      * java.sql.Array}.
-     * 
+     *
      * @param parameterName
      *            the desired parameter's name.
      * @return a {@code java.sql.Array} containing the parameter's value.
@@ -84,12 +84,12 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Returns a new {@link BigDecimal} representation of the JDBC {@code
      * NUMERIC} parameter specified by the input index.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index where the first parameter has index
      *            1.
-     * @return a {@code java.math.BigDecimal} representing the value of the 
-     *         specified parameter. The value {@code null} is returned if 
+     * @return a {@code java.math.BigDecimal} representing the value of the
+     *         specified parameter. The value {@code null} is returned if
      *         the parameter in question is an SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -100,14 +100,14 @@ public interface CallableStatement extends PreparedStatement {
      * Returns a new {@link BigDecimal} representation of the JDBC {@code
      * NUMERIC} parameter specified by the input index. The number of digits
      * after the decimal point is specified by {@code scale}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
      * @param scale
      *            the number of digits after the decimal point to get.
-     * @return a {@code java.math.BigDecimal} representing the value of the 
-     *         specified parameter. The value {@code null} is returned if 
+     * @return a {@code java.math.BigDecimal} representing the value of the
+     *         specified parameter. The value {@code null} is returned if
      *         the parameter in question is an SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -121,11 +121,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Returns a new {@link BigDecimal} representation of the JDBC {@code
      * NUMERIC} parameter specified by the input name.
-     * 
+     *
      * @param parameterName
      *            the desired parameter's name.
-     * @return a {@code java.math.BigDecimal} representing the value of the 
-     *         specified parameter. The value {@code null} is returned if 
+     * @return a {@code java.math.BigDecimal} representing the value of the
+     *         specified parameter. The value {@code null} is returned if
      *         the parameter in question is an SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -135,12 +135,12 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code BLOB} parameter as a {@code
      * java.sql.Blob}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return a {@code java.sql.Blob} representing the value of the 
-     *         specified parameter. The value {@code null} is returned if 
+     * @return a {@code java.sql.Blob} representing the value of the
+     *         specified parameter. The value {@code null} is returned if
      *         the parameter in question is an SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -150,11 +150,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code BLOB} parameter as a {@code
      * java.sql.Blob}.
-     * 
+     *
      * @param parameterName
      *            the desired parameter's name.
-     * @return a {@code java.sql.Blob} representing the value of the 
-     *         specified parameter. The value {@code null} is returned if 
+     * @return a {@code java.sql.Blob} representing the value of the
+     *         specified parameter. The value {@code null} is returned if
      *         the parameter in question is an SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -163,7 +163,7 @@ public interface CallableStatement extends PreparedStatement {
 
     /**
      * Gets the value of a specified JDBC {@code BIT} parameter as a boolean.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
@@ -177,7 +177,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code BIT} parameter as a {@code
      * boolean}.
-     * 
+     *
      * @param parameterName
      *            the desired parameter's name.
      * @return a {@code boolean} representation of the value of the parameter.
@@ -190,11 +190,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code TINYINT} parameter as a {@code
      * byte}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return a {@code byte} representation of the value of the parameter. 
+     * @return a {@code byte} representation of the value of the parameter.
      *            {@code 0} is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -204,7 +204,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code TINYINT} parameter as a Java
      * {@code byte}.
-     * 
+     *
      * @param parameterName
      *            the desired parameter's name.
      * @return a {@code byte} representation of the value of the parameter.
@@ -217,7 +217,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Returns a byte array representation of the indexed JDBC {@code BINARY} or
      * {@code VARBINARY} parameter.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
@@ -231,7 +231,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Returns a byte array representation of the named JDBC {@code BINARY} or
      * {@code VARBINARY} parameter.
-     * 
+     *
      * @param parameterName
      *            the name of the parameter.
      * @return an array of bytes giving the value of the parameter. {@code null}
@@ -244,12 +244,12 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code CLOB} parameter as a {@code
      * java.sql.Clob}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return a {@code java.sql.Clob} representing the value of the 
-     *            parameter. {@code null} is returned if the value is SQL 
+     * @return a {@code java.sql.Clob} representing the value of the
+     *            parameter. {@code null} is returned if the value is SQL
      *            {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -260,7 +260,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code CLOB} parameter as a {@code
      * java.sql.Clob}.
-     * 
+     *
      * @param parameterName
      *            the name of the parameter.
      * @return a {@code java.sql.Clob} with the value of the parameter. {@code
@@ -274,11 +274,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code DATE} parameter as a {@code
      * java.sql.Date}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return the {@code java.sql.Date} representing the parameter's value. 
+     * @return the {@code java.sql.Date} representing the parameter's value.
      *         {@code null} is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -310,7 +310,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code DATE} parameter as a {@code
      * java.sql.Date}.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
      * @return the {@code java.sql.Date} giving the parameter's value. {@code null}
@@ -344,11 +344,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code DOUBLE} parameter as a
      * {@code double}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return the parameter's value as a {@code double}. {@code 0.0} 
+     * @return the parameter's value as a {@code double}. {@code 0.0}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -358,10 +358,10 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code DOUBLE} parameter as a
      * {@code double}.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
-     * @return the parameter's value as a {@code double}. {@code 0.0} 
+     * @return the parameter's value as a {@code double}. {@code 0.0}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if there is a problem accessing the database.
@@ -371,11 +371,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code FLOAT} parameter as a {@code
      * float}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return the parameter's value as a {@code float}. {@code 0.0} 
+     * @return the parameter's value as a {@code float}. {@code 0.0}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -385,10 +385,10 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code FLOAT} parameter as a Java
      * {@code float}.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
-     * @return the parameter's value as a {@code float}. {@code 0.0} 
+     * @return the parameter's value as a {@code float}. {@code 0.0}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if there is a problem accessing the database.
@@ -398,11 +398,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code INTEGER} parameter as an
      * {@code int}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return the {@code int} giving the parameter's value. {@code 0} 
+     * @return the {@code int} giving the parameter's value. {@code 0}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -412,10 +412,10 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code INTEGER} parameter as an
      * {@code int}.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
-     * @return the {@code int} giving the parameter's value. {@code 0} 
+     * @return the {@code int} giving the parameter's value. {@code 0}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -425,11 +425,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code BIGINT} parameter as a
      * {@code long}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return the {@code long} giving the parameter's value. {@code 0} 
+     * @return the {@code long} giving the parameter's value. {@code 0}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -439,10 +439,10 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified JDBC {@code BIGINT} parameter as a
      * {@code long}.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
-     * @return the {@code long} giving the parameter's value. {@code 0} 
+     * @return the {@code long} giving the parameter's value. {@code 0}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -469,12 +469,12 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of the specified parameter as an {@code Object}. The
      * {@code Map} gives the correspondence between SQL types and Java classes.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
      * @param map
-     *            the {@code Map} giving the correspondence between SQL 
+     *            the {@code Map} giving the correspondence between SQL
      *            types and Java classes.
      * @return an Object holding the value of the parameter.
      * @throws SQLException
@@ -487,9 +487,9 @@ public interface CallableStatement extends PreparedStatement {
      * Gets the value of the specified parameter as an {@code Object}.
      * <p>
      * The object type returned is the JDBC type that was registered for
-     * the parameter by an earlier call to {@link #registerOutParameter}. 
-     * If a parameter was registered as a {@code java.sql.Types.OTHER} 
-     * then it may hold abstract types that are particular to the 
+     * the parameter by an earlier call to {@link #registerOutParameter}.
+     * If a parameter was registered as a {@code java.sql.Types.OTHER}
+     * then it may hold abstract types that are particular to the
      * connected database.
      *
      * @param parameterName
@@ -502,10 +502,10 @@ public interface CallableStatement extends PreparedStatement {
     public Object getObject(String parameterName) throws SQLException;
 
     /**
-     * Gets the value of a specified parameter as an {@code Object}. The 
+     * Gets the value of a specified parameter as an {@code Object}. The
      * actual return type is determined by the {@code Map} parameter which
      * gives the correspondence between SQL types and Java classes.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param map
@@ -520,11 +520,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified SQL {@code REF(<structured type>)}
      * parameter as a {@code java.sql.Ref}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return a {@code java.sql.Ref} with the parameter value. {@code null} 
+     * @return a {@code java.sql.Ref} with the parameter value. {@code null}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -534,7 +534,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified SQL {@code REF(<structured type>)}
      * parameter as a {@code java.sql.Ref}.
-     * 
+     *
      * @param parameterName
      *            the desired parameter's name.
      * @return the parameter's value in the form of a {@code
@@ -549,11 +549,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code SMALLINT} parameter as a
      * {@code short}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return the parameter's value as a {@code short}. 0 is returned 
+     * @return the parameter's value as a {@code short}. 0 is returned
      *         if the parameter's value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -563,10 +563,10 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code SMALLINT} parameter as a
      * {@code short}.
-     * 
+     *
      * @param parameterName
      *            the desired parameter's name.
-     * @return the parameter's value as a {@code short}. 0 is returned 
+     * @return the parameter's value as a {@code short}. 0 is returned
      *         if the parameter's value is SQL {@code NULL}.
      * @throws SQLException
      *             if there is a problem accessing the database.
@@ -574,18 +574,18 @@ public interface CallableStatement extends PreparedStatement {
     public short getShort(String parameterName) throws SQLException;
 
     /**
-     * Returns the indexed parameter's value as a {@code String}. The 
-     * parameter value must be one of the JDBC types {@code CHAR}, 
+     * Returns the indexed parameter's value as a {@code String}. The
+     * parameter value must be one of the JDBC types {@code CHAR},
      * {@code VARCHAR} or {@code LONGVARCHAR}.
      * <p>
-     * The {@code String} corresponding to a {@code CHAR} of fixed length 
-     * will be of identical length to the value in the database inclusive 
+     * The {@code String} corresponding to a {@code CHAR} of fixed length
+     * will be of identical length to the value in the database inclusive
      * of padding characters.
      *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return the parameter's value as a {@code String}. {@code null} 
+     * @return the parameter's value as a {@code String}. {@code null}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if there is a problem accessing the database.
@@ -603,7 +603,7 @@ public interface CallableStatement extends PreparedStatement {
      *
      * @param parameterName
      *            the desired parameter's name.
-     * @return the parameter's value as a {@code String}. {@code null} 
+     * @return the parameter's value as a {@code String}. {@code null}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if there is a problem accessing the database.
@@ -613,11 +613,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code TIME} parameter as a {@code
      * java.sql.Time}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return the parameter's value as a {@code java.sql.Time}. 
+     * @return the parameter's value as a {@code java.sql.Time}.
      *         {@code null} is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -627,16 +627,16 @@ public interface CallableStatement extends PreparedStatement {
 
     /**
      * Gets the value of a specified JDBC {@code TIME} parameter as a {@code
-     * java.sql.Time}, using the supplied {@code Calendar} to construct the 
-     * time. The JDBC driver uses the calendar to handle specific timezones 
+     * java.sql.Time}, using the supplied {@code Calendar} to construct the
+     * time. The JDBC driver uses the calendar to handle specific timezones
      * and locales in order to determine {@code Time}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
      * @param cal
      *            the calendar to use in constructing {@code Time}.
-     * @return the parameter's value as a {@code java.sql.Time}. 
+     * @return the parameter's value as a {@code java.sql.Time}.
      *         {@code null} is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -648,7 +648,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code TIME} parameter as a {@code
      * java.sql.Time}.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
      * @return a new {@code java.sql.Time} with the parameter's value. A {@code
@@ -661,10 +661,10 @@ public interface CallableStatement extends PreparedStatement {
 
     /**
      * Gets the value of a specified JDBC {@code TIME} parameter as a {@code
-     * java.sql.Time}, using the supplied {@code Calendar} to construct 
-     * the time. The JDBC driver uses the calendar to handle specific 
+     * java.sql.Time}, using the supplied {@code Calendar} to construct
+     * the time. The JDBC driver uses the calendar to handle specific
      * timezones and locales when creating {@code Time}.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
      * @param cal
@@ -681,7 +681,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Returns the indexed parameter's {@code TIMESTAMP} value as a {@code
      * java.sql.Timestamp}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1
@@ -698,7 +698,7 @@ public interface CallableStatement extends PreparedStatement {
      * Returns the indexed parameter's {@code TIMESTAMP} value as a {@code
      * java.sql.Timestamp}. The JDBC driver uses the supplied {@code Calendar}
      * to handle specific timezones and locales when creating the result.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1
@@ -717,7 +717,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Returns the named parameter's {@code TIMESTAMP} value as a {@code
      * java.sql.Timestamp}.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
      * @return the parameter's value as a {@code java.sql.Timestamp}. A
@@ -733,7 +733,7 @@ public interface CallableStatement extends PreparedStatement {
      * Returns the indexed parameter's {@code TIMESTAMP} value as a {@code
      * java.sql.Timestamp}. The JDBC driver uses the supplied {@code Calendar}
      * to handle specific timezones and locales when creating the result.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
      * @param cal
@@ -751,11 +751,11 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets the value of a specified JDBC {@code DATALINK} parameter as a
      * {@code java.net.URL}.
-     * 
+     *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
-     * @return a {@code URL} giving the parameter's value. {@code null} 
+     * @return a {@code URL} giving the parameter's value. {@code null}
      *         is returned if the value is SQL {@code NULL}.
      * @throws SQLException
      *             if a database error occurs.
@@ -766,7 +766,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Returns the named parameter's JDBC {@code DATALINK} value in a new Java
      * {@code java.net.URL}.
-     * 
+     *
      * @param parameterName
      *            the name of the desired parameter.
      * @return a new {@code java.net.URL} encapsulating the parameter value. A
@@ -783,9 +783,9 @@ public interface CallableStatement extends PreparedStatement {
      * parameters must have their type defined before a stored procedure is
      * executed.
      * <p>
-     * The type supplied in the {@code sqlType} parameter fixes the  
-     * type that will be returned by the getter methods of 
-     * {@code CallableStatement}. 
+     * The type supplied in the {@code sqlType} parameter fixes the
+     * type that will be returned by the getter methods of
+     * {@code CallableStatement}.
      * If a database specific type is expected for a parameter, the Type {@code
      * java.sql.Types.OTHER} should be used. Note that there is another variant
      * of this method for User Defined Types or a {@code REF} type.
@@ -812,9 +812,9 @@ public interface CallableStatement extends PreparedStatement {
      * and {@code DECIMAL}, where there is a need to specify the number of
      * digits expected after the decimal point.
      * <p>
-     * The type supplied in the {@code sqlType} parameter fixes the  
-     * type that will be returned by the getter methods of 
-     * {@code CallableStatement}. 
+     * The type supplied in the {@code sqlType} parameter fixes the
+     * type that will be returned by the getter methods of
+     * {@code CallableStatement}.
      *
      * @param parameterIndex
      *            the parameter number index, where the first parameter has
@@ -832,11 +832,11 @@ public interface CallableStatement extends PreparedStatement {
             throws SQLException;
 
     /**
-     * Defines the Type of a specified {@code OUT} parameter. This variant 
-     * of the method is designed for use with parameters that are 
-     * <i>User Defined Types</i> (UDT) or a {@code REF} type, although it 
+     * Defines the Type of a specified {@code OUT} parameter. This variant
+     * of the method is designed for use with parameters that are
+     * <i>User Defined Types</i> (UDT) or a {@code REF} type, although it
      * can be used for any type.
-     * 
+     *
      * @param paramIndex
      *            the parameter number index, where the first parameter has
      *            index 1.
@@ -856,9 +856,9 @@ public interface CallableStatement extends PreparedStatement {
      * Defines the Type of a specified {@code OUT} parameter. All OUT parameters
      * must have their Type defined before a stored procedure is executed.
      * <p>
-     * The type supplied in the {@code sqlType} parameter fixes the  
-     * type that will be returned by the getter methods of 
-     * {@code CallableStatement}. 
+     * The type supplied in the {@code sqlType} parameter fixes the
+     * type that will be returned by the getter methods of
+     * {@code CallableStatement}.
      * If a database-specific type is expected for a parameter, the Type {@code
      * java.sql.Types.OTHER} should be used. Note that there is another variant
      * of this method for User Defined Types or a {@code REF} type.
@@ -884,9 +884,9 @@ public interface CallableStatement extends PreparedStatement {
      * and {@code DECIMAL}, where there is a need to specify the number of
      * digits expected after the decimal point.
      * <p>
-     * The type supplied in the {@code sqlType} parameter fixes the  
-     * type that will be returned by the getter methods of 
-     * {@code CallableStatement}. 
+     * The type supplied in the {@code sqlType} parameter fixes the
+     * type that will be returned by the getter methods of
+     * {@code CallableStatement}.
      *
      * @param parameterName
      *            the parameter name.
@@ -906,7 +906,7 @@ public interface CallableStatement extends PreparedStatement {
      * the method is designed for use with parameters that are <i>User Defined
      * Types</i> (UDT) or a {@code REF} type, although it can be used for any
      * type.
-     * 
+     *
      * @param parameterName
      *            the parameter name
      * @param sqlType
@@ -947,7 +947,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to a supplied {@code
      * java.math.BigDecimal} value.
-     * 
+     *
      * @param parameterName
      *            the name of the parameter.
      * @param theBigDecimal
@@ -982,7 +982,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to a supplied {@code boolean}
      * value.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theBoolean
@@ -995,7 +995,7 @@ public interface CallableStatement extends PreparedStatement {
 
     /**
      * Sets the value of a specified parameter to a supplied {@code byte} value.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theByte
@@ -1009,7 +1009,7 @@ public interface CallableStatement extends PreparedStatement {
      * Sets the value of a specified parameter to a supplied array of bytes. The
      * array is mapped to {@code VARBINARY} or else {@code LONGVARBINARY} in the
      * connected database.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theBytes
@@ -1023,7 +1023,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to the character content of a
      * {@code Reader} object, with the specified length of character data.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param reader
@@ -1039,7 +1039,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to a supplied {@code
      * java.sql.Date} value.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theDate
@@ -1056,7 +1056,7 @@ public interface CallableStatement extends PreparedStatement {
      * the SQL {@code DATE} in the database. In case that no calendar is
      * supplied, the driver uses the default timezone of the Java virtual
      * machine.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theDate
@@ -1075,7 +1075,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to a supplied {@code double}
      * value.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theDouble
@@ -1089,7 +1089,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to to a supplied {@code float}
      * value.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theFloat
@@ -1102,7 +1102,7 @@ public interface CallableStatement extends PreparedStatement {
 
     /**
      * Sets the value of a specified parameter to a supplied {@code int} value.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theInt
@@ -1114,7 +1114,7 @@ public interface CallableStatement extends PreparedStatement {
 
     /**
      * Sets the value of a specified parameter to a supplied {@code long} value.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theLong
@@ -1128,7 +1128,7 @@ public interface CallableStatement extends PreparedStatement {
      * Sets the value of a specified parameter to SQL {@code NULL}. Don't use
      * this version of {@code setNull} for <i>User Defined Types</i> (UDT) or
      * for {@code REF} type parameters.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param sqlType
@@ -1173,7 +1173,7 @@ public interface CallableStatement extends PreparedStatement {
      * If the object's class implements the interface {@code SQLData}, the JDBC
      * driver calls {@code SQLData.writeSQL} to write it to the SQL data stream.
      * If {@code theObject} implements any of the following interfaces then the
-     * driver is in charge of mapping the value to the appropriate SQL type. 
+     * driver is in charge of mapping the value to the appropriate SQL type.
      * <ul><li>{@link Ref}</li>
      * <li>{@link Struct}</li>
      * <li>{@link Array}</li>
@@ -1198,8 +1198,8 @@ public interface CallableStatement extends PreparedStatement {
      * targetSqlType} before it is sent to the database. If the object has a
      * custom mapping (its class implements the interface {@code SQLData}), the
      * JDBC driver calls the method {@code SQLData.writeSQL} to write it to the
-     * SQL data stream. If {@code theObject} is an instance of one of the 
-     * following types     
+     * SQL data stream. If {@code theObject} is an instance of one of the
+     * following types
      * <ul>
      * <li>{@link Ref}</li>
      * <li>{@link Struct}</li>
@@ -1207,7 +1207,7 @@ public interface CallableStatement extends PreparedStatement {
      * <li>{@link Clob}</li>
      * <li>{@link Blob}</li>
      * </ul>
-     * then the driver is in charge of mapping the value to the appropriate 
+     * then the driver is in charge of mapping the value to the appropriate
      * SQL type and deliver it to the database.
      *
      * @param parameterName
@@ -1238,7 +1238,7 @@ public interface CallableStatement extends PreparedStatement {
      * <li>{@link Clob}</li>
      * <li>{@link Blob}</li>
      * </ul>
-     * then the driver is charge of mapping the value to the appropriate 
+     * then the driver is charge of mapping the value to the appropriate
      * SQL type.
      *
      * @param parameterName
@@ -1260,7 +1260,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to a supplied {@code short}
      * value.
-     * 
+     *
      * @param parameterName
      *            the name of the parameter.
      * @param theShort
@@ -1273,7 +1273,7 @@ public interface CallableStatement extends PreparedStatement {
 
     /**
      * Sets the value of a specified parameter to a supplied {@code String}.
-     * 
+     *
      * @param parameterName
      *            the name of the parameter.
      * @param theString
@@ -1287,7 +1287,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of the parameter named {@code parameterName} to the value
      * of the supplied {@code java.sql.Time}.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theTime
@@ -1302,11 +1302,11 @@ public interface CallableStatement extends PreparedStatement {
      * Sets the value of the parameter named {@code parameterName} to the value
      * of the supplied {@code java.sql.Time} using the supplied calendar.
      * <p>
-     * The driver uses the supplied {@code Calendar} to create the SQL 
-     * {@code TIME} value, which allows it to use a custom timezone - 
-     * otherwise the driver uses the default timezone of the Java 
+     * The driver uses the supplied {@code Calendar} to create the SQL
+     * {@code TIME} value, which allows it to use a custom timezone -
+     * otherwise the driver uses the default timezone of the Java
      * virtual machine.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theTime
@@ -1323,7 +1323,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to a supplied {@code
      * java.sql.Timestamp} value.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theTimestamp
@@ -1360,7 +1360,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Sets the value of a specified parameter to the supplied {@code
      * java.net.URL}.
-     * 
+     *
      * @param parameterName
      *            the parameter name.
      * @param theURL
@@ -1374,7 +1374,7 @@ public interface CallableStatement extends PreparedStatement {
     /**
      * Gets whether the value of the last {@code OUT} parameter read was SQL
      * {@code NULL}.
-     * 
+     *
      * @return true if the last parameter was SQL {@code NULL}, {@code false}
      *         otherwise.
      * @throws SQLException

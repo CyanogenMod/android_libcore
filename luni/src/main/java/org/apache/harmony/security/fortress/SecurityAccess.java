@@ -28,7 +28,7 @@ import java.security.Provider;
 /**
  *
  * This interface provides access to package visible api in java.security
- * 
+ *
  */
 public interface SecurityAccess {
     /**
@@ -36,14 +36,14 @@ public interface SecurityAccess {
      *
      */
     public void renumProviders();
-    
+
     /**
      * Access to Service.getAliases()
      * @param s
      * @return
      */
     public Iterator<String> getAliases(Provider.Service s);
-    
+
     /**
      * Access to Provider.getService(String type)
      * @param p

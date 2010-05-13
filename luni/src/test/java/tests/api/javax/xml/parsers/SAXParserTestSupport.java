@@ -30,7 +30,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Support for SAXParserTest. Shares the element keys used in the golden files. 
+ * Support for SAXParserTest. Shares the element keys used in the golden files.
  * Compares the result of the parser with golden data.
  * Contains the handler classes used to track the output of the parser.
  */
@@ -56,10 +56,10 @@ class SAXParserTestSupport {
     public static final String KEY_WARNING = "warning";
     public static final String KEY_END_ELEMENT = "endElement";
     public static final String KEY_END_PREFIX_MAPPING = "endPrefixMapping";
-    public static final String KEY_IGNORABLE_WHITE_SPACE = 
+    public static final String KEY_IGNORABLE_WHITE_SPACE =
         "ignorableWhitespace";
     public static final String KEY_NOTATION_DECL = "notationDecl";
-    public static final String KEY_PROCESSING_INSTRUCTION = 
+    public static final String KEY_PROCESSING_INSTRUCTION =
         "processingInstruction";
     public static final String KEY_RESOLVE_ENTITY = "resolveEntity";
     public static final String KEY_DOCUMENT_LOCATORS = "documentLocators";
@@ -68,7 +68,7 @@ class SAXParserTestSupport {
     public static final String KEY_START_PREFIX_MAPPING = "startPrefixMapping";
     public static final String KEY_UNPARSED_ENTITY_DECL = "unparsedEntityDecl";
 
-    static String [] KEYS = {KEY_IS_START_DOC, KEY_IS_END_DOC, KEY_TEXT, 
+    static String [] KEYS = {KEY_IS_START_DOC, KEY_IS_END_DOC, KEY_TEXT,
             KEY_ERROR, KEY_FATAL_ERROR, KEY_WARNING, KEY_END_ELEMENT,
             KEY_END_PREFIX_MAPPING, KEY_PROCESSING_INSTRUCTION,
             KEY_SKIPPED_ENTITY, KEY_START_ELEMENT,
@@ -76,14 +76,14 @@ class SAXParserTestSupport {
 
     static {
         String tmp = System.getProperty("java.io.tmpdir", ".");
-        
+
         new File(tmp).mkdirs();
         new File(tmp, XML_WF).mkdirs();
         new File(tmp, XML_NWF).mkdirs();
         new File(tmp, XML_WF_OUT_DH).mkdirs();
         new File(tmp, XML_WF_OUT_HB).mkdirs();
     }
-    
+
     /**
      * Initialize the SAXParserTest reference by filling in the data from the
      * file passed to the method. This will be the reference to compare
@@ -134,12 +134,12 @@ class SAXParserTestSupport {
      * Compares the content of two HashMaps. One map should be the reference
      * containing the correct string for each xml document element and the other
      * should contain the elements filled with output from the parser.
-     * 
+     *
      * @param original the reference
      * @param result the result of the parser
      * @return true if they're equal.
      */
-    public static boolean equalsMaps(HashMap<String, String> original, 
+    public static boolean equalsMaps(HashMap<String, String> original,
             HashMap<String, String> result) {
 
         if(original == null && result == null) {
@@ -149,7 +149,7 @@ class SAXParserTestSupport {
 
             for(int i = 0; i < KEYS.length; i++) {
                 if(!original.get(KEYS[i]).equals(result.get(KEYS[i]))) {
-                    System.out.println("for "+KEYS[i]+": original:" + 
+                    System.out.println("for "+KEYS[i]+": original:" +
                             original.get(KEYS[i]));
                     System.out.println();
                     System.out.println("  result:" + result.get(KEYS[i]));
@@ -280,7 +280,7 @@ class SAXParserTestSupport {
 
         @Override
         public InputSource    resolveEntity(String publicId, String systemId) {
-            // data_resolveEntity.append(publicId + 
+            // data_resolveEntity.append(publicId +
             //            ParsingSupport.SEPARATOR_STRING + systemId);
             // data_resolveEntity.append(ParsingSupport.SEPARATOR_ELEMENT);
             return null;
@@ -329,8 +329,8 @@ class SAXParserTestSupport {
         @Override
         public void unparsedEntityDecl(String name, String publicId,
                 String systemId, String notationName) {
-            // data_unparsedEntityDecl.append(name 
-            //     + ParsingSupport.SEPARATOR_STRING + publicId 
+            // data_unparsedEntityDecl.append(name
+            //     + ParsingSupport.SEPARATOR_STRING + publicId
             //     + ParsingSupport.SEPARATOR_STRING
             //     + systemId + ParsingSupport.SEPARATOR_STRING + notationName);
         }
@@ -435,7 +435,7 @@ class SAXParserTestSupport {
         }
 
         @Override
-        public void notationDecl(String name, String publicId, 
+        public void notationDecl(String name, String publicId,
                 String systemId) {
 
         }

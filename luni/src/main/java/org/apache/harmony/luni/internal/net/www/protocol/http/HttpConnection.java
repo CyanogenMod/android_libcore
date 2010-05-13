@@ -153,7 +153,7 @@ public class HttpConnection {
     public HttpConfiguration getHttpConfiguration() {
         return config;
     }
-    
+
     public SSLSocket getSecureSocket(SSLSocketFactory sslSocketFactory, HostnameVerifier hostnameVerifier) throws IOException {
         if (!usingSecureSocket) {
             String hostName = config.getHostName();
@@ -171,7 +171,7 @@ public class HttpConnection {
     Socket getSocket() {
         return socket;
     }
-    
+
     /*
      * This method has been copied from the Apache Jakarta Commons HttpClient project
      * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424
@@ -231,13 +231,13 @@ public class HttpConnection {
                 || socket.isOutputShutdown());
     }
     // END android-added
-   
+
     /*
      * This field has been copied from the Apache Jakarta Commons HttpClient project
      * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424
      */
     static private final Class SOCKET_TIMEOUT_CLASS = SocketTimeoutExceptionClass();
-    
+
     /*
      * This method has been copied from the Apache Jakarta Commons HttpClient project
      * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424

@@ -45,33 +45,33 @@ import org.apache.harmony.security.Util;
 import org.apache.harmony.security.internal.nls.Messages;
 
 /**
- * This class consist of a number of static methods, which provide a common functionality 
- * for various policy and configuration providers. 
- * 
+ * This class consist of a number of static methods, which provide a common functionality
+ * for various policy and configuration providers.
+ *
  */
 public class PolicyUtils {
 
     // No reason to instantiate
     private PolicyUtils() {}
-    
+
     /**
      * Auxiliary action for opening InputStream from specified location.
      */
     public static class URLLoader implements PrivilegedExceptionAction<InputStream> {
 
-        /** 
-         * URL of target location. 
+        /**
+         * URL of target location.
          */
         public URL location;
 
         /**
-         *  Constructor with target URL parameter. 
+         *  Constructor with target URL parameter.
          */
         public URLLoader(URL location) {
             this.location = location;
         }
 
-        /** 
+        /**
          * Returns InputStream from the target URL.
          */
         public InputStream run() throws Exception {
@@ -79,12 +79,12 @@ public class PolicyUtils {
         }
     }
 
-    /** 
-     * Auxiliary action for accessing system properties in a bundle. 
+    /**
+     * Auxiliary action for accessing system properties in a bundle.
      */
     public static class SystemKit implements PrivilegedAction<Properties> {
 
-        /** 
+        /**
          * Returns system properties.
          */
         public Properties run() {
@@ -92,50 +92,50 @@ public class PolicyUtils {
         }
     }
 
-    /** 
-     * Auxiliary action for accessing specific system property. 
+    /**
+     * Auxiliary action for accessing specific system property.
      */
     public static class SystemPropertyAccessor implements PrivilegedAction<String> {
 
-        /** 
+        /**
          * A key of a required system property.
          */
         public String key;
 
-        /** 
-         * Constructor with a property key parameter. 
+        /**
+         * Constructor with a property key parameter.
          */
         public SystemPropertyAccessor(String key) {
             this.key = key;
         }
 
-        /** 
-         * Handy one-line replacement of 
-         * &quot;provide key and supply action&quot; code block, 
-         * for reusing existing action instance. 
+        /**
+         * Handy one-line replacement of
+         * &quot;provide key and supply action&quot; code block,
+         * for reusing existing action instance.
          */
         public PrivilegedAction<String> key(String key) {
             this.key = key;
             return this;
         }
 
-        /** 
-         * Returns specified system property. 
+        /**
+         * Returns specified system property.
          */
         public String run() {
             return System.getProperty(key);
         }
     }
 
-    /** 
-     * Auxiliary action for accessing specific security property. 
+    /**
+     * Auxiliary action for accessing specific security property.
      */
     public static class SecurityPropertyAccessor implements PrivilegedAction<String> {
 
         private String key;
-        
-        /** 
-         * Constructor with a property key parameter. 
+
+        /**
+         * Constructor with a property key parameter.
          */
         public SecurityPropertyAccessor(String key) {
             super();
@@ -146,29 +146,29 @@ public class PolicyUtils {
             this.key = key;
             return this;
         }
-        
-        /** 
-         * Returns specified security property. 
+
+        /**
+         * Returns specified security property.
          */
         public String run() {
             return Security.getProperty(key);
         }
     }
-    
-    /** 
+
+    /**
      * Auxiliary action for loading a provider by specific security property.
      */
     public static class ProviderLoader<T> implements PrivilegedAction<T> {
 
         private String key;
-        
+
         /**
          * Acceptable provider superclass.
          */
         private Class<T> expectedType;
-        
-        /** 
-         * Constructor taking property key and acceptable provider 
+
+        /**
+         * Constructor taking property key and acceptable provider
          * superclass parameters.
          */
         public ProviderLoader(String key, Class<T> expected) {
@@ -177,18 +177,18 @@ public class PolicyUtils {
             this.expectedType = expected;
         }
 
-        /** 
+        /**
          * Returns provider instance by specified security property.
          * The <code>key</code> should map to a fully qualified classname.
-         * 
-         * @throws SecurityException if no value specified for the key 
-         * in security properties or if an Exception has occurred 
+         *
+         * @throws SecurityException if no value specified for the key
+         * in security properties or if an Exception has occurred
          * during classloading and instantiating.
          */
         public T run() {
             String klassName = Security.getProperty(key);
             if (klassName == null || klassName.length() == 0) {
-                throw new SecurityException(Messages.getString("security.14C", 
+                throw new SecurityException(Messages.getString("security.14C",
                                             key));
             }
             // TODO accurate classloading
@@ -196,7 +196,7 @@ public class PolicyUtils {
                 Class<?> klass = Class.forName(klassName, true,
                         Thread.currentThread().getContextClassLoader());
                 if (expectedType != null && klass.isAssignableFrom(expectedType)){
-                    throw new SecurityException(Messages.getString("security.14D", 
+                    throw new SecurityException(Messages.getString("security.14D",
                                               klassName, expectedType.getName()));
                 }
                 //FIXME expectedType.cast(klass.newInstance());
@@ -208,16 +208,16 @@ public class PolicyUtils {
             catch (Exception e) {
                 // TODO log error ??
                 SecurityException se = new SecurityException(
-                        Messages.getString("security.14E", klassName)); 
+                        Messages.getString("security.14E", klassName));
                 se.initCause(e);
                 throw se;
             }
         }
     }
 
-    /** 
-     * Specific exception to signal that property expansion failed 
-     * due to unknown key. 
+    /**
+     * Specific exception to signal that property expansion failed
+     * due to unknown key.
      */
     public static class ExpansionFailedException extends Exception {
 
@@ -226,15 +226,15 @@ public class PolicyUtils {
          */
         private static final long serialVersionUID = 2869748055182612000L;
 
-        /** 
-         * Constructor with user-friendly message parameter. 
+        /**
+         * Constructor with user-friendly message parameter.
          */
         public ExpansionFailedException(String message) {
             super(message);
         }
 
-        /** 
-         * Constructor with user-friendly message and causing error. 
+        /**
+         * Constructor with user-friendly message and causing error.
          */
         public ExpansionFailedException(String message, Throwable cause) {
             super(message, cause);
@@ -242,18 +242,18 @@ public class PolicyUtils {
     }
 
     /**
-     * Substitutes all entries like ${some.key}, found in specified string, 
+     * Substitutes all entries like ${some.key}, found in specified string,
      * for specified values.
-     * If some key is unknown, throws ExpansionFailedException. 
+     * If some key is unknown, throws ExpansionFailedException.
      * @param str the string to be expanded
-     * @param properties available key-value mappings 
+     * @param properties available key-value mappings
      * @return expanded string
      * @throws ExpansionFailedException
      */
     public static String expand(String str, Properties properties)
             throws ExpansionFailedException {
-        final String START_MARK = "${"; 
-        final String END_MARK = "}"; 
+        final String START_MARK = "${";
+        final String END_MARK = "}";
         final int START_OFFSET = START_MARK.length();
         final int END_OFFSET = END_MARK.length();
 
@@ -268,7 +268,7 @@ public class PolicyUtils {
                     result.replace(start, end + END_OFFSET, value);
                     start += value.length();
                 } else {
-                    throw new ExpansionFailedException(Messages.getString("security.14F", key)); 
+                    throw new ExpansionFailedException(Messages.getString("security.14F", key));
                 }
             }
             start = result.indexOf(START_MARK, start);
@@ -277,7 +277,7 @@ public class PolicyUtils {
     }
 
     /**
-     * Handy shortcut for 
+     * Handy shortcut for
      * <code>expand(str, properties).replace(File.separatorChar, '/')</code>.
      * @see #expand(String, Properties)
      */
@@ -285,16 +285,16 @@ public class PolicyUtils {
             throws ExpansionFailedException {
         return expand(str, properties).replace(File.separatorChar, '/');
     }
-    
+
     /**
      * Normalizes URLs to standard ones, eliminating pathname symbols.
-     * 
+     *
      * @param codebase -
      *            the original URL.
      * @return - the normalized URL.
      */
     public static URL normalizeURL(URL codebase) {
-        if (codebase != null && "file".equals(codebase.getProtocol())) { 
+        if (codebase != null && "file".equals(codebase.getProtocol())) {
             try {
                 if (codebase.getHost().length() == 0) {
                     String path = codebase.getFile();
@@ -319,7 +319,7 @@ public class PolicyUtils {
     /**
      * Converts a file path to URI without accessing file system
      * (like {File#toURI()} does).
-     * 
+     *
      * @param path -
      *            file path.
      * @return - the resulting URI.
@@ -328,17 +328,17 @@ public class PolicyUtils {
     public static URI filePathToURI(String path) throws URISyntaxException {
         path = path.replace(File.separatorChar, '/');
 
-        if (!path.startsWith("/")) { 
-            return new URI("file", null, 
+        if (!path.startsWith("/")) {
+            return new URI("file", null,
                     new StringBuilder(path.length() + 1).append('/')
                             .append(path).toString(), null, null);
         }
-        return new URI("file", null, path, null, null); 
+        return new URI("file", null, path, null, null);
     }
 
     /**
-     * Instances of this interface are intended for resolving  
-     * generalized expansion expressions, of the form ${{protocol:data}}. 
+     * Instances of this interface are intended for resolving
+     * generalized expansion expressions, of the form ${{protocol:data}}.
      * Such functionality is applicable to security policy files, for example.
      * @see #expandGeneral(String, GeneralExpansionHandler)
      */
@@ -356,20 +356,20 @@ public class PolicyUtils {
     }
 
     /**
-     * Substitutes all entries like ${{protocol:data}}, found in specified string, 
+     * Substitutes all entries like ${{protocol:data}}, found in specified string,
      * for values resolved by passed handler.
-     * The data part may be empty, and in this case expression 
+     * The data part may be empty, and in this case expression
      * may have simplified form, as ${{protocol}}.
      * If some entry cannot be resolved, throws ExpansionFailedException;
      * @param str the string to be expanded
-     * @param handler the handler to resolve data denoted by protocol  
+     * @param handler the handler to resolve data denoted by protocol
      * @return expanded string
      * @throws ExpansionFailedException
      */
     public static String expandGeneral(String str,
             GeneralExpansionHandler handler) throws ExpansionFailedException {
-        final String START_MARK = "${{"; 
-        final String END_MARK = "}}"; 
+        final String START_MARK = "${{";
+        final String END_MARK = "}}";
         final int START_OFFSET = START_MARK.length();
         final int END_OFFSET = END_MARK.length();
 
@@ -393,35 +393,35 @@ public class PolicyUtils {
         return result.toString();
     }
 
-    /** 
-     * A key to security properties, deciding whether usage of 
-     * dynamic policy location via system properties is allowed. 
+    /**
+     * A key to security properties, deciding whether usage of
+     * dynamic policy location via system properties is allowed.
      * @see #getPolicyURLs(Properties, String, String)
      */
-    public static final String POLICY_ALLOW_DYNAMIC = "policy.allowSystemProperty"; 
+    public static final String POLICY_ALLOW_DYNAMIC = "policy.allowSystemProperty";
 
-    /** 
-     * A key to security properties, deciding whether expansion of 
-     * system properties is allowed 
+    /**
+     * A key to security properties, deciding whether expansion of
+     * system properties is allowed
      * (in security properties values, policy files, etc).
-     * @see #expand(String, Properties) 
+     * @see #expand(String, Properties)
      */
-    public static final String POLICY_EXPAND = "policy.expandProperties"; 
+    public static final String POLICY_EXPAND = "policy.expandProperties";
 
-    /** 
+    /**
      * Positive value of switching properties.
      */
-    public static final String TRUE = "true"; 
+    public static final String TRUE = "true";
 
-    /** 
+    /**
      * Negative value of switching properties.
      */
-    public static final String FALSE = "false"; 
+    public static final String FALSE = "false";
 
-    /** 
-     * Returns false if current security settings disable to perform 
+    /**
+     * Returns false if current security settings disable to perform
      * properties expansion, true otherwise.
-     * @see #expand(String, Properties)  
+     * @see #expand(String, Properties)
      */
     public static boolean canExpandProperties() {
         return !Util.equalsIgnoreCase(FALSE,AccessController
@@ -432,29 +432,29 @@ public class PolicyUtils {
      * Obtains a list of locations for a policy or configuration provider.
      * The search algorithm is as follows:
      * <ol>
-     * <li> Look in security properties for keys of form <code>prefix + n</code>, 
-     * where <i>n</i> is an integer and <i>prefix</i> is a passed parameter. 
-     * Sequence starts with <code>n=1</code>, and keeps incrementing <i>n</i> 
-     * until next key is not found. <br> 
-     * For each obtained key, try to construct an URL instance. On success, 
+     * <li> Look in security properties for keys of form <code>prefix + n</code>,
+     * where <i>n</i> is an integer and <i>prefix</i> is a passed parameter.
+     * Sequence starts with <code>n=1</code>, and keeps incrementing <i>n</i>
+     * until next key is not found. <br>
+     * For each obtained key, try to construct an URL instance. On success,
      * add the URL to the list; otherwise ignore it.
      * <li>
-     *         If security settings do not prohibit (through 
-     *         {@link #POLICY_ALLOW_DYNAMIC the &quot;policy.allowSystemProperty&quot; property}) 
-     *         to use additional policy location, read the system property under the 
-     *         passed key parameter. If property exists, it may designate a file or 
-     *         an absolute URL. Thus, first check if there is a file with that name, 
-     *         and if so, convert the pathname to URL. Otherwise, try to instantiate   
-     *         an URL directly. If succeeded, append the URL to the list 
+     *         If security settings do not prohibit (through
+     *         {@link #POLICY_ALLOW_DYNAMIC the &quot;policy.allowSystemProperty&quot; property})
+     *         to use additional policy location, read the system property under the
+     *         passed key parameter. If property exists, it may designate a file or
+     *         an absolute URL. Thus, first check if there is a file with that name,
+     *         and if so, convert the pathname to URL. Otherwise, try to instantiate
+     *         an URL directly. If succeeded, append the URL to the list
      * <li>
-     *         If the additional location from the step above was specified to the 
-     *         system via &quot;==&quot; (i.e. starts with '='), discard all URLs above 
+     *         If the additional location from the step above was specified to the
+     *         system via &quot;==&quot; (i.e. starts with '='), discard all URLs above
      *         and use this only URL.
-     * </ol> 
+     * </ol>
      * <b>Note:</b> all property values (both security and system) related to URLs are
-     * subject to {@link #expand(String, Properties) property expansion}, regardless 
-     * of the &quot;policy.expandProperties&quot; security setting.  
-     * 
+     * subject to {@link #expand(String, Properties) property expansion}, regardless
+     * of the &quot;policy.expandProperties&quot; security setting.
+     *
      * @param system system properties
      * @param systemUrlKey key to additional policy location
      * @param securityUrlPrefix prefix to numbered locations in security properties
@@ -474,7 +474,7 @@ public class PolicyUtils {
                 .doPrivileged(security.key(POLICY_ALLOW_DYNAMIC)))) {
             String location = system.getProperty(systemUrlKey);
             if (location != null) {
-                if (location.startsWith("=")) { 
+                if (location.startsWith("=")) {
                     //overrides all other urls
                     dynamicOnly = true;
                     location = location.substring(1);
@@ -504,7 +504,7 @@ public class PolicyUtils {
                 }
             }
         }
-        //next read urls from security.properties 
+        //next read urls from security.properties
         if (!dynamicOnly) {
             int i = 1;
             while (true) {
@@ -533,11 +533,11 @@ public class PolicyUtils {
         return urls.toArray(new URL[urls.size()]);
     }
 
-    /** 
+    /**
      * Converts common-purpose collection of Permissions to PermissionCollection.
      *
      * @param perms a collection containing arbitrary permissions, may be null
-     * @return mutable heterogeneous PermissionCollection containing all Permissions 
+     * @return mutable heterogeneous PermissionCollection containing all Permissions
      * from the specified collection
      */
     public static PermissionCollection toPermissionCollection(
@@ -563,7 +563,7 @@ public class PolicyUtils {
 
     /**
      * Tries to find a suitable constructor and instantiate a new Permission
-     * with specified parameters.  
+     * with specified parameters.
      *
      * @param targetType class of expected Permission instance
      * @param targetName name of expected Permission instance
@@ -607,11 +607,11 @@ public class PolicyUtils {
     /**
      * Checks whether the objects from <code>what</code> array are all
      * presented in <code>where</code> array.
-     * 
-     * @param what first array, may be <code>null</code> 
+     *
+     * @param what first array, may be <code>null</code>
      * @param where  second array, may be <code>null</code>
      * @return <code>true</code> if the first array is <code>null</code>
-     * or if each and every object (ignoring null values) 
+     * or if each and every object (ignoring null values)
      * from the first array has a twin in the second array; <code>false</code> otherwise
      */
     public static boolean matchSubset(Object[] what, Object[] where) {

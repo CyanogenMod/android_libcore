@@ -46,7 +46,7 @@ public abstract class SelectorProvider {
 
     /**
      * Constructs a new {@code SelectorProvider}.
-     * 
+     *
      * @throws SecurityException
      *             if there is a security manager installed that does not permit
      *             the runtime permission labeled "selectorProvider".
@@ -55,7 +55,7 @@ public abstract class SelectorProvider {
         super();
         if (null != System.getSecurityManager()) {
             System.getSecurityManager().checkPermission(
-                    new RuntimePermission("selectorProvider")); 
+                    new RuntimePermission("selectorProvider"));
         }
     }
 
@@ -101,7 +101,7 @@ public abstract class SelectorProvider {
 
     /**
      * Creates a new open {@code DatagramChannel}.
-     * 
+     *
      * @return the new channel.
      * @throws IOException
      *             if an I/O error occurs.
@@ -110,7 +110,7 @@ public abstract class SelectorProvider {
 
     /**
      * Creates a new {@code Pipe}.
-     * 
+     *
      * @return the new pipe.
      * @throws IOException
      *             if an I/O error occurs.
@@ -119,7 +119,7 @@ public abstract class SelectorProvider {
 
     /**
      * Creates a new selector.
-     * 
+     *
      * @return the new selector.
      * @throws IOException
      *             if an I/O error occurs.
@@ -128,7 +128,7 @@ public abstract class SelectorProvider {
 
     /**
      * Creates a new open {@code ServerSocketChannel}.
-     * 
+     *
      * @return the new channel.
      * @throws IOException
      *             if an I/O error occurs.
@@ -138,7 +138,7 @@ public abstract class SelectorProvider {
 
     /**
      * Create a new open {@code SocketChannel}.
-     * 
+     *
      * @return the new channel.
      * @throws IOException
      *             if an I/O error occurs.
@@ -148,7 +148,7 @@ public abstract class SelectorProvider {
     /**
      * Returns the channel inherited from the instance that created this
      * virtual machine.
-     * 
+     *
      * @return the channel.
      * @throws IOException
      *             if an I/O error occurs.
@@ -161,7 +161,7 @@ public abstract class SelectorProvider {
         SecurityManager smngr = System.getSecurityManager();
         if (smngr != null) {
             smngr.checkPermission(
-                    new RuntimePermission("inheritedChannel")); 
+                    new RuntimePermission("inheritedChannel"));
         }
         // END android-added
         if (null == inheritedChannel) {

@@ -27,7 +27,7 @@ import java.security.Provider;
 
 /**
  * Additional class for verification spi-engine classes
- * 
+ *
  */
 
 public class SpiEngUtils {
@@ -39,7 +39,7 @@ public class SpiEngUtils {
 
     /**
      * Verification: is algorithm supported or not
-     * 
+     *
      * @param algorithm
      * @param service
      * @return

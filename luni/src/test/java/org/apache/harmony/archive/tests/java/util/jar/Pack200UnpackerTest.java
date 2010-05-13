@@ -71,14 +71,14 @@ public class Pack200UnpackerTest extends TestCase {
         packer.pack(jf, fos3);
         jf.close();
         fos3.close();
-        
+
         File jarFile1 = Support_Resources.createTempFile("jar_1");
         File jarFile2 = Support_Resources.createTempFile("jar_2");
         File jarFile3 = Support_Resources.createTempFile("jar_3");
         JarOutputStream jos1 = new JarOutputStream(new FileOutputStream(jarFile1));
         JarOutputStream jos2 = new JarOutputStream(new FileOutputStream(jarFile2));
         JarOutputStream jos3 = new JarOutputStream(new FileOutputStream(jarFile3));
-        
+
         unpacker.unpack(packFile1, jos1);
         unpacker.unpack(packFile2, jos2);
         unpacker.unpack(packFile3, jos3);
@@ -89,7 +89,7 @@ public class Pack200UnpackerTest extends TestCase {
 
         assertEquals(jarFile1.length(), jarFile2.length());
         assertEquals(jarFile2.length(), jarFile3.length());
-        
+
         assertEquals(jarEntries, new JarFile(jarFile1).size());
         assertEquals(jarEntries, new JarFile(jarFile2).size());
         assertEquals(jarEntries, new JarFile(jarFile3).size());
@@ -125,7 +125,7 @@ public class Pack200UnpackerTest extends TestCase {
         packer.pack(jf, fos3);
         jf.close();
         fos3.close();
-        
+
         File jarFile1 = Support_Resources.createTempFile("jar_1");
         File jarFile2 = Support_Resources.createTempFile("jar_2");
         File jarFile3 = Support_Resources.createTempFile("jar_3");
@@ -135,7 +135,7 @@ public class Pack200UnpackerTest extends TestCase {
         FileInputStream fis1 = new FileInputStream(packFile1);
         FileInputStream fis2 = new FileInputStream(packFile2);
         FileInputStream fis3 = new FileInputStream(packFile3);
-        
+
         unpacker.unpack(fis1, jos1);
         unpacker.unpack(fis2, jos2);
         unpacker.unpack(fis3, jos3);
@@ -146,7 +146,7 @@ public class Pack200UnpackerTest extends TestCase {
 
         assertEquals(jarFile1.length(), jarFile2.length());
         assertEquals(jarFile2.length(), jarFile3.length());
-        
+
         assertEquals(jarEntries, new JarFile(jarFile1).size());
         assertEquals(jarEntries, new JarFile(jarFile2).size());
         assertEquals(jarEntries, new JarFile(jarFile3).size());
@@ -154,7 +154,7 @@ public class Pack200UnpackerTest extends TestCase {
 
     class MyPCL implements PropertyChangeListener {
         boolean flag = false;
-        
+
         public boolean isCalled() {
             return flag;
         }

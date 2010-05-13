@@ -120,7 +120,7 @@ public class StrictMathTest extends junit.framework.TestCase {
 		assertTrue("Returned incorrect arc tangent: " + answer, answer <= 1.0
 				&& answer >= 9.9999999999999983E-1);
 	}
-    
+
     /**
      * @tests java.lang.StrictMath#cbrt(double)
      */
@@ -155,7 +155,7 @@ public class StrictMathTest extends junit.framework.TestCase {
         assertEquals("Should return 1.7031839360032603E-108",
                 1.7031839360032603E-108, StrictMath.cbrt(Double.MIN_VALUE));
         assertEquals("Should return -0.01", -0.01, StrictMath.cbrt(-0.000001));
-        
+
         try{
             StrictMath.cbrt((Double)null);
             fail("Should throw NullPointerException");
@@ -235,7 +235,7 @@ public class StrictMathTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
 		double d = Double.longBitsToDouble(0xfff8000000000000L);
 		assertEquals(1.0, StrictMath.copySign(1.0, d), 0d);
     }
@@ -299,7 +299,7 @@ public class StrictMathTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
 		float f = Float.intBitsToFloat(0xffc00000);
 		assertEquals(1.0f, StrictMath.copySign(1.0f, f), 0f);
     }
@@ -313,13 +313,13 @@ public class StrictMathTest extends junit.framework.TestCase {
 		assertTrue("Returned incorrect cosine", StrictMath.cos(StrictMath
 				.acos(ADJ / HYP)) == ADJ / HYP);
 	}
-    
+
     /**
      * @tests java.lang.StrictMath#cosh(double)
      */
     @SuppressWarnings("boxing")
     public void test_cosh_D() {
-        // Test for special situations        
+        // Test for special situations
         assertTrue("Should return NaN", Double.isNaN(StrictMath
                 .cosh(Double.NaN)));
         assertEquals("Should return POSITIVE_INFINITY",
@@ -359,13 +359,13 @@ public class StrictMathTest extends junit.framework.TestCase {
 		assertTrue("Incorrect answer returned for larger power", StrictMath
 				.log(StrictMath.abs(StrictMath.exp(5.5D)) - 5.5D) < 10.0D);
 	}
-    
+
     /**
      * @tests java.lang.StrictMath#expm1(double)
      */
     @SuppressWarnings("boxing")
     public void test_expm1_D() {
-        //Test for special cases        
+        //Test for special cases
         assertTrue("Should return NaN", Double.isNaN(StrictMath.expm1(Double.NaN)));
         assertEquals("Should return POSITIVE_INFINITY",
                 Double.POSITIVE_INFINITY, StrictMath.expm1(Double.POSITIVE_INFINITY));
@@ -389,8 +389,8 @@ public class StrictMathTest extends junit.framework.TestCase {
                 Double.POSITIVE_INFINITY, StrictMath.expm1(Double.MAX_VALUE));
         assertEquals("Should return MIN_VALUE", Double.MIN_VALUE, StrictMath
                 .expm1(Double.MIN_VALUE));
-       
-    }    
+
+    }
 
 	/**
 	 * @tests java.lang.StrictMath#floor(double)
@@ -443,7 +443,7 @@ public class StrictMathTest extends junit.framework.TestCase {
             // Expected
         }
     }
-    
+
     /**
      * @tests java.lang.StrictMath#hypot(double, double)
      */
@@ -511,13 +511,13 @@ public class StrictMathTest extends junit.framework.TestCase {
 							.abs(d * 0.00000001));
 		}
 	}
-    
+
     /**
      * @tests java.lang.StrictMath#log10(double)
      */
     @SuppressWarnings("boxing")
     public void test_log10_D() {
-        // Test for special cases        
+        // Test for special cases
         assertTrue("Should return NaN", Double.isNaN(StrictMath
                 .log10(Double.NaN)));
         assertTrue("Should return NaN", Double.isNaN(StrictMath
@@ -923,7 +923,7 @@ public class StrictMathTest extends junit.framework.TestCase {
 		assertEquals("Incorrect rounding of a float",
 				-91, StrictMath.round(-90.89f));
 	}
-    
+
 	/**
      * @tests {@link java.lang.StrictMath#scalb(double, int)}
      * @since 1.6
@@ -1230,7 +1230,7 @@ public class StrictMathTest extends junit.framework.TestCase {
             // Expected
         }
     }
-    
+
     /**
      * @tests java.lang.StrictMath#signum(double)
      */
@@ -1256,7 +1256,7 @@ public class StrictMathTest extends junit.framework.TestCase {
         assertEquals(-1.0, StrictMath.signum(Double.NEGATIVE_INFINITY), 0D);
 
     }
-    
+
     /**
      * @tests java.lang.StrictMath#signum(float)
      */
@@ -1325,7 +1325,7 @@ public class StrictMathTest extends junit.framework.TestCase {
         assertEquals("Should return 4.9E-324", 4.9E-324, StrictMath
                 .sinh(Double.MIN_VALUE), 0D);
     }
-    
+
 	/**
 	 * @tests java.lang.StrictMath#sqrt(double)
 	 */
@@ -1375,7 +1375,7 @@ public class StrictMathTest extends junit.framework.TestCase {
         assertEquals("Should return 4.9E-324", 4.9E-324, StrictMath
                 .tanh(Double.MIN_VALUE), 0D);
     }
-    
+
 	/**
 	 * @tests java.lang.StrictMath#random()
 	 */

@@ -525,7 +525,7 @@ public class X509CertImpl extends X509Certificate {
         // compute and verify the signature
         signature.update(tbsCertificate, 0, tbsCertificate.length);
         if (!signature.verify(certificate.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C")); 
+            throw new SignatureException(Messages.getString("security.15C"));
         }
     }
 
@@ -538,14 +538,14 @@ public class X509CertImpl extends X509Certificate {
                          throws CertificateException, NoSuchAlgorithmException,
                                 InvalidKeyException, NoSuchProviderException,
                                 SignatureException {
-        
+
         // BEGIN android-added
         if (getSigAlgName().endsWith("withRSA")) {
             fastVerify(key);
             return;
         }
         // END android-added
-        
+
         Signature signature =
             Signature.getInstance(getSigAlgName(), sigProvider);
         signature.initVerify(key);
@@ -556,7 +556,7 @@ public class X509CertImpl extends X509Certificate {
         // compute and verify the signature
         signature.update(tbsCertificate, 0, tbsCertificate.length);
         if (!signature.verify(certificate.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C")); 
+            throw new SignatureException(Messages.getString("security.15C"));
         }
     }
 
@@ -565,11 +565,11 @@ public class X509CertImpl extends X509Certificate {
      * Implements a faster RSA verification method that delegates to OpenSSL
      * native code. In all other aspects it behaves just like the ordinary
      * {@link verify} method.
-     * 
+     *
      * @param key The RSA public key to use
-     * 
+     *
      * @throws SignatureException If the verification fails.
-     * @throws InvalidKeyException 
+     * @throws InvalidKeyException
      */
     private void fastVerify(PublicKey key) throws SignatureException,
             InvalidKeyException, NoSuchAlgorithmException {
@@ -577,7 +577,7 @@ public class X509CertImpl extends X509Certificate {
             throw new InvalidKeyException(Messages.getString("security.15C1"));
         }
         RSAPublicKey rsaKey = (RSAPublicKey) key;
-        
+
         String algorithm = getSigAlgName();
 
         // We don't support MD2 anymore. This needs to also check for aliases
@@ -591,14 +591,14 @@ public class X509CertImpl extends X509Certificate {
 
         int i = algorithm.indexOf("with");
         algorithm = algorithm.substring(i + 4) + "-" + algorithm.substring(0, i);
-        
+
         if (tbsCertificate == null) {
             tbsCertificate = tbsCert.getEncoded();
         }
 
         byte[] sig = certificate.getSignatureValue();
         if (!NativeCrypto.verifySignature(tbsCertificate, sig, algorithm, rsaKey)) {
-            throw new SignatureException(Messages.getString("security.15C")); 
+            throw new SignatureException(Messages.getString("security.15C"));
         }
     }
     // END android-added

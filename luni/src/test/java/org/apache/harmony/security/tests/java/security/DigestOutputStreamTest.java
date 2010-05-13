@@ -46,7 +46,7 @@ import dalvik.annotation.TestTargetNew;
 @TestTargetClass(DigestOutputStream.class)
 /**
  * Tests for fields and methods of class <code>DigestInputStream</code>
- * 
+ *
  */
 public class DigestOutputStreamTest extends TestCase {
 
@@ -103,11 +103,11 @@ public class DigestOutputStreamTest extends TestCase {
         dos = new MyDigestOutputStream(null, null);
         assertNull(dos.myOutputStream());
         assertNull(dos.myMessageDigest());
-        
+
         dos = new MyDigestOutputStream(null, md);
         assertNull(dos.myOutputStream());
         assertNotNull(dos.myMessageDigest());
-        
+
         dos = new MyDigestOutputStream(out, null);
         assertNotNull(dos.myOutputStream());
         assertNull(dos.myMessageDigest());
@@ -166,7 +166,7 @@ public class DigestOutputStreamTest extends TestCase {
 
     /**
      * Test #1 for <code>write(int)</code> method<br>
-     * 
+     *
      * Assertion: writes the byte to the output stream<br>
      * Assertion: updates associated digest<br>
      */
@@ -203,7 +203,7 @@ public class DigestOutputStreamTest extends TestCase {
     /**
      * Test #2 for <code>write(int)</code> method<br>
      * Test #1 for <code>on(boolean)</code> method<br>
-     * 
+     *
      * Assertion: <code>write(int)</code> must not update digest if it is off<br>
      * Assertion: <code>on(boolean)</code> turns digest functionality on
      * if <code>true</code> passed as a parameter or off if <code>false</code>
@@ -222,14 +222,14 @@ public class DigestOutputStreamTest extends TestCase {
                 MessageDigest md = MessageDigest.getInstance(algorithmName[k]);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(MY_MESSAGE_LEN);
                 DigestOutputStream dos = new DigestOutputStream(bos, md);
-                
+
                 // turn digest off
                 dos.on(false);
-                
+
                 for (int i=0; i<MY_MESSAGE_LEN; i++) {
                     dos.write(myMessage[i]);
                 }
-                
+
                 // check that bytes have been written correctly
                 assertTrue("write", Arrays.equals(MDGoldenData.getMessage(),
                         bos.toByteArray()));
@@ -246,8 +246,8 @@ public class DigestOutputStreamTest extends TestCase {
 
     /**
      * Test #3 for <code>write(int)</code> method<br>
-     * 
-     * Assertion: broken <code>DigestOutputStream</code>instance: 
+     *
+     * Assertion: broken <code>DigestOutputStream</code>instance:
      * <code>OutputStream</code> not set. <code>write(int)</code> must
      * not work
      */
@@ -280,8 +280,8 @@ public class DigestOutputStreamTest extends TestCase {
 
     /**
      * Test #4 for <code>write(int)</code> method<br>
-     * 
-     * Assertion: broken <code>DigestOutputStream</code>instance: 
+     *
+     * Assertion: broken <code>DigestOutputStream</code>instance:
      * associated <code>MessageDigest</code> not set.
      * <code>write(int)</code> must not work when digest
      * functionality is on
@@ -310,8 +310,8 @@ public class DigestOutputStreamTest extends TestCase {
     /**
      * Test #5 for <code>write(int)</code> method<br>
      * Test #2 for <code>on(boolean)</code> method<br>
-     * 
-     * Assertion: broken <code>DigestOutputStream</code>instance: 
+     *
+     * Assertion: broken <code>DigestOutputStream</code>instance:
      * associated <code>MessageDigest</code> not set.
      * <code>write(int)</code> must work when digest
      * functionality is off
@@ -338,9 +338,9 @@ public class DigestOutputStreamTest extends TestCase {
 
     /**
      * Test #1 for <code>write(byte[],int,int)</code> method<br>
-     * 
+     *
      * Assertion: put bytes into output stream<br>
-     * 
+     *
      * Assertion: updates associated digest<br>
      */
     @TestTargetNew(
@@ -354,10 +354,10 @@ public class DigestOutputStreamTest extends TestCase {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(MY_MESSAGE_LEN);
                 MessageDigest md = MessageDigest.getInstance(algorithmName[k]);
                 DigestOutputStream dos = new DigestOutputStream(bos, md);
-                
+
                 // write message at once
                 dos.write(myMessage, 0, MY_MESSAGE_LEN);
-                
+
                 // check write
                 assertTrue("write", Arrays.equals(myMessage, bos.toByteArray()));
                 // check that associated digest has been updated properly
@@ -373,9 +373,9 @@ public class DigestOutputStreamTest extends TestCase {
 
     /**
      * Test #2 for <code>write(byte[],int,int)</code> method<br>
-     * 
+     *
      * Assertion: put bytes into output stream<br>
-     * 
+     *
      * Assertion: updates associated digest<br>
      */
     @TestTargetNew(
@@ -388,11 +388,11 @@ public class DigestOutputStreamTest extends TestCase {
         assertEquals(0, MY_MESSAGE_LEN % CHUNK_SIZE);
         for (int k=0; k<algorithmName.length; k++) {
             try {
-                
+
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(MY_MESSAGE_LEN);
                 MessageDigest md = MessageDigest.getInstance(algorithmName[k]);
                 DigestOutputStream dos = new DigestOutputStream(bos, md);
-                
+
                 // write message by chunks
                 for (int i=0; i<MY_MESSAGE_LEN/CHUNK_SIZE; i++) {
                     dos.write(myMessage, i*CHUNK_SIZE, CHUNK_SIZE);
@@ -413,9 +413,9 @@ public class DigestOutputStreamTest extends TestCase {
 
     /**
      * Test #3 for <code>write(byte[],int,int)</code> method<br>
-     * 
+     *
      * Assertion: put bytes into output stream<br>
-     * 
+     *
      * Assertion: updates associated digest<br>
      */
     @TestTargetNew(
@@ -428,13 +428,13 @@ public class DigestOutputStreamTest extends TestCase {
                IOException {
         // check precondition
         assertTrue(MY_MESSAGE_LEN % (CHUNK_SIZE+1) != 0);
-        
+
         for (int k=0; k<algorithmName.length; k++) {
             try {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(MY_MESSAGE_LEN);
                 MessageDigest md = MessageDigest.getInstance(algorithmName[k]);
                 DigestOutputStream dos = new DigestOutputStream(bos, md);
-                
+
                 // write message by chunks
                 for (int i=0; i<MY_MESSAGE_LEN/(CHUNK_SIZE+1); i++) {
                     dos.write(myMessage, i*(CHUNK_SIZE+1), CHUNK_SIZE+1);
@@ -458,9 +458,9 @@ public class DigestOutputStreamTest extends TestCase {
 
     /**
      * Test #4 for <code>write(byte[],int,int)</code> method<br>
-     * 
+     *
      * Assertion: put bytes into output stream<br>
-     * 
+     *
      * Assertion: does not update associated digest if digest
      * functionality is off<br>
      */
@@ -480,15 +480,15 @@ public class DigestOutputStreamTest extends TestCase {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(MY_MESSAGE_LEN);
                 MessageDigest md = MessageDigest.getInstance(algorithmName[k]);
                 DigestOutputStream dos = new DigestOutputStream(bos, md);
-                
+
                 // set digest functionality off
                 dos.on(false);
-                
+
                 // write message by chunks
                 for (int i=0; i<MY_MESSAGE_LEN/CHUNK_SIZE; i++) {
                     dos.write(myMessage, i*CHUNK_SIZE, CHUNK_SIZE);
                 }
-                
+
                 // check write
                 assertTrue("write", Arrays.equals(myMessage, bos.toByteArray()));
                 // check that associated digest has not been updated
@@ -552,15 +552,15 @@ public class DigestOutputStreamTest extends TestCase {
         notes = "IOException check.",
         method = "write",
         args = {byte[].class, int.class, int.class}
-    )    
-    public void test_write$BII_7() 
+    )
+    public void test_write$BII_7()
         throws IOException, NoSuchAlgorithmException {
         Support_OutputStream sos = new Support_OutputStream(MY_MESSAGE_LEN);
         MessageDigest md = MessageDigest.getInstance(algorithmName[0]);
         DigestOutputStream dos = new DigestOutputStream(sos, md);
 
         dos.write(myMessage, 0, MY_MESSAGE_LEN);
-        
+
         try {
             // Support_OutputStream throws an IOException if the internal
             // buffer is full, which it should be now.
@@ -587,22 +587,22 @@ public class DigestOutputStreamTest extends TestCase {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(MY_MESSAGE_LEN);
                 MessageDigest md = MessageDigest.getInstance(algorithmName[k]);
                 DigestOutputStream dos = new DigestOutputStream(bos, md);
-                
+
                 // turn digest off
                 dos.on(false);
-                
+
                 for (int i=0; i<MY_MESSAGE_LEN-1; i++) {
                     dos.write(myMessage[i]);
                 }
-                
+
                 // turn digest on
                 dos.on(true);
-                
+
                 // read remaining byte
                 dos.write(myMessage[MY_MESSAGE_LEN-1]);
-                
+
                 byte[] digest = dos.getMessageDigest().digest();
-                
+
                 // check that digest value has been
                 // updated by the last write(int) call
                 assertFalse(
@@ -726,7 +726,7 @@ public class DigestOutputStreamTest extends TestCase {
         public void write(int arg0) throws IOException {
         }
     }
-    
+
     private class MyDigestOutputStream extends DigestOutputStream {
         public MyDigestOutputStream(OutputStream out, MessageDigest digest) {
             super(out, digest);

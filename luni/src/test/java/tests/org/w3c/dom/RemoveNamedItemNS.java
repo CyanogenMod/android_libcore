@@ -5,14 +5,14 @@
 
 
 
- Copyright (c) 2001 World Wide Web Consortium, 
+ Copyright (c) 2001 World Wide Web Consortium,
  (Massachusetts Institute of Technology, Institut National de
- Recherche en Informatique et en Automatique, Keio University).  All 
+ Recherche en Informatique et en Automatique, Keio University).  All
  Rights Reserved.  This program is distributed under the W3C's Software
- Intellectual Property License.  This program is distributed in the 
+ Intellectual Property License.  This program is distributed in the
  hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE.  
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
 
  See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 
@@ -38,19 +38,19 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The "removeNamedItemNS(namespaceURI,localName)" method for a NamedNodeMap
  * should remove a node specified by localName and namespaceURI.
- * 
+ *
  * Retrieve a list of elements with tag name "address". Access the second
  * element from the list and get its attributes. Try to remove the attribute
  * node with local name "domestic" and namespace uri "http://www.usa.com" with
  * method removeNamedItemNS(namespaceURI,localName). Check to see if the node
  * has been removed.
- * 
+ *
  * @author NIST
  * @author Mary Brady
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1074577549">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1074577549</a>
  */
-@TestTargetClass(NamedNodeMap.class) 
+@TestTargetClass(NamedNodeMap.class)
 public final class RemoveNamedItemNS extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -76,7 +76,7 @@ public final class RemoveNamedItemNS extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -116,7 +116,7 @@ public final class RemoveNamedItemNS extends DOMTestCase {
         NodeList elementList;
         Node testAddress;
         NamedNodeMap attributes;
-        
+
         doc = (Document) load("staffNS", builder);
         elementList = doc.getElementsByTagName("address");
         testAddress = elementList.item(1);
@@ -146,7 +146,7 @@ public final class RemoveNamedItemNS extends DOMTestCase {
 //        NodeList n2List;
 //        Node child2;
 //        NamedNodeMap attributes;
-//        
+//
 //        int nodeType;
 //        doc = (Document) load("staffNS", builder);
 //        elementList = doc.getElementsByTagName("gender");

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,7 +52,7 @@ public class PhantomReference<T> extends Reference<T> {
      * reference queue. The reference queue may be {@code null}, but this case
      * does not make any sense, since the reference will never be enqueued, and
      * the {@link #get()} method always returns {@code null}.
-     * 
+     *
      * @param r the referent to track
      * @param q the queue to register the phantom reference object with
      */
@@ -65,7 +65,7 @@ public class PhantomReference<T> extends Reference<T> {
     /**
      * Returns {@code null}.  The referent of a phantom reference is not
      * accessible.
-     * 
+     *
      * @return {@code null} (always)
      */
     @Override

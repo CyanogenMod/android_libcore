@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -58,7 +58,7 @@ public class AccessControlContextTest extends junit.framework.TestCase {
                     throw new SecurityException();
                 }
             }
-        }        
+        }
     }
 
     /**
@@ -107,7 +107,7 @@ public class AccessControlContextTest extends junit.framework.TestCase {
             // ignore
         }
         assertTrue("Test 1: Thread should have permission", result[0]);
-        
+
         //Null parameter checking
         try {
             new AccessControlContext(null);
@@ -141,7 +141,7 @@ public class AccessControlContextTest extends junit.framework.TestCase {
             fail("should not throw Exception");
         }
     }
-    
+
     /**
      * @tests java.security.AccessControlContext#AccessControlContext(java.security.AccessControlContext,
      *        java.security.DomainCombiner)
@@ -217,7 +217,7 @@ public class AccessControlContextTest extends junit.framework.TestCase {
         } catch (AccessControlException e) {
             fail("Should have permission ");
         }
-        
+
         try {
             acc.checkPermission(new FilePermission("test2.file", "execute"));
             fail("SecurityException expected");
@@ -232,7 +232,7 @@ public class AccessControlContextTest extends junit.framework.TestCase {
         } catch (AccessControlException e) {
             // expected
         }
-        
+
         try {
             acc.checkPermission(null);
             fail("NullPointerException expected");
@@ -326,7 +326,7 @@ public class AccessControlContextTest extends junit.framework.TestCase {
         assertNull(acc1.getDomainCombiner());
         assertNotNull(acc2.getDomainCombiner());
         assertNull(acc3.getDomainCombiner());
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(new TestSecurityManager());
         try {

@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,13 +30,13 @@ import java.security.spec.DSAParameterSpec;
 
 @TestTargetClass(DSAPublicKey.class)
 public class DSAPublicKeyTest extends TestCase {
-    
+
     /**
-     * @tests java.security.interfaces.DSAPublicKey 
+     * @tests java.security.interfaces.DSAPublicKey
      * #getY()
      * test covers following use cases
      *   Case 1: check with predefined p, q, g, x
-     *   Case 2: check with random p, q, g, x. It takes some time (up to  
+     *   Case 2: check with random p, q, g, x. It takes some time (up to
      *           minute)
      */
     @TestTargetNew(
@@ -50,7 +50,7 @@ public class DSAPublicKeyTest extends TestCase {
         KeyPair keys = null;
         DSAPrivateKey priv = null;
         DSAPublicKey publ = null;
-        
+
         // Case 1: check with predefined p, q, g, x
         keyGen = KeyPairGenerator.getInstance("DSA");
         keyGen.initialize(new DSAParameterSpec(Util.P, Util.Q, Util.G),
@@ -61,7 +61,7 @@ public class DSAPublicKeyTest extends TestCase {
         publ = (DSAPublicKey) keys.getPublic();
         assertNotNull("Invalid Y value", publ.getY());
 
-        // Case 2: check with random p, q, g, x. It takes some time (up to 
+        // Case 2: check with random p, q, g, x. It takes some time (up to
         // minute)
         keyGen = KeyPairGenerator.getInstance("DSA");
         keys = keyGen.generateKeyPair();

@@ -28,31 +28,31 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
- * This class represents member element of an annotation. 
+ * This class represents member element of an annotation.
  * It consists of name and value, supplemented with element
- * definition information (such as declared type of element). 
+ * definition information (such as declared type of element).
  * <br>The value may be one of the following types:
  * <ul>
  * <li> boxed primitive
  * <li> Class
  * <li> enum constant
  * <li> annotation (nested)
- * <li> one-dimensional array of the above 
- * <li> Throwable 
+ * <li> one-dimensional array of the above
+ * <li> Throwable
  * </ul>
  * The last type is specific for this implementation; a Throwable value
  * means that the error occured during parsing or resolution of corresponding
  * class-data structures and throwing is delayed until the element
- * is requested for value. 
- * 
+ * is requested for value.
+ *
  * @see android.lang.annotation.AnnotationFactory
- * 
+ *
  * @author Alexey V. Varlamov, Serguei S. Zapreyev
  * @version $Revision$
  */
 @SuppressWarnings({"serial"})
 public class AnnotationMember implements Serializable {
-    
+
     /**
      * Tag description of a Throwable value type.
      */
@@ -62,12 +62,12 @@ public class AnnotationMember implements Serializable {
      * Tag description of an array value type.
      */
     protected static final char ARRAY = '[';
-    
+
     /**
      * Tag description of all value types except arrays and Throwables.
      */
     protected static final char OTHER = '*';
-    
+
 //    public static final char INT = 'I';
 //    public static final char CHAR = 'C';
 //    public static final char DOUBLE = 'D';
@@ -81,7 +81,7 @@ public class AnnotationMember implements Serializable {
 //    public static final char ANTN = '@';
 
     private enum DefaultValues {NO_VALUE}
-    
+
     /**
      * Singleton representing missing element value.
      */
@@ -89,20 +89,20 @@ public class AnnotationMember implements Serializable {
 
     protected final String name;
     protected final Object value; // a primitive value is wrapped to the corresponding wrapper class
-    protected final char tag; 
+    protected final char tag;
     // no sense to serialize definition info as it can be changed arbitrarily
-    protected transient Class<?> elementType; 
+    protected transient Class<?> elementType;
     protected transient Method definingMethod;
-    
-    
+
+
     /**
      * Creates a new element with specified name and value.
-     * Definition info will be provided later when this 
+     * Definition info will be provided later when this
      * element becomes actual annotation member.
      * @param name element name, must not be null
-     * @param val element value, should be of addmissible type, 
+     * @param val element value, should be of addmissible type,
      * as specified in the description of this class
-     * 
+     *
      * @see #setDefinition(AnnotationMember)
      */
     public AnnotationMember(String name, Object val) {
@@ -116,21 +116,21 @@ public class AnnotationMember implements Serializable {
             tag = OTHER;
         }
     }
-    
+
     /**
      * Creates the completely defined element.
      * @param name element name, must not be null
-     * @param value element value, should be of addmissible type, 
+     * @param value element value, should be of addmissible type,
      * as specified in the description of this class
      * @param m element-defining method, reflected on the annotation type
-     * @param type declared type of this element 
+     * @param type declared type of this element
      * (return type of the defining method)
      */
     public AnnotationMember(String name, Object val, Class type, Method m) {
         this(name, val);
-        
+
         definingMethod = m;
-        
+
         if (type == int.class) {
             elementType = Integer.class;
         } else if (type == boolean.class) {
@@ -151,7 +151,7 @@ public class AnnotationMember implements Serializable {
             elementType = type;
         }
     }
-    
+
     /**
      * Fills in element's definition info and returns this.
      */
@@ -160,9 +160,9 @@ public class AnnotationMember implements Serializable {
         elementType = copy.elementType;
         return this;
     }
-    
+
     /**
-     * Returns readable description of this annotation value. 
+     * Returns readable description of this annotation value.
      */
     public String toString() {
         if (tag == ARRAY) {
@@ -178,20 +178,20 @@ public class AnnotationMember implements Serializable {
             return name+ "=" +value;
         }
     }
-    
+
     /**
      * Returns true if the specified object represents equal element
-     * (equivalent name-value pair). 
-     * <br> A special case is the contained Throwable value; it is considered 
+     * (equivalent name-value pair).
+     * <br> A special case is the contained Throwable value; it is considered
      * transcendent so no other element would be equal.
      * @return true if passed object is equivalent element representation,
-     * false otherwise 
+     * false otherwise
      * @see #equalArrayValue(Object)
      * @see java.lang.annotation.Annotation#equals(Object)
      */
     public boolean equals(Object obj) {
         if (obj == this) {
-            // not a mere optimization, 
+            // not a mere optimization,
             // this is needed for consistency with hashCode()
             return true;
         }
@@ -210,11 +210,11 @@ public class AnnotationMember implements Serializable {
         }
         return false;
     }
-    
+
     /**
      * Returns true if the contained value and a passed object are equal arrays,
-     * false otherwise. Appropriate overloaded method of Arrays.equals() 
-     * is used for equality testing. 
+     * false otherwise. Appropriate overloaded method of Arrays.equals()
+     * is used for equality testing.
      * @see java.util.Arrays#equals(java.lang.Object[], java.lang.Object[])
      * @return true if the value is array and is equal to specified object,
      * false otherwise
@@ -246,7 +246,7 @@ public class AnnotationMember implements Serializable {
         }
         return false;
     }
-    
+
     /**
      * Computes hash code of this element. The formula is as follows:
      * <code> (name.hashCode() * 127) ^ value.hashCode() </code>
@@ -282,7 +282,7 @@ public class AnnotationMember implements Serializable {
             return hash ^ value.hashCode();
         }
     }
-    
+
     /**
      * Throws contained error (if any) with a renewed stack trace.
      */
@@ -291,8 +291,8 @@ public class AnnotationMember implements Serializable {
             // need to throw cloned exception for thread safety
             // besides it is better to provide actual stack trace
             // rather than recorded during parsing
-            
-            // first check for expected types 
+
+            // first check for expected types
             if (value instanceof TypeNotPresentException) {
                 TypeNotPresentException tnpe = (TypeNotPresentException)value;
                 throw new TypeNotPresentException(tnpe.typeName(), tnpe.getCause());
@@ -318,20 +318,20 @@ public class AnnotationMember implements Serializable {
             ObjectInputStream ois = new ObjectInputStream(bis);
             error = (Throwable)ois.readObject();
             ois.close();
-            
+
             throw error;
         }
     }
-    
+
     /**
      * Validates contained value against its member definition
      * and if ok returns the value.
-     * Otherwise, if the value type mismatches definition 
-     * or the value itself describes an error, 
+     * Otherwise, if the value type mismatches definition
+     * or the value itself describes an error,
      * throws appropriate exception.
-     * <br> Note, this method may return null if this element was constructed 
-     * with such value.  
-     * 
+     * <br> Note, this method may return null if this element was constructed
+     * with such value.
+     *
      * @see #rethrowError()
      * @see #copyValue()
      * @return actual valid value or null if no value
@@ -339,23 +339,23 @@ public class AnnotationMember implements Serializable {
     public Object validateValue() throws Throwable {
         if (tag == ERROR) {
             rethrowError();
-        } 
+        }
         if (value == NO_VALUE) {
             return null;
         }
-        if (elementType == value.getClass() 
+        if (elementType == value.getClass()
                 || elementType.isInstance(value)) { // nested annotation value
             return copyValue();
         } else {
-            throw new AnnotationTypeMismatchException(definingMethod, 
+            throw new AnnotationTypeMismatchException(definingMethod,
                     value.getClass().getName());
         }
 
-    }        
+    }
 
-    
+
     /**
-     * Provides mutation-safe access to contained value. That is, caller is free 
+     * Provides mutation-safe access to contained value. That is, caller is free
      * to modify the returned value, it will not affect the contained data value.
      * @return cloned value if it is mutable or the original immutable value
      */

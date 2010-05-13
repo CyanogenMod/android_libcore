@@ -341,7 +341,7 @@ public class JSONTokenerTest extends TestCase {
         assertEquals("ABC", new JSONTokener("ABC'DEF").nextString('\''));
         assertEquals("ABC", new JSONTokener("ABC'''DEF").nextString('\''));
 
-        // nextString permits slash-escaping of arbitrary characters! 
+        // nextString permits slash-escaping of arbitrary characters!
         assertEquals("ABC", new JSONTokener("A\\B\\C'DEF").nextString('\''));
 
         JSONTokener tokener = new JSONTokener(" 'abc' 'def' \"ghi\"");

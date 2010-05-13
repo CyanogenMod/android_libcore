@@ -122,7 +122,7 @@ public class DeleteFunctionalityTest extends TestCase {
     /**
      * @tests DeleteFunctionalityTest#testDelete2(). Attempts to delete row with
      *        referencing ones and RESTRICT action - expecting SQLException
-     *  TODO foreign key functionality is not supported      
+     *  TODO foreign key functionality is not supported
      */
 /*    public void testDelete2() throws SQLException {
         DatabaseCreator.fillFKStrictTable(conn);
@@ -199,8 +199,8 @@ public class DeleteFunctionalityTest extends TestCase {
     }
 
     /**
-     * @tests DeleteFunctionalityTest#testDelete6(). 
-     *  TODO Foreign key functionality is not supported      
+     * @tests DeleteFunctionalityTest#testDelete6().
+     *  TODO Foreign key functionality is not supported
      */
     @TestTargetNew(
       level = TestLevel.PARTIAL_COMPLETE,

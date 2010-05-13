@@ -53,22 +53,22 @@ import junit.framework.TestCase;
 @TestTargetClass(KeyGenerator.class)
 /**
  * Tests for KeyGenerator constructor and methods
- * 
+ *
  */
 
 public class KeyGeneratorTest extends TestCase {
-    
+
     public static final String srvKeyGenerator = "KeyGenerator";
-    
+
     public static final String validAlgorithmsKeyGenerator [] =
         {"DESede", "DES", "AES", "HmacMD5"};
-    
+
     private static final int [] validKeySizes = { 168, 56, 256, 56};
 
     private static int defaultKeySize = -1;
-    
+
     private static String defaultAlgorithm = null;
-    
+
     private static String defaultProviderName = null;
 
     private static Provider defaultProvider = null;
@@ -89,7 +89,7 @@ public class KeyGeneratorTest extends TestCase {
             if (DEFSupported) {
                 defaultAlgorithm = validAlgorithmsKeyGenerator[i];
                 defaultKeySize = validKeySizes[i];
-                defaultProviderName = defaultProvider.getName();                
+                defaultProviderName = defaultProvider.getName();
                 validValues[0] = defaultAlgorithm;
                 validValues[1] = defaultAlgorithm.toUpperCase();
                 validValues[2] = defaultAlgorithm.toLowerCase();
@@ -97,7 +97,7 @@ public class KeyGeneratorTest extends TestCase {
             }
         }
     }
-    
+
     private KeyGenerator[] createKGs() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -190,7 +190,7 @@ public class KeyGeneratorTest extends TestCase {
     }
 
     /*
-     * Test for <code> getInstance(String algorithm) </code> method 
+     * Test for <code> getInstance(String algorithm) </code> method
      * Assertions: returns KeyGenerator object
      */
     @TestTargetNew(
@@ -212,7 +212,7 @@ public class KeyGeneratorTest extends TestCase {
     }
 
     /*
-     * Test for <code> getInstance(String algorithm, String provider)</code> method 
+     * Test for <code> getInstance(String algorithm, String provider)</code> method
      * Assertions:
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm isnot available
@@ -224,7 +224,7 @@ public class KeyGeneratorTest extends TestCase {
         args = {java.lang.String.class, java.lang.String.class}
     )
     public void testGetInstanceStringString01() throws
-            NoSuchAlgorithmException, IllegalArgumentException, 
+            NoSuchAlgorithmException, IllegalArgumentException,
             NoSuchProviderException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -246,7 +246,7 @@ public class KeyGeneratorTest extends TestCase {
     }
 
     /*
-     * Test for <code> getInstance(String algorithm, String provider)</code> method 
+     * Test for <code> getInstance(String algorithm, String provider)</code> method
      * Assertions:
      * throws IllegalArgumentException when provider is null or empty
      * throws NoSuchProviderException when provider has not be configured
@@ -288,7 +288,7 @@ public class KeyGeneratorTest extends TestCase {
     }
 
     /*
-     * Test for <code> getInstance(String algorithm, String provider)</code> method 
+     * Test for <code> getInstance(String algorithm, String provider)</code> method
      * Assertions: returns KeyGenerator object
      */
     @TestTargetNew(
@@ -312,7 +312,7 @@ public class KeyGeneratorTest extends TestCase {
     }
 
     /*
-     * Test for <code> getInstance(String algorithm, Provider provider)</code> method 
+     * Test for <code> getInstance(String algorithm, Provider provider)</code> method
      * Assertions:
      * throws NullPointerException when algorithm is null
      * throws NoSuchAlgorithmException when algorithm isnot available
@@ -323,7 +323,7 @@ public class KeyGeneratorTest extends TestCase {
         method = "getInstance",
         args = {java.lang.String.class, java.security.Provider.class}
     )
-    public void testGetInstanceStringProvider01() throws NoSuchAlgorithmException, 
+    public void testGetInstanceStringProvider01() throws NoSuchAlgorithmException,
             IllegalArgumentException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -344,7 +344,7 @@ public class KeyGeneratorTest extends TestCase {
         }
     }
     /*
-     * Test for <code> getInstance(String algorithm, Provider provider)</code> method 
+     * Test for <code> getInstance(String algorithm, Provider provider)</code> method
      * Assertions:
      * throws IllegalArgumentException when provider is null
      */
@@ -354,7 +354,7 @@ public class KeyGeneratorTest extends TestCase {
         method = "getInstance",
         args = {java.lang.String.class, java.security.Provider.class}
     )
-    public void testGetInstanceStringProvider02() throws NoSuchAlgorithmException, 
+    public void testGetInstanceStringProvider02() throws NoSuchAlgorithmException,
             IllegalArgumentException {
         if (!DEFSupported) {
             fail(NotSupportMsg);
@@ -369,9 +369,9 @@ public class KeyGeneratorTest extends TestCase {
             }
         }
     }
-    
+
     /*
-     * Test for <code> getInstance(String algorithm, Provider provider)</code> method 
+     * Test for <code> getInstance(String algorithm, Provider provider)</code> method
      * Assertions: returns KeyGenerator object
      */
     @TestTargetNew(
@@ -396,10 +396,10 @@ public class KeyGeneratorTest extends TestCase {
 
     /*
      * Test for <code>init(int keysize)</code> and
-     * <code>init(int keysize, SecureRandom random)</code> methods 
+     * <code>init(int keysize, SecureRandom random)</code> methods
      * Assertion: throws InvalidParameterException if keysize is wrong
-     * 
-     */    
+     *
+     */
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -447,7 +447,7 @@ public class KeyGeneratorTest extends TestCase {
     }
 
     /*
-     * Test for <code>init(AlgorithmParameterSpec params)</code> and 
+     * Test for <code>init(AlgorithmParameterSpec params)</code> and
      * <code>init(AlgorithmParameterSpec params, SecureRandom random)</code> methods
      * Assertion: throws InvalidAlgorithmParameterException when params is null
      */
@@ -496,16 +496,16 @@ public class KeyGeneratorTest extends TestCase {
 
     /*
      * Test for <code>generateKey()</code> and
-     * <code>init(SecureRandom random)</code> methods 
-     * <code>init(int keysize, SecureRandom random)</code> methods 
-     * <code>init(int keysize)</code> methods 
-     * <code>init(AlgorithmParameterSpec params, SecureRandom random)</code> methods 
-     * <code>init(AlgorithmParameterSpec params)</code> methods 
+     * <code>init(SecureRandom random)</code> methods
+     * <code>init(int keysize, SecureRandom random)</code> methods
+     * <code>init(int keysize)</code> methods
+     * <code>init(AlgorithmParameterSpec params, SecureRandom random)</code> methods
+     * <code>init(AlgorithmParameterSpec params)</code> methods
      * Assertions:
-     * initializes KeyGenerator; 
+     * initializes KeyGenerator;
      * returns SecretKey object
-     * 
-     */ 
+     *
+     */
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -549,7 +549,7 @@ public class KeyGeneratorTest extends TestCase {
                     .toUpperCase(), dAl);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -558,12 +558,12 @@ public class KeyGeneratorTest extends TestCase {
     )
     public void test_getAlgorithm() throws NoSuchAlgorithmException {
         KeyGenerator kg = null;
-        
+
         for (int i = 0; i < validAlgorithmsKeyGenerator.length; i++) {
             kg = KeyGenerator.getInstance(validAlgorithmsKeyGenerator[i]);
             assertEquals(validAlgorithmsKeyGenerator[i], kg.getAlgorithm());
         }
-        
+
         kg = new myKeyGenerator(null, null, null);
         assertNull(kg.getAlgorithm());
     }
@@ -576,12 +576,12 @@ public class KeyGeneratorTest extends TestCase {
     )
     public void test_getProvider () throws NoSuchAlgorithmException {
         KeyGenerator kg = null;
-        
+
         for (int i = 0; i < validAlgorithmsKeyGenerator.length; i++) {
             kg = KeyGenerator.getInstance(validAlgorithmsKeyGenerator[i]);
             assertNotNull(kg.getProvider());
         }
-        
+
         kg = new myKeyGenerator(null, null, null);
         assertNull(kg.getProvider());
     }
@@ -604,16 +604,16 @@ public class KeyGeneratorTest extends TestCase {
     public void test_initILjava_security_SecureRandom() throws NoSuchAlgorithmException {
         SecureRandom random = null;
         KeyGenerator kg = null;
-        
+
         for (int i = 0; i < validAlgorithmsKeyGenerator.length; i++) {
             kg = KeyGenerator.getInstance(validAlgorithmsKeyGenerator[i]);
             random = new SecureRandom();
             kg.init(validKeySizes[i], random);
             assertNotNull(kg.getProvider());
         }
-        
+
         kg = KeyGenerator.getInstance(validAlgorithmsKeyGenerator[0]);
-        
+
         try {
             kg.init(5, random);
             fail("InvalidParameterException expected");
@@ -640,7 +640,7 @@ public class KeyGeneratorTest extends TestCase {
     public void test_Ljava_security_SecureRandom() throws NoSuchAlgorithmException {
         SecureRandom random = null;
         KeyGenerator kg = null;
-        
+
         for (int i = 0; i < validAlgorithmsKeyGenerator.length; i++) {
             kg = KeyGenerator.getInstance(validAlgorithmsKeyGenerator[i]);
             random = new SecureRandom();
@@ -655,7 +655,7 @@ public class KeyGeneratorTest extends TestCase {
         method = "init",
         args = {java.security.spec.AlgorithmParameterSpec.class}
     )
-    public void test_initLjava_security_spec_AlgorithmParameterSpec () 
+    public void test_initLjava_security_spec_AlgorithmParameterSpec ()
             throws Exception {
         KeyGenerator kg = null;
 
@@ -666,7 +666,7 @@ public class KeyGeneratorTest extends TestCase {
         iv = new byte[8];
         sr.nextBytes(iv);
         aps = new IvParameterSpec(iv);
-        
+
         for (int i = 0; i < validAlgorithmsKeyGenerator.length; i++) {
             kg = KeyGenerator.getInstance(validAlgorithmsKeyGenerator[i]);
             try {

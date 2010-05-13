@@ -35,7 +35,7 @@ import java.util.Arrays;
 
 /**
  * Tests for <code>EncodedKeySpec</code> class fields and methods.
- * 
+ *
  */
 @TestTargetClass(EncodedKeySpec.class)
 public class EncodedKeySpecTest extends TestCase {
@@ -56,7 +56,7 @@ public class EncodedKeySpecTest extends TestCase {
         assertTrue("wrong encoded key was returned", Arrays.equals(encodedKey,
                 eks.getEncoded()));
         assertEquals("wrong name of encoding format", "My", eks.getFormat());
-        
+
         encodedKey = null;
         try {
             eks = new MyEncodedKeySpec(encodedKey);

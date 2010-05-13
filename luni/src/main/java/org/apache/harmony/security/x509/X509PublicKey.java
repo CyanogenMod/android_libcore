@@ -50,7 +50,7 @@ public class X509PublicKey implements PublicKey {
         StringBuilder buf = new StringBuilder("algorithm = ");
         buf.append(algorithm);
         buf.append(", params unparsed, unparsed keybits = \n");
-        // TODO: implement compatible toString method() 
+        // TODO: implement compatible toString method()
         // buf.append(Arrays.toString(keyBytes));
 
         return buf.toString();

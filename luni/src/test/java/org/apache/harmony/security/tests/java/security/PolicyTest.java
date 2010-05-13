@@ -95,10 +95,10 @@ public class PolicyTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e.getMessage());
         }
-        
+
         try {
             tp = new TestProvider();
-            
+
             tp.getPermissions(cs);
             tp.refresh();
         } catch (Exception e) {
@@ -343,7 +343,7 @@ public class PolicyTest extends TestCase {
                 new FilePermission("test1.file", "delete")));
         assertTrue(policy.implies(pd,
                 new FilePermission(s + "tmp" + s + "test" + s + "test1.file", "read")));
-        
+
         assertFalse(policy.implies(pd, new FilePermission("aFile.file",
                 "delete")));
         assertFalse(policy.implies(pd, new FilePermission("hello.file",
@@ -360,13 +360,13 @@ public class PolicyTest extends TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         try {
             assertFalse(policy.implies(null, new FilePermission("test1.file", "delete")));
         } catch (NullPointerException e) {
             fail("Unexpected NullPointerException");
         }
-        
+
         try {
             assertFalse(policy.implies(null, null));
         } catch (NullPointerException e) {
@@ -394,7 +394,7 @@ public class PolicyTest extends TestCase {
     public void testPropertyExpansion() throws Exception {
 
         // Regression for HARMONY-1963 and HARMONY-2910
-        
+
         String policyFile = getClass().getClassLoader().getResource(
                 "PolicyTest.txt").toString();
         String oldJavaPolicy = System.getProperty(JAVA_SECURITY_POLICY);
@@ -426,7 +426,7 @@ public class PolicyTest extends TestCase {
 
     /**
      * Asserts codeBase property expansion in policy file
-     * 
+     *
      * @param codeSourceURL -
      *            code source for policy object
      * @param codeBaseURL -

@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +41,7 @@ import tests.api.java.util.HashMapTest.ReusableKey;
 import tests.support.Support_MapTest2;
 import tests.support.Support_UnmodifiableCollectionTest;
 
-@TestTargetClass(Hashtable.class) 
+@TestTargetClass(Hashtable.class)
 public class HashtableTest extends junit.framework.TestCase {
 
     private Hashtable ht10;
@@ -93,7 +93,7 @@ public class HashtableTest extends junit.framework.TestCase {
         assertNull("Empty hashtable access", empty.get("nothing"));
         empty.put("something", "here");
         assertTrue("cannot get element", empty.get("something") == "here");
-        
+
         try {
             new Hashtable(-1);
             fail("IllegalArgumentException expected");
@@ -120,14 +120,14 @@ public class HashtableTest extends junit.framework.TestCase {
         assertNull("Empty hashtable access", empty.get("nothing"));
         empty.put("something", "here");
         assertTrue("cannot get element", empty.get("something") == "here");
-        
+
         try {
             new Hashtable(-1, 0.75f);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new Hashtable(0, -0.75f);
             fail("IllegalArgumentException expected");
@@ -157,7 +157,7 @@ public class HashtableTest extends junit.framework.TestCase {
                 ht.get("Gah") == firstVal);
         assertTrue("b) Incorrect Hashtable constructed",
                 ht.get("Ooga") == secondVal);
-        
+
         try {
             new Hashtable(null);
             fail("NullPointerException expected");
@@ -247,7 +247,7 @@ public class HashtableTest extends junit.framework.TestCase {
         // java.util.Hashtable.contains(java.lang.Object)
         assertTrue("Element not found", ht10.contains("Val 7"));
         assertTrue("Invalid element found", !ht10.contains("ZZZZZZZZZZZZZZZZ"));
-        
+
         try {
             ht10.contains(null);
             fail("NullPointerException expected");
@@ -271,7 +271,7 @@ public class HashtableTest extends junit.framework.TestCase {
 
         assertTrue("Failed to find key", htfull.containsKey("FKey 4"));
         assertTrue("Failed to find key", !htfull.containsKey("FKey 99"));
-        
+
         try {
             htfull.containsKey(null);
             fail("NullPointerException expected");
@@ -455,7 +455,7 @@ public class HashtableTest extends junit.framework.TestCase {
 //
 //        k.setKey(12);
 //        assertNull(h2.get(k));
-//        
+//
 //        try {
 //            h2.get(null);
 //            fail("NullPointerException expected");
@@ -600,7 +600,7 @@ public class HashtableTest extends junit.framework.TestCase {
 //        assertEquals("Not synchronized",
 //                "java.util.Collections$SynchronizedSet", s.getClass().getName());
 // END android-removed
-        
+
         Map map = new Hashtable(101);
         map.put(new Integer(1), "1");
         map.put(new Integer(102), "102");
@@ -814,7 +814,7 @@ public class HashtableTest extends junit.framework.TestCase {
         Object k = h.remove("FKey 0");
         assertTrue("Remove failed", !h.containsKey("FKey 0") || k == null);
         assertNull(h.remove("FKey 0"));
-        
+
         try {
             h.remove(null);
             fail("NullPointerException expected");
@@ -876,7 +876,7 @@ public class HashtableTest extends junit.framework.TestCase {
     public void test_toString() {
         // Test for method java.lang.String java.util.Hashtable.toString()
         Hashtable h = new Hashtable();
-        assertEquals("Incorrect toString for Empty table", 
+        assertEquals("Incorrect toString for Empty table",
                 "{}", h.toString());
 
         h.put("one", "1");
@@ -908,7 +908,7 @@ public class HashtableTest extends junit.framework.TestCase {
 //        assertEquals("Not synchronized",
 //                "java.util.Collections$SynchronizedCollection", c.getClass().getName());
 // END android-removed
-        
+
         Hashtable myHashtable = new Hashtable();
         for (int i = 0; i < 100; i++)
             myHashtable.put(new Integer(i), new Integer(i));
@@ -921,7 +921,7 @@ public class HashtableTest extends junit.framework.TestCase {
                 "Removing from the values collection should remove from the original map",
                 !myHashtable.containsValue(new Integer(0)));
     }
-    
+
     /**
      * Regression Test for JIRA 2181
      */
@@ -944,12 +944,12 @@ public class HashtableTest extends junit.framework.TestCase {
         Hashtable<String,String> hashtable = new Hashtable<String,String>();
         hashtable.put("my.nonexistent.prop", "AAA");
         hashtable.put( "parse.error", "BBB" );
-        Iterator<Map.Entry<String,String>> iterator = 
+        Iterator<Map.Entry<String,String>> iterator =
             hashtable.entrySet().iterator();
         while(iterator.hasNext())
         {
             Map.Entry entry = iterator.next();
-            final Object value = entry.getValue();           
+            final Object value = entry.getValue();
             if(value.equals("AAA"))
             {
                iterator.remove();
@@ -970,7 +970,7 @@ public class HashtableTest extends junit.framework.TestCase {
             flag = true;
             super.rehash();
         }
-        
+
         public boolean isRehashed() {
             return flag;
         }
@@ -984,7 +984,7 @@ public class HashtableTest extends junit.framework.TestCase {
     )
     public void test_rehash() {
         Mock_Hashtable mht = new Mock_Hashtable(5);
-        
+
         assertFalse(mht.isRehashed());
         for(int i = 0; i < 10; i++) {
             mht.put(i, "New value");
@@ -995,7 +995,7 @@ public class HashtableTest extends junit.framework.TestCase {
     protected Hashtable hashtableClone(Hashtable s) {
         return (Hashtable) s.clone();
     }
-    
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.

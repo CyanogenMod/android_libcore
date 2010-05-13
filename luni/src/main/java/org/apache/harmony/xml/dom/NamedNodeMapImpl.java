@@ -37,7 +37,7 @@ import java.util.List;
 public class NamedNodeMapImpl implements NamedNodeMap {
 
     private Class<?> type;
-    
+
     private List<NodeImpl> list;
 
     NamedNodeMapImpl(Class<?> type) {
@@ -61,10 +61,10 @@ public class NamedNodeMapImpl implements NamedNodeMap {
                 return i;
             }
         }
-        
+
         return -1;
     }
-    
+
     private int indexOfItemNS(String namespaceURI, String localName) {
         for (int i = 0; i < list.size(); i++) {
             NodeImpl node = list.get(i);
@@ -72,19 +72,19 @@ public class NamedNodeMapImpl implements NamedNodeMap {
                 return i;
             }
         }
-        
+
         return -1;
     }
 
     public Node getNamedItem(String name) {
         int i = indexOfItem(name);
-        
+
         return (i == -1 ? null : item(i));
     }
 
     public Node getNamedItemNS(String namespaceURI, String localName) {
         int i = indexOfItemNS(namespaceURI, localName);
-        
+
         return (i == -1 ? null : item(i));
     }
 
@@ -94,7 +94,7 @@ public class NamedNodeMapImpl implements NamedNodeMap {
 
     public Node removeNamedItem(String name) throws DOMException {
         int i = indexOfItem(name);
-        
+
         if (i == -1) {
             throw new DOMException(DOMException.NOT_FOUND_ERR, null);
         }
@@ -105,7 +105,7 @@ public class NamedNodeMapImpl implements NamedNodeMap {
     public Node removeNamedItemNS(String namespaceURI, String localName)
             throws DOMException {
         int i = indexOfItemNS(namespaceURI, localName);
-        
+
         if (i == -1) {
             throw new DOMException(DOMException.NOT_FOUND_ERR, null);
         }
@@ -118,7 +118,7 @@ public class NamedNodeMapImpl implements NamedNodeMap {
         if (!type.isAssignableFrom(arg.getClass())) {
             throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, null);
         }
-        
+
         // All nodes in the map must belong to the same document.
         if (list.size() != 0) {
             Document document = list.get(0).document;
@@ -134,11 +134,11 @@ public class NamedNodeMapImpl implements NamedNodeMap {
 //        }
 
         int i = indexOfItem(arg.getNodeName());
-        
+
         if (i != -1) {
             list.remove(i);
         }
-        
+
         list.add((NodeImpl)arg);
         return arg;
     }
@@ -148,7 +148,7 @@ public class NamedNodeMapImpl implements NamedNodeMap {
         if (!type.isAssignableFrom(arg.getClass())) {
             throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, null);
         }
-        
+
         // All nodes in the map must belong to the same document.
         if (list.size() != 0) {
             Document document = list.get(0).document;
@@ -164,11 +164,11 @@ public class NamedNodeMapImpl implements NamedNodeMap {
 //        }
 
         int i = indexOfItemNS(arg.getNamespaceURI(), arg.getLocalName());
-        
+
         if (i != -1) {
             list.remove(i);
         }
-        
+
         list.add((NodeImpl)arg);
         return arg;
     }

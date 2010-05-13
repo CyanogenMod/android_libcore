@@ -17,7 +17,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE. */
- 
+
 
 package org.kxml2.io;
 
@@ -31,7 +31,7 @@ public class KXmlSerializer implements XmlSerializer {
     // BEGIN android-added
     /** size (in characters) for the write buffer */
     private static final int WRITE_BUFFER_SIZE = 500;
-    // END android-added   
+    // END android-added
 
     // BEGIN android-changed
     // (Guarantee that the writer is always buffered.)
@@ -102,9 +102,9 @@ public class KXmlSerializer implements XmlSerializer {
                 case '\n':
                 case '\r':
                 case '\t':
-                    if(quot == -1) 
+                    if(quot == -1)
                         writer.write(c);
-                    else 
+                    else
                         writer.write("&#"+((int) c)+';');
                     break;
                 case '&' :

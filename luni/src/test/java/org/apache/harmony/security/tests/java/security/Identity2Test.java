@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -102,7 +102,7 @@ public class Identity2Test extends junit.framework.TestCase {
             fail(e.toString());
         }
     }
-     
+
     public static class CertificateImpl implements java.security.Certificate {
 
         X509Certificate cert;
@@ -180,7 +180,7 @@ public class Identity2Test extends junit.framework.TestCase {
     ByteArrayInputStream certArray2 = new ByteArrayInputStream(certificate2
             .getBytes());
 
-    
+
     public static class IdentitySubclass extends Identity {
         private static final long serialVersionUID = 1L;
 
@@ -249,7 +249,7 @@ public class Identity2Test extends junit.framework.TestCase {
         String[] str = {"test", "", "!@#$%^&*()", "identity name"};
         IdentityScopeSubclass iss = new IdentityScopeSubclass("name");
         IdentitySubclass is;
-        
+
         for (int i = 0; i < str.length; i++) {
             try {
                 is = new IdentitySubclass(str[i], new IdentityScopeSubclass());
@@ -260,14 +260,14 @@ public class Identity2Test extends junit.framework.TestCase {
                 fail("Unexpected exception for parameter " + str[i]);
             }
         }
-        
+
         try {
             is = new IdentitySubclass(nameNull, new IdentityScopeSubclass());
         } catch (NullPointerException npe) {
         } catch (Exception e) {
             fail("Incorrect exception " + e + " was thrown");
         }
-        
+
         try {
             is = new IdentitySubclass("test", iss);
             is = new IdentitySubclass("test", iss);
@@ -401,11 +401,11 @@ public class Identity2Test extends junit.framework.TestCase {
         } catch (KeyManagementException e) {
             // Expected.
         }
-        assertEquals("Test 2: Certificate should not have been removed.", 
+        assertEquals("Test 2: Certificate should not have been removed.",
                 1, sub.certificates().length);
 
         sub.removeCertificate(certImpl);
-        assertEquals("Test 3: Certificate has not been removed.", 
+        assertEquals("Test 3: Certificate has not been removed.",
                 0, sub.certificates().length);
 
         // Removing the same certificate a second time should fail.
@@ -519,7 +519,7 @@ public class Identity2Test extends junit.framework.TestCase {
                assertEquals("The 2 hash codes are not equal", sub.hashCode(), sub2
                        .hashCode());
     }
-    
+
     /**
      * @tests java.security.Identity#setInfo(String)
      */
@@ -541,9 +541,9 @@ public class Identity2Test extends junit.framework.TestCase {
                 fail("Unexpected exception for parameter " + info[i]);
             }
         }
-           
+
     }
-    
+
     /**
      * @tests java.security.Identity#setPublicKey(PublicKey key)
      */
@@ -559,7 +559,7 @@ public class Identity2Test extends junit.framework.TestCase {
            sub.setPublicKey(pubKey);
            PublicKey returnedPubKey = sub.getPublicKey();
            assertEquals("Wrong PublicKey returned", pubKey, returnedPubKey);
-           
+
            sub.setPublicKey(null);
            assertEquals("Wrong PublicKey returned", null, sub.getPublicKey());
     }

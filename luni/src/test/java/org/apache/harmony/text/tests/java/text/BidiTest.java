@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,7 @@ import java.text.AttributedString;
 import java.text.Bidi;
 import java.util.Arrays;
 
-@TestTargetClass(Bidi.class) 
+@TestTargetClass(Bidi.class)
 public class BidiTest extends TestCase {
 
     Bidi bd;
@@ -98,7 +98,7 @@ public class BidiTest extends TestCase {
         bd = new Bidi("a".toCharArray(), 0, null, 0, 1,
                 Bidi.DIRECTION_RIGHT_TO_LEFT);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -556,7 +556,7 @@ public class BidiTest extends TestCase {
         assertFalse(bd.isMixed());
         assertFalse(bd.isRightToLeft());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies IllegalArgumentException.",
@@ -1641,7 +1641,7 @@ public class BidiTest extends TestCase {
         assertTrue(bd.isMixed());
         assertFalse(bd.isRightToLeft());
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -1719,7 +1719,7 @@ public class BidiTest extends TestCase {
         assertTrue(line.isMixed());
         assertFalse(line.isRightToLeft());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies IllegalArgumentException.",
@@ -1886,7 +1886,7 @@ public class BidiTest extends TestCase {
         Bidi.reorderVisually(new byte[] { 2, 1, 0, 1 }, 1, s, 0, 3);
         assertEquals("[a, b, c, d]", Arrays.asList(s).toString());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies exceptions.",
@@ -2010,23 +2010,23 @@ public class BidiTest extends TestCase {
             assertEquals(0, bd.getRunLevel(bd.getRunCount()));
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
-        }        
-        
+        }
+
         bd = new Bidi("text", Bidi.DIRECTION_RIGHT_TO_LEFT);
         try {
             assertEquals(2, bd.getRunLevel(0));
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
-        }     
-        
+        }
+
         bd = new Bidi("text", Bidi.DIRECTION_DEFAULT_RIGHT_TO_LEFT);
         try {
             assertEquals(0, bd.getRunLevel(0));
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
-        }          
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -2040,7 +2040,7 @@ public class BidiTest extends TestCase {
         assertEquals(0, bd.getRunStart(0));
         assertEquals(1, bd.getRunStart(1));
         assertEquals(2, bd.getRunStart(2));
-        
+
         String LTR = "\u0061\u0062";
         String RTL = "\u05DC\u05DD";
         String newLine = "\n";
@@ -2053,9 +2053,9 @@ public class BidiTest extends TestCase {
         final int count = bi.getRunCount();
         for (int i = 0; i < count; i++) {
             assertEquals(expectedRuns[i][0], bi.getRunStart(i));
-        }        
+        }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",

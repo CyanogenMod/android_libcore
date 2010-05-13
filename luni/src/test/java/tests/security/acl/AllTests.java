@@ -36,7 +36,7 @@ public class AllTests {
         suite.addTestSuite(NotOwnerExceptionTest.class);
         suite.addTestSuite(IPermissionTest.class);
         suite.addTestSuite(IGroupTest.class);
-        suite.addTestSuite(IOwnerTest.class);        
+        suite.addTestSuite(IOwnerTest.class);
         suite.addTestSuite(IAclEntryTest.class);
         suite.addTestSuite(IAclTest.class);
 

@@ -14,7 +14,7 @@ import org.w3c.dom.NamedNodeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 
-@TestTargetClass(Attr.class) 
+@TestTargetClass(Attr.class)
 public final class AttrGetOwnerElement extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -38,7 +38,7 @@ public final class AttrGetOwnerElement extends DOMTestCase {
         super.tearDown();
     }
 
-// Assumes validation.    
+// Assumes validation.
 //    public void testGetOwnerElement1() throws Throwable {
 //        Document doc;
 //        Attr attr;

@@ -47,9 +47,9 @@ public class InputStreamHelper {
         AccessController.doPrivileged(new PrivilegedAction<Object>() {
             public Object run() {
                 try {
-                    f[0] = ByteArrayInputStream.class.getDeclaredField("buf"); 
+                    f[0] = ByteArrayInputStream.class.getDeclaredField("buf");
                     f[0].setAccessible(true);
-                    f[1] = ByteArrayInputStream.class.getDeclaredField("pos"); 
+                    f[1] = ByteArrayInputStream.class.getDeclaredField("pos");
                     f[1].setAccessible(true);
                 } catch (NoSuchFieldException nsfe) {
                     throw new InternalError(nsfe.getLocalizedMessage());

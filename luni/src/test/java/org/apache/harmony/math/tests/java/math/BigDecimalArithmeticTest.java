@@ -26,7 +26,7 @@ import java.math.RoundingMode;
 
 /**
  * Class:  java.math.BigDecimal
- * Methods: add, subtract, multiply, divide 
+ * Methods: add, subtract, multiply, divide
  */
 public class BigDecimalArithmeticTest extends TestCase {
 
@@ -787,7 +787,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Divide: rounding mode is ROUND_UP, result is negative
      */
@@ -855,7 +855,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Divide: rounding mode is ROUND_FLOOR, result is positive
      */
@@ -889,7 +889,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Divide: rounding mode is ROUND_CEILING, result is positive
      */
@@ -923,7 +923,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Divide: rounding mode is ROUND_HALF_UP, result is positive; distance = -1
      */
@@ -957,7 +957,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Divide: rounding mode is ROUND_HALF_UP, result is positive; distance = 1
      */
@@ -991,7 +991,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Divide: rounding mode is ROUND_HALF_UP, result is negative; equidistant
      */
@@ -1008,7 +1008,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Divide: rounding mode is ROUND_HALF_DOWN, result is positive; distance = -1
      */
@@ -1042,7 +1042,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Divide: rounding mode is ROUND_HALF_DOWN, result is positive; distance = 1
      */
@@ -1127,7 +1127,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Divide: rounding mode is ROUND_HALF_EVEN, result is positive; distance = 1
      */
@@ -1670,7 +1670,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect value", c, result.toString());
         assertEquals("incorrect scale", resScale, result.scale());
     }
-    
+
     /**
      * Non-trivial tests using MathContext:
      */
@@ -1749,7 +1749,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect remainder value", rem, result[1].toString());
         assertEquals("incorrect remainder scale", remScale, result[1].scale());
     }
-    
+
     /**
      * divideAndRemainder(BigDecimal)
      */
@@ -1819,7 +1819,7 @@ public class BigDecimalArithmeticTest extends TestCase {
         assertEquals("incorrect remainder value", rem, result[1].toString());
         assertEquals("incorrect remainder scale", remScale, result[1].scale());
     }
-    
+
     /**
      * Non-trivial tests using MathContext:
      */

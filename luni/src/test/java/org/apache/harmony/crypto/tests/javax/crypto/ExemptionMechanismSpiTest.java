@@ -48,7 +48,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>ExemptionMechanismSpi</code> class constructors and
  * methods.
- * 
+ *
  */
 public class ExemptionMechanismSpiTest extends TestCase {
 class Mock_ExemptionMechanismSpi extends MyExemptionMechanismSpi{
@@ -71,27 +71,27 @@ class Mock_ExemptionMechanismSpi extends MyExemptionMechanismSpi{
     @Override
     protected void engineInit(Key key) throws InvalidKeyException, ExemptionMechanismException {
         super.engineInit(key);
-        
+
     }
 
     @Override
     protected void engineInit(Key key, AlgorithmParameterSpec params) throws InvalidKeyException, InvalidAlgorithmParameterException, ExemptionMechanismException {
         super.engineInit(key, params);
-        
+
     }
 
     @Override
     protected void engineInit(Key key, AlgorithmParameters params) throws InvalidKeyException, InvalidAlgorithmParameterException, ExemptionMechanismException {
         super.engineInit(key, params);
-        
+
     }
-    
+
 }
-    
+
     /**
      * Test for <code>ExemptionMechanismSpi</code> constructor Assertion:
      * constructs ExemptionMechanismSpi
-     * @throws Exception 
+     * @throws Exception
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -104,11 +104,11 @@ class Mock_ExemptionMechanismSpi extends MyExemptionMechanismSpi{
         int len = MyExemptionMechanismSpi.getLength();
         byte [] bbRes = emSpi.engineGenExemptionBlob();
         assertEquals("Incorrect length", bbRes.length, len);
-        assertEquals("Incorrect result", 
+        assertEquals("Incorrect result",
                 emSpi.engineGenExemptionBlob(new byte[1], len), len);
         assertEquals("Incorrect output size", 10, emSpi.engineGetOutputSize(100));
         Key key = null;
-        AlgorithmParameters params = null;        
+        AlgorithmParameters params = null;
         AlgorithmParameterSpec parSpec = null;
         try {
             emSpi.engineInit(key);
@@ -145,7 +145,7 @@ class Mock_ExemptionMechanismSpi extends MyExemptionMechanismSpi{
         emSpi.engineInit(key);
         emSpi.engineInit(key, AlgorithmParameters.getInstance("DH"));
         emSpi.engineInit(key, new RSAKeyGenParameterSpec(10, new BigInteger ("10")));
-        
+
         assertEquals("Incorrect result", 10, emSpi.engineGetOutputSize(100));
     }
 }

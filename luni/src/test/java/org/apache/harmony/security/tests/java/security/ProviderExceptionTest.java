@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 @TestTargetClass(ProviderException.class)
 /**
  * Tests for <code>ProviderException</code> class constructors and methods.
- * 
+ *
  */
 public class ProviderExceptionTest extends TestCase {
 

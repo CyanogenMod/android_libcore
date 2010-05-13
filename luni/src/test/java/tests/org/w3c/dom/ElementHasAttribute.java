@@ -15,13 +15,13 @@ import javax.xml.parsers.DocumentBuilder;
  * The method hasAttribute returns true when an attribute with a given name is
  * specified on this element or has a default value, false otherwise Invoke the
  * hasAttribute method to check if the documentElement has attributres.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeHasAttrs">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeHasAttrs</a>
  */
-@TestTargetClass(Element.class) 
+@TestTargetClass(Element.class)
 public final class ElementHasAttribute extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -47,7 +47,7 @@ public final class ElementHasAttribute extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */
@@ -91,7 +91,7 @@ public final class ElementHasAttribute extends DOMTestCase {
         Element element;
         boolean state;
         Attr attribute;
-        
+
         doc = (Document) load("staff", builder);
         element = doc.createElement("address");
         attribute = doc.createAttribute("domestic");
@@ -112,7 +112,7 @@ public final class ElementHasAttribute extends DOMTestCase {
         Element element;
         boolean state;
         Attr attribute;
-        
+
         doc = (Document) load("staff", builder);
         element = doc.createElement("address");
         attribute = doc.createAttribute("domestic");

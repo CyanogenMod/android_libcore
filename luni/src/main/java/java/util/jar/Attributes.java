@@ -59,94 +59,94 @@ public class Attributes implements Cloneable, Map<Object, Object> {
         /**
          * The class path (a main attribute).
          */
-        public static final Name CLASS_PATH = new Name("Class-Path"); 
+        public static final Name CLASS_PATH = new Name("Class-Path");
 
         /**
          * The version of the manifest file (a main attribute).
          */
-        public static final Name MANIFEST_VERSION = new Name("Manifest-Version"); 
+        public static final Name MANIFEST_VERSION = new Name("Manifest-Version");
 
         /**
          * The main class's name (for stand-alone applications).
          */
-        public static final Name MAIN_CLASS = new Name("Main-Class"); 
+        public static final Name MAIN_CLASS = new Name("Main-Class");
 
         /**
          * Defines the signature version of the JAR file.
          */
         public static final Name SIGNATURE_VERSION = new Name(
-                "Signature-Version"); 
+                "Signature-Version");
 
         /**
          * The {@code Content-Type} manifest attribute.
          */
-        public static final Name CONTENT_TYPE = new Name("Content-Type"); 
+        public static final Name CONTENT_TYPE = new Name("Content-Type");
 
         /**
          * The {@code Sealed} manifest attribute which may have the value
          * {@code true} for sealed archives.
          */
-        public static final Name SEALED = new Name("Sealed"); 
+        public static final Name SEALED = new Name("Sealed");
 
         /**
          * The {@code Implementation-Title} attribute whose value is a string
          * that defines the title of the extension implementation.
          */
         public static final Name IMPLEMENTATION_TITLE = new Name(
-                "Implementation-Title"); 
+                "Implementation-Title");
 
         /**
          * The {@code Implementation-Version} attribute defining the version of
          * the extension implementation.
          */
         public static final Name IMPLEMENTATION_VERSION = new Name(
-                "Implementation-Version"); 
+                "Implementation-Version");
 
         /**
          * The {@code Implementation-Vendor} attribute defining the organization
          * that maintains the extension implementation.
          */
         public static final Name IMPLEMENTATION_VENDOR = new Name(
-                "Implementation-Vendor"); 
+                "Implementation-Vendor");
 
         /**
          * The {@code Specification-Title} attribute defining the title of the
          * extension specification.
          */
         public static final Name SPECIFICATION_TITLE = new Name(
-                "Specification-Title"); 
+                "Specification-Title");
 
         /**
          * The {@code Specification-Version} attribute defining the version of
          * the extension specification.
          */
         public static final Name SPECIFICATION_VERSION = new Name(
-                "Specification-Version"); 
+                "Specification-Version");
 
         /**
          * The {@code Specification-Vendor} attribute defining the organization
          * that maintains the extension specification.
          */
         public static final Name SPECIFICATION_VENDOR = new Name(
-                "Specification-Vendor"); 
+                "Specification-Vendor");
 
         /**
          * The {@code Extension-List} attribute defining the extensions that are
          * needed by the applet.
          */
-        public static final Name EXTENSION_LIST = new Name("Extension-List"); 
+        public static final Name EXTENSION_LIST = new Name("Extension-List");
 
         /**
          * The {@code Extension-Name} attribute which defines the unique name of
          * the extension.
          */
-        public static final Name EXTENSION_NAME = new Name("Extension-Name"); 
+        public static final Name EXTENSION_NAME = new Name("Extension-Name");
 
         /**
          * The {@code Extension-Installation} attribute.
          */
         public static final Name EXTENSION_INSTALLATION = new Name(
-                "Extension-Installation"); 
+                "Extension-Installation");
 
         /**
          * The {@code Implementation-Vendor-Id} attribute specifies the vendor
@@ -154,7 +154,7 @@ public class Attributes implements Cloneable, Map<Object, Object> {
          * implementation from a specific vendor.
          */
         public static final Name IMPLEMENTATION_VENDOR_ID = new Name(
-                "Implementation-Vendor-Id"); 
+                "Implementation-Vendor-Id");
 
         /**
          * The {@code Implementation-URL} attribute specifying a URL that can be
@@ -162,9 +162,9 @@ public class Attributes implements Cloneable, Map<Object, Object> {
          * required version is not already installed.
          */
         public static final Name IMPLEMENTATION_URL = new Name(
-                "Implementation-URL"); 
+                "Implementation-URL");
 
-        static final Name NAME = new Name("Name"); 
+        static final Name NAME = new Name("Name");
 
         /**
          * A String which must satisfy the following EBNF grammar to specify an
@@ -218,7 +218,7 @@ public class Attributes implements Cloneable, Map<Object, Object> {
         @Override
         public String toString() {
             try {
-                return new String(name, "ISO-8859-1"); 
+                return new String(name, "ISO-8859-1");
             } catch (UnsupportedEncodingException iee) {
                 throw new InternalError(iee.getLocalizedMessage());
             }

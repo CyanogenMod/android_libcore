@@ -45,7 +45,7 @@ public class AllTests {
         suite.addTestSuite(URLConnectionTest.class);
         suite.addTestSuite(URLEncoderTest.class);
         suite.addTestSuite(URLTest.class);
-        
+
         return suite;
     }
 }

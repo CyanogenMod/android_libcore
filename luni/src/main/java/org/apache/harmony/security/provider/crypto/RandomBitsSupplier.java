@@ -59,7 +59,7 @@ public class RandomBitsSupplier implements SHA1_Data {
     // shouldn't be slower, so we use that. Same might
     // apply to other Linux platforms.
     private static FileInputStream bis = null;
-    // END android-changed 
+    // END android-changed
 
     /**
      * File to connect to device
@@ -97,7 +97,7 @@ public class RandomBitsSupplier implements SHA1_Data {
 //                    // If we have come out of the above loop, then we have been unable to
 //                    // access /dev/*random, so try to fall back to using the system random() API
 //                    try {
-//                        System.loadLibrary(LIBRARY_NAME); 
+//                        System.loadLibrary(LIBRARY_NAME);
 //                        serviceAvailable = true;
 //                    } catch (UnsatisfiedLinkError e) {
 //                        serviceAvailable = false;
@@ -140,7 +140,7 @@ public class RandomBitsSupplier implements SHA1_Data {
                 // hence, if it is happened there is some internal problem
                 if ( bytesRead == -1 ) {
                     throw new ProviderException(
-                        Messages.getString("security.193") ); 
+                        Messages.getString("security.193") );
                 }
 
                 total  += bytesRead;
@@ -148,7 +148,7 @@ public class RandomBitsSupplier implements SHA1_Data {
 
                 if ( total >= numBytes ) {
                     break;
-                }          
+                }
             }
         } catch (IOException e) {
 
@@ -156,16 +156,16 @@ public class RandomBitsSupplier implements SHA1_Data {
             // hence, there is either some internal problem or, for instance,
             // device was removed in runtime, or something else
             throw new ProviderException(
-                Messages.getString("security.194"), e ); 
+                Messages.getString("security.194"), e );
         }
-        return bytes; 
+        return bytes;
     }
 
 
     // BEGIN android-removed
 //    /**
-//     * On platforms with no "random" devices available, this native 
-//     * method uses system API calls to generate random numbers<BR> 
+//     * On platforms with no "random" devices available, this native
+//     * method uses system API calls to generate random numbers<BR>
 //     *
 //     * In case of any runtime failure ProviderException gets thrown.
 //     */
@@ -187,14 +187,14 @@ public class RandomBitsSupplier implements SHA1_Data {
     public static byte[] getRandomBits(int numBytes) {
 
         if ( numBytes <= 0 ) {
-            throw new IllegalArgumentException(Messages.getString("security.195", numBytes)); 
+            throw new IllegalArgumentException(Messages.getString("security.195", numBytes));
         }
 
         // We have been unable to get a random device or fall back to the
         // native security module code - throw an exception.
         if ( !serviceAvailable ) {
             throw new ProviderException(
-                Messages.getString("security.196")); 
+                Messages.getString("security.196"));
         }
 
         // BEGIN android-changed

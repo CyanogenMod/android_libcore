@@ -27,7 +27,7 @@ import dalvik.annotation.TestTargetClass;
  * http://java.sun.com/j2se/1.5.0/docs/guide/security/permissions.html#PermsAndMethods
  */
 public class AllTests extends TestCase {
-    
+
     public static final Test suite() {
         TestSuite suite = new TestSuite("Tests for security permissions");
 
@@ -53,7 +53,7 @@ public class AllTests extends TestCase {
         suite.addTestSuite(JavaxSecurityAuthSubjectDomainCombiner.class);
         suite.addTestSuite(JavaxSecurityAuthSubject.class);
         suite.addTestSuite(JavaLangReflectAccessibleObjectTest.class);
-        
+
         return suite;
     }
 

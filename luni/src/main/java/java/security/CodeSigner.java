@@ -49,7 +49,7 @@ public final class CodeSigner implements Serializable {
      */
     public CodeSigner(CertPath signerCertPath, Timestamp timestamp) {
         if (signerCertPath == null) {
-            throw new NullPointerException(Messages.getString("security.10")); 
+            throw new NullPointerException(Messages.getString("security.10"));
         }
         this.signerCertPath = signerCertPath;
         this.timestamp = timestamp;
@@ -131,13 +131,13 @@ public final class CodeSigner implements Serializable {
     public String toString() {
         // There is no any special reason for '256' here, it's taken abruptly
         StringBuilder buf = new StringBuilder(256);
-        // The javadoc says nothing, and the others implementations behavior seems as 
+        // The javadoc says nothing, and the others implementations behavior seems as
         // dumping only the first certificate. Well, let's do the same.
-        buf.append("CodeSigner [").append(signerCertPath.getCertificates().get(0)); 
+        buf.append("CodeSigner [").append(signerCertPath.getCertificates().get(0));
         if( timestamp != null ) {
-            buf.append("; ").append(timestamp); 
+            buf.append("; ").append(timestamp);
         }
-        buf.append("]"); 
+        buf.append("]");
         return buf.toString();
     }
 }

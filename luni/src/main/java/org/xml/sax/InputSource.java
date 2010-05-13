@@ -43,7 +43,7 @@ import java.io.InputStream;
  * identifier.</p>
  *
  * <p>An InputSource object belongs to the application: the SAX parser
- * shall never modify it in any way (it may modify a copy if 
+ * shall never modify it in any way (it may modify a copy if
  * necessary).  However, standard processing of both byte and
  * character streams is to close them on as part of end-of-parse cleanup,
  * so applications should not attempt to re-use such streams after they
@@ -58,7 +58,7 @@ import java.io.InputStream;
  * @see java.io.Reader
  */
 public class InputSource {
-    
+
     /**
      * Zero-argument default constructor.
      *
@@ -71,12 +71,12 @@ public class InputSource {
     public InputSource ()
     {
     }
-    
-    
+
+
     /**
      * Create a new input source with a system identifier.
      *
-     * <p>Applications may use setPublicId to include a 
+     * <p>Applications may use setPublicId to include a
      * public identifier as well, or setEncoding to specify
      * the character encoding, if known.</p>
      *
@@ -94,13 +94,13 @@ public class InputSource {
     {
     setSystemId(systemId);
     }
-    
-    
+
+
     /**
      * Create a new input source with a byte stream.
      *
-     * <p>Application writers should use setSystemId() to provide a base 
-     * for resolving relative URIs, may use setPublicId to include a 
+     * <p>Application writers should use setSystemId() to provide a base
+     * for resolving relative URIs, may use setPublicId to include a
      * public identifier, and may use setEncoding to specify the object's
      * character encoding.</p>
      *
@@ -115,13 +115,13 @@ public class InputSource {
     {
     setByteStream(byteStream);
     }
-    
-    
+
+
     /**
      * Create a new input source with a character stream.
      *
-     * <p>Application writers should use setSystemId() to provide a base 
-     * for resolving relative URIs, and may use setPublicId to include a 
+     * <p>Application writers should use setSystemId() to provide a base
+     * for resolving relative URIs, and may use setPublicId to include a
      * public identifier.</p>
      *
      * <p>The character stream shall not include a byte order mark.</p>
@@ -136,8 +136,8 @@ public class InputSource {
     {
     setCharacterStream(characterStream);
     }
-    
-    
+
+
     /**
      * Set the public identifier for this input source.
      *
@@ -154,8 +154,8 @@ public class InputSource {
     {
     this.publicId = publicId;
     }
-    
-    
+
+
     /**
      * Get the public identifier for this input source.
      *
@@ -166,8 +166,8 @@ public class InputSource {
     {
     return publicId;
     }
-    
-    
+
+
     /**
      * Set the system identifier for this input source.
      *
@@ -195,8 +195,8 @@ public class InputSource {
     {
     this.systemId = systemId;
     }
-    
-    
+
+
     /**
      * Get the system identifier for this input source.
      *
@@ -213,8 +213,8 @@ public class InputSource {
     {
     return systemId;
     }
-    
-    
+
+
     /**
      * Set the byte stream for this input source.
      *
@@ -236,8 +236,8 @@ public class InputSource {
     {
     this.byteStream = byteStream;
     }
-    
-    
+
+
     /**
      * Get the byte stream for this input source.
      *
@@ -252,9 +252,9 @@ public class InputSource {
     {
     return byteStream;
     }
-    
-    
-    /** 
+
+
+    /**
      * Set the character encoding, if known.
      *
      * <p>The encoding must be a string acceptable for an
@@ -273,8 +273,8 @@ public class InputSource {
     {
     this.encoding = encoding;
     }
-    
-    
+
+
     /**
      * Get the character encoding for a byte stream or URI.
      * This value will be ignored when the application provides a
@@ -289,8 +289,8 @@ public class InputSource {
     {
     return encoding;
     }
-    
-    
+
+
     /**
      * Set the character stream for this input source.
      *
@@ -307,8 +307,8 @@ public class InputSource {
     {
     this.characterStream = characterStream;
     }
-    
-    
+
+
     /**
      * Get the character stream for this input source.
      *
@@ -319,19 +319,19 @@ public class InputSource {
     {
     return characterStream;
     }
-    
-    
+
+
 
     ////////////////////////////////////////////////////////////////////
     // Internal state.
     ////////////////////////////////////////////////////////////////////
-    
+
     private String publicId;
     private String systemId;
     private InputStream byteStream;
     private String encoding;
     private Reader characterStream;
-    
+
 }
 
 // end of InputSource.java

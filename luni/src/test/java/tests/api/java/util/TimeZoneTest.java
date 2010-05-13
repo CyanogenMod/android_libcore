@@ -21,7 +21,7 @@ import dalvik.annotation.BrokenTest;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.KnownFailure;
 import dalvik.annotation.AndroidOnly;
 
@@ -35,7 +35,7 @@ import java.util.TimeZone;
 import tests.support.Support_Locale;
 import tests.support.Support_TimeZone;
 
-@TestTargetClass(TimeZone.class) 
+@TestTargetClass(TimeZone.class)
 public class TimeZoneTest extends junit.framework.TestCase {
 
     private static final int ONE_HOUR = 3600000;
@@ -205,7 +205,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
         assertEquals("default not restored",
                              oldDefault, TimeZone.getDefault());
     }
-    
+
     class Mock_TimeZone extends TimeZone {
         @Override
         public int getOffset(int era, int year, int month, int day, int dayOfWeek, int milliseconds) {
@@ -224,7 +224,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
 
         @Override
         public void setRawOffset(int offsetMillis) {
-            
+
         }
 
         @Override
@@ -232,7 +232,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
             return false;
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -242,7 +242,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
     public void test_constructor() {
         assertNotNull(new Mock_TimeZone());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -252,10 +252,10 @@ public class TimeZoneTest extends junit.framework.TestCase {
     public void test_clone() {
         TimeZone tz1 = TimeZone.getDefault();
         TimeZone tz2 = (TimeZone)tz1.clone();
-        
+
         assertTrue(tz1.equals(tz2));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -270,7 +270,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
             assertNotNull(TimeZone.getTimeZone(str[i]));
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -285,7 +285,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
             assertNotNull(TimeZone.getTimeZone(str[i]));
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -298,7 +298,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
         tz = TimeZone.getTimeZone("America/Los_Angeles");
         assertEquals("Pacific Standard Time", tz.getDisplayName());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -316,7 +316,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
         // BEGIN android-note: RI has "Heure", CLDR/ICU has "heure".
         assertEquals("heure normale du Pacifique", tz.getDisplayName(Locale.FRANCE));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -329,7 +329,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
         assertEquals("Pacific Daylight Time", tz.getDisplayName(true, 1));
         assertEquals("Pacific Standard Time", tz.getDisplayName(false, 1));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -347,13 +347,13 @@ public class TimeZoneTest extends junit.framework.TestCase {
         assertEquals("PST",                   tz.getDisplayName(false, 0, Locale.US));
         assertEquals("Pacific Daylight Time", tz.getDisplayName(true,  1, Locale.US));
         assertEquals("Pacific Standard Time", tz.getDisplayName(false, 1, Locale.UK));
-        //RI fails on following line. RI always returns short time zone name as "PST" 
+        //RI fails on following line. RI always returns short time zone name as "PST"
         assertEquals("UTC-08:00",             tz.getDisplayName(false, 0, Locale.FRANCE));
         // BEGIN android-note: RI has "Heure", CLDR/ICU has "heure".
         assertEquals("heure avanc\u00e9e du Pacifique", tz.getDisplayName(true,  1, Locale.FRANCE));
         assertEquals("heure normale du Pacifique", tz.getDisplayName(false, 1, Locale.FRANCE));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -366,7 +366,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
         tz = TimeZone.getTimeZone("America/Denver");
         assertEquals("America/Denver", tz.getID());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -387,7 +387,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
         assertTrue(tz2.hasSameRules(tz1));
         assertTrue(tz1.hasSameRules(tz1));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -400,7 +400,7 @@ public class TimeZoneTest extends junit.framework.TestCase {
         tz.setID("New ID for GMT-6");
         assertEquals("New ID for GMT-6", tz.getID());
     }
-    
+
     Locale loc = null;
 
     protected void setUp() {

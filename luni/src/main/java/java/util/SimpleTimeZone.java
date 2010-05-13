@@ -268,7 +268,7 @@ public class SimpleTimeZone extends TimeZone {
         // END android-changed
         if (daylightSavings <= 0) {
             throw new IllegalArgumentException(Msg.getString(
-                    "K00e9", daylightSavings)); 
+                    "K00e9", daylightSavings));
         }
         dstSavings = daylightSavings;
 
@@ -392,7 +392,7 @@ public class SimpleTimeZone extends TimeZone {
     public int getOffset(int era, int year, int month, int day, int dayOfWeek,
             int time) {
         if (era != GregorianCalendar.BC && era != GregorianCalendar.AD) {
-            throw new IllegalArgumentException(Msg.getString("K00ea", era)); 
+            throw new IllegalArgumentException(Msg.getString("K00ea", era));
         }
         checkRange(month, dayOfWeek, time);
         if (month != Calendar.FEBRUARY || day != 29 || !isLeapYear(year)) {
@@ -616,20 +616,20 @@ public class SimpleTimeZone extends TimeZone {
 
     private void checkRange(int month, int dayOfWeek, int time) {
         if (month < Calendar.JANUARY || month > Calendar.DECEMBER) {
-            throw new IllegalArgumentException(Msg.getString("K00e5", month)); 
+            throw new IllegalArgumentException(Msg.getString("K00e5", month));
         }
         if (dayOfWeek < Calendar.SUNDAY || dayOfWeek > Calendar.SATURDAY) {
             throw new IllegalArgumentException(Msg
-                    .getString("K00e7", dayOfWeek)); 
+                    .getString("K00e7", dayOfWeek));
         }
         if (time < 0 || time >= 24 * 3600000) {
-            throw new IllegalArgumentException(Msg.getString("K00e8", time)); 
+            throw new IllegalArgumentException(Msg.getString("K00e8", time));
         }
     }
 
     private void checkDay(int month, int day) {
         if (day <= 0 || day > GregorianCalendar.DaysInMonth[month]) {
-            throw new IllegalArgumentException(Msg.getString("K00e6", day)); 
+            throw new IllegalArgumentException(Msg.getString("K00e6", day));
         }
     }
 
@@ -656,7 +656,7 @@ public class SimpleTimeZone extends TimeZone {
             } else {
                 if (endDay < -5 || endDay > 5) {
                     throw new IllegalArgumentException(Msg.getString(
-                            "K00f8", endDay)); 
+                            "K00f8", endDay));
                 }
             }
         }
@@ -788,7 +788,7 @@ public class SimpleTimeZone extends TimeZone {
             } else {
                 if (startDay < -5 || startDay > 5) {
                     throw new IllegalArgumentException(Msg.getString(
-                            "K00f8", startDay)); 
+                            "K00f8", startDay));
                 }
             }
         }
@@ -903,29 +903,29 @@ public class SimpleTimeZone extends TimeZone {
     @Override
     public String toString() {
         return getClass().getName()
-                + "[id=" 
+                + "[id="
                 + getID()
-                + ",offset=" 
+                + ",offset="
                 + rawOffset
-                + ",dstSavings=" 
+                + ",dstSavings="
                 + dstSavings
-                + ",useDaylight=" 
+                + ",useDaylight="
                 + useDaylight
-                + ",startYear=" 
+                + ",startYear="
                 + startYear
-                + ",startMode=" 
+                + ",startMode="
                 + startMode
-                + ",startMonth=" 
+                + ",startMonth="
                 + startMonth
-                + ",startDay=" 
+                + ",startDay="
                 + startDay
-                + ",startDayOfWeek=" 
+                + ",startDayOfWeek="
                 + (useDaylight && (startMode != DOM_MODE) ? startDayOfWeek + 1
-                        : 0) + ",startTime=" + startTime + ",endMode="  
-                + endMode + ",endMonth=" + endMonth + ",endDay=" + endDay  
-                + ",endDayOfWeek=" 
+                        : 0) + ",startTime=" + startTime + ",endMode="
+                + endMode + ",endMonth=" + endMonth + ",endDay=" + endDay
+                + ",endDayOfWeek="
                 + (useDaylight && (endMode != DOM_MODE) ? endDayOfWeek + 1 : 0)
-                + ",endTime=" + endTime + "]"; 
+                + ",endTime=" + endTime + "]";
     }
 
     @Override
@@ -934,22 +934,22 @@ public class SimpleTimeZone extends TimeZone {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("dstSavings", Integer.TYPE), 
-            new ObjectStreamField("endDay", Integer.TYPE), 
-            new ObjectStreamField("endDayOfWeek", Integer.TYPE), 
-            new ObjectStreamField("endMode", Integer.TYPE), 
-            new ObjectStreamField("endMonth", Integer.TYPE), 
-            new ObjectStreamField("endTime", Integer.TYPE), 
-            new ObjectStreamField("monthLength", byte[].class), 
-            new ObjectStreamField("rawOffset", Integer.TYPE), 
-            new ObjectStreamField("serialVersionOnStream", Integer.TYPE), 
-            new ObjectStreamField("startDay", Integer.TYPE), 
-            new ObjectStreamField("startDayOfWeek", Integer.TYPE), 
-            new ObjectStreamField("startMode", Integer.TYPE), 
-            new ObjectStreamField("startMonth", Integer.TYPE), 
-            new ObjectStreamField("startTime", Integer.TYPE), 
-            new ObjectStreamField("startYear", Integer.TYPE), 
-            new ObjectStreamField("useDaylight", Boolean.TYPE), }; 
+            new ObjectStreamField("dstSavings", Integer.TYPE),
+            new ObjectStreamField("endDay", Integer.TYPE),
+            new ObjectStreamField("endDayOfWeek", Integer.TYPE),
+            new ObjectStreamField("endMode", Integer.TYPE),
+            new ObjectStreamField("endMonth", Integer.TYPE),
+            new ObjectStreamField("endTime", Integer.TYPE),
+            new ObjectStreamField("monthLength", byte[].class),
+            new ObjectStreamField("rawOffset", Integer.TYPE),
+            new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
+            new ObjectStreamField("startDay", Integer.TYPE),
+            new ObjectStreamField("startDayOfWeek", Integer.TYPE),
+            new ObjectStreamField("startMode", Integer.TYPE),
+            new ObjectStreamField("startMonth", Integer.TYPE),
+            new ObjectStreamField("startTime", Integer.TYPE),
+            new ObjectStreamField("startYear", Integer.TYPE),
+            new ObjectStreamField("useDaylight", Boolean.TYPE), };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         int sEndDay = endDay, sEndDayOfWeek = endDayOfWeek + 1, sStartDay = startDay, sStartDayOfWeek = startDayOfWeek + 1;
@@ -974,22 +974,22 @@ public class SimpleTimeZone extends TimeZone {
             }
         }
         ObjectOutputStream.PutField fields = stream.putFields();
-        fields.put("dstSavings", dstSavings); 
-        fields.put("endDay", sEndDay); 
-        fields.put("endDayOfWeek", sEndDayOfWeek); 
-        fields.put("endMode", endMode); 
-        fields.put("endMonth", endMonth); 
-        fields.put("endTime", endTime); 
-        fields.put("monthLength", GregorianCalendar.DaysInMonth); 
-        fields.put("rawOffset", rawOffset); 
-        fields.put("serialVersionOnStream", 1); 
-        fields.put("startDay", sStartDay); 
-        fields.put("startDayOfWeek", sStartDayOfWeek); 
-        fields.put("startMode", startMode); 
-        fields.put("startMonth", startMonth); 
-        fields.put("startTime", startTime); 
-        fields.put("startYear", startYear); 
-        fields.put("useDaylight", useDaylight); 
+        fields.put("dstSavings", dstSavings);
+        fields.put("endDay", sEndDay);
+        fields.put("endDayOfWeek", sEndDayOfWeek);
+        fields.put("endMode", endMode);
+        fields.put("endMonth", endMonth);
+        fields.put("endTime", endTime);
+        fields.put("monthLength", GregorianCalendar.DaysInMonth);
+        fields.put("rawOffset", rawOffset);
+        fields.put("serialVersionOnStream", 1);
+        fields.put("startDay", sStartDay);
+        fields.put("startDayOfWeek", sStartDayOfWeek);
+        fields.put("startMode", startMode);
+        fields.put("startMonth", startMonth);
+        fields.put("startTime", startTime);
+        fields.put("startYear", startYear);
+        fields.put("useDaylight", useDaylight);
         stream.writeFields();
         stream.writeInt(4);
         byte[] values = new byte[4];
@@ -1003,28 +1003,28 @@ public class SimpleTimeZone extends TimeZone {
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
         ObjectInputStream.GetField fields = stream.readFields();
-        rawOffset = fields.get("rawOffset", 0); 
-        useDaylight = fields.get("useDaylight", false); 
+        rawOffset = fields.get("rawOffset", 0);
+        useDaylight = fields.get("useDaylight", false);
         if (useDaylight) {
-            endMonth = fields.get("endMonth", 0); 
-            endTime = fields.get("endTime", 0); 
-            startMonth = fields.get("startMonth", 0); 
-            startTime = fields.get("startTime", 0); 
-            startYear = fields.get("startYear", 0); 
+            endMonth = fields.get("endMonth", 0);
+            endTime = fields.get("endTime", 0);
+            startMonth = fields.get("startMonth", 0);
+            startTime = fields.get("startTime", 0);
+            startYear = fields.get("startYear", 0);
         }
-        if (fields.get("serialVersionOnStream", 0) == 0) { 
+        if (fields.get("serialVersionOnStream", 0) == 0) {
             if (useDaylight) {
                 startMode = endMode = DOW_IN_MONTH_MODE;
-                endDay = fields.get("endDay", 0); 
-                endDayOfWeek = fields.get("endDayOfWeek", 0) - 1; 
-                startDay = fields.get("startDay", 0); 
-                startDayOfWeek = fields.get("startDayOfWeek", 0) - 1; 
+                endDay = fields.get("endDay", 0);
+                endDayOfWeek = fields.get("endDayOfWeek", 0) - 1;
+                startDay = fields.get("startDay", 0);
+                startDayOfWeek = fields.get("startDayOfWeek", 0) - 1;
             }
         } else {
-            dstSavings = fields.get("dstSavings", 0); 
+            dstSavings = fields.get("dstSavings", 0);
             if (useDaylight) {
-                endMode = fields.get("endMode", 0); 
-                startMode = fields.get("startMode", 0); 
+                endMode = fields.get("endMode", 0);
+                startMode = fields.get("startMode", 0);
                 int length = stream.readInt();
                 byte[] values = new byte[length];
                 stream.readFully(values);

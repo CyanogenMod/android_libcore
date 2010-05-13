@@ -54,9 +54,9 @@ import tests.util.TestEnvironment;
 
 /**
  * Tests for SSLEngine class
- * 
+ *
  */
-@TestTargetClass(SSLEngine.class) 
+@TestTargetClass(SSLEngine.class)
 public class SSLEngineTest extends TestCase {
 
     private HandshakeHandler clientEngine;
@@ -70,7 +70,7 @@ public class SSLEngineTest extends TestCase {
     /**
      * Test for <code>SSLEngine()</code> constructor Assertion: creates
      * SSLEngine object with null host and -1 port
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -89,7 +89,7 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * Test for <code>SSLEngine(String host, int port)</code> constructor
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -127,7 +127,7 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * Test for <code>SSLEngine(String host, int port)</code> constructor
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -150,7 +150,7 @@ public class SSLEngineTest extends TestCase {
 
     /**
      * Test for <code>getPeerHost()</code> method
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -164,10 +164,10 @@ public class SSLEngineTest extends TestCase {
         e = getEngine("www.fortify.net", 80);
         assertEquals("Incorrect host name", "www.fortify.net", e.getPeerHost());
     }
-    
+
     /**
      * Test for <code>getPeerPort()</code> method
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -184,7 +184,7 @@ public class SSLEngineTest extends TestCase {
     }
 
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#getSupportedProtocols()
      */
     @TestTargetNew(
@@ -203,9 +203,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#setEnabledProtocols(String[] protocols)
      * @tests javax.net.ssl.SSLEngine#getEnabledProtocols()
      */
@@ -242,9 +242,9 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#getSupportedCipherSuites()
      */
     @TestTargetNew(
@@ -263,9 +263,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#setEnabledCipherSuites(String[] suites)
      * @tests javax.net.ssl.SSLEngine#getEnabledCipherSuites()
      */
@@ -302,9 +302,9 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#setEnableSessionCreation(boolean flag)
      * @tests javax.net.ssl.SSLEngine#getEnableSessionCreation()
      */
@@ -334,9 +334,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#setNeedClientAuth(boolean need)
      * @tests javax.net.ssl.SSLEngine#getNeedClientAuth()
      */
@@ -365,9 +365,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#setWantClientAuth(boolean want)
      * @tests javax.net.ssl.SSLEngine#getWantClientAuth()
      */
@@ -396,9 +396,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#beginHandshake()
      */
     @TestTargetNew(
@@ -434,9 +434,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#setUseClientMode(boolean mode)
      * @tests javax.net.ssl.SSLEngine#getUseClientMode()
      */
@@ -465,7 +465,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception ex) {
             fail("Unexpected exception " + ex);
         }
-        
+
         try {
             sse = getEngine(null, 1080);
             sse.setUseClientMode(true);
@@ -480,9 +480,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#getSession()
      */
     @TestTargetNew(
@@ -499,9 +499,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#getHandshakeStatus()
      */
     @TestTargetNew(
@@ -521,9 +521,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#getDelegatedTask()
      */
     @TestTargetNew(
@@ -541,10 +541,10 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception " + ex);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws InterruptedException 
+     * @throws IOException
+     * @throws InterruptedException
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
      * Exception case: SSLException should be thrown.
@@ -558,7 +558,7 @@ public class SSLEngineTest extends TestCase {
     public void test_unwrap_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
-        
+
         ByteBuffer bbs = ByteBuffer.wrap(new byte[] {1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,31,2,3,1,2,3,1,2,3,1,2,3});
         ByteBuffer bbd = ByteBuffer.allocate(100);
         try {
@@ -568,7 +568,7 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
@@ -589,7 +589,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bb = ByteBuffer.allocate(10);
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.unwrap(bb, bbA, -1, 3);
             fail("IndexOutOfBoundsException wasn't thrown");
@@ -615,7 +615,7 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
@@ -637,7 +637,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bb = ByteBuffer.allocate(10);
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.unwrap(bb, bbA, 0, bbA.length);
             fail("ReadOnlyBufferException wasn't thrown");
@@ -647,7 +647,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of ReadOnlyBufferException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
@@ -670,7 +670,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bN = null;
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.unwrap(bN, bbA, 0, 3);
             fail("IllegalArgumentException wasn't thrown");
@@ -709,7 +709,7 @@ public class SSLEngineTest extends TestCase {
         }
 
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
@@ -729,7 +729,7 @@ public class SSLEngineTest extends TestCase {
 
         ByteBuffer bb = ByteBuffer.allocate(10);
         SSLEngine sse = getEngine(host, port);
-        
+
         try {
             sse.unwrap(bb, bbA, 0, bbA.length);
             fail("IllegalStateException wasn't thrown");
@@ -739,7 +739,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of IllegalStateException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts,
      *                                       int offset, int length)
@@ -758,7 +758,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bb = ByteBuffer.allocate(10);
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             SSLEngineResult res = sse.unwrap(bb, bbA, 0, bbA.length);
             assertEquals(0, res.bytesConsumed());
@@ -767,7 +767,7 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception: " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
@@ -782,10 +782,10 @@ public class SSLEngineTest extends TestCase {
     public void test_wrap_01() throws IOException, InterruptedException {
         prepareEngines();
         doHandshake();
-        
+
         ByteBuffer bbs = ByteBuffer.allocate(100);
         ByteBuffer bbd = ByteBuffer.allocate(20000);
-        
+
         try {
             @SuppressWarnings("unused")
             SSLEngineResult result = clientEngine.engine.wrap(new ByteBuffer[] { bbs }, 0, 1, bbd);
@@ -794,7 +794,7 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
@@ -814,7 +814,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer[] bbA = {ByteBuffer.allocate(5), ByteBuffer.allocate(10), ByteBuffer.allocate(5)};
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.wrap(bbA, -1, 3, bb);
             fail("IndexOutOfBoundsException wasn't thrown");
@@ -840,7 +840,7 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
@@ -859,7 +859,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer[] bbA = {ByteBuffer.allocate(5), ByteBuffer.allocate(10), ByteBuffer.allocate(5)};
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.wrap(bbA, 0, bbA.length, bb);
             fail("ReadOnlyBufferException wasn't thrown");
@@ -867,7 +867,7 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
@@ -888,7 +888,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bN = null;
         SSLEngine e = getEngine(host, port);
         e.setUseClientMode(true);
-        
+
         try {
             e.wrap(bbA, 0, 3, bN);
             fail("IllegalArgumentException must be thrown for null srcs byte buffer array");
@@ -897,7 +897,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception ex) {
             fail(ex + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             e.wrap(bbN, 0, 0, bN);
             fail("IllegalArgumentException wasn't thrown");
@@ -907,7 +907,7 @@ public class SSLEngineTest extends TestCase {
             fail(ex + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
@@ -926,7 +926,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bb = ByteBuffer.allocate(10);
         ByteBuffer[] bbA = {ByteBuffer.allocate(5), ByteBuffer.allocate(10), ByteBuffer.allocate(5)};
         SSLEngine sse = getEngine(host, port);
-        
+
         try {
             sse.wrap(bbA, 0, bbA.length, bb);
             fail("IllegalStateException wasn't thrown");
@@ -934,7 +934,7 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, int offset,
      *                                     int length, ByteBuffer dst)
@@ -951,17 +951,17 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bb = ByteBuffer.allocate(10);
         ByteBuffer[] bbA = {ByteBuffer.allocate(5), ByteBuffer.allocate(10), ByteBuffer.allocate(5)};
         SSLEngine sse = getEngine(host, port);
-        sse.setUseClientMode(true);        
-        
+        sse.setUseClientMode(true);
+
         try {
             sse.wrap(bbA, 0, bbA.length, bb);
         } catch (Exception ex) {
             fail("Unexpected exception: " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#closeOutbound()
      * @tests javax.net.ssl.SSLEngine#isOutboundDone()
      */
@@ -981,7 +981,7 @@ public class SSLEngineTest extends TestCase {
     })
     public void test_closeOutbound() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
-        
+
         try {
             assertFalse(sse.isOutboundDone());
             sse.closeOutbound();
@@ -990,9 +990,9 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception: " + ex);
         }
     }
-    
+
     /**
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      * @tests javax.net.ssl.SSLEngine#closeInbound()
      * @tests javax.net.ssl.SSLEngine#isInboundDone()
      */
@@ -1012,7 +1012,7 @@ public class SSLEngineTest extends TestCase {
     })
     public void test_closeInbound() throws NoSuchAlgorithmException {
         SSLEngine sse = getEngine();
- 
+
         try {
             assertFalse(sse.isInboundDone());
             sse.closeInbound();
@@ -1021,7 +1021,7 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception: " + ex);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      * SSLException should be thrown.
@@ -1037,7 +1037,7 @@ public class SSLEngineTest extends TestCase {
         doHandshake();
         ByteBuffer bbs = ByteBuffer.allocate(100);
         ByteBuffer bbd = ByteBuffer.allocate(100);
-        
+
         try {
             SSLEngineResult unwrap = clientEngine.engine.unwrap(bbs, bbd);
             fail("SSLException wasn't thrown");
@@ -1045,7 +1045,7 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      * ReadOnlyBufferException should be thrown.
@@ -1064,7 +1064,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bbd = ByteBuffer.allocate(100).asReadOnlyBuffer();
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.unwrap(bbs, bbd);
             fail("ReadOnlyBufferException wasn't thrown");
@@ -1074,7 +1074,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of ReadOnlyBufferException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      * IllegalArgumentException should be thrown.
@@ -1095,7 +1095,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bbd = ByteBuffer.allocate(100);
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.unwrap(bbsN, bbd);
             fail("IllegalArgumentException wasn't thrown");
@@ -1105,7 +1105,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             sse.unwrap(bbs, bbdN);
             fail("IllegalArgumentException wasn't thrown");
@@ -1115,7 +1115,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             sse.unwrap(bbsN, bbdN);
             fail("IllegalArgumentException wasn't thrown");
@@ -1126,7 +1126,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      * IllegalStateException should be thrown.
@@ -1144,7 +1144,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bbs = ByteBuffer.allocate(10);
         ByteBuffer bbd = ByteBuffer.allocate(100);
         SSLEngine sse = getEngine(host, port);
-        
+
         try {
             sse.unwrap(bbs, bbd);
             fail("IllegalStateException wasn't thrown");
@@ -1154,7 +1154,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of IllegalStateException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer dst)
      */
@@ -1171,7 +1171,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bbd = ByteBuffer.allocate(100);
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             SSLEngineResult res = sse.unwrap(bbs, bbd);
             assertEquals(0, res.bytesConsumed());
@@ -1180,7 +1180,7 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
      * SSLException should be thrown.
@@ -1195,9 +1195,9 @@ public class SSLEngineTest extends TestCase {
         prepareEngines();
         doHandshake();
 
-        ByteBuffer bbs = ByteBuffer.allocate(100);  
+        ByteBuffer bbs = ByteBuffer.allocate(100);
         ByteBuffer bbd = ByteBuffer.allocate(100);
-        
+
         try {
             clientEngine.engine.unwrap(bbs, new ByteBuffer[] { bbd });
             fail("SSLException wasn't thrown");
@@ -1225,7 +1225,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer[] bbA = { bbR, ByteBuffer.allocate(10), ByteBuffer.allocate(100) };
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.unwrap(bbs, bbA);
             fail("ReadOnlyBufferException wasn't thrown");
@@ -1235,7 +1235,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of ReadOnlyBufferException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
      * IllegalArgumentException should be thrown.
@@ -1257,7 +1257,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bN = null;
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.unwrap(bN, bbA);
             fail("IllegalArgumentException wasn't thrown");
@@ -1267,7 +1267,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             sse.unwrap(bb, bbAN);
             fail("IllegalArgumentException wasn't thrown");
@@ -1277,7 +1277,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             sse.unwrap(bb, bbN);
             fail("IllegalArgumentException wasn't thrown");
@@ -1287,7 +1287,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             sse.unwrap(bN, bbAN);
             fail("IllegalArgumentException wasn't thrown");
@@ -1298,7 +1298,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
      * IllegalStateException should be thrown.
@@ -1316,7 +1316,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bbs = ByteBuffer.allocate(10);
         ByteBuffer[] bbd = {ByteBuffer.allocate(100), ByteBuffer.allocate(10), ByteBuffer.allocate(100) };
         SSLEngine sse = getEngine(host, port);
-        
+
         try {
             sse.unwrap(bbs, bbd);
             fail("IllegalStateException wasn't thrown");
@@ -1326,7 +1326,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of IllegalStateException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#unwrap(ByteBuffer src, ByteBuffer[] dsts)
      */
@@ -1343,7 +1343,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer[] bbd = {ByteBuffer.allocate(100), ByteBuffer.allocate(10), ByteBuffer.allocate(100) };
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             SSLEngineResult res = sse.unwrap(bbs, bbd);
             assertEquals(0, res.bytesConsumed());
@@ -1352,10 +1352,10 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception: " + ex);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws InterruptedException 
+     * @throws IOException
+     * @throws InterruptedException
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      * SSLException should be thrown.
      */
@@ -1370,7 +1370,7 @@ public class SSLEngineTest extends TestCase {
         doHandshake();
         ByteBuffer bbs = ByteBuffer.allocate(20);
         ByteBuffer bbd = ByteBuffer.allocate(20000);
-        
+
         try {
             clientEngine.engine.wrap(bbs, bbd);
             //fail("SSLException wasn't thrown");
@@ -1378,7 +1378,7 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      * ReadOnlyBufferException should be thrown.
@@ -1396,7 +1396,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bbd = ByteBuffer.allocate(100).asReadOnlyBuffer();
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.wrap(bbs, bbd);
             fail("ReadOnlyBufferException wasn't thrown");
@@ -1406,7 +1406,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of ReadOnlyBufferException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      * IllegalArgumentException should be thrown.
@@ -1427,7 +1427,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bbd = ByteBuffer.allocate(100);
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.wrap(bbsN, bbd);
             fail("IllegalArgumentException wasn't thrown");
@@ -1437,7 +1437,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             sse.wrap(bbs, bbdN);
             fail("IllegalArgumentException wasn't thrown");
@@ -1447,7 +1447,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             sse.wrap(bbsN, bbdN);
             fail("IllegalArgumentException wasn't thrown");
@@ -1458,7 +1458,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      * IllegalStateException should be thrown.
@@ -1476,7 +1476,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bbs = ByteBuffer.allocate(10);
         ByteBuffer bbd = ByteBuffer.allocate(10);
         SSLEngine sse = getEngine(host, port);
-        
+
         try {
             sse.wrap(bbs, bbd);
             fail("IllegalStateException wasn't thrown");
@@ -1486,7 +1486,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of IllegalStateException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer src, ByteBuffer dst)
      */
@@ -1502,7 +1502,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bb = ByteBuffer.allocate(10);
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             SSLEngineResult res = sse.wrap(bb, ByteBuffer.allocate(10));
             assertEquals(0, res.bytesConsumed());
@@ -1511,10 +1511,10 @@ public class SSLEngineTest extends TestCase {
             fail("Unexpected exception: " + e);
         }
     }
-    
+
     /**
-     * @throws IOException 
-     * @throws InterruptedException 
+     * @throws IOException
+     * @throws InterruptedException
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      * SSLException should be thrown.
      */
@@ -1529,7 +1529,7 @@ public class SSLEngineTest extends TestCase {
         doHandshake();
         ByteBuffer bbs = ByteBuffer.allocate(100);
         ByteBuffer bbd = ByteBuffer.allocate(20000);
-        
+
         try {
             clientEngine.engine.wrap(new ByteBuffer[] { bbs }, bbd);
             serverEngine.engine.wrap(new ByteBuffer[] { bbs }, bbd);
@@ -1538,7 +1538,7 @@ public class SSLEngineTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      * ReadOnlyBufferException should be thrown.
@@ -1556,7 +1556,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer[] bbA = {ByteBuffer.allocate(5), ByteBuffer.allocate(10), ByteBuffer.allocate(5)};
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.wrap(bbA, bb);
             fail("ReadOnlyBufferException wasn't thrown");
@@ -1566,7 +1566,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of ReadOnlyBufferException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      * IllegalArgumentException should be thrown.
@@ -1587,7 +1587,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bN = null;
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             sse.wrap(bbA, bN);
             fail("IllegalArgumentException wasn't thrown");
@@ -1597,7 +1597,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             sse.wrap(bbAN, bb);
             fail("IllegalArgumentException wasn't thrown");
@@ -1607,7 +1607,7 @@ public class SSLEngineTest extends TestCase {
         } catch (Exception e) {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
-        
+
         try {
             sse.wrap(bbAN, bN);
             fail("IllegalArgumentException wasn't thrown");
@@ -1618,7 +1618,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of IllegalArgumentException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      * IllegalStateException should be thrown.
@@ -1636,7 +1636,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer bb = ByteBuffer.allocate(10);
         ByteBuffer[] bbA = { ByteBuffer.allocate(5), ByteBuffer.allocate(10), ByteBuffer.allocate(5) };
         SSLEngine sse = getEngine(host, port);
-        
+
         try {
             sse.wrap(bbA, bb);
             fail("IllegalStateException wasn't thrown");
@@ -1646,7 +1646,7 @@ public class SSLEngineTest extends TestCase {
             fail(e + " was thrown instead of IllegalStateException");
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.SSLEngine#wrap(ByteBuffer[] srcs, ByteBuffer dst)
      */
@@ -1663,7 +1663,7 @@ public class SSLEngineTest extends TestCase {
         ByteBuffer[] bbA = { ByteBuffer.allocate(5), ByteBuffer.allocate(10), ByteBuffer.allocate(5) };
         SSLEngine sse = getEngine(host, port);
         sse.setUseClientMode(true);
-        
+
         try {
             SSLEngineResult res = sse.wrap(bbA, bb);
             assertEquals(0, res.bytesConsumed());
@@ -1700,7 +1700,7 @@ public class SSLEngineTest extends TestCase {
         }
         return context.createSSLEngine(host, port);
     }
-    
+
     class HandshakeHandler implements Runnable {
 
         private final SSLEngine engine;
@@ -1832,7 +1832,7 @@ public class SSLEngineTest extends TestCase {
             }
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
                 level = TestLevel.PARTIAL_COMPLETE,
@@ -1878,7 +1878,7 @@ public class SSLEngineTest extends TestCase {
         prepareEngines();
 
         assertTrue("handshake failed", doHandshake());
-        
+
         System.out.println(clientEngine.engine.getSession().getCipherSuite());
 
         assertEquals("Handshake not finished",
@@ -1888,42 +1888,42 @@ public class SSLEngineTest extends TestCase {
                 SSLEngineResult.HandshakeStatus.FINISHED,
                 serverEngine.getStatus());
     }
-    
+
     void prepareEngines() throws IOException {
         Pipe clientSendPipe = Pipe.open();
         Pipe serverSendPipe = Pipe.open();
-        
+
         SinkChannel clientSink = clientSendPipe.sink();
         SourceChannel serverSource = clientSendPipe.source();
         SinkChannel serverSink = serverSendPipe.sink();
         SourceChannel clientSource = serverSendPipe.source();
-        
+
         clientEngine = new HandshakeHandler(true, clientSource, clientSink);
         serverEngine = new HandshakeHandler(false, serverSource, serverSink);
     }
-    
+
     boolean doHandshake() throws InterruptedException {
         Thread clientThread = new Thread(clientEngine);
         clientThread.start();
-        
+
         Thread serverThread = new Thread(serverEngine);
         serverThread.start();
-        
+
         int i = 0;
         while (clientThread.isAlive() && serverThread.isAlive() && i < 20) {
             Thread.sleep(500);
             i++;
         }
-        
+
         if (clientThread.isAlive()) {
             clientThread.interrupt();
         }
-        
+
         if (serverThread.isAlive()) {
             serverThread.interrupt();
         }
-        
+
         return clientEngine.getStatus() == HandshakeStatus.FINISHED && serverEngine.getStatus() == HandshakeStatus.FINISHED;
     }
-    
+
 }

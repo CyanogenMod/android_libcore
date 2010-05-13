@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,7 @@ public abstract class Selector {
      * The factory method for selector. It returns the selector returned by the
      * default {@link SelectorProvider} by calling its {@code openCollector}
      * method.
-     * 
+     *
      * @return a new selector.
      * @throws IOException
      *             if an I/O error occurs.
@@ -73,7 +73,7 @@ public abstract class Selector {
 
     /**
      * Indicates whether this selector is open.
-     * 
+     *
      * @return {@code true} if this selector is not closed, {@code false}
      *         otherwise.
      */
@@ -82,14 +82,14 @@ public abstract class Selector {
     /**
      * Gets the set of registered keys. The set is immutable and is not thread-
      * safe.
-     * 
+     *
      * @return the set of registered keys.
      */
     public abstract Set<SelectionKey> keys();
 
     /**
      * Gets the provider of this selector.
-     * 
+     *
      * @return the provider of this selector.
      */
     public abstract SelectorProvider provider();
@@ -99,7 +99,7 @@ public abstract class Selector {
      * according to its {@link SelectionKey interest set}. This method does not
      * return until at least one channel is ready, {@link #wakeup()} is
      * invoked or the calling thread is interrupted.
-     * 
+     *
      * @return the number of channels that are ready for operation.
      * @throws IOException
      *             if an I/O error occurs.
@@ -114,7 +114,7 @@ public abstract class Selector {
      * return until at least one channel is ready, {@link #wakeup()} is invoked,
      * the calling thread is interrupted or the specified {@code timeout}
      * expires.
-     * 
+     *
      * @param timeout
      *            the non-negative timeout in millisecond; 0 will block forever
      *            if no channels get ready.
@@ -132,7 +132,7 @@ public abstract class Selector {
      * Gets the selection keys whose channels are ready for operation. The set
      * is not thread-safe and no keys may be added to it. Removing keys is
      * allowed.
-     * 
+     *
      * @return the selection keys whose channels are ready for operation.
      * @throws ClosedSelectorException
      *             if the selector is closed.
@@ -143,7 +143,7 @@ public abstract class Selector {
      * Detects if any of the registered channels is ready for I/O operations
      * according to its {@link SelectionKey interest set}. This operation will
      * return immediately.
-     * 
+     *
      * @return the number of channels that are ready for operation, 0 if none is
      *         ready.
      * @throws IOException

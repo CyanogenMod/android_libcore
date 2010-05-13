@@ -61,15 +61,15 @@ public abstract class LangAccess {
         if (theInstance == null) {
             throw new UnsupportedOperationException("not yet initialized");
         }
-        
+
         return theInstance;
     }
-    
+
     /**
      * Gets a shared array of the enum constants of a given class in
      * declaration (ordinal) order. It is not safe to hand out this
      * array to any user code.
-     * 
+     *
      * @param clazz non-null; the class in question
      * @return null-ok; the class's list of enumerated constants in
      * declaration order or <code>null</code> if the given class is
@@ -78,15 +78,15 @@ public abstract class LangAccess {
     public abstract <T> T[] getEnumValuesInOrder(Class<T> clazz);
 
     /**
-     * Unparks the given thread. This unblocks the thread it if it was 
+     * Unparks the given thread. This unblocks the thread it if it was
      * previously parked, or indicates that the thread is "preemptively
      * unparked" if it wasn't already parked. The latter means that the
      * next time the thread is told to park, it will merely clear its
      * latent park bit and carry on without blocking.
-     * 
+     *
      * <p>See {@link java.util.concurrent.locks.LockSupport} for more
      * in-depth information of the behavior of this method.</p>
-     * 
+     *
      * @param thread non-null; the thread to unpark
      */
     public abstract void unpark(Thread thread);
@@ -99,10 +99,10 @@ public abstract class LangAccess {
      * cancels that unparking and returns immediately. This method may
      * also return spuriously (that is, without the thread being told to
      * unpark and without the indicated amount of time elapsing).
-     * 
+     *
      * <p>See {@link java.util.concurrent.locks.LockSupport} for more
      * in-depth information of the behavior of this method.</p>
-     * 
+     *
      * @param nanos number of nanoseconds to park for or <code>0</code>
      * to park indefinitely
      * @throws IllegalArgumentException thrown if <code>nanos &lt; 0</code>
@@ -121,7 +121,7 @@ public abstract class LangAccess {
      *
      * <p>See {@link java.util.concurrent.locks.LockSupport} for more
      * in-depth information of the behavior of this method.</p>
-     * 
+     *
      * @param time the time after which the thread should be unparked,
      * in absolute milliseconds-since-the-epoch
      */

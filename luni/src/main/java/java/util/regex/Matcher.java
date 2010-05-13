@@ -25,20 +25,20 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * Pattern} instance and an input text. A typical use case is to
  * iteratively find all occurrences of the {@code Pattern}, until the end of
  * the input is reached, as the following example illustrates:
- * 
+ *
  * <p/>
- * 
+ *
  * <pre>
  * Pattern p = Pattern.compile("[A-Za-z]+");
- *  
+ *
  * Matcher m = p.matcher("Hello, Android!");
  * while (m.find()) {
  *     System.out.println(m.group()); // prints "Hello" and "Android"
  * }
  * </pre>
- * 
+ *
  * <p/>
- * 
+ *
  * The {@code Matcher} has a state that results from the previous operations.
  * For example, it knows whether the most recent attempt to find the
  * {@code Pattern} was successful and at which position the next attempt would
@@ -56,7 +56,7 @@ public final class Matcher implements MatchResult {
      * Holds the handle for the native version of the pattern.
      */
     private int nativePattern;
-    
+
     /**
      * Holds the input text.
      */
@@ -67,7 +67,7 @@ public final class Matcher implements MatchResult {
      * beginning of the text.
      */
     private int regionStart;
-    
+
     /**
      * Holds the end of the region, or input.length() if the matching should
      * go until the end of the input.
@@ -79,17 +79,17 @@ public final class Matcher implements MatchResult {
      * started some find/replace operations.
      */
     private boolean searching;
-    
+
     /**
-     * Holds the position where the next find operation will take place. 
+     * Holds the position where the next find operation will take place.
      */
     private int findPos;
-    
+
     /**
-     * Holds the position where the next append operation will take place. 
+     * Holds the position where the next append operation will take place.
      */
     private int appendPos;
-    
+
     /**
      * Reflects whether a match has been found during the most recent find
      * operation.
@@ -105,7 +105,7 @@ public final class Matcher implements MatchResult {
      * Reflects whether the bounds of the region are anchoring.
      */
     private boolean anchoringBounds = true;
-    
+
     /**
      * Reflects whether the bounds of the region are transparent.
      */
@@ -114,7 +114,7 @@ public final class Matcher implements MatchResult {
     /**
      * Creates a matcher for a given combination of pattern and input. Both
      * elements can be changed later on.
-     * 
+     *
      * @param pattern
      *            the pattern to use.
      * @param input
@@ -242,10 +242,10 @@ public final class Matcher implements MatchResult {
      * region being set to the whole input. Results of a previous find get lost.
      * The next attempt to find an occurrence of the {@link Pattern} in the
      * string will start at the beginning of the input.
-     * 
+     *
      * @param input
      *            the new input sequence.
-     * 
+     *
      * @return the {@code Matcher} itself.
      */
     public Matcher reset(CharSequence input) {
@@ -267,7 +267,7 @@ public final class Matcher implements MatchResult {
     /**
      * Resets this matcher and sets a region. Only characters inside the region
      * are considered for a match.
-     * 
+     *
      * @param start
      *            the first character of the region.
      * @param end
@@ -422,7 +422,7 @@ public final class Matcher implements MatchResult {
      * previous match was successful, the method continues the search from the
      * first character following that match in the input. Otherwise it searches
      * either from the region start (if one has been set), or from position 0.
-     * 
+     *
      * @return true if (and only if) a match has been found.
      */
     public boolean find() {
@@ -437,7 +437,7 @@ public final class Matcher implements MatchResult {
             NativeRegEx.startEnd(nativePattern, matchOffsets);
             findPos = matchOffsets[1];
         }
-        
+
         return matchFound;
     }
 
@@ -476,17 +476,17 @@ public final class Matcher implements MatchResult {
     /**
      * Tries to match the {@link Pattern} against the entire region (or the
      * entire input, if no region has been set).
-     * 
+     *
      * @return true if (and only if) the {@code Pattern} matches the entire
      *         region.
      */
     public boolean matches() {
-        matchFound = NativeRegEx.matches(nativePattern, -1); 
+        matchFound = NativeRegEx.matches(nativePattern, -1);
         if (matchFound) {
             NativeRegEx.startEnd(nativePattern, matchOffsets);
             findPos = matchOffsets[1];
         }
-        
+
         return matchFound;
     }
 
@@ -517,23 +517,23 @@ public final class Matcher implements MatchResult {
      * Tries to match the {@link Pattern}, starting from the beginning of the
      * region (or the beginning of the input, if no region has been set).
      * Doesn't require the {@code Pattern} to match against the whole region.
-     * 
+     *
      * @return true if (and only if) the {@code Pattern} matches.
      */
     public boolean lookingAt() {
-        matchFound = NativeRegEx.lookingAt(nativePattern, -1); 
+        matchFound = NativeRegEx.lookingAt(nativePattern, -1);
         if (matchFound) {
             NativeRegEx.startEnd(nativePattern, matchOffsets);
             findPos = matchOffsets[1];
         }
-        
+
         return matchFound;
     }
 
     /**
      * Returns the index of the first character of the text that matched the
      * whole regular expression.
-     * 
+     *
      * @return the character index.
      * @throws IllegalStateException
      *             if no successful match has been made.
@@ -555,7 +555,7 @@ public final class Matcher implements MatchResult {
     /**
      * Returns the index of the first character following the text that matched
      * the whole regular expression.
-     * 
+     *
      * @return the character index.
      * @throws IllegalStateException
      *             if no successful match has been made.
@@ -670,7 +670,7 @@ public final class Matcher implements MatchResult {
     /**
      * Indicates whether more input might change a successful match into an
      * unsuccessful one.
-     * 
+     *
      * @return true if (and only if) more input might change a successful match
      *         into an unsuccessful one.
      */
@@ -732,5 +732,5 @@ public final class Matcher implements MatchResult {
             super.finalize();
         }
     }
-    
+
 }

@@ -47,7 +47,7 @@ import org.apache.harmony.security.tests.support.cert.TestUtils;
 
 /**
  * Tests for <code>PKIXBuilderParameters</code> fields and methods
- * 
+ *
  */
 @TestTargetClass(PKIXBuilderParameters.class)
 public class PKIXBuilderParametersTest extends TestCase {
@@ -155,7 +155,7 @@ public class PKIXBuilderParametersTest extends TestCase {
         HashSet<TrustAnchor> originalSet = (HashSet<TrustAnchor>) taSet;
         HashSet<TrustAnchor> originalSetCopy = (HashSet<TrustAnchor>) originalSet
                 .clone();
-        // create test object using originalSet 
+        // create test object using originalSet
         PKIXBuilderParameters pp =
             new PKIXBuilderParameters(originalSetCopy, null);
         // modify originalSet
@@ -414,7 +414,7 @@ public class PKIXBuilderParametersTest extends TestCase {
 
         PKIXBuilderParameters p = new PKIXBuilderParameters(keyTest,
                 new X509CertSelector());
-        
+
         assertEquals(5, p.getMaxPathLength());
         p.setMaxPathLength(10);
         assertEquals(10, p.getMaxPathLength());
@@ -422,7 +422,7 @@ public class PKIXBuilderParametersTest extends TestCase {
         assertEquals(0, p.getMaxPathLength());
         p.setMaxPathLength(-1);
         assertEquals(-1, p.getMaxPathLength());
-        
+
         int[] maxPathLength = {-2, -10, Integer.MIN_VALUE};
         for (int i = 0; i < maxPathLength.length; i++) {
             try {

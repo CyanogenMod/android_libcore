@@ -24,7 +24,7 @@ import dalvik.annotation.TestTargetClass;
 
 import java.lang.reflect.Array;
 
-@TestTargetClass(Array.class) 
+@TestTargetClass(Array.class)
 public class ArrayTest extends junit.framework.TestCase {
 
     /**
@@ -69,7 +69,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Invalid index failed to throw exception");
         }
-        
+
         //same test with non primitive component type
         Integer[] y = new Integer[]{ 1 };
         ret = null;
@@ -285,7 +285,7 @@ public class ArrayTest extends junit.framework.TestCase {
             // Correct behaviour
             thrown = true;
         }
-        
+
         if (!thrown) {
             fail("Passing non-array failed to throw exception");
         }
@@ -562,7 +562,7 @@ public class ArrayTest extends junit.framework.TestCase {
 
         x = (int[][]) Array.newInstance(int[].class, y);
         assertEquals("Failed to instantiate array properly", 2, x.length);
-        
+
         boolean thrown = false;
         try {
             x = (int[][]) Array.newInstance(null, y);
@@ -573,7 +573,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Null argument failed to throw NPE");
         }
-        
+
         thrown = false;
         try {
             Array.newInstance(int[].class, new int[]{1,-1});
@@ -584,7 +584,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Negative array size failed to throw NegativeArraySizeException");
         }
-        
+
         thrown = false;
         try {
             Array.newInstance(int[].class, new int[]{});
@@ -613,7 +613,7 @@ public class ArrayTest extends junit.framework.TestCase {
 
         x = (int[]) Array.newInstance(int.class, 100);
         assertEquals("Failed to instantiate array properly", 100, x.length);
-        
+
         boolean thrown = false;
         try {
             Array.newInstance(null, 100);
@@ -624,7 +624,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Null argument failed to throw NPE");
         }
-        
+
         thrown = false;
         try {
            Array.newInstance(int[].class, -1);
@@ -688,7 +688,7 @@ public class ArrayTest extends junit.framework.TestCase {
             exception = true;
         }
         assertTrue("expected exception not thrown", exception);
-        
+
         thrown = false;
         try {
            Array.set(null, 0, 2);
@@ -740,7 +740,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Invalid index failed to throw exception");
         }
-        
+
         thrown = false;
         try {
            Array.setBoolean(null, 0, true);
@@ -792,7 +792,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Invalid index failed to throw exception");
         }
-        
+
         thrown = false;
         try {
            Array.setByte(null, 0, (byte)0);
@@ -844,7 +844,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Invalid index failed to throw exception");
         }
-        
+
         thrown = false;
         try {
            Array.setChar(null, 0, (char)0);
@@ -896,7 +896,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Invalid index failed to throw exception");
         }
-        
+
         thrown = false;
         try {
            Array.setDouble(null, 0, 0);
@@ -948,7 +948,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Invalid index failed to throw exception");
         }
-        
+
         thrown = false;
         try {
            Array.setFloat(null, 0, 0);
@@ -1000,7 +1000,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Invalid index failed to throw exception");
         }
-        
+
         thrown = false;
         try {
            Array.setInt(null, 0, 0);
@@ -1052,7 +1052,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Invalid index failed to throw exception");
         }
-        
+
         thrown = false;
         try {
            Array.setLong(null, 0, 0);
@@ -1104,7 +1104,7 @@ public class ArrayTest extends junit.framework.TestCase {
         if (!thrown) {
             fail("Invalid index failed to throw exception");
         }
-        
+
         thrown = false;
         try {
            Array.setShort(null, 0, (short)0);

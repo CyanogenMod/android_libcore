@@ -40,7 +40,7 @@ public class KeyAgreementFunctionalTest extends TestCase {
 
         KeyAgreementThread kat = new KeyAgreementThread(algArray);
         kat.launcher();
-        
+
         assertEquals(kat.getFailureMessages(), 0, kat.getTotalFailuresNumber());
     }
 }

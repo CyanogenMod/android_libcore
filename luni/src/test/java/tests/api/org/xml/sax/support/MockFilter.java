@@ -35,16 +35,16 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class MockFilter extends XMLFilterImpl {
 
     private MethodLogger logger;
-    
+
     private Set<String> features = new HashSet<String>();
 
     private Map<String, Object> properties = new HashMap<String, Object>();
-    
+
     public MockFilter(MethodLogger logger) {
         super();
         this.logger = logger;
     }
-    
+
     @Override
     public boolean getFeature(String name) throws SAXNotRecognizedException,
             SAXNotSupportedException {

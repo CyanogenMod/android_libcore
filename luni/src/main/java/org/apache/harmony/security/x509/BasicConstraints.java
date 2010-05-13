@@ -95,11 +95,11 @@ public class BasicConstraints extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("BasicConstraints [\n").append(prefix) 
-            .append("  CA: ").append(cA) 
-            .append("\n  ").append(prefix).append("pathLenConstraint: ")  
+        buffer.append(prefix).append("BasicConstraints [\n").append(prefix)
+            .append("  CA: ").append(cA)
+            .append("\n  ").append(prefix).append("pathLenConstraint: ")
             .append(pathLenConstraint).append('\n').append(prefix)
-            .append("]\n"); 
+            .append("]\n");
     }
 
     /**

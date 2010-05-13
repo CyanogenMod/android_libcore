@@ -30,9 +30,9 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>CertPathTrustManagerParameters</code> class constructors
  * and methods.
- *  
+ *
  */
-@TestTargetClass(CertPathTrustManagerParameters.class) 
+@TestTargetClass(CertPathTrustManagerParameters.class)
 public class CertPathTrustManagerParametersTest extends TestCase {
 
     /**
@@ -58,7 +58,7 @@ public class CertPathTrustManagerParametersTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e.toString());
         }
-        
+
         // case 2: Check NullPointerException.
         try {
             new CertPathTrustManagerParameters(null);
@@ -67,7 +67,7 @@ public class CertPathTrustManagerParametersTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests javax.net.ssl.CertPathTrustManagerParameters#getParameters()
      */

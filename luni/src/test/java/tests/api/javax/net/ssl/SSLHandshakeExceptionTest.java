@@ -24,15 +24,15 @@ import javax.net.ssl.SSLHandshakeException;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(SSLHandshakeException.class) 
+@TestTargetClass(SSLHandshakeException.class)
 public class SSLHandshakeExceptionTest extends TestCase {
-    
+
     private static String[] msgs = {
             "",
             "Check new message",
             "Check new message Check new message Check new message Check new message Check new message" };
-    
-    
+
+
     /**
      * Test for <code>SSLHandshakeException(String)</code> constructor Assertion:
      * constructs SSLHandshakeException with detail message msg. Parameter
@@ -52,7 +52,7 @@ public class SSLHandshakeExceptionTest extends TestCase {
             assertNull("getCause() must return null", sslE.getCause());
         }
     }
-    
+
     /**
      * Test for <code>SSLHandshakeException(String)</code> constructor Assertion:
      * constructs SSLHandshakeException with detail message msg. Parameter

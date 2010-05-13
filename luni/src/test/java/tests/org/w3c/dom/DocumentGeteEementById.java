@@ -13,10 +13,10 @@ import javax.xml.parsers.DocumentBuilder;
 /**
  * The method getElementById returns the element whose ID is given by elementId.
  * If not such element exists, returns null.
- * 
+ *
  * Invoke the getElementById method on this Document object with an invalid
  * elementId. This should return a null element.
- * 
+ *
  * @author IBM
  * @author Neil Delima
  * @see <a
@@ -24,7 +24,7 @@ import javax.xml.parsers.DocumentBuilder;
  * @see <a
  *      href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBId">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBId</a>
  */
-@TestTargetClass(Document.class) 
+@TestTargetClass(Document.class)
 public final class DocumentGeteEementById extends DOMTestCase {
 
     DOMDocumentBuilderFactory factory;
@@ -50,7 +50,7 @@ public final class DocumentGeteEementById extends DOMTestCase {
 
     /**
      * Runs the test case.
-     * 
+     *
      * @throws Throwable
      *             Any uncaught exception causes test to fail
      */

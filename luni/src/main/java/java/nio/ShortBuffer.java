@@ -35,7 +35,7 @@ public abstract class ShortBuffer extends Buffer implements
 
     /**
      * Creates a short buffer based on a newly allocated short array.
-     * 
+     *
      * @param capacity
      *            the capacity of the new buffer.
      * @return the created short buffer.
@@ -146,7 +146,7 @@ public abstract class ShortBuffer extends Buffer implements
     /**
      * Compare the remaining shorts of this buffer to another short buffer's
      * remaining shorts.
-     * 
+     *
      * @param otherBuffer
      *            another short buffer.
      * @return a negative value if this is less than {@code otherBuffer}; 0 if
@@ -225,7 +225,7 @@ public abstract class ShortBuffer extends Buffer implements
     /**
      * Returns the short at the current position and increases the position by
      * 1.
-     * 
+     *
      * @return the short at the current position.
      * @exception BufferUnderflowException
      *                if the position is equal or greater than limit.
@@ -253,7 +253,7 @@ public abstract class ShortBuffer extends Buffer implements
      * Reads shorts from the current position into the specified short array,
      * starting from the specified offset, and increases the position by the
      * number of shorts read.
-     * 
+     *
      * @param dest
      *            the target short array.
      * @param off
@@ -284,7 +284,7 @@ public abstract class ShortBuffer extends Buffer implements
 
     /**
      * Returns the short at the specified index; the position is not changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than limit.
      * @return a short at the specified index.
@@ -361,7 +361,7 @@ public abstract class ShortBuffer extends Buffer implements
     /**
      * Writes the given short to the current position and increases the position
      * by 1.
-     * 
+     *
      * @param s
      *            the short to write.
      * @return this buffer.
@@ -395,7 +395,7 @@ public abstract class ShortBuffer extends Buffer implements
      * Writes shorts from the given short array, starting from the specified
      * offset, to the current position and increases the position by the number
      * of shorts written.
-     * 
+     *
      * @param src
      *            the source short array.
      * @param off
@@ -431,7 +431,7 @@ public abstract class ShortBuffer extends Buffer implements
      * Writes all the remaining shorts of the {@code src} short buffer to this
      * buffer's current position, and increases both buffers' position by the
      * number of shorts copied.
-     * 
+     *
      * @param src
      *            the source short buffer.
      * @return this buffer.
@@ -459,7 +459,7 @@ public abstract class ShortBuffer extends Buffer implements
     /**
      * Writes a short to the specified index of this buffer; the position is not
      * changed.
-     * 
+     *
      * @param index
      *            the index, must not be negative and less than the limit.
      * @param s
@@ -484,25 +484,25 @@ public abstract class ShortBuffer extends Buffer implements
      * The new buffer shares its content with this buffer, which means either
      * buffer's change of content will be visible to the other. The two buffer's
      * position, limit and mark are independent.
-     * 
+     *
      * @return a sliced buffer that shares its content with this buffer.
      */
     public abstract ShortBuffer slice();
 
     /**
      * Returns a string representing the state of this short buffer.
-     * 
+     *
      * @return a string representing the state of this short buffer.
      */
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append(getClass().getName());
-        buf.append(", status: capacity="); 
+        buf.append(", status: capacity=");
         buf.append(capacity());
-        buf.append(" position="); 
+        buf.append(" position=");
         buf.append(position());
-        buf.append(" limit="); 
+        buf.append(" limit=");
         buf.append(limit());
         return buf.toString();
     }

@@ -30,7 +30,7 @@ import java.util.TimeZone;
 
 /**
  * This class represents ASN.1 UTCTime type
- * 
+ *
  * @see http://asn1.elibel.tm.fr/en/standards/index.htm
  */
 public class ASN1UTCTime extends ASN1Time {
@@ -60,7 +60,7 @@ public class ASN1UTCTime extends ASN1Time {
 
     /**
      * Constructs ASN.1 UTCTime type
-     * 
+     *
      * The constructor is provided for inheritance purposes
      * when there is a need to create a custom ASN.1 UTCTime type.
      * To get a default implementation it is recommended to use
@@ -72,7 +72,7 @@ public class ASN1UTCTime extends ASN1Time {
 
     /**
      * Returns ASN.1 UTCTime type default implementation
-     * 
+     *
      * The default implementation works with encoding
      * that is represented as Date object.
      *
@@ -111,13 +111,13 @@ public class ASN1UTCTime extends ASN1Time {
     // According to X.680 coordinated universal time format:
     // two digit year, seconds always presented,
     // no fractional-seconds elements, 'Z' at the end
-    private final static String UTC_PATTERN = "yyMMddHHmmss'Z'"; 
+    private final static String UTC_PATTERN = "yyMMddHHmmss'Z'";
 
     public void setEncodingContent(BerOutputStream out) {
         SimpleDateFormat sdf = new SimpleDateFormat(UTC_PATTERN);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC")); 
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
-            out.content = sdf.format(out.content).getBytes("UTF-8"); 
+            out.content = sdf.format(out.content).getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage());
         }

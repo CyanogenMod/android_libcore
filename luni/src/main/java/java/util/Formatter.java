@@ -577,7 +577,7 @@ public final class Formatter implements Closeable, Flushable {
      *
      * <p>The {@code Locale} used is the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param a
      *            the output destination of the {@code Formatter}. If {@code a} is {@code null},
      *            then a {@code StringBuilder} will be used.
@@ -628,7 +628,7 @@ public final class Formatter implements Closeable, Flushable {
      *
      * <p>The {@code Locale} used is the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param fileName
      *            the filename of the file that is used as the output
      *            destination for the {@code Formatter}. The file will be truncated to
@@ -652,7 +652,7 @@ public final class Formatter implements Closeable, Flushable {
      *
      * <p>The {@code Locale} used is the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param fileName
      *            the filename of the file that is used as the output
      *            destination for the {@code Formatter}. The file will be truncated to
@@ -712,7 +712,7 @@ public final class Formatter implements Closeable, Flushable {
      *
      * <p>The {@code Locale} used is the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param file
      *            the {@code File} that is used as the output destination for the
      *            {@code Formatter}. The {@code File} will be truncated to zero size if the {@code File}
@@ -736,7 +736,7 @@ public final class Formatter implements Closeable, Flushable {
      *
      * <p>The {@code Locale} used is the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param file
      *            the {@code File} that is used as the output destination for the
      *            {@code Formatter}. The {@code File} will be truncated to zero size if the {@code File}
@@ -807,7 +807,7 @@ public final class Formatter implements Closeable, Flushable {
      *
      * <p>The {@code Locale} used is the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param os
      *            the stream to be used as the destination of the {@code Formatter}.
      */
@@ -822,7 +822,7 @@ public final class Formatter implements Closeable, Flushable {
      *
      * <p>The {@code Locale} used is the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param os
      *            the stream to be used as the destination of the {@code Formatter}.
      * @param csn
@@ -860,7 +860,7 @@ public final class Formatter implements Closeable, Flushable {
      *
      * <p>The {@code Locale} used is the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
-     * 
+     *
      * @param ps
      *            the {@code PrintStream} used as destination of the {@code Formatter}. If
      *            {@code ps} is {@code null}, then a {@code NullPointerException} will
@@ -1326,7 +1326,7 @@ public final class Formatter implements Closeable, Flushable {
             default:
                 throw unknownFormatConversionException();
             }
-            
+
             // Check for disallowed flags.
             String mismatch = null;
             if (!allowAdd && flagAdd) {
@@ -1352,18 +1352,18 @@ public final class Formatter implements Closeable, Flushable {
                     throw new FormatFlagsConversionMismatchException(mismatch, conversionType);
                 }
             }
-            
+
             // Check for a missing width with flags that require a width.
             if ((flagMinus || flagZero) && width == UNSET) {
                 throw new MissingFormatWidthException("-" + conversionType);
             }
-            
+
             // Check that no-argument conversion types don't have an argument.
             // Note: the RI doesn't enforce this.
             if (!allowArgument && argIndex != UNSET) {
                 throw new IllegalFormatFlagsException(getStrFlags());
             }
-            
+
             // Check that we don't have a precision or width where they're not allowed.
             if (!allowPrecision && precision != UNSET) {
                 throw new IllegalFormatPrecisionException(precision);
@@ -1371,7 +1371,7 @@ public final class Formatter implements Closeable, Flushable {
             if (!allowWidth && width != UNSET) {
                 throw new IllegalFormatWidthException(width);
             }
-            
+
             // Some combinations make no sense...
             if (flagAdd && flagSpace) {
                 throw new IllegalFormatFlagsException("the '+' and ' ' flags are incompatible");
@@ -1827,7 +1827,7 @@ public final class Formatter implements Closeable, Flushable {
         }
         return padding(result, 0);
     }
-        
+
     private boolean appendT(StringBuilder result, char conversion, Calendar calendar) {
         switch (conversion) {
         case 'A':
@@ -1964,11 +1964,11 @@ public final class Formatter implements Closeable, Flushable {
         }
         return false;
     }
-    
+
     private int to12Hour(int hour) {
         return hour == 0 ? 12 : hour;
     }
-    
+
     private void appendLocalized(StringBuilder result, long value, int width) {
         int paddingIndex = result.length();
         char zeroDigit = localeData.zeroDigit;
@@ -2249,11 +2249,11 @@ public final class Formatter implements Closeable, Flushable {
             }
             return format.charAt(i++);
         }
-        
+
         private UnknownFormatConversionException unknownFormatConversionException() {
             throw new UnknownFormatConversionException(getFormatSpecifierText());
         }
-        
+
         private FormatToken parseArgumentIndexAndFlags(FormatToken token) {
             // Parse the argument index, if there is one.
             int position = i;

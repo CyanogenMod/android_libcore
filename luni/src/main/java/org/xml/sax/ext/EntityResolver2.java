@@ -108,7 +108,7 @@ public interface EntityResolver2 extends EntityResolver
      * that attributes are handled consistently.
      * For example, an XPath processor needs to know which attibutes have
      * type "ID" before it can process a widely used type of reference.</p>
-     * 
+     *
      * <p><strong>Warning:</strong> Returning an external subset modifies
      * the input document.  By providing definitions for general entities,
      * it can make a malformed document appear to be well formed.
@@ -116,7 +116,7 @@ public interface EntityResolver2 extends EntityResolver
      *
      * @param name Identifies the document root element.  This name comes
      *    from a DOCTYPE declaration (where available) or from the actual
-     *    root element. 
+     *    root element.
      * @param baseURI The document's base URI, serving as an additional
      *    hint for selecting the external subset.  This is always an absolute
      *    URI, unless it is null because the XMLReader was given an InputSource

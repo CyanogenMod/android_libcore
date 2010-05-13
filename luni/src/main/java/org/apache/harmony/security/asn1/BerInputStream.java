@@ -31,7 +31,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * Decodes ASN.1 types encoded with BER (X.690)
- * 
+ *
  * @see <a href="http://asn1.elibel.tm.fr/en/standards/index.htm">ASN.1</a>
  */
 
@@ -43,13 +43,13 @@ public class BerInputStream {
     protected InputStream in;
 
     /**
-     * Internal buffer for storing encoded array 
+     * Internal buffer for storing encoded array
      */
     protected byte[] buffer;
 
     /**
      * The position in the buffer.
-     * 
+     *
      * Next read must place data into the buffer from this offset
      */
     protected int offset = 0;
@@ -60,13 +60,13 @@ public class BerInputStream {
     private static final int BUF_INCREASE_SIZE = 1024 * 16;
 
     /**
-     * Indicates indefinite length of the current type 
+     * Indicates indefinite length of the current type
      */
     protected static final int INDEFINIT_LENGTH = -1;
 
     /**
      * Creates stream for decoding.
-     * 
+     *
      * @param encoded - bytes array to be decoded
      * @throws IOException - if an error occurs
      */
@@ -76,7 +76,7 @@ public class BerInputStream {
 
     /**
      * Creates stream for decoding.
-     * 
+     *
      * @param encoded -
      *            bytes array to be decoded
      * @param offset -
@@ -98,15 +98,15 @@ public class BerInputStream {
         // compare expected and decoded length
         if (length != INDEFINIT_LENGTH
                 && (offset + expectedLength) != (this.offset + this.length)) {
-            throw new ASN1Exception(Messages.getString("security.111")); 
+            throw new ASN1Exception(Messages.getString("security.111"));
         }
     }
 
     /**
      * Creates stream for decoding.
-     * 
+     *
      * Allocates initial buffer of default size
-     *  
+     *
      * @param is associated <code>InputStream</code>
      */
     public BerInputStream(InputStream in) throws IOException {
@@ -115,9 +115,9 @@ public class BerInputStream {
 
     /**
      * Creates stream for decoding.
-     * 
-     * Allocates initial buffer of <code>initialSize</code> size 
-     * 
+     *
+     * Allocates initial buffer of <code>initialSize</code> size
+     *
      * @param initialSize the internal buffer initial size
      * @param is associated <code>InputStream</code>
      */
@@ -138,13 +138,13 @@ public class BerInputStream {
             }
         } else {
             isIndefinedLength = true;
-            throw new ASN1Exception(Messages.getString("security.112")); 
+            throw new ASN1Exception(Messages.getString("security.112"));
         }
     }
 
     /**
      * Resets this stream to initial state.
-     * 
+     *
      * @param encoded - a new bytes array to be decoded
      * @throws IOException - if an error occurs
      */
@@ -201,7 +201,7 @@ public class BerInputStream {
                 int numOctets = length & 0x7F;
 
                 if (numOctets > 5) {
-                    throw new ASN1Exception(Messages.getString("security.113", 
+                    throw new ASN1Exception(Messages.getString("security.113",
                             tagOffset)); //FIXME message
                 }
 
@@ -213,7 +213,7 @@ public class BerInputStream {
                 }
 
                 if (length > 0xFFFFFF) {
-                    throw new ASN1Exception(Messages.getString("security.113", 
+                    throw new ASN1Exception(Messages.getString("security.113",
                             tagOffset)); //FIXME message
                 }
             }
@@ -246,7 +246,7 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 bitstring type
-     * 
+     *
      * @throws IOException - if error occured
      */
     public void readBitString() throws IOException {
@@ -255,41 +255,41 @@ public class BerInputStream {
 
             if (length == 0) {
                 throw new ASN1Exception(
-                        Messages.getString("security.114", tagOffset)); 
+                        Messages.getString("security.114", tagOffset));
             }
 
             readContent();
 
             // content: check unused bits
             if (buffer[contentOffset] > 7) {
-                throw new ASN1Exception(Messages.getString("security.115", 
+                throw new ASN1Exception(Messages.getString("security.115",
                         contentOffset));
             }
 
             if (length == 1 && buffer[contentOffset] != 0) {
-                throw new ASN1Exception(Messages.getString("security.116", 
+                throw new ASN1Exception(Messages.getString("security.116",
                         contentOffset));
             }
 
         } else if (tag == ASN1Constants.TAG_C_BITSTRING) {
-            throw new ASN1Exception(Messages.getString("security.117")); 
+            throw new ASN1Exception(Messages.getString("security.117"));
         } else {
             throw new ASN1Exception(
-                    Messages.getString("security.118", tagOffset, 
+                    Messages.getString("security.118", tagOffset,
                             Integer.toHexString(tag)));
         }
     }
 
     /**
      * Decodes ASN.1 Enumerated type
-     * 
+     *
      * @throws IOException - if error occured
      */
     public void readEnumerated() throws IOException {
 
         if (tag != ASN1Constants.TAG_ENUM) {
             throw new ASN1Exception(
-                    Messages.getString("security.119", tagOffset, 
+                    Messages.getString("security.119", tagOffset,
                             Integer.toHexString(tag)));
         }
 
@@ -313,20 +313,20 @@ public class BerInputStream {
             }
 
             if (bits == 0 || bits == 0x1FF) {
-                throw new ASN1Exception(Messages.getString("security.11B", contentOffset)); 
+                throw new ASN1Exception(Messages.getString("security.11B", contentOffset));
             }
         }
     }
 
     /**
      * Decodes ASN.1 boolean type
-     * 
+     *
      * @throws IOException - if error occured
      */
     public void readBoolean() throws IOException {
 
         if (tag != ASN1Constants.TAG_BOOLEAN) {
-            throw new ASN1Exception(Messages.getString("security.11C", 
+            throw new ASN1Exception(Messages.getString("security.11C",
                     tagOffset, Integer.toHexString(tag)));
         }
 
@@ -350,11 +350,11 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 GeneralizedTime type
-     * 
+     *
      * @throws IOException - if error occured
      */
     public void readGeneralizedTime() throws IOException {
-        
+
         if (tag == ASN1Constants.TAG_GENERALIZEDTIME) {
 
             // FIXME: any other optimizations?
@@ -365,14 +365,14 @@ public class BerInputStream {
             // check syntax: the last char MUST be Z
             if (buffer[offset - 1] != 'Z') {
                 // FIXME support only format that is acceptable for DER
-                throw new ASN1Exception(Messages.getString("security.11E")); 
+                throw new ASN1Exception(Messages.getString("security.11E"));
             }
 
             // check syntax: MUST be YYYYMMDDHHMMSS[(./,)DDD]'Z'
             if (length != 15 && (length < 17 || length > 19)) // invalid
                                                                 // length
             {
-                throw new ASN1Exception(Messages.getString("security.11F", 
+                throw new ASN1Exception(Messages.getString("security.11F",
                                 contentOffset));
             }
 
@@ -381,7 +381,7 @@ public class BerInputStream {
                 byte char14 = buffer[contentOffset + 14];
                 if (char14 != '.' && char14 != ',') {
                     throw new ASN1Exception(
-                            Messages.getString("security.11F", 
+                            Messages.getString("security.11F",
                                     contentOffset));
                 }
             }
@@ -409,10 +409,10 @@ public class BerInputStream {
 
             // FIXME check all values for valid numbers!!!
         } else if (tag == ASN1Constants.TAG_C_GENERALIZEDTIME) {
-            throw new ASN1Exception(Messages.getString("security.120")); 
+            throw new ASN1Exception(Messages.getString("security.120"));
 
         } else {
-            throw new ASN1Exception(Messages.getString("security.121", 
+            throw new ASN1Exception(Messages.getString("security.121",
                             tagOffset, Integer.toHexString(tag)));
         }
     }
@@ -433,9 +433,9 @@ public class BerInputStream {
             case ASN1UTCTime.UTC_LOCAL_HM:
             case ASN1UTCTime.UTC_LOCAL_HMS:
                 // FIXME only coordinated universal time formats are supported
-                throw new ASN1Exception(Messages.getString("security.122")); 
+                throw new ASN1Exception(Messages.getString("security.122"));
             default:
-                throw new ASN1Exception(Messages.getString("security.123", 
+                throw new ASN1Exception(Messages.getString("security.123",
                                 tagOffset));
             }
 
@@ -447,7 +447,7 @@ public class BerInputStream {
 
             // check syntax: the last char MUST be Z
             if (buffer[offset - 1] != 'Z') {
-                throw new ASN1Exception("ASN.1 UTCTime wrongly encoded at [" 
+                throw new ASN1Exception("ASN.1 UTCTime wrongly encoded at ["
                         + contentOffset + ']');
             }
 
@@ -473,9 +473,9 @@ public class BerInputStream {
 
             // FIXME check all time values for valid numbers!!!
         } else if (tag == ASN1Constants.TAG_C_UTCTIME) {
-            throw new ASN1Exception(Messages.getString("security.124")); 
+            throw new ASN1Exception(Messages.getString("security.124"));
         } else {
-            throw new ASN1Exception(Messages.getString("security.125", 
+            throw new ASN1Exception(Messages.getString("security.125",
                     tagOffset, Integer.toHexString(tag)));
         }
     }
@@ -490,7 +490,7 @@ public class BerInputStream {
         for (int i = off, end = off + count; i < end; i++) {
             c = buffer[i] - 48;
             if (c < 0 || c > 9) {
-                throw new ASN1Exception(Messages.getString("security.126")); 
+                throw new ASN1Exception(Messages.getString("security.126"));
             }
             result = result * 10 + c;
         }
@@ -499,20 +499,20 @@ public class BerInputStream {
 
     /**
      * Decodes ASN.1 Integer type
-     * 
+     *
      * @throws IOException - if error occured
      */
     public void readInteger() throws IOException {
 
         if (tag != ASN1Constants.TAG_INTEGER) {
-            throw new ASN1Exception(Messages.getString("security.127", 
+            throw new ASN1Exception(Messages.getString("security.127",
                     tagOffset, Integer.toHexString(tag)));
         }
 
         // check encoded length
         if (length < 1) {
-            throw new ASN1Exception(Messages.getString("security.128", 
-                    tagOffset)); 
+            throw new ASN1Exception(Messages.getString("security.128",
+                    tagOffset));
         }
 
         readContent();
@@ -525,7 +525,7 @@ public class BerInputStream {
 
             if (firstByte == 0 && secondByte == 0 || firstByte == (byte) 0xFF
                     && secondByte == (byte) 0x80) {
-                throw new ASN1Exception(Messages.getString("security.129", 
+                throw new ASN1Exception(Messages.getString("security.129",
                                 (offset - length)));
             }
         }
@@ -541,10 +541,10 @@ public class BerInputStream {
         if (tag == ASN1Constants.TAG_OCTETSTRING) {
             readContent();
         } else if (tag == ASN1Constants.TAG_C_OCTETSTRING) {
-            throw new ASN1Exception(Messages.getString("security.12A")); 
+            throw new ASN1Exception(Messages.getString("security.12A"));
         } else {
             throw new ASN1Exception(
-                    Messages.getString("security.12B", tagOffset, 
+                    Messages.getString("security.12B", tagOffset,
                             Integer.toHexString(tag)));
         }
     }
@@ -560,25 +560,25 @@ public class BerInputStream {
     public void readOID() throws IOException {
 
         if (tag != ASN1Constants.TAG_OID) {
-            throw new ASN1Exception(Messages.getString("security.12C", 
+            throw new ASN1Exception(Messages.getString("security.12C",
                     tagOffset, Integer.toHexString(tag)));
         }
 
         // check encoded length
         if (length < 1) {
-            throw new ASN1Exception(Messages.getString("security.12D", tagOffset)); 
+            throw new ASN1Exception(Messages.getString("security.12D", tagOffset));
         }
 
         readContent();
 
         // check content: last encoded byte (8th bit MUST be zero)
         if ((buffer[offset - 1] & 0x80) != 0) {
-            throw new ASN1Exception(Messages.getString("security.12E", (offset - 1))); 
+            throw new ASN1Exception(Messages.getString("security.12E", (offset - 1)));
         }
 
         oidElement = 1;
         for (int i = 0; i < length; i++, ++oidElement) {
-        
+
             // According to ASN.1 BER spec:
             //    leading octet of subidentifier MUST not be 0x80
             // This assertion is not verified
@@ -589,7 +589,7 @@ public class BerInputStream {
             //                    + contentOffset
             //                    + "]. Subidentifier MUST be encoded in minimum number of octets");
             //}
-        
+
             while ((buffer[contentOffset + i] & 0x80) == 0x80) {
                 i++;
             }
@@ -606,7 +606,7 @@ public class BerInputStream {
 
         if (tag != ASN1Constants.TAG_C_SEQUENCE) {
             throw new ASN1Exception(
-                    Messages.getString("security.12F", tagOffset, 
+                    Messages.getString("security.12F", tagOffset,
                             Integer.toHexString(tag)));
         }
 
@@ -623,9 +623,9 @@ public class BerInputStream {
 
                 next();
                 while (!type[i].checkTag(tag)) {
-                    // check whether it is optional component or not 
+                    // check whether it is optional component or not
                     if (!sequence.OPTIONAL[i] || (i == type.length - 1)) {
-                        throw new ASN1Exception(Messages.getString("security.130", 
+                        throw new ASN1Exception(Messages.getString("security.130",
                                         tagOffset));
                     }
                     i++;
@@ -637,7 +637,7 @@ public class BerInputStream {
             // check the rest of components
             for (; i < type.length; i++) {
                 if (!sequence.OPTIONAL[i]) {
-                    throw new ASN1Exception(Messages.getString("security.131", 
+                    throw new ASN1Exception(Messages.getString("security.131",
                             tagOffset));
                 }
             }
@@ -651,9 +651,9 @@ public class BerInputStream {
 
                 next();
                 while (!type[i].checkTag(tag)) {
-                    // check whether it is optional component or not 
+                    // check whether it is optional component or not
                     if (!sequence.OPTIONAL[i] || (i == type.length - 1)) {
-                        throw new ASN1Exception(Messages.getString("security.132", 
+                        throw new ASN1Exception(Messages.getString("security.132",
                                         tagOffset));
                     }
 
@@ -669,7 +669,7 @@ public class BerInputStream {
             // check the rest of components
             for (; i < type.length; i++) {
                 if (!sequence.OPTIONAL[i]) {
-                    throw new ASN1Exception(Messages.getString("security.133", 
+                    throw new ASN1Exception(Messages.getString("security.133",
                             tagOffset));
                 }
                 if (sequence.DEFAULT[i] != null) {
@@ -682,7 +682,7 @@ public class BerInputStream {
         }
 
         if (offset != endOffset) {
-            throw new ASN1Exception(Messages.getString("security.134", begOffset)); 
+            throw new ASN1Exception(Messages.getString("security.134", begOffset));
         }
     }
 
@@ -693,9 +693,9 @@ public class BerInputStream {
      * @throws IOException - if error occured
      */
     public void readSequenceOf(ASN1SequenceOf sequenceOf) throws IOException {
-        
+
         if (tag != ASN1Constants.TAG_C_SEQUENCEOF) {
-            throw new ASN1Exception(Messages.getString("security.135", tagOffset, 
+            throw new ASN1Exception(Messages.getString("security.135", tagOffset,
                             Integer.toHexString(tag)));
         }
 
@@ -709,13 +709,13 @@ public class BerInputStream {
      * @throws IOException - if error occured
      */
     public void readSet(ASN1Set set) throws IOException {
-        
+
         if (tag != ASN1Constants.TAG_C_SET) {
-            throw new ASN1Exception(Messages.getString("security.136", 
+            throw new ASN1Exception(Messages.getString("security.136",
                     tagOffset, Integer.toHexString(tag)));
         }
 
-        throw new ASN1Exception(Messages.getString("security.137")); 
+        throw new ASN1Exception(Messages.getString("security.137"));
     }
 
     /**
@@ -725,9 +725,9 @@ public class BerInputStream {
      * @throws IOException - if error occured
      */
     public void readSetOf(ASN1SetOf setOf) throws IOException {
-        
+
         if (tag != ASN1Constants.TAG_C_SETOF) {
-            throw new ASN1Exception(Messages.getString("security.138", 
+            throw new ASN1Exception(Messages.getString("security.138",
                     tagOffset, Integer.toHexString(tag)));
         }
 
@@ -763,7 +763,7 @@ public class BerInputStream {
         }
 
         if (offset != endOffset) {
-            throw new ASN1Exception(Messages.getString("security.134", begOffset)); 
+            throw new ASN1Exception(Messages.getString("security.134", begOffset));
         }
     }
 
@@ -778,18 +778,18 @@ public class BerInputStream {
         if (tag == type.id) {
             readContent();
         } else if (tag == type.constrId) {
-            throw new ASN1Exception(Messages.getString("security.139")); 
+            throw new ASN1Exception(Messages.getString("security.139"));
         } else {
             throw new ASN1Exception(
-                    Messages.getString("security.13A", tagOffset, 
+                    Messages.getString("security.13A", tagOffset,
                             Integer.toHexString(tag)));
         }
     }
 
     /**
      * Returns encoded array.
-     * 
-     * MUST be invoked after decoding corresponding ASN.1 notation  
+     *
+     * MUST be invoked after decoding corresponding ASN.1 notation
      */
     public byte[] getEncoded() {
         byte[] encoded = new byte[offset - tagOffset];
@@ -848,11 +848,11 @@ public class BerInputStream {
 
     /**
      * Indicates verify or store mode.
-     * 
+     *
      * In store mode a decoded content is stored in a newly allocated
      * appropriate object. The <code>content</code> variable holds
      * a reference to the last created object.
-     * 
+     *
      * In verify mode a decoded content is not stored.
      */
     // FIXME it is used only for one case
@@ -869,7 +869,7 @@ public class BerInputStream {
 
     /**
      * Indicates defined or indefined reading mode for associated InputStream.
-     * 
+     *
      * This mode is defined by reading a length
      * for a first ASN.1 type from InputStream.
      */
@@ -884,7 +884,7 @@ public class BerInputStream {
     protected int read() throws IOException {
 
         if (offset == buffer.length) {
-            throw new ASN1Exception(Messages.getString("security.13B")); 
+            throw new ASN1Exception(Messages.getString("security.13B"));
         }
 
         if (in == null) {
@@ -892,11 +892,11 @@ public class BerInputStream {
         } else {
             int octet = in.read();
             if (octet == -1) {
-                throw new ASN1Exception(Messages.getString("security.13B")); 
+                throw new ASN1Exception(Messages.getString("security.13B"));
             }
-            
+
             buffer[offset++] = (byte) octet;
-            
+
             return octet;
         }
     }
@@ -909,7 +909,7 @@ public class BerInputStream {
      */
     public void readContent() throws IOException {
         if (offset + length > buffer.length) {
-            throw new ASN1Exception(Messages.getString("security.13B")); 
+            throw new ASN1Exception(Messages.getString("security.13B"));
         }
 
         if (in == null) {
@@ -924,7 +924,7 @@ public class BerInputStream {
                 do {
                     if (c < 1 || bytesRead > length) {
                         throw new ASN1Exception(Messages
-                                .getString("security.13C")); 
+                                .getString("security.13C"));
                     }
                     c = in.read(buffer, offset + bytesRead, length - bytesRead);
                     bytesRead += c;

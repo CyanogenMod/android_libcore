@@ -255,7 +255,7 @@ public abstract class KeyStoreSpi {
      */
     public void engineStore(KeyStore.LoadStoreParameter param)
             throws IOException, NoSuchAlgorithmException, CertificateException {
-        throw new UnsupportedOperationException(Messages.getString("security.33")); 
+        throw new UnsupportedOperationException(Messages.getString("security.33"));
     }
 
     /**
@@ -323,7 +323,7 @@ public abstract class KeyStoreSpi {
             }
         }
         throw new UnsupportedOperationException(
-                Messages.getString("security.35")); 
+                Messages.getString("security.35"));
     }
 
     /**
@@ -361,13 +361,13 @@ public abstract class KeyStoreSpi {
                     passW = ((KeyStore.PasswordProtection) protParam)
                             .getPassword();
                 } catch (IllegalStateException ee) {
-                    throw new KeyStoreException(Messages.getString("security.36"), ee); 
+                    throw new KeyStoreException(Messages.getString("security.36"), ee);
                 }
             } else if (protParam instanceof KeyStore.CallbackHandlerProtection) {
                 passW = getPasswordFromCallBack(protParam);
             } else {
                 throw new UnrecoverableEntryException(
-                        Messages.getString("security.37", 
+                        Messages.getString("security.37",
                                 protParam.toString()));
             }
         }
@@ -385,7 +385,7 @@ public abstract class KeyStoreSpi {
                 throw new KeyStoreException(e);
             }
         }
-        throw new NoSuchAlgorithmException(Messages.getString("security.38")); 
+        throw new NoSuchAlgorithmException(Messages.getString("security.38"));
     }
 
     /**
@@ -407,7 +407,7 @@ public abstract class KeyStoreSpi {
     public void engineSetEntry(String alias, KeyStore.Entry entry,
             KeyStore.ProtectionParameter protParam) throws KeyStoreException {
         if (entry == null) {
-            throw new KeyStoreException(Messages.getString("security.39")); 
+            throw new KeyStoreException(Messages.getString("security.39"));
         }
 
         if (engineContainsAlias(alias)) {
@@ -425,7 +425,7 @@ public abstract class KeyStoreSpi {
             try {
                 passW = ((KeyStore.PasswordProtection) protParam).getPassword();
             } catch (IllegalStateException ee) {
-                throw new KeyStoreException(Messages.getString("security.36"), ee); 
+                throw new KeyStoreException(Messages.getString("security.36"), ee);
             }
         } else {
             if (protParam instanceof KeyStore.CallbackHandlerProtection) {
@@ -436,7 +436,7 @@ public abstract class KeyStoreSpi {
                 }
             } else {
                 throw new KeyStoreException(
-                        Messages.getString("security.3A")); 
+                        Messages.getString("security.3A"));
             }
         }
 
@@ -455,7 +455,7 @@ public abstract class KeyStoreSpi {
         }
 
         throw new KeyStoreException(
-                Messages.getString("security.3B", entry.toString())); 
+                Messages.getString("security.3B", entry.toString()));
     }
 
     /**
@@ -479,17 +479,17 @@ public abstract class KeyStoreSpi {
             if (engineIsCertificateEntry(alias)) {
                 return entryClass
                         .isAssignableFrom(Class
-                                .forName("java.security.KeyStore$TrustedCertificateEntry")); 
+                                .forName("java.security.KeyStore$TrustedCertificateEntry"));
             }
 
             if (engineIsKeyEntry(alias)) {
                 if (entryClass.isAssignableFrom(Class
-                        .forName("java.security.KeyStore$PrivateKeyEntry"))) { 
+                        .forName("java.security.KeyStore$PrivateKeyEntry"))) {
                     return engineGetCertificate(alias) != null;
                 }
 
                 if (entryClass.isAssignableFrom(Class
-                        .forName("java.security.KeyStore$SecretKeyEntry"))) { 
+                        .forName("java.security.KeyStore$SecretKeyEntry"))) {
                     return engineGetCertificate(alias) == null;
                 }
             }
@@ -512,21 +512,21 @@ public abstract class KeyStoreSpi {
 
         if (!(protParam instanceof KeyStore.CallbackHandlerProtection)) {
             throw new UnrecoverableEntryException(
-                    Messages.getString("security.3C")); 
+                    Messages.getString("security.3C"));
         }
 
         String clName = Security
-                .getProperty("auth.login.defaultCallbackHandler"); 
+                .getProperty("auth.login.defaultCallbackHandler");
         if (clName == null) {
             throw new UnrecoverableEntryException(
-                    Messages.getString("security.3D")); 
+                    Messages.getString("security.3D"));
 
         }
 
         try {
             Class<?> cl = Class.forName(clName);
             CallbackHandler cbHand = (CallbackHandler) cl.newInstance();
-            PasswordCallback[] pwCb = { new PasswordCallback("password: ", true) }; 
+            PasswordCallback[] pwCb = { new PasswordCallback("password: ", true) };
             cbHand.handle(pwCb);
             return pwCb[0].getPassword();
         } catch (Exception e) {

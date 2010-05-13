@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,11 +28,11 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * Tests Pattern compilation modes and modes triggered in pattern strings
- * 
+ *
  */
 @TestTargetClass(Pattern.class)
 public class ModeTest extends TestCase {
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -57,7 +57,7 @@ public class ModeTest extends TestCase {
         assertEquals("dog", m.group(1));
         assertFalse(m.find());
 
-        
+
         p = Pattern.compile("([a-z]+)[0-9]+", Pattern.CASE_INSENSITIVE);
         m = p.matcher("cAt123#doG345");
         assertTrue(m.find());
@@ -66,7 +66,7 @@ public class ModeTest extends TestCase {
         assertEquals("doG", m.group(1));
         assertFalse(m.find());
 
-        
+
         p = Pattern.compile("(?i)([a-z]+)[0-9]+");
         m = p.matcher("cAt123#doG345");
         assertTrue(m.find());
@@ -98,11 +98,11 @@ public class ModeTest extends TestCase {
         assertTrue(m.find());
         assertTrue(m.start() == 0 && m.end() == 3);
         assertFalse(m.find());
-        
+
         m = p.matcher("barfoo");
         assertFalse(m.find());
 
-        
+
         p = Pattern.compile("foo$");
         m = p.matcher("foobar");
         assertFalse(m.find());

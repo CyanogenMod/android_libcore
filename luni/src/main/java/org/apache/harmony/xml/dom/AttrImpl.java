@@ -56,12 +56,12 @@ public final class AttrImpl extends NodeImpl implements Attr {
         super(document);
 
         this.namespaceAware = false;
-        
+
         int prefixSeparator = name.lastIndexOf(":");
         if (prefixSeparator != -1) {
             String prefix = name.substring(0, prefixSeparator);
             String localName = name.substring(prefixSeparator + 1);
-            
+
             if (!DocumentImpl.isXMLIdentifier(prefix) || !DocumentImpl.isXMLIdentifier(localName)) {
                 throw new DOMException(DOMException.INVALID_CHARACTER_ERR, name);
             }
@@ -70,7 +70,7 @@ public final class AttrImpl extends NodeImpl implements Attr {
                 throw new DOMException(DOMException.INVALID_CHARACTER_ERR, name);
             }
         }
-        
+
         this.localName = name;
     }
 
@@ -125,7 +125,7 @@ public final class AttrImpl extends NodeImpl implements Attr {
     public void setPrefix(String prefix) {
         this.prefix = validatePrefix(prefix, namespaceAware, namespaceURI);
     }
-    
+
     public void setValue(String value) throws DOMException {
         this.value = value;
     }

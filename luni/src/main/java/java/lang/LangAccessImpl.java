@@ -25,7 +25,7 @@ import org.apache.harmony.kernel.vm.LangAccess;
     /** non-null; unique instance of this class */
     /*package*/ static final LangAccessImpl THE_ONE = new LangAccessImpl();
 
-    /** 
+    /**
      * This class is not publicly instantiable. Use {@link #THE_ONE}.
      */
     private LangAccessImpl() {

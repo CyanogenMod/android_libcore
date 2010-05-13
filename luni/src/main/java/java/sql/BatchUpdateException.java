@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,7 +57,7 @@ public class BatchUpdateException extends SQLException implements Serializable {
      * Creates a {@code BatchUpdateException} with the {@code updateCounts} set
      * to the supplied value. All other fields are set to their
      * default values.
-     * 
+     *
      * @param updateCounts
      *            the array of {@code updateCounts} giving the number of
      *            successful updates (or another status code) for each command
@@ -72,7 +72,7 @@ public class BatchUpdateException extends SQLException implements Serializable {
      * Creates a {@code BatchUpdateException} with the {@code updateCounts} and
      * {@code reason} set to the supplied values. All other fields are set to their
      * default values.
-     * 
+     *
      * @param reason
      *            the message providing information about the source of this
      *            exception.
@@ -90,7 +90,7 @@ public class BatchUpdateException extends SQLException implements Serializable {
      * Creates a {@code BatchUpdateException} with the {@code reason}, {@code
      * SQLState} and {@code updateCounts} set to the supplied values. All other
      * fields are set to their default values.
-     * 
+     *
      * @param reason
      *            the message providing information about the source of this
      *            exception.
@@ -110,7 +110,7 @@ public class BatchUpdateException extends SQLException implements Serializable {
     /**
      * Creates a {@code BatchUpdateException} for the case where all relevant
      * information is provided.
-     * 
+     *
      * @param reason
      *            the message providing information about the source of this
      *            exception.
@@ -130,7 +130,7 @@ public class BatchUpdateException extends SQLException implements Serializable {
     }
 
     /**
-     * Gets the <i>update count</i> array giving status information for every 
+     * Gets the <i>update count</i> array giving status information for every
      * command that was attempted in the batch.
      * <p>
      * If a batch update command fails and a {@code BatchUpdateException} is
@@ -140,16 +140,16 @@ public class BatchUpdateException extends SQLException implements Serializable {
      * the batch, not only those that executed successfully. In this case, the
      * array element for any command which encountered a problem is set to
      * {@code Statement.EXECUTE_FAILED}.
-     * 
+     *
      * @return an array that contains the successful update counts, before this
      *         exception was thrown. Alternatively, if the driver continues to
      *         process commands following an error, for each successive command
-     *         there is a corresponding element in the array giving one of the 
+     *         there is a corresponding element in the array giving one of the
      *         following status values:
      *         <ol>
      *         <li>the number of successful updates</li> <li>{@code
      *         Statement.SUCCESS_NO_INFO} indicating that the command completed
-     *         successfully, but the amount of altered rows is unknown.</li> 
+     *         successfully, but the amount of altered rows is unknown.</li>
      *         <li>{@code Statement.EXECUTE_FAILED} indicating that the command
      *         was unsuccessful.</li>
      *         </ol>

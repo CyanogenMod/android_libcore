@@ -29,7 +29,7 @@ import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.BerOutputStream;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with the following part of X.509 CRL
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
@@ -46,30 +46,30 @@ import org.apache.harmony.security.asn1.BerOutputStream;
  *        cessationOfOperation    (5),
  *        certificateHold         (6),
  *        privilegeWithdrawn      (7),
- *        aACompromise            (8) 
+ *        aACompromise            (8)
  *  }
  *  </pre>
  */
 public class ReasonFlags {
-    
+
     /**
      * The names of the reasons.
      */
     static final String[] REASONS = {
-        "unused", 
-        "keyCompromise", 
-        "cACompromise", 
-        "affiliationChanged", 
-        "superseded", 
-        "cessationOfOperation", 
-        "certificateHold", 
-        "privilegeWithdrawn", 
-        "aACompromise" 
+        "unused",
+        "keyCompromise",
+        "cACompromise",
+        "affiliationChanged",
+        "superseded",
+        "cessationOfOperation",
+        "certificateHold",
+        "privilegeWithdrawn",
+        "aACompromise"
     };
 
     // the value of extension
     private boolean[] flags;
-    
+
     /**
      * Creates the extension object corresponding to the given flags.
      */
@@ -83,26 +83,26 @@ public class ReasonFlags {
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
         buffer.append(prefix);
-        buffer.append("ReasonFlags [\n"); 
+        buffer.append("ReasonFlags [\n");
         for (int i=0; i<flags.length; i++) {
             if (flags[i]) {
-                buffer.append(prefix).append("  ") 
+                buffer.append(prefix).append("  ")
                     .append(REASONS[i]).append('\n');
             }
         }
         buffer.append(prefix);
-        buffer.append("]\n"); 
+        buffer.append("]\n");
     }
-    
+
     /**
      * ASN.1 Encoder/Decoder.
      */
-    public static final ASN1BitString ASN1 = 
+    public static final ASN1BitString ASN1 =
                             new ASN1BitString.ASN1NamedBitList(REASONS.length) {
         public Object getDecodedObject(BerInputStream in) throws IOException {
             return new ReasonFlags((boolean[]) super.getDecodedObject(in));
         }
-        
+
         public void setEncodingContent(BerOutputStream out) {
             out.content = ((ReasonFlags) out.content).flags;
             super.setEncodingContent(out);

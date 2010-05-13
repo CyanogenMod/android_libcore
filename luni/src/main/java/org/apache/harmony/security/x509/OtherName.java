@@ -31,17 +31,17 @@ import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.ObjectIdentifier;
 
 /**
- * The class encapsulates the ASN.1 DER encoding/decoding work 
+ * The class encapsulates the ASN.1 DER encoding/decoding work
  * with OtherName structure which is a subpart of GeneralName
  * (as specified in RFC 3280 -
  *  Internet X.509 Public Key Infrastructure.
  *  Certificate and Certificate Revocation List (CRL) Profile.
  *  http://www.ietf.org/rfc/rfc3280.txt):
- *   
+ *
  * <pre>
  *   OtherName ::= SEQUENCE {
  *        type-id    OBJECT IDENTIFIER,
- *        value      [0] EXPLICIT ANY DEFINED BY type-id 
+ *        value      [0] EXPLICIT ANY DEFINED BY type-id
  *   }
  * </pre>
  */
@@ -52,7 +52,7 @@ public class OtherName {
     private byte[] value;
     // the ASN.1 encoded form of OtherName
     private byte[] encoding;
-    
+
     /**
      * TODO
      * @param   typeID: String
@@ -62,18 +62,18 @@ public class OtherName {
         this(typeID, value, null);
     }
 
-    // 
+    //
     // TODO
     // @param   typeID: String
     // @param   value:  byte[]
     // @param   encoding:   byte[]
-    // 
+    //
     private OtherName(String typeID, byte[] value, byte[] encoding) {
         this.typeID = typeID;
         this.value = value;
         this.encoding = encoding;
     }
-        
+
     /**
      * Returns the value of typeID field of the structure.
      * @return  typeID
@@ -89,7 +89,7 @@ public class OtherName {
     public byte[] getValue() {
         return value;
     }
-    
+
     /**
      * Returns ASN.1 encoded form of this X.509 OtherName value.
      * @return a byte array containing ASN.1 encode form.
@@ -105,7 +105,7 @@ public class OtherName {
      * ASN.1 DER X.509 OtherName encoder/decoder class.
      */
     public static final ASN1Sequence ASN1 = new ASN1Sequence(new ASN1Type[] {
-            ASN1Oid.getInstance(), 
+            ASN1Oid.getInstance(),
             new ASN1Explicit(0, ASN1Any.getInstance()) }) {
 
         protected Object getDecodedObject(BerInputStream in) {

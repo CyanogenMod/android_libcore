@@ -35,7 +35,7 @@ import java.sql.Statement;
  */
 @TestTargetClass(ResultSet.class)
 public class ResultSetTest extends SQLTest {
-    
+
     ResultSet target = null;
     ResultSet emptyTarget = null;
     ResultSet scrollableTarget = null;
@@ -127,24 +127,24 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             emptyTarget.afterLast();
             assertFalse(emptyTarget.isAfterLast());
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
-        
+
+
         try {
             target.close();
             target.beforeFirst();
             fail("Should get SQLException");
         } catch (SQLException e) {
-            
+
         }
-        
-        
+
+
     }
 
     /**
@@ -158,7 +158,7 @@ public class ResultSetTest extends SQLTest {
     )
     @KnownFailure("statment.close() does not wrap up")
     public void testBeforeFirst() {
-        
+
         try {
             target.beforeFirst();
             assertTrue(target.isBeforeFirst());
@@ -167,24 +167,24 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             emptyTarget.beforeFirst();
             assertFalse(emptyTarget.isBeforeFirst());
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
-        
+
+
         try {
             target.close();
             target.beforeFirst();
             fail("Should get SQLException");
         } catch (SQLException e) {
-            
+
         }
-        
-       
+
+
     }
 
     /**
@@ -202,11 +202,11 @@ public class ResultSetTest extends SQLTest {
     }
 
     /**
-     * Test method for {@link java.sql.ResultSet#close()}. 
-     * 
+     * Test method for {@link java.sql.ResultSet#close()}.
+     *
      * According to the JDBC spec close has to "Releases this ResultSet
      * object's database and JDBC resources immediately", and this implies
-     * the fields should be released as well (so that garbage collection 
+     * the fields should be released as well (so that garbage collection
      *  can take place)
      */
     @TestTargetNew(
@@ -225,10 +225,10 @@ public class ResultSetTest extends SQLTest {
             //ok
         }
     }
-    
+
     /**
-     * Test method for {@link java.sql.ResultSet#close()}. 
-     * 
+     * Test method for {@link java.sql.ResultSet#close()}.
+     *
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -240,7 +240,7 @@ public class ResultSetTest extends SQLTest {
         PreparedStatement ps1 = null;
         PreparedStatement ps2 = null;
         try {
-            
+
             Statement s = conn.createStatement();
             s.addBatch("create table t1 (a text);");
 
@@ -267,9 +267,9 @@ public class ResultSetTest extends SQLTest {
                 // ok : Division by zero
             }
 
-            // Although exception happened on ps2 rs1 should still work 
+            // Although exception happened on ps2 rs1 should still work
             // Isolation property if ACID rules
-            
+
             while (rs1.next()) {
                 // do nothing: switching of rows should be possible
             }
@@ -292,8 +292,8 @@ public class ResultSetTest extends SQLTest {
             }
         }
     }
-    
-    
+
+
 
     /**
      * Test method for {@link java.sql.ResultSet#findColumn(java.lang.String)}.
@@ -311,7 +311,7 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-           
+
         try {
             target.findColumn("bla");
             fail("Should get SQLException");
@@ -337,20 +337,20 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
-        
+
+
         try {
             target.close();
             // releases all resources such that it can be finalized!
             target.first();
             fail("Should get SQLException");
         } catch (SQLException e) {
-            
+
         }
-        
-        
+
+
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#isAfterLast()}.
      */
@@ -370,23 +370,23 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             assertFalse(emptyTarget.isAfterLast());
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
-        
+
+
         try {
             target.close();
             // releases all resources such that it can be finalized!
             target.isAfterLast();
             fail("Should get SQLException");
         } catch (SQLException e) {
-            
+
         }
-        
+
     }
 
     /**
@@ -409,15 +409,15 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
-        
+
+
         try {
             assertTrue(emptyTarget.isBeforeFirst());
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
-        
+
+
         try {
             target.close();
             // releases all resources such that it can be finalized!
@@ -426,7 +426,7 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             //ok
         }
-        
+
     }
 
     /**
@@ -449,23 +449,23 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             assertFalse(emptyTarget.isFirst());
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
-        
+
+
         try {
             target.close();
             // releases all resources such that it can be finalized!
             target.isFirst();
             fail("Should get SQLException");
         } catch (SQLException e) {
-            
+
         }
-       
+
     }
 
     /**
@@ -481,7 +481,7 @@ public class ResultSetTest extends SQLTest {
             "true if the row on which the cursor is actually provides a result."+
             "statment.close() does not wrap up")
     public void testtestIsLast() {
-        
+
         try {
             assertFalse(target.isLast());
             target.absolute(-1);
@@ -489,7 +489,7 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         //check default value no valid row
         try {
             assertFalse(emptyTarget.isLast());
@@ -498,9 +498,9 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
-        
-        
+
+
+
         try {
             target.close();
             target.isLast();
@@ -508,7 +508,7 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             // ok
         }
-       
+
     }
 
     /**
@@ -529,8 +529,8 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
-        
+
+
         try {
             target.close();
             target.last();
@@ -538,12 +538,12 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             // ok
         }
-      
+
     }
 
     /**
      * Test method for {@link java.sql.ResultSet#next()}.
-     * @throws SQLException 
+     * @throws SQLException
      */
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
@@ -564,17 +564,17 @@ public class ResultSetTest extends SQLTest {
             assertTrue(target.isAfterLast());
             // one more
             assertFalse(target.next());
-            
+
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             assertFalse(emptyTarget.next());
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         target.close();
         try {
             target.next();
@@ -582,7 +582,7 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             //ok
         }
-        
+
     }
 
     public void testPrevious() throws SQLException {
@@ -590,7 +590,7 @@ public class ResultSetTest extends SQLTest {
             target.first();
             target.previous();
             assertTrue(target.isBeforeFirst());
-            
+
             target.last();
             target.next();
             target.previous();
@@ -598,7 +598,7 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         target.close();
         try {
             target.previous();
@@ -626,7 +626,7 @@ public class ResultSetTest extends SQLTest {
             int initialRow = target.getRow();
             assertFalse(target.relative(0));
             assertEquals(initialRow, target.getRow());
-            
+
             assertTrue(target.relative(1));
             assertTrue(target.isFirst());
             assertEquals(1, target.getRow());
@@ -634,17 +634,17 @@ public class ResultSetTest extends SQLTest {
             assertTrue(target.relative(1));
             assertFalse(target.isFirst());
             assertEquals(2, target.getRow());
-            
-            
+
+
             assertFalse(target.relative(2));
 
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
 
         try {
-            // should not be able to scroll backwards in forward only RS 
+            // should not be able to scroll backwards in forward only RS
             target.relative(-2);
             assertEquals(2,target.getRow());
             fail("Should get SQLException");
@@ -653,7 +653,7 @@ public class ResultSetTest extends SQLTest {
         } catch (Exception e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             assertFalse(emptyTarget.relative(Integer.MAX_VALUE));
             assertTrue(emptyTarget.isAfterLast());
@@ -664,10 +664,10 @@ public class ResultSetTest extends SQLTest {
         }
 
     }
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#relative(int)}.
-     * @throws SQLException 
+     * @throws SQLException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -677,13 +677,13 @@ public class ResultSetTest extends SQLTest {
     )
     @KnownFailure("Scrollable resultSet. Not supported")
     public void testRelativeScrollableResultSet() throws SQLException {
-     // scrollable resultSet 
+     // scrollable resultSet
         try {
-            
+
             int initialRow = scrollableTarget.getRow();
             assertFalse(scrollableTarget.relative(0));
             assertEquals(initialRow, scrollableTarget.getRow());
-            
+
             assertTrue(scrollableTarget.relative(1));
             assertTrue(scrollableTarget.isFirst());
             assertEquals(1, scrollableTarget.getRow());
@@ -703,7 +703,7 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
             assertFalse(scrollableTarget.relative(Integer.MIN_VALUE));
             assertTrue(scrollableTarget.isBeforeFirst());
@@ -712,7 +712,7 @@ public class ResultSetTest extends SQLTest {
         } catch (Exception e) {
             fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         stScrollable.close();
         try {
             scrollableTarget.relative(1);
@@ -721,9 +721,9 @@ public class ResultSetTest extends SQLTest {
             //ok
         }
     }
-    
 
-   
+
+
     /**
      * Test method for {@link java.sql.ResultSet#updateObject(java.lang.String, java.lang.Object)}.
      */
@@ -741,7 +741,7 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
            fail("Unexpected exception: " + e.getMessage());
         }
-        
+
         try {
            target.next();
            target.updateObject("family","bird");
@@ -751,7 +751,7 @@ public class ResultSetTest extends SQLTest {
         }
     }
 
-    
+
     /**
      * Test method for {@link java.sql.ResultSet#updateString(java.lang.String, java.lang.String)}.
      */
@@ -769,7 +769,7 @@ public class ResultSetTest extends SQLTest {
          } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
          }
-         
+
          // non writable target.
          try {
             target.next();
@@ -778,17 +778,17 @@ public class ResultSetTest extends SQLTest {
          } catch (SQLException e) {
             //ok
          }
-         
-         
+
+
          // writable but wrong type
          try {
              target.updateString(1,"test");
          } catch (SQLException e) {
             fail("Unexpected exception: " + e.getMessage());
          }
-         
+
          target.close();
-         
+
       // Exception test
          try {
              target.updateString("family","test");
@@ -801,7 +801,7 @@ public class ResultSetTest extends SQLTest {
     /**
      * Test method for {@link java.sql.ResultSet#wasNull()}.
      * Spec sais: if something was read... -> if nothing was read it should be false
-     * @throws SQLException 
+     * @throws SQLException
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
@@ -811,7 +811,7 @@ public class ResultSetTest extends SQLTest {
     )
     @KnownFailure("the default tests, and exception tests fail.")
     public void testWasNull() throws SQLException {
-        
+
         // Check default: select statement executed but no get on target called yet
         // Either false or throw an exception.
         try {
@@ -819,8 +819,8 @@ public class ResultSetTest extends SQLTest {
         } catch (SQLException e) {
             //ok
         }
-        
-        
+
+
         try {
             stForward.execute("insert into zoo values(8,null,null);");
             stForward.execute(selectAllAnimals);
@@ -835,7 +835,7 @@ public class ResultSetTest extends SQLTest {
             fail("Unexpected exception: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         target.close();
         try {
             target.wasNull();
