@@ -452,14 +452,14 @@ public class X509CRLSelector implements CRLSelector {
     public Object clone() {
         X509CRLSelector result;
 
-		try {
-			result = (X509CRLSelector) super.clone();
-			if (issuerNames != null) {
-	            result.issuerNames = new ArrayList<String>(issuerNames);
-	        }
-		} catch (CloneNotSupportedException e) {
-			result = null;
-		}        
+        try {
+            result = (X509CRLSelector) super.clone();
+            if (issuerNames != null) {
+                result.issuerNames = new ArrayList<String>(issuerNames);
+            }
+        } catch (CloneNotSupportedException e) {
+            result = null;
+        }        
         return result;
     }
 }

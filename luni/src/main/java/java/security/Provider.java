@@ -861,8 +861,8 @@ public abstract class Provider extends Properties {
     @SuppressWarnings("nls")
     private void putProviderInfo() {
         super.put("Provider.id name", null != name ? name : "null");
-		super.put("Provider.id version", versionString);
-		super.put("Provider.id info", null != info ? info : "null");
+        super.put("Provider.id version", versionString);
+        super.put("Provider.id info", null != info ? info : "null");
         super.put("Provider.id className", this.getClass().getName());
     }
 
@@ -1157,7 +1157,7 @@ public abstract class Provider extends Properties {
     }
     
     private void readObject(java.io.ObjectInputStream in) throws NotActiveException, IOException, ClassNotFoundException {
-    	in.defaultReadObject();
+        in.defaultReadObject();
         versionString = String.valueOf(version);
         providerNumber = -1;
     }

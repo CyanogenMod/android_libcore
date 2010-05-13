@@ -184,22 +184,22 @@ public abstract class SAXParserFactory {
      * A list of the core features and properties can be found at
      * <a href="http://www.saxproject.org/">http://www.saxproject.org/</a></p>
      *
-	 * <p>All implementations are required to support the {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} feature.
-	 * When the feature is</p>
-	 * <ul>
-	 *   <li>
-	 *     <code>true</code>: the implementation will limit XML processing to conform to implementation limits.
-	 *     Examples include entity expansion limits and XML Schema constructs that would consume large amounts of resources.
-	 *     If XML processing is limited for security reasons, it will be reported via a call to the registered
-	 *     {@link org.xml.sax.ErrorHandler#fatalError(SAXParseException exception)}.
-	 *     See {@link SAXParser} <code>parse</code> methods for handler specification.
-	 *   </li>
-	 *   <li>
-	 *     When the feature is <code>false</code>, the implementation will processing XML according to the XML specifications without
-	 *     regard to possible implementation limits.
-	 *   </li>
-	 * </ul>
-	 * 
+     * <p>All implementations are required to support the {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} feature.
+     * When the feature is</p>
+     * <ul>
+     *   <li>
+     *     <code>true</code>: the implementation will limit XML processing to conform to implementation limits.
+     *     Examples include entity expansion limits and XML Schema constructs that would consume large amounts of resources.
+     *     If XML processing is limited for security reasons, it will be reported via a call to the registered
+     *     {@link org.xml.sax.ErrorHandler#fatalError(SAXParseException exception)}.
+     *     See {@link SAXParser} <code>parse</code> methods for handler specification.
+     *   </li>
+     *   <li>
+     *     When the feature is <code>false</code>, the implementation will processing XML according to the XML specifications without
+     *     regard to possible implementation limits.
+     *   </li>
+     * </ul>
+     * 
      * @param name The name of the feature to be set.
      * @param value The value of the feature to be set.
      * 

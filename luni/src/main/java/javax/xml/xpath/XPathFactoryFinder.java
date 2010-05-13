@@ -63,12 +63,12 @@ final class XPathFactoryFinder {
     /**
      * <p>Cache properties for performance.</p>
      */
-	private static Properties cacheProps = new Properties();
+    private static Properties cacheProps = new Properties();
     
-	/**
-	 * <p>First time requires initialization overhead.</p>
-	 */
-	private static boolean firstTime = true;
+    /**
+     * <p>First time requires initialization overhead.</p>
+     */
+    private static boolean firstTime = true;
     
     /**
      * <p>Conditional debug printing.</p>

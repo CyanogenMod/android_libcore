@@ -181,14 +181,14 @@ public class LinkedList<E> extends AbstractSequentialList<E> implements
         }
     }
 
-	/*
-	 * NOTES:descendingIterator is not fail-fast, according to the documentation
-	 * and test case.
-	 */
-	private class ReverseLinkIterator<ET> implements Iterator<ET> {
-		private int expectedModCount;
+    /*
+     * NOTES:descendingIterator is not fail-fast, according to the documentation
+     * and test case.
+     */
+    private class ReverseLinkIterator<ET> implements Iterator<ET> {
+        private int expectedModCount;
 
-		private final LinkedList<ET> list;
+        private final LinkedList<ET> list;
 
         private Link<ET> link;
 

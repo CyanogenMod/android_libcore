@@ -83,29 +83,29 @@ public abstract class SAXParser {
     
     }
 
-	/**
-	 * <p>Reset this <code>SAXParser</code> to its original configuration.</p>
-	 * 
-	 * <p><code>SAXParser</code> is reset to the same state as when it was created with
-	 * {@link SAXParserFactory#newSAXParser()}.
-	 * <code>reset()</code> is designed to allow the reuse of existing <code>SAXParser</code>s
-	 * thus saving resources associated with the creation of new <code>SAXParser</code>s.</p>
-	 * 
-	 * <p>The reset <code>SAXParser</code> is not guaranteed to have the same {@link Schema}
-	 * <code>Object</code>, e.g. {@link Object#equals(Object obj)}.  It is guaranteed to have a functionally equal
-	 * <code>Schema</code>.</p>
-	 * 
-	 * @since 1.5
-	 */
-	public void reset() {
+    /**
+     * <p>Reset this <code>SAXParser</code> to its original configuration.</p>
+     * 
+     * <p><code>SAXParser</code> is reset to the same state as when it was created with
+     * {@link SAXParserFactory#newSAXParser()}.
+     * <code>reset()</code> is designed to allow the reuse of existing <code>SAXParser</code>s
+     * thus saving resources associated with the creation of new <code>SAXParser</code>s.</p>
+     * 
+     * <p>The reset <code>SAXParser</code> is not guaranteed to have the same {@link Schema}
+     * <code>Object</code>, e.g. {@link Object#equals(Object obj)}.  It is guaranteed to have a functionally equal
+     * <code>Schema</code>.</p>
+     * 
+     * @since 1.5
+     */
+    public void reset() {
 
-		// implementors should override this method
-		throw new UnsupportedOperationException(
-			"This SAXParser, \"" + this.getClass().getName() + "\", does not support the reset functionality."
-			+ "  Specification \"" + this.getClass().getPackage().getSpecificationTitle() + "\""
-			+ " version \"" + this.getClass().getPackage().getSpecificationVersion() + "\""
-			);
-	}
+        // implementors should override this method
+        throw new UnsupportedOperationException(
+            "This SAXParser, \"" + this.getClass().getName() + "\", does not support the reset functionality."
+            + "  Specification \"" + this.getClass().getPackage().getSpecificationTitle() + "\""
+            + " version \"" + this.getClass().getPackage().getSpecificationVersion() + "\""
+            );
+    }
 
     /**
      * <p>Parse the content of the given {@link java.io.InputStream}

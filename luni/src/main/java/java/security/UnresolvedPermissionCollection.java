@@ -157,7 +157,7 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         Hashtable permissions = new Hashtable();
         for (Iterator iter = klasses.entrySet().iterator(); iter.hasNext();) {
-        	Map.Entry entry = (Map.Entry) iter.next();
+            Map.Entry entry = (Map.Entry) iter.next();
             String key = (String) entry.getKey();
             permissions.put(key, new Vector(((Collection) entry.getValue())));
         }
@@ -176,22 +176,22 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
         klasses = new HashMap();
         synchronized (klasses) {
             for (Iterator iter = permissions.entrySet().iterator(); iter
-            	.hasNext();) {
-            	Map.Entry entry = (Map.Entry) iter.next();
-	            String key = (String) entry.getKey();
-	            Collection values = (Collection) entry.getValue();
+                .hasNext();) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                String key = (String) entry.getKey();
+                Collection values = (Collection) entry.getValue();
 
-	            for (Iterator iterator = values.iterator(); iterator.hasNext();) {
-	                UnresolvedPermission element =
-	                        (UnresolvedPermission) iterator.next();
+                for (Iterator iterator = values.iterator(); iterator.hasNext();) {
+                    UnresolvedPermission element =
+                            (UnresolvedPermission) iterator.next();
 
-	                if (!element.getName().equals(key)) {
-	                    throw new InvalidObjectException(
-	                        Messages.getString("security.22")); 
-	                }
-	            }
-	            klasses.put(key, new HashSet(values));
-	        }
+                    if (!element.getName().equals(key)) {
+                        throw new InvalidObjectException(
+                            Messages.getString("security.22")); 
+                    }
+                }
+                klasses.put(key, new HashSet(values));
+            }
         }
     }
 }

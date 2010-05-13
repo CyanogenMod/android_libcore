@@ -351,28 +351,28 @@ public class QName implements Serializable {
         return namespaceURI.hashCode() ^ localPart.hashCode();
     }
 
-	/** 
-	 * <p><code>String</code> representation of this
-	 * <code>QName</code>.</p>
-	 *
-	 * <p>The commonly accepted way of representing a <code>QName</code>
-	 * as a <code>String</code> was <a href="http://jclark.com/xml/xmlns.htm">defined</a>
-	 * by James Clark.  Although this is not a <em>standard</em>
-	 * specification, it is in common use,  e.g. {@link javax.xml.transform.Transformer#setParameter(String name, Object value)}.
-	 * This implementation represents a <code>QName</code> as:
-	 * "{" + Namespace URI + "}" + local part.  If the Namespace URI
-	 * <code>.equals(XMLConstants.NULL_NS_URI)</code>, only the
-	 * local part is returned.  An appropriate use of this method is
-	 * for debugging or logging for human consumption.</p>
-	 *
-	 * <p>Note the prefix value is <strong><em>NOT</em></strong>
-	 * returned as part of the <code>String</code> representation.</p>
-	 *  
-	 * <p>This method satisfies the general contract of {@link
-	 * java.lang.Object#toString() Object.toString()}.</p>
-	 *
-	 * @return <code>String</code> representation of this <code>QName</code>
-	 */
+    /** 
+     * <p><code>String</code> representation of this
+     * <code>QName</code>.</p>
+     *
+     * <p>The commonly accepted way of representing a <code>QName</code>
+     * as a <code>String</code> was <a href="http://jclark.com/xml/xmlns.htm">defined</a>
+     * by James Clark.  Although this is not a <em>standard</em>
+     * specification, it is in common use,  e.g. {@link javax.xml.transform.Transformer#setParameter(String name, Object value)}.
+     * This implementation represents a <code>QName</code> as:
+     * "{" + Namespace URI + "}" + local part.  If the Namespace URI
+     * <code>.equals(XMLConstants.NULL_NS_URI)</code>, only the
+     * local part is returned.  An appropriate use of this method is
+     * for debugging or logging for human consumption.</p>
+     *
+     * <p>Note the prefix value is <strong><em>NOT</em></strong>
+     * returned as part of the <code>String</code> representation.</p>
+     *  
+     * <p>This method satisfies the general contract of {@link
+     * java.lang.Object#toString() Object.toString()}.</p>
+     *
+     * @return <code>String</code> representation of this <code>QName</code>
+     */
     public String toString() {
         String _qNameAsString = qNameAsString;
         if (_qNameAsString == null) {

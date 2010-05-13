@@ -1379,11 +1379,11 @@ public class X509CertSelector implements CertSelector {
     public Object clone() {
         X509CertSelector result;
 
-		try {
-			result = (X509CertSelector) super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
+        try {
+            result = (X509CertSelector) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
 
         if (this.subjectKeyIdentifier != null) {
             result.subjectKeyIdentifier =

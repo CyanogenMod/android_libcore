@@ -72,10 +72,10 @@ public class CollectionCertStoreParameters implements CertStoreParameters {
      */
     public Object clone() {
         try {
-			return super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 
     /**

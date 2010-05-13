@@ -46,6 +46,6 @@ public final class Void extends Object {
         return (Class<Void>) voidType;
     }
 
-	private Void() {
-	}
+    private Void() {
+    }
 }

@@ -322,28 +322,28 @@ public class Timer {
 
     }
     
-	private static final class FinalizerHelper {
-		private final TimerImpl impl;
-		
-		FinalizerHelper(TimerImpl impl) {
-			super();
-			this.impl = impl;
-		}
-		
-		@Override
-		protected void finalize() {
-			synchronized (impl) {
-				impl.finished = true;
-				impl.notify();
-			}
-		}
-	}
-	
-	private static long timerId;
-	
-	private synchronized static long nextId() {
-		return timerId++;
-	}
+    private static final class FinalizerHelper {
+        private final TimerImpl impl;
+        
+        FinalizerHelper(TimerImpl impl) {
+            super();
+            this.impl = impl;
+        }
+        
+        @Override
+        protected void finalize() {
+            synchronized (impl) {
+                impl.finished = true;
+                impl.notify();
+            }
+        }
+    }
+    
+    private static long timerId;
+    
+    private synchronized static long nextId() {
+        return timerId++;
+    }
 
     /* This object will be used in synchronization purposes */
     private final TimerImpl impl;
@@ -361,10 +361,10 @@ public class Timer {
      * @throws NullPointerException is {@code name} is {@code null}
      */
     public Timer(String name, boolean isDaemon) {
-    	super();
-    	if (name == null){
-    		throw new NullPointerException("name is null");
-    	}
+        super();
+        if (name == null){
+            throw new NullPointerException("name is null");
+        }
         this.impl = new TimerImpl(name, isDaemon);
         this.finalizer = new FinalizerHelper(impl);
     }

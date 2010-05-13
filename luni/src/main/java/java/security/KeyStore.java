@@ -1231,9 +1231,9 @@ public class KeyStore {
          *            the password, maybe {@code null}.
          */
         public PasswordProtection(char[] password) {
-        	if (password != null) {
-        		this.password = password.clone();
-        	}
+            if (password != null) {
+                this.password = password.clone();
+            }
         }
 
         /**

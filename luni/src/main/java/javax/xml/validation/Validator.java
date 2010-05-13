@@ -65,19 +65,19 @@ public abstract class Validator {
     protected Validator() {
     }
     
-	/**
-	 * <p>Reset this <code>Validator</code> to its original configuration.</p>
-	 * 
-	 * <p><code>Validator</code> is reset to the same state as when it was created with
-	 * {@link Schema#newValidator()}.
-	 * <code>reset()</code> is designed to allow the reuse of existing <code>Validator</code>s
-	 * thus saving resources associated with the creation of new <code>Validator</code>s.</p>
-	 * 
-	 * <p>The reset <code>Validator</code> is not guaranteed to have the same {@link LSResourceResolver} or {@link ErrorHandler}
-	 * <code>Object</code>s, e.g. {@link Object#equals(Object obj)}.  It is guaranteed to have a functionally equal
-	 * <code>LSResourceResolver</code> and <code>ErrorHandler</code>.</p>
-	 */
-	public abstract void reset();
+    /**
+     * <p>Reset this <code>Validator</code> to its original configuration.</p>
+     * 
+     * <p><code>Validator</code> is reset to the same state as when it was created with
+     * {@link Schema#newValidator()}.
+     * <code>reset()</code> is designed to allow the reuse of existing <code>Validator</code>s
+     * thus saving resources associated with the creation of new <code>Validator</code>s.</p>
+     * 
+     * <p>The reset <code>Validator</code> is not guaranteed to have the same {@link LSResourceResolver} or {@link ErrorHandler}
+     * <code>Object</code>s, e.g. {@link Object#equals(Object obj)}.  It is guaranteed to have a functionally equal
+     * <code>LSResourceResolver</code> and <code>ErrorHandler</code>.</p>
+     */
+    public abstract void reset();
 
     /**
      * Validates the specified input.

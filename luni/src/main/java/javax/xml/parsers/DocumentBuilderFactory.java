@@ -295,64 +295,64 @@ public abstract class DocumentBuilderFactory {
     public abstract Object getAttribute(String name)
                 throws IllegalArgumentException;
                 
-	/**
-	 * <p>Set a feature for this <code>DocumentBuilderFactory</code> and <code>DocumentBuilder</code>s created by this factory.</p>
-	 * 
-	 * <p>
-	 * Feature names are fully qualified {@link java.net.URI}s.
-	 * Implementations may define their own features.
-	 * An {@link ParserConfigurationException} is thrown if this <code>DocumentBuilderFactory</code> or the
-	 * <code>DocumentBuilder</code>s it creates cannot support the feature.
-	 * It is possible for an <code>DocumentBuilderFactory</code> to expose a feature value but be unable to change its state.
-	 * </p>
-	 * 
-	 * <p>
-	 * All implementations are required to support the {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} feature.
-	 * When the feature is:</p>
-	 * <ul>
-	 *   <li>
-	 *     <code>true</code>: the implementation will limit XML processing to conform to implementation limits.
-	 *     Examples include entity expansion limits and XML Schema constructs that would consume large amounts of resources.
-	 *     If XML processing is limited for security reasons, it will be reported via a call to the registered
-	 *    {@link org.xml.sax.ErrorHandler#fatalError(SAXParseException exception)}.
-	 *     See {@link  DocumentBuilder#setErrorHandler(org.xml.sax.ErrorHandler errorHandler)}.
-	 *   </li>
-	 *   <li>
-	 *     <code>false</code>: the implementation will processing XML according to the XML specifications without
-	 *     regard to possible implementation limits.
-	 *   </li>
-	 * </ul>
-	 * 
-	 * @param name Feature name.
-	 * @param value Is feature state <code>true</code> or <code>false</code>.
-	 *  
-	 * @throws ParserConfigurationException if this <code>DocumentBuilderFactory</code> or the <code>DocumentBuilder</code>s
-	 *   it creates cannot support this feature.
+    /**
+     * <p>Set a feature for this <code>DocumentBuilderFactory</code> and <code>DocumentBuilder</code>s created by this factory.</p>
+     * 
+     * <p>
+     * Feature names are fully qualified {@link java.net.URI}s.
+     * Implementations may define their own features.
+     * An {@link ParserConfigurationException} is thrown if this <code>DocumentBuilderFactory</code> or the
+     * <code>DocumentBuilder</code>s it creates cannot support the feature.
+     * It is possible for an <code>DocumentBuilderFactory</code> to expose a feature value but be unable to change its state.
+     * </p>
+     * 
+     * <p>
+     * All implementations are required to support the {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} feature.
+     * When the feature is:</p>
+     * <ul>
+     *   <li>
+     *     <code>true</code>: the implementation will limit XML processing to conform to implementation limits.
+     *     Examples include entity expansion limits and XML Schema constructs that would consume large amounts of resources.
+     *     If XML processing is limited for security reasons, it will be reported via a call to the registered
+     *    {@link org.xml.sax.ErrorHandler#fatalError(SAXParseException exception)}.
+     *     See {@link  DocumentBuilder#setErrorHandler(org.xml.sax.ErrorHandler errorHandler)}.
+     *   </li>
+     *   <li>
+     *     <code>false</code>: the implementation will processing XML according to the XML specifications without
+     *     regard to possible implementation limits.
+     *   </li>
+     * </ul>
+     * 
+     * @param name Feature name.
+     * @param value Is feature state <code>true</code> or <code>false</code>.
+     *  
+     * @throws ParserConfigurationException if this <code>DocumentBuilderFactory</code> or the <code>DocumentBuilder</code>s
+     *   it creates cannot support this feature.
      * @throws NullPointerException If the <code>name</code> parameter is null.
-	 */
-	public abstract void setFeature(String name, boolean value)
-		throws ParserConfigurationException;
+     */
+    public abstract void setFeature(String name, boolean value)
+        throws ParserConfigurationException;
 
-	/**
-	 * <p>Get the state of the named feature.</p>
-	 * 
-	 * <p>
-	 * Feature names are fully qualified {@link java.net.URI}s.
-	 * Implementations may define their own features.
-	 * An {@link ParserConfigurationException} is thrown if this <code>DocumentBuilderFactory</code> or the
-	 * <code>DocumentBuilder</code>s it creates cannot support the feature.
-	 * It is possible for an <code>DocumentBuilderFactory</code> to expose a feature value but be unable to change its state.
-	 * </p>
-	 * 
-	 * @param name Feature name.
-	 * 
-	 * @return State of the named feature.
-	 * 
-	 * @throws ParserConfigurationException if this <code>DocumentBuilderFactory</code>
-	 *   or the <code>DocumentBuilder</code>s it creates cannot support this feature.
-	 */
-	public abstract boolean getFeature(String name)
-		throws ParserConfigurationException;
+    /**
+     * <p>Get the state of the named feature.</p>
+     * 
+     * <p>
+     * Feature names are fully qualified {@link java.net.URI}s.
+     * Implementations may define their own features.
+     * An {@link ParserConfigurationException} is thrown if this <code>DocumentBuilderFactory</code> or the
+     * <code>DocumentBuilder</code>s it creates cannot support the feature.
+     * It is possible for an <code>DocumentBuilderFactory</code> to expose a feature value but be unable to change its state.
+     * </p>
+     * 
+     * @param name Feature name.
+     * 
+     * @return State of the named feature.
+     * 
+     * @throws ParserConfigurationException if this <code>DocumentBuilderFactory</code>
+     *   or the <code>DocumentBuilder</code>s it creates cannot support this feature.
+     */
+    public abstract boolean getFeature(String name)
+        throws ParserConfigurationException;
     
     /**
      * Gets the {@link Schema} object specified through

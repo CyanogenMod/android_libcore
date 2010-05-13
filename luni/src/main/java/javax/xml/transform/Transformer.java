@@ -48,32 +48,32 @@ public abstract class Transformer {
      */
     protected Transformer() { }
     
-	/**
-	 * <p>Reset this <code>Transformer</code> to its original configuration.</p>
-	 * 
-	 * <p><code>Transformer</code> is reset to the same state as when it was created with
-	 * {@link TransformerFactory#newTransformer()},
-	 * {@link TransformerFactory#newTransformer(Source source)} or
-	 * {@link Templates#newTransformer()}.
-	 * <code>reset()</code> is designed to allow the reuse of existing <code>Transformer</code>s
-	 * thus saving resources associated with the creation of new <code>Transformer</code>s.</p>
-	 * 
-	 * <p>The reset <code>Transformer</code> is not guaranteed to have the same {@link URIResolver}
-	 * or {@link ErrorListener} <code>Object</code>s, e.g. {@link Object#equals(Object obj)}.
-	 * It is guaranteed to have a functionally equal <code>URIResolver</code>
-	 * and <code>ErrorListener</code>.</p>
-	 * 
-	 * @since 1.5
-	 */
-	public void reset() {
+    /**
+     * <p>Reset this <code>Transformer</code> to its original configuration.</p>
+     * 
+     * <p><code>Transformer</code> is reset to the same state as when it was created with
+     * {@link TransformerFactory#newTransformer()},
+     * {@link TransformerFactory#newTransformer(Source source)} or
+     * {@link Templates#newTransformer()}.
+     * <code>reset()</code> is designed to allow the reuse of existing <code>Transformer</code>s
+     * thus saving resources associated with the creation of new <code>Transformer</code>s.</p>
+     * 
+     * <p>The reset <code>Transformer</code> is not guaranteed to have the same {@link URIResolver}
+     * or {@link ErrorListener} <code>Object</code>s, e.g. {@link Object#equals(Object obj)}.
+     * It is guaranteed to have a functionally equal <code>URIResolver</code>
+     * and <code>ErrorListener</code>.</p>
+     * 
+     * @since 1.5
+     */
+    public void reset() {
 
-		// implementors should override this method
-		throw new UnsupportedOperationException(
-			"This Transformer, \"" + this.getClass().getName() + "\", does not support the reset functionality."
-			+ "  Specification \"" + this.getClass().getPackage().getSpecificationTitle() + "\""
-			+ " version \"" + this.getClass().getPackage().getSpecificationVersion() + "\""
-			);
-	}
+        // implementors should override this method
+        throw new UnsupportedOperationException(
+            "This Transformer, \"" + this.getClass().getName() + "\", does not support the reset functionality."
+            + "  Specification \"" + this.getClass().getPackage().getSpecificationTitle() + "\""
+            + " version \"" + this.getClass().getPackage().getSpecificationVersion() + "\""
+            );
+    }
 
     /**
      * <p>Transform the XML <code>Source</code> to a <code>Result</code>.

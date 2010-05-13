@@ -131,7 +131,7 @@ public class DigestInputStream extends FilterInputStream {
      * @param on
      *            {@code true} if the digest should be computed, {@code false}
      *            otherwise.
-	 * @see MessageDigest
+     * @see MessageDigest
      */
     public void on(boolean on) {
         isOn = on;

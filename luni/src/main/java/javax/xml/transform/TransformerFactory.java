@@ -224,58 +224,58 @@ public abstract class TransformerFactory {
 
     //======= CONFIGURATION METHODS =======
 
-	/**
-	 * <p>Set a feature for this <code>TransformerFactory</code> and <code>Transformer</code>s
-	 * or <code>Template</code>s created by this factory.</p>
-	 * 
-	 * <p>
-	 * Feature names are fully qualified {@link java.net.URI}s.
-	 * Implementations may define their own features.
-	 * An {@link TransformerConfigurationException} is thrown if this <code>TransformerFactory</code> or the
-	 * <code>Transformer</code>s or <code>Template</code>s it creates cannot support the feature.
-	 * It is possible for an <code>TransformerFactory</code> to expose a feature value but be unable to change its state.
-	 * </p>
-	 * 
-	 * <p>All implementations are required to support the {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} feature.
-	 * When the feature is:</p>
-	 * <ul>
-	 *   <li>
-	 *     <code>true</code>: the implementation will limit XML processing to conform to implementation limits
-	 *     and behave in a secure fashion as defined by the implementation.
-	 *     Examples include resolving user defined style sheets and functions.
-	 *     If XML processing is limited for security reasons, it will be reported via a call to the registered
-	 *     {@link ErrorListener#fatalError(TransformerException exception)}.
-	 *     See {@link  #setErrorListener(ErrorListener listener)}.
-	 *   </li>
-	 *   <li>
-	 *     <code>false</code>: the implementation will processing XML according to the XML specifications without
-	 *     regard to possible implementation limits.
-	 *   </li>
-	 * </ul>
-	 * 
-	 * @param name Feature name.
-	 * @param value Is feature state <code>true</code> or <code>false</code>.
-	 *  
-	 * @throws TransformerConfigurationException if this <code>TransformerFactory</code>
-	 *   or the <code>Transformer</code>s or <code>Template</code>s it creates cannot support this feature.
+    /**
+     * <p>Set a feature for this <code>TransformerFactory</code> and <code>Transformer</code>s
+     * or <code>Template</code>s created by this factory.</p>
+     * 
+     * <p>
+     * Feature names are fully qualified {@link java.net.URI}s.
+     * Implementations may define their own features.
+     * An {@link TransformerConfigurationException} is thrown if this <code>TransformerFactory</code> or the
+     * <code>Transformer</code>s or <code>Template</code>s it creates cannot support the feature.
+     * It is possible for an <code>TransformerFactory</code> to expose a feature value but be unable to change its state.
+     * </p>
+     * 
+     * <p>All implementations are required to support the {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} feature.
+     * When the feature is:</p>
+     * <ul>
+     *   <li>
+     *     <code>true</code>: the implementation will limit XML processing to conform to implementation limits
+     *     and behave in a secure fashion as defined by the implementation.
+     *     Examples include resolving user defined style sheets and functions.
+     *     If XML processing is limited for security reasons, it will be reported via a call to the registered
+     *     {@link ErrorListener#fatalError(TransformerException exception)}.
+     *     See {@link  #setErrorListener(ErrorListener listener)}.
+     *   </li>
+     *   <li>
+     *     <code>false</code>: the implementation will processing XML according to the XML specifications without
+     *     regard to possible implementation limits.
+     *   </li>
+     * </ul>
+     * 
+     * @param name Feature name.
+     * @param value Is feature state <code>true</code> or <code>false</code>.
+     *  
+     * @throws TransformerConfigurationException if this <code>TransformerFactory</code>
+     *   or the <code>Transformer</code>s or <code>Template</code>s it creates cannot support this feature.
      * @throws NullPointerException If the <code>name</code> parameter is null.
-	 */
-	public abstract void setFeature(String name, boolean value)
-		throws TransformerConfigurationException;
+     */
+    public abstract void setFeature(String name, boolean value)
+        throws TransformerConfigurationException;
 
     /**
      * Look up the value of a feature.
      *
-	 * <p>
-	 * Feature names are fully qualified {@link java.net.URI}s.
-	 * Implementations may define their own features.
-	 * <code>false</code> is returned if this <code>TransformerFactory</code> or the
-	 * <code>Transformer</code>s or <code>Template</code>s it creates cannot support the feature.
-	 * It is possible for an <code>TransformerFactory</code> to expose a feature value but be unable to change its state.
-	 * </p>
-	 * 
-	 * @param name Feature name.
-	 * 
+     * <p>
+     * Feature names are fully qualified {@link java.net.URI}s.
+     * Implementations may define their own features.
+     * <code>false</code> is returned if this <code>TransformerFactory</code> or the
+     * <code>Transformer</code>s or <code>Template</code>s it creates cannot support the feature.
+     * It is possible for an <code>TransformerFactory</code> to expose a feature value but be unable to change its state.
+     * </p>
+     * 
+     * @param name Feature name.
+     * 
      * @return The current state of the feature, <code>true</code> or <code>false</code>.
      * 
      * @throws NullPointerException If the <code>name</code> parameter is null.

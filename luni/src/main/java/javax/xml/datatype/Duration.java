@@ -700,7 +700,7 @@ public abstract class   Duration {
      * @return
      *      always return a non-null valid <code>Duration</code> object.
      */
-    public abstract Duration negate();	
+    public abstract Duration negate();    
 
     /**
      * <p>Converts the years and months fields into the days field

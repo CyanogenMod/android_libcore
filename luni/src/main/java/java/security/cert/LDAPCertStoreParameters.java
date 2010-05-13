@@ -84,11 +84,11 @@ public class LDAPCertStoreParameters implements CertStoreParameters {
      * @return the cloned instance.
      */
     public Object clone() {
-    	try {
-			return super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 
     /**

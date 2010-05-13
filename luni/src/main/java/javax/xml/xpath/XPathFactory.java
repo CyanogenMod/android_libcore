@@ -65,17 +65,17 @@ public abstract class XPathFactory {
      * @return Instance of an <code>XPathFactory</code>.
      */
     public static final XPathFactory newInstance() {
-    	try {
-        	return newInstance(DEFAULT_OBJECT_MODEL_URI);
-    	} 
-    	catch (XPathFactoryConfigurationException xpathFactoryConfigurationException) {
-    		throw new RuntimeException(
-    			"XPathFactory#newInstance() failed to create an XPathFactory for the default object model: "
-    			+ DEFAULT_OBJECT_MODEL_URI
-    			+ " with the XPathFactoryConfigurationException: "
-    			+ xpathFactoryConfigurationException.toString()
-    		);
-    	}
+        try {
+            return newInstance(DEFAULT_OBJECT_MODEL_URI);
+        } 
+        catch (XPathFactoryConfigurationException xpathFactoryConfigurationException) {
+            throw new RuntimeException(
+                "XPathFactory#newInstance() failed to create an XPathFactory for the default object model: "
+                + DEFAULT_OBJECT_MODEL_URI
+                + " with the XPathFactoryConfigurationException: "
+                + xpathFactoryConfigurationException.toString()
+            );
+        }
     }
 
     /**
@@ -192,17 +192,17 @@ public abstract class XPathFactory {
         return xpathFactory;
     }
 
-	/**
-	 * <p>Is specified object model supported by this <code>XPathFactory</code>?</p>
-	 * 
-	 * @param objectModel Specifies the object model which the returned <code>XPathFactory</code> will understand.
-	 *  
-	 * @return <code>true</code> if <code>XPathFactory</code> supports <code>objectModel</code>, else <code>false</code>.
-	 * 
-	 * @throws NullPointerException If <code>objectModel</code> is <code>null</code>.
-	 * @throws IllegalArgumentException If <code>objectModel.length() == 0</code>.
-	 */
-	public abstract boolean isObjectModelSupported(String objectModel);
+    /**
+     * <p>Is specified object model supported by this <code>XPathFactory</code>?</p>
+     * 
+     * @param objectModel Specifies the object model which the returned <code>XPathFactory</code> will understand.
+     *  
+     * @return <code>true</code> if <code>XPathFactory</code> supports <code>objectModel</code>, else <code>false</code>.
+     * 
+     * @throws NullPointerException If <code>objectModel</code> is <code>null</code>.
+     * @throws IllegalArgumentException If <code>objectModel.length() == 0</code>.
+     */
+    public abstract boolean isObjectModelSupported(String objectModel);
 
     /**
      * <p>Set a feature for this <code>XPathFactory</code> and <code>XPath</code>s created by this factory.</p>
@@ -229,12 +229,12 @@ public abstract class XPathFactory {
      *   it creates cannot support this feature.
      * @throws NullPointerException if <code>name</code> is <code>null</code>.
      */
-	public abstract void setFeature(String name, boolean value)
-		throws XPathFactoryConfigurationException;
+    public abstract void setFeature(String name, boolean value)
+        throws XPathFactoryConfigurationException;
 
-	/**
-	 * <p>Get the state of the named feature.</p>
-	 * 
+    /**
+     * <p>Get the state of the named feature.</p>
+     * 
      * <p>
      * Feature names are fully qualified {@link java.net.URI}s.
      * Implementations may define their own features.
@@ -243,16 +243,16 @@ public abstract class XPathFactory {
      * It is possible for an <code>XPathFactory</code> to expose a feature value but be unable to change its state.
      * </p>
      * 
-	 * @param name Feature name.
-	 * 
-	 * @return State of the named feature.
-	 * 
+     * @param name Feature name.
+     * 
+     * @return State of the named feature.
+     * 
      * @throws XPathFactoryConfigurationException if this <code>XPathFactory</code> or the <code>XPath</code>s
      *   it creates cannot support this feature.
      * @throws NullPointerException if <code>name</code> is <code>null</code>.
-	 */
-	public abstract boolean getFeature(String name)
-		throws XPathFactoryConfigurationException;
+     */
+    public abstract boolean getFeature(String name)
+        throws XPathFactoryConfigurationException;
 
     /**
      * <p>Establish a default variable resolver.</p>

@@ -455,7 +455,7 @@ public abstract class DatatypeFactory {
      * 
      * @throws IllegalArgumentException If any values would create an invalid <code>Duration</code>. 
      * @throws UnsupportedOperationException If implementation cannot support requested values.
-     */	
+     */    
     public Duration newDurationDayTime(
             final boolean isPositive,
             final BigInteger day,
@@ -497,7 +497,7 @@ public abstract class DatatypeFactory {
      * and <code>second</code>.
      * 
      * @throws IllegalArgumentException If any values would create an invalid <code>Duration</code>. 
-     */	
+     */    
     public Duration newDurationDayTime(
             final boolean isPositive,
             final int day,
@@ -609,7 +609,7 @@ public abstract class DatatypeFactory {
      * 
      * @throws IllegalArgumentException If any values would create an invalid <code>Duration</code>. 
      * @throws UnsupportedOperationException If implementation cannot support requested values.
-     */	
+     */    
     public Duration newDurationYearMonth(
             final boolean isPositive,
             final BigInteger year,
@@ -642,7 +642,7 @@ public abstract class DatatypeFactory {
      * @return New <code>Duration</code> created using the specified <code>year</code> and <code>month</code>.
      * 
      * @throws IllegalArgumentException If any values would create an invalid <code>Duration</code>. 
-     */	
+     */    
     public Duration newDurationYearMonth(
             final boolean isPositive,
             final int year,

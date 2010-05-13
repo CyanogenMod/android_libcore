@@ -154,10 +154,10 @@ public final class UnresolvedPermission extends Permission
         if (length > 0) {
             boolean found;
             for (int i = 0; i < length; i++) {
-            	// Skip the checking for null
-            	if(certs1[i] == null){
-            		continue;
-            	}
+                // Skip the checking for null
+                if(certs1[i] == null){
+                    continue;
+                }
                 found = false;
                 for (int j = 0; j < length; j++) {
                     if (certs1[i].equals(certs2[j])) {
@@ -172,9 +172,9 @@ public final class UnresolvedPermission extends Permission
             }
 
             for (int i = 0; i < length; i++) {
-            	if(certs2[i] == null){
-            		continue;
-            	}
+                if(certs2[i] == null){
+                    continue;
+                }
                 found = false;
                 for (int j = 0; j < length; j++) {
                     if (certs2[i].equals(certs1[j])) {

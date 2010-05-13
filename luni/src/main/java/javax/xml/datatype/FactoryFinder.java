@@ -38,12 +38,12 @@ import java.util.Properties;
  * @since 1.5
  */
 final class FactoryFinder {
-	
-	/**
-	 * <p>Name of class to display in output messages.</p>
-	 */
-	private static final String CLASS_NAME = "javax.xml.datatype.FactoryFinder";
-	
+    
+    /**
+     * <p>Name of class to display in output messages.</p>
+     */
+    private static final String CLASS_NAME = "javax.xml.datatype.FactoryFinder";
+    
     /**
      * <p>Debug flag to trace loading process.</p>
      */
@@ -52,25 +52,25 @@ final class FactoryFinder {
     /**
      * <p>Cache properties for performance.</p>
      */
-	private static Properties cacheProps = new Properties();
-	
-	/**
-	 * <p>First time requires initialization overhead.</p>
-	 */
-	private static boolean firstTime = true;
+    private static Properties cacheProps = new Properties();
+    
+    /**
+     * <p>First time requires initialization overhead.</p>
+     */
+    private static boolean firstTime = true;
     
     /**
      * Default columns per line.
      */
     private static final int DEFAULT_LINE_LENGTH = 80;
-	
-	/**
-	 * <p>Check to see if debugging enabled by property.</p>
-	 * 
-	 * <p>Use try/catch block to support applets, which throws
+    
+    /**
+     * <p>Check to see if debugging enabled by property.</p>
+     * 
+     * <p>Use try/catch block to support applets, which throws
      * SecurityException out of this code.</p>
-	 * 
-	 */
+     * 
+     */
     static {
         try {
             String val = SecuritySupport.getSystemProperty("jaxp.debug");
@@ -83,17 +83,17 @@ final class FactoryFinder {
     
     private FactoryFinder() {}
 
-	/**
-	 * <p>Output debugging messages.</p>
-	 * 
-	 * @param msg <code>String</code> to print to <code>stderr</code>.
-	 */
+    /**
+     * <p>Output debugging messages.</p>
+     * 
+     * @param msg <code>String</code> to print to <code>stderr</code>.
+     */
     private static void debugPrintln(String msg) {
         if (debug) {
             System.err.println(
-            	CLASS_NAME
-            	+ ":"
-            	+ msg);
+                CLASS_NAME
+                + ":"
+                + msg);
         }
     }
 
@@ -142,10 +142,10 @@ final class FactoryFinder {
      * @throws ConfigurationError If class could not be created.
      */
     static Object newInstance(
-    	String className,
+        String className,
         ClassLoader classLoader)
         throws ConfigurationError {
-        	
+            
         try {
             Class spiClass;
             if (classLoader == null) {
@@ -155,7 +155,7 @@ final class FactoryFinder {
             }
             
             if (debug) {
-            	debugPrintln("Loaded " + className + " from " + which(spiClass));
+                debugPrintln("Loaded " + className + " from " + which(spiClass));
             }
              
             return spiClass.newInstance();
@@ -183,7 +183,7 @@ final class FactoryFinder {
      */
     static Object find(String factoryId, String fallbackClassName)
         throws ConfigurationError {
-        	
+            
         ClassLoader classLoader = findClassLoader();
 
         // Use the system property first
@@ -194,35 +194,35 @@ final class FactoryFinder {
                 return newInstance(systemProp, classLoader);
             }
         } catch (SecurityException se) {
-        	; // NOP, explicitly ignore SecurityException
+            ; // NOP, explicitly ignore SecurityException
         }
 
         // try to read from $java.home/lib/jaxp.properties
         try {
             String javah = SecuritySupport.getSystemProperty("java.home");
             String configFile = javah + File.separator + "lib" + File.separator + "jaxp.properties";
-			String factoryClassName = null;
-			if (firstTime) {
-				synchronized (cacheProps) {
-					if (firstTime) {
-						File f = new File(configFile);
-						firstTime = false;
-						if (SecuritySupport.doesFileExist(f)) {
-							if (debug) debugPrintln("Read properties file " + f);
-							cacheProps.load(SecuritySupport.getFileInputStream(f));
-						}
-					}
-				}
-			}
-			factoryClassName = cacheProps.getProperty(factoryId);
+            String factoryClassName = null;
+            if (firstTime) {
+                synchronized (cacheProps) {
+                    if (firstTime) {
+                        File f = new File(configFile);
+                        firstTime = false;
+                        if (SecuritySupport.doesFileExist(f)) {
+                            if (debug) debugPrintln("Read properties file " + f);
+                            cacheProps.load(SecuritySupport.getFileInputStream(f));
+                        }
+                    }
+                }
+            }
+            factoryClassName = cacheProps.getProperty(factoryId);
             if (debug) debugPrintln("found " + factoryClassName + " in $java.home/jaxp.properties"); 
-			
-			if (factoryClassName != null) {
-				return newInstance(factoryClassName, classLoader);
-			}
+            
+            if (factoryClassName != null) {
+                return newInstance(factoryClassName, classLoader);
+            }
         } catch (Exception ex) {
             if (debug) {
-            	ex.printStackTrace();
+                ex.printStackTrace();
             } 
         }
         
@@ -316,16 +316,16 @@ final class FactoryFinder {
         return null;
     }
     
-	/**
-	 * <p>Configuration Error.</p>
-	 */
+    /**
+     * <p>Configuration Error.</p>
+     */
     static class ConfigurationError extends Error {
         
         private static final long serialVersionUID = -3644413026244211347L;
-    	
-    	/**
-    	 * <p>Exception that caused the error.</p>
-    	 */
+        
+        /**
+         * <p>Exception that caused the error.</p>
+         */
         private Exception exception;
 
         /**
@@ -340,11 +340,11 @@ final class FactoryFinder {
             this.exception = x;
         }
 
-		/**
-		 * <p>Get the Exception that caused the error.</p>
-		 * 
-		 * @return Exception that caused the error.
-		 */
+        /**
+         * <p>Get the Exception that caused the error.</p>
+         * 
+         * @return Exception that caused the error.
+         */
         Exception getException() {
             return exception;
         }
@@ -368,13 +368,13 @@ final class FactoryFinder {
             URL it;
     
             if (loader != null) {
-            	it = loader.getResource(classnameAsResource);
+                it = loader.getResource(classnameAsResource);
             } else {
-            	it = ClassLoader.getSystemResource(classnameAsResource);
+                it = ClassLoader.getSystemResource(classnameAsResource);
             } 
     
             if (it != null) {
-            	return it.toString();
+                return it.toString();
             } 
         }
         // The VM ran out of memory or there was some other serious problem. Re-throw.
@@ -388,7 +388,7 @@ final class FactoryFinder {
         catch (Throwable t) {
             // work defensively.
             if (debug) {
-            	t.printStackTrace();
+                t.printStackTrace();
             } 
         }
         return "unknown location";

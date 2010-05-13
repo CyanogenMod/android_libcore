@@ -85,20 +85,20 @@ import javax.xml.namespace.NamespaceContext;
  */
 public interface XPath {
     
-	/**
-	 * <p>Reset this <code>XPath</code> to its original configuration.</p>
-	 * 
-	 * <p><code>XPath</code> is reset to the same state as when it was created with
-	 * {@link XPathFactory#newXPath()}.
-	 * <code>reset()</code> is designed to allow the reuse of existing <code>XPath</code>s
-	 * thus saving resources associated with the creation of new <code>XPath</code>s.</p>
-	 * 
-	 * <p>The reset <code>XPath</code> is not guaranteed to have the same {@link XPathFunctionResolver}, {@link XPathVariableResolver}
-	 * or {@link NamespaceContext} <code>Object</code>s, e.g. {@link Object#equals(Object obj)}.
-	 * It is guaranteed to have a functionally equal <code>XPathFunctionResolver</code>, <code>XPathVariableResolver</code>
-	 * and <code>NamespaceContext</code>.</p>
-	 */
-	public void reset();
+    /**
+     * <p>Reset this <code>XPath</code> to its original configuration.</p>
+     * 
+     * <p><code>XPath</code> is reset to the same state as when it was created with
+     * {@link XPathFactory#newXPath()}.
+     * <code>reset()</code> is designed to allow the reuse of existing <code>XPath</code>s
+     * thus saving resources associated with the creation of new <code>XPath</code>s.</p>
+     * 
+     * <p>The reset <code>XPath</code> is not guaranteed to have the same {@link XPathFunctionResolver}, {@link XPathVariableResolver}
+     * or {@link NamespaceContext} <code>Object</code>s, e.g. {@link Object#equals(Object obj)}.
+     * It is guaranteed to have a functionally equal <code>XPathFunctionResolver</code>, <code>XPathVariableResolver</code>
+     * and <code>NamespaceContext</code>.</p>
+     */
+    public void reset();
 
     /**
      * <p>Establish a variable resolver.</p>

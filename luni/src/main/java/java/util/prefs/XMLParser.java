@@ -474,7 +474,7 @@ class XMLParser {
      * load preferences from file, if cannot load, create a new one FIXME: need
      * lock or not?
      *
-     * @param file	the XML file to be read
+     * @param file    the XML file to be read
      * @return Properties instance which indicates the preferences key-value pairs
      */
     static Properties loadFilePrefs(final File file) {

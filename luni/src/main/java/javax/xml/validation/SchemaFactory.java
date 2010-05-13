@@ -227,19 +227,19 @@ public abstract class SchemaFactory {
     // }
     // END android-only
     
-	/**
-	 * <p>Is specified schema supported by this <code>SchemaFactory</code>?</p>
-	 * 
-	 * @param schemaLanguage Specifies the schema language which the returned <code>SchemaFactory</code> will understand.
+    /**
+     * <p>Is specified schema supported by this <code>SchemaFactory</code>?</p>
+     * 
+     * @param schemaLanguage Specifies the schema language which the returned <code>SchemaFactory</code> will understand.
      *    <code>schemaLanguage</code> must specify a <a href="#schemaLanguage">valid</a> schema language.
-	 * 
-	 * @return <code>true</code> if <code>SchemaFactory</code> supports <code>schemaLanguage</code>, else <code>false</code>.
-	 * 
-	 * @throws NullPointerException If <code>schemaLanguage</code> is <code>null</code>.
-	 * @throws IllegalArgumentException If <code>schemaLanguage.length() == 0</code>
-	 *   or <code>schemaLanguage</code> does not specify a <a href="#schemaLanguage">valid</a> schema language.  
-	 */    
-	public abstract boolean isSchemaLanguageSupported(String schemaLanguage);
+     * 
+     * @return <code>true</code> if <code>SchemaFactory</code> supports <code>schemaLanguage</code>, else <code>false</code>.
+     * 
+     * @throws NullPointerException If <code>schemaLanguage</code> is <code>null</code>.
+     * @throws IllegalArgumentException If <code>schemaLanguage.length() == 0</code>
+     *   or <code>schemaLanguage</code> does not specify a <a href="#schemaLanguage">valid</a> schema language.  
+     */    
+    public abstract boolean isSchemaLanguageSupported(String schemaLanguage);
 
     /**
      * Look up the value of a feature flag.
@@ -263,9 +263,9 @@ public abstract class SchemaFactory {
      * @see #setFeature(String, boolean)
      */
     public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
-    	
+        
         if (name == null) {
-        	throw new NullPointerException("the name parameter is null");
+            throw new NullPointerException("the name parameter is null");
         } 
         throw new SAXNotRecognizedException(name);
     }
@@ -282,22 +282,22 @@ public abstract class SchemaFactory {
      * possible for a {@link SchemaFactory} to expose a feature value but
      * to be unable to change the current value.</p>
      *
-	 * <p>All implementations are required to support the {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} feature.
-	 * When the feature is:</p>
-	 * <ul>
-	 *   <li>
-	 *     <code>true</code>: the implementation will limit XML processing to conform to implementation limits.
-	 *     Examples include entity expansion limits and XML Schema constructs that would consume large amounts of resources.
-	 *     If XML processing is limited for security reasons, it will be reported via a call to the registered
-	 *     {@link ErrorHandler#fatalError(SAXParseException exception)}.
-	 *     See {@link  #setErrorHandler(ErrorHandler errorHandler)}.
-	 *   </li>
-	 *   <li>
-	 *     <code>false</code>: the implementation will processing XML according to the XML specifications without
-	 *     regard to possible implementation limits.
-	 *   </li>
-	 * </ul>
-	 * 
+     * <p>All implementations are required to support the {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} feature.
+     * When the feature is:</p>
+     * <ul>
+     *   <li>
+     *     <code>true</code>: the implementation will limit XML processing to conform to implementation limits.
+     *     Examples include entity expansion limits and XML Schema constructs that would consume large amounts of resources.
+     *     If XML processing is limited for security reasons, it will be reported via a call to the registered
+     *     {@link ErrorHandler#fatalError(SAXParseException exception)}.
+     *     See {@link  #setErrorHandler(ErrorHandler errorHandler)}.
+     *   </li>
+     *   <li>
+     *     <code>false</code>: the implementation will processing XML according to the XML specifications without
+     *     regard to possible implementation limits.
+     *   </li>
+     * </ul>
+     * 
      * @param name The feature name, which is a non-null fully-qualified URI.
      * @param value The requested value of the feature (true or false).
      * 
@@ -312,9 +312,9 @@ public abstract class SchemaFactory {
      * @see #getFeature(String)
      */
     public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
-    	
+        
         if (name == null) {
-        	throw new NullPointerException("the name parameter is null");
+            throw new NullPointerException("the name parameter is null");
         } 
         throw new SAXNotRecognizedException(name);
     }
@@ -340,9 +340,9 @@ public abstract class SchemaFactory {
      *              if the name parameter is null.
      */
     public void setProperty(String name, Object object) throws SAXNotRecognizedException, SAXNotSupportedException {
-    	
+        
         if (name == null) {
-        	throw new NullPointerException("the name parameter is null");
+            throw new NullPointerException("the name parameter is null");
         } 
         throw new SAXNotRecognizedException(name);
     }
@@ -372,9 +372,9 @@ public abstract class SchemaFactory {
      * @see #setProperty(String, Object)
      */
     public Object getProperty(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
-    	
+        
         if (name == null) {
-        	throw new NullPointerException("the name parameter is null");
+            throw new NullPointerException("the name parameter is null");
         } 
         throw new SAXNotRecognizedException(name);
     }
@@ -525,7 +525,7 @@ public abstract class SchemaFactory {
      * @throws NullPointerException if <tt>schema</tt> is null.
      */
     public Schema newSchema(Source schema) throws SAXException {
-    	return newSchema(new Source[]{schema});
+        return newSchema(new Source[]{schema});
     }
     
     /**

@@ -244,7 +244,7 @@ public final class URL implements java.io.Serializable {
                     index = -1;
                 } else {
                     // Ignore case in protocol names.
-                	// Scheme is defined by ASCII characters.
+                    // Scheme is defined by ASCII characters.
                     protocol = Util.toASCIILowerCase(protocol);
                 }
             }

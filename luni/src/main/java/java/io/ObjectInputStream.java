@@ -2182,7 +2182,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
         if (enableResolve) {
             result = resolveObject(result);
         }
-		registerObjectRead(result, nextHandle(), unshared);
+        registerObjectRead(result, nextHandle(), unshared);
 
         return result;
     }
