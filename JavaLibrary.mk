@@ -24,8 +24,12 @@
 # Java source directory, and some (hopefully eventually all) also have
 # a directory for tests.
 
-define all-core-java-files
-$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && find */src/$(1)/java -name "*.java"))
+define all-main-java-files-under
+$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && find $(dir)/src/main/java -name "*.java" 2> /dev/null)))
+endef
+
+define all-test-java-files-under
+$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && find $(1)/src/test/java -name "*.java" 2> /dev/null))
 endef
 
 # Redirect ls stderr to /dev/null because the corresponding resources
@@ -35,11 +39,11 @@ $(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/{java,resources} 2> /dev/null)
 endef
 
 # The core Java files and associated resources.
-core_src_files := $(call all-core-java-files,main)
+core_src_files := $(call all-main-java-files-under,annotation archive auth awt-kernel concurrent crypto dalvik dom icu json logging luni luni-kernel math nio nio_char openssl prefs regex security security-kernel sql suncompat support text x-net xml)
 core_resource_dirs := $(call all-core-resource-dirs,main)
 
 # The test Java files and associated resources.
-test_src_files := $(call all-core-java-files,test)
+test_src_files := $(call all-test-java-files-under,annotation archive auth awt-kernel concurrent crypto dalvik dom icu json junit logging luni luni-kernel math nio nio_char openssl prefs regex security security-kernel sql suncompat support text x-net xml)
 test_resource_dirs := $(call all-core-resource-dirs,test)
 
 
@@ -72,6 +76,15 @@ include $(BUILD_JAVA_LIBRARY)
 core-intermediates := ${intermediates}
 
 
+# Make core-junit
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-main-java-files-under,junit)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := core
+LOCAL_MODULE := core-junit
+include $(BUILD_JAVA_LIBRARY)
+
+
 # Definitions to make the core-tests library.
 
 include $(CLEAR_VARS)
@@ -80,7 +93,7 @@ LOCAL_SRC_FILES := $(test_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core
+LOCAL_JAVA_LIBRARIES := core core-junit
 LOCAL_DX_FLAGS := --core-library
 
 LOCAL_MODULE_TAGS := tests
