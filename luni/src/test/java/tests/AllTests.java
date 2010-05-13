@@ -61,6 +61,7 @@ public class AllTests
         suite.addTest(java.lang.AllTests.suite());
         suite.addTest(java.lang.reflect.AllTests.suite());
         suite.addTest(java.net.AllTests.suite());
+        suite.addTest(java.nio.channels.AllTests.suite());
         suite.addTest(java.nio.charset.AllTests.suite());
         suite.addTest(java.text.AllTests.suite());
         suite.addTest(java.util.AllTests.suite());

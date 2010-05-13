@@ -62,7 +62,6 @@ public abstract class FileChannelImpl extends FileChannel {
         } catch (IOException e) {
             throw new Error(e);
         }
-
     }
 
     // Handle to the open file
@@ -222,9 +221,7 @@ public abstract class FileChannelImpl extends FileChannel {
     }
 
     public int read(ByteBuffer buffer, long position) throws IOException {
-        if (null == buffer) {
-            throw new NullPointerException();
-        }
+        FileChannelImpl.checkWritable(buffer);
         if (position < 0) {
             throw new IllegalArgumentException();
         }
@@ -246,6 +243,7 @@ public abstract class FileChannelImpl extends FileChannel {
     }
 
     public int read(ByteBuffer buffer) throws IOException {
+        FileChannelImpl.checkWritable(buffer);
         openCheck();
         if (!buffer.hasRemaining()) {
             return 0;
@@ -293,7 +291,7 @@ public abstract class FileChannelImpl extends FileChannel {
             throw new IndexOutOfBoundsException();
         }
         openCheck();
-        int count = calculateTotalRemaining(buffers, offset, length);
+        int count = FileChannelImpl.calculateTotalRemaining(buffers, offset, length, true);
         if (count == 0) {
             return 0;
         }
@@ -547,13 +545,12 @@ public abstract class FileChannelImpl extends FileChannel {
         return bytesWritten;
     }
 
-    public long write(ByteBuffer[] buffers, int offset, int length)
-            throws IOException {
+    public long write(ByteBuffer[] buffers, int offset, int length) throws IOException {
         if (offset < 0 || length < 0 || (offset + length) > buffers.length) {
             throw new IndexOutOfBoundsException();
         }
         openCheck();
-        int count = calculateTotalRemaining(buffers, offset, length);
+        int count = FileChannelImpl.calculateTotalRemaining(buffers, offset, length, false);
         if (count == 0) {
             return 0;
         }
@@ -618,10 +615,24 @@ public abstract class FileChannelImpl extends FileChannel {
         return bytesWritten;
     }
 
-    static int calculateTotalRemaining(ByteBuffer[] buffers, int offset, int length) {
+    static void checkWritable(ByteBuffer buffer) {
+        if (buffer.isReadOnly()) {
+            throw new IllegalArgumentException("read-only buffer");
+        }
+    }
+
+    /**
+     * @param copyingIn true if we're copying data into the buffers (typically
+     * because the caller is a file/network read operation), false if we're
+     * copying data out of the buffers (for a file/network write operation).
+     */
+    static int calculateTotalRemaining(ByteBuffer[] buffers, int offset, int length, boolean copyingIn) {
         int count = 0;
         for (int i = offset; i < offset + length; ++i) {
             count += buffers[i].remaining();
+            if (copyingIn) {
+                checkWritable(buffers[i]);
+            }
         }
         return count;
     }

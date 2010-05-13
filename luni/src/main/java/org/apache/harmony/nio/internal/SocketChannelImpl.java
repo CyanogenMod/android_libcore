@@ -50,7 +50,6 @@ import org.apache.harmony.luni.net.PlainSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
-//import org.apache.harmony.luni.util.ErrorCodeException; android-removed
 import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.nio.AddressUtil;
 
@@ -60,8 +59,6 @@ import org.apache.harmony.nio.AddressUtil;
 class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
 
     private static final int EOF = -1;
-
-    // android-removed: private static final int ERRCODE_SOCKET_NONBLOCKING_WOULD_BLOCK = -211;
 
     // The singleton to do the native network operation.
     static final INetworkSystem networkSystem = Platform.getNetworkSystem();
@@ -359,9 +356,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
      */
     @Override
     public int read(ByteBuffer target) throws IOException {
-        if (null == target) {
-            throw new NullPointerException();
-        }
+        FileChannelImpl.checkWritable(target);
         checkOpenConnected();
         if (!target.hasRemaining()) {
             return 0;
@@ -386,10 +381,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         return readCount;
     }
 
-    /**
-     * @see java.nio.channels.SocketChannel#read(java.nio.ByteBuffer[], int,
-     *      int)
-     */
     @Override
     public long read(ByteBuffer[] targets, int offset, int length) throws IOException {
         if (!isIndexValid(targets, offset, length)) {
@@ -397,7 +388,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         }
 
         checkOpenConnected();
-        int totalCount = FileChannelImpl.calculateTotalRemaining(targets, offset, length);
+        int totalCount = FileChannelImpl.calculateTotalRemaining(targets, offset, length, true);
         if (totalCount == 0) {
             return 0;
         }
@@ -480,10 +471,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         return writeImpl(source);
     }
 
-    /**
-     * @see java.nio.channels.SocketChannel#write(java.nio.ByteBuffer[], int,
-     *      int)
-     */
     @Override
     public long write(ByteBuffer[] sources, int offset, int length) throws IOException {
         if (!isIndexValid(sources, offset, length)) {
@@ -491,7 +478,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         }
 
         checkOpenConnected();
-        int count = FileChannelImpl.calculateTotalRemaining(sources, offset, length);
+        int count = FileChannelImpl.calculateTotalRemaining(sources, offset, length, false);
         if (count == 0) {
             return 0;
         }
@@ -532,23 +519,17 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                     begin();
                 }
                 if (source.isDirect()) {
-                    // BEGIN android-changed
-                    // changed address from long to int; split address and pos parameters
                     int address = AddressUtil.getDirectBufferAddress(source);
-                    writeCount = networkSystem.writeDirect(fd, address, pos,
-                            length);
-                    // END android-changed
+                    writeCount = networkSystem.writeDirect(fd, address, pos, length);
                 } else if (source.hasArray()) {
                     pos += source.arrayOffset();
-                    writeCount = networkSystem.write(fd, source.array(), pos,
-                            length);
+                    writeCount = networkSystem.write(fd, source.array(), pos, length);
                 } else {
                     byte[] array = new byte[length];
                     source.get(array);
                     writeCount = networkSystem.write(fd, array, 0, length);
                 }
                 source.position(pos + writeCount);
-                // android-removed: bogus catch (SocketException e) and use of ErrorCodeException.
             } finally {
                 if (isBlocking()) {
                     end(writeCount >= 0);
@@ -561,8 +542,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     /*
      * Status check, open and "connected", when read and write.
      */
-    synchronized private void checkOpenConnected()
-            throws ClosedChannelException {
+    synchronized private void checkOpenConnected() throws ClosedChannelException {
         if (!isOpen()) {
             throw new ClosedChannelException();
         }

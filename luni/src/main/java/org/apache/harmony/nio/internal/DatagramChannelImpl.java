@@ -44,7 +44,6 @@ import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
-//import org.apache.harmony.luni.util.ErrorCodeException; android-removed
 import org.apache.harmony.nio.AddressUtil;
 
 /*
@@ -59,8 +58,6 @@ class DatagramChannelImpl extends DatagramChannel implements
 
     // default timeout used to nonblocking mode.
     private static final int DEFAULT_TIMEOUT = 1;
-
-    // android-removed: private static final int ERRCODE_SOCKET_NONBLOCKING_WOULD_BLOCK = -211;
 
     private static final byte[] stubArray = new byte[0];
 
@@ -207,14 +204,9 @@ class DatagramChannelImpl extends DatagramChannel implements
         return this;
     }
 
-    /**
-     * @see java.nio.channels.DatagramChannel#receive(java.nio.ByteBuffer)
-     */
     @Override
     public SocketAddress receive(ByteBuffer target) throws IOException {
-        // must not null and not readonly
-        checkWritable(target);
-        // must open
+        FileChannelImpl.checkWritable(target);
         checkOpen();
 
         if (!isBound) {
@@ -414,18 +406,10 @@ class DatagramChannelImpl extends DatagramChannel implements
         }
     }
 
-    /**
-     * @see java.nio.channels.DatagramChannel#read(java.nio.ByteBuffer)
-     */
     @Override
     public int read(ByteBuffer target) throws IOException {
-        if (null == target) {
-            throw new NullPointerException();
-        }
-        // status must be open and connected
+        FileChannelImpl.checkWritable(target);
         checkOpenConnected();
-        // target buffer must be not null and not readonly
-        checkWritable(target);
 
         if (!target.hasRemaining()) {
             return 0;
@@ -449,26 +433,17 @@ class DatagramChannelImpl extends DatagramChannel implements
         return readCount;
     }
 
-    /**
-     * @see java.nio.channels.DatagramChannel#read(java.nio.ByteBuffer[], int,
-     *      int)
-     */
     @Override
-    public long read(ByteBuffer[] targets, int offset, int length)
-            throws IOException {
-        if (length < 0 || offset < 0
-                || (long) length + (long) offset > targets.length) {
+    public long read(ByteBuffer[] targets, int offset, int length) throws IOException {
+        if (length < 0 || offset < 0 || (long) length + (long) offset > targets.length) {
             throw new IndexOutOfBoundsException();
         }
 
         // status must be open and connected
         checkOpenConnected();
-
-        int totalCount = 0;
-        for (int val = offset; val < length; val++) {
-            // target buffer must be not null and not readonly
-            checkWritable(targets[val]);
-            totalCount += targets[val].remaining();
+        int totalCount = FileChannelImpl.calculateTotalRemaining(targets, offset, length, true);
+        if (totalCount == 0) {
+            return 0;
         }
 
         // read data to readBuffer, and then transfer data from readBuffer to
@@ -571,8 +546,7 @@ class DatagramChannelImpl extends DatagramChannel implements
      *      int)
      */
     @Override
-    public long write(ByteBuffer[] sources, int offset, int length)
-            throws IOException {
+    public long write(ByteBuffer[] sources, int offset, int length) throws IOException {
         if (length < 0 || offset < 0
                 || (long) length + (long) offset > sources.length) {
             throw new IndexOutOfBoundsException();
@@ -580,8 +554,8 @@ class DatagramChannelImpl extends DatagramChannel implements
 
         // status must be open and connected
         checkOpenConnected();
-        int count = calculateByteBufferArray(sources, offset, length);
-        if (0 == count) {
+        int count = FileChannelImpl.calculateTotalRemaining(sources, offset, length, false);
+        if (count == 0) {
             return 0;
         }
         ByteBuffer writeBuf = ByteBuffer.allocate(count);
@@ -627,7 +601,6 @@ class DatagramChannelImpl extends DatagramChannel implements
                             .array(), start, length, isBound);
                 }
                 return result;
-                // android-removed: bogus catch (SocketException e) and use of ErrorCodeException.
             } finally {
                 end(result > 0);
             }
@@ -688,30 +661,10 @@ class DatagramChannelImpl extends DatagramChannel implements
     }
 
     /*
-     * Buffer check, must not null and not read only buffer, for read and
-     * receive.
-     */
-    private void checkWritable(ByteBuffer target) {
-        // including checking of NPE.
-        if (target.isReadOnly()) {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    /*
      * Get the fd for internal use.
      */
     public FileDescriptor getFD() {
         return fd;
-    }
-
-    private int calculateByteBufferArray(ByteBuffer[] sources, int offset,
-            int length) {
-        int sum = 0;
-        for (int val = offset; val < offset + length; val++) {
-            sum += sources[val].remaining();
-        }
-        return sum;
     }
 
     /*
