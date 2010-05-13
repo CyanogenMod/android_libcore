@@ -1,4 +1,4 @@
-package SQLite.JDBC2y;
+package SQLite.JDBC2z;
 
 import java.sql.Types;
 import java.util.Vector;

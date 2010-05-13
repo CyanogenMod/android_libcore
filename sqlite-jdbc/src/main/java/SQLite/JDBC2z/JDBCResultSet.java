@@ -1,4 +1,4 @@
-package SQLite.JDBC2y;
+package SQLite.JDBC2z;
 
 import java.sql.*;
 import java.math.BigDecimal;
@@ -200,7 +200,7 @@ public class JDBCResultSet implements java.sql.ResultSet {
 
     public void setFetchDirection(int dir) throws SQLException {
 	if (dir != ResultSet.FETCH_FORWARD) {
-	    throw new SQLException("not supported");
+	    throw new SQLException("only forward fetch direction supported");
 	}
     }
 
@@ -210,7 +210,7 @@ public class JDBCResultSet implements java.sql.ResultSet {
 
     public void setFetchSize(int fsize) throws SQLException {
 	if (fsize != 1) {
-	    throw new SQLException("not supported");
+	    throw new SQLException("fetch size must be 1");
 	}
     }
 
@@ -535,18 +535,20 @@ public class JDBCResultSet implements java.sql.ResultSet {
     @Deprecated
     public java.io.InputStream getUnicodeStream(int columnIndex)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     @Deprecated
     public java.io.InputStream getUnicodeStream(String columnName)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(columnName);
+	return getUnicodeStream(col);
     }
 
     public java.io.InputStream getAsciiStream(String columnName)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(columnName);
+	return getAsciiStream(col);
     }
 
     public java.io.InputStream getAsciiStream(int columnIndex)
@@ -556,23 +558,25 @@ public class JDBCResultSet implements java.sql.ResultSet {
 
     public BigDecimal getBigDecimal(String columnName)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(columnName);
+	return getBigDecimal(col);
     }
 
     @Deprecated
     public BigDecimal getBigDecimal(String columnName, int scale)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(columnName);
+	return getBigDecimal(col, scale);
     }
 
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     @Deprecated
     public BigDecimal getBigDecimal(int columnIndex, int scale)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public java.io.InputStream getBinaryStream(int columnIndex)
@@ -598,7 +602,8 @@ public class JDBCResultSet implements java.sql.ResultSet {
     }
 
     public byte getByte(String columnName) throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(columnName);
+	return getByte(col);
     }
 
     public byte[] getBytes(int columnIndex) throws SQLException {
@@ -668,44 +673,49 @@ public class JDBCResultSet implements java.sql.ResultSet {
 
     public Object getObject(int columnIndex, java.util.Map map) 
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
-    public Object getObject(String columnIndex, java.util.Map map)
+    public Object getObject(String columnName, java.util.Map map)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(columnName);
+	return getObject(col, map);
     }
 
     public java.sql.Ref getRef(int columnIndex) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
-    public java.sql.Ref getRef(String columnIndex) throws SQLException {
-	throw new SQLException("not supported");
+    public java.sql.Ref getRef(String columnName) throws SQLException {
+	int col = findColumn(columnName);
+	return getRef(col);
     }
 
     public java.sql.Blob getBlob(int columnIndex) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
-    public java.sql.Blob getBlob(String columnIndex) throws SQLException {
-	throw new SQLException("not supported");
+    public java.sql.Blob getBlob(String columnName) throws SQLException {
+	int col = findColumn(columnName);
+	return getBlob(col);
     }
 
     public java.sql.Clob getClob(int columnIndex) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
-    public java.sql.Clob getClob(String columnIndex) throws SQLException {
-	throw new SQLException("not supported");
+    public java.sql.Clob getClob(String columnName) throws SQLException {
+	int col = findColumn(columnName);
+	return getClob(col);
     }
 
     public java.sql.Array getArray(int columnIndex) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
-    public java.sql.Array getArray(String columnIndex) throws SQLException {
-	throw new SQLException("not supported");
+    public java.sql.Array getArray(String columnName) throws SQLException {
+	int col = findColumn(columnName);
+	return getArray(col);
     }
 
     public java.io.Reader getCharacterStream(int columnIndex)
@@ -1004,7 +1014,7 @@ public class JDBCResultSet implements java.sql.ResultSet {
     }
 
     public void updateByte(int colIndex, byte b) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void updateShort(int colIndex, short b) throws SQLException {
@@ -1054,7 +1064,7 @@ public class JDBCResultSet implements java.sql.ResultSet {
 
     public void updateBigDecimal(int colIndex, BigDecimal f)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void updateString(int colIndex, String s) throws SQLException {
@@ -1109,17 +1119,17 @@ public class JDBCResultSet implements java.sql.ResultSet {
 
     public void updateAsciiStream(int colIndex, java.io.InputStream in, int s)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void updateBinaryStream(int colIndex, java.io.InputStream in, int s)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void updateCharacterStream(int colIndex, java.io.Reader in, int s)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void updateObject(int colIndex, Object obj) throws SQLException {
@@ -1142,7 +1152,8 @@ public class JDBCResultSet implements java.sql.ResultSet {
     }
 
     public void updateByte(String colName, byte b) throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(colName);
+	updateByte(col, b);
     }
 
     public void updateShort(String colName, short b) throws SQLException {
@@ -1172,7 +1183,8 @@ public class JDBCResultSet implements java.sql.ResultSet {
 
     public void updateBigDecimal(String colName, BigDecimal f)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(colName);
+	updateBigDecimal(col, f);
     }
 
     public void updateString(String colName, String s) throws SQLException {
@@ -1206,19 +1218,22 @@ public class JDBCResultSet implements java.sql.ResultSet {
     public void updateAsciiStream(String colName, java.io.InputStream in,
 				  int s)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(colName);
+	updateAsciiStream(col, in, s);
     }
 
     public void updateBinaryStream(String colName, java.io.InputStream in,
 				   int s)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(colName);
+	updateBinaryStream(col, in, s);
     }
 
     public void updateCharacterStream(String colName, java.io.Reader in,
 				      int s)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(colName);
+	updateCharacterStream(col, in, s);
     }
 
     public void updateObject(String colName, Object obj)
@@ -1273,42 +1288,319 @@ public class JDBCResultSet implements java.sql.ResultSet {
     }
 
     public void updateRef(int colIndex, java.sql.Ref x) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void updateRef(String colName, java.sql.Ref x)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(colName);
+	updateRef(col, x);
     }
 
     public void updateBlob(int colIndex, java.sql.Blob x)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void updateBlob(String colName, java.sql.Blob x)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(colName);
+	updateBlob(col, x);
     }
 
     public void updateClob(int colIndex, java.sql.Clob x)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void updateClob(String colName, java.sql.Clob x)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(colName);
+	updateClob(col, x);
     }
 
     public void updateArray(int colIndex, java.sql.Array x)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void updateArray(String colName, java.sql.Array x)
 	throws SQLException {
-	throw new SQLException("not supported");
+	int col = findColumn(colName);
+	updateArray(col, x);
+    }
+
+    public RowId getRowId(int colIndex) throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public RowId getRowId(String colName) throws SQLException {
+	int col = findColumn(colName);
+	return getRowId(col);
+    }
+
+    public void updateRowId(int colIndex, RowId x) throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateRowId(String colName, RowId x) throws SQLException {
+	int col = findColumn(colName);
+	updateRowId(col, x);
+    }
+
+    public int getHoldability() throws SQLException {
+	return ResultSet.CLOSE_CURSORS_AT_COMMIT;
+    }
+
+    public boolean isClosed() throws SQLException {
+	return tr == null;
+    }
+
+    public void updateNString(int colIndex, String nString)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateNString(String colName, String nString)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateNString(col, nString);
+    }
+
+    public void updateNClob(int colIndex, NClob nclob)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateNClob(String colName, NClob nclob)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateNClob(col, nclob);
+    }
+
+    public NClob getNClob(int colIndex) throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public NClob getNClob(String colName) throws SQLException {
+	int col = findColumn(colName);
+	return getNClob(col);
+    }
+
+    public SQLXML getSQLXML(int colIndex) throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public SQLXML getSQLXML(String colName) throws SQLException {
+	int col = findColumn(colName);
+	return getSQLXML(col);
+    }
+
+    public void updateSQLXML(int colIndex, SQLXML xml)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateSQLXML(String colName, SQLXML xml)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateSQLXML(col, xml);
+    }
+
+    public String getNString(int colIndex) throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public String getNString(String colName) throws SQLException {
+	int col = findColumn(colName);
+	return getNString(col);
+    }
+
+    public java.io.Reader getNCharacterStream(int colIndex)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public java.io.Reader getNCharacterStream(String colName)
+	throws SQLException {
+	int col = findColumn(colName);
+	return getNCharacterStream(col);
+    }
+
+    public void updateNCharacterStream(int colIndex, java.io.Reader x,
+				       long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateNCharacterStream(String colName, java.io.Reader x,
+				       long len)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateNCharacterStream(col, x, len);
+    }
+
+    public void updateAsciiStream(int colIndex, java.io.InputStream x,
+				  long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateAsciiStream(String colName, java.io.InputStream x,
+				  long len)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateAsciiStream(col, x, len);
+    }
+
+    public void updateBinaryStream(int colIndex, java.io.InputStream x,
+				   long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateBinaryStream(String colName, java.io.InputStream x,
+				   long len)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateBinaryStream(col, x, len);
+    }
+
+    public void updateCharacterStream(int colIndex, java.io.Reader x,
+				   long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateCharacterStream(String colName, java.io.Reader x,
+				   long len)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateCharacterStream(col, x, len);
+    }
+
+    public void updateBlob(int colIndex, java.io.InputStream x,
+			   long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateBlob(String colName, java.io.InputStream x,
+			   long len)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateBlob(col, x, len);
+    }
+
+    public void updateClob(int colIndex, java.io.Reader x,
+			   long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateClob(String colName, java.io.Reader x,
+			   long len)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateClob(col, x, len);
+    }
+
+    public void updateNClob(int colIndex, java.io.Reader x,
+			    long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateNClob(String colName, java.io.Reader x,
+			    long len)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateNClob(col, x, len);
+    }
+
+    public void updateNCharacterStream(int colIndex, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateNCharacterStream(String colName, java.io.Reader x)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateNCharacterStream(col, x);
+    }
+
+    public void updateAsciiStream(int colIndex, java.io.InputStream x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateAsciiStream(String colName, java.io.InputStream x)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateAsciiStream(col, x);
+    }
+
+    public void updateBinaryStream(int colIndex, java.io.InputStream x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateBinaryStream(String colName, java.io.InputStream x)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateBinaryStream(col, x);
+    }
+
+    public void updateCharacterStream(int colIndex, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateCharacterStream(String colName, java.io.Reader x)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateCharacterStream(col, x);
+    }
+
+    public void updateBlob(int colIndex, java.io.InputStream x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateBlob(String colName, java.io.InputStream x)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateBlob(col, x);
+    }
+
+    public void updateClob(int colIndex, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateClob(String colName, java.io.Reader x)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateClob(col, x);
+    }
+
+    public void updateNClob(int colIndex, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void updateNClob(String colName, java.io.Reader x)
+	throws SQLException {
+	int col = findColumn(colName);
+	updateNClob(col, x);
+    }
+
+    public <T> T unwrap(java.lang.Class<T> iface) throws SQLException {
+	throw new SQLException("unsupported");
+    }
+
+    public boolean isWrapperFor(java.lang.Class iface) throws SQLException {
+	return false;
     }
 
 }

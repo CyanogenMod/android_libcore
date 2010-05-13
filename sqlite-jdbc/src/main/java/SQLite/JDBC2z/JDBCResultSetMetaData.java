@@ -1,4 +1,4 @@
-package SQLite.JDBC2y;
+package SQLite.JDBC2z;
 
 import java.sql.*;
 
@@ -211,4 +211,13 @@ public class JDBCResultSetMetaData implements java.sql.ResultSetMetaData {
 	}
 	throw new SQLException("column " + columnName + " not found");
     }
+
+    public <T> T unwrap(java.lang.Class<T> iface) throws SQLException {
+	throw new SQLException("unsupported");
+    }
+
+    public boolean isWrapperFor(java.lang.Class iface) throws SQLException {
+	return false;
+    }
+
 }

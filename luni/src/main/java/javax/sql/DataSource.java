@@ -19,7 +19,7 @@ package javax.sql;
 
 import java.sql.SQLException;
 import java.sql.Connection;
-import java.io.PrintWriter;
+import java.sql.Wrapper;
 
 /**
  * An interface for the creation of {@code Connection} objects which represent a
@@ -50,7 +50,7 @@ import java.io.PrintWriter;
  * interface is loaded via a JNDI lookup process. A driver loaded in this way
  * does not register itself with the {@code DriverManager}.
  */
-public interface DataSource {
+public interface DataSource extends CommonDataSource, Wrapper {
 
     /**
      * Creates a connection to the database represented by this {@code
@@ -79,67 +79,4 @@ public interface DataSource {
      */
     public Connection getConnection(String theUsername, String thePassword)
             throws SQLException;
-
-    /**
-     * Gets the login timeout value for this {@code DataSource}. The login
-     * timeout is the maximum time in seconds that the {@code DataSource} will
-     * wait when opening a connection to a database. A timeout value of 0
-     * implies either the system default timeout value (if there is one) or that
-     * there is no timeout. The default value for the login timeout is 0.
-     *
-     * @return the login timeout value in seconds.
-     * @throws SQLException
-     *             if there is a problem accessing the database.
-     */
-    public int getLoginTimeout() throws SQLException;
-
-    /**
-     * Gets the log writer for this {@code DataSource}.
-     * <p>
-     * The log writer is a stream to which all log and trace messages are sent
-     * from this {@code DataSource}. The log writer can be {@code null}, in
-     * which case, log and trace capture is disabled. The default value for the
-     * log writer when an {@code DataSource} is created is {@code null}. Note
-     * that the log writer for a {@code DataSource} is not the same as the log
-     * writer used by a {@code DriverManager}.
-     *
-     * @return a {@code PrintWriter} which is the log writer for this {@code
-     *         DataSource}. Can be {@code null}, in which case log writing is
-     *         disabled for this {@code DataSource}.
-     * @throws SQLException
-     *             if there is a problem accessing the database.
-     */
-    public PrintWriter getLogWriter() throws SQLException;
-
-    /**
-     * Sets the login timeout value for this {@code DataSource}. The login
-     * timeout is the maximum time in seconds that the {@code DataSource} will
-     * wait when opening a connection to a database. A timeout value of 0
-     * implies either the system default timeout value (if there is one) or that
-     * there is no timeout. The default value for the login timeout is 0.
-     *
-     * @param theTimeout
-     *            the new login timeout value in seconds.
-     * @throws SQLException
-     *             if there is a problem accessing the database.
-     */
-    public void setLoginTimeout(int theTimeout) throws SQLException;
-
-    /**
-     * Sets the log writer for this {@code DataSource}.
-     * <p>
-     * The log writer is a stream to which all log and trace messages are sent
-     * from this {@code DataSource}. The log writer can be {@code null}, in
-     * which case, log and trace capture is disabled. The default value for the
-     * log writer when a {@code DataSource} is created is {@code null}. Note
-     * that the log writer for a {@code DataSource} is not the same as the log
-     * writer used by a {@code DriverManager}.
-     *
-     * @param theWriter
-     *            a {@code PrintWriter} to use as the log writer for this
-     *            {@code DataSource}.
-     * @throws SQLException
-     *             if there is a problem accessing the database.
-     */
-    public void setLogWriter(PrintWriter theWriter) throws SQLException;
 }

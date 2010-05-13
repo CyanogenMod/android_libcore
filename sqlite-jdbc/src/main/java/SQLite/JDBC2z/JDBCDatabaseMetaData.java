@@ -1,4 +1,4 @@
-package SQLite.JDBC2y;
+package SQLite.JDBC2z;
 
 import java.sql.*;
 import java.util.Hashtable;
@@ -588,11 +588,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 				String tableNamePattern,
 				String columnNamePattern)
 	throws SQLException {
-	// BEGIN android-changed: add missing error check.
-	if (conn.db == null) {
-	    throw new SQLException("connection closed");
-	}
-	// END android-changed
+    // BEGIN android-changed: add missing error check.
+    if (conn.db == null) {
+        throw new SQLException("connection closed");
+    }
+    // END android-changed
 	JDBCStatement s = new JDBCStatement(conn);
 	JDBCResultSet rs0 = null;
 	try {
@@ -1643,6 +1643,48 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
     public int getSQLStateType() throws SQLException {
 	return sqlStateXOpen;
+    }
+
+    public RowIdLifetime getRowIdLifetime() throws SQLException {
+	return RowIdLifetime.ROWID_UNSUPPORTED;
+    }
+
+    public ResultSet getSchemas(String cat, String schema)
+	throws SQLException {
+	throw new SQLException("not supported");
+    }
+
+    public boolean supportsStoredFunctionsUsingCallSyntax()
+	throws SQLException {
+	return false;
+    }
+
+    public boolean autoCommitFailureClosesAllResultSets()
+	throws SQLException {
+	return false;
+    }
+
+    public ResultSet getClientInfoProperties() throws SQLException {
+	throw new SQLException("unsupported");
+    }
+
+    public ResultSet getFunctions(String cat, String schema, String func)
+	throws SQLException {
+	throw new SQLException("unsupported");
+    }
+
+    public ResultSet getFunctionColumns(String cat, String schema,
+					String func, String colpat)
+	throws SQLException {
+	throw new SQLException("unsupported");
+    }
+
+    public <T> T unwrap(java.lang.Class<T> iface) throws SQLException {
+	throw new SQLException("unsupported");
+    }
+
+    public boolean isWrapperFor(java.lang.Class iface) throws SQLException {
+	return false;
     }
 
 }

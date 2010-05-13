@@ -109,4 +109,24 @@ public interface PooledConnection {
      */
     public void removeConnectionEventListener(
             ConnectionEventListener theListener);
+
+    /**
+     * Add a StatementEventListener to this PooledConnection object.
+     *
+     * @param listener
+     *            A StatementEventListener object which is to be added with this
+     *            PooledConnection object
+     * @since 1.6
+     */
+    public void addStatementEventListener(StatementEventListener listener);
+
+    /**
+     * Remove a StatementEventListener from this PooledConnection object.
+     *
+     * @param listener
+     *            A StatementEventListener object which is to be removed form
+     *            this PooledConnection object
+     * @since 1.6
+     */
+    public void removeStatementEventListener(StatementEventListener listener);
 }

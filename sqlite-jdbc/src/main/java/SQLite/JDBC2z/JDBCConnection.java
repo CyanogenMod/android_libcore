@@ -1,4 +1,4 @@
-package SQLite.JDBC2y;
+package SQLite.JDBC2z;
 
 import java.sql.*;
 import java.util.*;
@@ -193,11 +193,11 @@ public class JDBCConnection
 	if (resultSetType != ResultSet.TYPE_FORWARD_ONLY &&
 	    resultSetType != ResultSet.TYPE_SCROLL_INSENSITIVE &&
 	    resultSetType != ResultSet.TYPE_SCROLL_SENSITIVE) {
-	    throw new SQLException("unsupported result set type");
+	    throw new SQLFeatureNotSupportedException("unsupported result set type");
 	}
 	if (resultSetConcurrency != ResultSet.CONCUR_READ_ONLY &&
 	    resultSetConcurrency != ResultSet.CONCUR_UPDATABLE) {
-	    throw new SQLException("unsupported result set concurrency");
+	    throw new SQLFeatureNotSupportedException("unsupported result set concurrency");
 	}
 	JDBCStatement s = new JDBCStatement(this);
 	return s;
@@ -279,7 +279,7 @@ public class JDBCConnection
 
     public CallableStatement prepareCall(String sql, int x, int y)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public PreparedStatement prepareStatement(String sql) throws SQLException {
@@ -293,11 +293,11 @@ public class JDBCConnection
 	if (resultSetType != ResultSet.TYPE_FORWARD_ONLY &&
 	    resultSetType != ResultSet.TYPE_SCROLL_INSENSITIVE &&
 	    resultSetType != ResultSet.TYPE_SCROLL_SENSITIVE) {
-	    throw new SQLException("unsupported result set type");
+	    throw new SQLFeatureNotSupportedException("unsupported result set type");
 	}
 	if (resultSetConcurrency != ResultSet.CONCUR_READ_ONLY &&
 	    resultSetConcurrency != ResultSet.CONCUR_UPDATABLE) {
-	    throw new SQLException("unsupported result set concurrency");
+	    throw new SQLFeatureNotSupportedException("unsupported result set concurrency");
 	}
 	JDBCPreparedStatement s = new JDBCPreparedStatement(this, sql);
 	return s;
@@ -384,11 +384,11 @@ public class JDBCConnection
     }
 
     public java.util.Map<String, Class<?>> getTypeMap() throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void setTypeMap(java.util.Map map) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
   
     public int getHoldability() throws SQLException {
@@ -399,23 +399,23 @@ public class JDBCConnection
 	if (holdability == ResultSet.HOLD_CURSORS_OVER_COMMIT) {
 	    return;
 	}
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException("unsupported holdability");
     }
 
     public Savepoint setSavepoint() throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public Savepoint setSavepoint(String name) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void rollback(Savepoint x) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void releaseSavepoint(Savepoint x) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public Statement createStatement(int resultSetType,
@@ -423,7 +423,7 @@ public class JDBCConnection
 				     int resultSetHoldability)
 	throws SQLException {
 	if (resultSetHoldability != ResultSet.HOLD_CURSORS_OVER_COMMIT) {
-	    throw new SQLException("not supported");
+	    throw new SQLFeatureNotSupportedException("unsupported holdability");
 	}
 	return createStatement(resultSetType, resultSetConcurrency);
     }
@@ -433,32 +433,87 @@ public class JDBCConnection
 					      int resultSetHoldability)
 	throws SQLException {
 	if (resultSetHoldability != ResultSet.HOLD_CURSORS_OVER_COMMIT) {
-	    throw new SQLException("not supported");
+	    throw new SQLFeatureNotSupportedException("unsupported holdability");
 	}
 	return prepareStatement(sql, resultSetType, resultSetConcurrency);
     }
 
     public CallableStatement prepareCall(String sql, int x, int y, int z)
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public PreparedStatement prepareStatement(String sql, int autokeys)
 	throws SQLException {
 	if (autokeys != Statement.NO_GENERATED_KEYS) {
-	    throw new SQLException("not supported");
+	    throw new SQLFeatureNotSupportedException("generated keys not supported");
 	}
 	return prepareStatement(sql);
     }
 
     public PreparedStatement prepareStatement(String sql, int colIndexes[])
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public PreparedStatement prepareStatement(String sql, String columns[])
 	throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public Clob createClob() throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public Blob createBlob() throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public NClob createNClob() throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public SQLXML createSQLXML() throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public boolean isValid(int timeout) throws SQLException {
+        return true;
+    }
+
+    public void setClientInfo(String name, String value)
+	throws SQLClientInfoException {
+	throw new SQLClientInfoException();
+    }
+
+    public void setClientInfo(Properties prop) throws SQLClientInfoException {
+	throw new SQLClientInfoException();
+    }
+
+    public String getClientInfo(String name) throws SQLException {
+	throw new SQLException("unsupported");
+    }
+
+    public Properties getClientInfo() throws SQLException {
+        return new Properties();
+    }
+
+    public Array createArrayOf(String type, Object[] elems)
+ 	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public Struct createStruct(String type, Object[] attrs)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public <T> T unwrap(java.lang.Class<T> iface) throws SQLException {
+	throw new SQLException("unsupported");
+    }
+
+    public boolean isWrapperFor(java.lang.Class iface) throws SQLException {
+	return false;
     }
 
 }

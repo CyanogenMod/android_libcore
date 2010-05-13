@@ -79,6 +79,51 @@ public class SQLWarning extends SQLException implements Serializable {
     }
 
     /**
+     * Creates an SQLWarning object. The Reason string is set to null, the
+     * SQLState string is set to null and the Error Code is set to 0, cause is
+     * set to cause.
+     *
+     * @since 1.6
+     */
+    public SQLWarning(Throwable cause) {
+        super(cause);
+    }
+
+    /**
+     * Creates an SQLWarning object. The Reason string is set to reason, the
+     * SQLState string is set to null and the Error Code is set to 0, cause is
+     * set to the given cause
+     *
+     * @since 1.6
+     */
+    public SQLWarning(String reason, Throwable cause) {
+        super(reason, cause);
+    }
+
+    /**
+     * Creates an SQLWarning object. The Reason string is set to reason, the
+     * SQLState string is set to given SQLState and the Error Code is set to 0,
+     * cause is set to the given cause
+     *
+     * @since 1.6
+     */
+    public SQLWarning(String reason, String SQLState, Throwable cause) {
+        super(reason, SQLState, cause);
+    }
+
+    /**
+     * Creates an SQLWarning object. The Reason string is set to reason, the
+     * SQLState string is set to given SQLState and the Error Code is set to
+     * vendorCode, cause is set to the given cause
+     *
+     * @since 1.6
+     */
+    public SQLWarning(String reason, String SQLState, int vendorCode,
+            Throwable cause) {
+        super(reason, SQLState, vendorCode, cause);
+    }
+
+    /**
      * Gets the next {@code SQLWarning} chained to this {@code SQLWarning} object.
      *
      * @return the {@code SQLWarning} chained to this {@code SQLWarning}.

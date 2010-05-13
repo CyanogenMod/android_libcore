@@ -21,7 +21,7 @@ package java.sql;
  * An interface used to get information about the types and properties of
  * parameters in a {@code PreparedStatement}.
  */
-public interface ParameterMetaData {
+public interface ParameterMetaData extends Wrapper {
 
     /**
      * Indicates that the parameter mode is {@code IN}.

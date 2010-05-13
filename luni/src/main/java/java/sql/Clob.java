@@ -176,4 +176,13 @@ public interface Clob {
      *             if an error occurs accessing the {@code Clob}.
      */
     public void truncate(long len) throws SQLException;
+
+    /**
+     * TODO Javadoc
+     *
+     * @throws SQLException
+     */
+    public void free() throws SQLException;
+
+    public Reader getCharacterStream(long pos, long length) throws SQLException;
 }

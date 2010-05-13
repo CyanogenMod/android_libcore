@@ -3135,6 +3135,7 @@ public class PreparedStatementTest extends SQLTest {
             return null;
         }
 
+        public void free() throws SQLException {}
     }
 
     private class MockBlob implements Blob {
@@ -3185,6 +3186,11 @@ public class PreparedStatementTest extends SQLTest {
 
         }
 
+        public void free() throws SQLException {}
+
+        public InputStream getBinaryStream(long pos, long length) throws SQLException {
+            return null;
+        }
     }
 
     private class MockClob implements Clob {
@@ -3245,5 +3251,10 @@ public class PreparedStatementTest extends SQLTest {
 
         }
 
+        public void free() throws SQLException {}
+
+        public Reader getCharacterStream(long pos, long length) throws SQLException {
+            return null;
+        }
     }
 }

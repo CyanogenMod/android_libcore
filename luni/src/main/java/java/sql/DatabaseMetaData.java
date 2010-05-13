@@ -33,7 +33,7 @@ package java.sql;
  * returned. If such a search pattern string is set to {@code null}, that
  * argument's criteria are dropped from the search.
  */
-public interface DatabaseMetaData {
+public interface DatabaseMetaData extends Wrapper {
 
     /**
      * States that it may not be permitted to store {@code NULL} values.
@@ -294,6 +294,73 @@ public interface DatabaseMetaData {
      * States that the version column may be a pseudo column or not.
      */
     public static final int versionColumnUnknown = 0;
+
+    /**
+     * States that the method DatabaseMetaData.getSQLStateType may returns an
+     * SQLSTATE value or not.
+     */
+    public static final int sqlStateSQL = 2;
+
+    /**
+     * States that the parameter or column is an IN parameter
+     */
+    public static final int functionColumnIn = 1;
+
+    /**
+     * States that the parameter or column is an INOUT parameter
+     */
+    public static final int functionColumnInOut = 2;
+
+    /**
+     * States that the parameter or column is an OUT parameter
+     */
+    public static final int functionColumnOut = 3;
+
+    /**
+     * States that the parameter or column is a return value
+     */
+    public static final int functionReturn = 4;
+
+    /**
+     * States that the parameter of function is unknown
+     */
+    public static final int functionColumnUnknown = 0;
+
+    /**
+     * States that the parameter or column is a column in a result set
+     */
+    public static final int functionColumnResult = 5;
+
+    /**
+     * States that NULL values are not allowed
+     */
+    public static final int functionNoNulls = 0;
+
+    /**
+     * States that NULL values are allowed
+     */
+    public static final int functionNullable = 1;
+
+    /**
+     * States that whether NULL values are allowed is unknown
+     */
+    public static final int functionNullableUnknown = 2;
+
+    /**
+     * States that it is not known whether the function returns a result or a
+     * table
+     */
+    public static final int functionResultUnknown = 0;
+
+    /**
+     * States that the function does not return a table
+     */
+    public static final int functionNoTable = 1;
+
+    /**
+     * States that the function returns a table.
+     */
+    public static final int functionReturnsTable = 2;
 
     /**
      * Returns whether all procedures returned by {@link #getProcedures} can be
@@ -3076,4 +3143,95 @@ public interface DatabaseMetaData {
      *             a database error occurred.
      */
     public boolean usesLocalFiles() throws SQLException;
+
+    /**
+     * Determine if a SQLException while autoCommit is true indicates that all
+     * open ResultSets are closed, even ones that are holdable
+     *
+     * @return true if all open ResultSets are closed
+     * @throws SQLException
+     *             if any error occurs
+     */
+    boolean autoCommitFailureClosesAllResultSets() throws SQLException;
+
+    /**
+     * Answers a list of the client info properties of the driver.
+     *
+     * @return a list of the client info
+     * @throws SQLException
+     *             if any error occurs
+     */
+    ResultSet getClientInfoProperties() throws SQLException;
+
+    /**
+     * Answers a description according to the given catalog's system or user
+     * function parameters and return type.
+     *
+     * @param catalog
+     *            the given catalong
+     * @param schemaPattern
+     *            the schema pattern
+     * @param functionNamePattern
+     *            the function name pattern
+     * @param columnNamePattern
+     *            the column name pattern
+     * @return a description of user functions
+     * @throws SQLException
+     *             if any error occurs
+     */
+    ResultSet getFunctionColumns(String catalog, String schemaPattern,
+            String functionNamePattern, String columnNamePattern)
+            throws SQLException;
+
+    /**
+     * Answers a description of the system and user functions available
+     * according to the given catalog.
+     *
+     * @param catalog
+     *            the given catalog
+     * @param schemaPattern
+     *            the schema pattern
+     * @param functionNamePattern
+     *            the function name pattern
+     * @return user functions
+     * @throws SQLException
+     *             if any error occurs
+     */
+    ResultSet getFunctions(String catalog, String schemaPattern,
+            String functionNamePattern) throws SQLException;
+
+    /**
+     * Answers the lifetime for which a RowId object remains valid if this data
+     * source supports the SQL ROWID type
+     *
+     * @return the time of a RowId object that remains valid.
+     * @throws SQLException
+     *             if any error occurs
+     */
+    RowIdLifetime getRowIdLifetime() throws SQLException;
+
+    /**
+     * Answers the schema names ordered by TABLE_CATALOG and TABLE_SCHEMA.
+     *
+     * @param catalog
+     *            the catalog
+     * @param schemaPattern
+     *            the schema pattern
+     * @return the schema names
+     * @throws SQLException
+     *             if any error occurs
+     */
+    ResultSet getSchemas(String catalog, String schemaPattern)
+            throws SQLException;
+
+    /**
+     * Determine if this database supports invoking user-defined or vendor
+     * functions using the stored procedure escape syntax.
+     *
+     * @return true if this database supports invoking user-defined or vendor
+     *         functions using the stored procedure escape syntax.
+     * @throws SQLException
+     *             if any error occurs
+     */
+    boolean supportsStoredFunctionsUsingCallSyntax() throws SQLException;
 }

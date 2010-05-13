@@ -34,7 +34,7 @@ package java.sql;
  * @see ResultSet
  * @see Connection#createStatement
  */
-public interface Statement {
+public interface Statement extends Wrapper {
 
     /**
      * Passing this constant to {@link #getMoreResults} implies that all {@code
@@ -650,4 +650,15 @@ public interface Statement {
      *             {@code 0}.
      */
     public void setQueryTimeout(int seconds) throws SQLException;
+
+    /**
+     * TODO Javadoc
+     *
+     * @return
+     */
+    public boolean isClosed() throws SQLException;
+
+    public void setPoolable(boolean poolable) throws SQLException;
+
+    public boolean isPoolable() throws SQLException;
 }

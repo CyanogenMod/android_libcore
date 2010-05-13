@@ -182,4 +182,34 @@ public class Types {
      * The type code that identifies the SQL type {@code VARCHAR}.
      */
     public static final int VARCHAR = 12;
+
+    /**
+     * The type code that identifies the SQL type ROWID.
+     */
+    public static final int ROWID = -8;
+
+    /**
+     * The type code that identifies the SQL type NCHAR.
+     */
+    public static final int NCHAR = -15;
+
+    /**
+     * The type code that identifies the SQL type NVARCHAR.
+     */
+    public static final int NVARCHAR = -9;
+
+    /**
+     * The type code that identifies the SQL type LONGNVARCHAR.
+     */
+    public static final int LONGNVARCHAR = -16;
+
+    /**
+     * The type code that identifies the SQL type NCLOB.
+     */
+    public static final int NCLOB = 2011;
+
+    /**
+     * The type code that identifies the SQL type SQLXML.
+     */
+    public static final int SQLXML = 2009;
 }

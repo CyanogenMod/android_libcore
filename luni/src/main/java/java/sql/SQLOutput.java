@@ -290,4 +290,17 @@ public interface SQLOutput {
      * @see java.net.URL
      */
     public void writeURL(URL theURL) throws SQLException;
+
+    /**
+     * TODO Javadoc
+     *
+     * @return
+     */
+    public void writeNString(String x) throws SQLException;
+
+    public void writeNClob(NClob x) throws SQLException;
+
+    public void writeRowId(RowId x) throws SQLException;
+
+    public void writeSQLXML(SQLXML x) throws SQLException;
 }

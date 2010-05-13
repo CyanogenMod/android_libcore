@@ -18,6 +18,8 @@
 package java.sql;
 
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * An {@code Exception} class that is used in conjunction with JDBC operations.
@@ -26,17 +28,13 @@ import java.io.Serializable;
  * <p>
  * The {@code SQLException} class provides the following information:
  * <ul>
- * <li>A standard Java exception message, as a {@code String}</li>
- * <li>An {@code SQLState} string. This is an error description string which
- * follows either the SQL 99 conventions or the X/OPEN {@code SQLstate}
- * conventions. The potential values of the {@code SQLState} string are
- * described in each of the specifications. Which of the conventions is being
- * used by the {@code SQLState} string can be discovered by using the {@code
- * getSQLStateType} method of the {@code DatabaseMetaData} interface.</li>
- * <li>An error code, an an integer. The error code is specific to each database
- * vendor and is typically the error code returned by the database itself.</li>
- * <li>A chain to a next {@code Exception}, if relevant, which can give access
- * to additional error information.</li>
+ *   <li>A message string.</li>
+ *   <li>A {@code SQLState} error description string following either
+ * <a href="http://en.wikipedia.org/wiki/SQL:1999">SQL 99</a> or X/OPEN {@code SQLState}
+ * conventions. {@link DatabaseMetaData#getSQLStateType} exposes the specific convention in
+ * use.</li>
+ *   <li>A database-specific error code.</li>
+ *   <li>The next {@code Exception} in the chain.</li>
  * </ul>
  *
  * @see DatabaseMetaData
@@ -106,6 +104,80 @@ public class SQLException extends Exception implements Serializable {
     }
 
     /**
+     * Creates an SQLException object. The Reason string is set to the null if
+     * cause == null or cause.toString() if cause!=null,and the cause Throwable
+     * object is set to the given cause Throwable object.
+     *
+     * @param theCause
+     *            the Throwable object for the underlying reason this
+     *            SQLException
+     *
+     * @since 1.6
+     */
+    public SQLException(Throwable theCause) {
+        this(theCause == null ? null : theCause.toString(), null, 0, theCause);
+    }
+
+    /**
+     * Creates an SQLException object. The Reason string is set to the given and
+     * the cause Throwable object is set to the given cause Throwable object.
+     *
+     * @param theReason
+     *            the string to use as the Reason string
+     * @param theCause
+     *            the Throwable object for the underlying reason this
+     *            SQLException
+     *
+     * @since 1.6
+     */
+    public SQLException(String theReason, Throwable theCause) {
+        super(theReason, theCause);
+    }
+
+    /**
+     * Creates an SQLException object. The Reason string is set to the given
+     * reason string, the SQLState string is set to the given SQLState string
+     * and the cause Throwable object is set to the given cause Throwable
+     * object.
+     *
+     * @param theReason
+     *            the string to use as the Reason string
+     * @param theSQLState
+     *            the string to use as the SQLState string
+     * @param theCause
+     *            the Throwable object for the underlying reason this
+     *            SQLException
+     * @since 1.6
+     */
+    public SQLException(String theReason, String theSQLState, Throwable theCause) {
+        super(theReason, theCause);
+        SQLState = theSQLState;
+    }
+
+    /**
+     * Creates an SQLException object. The Reason string is set to the given
+     * reason string, the SQLState string is set to the given SQLState string ,
+     * the Error Code is set to the given error code value, and the cause
+     * Throwable object is set to the given cause Throwable object.
+     *
+     * @param theReason
+     *            the string to use as the Reason string
+     * @param theSQLState
+     *            the string to use as the SQLState string
+     * @param theErrorCode
+     *            the integer value for the error code
+     * @param theCause
+     *            the Throwable object for the underlying reason this
+     *            SQLException
+     * @since 1.6
+     */
+    public SQLException(String theReason, String theSQLState, int theErrorCode,
+            Throwable theCause) {
+        this(theReason, theSQLState, theCause);
+        vendorCode = theErrorCode;
+    }
+
+    /**
      * Returns the integer error code for this {@code SQLException}.
      *
      * @return The integer error code for this {@code SQLException}. The meaning
@@ -145,17 +217,47 @@ public class SQLException extends Exception implements Serializable {
     }
 
     /**
-     * Adds the SQLException to the end of this {@code SQLException} chain.
-     *
-     * @param ex
-     *            the new {@code SQLException} to be added to the end of the
-     *            chain.
+     * Obsolete. Appends {@code ex} to the end of this chain.
      */
     public void setNextException(SQLException ex) {
         if (next != null) {
             next.setNextException(ex);
         } else {
             next = ex;
+        }
+    }
+
+    /**
+     * Obsolete. {@link #getCause()} should be used instead of this iterator. Returns an iterator
+     * over the exceptions added with {@link #setNextException}.
+     */
+    public Iterator<Throwable> iterator() {
+        return new InternalIterator(this);
+    }
+
+    private static class InternalIterator implements Iterator<Throwable> {
+
+        private SQLException current;
+
+        InternalIterator(SQLException e) {
+            current = e;
+        }
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public Throwable next() {
+            if (current == null) {
+                throw new NoSuchElementException();
+            }
+            SQLException ret = current;
+            current = current.next;
+            return ret;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
         }
     }
 }

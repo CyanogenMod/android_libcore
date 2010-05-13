@@ -153,3 +153,19 @@ pattern .*java.lang.IllegalArgumentException: 5 not in range \(5....*
 test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_descendingMap_subMap
 result EXEC_FAILED
 pattern .*java.lang.IllegalArgumentException: 5 not in range \(5....*
+
+# These tests need to be updated to reflect newly implemented Java 6 APIs.
+test tests.sql.StatementTest#testExecuteUpdate_String_StringArray
+result EXEC_FAILED
+
+test tests.sql.StatementTest#testExecuteUpdate_String_intArray
+result EXEC_FAILED
+
+test tests.sql.StatementTest#testGeneratedKeys
+result EXEC_FAILED
+
+test tests.sql.StatementTest#testSetCursorName
+result EXEC_FAILED
+
+test tests.sql.StatementTest#testSetFetchSize
+result EXEC_FAILED

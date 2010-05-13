@@ -15,32 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.sql.tests.javax.sql;
+package java.sql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import javax.sql.ConnectionEventListener;
-import javax.sql.PooledConnection;
-import javax.sql.StatementEventListener;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 
-class Impl_PooledConnection implements PooledConnection {
-    public void addConnectionEventListener(ConnectionEventListener theListener) {
-    }
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 
-    public void close() throws SQLException {
-    }
+/**
+ * TODO Javadoc
+ */
+public interface SQLXML {
 
-    public Connection getConnection() throws SQLException {
-        return null;
-    }
+    void free() throws SQLException;
 
-    public void removeConnectionEventListener(
-            ConnectionEventListener theListener) {
-    }
+    InputStream getBinaryStream() throws SQLException;
 
-    public void addStatementEventListener(StatementEventListener listener) {
-    }
+    OutputStream setBinaryStream() throws SQLException;
 
-    public void removeStatementEventListener(StatementEventListener listener) {
-    }    
+    Reader getCharacterStream() throws SQLException;
+
+    Writer setCharacterStream() throws SQLException;
+
+    String getString() throws SQLException;
+
+    void setString(String value) throws SQLException;
+
+    <T extends Source> T getSource(Class<T> sourceClass) throws SQLException;
+
+    <T extends Result> T setResult(Class<T> resultClass) throws SQLException;
 }

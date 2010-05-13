@@ -25,10 +25,13 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+import java.sql.NClob;
 import java.sql.Ref;
 import java.sql.ResultSetMetaData;
+import java.sql.RowId;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -758,5 +761,512 @@ class Impl_RowSet implements RowSet {
 
     public boolean wasNull() throws SQLException {
         return false;
+    }
+
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        return false;
+    }
+
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        return null;
+    }
+
+    public int getHoldability() throws SQLException {
+        return 0;
+    }
+
+    public Reader getNCharacterStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    public Reader getNCharacterStream(String columnLabel) throws SQLException {
+        return null;
+    }
+
+    public NClob getNClob(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    public NClob getNClob(String columnLabel) throws SQLException {
+        return null;
+    }
+
+    public String getNString(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    public String getNString(String columnLabel) throws SQLException {
+        return null;
+    }
+
+    public RowId getRowId(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    public RowId getRowId(String columnLabel) throws SQLException {
+        return null;
+    }
+
+    public SQLXML getSQLXML(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    public SQLXML getSQLXML(String columnLabel) throws SQLException {
+        return null;
+    }
+
+    public boolean isClosed() throws SQLException {
+        return false;
+    }
+
+    public void updateAsciiStream(int columnIndex, InputStream x, long length)
+            throws SQLException {
+
+    }
+
+    public void updateAsciiStream(String columnLabel, InputStream x, long length)
+            throws SQLException {
+
+    }
+
+    public void updateAsciiStream(int columnIndex, InputStream x)
+            throws SQLException {
+
+    }
+
+    public void updateAsciiStream(String columnLabel, InputStream x)
+            throws SQLException {
+
+    }
+
+    public void updateBinaryStream(int columnIndex, InputStream x, long length)
+            throws SQLException {
+
+    }
+
+    public void updateBinaryStream(String columnLabel, InputStream x,
+            long length) throws SQLException {
+
+    }
+
+    public void updateBinaryStream(int columnIndex, InputStream x)
+            throws SQLException {
+
+    }
+
+    public void updateBinaryStream(String columnLabel, InputStream x)
+            throws SQLException {
+
+    }
+
+    public void updateBlob(int columnIndex, InputStream inputStream, long length)
+            throws SQLException {
+
+    }
+
+    public void updateBlob(String columnLabel, InputStream inputStream,
+            long length) throws SQLException {
+
+    }
+
+    public void updateBlob(int columnIndex, InputStream inputStream)
+            throws SQLException {
+
+    }
+
+    public void updateBlob(String columnLabel, InputStream inputStream)
+            throws SQLException {
+
+    }
+
+    public void updateCharacterStream(int columnIndex, Reader x, long length)
+            throws SQLException {
+
+    }
+
+    public void updateCharacterStream(String columnLabel, Reader reader,
+            long length) throws SQLException {
+
+    }
+
+    public void updateCharacterStream(int columnIndex, Reader x)
+            throws SQLException {
+
+    }
+
+    public void updateCharacterStream(String columnLabel, Reader reader)
+            throws SQLException {
+
+    }
+
+    public void updateClob(int columnIndex, Reader reader, long length)
+            throws SQLException {
+
+    }
+
+    public void updateClob(String columnLabel, Reader reader, long length)
+            throws SQLException {
+
+    }
+
+    public void updateClob(int columnIndex, Reader reader) throws SQLException {
+
+    }
+
+    public void updateClob(String columnLabel, Reader reader)
+            throws SQLException {
+
+    }
+
+    public void updateNCharacterStream(int columnIndex, Reader x, long length)
+            throws SQLException {
+
+    }
+
+    public void updateNCharacterStream(String columnLabel, Reader reader,
+            long length) throws SQLException {
+
+    }
+
+    public void updateNCharacterStream(int columnIndex, Reader x)
+            throws SQLException {
+
+    }
+
+    public void updateNCharacterStream(String columnLabel, Reader reader)
+            throws SQLException {
+
+    }
+
+    public void updateNClob(int columnIndex, NClob nClob) throws SQLException {
+
+    }
+
+    public void updateNClob(String columnLabel, NClob nClob)
+            throws SQLException {
+
+    }
+
+    public void updateNClob(int columnIndex, Reader reader, long length)
+            throws SQLException {
+
+    }
+
+    public void updateNClob(String columnLabel, Reader reader, long length)
+            throws SQLException {
+
+    }
+
+    public void updateNClob(int columnIndex, Reader reader) throws SQLException {
+
+    }
+
+    public void updateNClob(String columnLabel, Reader reader)
+            throws SQLException {
+
+    }
+
+    public void updateNString(int columnIndex, String nString)
+            throws SQLException {
+
+    }
+
+    public void updateNString(String columnLabel, String nString)
+            throws SQLException {
+
+    }
+
+    public void updateRowId(int columnIndex, RowId x) throws SQLException {
+
+    }
+
+    public void updateRowId(String columnLabel, RowId x) throws SQLException {
+
+    }
+
+    public void updateSQLXML(int columnIndex, SQLXML xmlObject)
+            throws SQLException {
+
+    }
+
+    public void updateSQLXML(String columnLabel, SQLXML xmlObject)
+            throws SQLException {
+
+    }
+
+    public void setAsciiStream(int parameterIndex, InputStream theInputStream)
+            throws SQLException {
+
+    }
+
+    public void setAsciiStream(String parameterName, InputStream theInputStream)
+            throws SQLException {
+
+    }
+
+    public void setAsciiStream(String parameterName,
+            InputStream theInputStream, int length) throws SQLException {
+
+    }
+
+    public void setBigDecimal(String parameterName, BigDecimal theBigDecimal)
+            throws SQLException {
+
+    }
+
+    public void setBinaryStream(int parameterIndex, InputStream theInputStream)
+            throws SQLException {
+
+    }
+
+    public void setBinaryStream(String parameterName, InputStream theInputStream)
+            throws SQLException {
+
+    }
+
+    public void setBinaryStream(String parameterName,
+            InputStream theInputStream, int length) throws SQLException {
+
+    }
+
+    public void setBlob(int parameterIndex, InputStream theInputStream)
+            throws SQLException {
+
+    }
+
+    public void setBlob(int parameterIndex, InputStream theInputStream,
+            long length) throws SQLException {
+
+    }
+
+    public void setBlob(String parameterName, InputStream theInputStream)
+            throws SQLException {
+
+    }
+
+    public void setBlob(String parameterName, InputStream theInputStream,
+            long length) throws SQLException {
+
+    }
+
+    public void setBlob(String parameterName, Blob theBlob) throws SQLException {
+
+    }
+
+    public void setBoolean(String parameterName, boolean theBoolean)
+            throws SQLException {
+
+    }
+
+    public void setByte(String parameterName, byte theByte) throws SQLException {
+
+    }
+
+    public void setBytes(String parametername, byte[] theByteArray)
+            throws SQLException {
+
+    }
+
+    public void setCharacterStream(int parameterIndex, Reader theReader)
+            throws SQLException {
+
+    }
+
+    public void setCharacterStream(String parameterName, Reader theReader)
+            throws SQLException {
+
+    }
+
+    public void setCharacterStream(String parameterName, Reader theReader,
+            int length) throws SQLException {
+
+    }
+
+    public void setClob(int parameterIndex, Reader theReader)
+            throws SQLException {
+
+    }
+
+    public void setClob(int parameterIndex, Reader theReader, long length)
+            throws SQLException {
+
+    }
+
+    public void setClob(String parameterName, Reader theReader)
+            throws SQLException {
+
+    }
+
+    public void setClob(String parameterName, Reader theReader, long length)
+            throws SQLException {
+
+    }
+
+    public void setDate(String parameterName, Date theDate) throws SQLException {
+
+    }
+
+    public void setDate(String parameterName, Date theDate, Calendar theCalendar)
+            throws SQLException {
+
+    }
+
+    public void setDouble(String parameterName, double theDouble)
+            throws SQLException {
+
+    }
+
+    public void setFloat(String parameterName, float theFloat)
+            throws SQLException {
+
+    }
+
+    public void setInt(String parameterName, int theInteger)
+            throws SQLException {
+
+    }
+
+    public void setLong(String parameterName, long theLong) throws SQLException {
+
+    }
+
+    public void setNCharacterStream(int parameterIndex, Reader theReader)
+            throws SQLException {
+
+    }
+
+    public void setNCharacterStream(int parameterIndex, Reader theReader,
+            long length) throws SQLException {
+
+    }
+
+    public void setNCharacterStream(String parameterName, Reader theReader)
+            throws SQLException {
+
+    }
+
+    public void setNCharacterStream(String parameterName, Reader theReader,
+            long length) throws SQLException {
+
+    }
+
+    public void setNClob(int parameterIndex, NClob theNClob)
+            throws SQLException {
+
+    }
+
+    public void setNClob(int parameterIndex, Reader theReader)
+            throws SQLException {
+
+    }
+
+    public void setNClob(int parameterIndex, Reader theReader, long length)
+            throws SQLException {
+
+    }
+
+    public void setNClob(String parameterName, Reader theReader)
+            throws SQLException {
+
+    }
+
+    public void setNClob(String parameterName, Reader theReader, long length)
+            throws SQLException {
+
+    }
+
+    public void setNString(int parameterIndex, String theNString)
+            throws SQLException {
+
+    }
+
+    public void setNString(String parameterName, String theNString)
+            throws SQLException {
+
+    }
+
+    public void setNull(String parameterName, int sqlType) throws SQLException {
+
+    }
+
+    public void setNull(String parameterName, int sqlType, String typeName)
+            throws SQLException {
+
+    }
+
+    public void setObject(String parameterName, Object theObject)
+            throws SQLException {
+
+    }
+
+    public void setObject(String parameterName, Object theObject,
+            int targetSqlType) throws SQLException {
+
+    }
+
+    public void setObject(String parameterName, Object theObject,
+            int targetSqlType, int scale) throws SQLException {
+
+    }
+
+    public void setRowId(int parameterIndex, RowId theRowId)
+            throws SQLException {
+
+    }
+
+    public void setRowId(String parameterName, RowId theRowId)
+            throws SQLException {
+
+    }
+
+    public void setSQLXML(int parameterIndex, SQLXML theSQLXML)
+            throws SQLException {
+
+    }
+
+    public void setSQLXML(String parameterName, SQLXML theSQLXML)
+            throws SQLException {
+
+    }
+
+    public void setShort(String parameterName, short theShort)
+            throws SQLException {
+
+    }
+
+    public void setString(String parameterName, String theString)
+            throws SQLException {
+
+    }
+
+    public void setTime(String parameterName, Time theTime) throws SQLException {
+
+    }
+
+    public void setTime(String parameterName, Time theTime, Calendar theCalendar)
+            throws SQLException {
+
+    }
+
+    public void setTimestamp(String parameterName, Timestamp theTimestamp)
+            throws SQLException {
+
+    }
+
+    public void setTimestamp(String parameterName, Timestamp theTimestamp,
+            Calendar theCalendar) throws SQLException {
+
+    }
+
+    public void setURL(int parameterIndex, URL theURL) throws SQLException {
+
+    }
+
+    public void setClob(String parameterName, Clob x) throws SQLException {
+
+    }
+
+    public void setNClob(String parameterName, NClob value) throws SQLException {
+
     }
 }

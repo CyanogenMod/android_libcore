@@ -687,4 +687,57 @@ public interface PreparedStatement extends Statement {
      * @see URL
      */
     public void setURL(int parameterIndex, URL theURL) throws SQLException;
+
+    /**
+     * TODO Javadoc
+     */
+    public void setRowId(int parameterIndex, RowId x) throws SQLException;
+
+    public void setNString(int parameterIndex, String value)
+            throws SQLException;
+
+    public void setNCharacterStream(int parameterIndex, Reader value,
+            long length) throws SQLException;
+
+    public void setNClob(int parameterIndex, NClob value) throws SQLException;
+
+    public void setClob(int parameterIndex, Reader reader, long length)
+            throws SQLException;
+
+    public void setBlob(int parameterIndex, InputStream inputStream, long length)
+            throws SQLException;
+
+    public void setNClob(int parameterIndex, Reader reader, long length)
+            throws SQLException;
+
+    public void setSQLXML(int parameterIndex, SQLXML xmlObject)
+            throws SQLException;
+
+    public void setAsciiStream(int parameterIndex, InputStream x, long length)
+            throws SQLException;
+
+    public void setBinaryStream(int parameterIndex, InputStream x, long length)
+            throws SQLException;
+
+    public void setCharacterStream(int parameterIndex, Reader reader,
+            long length) throws SQLException;
+
+    public void setAsciiStream(int parameterIndex, InputStream x)
+            throws SQLException;
+
+    public void setBinaryStream(int parameterIndex, InputStream x)
+            throws SQLException;
+
+    public void setCharacterStream(int parameterIndex, Reader reader)
+            throws SQLException;
+
+    public void setNCharacterStream(int parameterIndex, Reader value)
+            throws SQLException;
+
+    public void setClob(int parameterIndex, Reader reader) throws SQLException;
+
+    public void setBlob(int parameterIndex, InputStream inputStream)
+            throws SQLException;
+
+    public void setNClob(int parameterIndex, Reader reader) throws SQLException;
 }

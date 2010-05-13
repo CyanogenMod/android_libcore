@@ -1,4 +1,4 @@
-package SQLite.JDBC2y;
+package SQLite.JDBC2z;
 
 import java.sql.*;
 import java.math.BigDecimal;
@@ -286,7 +286,7 @@ public class JDBCPreparedStatement extends JDBCStatement
     @Deprecated
     public void setUnicodeStream(int parameterIndex, java.io.InputStream x, 
 				 int length) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void setBinaryStream(int parameterIndex, java.io.InputStream x,
@@ -445,19 +445,19 @@ public class JDBCPreparedStatement extends JDBCStatement
     }
 
     public void setRef(int i, Ref x) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void setBlob(int i, Blob x) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void setClob(int i, Clob x) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public void setArray(int i, Array x) throws SQLException {
-	throw new SQLException("not supported");
+	throw new SQLFeatureNotSupportedException();
     }
 
     public ResultSetMetaData getMetaData() throws SQLException {
@@ -776,6 +776,192 @@ public class JDBCPreparedStatement extends JDBCStatement
 
     public java.net.URL getURL(String parameterName) throws SQLException {
 	throw new SQLException("not supported");
+    }
+
+    public void setRowId(int parameterIndex, RowId x) throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setRowId(String parameterName, RowId x) throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNString(int parameterIndex, String value)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNString(String parameterName, String value)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNCharacterStream(int parameterIndex, java.io.Reader x,
+				    long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNCharacterStream(String parameterName, java.io.Reader x,
+				    long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNClob(int parameterIndex, NClob value)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNClob(String parameterName, NClob value)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setClob(int parameterIndex, java.io.Reader x, long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setClob(String parameterName, java.io.Reader x, long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setBlob(int parameterIndex, java.io.InputStream x, long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setBlob(String parameterName, java.io.InputStream x, long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNClob(int parameterIndex, java.io.Reader x, long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNClob(String parameterName, java.io.Reader x, long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setSQLXML(int parameterIndex, SQLXML xml)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setSQLXML(String parameterName, SQLXML xml)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setAsciiStream(int parameterIndex, java.io.InputStream x,
+			       long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setAsciiStream(String parameterName, java.io.InputStream x,
+			       long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setBinaryStream(int parameterIndex, java.io.InputStream x,
+				long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setBinaryStream(String parameterName, java.io.InputStream x,
+				long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setCharacterStream(int parameterIndex, java.io.Reader x,
+				   long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setCharacterStream(String parameterName, java.io.Reader x,
+				   long len)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setAsciiStream(int parameterIndex, java.io.InputStream x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setAsciiStream(String parameterName, java.io.InputStream x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setBinaryStream(int parameterIndex, java.io.InputStream x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setBinaryStream(String parameterName, java.io.InputStream x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setCharacterStream(int parameterIndex, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setCharacterStream(String parameterName, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNCharacterStream(int parameterIndex, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNCharacterStream(String parameterName, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setClob(int parameterIndex, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setClob(String parameterName, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setBlob(int parameterIndex, java.io.InputStream x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setBlob(String parameterName, java.io.InputStream x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNClob(int parameterIndex, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
+    }
+
+    public void setNClob(String parameterName, java.io.Reader x)
+	throws SQLException {
+	throw new SQLFeatureNotSupportedException();
     }
 
 }

@@ -163,4 +163,8 @@ public interface Array {
     public ResultSet getResultSet(Map<String, Class<?>> map)
             throws SQLException;
 
+    /**
+     * @throws SQLException
+     */
+    public void free() throws SQLException;
 }

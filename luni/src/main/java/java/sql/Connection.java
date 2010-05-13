@@ -18,6 +18,7 @@
 package java.sql;
 
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * A connection represents a link from a Java application to a database. All SQL
@@ -39,7 +40,7 @@ import java.util.Map;
  * SQL {@code WHERE} clause</br></li>
  * </ul>
  */
-public interface Connection {
+public interface Connection extends Wrapper {
 
     /**
      * A constant indicating that transactions are not supported.
@@ -758,4 +759,35 @@ public interface Connection {
      *             map} is not an instance of {@link Map}.
      */
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException;
+
+    /**
+     * TODO Javadoc
+     *
+     * @return
+     */
+    public Clob createClob() throws SQLException;
+
+    public Blob createBlob() throws SQLException;
+
+    public NClob createNClob() throws SQLException;
+
+    public SQLXML createSQLXML() throws SQLException;
+
+    public boolean isValid(int timeout) throws SQLException;
+
+    public void setClientInfo(String name, String value)
+            throws SQLClientInfoException;
+
+    public void setClientInfo(Properties properties)
+            throws SQLClientInfoException;
+
+    public String getClientInfo(String name) throws SQLException;
+
+    public Properties getClientInfo() throws SQLException;
+
+    public Array createArrayOf(String typeName, Object[] elements)
+            throws SQLException;
+
+    public Struct createStruct(String typeName, Object[] attributes)
+            throws SQLException;
 }

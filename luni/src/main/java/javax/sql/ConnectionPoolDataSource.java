@@ -28,40 +28,7 @@ import java.io.PrintWriter;
  * typically registered with a JNDI naming service directory and is retrieved
  * from there by name.
  */
-public interface ConnectionPoolDataSource {
-
-    /**
-     * Gets the login timeout value for this {@code ConnectionPoolDataSource}.
-     * The login timeout is the maximum time in seconds that the {@code
-     * ConnectionPoolDataSource} will wait when opening a connection to a
-     * database. A timeout value of 0 implies either the system default timeout
-     * value (if there is one) or that there is no timeout. The default value
-     * for the login timeout is {@code 0}.
-     *
-     * @return the login timeout value in seconds.
-     * @throws SQLException
-     *             if there is a problem accessing the database.
-     */
-    public int getLoginTimeout() throws SQLException;
-
-    /**
-     * Gets the log writer for this {@code ConnectionPoolDataSource}.
-     * <p>
-     * The log writer is a stream to which all log and trace messages are sent
-     * from this {@code ConnectionPoolDataSource}. The log writer can be {@code
-     * null}, in which case the log and trace capture is disabled. The default
-     * value for the log writer when an {@code ConnectionPoolDataSource} is
-     * created is {@code null}. Note that the log writer for an {@code
-     * ConnectionPoolDataSource} is not the same as the log writer used by a
-     * {@code DriverManager}.
-     *
-     * @return a {@code PrintWriter} which is the log writer for this {@code
-     *         ConnectionPoolDataSource}. Can be {@code null}, in which case log
-     *         writing is disabled for this {@code ConnectionPoolDataSource}.
-     * @throws SQLException
-     *             if there is a problem accessing the database.
-     */
-    public PrintWriter getLogWriter() throws SQLException;
+public interface ConnectionPoolDataSource extends CommonDataSource {
 
     /**
      * Creates a connection to a database which can then be used as a pooled
@@ -90,37 +57,4 @@ public interface ConnectionPoolDataSource {
      */
     public PooledConnection getPooledConnection(String theUser,
             String thePassword) throws SQLException;
-
-    /**
-     * Sets the login timeout value for this {@code ConnectionPoolDataSource}.
-     * The login timeout is the maximum time in seconds that the {@code
-     * ConnectionPoolDataSource} will wait when opening a connection to a
-     * database. A timeout value of 0 implies either the system default timeout
-     * value (if there is one) or that there is no timeout. The default value
-     * for the login timeout is 0.
-     *
-     * @param theTimeout
-     *            the new login timeout value in seconds.
-     * @throws SQLException
-     *             if there is a problem accessing the database.
-     */
-    public void setLoginTimeout(int theTimeout) throws SQLException;
-
-    /**
-     * Sets the log writer for this {@code ConnectionPoolDataSource}.
-     * <p>
-     * The log writer is a stream to which all log and trace messages are sent
-     * from this {@code ConnectionPoolDataSource}. The log writer can be {@code
-     * null}, in which case log and trace capture is disabled. The default value
-     * for the log writer, when a {@code ConnectionPoolDataSource} is created,
-     * is {@code null}. Note that the log writer for a {@code
-     * ConnectionPoolDataSource} is not the same as the log writer used by a
-     * {@code DriverManager}.
-     *
-     * @param theWriter
-     *            is the log writer for this {@code ConnectionPoolDataSource}.
-     * @throws SQLException
-     *             if there is a problem accessing the database.
-     */
-    public void setLogWriter(PrintWriter theWriter) throws SQLException;
 }

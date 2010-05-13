@@ -15,32 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.sql.tests.javax.sql;
+package java.sql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import javax.sql.ConnectionEventListener;
-import javax.sql.PooledConnection;
-import javax.sql.StatementEventListener;
-
-class Impl_PooledConnection implements PooledConnection {
-    public void addConnectionEventListener(ConnectionEventListener theListener) {
-    }
-
-    public void close() throws SQLException {
-    }
-
-    public Connection getConnection() throws SQLException {
-        return null;
-    }
-
-    public void removeConnectionEventListener(
-            ConnectionEventListener theListener) {
-    }
-
-    public void addStatementEventListener(StatementEventListener listener) {
-    }
-
-    public void removeStatementEventListener(StatementEventListener listener) {
-    }    
+/**
+ * An enumeration to describe the reason why a property cannot be set by calling
+ * Connection.setClientInfo.
+ *
+ * @since 1.6
+ */
+public enum ClientInfoStatus {
+    REASON_UNKNOWN, REASON_UNKNOWN_PROPERTY, REASON_VALUE_INVALID, REASON_VALUE_TRUNCATED,
 }
