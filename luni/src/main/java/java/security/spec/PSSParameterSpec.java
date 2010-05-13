@@ -62,11 +62,11 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
      */
     public PSSParameterSpec(int saltLen) {
         if (saltLen < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.7F")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.7F")); 
         }
         this.saltLen = saltLen;
-        this.mdName = "SHA-1"; //$NON-NLS-1$
-        this.mgfName = "MGF1"; //$NON-NLS-1$
+        this.mdName = "SHA-1"; 
+        this.mgfName = "MGF1"; 
         this.mgfSpec = MGF1ParameterSpec.SHA1;
         this.trailerField = 1;
     }
@@ -93,16 +93,16 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
             AlgorithmParameterSpec mgfSpec, int saltLen, int trailerField) {
 
         if (mdName == null) {
-            throw new NullPointerException(Messages.getString("security.80")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.80")); 
         }
         if (mgfName == null) {
-            throw new NullPointerException(Messages.getString("security.81")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.81")); 
         }
         if (saltLen < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.7F")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.7F")); 
         }
         if (trailerField < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.82")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.82")); 
         }
         this.mdName = mdName;
         this.mgfName = mgfName;

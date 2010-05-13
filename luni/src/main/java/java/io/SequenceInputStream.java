@@ -190,7 +190,7 @@ public class SequenceInputStream extends InputStream {
         }
         // BEGIN android-changed
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         // avoid int overflow
         // Exception priorities (in case of multiple errors) differ from
@@ -198,7 +198,7 @@ public class SequenceInputStream extends InputStream {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if ((offset | count) < 0 || offset > buffer.length - count) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
         }
         // END android-changed
         while (in != null) {

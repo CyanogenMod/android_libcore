@@ -86,7 +86,7 @@ public interface SHA1_Data {
 //    /**
 //     *  name of native library to use on Windows platform
 //     */
-//    static final String LIBRARY_NAME = "hysecurity";  //$NON-NLS-1$
+//    static final String LIBRARY_NAME = "hysecurity";  
     // END android-removed
 
 
@@ -94,6 +94,6 @@ public interface SHA1_Data {
      *  names of random devices on Linux platform
      */
     // BEGIN android-changed: /dev/random seems to be empty on Android 
-    static final String DEVICE_NAMES[] = { "/dev/urandom" /*, "/dev/random" */ }; //$NON-NLS-1$ //$NON-NLS-2$
+    static final String DEVICE_NAMES[] = { "/dev/urandom" /*, "/dev/random" */ };  
     // END android-changed
 }

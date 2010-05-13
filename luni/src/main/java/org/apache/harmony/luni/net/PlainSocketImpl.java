@@ -119,7 +119,7 @@ public class PlainSocketImpl extends SocketImpl {
                 // if newImpl is not an instance of PlainSocketImpl, use
                 // reflection to get/set protected fields.
                 if (null == fdField) {
-                    fdField = getSocketImplField("fd"); //$NON-NLS-1$
+                    fdField = getSocketImplField("fd"); 
                 }
                 FileDescriptor newFd = (FileDescriptor) fdField.get(newImpl);
                 // BEGIN android-changed
@@ -128,7 +128,7 @@ public class PlainSocketImpl extends SocketImpl {
                 // END android-cahnged
 
                 if (null == localportField) {
-                    localportField = getSocketImplField("localport"); //$NON-NLS-1$
+                    localportField = getSocketImplField("localport"); 
                 }
                 localportField.setInt(newImpl, getLocalPort());
             }
@@ -276,7 +276,7 @@ public class PlainSocketImpl extends SocketImpl {
     @Override
     protected synchronized OutputStream getOutputStream() throws IOException {
         if (!fd.valid()) {
-            throw new SocketException(Msg.getString("K003d")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K003d")); 
         }
         return new SocketOutputStream(this);
     }
@@ -365,7 +365,7 @@ public class PlainSocketImpl extends SocketImpl {
             }
 
         } catch (Exception e) {
-            throw new SocketException(Msg.getString("K003e", e)); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K003e", e)); 
         }
 
         socksRequestConnection(applicationServerAddress, applicationServerPort);
@@ -425,13 +425,13 @@ public class PlainSocketImpl extends SocketImpl {
             netImpl.connect(fd, trafficClass, socksGetServerAddress(),
                     socksGetServerPort());
         } catch (Exception e) {
-            throw new IOException(Msg.getString("K003f", e)); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K003f", e)); 
         }
 
         // There must be a connection to an application host for the bind to
         // work.
         if (lastConnectedAddress == null) {
-            throw new SocketException(Msg.getString("K0040")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K0040")); 
         }
 
         // Use the last connected address and port in the bind request.
@@ -468,7 +468,7 @@ public class PlainSocketImpl extends SocketImpl {
         request.setCommandOrResult(command);
         request.setPort(port);
         request.setIP(address.getAddress());
-        request.setUserId("default"); //$NON-NLS-1$
+        request.setUserId("default"); 
 
         getOutputStream().write(request.getBytes(), 0, request.getLength());
     }
@@ -488,7 +488,7 @@ public class PlainSocketImpl extends SocketImpl {
             bytesRead += count;
         }
         if (Socks4Message.REPLY_LENGTH != bytesRead) {
-            throw new SocketException(Msg.getString("KA011")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("KA011")); 
         }
         return reply;
     }

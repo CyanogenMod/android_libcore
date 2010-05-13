@@ -40,7 +40,7 @@ public class HeapShortBufferTest extends ShortBufferTest {
     public void testAllocatedShortBuffer_IllegalArg() {
         try {
             ShortBuffer.allocate(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }

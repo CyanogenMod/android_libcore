@@ -39,9 +39,9 @@ public class DataTruncation extends SQLWarning implements Serializable {
 
     private int transferSize = 0;
 
-    private static final String THE_REASON = "Data truncation"; //$NON-NLS-1$
+    private static final String THE_REASON = "Data truncation"; 
 
-    private static final String THE_SQLSTATE = "01004"; //$NON-NLS-1$
+    private static final String THE_SQLSTATE = "01004"; 
 
     private static final int THE_ERROR_CODE = 0;
 

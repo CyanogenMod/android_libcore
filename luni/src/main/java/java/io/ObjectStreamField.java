@@ -290,7 +290,7 @@ public class ObjectStreamField implements Comparable<Object> {
         if (typeString == null) {
             Class<?> t = getTypeInternal();
             String typeName = t.getName().replace('.', '/');
-            String str = (t.isArray()) ? typeName : ("L" + typeName + ';'); //$NON-NLS-1$
+            String str = (t.isArray()) ? typeName : ("L" + typeName + ';'); 
             typeString = str.intern();
         }
         return typeString;

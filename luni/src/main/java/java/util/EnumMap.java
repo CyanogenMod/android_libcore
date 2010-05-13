@@ -112,7 +112,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         public String toString() {
             StringBuilder result = new StringBuilder(enumMap.keys[ordinal]
                     .toString());
-            result.append("="); //$NON-NLS-1$
+            result.append("="); 
             result.append(enumMap.values[ordinal].toString());
             return result.toString();
         }

@@ -51,6 +51,6 @@ public class X509EncodedKeySpec extends EncodedKeySpec {
      * @return the string "X.509".
      */
     public final String getFormat() {
-        return "X.509"; //$NON-NLS-1$
+        return "X.509"; 
     }
 }

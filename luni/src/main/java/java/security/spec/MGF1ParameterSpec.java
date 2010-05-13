@@ -34,28 +34,28 @@ public class MGF1ParameterSpec implements AlgorithmParameterSpec {
      * digest.
      */
     public static final MGF1ParameterSpec SHA1 =
-        new MGF1ParameterSpec("SHA-1"); //$NON-NLS-1$
+        new MGF1ParameterSpec("SHA-1"); 
 
     /**
      * The predefined MGF1 parameter specification with an "SHA-256" message
      * digest.
      */
     public static final MGF1ParameterSpec SHA256 =
-        new MGF1ParameterSpec("SHA-256"); //$NON-NLS-1$
+        new MGF1ParameterSpec("SHA-256"); 
 
     /**
      * The predefined MGF1 parameter specification with an "SHA-384" message
      * digest.
      */
     public static final MGF1ParameterSpec SHA384 =
-        new MGF1ParameterSpec("SHA-384"); //$NON-NLS-1$
+        new MGF1ParameterSpec("SHA-384"); 
 
     /**
      * The predefined MGF1 parameter specification with an "SHA-512" message
      * digest.
      */
     public static final MGF1ParameterSpec SHA512 =
-        new MGF1ParameterSpec("SHA-512"); //$NON-NLS-1$
+        new MGF1ParameterSpec("SHA-512"); 
 
     //  Message digest algorithm name
     private final String mdName;
@@ -70,7 +70,7 @@ public class MGF1ParameterSpec implements AlgorithmParameterSpec {
     public MGF1ParameterSpec(String mdName) {
         this.mdName = mdName;
         if (this.mdName == null) {
-            throw new NullPointerException(Messages.getString("security.80")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.80")); 
         }
     }
 

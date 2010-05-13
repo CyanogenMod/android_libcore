@@ -40,7 +40,7 @@ public class HeapCharBufferTest extends CharBufferTest {
     public void testAllocatedCharBuffer_IllegalArg() {
         try {
             CharBuffer.allocate(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }

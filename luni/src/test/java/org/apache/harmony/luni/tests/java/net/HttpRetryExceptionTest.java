@@ -27,9 +27,9 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 
 public class HttpRetryExceptionTest extends TestCase {
 
-    private static final String LOCATION = "Http test"; //$NON-NLS-1$
+    private static final String LOCATION = "Http test"; 
 
-    private static final String DETAIL = "detail"; //$NON-NLS-1$
+    private static final String DETAIL = "detail"; 
 
     // comparator for HttpRetryException objects
     private static final SerializableAssert comparator = new SerializableAssert() {

@@ -77,17 +77,17 @@ public abstract class Charset implements Comparable<Charset> {
      * The name of configuration files where charset provider class names can be
      * specified.
      */
-    private static final String PROVIDER_CONFIGURATION_FILE_NAME = "META-INF/services/java.nio.charset.spi.CharsetProvider"; //$NON-NLS-1$
+    private static final String PROVIDER_CONFIGURATION_FILE_NAME = "META-INF/services/java.nio.charset.spi.CharsetProvider"; 
 
     /*
      * The encoding of configuration files
      */
-    private static final String PROVIDER_CONFIGURATION_FILE_ENCODING = "UTF-8"; //$NON-NLS-1$
+    private static final String PROVIDER_CONFIGURATION_FILE_ENCODING = "UTF-8"; 
 
     /*
      * The comment string used in configuration files
      */
-    private static final String PROVIDER_CONFIGURATION_FILE_COMMENT = "#"; //$NON-NLS-1$
+    private static final String PROVIDER_CONFIGURATION_FILE_COMMENT = "#"; 
 
     private static ClassLoader systemClassLoader;
 
@@ -591,8 +591,8 @@ public abstract class Charset implements Comparable<Charset> {
      *         false.
      */
     public final boolean isRegistered() {
-        return !canonicalName.startsWith("x-") //$NON-NLS-1$
-                && !canonicalName.startsWith("X-"); //$NON-NLS-1$
+        return !canonicalName.startsWith("x-") 
+                && !canonicalName.startsWith("X-"); 
     }
 
     /**
@@ -725,7 +725,7 @@ public abstract class Charset implements Comparable<Charset> {
      */
     @Override
     public final String toString() {
-        return "Charset[" + this.canonicalName + "]"; //$NON-NLS-1$//$NON-NLS-2$
+        return "Charset[" + this.canonicalName + "]"; 
     }
 
     /**
@@ -738,13 +738,13 @@ public abstract class Charset implements Comparable<Charset> {
         String encoding = AccessController
                 .doPrivileged(new PrivilegedAction<String>() {
                     public String run() {
-                        return System.getProperty("file.encoding"); //$NON-NLS-1$
+                        return System.getProperty("file.encoding"); 
                     }
                 });
         try {
             defaultCharset = Charset.forName(encoding);
         } catch (UnsupportedCharsetException e) {
-            defaultCharset = Charset.forName("UTF-8"); //$NON-NLS-1$
+            defaultCharset = Charset.forName("UTF-8"); 
         }
         return defaultCharset;
     }

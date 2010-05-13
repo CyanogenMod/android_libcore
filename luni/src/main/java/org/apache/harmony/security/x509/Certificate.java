@@ -114,13 +114,13 @@ public class Certificate {
 
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("X.509 Certificate:\n[\n"); //$NON-NLS-1$
+        buffer.append("X.509 Certificate:\n[\n"); 
         tbsCertificate.dumpValue(buffer);
-        buffer.append("\n  Algorithm: ["); //$NON-NLS-1$
+        buffer.append("\n  Algorithm: ["); 
         signatureAlgorithm.dumpValue(buffer);
         buffer.append(']');
-        buffer.append("\n  Signature Value:\n"); //$NON-NLS-1$
-        buffer.append(Array.toString(signatureValue, "")); //$NON-NLS-1$
+        buffer.append("\n  Signature Value:\n"); 
+        buffer.append(Array.toString(signatureValue, "")); 
         buffer.append(']');
         return buffer.toString();
     }

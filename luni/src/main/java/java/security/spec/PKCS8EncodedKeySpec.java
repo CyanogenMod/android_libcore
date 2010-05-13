@@ -52,6 +52,6 @@ public class PKCS8EncodedKeySpec extends EncodedKeySpec {
      * @return the string "PKCS#8".
      */
     public final String getFormat() {
-        return "PKCS#8"; //$NON-NLS-1$
+        return "PKCS#8"; 
     }
 }

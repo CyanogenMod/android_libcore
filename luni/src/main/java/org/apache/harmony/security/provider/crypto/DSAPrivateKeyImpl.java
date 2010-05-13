@@ -65,7 +65,7 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
      */
     public DSAPrivateKeyImpl(DSAPrivateKeySpec keySpec) {
 
-        super("DSA"); //$NON-NLS-1$
+        super("DSA"); 
 
         PrivateKeyInfo pki;
 
@@ -77,7 +77,7 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
                 .toByteArray(), q.toByteArray(), g.toByteArray());
 
         AlgorithmIdentifier ai = new AlgorithmIdentifier(AlgNameMapper
-                .map2OID("DSA"), //$NON-NLS-1$
+                .map2OID("DSA"), 
                 threeInts.getEncoded());
         x = keySpec.getX();
 
@@ -99,7 +99,7 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
     public DSAPrivateKeyImpl(PKCS8EncodedKeySpec keySpec)
             throws InvalidKeySpecException {
 
-        super("DSA"); //$NON-NLS-1$
+        super("DSA"); 
 
         AlgorithmIdentifier ai;
         ThreeIntegerSequence threeInts = null;
@@ -115,7 +115,7 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
                     .decode(encoding);
         } catch (IOException e) {
             throw new InvalidKeySpecException(Messages.getString(
-                    "security.19A", e)); //$NON-NLS-1$
+                    "security.19A", e)); 
         }
 
         try {
@@ -123,7 +123,7 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
                     privateKeyInfo.getPrivateKey()));
         } catch (IOException e) {
             throw new InvalidKeySpecException(Messages.getString(
-                    "security.19B", e)); //$NON-NLS-1$
+                    "security.19B", e)); 
         }
 
         ai = privateKeyInfo.getAlgorithmIdentifier();
@@ -132,7 +132,7 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
                     .decode(ai.getParameters());
         } catch (IOException e) {
             throw new InvalidKeySpecException(Messages.getString(
-                    "security.19B", e)); //$NON-NLS-1$
+                    "security.19B", e)); 
         }
         p = new BigInteger(threeInts.p);
         q = new BigInteger(threeInts.q);

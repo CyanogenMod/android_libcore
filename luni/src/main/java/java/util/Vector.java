@@ -1004,21 +1004,21 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
     @Override
     public synchronized String toString() {
         if (elementCount == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         int length = elementCount - 1;
         StringBuilder buffer = new StringBuilder(elementCount * 16);
         buffer.append('[');
         for (int i = 0; i < length; i++) {
             if (elementData[i] == this) {
-                buffer.append("(this Collection)"); //$NON-NLS-1$
+                buffer.append("(this Collection)"); 
             } else {
                 buffer.append(elementData[i]);
             }
-            buffer.append(", "); //$NON-NLS-1$
+            buffer.append(", "); 
         }
         if (elementData[length] == this) {
-            buffer.append("(this Collection)"); //$NON-NLS-1$
+            buffer.append("(this Collection)"); 
         } else {
             buffer.append(elementData[length]);
         }

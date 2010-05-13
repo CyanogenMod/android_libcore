@@ -53,7 +53,7 @@ public class ObjectStreamClass implements Serializable {
     private static final long serialVersionUID = -6120832682080437368L;
 
     // Name of the field that contains the SUID value (if present)
-    private static final String UID_FIELD_NAME = "serialVersionUID"; //$NON-NLS-1$
+    private static final String UID_FIELD_NAME = "serialVersionUID"; 
 
     static final long CONSTRUCTOR_IS_NOT_RESOLVED = -1;
 
@@ -106,18 +106,18 @@ public class ObjectStreamClass implements Serializable {
 
     static {
         try {
-            ARRAY_OF_FIELDS = Class.forName("[Ljava.io.ObjectStreamField;"); //$NON-NLS-1$
+            ARRAY_OF_FIELDS = Class.forName("[Ljava.io.ObjectStreamField;"); 
         } catch (ClassNotFoundException e) {
             // This should not happen
             throw new AssertionError(e);
         }
     }
 
-    private static final String CLINIT_NAME = "<clinit>"; //$NON-NLS-1$
+    private static final String CLINIT_NAME = "<clinit>"; 
 
     private static final int CLINIT_MODIFIERS = Modifier.STATIC;
 
-    private static final String CLINIT_SIGNATURE = "()V"; //$NON-NLS-1$
+    private static final String CLINIT_SIGNATURE = "()V"; 
 
     // Used to determine if an object is Serializable or Externalizable
     private static final Class<Serializable> SERIALIZABLE = Serializable.class;
@@ -292,14 +292,14 @@ public class ObjectStreamClass implements Serializable {
         } else if (serializable) {
             flags |= ObjectStreamConstants.SC_SERIALIZABLE;
         }
-        result.methodWriteReplace = findMethod(cl, "writeReplace"); //$NON-NLS-1$
-        result.methodReadResolve = findMethod(cl, "readResolve"); //$NON-NLS-1$
-        result.methodWriteObject = findPrivateMethod(cl, "writeObject", //$NON-NLS-1$
+        result.methodWriteReplace = findMethod(cl, "writeReplace"); 
+        result.methodReadResolve = findMethod(cl, "readResolve"); 
+        result.methodWriteObject = findPrivateMethod(cl, "writeObject", 
                 WRITE_PARAM_TYPES);
-        result.methodReadObject = findPrivateMethod(cl, "readObject", //$NON-NLS-1$
+        result.methodReadObject = findPrivateMethod(cl, "readObject", 
                 READ_PARAM_TYPES);
         result.methodReadObjectNoData = findPrivateMethod(cl,
-                "readObjectNoData", EMPTY_CONSTRUCTOR_PARAM_TYPES); //$NON-NLS-1$
+                "readObjectNoData", EMPTY_CONSTRUCTOR_PARAM_TYPES); 
         if (result.hasMethodWriteObject()) {
             flags |= ObjectStreamConstants.SC_WRITE_METHOD;
         }
@@ -415,7 +415,7 @@ public class ObjectStreamClass implements Serializable {
                             return field.getLong(null);
                         } catch (IllegalAccessException iae) {
                             throw new RuntimeException(Msg.getString(
-                                    "K0071", iae)); //$NON-NLS-1$
+                                    "K0071", iae)); 
                         }
                     }
                 }
@@ -424,7 +424,7 @@ public class ObjectStreamClass implements Serializable {
 
         MessageDigest digest;
         try {
-            digest = MessageDigest.getInstance("SHA"); //$NON-NLS-1$
+            digest = MessageDigest.getInstance("SHA"); 
         } catch (NoSuchAlgorithmException e) {
             throw new Error(e);
         }
@@ -545,7 +545,7 @@ public class ObjectStreamClass implements Serializable {
                      * constructor.getName() returns the constructor name as
                      * typed, not the VM name
                      */
-                    output.writeUTF("<init>"); //$NON-NLS-1$
+                    output.writeUTF("<init>"); 
                     output.writeInt(modifiers);
                     output.writeUTF(descriptorForSignature(
                             getConstructorSignature(constructor)).replace('/',
@@ -586,7 +586,7 @@ public class ObjectStreamClass implements Serializable {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(Msg.getString("K0072", e));//$NON-NLS-1$
+            throw new RuntimeException(Msg.getString("K0072", e));
         }
 
         // now compute the UID based on the SHA
@@ -616,7 +616,7 @@ public class ObjectStreamClass implements Serializable {
      * @return containing the descriptor
      */
     private static String descriptorForSignature(String signature) {
-        return signature.substring(signature.indexOf("(")); //$NON-NLS-1$
+        return signature.substring(signature.indexOf("(")); 
     }
 
     /**
@@ -631,7 +631,7 @@ public class ObjectStreamClass implements Serializable {
      */
     static Field fieldSerialPersistentFields(Class<?> cl) {
         try {
-            Field f = cl.getDeclaredField("serialPersistentFields"); //$NON-NLS-1$
+            Field f = cl.getDeclaredField("serialPersistentFields"); 
             int modifiers = f.getModifiers();
             if (Modifier.isStatic(modifiers) && Modifier.isPrivate(modifiers)
                     && Modifier.isFinal(modifiers)) {
@@ -1196,8 +1196,8 @@ public class ObjectStreamClass implements Serializable {
      */
     @Override
     public String toString() {
-        return getName() + ": static final long serialVersionUID =" //$NON-NLS-1$
-                + getSerialVersionUID() + "L;"; //$NON-NLS-1$
+        return getName() + ": static final long serialVersionUID =" 
+                + getSerialVersionUID() + "L;"; 
     }
 
     static class OSCThreadLocalCache extends ThreadLocalCache {

@@ -139,8 +139,8 @@ public class LocaleTest extends junit.framework.TestCase {
         
         // Regression for Harmony-1146
         // Non-bug difference for HARMONY-5442
-        Locale l_countryCD = new Locale("", "CD"); //$NON-NLS-1$ //$NON-NLS-2$
-                assertEquals("Congo - Kinshasa", //$NON-NLS-1$
+        Locale l_countryCD = new Locale("", "CD");  
+                assertEquals("Congo - Kinshasa", 
                         l_countryCD.getDisplayCountry()); 
 	}
 
@@ -165,15 +165,15 @@ public class LocaleTest extends junit.framework.TestCase {
 				.getDisplayLanguage().equals("English"));
         
 		// Regression for Harmony-1146
-        Locale l_languageAE = new Locale("ae", ""); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("Avestan", l_languageAE.getDisplayLanguage()); //$NON-NLS-1$
+        Locale l_languageAE = new Locale("ae", "");  
+        assertEquals("Avestan", l_languageAE.getDisplayLanguage()); 
         
         // Regression for HARMONY-4402
         Locale defaultLocale = Locale.getDefault();
         try {
             Locale locale = new Locale("no", "NO");
             Locale.setDefault(locale);
-            assertEquals("norsk", locale.getDisplayLanguage()); //$NON-NLS-1$
+            assertEquals("norsk", locale.getDisplayLanguage()); 
         } finally {
             Locale.setDefault(defaultLocale);
         }
@@ -258,12 +258,12 @@ public class LocaleTest extends junit.framework.TestCase {
         // Regression for Harmony-1146
         
         // Non-bug difference for HARMONY-5442
-        Locale l_CountryCS = new Locale("", "CS"); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("SCG", l_CountryCS.getISO3Country()); //$NON-NLS-1$
+        Locale l_CountryCS = new Locale("", "CS");  
+        assertEquals("SCG", l_CountryCS.getISO3Country()); 
         
         // Regression for Harmony-1129
-        l = new Locale("ak", ""); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("aka", l.getISO3Language()); //$NON-NLS-1$
+        l = new Locale("ak", "");  
+        assertEquals("aka", l.getISO3Language()); 
 	}
 
 	/**

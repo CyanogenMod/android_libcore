@@ -38,7 +38,7 @@ public class X509PublicKey implements PublicKey {
     }
 
     public String getFormat() {
-        return "X.509"; // $NON-NLS-1$
+        return "X.509";
     }
 
     public byte[] getEncoded() {
@@ -47,9 +47,9 @@ public class X509PublicKey implements PublicKey {
 
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder("algorithm = "); // $NON-NLS-1$
+        StringBuilder buf = new StringBuilder("algorithm = ");
         buf.append(algorithm);
-        buf.append(", params unparsed, unparsed keybits = \n"); // $NON-NLS-1$
+        buf.append(", params unparsed, unparsed keybits = \n");
         // TODO: implement compatible toString method() 
         // buf.append(Arrays.toString(keyBytes));
 

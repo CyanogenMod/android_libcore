@@ -45,11 +45,11 @@ public class Array {
         // Prefixes to be added to the offset values
         // in <code>String toString(byte[], String)</code> method
         final String[] offsetPrefix = {
-                "", //$NON-NLS-1$
-                "000", //$NON-NLS-1$
-                "00", //$NON-NLS-1$
-                "0", //$NON-NLS-1$
-                "" //$NON-NLS-1$
+                "", 
+                "000", 
+                "00", 
+                "0", 
+                "" 
         };
         StringBuilder sb = new StringBuilder();
         StringBuilder charForm = new StringBuilder();
@@ -93,12 +93,12 @@ public class Array {
         if (i%16 != 0) {
             int ws2add = 16 - i%16;
             for (int j=0; j<ws2add; j++) {
-                sb.append("   "); //$NON-NLS-1$
+                sb.append("   "); 
             }
             if (ws2add > 8) {
                 sb.append(' ');
             }
-            sb.append("  "); //$NON-NLS-1$
+            sb.append("  "); 
             sb.append(charForm.toString());
             sb.append('\n');
         }

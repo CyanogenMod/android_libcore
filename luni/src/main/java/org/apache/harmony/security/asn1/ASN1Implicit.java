@@ -81,7 +81,7 @@ public class ASN1Implicit extends ASN1Type {
             // defined by "Type" is an untagged choice type or an 
             // untagged open type'
             throw new IllegalArgumentException(
-                    Messages.getString("security.9F")); //$NON-NLS-1$
+                    Messages.getString("security.9F")); 
         }
 
         this.type = type;
@@ -127,7 +127,7 @@ public class ASN1Implicit extends ASN1Type {
     public Object decode(BerInputStream in) throws IOException {
         if (!checkTag(in.tag)) {
             // FIXME need look for tagging type
-            throw new ASN1Exception(Messages.getString("security.100", //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.100", 
                     new Object[] { in.tagOffset, Integer.toHexString(id),
                             Integer.toHexString(in.tag) }));
         }

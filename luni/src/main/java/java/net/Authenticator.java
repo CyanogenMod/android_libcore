@@ -34,10 +34,10 @@ public abstract class Authenticator {
     private static Authenticator thisAuthenticator;
 
     private static final NetPermission requestPasswordAuthenticationPermission = new NetPermission(
-            "requestPasswordAuthentication"); //$NON-NLS-1$
+            "requestPasswordAuthentication"); 
 
     private static final NetPermission setDefaultAuthenticatorPermission = new NetPermission(
-            "setDefaultAuthenticator"); //$NON-NLS-1$
+            "setDefaultAuthenticator"); 
 
     // the requester connection info
     private String host;

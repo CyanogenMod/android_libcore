@@ -71,12 +71,12 @@ public class AccessDescription {
 
     public String toString() {
         StringBuilder res = new StringBuilder();
-        res.append("\n-- AccessDescription:"); //$NON-NLS-1$
-        res.append("\naccessMethod:  "); //$NON-NLS-1$
+        res.append("\n-- AccessDescription:"); 
+        res.append("\naccessMethod:  "); 
         res.append(accessMethod);
-        res.append("\naccessLocation:  "); //$NON-NLS-1$
+        res.append("\naccessLocation:  "); 
         res.append(accessLocation);
-        res.append("\n-- AccessDescription END\n"); //$NON-NLS-1$
+        res.append("\n-- AccessDescription END\n"); 
         return res.toString();
     }
 

@@ -67,7 +67,7 @@ public class Support_ASimpleOutputStream extends OutputStream {
 //            throw new IOException("Exception thrown for testing purposes.");
 //        }
 //        if (offset < 0 || count < 0 || (offset + count) > buffer.length) {
-//            throw new IndexOutOfBoundsException(); //$NON-NLS-1$
+//            throw new IndexOutOfBoundsException(); 
 //        }
 //        for (int i = offset; i < offset + count; i++) {
 //            write(buffer[i]);

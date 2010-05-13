@@ -86,7 +86,7 @@ public class Engine {
         Provider.Service serv;
 
         if (algorithm == null) {
-            throw new NoSuchAlgorithmException(Messages.getString("security.149")); //$NON-NLS-1$
+            throw new NoSuchAlgorithmException(Messages.getString("security.149")); 
         }
         Services.refresh();
         if (returnedService != null
@@ -95,14 +95,14 @@ public class Engine {
             serv = returnedService;
         } else {
             if (Services.isEmpty()) {
-                throw new NoSuchAlgorithmException(Messages.getString("security.14A", //$NON-NLS-1$
+                throw new NoSuchAlgorithmException(Messages.getString("security.14A", 
                         serviceName, algorithm));
             }
             serv = Services.getService(new StringBuilder(128)
-                    .append(serviceName).append(".").append( //$NON-NLS-1$
+                    .append(serviceName).append(".").append( 
                             Util.toUpperCase(algorithm)).toString());
             if (serv == null) {
-                throw new NoSuchAlgorithmException(Messages.getString("security.14A", //$NON-NLS-1$
+                throw new NoSuchAlgorithmException(Messages.getString("security.14A", 
                         serviceName, algorithm));
             }
             returnedService = serv;
@@ -129,11 +129,11 @@ public class Engine {
         Provider.Service serv = null;
         if (algorithm == null) {
             throw new NoSuchAlgorithmException(
-                    Messages.getString("security.14B", serviceName)); //$NON-NLS-1$
+                    Messages.getString("security.14B", serviceName)); 
         }
         serv = provider.getService(serviceName, algorithm);
         if (serv == null) {
-            throw new NoSuchAlgorithmException(Messages.getString("security.14A", //$NON-NLS-1$
+            throw new NoSuchAlgorithmException(Messages.getString("security.14A", 
                     serviceName, algorithm));
         }
         spi = serv.newInstance(param);

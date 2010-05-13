@@ -48,7 +48,7 @@ class InitManifest {
         // check a version attribute
         if (!readHeader() || (ver != null && !name.equals(ver))) {
             throw new IOException(Messages.getString(
-                    "archive.2D", ver)); //$NON-NLS-1$
+                    "archive.2D", ver)); 
         }
 
         main.put(name, value);
@@ -63,7 +63,7 @@ class InitManifest {
         int mark = pos;
         while (readHeader()) {
             if (!Attributes.Name.NAME.equals(name)) {
-                throw new IOException(Messages.getString("archive.23")); //$NON-NLS-1$
+                throw new IOException(Messages.getString("archive.23")); 
             }
             String entryNameValue = value;
 
@@ -84,7 +84,7 @@ class InitManifest {
                     // this: either use a list of chunks, or decide on used
                     // signature algorithm in advance and reread the chunks while
                     // updating the signature; for now a defensive error is thrown
-                    throw new IOException(Messages.getString("archive.34")); //$NON-NLS-1$
+                    throw new IOException(Messages.getString("archive.34")); 
                 }
                 chunks.put(entryNameValue, new Manifest.Chunk(mark, pos));
                 mark = pos;
@@ -138,7 +138,7 @@ class InitManifest {
 
                 if (buf[pos++] != ' ') {
                     throw new IOException(Messages.getString(
-                            "archive.30", nameBuffer)); //$NON-NLS-1$
+                            "archive.30", nameBuffer)); 
                 }
 
                 name = new Attributes.Name(nameBuffer);
@@ -147,12 +147,12 @@ class InitManifest {
 
             if (!((b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || b == '_'
                     || b == '-' || (b >= '0' && b <= '9'))) {
-                throw new IOException(Messages.getString("archive.30", b)); //$NON-NLS-1$
+                throw new IOException(Messages.getString("archive.30", b)); 
             }
         }
         if (i > 0) {
             throw new IOException(Messages.getString(
-                    "archive.30", wrap(mark, buf.length))); //$NON-NLS-1$
+                    "archive.30", wrap(mark, buf.length))); 
         }
     }
 
@@ -170,7 +170,7 @@ class InitManifest {
 
             switch (next) {
             case 0:
-                throw new IOException(Messages.getString("archive.2F")); //$NON-NLS-1$
+                throw new IOException(Messages.getString("archive.2F")); 
             case '\n':
                 if (lastCr) {
                     lastCr = false;

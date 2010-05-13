@@ -88,7 +88,7 @@ public class BufferedInputStream extends FilterInputStream {
         super(in);
         if (size <= 0) {
             // K0058=size must be > 0
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0058")); 
         }
         buf = new byte[size];
     }
@@ -107,7 +107,7 @@ public class BufferedInputStream extends FilterInputStream {
         InputStream localIn = in; // 'in' could be invalidated by close()
         if (buf == null || localIn == null) {
             // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0059")); 
         }
         return count - pos + localIn.available();
     }
@@ -215,7 +215,7 @@ public class BufferedInputStream extends FilterInputStream {
         InputStream localIn = in;
         if (localBuf == null || localIn == null) {
             // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0059")); 
         }
 
         /* Are there buffered bytes available? */
@@ -227,7 +227,7 @@ public class BufferedInputStream extends FilterInputStream {
             localBuf = buf;
             if (localBuf == null) {
                 // K0059=Stream is closed
-                throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0059")); 
             }
         }
 
@@ -271,7 +271,7 @@ public class BufferedInputStream extends FilterInputStream {
         byte[] localBuf = buf;
         if (localBuf == null) {
             // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0059")); 
         }
         // avoid int overflow
         // BEGIN android-changed
@@ -280,10 +280,10 @@ public class BufferedInputStream extends FilterInputStream {
         // made implicit null check explicit, used (offset | length) < 0
         // instead of (offset < 0) || (length < 0) to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         if ((offset | length) < 0 || offset > buffer.length - length) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
         }
         // END android-changed
         if (length == 0) {
@@ -292,7 +292,7 @@ public class BufferedInputStream extends FilterInputStream {
         InputStream localIn = in;
         if (localIn == null) {
             // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0059")); 
         }
 
         int required;
@@ -330,7 +330,7 @@ public class BufferedInputStream extends FilterInputStream {
                     localBuf = buf;
                     if (localBuf == null) {
                         // K0059=Stream is closed
-                        throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+                        throw new IOException(Msg.getString("K0059")); 
                     }
                 }
 
@@ -396,14 +396,14 @@ public class BufferedInputStream extends FilterInputStream {
         InputStream localIn = in;
         if (localBuf == null) {
             // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0059")); 
         }
         if (amount < 1) {
             return 0;
         }
         if (localIn == null) {
             // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0059")); 
         }
 
         if (count - pos >= amount) {

@@ -217,7 +217,7 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         assertContentLikeTestData1(buf, 0, (char) 0, buf.capacity());
         try {
             buf.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -235,7 +235,7 @@ public abstract class CharBufferTest extends AbstractBufferTest {
             // failed on RI. Spec doesn't specify the behavior if 
             // actually nothing to be done by compact()
             buf.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -252,7 +252,7 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         assertContentLikeTestData1(buf, 0, (char) 1, 4);
         try {
             buf.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -403,7 +403,7 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         }
         try {
             buf.get();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (BufferUnderflowException e) {
             // expected
         }
@@ -432,14 +432,14 @@ public abstract class CharBufferTest extends AbstractBufferTest {
 
         try {
             buf.get(array);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (BufferUnderflowException e) {
             // expected
         }
 
         try {
             buf.get((char[])null);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
@@ -460,52 +460,52 @@ public abstract class CharBufferTest extends AbstractBufferTest {
 
         try {
             buf.get(new char[buf.capacity() + 1], 0, buf.capacity() + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (BufferUnderflowException e) {
             // expected
         }
         assertEquals(buf.position(), 0);
         try {
             buf.get(array, -1, array.length);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         buf.get(array, array.length, 0);
         try {
             buf.get(array, array.length + 1, 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         assertEquals(buf.position(), 0);
         try {
             buf.get(array, 2, -1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.get((char[])null, 2, -1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
         try {
             buf.get(array, 2, array.length);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.get(array, 1, Integer.MAX_VALUE);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.get(array, Integer.MAX_VALUE, 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -535,13 +535,13 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         }
         try {
             buf.get(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.get(buf.limit());
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -583,7 +583,7 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         }
         try {
             buf.put((char) 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (BufferOverflowException e) {
             // expected
         }
@@ -611,13 +611,13 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         }
         try {
             buf.put(array);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (BufferOverflowException e) {
             // expected
         }
         try {
             buf.put((char[]) null);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
@@ -637,26 +637,26 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         char array[] = new char[buf.capacity()];
         try {
             buf.put((char[]) null, 0, 1);
-            fail("Should throw NullPointerException"); //$NON-NLS-1$
+            fail("Should throw NullPointerException"); 
         } catch (NullPointerException e) {
             // expected
         }
         try {
             buf.put(new char[buf.capacity() + 1], 0, buf.capacity() + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (BufferOverflowException e) {
             // expected
         }
         assertEquals(buf.position(), 0);
         try {
             buf.put(array, -1, array.length);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(array, array.length + 1, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -664,31 +664,31 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         assertEquals(buf.position(), 0);
         try {
             buf.put(array, 0, -1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put((char[])null, 0, -1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
         try {
             buf.put(array, 2, array.length);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(array, Integer.MAX_VALUE, 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(array, 1, Integer.MAX_VALUE);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -715,26 +715,26 @@ public abstract class CharBufferTest extends AbstractBufferTest {
 
         try {
             buf.put((CharBuffer) null);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
         try {
             buf.put(buf);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {
             buf.put(CharBuffer.allocate(buf.capacity() + 1));
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (BufferOverflowException e) {
             // expected
         }
         try {
             buf.flip();
             buf.put((CharBuffer)null);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
@@ -768,13 +768,13 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         }
         try {
             buf.put(-1, (char) 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(buf.limit(), (char) 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -800,7 +800,7 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         assertEquals(buf.remaining(), slice.capacity());
         try {
             slice.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -841,13 +841,13 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         }
         try {
             buf.charAt(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.charAt(buf.remaining());
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -872,26 +872,26 @@ public abstract class CharBufferTest extends AbstractBufferTest {
     public void testSubSequence() {
         try {
             buf.subSequence(-1, buf.length());
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.subSequence(buf.length() + 1, buf.length() + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         assertEquals(buf.subSequence(buf.length(), buf.length()).length(), 0);
         try {
             buf.subSequence(1, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.subSequence(1, buf.length() + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -924,13 +924,13 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         }
         try {
             buf.put(str);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (BufferOverflowException e) {
             // expected
         }
         try {
             buf.put((String) null);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
@@ -952,7 +952,7 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         try {
             buf.put(String.valueOf(new char[buf.capacity() + 1]), 0, buf
                     .capacity() + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (BufferOverflowException e) {
             // expected
         }
@@ -963,7 +963,7 @@ public abstract class CharBufferTest extends AbstractBufferTest {
 
         try {
             buf.put((String) null, 0, buf.capacity() + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
@@ -972,19 +972,19 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         buf.clear();
         try {
             buf.put(str, -1, str.length());
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(str, str.length() + 1, str.length() + 2);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put((String) null, -1, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
@@ -992,13 +992,13 @@ public abstract class CharBufferTest extends AbstractBufferTest {
         assertEquals(buf.position(), 0);
         try {
             buf.put(str, 2, 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             buf.put(str, 2, str.length() + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }

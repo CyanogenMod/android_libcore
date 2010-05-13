@@ -104,7 +104,7 @@ public abstract class CertificateFactorySpi {
     public CertPath engineGenerateCertPath(InputStream inStream)
             throws CertificateException {
         throw new UnsupportedOperationException(
-                Messages.getString("security.70")); //$NON-NLS-1$
+                Messages.getString("security.70")); 
     }
 
     /**
@@ -125,7 +125,7 @@ public abstract class CertificateFactorySpi {
     public CertPath engineGenerateCertPath(InputStream inStream, String encoding)
             throws CertificateException {
         throw new UnsupportedOperationException(
-                Messages.getString("security.71")); //$NON-NLS-1$
+                Messages.getString("security.71")); 
     }
 
     /**
@@ -144,7 +144,7 @@ public abstract class CertificateFactorySpi {
     public CertPath engineGenerateCertPath(List<? extends Certificate>  certificates) 
             throws CertificateException {
         throw new UnsupportedOperationException(
-                Messages.getString("security.72")); //$NON-NLS-1$
+                Messages.getString("security.72")); 
     }
 
     /**
@@ -156,6 +156,6 @@ public abstract class CertificateFactorySpi {
      */
     public Iterator<String> engineGetCertPathEncodings() {
         throw new UnsupportedOperationException(
-                Messages.getString("security.73")); //$NON-NLS-1$
+                Messages.getString("security.73")); 
     }
 }

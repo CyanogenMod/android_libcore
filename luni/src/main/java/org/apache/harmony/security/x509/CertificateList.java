@@ -115,8 +115,8 @@ public class CertificateList {
     public String toString() {
         StringBuffer res = new StringBuffer();
         tbsCertList.dumpValue(res);
-        res.append("\nSignature Value:\n"); //$NON-NLS-1$
-        res.append(Array.toString(signatureValue, "")); //$NON-NLS-1$
+        res.append("\nSignature Value:\n"); 
+        res.append(Array.toString(signatureValue, "")); 
         return res.toString();
     }
     

@@ -86,17 +86,17 @@ public abstract class FileChannel extends AbstractInterruptibleChannel
         /**
          * Private mapping mode (equivalent to copy on write).
          */
-        public static final MapMode PRIVATE = new MapMode("PRIVATE"); //$NON-NLS-1$
+        public static final MapMode PRIVATE = new MapMode("PRIVATE"); 
 
         /**
          * Read-only mapping mode.
          */
-        public static final MapMode READ_ONLY = new MapMode("READ_ONLY"); //$NON-NLS-1$
+        public static final MapMode READ_ONLY = new MapMode("READ_ONLY"); 
 
         /**
          * Read-write mapping mode.
          */
-        public static final MapMode READ_WRITE = new MapMode("READ_WRITE"); //$NON-NLS-1$
+        public static final MapMode READ_WRITE = new MapMode("READ_WRITE"); 
 
         // The string used to display the mapping mode.
         private final String displayName;

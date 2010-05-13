@@ -365,7 +365,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 // keep request method
                 String save_meth = method;
                 // make SSL Tunnel
-                method = "CONNECT"; //$NON-NLS-1$
+                method = "CONNECT"; 
                 try {
                     doRequest();
                     endRequest();
@@ -399,13 +399,13 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 if (makingSSLTunnel) {
                     // we are making the SSL Tunneling, return remotehost:port
                     int port = url.getPort();
-                    return (port > 0) ? url.getHost() + ":" + port //$NON-NLS-1$
+                    return (port > 0) ? url.getHost() + ":" + port 
                     : url.getHost();
                 }
                 // we has made SSL Tunneling, return /requested.data
                 String file = url.getFile();
                 if (file == null || file.length() == 0) {
-                    file = "/"; //$NON-NLS-1$
+                    file = "/"; 
                 }
                 return file;
             }

@@ -95,7 +95,7 @@ import java.util.Hashtable;
  */
 public class FileHandler extends StreamHandler {
 
-    private static final String LCK_EXT = ".lck"; //$NON-NLS-1$
+    private static final String LCK_EXT = ".lck"; 
 
     private static final int DEFAULT_COUNT = 1;
 
@@ -103,7 +103,7 @@ public class FileHandler extends StreamHandler {
 
     private static final boolean DEFAULT_APPEND = false;
 
-    private static final String DEFAULT_PATTERN = "%h/java%u.log"; //$NON-NLS-1$
+    private static final String DEFAULT_PATTERN = "%h/java%u.log"; 
 
     // maintain all file locks hold by this process
     private static final Hashtable<String, FileLock> allLocks = new Hashtable<String, FileLock>();
@@ -273,11 +273,11 @@ public class FileHandler extends StreamHandler {
 
         // TODO privilege code?
 
-        String tempPath = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
+        String tempPath = System.getProperty("java.io.tmpdir"); 
         boolean tempPathHasSepEnd = (tempPath == null ? false : tempPath
                 .endsWith(File.separator));
 
-        String homePath = System.getProperty("user.home"); //$NON-NLS-1$
+        String homePath = System.getProperty("user.home"); 
         boolean homePathHasSepEnd = (homePath == null ? false : homePath
                 .endsWith(File.separator));
 
@@ -327,11 +327,11 @@ public class FileHandler extends StreamHandler {
         sb.append(value, cur, value.length - cur);
 
         if (!hasGeneration && count > 1) {
-            sb.append(".").append(gen); //$NON-NLS-1$
+            sb.append(".").append(gen); 
         }
 
         if (!hasUniqueID && uniqueID > 0) {
-            sb.append(".").append(uniqueID); //$NON-NLS-1$
+            sb.append(".").append(uniqueID); 
         }
 
         return sb.toString();
@@ -345,9 +345,9 @@ public class FileHandler extends StreamHandler {
             return defaultValue;
         }
         boolean result = defaultValue;
-        if ("true".equalsIgnoreCase(property)) { //$NON-NLS-1$
+        if ("true".equalsIgnoreCase(property)) { 
             result = true;
-        } else if ("false".equalsIgnoreCase(property)) { //$NON-NLS-1$
+        } else if ("false".equalsIgnoreCase(property)) { 
             result = false;
         }
         return result;

@@ -60,7 +60,7 @@ public class InfoAccessSyntax extends ExtensionValue {
             throws IOException {
         if (accessDescriptions == null || accessDescriptions.isEmpty()) {
             // "AccessDescriptions list is null or empty"
-            throw new IOException(Messages.getString("security.1A3")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("security.1A3")); 
         }
         this.accessDescriptions = accessDescriptions;
         this.encoding = encoding;
@@ -87,14 +87,14 @@ public class InfoAccessSyntax extends ExtensionValue {
 
     public String toString() {
         StringBuilder res = new StringBuilder();
-        res.append("\n---- InfoAccessSyntax:"); //$NON-NLS-1$
+        res.append("\n---- InfoAccessSyntax:"); 
         if (accessDescriptions != null) {
             for (Iterator it = accessDescriptions.iterator(); it.hasNext();) {
                 res.append('\n');
                 res.append(it.next());
             }
         }
-        res.append("\n---- InfoAccessSyntax END\n"); //$NON-NLS-1$
+        res.append("\n---- InfoAccessSyntax END\n"); 
         return res.toString();
     }
 
@@ -103,9 +103,9 @@ public class InfoAccessSyntax extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("AccessDescriptions:\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("AccessDescriptions:\n"); 
         if (accessDescriptions == null || accessDescriptions.isEmpty()) {
-            buffer.append("NULL\n"); //$NON-NLS-1$
+            buffer.append("NULL\n"); 
         } else {
             Iterator itr = accessDescriptions.iterator();
             while (itr.hasNext()) {

@@ -44,10 +44,10 @@ public class ECPrivateKeySpec implements KeySpec {
         this.params = params;
         // throw NullPointerException if s or params is null
         if (this.s == null) {
-            throw new NullPointerException(Messages.getString("security.83", "s")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "s"));  
         }
         if (this.params == null) {
-            throw new NullPointerException(Messages.getString("security.83", "params")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "params"));  
         }
     }
 

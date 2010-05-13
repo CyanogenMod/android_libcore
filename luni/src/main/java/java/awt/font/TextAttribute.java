@@ -75,33 +75,33 @@ public final class TextAttribute extends Attribute {
     /** 
      * The BACKGROUND text attribute. 
      */
-    public static final TextAttribute BACKGROUND = new TextAttribute("background"); //$NON-NLS-1$
+    public static final TextAttribute BACKGROUND = new TextAttribute("background"); 
 
     /** The BIDI_EMBEDDING text attribute key. */
-    public static final TextAttribute BIDI_EMBEDDING = new TextAttribute("bidi_embedding"); //$NON-NLS-1$
+    public static final TextAttribute BIDI_EMBEDDING = new TextAttribute("bidi_embedding"); 
 
     /** The CHAR_REPLACEMENT text attribute key. */
-    public static final TextAttribute CHAR_REPLACEMENT = new TextAttribute("char_replacement"); //$NON-NLS-1$
+    public static final TextAttribute CHAR_REPLACEMENT = new TextAttribute("char_replacement"); 
 
     /** The FAMILY text attribute key. */
-    public static final TextAttribute FAMILY = new TextAttribute("family"); //$NON-NLS-1$
+    public static final TextAttribute FAMILY = new TextAttribute("family"); 
 
     /** The FONT text attribute key. */
-    public static final TextAttribute FONT = new TextAttribute("font"); //$NON-NLS-1$
+    public static final TextAttribute FONT = new TextAttribute("font"); 
 
     /** The FOREGROUND text attribute key. */
-    public static final TextAttribute FOREGROUND = new TextAttribute("foreground"); //$NON-NLS-1$
+    public static final TextAttribute FOREGROUND = new TextAttribute("foreground"); 
 
     /** The INPUT_METHOD_HIGHLIGHT text attribute key. */
     public static final TextAttribute INPUT_METHOD_HIGHLIGHT = new TextAttribute(
-            "input method highlight"); //$NON-NLS-1$
+            "input method highlight"); 
 
     /** The INPUT_METHOD_UNDERLINE text attribute key. */
     public static final TextAttribute INPUT_METHOD_UNDERLINE = new TextAttribute(
-            "input method underline"); //$NON-NLS-1$
+            "input method underline"); 
 
     /** The JUSTIFICATION text attribute key. */
-    public static final TextAttribute JUSTIFICATION = new TextAttribute("justification"); //$NON-NLS-1$
+    public static final TextAttribute JUSTIFICATION = new TextAttribute("justification"); 
 
     /** The Constant JUSTIFICATION_indicates the full requested width. */
     public static final Float JUSTIFICATION_FULL = new Float(1.0f);
@@ -113,10 +113,10 @@ public final class TextAttribute extends Attribute {
     public static final Float JUSTIFICATION_NONE = new Float(0.0f);
 
     /** The NUMERIC_SHAPING text attribute. */
-    public static final TextAttribute NUMERIC_SHAPING = new TextAttribute("numeric_shaping"); //$NON-NLS-1$
+    public static final TextAttribute NUMERIC_SHAPING = new TextAttribute("numeric_shaping"); 
 
     /** The POSTURE text attribute. */
-    public static final TextAttribute POSTURE = new TextAttribute("posture"); //$NON-NLS-1$
+    public static final TextAttribute POSTURE = new TextAttribute("posture"); 
 
     /** The Constant POSTURE_REGULAR indicates regular posture. */
     public static final Float POSTURE_REGULAR = new Float(0.0f);
@@ -125,7 +125,7 @@ public final class TextAttribute extends Attribute {
     public static final Float POSTURE_OBLIQUE = new Float(0.20f);
 
     /** The RUN_DIRECTION text attribute. */
-    public static final TextAttribute RUN_DIRECTION = new TextAttribute("run_direction"); //$NON-NLS-1$
+    public static final TextAttribute RUN_DIRECTION = new TextAttribute("run_direction"); 
 
     /** 
      * The Constant RUN_DIRECTION_LTR indicates left-to-right run 
@@ -140,16 +140,16 @@ public final class TextAttribute extends Attribute {
     public static final Boolean RUN_DIRECTION_RTL = true;
 
     /** The SIZE text attribute. */
-    public static final TextAttribute SIZE = new TextAttribute("size"); //$NON-NLS-1$
+    public static final TextAttribute SIZE = new TextAttribute("size"); 
 
     /** The STRIKETHROUGH text attribute. */
-    public static final TextAttribute STRIKETHROUGH = new TextAttribute("strikethrough"); //$NON-NLS-1$
+    public static final TextAttribute STRIKETHROUGH = new TextAttribute("strikethrough"); 
 
     /** The Constant STRIKETHROUGH_ON indicates a single strikethrough. */
     public static final Boolean STRIKETHROUGH_ON = true;
 
     /** The SUPERSCRIPT text attribute. */
-    public static final TextAttribute SUPERSCRIPT = new TextAttribute("superscript"); //$NON-NLS-1$
+    public static final TextAttribute SUPERSCRIPT = new TextAttribute("superscript"); 
 
     /** The Constant SUPERSCRIPT_SUB indicates a standard subscript. */
     public static final Integer SUPERSCRIPT_SUB = -1;
@@ -158,7 +158,7 @@ public final class TextAttribute extends Attribute {
     public static final Integer SUPERSCRIPT_SUPER = 1;
 
     /** The SWAP_COLORS text attribute. */
-    public static final TextAttribute SWAP_COLORS = new TextAttribute("swap_colors"); //$NON-NLS-1$
+    public static final TextAttribute SWAP_COLORS = new TextAttribute("swap_colors"); 
 
     /** 
      * The Constant SWAP_COLORS_ON indicates a swap of foreground 
@@ -167,10 +167,10 @@ public final class TextAttribute extends Attribute {
     public static final Boolean SWAP_COLORS_ON = true;
 
     /** The TRANSFORM text attribute. */
-    public static final TextAttribute TRANSFORM = new TextAttribute("transform"); //$NON-NLS-1$
+    public static final TextAttribute TRANSFORM = new TextAttribute("transform"); 
 
     /** The Constant UNDERLINE text attribute. */
-    public static final TextAttribute UNDERLINE = new TextAttribute("underline"); //$NON-NLS-1$
+    public static final TextAttribute UNDERLINE = new TextAttribute("underline"); 
 
     /** 
      * The Constant UNDERLINE_ON indicates a standard underline 
@@ -209,7 +209,7 @@ public final class TextAttribute extends Attribute {
     public static final Integer UNDERLINE_LOW_DASHED = 5;
 
     /** The WEIGHT text attribute. */
-    public static final TextAttribute WEIGHT = new TextAttribute("weight"); //$NON-NLS-1$
+    public static final TextAttribute WEIGHT = new TextAttribute("weight"); 
 
     /** 
      * The Constant WEIGHT_EXTRA_LIGHT indicates the lightest 
@@ -263,7 +263,7 @@ public final class TextAttribute extends Attribute {
     public static final Float WEIGHT_ULTRABOLD = new Float(2.75f);
 
     /** The WIDTH text attribute. */
-    public static final TextAttribute WIDTH = new TextAttribute("width"); //$NON-NLS-1$
+    public static final TextAttribute WIDTH = new TextAttribute("width"); 
 
     /** 
      * The Constant WIDTH_CONDENSED indicates the most condensed 

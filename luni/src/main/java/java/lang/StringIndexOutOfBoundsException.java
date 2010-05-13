@@ -45,7 +45,7 @@ public class StringIndexOutOfBoundsException extends IndexOutOfBoundsException {
      *            the index which is out of bounds.
      */    
     public StringIndexOutOfBoundsException(int index) {
-        super(Msg.getString("K0055", index)); //$NON-NLS-1$
+        super(Msg.getString("K0055", index)); 
     }
 
     /**

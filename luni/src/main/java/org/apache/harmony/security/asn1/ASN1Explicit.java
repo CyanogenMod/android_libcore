@@ -75,7 +75,7 @@ public final class ASN1Explicit extends ASN1Constructured {
     public Object decode(BerInputStream in) throws IOException {
         if (constrId != in.tag) {
             throw new ASN1Exception(
-                    Messages.getString("security.13F", //$NON-NLS-1$
+                    Messages.getString("security.13F", 
                     new Object[] { in.tagOffset, Integer.toHexString(constrId),
                             Integer.toHexString(in.tag) }));
         }
@@ -105,6 +105,6 @@ public final class ASN1Explicit extends ASN1Constructured {
 
     public String toString() {
         //FIXME fix performance
-        return super.toString() + " for type " + type; //$NON-NLS-1$
+        return super.toString() + " for type " + type; 
     }
 }

@@ -53,12 +53,12 @@ public class ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Unparseable extension value:\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("Unparseable extension value:\n"); 
         if (encoding == null) {
             encoding = getEncoded();
         }
         if (encoding == null) {
-            buffer.append("NULL\n"); //$NON-NLS-1$
+            buffer.append("NULL\n"); 
         } else {
             buffer.append(Array.toString(encoding, prefix));
         }
@@ -69,7 +69,7 @@ public class ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer) {
-        dumpValue(buffer, ""); //$NON-NLS-1$
+        dumpValue(buffer, ""); 
     };
 }
 

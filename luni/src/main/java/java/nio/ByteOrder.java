@@ -26,12 +26,12 @@ public final class ByteOrder {
     /**
      * This constant represents big endian.
      */
-    public static final ByteOrder BIG_ENDIAN = new ByteOrder("BIG_ENDIAN"); //$NON-NLS-1$
+    public static final ByteOrder BIG_ENDIAN = new ByteOrder("BIG_ENDIAN"); 
 
     /**
      * This constant represents little endian.
      */
-    public static final ByteOrder LITTLE_ENDIAN = new ByteOrder("LITTLE_ENDIAN"); //$NON-NLS-1$
+    public static final ByteOrder LITTLE_ENDIAN = new ByteOrder("LITTLE_ENDIAN"); 
 
     private static final ByteOrder NATIVE_ORDER;
 

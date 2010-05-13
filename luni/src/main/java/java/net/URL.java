@@ -39,7 +39,7 @@ public final class URL implements java.io.Serializable {
     private static final long serialVersionUID = -7627629688361524110L;
 
     private static final NetPermission specifyStreamHandlerPermission = new NetPermission(
-            "specifyStreamHandler"); //$NON-NLS-1$
+            "specifyStreamHandler"); 
 
     private int hashCode;
 
@@ -136,7 +136,7 @@ public final class URL implements java.io.Serializable {
     public static synchronized void setURLStreamHandlerFactory(
             URLStreamHandlerFactory streamFactory) {
         if (streamHandlerFactory != null) {
-            throw new Error(Msg.getString("K004b")); //$NON-NLS-1$
+            throw new Error(Msg.getString("K004b")); 
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -257,7 +257,7 @@ public final class URL implements java.io.Serializable {
             // by the values in the spec.
             if (context != null && protocol.equals(context.getProtocol())) {
                 String cPath = context.getPath();
-                if (cPath != null && cPath.startsWith("/")) { //$NON-NLS-1$
+                if (cPath != null && cPath.startsWith("/")) { 
                     set(protocol, context.getHost(), context.getPort(), context
                             .getAuthority(), context.getUserInfo(), cPath,
                             context.getQuery(), null);
@@ -274,7 +274,7 @@ public final class URL implements java.io.Serializable {
             if (context == null) {
                 throw new MalformedURLException(
                         org.apache.harmony.luni.util.Msg.getString(
-                                "K00d8", spec)); //$NON-NLS-1$
+                                "K00d8", spec)); 
             }
             set(context.getProtocol(), context.getHost(), context.getPort(),
                     context.getAuthority(), context.getUserInfo(), context
@@ -291,7 +291,7 @@ public final class URL implements java.io.Serializable {
             if (strmHandler == null) {
                 throw new MalformedURLException(
                         org.apache.harmony.luni.util.Msg.getString(
-                                "K00b3", protocol)); //$NON-NLS-1$
+                                "K00b3", protocol)); 
             }
         }
 
@@ -311,7 +311,7 @@ public final class URL implements java.io.Serializable {
 
         if (port < -1) {
             throw new MalformedURLException(org.apache.harmony.luni.util.Msg
-                    .getString("K0325", port)); //$NON-NLS-1$
+                    .getString("K0325", port)); 
         }
     }
 
@@ -382,15 +382,15 @@ public final class URL implements java.io.Serializable {
     public URL(String protocol, String host, int port, String file,
             URLStreamHandler handler) throws MalformedURLException {
         if (port < -1) {
-            throw new MalformedURLException(Msg.getString("K0325", port)); //$NON-NLS-1$
+            throw new MalformedURLException(Msg.getString("K0325", port)); 
         }
 
-        if (host != null && host.indexOf(":") != -1 && host.charAt(0) != '[') { //$NON-NLS-1$
-            host = "[" + host + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+        if (host != null && host.indexOf(":") != -1 && host.charAt(0) != '[') { 
+            host = "[" + host + "]";  
         }
 
         if (protocol == null) {
-            throw new NullPointerException(Msg.getString("K00b3", "null")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Msg.getString("K00b3", "null"));  
         }
 
         this.protocol = protocol;
@@ -400,7 +400,7 @@ public final class URL implements java.io.Serializable {
         // Set the fields from the arguments. Handle the case where the
         // passed in "file" includes both a file and a reference part.
         int index = -1;
-        index = file.indexOf("#", file.lastIndexOf("/")); //$NON-NLS-1$ //$NON-NLS-2$
+        index = file.indexOf("#", file.lastIndexOf("/"));  
         if (index >= 0) {
             this.file = file.substring(0, index);
             ref = file.substring(index + 1);
@@ -416,7 +416,7 @@ public final class URL implements java.io.Serializable {
             setupStreamHandler();
             if (strmHandler == null) {
                 throw new MalformedURLException(
-                        Msg.getString("K00b3", protocol)); //$NON-NLS-1$
+                        Msg.getString("K00b3", protocol)); 
             }
         } else {
             SecurityManager sm = System.getSecurityManager();
@@ -432,7 +432,7 @@ public final class URL implements java.io.Serializable {
         if (host != null && host.length() > 0) {
             authority = host;
             if (port != -1) {
-                authority = authority + ":" + port; //$NON-NLS-1$
+                authority = authority + ":" + port; 
             }
         }
         if (fixHost) {
@@ -567,11 +567,11 @@ public final class URL implements java.io.Serializable {
         // If so, then walk this list looking for an applicable one.
         String packageList = AccessController
                 .doPrivileged(new PriviAction<String>(
-                        "java.protocol.handler.pkgs")); //$NON-NLS-1$
+                        "java.protocol.handler.pkgs")); 
         if (packageList != null) {
-            StringTokenizer st = new StringTokenizer(packageList, "|"); //$NON-NLS-1$
+            StringTokenizer st = new StringTokenizer(packageList, "|"); 
             while (st.hasMoreTokens()) {
-                String className = st.nextToken() + "." + protocol + ".Handler"; //$NON-NLS-1$ //$NON-NLS-2$
+                String className = st.nextToken() + "." + protocol + ".Handler";  
 
                 try {
                     strmHandler = (URLStreamHandler) Class.forName(className,
@@ -590,8 +590,8 @@ public final class URL implements java.io.Serializable {
 
         // No one else has provided a handler, so try our internal one.
 
-        String className = "org.apache.harmony.luni.internal.net.www.protocol." + protocol //$NON-NLS-1$
-                + ".Handler"; //$NON-NLS-1$
+        String className = "org.apache.harmony.luni.internal.net.www.protocol." + protocol 
+                + ".Handler"; 
         try {
             strmHandler = (URLStreamHandler) Class.forName(className)
                     .newInstance();
@@ -699,7 +699,7 @@ public final class URL implements java.io.Serializable {
     public URLConnection openConnection(Proxy proxy) throws IOException {
         if (proxy == null) {
             // K034c=proxy should not be null
-            throw new IllegalArgumentException(Msg.getString("K034c")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K034c")); 
         }
 
         SecurityManager sm = System.getSecurityManager();
@@ -733,7 +733,7 @@ public final class URL implements java.io.Serializable {
      */
     public String toExternalForm() {
         if (strmHandler == null) {
-            return "unknown protocol(" + protocol + ")://" + host + file; //$NON-NLS-1$ //$NON-NLS-2$
+            return "unknown protocol(" + protocol + ")://" + host + file;  
         }
         return strmHandler.toExternalForm(this);
     }
@@ -769,7 +769,7 @@ public final class URL implements java.io.Serializable {
             }
             setupStreamHandler();
             if (strmHandler == null) {
-                throw new IOException(Msg.getString("K00b3", protocol)); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K00b3", protocol)); 
             }
         } catch (ClassNotFoundException e) {
             throw new IOException(e.toString());
@@ -900,11 +900,11 @@ public final class URL implements java.io.Serializable {
             String authority, String userInfo, String path, String query,
             String ref) {
         String filePart = path;
-        if (query != null && !query.equals("")) { //$NON-NLS-1$
+        if (query != null && !query.equals("")) { 
             if (filePart != null) {
-                filePart = filePart + "?" + query; //$NON-NLS-1$
+                filePart = filePart + "?" + query; 
             } else {
-                filePart = "?" + query; //$NON-NLS-1$
+                filePart = "?" + query; 
             }
         }
         set(protocol, host, port, filePart, ref);

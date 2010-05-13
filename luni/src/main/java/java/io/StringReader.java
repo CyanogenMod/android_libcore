@@ -89,7 +89,7 @@ public class StringReader extends Reader {
 
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0083")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0083")); 
             }
             markpos = pos;
         }
@@ -120,7 +120,7 @@ public class StringReader extends Reader {
     public int read() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0083")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0083")); 
             }
             if (pos != count) {
                 return str.charAt(pos++);
@@ -158,15 +158,15 @@ public class StringReader extends Reader {
         synchronized (lock) {
             if (isClosed()) {
                 // K0083=StringReader is closed.
-                throw new IOException(Msg.getString("K0083")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0083")); 
             }
             if (offset < 0 || offset > buf.length) {
                 // K002e=Offset out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
+                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); 
             }
             if (len < 0 || len > buf.length - offset) {
                 // K0031=Length out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", len)); //$NON-NLS-1$
+                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", len)); 
             }
             if (len == 0) {
                 return 0;
@@ -196,7 +196,7 @@ public class StringReader extends Reader {
     public boolean ready() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0083")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0083")); 
             }
             return true;
         }
@@ -217,7 +217,7 @@ public class StringReader extends Reader {
     public void reset() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0083")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0083")); 
             }
             pos = markpos != -1 ? markpos : 0;
         }
@@ -247,7 +247,7 @@ public class StringReader extends Reader {
     public long skip(long ns) throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K0083")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0083")); 
             }
 
             int minSkip = -pos;

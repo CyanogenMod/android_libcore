@@ -122,14 +122,14 @@ public class CertificatePolicies extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("CertificatePolicies [\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("CertificatePolicies [\n"); 
         for (Iterator it=policyInformations.iterator(); it.hasNext();) {
             buffer.append(prefix);
-            buffer.append("  "); //$NON-NLS-1$
+            buffer.append("  "); 
             ((PolicyInformation) it.next()).dumpValue(buffer);
             buffer.append('\n');
         }
-        buffer.append(prefix).append("]\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("]\n"); 
     }
 
     /**

@@ -86,21 +86,21 @@ public class AuthorityKeyIdentifier extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("AuthorityKeyIdentifier [\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("AuthorityKeyIdentifier [\n"); 
         if (keyIdentifier != null) {
-            buffer.append(prefix).append("  keyIdentifier:\n"); //$NON-NLS-1$
-            buffer.append(Array.toString(keyIdentifier, prefix + "    ")); //$NON-NLS-1$
+            buffer.append(prefix).append("  keyIdentifier:\n"); 
+            buffer.append(Array.toString(keyIdentifier, prefix + "    ")); 
         }
         if (authorityCertIssuer != null) {
-            buffer.append(prefix).append("  authorityCertIssuer: [\n"); //$NON-NLS-1$
-            authorityCertIssuer.dumpValue(buffer, prefix + "    "); //$NON-NLS-1$
-            buffer.append(prefix).append("  ]\n"); //$NON-NLS-1$
+            buffer.append(prefix).append("  authorityCertIssuer: [\n"); 
+            authorityCertIssuer.dumpValue(buffer, prefix + "    "); 
+            buffer.append(prefix).append("  ]\n"); 
         }
         if (authorityCertSerialNumber != null) {
-            buffer.append(prefix).append("  authorityCertSerialNumber: ") //$NON-NLS-1$
+            buffer.append(prefix).append("  authorityCertSerialNumber: ") 
                 .append(authorityCertSerialNumber).append('\n');
         }
-        buffer.append(prefix).append("]\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("]\n"); 
     }
 
     public static final ASN1Type ASN1 = new ASN1Sequence(

@@ -96,7 +96,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
         // changed array notation to be consistent with the rest of harmony
         // END android-note
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         out.write(buffer, offset, count);
         written += count;
@@ -335,7 +335,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
     public final void writeUTF(String str) throws IOException {
         long utfCount = countUTFBytes(str);
         if (utfCount > 65535) {
-            throw new UTFDataFormatException(Msg.getString("K0068")); //$NON-NLS-1$
+            throw new UTFDataFormatException(Msg.getString("K0068")); 
         }
         byte[] buffer = new byte[(int)utfCount + 2];
         int offset = 0;

@@ -33,7 +33,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
 
     // Store KeyPairGenerator SERVICE name
-    private static final String SERVICE = "KeyPairGenerator"; //$NON-NLS-1$
+    private static final String SERVICE = "KeyPairGenerator"; 
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
@@ -82,7 +82,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     public static KeyPairGenerator getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         KeyPairGenerator result;
         synchronized (engine) {
@@ -118,7 +118,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.02")); //$NON-NLS-1$
+                    Messages.getString("security.02")); 
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -144,10 +144,10 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     public static KeyPairGenerator getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.04")); 
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         KeyPairGenerator result;
         synchronized (engine) {

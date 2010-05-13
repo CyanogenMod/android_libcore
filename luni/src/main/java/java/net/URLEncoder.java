@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
  */
 public class URLEncoder {
 
-    static final String digits = "0123456789ABCDEF"; //$NON-NLS-1$
+    static final String digits = "0123456789ABCDEF"; 
 
     /**
      * Prevents this class from being instantiated.
@@ -54,7 +54,7 @@ public class URLEncoder {
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
             if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
-                    || (ch >= '0' && ch <= '9') || ".-*_".indexOf(ch) > -1) { //$NON-NLS-1$
+                    || (ch >= '0' && ch <= '9') || ".-*_".indexOf(ch) > -1) { 
                 buf.append(ch);
             } else if (ch == ' ') {
                 buf.append('+');
@@ -94,7 +94,7 @@ public class URLEncoder {
             throw new NullPointerException();
         }
         // check for UnsupportedEncodingException
-        "".getBytes(enc); //$NON-NLS-1$
+        "".getBytes(enc); 
 
         // Guess a bit bigger for encoded form
         StringBuffer buf = new StringBuffer(s.length() + 16);
@@ -102,7 +102,7 @@ public class URLEncoder {
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
             if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
-                    || (ch >= '0' && ch <= '9') || " .-*_".indexOf(ch) > -1) { //$NON-NLS-1$
+                    || (ch >= '0' && ch <= '9') || " .-*_".indexOf(ch) > -1) { 
                 if (start >= 0) {
                     convert(s.substring(start, i), buf, enc);
                     start = -1;

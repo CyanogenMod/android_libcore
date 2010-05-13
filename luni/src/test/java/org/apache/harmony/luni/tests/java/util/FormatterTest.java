@@ -1807,284 +1807,284 @@ public class FormatterTest extends TestCase {
         china.set(Calendar.MILLISECOND, 609);
 
         final Object[][] lowerCaseGermanTriple = {
-                {0L,                        'a', "Do."},  //$NON-NLS-2$
-                {Long.MAX_VALUE,            'a', "So."},  //$NON-NLS-2$
-                {-1000L,                    'a', "Do."},  //$NON-NLS-2$
-                {new Date(1147327147578L),  'a', "Do."},  //$NON-NLS-2$
-                {paris,                     'a', "Mo."},  //$NON-NLS-2$
-                {china,                     'a', "Mo."},  //$NON-NLS-2$
-                {0L,                        'b', "Jan"},  //$NON-NLS-2$
-                {Long.MAX_VALUE,            'b', "Aug"},  //$NON-NLS-2$
-                {-1000L,                    'b', "Jan"},  //$NON-NLS-2$
-                {new Date(1147327147578L),  'b', "Mai"},  //$NON-NLS-2$
-                {paris,                     'b', "Mai"},  //$NON-NLS-2$
-                {china,                     'b', "Mai"},  //$NON-NLS-2$
-                {0L,                        'c', "Do. Jan 01 08:00:00 GMT+08:00 1970"},  //$NON-NLS-2$
-                {Long.MAX_VALUE,            'c', "So. Aug 17 15:18:47 GMT+08:00 292278994"},  //$NON-NLS-2$
-                {-1000L,                    'c', "Do. Jan 01 07:59:59 GMT+08:00 1970"},  //$NON-NLS-2$
-                {new Date(1147327147578L),  'c', "Do. Mai 11 13:59:07 GMT+08:00 2006"},  //$NON-NLS-2$
-                {paris,                     'c', "Mo. Mai 08 12:00:00 MESZ 2006"},  //$NON-NLS-2$
-                {china,                     'c', "Mo. Mai 08 12:00:00 GMT-08:00 2006"},  //$NON-NLS-2$
-                {0L,                        'd', "01"},  //$NON-NLS-2$
-                {Long.MAX_VALUE,            'd', "17"},  //$NON-NLS-2$
-                {-1000L,                    'd', "01"},  //$NON-NLS-2$
-                {new Date(1147327147578L),  'd', "11"},  //$NON-NLS-2$
-                {paris,                     'd', "08"},  //$NON-NLS-2$
-                {china,                     'd', "08"},  //$NON-NLS-2$
-                {0L,                        'e', "1"},  //$NON-NLS-2$
-                {Long.MAX_VALUE,            'e', "17"},  //$NON-NLS-2$
-                {-1000L,                    'e', "1"},  //$NON-NLS-2$
-                {new Date(1147327147578L),  'e', "11"},  //$NON-NLS-2$
-                {paris,                     'e', "8"},  //$NON-NLS-2$
-                {china,                     'e', "8"},  //$NON-NLS-2$
-                {0L,                        'h', "Jan"},  //$NON-NLS-2$
-                {Long.MAX_VALUE,            'h', "Aug"},  //$NON-NLS-2$
-                {-1000L,                    'h', "Jan"},  //$NON-NLS-2$
-                {new Date(1147327147578L),  'h', "Mai"},  //$NON-NLS-2$
-                {paris,                     'h', "Mai"},  //$NON-NLS-2$
-                {china,                     'h', "Mai"},  //$NON-NLS-2$
-                {0L,                        'j', "001"},  //$NON-NLS-2$
-                {Long.MAX_VALUE,            'j', "229"},  //$NON-NLS-2$
-                {-1000L,                    'j', "001"},  //$NON-NLS-2$
-                {new Date(1147327147578L),  'j', "131"},  //$NON-NLS-2$
-                {paris,                     'j', "128"},  //$NON-NLS-2$
-                {china,                     'j', "128"},  //$NON-NLS-2$
-                {0L,                        'k', "8"},  //$NON-NLS-2$
-                {Long.MAX_VALUE,            'k', "15"},  //$NON-NLS-2$
-                {-1000L,                    'k', "7"},  //$NON-NLS-2$
-                {new Date(1147327147578L),  'k', "13"},  //$NON-NLS-2$
-                {paris,                     'k', "12"},  //$NON-NLS-2$
-                {china,                     'k', "12"},  //$NON-NLS-2$
-                {0L,                        'l', "8"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'l', "3"}, //$NON-NLS-2$
-                {-1000L,                    'l', "7"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'l', "1"}, //$NON-NLS-2$
-                {paris,                     'l', "12"}, //$NON-NLS-2$
-                {china,                     'l', "12"}, //$NON-NLS-2$
-                {0L,                        'm', "01"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'm', "08"}, //$NON-NLS-2$
-                {-1000L,                    'm', "01"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'm', "05"}, //$NON-NLS-2$
-                {paris,                     'm', "05"}, //$NON-NLS-2$
-                {china,                     'm', "05"}, //$NON-NLS-2$
-                {0L,                        'p', "vorm."}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'p', "nachm."}, //$NON-NLS-2$
-                {-1000L,                    'p', "vorm."}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'p', "nachm."}, //$NON-NLS-2$
-                {paris,                     'p', "nachm."}, //$NON-NLS-2$
-                {china,                     'p', "nachm."}, //$NON-NLS-2$
-                {0L,                        'r', "08:00:00 vorm."}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'r', "03:18:47 nachm."}, //$NON-NLS-2$
-                {-1000L,                    'r', "07:59:59 vorm."}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'r', "01:59:07 nachm."}, //$NON-NLS-2$
-                {paris,                     'r', "12:00:00 nachm."}, //$NON-NLS-2$
-                {china,                     'r', "12:00:00 nachm."}, //$NON-NLS-2$
-                {0L,                        's', "0"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            's', "9223372036854775"}, //$NON-NLS-2$
-                {-1000L,                    's', "-1"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  's', "1147327147"}, //$NON-NLS-2$
-                {paris,                     's', "1147082400"}, //$NON-NLS-2$
-                {china,                     's', "1147118400"}, //$NON-NLS-2$
-                {0L,                        'y', "70"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'y', "94"}, //$NON-NLS-2$
-                {-1000L,                    'y', "70"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'y', "06"}, //$NON-NLS-2$
-                {paris,                     'y', "06"}, //$NON-NLS-2$
-                {china,                     'y', "06"}, //$NON-NLS-2$
-                {0L,                        'z', "+0800"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'z', "+0800"}, //$NON-NLS-2$
-                {-1000L,                    'z', "+0800"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'z', "+0800"}, //$NON-NLS-2$
-                {paris,                     'z', "+0100"}, //$NON-NLS-2$
-                {china,                     'z', "-0800"}, //$NON-NLS-2$
+                {0L,                        'a', "Do."},  
+                {Long.MAX_VALUE,            'a', "So."},  
+                {-1000L,                    'a', "Do."},  
+                {new Date(1147327147578L),  'a', "Do."},  
+                {paris,                     'a', "Mo."},  
+                {china,                     'a', "Mo."},  
+                {0L,                        'b', "Jan"},  
+                {Long.MAX_VALUE,            'b', "Aug"},  
+                {-1000L,                    'b', "Jan"},  
+                {new Date(1147327147578L),  'b', "Mai"},  
+                {paris,                     'b', "Mai"},  
+                {china,                     'b', "Mai"},  
+                {0L,                        'c', "Do. Jan 01 08:00:00 GMT+08:00 1970"},  
+                {Long.MAX_VALUE,            'c', "So. Aug 17 15:18:47 GMT+08:00 292278994"},  
+                {-1000L,                    'c', "Do. Jan 01 07:59:59 GMT+08:00 1970"},  
+                {new Date(1147327147578L),  'c', "Do. Mai 11 13:59:07 GMT+08:00 2006"},  
+                {paris,                     'c', "Mo. Mai 08 12:00:00 MESZ 2006"},  
+                {china,                     'c', "Mo. Mai 08 12:00:00 GMT-08:00 2006"},  
+                {0L,                        'd', "01"},  
+                {Long.MAX_VALUE,            'd', "17"},  
+                {-1000L,                    'd', "01"},  
+                {new Date(1147327147578L),  'd', "11"},  
+                {paris,                     'd', "08"},  
+                {china,                     'd', "08"},  
+                {0L,                        'e', "1"},  
+                {Long.MAX_VALUE,            'e', "17"},  
+                {-1000L,                    'e', "1"},  
+                {new Date(1147327147578L),  'e', "11"},  
+                {paris,                     'e', "8"},  
+                {china,                     'e', "8"},  
+                {0L,                        'h', "Jan"},  
+                {Long.MAX_VALUE,            'h', "Aug"},  
+                {-1000L,                    'h', "Jan"},  
+                {new Date(1147327147578L),  'h', "Mai"},  
+                {paris,                     'h', "Mai"},  
+                {china,                     'h', "Mai"},  
+                {0L,                        'j', "001"},  
+                {Long.MAX_VALUE,            'j', "229"},  
+                {-1000L,                    'j', "001"},  
+                {new Date(1147327147578L),  'j', "131"},  
+                {paris,                     'j', "128"},  
+                {china,                     'j', "128"},  
+                {0L,                        'k', "8"},  
+                {Long.MAX_VALUE,            'k', "15"},  
+                {-1000L,                    'k', "7"},  
+                {new Date(1147327147578L),  'k', "13"},  
+                {paris,                     'k', "12"},  
+                {china,                     'k', "12"},  
+                {0L,                        'l', "8"}, 
+                {Long.MAX_VALUE,            'l', "3"}, 
+                {-1000L,                    'l', "7"}, 
+                {new Date(1147327147578L),  'l', "1"}, 
+                {paris,                     'l', "12"}, 
+                {china,                     'l', "12"}, 
+                {0L,                        'm', "01"}, 
+                {Long.MAX_VALUE,            'm', "08"}, 
+                {-1000L,                    'm', "01"}, 
+                {new Date(1147327147578L),  'm', "05"}, 
+                {paris,                     'm', "05"}, 
+                {china,                     'm', "05"}, 
+                {0L,                        'p', "vorm."}, 
+                {Long.MAX_VALUE,            'p', "nachm."}, 
+                {-1000L,                    'p', "vorm."}, 
+                {new Date(1147327147578L),  'p', "nachm."}, 
+                {paris,                     'p', "nachm."}, 
+                {china,                     'p', "nachm."}, 
+                {0L,                        'r', "08:00:00 vorm."}, 
+                {Long.MAX_VALUE,            'r', "03:18:47 nachm."}, 
+                {-1000L,                    'r', "07:59:59 vorm."}, 
+                {new Date(1147327147578L),  'r', "01:59:07 nachm."}, 
+                {paris,                     'r', "12:00:00 nachm."}, 
+                {china,                     'r', "12:00:00 nachm."}, 
+                {0L,                        's', "0"}, 
+                {Long.MAX_VALUE,            's', "9223372036854775"}, 
+                {-1000L,                    's', "-1"}, 
+                {new Date(1147327147578L),  's', "1147327147"}, 
+                {paris,                     's', "1147082400"}, 
+                {china,                     's', "1147118400"}, 
+                {0L,                        'y', "70"}, 
+                {Long.MAX_VALUE,            'y', "94"}, 
+                {-1000L,                    'y', "70"}, 
+                {new Date(1147327147578L),  'y', "06"}, 
+                {paris,                     'y', "06"}, 
+                {china,                     'y', "06"}, 
+                {0L,                        'z', "+0800"}, 
+                {Long.MAX_VALUE,            'z', "+0800"}, 
+                {-1000L,                    'z', "+0800"}, 
+                {new Date(1147327147578L),  'z', "+0800"}, 
+                {paris,                     'z', "+0100"}, 
+                {china,                     'z', "-0800"}, 
                 
         };
         
         final Object[][] lowerCaseFranceTriple = {
-                {0L,                        'a', "jeu."}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'a', "dim."}, //$NON-NLS-2$
-                {-1000L,                    'a', "jeu."}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'a', "jeu."}, //$NON-NLS-2$
-                {paris,                     'a', "lun."}, //$NON-NLS-2$
-                {china,                     'a', "lun."}, //$NON-NLS-2$
-                {0L,                        'b', "janv."}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'b', "ao\u00fbt"}, //$NON-NLS-2$
-                {-1000L,                    'b', "janv."}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'b', "mai"}, //$NON-NLS-2$
-                {paris,                     'b', "mai"}, //$NON-NLS-2$
-                {china,                     'b', "mai"}, //$NON-NLS-2$
-                {0L,                        'c', "jeu. janv. 01 08:00:00 UTC+08:00 1970"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'c', "dim. ao\u00fbt 17 15:18:47 UTC+08:00 292278994"}, //$NON-NLS-2$
-                {-1000L,                    'c', "jeu. janv. 01 07:59:59 UTC+08:00 1970"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'c', "jeu. mai 11 13:59:07 UTC+08:00 2006"}, //$NON-NLS-2$
-                {paris,                     'c', "lun. mai 08 12:00:00 HAEC 2006"}, //$NON-NLS-2$
-                {china,                     'c', "lun. mai 08 12:00:00 UTC-08:00 2006"}, //$NON-NLS-2$
-                {0L,                        'd', "01"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'd', "17"}, //$NON-NLS-2$
-                {-1000L,                    'd', "01"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'd', "11"}, //$NON-NLS-2$
-                {paris,                     'd', "08"}, //$NON-NLS-2$
-                {china,                     'd', "08"}, //$NON-NLS-2$
-                {0L,                        'e', "1"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'e', "17"}, //$NON-NLS-2$
-                {-1000L,                    'e', "1"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'e', "11"}, //$NON-NLS-2$
-                {paris,                     'e', "8"}, //$NON-NLS-2$
-                {china,                     'e', "8"}, //$NON-NLS-2$
-                {0L,                        'h', "janv."}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'h', "ao\u00fbt"}, //$NON-NLS-2$
-                {-1000L,                    'h', "janv."}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'h', "mai"}, //$NON-NLS-2$
-                {paris,                     'h', "mai"}, //$NON-NLS-2$
-                {china,                     'h', "mai"}, //$NON-NLS-2$
-                {0L,                        'j', "001"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'j', "229"}, //$NON-NLS-2$
-                {-1000L,                    'j', "001"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'j', "131"}, //$NON-NLS-2$
-                {paris,                     'j', "128"}, //$NON-NLS-2$
-                {china,                     'j', "128"}, //$NON-NLS-2$
-                {0L,                        'k', "8"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'k', "15"}, //$NON-NLS-2$
-                {-1000L,                    'k', "7"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'k', "13"}, //$NON-NLS-2$
-                {paris,                     'k', "12"}, //$NON-NLS-2$
-                {china,                     'k', "12"}, //$NON-NLS-2$
-                {0L,                        'l', "8"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'l', "3"}, //$NON-NLS-2$
-                {-1000L,                    'l', "7"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'l', "1"}, //$NON-NLS-2$
-                {paris,                     'l', "12"}, //$NON-NLS-2$
-                {china,                     'l', "12"}, //$NON-NLS-2$
-                {0L,                        'm', "01"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'm', "08"}, //$NON-NLS-2$
-                {-1000L,                    'm', "01"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'm', "05"}, //$NON-NLS-2$
-                {paris,                     'm', "05"}, //$NON-NLS-2$
-                {china,                     'm', "05"}, //$NON-NLS-2$
-                {0L,                        'p', "am"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'p', "pm"}, //$NON-NLS-2$
-                {-1000L,                    'p', "am"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'p', "pm"}, //$NON-NLS-2$
-                {paris,                     'p', "pm"}, //$NON-NLS-2$
-                {china,                     'p', "pm"}, //$NON-NLS-2$
-                {0L,                        'r', "08:00:00 AM"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'r', "03:18:47 PM"}, //$NON-NLS-2$
-                {-1000L,                    'r', "07:59:59 AM"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'r', "01:59:07 PM"}, //$NON-NLS-2$
-                {paris,                     'r', "12:00:00 PM"}, //$NON-NLS-2$
-                {china,                     'r', "12:00:00 PM"}, //$NON-NLS-2$
-                {0L,                        's', "0"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            's', "9223372036854775"}, //$NON-NLS-2$
-                {-1000L,                    's', "-1"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  's', "1147327147"}, //$NON-NLS-2$
-                {paris,                     's', "1147082400"}, //$NON-NLS-2$
-                {china,                     's', "1147118400"}, //$NON-NLS-2$
-                {0L,                        'y', "70"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'y', "94"}, //$NON-NLS-2$
-                {-1000L,                    'y', "70"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'y', "06"}, //$NON-NLS-2$
-                {paris,                     'y', "06"}, //$NON-NLS-2$
-                {china,                     'y', "06"}, //$NON-NLS-2$
-                {0L,                        'z', "+0800"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'z', "+0800"}, //$NON-NLS-2$
-                {-1000L,                    'z', "+0800"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'z', "+0800"}, //$NON-NLS-2$
-                {paris,                     'z', "+0100"}, //$NON-NLS-2$
-                {china,                     'z', "-0800"}, //$NON-NLS-2$
+                {0L,                        'a', "jeu."}, 
+                {Long.MAX_VALUE,            'a', "dim."}, 
+                {-1000L,                    'a', "jeu."}, 
+                {new Date(1147327147578L),  'a', "jeu."}, 
+                {paris,                     'a', "lun."}, 
+                {china,                     'a', "lun."}, 
+                {0L,                        'b', "janv."}, 
+                {Long.MAX_VALUE,            'b', "ao\u00fbt"}, 
+                {-1000L,                    'b', "janv."}, 
+                {new Date(1147327147578L),  'b', "mai"}, 
+                {paris,                     'b', "mai"}, 
+                {china,                     'b', "mai"}, 
+                {0L,                        'c', "jeu. janv. 01 08:00:00 UTC+08:00 1970"}, 
+                {Long.MAX_VALUE,            'c', "dim. ao\u00fbt 17 15:18:47 UTC+08:00 292278994"}, 
+                {-1000L,                    'c', "jeu. janv. 01 07:59:59 UTC+08:00 1970"}, 
+                {new Date(1147327147578L),  'c', "jeu. mai 11 13:59:07 UTC+08:00 2006"}, 
+                {paris,                     'c', "lun. mai 08 12:00:00 HAEC 2006"}, 
+                {china,                     'c', "lun. mai 08 12:00:00 UTC-08:00 2006"}, 
+                {0L,                        'd', "01"}, 
+                {Long.MAX_VALUE,            'd', "17"}, 
+                {-1000L,                    'd', "01"}, 
+                {new Date(1147327147578L),  'd', "11"}, 
+                {paris,                     'd', "08"}, 
+                {china,                     'd', "08"}, 
+                {0L,                        'e', "1"}, 
+                {Long.MAX_VALUE,            'e', "17"}, 
+                {-1000L,                    'e', "1"}, 
+                {new Date(1147327147578L),  'e', "11"}, 
+                {paris,                     'e', "8"}, 
+                {china,                     'e', "8"}, 
+                {0L,                        'h', "janv."}, 
+                {Long.MAX_VALUE,            'h', "ao\u00fbt"}, 
+                {-1000L,                    'h', "janv."}, 
+                {new Date(1147327147578L),  'h', "mai"}, 
+                {paris,                     'h', "mai"}, 
+                {china,                     'h', "mai"}, 
+                {0L,                        'j', "001"}, 
+                {Long.MAX_VALUE,            'j', "229"}, 
+                {-1000L,                    'j', "001"}, 
+                {new Date(1147327147578L),  'j', "131"}, 
+                {paris,                     'j', "128"}, 
+                {china,                     'j', "128"}, 
+                {0L,                        'k', "8"}, 
+                {Long.MAX_VALUE,            'k', "15"}, 
+                {-1000L,                    'k', "7"}, 
+                {new Date(1147327147578L),  'k', "13"}, 
+                {paris,                     'k', "12"}, 
+                {china,                     'k', "12"}, 
+                {0L,                        'l', "8"}, 
+                {Long.MAX_VALUE,            'l', "3"}, 
+                {-1000L,                    'l', "7"}, 
+                {new Date(1147327147578L),  'l', "1"}, 
+                {paris,                     'l', "12"}, 
+                {china,                     'l', "12"}, 
+                {0L,                        'm', "01"}, 
+                {Long.MAX_VALUE,            'm', "08"}, 
+                {-1000L,                    'm', "01"}, 
+                {new Date(1147327147578L),  'm', "05"}, 
+                {paris,                     'm', "05"}, 
+                {china,                     'm', "05"}, 
+                {0L,                        'p', "am"}, 
+                {Long.MAX_VALUE,            'p', "pm"}, 
+                {-1000L,                    'p', "am"}, 
+                {new Date(1147327147578L),  'p', "pm"}, 
+                {paris,                     'p', "pm"}, 
+                {china,                     'p', "pm"}, 
+                {0L,                        'r', "08:00:00 AM"}, 
+                {Long.MAX_VALUE,            'r', "03:18:47 PM"}, 
+                {-1000L,                    'r', "07:59:59 AM"}, 
+                {new Date(1147327147578L),  'r', "01:59:07 PM"}, 
+                {paris,                     'r', "12:00:00 PM"}, 
+                {china,                     'r', "12:00:00 PM"}, 
+                {0L,                        's', "0"}, 
+                {Long.MAX_VALUE,            's', "9223372036854775"}, 
+                {-1000L,                    's', "-1"}, 
+                {new Date(1147327147578L),  's', "1147327147"}, 
+                {paris,                     's', "1147082400"}, 
+                {china,                     's', "1147118400"}, 
+                {0L,                        'y', "70"}, 
+                {Long.MAX_VALUE,            'y', "94"}, 
+                {-1000L,                    'y', "70"}, 
+                {new Date(1147327147578L),  'y', "06"}, 
+                {paris,                     'y', "06"}, 
+                {china,                     'y', "06"}, 
+                {0L,                        'z', "+0800"}, 
+                {Long.MAX_VALUE,            'z', "+0800"}, 
+                {-1000L,                    'z', "+0800"}, 
+                {new Date(1147327147578L),  'z', "+0800"}, 
+                {paris,                     'z', "+0100"}, 
+                {china,                     'z', "-0800"}, 
                 
         };
         
         final Object[][] lowerCaseJapanTriple = {
-                {0L,                        'a', "\u6728"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'a', "\u65e5"}, //$NON-NLS-2$
-                {-1000L,                    'a', "\u6728"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'a', "\u6728"}, //$NON-NLS-2$
-                {paris,                     'a', "\u6708"}, //$NON-NLS-2$
-                {china,                     'a', "\u6708"}, //$NON-NLS-2$
-                {0L,                        'b', "1\u6708"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'b', "8\u6708"}, //$NON-NLS-2$
-                {-1000L,                    'b', "1\u6708"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'b', "5\u6708"}, //$NON-NLS-2$
-                {paris,                     'b', "5\u6708"}, //$NON-NLS-2$
-                {china,                     'b', "5\u6708"}, //$NON-NLS-2$
-                {0L,                        'c', "\u6728 1\u6708 01 08:00:00 GMT+08:00 1970"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'c', "\u65e5 8\u6708 17 15:18:47 GMT+08:00 292278994"}, //$NON-NLS-2$
-                {-1000L,                    'c', "\u6728 1\u6708 01 07:59:59 GMT+08:00 1970"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'c', "\u6728 5\u6708 11 13:59:07 GMT+08:00 2006"}, //$NON-NLS-2$
-                {paris,                     'c', "\u6708 5\u6708 08 12:00:00 GMT+02:00 2006"}, //$NON-NLS-2$
-                {china,                     'c', "\u6708 5\u6708 08 12:00:00 GMT-08:00 2006"}, //$NON-NLS-2$
-                {0L,                        'd', "01"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'd', "17"}, //$NON-NLS-2$
-                {-1000L,                    'd', "01"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'd', "11"}, //$NON-NLS-2$
-                {paris,                     'd', "08"}, //$NON-NLS-2$
-                {china,                     'd', "08"}, //$NON-NLS-2$
-                {0L,                        'e', "1"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'e', "17"}, //$NON-NLS-2$
-                {-1000L,                    'e', "1"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'e', "11"}, //$NON-NLS-2$
-                {paris,                     'e', "8"}, //$NON-NLS-2$
-                {china,                     'e', "8"}, //$NON-NLS-2$
-                {0L,                        'h', "1\u6708"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'h', "8\u6708"}, //$NON-NLS-2$
-                {-1000L,                    'h', "1\u6708"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'h', "5\u6708"}, //$NON-NLS-2$
-                {paris,                     'h', "5\u6708"}, //$NON-NLS-2$
-                {china,                     'h', "5\u6708"}, //$NON-NLS-2$
-                {0L,                        'j', "001"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'j', "229"}, //$NON-NLS-2$
-                {-1000L,                    'j', "001"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'j', "131"}, //$NON-NLS-2$
-                {paris,                     'j', "128"}, //$NON-NLS-2$
-                {china,                     'j', "128"}, //$NON-NLS-2$
-                {0L,                        'k', "8"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'k', "15"}, //$NON-NLS-2$
-                {-1000L,                    'k', "7"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'k', "13"}, //$NON-NLS-2$
-                {paris,                     'k', "12"}, //$NON-NLS-2$
-                {china,                     'k', "12"}, //$NON-NLS-2$
-                {0L,                        'l', "8"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'l', "3"}, //$NON-NLS-2$
-                {-1000L,                    'l', "7"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'l', "1"}, //$NON-NLS-2$
-                {paris,                     'l', "12"}, //$NON-NLS-2$
-                {china,                     'l', "12"}, //$NON-NLS-2$
-                {0L,                        'm', "01"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'm', "08"}, //$NON-NLS-2$
-                {-1000L,                    'm', "01"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'm', "05"}, //$NON-NLS-2$
-                {paris,                     'm', "05"}, //$NON-NLS-2$
-                {china,                     'm', "05"}, //$NON-NLS-2$
-                {0L,                        'p', "\u5348\u524d"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'p', "\u5348\u5f8c"}, //$NON-NLS-2$
-                {-1000L,                    'p', "\u5348\u524d"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'p', "\u5348\u5f8c"}, //$NON-NLS-2$
-                {paris,                     'p', "\u5348\u5f8c"}, //$NON-NLS-2$
-                {china,                     'p', "\u5348\u5f8c"}, //$NON-NLS-2$
-                {0L,                        'r', "08:00:00 \u5348\u524d"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'r', "03:18:47 \u5348\u5f8c"}, //$NON-NLS-2$
-                {-1000L,                    'r', "07:59:59 \u5348\u524d"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'r', "01:59:07 \u5348\u5f8c"}, //$NON-NLS-2$
-                {paris,                     'r', "12:00:00 \u5348\u5f8c"}, //$NON-NLS-2$
-                {china,                     'r', "12:00:00 \u5348\u5f8c"}, //$NON-NLS-2$
-                {0L,                        's', "0"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            's', "9223372036854775"}, //$NON-NLS-2$
-                {-1000L,                    's', "-1"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  's', "1147327147"}, //$NON-NLS-2$
-                {paris,                     's', "1147082400"}, //$NON-NLS-2$
-                {china,                     's', "1147118400"}, //$NON-NLS-2$
-                {0L,                        'y', "70"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'y', "94"}, //$NON-NLS-2$
-                {-1000L,                    'y', "70"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'y', "06"}, //$NON-NLS-2$
-                {paris,                     'y', "06"}, //$NON-NLS-2$
-                {china,                     'y', "06"}, //$NON-NLS-2$
-                {0L,                        'z', "+0800"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'z', "+0800"}, //$NON-NLS-2$
-                {-1000L,                    'z', "+0800"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'z', "+0800"}, //$NON-NLS-2$
-                {paris,                     'z', "+0100"}, //$NON-NLS-2$
-                {china,                     'z', "-0800"}, //$NON-NLS-2$
+                {0L,                        'a', "\u6728"}, 
+                {Long.MAX_VALUE,            'a', "\u65e5"}, 
+                {-1000L,                    'a', "\u6728"}, 
+                {new Date(1147327147578L),  'a', "\u6728"}, 
+                {paris,                     'a', "\u6708"}, 
+                {china,                     'a', "\u6708"}, 
+                {0L,                        'b', "1\u6708"}, 
+                {Long.MAX_VALUE,            'b', "8\u6708"}, 
+                {-1000L,                    'b', "1\u6708"}, 
+                {new Date(1147327147578L),  'b', "5\u6708"}, 
+                {paris,                     'b', "5\u6708"}, 
+                {china,                     'b', "5\u6708"}, 
+                {0L,                        'c', "\u6728 1\u6708 01 08:00:00 GMT+08:00 1970"}, 
+                {Long.MAX_VALUE,            'c', "\u65e5 8\u6708 17 15:18:47 GMT+08:00 292278994"}, 
+                {-1000L,                    'c', "\u6728 1\u6708 01 07:59:59 GMT+08:00 1970"}, 
+                {new Date(1147327147578L),  'c', "\u6728 5\u6708 11 13:59:07 GMT+08:00 2006"}, 
+                {paris,                     'c', "\u6708 5\u6708 08 12:00:00 GMT+02:00 2006"}, 
+                {china,                     'c', "\u6708 5\u6708 08 12:00:00 GMT-08:00 2006"}, 
+                {0L,                        'd', "01"}, 
+                {Long.MAX_VALUE,            'd', "17"}, 
+                {-1000L,                    'd', "01"}, 
+                {new Date(1147327147578L),  'd', "11"}, 
+                {paris,                     'd', "08"}, 
+                {china,                     'd', "08"}, 
+                {0L,                        'e', "1"}, 
+                {Long.MAX_VALUE,            'e', "17"}, 
+                {-1000L,                    'e', "1"}, 
+                {new Date(1147327147578L),  'e', "11"}, 
+                {paris,                     'e', "8"}, 
+                {china,                     'e', "8"}, 
+                {0L,                        'h', "1\u6708"}, 
+                {Long.MAX_VALUE,            'h', "8\u6708"}, 
+                {-1000L,                    'h', "1\u6708"}, 
+                {new Date(1147327147578L),  'h', "5\u6708"}, 
+                {paris,                     'h', "5\u6708"}, 
+                {china,                     'h', "5\u6708"}, 
+                {0L,                        'j', "001"}, 
+                {Long.MAX_VALUE,            'j', "229"}, 
+                {-1000L,                    'j', "001"}, 
+                {new Date(1147327147578L),  'j', "131"}, 
+                {paris,                     'j', "128"}, 
+                {china,                     'j', "128"}, 
+                {0L,                        'k', "8"}, 
+                {Long.MAX_VALUE,            'k', "15"}, 
+                {-1000L,                    'k', "7"}, 
+                {new Date(1147327147578L),  'k', "13"}, 
+                {paris,                     'k', "12"}, 
+                {china,                     'k', "12"}, 
+                {0L,                        'l', "8"}, 
+                {Long.MAX_VALUE,            'l', "3"}, 
+                {-1000L,                    'l', "7"}, 
+                {new Date(1147327147578L),  'l', "1"}, 
+                {paris,                     'l', "12"}, 
+                {china,                     'l', "12"}, 
+                {0L,                        'm', "01"}, 
+                {Long.MAX_VALUE,            'm', "08"}, 
+                {-1000L,                    'm', "01"}, 
+                {new Date(1147327147578L),  'm', "05"}, 
+                {paris,                     'm', "05"}, 
+                {china,                     'm', "05"}, 
+                {0L,                        'p', "\u5348\u524d"}, 
+                {Long.MAX_VALUE,            'p', "\u5348\u5f8c"}, 
+                {-1000L,                    'p', "\u5348\u524d"}, 
+                {new Date(1147327147578L),  'p', "\u5348\u5f8c"}, 
+                {paris,                     'p', "\u5348\u5f8c"}, 
+                {china,                     'p', "\u5348\u5f8c"}, 
+                {0L,                        'r', "08:00:00 \u5348\u524d"}, 
+                {Long.MAX_VALUE,            'r', "03:18:47 \u5348\u5f8c"}, 
+                {-1000L,                    'r', "07:59:59 \u5348\u524d"}, 
+                {new Date(1147327147578L),  'r', "01:59:07 \u5348\u5f8c"}, 
+                {paris,                     'r', "12:00:00 \u5348\u5f8c"}, 
+                {china,                     'r', "12:00:00 \u5348\u5f8c"}, 
+                {0L,                        's', "0"}, 
+                {Long.MAX_VALUE,            's', "9223372036854775"}, 
+                {-1000L,                    's', "-1"}, 
+                {new Date(1147327147578L),  's', "1147327147"}, 
+                {paris,                     's', "1147082400"}, 
+                {china,                     's', "1147118400"}, 
+                {0L,                        'y', "70"}, 
+                {Long.MAX_VALUE,            'y', "94"}, 
+                {-1000L,                    'y', "70"}, 
+                {new Date(1147327147578L),  'y', "06"}, 
+                {paris,                     'y', "06"}, 
+                {china,                     'y', "06"}, 
+                {0L,                        'z', "+0800"}, 
+                {Long.MAX_VALUE,            'z', "+0800"}, 
+                {-1000L,                    'z', "+0800"}, 
+                {new Date(1147327147578L),  'z', "+0800"}, 
+                {paris,                     'z', "+0100"}, 
+                {china,                     'z', "-0800"}, 
         };
 
         final int input   = 0;
@@ -2092,353 +2092,353 @@ public class FormatterTest extends TestCase {
         final int output  = 2;
         for (int i = 0; i < 90; i++) {
             // go through legal conversion 
-            String formatSpecifier = "%t" + lowerCaseGermanTriple[i][pattern]; //$NON-NLS-2$
-            String formatSpecifierUpper = "%T" + lowerCaseGermanTriple[i][pattern]; //$NON-NLS-2$
+            String formatSpecifier = "%t" + lowerCaseGermanTriple[i][pattern]; 
+            String formatSpecifierUpper = "%T" + lowerCaseGermanTriple[i][pattern]; 
             // test '%t'
             f = new Formatter(Locale.GERMAN);
             f.format(formatSpecifier, lowerCaseGermanTriple[i][input]);
-            assertEquals("Format pattern: " + formatSpecifier //$NON-NLS-2$
-                            + " Argument: " + lowerCaseGermanTriple[i][input], //$NON-NLS-2$
+            assertEquals("Format pattern: " + formatSpecifier 
+                            + " Argument: " + lowerCaseGermanTriple[i][input], 
                             lowerCaseGermanTriple[i][output], f.toString());
 
             f = new Formatter(Locale.GERMAN);
             f.format(Locale.FRANCE, formatSpecifier, lowerCaseFranceTriple[i][input]);
-            assertEquals("Format pattern: " + formatSpecifier //$NON-NLS-2$
-                            + " Argument: " + lowerCaseFranceTriple[i][input], //$NON-NLS-2$
+            assertEquals("Format pattern: " + formatSpecifier 
+                            + " Argument: " + lowerCaseFranceTriple[i][input], 
                             lowerCaseFranceTriple[i][output], f.toString());
 
             f = new Formatter(Locale.GERMAN);
             f.format(Locale.JAPAN, formatSpecifier, lowerCaseJapanTriple[i][input]);
-            assertEquals("Format pattern: " + formatSpecifier //$NON-NLS-2$
-                            + " Argument: " + lowerCaseJapanTriple[i][input], //$NON-NLS-2$
+            assertEquals("Format pattern: " + formatSpecifier 
+                            + " Argument: " + lowerCaseJapanTriple[i][input], 
                             lowerCaseJapanTriple[i][output], f.toString());
 
             // test '%T'
             f = new Formatter(Locale.GERMAN);
             f.format(formatSpecifierUpper, lowerCaseGermanTriple[i][input]);
-            assertEquals("Format pattern: " + formatSpecifierUpper //$NON-NLS-2$
-                            + " Argument: " + lowerCaseGermanTriple[i][input], //$NON-NLS-2$
+            assertEquals("Format pattern: " + formatSpecifierUpper 
+                            + " Argument: " + lowerCaseGermanTriple[i][input], 
                             ((String)lowerCaseGermanTriple[i][output])
                                     .toUpperCase(Locale.US), f.toString());
 
             f = new Formatter(Locale.GERMAN);
             f.format(Locale.FRANCE, formatSpecifierUpper, lowerCaseFranceTriple[i][input]);
-            assertEquals("Format pattern: " + formatSpecifierUpper //$NON-NLS-2$
-                            + " Argument: " + lowerCaseFranceTriple[i][input], //$NON-NLS-2$
+            assertEquals("Format pattern: " + formatSpecifierUpper 
+                            + " Argument: " + lowerCaseFranceTriple[i][input], 
                             ((String)lowerCaseFranceTriple[i][output])
                                     .toUpperCase(Locale.US), f.toString());
 
             f = new Formatter(Locale.GERMAN);
             f.format(Locale.JAPAN, formatSpecifierUpper, lowerCaseJapanTriple[i][input]);
-            assertEquals("Format pattern: " + formatSpecifierUpper //$NON-NLS-2$
-                            + " Argument: " + lowerCaseJapanTriple[i][input], //$NON-NLS-2$
+            assertEquals("Format pattern: " + formatSpecifierUpper 
+                            + " Argument: " + lowerCaseJapanTriple[i][input], 
                             ((String)lowerCaseJapanTriple[i][output])
                                     .toUpperCase(Locale.US), f.toString());
         }
 
         final Object[][] upperCaseGermanTriple = {
-                {0L,                        'A', "Donnerstag"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'A', "Sonntag"}, //$NON-NLS-2$
-                {-1000L,                    'A', "Donnerstag"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'A', "Donnerstag"}, //$NON-NLS-2$
-                {paris,                     'A', "Montag"}, //$NON-NLS-2$
-                {china,                     'A', "Montag"}, //$NON-NLS-2$
-                {0L,                        'B', "Januar"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'B', "August"}, //$NON-NLS-2$
-                {-1000L,                    'B', "Januar"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'B', "Mai"}, //$NON-NLS-2$
-                {paris,                     'B', "Mai"}, //$NON-NLS-2$ 
-                {china,                     'B', "Mai"}, //$NON-NLS-2$
-                {0L,                        'C', "19"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'C', "2922789"}, //$NON-NLS-2$
-                {-1000L,                    'C', "19"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'C', "20"}, //$NON-NLS-2$
-                {paris,                     'C', "20"}, //$NON-NLS-2$
-                {china,                     'C', "20"}, //$NON-NLS-2$
-                {0L,                        'D', "01/01/70"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'D', "08/17/94"}, //$NON-NLS-2$
-                {-1000L,                    'D', "01/01/70"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'D', "05/11/06"}, //$NON-NLS-2$
-                {paris,                     'D', "05/08/06"}, //$NON-NLS-2$
-                {china,                     'D', "05/08/06"}, //$NON-NLS-2$
-                {0L,                        'F', "1970-01-01"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'F', "292278994-08-17"}, //$NON-NLS-2$
-                {-1000L,                    'F', "1970-01-01"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'F', "2006-05-11"}, //$NON-NLS-2$
-                {paris,                     'F', "2006-05-08"}, //$NON-NLS-2$
-                {china,                     'F', "2006-05-08"}, //$NON-NLS-2$
-                {0L,                        'H', "08"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'H', "15"}, //$NON-NLS-2$
-                {-1000L,                    'H', "07"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'H', "13"}, //$NON-NLS-2$
-                {paris,                     'H', "12"}, //$NON-NLS-2$
-                {china,                     'H', "12"}, //$NON-NLS-2$
-                {0L,                        'I', "08"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'I', "03"}, //$NON-NLS-2$
-                {-1000L,                    'I', "07"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'I', "01"}, //$NON-NLS-2$
-                {paris,                     'I', "12"}, //$NON-NLS-2$
-                {china,                     'I', "12"}, //$NON-NLS-2$
-                {0L,                        'L', "000"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'L', "807"}, //$NON-NLS-2$
-                {-1000L,                    'L', "000"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'L', "578"}, //$NON-NLS-2$
-                {paris,                     'L', "453"}, //$NON-NLS-2$
-                {china,                     'L', "609"}, //$NON-NLS-2$
-                {0L,                        'M', "00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'M', "18"}, //$NON-NLS-2$
-                {-1000L,                    'M', "59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'M', "59"}, //$NON-NLS-2$
-                {paris,                     'M', "00"}, //$NON-NLS-2$
-                {china,                     'M', "00"}, //$NON-NLS-2$
-                {0L,                        'N', "000000000"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'N', "807000000"}, //$NON-NLS-2$
-                {-1000L,                    'N', "000000000"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'N', "578000000"}, //$NON-NLS-2$
-                {paris,                     'N', "609000000"}, //$NON-NLS-2$
-                {china,                     'N', "609000000"}, //$NON-NLS-2$
-                {0L,                        'Q', "0"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'Q', "9223372036854775807"}, //$NON-NLS-2$
-                {-1000L,                    'Q', "-1000"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'Q', "1147327147578"}, //$NON-NLS-2$
-                {paris,                     'Q', "1147082400453"}, //$NON-NLS-2$
-                {china,                     'Q', "1147118400609"}, //$NON-NLS-2$
-                {0L,                        'R', "08:00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'R', "15:18"}, //$NON-NLS-2$
-                {-1000L,                    'R', "07:59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'R', "13:59"}, //$NON-NLS-2$
-                {paris,                     'R', "12:00"}, //$NON-NLS-2$
-                {china,                     'R', "12:00"}, //$NON-NLS-2$
-                {0L,                        'S', "00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'S', "47"}, //$NON-NLS-2$
-                {-1000L,                    'S', "59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'S', "07"}, //$NON-NLS-2$
-                {paris,                     'S', "00"}, //$NON-NLS-2$
-                {china,                     'S', "00"}, //$NON-NLS-2$
-                {0L,                        'T', "08:00:00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'T', "15:18:47"}, //$NON-NLS-2$
-                {-1000L,                    'T', "07:59:59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'T', "13:59:07"}, //$NON-NLS-2$
-                {paris,                     'T', "12:00:00"}, //$NON-NLS-2$
-                {china,                     'T', "12:00:00"}, //$NON-NLS-2$
-                {0L,                        'Y', "1970"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'Y', "292278994"}, //$NON-NLS-2$
-                {-1000L,                    'Y', "1970"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'Y', "2006"}, //$NON-NLS-2$
-                {paris,                     'Y', "2006"}, //$NON-NLS-2$
-                {china,                     'Y', "2006"}, //$NON-NLS-2$
-                {0L,                        'Z', "CST"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'Z', "CST"}, //$NON-NLS-2$
-                {-1000L,                    'Z', "CST"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'Z', "CST"}, //$NON-NLS-2$
-                {paris,                     'Z', "CEST"}, //$NON-NLS-2$
-                {china,                     'Z', "GMT-08:00"}, //$NON-NLS-2$
+                {0L,                        'A', "Donnerstag"}, 
+                {Long.MAX_VALUE,            'A', "Sonntag"}, 
+                {-1000L,                    'A', "Donnerstag"}, 
+                {new Date(1147327147578L),  'A', "Donnerstag"}, 
+                {paris,                     'A', "Montag"}, 
+                {china,                     'A', "Montag"}, 
+                {0L,                        'B', "Januar"}, 
+                {Long.MAX_VALUE,            'B', "August"}, 
+                {-1000L,                    'B', "Januar"}, 
+                {new Date(1147327147578L),  'B', "Mai"}, 
+                {paris,                     'B', "Mai"},  
+                {china,                     'B', "Mai"}, 
+                {0L,                        'C', "19"}, 
+                {Long.MAX_VALUE,            'C', "2922789"}, 
+                {-1000L,                    'C', "19"}, 
+                {new Date(1147327147578L),  'C', "20"}, 
+                {paris,                     'C', "20"}, 
+                {china,                     'C', "20"}, 
+                {0L,                        'D', "01/01/70"}, 
+                {Long.MAX_VALUE,            'D', "08/17/94"}, 
+                {-1000L,                    'D', "01/01/70"}, 
+                {new Date(1147327147578L),  'D', "05/11/06"}, 
+                {paris,                     'D', "05/08/06"}, 
+                {china,                     'D', "05/08/06"}, 
+                {0L,                        'F', "1970-01-01"}, 
+                {Long.MAX_VALUE,            'F', "292278994-08-17"}, 
+                {-1000L,                    'F', "1970-01-01"}, 
+                {new Date(1147327147578L),  'F', "2006-05-11"}, 
+                {paris,                     'F', "2006-05-08"}, 
+                {china,                     'F', "2006-05-08"}, 
+                {0L,                        'H', "08"}, 
+                {Long.MAX_VALUE,            'H', "15"}, 
+                {-1000L,                    'H', "07"}, 
+                {new Date(1147327147578L),  'H', "13"}, 
+                {paris,                     'H', "12"}, 
+                {china,                     'H', "12"}, 
+                {0L,                        'I', "08"}, 
+                {Long.MAX_VALUE,            'I', "03"}, 
+                {-1000L,                    'I', "07"}, 
+                {new Date(1147327147578L),  'I', "01"}, 
+                {paris,                     'I', "12"}, 
+                {china,                     'I', "12"}, 
+                {0L,                        'L', "000"}, 
+                {Long.MAX_VALUE,            'L', "807"}, 
+                {-1000L,                    'L', "000"}, 
+                {new Date(1147327147578L),  'L', "578"}, 
+                {paris,                     'L', "453"}, 
+                {china,                     'L', "609"}, 
+                {0L,                        'M', "00"}, 
+                {Long.MAX_VALUE,            'M', "18"}, 
+                {-1000L,                    'M', "59"}, 
+                {new Date(1147327147578L),  'M', "59"}, 
+                {paris,                     'M', "00"}, 
+                {china,                     'M', "00"}, 
+                {0L,                        'N', "000000000"}, 
+                {Long.MAX_VALUE,            'N', "807000000"}, 
+                {-1000L,                    'N', "000000000"}, 
+                {new Date(1147327147578L),  'N', "578000000"}, 
+                {paris,                     'N', "609000000"}, 
+                {china,                     'N', "609000000"}, 
+                {0L,                        'Q', "0"}, 
+                {Long.MAX_VALUE,            'Q', "9223372036854775807"}, 
+                {-1000L,                    'Q', "-1000"}, 
+                {new Date(1147327147578L),  'Q', "1147327147578"}, 
+                {paris,                     'Q', "1147082400453"}, 
+                {china,                     'Q', "1147118400609"}, 
+                {0L,                        'R', "08:00"}, 
+                {Long.MAX_VALUE,            'R', "15:18"}, 
+                {-1000L,                    'R', "07:59"}, 
+                {new Date(1147327147578L),  'R', "13:59"}, 
+                {paris,                     'R', "12:00"}, 
+                {china,                     'R', "12:00"}, 
+                {0L,                        'S', "00"}, 
+                {Long.MAX_VALUE,            'S', "47"}, 
+                {-1000L,                    'S', "59"}, 
+                {new Date(1147327147578L),  'S', "07"}, 
+                {paris,                     'S', "00"}, 
+                {china,                     'S', "00"}, 
+                {0L,                        'T', "08:00:00"}, 
+                {Long.MAX_VALUE,            'T', "15:18:47"}, 
+                {-1000L,                    'T', "07:59:59"}, 
+                {new Date(1147327147578L),  'T', "13:59:07"}, 
+                {paris,                     'T', "12:00:00"}, 
+                {china,                     'T', "12:00:00"}, 
+                {0L,                        'Y', "1970"}, 
+                {Long.MAX_VALUE,            'Y', "292278994"}, 
+                {-1000L,                    'Y', "1970"}, 
+                {new Date(1147327147578L),  'Y', "2006"}, 
+                {paris,                     'Y', "2006"}, 
+                {china,                     'Y', "2006"}, 
+                {0L,                        'Z', "CST"}, 
+                {Long.MAX_VALUE,            'Z', "CST"}, 
+                {-1000L,                    'Z', "CST"}, 
+                {new Date(1147327147578L),  'Z', "CST"}, 
+                {paris,                     'Z', "CEST"}, 
+                {china,                     'Z', "GMT-08:00"}, 
                 
         };
         
         final Object[][] upperCaseFranceTriple = {
-                {0L,                        'A', "jeudi"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'A', "dimanche"}, //$NON-NLS-2$
-                {-1000L,                    'A', "jeudi"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'A', "jeudi"}, //$NON-NLS-2$
-                {paris,                     'A', "lundi"}, //$NON-NLS-2$
-                {china,                     'A', "lundi"}, //$NON-NLS-2$
-                {0L,                        'B', "janvier"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'B', "ao\u00fbt"}, //$NON-NLS-2$
-                {-1000L,                    'B', "janvier"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'B', "mai"}, //$NON-NLS-2$
-                {paris,                     'B', "mai"}, //$NON-NLS-2$
-                {china,                     'B', "mai"}, //$NON-NLS-2$
-                {0L,                        'C', "19"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'C', "2922789"}, //$NON-NLS-2$
-                {-1000L,                    'C', "19"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'C', "20"}, //$NON-NLS-2$
-                {paris,                     'C', "20"}, //$NON-NLS-2$
-                {china,                     'C', "20"}, //$NON-NLS-2$
-                {0L,                        'D', "01/01/70"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'D', "08/17/94"}, //$NON-NLS-2$
-                {-1000L,                    'D', "01/01/70"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'D', "05/11/06"}, //$NON-NLS-2$
-                {paris,                     'D', "05/08/06"}, //$NON-NLS-2$
-                {china,                     'D', "05/08/06"}, //$NON-NLS-2$
-                {0L,                        'F', "1970-01-01"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'F', "292278994-08-17"}, //$NON-NLS-2$
-                {-1000L,                    'F', "1970-01-01"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'F', "2006-05-11"}, //$NON-NLS-2$
-                {paris,                     'F', "2006-05-08"}, //$NON-NLS-2$
-                {china,                     'F', "2006-05-08"}, //$NON-NLS-2$
-                {0L,                        'H', "08"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'H', "15"}, //$NON-NLS-2$
-                {-1000L,                    'H', "07"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'H', "13"}, //$NON-NLS-2$
-                {paris,                     'H', "12"}, //$NON-NLS-2$
-                {china,                     'H', "12"}, //$NON-NLS-2$
-                {0L,                        'I', "08"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'I', "03"}, //$NON-NLS-2$
-                {-1000L,                    'I', "07"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'I', "01"}, //$NON-NLS-2$
-                {paris,                     'I', "12"}, //$NON-NLS-2$
-                {china,                     'I', "12"}, //$NON-NLS-2$
-                {0L,                        'L', "000"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'L', "807"}, //$NON-NLS-2$
-                {-1000L,                    'L', "000"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'L', "578"}, //$NON-NLS-2$
-                {paris,                     'L', "453"}, //$NON-NLS-2$
-                {china,                     'L', "609"}, //$NON-NLS-2$
-                {0L,                        'M', "00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'M', "18"}, //$NON-NLS-2$
-                {-1000L,                    'M', "59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'M', "59"}, //$NON-NLS-2$
-                {paris,                     'M', "00"}, //$NON-NLS-2$
-                {china,                     'M', "00"}, //$NON-NLS-2$
-                {0L,                        'N', "000000000"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'N', "807000000"}, //$NON-NLS-2$
-                {-1000L,                    'N', "000000000"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'N', "578000000"}, //$NON-NLS-2$
-                {paris,                     'N', "453000000"}, //$NON-NLS-2$
-                {china,                     'N', "468000000"}, //$NON-NLS-2$
-                {0L,                        'Q', "0"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'Q', "9223372036854775807"}, //$NON-NLS-2$
-                {-1000L,                    'Q', "-1000"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'Q', "1147327147578"}, //$NON-NLS-2$
-                {paris,                     'Q', "1147082400453"}, //$NON-NLS-2$
-                {china,                     'Q', "1147118400609"}, //$NON-NLS-2$
-                {0L,                        'R', "08:00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'R', "15:18"}, //$NON-NLS-2$
-                {-1000L,                    'R', "07:59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'R', "13:59"}, //$NON-NLS-2$
-                {paris,                     'R', "12:00"}, //$NON-NLS-2$
-                {china,                     'R', "12:00"}, //$NON-NLS-2$
-                {0L,                        'S', "00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'S', "47"}, //$NON-NLS-2$
-                {-1000L,                    'S', "59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'S', "07"}, //$NON-NLS-2$
-                {paris,                     'S', "00"}, //$NON-NLS-2$
-                {china,                     'S', "00"}, //$NON-NLS-2$
-                {0L,                        'T', "08:00:00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'T', "15:18:47"}, //$NON-NLS-2$
-                {-1000L,                    'T', "07:59:59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'T', "13:59:07"}, //$NON-NLS-2$
-                {paris,                     'T', "12:00:00"}, //$NON-NLS-2$
-                {china,                     'T', "12:00:00"}, //$NON-NLS-2$
-                {0L,                        'Y', "1970"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'Y', "292278994"}, //$NON-NLS-2$
-                {-1000L,                    'Y', "1970"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'Y', "2006"}, //$NON-NLS-2$
-                {paris,                     'Y', "2006"}, //$NON-NLS-2$
-                {china,                     'Y', "2006"}, //$NON-NLS-2$
-                {0L,                        'Z', "CST"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'Z', "CST"}, //$NON-NLS-2$
-                {-1000L,                    'Z', "CST"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'Z', "CST"}, //$NON-NLS-2$
-                {paris,                     'Z', "CEST"}, //$NON-NLS-2$
-                {china,                     'Z', "GMT-08:00"}, //$NON-NLS-2$
+                {0L,                        'A', "jeudi"}, 
+                {Long.MAX_VALUE,            'A', "dimanche"}, 
+                {-1000L,                    'A', "jeudi"}, 
+                {new Date(1147327147578L),  'A', "jeudi"}, 
+                {paris,                     'A', "lundi"}, 
+                {china,                     'A', "lundi"}, 
+                {0L,                        'B', "janvier"}, 
+                {Long.MAX_VALUE,            'B', "ao\u00fbt"}, 
+                {-1000L,                    'B', "janvier"}, 
+                {new Date(1147327147578L),  'B', "mai"}, 
+                {paris,                     'B', "mai"}, 
+                {china,                     'B', "mai"}, 
+                {0L,                        'C', "19"}, 
+                {Long.MAX_VALUE,            'C', "2922789"}, 
+                {-1000L,                    'C', "19"}, 
+                {new Date(1147327147578L),  'C', "20"}, 
+                {paris,                     'C', "20"}, 
+                {china,                     'C', "20"}, 
+                {0L,                        'D', "01/01/70"}, 
+                {Long.MAX_VALUE,            'D', "08/17/94"}, 
+                {-1000L,                    'D', "01/01/70"}, 
+                {new Date(1147327147578L),  'D', "05/11/06"}, 
+                {paris,                     'D', "05/08/06"}, 
+                {china,                     'D', "05/08/06"}, 
+                {0L,                        'F', "1970-01-01"}, 
+                {Long.MAX_VALUE,            'F', "292278994-08-17"}, 
+                {-1000L,                    'F', "1970-01-01"}, 
+                {new Date(1147327147578L),  'F', "2006-05-11"}, 
+                {paris,                     'F', "2006-05-08"}, 
+                {china,                     'F', "2006-05-08"}, 
+                {0L,                        'H', "08"}, 
+                {Long.MAX_VALUE,            'H', "15"}, 
+                {-1000L,                    'H', "07"}, 
+                {new Date(1147327147578L),  'H', "13"}, 
+                {paris,                     'H', "12"}, 
+                {china,                     'H', "12"}, 
+                {0L,                        'I', "08"}, 
+                {Long.MAX_VALUE,            'I', "03"}, 
+                {-1000L,                    'I', "07"}, 
+                {new Date(1147327147578L),  'I', "01"}, 
+                {paris,                     'I', "12"}, 
+                {china,                     'I', "12"}, 
+                {0L,                        'L', "000"}, 
+                {Long.MAX_VALUE,            'L', "807"}, 
+                {-1000L,                    'L', "000"}, 
+                {new Date(1147327147578L),  'L', "578"}, 
+                {paris,                     'L', "453"}, 
+                {china,                     'L', "609"}, 
+                {0L,                        'M', "00"}, 
+                {Long.MAX_VALUE,            'M', "18"}, 
+                {-1000L,                    'M', "59"}, 
+                {new Date(1147327147578L),  'M', "59"}, 
+                {paris,                     'M', "00"}, 
+                {china,                     'M', "00"}, 
+                {0L,                        'N', "000000000"}, 
+                {Long.MAX_VALUE,            'N', "807000000"}, 
+                {-1000L,                    'N', "000000000"}, 
+                {new Date(1147327147578L),  'N', "578000000"}, 
+                {paris,                     'N', "453000000"}, 
+                {china,                     'N', "468000000"}, 
+                {0L,                        'Q', "0"}, 
+                {Long.MAX_VALUE,            'Q', "9223372036854775807"}, 
+                {-1000L,                    'Q', "-1000"}, 
+                {new Date(1147327147578L),  'Q', "1147327147578"}, 
+                {paris,                     'Q', "1147082400453"}, 
+                {china,                     'Q', "1147118400609"}, 
+                {0L,                        'R', "08:00"}, 
+                {Long.MAX_VALUE,            'R', "15:18"}, 
+                {-1000L,                    'R', "07:59"}, 
+                {new Date(1147327147578L),  'R', "13:59"}, 
+                {paris,                     'R', "12:00"}, 
+                {china,                     'R', "12:00"}, 
+                {0L,                        'S', "00"}, 
+                {Long.MAX_VALUE,            'S', "47"}, 
+                {-1000L,                    'S', "59"}, 
+                {new Date(1147327147578L),  'S', "07"}, 
+                {paris,                     'S', "00"}, 
+                {china,                     'S', "00"}, 
+                {0L,                        'T', "08:00:00"}, 
+                {Long.MAX_VALUE,            'T', "15:18:47"}, 
+                {-1000L,                    'T', "07:59:59"}, 
+                {new Date(1147327147578L),  'T', "13:59:07"}, 
+                {paris,                     'T', "12:00:00"}, 
+                {china,                     'T', "12:00:00"}, 
+                {0L,                        'Y', "1970"}, 
+                {Long.MAX_VALUE,            'Y', "292278994"}, 
+                {-1000L,                    'Y', "1970"}, 
+                {new Date(1147327147578L),  'Y', "2006"}, 
+                {paris,                     'Y', "2006"}, 
+                {china,                     'Y', "2006"}, 
+                {0L,                        'Z', "CST"}, 
+                {Long.MAX_VALUE,            'Z', "CST"}, 
+                {-1000L,                    'Z', "CST"}, 
+                {new Date(1147327147578L),  'Z', "CST"}, 
+                {paris,                     'Z', "CEST"}, 
+                {china,                     'Z', "GMT-08:00"}, 
                 
         };
 
         final Object[][] upperCaseJapanTriple = {
-                {0L,                        'A', "\u6728\u66dc\u65e5"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'A', "\u65e5\u66dc\u65e5"}, //$NON-NLS-2$
-                {-1000L,                    'A', "\u6728\u66dc\u65e5"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'A', "\u6728\u66dc\u65e5"}, //$NON-NLS-2$
-                {paris,                     'A', "\u6708\u66dc\u65e5"}, //$NON-NLS-2$
-                {china,                     'A', "\u6708\u66dc\u65e5"}, //$NON-NLS-2$
-                {0L,                        'B', "1\u6708"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'B', "8\u6708"}, //$NON-NLS-2$
-                {-1000L,                    'B', "1\u6708"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'B', "5\u6708"}, //$NON-NLS-2$
-                {paris,                     'B', "5\u6708"}, //$NON-NLS-2$
-                {china,                     'B', "5\u6708"}, //$NON-NLS-2$
-                {0L,                        'C', "19"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'C', "2922789"}, //$NON-NLS-2$
-                {-1000L,                    'C', "19"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'C', "20"}, //$NON-NLS-2$ 
-                {paris,                     'C', "20"}, //$NON-NLS-2$
-                {china,                     'C', "20"}, //$NON-NLS-2$
-                {0L,                        'D', "01/01/70"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'D', "08/17/94"}, //$NON-NLS-2$
-                {-1000L,                    'D', "01/01/70"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'D', "05/11/06"}, //$NON-NLS-2$
-                {paris,                     'D', "05/08/06"}, //$NON-NLS-2$
-                {china,                     'D', "05/08/06"}, //$NON-NLS-2$
-                {0L,                        'F', "1970-01-01"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'F', "292278994-08-17"}, //$NON-NLS-2$
-                {-1000L,                    'F', "1970-01-01"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'F', "2006-05-11"}, //$NON-NLS-2$
-                {paris,                     'F', "2006-05-08"}, //$NON-NLS-2$
-                {china,                     'F', "2006-05-08"}, //$NON-NLS-2$
-                {0L,                        'H', "08"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'H', "15"}, //$NON-NLS-2$
-                {-1000L,                    'H', "07"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'H', "13"}, //$NON-NLS-2$
-                {paris,                     'H', "12"}, //$NON-NLS-2$
-                {china,                     'H', "12"}, //$NON-NLS-2$
-                {0L,                        'I', "08"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'I', "03"}, //$NON-NLS-2$
-                {-1000L,                    'I', "07"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'I', "01"}, //$NON-NLS-2$
-                {paris,                     'I', "12"}, //$NON-NLS-2$
-                {china,                     'I', "12"}, //$NON-NLS-2$
-                {0L,                        'L', "000"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'L', "807"}, //$NON-NLS-2$
-                {-1000L,                    'L', "000"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'L', "578"}, //$NON-NLS-2$
-                {paris,                     'L', "453"}, //$NON-NLS-2$
-                {china,                     'L', "609"}, //$NON-NLS-2$
-                {0L,                        'M', "00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'M', "18"}, //$NON-NLS-2$
-                {-1000L,                    'M', "59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'M', "59"}, //$NON-NLS-2$
-                {paris,                     'M', "00"}, //$NON-NLS-2$
-                {china,                     'M', "00"}, //$NON-NLS-2$
-                {0L,                        'N', "000000000"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'N', "807000000"}, //$NON-NLS-2$
-                {-1000L,                    'N', "000000000"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'N', "578000000"}, //$NON-NLS-2$
-                {paris,                     'N', "453000000"}, //$NON-NLS-2$
-                {china,                     'N', "468000000"}, //$NON-NLS-2$
-                {0L,                        'Q', "0"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'Q', "9223372036854775807"}, //$NON-NLS-2$
-                {-1000L,                    'Q', "-1000"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'Q', "1147327147578"}, //$NON-NLS-2$
-                {paris,                     'Q', "1147082400453"}, //$NON-NLS-2$
-                {china,                     'Q', "1147118400609"}, //$NON-NLS-2$
-                {0L,                        'R', "08:00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'R', "15:18"}, //$NON-NLS-2$
-                {-1000L,                    'R', "07:59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'R', "13:59"}, //$NON-NLS-2$
-                {paris,                     'R', "12:00"}, //$NON-NLS-2$
-                {china,                     'R', "12:00"}, //$NON-NLS-2$
-                {0L,                        'S', "00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'S', "47"}, //$NON-NLS-2$
-                {-1000L,                    'S', "59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'S', "07"}, //$NON-NLS-2$
-                {paris,                     'S', "00"}, //$NON-NLS-2$
-                {china,                     'S', "00"}, //$NON-NLS-2$
-                {0L,                        'T', "08:00:00"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'T', "15:18:47"}, //$NON-NLS-2$
-                {-1000L,                    'T', "07:59:59"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'T', "13:59:07"}, //$NON-NLS-2$
-                {paris,                     'T', "12:00:00"}, //$NON-NLS-2$
-                {china,                     'T', "12:00:00"}, //$NON-NLS-2$
-                {0L,                        'Y', "1970"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'Y', "292278994"}, //$NON-NLS-2$
-                {-1000L,                    'Y', "1970"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'Y', "2006"}, //$NON-NLS-2$
-                {paris,                     'Y', "2006"}, //$NON-NLS-2$
-                {china,                     'Y', "2006"}, //$NON-NLS-2$
-                {0L,                        'Z', "CST"}, //$NON-NLS-2$
-                {Long.MAX_VALUE,            'Z', "CST"}, //$NON-NLS-2$
-                {-1000L,                    'Z', "CST"}, //$NON-NLS-2$
-                {new Date(1147327147578L),  'Z', "CST"}, //$NON-NLS-2$
-                {paris,                     'Z', "CEST"}, //$NON-NLS-2$
-                {china,                     'Z', "GMT-08:00"}, //$NON-NLS-2$
+                {0L,                        'A', "\u6728\u66dc\u65e5"}, 
+                {Long.MAX_VALUE,            'A', "\u65e5\u66dc\u65e5"}, 
+                {-1000L,                    'A', "\u6728\u66dc\u65e5"}, 
+                {new Date(1147327147578L),  'A', "\u6728\u66dc\u65e5"}, 
+                {paris,                     'A', "\u6708\u66dc\u65e5"}, 
+                {china,                     'A', "\u6708\u66dc\u65e5"}, 
+                {0L,                        'B', "1\u6708"}, 
+                {Long.MAX_VALUE,            'B', "8\u6708"}, 
+                {-1000L,                    'B', "1\u6708"}, 
+                {new Date(1147327147578L),  'B', "5\u6708"}, 
+                {paris,                     'B', "5\u6708"}, 
+                {china,                     'B', "5\u6708"}, 
+                {0L,                        'C', "19"}, 
+                {Long.MAX_VALUE,            'C', "2922789"}, 
+                {-1000L,                    'C', "19"}, 
+                {new Date(1147327147578L),  'C', "20"},  
+                {paris,                     'C', "20"}, 
+                {china,                     'C', "20"}, 
+                {0L,                        'D', "01/01/70"}, 
+                {Long.MAX_VALUE,            'D', "08/17/94"}, 
+                {-1000L,                    'D', "01/01/70"}, 
+                {new Date(1147327147578L),  'D', "05/11/06"}, 
+                {paris,                     'D', "05/08/06"}, 
+                {china,                     'D', "05/08/06"}, 
+                {0L,                        'F', "1970-01-01"}, 
+                {Long.MAX_VALUE,            'F', "292278994-08-17"}, 
+                {-1000L,                    'F', "1970-01-01"}, 
+                {new Date(1147327147578L),  'F', "2006-05-11"}, 
+                {paris,                     'F', "2006-05-08"}, 
+                {china,                     'F', "2006-05-08"}, 
+                {0L,                        'H', "08"}, 
+                {Long.MAX_VALUE,            'H', "15"}, 
+                {-1000L,                    'H', "07"}, 
+                {new Date(1147327147578L),  'H', "13"}, 
+                {paris,                     'H', "12"}, 
+                {china,                     'H', "12"}, 
+                {0L,                        'I', "08"}, 
+                {Long.MAX_VALUE,            'I', "03"}, 
+                {-1000L,                    'I', "07"}, 
+                {new Date(1147327147578L),  'I', "01"}, 
+                {paris,                     'I', "12"}, 
+                {china,                     'I', "12"}, 
+                {0L,                        'L', "000"}, 
+                {Long.MAX_VALUE,            'L', "807"}, 
+                {-1000L,                    'L', "000"}, 
+                {new Date(1147327147578L),  'L', "578"}, 
+                {paris,                     'L', "453"}, 
+                {china,                     'L', "609"}, 
+                {0L,                        'M', "00"}, 
+                {Long.MAX_VALUE,            'M', "18"}, 
+                {-1000L,                    'M', "59"}, 
+                {new Date(1147327147578L),  'M', "59"}, 
+                {paris,                     'M', "00"}, 
+                {china,                     'M', "00"}, 
+                {0L,                        'N', "000000000"}, 
+                {Long.MAX_VALUE,            'N', "807000000"}, 
+                {-1000L,                    'N', "000000000"}, 
+                {new Date(1147327147578L),  'N', "578000000"}, 
+                {paris,                     'N', "453000000"}, 
+                {china,                     'N', "468000000"}, 
+                {0L,                        'Q', "0"}, 
+                {Long.MAX_VALUE,            'Q', "9223372036854775807"}, 
+                {-1000L,                    'Q', "-1000"}, 
+                {new Date(1147327147578L),  'Q', "1147327147578"}, 
+                {paris,                     'Q', "1147082400453"}, 
+                {china,                     'Q', "1147118400609"}, 
+                {0L,                        'R', "08:00"}, 
+                {Long.MAX_VALUE,            'R', "15:18"}, 
+                {-1000L,                    'R', "07:59"}, 
+                {new Date(1147327147578L),  'R', "13:59"}, 
+                {paris,                     'R', "12:00"}, 
+                {china,                     'R', "12:00"}, 
+                {0L,                        'S', "00"}, 
+                {Long.MAX_VALUE,            'S', "47"}, 
+                {-1000L,                    'S', "59"}, 
+                {new Date(1147327147578L),  'S', "07"}, 
+                {paris,                     'S', "00"}, 
+                {china,                     'S', "00"}, 
+                {0L,                        'T', "08:00:00"}, 
+                {Long.MAX_VALUE,            'T', "15:18:47"}, 
+                {-1000L,                    'T', "07:59:59"}, 
+                {new Date(1147327147578L),  'T', "13:59:07"}, 
+                {paris,                     'T', "12:00:00"}, 
+                {china,                     'T', "12:00:00"}, 
+                {0L,                        'Y', "1970"}, 
+                {Long.MAX_VALUE,            'Y', "292278994"}, 
+                {-1000L,                    'Y', "1970"}, 
+                {new Date(1147327147578L),  'Y', "2006"}, 
+                {paris,                     'Y', "2006"}, 
+                {china,                     'Y', "2006"}, 
+                {0L,                        'Z', "CST"}, 
+                {Long.MAX_VALUE,            'Z', "CST"}, 
+                {-1000L,                    'Z', "CST"}, 
+                {new Date(1147327147578L),  'Z', "CST"}, 
+                {paris,                     'Z', "CEST"}, 
+                {china,                     'Z', "GMT-08:00"}, 
         };
 
 
         for (int i = 0; i < 90; i++) {
-            String formatSpecifier = "%t" + upperCaseGermanTriple[i][pattern]; //$NON-NLS-2$
-            String formatSpecifierUpper = "%T" + upperCaseGermanTriple[i][pattern]; //$NON-NLS-2$
+            String formatSpecifier = "%t" + upperCaseGermanTriple[i][pattern]; 
+            String formatSpecifierUpper = "%T" + upperCaseGermanTriple[i][pattern]; 
                     if ((Character)upperCaseGermanTriple[i][pattern] == 'N') {
                         // result can't be predicted on RI, so skip this test
                         continue;
@@ -2446,52 +2446,52 @@ public class FormatterTest extends TestCase {
                     // test '%t'
                     f = new Formatter(Locale.JAPAN);
                     f.format(formatSpecifier, upperCaseJapanTriple[i][input]);
-                    assertEquals("Format pattern: " + formatSpecifier //$NON-NLS-2$
-                            + " Argument: " + upperCaseJapanTriple[i][input], //$NON-NLS-2$
+                    assertEquals("Format pattern: " + formatSpecifier 
+                            + " Argument: " + upperCaseJapanTriple[i][input], 
                             upperCaseJapanTriple[i][output], f.toString());
 
                     f = new Formatter(Locale.JAPAN);
                     f.format(Locale.GERMAN, formatSpecifier, upperCaseGermanTriple[i][input]);
-                    assertEquals("Format pattern: " + formatSpecifier //$NON-NLS-2$
-                            + " Argument: " + upperCaseGermanTriple[i][input], //$NON-NLS-2$
+                    assertEquals("Format pattern: " + formatSpecifier 
+                            + " Argument: " + upperCaseGermanTriple[i][input], 
                             upperCaseGermanTriple[i][output], f.toString());
 
                     f = new Formatter(Locale.JAPAN);
                     f.format(Locale.FRANCE, formatSpecifier, upperCaseFranceTriple[i][input]);
-                    assertEquals("Format pattern: " + formatSpecifier //$NON-NLS-2$
-                            + " Argument: " + upperCaseFranceTriple[i][input], //$NON-NLS-2$
+                    assertEquals("Format pattern: " + formatSpecifier 
+                            + " Argument: " + upperCaseFranceTriple[i][input], 
                             upperCaseFranceTriple[i][output], f.toString());
 
                     // test '%T'
                     f = new Formatter(Locale.GERMAN);
                     f.format(formatSpecifierUpper, upperCaseGermanTriple[i][input]);
-                    assertEquals("Format pattern: " + formatSpecifierUpper //$NON-NLS-2$
-                            + " Argument: " + upperCaseGermanTriple[i][input], //$NON-NLS-2$
+                    assertEquals("Format pattern: " + formatSpecifierUpper 
+                            + " Argument: " + upperCaseGermanTriple[i][input], 
                             ((String)upperCaseGermanTriple[i][output])
                                     .toUpperCase(Locale.US), f.toString());
 
                     f = new Formatter(Locale.GERMAN);
                     f.format(Locale.JAPAN, formatSpecifierUpper, upperCaseJapanTriple[i][input]);
-                    assertEquals("Format pattern: " + formatSpecifierUpper //$NON-NLS-2$
-                            + " Argument: " + upperCaseJapanTriple[i][input], //$NON-NLS-2$
+                    assertEquals("Format pattern: " + formatSpecifierUpper 
+                            + " Argument: " + upperCaseJapanTriple[i][input], 
                             ((String)upperCaseJapanTriple[i][output])
                                     .toUpperCase(Locale.US), f.toString());
 
                     f = new Formatter(Locale.GERMAN);
                     f.format(Locale.FRANCE, formatSpecifierUpper, upperCaseFranceTriple[i][input]);
-                    assertEquals("Format pattern: " + formatSpecifierUpper //$NON-NLS-2$
-                            + " Argument: " + upperCaseFranceTriple[i][input], //$NON-NLS-2$
+                    assertEquals("Format pattern: " + formatSpecifierUpper 
+                            + " Argument: " + upperCaseFranceTriple[i][input], 
                             ((String)upperCaseFranceTriple[i][output])
                                     .toUpperCase(Locale.US), f.toString());
         }
 
         f = new Formatter(Locale.US);
-        f.format("%-10ta", now); //$NON-NLS-2$
-        assertEquals("Thu       ", f.toString()); //$NON-NLS-2$
+        f.format("%-10ta", now); 
+        assertEquals("Thu       ", f.toString()); 
 
         f = new Formatter(Locale.US);
-        f.format("%10000000000000000000000000000000001ta", now); //$NON-NLS-2$
-        assertEquals("Thu", f.toString().trim()); //$NON-NLS-2$
+        f.format("%10000000000000000000000000000000001ta", now); 
+        assertEquals("Thu", f.toString().trim()); 
     }
 
     /**
@@ -2527,26 +2527,26 @@ public class FormatterTest extends TestCase {
      */
     public void test_formatLjava_lang_String$LBigInteger() {
         final Object[][] tripleD = {
-                {new BigInteger("123456789012345678901234567890"),          "%d",       "123456789012345678901234567890"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%10d",     "123456789012345678901234567890"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%-1d",     "123456789012345678901234567890"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%+d",      "+123456789012345678901234567890"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "% d",      " 123456789012345678901234567890"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%,d",      "123.456.789.012.345.678.901.234.567.890"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%(d",      "123456789012345678901234567890"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%08d",     "123456789012345678901234567890"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%-+,(11d", "+123.456.789.012.345.678.901.234.567.890"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%0 ,(11d", " 123.456.789.012.345.678.901.234.567.890"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%d",       "-9876543210987654321098765432100000"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%10d",     "-9876543210987654321098765432100000"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%-1d",     "-9876543210987654321098765432100000"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%+d",      "-9876543210987654321098765432100000"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "% d",      "-9876543210987654321098765432100000"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%,d",      "-9.876.543.210.987.654.321.098.765.432.100.000"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%(d",      "(9876543210987654321098765432100000)"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%08d",     "-9876543210987654321098765432100000"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%-+,(11d", "(9.876.543.210.987.654.321.098.765.432.100.000)"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%0 ,(11d", "(9.876.543.210.987.654.321.098.765.432.100.000)"}, //$NON-NLS-2$
+                {new BigInteger("123456789012345678901234567890"),          "%d",       "123456789012345678901234567890"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%10d",     "123456789012345678901234567890"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%-1d",     "123456789012345678901234567890"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%+d",      "+123456789012345678901234567890"}, 
+                {new BigInteger("123456789012345678901234567890"),          "% d",      " 123456789012345678901234567890"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%,d",      "123.456.789.012.345.678.901.234.567.890"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%(d",      "123456789012345678901234567890"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%08d",     "123456789012345678901234567890"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%-+,(11d", "+123.456.789.012.345.678.901.234.567.890"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%0 ,(11d", " 123.456.789.012.345.678.901.234.567.890"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%d",       "-9876543210987654321098765432100000"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%10d",     "-9876543210987654321098765432100000"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%-1d",     "-9876543210987654321098765432100000"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%+d",      "-9876543210987654321098765432100000"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "% d",      "-9876543210987654321098765432100000"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%,d",      "-9.876.543.210.987.654.321.098.765.432.100.000"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%(d",      "(9876543210987654321098765432100000)"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%08d",     "-9876543210987654321098765432100000"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%-+,(11d", "(9.876.543.210.987.654.321.098.765.432.100.000)"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%0 ,(11d", "(9.876.543.210.987.654.321.098.765.432.100.000)"}, 
         };
         
         final int input = 0;
@@ -2564,18 +2564,18 @@ public class FormatterTest extends TestCase {
         }
         
         final Object[][] tripleO = {
-                {new BigInteger("123456789012345678901234567890"),          "%o",       "143564417755415637016711617605322"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%-6o",     "143564417755415637016711617605322"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%08o",     "143564417755415637016711617605322"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%#o",      "0143564417755415637016711617605322"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%0#11o",   "0143564417755415637016711617605322"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%-#9o",    "0143564417755415637016711617605322"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%o",       "-36336340043453651353467270113157312240"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%-6o",     "-36336340043453651353467270113157312240"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%08o",     "-36336340043453651353467270113157312240"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%#o",      "-036336340043453651353467270113157312240"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%0#11o",   "-036336340043453651353467270113157312240"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%-#9o",    "-036336340043453651353467270113157312240"}, //$NON-NLS-2$
+                {new BigInteger("123456789012345678901234567890"),          "%o",       "143564417755415637016711617605322"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%-6o",     "143564417755415637016711617605322"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%08o",     "143564417755415637016711617605322"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%#o",      "0143564417755415637016711617605322"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%0#11o",   "0143564417755415637016711617605322"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%-#9o",    "0143564417755415637016711617605322"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%o",       "-36336340043453651353467270113157312240"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%-6o",     "-36336340043453651353467270113157312240"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%08o",     "-36336340043453651353467270113157312240"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%#o",      "-036336340043453651353467270113157312240"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%0#11o",   "-036336340043453651353467270113157312240"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%-#9o",    "-036336340043453651353467270113157312240"}, 
         };
         for (int i = 0; i < tripleO.length; i++) {
             f = new Formatter(Locale.ITALY);
@@ -2588,18 +2588,18 @@ public class FormatterTest extends TestCase {
         }
         
         final Object[][] tripleX = {
-                {new BigInteger("123456789012345678901234567890"),          "%x",       "18ee90ff6c373e0ee4e3f0ad2"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%-8x",     "18ee90ff6c373e0ee4e3f0ad2"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%06x",     "18ee90ff6c373e0ee4e3f0ad2"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%#x",      "0x18ee90ff6c373e0ee4e3f0ad2"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%0#12x",   "0x18ee90ff6c373e0ee4e3f0ad2"}, //$NON-NLS-2$
-                {new BigInteger("123456789012345678901234567890"),          "%-#9x",    "0x18ee90ff6c373e0ee4e3f0ad2"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%x",       "-1e6f380472bd4bae6eb8259bd94a0"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%-8x",     "-1e6f380472bd4bae6eb8259bd94a0"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%06x",     "-1e6f380472bd4bae6eb8259bd94a0"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%#x",      "-0x1e6f380472bd4bae6eb8259bd94a0"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%0#12x",   "-0x1e6f380472bd4bae6eb8259bd94a0"}, //$NON-NLS-2$
-                {new BigInteger("-9876543210987654321098765432100000"),     "%-#9x",    "-0x1e6f380472bd4bae6eb8259bd94a0"}, //$NON-NLS-2$
+                {new BigInteger("123456789012345678901234567890"),          "%x",       "18ee90ff6c373e0ee4e3f0ad2"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%-8x",     "18ee90ff6c373e0ee4e3f0ad2"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%06x",     "18ee90ff6c373e0ee4e3f0ad2"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%#x",      "0x18ee90ff6c373e0ee4e3f0ad2"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%0#12x",   "0x18ee90ff6c373e0ee4e3f0ad2"}, 
+                {new BigInteger("123456789012345678901234567890"),          "%-#9x",    "0x18ee90ff6c373e0ee4e3f0ad2"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%x",       "-1e6f380472bd4bae6eb8259bd94a0"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%-8x",     "-1e6f380472bd4bae6eb8259bd94a0"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%06x",     "-1e6f380472bd4bae6eb8259bd94a0"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%#x",      "-0x1e6f380472bd4bae6eb8259bd94a0"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%0#12x",   "-0x1e6f380472bd4bae6eb8259bd94a0"}, 
+                {new BigInteger("-9876543210987654321098765432100000"),     "%-#9x",    "-0x1e6f380472bd4bae6eb8259bd94a0"}, 
         };
         
         for (int i = 0; i < tripleX.length; i++) {

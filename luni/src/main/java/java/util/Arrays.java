@@ -1749,16 +1749,16 @@ public class Arrays {
     private static void checkFillBounds(int arrLength, int start, int end) {
         if (start > end) {
             // K0033=Start index ({0}) is greater than end index ({1})
-            throw new IllegalArgumentException(Msg.getString("K0033", //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0033", 
                     start, end));
         }
         if (start < 0) {
             // K0052=Array index out of range\: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0052", start)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0052", start)); 
         }
         if (end > arrLength) {
             // K0052=Array index out of range\: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0052", end)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0052", end)); 
         }
     }
 
@@ -2119,16 +2119,16 @@ public class Arrays {
      */
     public static String toString(boolean[] array) {
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         if (array.length == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         StringBuilder sb = new StringBuilder(array.length * 7); // android-changed
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
-            sb.append(", "); //$NON-NLS-1$
+            sb.append(", "); 
             sb.append(array[i]);
         }
         sb.append(']');
@@ -2149,16 +2149,16 @@ public class Arrays {
      */
     public static String toString(byte[] array) {
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         if (array.length == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         StringBuilder sb = new StringBuilder(array.length * 6); // android-changed
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
-            sb.append(", "); //$NON-NLS-1$
+            sb.append(", "); 
             sb.append(array[i]);
         }
         sb.append(']');
@@ -2179,16 +2179,16 @@ public class Arrays {
      */
     public static String toString(char[] array) {
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         if (array.length == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         StringBuilder sb = new StringBuilder(array.length * 3); // android-changed
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
-            sb.append(", "); //$NON-NLS-1$
+            sb.append(", "); 
             sb.append(array[i]);
         }
         sb.append(']');
@@ -2209,16 +2209,16 @@ public class Arrays {
      */
     public static String toString(double[] array) {
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         if (array.length == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         StringBuilder sb = new StringBuilder(array.length * 7); // android-changed
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
-            sb.append(", "); //$NON-NLS-1$
+            sb.append(", "); 
             sb.append(array[i]);
         }
         sb.append(']');
@@ -2239,16 +2239,16 @@ public class Arrays {
      */
     public static String toString(float[] array) {
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         if (array.length == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         StringBuilder sb = new StringBuilder(array.length * 7); // android-changed
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
-            sb.append(", "); //$NON-NLS-1$
+            sb.append(", "); 
             sb.append(array[i]);
         }
         sb.append(']');
@@ -2269,16 +2269,16 @@ public class Arrays {
      */
     public static String toString(int[] array) {
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         if (array.length == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         StringBuilder sb = new StringBuilder(array.length * 6); // android-changed
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
-            sb.append(", "); //$NON-NLS-1$
+            sb.append(", "); 
             sb.append(array[i]);
         }
         sb.append(']');
@@ -2299,16 +2299,16 @@ public class Arrays {
      */
     public static String toString(long[] array) {
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         if (array.length == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         StringBuilder sb = new StringBuilder(array.length * 6); // android-changed
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
-            sb.append(", "); //$NON-NLS-1$
+            sb.append(", "); 
             sb.append(array[i]);
         }
         sb.append(']');
@@ -2329,16 +2329,16 @@ public class Arrays {
      */
     public static String toString(short[] array) {
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         if (array.length == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         StringBuilder sb = new StringBuilder(array.length * 6); // android-changed
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
-            sb.append(", "); //$NON-NLS-1$
+            sb.append(", "); 
             sb.append(array[i]);
         }
         sb.append(']');
@@ -2359,16 +2359,16 @@ public class Arrays {
      */
     public static String toString(Object[] array) {
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         if (array.length == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]"; 
         }
         StringBuilder sb = new StringBuilder(array.length * 7); // android-changed
         sb.append('[');
         sb.append(array[0]);
         for (int i = 1; i < array.length; i++) {
-            sb.append(", "); //$NON-NLS-1$
+            sb.append(", "); 
             sb.append(array[i]);
         }
         sb.append(']');
@@ -2395,7 +2395,7 @@ public class Arrays {
     public static String deepToString(Object[] array) {
         // Special case null to prevent NPE
         if (array == null) {
-            return "null"; //$NON-NLS-1$
+            return "null"; 
         }
         // delegate this to the recursive method
         StringBuilder buf = new StringBuilder(array.length * 9); // android-changed
@@ -2420,7 +2420,7 @@ public class Arrays {
     private static void deepToStringImpl(Object[] array, Object[] origArrays,
             StringBuilder sb) {
         if (array == null) {
-            sb.append("null"); //$NON-NLS-1$
+            sb.append("null"); 
             return;
         }
 
@@ -2428,13 +2428,13 @@ public class Arrays {
 
         for (int i = 0; i < array.length; i++) {
             if (i != 0) {
-                sb.append(", "); //$NON-NLS-1$
+                sb.append(", "); 
             }
             // establish current element
             Object elem = array[i];
             if (elem == null) {
                 // element is null
-                sb.append("null"); //$NON-NLS-1$
+                sb.append("null"); 
             } else {
                 // get the Class of the current element
                 Class<?> elemClass = elem.getClass();
@@ -2469,7 +2469,7 @@ public class Arrays {
                         // element is an Object[], so we assert that
                         assert elem instanceof Object[];
                         if (deepToStringImplContains(origArrays, elem)) {
-                            sb.append("[...]"); //$NON-NLS-1$
+                            sb.append("[...]"); 
                         } else {
                             Object[] newArray = (Object[]) elem;
                             Object[] newOrigArrays = new Object[origArrays.length + 1];

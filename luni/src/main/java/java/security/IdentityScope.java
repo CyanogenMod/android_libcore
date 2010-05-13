@@ -83,7 +83,7 @@ public abstract class IdentityScope extends Identity {
         if (systemScope == null) {
             String className = AccessController.doPrivileged(new PrivilegedAction<String>(){
                 public String run() {
-                    return Security.getProperty("system.scope"); //$NON-NLS-1$
+                    return Security.getProperty("system.scope"); 
                 }
             });
             if(className != null){
@@ -106,7 +106,7 @@ public abstract class IdentityScope extends Identity {
     protected static void setSystemScope(IdentityScope scope) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("setSystemScope"); //$NON-NLS-1$
+            sm.checkSecurityAccess("setSystemScope"); 
         }
         systemScope = scope;
     }
@@ -197,6 +197,6 @@ public abstract class IdentityScope extends Identity {
     @Override
     public String toString() {
         return new StringBuilder(super.toString())
-                .append("[").append(size()).append("]").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+                .append("[").append(size()).append("]").toString();  
     }
 }

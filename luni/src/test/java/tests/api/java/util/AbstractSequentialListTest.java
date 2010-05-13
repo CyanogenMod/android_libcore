@@ -70,13 +70,13 @@ public class AbstractSequentialListTest extends TestCase {
     )
     public void test_addAll_ILCollection() {
         AbstractSequentialList<String> al = new ASLT<String>();
-        String[] someList = { "Aardvark"  ,  //$NON-NLS-1$
-                              "Bear"      ,  //$NON-NLS-1$
-                              "Chimpanzee",  //$NON-NLS-1$
-                              "Duck"      }; //$NON-NLS-1$
+        String[] someList = { "Aardvark"  ,  
+                              "Bear"      ,  
+                              "Chimpanzee",  
+                              "Duck"      }; 
         Collection<String> c = Arrays.asList(someList);
         al.addAll(c);
-        assertTrue("Should return true", al.addAll(2, c)); //$NON-NLS-1$
+        assertTrue("Should return true", al.addAll(2, c)); 
     }
     
     class Mock_unsupportedListIterator implements ListIterator {

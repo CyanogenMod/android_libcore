@@ -31,7 +31,7 @@ import org.apache.harmony.security.internal.nls.Messages;
  */
 public class KeyFactory {
     // The service name.
-    private static final String SERVICE = "KeyFactory"; //$NON-NLS-1$
+    private static final String SERVICE = "KeyFactory"; 
     
     // The provider
     private Provider provider;
@@ -79,7 +79,7 @@ public class KeyFactory {
     public static KeyFactory getInstance(String algorithm)
                                 throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -133,10 +133,10 @@ public class KeyFactory {
     public static KeyFactory getInstance(String algorithm, Provider provider)
                                  throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.04")); 
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);

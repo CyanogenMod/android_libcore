@@ -209,7 +209,7 @@ public abstract class URLConnection {
      * @return the value of the response header field {@code content-encoding}.
      */
     public String getContentEncoding() {
-        return getHeaderField("Content-Encoding"); //$NON-NLS-1$
+        return getHeaderField("Content-Encoding"); 
     }
 
     /**
@@ -240,12 +240,12 @@ public abstract class URLConnection {
         // Type
         String packageList = AccessController
                 .doPrivileged(new PriviAction<String>(
-                        "java.content.handler.pkgs")); //$NON-NLS-1$
+                        "java.content.handler.pkgs")); 
         if (packageList != null) {
-            final StringTokenizer st = new StringTokenizer(packageList, "|"); //$NON-NLS-1$
+            final StringTokenizer st = new StringTokenizer(packageList, "|"); 
             while (st.countTokens() > 0) {
                 try {
-                    Class<?> cl = Class.forName(st.nextToken() + "." //$NON-NLS-1$
+                    Class<?> cl = Class.forName(st.nextToken() + "." 
                             + typeString, true, ClassLoader
                             .getSystemClassLoader());
                     cHandler = cl.newInstance();
@@ -262,7 +262,7 @@ public abstract class URLConnection {
                         public Object run() {
                             try {
                                 // Try looking up AWT image content handlers
-                                String className = "org.apache.harmony.awt.www.content." //$NON-NLS-1$
+                                String className = "org.apache.harmony.awt.www.content." 
                                         + typeString;
                                 return Class.forName(className).newInstance();
                             } catch (ClassNotFoundException e) {
@@ -292,7 +292,7 @@ public abstract class URLConnection {
      * @return the value of the response header field {@code content-length}.
      */
     public int getContentLength() {
-        return getHeaderFieldInt("Content-Length", -1); //$NON-NLS-1$
+        return getHeaderFieldInt("Content-Length", -1); 
     }
 
     /**
@@ -302,7 +302,7 @@ public abstract class URLConnection {
      * @return the value of the response header field {@code content-type}.
      */
     public String getContentType() {
-        return getHeaderField("Content-Type"); //$NON-NLS-1$
+        return getHeaderField("Content-Type"); 
     }
 
     /**
@@ -313,7 +313,7 @@ public abstract class URLConnection {
      * @return the sending timestamp of the current response.
      */
     public long getDate() {
-        return getHeaderFieldDate("Date", 0); //$NON-NLS-1$
+        return getHeaderFieldDate("Date", 0); 
     }
 
     /**
@@ -383,7 +383,7 @@ public abstract class URLConnection {
      * @return the value of the response header field {@code expires}.
      */
     public long getExpiration() {
-        return getHeaderFieldDate("Expires", 0); //$NON-NLS-1$
+        return getHeaderFieldDate("Expires", 0); 
     }
 
     /**
@@ -447,7 +447,7 @@ public abstract class URLConnection {
      */
     public Map<String, List<String>> getRequestProperties() {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0037")); 
         }
         return Collections.emptyMap();
     }
@@ -468,10 +468,10 @@ public abstract class URLConnection {
      */
     public void addRequestProperty(String field, String newValue) {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0037")); 
         }
         if (field == null) {
-            throw new NullPointerException(Msg.getString("KA007")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("KA007")); 
         }
     }
 
@@ -575,7 +575,7 @@ public abstract class URLConnection {
      *             if no InputStream could be created.
      */
     public InputStream getInputStream() throws IOException {
-        throw new UnknownServiceException(Msg.getString("K004d")); //$NON-NLS-1$
+        throw new UnknownServiceException(Msg.getString("K004d")); 
     }
 
     /**
@@ -588,7 +588,7 @@ public abstract class URLConnection {
         if (lastModified != -1) {
             return lastModified;
         }
-        return lastModified = getHeaderFieldDate("Last-Modified", 0); //$NON-NLS-1$
+        return lastModified = getHeaderFieldDate("Last-Modified", 0); 
     }
 
     /**
@@ -601,7 +601,7 @@ public abstract class URLConnection {
      *             if no OutputStream could be created.
      */
     public OutputStream getOutputStream() throws IOException {
-        throw new UnknownServiceException(Msg.getString("K005f")); //$NON-NLS-1$
+        throw new UnknownServiceException(Msg.getString("K005f")); 
     }
 
     /**
@@ -634,7 +634,7 @@ public abstract class URLConnection {
      */
     public String getRequestProperty(String field) {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0037")); 
         }
         return null;
     }
@@ -803,7 +803,7 @@ public abstract class URLConnection {
      */
     public void setAllowUserInteraction(boolean newValue) {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0037")); 
         }
         this.allowUserInteraction = newValue;
     }
@@ -822,7 +822,7 @@ public abstract class URLConnection {
     public static synchronized void setContentHandlerFactory(
             ContentHandlerFactory contentFactory) {
         if (contentHandlerFactory != null) {
-            throw new Error(Msg.getString("K004e")); //$NON-NLS-1$
+            throw new Error(Msg.getString("K004e")); 
         }
         SecurityManager sManager = System.getSecurityManager();
         if (sManager != null) {
@@ -874,7 +874,7 @@ public abstract class URLConnection {
         // BEGIN android-removed
         // Setting the default doesn't concern the current connection.
         // if (connected) {
-        //     throw new IllegalAccessError(Msg.getString("K0037")); //$NON-NLS-1$
+        //     throw new IllegalAccessError(Msg.getString("K0037")); 
         // }
         // END android-removed
         defaultUseCaches = newValue;
@@ -893,7 +893,7 @@ public abstract class URLConnection {
      */
     public void setDoInput(boolean newValue) {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0037")); 
         }
         this.doInput = newValue;
     }
@@ -911,7 +911,7 @@ public abstract class URLConnection {
      */
     public void setDoOutput(boolean newValue) {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0037")); 
         }
         this.doOutput = newValue;
     }
@@ -947,7 +947,7 @@ public abstract class URLConnection {
      */
     public void setIfModifiedSince(long newValue) {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0037")); 
         }
         this.ifModifiedSince = newValue;
     }
@@ -968,10 +968,10 @@ public abstract class URLConnection {
      */
     public void setRequestProperty(String field, String newValue) {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0037")); 
         }
         if (field == null) {
-            throw new NullPointerException(Msg.getString("KA007")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("KA007")); 
         }
     }
 
@@ -989,7 +989,7 @@ public abstract class URLConnection {
      */
     public void setUseCaches(boolean newValue) {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0037")); 
         }
         this.useCaches = newValue;
     }
@@ -1008,7 +1008,7 @@ public abstract class URLConnection {
      */
     public void setConnectTimeout(int timeout) {
         if (0 > timeout) {
-            throw new IllegalArgumentException(Msg.getString("K0036")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0036")); 
         }
         this.connectTimeout = timeout;
     }
@@ -1036,7 +1036,7 @@ public abstract class URLConnection {
      */
     public void setReadTimeout(int timeout) {
         if (0 > timeout) {
-            throw new IllegalArgumentException(Msg.getString("K0036")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0036")); 
         }
         this.readTimeout = timeout;
     }

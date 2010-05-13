@@ -32,7 +32,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 public abstract class MessageDigest extends MessageDigestSpi {
 
     // The service name
-    private static final String SERVICE = "MessageDigest"; //$NON-NLS-1$
+    private static final String SERVICE = "MessageDigest"; 
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
@@ -70,7 +70,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     public static MessageDigest getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         MessageDigest result;
         synchronized (engine) {
@@ -107,12 +107,12 @@ public abstract class MessageDigest extends MessageDigestSpi {
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
             throw new IllegalArgumentException(Messages
-                    .getString("security.02")); //$NON-NLS-1$
+                    .getString("security.02")); 
         }
         Provider p = Security.getProvider(provider);
         if (p == null) {
             throw new NoSuchProviderException(Messages.getString(
-                    "security.03", provider)); //$NON-NLS-1$
+                    "security.03", provider)); 
         }
         return getInstance(algorithm, p);
     }
@@ -136,10 +136,10 @@ public abstract class MessageDigest extends MessageDigestSpi {
             throws NoSuchAlgorithmException {
         if (provider == null) {
             throw new IllegalArgumentException(Messages
-                    .getString("security.04")); //$NON-NLS-1$
+                    .getString("security.04")); 
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         MessageDigest result;
         synchronized (engine) {
@@ -195,7 +195,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
                 // see HARMONY-1120 for details
                 (long) offset + (long) len > input.length) {
             throw new IllegalArgumentException(Messages
-                    .getString("security.05")); //$NON-NLS-1$
+                    .getString("security.05")); 
         }
         engineUpdate(input, offset, len);
     }
@@ -210,7 +210,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      */
     public void update(byte[] input) {
         if (input == null) {
-            throw new NullPointerException(Messages.getString("security.06")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.06")); 
         }
         engineUpdate(input, 0, input.length);
     }
@@ -251,7 +251,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
                 // see HARMONY-1148 for details
                 (long) offset + (long) len > buf.length) {
             throw new IllegalArgumentException(Messages
-                    .getString("security.05")); //$NON-NLS-1$
+                    .getString("security.05")); 
         }
         return engineDigest(buf, offset, len);
     }
@@ -279,7 +279,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      */
     @Override
     public String toString() {
-        return "MESSAGE DIGEST " + algorithm; //$NON-NLS-1$
+        return "MESSAGE DIGEST " + algorithm; 
     }
 
     /**

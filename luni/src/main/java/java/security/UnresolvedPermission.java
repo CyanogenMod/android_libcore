@@ -92,7 +92,7 @@ public final class UnresolvedPermission extends Permission
     // Check type parameter
     private final void checkType(String type) {
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.2F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.2F")); 
         }
 
         // type is the class name of the Permission class.
@@ -224,7 +224,7 @@ public final class UnresolvedPermission extends Permission
      */
     @Override
     public String getActions() {
-        return ""; //$NON-NLS-1$
+        return ""; 
     }
 
     /**
@@ -304,8 +304,8 @@ public final class UnresolvedPermission extends Permission
      */
     @Override
     public String toString() {
-        return "(unresolved " + type + " " + name + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + actions + ")"; //$NON-NLS-1$
+        return "(unresolved " + type + " " + name + " "   
+            + actions + ")"; 
     }
 
     /**
@@ -383,7 +383,7 @@ public final class UnresolvedPermission extends Permission
                     out.write(enc);
                 } catch (CertificateEncodingException cee) {
                     throw ((IOException)new NotSerializableException(
-                        Messages.getString("security.30",  //$NON-NLS-1$
+                        Messages.getString("security.30",  
                         targetCerts[i])).initCause(cee));
                 }
             }
@@ -410,7 +410,7 @@ public final class UnresolvedPermission extends Permission
                         .generateCertificate(new ByteArrayInputStream(enc));
                 } catch (CertificateException cee) {
                     throw ((IOException)new IOException(
-                        Messages.getString("security.32")).initCause(cee)); //$NON-NLS-1$
+                        Messages.getString("security.32")).initCause(cee)); 
                 }
             }
         }

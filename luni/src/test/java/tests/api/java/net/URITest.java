@@ -118,7 +118,7 @@ public class URITest extends TestCase {
                 // URI("ascheme://user\u00df\u00a3info@host:0/a\u0080path?qu\u00a9\u00aeery#fr\u00e4\u00e8g"),
 
                 // multiple arg constructors
-                new URI("http", "user%60%20info", "host", 80, "/a%20path", //$NON-NLS-4$
+                new URI("http", "user%60%20info", "host", 80, "/a%20path", 
                         "qu%60%20ery", "fr%5E%20ag"),
                 // escaped octets for illegal
                 new URI("http", "user%C3%9F%C2%A3info", "host", -1,

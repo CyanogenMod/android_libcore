@@ -205,7 +205,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
     @Override
     public void write(byte[] buffer, int off, int nbytes) throws IOException {
         if (done) {
-            throw new IOException(Messages.getString("archive.26")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("archive.26")); 
         }
         // avoid int overflow, check null buf
         if (off <= buffer.length && nbytes >= 0 && off >= 0

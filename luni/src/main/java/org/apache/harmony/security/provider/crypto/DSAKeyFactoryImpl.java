@@ -62,7 +62,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 return new DSAPrivateKeyImpl((PKCS8EncodedKeySpec) keySpec);
             }
         }
-        throw new InvalidKeySpecException(Messages.getString("security.19C")); //$NON-NLS-1$
+        throw new InvalidKeySpecException(Messages.getString("security.19C")); 
     }
 
     /**
@@ -90,7 +90,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 return new DSAPublicKeyImpl((X509EncodedKeySpec) keySpec);
             }
         }
-        throw new InvalidKeySpecException(Messages.getString("security.19D")); //$NON-NLS-1$
+        throw new InvalidKeySpecException(Messages.getString("security.19D")); 
     }
     
     /**
@@ -118,7 +118,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
         if (key != null) {
             if (keySpec == null) {
                 throw new NullPointerException(Messages
-                        .getString("security.19E")); //$NON-NLS-1$
+                        .getString("security.19E")); 
             }
             if (key instanceof DSAPrivateKey) {
                 DSAPrivateKey privateKey = (DSAPrivateKey) key;
@@ -141,7 +141,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 }
 
                 throw new InvalidKeySpecException(Messages
-                        .getString("security.19C")); //$NON-NLS-1$
+                        .getString("security.19C")); 
             }
 
             if (key instanceof DSAPublicKey) {
@@ -165,10 +165,10 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 }
 
                 throw new InvalidKeySpecException(Messages
-                        .getString("security.19D")); //$NON-NLS-1$
+                        .getString("security.19D")); 
             }
         }
-        throw new InvalidKeySpecException(Messages.getString("security.19F")); //$NON-NLS-1$
+        throw new InvalidKeySpecException(Messages.getString("security.19F")); 
     }
 
     /**
@@ -198,7 +198,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 } catch (InvalidKeySpecException e) {
                     // Actually this exception shouldn't be thrown
                     throw new InvalidKeyException(Messages.getString(
-                            "security.1A0", e)); //$NON-NLS-1$
+                            "security.1A0", e)); 
                 }
             }
 
@@ -214,11 +214,11 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 } catch (InvalidKeySpecException e) {
                     // Actually this exception shouldn't be thrown
                     throw new InvalidKeyException(Messages.getString(
-                            "security.1A1", e)); //$NON-NLS-1$
+                            "security.1A1", e)); 
                 }
             }
         }
-        throw new InvalidKeyException(Messages.getString("security.19F")); //$NON-NLS-1$
+        throw new InvalidKeyException(Messages.getString("security.19F")); 
     }
 
 }

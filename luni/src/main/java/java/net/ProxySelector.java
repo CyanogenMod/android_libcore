@@ -34,14 +34,14 @@ public abstract class ProxySelector {
      * permission.
      */
     private final static NetPermission getProxySelectorPermission = new NetPermission(
-            "getProxySelector"); //$NON-NLS-1$
+            "getProxySelector"); 
 
     /*
      * "setProxySelector" permission. setDefault method requires this
      * permission.
      */
     private final static NetPermission setProxySelectorPermission = new NetPermission(
-            "setProxySelector"); //$NON-NLS-1$
+            "setProxySelector"); 
 
     /**
      * Creates a new {@code ProxySelector} instance.

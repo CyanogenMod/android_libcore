@@ -140,7 +140,7 @@ public class RandomBitsSupplier implements SHA1_Data {
                 // hence, if it is happened there is some internal problem
                 if ( bytesRead == -1 ) {
                     throw new ProviderException(
-                        Messages.getString("security.193") ); //$NON-NLS-1$
+                        Messages.getString("security.193") ); 
                 }
 
                 total  += bytesRead;
@@ -156,7 +156,7 @@ public class RandomBitsSupplier implements SHA1_Data {
             // hence, there is either some internal problem or, for instance,
             // device was removed in runtime, or something else
             throw new ProviderException(
-                Messages.getString("security.194"), e ); //$NON-NLS-1$
+                Messages.getString("security.194"), e ); 
         }
         return bytes; 
     }
@@ -187,14 +187,14 @@ public class RandomBitsSupplier implements SHA1_Data {
     public static byte[] getRandomBits(int numBytes) {
 
         if ( numBytes <= 0 ) {
-            throw new IllegalArgumentException(Messages.getString("security.195", numBytes)); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.195", numBytes)); 
         }
 
         // We have been unable to get a random device or fall back to the
         // native security module code - throw an exception.
         if ( !serviceAvailable ) {
             throw new ProviderException(
-                Messages.getString("security.196")); //$NON-NLS-1$
+                Messages.getString("security.196")); 
         }
 
         // BEGIN android-changed

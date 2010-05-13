@@ -75,7 +75,7 @@ public final class MsgHelp {
         try {
             return bundle.getString(msg);
         } catch (MissingResourceException e) {
-            return "Missing message: " + msg; // $NON_NLS-1$
+            return "Missing message: " + msg;
         }
     }
     

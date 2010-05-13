@@ -60,15 +60,15 @@ public class Handler extends URLStreamHandler {
     protected void parseURL(URL url, String spec, int start, int limit) {
         String file = url.getFile();
         if (file == null) {
-            file = ""; //$NON-NLS-1$
+            file = ""; 
         }
         if (limit > start) {
             spec = spec.substring(start, limit);
         } else {
-            spec = ""; //$NON-NLS-1$
+            spec = ""; 
         }
-        if (spec.indexOf("!/") == -1 && (file.indexOf("!/") == -1)) { //$NON-NLS-1$ //$NON-NLS-2$
-            throw new NullPointerException(Msg.getString("K01b6")); //$NON-NLS-1$
+        if (spec.indexOf("!/") == -1 && (file.indexOf("!/") == -1)) {  
+            throw new NullPointerException(Msg.getString("K01b6")); 
         }
         if (file.equals("")) {
             file = spec;
@@ -87,7 +87,7 @@ public class Handler extends URLStreamHandler {
         } catch (MalformedURLException e) {
             throw new NullPointerException(e.toString());
         }
-        setURL(url, "jar", "", -1, null, null, file, null, null); //$NON-NLS-1$//$NON-NLS-2$
+        setURL(url, "jar", "", -1, null, null, file, null, null); 
     }
 
     /**
@@ -100,7 +100,7 @@ public class Handler extends URLStreamHandler {
     @Override
     protected String toExternalForm(URL url) {
         StringBuilder sb = new StringBuilder();
-        sb.append("jar:"); //$NON-NLS-1$
+        sb.append("jar:"); 
         sb.append(url.getFile());
         String ref = url.getRef();
         if (ref != null) {

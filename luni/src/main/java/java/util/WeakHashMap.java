@@ -108,7 +108,7 @@ public class WeakHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 
         @Override
         public String toString() {
-            return super.get() + "=" + value; //$NON-NLS-1$
+            return super.get() + "=" + value; 
         }
     }
 

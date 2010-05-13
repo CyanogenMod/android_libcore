@@ -55,7 +55,7 @@ public class DirectFloatBufferTest extends FloatBufferTest {
     public void testArray() {
         try {
             buf.array();
-            fail("Should throw UnsupportedOperationException"); //$NON-NLS-1$
+            fail("Should throw UnsupportedOperationException"); 
         } catch (UnsupportedOperationException e) {
         }
     }
@@ -69,7 +69,7 @@ public class DirectFloatBufferTest extends FloatBufferTest {
     public void testArrayOffset() {
         try {
             buf.arrayOffset();
-            fail("Should throw UnsupportedOperationException"); //$NON-NLS-1$
+            fail("Should throw UnsupportedOperationException"); 
         } catch (UnsupportedOperationException e) {
             //expected
         }

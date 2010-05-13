@@ -257,40 +257,40 @@ public class TBSCertificate {
      */
     public void dumpValue(StringBuffer buffer) {
         buffer.append('[');
-        buffer.append("\n  Version: V").append(version+1); //$NON-NLS-1$
-        buffer.append("\n  Subject: ") //$NON-NLS-1$
+        buffer.append("\n  Version: V").append(version+1); 
+        buffer.append("\n  Subject: ") 
             .append(subject.getName(X500Principal.RFC2253));
-        buffer.append("\n  Signature Algorithm: "); //$NON-NLS-1$
+        buffer.append("\n  Signature Algorithm: "); 
         signature.dumpValue(buffer);
-        buffer.append("\n  Key: "); //$NON-NLS-1$
+        buffer.append("\n  Key: "); 
         buffer.append(subjectPublicKeyInfo.getPublicKey().toString());
-        buffer.append("\n  Validity: [From: "); //$NON-NLS-1$
+        buffer.append("\n  Validity: [From: "); 
         buffer.append(validity.getNotBefore());
-        buffer.append("\n               To: "); //$NON-NLS-1$
+        buffer.append("\n               To: "); 
         buffer.append(validity.getNotAfter()).append(']');
-        buffer.append("\n  Issuer: "); //$NON-NLS-1$
+        buffer.append("\n  Issuer: "); 
         buffer.append(issuer.getName(X500Principal.RFC2253));
-        buffer.append("\n  Serial Number: "); //$NON-NLS-1$
+        buffer.append("\n  Serial Number: "); 
         buffer.append(serialNumber);
         if (issuerUniqueID != null) {
-            buffer.append("\n  Issuer Id: "); //$NON-NLS-1$
+            buffer.append("\n  Issuer Id: "); 
             for (int i=0; i<issuerUniqueID.length; i++) {
                 buffer.append(issuerUniqueID[i] ? '1' : '0');
             }
         }
         if (subjectUniqueID != null) {
-            buffer.append("\n  Subject Id: "); //$NON-NLS-1$
+            buffer.append("\n  Subject Id: "); 
             for (int i=0; i<subjectUniqueID.length; i++) {
                 buffer.append(subjectUniqueID[i] ? '1' : '0');
             }
         }
         if (extensions != null) {
-            buffer.append("\n\n  Extensions: "); //$NON-NLS-1$
-            buffer.append("[\n"); //$NON-NLS-1$
-            extensions.dumpValue(buffer, "    "); //$NON-NLS-1$
-            buffer.append("  ]"); //$NON-NLS-1$
+            buffer.append("\n\n  Extensions: "); 
+            buffer.append("[\n"); 
+            extensions.dumpValue(buffer, "    "); 
+            buffer.append("  ]"); 
         }
-        buffer.append("\n]"); //$NON-NLS-1$
+        buffer.append("\n]"); 
     }
 
     /**

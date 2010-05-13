@@ -262,25 +262,25 @@ public final class NumericShaper implements Serializable {
     // Set of context names used in toString method
     /** The contexts. */
     private final String[] contexts = {
-            "EUROPEAN", //$NON-NLS-1$
-            "ARABIC", //$NON-NLS-1$
-            "EASTERN_ARABIC", //$NON-NLS-1$
-            "DEVANAGARI", //$NON-NLS-1$
-            "BENGALI", //$NON-NLS-1$
-            "GURMUKHI", //$NON-NLS-1$
-            "GUJARATI", //$NON-NLS-1$
-            "ORIYA", //$NON-NLS-1$
-            "TAMIL", //$NON-NLS-1$
-            "TELUGU", //$NON-NLS-1$
-            "KANNADA", //$NON-NLS-1$
-            "MALAYALAM", //$NON-NLS-1$
-            "THAI", //$NON-NLS-1$
-            "LAO", //$NON-NLS-1$
-            "TIBETAN", //$NON-NLS-1$
-            "MYANMAR", //$NON-NLS-1$
-            "ETHIOPIC", //$NON-NLS-1$
-            "KHMER", //$NON-NLS-1$
-            "MONGOLIAN" //$NON-NLS-1$
+            "EUROPEAN", 
+            "ARABIC", 
+            "EASTERN_ARABIC", 
+            "DEVANAGARI", 
+            "BENGALI", 
+            "GURMUKHI", 
+            "GUJARATI", 
+            "ORIYA", 
+            "TAMIL", 
+            "TELUGU", 
+            "KANNADA", 
+            "MALAYALAM", 
+            "THAI", 
+            "LAO", 
+            "TIBETAN", 
+            "MYANMAR", 
+            "ETHIOPIC", 
+            "KHMER", 
+            "MONGOLIAN" 
     };
 
     /*
@@ -549,15 +549,15 @@ public final class NumericShaper implements Serializable {
          */
         StringBuffer sb = new StringBuffer(super.toString());
 
-        sb.append("[contextual:"); //$NON-NLS-1$
+        sb.append("[contextual:"); 
         sb.append(fContextual);
 
         if (fContextual){
-            sb.append(", context:"); //$NON-NLS-1$
+            sb.append(", context:"); 
             sb.append(contexts[fDefaultContextIndex]);
         }
 
-        sb.append(", range(s): "); //$NON-NLS-1$
+        sb.append(", range(s): "); 
         if (fContextual) {
             int index = 0;
             boolean isFirst = true;
@@ -566,7 +566,7 @@ public final class NumericShaper implements Serializable {
                     if (isFirst){
                         isFirst = false;
                     } else {
-                        sb.append(", "); //$NON-NLS-1$
+                        sb.append(", "); 
                     }
                     sb.append(contexts[index]);
                 }
@@ -575,7 +575,7 @@ public final class NumericShaper implements Serializable {
         } else {
             sb.append(contexts[fSingleRangeIndex]);
         }
-        sb.append("]"); //$NON-NLS-1$
+        sb.append("]"); 
 
         return sb.toString();
     }

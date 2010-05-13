@@ -49,43 +49,43 @@ public class WrappedFloatBufferTest extends FloatBufferTest {
         float array[] = new float[20];
         try {
             FloatBuffer.wrap(array, -1, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             FloatBuffer.wrap(array, 21, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             FloatBuffer.wrap(array, 0, -1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             FloatBuffer.wrap(array, 0, 21);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             FloatBuffer.wrap(array, Integer.MAX_VALUE, 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             FloatBuffer.wrap(array, 1, Integer.MAX_VALUE);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             FloatBuffer.wrap((float[])null, -1, 0);
-            fail("Should throw NPE"); //$NON-NLS-1$
+            fail("Should throw NPE"); 
         } catch (NullPointerException e) {
         }
 

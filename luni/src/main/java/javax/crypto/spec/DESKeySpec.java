@@ -119,11 +119,11 @@ public class DESKeySpec implements KeySpec {
     public DESKeySpec(byte[] key, int offset)
                 throws InvalidKeyException {
         if (key == null) {
-            throw new NullPointerException(Messages.getString("crypto.2F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.2F")); 
         }
         if (key.length - offset < DES_KEY_LEN) {
             throw new InvalidKeyException(
-                    Messages.getString("crypto.40")); //$NON-NLS-1$
+                    Messages.getString("crypto.40")); 
         }
         this.key = new byte[DES_KEY_LEN];
         System.arraycopy(key, offset, this.key, 0, DES_KEY_LEN);
@@ -157,11 +157,11 @@ public class DESKeySpec implements KeySpec {
     public static boolean isParityAdjusted(byte[] key, int offset)
             throws InvalidKeyException {
         if (key == null) {
-            throw new InvalidKeyException(Messages.getString("crypto.2F")); //$NON-NLS-1$
+            throw new InvalidKeyException(Messages.getString("crypto.2F")); 
         }
         if (key.length - offset < DES_KEY_LEN) {
             throw new InvalidKeyException(
-                    Messages.getString("crypto.40")); //$NON-NLS-1$
+                    Messages.getString("crypto.40")); 
         }
 
         int byteKey = 0;
@@ -196,11 +196,11 @@ public class DESKeySpec implements KeySpec {
     public static boolean isWeak(byte[] key, int offset)
               throws InvalidKeyException {
         if (key == null) {
-            throw new InvalidKeyException(Messages.getString("crypto.2F")); //$NON-NLS-1$
+            throw new InvalidKeyException(Messages.getString("crypto.2F")); 
         }
         if (key.length - offset < DES_KEY_LEN) {
             throw new InvalidKeyException(
-                    Messages.getString("crypto.40")); //$NON-NLS-1$
+                    Messages.getString("crypto.40")); 
         }
         I:
         for (int i=0; i<SEMIWEAKS.length; i++) {

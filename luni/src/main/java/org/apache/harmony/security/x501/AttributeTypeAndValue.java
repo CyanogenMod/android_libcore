@@ -139,47 +139,47 @@ public class AttributeTypeAndValue {
         KNOWN_OIDS = new ObjectIdentifier[SIZE][CAPACITY];
 
         // init known attribute type keywords
-        C = new ObjectIdentifier(new int[] { 2, 5, 4, 6 }, "C", RFC1779_NAMES); //$NON-NLS-1$
-        CN = new ObjectIdentifier(new int[] { 2, 5, 4, 3 }, "CN", RFC1779_NAMES); //$NON-NLS-1$
+        C = new ObjectIdentifier(new int[] { 2, 5, 4, 6 }, "C", RFC1779_NAMES); 
+        CN = new ObjectIdentifier(new int[] { 2, 5, 4, 3 }, "CN", RFC1779_NAMES); 
 
         DC = new ObjectIdentifier(
-                new int[] { 0, 9, 2342, 19200300, 100, 1, 25 }, "DC", //$NON-NLS-1$
+                new int[] { 0, 9, 2342, 19200300, 100, 1, 25 }, "DC", 
                 RFC2253_NAMES);
         // DN qualifier aliases
-        DNQ = new ObjectIdentifier(new int[] { 2, 5, 4, 46 }, "DNQ", //$NON-NLS-1$
+        DNQ = new ObjectIdentifier(new int[] { 2, 5, 4, 46 }, "DNQ", 
                 RFC2459_NAMES);
         DNQUALIFIER = new ObjectIdentifier(new int[] { 2, 5, 4, 46 },
-                "DNQUALIFIER", RFC2459_NAMES); //$NON-NLS-1$
+                "DNQUALIFIER", RFC2459_NAMES); 
 
         EMAILADDRESS = new ObjectIdentifier(new int[] { 1, 2, 840, 113549, 1,
-                9, 1 }, "EMAILADDRESS", RFC2459_NAMES); //$NON-NLS-1$
+                9, 1 }, "EMAILADDRESS", RFC2459_NAMES); 
 
         GENERATION = new ObjectIdentifier(new int[] { 2, 5, 4, 44 },
-                "GENERATION", RFC2459_NAMES); //$NON-NLS-1$
+                "GENERATION", RFC2459_NAMES); 
         GIVENNAME = new ObjectIdentifier(new int[] { 2, 5, 4, 42 },
-                "GIVENNAME", RFC2459_NAMES); //$NON-NLS-1$
+                "GIVENNAME", RFC2459_NAMES); 
 
-        INITIALS = new ObjectIdentifier(new int[] { 2, 5, 4, 43 }, "INITIALS", //$NON-NLS-1$
+        INITIALS = new ObjectIdentifier(new int[] { 2, 5, 4, 43 }, "INITIALS", 
                 RFC2459_NAMES);
 
-        L = new ObjectIdentifier(new int[] { 2, 5, 4, 7 }, "L", RFC1779_NAMES); //$NON-NLS-1$
+        L = new ObjectIdentifier(new int[] { 2, 5, 4, 7 }, "L", RFC1779_NAMES); 
 
-        O = new ObjectIdentifier(new int[] { 2, 5, 4, 10 }, "O", RFC1779_NAMES); //$NON-NLS-1$
-        OU = new ObjectIdentifier(new int[] { 2, 5, 4, 11 }, "OU", //$NON-NLS-1$
+        O = new ObjectIdentifier(new int[] { 2, 5, 4, 10 }, "O", RFC1779_NAMES); 
+        OU = new ObjectIdentifier(new int[] { 2, 5, 4, 11 }, "OU", 
                 RFC1779_NAMES);
 
         SERIALNUMBER = new ObjectIdentifier(new int[] { 2, 5, 4, 5 },
-                "SERIALNUMBER", RFC2459_NAMES); //$NON-NLS-1$
-        ST = new ObjectIdentifier(new int[] { 2, 5, 4, 8 }, "ST", RFC1779_NAMES); //$NON-NLS-1$
-        STREET = new ObjectIdentifier(new int[] { 2, 5, 4, 9 }, "STREET", //$NON-NLS-1$
+                "SERIALNUMBER", RFC2459_NAMES); 
+        ST = new ObjectIdentifier(new int[] { 2, 5, 4, 8 }, "ST", RFC1779_NAMES); 
+        STREET = new ObjectIdentifier(new int[] { 2, 5, 4, 9 }, "STREET", 
                 RFC1779_NAMES);
-        SURNAME = new ObjectIdentifier(new int[] { 2, 5, 4, 4 }, "SURNAME", //$NON-NLS-1$
+        SURNAME = new ObjectIdentifier(new int[] { 2, 5, 4, 4 }, "SURNAME", 
                 RFC2459_NAMES);
 
-        T = new ObjectIdentifier(new int[] { 2, 5, 4, 12 }, "T", RFC2459_NAMES); //$NON-NLS-1$
+        T = new ObjectIdentifier(new int[] { 2, 5, 4, 12 }, "T", RFC2459_NAMES); 
 
         UID = new ObjectIdentifier(
-                new int[] { 0, 9, 2342, 19200300, 100, 1, 1 }, "UID", //$NON-NLS-1$
+                new int[] { 0, 9, 2342, 19200300, 100, 1, 1 }, "UID", 
                 RFC2253_NAMES);
 
         //
@@ -288,7 +288,7 @@ public class AttributeTypeAndValue {
         } else {
             this.oid = (ObjectIdentifier) KNOWN_NAMES.get(Util.toUpperCase(sOid));
             if (this.oid == null) {
-                throw new IOException(Messages.getString("security.178", sOid)); //$NON-NLS-1$
+                throw new IOException(Messages.getString("security.178", sOid)); 
             }
         }
         this.value = value;
@@ -417,7 +417,7 @@ public class AttributeTypeAndValue {
 
         public Object getDecodedObject(BerInputStream in) throws IOException {
             // stub to avoid wrong decoder usage
-            throw new RuntimeException(Messages.getString("security.179")); //$NON-NLS-1$
+            throw new RuntimeException(Messages.getString("security.179")); 
         }
 
         //
@@ -455,7 +455,7 @@ public class AttributeTypeAndValue {
                     out.content = av;
                 } else {
                     try {
-                        av.bytes = av.rawString.getBytes("UTF-8"); //$NON-NLS-1$
+                        av.bytes = av.rawString.getBytes("UTF-8"); 
                     } catch (UnsupportedEncodingException e) {
                         throw new RuntimeException(e.getMessage());
                     }
@@ -466,7 +466,7 @@ public class AttributeTypeAndValue {
 
         public void encodeContent(BerOutputStream out) {
             // stub to avoid wrong encoder usage
-            throw new RuntimeException(Messages.getString("security.17A")); //$NON-NLS-1$
+            throw new RuntimeException(Messages.getString("security.17A")); 
         }
 
         public int getEncodedLength(BerOutputStream out) { //FIXME name
@@ -527,14 +527,14 @@ public class AttributeTypeAndValue {
 
             // check wrong static initialization: no duplicate OIDs
             if (Arrays.equals(newOid, list[i].getOid())) {
-                throw new Error(Messages.getString("security.17B", //$NON-NLS-1$
+                throw new Error(Messages.getString("security.17B", 
                                 oid.getName(), list[i].getName()));
             }
         }
 
         // check : to avoid NPE
         if (i == (CAPACITY - 1)) {
-            throw new Error(Messages.getString("security.17C")); //$NON-NLS-1$
+            throw new Error(Messages.getString("security.17C")); 
         }
         list[i] = oid;
     }

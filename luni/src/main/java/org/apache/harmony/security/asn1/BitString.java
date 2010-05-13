@@ -61,12 +61,12 @@ public final class BitString {
         // constraints are set according X.690
         if (unusedBits < 0 || unusedBits > 7) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.13D")); //$NON-NLS-1$
+                    Messages.getString("security.13D")); 
         }
 
         if (bytes.length == 0 && unusedBits != 0) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.13E")); //$NON-NLS-1$
+                    Messages.getString("security.13E")); 
         }
 
         this.bytes = bytes;

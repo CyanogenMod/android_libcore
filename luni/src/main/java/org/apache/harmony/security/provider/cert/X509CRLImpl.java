@@ -411,7 +411,7 @@ public class X509CRLImpl extends X509CRL {
         byte[] tbsEncoding = tbsCertList.getEncoded();
         signature.update(tbsEncoding, 0, tbsEncoding.length);
         if (!signature.verify(crl.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C")); //$NON-NLS-1$
+            throw new SignatureException(Messages.getString("security.15C")); 
         }
     }
 
@@ -429,7 +429,7 @@ public class X509CRLImpl extends X509CRL {
         byte[] tbsEncoding = tbsCertList.getEncoded();
         signature.update(tbsEncoding, 0, tbsEncoding.length);
         if (!signature.verify(crl.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C")); //$NON-NLS-1$
+            throw new SignatureException(Messages.getString("security.15C")); 
         }
     }
 

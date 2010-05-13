@@ -47,8 +47,8 @@ public class OAEPParameterSpec implements AlgorithmParameterSpec {
     public static final OAEPParameterSpec DEFAULT = new OAEPParameterSpec();
 
     private OAEPParameterSpec() {
-        this.mdName = "SHA-1"; //$NON-NLS-1$
-        this.mgfName = "MGF1"; //$NON-NLS-1$
+        this.mdName = "SHA-1"; 
+        this.mgfName = "MGF1"; 
         this.mgfSpec = MGF1ParameterSpec.SHA1;
         this.pSrc = PSource.PSpecified.DEFAULT;
     }

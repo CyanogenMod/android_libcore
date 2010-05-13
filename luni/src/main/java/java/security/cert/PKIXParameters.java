@@ -81,7 +81,7 @@ public class PKIXParameters implements CertPathParameters {
     public PKIXParameters(Set<TrustAnchor> trustAnchors)
         throws InvalidAlgorithmParameterException {
         if (trustAnchors == null) {
-            throw new NullPointerException(Messages.getString("security.6F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.6F")); 
         }
         checkTrustAnchors(trustAnchors);
         this.trustAnchors = new HashSet<TrustAnchor>(trustAnchors);
@@ -103,13 +103,13 @@ public class PKIXParameters implements CertPathParameters {
         throws KeyStoreException,
                InvalidAlgorithmParameterException {
         if (keyStore == null) {
-            throw new NullPointerException(Messages.getString("security.41")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.41")); 
         }
         // Will throw KeyStoreException if
         // keyStore has not been initialized (loaded)
         if (keyStore.size() == 0) {
             throw new InvalidAlgorithmParameterException(
-                    Messages.getString("security.6A")); //$NON-NLS-1$
+                    Messages.getString("security.6A")); 
         }
         // keyStore is not null and loaded
         trustAnchors = new HashSet<TrustAnchor>();
@@ -150,7 +150,7 @@ public class PKIXParameters implements CertPathParameters {
         throws InvalidAlgorithmParameterException {
         if (trustAnchors == null) {
             throw new NullPointerException(
-                    Messages.getString("security.6F")); //$NON-NLS-1$
+                    Messages.getString("security.6F")); 
         }
         checkTrustAnchors(trustAnchors);
         // make shallow copy
@@ -299,7 +299,7 @@ public class PKIXParameters implements CertPathParameters {
         // check that all elements are CertStore
         for (Iterator i = this.certStores.iterator(); i.hasNext();) {
             if (!(i.next() instanceof CertStore)) {
-                throw new ClassCastException(Messages.getString("security.6B")); //$NON-NLS-1$
+                throw new ClassCastException(Messages.getString("security.6B")); 
             }
         }
     }
@@ -416,7 +416,7 @@ public class PKIXParameters implements CertPathParameters {
         // check that all elements are String
         for (Iterator i = this.initialPolicies.iterator(); i.hasNext();) {
             if (!(i.next() instanceof String)) {
-                throw new ClassCastException(Messages.getString("security.6C")); //$NON-NLS-1$
+                throw new ClassCastException(Messages.getString("security.6C")); 
             }
         }
     }
@@ -565,34 +565,34 @@ public class PKIXParameters implements CertPathParameters {
      */
     public String toString() {
         StringBuilder sb =
-            new StringBuilder("[\n Trust Anchors: "); //$NON-NLS-1$
+            new StringBuilder("[\n Trust Anchors: "); 
         sb.append(trustAnchors);
-        sb.append("\n Revocation Enabled: "); //$NON-NLS-1$
+        sb.append("\n Revocation Enabled: "); 
         sb.append(revocationEnabled);
-        sb.append("\n Explicit Policy Required: "); //$NON-NLS-1$
+        sb.append("\n Explicit Policy Required: "); 
         sb.append(explicitPolicyRequired);
-        sb.append("\n Policy Mapping Inhibited: "); //$NON-NLS-1$
+        sb.append("\n Policy Mapping Inhibited: "); 
         sb.append(policyMappingInhibited);
-        sb.append("\n Any Policy Inhibited: "); //$NON-NLS-1$
+        sb.append("\n Any Policy Inhibited: "); 
         sb.append(anyPolicyInhibited);
-        sb.append("\n Policy Qualifiers Rejected: "); //$NON-NLS-1$
+        sb.append("\n Policy Qualifiers Rejected: "); 
         sb.append(policyQualifiersRejected);
-        sb.append("\n Initial Policy OIDs: "); //$NON-NLS-1$
+        sb.append("\n Initial Policy OIDs: "); 
         sb.append((initialPolicies == null || initialPolicies.isEmpty())
-                ? "any" : initialPolicies.toString()); //$NON-NLS-1$
-        sb.append("\n Cert Stores: "); //$NON-NLS-1$
+                ? "any" : initialPolicies.toString()); 
+        sb.append("\n Cert Stores: "); 
         sb.append((certStores==null||certStores.isEmpty())?
-                "no":certStores.toString()); //$NON-NLS-1$
-        sb.append("\n Validity Date: "); //$NON-NLS-1$
+                "no":certStores.toString()); 
+        sb.append("\n Validity Date: "); 
         sb.append(date);
-        sb.append("\n Cert Path Checkers: "); //$NON-NLS-1$
+        sb.append("\n Cert Path Checkers: "); 
         sb.append((certPathCheckers==null||certPathCheckers.isEmpty())?
-                "no":certPathCheckers.toString()); //$NON-NLS-1$
-        sb.append("\n Signature Provider: "); //$NON-NLS-1$
+                "no":certPathCheckers.toString()); 
+        sb.append("\n Signature Provider: "); 
         sb.append(sigProvider);
-        sb.append("\n Target Certificate Constraints: "); //$NON-NLS-1$
+        sb.append("\n Target Certificate Constraints: "); 
         sb.append(targetCertConstraints);
-        sb.append("\n]"); //$NON-NLS-1$
+        sb.append("\n]"); 
         return sb.toString();
     }
 
@@ -609,12 +609,12 @@ public class PKIXParameters implements CertPathParameters {
         throws InvalidAlgorithmParameterException {
         if (trustAnchors.isEmpty()) {
             throw new InvalidAlgorithmParameterException(
-                    Messages.getString("security.6D")); //$NON-NLS-1$
+                    Messages.getString("security.6D")); 
         }
         for (Iterator i = trustAnchors.iterator(); i.hasNext();) {
             if (!(i.next() instanceof TrustAnchor)) {
                 throw new ClassCastException(
-             Messages.getString("security.6E")); //$NON-NLS-1$
+             Messages.getString("security.6E")); 
             }
         }
     }

@@ -37,7 +37,7 @@ public class ECGenParameterSpec implements AlgorithmParameterSpec {
     public ECGenParameterSpec(String name) {
         this.name = name;
         if (this.name == null) {
-            throw new NullPointerException(Messages.getString("security.83", "name")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "name"));  
         }
     }
 

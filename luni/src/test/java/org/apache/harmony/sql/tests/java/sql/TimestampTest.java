@@ -512,16 +512,16 @@ public class TimestampTest extends TestCase {
         } // end for
 
 		Timestamp t1 = new Timestamp(Long.MIN_VALUE);
-		assertEquals("292278994-08-17 07:12:55.192", t1.toString()); //$NON-NLS-1$
+		assertEquals("292278994-08-17 07:12:55.192", t1.toString()); 
 
 		Timestamp t2 = new Timestamp(Long.MIN_VALUE + 1);
-		assertEquals("292278994-08-17 07:12:55.193", t2.toString()); //$NON-NLS-1$
+		assertEquals("292278994-08-17 07:12:55.193", t2.toString()); 
 
 		Timestamp t3 = new Timestamp(Long.MIN_VALUE + 807);
-		assertEquals("292278994-08-17 07:12:55.999", t3.toString()); //$NON-NLS-1$
+		assertEquals("292278994-08-17 07:12:55.999", t3.toString()); 
 
 		Timestamp t4 = new Timestamp(Long.MIN_VALUE + 808);
-		assertEquals("292269055-12-02 16:47:05.0", t4.toString()); //$NON-NLS-1$
+		assertEquals("292269055-12-02 16:47:05.0", t4.toString()); 
     } // end method testtoString
 
     private void testToString(String timeZone, long[] theTimeStamps, String[] theTimeStampStrings) {
@@ -852,16 +852,16 @@ public class TimestampTest extends TestCase {
     public void test_toString() {
 
         Timestamp t1 = new Timestamp(Long.MIN_VALUE);
-        assertEquals("292278994-08-17 07:12:55.192", t1.toString()); //$NON-NLS-1$
+        assertEquals("292278994-08-17 07:12:55.192", t1.toString()); 
 
         Timestamp t2 = new Timestamp(Long.MIN_VALUE + 1);
-        assertEquals("292278994-08-17 07:12:55.193", t2.toString()); //$NON-NLS-1$
+        assertEquals("292278994-08-17 07:12:55.193", t2.toString()); 
 
         Timestamp t3 = new Timestamp(Long.MIN_VALUE + 807);
-        assertEquals("292278994-08-17 07:12:55.999", t3.toString()); //$NON-NLS-1$
+        assertEquals("292278994-08-17 07:12:55.999", t3.toString()); 
 
         Timestamp t4 = new Timestamp(Long.MIN_VALUE + 808);
-        assertEquals("292269055-12-02 16:47:05.0", t4.toString()); //$NON-NLS-1$
+        assertEquals("292269055-12-02 16:47:05.0", t4.toString()); 
     }
 
     // Reset defualt timezone

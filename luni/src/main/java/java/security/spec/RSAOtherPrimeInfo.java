@@ -51,13 +51,13 @@ public class RSAOtherPrimeInfo {
     public RSAOtherPrimeInfo(BigInteger prime,
             BigInteger primeExponent, BigInteger crtCoefficient) {
         if (prime == null) {
-            throw new NullPointerException(Messages.getString("security.83", "prime")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "prime"));  
         }
         if (primeExponent == null) {
-            throw new NullPointerException(Messages.getString("security.83", "primeExponent")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "primeExponent"));  
         }
         if (crtCoefficient == null) {
-            throw new NullPointerException(Messages.getString("security.83", "crtCoefficient")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "crtCoefficient"));  
         }
         this.prime = prime;
         this.primeExponent = primeExponent;

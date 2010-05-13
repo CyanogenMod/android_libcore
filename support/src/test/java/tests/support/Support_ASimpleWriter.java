@@ -57,7 +57,7 @@ public class Support_ASimpleWriter extends Writer {
             throw new IOException("Exception thrown for testing purpose.");
         }
         if (offset < 0 || count < 0 || (offset + count) > buf.length) {
-            throw new IndexOutOfBoundsException(); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(); 
         }
         try {
             System.arraycopy(src, offset, buf, pos, count);

@@ -126,10 +126,10 @@ public class StringWriter extends Writer {
         // removed redundant check, added null check, used (offset | count) < 0
         // instead of (offset < 0) || (count < 0) to safe one operation
         if (cbuf == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         if ((offset | count) < 0 || count > cbuf.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
         }
         // END android-changed
         if (count == 0) {

@@ -87,7 +87,7 @@ public class SealedObject implements Serializable {
     public SealedObject(Serializable object, Cipher c)
                 throws IOException, IllegalBlockSizeException {
         if (c == null) {
-            throw new NullPointerException(Messages.getString("crypto.13")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.13")); 
         }
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -115,7 +115,7 @@ public class SealedObject implements Serializable {
      */
     protected SealedObject(SealedObject so) {
         if (so == null) {
-            throw new NullPointerException(Messages.getString("crypto.14")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.14")); 
         }
         this.encryptedContent = so.encryptedContent;
         this.encodedParams = so.encodedParams;
@@ -215,7 +215,7 @@ public class SealedObject implements Serializable {
                 throws IOException, ClassNotFoundException,
                        IllegalBlockSizeException, BadPaddingException {
         if (c == null) {
-            throw new NullPointerException(Messages.getString("crypto.13")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.13")); 
         }
         byte[] serialized = c.doFinal(encryptedContent);
         ObjectInputStream ois =
@@ -250,7 +250,7 @@ public class SealedObject implements Serializable {
                        InvalidKeyException {
         if ((provider == null) || (provider.length() == 0)) {
             throw new IllegalArgumentException(
-                    Messages.getString("crypto.15")); //$NON-NLS-1$
+                    Messages.getString("crypto.15")); 
         }
         try {
             Cipher cipher = Cipher.getInstance(sealAlg, provider);

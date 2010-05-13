@@ -68,13 +68,13 @@ public abstract class ASN1Type implements ASN1Constants {
     public ASN1Type(int tagClass, int tagNumber) {
 
         if (tagNumber < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.102")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.102")); 
         }
 
         if (tagClass != CLASS_UNIVERSAL && tagClass != CLASS_APPLICATION
                 && tagClass != CLASS_CONTEXTSPECIFIC
                 && tagClass != CLASS_PRIVATE) {
-            throw new IllegalArgumentException(Messages.getString("security.103")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.103")); 
         }
 
         if (tagNumber < 31) {
@@ -83,7 +83,7 @@ public abstract class ASN1Type implements ASN1Constants {
         } else {
             // long form
             throw new IllegalArgumentException(
-                    Messages.getString("security.104")); //$NON-NLS-1$
+                    Messages.getString("security.104")); 
         }
         this.constrId = this.id + PC_CONSTRUCTED;
     }
@@ -208,7 +208,7 @@ public abstract class ASN1Type implements ASN1Constants {
     public String toString() {
         // TODO decide whether this method is necessary
         //FIXME fix performance
-        return this.getClass().getName() + "(tag: 0x" //$NON-NLS-1$
-                + Integer.toHexString(0xff & this.id) + ")"; //$NON-NLS-1$
+        return this.getClass().getName() + "(tag: 0x" 
+                + Integer.toHexString(0xff & this.id) + ")"; 
     }
 }

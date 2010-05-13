@@ -60,7 +60,7 @@ public class FileURLConnection extends URLConnection {
         super(url);
         fileName = url.getFile();
         if (fileName == null) {
-            fileName = ""; //$NON-NLS-1$
+            fileName = ""; 
         }
         fileName = Util.decode(fileName, false);
     }
@@ -122,7 +122,7 @@ public class FileURLConnection extends URLConnection {
             return MimeTable.UNKNOWN;
         }
         if (isDir) {
-            return "text/plain"; //$NON-NLS-1$
+            return "text/plain"; 
         }
         String result = guessContentTypeFromName(url.getFile());
         if (result != null) {
@@ -150,13 +150,13 @@ public class FileURLConnection extends URLConnection {
         String fileList[] = f.list();
         ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
         PrintStream out = new PrintStream(bytes);
-        out.print("<title>Directory Listing</title>\n"); //$NON-NLS-1$
-        out.print("<base href=\"file:"); //$NON-NLS-1$
-        out.print(f.getPath().replace('\\', '/') + "/\"><h1>" + f.getPath() //$NON-NLS-1$
-                + "</h1>\n<hr>\n"); //$NON-NLS-1$
+        out.print("<title>Directory Listing</title>\n"); 
+        out.print("<base href=\"file:"); 
+        out.print(f.getPath().replace('\\', '/') + "/\"><h1>" + f.getPath() 
+                + "</h1>\n<hr>\n"); 
         int i;
         for (i = 0; i < fileList.length; i++) {
-            out.print(fileList[i] + "<br>\n"); //$NON-NLS-1$
+            out.print(fileList[i] + "<br>\n"); 
         }
         out.close();
         return new ByteArrayInputStream(bytes.toByteArray());
@@ -201,7 +201,7 @@ public class FileURLConnection extends URLConnection {
             if (File.separatorChar != '/') {
                 path = path.replace('/', File.separatorChar);
             }
-            permission = new FilePermission(path, "read"); //$NON-NLS-1$
+            permission = new FilePermission(path, "read"); 
         }
         return permission;
     }

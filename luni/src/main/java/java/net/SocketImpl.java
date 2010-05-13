@@ -297,7 +297,7 @@ public abstract class SocketImpl implements SocketOptions {
      */
     protected void shutdownInput() throws IOException {
         // KA025=Method has not been implemented
-        throw new IOException(Msg.getString("KA025"));//$NON-NLS-1$
+        throw new IOException(Msg.getString("KA025"));
     }
 
     /**
@@ -311,7 +311,7 @@ public abstract class SocketImpl implements SocketOptions {
      */
     protected void shutdownOutput() throws IOException {
         // KA025=Method has not been implemented
-        throw new IOException(Msg.getString("KA025"));//$NON-NLS-1$
+        throw new IOException(Msg.getString("KA025"));
     }
 
     /**

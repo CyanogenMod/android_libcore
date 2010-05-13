@@ -43,10 +43,10 @@ public class JarFile extends ZipFile {
     /**
      * The MANIFEST file name.
      */
-    public static final String MANIFEST_NAME = "META-INF/MANIFEST.MF"; //$NON-NLS-1$
+    public static final String MANIFEST_NAME = "META-INF/MANIFEST.MF"; 
 
     // The directory containing the manifest.
-    static final String META_DIR = "META-INF/"; //$NON-NLS-1$
+    static final String META_DIR = "META-INF/"; 
 
     // The manifest after it has been read from the JAR.
     private Manifest manifest;
@@ -296,7 +296,7 @@ public class JarFile extends ZipFile {
     public Manifest getManifest() throws IOException {
         if (closed) {
             // archive.35=JarFile has been closed
-            throw new IllegalStateException(Messages.getString("archive.35")); //$NON-NLS-1$
+            throw new IllegalStateException(Messages.getString("archive.35")); 
         }
         if (manifest != null) {
             return manifest;

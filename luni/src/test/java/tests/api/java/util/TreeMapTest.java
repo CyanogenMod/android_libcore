@@ -688,20 +688,20 @@ public class TreeMapTest extends junit.framework.TestCase {
         // Regression for Harmony-1161
         TreeMap<String, String> treeMapWithNull = new TreeMap<String, String>(
                 new MockComparatorNullTolerable());
-        treeMapWithNull.put("key1", "value1"); //$NON-NLS-1$ //$NON-NLS-2$
-        treeMapWithNull.put(null, "value2"); //$NON-NLS-1$
+        treeMapWithNull.put("key1", "value1");  
+        treeMapWithNull.put(null, "value2"); 
         SortedMap<String, String> subMapWithNull = treeMapWithNull.subMap(null,
-                "key1"); //$NON-NLS-1$
-        assertEquals("Size of subMap should be 1:", 1, subMapWithNull.size()); //$NON-NLS-1$
+                "key1"); 
+        assertEquals("Size of subMap should be 1:", 1, subMapWithNull.size()); 
 
         // Regression test for typo in lastKey method
         SortedMap<String, String> map = new TreeMap<String, String>();
-        map.put("1", "one"); //$NON-NLS-1$ //$NON-NLS-2$
-        map.put("2", "two"); //$NON-NLS-1$ //$NON-NLS-2$
-        map.put("3", "three"); //$NON-NLS-1$ //$NON-NLS-2$
+        map.put("1", "one");  
+        map.put("2", "two");  
+        map.put("3", "three");  
         assertEquals("3", map.lastKey());
-        SortedMap<String, String> sub = map.subMap("1", "3"); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("2", sub.lastKey()); //$NON-NLS-1$
+        SortedMap<String, String> sub = map.subMap("1", "3");  
+        assertEquals("2", sub.lastKey()); 
         
         try {
             tm.subMap(this, this);

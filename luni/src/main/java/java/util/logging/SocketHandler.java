@@ -54,10 +54,10 @@ import java.net.Socket;
 public class SocketHandler extends StreamHandler {
 
     // default level
-    private static final String DEFAULT_LEVEL = "ALL"; //$NON-NLS-1$
+    private static final String DEFAULT_LEVEL = "ALL"; 
 
     // default formatter
-    private static final String DEFAULT_FORMATTER = "java.util.logging.XMLFormatter"; //$NON-NLS-1$
+    private static final String DEFAULT_FORMATTER = "java.util.logging.XMLFormatter"; 
 
     // the socket connection
     private Socket socket;
@@ -78,9 +78,9 @@ public class SocketHandler extends StreamHandler {
     public SocketHandler() throws IOException {
         super(DEFAULT_LEVEL, null, DEFAULT_FORMATTER, null);
         initSocket(LogManager.getLogManager().getProperty(
-                "java.util.logging.SocketHandler.host"), LogManager //$NON-NLS-1$
+                "java.util.logging.SocketHandler.host"), LogManager 
                 .getLogManager().getProperty(
-                        "java.util.logging.SocketHandler.port")); //$NON-NLS-1$
+                        "java.util.logging.SocketHandler.port")); 
     }
 
     /**

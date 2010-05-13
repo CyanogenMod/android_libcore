@@ -38,7 +38,7 @@ public abstract class Identity implements Principal, Serializable {
 
     private PublicKey publicKey;
 
-    private String info = "no additional info"; //$NON-NLS-1$
+    private String info = "no additional info"; 
 
     private IdentityScope scope;
 
@@ -100,12 +100,12 @@ public abstract class Identity implements Principal, Serializable {
             throws KeyManagementException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("addIdentityCertificate"); //$NON-NLS-1$
+            sm.checkSecurityAccess("addIdentityCertificate"); 
         }
         PublicKey certPK = certificate.getPublicKey();
         if (publicKey != null) {
             if (!checkKeysEqual(publicKey, certPK)) {
-                throw new KeyManagementException(Messages.getString("security.13")); //$NON-NLS-1$
+                throw new KeyManagementException(Messages.getString("security.13")); 
             }
         } else {
             publicKey = certPK;
@@ -160,7 +160,7 @@ public abstract class Identity implements Principal, Serializable {
             throws KeyManagementException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("removeIdentityCertificate"); //$NON-NLS-1$
+            sm.checkSecurityAccess("removeIdentityCertificate"); 
         }
         if (certificates != null) {
             // BEGIN android-added
@@ -233,7 +233,7 @@ public abstract class Identity implements Principal, Serializable {
     public String toString(boolean detailed) {
         String s = toString();
         if (detailed) {
-            s += " " + info; //$NON-NLS-1$
+            s += " " + info; 
         }
         return s;
     }
@@ -272,14 +272,14 @@ public abstract class Identity implements Principal, Serializable {
     public void setPublicKey(PublicKey key) throws KeyManagementException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("setIdentityPublicKey"); //$NON-NLS-1$
+            sm.checkSecurityAccess("setIdentityPublicKey"); 
         }
         // this check does not always work  
         if ((scope != null) && (key != null)) {
             Identity i = scope.getIdentity(key);
             //System.out.println("###DEBUG## Identity: "+i);
             if ((i != null) && (i != this)) {
-                throw new KeyManagementException(Messages.getString("security.14")); //$NON-NLS-1$
+                throw new KeyManagementException(Messages.getString("security.14")); 
             }
         }
         this.publicKey = key;
@@ -317,7 +317,7 @@ public abstract class Identity implements Principal, Serializable {
     public void setInfo(String info) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("setIdentityInfo"); //$NON-NLS-1$
+            sm.checkSecurityAccess("setIdentityInfo"); 
         }
         this.info = info;
     }

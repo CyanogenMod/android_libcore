@@ -333,10 +333,10 @@ public abstract class CipherSpi {
     protected int engineUpdate(ByteBuffer input, ByteBuffer output)
             throws ShortBufferException {
         if (input == null) {
-            throw new NullPointerException(Messages.getString("crypto.0C")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.0C")); 
         }
         if (output == null) {
-            throw new NullPointerException(Messages.getString("crypto.0D")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.0D")); 
         }
         int position = input.position();
         int limit = input.limit();
@@ -356,12 +356,12 @@ public abstract class CipherSpi {
             bOutput = engineUpdate(bInput, 0, limit - position);
         }
         if (output.remaining() < bOutput.length) {
-            throw new ShortBufferException(Messages.getString("crypto.0E")); //$NON-NLS-1$
+            throw new ShortBufferException(Messages.getString("crypto.0E")); 
         }
         try {
             output.put(bOutput);
         } catch (java.nio.BufferOverflowException e) {
-            throw new ShortBufferException(Messages.getString("crypto.0F", e)); //$NON-NLS-1$
+            throw new ShortBufferException(Messages.getString("crypto.0F", e)); 
         }
         return bOutput.length;
     }
@@ -451,10 +451,10 @@ public abstract class CipherSpi {
             throws ShortBufferException, IllegalBlockSizeException,
             BadPaddingException {
         if (input == null) {
-            throw new NullPointerException(Messages.getString("crypto.0C")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.0C")); 
         }
         if (output == null) {
-            throw new NullPointerException(Messages.getString("crypto.0D")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.0D")); 
         }
         int position = input.position();
         int limit = input.limit();
@@ -476,12 +476,12 @@ public abstract class CipherSpi {
             bOutput = engineDoFinal(bInput, 0, limit - position);
         }
         if (output.remaining() < bOutput.length) {
-            throw new ShortBufferException(Messages.getString("crypto.0E")); //$NON-NLS-1$
+            throw new ShortBufferException(Messages.getString("crypto.0E")); 
         }
         try {
             output.put(bOutput);
         } catch (java.nio.BufferOverflowException e) {
-            throw new ShortBufferException(Messages.getString("crypto.0F", e)); //$NON-NLS-1$
+            throw new ShortBufferException(Messages.getString("crypto.0F", e)); 
         }
         return bOutput.length;
     }
@@ -504,7 +504,7 @@ public abstract class CipherSpi {
     protected byte[] engineWrap(Key key) throws IllegalBlockSizeException,
             InvalidKeyException {
         throw new UnsupportedOperationException(
-                Messages.getString("crypto.10")); //$NON-NLS-1$
+                Messages.getString("crypto.10")); 
     }
 
     /**
@@ -534,7 +534,7 @@ public abstract class CipherSpi {
             int wrappedKeyType) throws InvalidKeyException,
             NoSuchAlgorithmException {
         throw new UnsupportedOperationException(
-                Messages.getString("crypto.11")); //$NON-NLS-1$
+                Messages.getString("crypto.11")); 
     }
 
     /**
@@ -552,6 +552,6 @@ public abstract class CipherSpi {
      */
     protected int engineGetKeySize(Key key) throws InvalidKeyException {
         throw new UnsupportedOperationException(
-                Messages.getString("crypto.12")); //$NON-NLS-1$
+                Messages.getString("crypto.12")); 
     }
 }

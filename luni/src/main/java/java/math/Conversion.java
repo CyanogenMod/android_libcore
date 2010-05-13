@@ -59,7 +59,7 @@ class Conversion {
         int digits[] = val.digits;
 
         if (sign == 0) {
-            return "0"; //$NON-NLS-1$
+            return "0"; 
         }
         if (numberLength == 1) {
             int highDigit = digits[numberLength - 1];
@@ -150,25 +150,25 @@ class Conversion {
         if (sign == 0) {
             switch (scale) {
                 case 0:
-                    return "0"; //$NON-NLS-1$
+                    return "0"; 
                 case 1:
-                    return "0.0"; //$NON-NLS-1$
+                    return "0.0"; 
                 case 2:
-                    return "0.00"; //$NON-NLS-1$
+                    return "0.00"; 
                 case 3:
-                    return "0.000"; //$NON-NLS-1$
+                    return "0.000"; 
                 case 4:
-                    return "0.0000"; //$NON-NLS-1$
+                    return "0.0000"; 
                 case 5:
-                    return "0.00000"; //$NON-NLS-1$
+                    return "0.00000"; 
                 case 6:
-                    return "0.000000"; //$NON-NLS-1$
+                    return "0.000000"; 
                 default:
                     StringBuffer result1 = new StringBuffer();
                     if (scale < 0) {
-                        result1.append("0E+"); //$NON-NLS-1$
+                        result1.append("0E+"); 
                     } else {
-                        result1.append("0E"); //$NON-NLS-1$
+                        result1.append("0E"); 
                     }
                     result1.append(-scale);
                     return result1.toString();
@@ -308,21 +308,21 @@ class Conversion {
         }
         if (value == 0) {
             switch (scale) {
-                case 0: return "0"; //$NON-NLS-1$
-                case 1: return "0.0"; //$NON-NLS-1$
-                case 2: return "0.00"; //$NON-NLS-1$
-                case 3: return "0.000"; //$NON-NLS-1$
-                case 4: return "0.0000"; //$NON-NLS-1$
-                case 5: return "0.00000"; //$NON-NLS-1$
-                case 6: return "0.000000"; //$NON-NLS-1$
+                case 0: return "0"; 
+                case 1: return "0.0"; 
+                case 2: return "0.00"; 
+                case 3: return "0.000"; 
+                case 4: return "0.0000"; 
+                case 5: return "0.00000"; 
+                case 6: return "0.000000"; 
                 default:
                     StringBuffer result1 = new StringBuffer();
                     if (scale  < 0) {
-                        result1.append("0E+"); //$NON-NLS-1$
+                        result1.append("0E+"); 
                     } else {
-                        result1.append("0E"); //$NON-NLS-1$
+                        result1.append("0E"); 
                     }
-                    result1.append( (scale == Integer.MIN_VALUE) ? "2147483648" : Integer.toString(-scale)); //$NON-NLS-1$
+                    result1.append( (scale == Integer.MIN_VALUE) ? "2147483648" : Integer.toString(-scale)); 
                     return result1.toString();
             }
         }

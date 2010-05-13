@@ -43,19 +43,19 @@ public final class X500Principal implements Serializable, Principal {
      * Defines a constant for the canonical string format of distinguished
      * names.
      */
-    public static final String CANONICAL = "CANONICAL"; //$NON-NLS-1$
+    public static final String CANONICAL = "CANONICAL"; 
 
     /**
      * Defines a constant for the RFC 1779 string format of distinguished
      * names.
      */
-    public static final String RFC1779 = "RFC1779"; //$NON-NLS-1$
+    public static final String RFC1779 = "RFC1779"; 
 
     /**
      * Defines a constant for the RFC 2253 string format of distinguished
      * names.
      */
-    public static final String RFC2253 = "RFC2253"; //$NON-NLS-1$
+    public static final String RFC2253 = "RFC2253"; 
 
     //Distinguished Name
     private transient Name dn;
@@ -73,14 +73,14 @@ public final class X500Principal implements Serializable, Principal {
     public X500Principal(byte[] name) {
         super();
         if (name == null) {
-            throw new IllegalArgumentException(Messages.getString("auth.00")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("auth.00")); 
         }
         try {
             // FIXME dn = new Name(name);
             dn = (Name) Name.ASN1.decode(name);
         } catch (IOException e) {
             IllegalArgumentException iae = new IllegalArgumentException(Messages
-                    .getString("auth.2B")); //$NON-NLS-1$
+                    .getString("auth.2B")); 
             iae.initCause(e);
             throw iae;
         }
@@ -100,14 +100,14 @@ public final class X500Principal implements Serializable, Principal {
     public X500Principal(InputStream in) {
         super();
         if (in == null) {
-            throw new NullPointerException(Messages.getString("auth.2C")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("auth.2C")); 
         }
         try {
             // FIXME dn = new Name(is);
             dn = (Name) Name.ASN1.decode(in);
         } catch (IOException e) {
             IllegalArgumentException iae = new IllegalArgumentException(Messages
-                    .getString("auth.2B")); //$NON-NLS-1$
+                    .getString("auth.2B")); 
             iae.initCause(e);
             throw iae;
         }
@@ -127,13 +127,13 @@ public final class X500Principal implements Serializable, Principal {
     public X500Principal(String name) {
         super();
         if (name == null) {
-            throw new NullPointerException(Messages.getString("auth.00")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("auth.00")); 
         }
         try {
             dn = new Name(name);
         } catch (IOException e) {
             IllegalArgumentException iae = new IllegalArgumentException(Messages
-                    .getString("auth.2D")); //$NON-NLS-1$
+                    .getString("auth.2D")); 
             iae.initCause(e);
             throw iae;
         }

@@ -58,22 +58,22 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
         this.cofactor = cofactor;
         // throw NullPointerException if curve, generator or order is null
         if (this.curve == null) {
-            throw new NullPointerException(Messages.getString("security.83", "curve")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "curve"));  
         }
         if (this.generator == null) {
-            throw new NullPointerException(Messages.getString("security.83", "generator")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "generator"));  
         }
         if (this.order == null) {
-            throw new NullPointerException(Messages.getString("security.83", "order")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "order"));  
         }
         // throw IllegalArgumentException if order or cofactor is not positive
         if (!(this.order.compareTo(BigInteger.ZERO) > 0)) {
             throw new
-            IllegalArgumentException(Messages.getString("security.86", "order")); //$NON-NLS-1$ //$NON-NLS-2$
+            IllegalArgumentException(Messages.getString("security.86", "order"));  
         }
         if (!(this.cofactor > 0)) {
             throw new
-            IllegalArgumentException(Messages.getString("security.86", "cofactor")); //$NON-NLS-1$ //$NON-NLS-2$
+            IllegalArgumentException(Messages.getString("security.86", "cofactor"));  
         }
     }
 

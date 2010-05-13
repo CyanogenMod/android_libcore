@@ -112,7 +112,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
         @Override
         public String toString() {
-            return key + "=" + value; //$NON-NLS-1$
+            return key + "=" + value; 
         }
     }
 

@@ -49,10 +49,10 @@ public class PolicyQualifierInfo {
      */
     public PolicyQualifierInfo(byte[] encoded) throws IOException {
         if (encoded == null) {
-            throw new NullPointerException(Messages.getString("security.0A")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.0A")); 
         }
         if (encoded.length == 0) {
-            throw new IOException(Messages.getString("security.69")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("security.69")); 
         }
         this.encoded = new byte[encoded.length];
         System.arraycopy(encoded, 0, this.encoded, 0, this.encoded.length);
@@ -109,11 +109,11 @@ public class PolicyQualifierInfo {
      */
     public String toString() {
         StringBuilder sb =
-            new StringBuilder("PolicyQualifierInfo: [\npolicyQualifierId: "); //$NON-NLS-1$
+            new StringBuilder("PolicyQualifierInfo: [\npolicyQualifierId: "); 
         sb.append(policyQualifierId);
-        sb.append("\npolicyQualifier: \n"); //$NON-NLS-1$
-        sb.append(Array.toString(policyQualifier, " ")); //$NON-NLS-1$
-        sb.append("]"); //$NON-NLS-1$
+        sb.append("\npolicyQualifier: \n"); 
+        sb.append(Array.toString(policyQualifier, " ")); 
+        sb.append("]"); 
         return sb.toString();
     }
 }

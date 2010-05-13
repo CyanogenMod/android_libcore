@@ -76,7 +76,7 @@ abstract class AbstractMemorySpy implements IMemorySpy {
         if (wrapper == null) {
             // Attempt to free memory we didn't alloc
             System.err
-                    .println("Memory Spy! Fixed attempt to free memory that was not allocated " + address); //$NON-NLS-1$
+                    .println("Memory Spy! Fixed attempt to free memory that was not allocated " + address); 
         }
         return wrapper != null;
     }
@@ -110,7 +110,7 @@ abstract class AbstractMemorySpy implements IMemorySpy {
                 // There is a leak if we were not auto-freeing this memory.
                 if (!wrapper.autoFree) {
                     System.err
-                            .println("Memory Spy! Fixed memory leak by freeing " + wrapper.shadow); //$NON-NLS-1$
+                            .println("Memory Spy! Fixed memory leak by freeing " + wrapper.shadow); 
                 }
                 wrapper.shadow.free();
             }

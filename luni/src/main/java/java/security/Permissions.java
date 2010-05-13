@@ -46,8 +46,8 @@ public final class Permissions extends PermissionCollection implements
     private static final long serialVersionUID = 4858622370623524688L;
 
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("perms", Hashtable.class), //$NON-NLS-1$
-        new ObjectStreamField("allPermission", PermissionCollection.class), }; //$NON-NLS-1$
+        new ObjectStreamField("perms", Hashtable.class), 
+        new ObjectStreamField("allPermission", PermissionCollection.class), }; 
 
     // Hash to store PermissionCollection's
     private transient Map klasses = new HashMap();
@@ -69,11 +69,11 @@ public final class Permissions extends PermissionCollection implements
      */
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15")); //$NON-NLS-1$
+            throw new SecurityException(Messages.getString("security.15")); 
         }
 
         if (permission == null) {
-            throw new NullPointerException(Messages.getString("security.20")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.20")); 
         }
 
         Class klass = permission.getClass();
@@ -157,14 +157,14 @@ public final class Permissions extends PermissionCollection implements
 
                 return next;
             }
-            throw new NoSuchElementException(Messages.getString("security.17")); //$NON-NLS-1$
+            throw new NoSuchElementException(Messages.getString("security.17")); 
         }
     }
 
     public boolean implies(Permission permission) {
         if (permission == null) {
             // RI compatible
-            throw new NullPointerException(Messages.getString("security.21")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.21")); 
         }
         if (allEnabled) {
             return true;
@@ -212,7 +212,7 @@ public final class Permissions extends PermissionCollection implements
     private void readObject(java.io.ObjectInputStream in) throws IOException,
         ClassNotFoundException {
         ObjectInputStream.GetField fields = in.readFields();
-        Map perms = (Map)fields.get("perms", null); //$NON-NLS-1$
+        Map perms = (Map)fields.get("perms", null); 
         klasses = new HashMap();
         synchronized (klasses) {
             for (Iterator iter = perms.entrySet().iterator(); iter.hasNext();) {
@@ -220,14 +220,14 @@ public final class Permissions extends PermissionCollection implements
                 Class key = (Class) entry.getKey();
                 PermissionCollection pc = (PermissionCollection) entry.getValue();
                 if (key != pc.elements().nextElement().getClass()) {
-                    throw new InvalidObjectException(Messages.getString("security.22")); //$NON-NLS-1$
+                    throw new InvalidObjectException(Messages.getString("security.22")); 
                 }
                 klasses.put(key, pc);
             }
         }
-        allEnabled = fields.get("allPermission", null) != null; //$NON-NLS-1$
+        allEnabled = fields.get("allPermission", null) != null; 
         if (allEnabled && !klasses.containsKey(AllPermission.class)) {
-            throw new InvalidObjectException(Messages.getString("security.23")); //$NON-NLS-1$
+            throw new InvalidObjectException(Messages.getString("security.23")); 
         }
     }
 
@@ -236,8 +236,8 @@ public final class Permissions extends PermissionCollection implements
      */
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         ObjectOutputStream.PutField fields = out.putFields();
-        fields.put("perms", new Hashtable(klasses)); //$NON-NLS-1$
-        fields.put("allPermission", allEnabled ? klasses //$NON-NLS-1$
+        fields.put("perms", new Hashtable(klasses)); 
+        fields.put("allPermission", allEnabled ? klasses 
             .get(AllPermission.class) : null);
         out.writeFields();
     }

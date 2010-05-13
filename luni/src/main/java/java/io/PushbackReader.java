@@ -67,7 +67,7 @@ public class PushbackReader extends FilterReader {
     public PushbackReader(Reader in, int size) {
         super(in);
         if (size <= 0) {
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0058")); 
         }
         buf = new char[size];
         pos = size;
@@ -101,7 +101,7 @@ public class PushbackReader extends FilterReader {
      */
     @Override
     public void mark(int readAheadLimit) throws IOException {
-        throw new IOException(Msg.getString("K007f")); //$NON-NLS-1$
+        throw new IOException(Msg.getString("K007f")); 
     }
 
     /**
@@ -136,7 +136,7 @@ public class PushbackReader extends FilterReader {
     public int read() throws IOException {
         synchronized (lock) {
             if (buf == null) {
-                throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0059")); 
             }
             /* Is there a pushback character available? */
             if (pos < buf.length) {
@@ -179,7 +179,7 @@ public class PushbackReader extends FilterReader {
     public int read(char[] buffer, int offset, int count) throws IOException {
         synchronized (lock) {
             if (null == buf) {
-                throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0059")); 
             }
             // avoid int overflow
             // BEGIN android-changed
@@ -188,10 +188,10 @@ public class PushbackReader extends FilterReader {
             // made implicit null check explicit, used (offset | count) < 0
             // instead of (offset < 0) || (count < 0) to safe one operation
             if (buffer == null) {
-                throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+                throw new NullPointerException(Msg.getString("K0047")); 
             }
             if ((offset | count) < 0 || offset > buffer.length - count) {
-                throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+                throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
             }
             // END android-changed
 
@@ -240,7 +240,7 @@ public class PushbackReader extends FilterReader {
     public boolean ready() throws IOException {
         synchronized (lock) {
             if (buf == null) {
-                throw new IOException(Msg.getString("K0080")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0080")); 
             }
             return (buf.length - pos > 0 || in.ready());
         }
@@ -256,7 +256,7 @@ public class PushbackReader extends FilterReader {
      */
     @Override
     public void reset() throws IOException {
-        throw new IOException(Msg.getString("K007f")); //$NON-NLS-1$
+        throw new IOException(Msg.getString("K007f")); 
     }
 
     /**
@@ -315,20 +315,20 @@ public class PushbackReader extends FilterReader {
         synchronized (lock) {
             if (buf == null) {
                 // K0059=Stream is closed
-                throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0059")); 
             }
             if (length > pos) {
                 // K007e=Pushback buffer full
-                throw new IOException(Msg.getString("K007e")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K007e")); 
             }
             // Force buffer null check first!
             if (offset > buffer.length - length || offset < 0) {
                 // K002e=Offset out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
+                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); 
             }
             if (length < 0) {
                 // K0031=Length out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); //$NON-NLS-1$
+                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); 
             }
 
             for (int i = offset + length - 1; i >= offset; i--) {
@@ -354,10 +354,10 @@ public class PushbackReader extends FilterReader {
     public void unread(int oneChar) throws IOException {
         synchronized (lock) {
             if (buf == null) {
-                throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0059")); 
             }
             if (pos == 0) {
-                throw new IOException(Msg.getString("K007e")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K007e")); 
             }
             buf[--pos] = (char) oneChar;
         }
@@ -382,7 +382,7 @@ public class PushbackReader extends FilterReader {
         }
         synchronized (lock) {
             if (buf == null) {
-                throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0059")); 
             }
             if (count == 0) {
                 return 0;

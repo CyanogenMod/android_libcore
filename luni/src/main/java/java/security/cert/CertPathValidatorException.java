@@ -69,11 +69,11 @@ public class CertPathValidatorException extends GeneralSecurityException {
         // check certPath and index parameters
         if ((certPath == null) && (index != -1)) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.53")); //$NON-NLS-1$
+                    Messages.getString("security.53")); 
         }
         if ((certPath != null)
                 && ((index < -1) || (index >= certPath.getCertificates().size()))) {
-            throw new IndexOutOfBoundsException(Messages.getString("security.54")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Messages.getString("security.54")); 
         }
         this.certPath = certPath;
         this.index = index;

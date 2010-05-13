@@ -40,7 +40,7 @@ public class HeapDoubleBufferTest extends DoubleBufferTest {
     public void testAllocatedDoubleBuffer_IllegalArg() {
         try {
             DoubleBuffer.allocate(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }

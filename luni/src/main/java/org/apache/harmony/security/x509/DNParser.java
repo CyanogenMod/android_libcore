@@ -98,7 +98,7 @@ public class DNParser {
         if (pos >= length) {
             // unexpected end of DN
             throw new IOException(
-                    Messages.getString("security.192")); //$NON-NLS-1$
+                    Messages.getString("security.192")); 
         }
 
         // mark the end of attribute type
@@ -113,7 +113,7 @@ public class DNParser {
             if (chars[pos] != '=' || pos == length) {
                 // unexpected end of DN
                 throw new IOException(
-                        Messages.getString("security.192")); //$NON-NLS-1$
+                        Messages.getString("security.192")); 
             }
         }
 
@@ -147,7 +147,7 @@ public class DNParser {
             if (pos == length) {
                 // unexpected end of DN
                 throw new IOException(
-                        Messages.getString("security.192")); //$NON-NLS-1$
+                        Messages.getString("security.192")); 
             }
 
             if (chars[pos] == '"') {
@@ -178,7 +178,7 @@ public class DNParser {
         if (pos + 4 >= length) {
             // encoded byte array  must be not less then 4 c
             throw new IOException(
-                    Messages.getString("security.192")); //$NON-NLS-1$
+                    Messages.getString("security.192")); 
         }
 
         beg = pos; // store '#' position
@@ -213,7 +213,7 @@ public class DNParser {
         int hexLen = end - beg; // skip first '#' char
         if (hexLen < 5 || (hexLen & 1) == 0) {
             throw new IOException(
-                    Messages.getString("security.192")); //$NON-NLS-1$
+                    Messages.getString("security.192")); 
         }
 
         // get byte encoding from string representation
@@ -278,7 +278,7 @@ public class DNParser {
         pos++;
         if (pos == length) {
             throw new IOException(
-                    Messages.getString("security.192")); //$NON-NLS-1$
+                    Messages.getString("security.192")); 
         }
 
         switch (chars[pos]) {
@@ -361,7 +361,7 @@ public class DNParser {
         if ((position + 1) >= length) {
             // to avoid ArrayIndexOutOfBoundsException
             throw new IOException(
-                    Messages.getString("security.192")); //$NON-NLS-1$
+                    Messages.getString("security.192")); 
         }
 
         int b1, b2;
@@ -375,7 +375,7 @@ public class DNParser {
             b1 = b1 - 55; // 55 = 'A' - 10
         } else {
             throw new IOException(
-                    Messages.getString("security.192")); //$NON-NLS-1$
+                    Messages.getString("security.192")); 
         }
 
         b2 = chars[position + 1];
@@ -387,7 +387,7 @@ public class DNParser {
             b2 = b2 - 55; // 55 = 'A' - 10
         } else {
             throw new IOException(
-                    Messages.getString("security.192")); //$NON-NLS-1$
+                    Messages.getString("security.192")); 
         }
 
         return (b1 << 4) + b2;
@@ -416,7 +416,7 @@ public class DNParser {
 
                 //empty Attribute Value
                 atav.add(new AttributeTypeAndValue(attType, new AttributeValue(
-                        "", false))); //$NON-NLS-1$
+                        "", false))); 
                 list.add(0, atav);
 
                 return list;
@@ -439,7 +439,7 @@ public class DNParser {
             case ';': // compatibility with RFC 1779: semicolon can separate RDNs
                 //empty attribute value
                 atav.add(new AttributeTypeAndValue(attType, new AttributeValue(
-                        "", false))); //$NON-NLS-1$
+                        "", false))); 
                 break;
             default:
                 attValue = escapedAV();
@@ -457,14 +457,14 @@ public class DNParser {
                 atav = new ArrayList();
             } else if (chars[pos] != '+') {
                 throw new IOException(
-                        Messages.getString("security.192")); //$NON-NLS-1$
+                        Messages.getString("security.192")); 
             }
 
             pos++;
             attType = nextAT();
             if (attType == null) {
                 throw new IOException(
-                        Messages.getString("security.192")); //$NON-NLS-1$
+                        Messages.getString("security.192")); 
             }
         }
     }

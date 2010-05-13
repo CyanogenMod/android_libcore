@@ -109,12 +109,12 @@ public abstract class Handler {
         LogManager manager = LogManager.getLogManager();
 
         // set filter
-        final String filterName = manager.getProperty(prefix + ".filter"); //$NON-NLS-1$
+        final String filterName = manager.getProperty(prefix + ".filter"); 
         if (null != filterName) {
             try {
                 filter = (Filter) getCustomizeInstance(filterName);
             } catch (Exception e1) {
-                printInvalidPropMessage("filter", filterName, e1); //$NON-NLS-1$
+                printInvalidPropMessage("filter", filterName, e1); 
                 filter = (Filter) getDefaultInstance(defaultFilter);
             }
         } else {
@@ -122,12 +122,12 @@ public abstract class Handler {
         }
 
         // set level
-        String levelName = manager.getProperty(prefix + ".level"); //$NON-NLS-1$
+        String levelName = manager.getProperty(prefix + ".level"); 
         if (null != levelName) {
             try {
                 level = Level.parse(levelName);
             } catch (Exception e) {
-                printInvalidPropMessage("level", levelName, e); //$NON-NLS-1$
+                printInvalidPropMessage("level", levelName, e); 
                 level = Level.parse(defaultLevel);
             }
         } else {
@@ -135,12 +135,12 @@ public abstract class Handler {
         }
 
         // set formatter
-        final String formatterName = manager.getProperty(prefix + ".formatter"); //$NON-NLS-1$
+        final String formatterName = manager.getProperty(prefix + ".formatter"); 
         if (null != formatterName) {
             try {
                 formatter = (Formatter) getCustomizeInstance(formatterName);
             } catch (Exception e) {
-                printInvalidPropMessage("formatter", formatterName, e); //$NON-NLS-1$
+                printInvalidPropMessage("formatter", formatterName, e); 
                 formatter = (Formatter) getDefaultInstance(defaultFormatter);
             }
         } else {
@@ -148,11 +148,11 @@ public abstract class Handler {
         }
 
         // set encoding
-        final String encodingName = manager.getProperty(prefix + ".encoding"); //$NON-NLS-1$
+        final String encodingName = manager.getProperty(prefix + ".encoding"); 
         try {
             internalSetEncoding(encodingName);
         } catch (UnsupportedEncodingException e) {
-            printInvalidPropMessage("encoding", encodingName, e); //$NON-NLS-1$
+            printInvalidPropMessage("encoding", encodingName, e); 
         }
     }
 

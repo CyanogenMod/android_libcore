@@ -56,15 +56,15 @@ public class ReasonFlags {
      * The names of the reasons.
      */
     static final String[] REASONS = {
-        "unused", //$NON-NLS-1$
-        "keyCompromise", //$NON-NLS-1$
-        "cACompromise", //$NON-NLS-1$
-        "affiliationChanged", //$NON-NLS-1$
-        "superseded", //$NON-NLS-1$
-        "cessationOfOperation", //$NON-NLS-1$
-        "certificateHold", //$NON-NLS-1$
-        "privilegeWithdrawn", //$NON-NLS-1$
-        "aACompromise" //$NON-NLS-1$
+        "unused", 
+        "keyCompromise", 
+        "cACompromise", 
+        "affiliationChanged", 
+        "superseded", 
+        "cessationOfOperation", 
+        "certificateHold", 
+        "privilegeWithdrawn", 
+        "aACompromise" 
     };
 
     // the value of extension
@@ -83,15 +83,15 @@ public class ReasonFlags {
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
         buffer.append(prefix);
-        buffer.append("ReasonFlags [\n"); //$NON-NLS-1$
+        buffer.append("ReasonFlags [\n"); 
         for (int i=0; i<flags.length; i++) {
             if (flags[i]) {
-                buffer.append(prefix).append("  ") //$NON-NLS-1$
+                buffer.append(prefix).append("  ") 
                     .append(REASONS[i]).append('\n');
             }
         }
         buffer.append(prefix);
-        buffer.append("]\n"); //$NON-NLS-1$
+        buffer.append("]\n"); 
     }
     
     /**

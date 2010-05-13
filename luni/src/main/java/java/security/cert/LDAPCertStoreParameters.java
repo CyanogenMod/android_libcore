@@ -22,7 +22,7 @@ package java.security.cert;
  */
 public class LDAPCertStoreParameters implements CertStoreParameters {
     // Default LDAP server name
-    private static final String DEFAULT_LDAP_SERVER_NAME = "localhost"; //$NON-NLS-1$
+    private static final String DEFAULT_LDAP_SERVER_NAME = "localhost"; 
     // Default LDAP server port number 
     private static final int DEFAULT_LDAP_PORT  = 389;
 
@@ -118,11 +118,11 @@ public class LDAPCertStoreParameters implements CertStoreParameters {
      */
     public String toString() {
         StringBuilder sb =
-            new StringBuilder("LDAPCertStoreParameters: [\n serverName: "); //$NON-NLS-1$
+            new StringBuilder("LDAPCertStoreParameters: [\n serverName: "); 
         sb.append(getServerName());
-        sb.append("\n port: "); //$NON-NLS-1$
+        sb.append("\n port: "); 
         sb.append(getPort());
-        sb.append("\n]"); //$NON-NLS-1$
+        sb.append("\n]"); 
         return sb.toString();
     }
 }

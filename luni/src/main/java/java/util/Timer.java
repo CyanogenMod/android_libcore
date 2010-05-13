@@ -560,22 +560,22 @@ public class Timer {
             boolean fixed) {
         synchronized (impl) {
             if (impl.cancelled) {
-                throw new IllegalStateException(Msg.getString("K00f3")); //$NON-NLS-1$
+                throw new IllegalStateException(Msg.getString("K00f3")); 
             }
 
             long when = delay + System.currentTimeMillis();
 
             if (when < 0) {
-                throw new IllegalArgumentException(Msg.getString("K00f5")); //$NON-NLS-1$
+                throw new IllegalArgumentException(Msg.getString("K00f5")); 
             }
 
             synchronized (task.lock) {
                 if (task.isScheduled()) {
-                    throw new IllegalStateException(Msg.getString("K00f6")); //$NON-NLS-1$
+                    throw new IllegalStateException(Msg.getString("K00f6")); 
                 }
 
                 if (task.cancelled) {
-                    throw new IllegalStateException(Msg.getString("K00f7")); //$NON-NLS-1$
+                    throw new IllegalStateException(Msg.getString("K00f7")); 
                 }
 
                 task.when = when;

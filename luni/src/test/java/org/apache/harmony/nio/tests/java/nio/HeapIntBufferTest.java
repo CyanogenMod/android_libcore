@@ -40,7 +40,7 @@ public class HeapIntBufferTest extends IntBufferTest {
     public void testAllocatedIntBuffer_IllegalArg() {
         try {
             IntBuffer.allocate(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }

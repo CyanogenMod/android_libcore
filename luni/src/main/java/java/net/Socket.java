@@ -110,7 +110,7 @@ public class Socket {
     public Socket(Proxy proxy) {
         if (null == proxy || Proxy.Type.HTTP == proxy.type()) {
             // KA023=Proxy is null or invalid type
-            throw new IllegalArgumentException(Msg.getString("KA023")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("KA023")); 
         }
         InetSocketAddress address = (InetSocketAddress) proxy.address();
         if (null != address) {
@@ -383,7 +383,7 @@ public class Socket {
      */
     void checkDestination(InetAddress destAddr, int dstPort) {
         if (dstPort < 0 || dstPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0032")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0032")); 
         }
         // BEGIN android-changed
         checkConnectPermission(destAddr.getHostAddress(), dstPort);
@@ -441,7 +441,7 @@ public class Socket {
     public InputStream getInputStream() throws IOException {
         checkClosedAndCreate(false);
         if (isInputShutdown()) {
-            throw new SocketException(Msg.getString("K0321")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K0321")); 
         }
         return impl.getInputStream();
     }
@@ -498,7 +498,7 @@ public class Socket {
     public OutputStream getOutputStream() throws IOException {
         checkClosedAndCreate(false);
         if (isOutputShutdown()) {
-            throw new SocketException(Msg.getString("KA00f")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("KA00f")); 
         }
         return impl.getOutputStream();
     }
@@ -619,7 +619,7 @@ public class Socket {
             security.checkSetFactory();
         }
         if (factory != null) {
-            throw new SocketException(Msg.getString("K0044")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K0044")); 
         }
         factory = fac;
     }
@@ -638,7 +638,7 @@ public class Socket {
     public synchronized void setSendBufferSize(int size) throws SocketException {
         checkClosedAndCreate(true);
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0035")); 
         }
         impl.setOption(SocketOptions.SO_SNDBUF, Integer.valueOf(size));
     }
@@ -658,7 +658,7 @@ public class Socket {
             throws SocketException {
         checkClosedAndCreate(true);
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0035")); 
         }
         impl.setOption(SocketOptions.SO_RCVBUF, Integer.valueOf(size));
     }
@@ -679,7 +679,7 @@ public class Socket {
     public void setSoLinger(boolean on, int timeout) throws SocketException {
         checkClosedAndCreate(true);
         if (on && timeout < 0) {
-            throw new IllegalArgumentException(Msg.getString("K0045")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0045")); 
         }
         // BEGIN android-changed
         /*
@@ -713,7 +713,7 @@ public class Socket {
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         checkClosedAndCreate(true);
         if (timeout < 0) {
-            throw new IllegalArgumentException(Msg.getString("K0036")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0036")); 
         }
         impl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(timeout));
     }
@@ -753,7 +753,7 @@ public class Socket {
             throws IOException {
 
         if (localPort < 0 || localPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0046")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0046")); 
         }
 
         InetAddress addr = localAddress == null ? Inet4Address.ANY
@@ -784,7 +784,7 @@ public class Socket {
     @Override
     public String toString() {
         if (!isConnected()) {
-            return "Socket[unconnected]"; //$NON-NLS-1$
+            return "Socket[unconnected]"; 
         }
         return impl.toString();
     }
@@ -801,7 +801,7 @@ public class Socket {
      */
     public void shutdownInput() throws IOException {
         if (isInputShutdown()) {
-            throw new SocketException(Msg.getString("K0321")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K0321")); 
         }
         checkClosedAndCreate(false);
         impl.shutdownInput();
@@ -820,7 +820,7 @@ public class Socket {
      */
     public void shutdownOutput() throws IOException {
         if (isOutputShutdown()) {
-            throw new SocketException(Msg.getString("KA00f")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("KA00f")); 
         }
         checkClosedAndCreate(false);
         impl.shutdownOutput();
@@ -836,11 +836,11 @@ public class Socket {
      */
     private void checkClosedAndCreate(boolean create) throws SocketException {
         if (isClosed()) {
-            throw new SocketException(Msg.getString("K003d")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K003d")); 
         }
         if (!create) {
             if (!isConnected()) {
-                throw new SocketException(Msg.getString("K0320")); //$NON-NLS-1$
+                throw new SocketException(Msg.getString("K0320")); 
                 // a connected socket must be created
             }
 
@@ -940,7 +940,7 @@ public class Socket {
     public void bind(SocketAddress localAddr) throws IOException {
         checkClosedAndCreate(true);
         if (isBound()) {
-            throw new BindException(Msg.getString("K0315")); //$NON-NLS-1$
+            throw new BindException(Msg.getString("K0315")); 
         }
 
         int port = 0;
@@ -948,12 +948,12 @@ public class Socket {
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
                 throw new IllegalArgumentException(Msg.getString(
-                        "K0316", localAddr.getClass())); //$NON-NLS-1$
+                        "K0316", localAddr.getClass())); 
             }
             InetSocketAddress inetAddr = (InetSocketAddress) localAddr;
             if ((addr = inetAddr.getAddress()) == null) {
                 throw new SocketException(Msg.getString(
-                        "K0317", inetAddr.getHostName())); //$NON-NLS-1$
+                        "K0317", inetAddr.getHostName())); 
             }
             port = inetAddr.getPort();
         }
@@ -1007,23 +1007,23 @@ public class Socket {
             throws IOException {
         checkClosedAndCreate(true);
         if (timeout < 0) {
-            throw new IllegalArgumentException(Msg.getString("K0036")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0036")); 
         }
         if (isConnected()) {
-            throw new SocketException(Msg.getString("K0079")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K0079")); 
         }
         if (remoteAddr == null) {
-            throw new IllegalArgumentException(Msg.getString("K0318")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0318")); 
         }
 
         if (!(remoteAddr instanceof InetSocketAddress)) {
             throw new IllegalArgumentException(Msg.getString(
-                    "K0316", remoteAddr.getClass())); //$NON-NLS-1$
+                    "K0316", remoteAddr.getClass())); 
         }
         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
         InetAddress addr;
         if ((addr = inetAddr.getAddress()) == null) {
-            throw new UnknownHostException(Msg.getString("K0317", remoteAddr));//$NON-NLS-1$
+            throw new UnknownHostException(Msg.getString("K0317", remoteAddr));
         }
         int port = inetAddr.getPort();
 
@@ -1177,7 +1177,7 @@ public class Socket {
      */
     public void sendUrgentData(int value) throws IOException {
         if (!impl.supportsUrgentData()) {
-            throw new SocketException(Msg.getString("K0333")); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K0333")); 
         }
         impl.sendUrgentData(value);
     }
@@ -1194,8 +1194,8 @@ public class Socket {
 
     static boolean preferIPv4Stack() {
         String result = AccessController.doPrivileged(new PriviAction<String>(
-                "java.net.preferIPv4Stack")); //$NON-NLS-1$
-        return "true".equals(result); //$NON-NLS-1$
+                "java.net.preferIPv4Stack")); 
+        return "true".equals(result); 
     }
 
     /**

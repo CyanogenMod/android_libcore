@@ -525,7 +525,7 @@ public class X509CertImpl extends X509Certificate {
         // compute and verify the signature
         signature.update(tbsCertificate, 0, tbsCertificate.length);
         if (!signature.verify(certificate.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C")); //$NON-NLS-1$
+            throw new SignatureException(Messages.getString("security.15C")); 
         }
     }
 
@@ -556,7 +556,7 @@ public class X509CertImpl extends X509Certificate {
         // compute and verify the signature
         signature.update(tbsCertificate, 0, tbsCertificate.length);
         if (!signature.verify(certificate.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C")); //$NON-NLS-1$
+            throw new SignatureException(Messages.getString("security.15C")); 
         }
     }
 
@@ -598,7 +598,7 @@ public class X509CertImpl extends X509Certificate {
 
         byte[] sig = certificate.getSignatureValue();
         if (!NativeCrypto.verifySignature(tbsCertificate, sig, algorithm, rsaKey)) {
-            throw new SignatureException(Messages.getString("security.15C")); //$NON-NLS-1$
+            throw new SignatureException(Messages.getString("security.15C")); 
         }
     }
     // END android-added

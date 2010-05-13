@@ -69,7 +69,7 @@ public final class Security {
                  */
                 try {
                     InputStream configStream =
-                        getClass().getResourceAsStream("security.properties"); //$NON-NLS-1$
+                        getClass().getResourceAsStream("security.properties"); 
                     InputStream input = new BufferedInputStream(configStream);
                     secprops.load(input);
                     loaded = true;
@@ -81,10 +81,10 @@ public final class Security {
                 // END android-added
 
                 // BEGIN android-removed
-//                if (Util.equalsIgnoreCase("true", secprops.getProperty("security.allowCustomPropertiesFile", "true"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-//                    String securityFile = System.getProperty("java.security.properties"); //$NON-NLS-1$
+//                if (Util.equalsIgnoreCase("true", secprops.getProperty("security.allowCustomPropertiesFile", "true"))) {   
+//                    String securityFile = System.getProperty("java.security.properties"); 
 //                    if (securityFile != null) {
-//                        if (securityFile.startsWith("=")) { // overwrite //$NON-NLS-1$
+//                        if (securityFile.startsWith("=")) { // overwrite 
 //                            secprops = new Properties();
 //                            loaded = false;
 //                            securityFile = securityFile.substring(1);
@@ -132,10 +132,10 @@ public final class Security {
 
     // Register default providers
     private static void registerDefaultProviders() {
-        secprops.put("security.provider.1", "org.apache.harmony.security.provider.cert.DRLCertFactory");  //$NON-NLS-1$ //$NON-NLS-2$
-        secprops.put("security.provider.2", "org.apache.harmony.security.provider.crypto.CryptoProvider");  //$NON-NLS-1$ //$NON-NLS-2$
-        secprops.put("security.provider.3", "org.apache.harmony.xnet.provider.jsse.JSSEProvider");  //$NON-NLS-1$ //$NON-NLS-2$
-        secprops.put("security.provider.4", "org.bouncycastle.jce.provider.BouncyCastleProvider");  //$NON-NLS-1$ //$NON-NLS-2$
+        secprops.put("security.provider.1", "org.apache.harmony.security.provider.cert.DRLCertFactory");   
+        secprops.put("security.provider.2", "org.apache.harmony.security.provider.crypto.CryptoProvider");   
+        secprops.put("security.provider.3", "org.apache.harmony.xnet.provider.jsse.JSSEProvider");   
+        secprops.put("security.provider.4", "org.bouncycastle.jce.provider.BouncyCastleProvider");   
     }
 
     /**
@@ -155,7 +155,7 @@ public final class Security {
             return null;
         }
         // BEGIN android-changed
-        String prop = "Alg." + propName + "." + algName; //$NON-NLS-1$
+        String prop = "Alg." + propName + "." + algName; 
         // END android-changed
         Provider[] providers = getProviders();
         for (int i = 0; i < providers.length; i++) {
@@ -199,7 +199,7 @@ public final class Security {
         // one position for next providers; Note: The position is 1-based
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("insertProvider." + provider.getName()); //$NON-NLS-1$
+            sm.checkSecurityAccess("insertProvider." + provider.getName()); 
         }
         if (getProvider(provider.getName()) != null) {
             return -1;
@@ -267,7 +267,7 @@ public final class Security {
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("removeProvider." + name); //$NON-NLS-1$
+            sm.checkSecurityAccess("removeProvider." + name); 
         }
         Services.removeProvider(p.getProviderNumber());
         renumProviders();
@@ -322,20 +322,20 @@ public final class Security {
      */
     public static Provider[] getProviders(String filter) {
         if (filter == null) {
-            throw new NullPointerException(Messages.getString("security.2A")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.2A")); 
         }
         if (filter.length() == 0) {
             throw new InvalidParameterException(
-                    Messages.getString("security.2B")); //$NON-NLS-1$
+                    Messages.getString("security.2B")); 
         }
         HashMap<String, String> hm = new HashMap<String, String>();
         int i = filter.indexOf(':');
         if ((i == filter.length() - 1) || (i == 0)) {
             throw new InvalidParameterException(
-                    Messages.getString("security.2B")); //$NON-NLS-1$
+                    Messages.getString("security.2B")); 
         }
         if (i < 1) {
-            hm.put(filter, ""); //$NON-NLS-1$
+            hm.put(filter, ""); 
         } else {
             hm.put(filter.substring(0, i), filter.substring(i + 1));
         }
@@ -368,7 +368,7 @@ public final class Security {
      */
     public static synchronized Provider[] getProviders(Map<String,String> filter) {
         if (filter == null) {
-            throw new NullPointerException(Messages.getString("security.2A")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.2A")); 
         }
         if (filter.isEmpty()) {
             return null;
@@ -385,22 +385,22 @@ public final class Security {
             int j = key.indexOf('.');
             if (j == -1) {
                 throw new InvalidParameterException(
-                        Messages.getString("security.2B")); //$NON-NLS-1$
+                        Messages.getString("security.2B")); 
             }
             if (i == -1) { // <crypto_service>.<algorithm_or_type>
                 if (val.length() != 0) {
                     throw new InvalidParameterException(
-                            Messages.getString("security.2B")); //$NON-NLS-1$
+                            Messages.getString("security.2B")); 
                 }
             } else { // <crypto_service>.<algorithm_or_type> <attribute_name>
                 if (val.length() == 0) {
                     throw new InvalidParameterException(
-                            Messages.getString("security.2B")); //$NON-NLS-1$
+                            Messages.getString("security.2B")); 
                 }
                 attribute = key.substring(i + 1);
                 if (attribute.trim().length() == 0) {
                     throw new InvalidParameterException(
-                            Messages.getString("security.2B")); //$NON-NLS-1$
+                            Messages.getString("security.2B")); 
                 }
                 key = key.substring(0, i);
             }
@@ -408,7 +408,7 @@ public final class Security {
             String alg = key.substring(j + 1);
             if (serv.length() == 0 || alg.length() == 0) {
                 throw new InvalidParameterException(
-                        Messages.getString("security.2B")); //$NON-NLS-1$
+                        Messages.getString("security.2B")); 
             }
             Provider p;
             for (int k = 0; k < result.size(); k++) {
@@ -446,11 +446,11 @@ public final class Security {
      */
     public static String getProperty(String key) {
         if (key == null) {
-            throw new NullPointerException(Messages.getString("security.2C")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.2C")); 
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("getProperty." + key); //$NON-NLS-1$
+            sm.checkSecurityAccess("getProperty." + key); 
         }
         String property = secprops.getProperty(key);
         if (property != null) {
@@ -478,7 +478,7 @@ public final class Security {
     public static void setProperty(String key, String datnum) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("setProperty." + key); //$NON-NLS-1$
+            sm.checkSecurityAccess("setProperty." + key); 
         }
         secprops.put(key, datnum);
     }

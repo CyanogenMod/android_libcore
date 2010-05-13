@@ -80,9 +80,9 @@ import java.security.PrivilegedAction;
  */
 public abstract class ResourceBundle {
 
-    private static final String UNDER_SCORE = "_"; //$NON-NLS-1$
+    private static final String UNDER_SCORE = "_"; 
 
-    private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+    private static final String EMPTY_STRING = ""; 
 
     /**
      * The parent of this {@code ResourceBundle} that is used if this bundle doesn't
@@ -294,7 +294,7 @@ public abstract class ResourceBundle {
             ResourceBundle.Control control) {
         boolean expired = false;
         String bundleName = control.toBundleName(baseName, targetLocale);
-        Object cacheKey = loader != null ? (Object) loader : (Object) "null"; //$NON-NLS-1$
+        Object cacheKey = loader != null ? (Object) loader : (Object) "null"; 
         Hashtable<String, ResourceBundle> loaderCache;
         // try to find in cache
         synchronized (cache) {
@@ -509,7 +509,7 @@ public abstract class ResourceBundle {
             boolean loadBase, final ClassLoader loader) {
         ResourceBundle bundle = null;
         String bundleName = base + locale;
-        Object cacheKey = loader != null ? (Object) loader : (Object) "null"; //$NON-NLS-1$
+        Object cacheKey = loader != null ? (Object) loader : (Object) "null"; 
         Hashtable<String, ResourceBundle> loaderCache;
         synchronized (cache) {
             loaderCache = cache.get(cacheKey);
@@ -555,9 +555,9 @@ public abstract class ResourceBundle {
                         public InputStream run() {
                             return loader == null ? ClassLoader
                                     .getSystemResourceAsStream(fileName
-                                            + ".properties") : loader //$NON-NLS-1$
+                                            + ".properties") : loader 
                                     .getResourceAsStream(fileName
-                                            + ".properties"); //$NON-NLS-1$
+                                            + ".properties"); 
                         }
                     });
             if (stream != null) {

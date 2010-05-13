@@ -36,7 +36,7 @@ public final class Inet6Address extends InetAddress {
     static final InetAddress ANY = new Inet6Address(new byte[]
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
     static final InetAddress LOOPBACK = new Inet6Address(new byte[]
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, "localhost"); //$NON-NLS-1$
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, "localhost"); 
 
     int scope_id;
 
@@ -103,7 +103,7 @@ public final class Inet6Address extends InetAddress {
             int scope_id) throws UnknownHostException {
         if (null == addr || 16 != addr.length) {
             // KA020=Illegal IPv6 address
-            throw new UnknownHostException(Msg.getString("KA020")); //$NON-NLS-1$
+            throw new UnknownHostException(Msg.getString("KA020")); 
         }
         if (scope_id < 0) {
             scope_id = 0;
@@ -161,7 +161,7 @@ public final class Inet6Address extends InetAddress {
         // UnknownHostException.
         if (!address.scope_id_set) {
             // KA021=Scope id is not found for the given address
-            throw new UnknownHostException(Msg.getString("KA021")); //$NON-NLS-1$
+            throw new UnknownHostException(Msg.getString("KA021")); 
         }
         return address;
     }
@@ -420,35 +420,35 @@ public final class Inet6Address extends InetAddress {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("ipaddress", new byte[0].getClass()), //$NON-NLS-1$
-            new ObjectStreamField("scope_id", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("scope_id_set", Boolean.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("scope_ifname_set", Boolean.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("ifname", String.class), }; //$NON-NLS-1$
+            new ObjectStreamField("ipaddress", new byte[0].getClass()), 
+            new ObjectStreamField("scope_id", Integer.TYPE), 
+            new ObjectStreamField("scope_id_set", Boolean.TYPE), 
+            new ObjectStreamField("scope_ifname_set", Boolean.TYPE), 
+            new ObjectStreamField("ifname", String.class), }; 
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();
         if (ipaddress == null) {
-            fields.put("ipaddress", null); //$NON-NLS-1$
+            fields.put("ipaddress", null); 
         } else {
-            fields.put("ipaddress", ipaddress); //$NON-NLS-1$
+            fields.put("ipaddress", ipaddress); 
         }
 
-        fields.put("scope_id", scope_id); //$NON-NLS-1$
-        fields.put("scope_id_set", scope_id_set); //$NON-NLS-1$
-        fields.put("scope_ifname_set", scope_ifname_set); //$NON-NLS-1$
-        fields.put("ifname", ifname); //$NON-NLS-1$
+        fields.put("scope_id", scope_id); 
+        fields.put("scope_id_set", scope_id_set); 
+        fields.put("scope_ifname_set", scope_ifname_set); 
+        fields.put("ifname", ifname); 
         stream.writeFields();
     }
 
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
         ObjectInputStream.GetField fields = stream.readFields();
-        ipaddress = (byte[]) fields.get("ipaddress", null); //$NON-NLS-1$
-        scope_id = fields.get("scope_id", 0); //$NON-NLS-1$
-        scope_id_set = fields.get("scope_id_set", false); //$NON-NLS-1$
-        ifname = (String) fields.get("ifname", null); //$NON-NLS-1$
-        scope_ifname_set = fields.get("scope_ifname_set", false); //$NON-NLS-1$
+        ipaddress = (byte[]) fields.get("ipaddress", null); 
+        scope_id = fields.get("scope_id", 0); 
+        scope_id_set = fields.get("scope_id_set", false); 
+        ifname = (String) fields.get("ifname", null); 
+        scope_ifname_set = fields.get("scope_ifname_set", false); 
         if (scope_ifname_set && null != ifname) {
             scopedIf = NetworkInterface.getByName(ifname);
         }
@@ -463,10 +463,10 @@ public final class Inet6Address extends InetAddress {
     @Override
     public String toString() {
         if (ifname != null) {
-            return super.toString() + "%" + ifname; //$NON-NLS-1$
+            return super.toString() + "%" + ifname; 
         }
         if (scope_id != 0) {
-            return super.toString() + "%" + scope_id; //$NON-NLS-1$
+            return super.toString() + "%" + scope_id; 
         }
         return super.toString();
     }

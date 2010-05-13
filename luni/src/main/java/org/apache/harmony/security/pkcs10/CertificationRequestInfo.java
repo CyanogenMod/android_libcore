@@ -116,22 +116,22 @@ public class CertificationRequestInfo {
 
     public String toString() {
         StringBuilder res = new StringBuilder();
-        res.append("-- CertificationRequestInfo:"); //$NON-NLS-1$
-        res.append("\n version: "); //$NON-NLS-1$
+        res.append("-- CertificationRequestInfo:"); 
+        res.append("\n version: "); 
         res.append(version);
-        res.append("\n subject: "); //$NON-NLS-1$
+        res.append("\n subject: "); 
         res.append(subject.getName(X500Principal.CANONICAL));
-        res.append("\n subjectPublicKeyInfo: "); //$NON-NLS-1$
-        res.append("\n\t algorithm: " //$NON-NLS-1$
+        res.append("\n subjectPublicKeyInfo: "); 
+        res.append("\n\t algorithm: " 
                 + subjectPublicKeyInfo.getAlgorithmIdentifier().getAlgorithm());
-        res.append("\n\t public key: " + subjectPublicKeyInfo.getPublicKey()); //$NON-NLS-1$
-        res.append("\n attributes: "); //$NON-NLS-1$
+        res.append("\n\t public key: " + subjectPublicKeyInfo.getPublicKey()); 
+        res.append("\n attributes: "); 
         if (attributes != null) {
             res.append(attributes.toString());
         } else {
-            res.append("none"); //$NON-NLS-1$
+            res.append("none"); 
         }
-        res.append("\n-- CertificationRequestInfo End\n"); //$NON-NLS-1$
+        res.append("\n-- CertificationRequestInfo End\n"); 
         return res.toString();
     }
 

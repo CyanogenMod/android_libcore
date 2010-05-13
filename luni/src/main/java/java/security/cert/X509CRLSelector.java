@@ -123,7 +123,7 @@ public class X509CRLSelector implements CRLSelector {
                             X500Principal.CANONICAL));
             } else {
                 throw new IOException(
-                        Messages.getString("security.62")); //$NON-NLS-1$
+                        Messages.getString("security.62")); 
             }
         }
     }
@@ -139,7 +139,7 @@ public class X509CRLSelector implements CRLSelector {
      */
     public void addIssuer(X500Principal issuer) {
         if (issuer == null) {
-            throw new NullPointerException(Messages.getString("security.61")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.61")); 
         }
         if (issuerNames == null) {
             issuerNames = new ArrayList<String>();
@@ -178,7 +178,7 @@ public class X509CRLSelector implements CRLSelector {
         }
 
         if (iss_name == null) {
-            iss_name = ""; //$NON-NLS-1$
+            iss_name = ""; 
         }
 
         String name = new Name(iss_name).getName(X500Principal.CANONICAL);
@@ -200,7 +200,7 @@ public class X509CRLSelector implements CRLSelector {
      */
     public void addIssuerName(byte[] iss_name) throws IOException {
         if (iss_name == null) {
-            throw new NullPointerException(Messages.getString("security.63")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.63")); 
         }
         if (issuerNames == null) {
             issuerNames = new ArrayList<String>();
@@ -365,29 +365,29 @@ public class X509CRLSelector implements CRLSelector {
      */
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("X509CRLSelector:\n["); //$NON-NLS-1$
+        result.append("X509CRLSelector:\n["); 
         if (issuerNames != null) {
-            result.append("\n  IssuerNames:\n  ["); //$NON-NLS-1$
+            result.append("\n  IssuerNames:\n  ["); 
             int size = issuerNames.size();
             for (int i=0; i<size; i++) {
-                result.append("\n    " //$NON-NLS-1$
+                result.append("\n    " 
                     + issuerNames.get(i));
             }
-            result.append("\n  ]"); //$NON-NLS-1$
+            result.append("\n  ]"); 
         }
         if (minCRL != null) {
-            result.append("\n  minCRL: " + minCRL); //$NON-NLS-1$
+            result.append("\n  minCRL: " + minCRL); 
         }
         if (maxCRL != null) {
-            result.append("\n  maxCRL: " + maxCRL); //$NON-NLS-1$
+            result.append("\n  maxCRL: " + maxCRL); 
         }
         if (dateAndTime != -1) {
-            result.append("\n  dateAndTime: " + (new Date(dateAndTime))); //$NON-NLS-1$
+            result.append("\n  dateAndTime: " + (new Date(dateAndTime))); 
         }
         if (certificateChecking != null) {
-            result.append("\n  certificateChecking: " + certificateChecking); //$NON-NLS-1$
+            result.append("\n  certificateChecking: " + certificateChecking); 
         }
-        result.append("\n]"); //$NON-NLS-1$
+        result.append("\n]"); 
         return result.toString();
     }
 
@@ -416,7 +416,7 @@ public class X509CRLSelector implements CRLSelector {
             try {
                 // As specified in rfc 3280 (http://www.ietf.org/rfc/rfc3280.txt)
                 // CRL Number Extension's OID is 2.5.29.20 .
-                byte[] bytes = crlist.getExtensionValue("2.5.29.20"); //$NON-NLS-1$
+                byte[] bytes = crlist.getExtensionValue("2.5.29.20"); 
                 bytes = (byte[]) ASN1OctetString.getInstance().decode(bytes);
                 BigInteger crlNumber = new BigInteger((byte[])
                         ASN1Integer.getInstance().decode(bytes));

@@ -165,8 +165,8 @@ public class FieldPosition {
      */
     @Override
     public String toString() {
-        return getClass().getName() + "[attribute=" + myAttribute + ", field=" //$NON-NLS-1$ //$NON-NLS-2$
-                + myField + ", beginIndex=" + beginIndex + ", endIndex=" //$NON-NLS-1$ //$NON-NLS-2$
-                + endIndex + "]"; //$NON-NLS-1$
+        return getClass().getName() + "[attribute=" + myAttribute + ", field="  
+                + myField + ", beginIndex=" + beginIndex + ", endIndex="  
+                + endIndex + "]"; 
     }
 }

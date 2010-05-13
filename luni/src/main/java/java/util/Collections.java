@@ -1593,7 +1593,7 @@ public class Collections {
             List<? extends T> source) {
         if (destination.size() < source.size()) {
             // K0032=Source size {0} does not fit into destination
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size())); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size())); 
         }
         Iterator<? extends T> srcIt = source.iterator();
         ListIterator<? super T> destIt = destination.listIterator();
@@ -1602,7 +1602,7 @@ public class Collections {
                 destIt.next();
             } catch (NoSuchElementException e) {
                 // K0032=Source size {0} does not fit into destination
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size())); //$NON-NLS-1$
+                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size())); 
             }
             destIt.set(srcIt.next());
         }

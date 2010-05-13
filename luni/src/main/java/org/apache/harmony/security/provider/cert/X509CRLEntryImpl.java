@@ -126,7 +126,7 @@ public class X509CRLEntryImpl extends X509CRLEntry {
      * method documentation for more info
      */
     public String toString() {
-        return "X509CRLEntryImpl: "+rcert.toString(); //$NON-NLS-1$
+        return "X509CRLEntryImpl: "+rcert.toString(); 
     }
 
     // ---------------------------------------------------------------------

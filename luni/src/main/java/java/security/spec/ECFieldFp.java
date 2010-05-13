@@ -42,10 +42,10 @@ public class ECFieldFp implements ECField {
         this.p = p;
 
         if (this.p == null) {
-            throw new NullPointerException(Messages.getString("security.83", "p")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "p"));  
         }
         if (this.p.signum() != 1) {
-            throw new IllegalArgumentException(Messages.getString("security.86", "p")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new IllegalArgumentException(Messages.getString("security.86", "p"));  
         }
     }
 

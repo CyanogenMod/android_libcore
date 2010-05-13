@@ -106,24 +106,24 @@ public class SignedData {
 
     public String toString() {
         StringBuilder res = new StringBuilder();
-        res.append("---- SignedData:"); //$NON-NLS-1$
-        res.append("\nversion: "); //$NON-NLS-1$
+        res.append("---- SignedData:"); 
+        res.append("\nversion: "); 
         res.append(version);
-        res.append("\ndigestAlgorithms: "); //$NON-NLS-1$
+        res.append("\ndigestAlgorithms: "); 
         res.append(digestAlgorithms.toString());
-        res.append("\ncontentInfo: "); //$NON-NLS-1$
+        res.append("\ncontentInfo: "); 
         res.append(contentInfo.toString());
-        res.append("\ncertificates: "); //$NON-NLS-1$
+        res.append("\ncertificates: "); 
         if (certificates != null) {
             res.append(certificates.toString());
         }
-        res.append("\ncrls: "); //$NON-NLS-1$
+        res.append("\ncrls: "); 
         if (crls != null) {
             res.append(crls.toString());
         }
-        res.append("\nsignerInfos:\n"); //$NON-NLS-1$
+        res.append("\nsignerInfos:\n"); 
         res.append(signerInfos.toString());
-        res.append("\n---- SignedData End\n]"); //$NON-NLS-1$
+        res.append("\n---- SignedData End\n]"); 
         return res.toString();
     }
 

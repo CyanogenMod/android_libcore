@@ -51,7 +51,7 @@ public abstract class X509CRL extends CRL implements X509Extension {
      * Creates a new {@code X509CRL} instance.
      */
     protected X509CRL() {
-        super("X.509"); //$NON-NLS-1$
+        super("X.509"); 
     }
 
     /**
@@ -177,7 +177,7 @@ public abstract class X509CRL extends CRL implements X509Extension {
             // TODO if there is no X.509 certificate provider installed
             // should we try to access Harmony X509CRLImpl via classForName?
             CertificateFactory factory = CertificateFactory
-                    .getInstance("X.509"); //$NON-NLS-1$
+                    .getInstance("X.509"); 
 
             X509CRL crl = (X509CRL) factory
                     .generateCRL(new ByteArrayInputStream(getEncoded()));
@@ -185,7 +185,7 @@ public abstract class X509CRL extends CRL implements X509Extension {
             return crl.getIssuerX500Principal();
 
         } catch (Exception e) {
-            throw new RuntimeException(Messages.getString("security.59"), e); //$NON-NLS-1$
+            throw new RuntimeException(Messages.getString("security.59"), e); 
         }
     }
 

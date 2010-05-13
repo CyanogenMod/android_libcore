@@ -131,11 +131,11 @@ public class FilterOutputStream extends OutputStream {
         // Force null buffer check first!
         if (offset > buffer.length || offset < 0) {
             // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); 
         }
         if (length < 0 || length > buffer.length - offset) {
             // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); 
         }
         for (int i = 0; i < length; i++) {
             // Call write() instead of out.write() since subclasses could

@@ -66,7 +66,7 @@ public abstract class JarURLConnection extends URLConnection {
         super(url);
         file = url.getFile();
         int sepIdx;
-        if ((sepIdx = file.indexOf("!/")) < 0) { //$NON-NLS-1$
+        if ((sepIdx = file.indexOf("!/")) < 0) { 
             throw new MalformedURLException();
         }
         fileURL = new URL(url.getFile().substring(0,sepIdx));
@@ -76,7 +76,7 @@ public abstract class JarURLConnection extends URLConnection {
         }
         entryName = file.substring(sepIdx, file.length());
         if (null != url.getRef()) {
-            entryName += "#" + url.getRef(); //$NON-NLS-1$
+            entryName += "#" + url.getRef(); 
         }
     }
 

@@ -64,7 +64,7 @@ public class InputStreamReader extends Reader {
         this.in = in;
         String encoding = AccessController
                 .doPrivileged(new PriviAction<String>(
-                        "file.encoding", "ISO8859_1")); //$NON-NLS-1$//$NON-NLS-2$
+                        "file.encoding", "ISO8859_1")); 
         decoder = Charset.forName(encoding).newDecoder().onMalformedInput(
                 CodingErrorAction.REPLACE).onUnmappableCharacter(
                 CodingErrorAction.REPLACE);
@@ -193,7 +193,7 @@ public class InputStreamReader extends Reader {
         synchronized (lock) {
             if (!isOpen()) {
                 // K0070=InputStreamReader is closed.
-                throw new IOException(Msg.getString("K0070")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0070")); 
             }
 
             char buf[] = new char[1];
@@ -230,7 +230,7 @@ public class InputStreamReader extends Reader {
         synchronized (lock) {
             if (!isOpen()) {
                 // K0070=InputStreamReader is closed.
-                throw new IOException(Msg.getString("K0070")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0070")); 
             }
             // BEGIN android-changed
             // Exception priorities (in case of multiple errors) differ from
@@ -238,10 +238,10 @@ public class InputStreamReader extends Reader {
             // made implicit null check explicit, used (offset | length) < 0
             // instead of (offset < 0) || (length < 0) to safe one operation
             if (buf == null) {
-                throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+                throw new NullPointerException(Msg.getString("K0047")); 
             }
             if ((offset | length) < 0 || offset > buf.length - length) {
-                throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+                throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
             }
             // END android-changed
             if (length == 0) {
@@ -339,7 +339,7 @@ public class InputStreamReader extends Reader {
         synchronized (lock) {
             if (in == null) {
                 // K0070=InputStreamReader is closed.
-                throw new IOException(Msg.getString("K0070")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0070")); 
             }
             try {
                 return bytes.hasRemaining() || in.available() > 0;

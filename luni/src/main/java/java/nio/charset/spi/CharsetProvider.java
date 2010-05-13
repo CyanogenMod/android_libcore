@@ -26,7 +26,7 @@ public abstract class CharsetProvider {
 
     // The permission required to construct a new provider.
     private static final RuntimePermission CONSTRUCT_PERM = new RuntimePermission(
-            "charsetProvider"); //$NON-NLS-1$
+            "charsetProvider"); 
 
     /**
      * Constructor for subclassing with concrete types.

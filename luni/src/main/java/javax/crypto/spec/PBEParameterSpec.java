@@ -47,7 +47,7 @@ public class PBEParameterSpec implements AlgorithmParameterSpec {
      */
     public PBEParameterSpec(byte[] salt, int iterationCount) {
         if (salt == null) {
-            throw new NullPointerException(Messages.getString("crypto.3B")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.3B")); 
         }
         this.salt = new byte[salt.length];
         System.arraycopy(salt, 0, this.salt, 0, salt.length);

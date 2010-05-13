@@ -70,7 +70,7 @@ class SocketInputStream extends InputStream {
     @Override
     public int read(byte[] buffer, int offset, int count) throws IOException {
         if (null == buffer) {
-            throw new IOException(Msg.getString("K0047"));//$NON-NLS-1$
+            throw new IOException(Msg.getString("K0047"));
         }
 
         if (0 == count) {
@@ -79,10 +79,10 @@ class SocketInputStream extends InputStream {
 
         if (0 > offset || offset >= buffer.length) {
             // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));//$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
         }
         if (0 > count || offset + count > buffer.length) {
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002f"));//$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002f"));
         }
 
         return socket.read(buffer, offset, count);

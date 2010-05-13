@@ -35,7 +35,7 @@ import java.util.Properties;
  */
 public class MimeTable implements FileNameMap {
 
-    public static final String UNKNOWN = "content/unknown"; //$NON-NLS-1$
+    public static final String UNKNOWN = "content/unknown"; 
 
     /**
      * A hash table containing the mapping between extensions and mime types.
@@ -44,10 +44,10 @@ public class MimeTable implements FileNameMap {
 
     // Default mapping.
     static {
-        types.setProperty("text", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
-        types.setProperty("txt", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
-        types.setProperty("htm", "text/html"); //$NON-NLS-1$ //$NON-NLS-2$
-        types.setProperty("html", "text/html"); //$NON-NLS-1$ //$NON-NLS-2$
+        types.setProperty("text", "text/plain");  
+        types.setProperty("txt", "text/plain");  
+        types.setProperty("htm", "text/html");  
+        types.setProperty("html", "text/html");  
     }
 
     /**
@@ -89,7 +89,7 @@ public class MimeTable implements FileNameMap {
      */
     private InputStream getContentTypes() {
         // User override?
-        String userTable = System.getProperty("content.types.user.table"); //$NON-NLS-1$
+        String userTable = System.getProperty("content.types.user.table"); 
         if (userTable != null) {
             try {
                 return new FileInputStream(userTable);
@@ -99,9 +99,9 @@ public class MimeTable implements FileNameMap {
         }
 
         // Standard location?
-        String javahome = System.getProperty("java.home"); //$NON-NLS-1$
-        File contentFile = new File(javahome, "lib" //$NON-NLS-1$
-                + File.separator + "content-types.properties"); //$NON-NLS-1$
+        String javahome = System.getProperty("java.home"); 
+        File contentFile = new File(javahome, "lib" 
+                + File.separator + "content-types.properties"); 
         try {
             return new FileInputStream(contentFile);
         } catch (IOException e) {
@@ -121,16 +121,16 @@ public class MimeTable implements FileNameMap {
      *         mapping is known.
      */
     public String getContentTypeFor(String filename) {
-        if (filename.endsWith("/")) { //$NON-NLS-1$
+        if (filename.endsWith("/")) { 
             // a directory, return html
-            return (String) types.get("html"); //$NON-NLS-1$
+            return (String) types.get("html"); 
         }
         int lastCharInExtension = filename.lastIndexOf('#');
         if (lastCharInExtension < 0) {
             lastCharInExtension = filename.length();
         }
         int firstCharInExtension = filename.lastIndexOf('.') + 1;
-        String ext = ""; //$NON-NLS-1$
+        String ext = ""; 
         if (firstCharInExtension > filename.lastIndexOf('/')) {
             ext = filename.substring(firstCharInExtension, lastCharInExtension);
         }

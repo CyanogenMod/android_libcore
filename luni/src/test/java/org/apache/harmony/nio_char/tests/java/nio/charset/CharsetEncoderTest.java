@@ -56,18 +56,18 @@ public class CharsetEncoderTest extends TestCase {
     public void test_ConstructorLjava_nio_charset_CharsetFF() {
         // Regression for HARMONY-141
         try {
-            Charset cs = Charset.forName("UTF-8"); //$NON-NLS-1$
+            Charset cs = Charset.forName("UTF-8"); 
             new MockCharsetEncoderForHarmony141(cs, 1.1f, 1);
-            fail("Assert 0: Should throw IllegalArgumentException."); //$NON-NLS-1$
+            fail("Assert 0: Should throw IllegalArgumentException."); 
         } catch (IllegalArgumentException e) {
             // expected
         }
 
         try {
-            Charset cs = Charset.forName("ISO8859-1"); //$NON-NLS-1$
+            Charset cs = Charset.forName("ISO8859-1"); 
             new MockCharsetEncoderForHarmony141(cs, 1.1f, 1,
                     new byte[] { 0x1a });
-            fail("Assert 1: Should throw IllegalArgumentException."); //$NON-NLS-1$
+            fail("Assert 1: Should throw IllegalArgumentException."); 
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -140,7 +140,7 @@ public class CharsetEncoderTest extends TestCase {
         MockMalfunctionCharset cs = new MockMalfunctionCharset("mock", null);
         try {
             cs.encode(CharBuffer.wrap("AB"));
-            fail("should throw CoderMalfunctionError");// NON-NLS-1$
+            fail("should throw CoderMalfunctionError");
         } catch (CoderMalfunctionError e) {
             // expected
         }

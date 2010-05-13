@@ -423,13 +423,13 @@ public final class Double extends Number implements Comparable<Double> {
          * Reference: http://en.wikipedia.org/wiki/IEEE_754
          */
         if (d != d) {
-            return "NaN"; //$NON-NLS-1$
+            return "NaN"; 
         }
         if (d == POSITIVE_INFINITY) {
-            return "Infinity"; //$NON-NLS-1$
+            return "Infinity"; 
         }
         if (d == NEGATIVE_INFINITY) {
-            return "-Infinity"; //$NON-NLS-1$
+            return "-Infinity"; 
         }
 
         long bitValue = doubleToLongBits(d);
@@ -441,18 +441,18 @@ public final class Double extends Number implements Comparable<Double> {
         long significand = bitValue & 0x000FFFFFFFFFFFFFL;
 
         if (exponent == 0 && significand == 0) {
-            return (negative ? "-0x0.0p0" : "0x0.0p0"); //$NON-NLS-1$ //$NON-NLS-2$
+            return (negative ? "-0x0.0p0" : "0x0.0p0");  
         }
 
         StringBuilder hexString = new StringBuilder(10);
         if (negative) {
-            hexString.append("-0x"); //$NON-NLS-1$
+            hexString.append("-0x"); 
         } else {
-            hexString.append("0x"); //$NON-NLS-1$
+            hexString.append("0x"); 
         }
 
         if (exponent == 0) { // denormal (subnormal) value
-            hexString.append("0."); //$NON-NLS-1$
+            hexString.append("0."); 
             // significand is 52-bits, so there can be 13 hex digits
             int fractionDigits = 13;
             // remove trailing hex zeros, so Integer.toHexString() won't print
@@ -472,9 +472,9 @@ public final class Double extends Number implements Comparable<Double> {
                 }
             }
             hexString.append(hexSignificand);
-            hexString.append("p-1022"); //$NON-NLS-1$
+            hexString.append("p-1022"); 
         } else { // normal value
-            hexString.append("1."); //$NON-NLS-1$
+            hexString.append("1."); 
             // significand is 52-bits, so there can be 13 hex digits
             int fractionDigits = 13;
             // remove trailing hex zeros, so Integer.toHexString() won't print

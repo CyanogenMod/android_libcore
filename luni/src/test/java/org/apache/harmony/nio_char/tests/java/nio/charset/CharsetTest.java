@@ -111,43 +111,43 @@ public class CharsetTest extends TestCase {
         String oldDefaultEncoding = System.getProperty("file.encoding");
         try {
             // Normal behavior
-            charsetName = "UTF-8"; //$NON-NLS-1$
-            System.setProperty("file.encoding", charsetName);//$NON-NLS-1$
+            charsetName = "UTF-8"; 
+            System.setProperty("file.encoding", charsetName);
             defaultCharsetName = Charset.defaultCharset().name();
             assertEquals(charsetName, defaultCharsetName);
 
-            charsetName = "ISO-8859-1"; //$NON-NLS-1$
-            System.setProperty("file.encoding", charsetName);//$NON-NLS-1$
+            charsetName = "ISO-8859-1"; 
+            System.setProperty("file.encoding", charsetName);
             defaultCharsetName = Charset.defaultCharset().name();
             assertEquals(charsetName, defaultCharsetName);
 
             // Unsupported behavior
-            charsetName = "IMPOSSIBLE-8"; //$NON-NLS-1$
-            System.setProperty("file.encoding", charsetName);//$NON-NLS-1$
+            charsetName = "IMPOSSIBLE-8"; 
+            System.setProperty("file.encoding", charsetName);
             defaultCharsetName = Charset.defaultCharset().name();
             assertEquals("UTF-8", defaultCharsetName);
 
             // Null behavior
             try {
                 Properties currentProps = System.getProperties();
-                currentProps.remove("file.encoding");//$NON-NLS-1$
+                currentProps.remove("file.encoding");
                 Charset.defaultCharset().name();
-                fail("Should throw illegal IllegalArgumentException");//$NON-NLS-1$
+                fail("Should throw illegal IllegalArgumentException");
             } catch (IllegalArgumentException e) {
                 // expected
             }
 
             // IllegalCharsetName behavior
             try {
-                charsetName = "IMP~~OSSIBLE-8"; //$NON-NLS-1$
-                System.setProperty("file.encoding", charsetName);//$NON-NLS-1$
+                charsetName = "IMP~~OSSIBLE-8"; 
+                System.setProperty("file.encoding", charsetName);
                 Charset.defaultCharset().name();
-                fail("Should throw IllegalCharsetNameException");//$NON-NLS-1$
+                fail("Should throw IllegalCharsetNameException");
             } catch (IllegalCharsetNameException e) {
                 // expected
             }
         } finally {
-            System.setProperty("file.encoding", oldDefaultEncoding);//$NON-NLS-1$
+            System.setProperty("file.encoding", oldDefaultEncoding);
         }
     }
     

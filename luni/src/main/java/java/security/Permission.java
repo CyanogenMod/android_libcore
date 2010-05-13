@@ -154,8 +154,8 @@ public abstract class Permission implements Guard, Serializable {
     @Override
     public String toString() {
         String actions = getActions();
-        actions = (actions == null || actions.length() == 0) ? "" : " " //$NON-NLS-1$ //$NON-NLS-2$
+        actions = (actions == null || actions.length() == 0) ? "" : " "  
                 + getActions();
-        return "(" + getClass().getName() + " " + getName() + actions + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return "(" + getClass().getName() + " " + getName() + actions + ")";   
     }
 }

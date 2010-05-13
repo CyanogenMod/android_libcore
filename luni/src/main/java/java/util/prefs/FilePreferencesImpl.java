@@ -58,8 +58,8 @@ class FilePreferencesImpl extends AbstractPreferences {
     static {
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
             public Void run() {
-                USER_HOME = System.getProperty("user.home") + "/.java/.userPrefs";//$NON-NLS-1$ //$NON-NLS-2$
-                SYSTEM_HOME = System.getProperty("java.home") + "/.systemPrefs";//$NON-NLS-1$//$NON-NLS-2$
+                USER_HOME = System.getProperty("user.home") + "/.java/.userPrefs"; 
+                SYSTEM_HOME = System.getProperty("java.home") + "/.systemPrefs";
                 return null;
             }
         });

@@ -51,43 +51,43 @@ public class WrappedCharBufferTest1 extends CharBufferTest {
         char array[] = new char[BUFFER_LENGTH];
         try {
             CharBuffer.wrap(array, -1, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap(array, BUFFER_LENGTH + 1, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap(array, 0, -1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap(array, 0, BUFFER_LENGTH + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap(array, Integer.MAX_VALUE, 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap(array, 1, Integer.MAX_VALUE);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap((char[])null, -1, 0);
-            fail("Should throw NPE"); //$NON-NLS-1$
+            fail("Should throw NPE"); 
         } catch (NullPointerException e) {
         }
     }

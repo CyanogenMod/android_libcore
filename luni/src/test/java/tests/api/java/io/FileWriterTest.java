@@ -307,7 +307,7 @@ public class FileWriterTest extends junit.framework.TestCase {
         args = {char[].class, int.class, int.class}
     )
     public void test_handleEarlyEOFChar_1() {
-        String str = "All work and no play makes Jack a dull boy\n"; //$NON-NLS-1$
+        String str = "All work and no play makes Jack a dull boy\n"; 
         int NUMBER = 2048;
         int j = 0;
         int len = str.length() * NUMBER;
@@ -360,7 +360,7 @@ public class FileWriterTest extends junit.framework.TestCase {
         }
         String inputStr = new String(bytes);
         int len = inputStr.length();
-        File f = File.createTempFile("FileWriterBugTest ", null); //$NON-NLS-1$
+        File f = File.createTempFile("FileWriterBugTest ", null); 
         FileWriter writer = new FileWriter(f);
         writer.write(inputStr);
         writer.close();

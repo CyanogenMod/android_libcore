@@ -73,16 +73,16 @@ public final class SecurityUtils {
     public static void putContext(Thread thread, AccessControlContext context)
             throws SecurityException {
         if (thread == null) {
-            throw new NullPointerException(Messages.getString("security.140")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.140")); 
         }
         synchronized (ACC_CACHE) {
             if (ACC_CACHE.containsKey(thread)) {
-                throw new SecurityException(Messages.getString("security.141")); //$NON-NLS-1$
+                throw new SecurityException(Messages.getString("security.141")); 
             }
             if (context == null) {
                 // this only allowed once - for the very first thread.
                 if (ACC_CACHE.containsValue(null)) {
-                    throw new Error(Messages.getString("security.142")); //$NON-NLS-1$
+                    throw new Error(Messages.getString("security.142")); 
                 }
             }
             ACC_CACHE.put(thread, context);

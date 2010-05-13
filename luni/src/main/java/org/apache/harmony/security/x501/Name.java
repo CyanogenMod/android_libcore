@@ -71,7 +71,7 @@ public class Name {
         DerInputStream in = new DerInputStream(encoding);
 
         if (in.getEndOffset() != encoding.length) {
-            throw new IOException(Messages.getString("security.111")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("security.111")); 
         }
 
         ASN1.decode(in);
@@ -165,7 +165,7 @@ public class Name {
             return canonicalString;
 
         } else {
-            throw new IllegalArgumentException(Messages.getString("security.177", format)); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.177", format)); 
         }
     }
 
@@ -201,7 +201,7 @@ public class Name {
                 if (it.hasNext()) {
                     // multi-valued RDN
                     if (X500Principal.RFC1779 == format) {
-                        name.append(" + "); //$NON-NLS-1$
+                        name.append(" + "); 
                     } else {
                         name.append('+');
                     }

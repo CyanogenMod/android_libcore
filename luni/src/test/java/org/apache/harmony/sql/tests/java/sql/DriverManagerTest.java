@@ -214,11 +214,11 @@ public class DriverManagerTest extends TestCase {
     )
     public void test_getConnection_LStringLProperties() {
         try {
-            DriverManager.getConnection("fff", //$NON-NLS-1$
+            DriverManager.getConnection("fff", 
                     new Properties());
             fail("Should throw SQLException.");
         } catch (SQLException e) {
-            assertEquals("08001", e.getSQLState()); //$NON-NLS-1$
+            assertEquals("08001", e.getSQLState()); 
         }
         
         try {
@@ -226,7 +226,7 @@ public class DriverManagerTest extends TestCase {
                     new Properties());
             fail("Should throw SQLException.");
         } catch (SQLException e) {
-            assertEquals("08001", e.getSQLState()); //$NON-NLS-1$
+            assertEquals("08001", e.getSQLState()); 
         }
     }
 

@@ -75,8 +75,8 @@ public class InvalidityDate extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Invalidity Date: [ ") //$NON-NLS-1$
-            .append(date).append(" ]\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("Invalidity Date: [ ") 
+            .append(date).append(" ]\n"); 
     }
 
     /**

@@ -56,7 +56,7 @@ public final class DerInputStream extends BerInputStream {
         int tag = super.next();
 
         if (length == INDEFINIT_LENGTH) {
-            throw new ASN1Exception(Messages.getString("security.105")); //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.105")); 
         }
 
         // FIXME add check: length encoding uses minimum number of octets
@@ -75,7 +75,7 @@ public final class DerInputStream extends BerInputStream {
     public void readBitString() throws IOException {
 
         if (tag == ASN1Constants.TAG_C_BITSTRING) {
-            throw new ASN1Exception(Messages.getString("security.106", tagOffset)); //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.106", tagOffset)); 
         }
 
         super.readBitString();
@@ -84,7 +84,7 @@ public final class DerInputStream extends BerInputStream {
         if (length > 1
                 && buffer[contentOffset] != 0
                 && (buffer[offset - 1] & UNUSED_BITS_MASK[buffer[contentOffset] - 1]) != 0) {
-            throw new ASN1Exception(Messages.getString("security.107", contentOffset)); //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.107", contentOffset)); 
         }
     }
 
@@ -97,7 +97,7 @@ public final class DerInputStream extends BerInputStream {
 
         // check encoded content
         if (buffer[contentOffset] != 0 && buffer[contentOffset] != (byte) 0xFF) {
-            throw new ASN1Exception(Messages.getString("security.108", contentOffset)); //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.108", contentOffset)); 
         }
     }
 
@@ -108,7 +108,7 @@ public final class DerInputStream extends BerInputStream {
 
         if (tag == ASN1Constants.TAG_C_OCTETSTRING) {
             throw new ASN1Exception(
-                    Messages.getString("security.109", tagOffset)); //$NON-NLS-1$
+                    Messages.getString("security.109", tagOffset)); 
         }
         super.readOctetString();
     }
@@ -145,7 +145,7 @@ public final class DerInputStream extends BerInputStream {
     public void readString(ASN1StringType type) throws IOException {
 
         if (tag == type.constrId) {
-            throw new ASN1Exception(Messages.getString("security.10A", tagOffset)); //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.10A", tagOffset)); 
         }
         super.readString(type);
     }
@@ -157,12 +157,12 @@ public final class DerInputStream extends BerInputStream {
 
         if (tag == ASN1Constants.TAG_C_UTCTIME) {
             // It is a string type and it can be encoded as primitive or constructed.
-            throw new ASN1Exception(Messages.getString("security.10B", tagOffset)); //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.10B", tagOffset)); 
         }
 
         // check format: DER uses YYMMDDHHMMSS'Z' only
         if (length != ASN1UTCTime.UTC_HMS) {
-            throw new ASN1Exception(Messages.getString("security.10C", tagOffset)); //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.10C", tagOffset)); 
         }
 
         super.readUTCTime();
@@ -175,7 +175,7 @@ public final class DerInputStream extends BerInputStream {
 
         if (tag == ASN1Constants.TAG_C_GENERALIZEDTIME) {
             // It is a string type and it can be encoded as primitive or constructed.
-            throw new ASN1Exception(Messages.getString("security.10D", tagOffset)); //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.10D", tagOffset)); 
         }
 
         super.readGeneralizedTime();

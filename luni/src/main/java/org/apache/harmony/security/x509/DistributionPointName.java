@@ -89,17 +89,17 @@ public class DistributionPointName {
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
         buffer.append(prefix);
-        buffer.append("Distribution Point Name: [\n"); //$NON-NLS-1$
+        buffer.append("Distribution Point Name: [\n"); 
         if (fullName != null) {
-            fullName.dumpValue(buffer, prefix + "  "); //$NON-NLS-1$
+            fullName.dumpValue(buffer, prefix + "  "); 
         } else {
             buffer.append(prefix);
-            buffer.append("  "); //$NON-NLS-1$
+            buffer.append("  "); 
             buffer.append(nameRelativeToCRLIssuer.getName(
                         X500Principal.RFC2253));
         } 
         buffer.append(prefix);
-        buffer.append("]\n"); //$NON-NLS-1$
+        buffer.append("]\n"); 
     }
 
     public static final ASN1Choice ASN1 = new ASN1Choice(new ASN1Type[] {

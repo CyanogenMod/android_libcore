@@ -40,7 +40,7 @@ import org.apache.harmony.security.internal.nls.Messages;
 public class CertificateFactory {
 
     // Store CertificateFactory service name
-    private static final String SERVICE = "CertificateFactory"; //$NON-NLS-1$
+    private static final String SERVICE = "CertificateFactory"; 
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
@@ -87,7 +87,7 @@ public class CertificateFactory {
     public static final CertificateFactory getInstance(String type)
             throws CertificateException {
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.07")); 
         }
         try {
             synchronized (engine) {
@@ -124,7 +124,7 @@ public class CertificateFactory {
             String provider) throws CertificateException,
             NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.02")); 
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -154,10 +154,10 @@ public class CertificateFactory {
     public static final CertificateFactory getInstance(String type,
             Provider provider) throws CertificateException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.04")); 
         }
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.07")); 
         }
         try {
             synchronized (engine) {
@@ -230,7 +230,7 @@ public class CertificateFactory {
             throws CertificateException {
         Iterator<String> it = getCertPathEncodings();
         if (!it.hasNext()) {
-            throw new CertificateException(Messages.getString("security.74")); //$NON-NLS-1$
+            throw new CertificateException(Messages.getString("security.74")); 
         }
         return spiImpl.engineGenerateCertPath(inStream, it.next());
     }

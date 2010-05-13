@@ -127,26 +127,26 @@ public final class ObjectIdentifier {
     public static void validate(int[] oid) {
 
         if (oid == null) {
-            throw new IllegalArgumentException(Messages.getString("security.98")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.98")); 
         }
 
         if (oid.length < 2) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.99")); //$NON-NLS-1$
+                    Messages.getString("security.99")); 
         }
 
         if (oid[0] > 2) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.9A")); //$NON-NLS-1$
+                    Messages.getString("security.9A")); 
         } else if (oid[0] != 2 && oid[1] > 39) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.9B")); //$NON-NLS-1$
+                    Messages.getString("security.9B")); 
         }
 
         for (int i = 0; i < oid.length; i++) {
             if (oid[i] < 0) {
                 throw new IllegalArgumentException(
-                        Messages.getString("security.9C")); //$NON-NLS-1$
+                        Messages.getString("security.9C")); 
             }
         }
     }
@@ -301,7 +301,7 @@ public final class ObjectIdentifier {
                 return null;
             }
             throw new IllegalArgumentException(
-                    Messages.getString("security.9D")); //$NON-NLS-1$
+                    Messages.getString("security.9D")); 
         }
 
         int length = str.length();
@@ -309,7 +309,7 @@ public final class ObjectIdentifier {
             if (! shouldThrow) {
                 return null;
             }
-            throw new IllegalArgumentException(Messages.getString("security.9E")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.9E")); 
         }
 
         int count = 1; // number of subidentifiers
@@ -322,7 +322,7 @@ public final class ObjectIdentifier {
                     if (! shouldThrow) {
                         return null;
                     }
-                    throw new IllegalArgumentException(Messages.getString("security.9E")); //$NON-NLS-1$
+                    throw new IllegalArgumentException(Messages.getString("security.9E")); 
                 }
                 wasDot = true;
                 count++;
@@ -332,7 +332,7 @@ public final class ObjectIdentifier {
                 if (! shouldThrow) {
                     return null;
                 }
-                throw new IllegalArgumentException(Messages.getString("security.9E")); //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("security.9E")); 
             }
         }
 
@@ -341,7 +341,7 @@ public final class ObjectIdentifier {
             if (! shouldThrow) {
                 return null;
             }
-            throw new IllegalArgumentException(Messages.getString("security.9E")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.9E")); 
         }
 
         if (count < 2) {
@@ -349,7 +349,7 @@ public final class ObjectIdentifier {
                 return null;
             }
             throw new IllegalArgumentException(
-                    Messages.getString("security.99")); //$NON-NLS-1$
+                    Messages.getString("security.99")); 
         }
 
         int[] oid = new int[count];
@@ -367,13 +367,13 @@ public final class ObjectIdentifier {
                 return null;
             }
             throw new IllegalArgumentException(
-                    Messages.getString("security.9A")); //$NON-NLS-1$
+                    Messages.getString("security.9A")); 
         } else if (oid[0] != 2 && oid[1] > 39) {
             if (! shouldThrow) {
                 return null;
             }
             throw new IllegalArgumentException(
-                    Messages.getString("security.9B")); //$NON-NLS-1$
+                    Messages.getString("security.9B")); 
         }
 
         return oid;

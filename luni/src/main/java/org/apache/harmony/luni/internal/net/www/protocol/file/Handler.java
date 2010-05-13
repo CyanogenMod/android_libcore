@@ -67,17 +67,17 @@ public class Handler extends URLStreamHandler {
             throws IOException {
         if (null == url) {
             // K034b=url and proxy can not be null
-            throw new IllegalArgumentException(Msg.getString("K034b")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K034b")); 
         }
 
         String host = url.getHost();
         if (host == null || host.length() == 0
-                || host.equalsIgnoreCase("localhost")) { //$NON-NLS-1$
+                || host.equalsIgnoreCase("localhost")) { 
             return new FileURLConnection(url);
         }
 
         // If a hostname is specified try to get the resource using FTP
-        URL ftpURL = new URL("ftp", host, url.getFile()); //$NON-NLS-1$
+        URL ftpURL = new URL("ftp", host, url.getFile()); 
         return (proxy == null) ? ftpURL.openConnection() : ftpURL
                 .openConnection(proxy);
     }
@@ -104,7 +104,7 @@ public class Handler extends URLStreamHandler {
         if (end < start) {
             return;
         }
-        String parseString = ""; //$NON-NLS-1$
+        String parseString = ""; 
         if (start < end) {
             parseString = str.substring(start, end).replace('\\', '/');
         }

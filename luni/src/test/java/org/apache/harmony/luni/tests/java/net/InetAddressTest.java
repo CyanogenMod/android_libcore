@@ -683,7 +683,7 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertFalse(ia.isReachable(null, 0, 1000));
 
         // Regression test for HARMONY-1842.
-        ia = InetAddress.getByName("localhost"); //$NON-NLS-1$
+        ia = InetAddress.getByName("localhost"); 
         Enumeration<NetworkInterface> nif = NetworkInterface.getNetworkInterfaces();
         NetworkInterface netif;
         while(nif.hasMoreElements()) {

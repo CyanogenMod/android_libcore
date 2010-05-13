@@ -188,7 +188,7 @@ public class PolicyUtils {
         public T run() {
             String klassName = Security.getProperty(key);
             if (klassName == null || klassName.length() == 0) {
-                throw new SecurityException(Messages.getString("security.14C", //$NON-NLS-1$
+                throw new SecurityException(Messages.getString("security.14C", 
                                             key));
             }
             // TODO accurate classloading
@@ -196,7 +196,7 @@ public class PolicyUtils {
                 Class<?> klass = Class.forName(klassName, true,
                         Thread.currentThread().getContextClassLoader());
                 if (expectedType != null && klass.isAssignableFrom(expectedType)){
-                    throw new SecurityException(Messages.getString("security.14D", //$NON-NLS-1$
+                    throw new SecurityException(Messages.getString("security.14D", 
                                               klassName, expectedType.getName()));
                 }
                 //FIXME expectedType.cast(klass.newInstance());
@@ -208,7 +208,7 @@ public class PolicyUtils {
             catch (Exception e) {
                 // TODO log error ??
                 SecurityException se = new SecurityException(
-                        Messages.getString("security.14E", klassName)); //$NON-NLS-1$
+                        Messages.getString("security.14E", klassName)); 
                 se.initCause(e);
                 throw se;
             }
@@ -252,8 +252,8 @@ public class PolicyUtils {
      */
     public static String expand(String str, Properties properties)
             throws ExpansionFailedException {
-        final String START_MARK = "${"; //$NON-NLS-1$
-        final String END_MARK = "}"; //$NON-NLS-1$
+        final String START_MARK = "${"; 
+        final String END_MARK = "}"; 
         final int START_OFFSET = START_MARK.length();
         final int END_OFFSET = END_MARK.length();
 
@@ -268,7 +268,7 @@ public class PolicyUtils {
                     result.replace(start, end + END_OFFSET, value);
                     start += value.length();
                 } else {
-                    throw new ExpansionFailedException(Messages.getString("security.14F", key)); //$NON-NLS-1$
+                    throw new ExpansionFailedException(Messages.getString("security.14F", key)); 
                 }
             }
             start = result.indexOf(START_MARK, start);
@@ -294,7 +294,7 @@ public class PolicyUtils {
      * @return - the normalized URL.
      */
     public static URL normalizeURL(URL codebase) {
-        if (codebase != null && "file".equals(codebase.getProtocol())) { //$NON-NLS-1$
+        if (codebase != null && "file".equals(codebase.getProtocol())) { 
             try {
                 if (codebase.getHost().length() == 0) {
                     String path = codebase.getFile();
@@ -328,12 +328,12 @@ public class PolicyUtils {
     public static URI filePathToURI(String path) throws URISyntaxException {
         path = path.replace(File.separatorChar, '/');
 
-        if (!path.startsWith("/")) { //$NON-NLS-1$
-            return new URI("file", null, //$NON-NLS-1$
+        if (!path.startsWith("/")) { 
+            return new URI("file", null, 
                     new StringBuilder(path.length() + 1).append('/')
                             .append(path).toString(), null, null);
         }
-        return new URI("file", null, path, null, null); //$NON-NLS-1$
+        return new URI("file", null, path, null, null); 
     }
 
     /**
@@ -368,8 +368,8 @@ public class PolicyUtils {
      */
     public static String expandGeneral(String str,
             GeneralExpansionHandler handler) throws ExpansionFailedException {
-        final String START_MARK = "${{"; //$NON-NLS-1$
-        final String END_MARK = "}}"; //$NON-NLS-1$
+        final String START_MARK = "${{"; 
+        final String END_MARK = "}}"; 
         final int START_OFFSET = START_MARK.length();
         final int END_OFFSET = END_MARK.length();
 
@@ -398,7 +398,7 @@ public class PolicyUtils {
      * dynamic policy location via system properties is allowed. 
      * @see #getPolicyURLs(Properties, String, String)
      */
-    public static final String POLICY_ALLOW_DYNAMIC = "policy.allowSystemProperty"; //$NON-NLS-1$
+    public static final String POLICY_ALLOW_DYNAMIC = "policy.allowSystemProperty"; 
 
     /** 
      * A key to security properties, deciding whether expansion of 
@@ -406,17 +406,17 @@ public class PolicyUtils {
      * (in security properties values, policy files, etc).
      * @see #expand(String, Properties) 
      */
-    public static final String POLICY_EXPAND = "policy.expandProperties"; //$NON-NLS-1$
+    public static final String POLICY_EXPAND = "policy.expandProperties"; 
 
     /** 
      * Positive value of switching properties.
      */
-    public static final String TRUE = "true"; //$NON-NLS-1$
+    public static final String TRUE = "true"; 
 
     /** 
      * Negative value of switching properties.
      */
-    public static final String FALSE = "false"; //$NON-NLS-1$
+    public static final String FALSE = "false"; 
 
     /** 
      * Returns false if current security settings disable to perform 
@@ -474,7 +474,7 @@ public class PolicyUtils {
                 .doPrivileged(security.key(POLICY_ALLOW_DYNAMIC)))) {
             String location = system.getProperty(systemUrlKey);
             if (location != null) {
-                if (location.startsWith("=")) { //$NON-NLS-1$
+                if (location.startsWith("=")) { 
                     //overrides all other urls
                     dynamicOnly = true;
                     location = location.substring(1);
@@ -601,7 +601,7 @@ public class PolicyUtils {
             catch (NoSuchMethodException ignore) {}
         }
         throw new IllegalArgumentException(
-                Messages.getString("security.150", targetType));//$NON-NLS-1$
+                Messages.getString("security.150", targetType));
     }
 
     /**

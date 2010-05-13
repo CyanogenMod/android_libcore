@@ -103,17 +103,17 @@ public class SystemScope extends IdentityScope {
     public synchronized void addIdentity(Identity identity)
             throws KeyManagementException {
         if (identity == null) {
-            throw new NullPointerException(Messages.getString("security.92")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.92")); 
         }
 
         String name = identity.getName();
         if (names.containsKey(name)) {
-            throw new KeyManagementException(Messages.getString("security.93", name)); //$NON-NLS-1$
+            throw new KeyManagementException(Messages.getString("security.93", name)); 
         }
 
         PublicKey key = identity.getPublicKey();
         if (key != null && keys.containsKey(key)) {
-            throw new KeyManagementException(Messages.getString("security.94", key)); //$NON-NLS-1$
+            throw new KeyManagementException(Messages.getString("security.94", key)); 
         }
 
         names.put(name, identity);
@@ -130,12 +130,12 @@ public class SystemScope extends IdentityScope {
 
         //Exception caught = null;
         if (identity == null) {
-            throw new NullPointerException(Messages.getString("security.92")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.92")); 
         }
 
         String name = identity.getName();
         if (name == null) {
-            throw new NullPointerException(Messages.getString("security.95")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.95")); 
         }
 
         boolean contains = names.containsKey(name);
@@ -149,7 +149,7 @@ public class SystemScope extends IdentityScope {
         }
         
         if (!contains) {
-            throw new KeyManagementException(Messages.getString("security.96")); //$NON-NLS-1$
+            throw new KeyManagementException(Messages.getString("security.96")); 
         }
     }
 

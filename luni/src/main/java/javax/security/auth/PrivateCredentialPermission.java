@@ -54,7 +54,7 @@ public final class PrivateCredentialPermission extends Permission {
     private static final long serialVersionUID = 5284372143517237068L;
 
     // allowed action
-    private static final String READ = "read"; //$NON-NLS-1$
+    private static final String READ = "read"; 
 
     private String credentialClass;
 
@@ -79,7 +79,7 @@ public final class PrivateCredentialPermission extends Permission {
         if (READ.equalsIgnoreCase(action)) {
             initTargetName(name);
         } else {
-            throw new IllegalArgumentException(Messages.getString("auth.11")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("auth.11")); 
         }
     }
 
@@ -121,19 +121,19 @@ public final class PrivateCredentialPermission extends Permission {
     private void initTargetName(String name) {
 
         if (name == null) {
-            throw new NullPointerException(Messages.getString("auth.0E")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("auth.0E")); 
         }
 
         // check empty string
         name = name.trim();
         if (name.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("auth.0F")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("auth.0F")); 
         }
 
         // get CredentialClass
         int beg = name.indexOf(' ');
         if (beg == -1) {
-            throw new IllegalArgumentException(Messages.getString("auth.10")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("auth.10")); 
         }
         credentialClass = name.substring(0, beg);
 
@@ -146,13 +146,13 @@ public final class PrivateCredentialPermission extends Permission {
             j = name.indexOf('"', i + 2);
 
             if (i == -1 || j == -1 || name.charAt(i + 1) != '"') {
-                throw new IllegalArgumentException(Messages.getString("auth.10")); //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("auth.10")); 
             }
         }
 
         // name MUST have one pair at least
         if (count < 1) {
-            throw new IllegalArgumentException(Messages.getString("auth.10")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("auth.10")); 
         }
 
         beg = name.indexOf(' ');
@@ -265,7 +265,7 @@ public final class PrivateCredentialPermission extends Permission {
 
         PrivateCredentialPermission that = (PrivateCredentialPermission) permission;
 
-        if (!("*".equals(credentialClass) || credentialClass //$NON-NLS-1$
+        if (!("*".equals(credentialClass) || credentialClass 
                 .equals(that.getCredentialClass()))) {
             return false;
         }
@@ -340,16 +340,16 @@ public final class PrivateCredentialPermission extends Permission {
         // Creates a new CredOwner with the specified Principal Class and Principal Name 
         CredOwner(String principalClass, String principalName) {
             super();
-            if ("*".equals(principalClass)) { //$NON-NLS-1$
+            if ("*".equals(principalClass)) { 
                 isClassWildcard = true;
             }
 
-            if ("*".equals(principalName)) { //$NON-NLS-1$
+            if ("*".equals(principalName)) { 
                 isPNameWildcard = true;
             }
 
             if (isClassWildcard && !isPNameWildcard) {
-                throw new IllegalArgumentException(Messages.getString("auth.12")); //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("auth.12")); 
             }
 
             this.principalClass = principalClass;

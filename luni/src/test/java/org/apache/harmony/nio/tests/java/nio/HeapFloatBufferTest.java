@@ -40,7 +40,7 @@ public class HeapFloatBufferTest extends FloatBufferTest {
     public void testAllocatedFloatBuffer_IllegalArg() {
         try {
             FloatBuffer.allocate(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }

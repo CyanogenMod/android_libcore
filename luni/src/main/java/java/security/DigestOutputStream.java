@@ -130,7 +130,7 @@ public class DigestOutputStream extends FilterOutputStream {
      */
     @Override
     public String toString() {
-        return super.toString() + ", " + digest.toString() + //$NON-NLS-1$
-            (isOn ? ", is on" : ", is off"); //$NON-NLS-1$ //$NON-NLS-2$
+        return super.toString() + ", " + digest.toString() + 
+            (isOn ? ", is on" : ", is off");  
     }
 }

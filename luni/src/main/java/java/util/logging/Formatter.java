@@ -78,7 +78,7 @@ public abstract class Formatter {
              * if the message contains "{0", use java.text.MessageFormat to
              * format the string
              */
-            if (pattern.indexOf("{0") >= 0 && null != params //$NON-NLS-1$
+            if (pattern.indexOf("{0") >= 0 && null != params 
                     && params.length > 0) {
                 try {
                     pattern = MessageFormat.format(pattern, params);
@@ -100,7 +100,7 @@ public abstract class Formatter {
      *         implementation.
      */
     public String getHead(Handler h) {
-        return ""; //$NON-NLS-1$
+        return ""; 
     }
 
     /**
@@ -113,6 +113,6 @@ public abstract class Formatter {
      *         implementation.
      */
     public String getTail(Handler h) {
-        return ""; //$NON-NLS-1$
+        return ""; 
     }
 }

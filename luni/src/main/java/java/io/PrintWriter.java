@@ -50,7 +50,7 @@ public class PrintWriter extends Writer {
     private boolean autoflush;
 
     private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator")); //$NON-NLS-1$
+            .doPrivileged(new PriviAction<String>("line.separator")); 
 
     /**
      * Constructs a new {@code PrintWriter} with {@code out} as its target
@@ -324,7 +324,7 @@ public class PrintWriter extends Writer {
      */
     public PrintWriter format(Locale l, String format, Object... args) {
         if (format == null) {
-            throw new NullPointerException(Msg.getString("K0351")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0351")); 
         }
         new Formatter(this, l).format(format, args);
         if (autoflush) {

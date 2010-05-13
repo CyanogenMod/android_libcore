@@ -239,12 +239,12 @@ public class LocaleTest extends junit.framework.TestCase {
                 .getDisplayCountry().equals("Canada"));
         
         // Regression for Harmony-1146
-        Locale l_countryCD = new Locale("", "CD"); //$NON-NLS-1$ //$NON-NLS-2$
+        Locale l_countryCD = new Locale("", "CD");  
 // BEGIN android-changed
 // ICU has different display name for countries
-//                assertEquals("The Democratic Republic Of Congo", //$NON-NLS-1$
+//                assertEquals("The Democratic Republic Of Congo", 
 //                        l_countryCD.getDisplayCountry());
-        assertEquals("Congo - Kinshasa", //$NON-NLS-1$
+        assertEquals("Congo - Kinshasa", 
               l_countryCD.getDisplayCountry());
 // END android-changed
     }
@@ -287,8 +287,8 @@ public class LocaleTest extends junit.framework.TestCase {
                 .getDisplayLanguage().equals("English"));
         
         // Regression for Harmony-1146
-        Locale l_languageAE = new Locale("ae", ""); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("Avestan", l_languageAE.getDisplayLanguage()); //$NON-NLS-1$
+        Locale l_languageAE = new Locale("ae", "");  
+        assertEquals("Avestan", l_languageAE.getDisplayLanguage()); 
     }
 
     /**
@@ -427,12 +427,12 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("ave", l.getISO3Language());
         
         // Regression for Harmony-1146
-        Locale l_CountryCS = new Locale("", "CS"); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("SCG", l_CountryCS.getISO3Country()); //$NON-NLS-1$
+        Locale l_CountryCS = new Locale("", "CS");  
+        assertEquals("SCG", l_CountryCS.getISO3Country()); 
         
         // Regression for Harmony-1129
-        l = new Locale("ak", ""); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("aka", l.getISO3Language()); //$NON-NLS-1$
+        l = new Locale("ak", "");  
+        assertEquals("aka", l.getISO3Language()); 
 
         Locale x = new Locale("xx", "C");
         try {

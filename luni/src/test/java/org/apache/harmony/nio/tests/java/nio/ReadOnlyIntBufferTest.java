@@ -63,7 +63,7 @@ public class ReadOnlyIntBufferTest extends IntBufferTest {
     public void testArray() {
         try {
             buf.array();
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             //expected
         }
@@ -89,7 +89,7 @@ public class ReadOnlyIntBufferTest extends IntBufferTest {
     public void testArrayOffset() {
         try {
             buf.arrayOffset();
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             //expected
         }
@@ -104,7 +104,7 @@ public class ReadOnlyIntBufferTest extends IntBufferTest {
     public void testCompact() {
         try {
             buf.compact();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
@@ -119,7 +119,7 @@ public class ReadOnlyIntBufferTest extends IntBufferTest {
     public void testPutint() {
         try {
             buf.put(0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
@@ -135,13 +135,13 @@ public class ReadOnlyIntBufferTest extends IntBufferTest {
         int array[] = new int[1];
         try {
             buf.put(array);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
         try {
             buf.put((int[]) null);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
@@ -157,25 +157,25 @@ public class ReadOnlyIntBufferTest extends IntBufferTest {
         int array[] = new int[1];
         try {
             buf.put(array, 0, array.length);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
         try {
             buf.put((int[]) null, -1, 1);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
         try {
             buf.put(new int[buf.capacity() + 1], 0, buf.capacity() + 1);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
         try {
             buf.put(array, -1, array.length);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
@@ -191,19 +191,19 @@ public class ReadOnlyIntBufferTest extends IntBufferTest {
         IntBuffer other = IntBuffer.allocate(1);
         try {
             buf.put(other);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
         try {
             buf.put((IntBuffer) null);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
         try {
             buf.put(buf);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
@@ -218,13 +218,13 @@ public class ReadOnlyIntBufferTest extends IntBufferTest {
     public void testPutintint() {
         try {
             buf.put(0, (int) 0);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
         try {
             buf.put(-1, (int) 0);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }

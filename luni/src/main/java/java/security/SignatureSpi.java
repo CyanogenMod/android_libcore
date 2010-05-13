@@ -189,13 +189,13 @@ public abstract class SignatureSpi {
             return 0;
         }
         if (len < tmp.length) {
-            throw new SignatureException(Messages.getString("security.2D")); //$NON-NLS-1$
+            throw new SignatureException(Messages.getString("security.2D")); 
         }
         if (offset < 0) {
-            throw new SignatureException(Messages.getString("security.1C")); //$NON-NLS-1$
+            throw new SignatureException(Messages.getString("security.1C")); 
         }
         if (offset + len > outbuf.length) {
-            throw new SignatureException(Messages.getString("security.05")); //$NON-NLS-1$
+            throw new SignatureException(Messages.getString("security.05")); 
         }
         System.arraycopy(tmp, 0, outbuf, offset, tmp.length);
         return tmp.length;

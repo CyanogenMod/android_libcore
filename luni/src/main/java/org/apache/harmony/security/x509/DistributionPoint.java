@@ -83,7 +83,7 @@ public class DistributionPoint {
         if ((reasons != null) && (distributionPoint == null) 
                 && (cRLIssuer == null)) {
             throw new IllegalArgumentException(
-                    Messages.getString("security.17F")); //$NON-NLS-1$
+                    Messages.getString("security.17F")); 
         }
         this.distributionPoint = distributionPoint;
         this.reasons = reasons;
@@ -96,22 +96,22 @@ public class DistributionPoint {
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
         buffer.append(prefix);
-        buffer.append("Distribution Point: [\n"); //$NON-NLS-1$
+        buffer.append("Distribution Point: [\n"); 
         if (distributionPoint != null) {
-            distributionPoint.dumpValue(buffer, prefix + "  "); //$NON-NLS-1$
+            distributionPoint.dumpValue(buffer, prefix + "  "); 
         }
         if (reasons != null) {
-            reasons.dumpValue(buffer, prefix + "  "); //$NON-NLS-1$
+            reasons.dumpValue(buffer, prefix + "  "); 
         }
         if (cRLIssuer != null) {
             buffer.append(prefix);
-            buffer.append("  CRL Issuer: [\n"); //$NON-NLS-1$
-            cRLIssuer.dumpValue(buffer, prefix + "    "); //$NON-NLS-1$
+            buffer.append("  CRL Issuer: [\n"); 
+            cRLIssuer.dumpValue(buffer, prefix + "    "); 
             buffer.append(prefix);
-            buffer.append("  ]\n"); //$NON-NLS-1$
+            buffer.append("  ]\n"); 
         }
         buffer.append(prefix);
-        buffer.append("]\n"); //$NON-NLS-1$
+        buffer.append("]\n"); 
     }
 
     /**

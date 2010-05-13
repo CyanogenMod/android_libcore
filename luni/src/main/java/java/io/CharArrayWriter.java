@@ -63,7 +63,7 @@ public class CharArrayWriter extends Writer {
     public CharArrayWriter(int initialSize) {
         super();
         if (initialSize < 0) {
-            throw new IllegalArgumentException(Msg.getString("K005e")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K005e")); 
         }
         buf = new char[initialSize];
         lock = buf;
@@ -175,10 +175,10 @@ public class CharArrayWriter extends Writer {
         // added null check, used (offset | len) < 0 instead of
         // (offset < 0) || (len < 0) to safe one operation
         if (c == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         if ((offset | len) < 0 || len > c.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
         }
         // END android-changed
         synchronized (lock) {
@@ -224,7 +224,7 @@ public class CharArrayWriter extends Writer {
     @Override
     public void write(String str, int offset, int len) {
         if (str == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         // avoid int overflow
         // BEGIN android-changed
@@ -233,7 +233,7 @@ public class CharArrayWriter extends Writer {
         // removed redundant check, used (offset | len) < 0
         // instead of (offset < 0) || (len < 0) to safe one operation
         if ((offset | len) < 0 || len > str.length() - offset) {
-            throw new StringIndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new StringIndexOutOfBoundsException(Msg.getString("K002f")); 
         }
         // END android-changed
         synchronized (lock) {

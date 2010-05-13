@@ -127,12 +127,12 @@ public class DefaultPolicyScanner {
                 break parsing;
 
             case StreamTokenizer.TT_WORD:
-                if (Util.equalsIgnoreCase("keystore", st.sval)) { //$NON-NLS-1$
+                if (Util.equalsIgnoreCase("keystore", st.sval)) { 
                     keystoreEntries.add(readKeystoreEntry(st));
-                } else if (Util.equalsIgnoreCase("grant", st.sval)) { //$NON-NLS-1$
+                } else if (Util.equalsIgnoreCase("grant", st.sval)) { 
                     grantEntries.add(readGrantEntry(st));
                 } else {
-                    handleUnexpectedToken(st, Messages.getString("security.89")); //$NON-NLS-1$
+                    handleUnexpectedToken(st, Messages.getString("security.89")); 
                 }
                 break;
 
@@ -173,7 +173,7 @@ public class DefaultPolicyScanner {
                 st.pushBack();
             }
         } else {
-            handleUnexpectedToken(st, Messages.getString("security.8A")); //$NON-NLS-1$
+            handleUnexpectedToken(st, Messages.getString("security.8A")); 
         }
         return ke;
     }
@@ -208,19 +208,19 @@ public class DefaultPolicyScanner {
             switch (st.nextToken()) {
 
             case StreamTokenizer.TT_WORD:
-                if (Util.equalsIgnoreCase("signedby", st.sval)) { //$NON-NLS-1$
+                if (Util.equalsIgnoreCase("signedby", st.sval)) { 
                     if (st.nextToken() == '"') {
                         ge.signers = st.sval;
                     } else {
-                        handleUnexpectedToken(st, Messages.getString("security.8B")); //$NON-NLS-1$
+                        handleUnexpectedToken(st, Messages.getString("security.8B")); 
                     }
-                } else if (Util.equalsIgnoreCase("codebase", st.sval)) { //$NON-NLS-1$
+                } else if (Util.equalsIgnoreCase("codebase", st.sval)) { 
                     if (st.nextToken() == '"') {
                         ge.codebase = st.sval;
                     } else {
-                        handleUnexpectedToken(st, Messages.getString("security.8C")); //$NON-NLS-1$
+                        handleUnexpectedToken(st, Messages.getString("security.8C")); 
                     }
-                } else if (Util.equalsIgnoreCase("principal", st.sval)) { //$NON-NLS-1$
+                } else if (Util.equalsIgnoreCase("principal", st.sval)) { 
                     ge.addPrincipal(readPrincipalEntry(st));
                 } else {
                     handleUnexpectedToken(st);
@@ -276,7 +276,7 @@ public class DefaultPolicyScanner {
         } else if (st.ttype == '*') {
             pe.name = PrincipalEntry.WILDCARD;
         } else {
-            handleUnexpectedToken(st, Messages.getString("security.8D")); //$NON-NLS-1$
+            handleUnexpectedToken(st, Messages.getString("security.8D")); 
         }
         return pe;
     }
@@ -308,7 +308,7 @@ public class DefaultPolicyScanner {
             switch (st.nextToken()) {
 
             case StreamTokenizer.TT_WORD:
-                if (Util.equalsIgnoreCase("permission", st.sval)) { //$NON-NLS-1$
+                if (Util.equalsIgnoreCase("permission", st.sval)) { 
                     PermissionEntry pe = new PermissionEntry();
                     if (st.nextToken() == StreamTokenizer.TT_WORD) {
                         pe.klass = st.sval;
@@ -326,7 +326,7 @@ public class DefaultPolicyScanner {
                             }
                         }
                         if (st.ttype == StreamTokenizer.TT_WORD
-                                && Util.equalsIgnoreCase("signedby", st.sval)) { //$NON-NLS-1$
+                                && Util.equalsIgnoreCase("signedby", st.sval)) { 
                             if (st.nextToken() == '"') {
                                 pe.signers = st.sval;
                             } else {
@@ -339,7 +339,7 @@ public class DefaultPolicyScanner {
                         continue parsing;
                     }
                 }
-                handleUnexpectedToken(st, Messages.getString("security.8E")); //$NON-NLS-1$
+                handleUnexpectedToken(st, Messages.getString("security.8E")); 
                 break;
 
             case ';': //just delimiter of entries
@@ -377,7 +377,7 @@ public class DefaultPolicyScanner {
      */
     protected final void handleUnexpectedToken(StreamTokenizer st,
             String message) throws InvalidFormatException {
-        throw new InvalidFormatException(Messages.getString("security.8F", //$NON-NLS-1$
+        throw new InvalidFormatException(Messages.getString("security.8F", 
                 composeStatus(st), message));
     }
 
@@ -390,7 +390,7 @@ public class DefaultPolicyScanner {
      */
     protected final void handleUnexpectedToken(StreamTokenizer st)
             throws InvalidFormatException {
-        throw new InvalidFormatException(Messages.getString("security.90", //$NON-NLS-1$
+        throw new InvalidFormatException(Messages.getString("security.90", 
                 composeStatus(st)));
     }
 
@@ -473,7 +473,7 @@ public class DefaultPolicyScanner {
          * Must be asterisk, for proper general expansion and 
          * PrivateCredentialsPermission wildcarding
          */
-        public static final String WILDCARD = "*"; //$NON-NLS-1$
+        public static final String WILDCARD = "*"; 
         
         /**
          * The classname part of principal clause.

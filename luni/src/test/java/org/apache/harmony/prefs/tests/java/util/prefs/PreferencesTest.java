@@ -905,7 +905,7 @@ public class PreferencesTest extends TestCase {
         }
         pref.put("testGetFloatKey", "1");
         pref.put("testGetFloatKey2", "value");
-        assertEquals(1f, pref.getFloat("testGetFloatKey", 0f), 0); //$NON-NLS-1$
+        assertEquals(1f, pref.getFloat("testGetFloatKey", 0f), 0); 
         assertEquals(0f, pref.getFloat("testGetFloatKey2", 0f), 0);
     }
 

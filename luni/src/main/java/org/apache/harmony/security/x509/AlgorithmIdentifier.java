@@ -154,11 +154,11 @@ public class AlgorithmIdentifier {
     public void dumpValue(StringBuffer buffer) {
         buffer.append(getAlgorithmName());
         if (parameters == null) {
-            buffer.append(", no params, "); //$NON-NLS-1$
+            buffer.append(", no params, "); 
         } else {
-            buffer.append(", params unparsed, "); //$NON-NLS-1$
+            buffer.append(", params unparsed, "); 
         }
-        buffer.append("OID = "); //$NON-NLS-1$
+        buffer.append("OID = "); 
         buffer.append(getAlgorithm());
     }
 

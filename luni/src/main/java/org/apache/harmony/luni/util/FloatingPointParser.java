@@ -274,7 +274,7 @@ public final class FloatingPointParser {
 		}
         
         // See if it could be a hexadecimal representation
-        if (s.toLowerCase().indexOf("0x") != -1) { //$NON-NLS-1$
+        if (s.toLowerCase().indexOf("0x") != -1) { 
             return HexStringParser.parseDouble(s);
         }
         
@@ -312,7 +312,7 @@ public final class FloatingPointParser {
 		}
         
         // See if it could be a hexadecimal representation
-        if (s.toLowerCase().indexOf("0x") != -1) { //$NON-NLS-1$
+        if (s.toLowerCase().indexOf("0x") != -1) { 
             return HexStringParser.parseFloat(s);
         }
         

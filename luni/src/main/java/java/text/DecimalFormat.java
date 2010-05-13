@@ -1172,28 +1172,28 @@ public class DecimalFormat extends NumberFormat {
 
     // the fields list to be serialized
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("positivePrefix", String.class), //$NON-NLS-1$
-            new ObjectStreamField("positiveSuffix", String.class), //$NON-NLS-1$
-            new ObjectStreamField("negativePrefix", String.class), //$NON-NLS-1$
-            new ObjectStreamField("negativeSuffix", String.class), //$NON-NLS-1$
-            new ObjectStreamField("posPrefixPattern", String.class), //$NON-NLS-1$
-            new ObjectStreamField("posSuffixPattern", String.class), //$NON-NLS-1$
-            new ObjectStreamField("negPrefixPattern", String.class), //$NON-NLS-1$
-            new ObjectStreamField("negSuffixPattern", String.class), //$NON-NLS-1$
-            new ObjectStreamField("multiplier", int.class), //$NON-NLS-1$
-            new ObjectStreamField("groupingSize", byte.class), //$NON-NLS-1$
-            new ObjectStreamField("groupingUsed", boolean.class), //$NON-NLS-1$
-            new ObjectStreamField("decimalSeparatorAlwaysShown", boolean.class), //$NON-NLS-1$
-            new ObjectStreamField("parseBigDecimal", boolean.class), //$NON-NLS-1$
-            new ObjectStreamField("roundingMode", RoundingMode.class), //$NON-NLS-1$
-            new ObjectStreamField("symbols", DecimalFormatSymbols.class), //$NON-NLS-1$
-            new ObjectStreamField("useExponentialNotation", boolean.class), //$NON-NLS-1$
-            new ObjectStreamField("minExponentDigits", byte.class), //$NON-NLS-1$
-            new ObjectStreamField("maximumIntegerDigits", int.class), //$NON-NLS-1$
-            new ObjectStreamField("minimumIntegerDigits", int.class), //$NON-NLS-1$
-            new ObjectStreamField("maximumFractionDigits", int.class), //$NON-NLS-1$
-            new ObjectStreamField("minimumFractionDigits", int.class), //$NON-NLS-1$
-            new ObjectStreamField("serialVersionOnStream", int.class), }; //$NON-NLS-1$
+            new ObjectStreamField("positivePrefix", String.class), 
+            new ObjectStreamField("positiveSuffix", String.class), 
+            new ObjectStreamField("negativePrefix", String.class), 
+            new ObjectStreamField("negativeSuffix", String.class), 
+            new ObjectStreamField("posPrefixPattern", String.class), 
+            new ObjectStreamField("posSuffixPattern", String.class), 
+            new ObjectStreamField("negPrefixPattern", String.class), 
+            new ObjectStreamField("negSuffixPattern", String.class), 
+            new ObjectStreamField("multiplier", int.class), 
+            new ObjectStreamField("groupingSize", byte.class), 
+            new ObjectStreamField("groupingUsed", boolean.class), 
+            new ObjectStreamField("decimalSeparatorAlwaysShown", boolean.class), 
+            new ObjectStreamField("parseBigDecimal", boolean.class), 
+            new ObjectStreamField("roundingMode", RoundingMode.class), 
+            new ObjectStreamField("symbols", DecimalFormatSymbols.class), 
+            new ObjectStreamField("useExponentialNotation", boolean.class), 
+            new ObjectStreamField("minExponentDigits", byte.class), 
+            new ObjectStreamField("maximumIntegerDigits", int.class), 
+            new ObjectStreamField("minimumIntegerDigits", int.class), 
+            new ObjectStreamField("maximumFractionDigits", int.class), 
+            new ObjectStreamField("minimumFractionDigits", int.class), 
+            new ObjectStreamField("serialVersionOnStream", int.class), }; 
 
     /**
      * Writes serialized fields following serialized forms specified by Java

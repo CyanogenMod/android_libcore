@@ -230,7 +230,7 @@ public class JarURLConnectionImpl extends JarURLConnection {
     public InputStream getInputStream() throws IOException {
         if (closed) {
             // KA027=Inputstream of the JarURLConnection has been closed
-            throw new IllegalStateException(Msg.getString("KA027")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("KA027")); 
         }
         connect();
         if (jarInput != null) {
@@ -238,7 +238,7 @@ public class JarURLConnectionImpl extends JarURLConnection {
         }
         if (jarEntry == null) {
             // K00fc=Jar entry not specified
-            throw new IOException(Msg.getString("K00fc")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K00fc")); 
         }
         return jarInput = new JarURLConnectionInputStream(jarFile
                 .getInputStream(jarEntry), jarFile);
@@ -254,9 +254,9 @@ public class JarURLConnectionImpl extends JarURLConnection {
      */
     @Override
     public String getContentType() {
-        if (url.getFile().endsWith("!/")) { //$NON-NLS-1$
+        if (url.getFile().endsWith("!/")) { 
             // the type for jar file itself is always "x-java/jar"
-            return "x-java/jar"; //$NON-NLS-1$
+            return "x-java/jar"; 
         }
         String cType = null;
         String entryName = getEntryName();
@@ -273,7 +273,7 @@ public class JarURLConnectionImpl extends JarURLConnection {
             }
         }
         if (cType == null) {
-            cType = "content/unknown"; //$NON-NLS-1$
+            cType = "content/unknown"; 
         }
         return cType;
     }

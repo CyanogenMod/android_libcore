@@ -52,11 +52,11 @@ public class ECPoint {
     public ECPoint(BigInteger affineX, BigInteger affineY) {
         this.affineX = affineX;
         if (this.affineX == null) {
-            throw new NullPointerException(Messages.getString("security.83", "X")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "X"));  
         }
         this.affineY = affineY;
         if (this.affineY == null) {
-            throw new NullPointerException(Messages.getString("security.83", "Y")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "Y"));  
         }
     }
 

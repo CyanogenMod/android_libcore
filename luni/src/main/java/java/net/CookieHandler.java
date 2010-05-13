@@ -28,10 +28,10 @@ public abstract class CookieHandler {
     private static CookieHandler systemWideCookieHandler;
 
     private final static NetPermission getCookieHandlerPermission = new NetPermission(
-            "getCookieHandler"); //$NON-NLS-1$
+            "getCookieHandler"); 
 
     private final static NetPermission setCookieHandlerPermission = new NetPermission(
-            "setCookieHandler"); //$NON-NLS-1$
+            "setCookieHandler"); 
 
     /**
      * Returns the system-wide cookie handler or {@code null} if not set.

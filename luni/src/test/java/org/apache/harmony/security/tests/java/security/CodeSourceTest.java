@@ -414,7 +414,7 @@ public class CodeSourceTest extends TestCase {
         args = {}
     )
     public void testGetCoderSignersNull() throws Exception{
-        assertNull(new CodeSource(new URL("http://url"), (Certificate[])null).getCodeSigners()); //$NON-NLS-1$
+        assertNull(new CodeSource(new URL("http://url"), (Certificate[])null).getCodeSigners()); 
     }
 
     /**

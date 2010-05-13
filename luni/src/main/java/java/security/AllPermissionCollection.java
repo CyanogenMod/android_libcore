@@ -38,7 +38,7 @@ final class AllPermissionCollection extends PermissionCollection {
     private static final long serialVersionUID = -4023755556366636806L;
 
     private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField(
-        "all_allowed", Boolean.TYPE), }; //$NON-NLS-1$
+        "all_allowed", Boolean.TYPE), }; 
 
     // Single element of collection.
     private transient Permission all;
@@ -49,10 +49,10 @@ final class AllPermissionCollection extends PermissionCollection {
     @Override
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15")); //$NON-NLS-1$
+            throw new SecurityException(Messages.getString("security.15")); 
         }
         if (!(permission instanceof AllPermission)) {
-            throw new IllegalArgumentException(Messages.getString("security.16", //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.16", 
                 permission));
         }
         all = permission;
@@ -94,7 +94,7 @@ final class AllPermissionCollection extends PermissionCollection {
          */
         public E nextElement() {
             if (element == null) {
-                throw new NoSuchElementException(Messages.getString("security.17")); //$NON-NLS-1$
+                throw new NoSuchElementException(Messages.getString("security.17")); 
             }
             E last = element;
             element = null;
@@ -123,7 +123,7 @@ final class AllPermissionCollection extends PermissionCollection {
      */
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         ObjectOutputStream.PutField fields = out.putFields();
-        fields.put("all_allowed", all != null); //$NON-NLS-1$
+        fields.put("all_allowed", all != null); 
         out.writeFields();
     }
 
@@ -133,7 +133,7 @@ final class AllPermissionCollection extends PermissionCollection {
     private void readObject(java.io.ObjectInputStream in) throws IOException,
         ClassNotFoundException {
         ObjectInputStream.GetField fields = in.readFields();
-        if (fields.get("all_allowed", false)) { //$NON-NLS-1$
+        if (fields.get("all_allowed", false)) { 
             all = new AllPermission();
         }
     }

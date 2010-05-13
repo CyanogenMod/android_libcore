@@ -62,11 +62,11 @@ public final class Scanner implements Iterator<String> {
 
     // Default delimiting pattern.
     private static final Pattern DEFAULT_DELIMITER = Pattern
-            .compile("\\p{javaWhitespace}+"); //$NON-NLS-1$
+            .compile("\\p{javaWhitespace}+"); 
 
     // The boolean's pattern.
     private static final Pattern BOOLEAN_PATTERN = Pattern.compile(
-            "true|false", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
+            "true|false", Pattern.CASE_INSENSITIVE); 
 
     // Pattern used to recognize line terminator.
     private static final Pattern LINE_TERMINATOR;
@@ -78,7 +78,7 @@ public final class Scanner implements Iterator<String> {
     private static final Pattern LINE_PATTERN;
 
     static {
-        String terminator = "\n|\r\n|\r|\u0085|\u2028|\u2029"; //$NON-NLS-1$
+        String terminator = "\n|\r\n|\r|\u0085|\u2028|\u2029"; 
 
         LINE_TERMINATOR = Pattern.compile(terminator);
 
@@ -86,16 +86,16 @@ public final class Scanner implements Iterator<String> {
         // consider plain old string concatenation for better performance
         // END android-note
         StringBuilder multiTerminator = new StringBuilder();
-        MULTI_LINE_TERMINATOR = Pattern.compile(multiTerminator.append("(") //$NON-NLS-1$
-                .append(terminator).append(")+").toString()); //$NON-NLS-1$
+        MULTI_LINE_TERMINATOR = Pattern.compile(multiTerminator.append("(") 
+                .append(terminator).append(")+").toString()); 
         StringBuilder line = new StringBuilder();
-        LINE_PATTERN = Pattern.compile(line.append(".*(") //$NON-NLS-1$
-                .append(terminator).append(")|.+(") //$NON-NLS-1$
-                .append(terminator).append(")?").toString()); //$NON-NLS-1$
+        LINE_PATTERN = Pattern.compile(line.append(".*(") 
+                .append(terminator).append(")|.+(") 
+                .append(terminator).append(")?").toString()); 
     }
 
     // The pattern matches anything.
-    private static final Pattern ANY_PATTERN = Pattern.compile("(?s).*"); //$NON-NLS-1$
+    private static final Pattern ANY_PATTERN = Pattern.compile("(?s).*"); 
 
     private static final int DIPLOID = 2;
 
@@ -183,12 +183,12 @@ public final class Scanner implements Iterator<String> {
     public Scanner(File src, String charsetName) throws FileNotFoundException {
         if (null == src) {
             throw new NullPointerException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00a")); //$NON-NLS-1$
+                    .getString("KA00a")); 
         }
         FileInputStream fis = new FileInputStream(src);
         if (null == charsetName) {
             throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA009")); //$NON-NLS-1$
+                    .getString("KA009")); 
         }
         try {
             input = new InputStreamReader(fis, charsetName);
@@ -239,7 +239,7 @@ public final class Scanner implements Iterator<String> {
     public Scanner(InputStream src, String charsetName) {
         if (null == src) {
             throw new NullPointerException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00b")); //$NON-NLS-1$
+                    .getString("KA00b")); 
         }
         try {
             input = new InputStreamReader(src, charsetName);
@@ -288,11 +288,11 @@ public final class Scanner implements Iterator<String> {
     public Scanner(ReadableByteChannel src, String charsetName) {
         if (null == src) {
             throw new NullPointerException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00d")); //$NON-NLS-1$
+                    .getString("KA00d")); 
         }
         if (null == charsetName) {
             throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA009")); //$NON-NLS-1$
+                    .getString("KA009")); 
         }
         input = Channels.newReader(src, charsetName);
         initialization();
@@ -477,7 +477,7 @@ public final class Scanner implements Iterator<String> {
         checkNull(pattern);
         if (horizon < 0) {
             throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00e")); //$NON-NLS-1$
+                    .getString("KA00e")); 
         }
         matcher.usePattern(pattern);
 
@@ -1699,7 +1699,7 @@ public final class Scanner implements Iterator<String> {
     public Scanner useRadix(int radix) {
         if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
             throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA008", radix)); //$NON-NLS-1$
+                    .getString("KA008", radix)); 
         }
         this.integerRadix = radix;
         return this;
@@ -1776,23 +1776,23 @@ public final class Scanner implements Iterator<String> {
     private Pattern getIntegerPattern(int radix) {
         if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
             throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00e", radix)); //$NON-NLS-1$
+                    .getString("KA00e", radix)); 
         }
         decimalFormat = (DecimalFormat) NumberFormat.getInstance(locale);
 
-        String allAvailableDigits = "0123456789abcdefghijklmnopqrstuvwxyz"; //$NON-NLS-1$
+        String allAvailableDigits = "0123456789abcdefghijklmnopqrstuvwxyz"; 
         String ASCIIDigit = allAvailableDigits.substring(0, radix);
         String nonZeroASCIIDigit = allAvailableDigits.substring(1, radix);
 
-        StringBuilder digit = new StringBuilder("((?i)[").append(ASCIIDigit) //$NON-NLS-1$
-                .append("]|\\p{javaDigit})"); //$NON-NLS-1$
-        StringBuilder nonZeroDigit = new StringBuilder("((?i)[").append( //$NON-NLS-1$
-                nonZeroASCIIDigit).append("]|([\\p{javaDigit}&&[^0]]))"); //$NON-NLS-1$
+        StringBuilder digit = new StringBuilder("((?i)[").append(ASCIIDigit) 
+                .append("]|\\p{javaDigit})"); 
+        StringBuilder nonZeroDigit = new StringBuilder("((?i)[").append( 
+                nonZeroASCIIDigit).append("]|([\\p{javaDigit}&&[^0]]))"); 
         StringBuilder numeral = getNumeral(digit, nonZeroDigit);
 
-        StringBuilder integer = new StringBuilder("(([-+]?(").append(numeral) //$NON-NLS-1$
-                .append(")))|(").append(addPositiveSign(numeral)).append(")|(") //$NON-NLS-1$ //$NON-NLS-2$
-                .append(addNegativeSign(numeral)).append(")"); //$NON-NLS-1$
+        StringBuilder integer = new StringBuilder("(([-+]?(").append(numeral) 
+                .append(")))|(").append(addPositiveSign(numeral)).append(")|(")  
+                .append(addNegativeSign(numeral)).append(")"); 
 
         Pattern integerPattern = Pattern.compile(integer.toString());
         return integerPattern;
@@ -1804,55 +1804,55 @@ public final class Scanner implements Iterator<String> {
     private Pattern getFloatPattern() {
         decimalFormat = (DecimalFormat) NumberFormat.getInstance(locale);
 
-        StringBuilder digit = new StringBuilder("([0-9]|(\\p{javaDigit}))"); //$NON-NLS-1$
-        StringBuilder nonZeroDigit = new StringBuilder("[\\p{javaDigit}&&[^0]]"); //$NON-NLS-1$
+        StringBuilder digit = new StringBuilder("([0-9]|(\\p{javaDigit}))"); 
+        StringBuilder nonZeroDigit = new StringBuilder("[\\p{javaDigit}&&[^0]]"); 
         StringBuilder numeral = getNumeral(digit, nonZeroDigit);
 
-        String decimalSeparator = "\\" + decimalFormat.getDecimalFormatSymbols()//$NON-NLS-1$
+        String decimalSeparator = "\\" + decimalFormat.getDecimalFormatSymbols()
                         .getDecimalSeparator();
-        StringBuilder decimalNumeral = new StringBuilder("(").append(numeral) //$NON-NLS-1$
-                .append("|").append(numeral) //$NON-NLS-1$
-                .append(decimalSeparator).append(digit).append("*+|").append( //$NON-NLS-1$
-                        decimalSeparator).append(digit).append("++)"); //$NON-NLS-1$
-        StringBuilder exponent = new StringBuilder("([eE][+-]?").append(digit) //$NON-NLS-1$
-                .append("+)?"); //$NON-NLS-1$
+        StringBuilder decimalNumeral = new StringBuilder("(").append(numeral) 
+                .append("|").append(numeral) 
+                .append(decimalSeparator).append(digit).append("*+|").append( 
+                        decimalSeparator).append(digit).append("++)"); 
+        StringBuilder exponent = new StringBuilder("([eE][+-]?").append(digit) 
+                .append("+)?"); 
 
-        StringBuilder decimal = new StringBuilder("(([-+]?").append( //$NON-NLS-1$
-                decimalNumeral).append("(").append(exponent).append("?)") //$NON-NLS-1$ //$NON-NLS-2$
-                .append(")|(").append(addPositiveSign(decimalNumeral)).append( //$NON-NLS-1$
-                        "(").append(exponent).append("?)").append(")|(") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                .append(addNegativeSign(decimalNumeral)).append("(").append( //$NON-NLS-1$
-                        exponent).append("?)").append("))"); //$NON-NLS-1$ //$NON-NLS-2$
+        StringBuilder decimal = new StringBuilder("(([-+]?").append( 
+                decimalNumeral).append("(").append(exponent).append("?)")  
+                .append(")|(").append(addPositiveSign(decimalNumeral)).append( 
+                        "(").append(exponent).append("?)").append(")|(")   
+                .append(addNegativeSign(decimalNumeral)).append("(").append( 
+                        exponent).append("?)").append("))");  
 
-        StringBuilder hexFloat = new StringBuilder("([-+]?0[xX][0-9a-fA-F]*") //$NON-NLS-1$
-                .append("\\.").append(//$NON-NLS-1$
-                        "[0-9a-fA-F]+([pP][-+]?[0-9]+)?)"); //$NON-NLS-1$
+        StringBuilder hexFloat = new StringBuilder("([-+]?0[xX][0-9a-fA-F]*") 
+                .append("\\.").append(
+                        "[0-9a-fA-F]+([pP][-+]?[0-9]+)?)"); 
         String localNaN = decimalFormat.getDecimalFormatSymbols().getNaN();
         String localeInfinity = decimalFormat.getDecimalFormatSymbols()
                 .getInfinity();
-        StringBuilder nonNumber = new StringBuilder("(NaN|\\Q").append(localNaN) //$NON-NLS-1$
-                .append("\\E|Infinity|\\Q").append(localeInfinity).append("\\E)"); //$NON-NLS-1$ //$NON-NLS-2$
-        StringBuilder singedNonNumber = new StringBuilder("((([-+]?(").append( //$NON-NLS-1$
-                nonNumber).append(")))|(").append(addPositiveSign(nonNumber)) //$NON-NLS-1$
-                .append(")|(").append(addNegativeSign(nonNumber)).append("))"); //$NON-NLS-1$ //$NON-NLS-2$
+        StringBuilder nonNumber = new StringBuilder("(NaN|\\Q").append(localNaN) 
+                .append("\\E|Infinity|\\Q").append(localeInfinity).append("\\E)");  
+        StringBuilder singedNonNumber = new StringBuilder("((([-+]?(").append( 
+                nonNumber).append(")))|(").append(addPositiveSign(nonNumber)) 
+                .append(")|(").append(addNegativeSign(nonNumber)).append("))");  
 
         StringBuilder floatString = new StringBuilder().append(decimal).append(
-                "|").append(hexFloat).append("|").append(singedNonNumber); //$NON-NLS-1$ //$NON-NLS-2$
+                "|").append(hexFloat).append("|").append(singedNonNumber);  
         Pattern floatPattern = Pattern.compile(floatString.toString());
         return floatPattern;
     }
 
     private StringBuilder getNumeral(StringBuilder digit,
             StringBuilder nonZeroDigit) {
-        String groupSeparator = "\\"//$NON-NLS-1$
+        String groupSeparator = "\\"
                 + decimalFormat.getDecimalFormatSymbols()
                         .getGroupingSeparator();
-        StringBuilder groupedNumeral = new StringBuilder("(").append( //$NON-NLS-1$
-                nonZeroDigit).append(digit).append("?").append(digit).append( //$NON-NLS-1$
-                "?(").append(groupSeparator).append(digit).append(digit) //$NON-NLS-1$
-                .append(digit).append(")+)"); //$NON-NLS-1$
-        StringBuilder numeral = new StringBuilder("((").append(digit).append( //$NON-NLS-1$
-                "++)|").append(groupedNumeral).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+        StringBuilder groupedNumeral = new StringBuilder("(").append( 
+                nonZeroDigit).append(digit).append("?").append(digit).append( 
+                "?(").append(groupSeparator).append(digit).append(digit) 
+                .append(digit).append(")+)"); 
+        StringBuilder numeral = new StringBuilder("((").append(digit).append( 
+                "++)|").append(groupedNumeral).append(")");  
         return numeral;
     }
 
@@ -1860,13 +1860,13 @@ public final class Scanner implements Iterator<String> {
      * Add the locale specific positive prefixes and suffixes to the pattern
      */
     private StringBuilder addPositiveSign(StringBuilder unSignNumeral) {
-        String positivePrefix = ""; //$NON-NLS-1$
-        String positiveSuffix = ""; //$NON-NLS-1$
-        if (!decimalFormat.getPositivePrefix().equals("")) { //$NON-NLS-1$
-            positivePrefix = "\\Q" + decimalFormat.getPositivePrefix() + "\\E"; //$NON-NLS-1$ //$NON-NLS-2$
+        String positivePrefix = ""; 
+        String positiveSuffix = ""; 
+        if (!decimalFormat.getPositivePrefix().equals("")) { 
+            positivePrefix = "\\Q" + decimalFormat.getPositivePrefix() + "\\E";  
         }
-        if (!decimalFormat.getPositiveSuffix().equals("")) { //$NON-NLS-1$
-            positiveSuffix = "\\Q" + decimalFormat.getPositiveSuffix() + "\\E"; //$NON-NLS-1$ //$NON-NLS-2$
+        if (!decimalFormat.getPositiveSuffix().equals("")) { 
+            positiveSuffix = "\\Q" + decimalFormat.getPositiveSuffix() + "\\E";  
         }
         StringBuilder signedNumeral = new StringBuilder()
                 .append(positivePrefix).append(unSignNumeral).append(
@@ -1878,13 +1878,13 @@ public final class Scanner implements Iterator<String> {
      * Add the locale specific negative prefixes and suffixes to the pattern
      */
     private StringBuilder addNegativeSign(StringBuilder unSignNumeral) {
-        String negativePrefix = ""; //$NON-NLS-1$
-        String negativeSuffix = ""; //$NON-NLS-1$
-        if (!decimalFormat.getNegativePrefix().equals("")) { //$NON-NLS-1$
-            negativePrefix = "\\Q" + decimalFormat.getNegativePrefix() + "\\E"; //$NON-NLS-1$//$NON-NLS-2$
+        String negativePrefix = ""; 
+        String negativeSuffix = ""; 
+        if (!decimalFormat.getNegativePrefix().equals("")) { 
+            negativePrefix = "\\Q" + decimalFormat.getNegativePrefix() + "\\E"; 
         }
-        if (!decimalFormat.getNegativeSuffix().equals("")) { //$NON-NLS-1$
-            negativeSuffix = "\\Q" + decimalFormat.getNegativeSuffix() + "\\E"; //$NON-NLS-1$//$NON-NLS-2$
+        if (!decimalFormat.getNegativeSuffix().equals("")) { 
+            negativeSuffix = "\\Q" + decimalFormat.getNegativeSuffix() + "\\E"; 
         }
         StringBuilder signedNumeral = new StringBuilder()
                 .append(negativePrefix).append(unSignNumeral).append(
@@ -1912,7 +1912,7 @@ public final class Scanner implements Iterator<String> {
                     floatString.length());
             decimalNumeralString = removeLocaleInfo(decimalNumeralString,
                     DataType.FLOAT);
-            return decimalNumeralString + "e" + exponentString; //$NON-NLS-1$
+            return decimalNumeralString + "e" + exponentString; 
         }
         return removeLocaleInfo(floatString, DataType.FLOAT);
     }
@@ -1935,7 +1935,7 @@ public final class Scanner implements Iterator<String> {
         String decimalSeparator = String.valueOf(decimalFormat
                 .getDecimalFormatSymbols().getDecimalSeparator());
         separatorIndex = tokenBuilder.indexOf(decimalSeparator);
-        StringBuilder result = new StringBuilder(""); //$NON-NLS-1$
+        StringBuilder result = new StringBuilder(""); 
         if (DataType.INT == type) {
             for (int i = 0; i < tokenBuilder.length(); i++) {
                 if (-1 != Character.digit(tokenBuilder.charAt(i),
@@ -1947,10 +1947,10 @@ public final class Scanner implements Iterator<String> {
         if (DataType.FLOAT == type) {
             if (tokenBuilder.toString().equals(
                     decimalFormat.getDecimalFormatSymbols().getNaN())) {
-                result.append("NaN");//$NON-NLS-1$
+                result.append("NaN");
             } else if (tokenBuilder.toString().equals(
                     decimalFormat.getDecimalFormatSymbols().getInfinity())) {
-                result.append("Infinity");//$NON-NLS-1$
+                result.append("Infinity");
             } else {
                 for (int i = 0; i < tokenBuilder.length(); i++) {
                     if (-1 != Character.digit(tokenBuilder.charAt(i), 10)) {
@@ -1965,7 +1965,7 @@ public final class Scanner implements Iterator<String> {
             result = tokenBuilder;
         }
         if (-1 != separatorIndex) {
-            result.insert(separatorIndex, "."); //$NON-NLS-1$
+            result.insert(separatorIndex, "."); 
         }
         // If input is negative
         if (negative) {
@@ -1984,30 +1984,30 @@ public final class Scanner implements Iterator<String> {
         String negativePrefix = decimalFormat.getNegativePrefix();
         String negativeSuffix = decimalFormat.getNegativeSuffix();
 
-        if (0 == tokenBuilder.indexOf("+")) { //$NON-NLS-1$
+        if (0 == tokenBuilder.indexOf("+")) { 
             tokenBuilder.delete(0, 1);
         }
-        if (!positivePrefix.equals("") //$NON-NLS-1$
+        if (!positivePrefix.equals("") 
                 && 0 == tokenBuilder.indexOf(positivePrefix)) {
             tokenBuilder.delete(0, positivePrefix.length());
         }
-        if (!positiveSuffix.equals("") //$NON-NLS-1$
+        if (!positiveSuffix.equals("") 
                 && -1 != tokenBuilder.indexOf(positiveSuffix)) {
             tokenBuilder.delete(
                     tokenBuilder.length() - positiveSuffix.length(),
                     tokenBuilder.length());
         }
         boolean negative = false;
-        if (0 == tokenBuilder.indexOf("-")) { //$NON-NLS-1$
+        if (0 == tokenBuilder.indexOf("-")) { 
             tokenBuilder.delete(0, 1);
             negative = true;
         }
-        if (!negativePrefix.equals("") //$NON-NLS-1$
+        if (!negativePrefix.equals("") 
                 && 0 == tokenBuilder.indexOf(negativePrefix)) {
             tokenBuilder.delete(0, negativePrefix.length());
             negative = true;
         }
-        if (!negativeSuffix.equals("") //$NON-NLS-1$
+        if (!negativeSuffix.equals("") 
                 && -1 != tokenBuilder.indexOf(negativeSuffix)) {
             tokenBuilder.delete(
                     tokenBuilder.length() - negativeSuffix.length(),

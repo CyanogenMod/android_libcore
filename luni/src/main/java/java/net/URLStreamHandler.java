@@ -61,7 +61,7 @@ public abstract class URLStreamHandler {
      */
     protected URLConnection openConnection(URL u, Proxy proxy)
             throws IOException {
-        throw new UnsupportedOperationException(Msg.getString("K034d")); //$NON-NLS-1$
+        throw new UnsupportedOperationException(Msg.getString("K034d")); 
     }
 
     /**
@@ -86,7 +86,7 @@ public abstract class URLStreamHandler {
      */
     protected void parseURL(URL u, String str, int start, int end) {
         // For compatibility, refer to Harmony-2941
-        if (str.startsWith("//", start) //$NON-NLS-1$
+        if (str.startsWith("//", start) 
                 && str.indexOf('/', start + 2) == -1
                 && end <= Integer.MIN_VALUE + 1) {
             throw new StringIndexOutOfBoundsException(end - 2 - start);
@@ -97,7 +97,7 @@ public abstract class URLStreamHandler {
             }
             return;
         }
-        String parseString = ""; //$NON-NLS-1$
+        String parseString = ""; 
         if (start < end) {
             parseString = str.substring(start, end);
         }
@@ -114,7 +114,7 @@ public abstract class URLStreamHandler {
         String userInfo = u.getUserInfo();
 
         int refIdx = parseString.indexOf('#', 0);
-        if (parseString.startsWith("//")) { //$NON-NLS-1$
+        if (parseString.startsWith("//")) { 
             int hostIdx = 2, portIdx = -1;
             port = -1;
             fileIdx = parseString.indexOf('/', hostIdx);
@@ -126,7 +126,7 @@ public abstract class URLStreamHandler {
             if (fileIdx == -1) {
                 fileIdx = end;
                 // Use default
-                file = ""; //$NON-NLS-1$
+                file = ""; 
             }
             int hostEnd = fileIdx;
             if (refIdx != -1 && refIdx < fileIdx) {
@@ -183,9 +183,9 @@ public abstract class URLStreamHandler {
         if (queryIdx > -1) {
             query = parseString.substring(queryIdx + 1, fileEnd);
             if (queryIdx == 0 && file != null) {
-                if (file.equals("")) { //$NON-NLS-1$
-                    file = "/"; //$NON-NLS-1$
-                } else if (file.startsWith("/")) { //$NON-NLS-1$
+                if (file.equals("")) { 
+                    file = "/"; 
+                } else if (file.startsWith("/")) { 
                     canonicalize = true;
                 }
                 int last = file.lastIndexOf('/') + 1;
@@ -203,10 +203,10 @@ public abstract class URLStreamHandler {
                 file = parseString.substring(fileIdx, fileEnd);
             } else if (fileEnd > fileIdx) {
                 if (file == null) {
-                    file = ""; //$NON-NLS-1$
-                } else if (file.equals("")) { //$NON-NLS-1$
-                    file = "/"; //$NON-NLS-1$
-                } else if (file.startsWith("/")) { //$NON-NLS-1$
+                    file = ""; 
+                } else if (file.equals("")) { 
+                    file = "/"; 
+                } else if (file.startsWith("/")) { 
                     canonicalize = true;
                 }
                 int last = file.lastIndexOf('/') + 1;
@@ -219,11 +219,11 @@ public abstract class URLStreamHandler {
             }
         }
         if (file == null) {
-            file = ""; //$NON-NLS-1$
+            file = ""; 
         }
 
         if (host == null) {
-            host = ""; //$NON-NLS-1$
+            host = ""; 
         }
 
         if (canonicalize) {
@@ -310,7 +310,7 @@ public abstract class URLStreamHandler {
         answer.append(':');
         String authority = url.getAuthority();
         if (authority != null && authority.length() > 0) {
-            answer.append("//"); //$NON-NLS-1$
+            answer.append("//"); 
             answer.append(url.getAuthority());
         }
 
@@ -458,9 +458,9 @@ public abstract class URLStreamHandler {
      */
     private static String getHost(URL url) {
         String host = url.getHost();
-        if ("file".equals(url.getProtocol()) //$NON-NLS-1$
-                && "".equals(host)) { //$NON-NLS-1$
-            host = "localhost"; //$NON-NLS-1$
+        if ("file".equals(url.getProtocol()) 
+                && "".equals(host)) { 
+            host = "localhost"; 
         }
         return host;
     }

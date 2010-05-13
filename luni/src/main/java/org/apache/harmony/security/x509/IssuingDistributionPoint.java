@@ -160,20 +160,20 @@ public class IssuingDistributionPoint extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Issuing Distribution Point: [\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("Issuing Distribution Point: [\n"); 
         if (distributionPoint != null) {
-            distributionPoint.dumpValue(buffer, "  " + prefix); //$NON-NLS-1$
+            distributionPoint.dumpValue(buffer, "  " + prefix); 
         }
-        buffer.append(prefix).append("  onlyContainsUserCerts: ") //$NON-NLS-1$
+        buffer.append(prefix).append("  onlyContainsUserCerts: ") 
             .append(onlyContainsUserCerts).append('\n');
-        buffer.append(prefix).append("  onlyContainsCACerts: ") //$NON-NLS-1$
+        buffer.append(prefix).append("  onlyContainsCACerts: ") 
             .append(onlyContainsCACerts).append('\n');
         if (onlySomeReasons != null) {
-            onlySomeReasons.dumpValue(buffer, prefix + "  "); //$NON-NLS-1$
+            onlySomeReasons.dumpValue(buffer, prefix + "  "); 
         }
-        buffer.append(prefix).append("  indirectCRL: ") //$NON-NLS-1$
+        buffer.append(prefix).append("  indirectCRL: ") 
             .append(indirectCRL).append('\n');
-        buffer.append(prefix).append("  onlyContainsAttributeCerts: ") //$NON-NLS-1$
+        buffer.append(prefix).append("  onlyContainsAttributeCerts: ") 
             .append(onlyContainsAttributeCerts).append('\n');
     }
 

@@ -95,7 +95,7 @@ public class BufferedReader extends Reader {
     public BufferedReader(Reader in, int size) {
         super(in);
         if (size <= 0) {
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0058")); 
         }
         this.in = in;
         buf = new char[size];
@@ -198,7 +198,7 @@ public class BufferedReader extends Reader {
         }
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005b")); 
             }
             this.markLimit = markLimit;
             mark = pos;
@@ -234,7 +234,7 @@ public class BufferedReader extends Reader {
     public int read() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005b")); 
             }
             /* Are there buffered characters available? */
             if (pos < end || fillBuf() != -1) {
@@ -274,7 +274,7 @@ public class BufferedReader extends Reader {
     public int read(char[] buffer, int offset, int length) throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005b")); 
             }
             if (offset < 0 || offset > buffer.length - length || length < 0) {
                 throw new IndexOutOfBoundsException();
@@ -359,7 +359,7 @@ public class BufferedReader extends Reader {
     public String readLine() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005b")); 
             }
             /* has the underlying stream been exhausted? */
             if (pos == end && fillBuf() == -1) {
@@ -452,7 +452,7 @@ public class BufferedReader extends Reader {
     public boolean ready() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005b")); 
             }
             return ((end - pos) > 0) || in.ready();
         }
@@ -472,10 +472,10 @@ public class BufferedReader extends Reader {
     public void reset() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005b")); 
             }
             if (mark == -1) {
-                throw new IOException(Msg.getString("K005c")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005c")); 
             }
             pos = mark;
         }
@@ -505,7 +505,7 @@ public class BufferedReader extends Reader {
         }
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005b")); 
             }
             if (amount < 1) {
                 return 0;

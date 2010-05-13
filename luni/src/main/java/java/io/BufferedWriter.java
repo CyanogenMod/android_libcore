@@ -52,7 +52,7 @@ public class BufferedWriter extends Writer {
     private int pos;
 
     private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator")); //$NON-NLS-1$
+            .doPrivileged(new PriviAction<String>("line.separator")); 
 
     /**
      * Constructs a new {@code BufferedWriter}, providing {@code out} with a buffer
@@ -75,7 +75,7 @@ public class BufferedWriter extends Writer {
     public BufferedWriter(Writer out, int size) {
         super(out);
         if (size <= 0) {
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0058")); 
         }
         this.out = out;
         this.buf = new char[size];
@@ -130,7 +130,7 @@ public class BufferedWriter extends Writer {
     public void flush() throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005d")); 
             }
             flushInternal();
             out.flush();
@@ -191,7 +191,7 @@ public class BufferedWriter extends Writer {
     public void write(char[] cbuf, int offset, int count) throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005d")); 
             }
             // BEGIN android-changed
             // Exception priorities (in case of multiple errors) differ from
@@ -199,10 +199,10 @@ public class BufferedWriter extends Writer {
             // made implicit null check explicit, used (offset | count) < 0
             // instead of (offset < 0) || (count < 0) to safe one operation
             if (cbuf == null) {
-                throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+                throw new NullPointerException(Msg.getString("K0047")); 
             }
             if ((offset | count) < 0 || offset > cbuf.length - count) {
-                throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+                throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
             }
             // END android-changed
             if (pos == 0 && count >= this.buf.length) {
@@ -249,7 +249,7 @@ public class BufferedWriter extends Writer {
     public void write(int oneChar) throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005d")); 
             }
             if (pos >= buf.length) {
                 out.write(buf, 0, buf.length);
@@ -283,7 +283,7 @@ public class BufferedWriter extends Writer {
     public void write(String str, int offset, int count) throws IOException {
         synchronized (lock) {
             if (isClosed()) {
-                throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K005d")); 
             }
             if (count <= 0) {
                 return;

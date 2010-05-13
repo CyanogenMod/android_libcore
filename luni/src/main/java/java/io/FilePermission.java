@@ -54,8 +54,8 @@ public final class FilePermission extends Permission implements Serializable {
     private transient String canonPath;
 
     // list of actions permitted for socket permission in order
-    private static final String[] actionList = { "read", "write", "execute", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            "delete" }; //$NON-NLS-1$
+    private static final String[] actionList = { "read", "write", "execute",   
+            "delete" }; 
 
     // "canonicalized" action list
     private String actions;
@@ -92,15 +92,15 @@ public final class FilePermission extends Permission implements Serializable {
     }
 
     private void init(final String path, String pathActions) {
-        if (pathActions == null || pathActions.equals("")) { //$NON-NLS-1$
-            throw new IllegalArgumentException(Msg.getString("K006d")); //$NON-NLS-1$
+        if (pathActions == null || pathActions.equals("")) { 
+            throw new IllegalArgumentException(Msg.getString("K006d")); 
         }
         this.actions = toCanonicalActionString(pathActions);
 
         if (path == null) {
-            throw new NullPointerException(Msg.getString("K006e")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K006e")); 
         }
-        if (path.equals("<<ALL FILES>>")) { //$NON-NLS-1$
+        if (path.equals("<<ALL FILES>>")) { 
             includeAll = true;
         } else {
             canonPath = AccessController
@@ -113,10 +113,10 @@ public final class FilePermission extends Permission implements Serializable {
                             }
                         }
                     });
-            if (path.equals("*") || path.endsWith(File.separator + "*")) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (path.equals("*") || path.endsWith(File.separator + "*")) {  
                 allDir = true;
             }
-            if (path.equals("-") || path.endsWith(File.separator + "-")) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (path.equals("-") || path.endsWith(File.separator + "-")) {  
                 allSubdir = true;
             }
         }
@@ -149,7 +149,7 @@ public final class FilePermission extends Permission implements Serializable {
         for (int i = 0; i < len; i++) {
             if ((highestBitMask & mask) != 0) {
                 if (addedItem) {
-                    result.append(","); //$NON-NLS-1$
+                    result.append(","); 
                 }
                 result.append(actionList[i]);
                 addedItem = true;
@@ -169,20 +169,20 @@ public final class FilePermission extends Permission implements Serializable {
     private int getMask(String actionNames) {
         int actionInt = 0, head = 0, tail = 0;
         do {
-            tail = actionNames.indexOf(",", head); //$NON-NLS-1$
+            tail = actionNames.indexOf(",", head); 
             String action = tail > 0 ? actionNames.substring(head, tail).trim()
                     : actionNames.substring(head).trim();
-            if (action.equals("read")) { //$NON-NLS-1$
+            if (action.equals("read")) { 
                 actionInt |= 8;
-            } else if (action.equals("write")) { //$NON-NLS-1$
+            } else if (action.equals("write")) { 
                 actionInt |= 4;
-            } else if (action.equals("execute")) { //$NON-NLS-1$
+            } else if (action.equals("execute")) { 
                 actionInt |= 2;
-            } else if (action.equals("delete")) { //$NON-NLS-1$
+            } else if (action.equals("delete")) { 
                 actionInt |= 1;
             } else {
                 throw new IllegalArgumentException(Msg.getString(
-                        "K006f", action)); //$NON-NLS-1$
+                        "K006f", action)); 
             }
             head = tail + 1;
         } while (tail > 0);

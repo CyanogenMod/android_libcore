@@ -55,7 +55,7 @@ public abstract class SelectorProvider {
         super();
         if (null != System.getSecurityManager()) {
             System.getSecurityManager().checkPermission(
-                    new RuntimePermission("selectorProvider")); //$NON-NLS-1$
+                    new RuntimePermission("selectorProvider")); 
         }
     }
 
@@ -161,7 +161,7 @@ public abstract class SelectorProvider {
         SecurityManager smngr = System.getSecurityManager();
         if (smngr != null) {
             smngr.checkPermission(
-                    new RuntimePermission("inheritedChannel")); //$NON-NLS-1$
+                    new RuntimePermission("inheritedChannel")); 
         }
         // END android-added
         if (null == inheritedChannel) {

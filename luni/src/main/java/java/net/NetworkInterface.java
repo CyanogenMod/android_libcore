@@ -174,7 +174,7 @@ public final class NetworkInterface extends Object {
          * we should return the display name unless it is blank in this case
          * return the name so that something is displayed.
          */
-        if (!(displayName.equals(""))) { //$NON-NLS-1$
+        if (!(displayName.equals(""))) { 
             return displayName;
         }
         return name;
@@ -195,7 +195,7 @@ public final class NetworkInterface extends Object {
      */
     public static NetworkInterface getByName(String interfaceName) throws SocketException {
         if (interfaceName == null) {
-            throw new NullPointerException(Msg.getString("K0330")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0330")); 
         }
         for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
             if (networkInterface.name.equals(interfaceName)) {
@@ -220,7 +220,7 @@ public final class NetworkInterface extends Object {
      */
     public static NetworkInterface getByInetAddress(InetAddress address) throws SocketException {
         if (address == null) {
-            throw new NullPointerException(Msg.getString("K0331")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0331")); 
         }
         for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
             if (networkInterface.addresses.contains(address)) {
@@ -335,15 +335,15 @@ public final class NetworkInterface extends Object {
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder(25);
-        string.append("["); //$NON-NLS-1$
+        string.append("["); 
         string.append(name);
-        string.append("]["); //$NON-NLS-1$
+        string.append("]["); 
         string.append(displayName);
         // BEGIN android-added: the RI shows this, and it's useful for IPv6 users.
-        string.append("]["); //$NON-NLS-1$
+        string.append("]["); 
         string.append(interfaceIndex);
         // END android-added
-        string.append("]"); //$NON-NLS-1$
+        string.append("]"); 
 
         /*
          * get the addresses through this call to make sure we only reveal those
@@ -353,9 +353,9 @@ public final class NetworkInterface extends Object {
         if (theAddresses != null) {
             while (theAddresses.hasMoreElements()) {
                 InetAddress nextAddress = theAddresses.nextElement();
-                string.append("["); //$NON-NLS-1$
+                string.append("["); 
                 string.append(nextAddress.toString());
-                string.append("]"); //$NON-NLS-1$
+                string.append("]"); 
             }
         }
         return string.toString();

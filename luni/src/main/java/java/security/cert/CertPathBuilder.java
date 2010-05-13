@@ -35,17 +35,17 @@ import org.apache.harmony.security.internal.nls.Messages;
 public class CertPathBuilder {
 
     // Store CertPathBuilder service name
-    private static final String SERVICE = "CertPathBuilder"; //$NON-NLS-1$
+    private static final String SERVICE = "CertPathBuilder"; 
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
 
     // Store default property name
-    private static final String PROPERTYNAME = "certpathbuilder.type"; //$NON-NLS-1$
+    private static final String PROPERTYNAME = "certpathbuilder.type"; 
 
     // Default value of CertPathBuilder type. It returns if certpathbuild.type
     // property is not defined in java.security file
-    private static final String DEFAULTPROPERTY = "PKIX"; //$NON-NLS-1$
+    private static final String DEFAULTPROPERTY = "PKIX"; 
 
     // Store used provider
     private final Provider provider;
@@ -106,7 +106,7 @@ public class CertPathBuilder {
     public static CertPathBuilder getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -136,7 +136,7 @@ public class CertPathBuilder {
     public static CertPathBuilder getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.02")); 
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -165,10 +165,10 @@ public class CertPathBuilder {
     public static CertPathBuilder getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.04")); 
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);

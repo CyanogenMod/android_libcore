@@ -395,14 +395,14 @@ public class PipedInputStreamTest extends junit.framework.TestCase {
         
         try {
             pis = new PipedInputStream(null, -1);
-            fail("Should throw IllegalArgumentException"); //$NON-NLS-1$
+            fail("Should throw IllegalArgumentException"); 
         } catch (IllegalArgumentException e) {
             // expected
         }
         
         try {
             pis = new PipedInputStream(null, 0);
-            fail("Should throw IllegalArgumentException"); //$NON-NLS-1$
+            fail("Should throw IllegalArgumentException"); 
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -420,14 +420,14 @@ public class PipedInputStreamTest extends junit.framework.TestCase {
 
         try {
             pis = new PipedInputStream(-1);
-            fail("Should throw IllegalArgumentException"); //$NON-NLS-1$
+            fail("Should throw IllegalArgumentException"); 
         } catch (IllegalArgumentException e) {
             // expected
         }
         
         try {
             pis = new PipedInputStream(0);
-            fail("Should throw IllegalArgumentException"); //$NON-NLS-1$
+            fail("Should throw IllegalArgumentException"); 
         } catch (IllegalArgumentException e) {
             // expected
         }

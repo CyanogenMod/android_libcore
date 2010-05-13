@@ -748,7 +748,7 @@ public class Logger {
             return;
         }
 
-        LogRecord record = new LogRecord(Level.FINER, "ENTRY"); //$NON-NLS-1$
+        LogRecord record = new LogRecord(Level.FINER, "ENTRY"); 
         record.setLoggerName(this.name);
         record.setSourceClassName(sourceClass);
         record.setSourceMethodName(sourceMethod);
@@ -774,7 +774,7 @@ public class Logger {
             return;
         }
 
-        LogRecord record = new LogRecord(Level.FINER, "ENTRY" + " {0}"); //$NON-NLS-1$ //$NON-NLS-2$
+        LogRecord record = new LogRecord(Level.FINER, "ENTRY" + " {0}");  
         record.setLoggerName(this.name);
         record.setSourceClassName(sourceClass);
         record.setSourceMethodName(sourceMethod);
@@ -835,7 +835,7 @@ public class Logger {
             return;
         }
 
-        LogRecord record = new LogRecord(Level.FINER, "RETURN"); //$NON-NLS-1$
+        LogRecord record = new LogRecord(Level.FINER, "RETURN"); 
         record.setLoggerName(this.name);
         record.setSourceClassName(sourceClass);
         record.setSourceMethodName(sourceMethod);
@@ -860,7 +860,7 @@ public class Logger {
             return;
         }
 
-        LogRecord record = new LogRecord(Level.FINER, "RETURN" + " {0}"); //$NON-NLS-1$ //$NON-NLS-2$
+        LogRecord record = new LogRecord(Level.FINER, "RETURN" + " {0}");  
         record.setLoggerName(this.name);
         record.setSourceClassName(sourceClass);
         record.setSourceMethodName(sourceMethod);
@@ -888,7 +888,7 @@ public class Logger {
             return;
         }
 
-        LogRecord record = new LogRecord(Level.FINER, "THROW"); //$NON-NLS-1$
+        LogRecord record = new LogRecord(Level.FINER, "THROW"); 
         record.setLoggerName(this.name);
         record.setSourceClassName(sourceClass);
         record.setSourceMethodName(sourceMethod);

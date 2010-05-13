@@ -186,7 +186,7 @@ public class Date extends java.util.Date {
         return sb.toString();
     }
 
-    private static final String PADDING = "0000";  //$NON-NLS-1$
+    private static final String PADDING = "0000";  
 
     /* 
     * Private method to format the time 

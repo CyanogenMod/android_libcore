@@ -49,7 +49,7 @@ public class ASN1OpenType extends ASN1Any {
 
         int[] oid = (int[]) in.get(key);
         if (oid == null) {
-            throw new RuntimeException("");//FIXME message & type //$NON-NLS-1$
+            throw new RuntimeException("");//FIXME message & type 
         }
 
         AttributeType attr = (AttributeType) pool.get(oid);

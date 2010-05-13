@@ -48,11 +48,11 @@ public class DESedeKeySpec implements KeySpec {
     public DESedeKeySpec(byte[] key)
                 throws InvalidKeyException {
         if (key == null) {
-            throw new NullPointerException(Messages.getString("crypto.2F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.2F")); 
         }
         if (key.length < DES_EDE_KEY_LEN) {
             throw new InvalidKeyException(
-                    Messages.getString("crypto.30")); //$NON-NLS-1$
+                    Messages.getString("crypto.30")); 
         }
         this.key = new byte[DES_EDE_KEY_LEN];
         System.arraycopy(key, 0, this.key, 0, DES_EDE_KEY_LEN);
@@ -76,11 +76,11 @@ public class DESedeKeySpec implements KeySpec {
     public DESedeKeySpec(byte[] key, int offset)
                 throws InvalidKeyException {
         if (key == null) {
-            throw new NullPointerException(Messages.getString("crypto.2F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.2F")); 
         }
         if (key.length - offset < DES_EDE_KEY_LEN) {
             throw new InvalidKeyException(
-                    Messages.getString("crypto.30")); //$NON-NLS-1$
+                    Messages.getString("crypto.30")); 
         }
         this.key = new byte[DES_EDE_KEY_LEN];
         System.arraycopy(key, offset, this.key, 0, DES_EDE_KEY_LEN);
@@ -115,7 +115,7 @@ public class DESedeKeySpec implements KeySpec {
                 throws InvalidKeyException {
         if (key.length - offset < DES_EDE_KEY_LEN) {
             throw new InvalidKeyException(
-                    Messages.getString("crypto.30")); //$NON-NLS-1$
+                    Messages.getString("crypto.30")); 
         }
         for (int i=offset; i<DES_EDE_KEY_LEN+offset; i++) {
             int b = key[i];

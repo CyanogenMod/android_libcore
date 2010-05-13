@@ -597,16 +597,16 @@ public class StreamTokenizer {
     public String toString() {
         // Values determined through experimentation
         StringBuilder result = new StringBuilder();
-        result.append("Token["); //$NON-NLS-1$
+        result.append("Token["); 
         switch (ttype) {
             case TT_EOF:
-                result.append("EOF"); //$NON-NLS-1$
+                result.append("EOF"); 
                 break;
             case TT_EOL:
-                result.append("EOL"); //$NON-NLS-1$
+                result.append("EOL"); 
                 break;
             case TT_NUMBER:
-                result.append("n="); //$NON-NLS-1$
+                result.append("n="); 
                 result.append(nval);
                 break;
             case TT_WORD:
@@ -621,7 +621,7 @@ public class StreamTokenizer {
                     result.append('\'');
                 }
         }
-        result.append("], line "); //$NON-NLS-1$
+        result.append("], line "); 
         result.append(lineNumber);
         return result.toString();
     }

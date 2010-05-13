@@ -45,7 +45,7 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
     private static final long serialVersionUID = -7176153071733132400L;
 
     private static final ObjectStreamField[] serialPersistentFields = { 
-        new ObjectStreamField("permissions", Hashtable.class), }; //$NON-NLS-1$
+        new ObjectStreamField("permissions", Hashtable.class), }; 
 
     // elements of the collection.
     private transient Map klasses = new HashMap();
@@ -64,11 +64,11 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
      */
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15")); //$NON-NLS-1$
+            throw new SecurityException(Messages.getString("security.15")); 
         }
         if (permission == null
             || permission.getClass() != UnresolvedPermission.class) {
-            throw new IllegalArgumentException(Messages.getString("security.16", //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.16", 
                 permission));
         }
         synchronized (klasses) {
@@ -162,7 +162,7 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
             permissions.put(key, new Vector(((Collection) entry.getValue())));
         }
         ObjectOutputStream.PutField fields = out.putFields();
-        fields.put("permissions", permissions); //$NON-NLS-1$
+        fields.put("permissions", permissions); 
         out.writeFields();
     }
 
@@ -172,7 +172,7 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
     private void readObject(java.io.ObjectInputStream in) throws IOException,
         ClassNotFoundException {
         ObjectInputStream.GetField fields = in.readFields();
-        Map permissions = (Map)fields.get("permissions", null); //$NON-NLS-1$
+        Map permissions = (Map)fields.get("permissions", null); 
         klasses = new HashMap();
         synchronized (klasses) {
             for (Iterator iter = permissions.entrySet().iterator(); iter
@@ -187,7 +187,7 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
 
 	                if (!element.getName().equals(key)) {
 	                    throw new InvalidObjectException(
-	                        Messages.getString("security.22")); //$NON-NLS-1$
+	                        Messages.getString("security.22")); 
 	                }
 	            }
 	            klasses.put(key, new HashSet(values));

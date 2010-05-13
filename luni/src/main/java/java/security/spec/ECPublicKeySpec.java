@@ -44,15 +44,15 @@ public class ECPublicKeySpec implements KeySpec {
         this.params = params;
         // throw NullPointerException if w or params is null
         if (this.w == null) {
-            throw new NullPointerException(Messages.getString("security.83", "w")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "w"));  
         }
         if (this.params == null) {
-            throw new NullPointerException(Messages.getString("security.83", "params")); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new NullPointerException(Messages.getString("security.83", "params"));  
         }
         // throw IllegalArgumentException if w is point at infinity
         if (this.w.equals(ECPoint.POINT_INFINITY)) {
             throw new IllegalArgumentException(
-                Messages.getString("security.84")); //$NON-NLS-1$
+                Messages.getString("security.84")); 
         }
     }
 

@@ -25,7 +25,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 
 public class InputMismatchExceptionTest extends TestCase {
 
-    private static final String ERROR_MESSAGE = "for serialization test"; //$NON-NLS-1$
+    private static final String ERROR_MESSAGE = "for serialization test"; 
 
     /**
      * @tests java.util.InputMismatchException#InputMismatchException()

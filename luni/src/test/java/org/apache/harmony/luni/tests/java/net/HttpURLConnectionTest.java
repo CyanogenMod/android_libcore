@@ -220,20 +220,20 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
     })
     public void test_getRequestPropertyLjava_lang_String_BeforeConnected()
             throws MalformedURLException, IOException {
-        uc.setRequestProperty("whatever", "you like"); //$NON-NLS-1$//$NON-NLS-2$
-        String res = uc.getRequestProperty("whatever"); //$NON-NLS-1$
-        assertEquals("you like", res); //$NON-NLS-1$
+        uc.setRequestProperty("whatever", "you like"); 
+        String res = uc.getRequestProperty("whatever"); 
+        assertEquals("you like", res); 
 
-        uc.setRequestProperty("", "you like"); //$NON-NLS-1$//$NON-NLS-2$
-        res = uc.getRequestProperty(""); //$NON-NLS-1$
-        assertEquals("you like", res); //$NON-NLS-1$
+        uc.setRequestProperty("", "you like"); 
+        res = uc.getRequestProperty(""); 
+        assertEquals("you like", res); 
 
-        uc.setRequestProperty("", null); //$NON-NLS-1$
-        res = uc.getRequestProperty(""); //$NON-NLS-1$
+        uc.setRequestProperty("", null); 
+        res = uc.getRequestProperty(""); 
         assertEquals(null, res);
         try {
-            uc.setRequestProperty(null, "you like"); //$NON-NLS-1$
-            fail("Should throw NullPointerException"); //$NON-NLS-1$
+            uc.setRequestProperty(null, "you like"); 
+            fail("Should throw NullPointerException"); 
         } catch (NullPointerException e) {
             // expected
         }
@@ -260,24 +260,24 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
             throws IOException {
         uc.connect();
         try {
-            uc.setRequestProperty("whatever", "you like"); //$NON-NLS-1$//$NON-NLS-2$
-            fail("Should throw IllegalStateException"); //$NON-NLS-1$
+            uc.setRequestProperty("whatever", "you like"); 
+            fail("Should throw IllegalStateException"); 
         } catch (IllegalStateException e) {
             // expected
         }
         try {
-            uc.setRequestProperty(null, "you like"); //$NON-NLS-1$
-            fail("Should throw IllegalStateException"); //$NON-NLS-1$
+            uc.setRequestProperty(null, "you like"); 
+            fail("Should throw IllegalStateException"); 
         } catch (IllegalStateException e) {
             // expected
         }
-        String res = uc.getRequestProperty("whatever"); //$NON-NLS-1$
+        String res = uc.getRequestProperty("whatever"); 
         assertEquals(null, res);
         res = uc.getRequestProperty(null);
         assertEquals(null, res);
         try {
             uc.getRequestProperties();
-            fail("Should throw IllegalStateException"); //$NON-NLS-1$
+            fail("Should throw IllegalStateException"); 
         } catch (IllegalStateException e) {
             // expected
         }

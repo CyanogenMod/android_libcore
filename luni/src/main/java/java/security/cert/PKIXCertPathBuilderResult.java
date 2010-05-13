@@ -53,7 +53,7 @@ public class PKIXCertPathBuilderResult extends PKIXCertPathValidatorResult
         super(trustAnchor, policyTree, subjectPublicKey);
         this.certPath = certPath;
         if (this.certPath == null) {
-            throw new NullPointerException(Messages.getString("security.55")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.55")); 
         }
     }
 
@@ -75,9 +75,9 @@ public class PKIXCertPathBuilderResult extends PKIXCertPathValidatorResult
      */
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
-        sb.append("\n Certification Path: "); //$NON-NLS-1$
+        sb.append("\n Certification Path: "); 
         sb.append(certPath.toString());
-        sb.append("\n]"); //$NON-NLS-1$
+        sb.append("\n]"); 
         return sb.toString();
     }
 }

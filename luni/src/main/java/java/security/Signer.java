@@ -80,7 +80,7 @@ public abstract class Signer extends Identity {
     public PrivateKey getPrivateKey() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("getSignerPrivateKey"); //$NON-NLS-1$
+            sm.checkSecurityAccess("getSignerPrivateKey"); 
         }
 
         return privateKey;
@@ -114,7 +114,7 @@ public abstract class Signer extends Identity {
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("setSignerKeyPair"); //$NON-NLS-1$
+            sm.checkSecurityAccess("setSignerKeyPair"); 
         }
         final PublicKey pk = pair.getPublic();
         try {
@@ -138,7 +138,7 @@ public abstract class Signer extends Identity {
      */
     @Override
     public String toString() {
-        String s = "[Signer]" + getName(); //$NON-NLS-1$
+        String s = "[Signer]" + getName(); 
         if (getScope() != null) {
             s = s + '[' + getScope().toString() + ']';
         }

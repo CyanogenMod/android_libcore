@@ -145,7 +145,7 @@ public abstract class Provider extends Properties {
      */
     @Override
     public String toString() {
-        return name + " version " + version; //$NON-NLS-1$
+        return name + " version " + version; 
     }
 
     /**
@@ -165,7 +165,7 @@ public abstract class Provider extends Properties {
     public synchronized void clear() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("clearProviderProperties." + name); //$NON-NLS-1$
+            sm.checkSecurityAccess("clearProviderProperties." + name); 
         }
         super.clear();
         if (serviceTable != null) {
@@ -221,7 +221,7 @@ public abstract class Provider extends Properties {
 
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("putProviderProperty." + name); //$NON-NLS-1$
+            sm.checkSecurityAccess("putProviderProperty." + name); 
         }
         myPutAll(t);
     }
@@ -236,7 +236,7 @@ public abstract class Provider extends Properties {
         while (it.hasNext()) {
             Map.Entry<?, ?> entry = it.next();
             key = entry.getKey();
-            if (key instanceof String && ((String) key).startsWith("Provider.")) { //$NON-NLS-1$
+            if (key instanceof String && ((String) key).startsWith("Provider.")) { 
                 // Provider service type is reserved
                 continue;
             }
@@ -291,9 +291,9 @@ public abstract class Provider extends Properties {
     public synchronized Object put(Object key, Object value) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("putProviderProperty." + name); //$NON-NLS-1$
+            sm.checkSecurityAccess("putProviderProperty." + name); 
         }
-        if (key instanceof String && ((String) key).startsWith("Provider.")) { //$NON-NLS-1$
+        if (key instanceof String && ((String) key).startsWith("Provider.")) { 
             // Provider service type is reserved
             return null;
         }
@@ -332,9 +332,9 @@ public abstract class Provider extends Properties {
     public synchronized Object remove(Object key) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("removeProviderProperty." + name); //$NON-NLS-1$
+            sm.checkSecurityAccess("removeProviderProperty." + name); 
         }
-        if (key instanceof String && ((String) key).startsWith("Provider.")) { //$NON-NLS-1$
+        if (key instanceof String && ((String) key).startsWith("Provider.")) { 
             // Provider service type is reserved
             return null;
         }
@@ -369,12 +369,12 @@ public abstract class Provider extends Properties {
      * @return
      */
     boolean implementsAlg(String serv, String alg, String attribute, String val) {
-        String servAlg = serv + "." + alg; //$NON-NLS-1$
+        String servAlg = serv + "." + alg; 
         String prop = getPropertyIgnoreCase(servAlg);
         if (prop == null) {
-            alg = getPropertyIgnoreCase("Alg.Alias." + servAlg); //$NON-NLS-1$
+            alg = getPropertyIgnoreCase("Alg.Alias." + servAlg); 
             if (alg != null) {
-                servAlg = serv + "." + alg; //$NON-NLS-1$
+                servAlg = serv + "." + alg; 
                 prop = getPropertyIgnoreCase(servAlg);
             }
         }
@@ -393,7 +393,7 @@ public abstract class Provider extends Properties {
         
         String attributeValue = getPropertyIgnoreCase(servAlg + ' ' + attribute);
         if (attributeValue != null) {
-            if (Util.equalsIgnoreCase(attribute,"KeySize")) { //$NON-NLS-1$
+            if (Util.equalsIgnoreCase(attribute,"KeySize")) { 
                 // BEGIN android-changed
                 if (Integer.parseInt(attributeValue) >= Integer.parseInt(val)) {
                     return true;
@@ -548,9 +548,9 @@ public abstract class Provider extends Properties {
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("putProviderProperty." + name); //$NON-NLS-1$
+            sm.checkSecurityAccess("putProviderProperty." + name); 
         }
-        if ("Provider".equals(s.getType())) { // Provider service type cannot be //$NON-NLS-1$
+        if ("Provider".equals(s.getType())) { // Provider service type cannot be 
                                               // added
             return;
         }
@@ -593,7 +593,7 @@ public abstract class Provider extends Properties {
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
-            sm.checkSecurityAccess("removeProviderProperty." + name); //$NON-NLS-1$
+            sm.checkSecurityAccess("removeProviderProperty." + name); 
         }
         servicesChanged();
         if (serviceTable != null) {
@@ -609,16 +609,16 @@ public abstract class Provider extends Properties {
 
     // Add Service information to the provider's properties.
     private void serviceInfoToProperties(Provider.Service s) {
-        super.put(s.type + "." + s.algorithm, s.className); //$NON-NLS-1$
+        super.put(s.type + "." + s.algorithm, s.className); 
         if (s.aliases != null) {
             for (Iterator<String> i = s.aliases.iterator(); i.hasNext();) {
-                super.put("Alg.Alias." + s.type + "." + i.next(), s.algorithm); //$NON-NLS-1$ //$NON-NLS-2$
+                super.put("Alg.Alias." + s.type + "." + i.next(), s.algorithm);  
             }
         }
         if (s.attributes != null) {
             for (Iterator<Map.Entry<String, String>> i = s.attributes.entrySet().iterator(); i.hasNext();) {
                 Map.Entry<String, String> entry = i.next();
-                super.put(s.type + "." + s.algorithm + " " + entry.getKey(), //$NON-NLS-1$ //$NON-NLS-2$
+                super.put(s.type + "." + s.algorithm + " " + entry.getKey(),  
                         entry.getValue());
             }
         }
@@ -630,16 +630,16 @@ public abstract class Provider extends Properties {
 
     // Remove Service information from the provider's properties.
     private void serviceInfoFromProperties(Provider.Service s) {
-        super.remove(s.type + "." + s.algorithm); //$NON-NLS-1$
+        super.remove(s.type + "." + s.algorithm); 
         if (s.aliases != null) {
             for (Iterator<String> i = s.aliases.iterator(); i.hasNext();) {
-                super.remove("Alg.Alias." + s.type + "." + i.next()); //$NON-NLS-1$ //$NON-NLS-2$
+                super.remove("Alg.Alias." + s.type + "." + i.next());  
             }
         }
         if (s.attributes != null) {
             for (Iterator<Map.Entry<String, String>> i = s.attributes.entrySet().iterator(); i.hasNext();) {
                 Map.Entry<String, String> entry = i.next();
-                super.remove(s.type + "." + s.algorithm + " " + entry.getKey()); //$NON-NLS-1$ //$NON-NLS-2$
+                super.remove(s.type + "." + s.algorithm + " " + entry.getKey());  
             }
         }
         if (providerNumber != -1) {
@@ -654,7 +654,7 @@ public abstract class Provider extends Properties {
             return;
         }
         String k = (String) key;
-        if (k.startsWith("Provider.")) { // Provider service type is reserved //$NON-NLS-1$
+        if (k.startsWith("Provider.")) { // Provider service type is reserved 
             return;
         }
         Provider.Service s;
@@ -662,7 +662,7 @@ public abstract class Provider extends Properties {
         String algorithm = null;
         String attribute = null;
         int i;
-        if (k.startsWith("Alg.Alias.")) { // Alg.Alias.<crypto_service>.<aliasName>=<standardName> //$NON-NLS-1$
+        if (k.startsWith("Alg.Alias.")) { // Alg.Alias.<crypto_service>.<aliasName>=<standardName> 
             String aliasName;
             String service_alias = k.substring(10);
             i = service_alias.indexOf('.');
@@ -738,11 +738,11 @@ public abstract class Provider extends Properties {
             }
             String key = (String) _key;
             String value = (String) _value;
-            if (key.startsWith("Provider")) { // Provider service type is reserved //$NON-NLS-1$
+            if (key.startsWith("Provider")) { // Provider service type is reserved 
                 continue;
             }
             int i;
-            if (key.startsWith("Alg.Alias.")) { // Alg.Alias.<crypto_service>.<aliasName>=<standardName> //$NON-NLS-1$
+            if (key.startsWith("Alg.Alias.")) { // Alg.Alias.<crypto_service>.<aliasName>=<standardName> 
                 String aliasName;
                 String service_alias = key.substring(10);
                 i = service_alias.indexOf('.');
@@ -768,7 +768,7 @@ public abstract class Provider extends Properties {
                             Util.toUpperCase(aliasName), s);
                 } else {
                     String className = (String) changedProperties
-                            .get(serviceName + "." + algorithm); //$NON-NLS-1$
+                            .get(serviceName + "." + algorithm); 
                     if (className != null) {
                         List<String> l = new ArrayList<String>();
                         l.add(aliasName);
@@ -829,7 +829,7 @@ public abstract class Provider extends Properties {
                     // END android-changed
                 } else {
                     String className = (String) changedProperties
-                            .get(serviceName + "." + algorithm); //$NON-NLS-1$
+                            .get(serviceName + "." + algorithm); 
                     if (className != null) {
                         Map<String, String> m = new HashMap<String, String>();
                         m.put(attribute, value);
@@ -1082,7 +1082,7 @@ public abstract class Provider extends Properties {
                                             true, cl);
                                 } catch (Exception e) {
                                     return new NoSuchAlgorithmException(
-                                            Messages.getString("security.11",  //$NON-NLS-1$
+                                            Messages.getString("security.11",  
                                                     new Object[]{type, algorithm, e}));
                                 }
                                 lastClassName = className;
@@ -1097,28 +1097,28 @@ public abstract class Provider extends Properties {
                 try {
                     return implementation.newInstance();
                 } catch (Exception e) {
-                    throw new NoSuchAlgorithmException(Messages.getString("security.199", //$NON-NLS-1$
+                    throw new NoSuchAlgorithmException(Messages.getString("security.199", 
                             type, algorithm), e);
                 }
             }
             if (!supportsParameter(constructorParameter)) {
                 throw new InvalidParameterException(
-                        Messages.getString("security.12", type)); //$NON-NLS-1$
+                        Messages.getString("security.12", type)); 
             }
 
             Class[] parameterTypes = new Class[1];
             Object[] initargs = { constructorParameter };
             try {
-                if (Util.equalsIgnoreCase(type,"CertStore")) { //$NON-NLS-1$
+                if (Util.equalsIgnoreCase(type,"CertStore")) { 
                     parameterTypes[0] = Class
-                            .forName("java.security.cert.CertStoreParameters"); //$NON-NLS-1$
+                            .forName("java.security.cert.CertStoreParameters"); 
                 } else {
                     parameterTypes[0] = constructorParameter.getClass();
                 }
                 return implementation.getConstructor(parameterTypes)
                         .newInstance(initargs);
             } catch (Exception e) {
-                throw new NoSuchAlgorithmException(Messages.getString("security.199", //$NON-NLS-1$
+                throw new NoSuchAlgorithmException(Messages.getString("security.199", 
                         type, algorithm), e);
             }
         }
@@ -1144,13 +1144,13 @@ public abstract class Provider extends Properties {
          */
         @Override
         public String toString() {
-            String result = "Provider " + provider.getName() + " Service " //$NON-NLS-1$ //$NON-NLS-2$
-                    + type + "." + algorithm + " " + className; //$NON-NLS-1$ //$NON-NLS-2$
+            String result = "Provider " + provider.getName() + " Service "  
+                    + type + "." + algorithm + " " + className;  
             if (aliases != null) {
-                result = result + "\nAliases " + aliases.toString(); //$NON-NLS-1$
+                result = result + "\nAliases " + aliases.toString(); 
             }
             if (attributes != null) {
-                result = result + "\nAttributes " + attributes.toString(); //$NON-NLS-1$
+                result = result + "\nAttributes " + attributes.toString(); 
             }
             return result;
         }

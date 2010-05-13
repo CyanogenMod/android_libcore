@@ -62,12 +62,12 @@ public final class PropertyPermission extends BasicPermission {
 
     private void decodeActions(String actions) {
         StringTokenizer tokenizer = new StringTokenizer(Util.toASCIILowerCase(actions),
-                " \t\n\r,"); //$NON-NLS-1$
+                " \t\n\r,"); 
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
-            if (token.equals("read")) { //$NON-NLS-1$
+            if (token.equals("read")) { 
                 read = true;
-            } else if (token.equals("write")) { //$NON-NLS-1$
+            } else if (token.equals("write")) { 
                 write = true;
             } else {
                 throw new IllegalArgumentException();
@@ -109,7 +109,7 @@ public final class PropertyPermission extends BasicPermission {
      */
     @Override
     public String getActions() {
-        return read ? (write ? "read,write" : "read") : "write"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+        return read ? (write ? "read,write" : "read") : "write";  
     }
 
     /**
@@ -155,18 +155,18 @@ public final class PropertyPermission extends BasicPermission {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField(
-            "actions", String.class) }; //$NON-NLS-1$
+            "actions", String.class) }; 
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();
-        fields.put("actions", getActions()); //$NON-NLS-1$
+        fields.put("actions", getActions()); 
         stream.writeFields();
     }
 
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
         ObjectInputStream.GetField fields = stream.readFields();
-        String actions = (String) fields.get("actions", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        String actions = (String) fields.get("actions", "");  
         decodeActions(actions);
     }
 }

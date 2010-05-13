@@ -196,7 +196,7 @@ public final class ProcessBuilder {
         String[] envArray = new String[environment.size()];
         int i = 0;
         for (Map.Entry<String, String> entry : environment.entrySet()) {
-            envArray[i++] = entry.getKey() + "=" + entry.getValue(); //$NON-NLS-1$
+            envArray[i++] = entry.getKey() + "=" + entry.getValue(); 
         }
         return ProcessManager.getInstance().exec(cmdArray, envArray, directory, redirectErrorStream);
         // END android-changed

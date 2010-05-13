@@ -257,24 +257,24 @@ public class CoderResult {
         String dsc = null;
         switch (this.type) {
             case TYPE_UNDERFLOW:
-                dsc = "UNDERFLOW error"; //$NON-NLS-1$
+                dsc = "UNDERFLOW error"; 
                 break;
             case TYPE_OVERFLOW:
-                dsc = "OVERFLOW error"; //$NON-NLS-1$
+                dsc = "OVERFLOW error"; 
                 break;
             case TYPE_UNMAPPABLE_CHAR:
-                dsc = "Unmappable-character error with erroneous input length " //$NON-NLS-1$
+                dsc = "Unmappable-character error with erroneous input length " 
                         + this.length;
                 break;
             case TYPE_MALFORMED_INPUT:
-                dsc = "Malformed-input error with erroneous input length " //$NON-NLS-1$
+                dsc = "Malformed-input error with erroneous input length " 
                         + this.length;
                 break;
             default:
-                dsc = ""; //$NON-NLS-1$
+                dsc = ""; 
                 break;
         }
-        return "CoderResult[" + dsc + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+        return "CoderResult[" + dsc + "]";  
 
     }
 

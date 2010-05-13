@@ -60,7 +60,7 @@ public class OutputStreamWriter extends Writer {
         this.out = out;
         String encoding = AccessController
                 .doPrivileged(new PriviAction<String>(
-                        "file.encoding", "ISO8859_1")); //$NON-NLS-1$ //$NON-NLS-2$
+                        "file.encoding", "ISO8859_1"));  
         encoder = Charset.forName(encoding).newEncoder();
         encoder.onMalformedInput(CodingErrorAction.REPLACE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
@@ -182,7 +182,7 @@ public class OutputStreamWriter extends Writer {
     private void checkStatus() throws IOException {
         if (encoder == null) {
             // K005d=Writer is closed.
-            throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K005d")); 
         }
     }
 
@@ -231,10 +231,10 @@ public class OutputStreamWriter extends Writer {
             // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
             // to safe one operation
             if (buf == null) {
-                throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+                throw new NullPointerException(Msg.getString("K0047")); 
             }
             if ((offset | count) < 0 || offset > buf.length - count) {
-                throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+                throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
             }
             // END android-changed
             CharBuffer chars = CharBuffer.wrap(buf, offset, count);
@@ -307,10 +307,10 @@ public class OutputStreamWriter extends Writer {
             // made implicit null check explicit, used (offset | count) < 0
             // instead of (offset < 0) || (count < 0) to safe one operation
             if (str == null) {
-                throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+                throw new NullPointerException(Msg.getString("K0047")); 
             }
             if ((offset | count) < 0 || offset > str.length() - count) {
-                throw new StringIndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+                throw new StringIndexOutOfBoundsException(Msg.getString("K002f")); 
             }
             // END android-changed
             checkStatus();

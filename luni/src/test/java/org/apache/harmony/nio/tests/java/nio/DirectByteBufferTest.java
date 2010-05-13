@@ -49,7 +49,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
     public void testAllocatedByteBuffer_IllegalArg() {
         try {
             ByteBuffer.allocateDirect(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -64,7 +64,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
     public void testArray() {
         try {
             buf.array();
-            fail("Should throw UnsupportedOperationException"); //$NON-NLS-1$
+            fail("Should throw UnsupportedOperationException"); 
         } catch (UnsupportedOperationException e) {
             // expected
         }
@@ -79,7 +79,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
     public void testArrayOffset() {
         try {
             buf.arrayOffset();
-            fail("Should throw UnsupportedOperationException"); //$NON-NLS-1$
+            fail("Should throw UnsupportedOperationException"); 
         } catch (UnsupportedOperationException e) {
             // expected
         }
@@ -105,7 +105,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
         assertFalse(buf.hasArray());
         try {
             buf.array();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (UnsupportedOperationException e) {
             // expected
         }

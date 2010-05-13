@@ -25,13 +25,13 @@ public final class Endianness {
     /**
      * Private mapping mode (equivalent to copy on write).
      */
-    public static final Endianness BIG_ENDIAN = new Endianness("BIG_ENDIAN"); //$NON-NLS-1$
+    public static final Endianness BIG_ENDIAN = new Endianness("BIG_ENDIAN"); 
 
     /**
      * Read-only mapping mode.
      */
     public static final Endianness LITTLE_ENDIAN = new Endianness(
-            "LITTLE_ENDIAN"); //$NON-NLS-1$
+            "LITTLE_ENDIAN"); 
 
     // The string used to display the mapping mode.
     private final String displayName;

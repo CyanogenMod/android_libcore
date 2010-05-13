@@ -45,19 +45,19 @@ class OSFileSystem implements IFileSystem {
     private final void validateLockArgs(int type, long start, long length) {
         if ((type != IFileSystem.SHARED_LOCK_TYPE)
                 && (type != IFileSystem.EXCLUSIVE_LOCK_TYPE)) {
-            throw new IllegalArgumentException("Illegal lock type requested."); //$NON-NLS-1$
+            throw new IllegalArgumentException("Illegal lock type requested."); 
         }
 
         // Start position
         if (start < 0) {
             throw new IllegalArgumentException(
-                    "Lock start position must be non-negative"); //$NON-NLS-1$
+                    "Lock start position must be non-negative"); 
         }
 
         // Length of lock stretch
         if (length < 0) {
             throw new IllegalArgumentException(
-                    "Lock length must be non-negative"); //$NON-NLS-1$
+                    "Lock length must be non-negative"); 
         }
     }
 

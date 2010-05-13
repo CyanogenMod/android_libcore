@@ -48,7 +48,7 @@ public class PublicKeyImpl implements PublicKey {
 
 
     public String getFormat() {
-        return "X.509"; //$NON-NLS-1$
+        return "X.509"; 
     }
 
 

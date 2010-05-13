@@ -86,7 +86,7 @@ public class ExtendedKeyUsage extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Extended Key Usage: "); //$NON-NLS-1$
+        buffer.append(prefix).append("Extended Key Usage: "); 
         if (keys == null) {
             try {
                 keys = getExtendedKeyUsage();
@@ -98,12 +98,12 @@ public class ExtendedKeyUsage extends ExtensionValue {
         }
         buffer.append('[');
         for (Iterator it=keys.iterator(); it.hasNext();) {
-            buffer.append(" \"").append(it.next()).append('"'); //$NON-NLS-1$
+            buffer.append(" \"").append(it.next()).append('"'); 
             if (it.hasNext()) {
                 buffer.append(',');
             }
         }
-        buffer.append(" ]\n"); //$NON-NLS-1$
+        buffer.append(" ]\n"); 
     }
 
     /**

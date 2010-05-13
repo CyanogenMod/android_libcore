@@ -72,7 +72,7 @@ public class BufferedOutputStream extends FilterOutputStream {
         super(out);
         if (size <= 0) {
             // K0058=size must be > 0
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0058")); 
         }
         buf = new byte[size];
     }
@@ -87,7 +87,7 @@ public class BufferedOutputStream extends FilterOutputStream {
     @Override
     public synchronized void flush() throws IOException {
         if (buf == null) {
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0059")); 
         }
 
         flushInternal();
@@ -124,12 +124,12 @@ public class BufferedOutputStream extends FilterOutputStream {
             throws IOException {
         byte[] internalBuffer = buf;
         if (internalBuffer == null) {
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0059")); 
         }
 
         if (buffer == null) {
             // K0047=buffer is null
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         
         if (length >= internalBuffer.length) {
@@ -140,12 +140,12 @@ public class BufferedOutputStream extends FilterOutputStream {
         
         if (offset < 0 || offset > buffer.length - length) {
             // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); 
         
         }
         if (length < 0) {
             // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); 
         }
 
         // flush the internal buffer first if we have not enough space left
@@ -186,7 +186,7 @@ public class BufferedOutputStream extends FilterOutputStream {
     public synchronized void write(int oneByte) throws IOException {
         byte[] internalBuffer = buf;
         if (internalBuffer == null) {
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0059")); 
         }
 
         if (count == internalBuffer.length) {

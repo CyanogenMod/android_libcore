@@ -37,14 +37,14 @@ final class HexStringParser {
     
     private static final int MAX_SIGNIFICANT_LENGTH = 15;
 
-    private static final String HEX_SIGNIFICANT = "0[xX](\\p{XDigit}+\\.?|\\p{XDigit}*\\.\\p{XDigit}+)"; //$NON-NLS-1$
+    private static final String HEX_SIGNIFICANT = "0[xX](\\p{XDigit}+\\.?|\\p{XDigit}*\\.\\p{XDigit}+)"; 
 
-    private static final String BINARY_EXPONENT = "[pP]([+-]?\\d+)"; //$NON-NLS-1$
+    private static final String BINARY_EXPONENT = "[pP]([+-]?\\d+)"; 
 
-    private static final String FLOAT_TYPE_SUFFIX = "[fFdD]?"; //$NON-NLS-1$
+    private static final String FLOAT_TYPE_SUFFIX = "[fFdD]?"; 
 
-    private static final String HEX_PATTERN = "[\\x00-\\x20]*([+-]?)" + HEX_SIGNIFICANT //$NON-NLS-1$
-            + BINARY_EXPONENT + FLOAT_TYPE_SUFFIX + "[\\x00-\\x20]*"; //$NON-NLS-1$
+    private static final String HEX_PATTERN = "[\\x00-\\x20]*([+-]?)" + HEX_SIGNIFICANT 
+            + BINARY_EXPONENT + FLOAT_TYPE_SUFFIX + "[\\x00-\\x20]*"; 
 
     private static final Pattern PATTERN = Pattern.compile(HEX_PATTERN);
 
@@ -66,7 +66,7 @@ final class HexStringParser {
 
     private long mantissa;
     
-    private String abandonedNumber=""; //$NON-NLS-1$
+    private String abandonedNumber=""; 
 
     public HexStringParser(int exponent_width, int mantissa_width) {
         this.EXPONENT_WIDTH = exponent_width;
@@ -134,7 +134,7 @@ final class HexStringParser {
      * Parses the sign field.
      */
     private void parseHexSign(String signStr) {
-        this.sign = signStr.equals("-") ? 1 : 0; //$NON-NLS-1$
+        this.sign = signStr.equals("-") ? 1 : 0; 
     }
 
     /*
@@ -159,12 +159,12 @@ final class HexStringParser {
      * Parses the mantissa field.
      */
     private void parseMantissa(String significantStr) {
-        String[] strings = significantStr.split("\\."); //$NON-NLS-1$
+        String[] strings = significantStr.split("\\."); 
         String strIntegerPart = strings[0];
-        String strDecimalPart = strings.length > 1 ? strings[1] : ""; //$NON-NLS-1$
+        String strDecimalPart = strings.length > 1 ? strings[1] : ""; 
 
         String significand = getNormalizedSignificand(strIntegerPart,strDecimalPart);
-        if (significand.equals("0")) { //$NON-NLS-1$
+        if (significand.equals("0")) { 
             setZero();
             return;
         }
@@ -264,7 +264,7 @@ final class HexStringParser {
      * then it should be rounded up to the nearest infinitely precise even.
      */
     private void round() {
-        String result = abandonedNumber.replaceAll("0+", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        String result = abandonedNumber.replaceAll("0+", "");  
         boolean moreThanZero = (result.length() > 0 ? true : false);
 
         int lastDiscardedBit = (int) (mantissa & 1L);
@@ -288,9 +288,9 @@ final class HexStringParser {
      */
     private String getNormalizedSignificand(String strIntegerPart, String strDecimalPart) {
         String significand = strIntegerPart + strDecimalPart;
-        significand = significand.replaceFirst("^0+", ""); //$NON-NLS-1$//$NON-NLS-2$
+        significand = significand.replaceFirst("^0+", ""); 
         if (significand.length() == 0) {
-            significand = "0"; //$NON-NLS-1$
+            significand = "0"; 
         }
         return significand;
     }
@@ -302,7 +302,7 @@ final class HexStringParser {
      * the rest of the significand as a fraction.
      */
     private int getOffset(String strIntegerPart, String strDecimalPart) {
-        strIntegerPart = strIntegerPart.replaceFirst("^0+", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        strIntegerPart = strIntegerPart.replaceFirst("^0+", "");  
         
         //If the Integer part is a nonzero number.
         if (strIntegerPart.length() != 0) {

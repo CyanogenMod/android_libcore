@@ -194,7 +194,7 @@ public class Time extends Date {
         return sb.toString();
     }
 
-    private static final String PADDING = "00";  //$NON-NLS-1$
+    private static final String PADDING = "00";  
 
     /* 
     * Private method to format the time 

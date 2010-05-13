@@ -44,7 +44,7 @@ public class ReadOnlyWrappedByteBufferTest extends WrappedByteBufferTest {
     public void testArray() {
         try {
             buf.array();
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
@@ -59,7 +59,7 @@ public class ReadOnlyWrappedByteBufferTest extends WrappedByteBufferTest {
     public void testArrayOffset() {
         try {
             buf.arrayOffset();
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
@@ -85,7 +85,7 @@ public class ReadOnlyWrappedByteBufferTest extends WrappedByteBufferTest {
         assertFalse(buf.hasArray());
         try {
             buf.array();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }

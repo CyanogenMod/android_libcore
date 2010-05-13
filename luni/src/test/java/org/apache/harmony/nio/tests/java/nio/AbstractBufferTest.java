@@ -74,7 +74,7 @@ public abstract class AbstractBufferTest extends TestCase {
         assertEquals(baseBuf.limit(), baseBuf.capacity());
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$S
+            fail("Should throw Exception");
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -103,7 +103,7 @@ public abstract class AbstractBufferTest extends TestCase {
         assertEquals(oldPosition, baseBuf.limit());
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -191,20 +191,20 @@ public abstract class AbstractBufferTest extends TestCase {
         // mark should be invalid
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (InvalidMarkException e) {
             // expected
         }
 
         try {
             baseBuf.limit(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {
             baseBuf.limit(baseBuf.capacity() + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -274,13 +274,13 @@ public abstract class AbstractBufferTest extends TestCase {
 
         try {
             baseBuf.position(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {
             baseBuf.position(baseBuf.limit() + 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -304,7 +304,7 @@ public abstract class AbstractBufferTest extends TestCase {
         // mark should be invalid
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -354,7 +354,7 @@ public abstract class AbstractBufferTest extends TestCase {
         baseBuf.clear();
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (InvalidMarkException e) {
             // expected
         }
@@ -380,7 +380,7 @@ public abstract class AbstractBufferTest extends TestCase {
         assertSame(ret, baseBuf);
         try {
             baseBuf.reset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (InvalidMarkException e) {
             // expected
         }

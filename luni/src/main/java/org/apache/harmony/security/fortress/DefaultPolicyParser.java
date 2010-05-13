@@ -326,7 +326,7 @@ public class DefaultPolicyParser {
         public String resolve(String protocol, String data)
                 throws PolicyUtils.ExpansionFailedException {
 
-            if ("self".equals(protocol)) { //$NON-NLS-1$
+            if ("self".equals(protocol)) { 
                 //need expanding to list of principals in grant clause 
                 if (ge.principals != null && ge.principals.size() != 0) {
                     StringBuilder sb = new StringBuilder();
@@ -342,30 +342,30 @@ public class DefaultPolicyParser {
                             }
                             catch (Exception e) {
                                 throw new PolicyUtils.ExpansionFailedException(
-                                        Messages.getString("security.143", pr.name), e); //$NON-NLS-1$
+                                        Messages.getString("security.143", pr.name), e); 
                             }
                         } else {
-                            sb.append(pr.klass).append(" \"").append(pr.name) //$NON-NLS-1$
-                                    .append("\" "); //$NON-NLS-1$
+                            sb.append(pr.klass).append(" \"").append(pr.name) 
+                                    .append("\" "); 
                         }
                     }
                     return sb.toString();
                 } else {
                     throw new PolicyUtils.ExpansionFailedException(
-                            Messages.getString("security.144")); //$NON-NLS-1$
+                            Messages.getString("security.144")); 
                 }
             }
-            if ("alias".equals(protocol)) { //$NON-NLS-1$
+            if ("alias".equals(protocol)) { 
                 try {
                     return pc2str(getPrincipalByAlias(ks, data));
                 }
                 catch (Exception e) {
                     throw new PolicyUtils.ExpansionFailedException(
-                            Messages.getString("security.143", data), e); //$NON-NLS-1$
+                            Messages.getString("security.143", data), e); 
                 }
             }
             throw new PolicyUtils.ExpansionFailedException(
-                    Messages.getString("security.145", protocol)); //$NON-NLS-1$
+                    Messages.getString("security.145", protocol)); 
         }
 
         // Formats a string describing the passed Principal. 
@@ -374,7 +374,7 @@ public class DefaultPolicyParser {
             String name = pc.getName();
             StringBuilder sb = new StringBuilder(klass.length() + name.length()
                     + 5);
-            return sb.append(klass).append(" \"").append(name).append("\"") //$NON-NLS-1$ //$NON-NLS-2$
+            return sb.append(klass).append(" \"").append(name).append("\"")  
                     .toString();
         }
     }
@@ -392,12 +392,12 @@ public class DefaultPolicyParser {
     protected Certificate[] resolveSigners(KeyStore ks, String signers)
             throws Exception {
         if (ks == null) {
-            throw new KeyStoreException(Messages.getString("security.146", //$NON-NLS-1$
+            throw new KeyStoreException(Messages.getString("security.146", 
                     signers));
         }
 
         Collection<Certificate> certs = new HashSet<Certificate>();
-        StringTokenizer snt = new StringTokenizer(signers, ","); //$NON-NLS-1$
+        StringTokenizer snt = new StringTokenizer(signers, ","); 
         while (snt.hasMoreTokens()) {
             //XXX cache found certs ??
             certs.add(ks.getCertificate(snt.nextToken().trim()));
@@ -421,14 +421,14 @@ public class DefaultPolicyParser {
 
         if (ks == null) {
             throw new KeyStoreException(
-                    Messages.getString("security.147", alias)); //$NON-NLS-1$
+                    Messages.getString("security.147", alias)); 
         }
         //XXX cache found certs ??
         Certificate x509 = ks.getCertificate(alias);
         if (x509 instanceof X509Certificate) {
             return ((X509Certificate) x509).getSubjectX500Principal();
         } else {
-            throw new CertificateException(Messages.getString("security.148", //$NON-NLS-1$
+            throw new CertificateException(Messages.getString("security.148", 
                     alias, x509));
         }
     }

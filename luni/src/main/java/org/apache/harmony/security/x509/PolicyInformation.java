@@ -88,7 +88,7 @@ public class PolicyInformation {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer) {
-        buffer.append("Policy Identifier [") //$NON-NLS-1$
+        buffer.append("Policy Identifier [") 
             .append(policyIdentifier).append(']');
     }
 

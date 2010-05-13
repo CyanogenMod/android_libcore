@@ -52,16 +52,16 @@ import org.apache.harmony.security.internal.nls.Messages;
 public class KeyStore {
 
     // Store KeyStore SERVICE name
-    private static final String SERVICE = "KeyStore"; //$NON-NLS-1$
+    private static final String SERVICE = "KeyStore"; 
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
 
     //  Store KeyStore property name
-    private static final String PROPERTYNAME = "keystore.type"; //$NON-NLS-1$
+    private static final String PROPERTYNAME = "keystore.type"; 
 
     //  Store default KeyStore type
-    private static final String DEFAULT_KEYSTORE_TYPE = "jks"; //$NON-NLS-1$
+    private static final String DEFAULT_KEYSTORE_TYPE = "jks"; 
 
     // Message to report about non-initialized key store object
     // BEGIN android-changed
@@ -103,7 +103,7 @@ public class KeyStore {
      */
     private static void throwNotInitialized() throws KeyStoreException {
         if (NOTINITKEYSTORE == null) {
-            NOTINITKEYSTORE = Messages.getString("security.4F"); //$NON-NLS-1$
+            NOTINITKEYSTORE = Messages.getString("security.4F"); 
         }
         throw new KeyStoreException(NOTINITKEYSTORE);
     }
@@ -124,7 +124,7 @@ public class KeyStore {
      */
     public static KeyStore getInstance(String type) throws KeyStoreException {
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.07")); 
         }
         synchronized (engine) {
             try {
@@ -161,7 +161,7 @@ public class KeyStore {
     public static KeyStore getInstance(String type, String provider)
             throws KeyStoreException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.02")); 
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -198,10 +198,10 @@ public class KeyStore {
             throws KeyStoreException {
         // check parameters
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.04")); 
         }
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.07")); 
         }
         // return KeyStore instance
         synchronized (engine) {
@@ -373,7 +373,7 @@ public class KeyStore {
         if (null != key && key instanceof PrivateKey
                 && (chain == null || chain.length == 0)) {
             throw new IllegalArgumentException(Messages
-                    .getString("security.52")); //$NON-NLS-1$
+                    .getString("security.52")); 
         }
         implSpi.engineSetKeyEntry(alias, key, password, chain);
     }
@@ -457,7 +457,7 @@ public class KeyStore {
             // END android-changed
         }
         if (alias == null) {
-            throw new NullPointerException(Messages.getString("security.3F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.3F")); 
         }
         implSpi.engineDeleteEntry(alias);
     }
@@ -498,7 +498,7 @@ public class KeyStore {
             // END android-changed
         }
         if (alias == null) {
-            throw new NullPointerException(Messages.getString("security.3F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.3F")); 
         }
         return implSpi.engineContainsAlias(alias);
     }
@@ -538,7 +538,7 @@ public class KeyStore {
             // END android-changed
         }
         if (alias == null) {
-            throw new NullPointerException(Messages.getString("security.3F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.3F")); 
         }
         return implSpi.engineIsKeyEntry(alias);
     }
@@ -564,7 +564,7 @@ public class KeyStore {
             // END android-changed
         }
         if (alias == null) {
-            throw new NullPointerException(Messages.getString("security.3F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.3F")); 
         }
         return implSpi.engineIsCertificateEntry(alias);
     }
@@ -724,7 +724,7 @@ public class KeyStore {
             throws NoSuchAlgorithmException, UnrecoverableEntryException,
             KeyStoreException {
         if (alias == null) {
-            throw new NullPointerException(Messages.getString("security.3F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.3F")); 
         }
         if (!isInit) {
             // BEGIN android-changed
@@ -761,10 +761,10 @@ public class KeyStore {
             // END android-changed
         }
         if (alias == null) {
-            throw new NullPointerException(Messages.getString("security.3F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.3F")); 
         }
         if (entry == null) {
-            throw new NullPointerException(Messages.getString("security.39")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.39")); 
         }
         implSpi.engineSetEntry(alias, entry, param);
     }
@@ -786,10 +786,10 @@ public class KeyStore {
             Class<? extends KeyStore.Entry> entryClass)
             throws KeyStoreException {
         if (alias == null) {
-            throw new NullPointerException(Messages.getString("security.3F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.3F")); 
         }
         if (entryClass == null) {
-            throw new NullPointerException(Messages.getString("security.40")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.40")); 
         }
 
         if (!isInit) {
@@ -860,10 +860,10 @@ public class KeyStore {
         public static Builder newInstance(KeyStore keyStore,
                 ProtectionParameter protectionParameter) {
             if (keyStore == null) {
-                throw new NullPointerException(Messages.getString("security.41")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.41")); 
             }
             if (protectionParameter == null) {
-                throw new NullPointerException(Messages.getString("security.42")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.42")); 
             }
 
             if (!keyStore.isInit) {
@@ -907,26 +907,26 @@ public class KeyStore {
                 File file, ProtectionParameter protectionParameter) {
             // check null parameters
             if (type == null) {
-                throw new NullPointerException(Messages.getString("security.07")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.07")); 
             }
             if (protectionParameter == null) {
-                throw new NullPointerException(Messages.getString("security.42")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.42")); 
             }
             if (file == null) {
-                throw new NullPointerException(Messages.getString("security.43")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.43")); 
             }
             // protection parameter should be PasswordProtection or
             // CallbackHandlerProtection
             if (!(protectionParameter instanceof PasswordProtection)
                     && !(protectionParameter instanceof CallbackHandlerProtection)) {
-                throw new IllegalArgumentException(Messages.getString("security.35")); //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("security.35")); 
             }
             // check file parameter
             if (!file.exists()) {
-                throw new IllegalArgumentException(Messages.getString("security.44", file.getName())); //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("security.44", file.getName())); 
             }
             if (!file.isFile()) {
-                throw new IllegalArgumentException(Messages.getString("security.45", file.getName())); //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("security.45", file.getName())); 
             }
             // create new instance
             return new BuilderImpl(null, protectionParameter, file,
@@ -963,10 +963,10 @@ public class KeyStore {
         public static Builder newInstance(String type, Provider provider,
                 ProtectionParameter protectionParameter) {
             if (type == null) {
-                throw new NullPointerException(Messages.getString("security.07")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.07")); 
             }
             if (protectionParameter == null) {
-                throw new NullPointerException(Messages.getString("security.42")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.42")); 
             }
             return new BuilderImpl(null, protectionParameter, null,
                     type, provider, AccessController.getContext());
@@ -1067,7 +1067,7 @@ public class KeyStore {
                         passwd = KeyStoreSpi
                                 .getPasswordFromCallBack(protParameter);
                     } else {
-                        throw new KeyStoreException(Messages.getString("security.35")); //$NON-NLS-1$
+                        throw new KeyStoreException(Messages.getString("security.35")); 
                     }
 
                     // load KeyStore from file
@@ -1116,10 +1116,10 @@ public class KeyStore {
             public synchronized ProtectionParameter getProtectionParameter(
                     String alias) throws KeyStoreException {
                 if (alias == null) {
-                    throw new NullPointerException(Messages.getString("security.3F")); //$NON-NLS-1$
+                    throw new NullPointerException(Messages.getString("security.3F")); 
                 }
                 if (!isGetKeyStore) {
-                    throw new IllegalStateException(Messages.getString("security.46")); //$NON-NLS-1$
+                    throw new IllegalStateException(Messages.getString("security.46")); 
                 }
                 return protParameter;
             }
@@ -1170,7 +1170,7 @@ public class KeyStore {
          */
         public CallbackHandlerProtection(CallbackHandler handler) {
             if (handler == null) {
-                throw new NullPointerException(Messages.getString("security.47")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.47")); 
             }
             this.callbackHandler = handler;
         }
@@ -1245,7 +1245,7 @@ public class KeyStore {
          */
         public synchronized char[] getPassword() {
             if (isDestroyed) {
-                throw new IllegalStateException(Messages.getString("security.36")); //$NON-NLS-1$
+                throw new IllegalStateException(Messages.getString("security.36")); 
             }
             return password;
         }
@@ -1313,27 +1313,27 @@ public class KeyStore {
          */
         public PrivateKeyEntry(PrivateKey privateKey, Certificate[] chain) {
             if (privateKey == null) {
-                throw new NullPointerException(Messages.getString("security.48")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.48")); 
             }
             if (chain == null) {
-                throw new NullPointerException(Messages.getString("security.49")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.49")); 
             }
 
             if (chain.length == 0) {
-                throw new IllegalArgumentException(Messages.getString("security.4A")); //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("security.4A")); 
             }
             // Match algorithm of private key and algorithm of public key from
             // the end certificate
             String s = chain[0].getType();
             if (!(chain[0].getPublicKey().getAlgorithm()).equals(privateKey
                     .getAlgorithm())) {
-                throw new IllegalArgumentException(Messages.getString("security.4B")); //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("security.4B")); 
             }
             // Match certificate types
             for (int i = 1; i < chain.length; i++) {
                 if (!s.equals(chain[i].getType())) {
                     throw new IllegalArgumentException(
-                            Messages.getString("security.4C")); //$NON-NLS-1$
+                            Messages.getString("security.4C")); 
                 }
             }
             // clone chain - this.chain = (Certificate[])chain.clone();
@@ -1392,12 +1392,12 @@ public class KeyStore {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder(
-                    "PrivateKeyEntry: number of elements in certificate chain is "); //$NON-NLS-1$
+                    "PrivateKeyEntry: number of elements in certificate chain is "); 
             sb.append(Integer.toString(chain.length));
-            sb.append("\n"); //$NON-NLS-1$
+            sb.append("\n"); 
             for (int i = 0; i < chain.length; i++) {
                 sb.append(chain[i].toString());
-                sb.append("\n"); //$NON-NLS-1$
+                sb.append("\n"); 
             }
             return sb.toString();
         }
@@ -1423,7 +1423,7 @@ public class KeyStore {
          */
         public SecretKeyEntry(SecretKey secretKey) {
             if (secretKey == null) {
-                throw new NullPointerException(Messages.getString("security.4D")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.4D")); 
             }
             this.secretKey = secretKey;
         }
@@ -1446,7 +1446,7 @@ public class KeyStore {
          */
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder("SecretKeyEntry: algorithm - "); //$NON-NLS-1$
+            StringBuilder sb = new StringBuilder("SecretKeyEntry: algorithm - "); 
             sb.append(secretKey.getAlgorithm());
             return sb.toString();
         }
@@ -1472,7 +1472,7 @@ public class KeyStore {
          */
         public TrustedCertificateEntry(Certificate trustCertificate) {
             if (trustCertificate == null) {
-                throw new NullPointerException(Messages.getString("security.4E")); //$NON-NLS-1$
+                throw new NullPointerException(Messages.getString("security.4E")); 
             }
             this.trustCertificate = trustCertificate;
         }
@@ -1495,7 +1495,7 @@ public class KeyStore {
          */
         @Override
         public String toString() {
-            return "Trusted certificate entry:\n" + trustCertificate; //$NON-NLS-1$
+            return "Trusted certificate entry:\n" + trustCertificate; 
         }
     }
 }

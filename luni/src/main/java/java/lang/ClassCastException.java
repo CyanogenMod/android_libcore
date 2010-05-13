@@ -55,7 +55,7 @@ public class ClassCastException extends RuntimeException {
      *            the class being cast to.
      */
     ClassCastException(Class<?> instanceClass, Class<?> castClass) {
-        super(Msg.getString("K0340", instanceClass.getName(), castClass //$NON-NLS-1$
+        super(Msg.getString("K0340", instanceClass.getName(), castClass 
                 .getName()));
     }
 }

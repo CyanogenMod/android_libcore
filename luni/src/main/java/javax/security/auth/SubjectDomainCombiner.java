@@ -33,7 +33,7 @@ public class SubjectDomainCombiner implements DomainCombiner {
 
     // permission required to get a subject object
     private static final AuthPermission _GET = new AuthPermission(
-            "getSubjectFromDomainCombiner"); //$NON-NLS-1$
+            "getSubjectFromDomainCombiner"); 
 
     /**
      * Creates a domain combiner for the entity provided in {@code subject}.

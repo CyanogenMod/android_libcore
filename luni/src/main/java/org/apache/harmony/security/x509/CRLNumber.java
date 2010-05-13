@@ -77,8 +77,8 @@ public class CRLNumber extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("CRL Number: [ ").append(number).append( //$NON-NLS-1$
-                " ]\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("CRL Number: [ ").append(number).append( 
+                " ]\n"); 
     }
 
     /**

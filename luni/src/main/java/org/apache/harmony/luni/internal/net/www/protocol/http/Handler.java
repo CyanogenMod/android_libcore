@@ -70,7 +70,7 @@ public class Handler extends URLStreamHandler {
     protected URLConnection openConnection(URL u, Proxy proxy)
             throws IOException {
         if (null == u || null == proxy) {
-            throw new IllegalArgumentException(Msg.getString("K034b")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K034b")); 
         }
         return new HttpURLConnectionImpl(u, getDefaultPort(), proxy);
     }

@@ -164,7 +164,7 @@ public class ASN1BitString extends ASN1StringType {
             } else {
                 if (bitsNumber > maxBits) {
                     throw new ASN1Exception(
-                            Messages.getString("security.97")); //FIXME message //$NON-NLS-1$
+                            Messages.getString("security.97")); //FIXME message 
                 }
                 value = new boolean[maxBits];
             }

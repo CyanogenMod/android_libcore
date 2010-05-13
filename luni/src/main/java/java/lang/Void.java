@@ -38,7 +38,7 @@ public final class Void extends Object {
     private static Class<Void> lookupType() {
         Class<?> voidType = null;
         try {
-            Method method = Runnable.class.getMethod("run", new Class[0]); //$NON-NLS-1$
+            Method method = Runnable.class.getMethod("run", new Class[0]); 
             voidType = method.getReturnType();
         } catch (Exception e) {
             throw new RuntimeException(e);

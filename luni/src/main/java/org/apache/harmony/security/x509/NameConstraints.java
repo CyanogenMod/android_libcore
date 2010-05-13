@@ -88,14 +88,14 @@ public class NameConstraints extends ExtensionValue {
             List ps = permittedSubtrees.getSubtrees();
             if ((ps == null) || (ps.size() == 0)) {
                 throw 
-                    new IllegalArgumentException(Messages.getString("security.17D")); //$NON-NLS-1$
+                    new IllegalArgumentException(Messages.getString("security.17D")); 
             }
         }
         if (excludedSubtrees != null) {
             List es = excludedSubtrees.getSubtrees();
             if ((es == null) || (es.size() == 0)) {
                 throw 
-                    new IllegalArgumentException(Messages.getString("security.17E")); //$NON-NLS-1$
+                    new IllegalArgumentException(Messages.getString("security.17E")); 
             }
         }
         this.permittedSubtrees = permittedSubtrees;
@@ -198,7 +198,7 @@ public class NameConstraints extends ExtensionValue {
             prepareNames();
         }
 
-        byte[] bytes = getExtensionValue(cert, "2.5.29.17"); //$NON-NLS-1$
+        byte[] bytes = getExtensionValue(cert, "2.5.29.17"); 
         List names;
         try {
             names = (bytes == null) 
@@ -277,24 +277,24 @@ public class NameConstraints extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Name Constraints: [\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("Name Constraints: [\n"); 
         if (permittedSubtrees != null) {
-            buffer.append(prefix).append("  Permitted: [\n"); //$NON-NLS-1$
+            buffer.append(prefix).append("  Permitted: [\n"); 
             for (Iterator it=permittedSubtrees.getSubtrees().iterator();
                     it.hasNext();) {
-                ((GeneralSubtree) it.next()).dumpValue(buffer, prefix + "    "); //$NON-NLS-1$
+                ((GeneralSubtree) it.next()).dumpValue(buffer, prefix + "    "); 
             }
-            buffer.append(prefix).append("  ]\n"); //$NON-NLS-1$
+            buffer.append(prefix).append("  ]\n"); 
         }
         if (excludedSubtrees != null) {
-            buffer.append(prefix).append("  Excluded: [\n"); //$NON-NLS-1$
+            buffer.append(prefix).append("  Excluded: [\n"); 
             for (Iterator it=excludedSubtrees.getSubtrees().iterator();
                     it.hasNext();) {
-                ((GeneralSubtree) it.next()).dumpValue(buffer, prefix + "    "); //$NON-NLS-1$
+                ((GeneralSubtree) it.next()).dumpValue(buffer, prefix + "    "); 
             }
-            buffer.append(prefix).append("  ]\n"); //$NON-NLS-1$
+            buffer.append(prefix).append("  ]\n"); 
         }
-        buffer.append('\n').append(prefix).append("]\n"); //$NON-NLS-1$
+        buffer.append('\n').append(prefix).append("]\n"); 
     }
     
     /**

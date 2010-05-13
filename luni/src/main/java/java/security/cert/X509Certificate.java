@@ -74,7 +74,7 @@ public abstract class X509Certificate
      * Creates a new {@code X509Certificate}.
      */
     protected X509Certificate() {
-        super("X.509"); //$NON-NLS-1$
+        super("X.509"); 
     }
 
     /**
@@ -186,7 +186,7 @@ public abstract class X509Certificate
             // TODO if there is no X.509 certificate provider installed
             // should we try to access Harmony X509CertImpl via classForName?
             CertificateFactory factory = CertificateFactory
-                    .getInstance("X.509"); //$NON-NLS-1$
+                    .getInstance("X.509"); 
 
             X509Certificate cert = (X509Certificate) factory
                     .generateCertificate(new ByteArrayInputStream(getEncoded()));
@@ -194,7 +194,7 @@ public abstract class X509Certificate
             return cert.getIssuerX500Principal();
 
         } catch (Exception e) {
-            throw new RuntimeException(Messages.getString("security.59"), e); //$NON-NLS-1$
+            throw new RuntimeException(Messages.getString("security.59"), e); 
         }
     }
 
@@ -242,7 +242,7 @@ public abstract class X509Certificate
             // TODO if there is no X.509 certificate provider installed
             // should we try to access Harmony X509CertImpl via classForName?
             CertificateFactory factory = CertificateFactory
-                    .getInstance("X.509"); //$NON-NLS-1$
+                    .getInstance("X.509"); 
 
             X509Certificate cert = (X509Certificate) factory
                     .generateCertificate(new ByteArrayInputStream(getEncoded()));
@@ -250,7 +250,7 @@ public abstract class X509Certificate
             return cert.getSubjectX500Principal();
 
         } catch (Exception e) {
-            throw new RuntimeException(Messages.getString("security.5A"), e); //$NON-NLS-1$
+            throw new RuntimeException(Messages.getString("security.5A"), e); 
         }
     }
 

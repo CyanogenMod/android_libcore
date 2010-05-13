@@ -83,7 +83,7 @@ public class EncryptedPrivateKeyInfo {
     public EncryptedPrivateKeyInfo(byte[] encoded)
             throws IOException {
         if (encoded == null) {
-            throw new NullPointerException(Messages.getString("crypto.22")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.22")); 
         }
         this.encoded = new byte[encoded.length];
         System.arraycopy(encoded, 0, this.encoded, 0, encoded.length);
@@ -139,18 +139,18 @@ public class EncryptedPrivateKeyInfo {
     public EncryptedPrivateKeyInfo(String encrAlgName, byte[] encryptedData)
         throws NoSuchAlgorithmException {
         if (encrAlgName == null) {
-            throw new NullPointerException(Messages.getString("crypto.23")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.23")); 
         }
         this.algName = encrAlgName;
         if (!mapAlgName()) {
-            throw new NoSuchAlgorithmException(Messages.getString("crypto.24", this.algName)); //$NON-NLS-1$
+            throw new NoSuchAlgorithmException(Messages.getString("crypto.24", this.algName)); 
         }
         if (encryptedData == null) {
             throw new NullPointerException(
-                    Messages.getString("crypto.25")); //$NON-NLS-1$
+                    Messages.getString("crypto.25")); 
         }
         if (encryptedData.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.26")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("crypto.26")); 
         }
         this.encryptedData = new byte[encryptedData.length];
         System.arraycopy(encryptedData, 0,
@@ -177,22 +177,22 @@ public class EncryptedPrivateKeyInfo {
             byte[] encryptedData)
         throws NoSuchAlgorithmException {
         if (algParams == null) {
-            throw new NullPointerException(Messages.getString("crypto.27")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.27")); 
         }
         this.algParameters = algParams;
         if (encryptedData == null) {
             throw new NullPointerException(
-                    Messages.getString("crypto.25")); //$NON-NLS-1$
+                    Messages.getString("crypto.25")); 
         }
         if (encryptedData.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.26")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("crypto.26")); 
         }
         this.encryptedData = new byte[encryptedData.length];
         System.arraycopy(encryptedData, 0,
                 this.encryptedData, 0, encryptedData.length);
         this.algName = this.algParameters.getAlgorithm();
         if (!mapAlgName()) {
-            throw new NoSuchAlgorithmException(Messages.getString("crypto.24", this.algName)); //$NON-NLS-1$
+            throw new NoSuchAlgorithmException(Messages.getString("crypto.24", this.algName)); 
         }
     }
 
@@ -246,7 +246,7 @@ public class EncryptedPrivateKeyInfo {
     public PKCS8EncodedKeySpec getKeySpec(Cipher cipher)
         throws InvalidKeySpecException {
         if (cipher == null) {
-            throw new NullPointerException(Messages.getString("crypto.28")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.28")); 
         }
         try {
             byte[] decryptedData = cipher.doFinal(encryptedData);
@@ -254,7 +254,7 @@ public class EncryptedPrivateKeyInfo {
                 ASN1PrivateKeyInfo.verify(decryptedData);
             } catch (IOException e1) {
                 throw new InvalidKeySpecException(
-                        Messages.getString("crypto.29")); //$NON-NLS-1$
+                        Messages.getString("crypto.29")); 
             }
             return new PKCS8EncodedKeySpec(decryptedData);
         } catch (IllegalStateException e) {
@@ -286,7 +286,7 @@ public class EncryptedPrivateKeyInfo {
         throws NoSuchAlgorithmException,
                InvalidKeyException {
         if (decryptKey == null) {
-            throw new NullPointerException(Messages.getString("crypto.2A")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.2A")); 
         }
         try {
             Cipher cipher = Cipher.getInstance(algName);
@@ -300,7 +300,7 @@ public class EncryptedPrivateKeyInfo {
                 ASN1PrivateKeyInfo.verify(decryptedData);
             } catch (IOException e1) {
                 throw new InvalidKeyException(
-                        Messages.getString("crypto.29")); //$NON-NLS-1$
+                        Messages.getString("crypto.29")); 
             }
             return new PKCS8EncodedKeySpec(decryptedData);
         } catch (NoSuchPaddingException e) {
@@ -343,11 +343,11 @@ public class EncryptedPrivateKeyInfo {
                NoSuchAlgorithmException,
                InvalidKeyException {
         if (decryptKey == null) {
-            throw new NullPointerException(Messages.getString("crypto.2A")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.2A")); 
         }
         if (providerName == null) {
             throw new NullPointerException(
-                    Messages.getString("crypto.2B")); //$NON-NLS-1$
+                    Messages.getString("crypto.2B")); 
         }
         try {
             Cipher cipher = Cipher.getInstance(algName, providerName);
@@ -361,7 +361,7 @@ public class EncryptedPrivateKeyInfo {
                 ASN1PrivateKeyInfo.verify(decryptedData);
             } catch (IOException e1) {
                 throw new InvalidKeyException(
-                        Messages.getString("crypto.29")); //$NON-NLS-1$
+                        Messages.getString("crypto.29")); 
             }
             return new PKCS8EncodedKeySpec(decryptedData);
         } catch (NoSuchPaddingException e) {
@@ -399,10 +399,10 @@ public class EncryptedPrivateKeyInfo {
         throws NoSuchAlgorithmException,
                InvalidKeyException {
         if (decryptKey == null) {
-            throw new NullPointerException(Messages.getString("crypto.2A")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.2A")); 
         }
         if (provider == null) {
-            throw new NullPointerException(Messages.getString("crypto.2C")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("crypto.2C")); 
         }
         try {
             Cipher cipher = Cipher.getInstance(algName, provider);
@@ -416,7 +416,7 @@ public class EncryptedPrivateKeyInfo {
                 ASN1PrivateKeyInfo.verify(decryptedData);
             } catch (IOException e1) {
                 throw new InvalidKeyException(
-                        Messages.getString("crypto.29")); //$NON-NLS-1$
+                        Messages.getString("crypto.29")); 
             }
             return new PKCS8EncodedKeySpec(decryptedData);
         } catch (NoSuchPaddingException e) {

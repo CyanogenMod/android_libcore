@@ -64,6 +64,6 @@ public class Annotation {
      */
     @Override
     public String toString() {
-        return getClass().getName() + "[value=" + value + ']'; //$NON-NLS-1$
+        return getClass().getName() + "[value=" + value + ']'; 
     }
 }

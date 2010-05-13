@@ -35,7 +35,7 @@ public class XMLFormatter extends Formatter {
     private static final String lineSeperator = LogManager
             .getSystemLineSeparator();
 
-    private static final String indent = "    "; //$NON-NLS-1$
+    private static final String indent = "    "; 
 
     /**
      * Constructs a new {@code XMLFormatter}.
@@ -199,7 +199,7 @@ public class XMLFormatter extends Formatter {
      */
     @Override
     public String getTail(Handler h) {
-        return "</log>"; //$NON-NLS-1$
+        return "</log>"; 
     }
 
     // use privilege code to get system property

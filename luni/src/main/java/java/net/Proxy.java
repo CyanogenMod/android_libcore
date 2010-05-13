@@ -62,7 +62,7 @@ public class Proxy {
          */
         if (type == Type.DIRECT || null == sa) {
             // KA022=Illegal Proxy.Type or SocketAddress argument
-            throw new IllegalArgumentException(Msg.getString("KA022")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("KA022")); 
         }
         this.type = type;
         address = sa;
@@ -107,7 +107,7 @@ public class Proxy {
     public String toString() {
         String proxyString = String.valueOf(type);
         if (null != address) {
-            proxyString += "/" + address.toString(); //$NON-NLS-1$
+            proxyString += "/" + address.toString(); 
         }
         return proxyString;
     }

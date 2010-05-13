@@ -83,10 +83,10 @@ public abstract class BasicPermission extends Permission implements
      */ 
     private final void checkName(String name) {
         if (name == null) {
-            throw new NullPointerException(Messages.getString("security.28")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.28")); 
         }
         if (name.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("security.29")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.29")); 
         }
     }
 
@@ -138,7 +138,7 @@ public abstract class BasicPermission extends Permission implements
      */
     @Override
     public String getActions() {
-        return ""; //$NON-NLS-1$
+        return ""; 
     }
 
     /**

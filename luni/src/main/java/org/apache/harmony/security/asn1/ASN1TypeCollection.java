@@ -93,6 +93,6 @@ public abstract class ASN1TypeCollection extends ASN1Constructured {
      * @param values - an array to store an object's values to be encoded
      */
     protected void getValues(Object object, Object[] values) {
-        throw new RuntimeException(Messages.getString("security.101", getClass().getName())); //$NON-NLS-1$
+        throw new RuntimeException(Messages.getString("security.101", getClass().getName())); 
     }
 }

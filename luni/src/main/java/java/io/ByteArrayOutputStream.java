@@ -64,7 +64,7 @@ public class ByteArrayOutputStream extends OutputStream {
         if (size >= 0) {
             buf = new byte[size];
         } else {
-            throw new IllegalArgumentException(Msg.getString("K005e")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K005e")); 
         }
     }
 
@@ -204,10 +204,10 @@ public class ByteArrayOutputStream extends OutputStream {
         // used (offset | len) < 0 instead of (offset < 0) || (len < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         if ((offset | len) < 0 || len > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
         }
         // END android-changed
         if (len == 0) {

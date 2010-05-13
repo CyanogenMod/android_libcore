@@ -71,13 +71,13 @@ public class CertificateIssuer extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Certificate Issuer: "); //$NON-NLS-1$
+        buffer.append(prefix).append("Certificate Issuer: "); 
         if (issuer == null) {
             try {
                 issuer = getIssuer();
             } catch (IOException e) {
                 // incorrect extension value encoding
-                buffer.append("Unparseable (incorrect!) extension value:\n"); //$NON-NLS-1$
+                buffer.append("Unparseable (incorrect!) extension value:\n"); 
                 super.dumpValue(buffer);
             }
         }

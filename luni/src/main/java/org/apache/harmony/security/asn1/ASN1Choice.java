@@ -231,7 +231,7 @@ public abstract class ASN1Choice extends ASN1Type {
         super(TAG_CHOICE); // has not tag number
 
         if (type.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("security.10E", //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.10E", 
                     getClass().getName()));
         }
 
@@ -244,7 +244,7 @@ public abstract class ASN1Choice extends ASN1Type {
             if (t instanceof ASN1Any) {
                 // ASN.1 ANY is not allowed,
                 // even it is a single component (not good for nested choices)
-                throw new IllegalArgumentException(Messages.getString("security.10F", //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("security.10F", 
                         getClass().getName())); // FIXME name
             } else if (t instanceof ASN1Choice) {
 
@@ -285,7 +285,7 @@ public abstract class ASN1Choice extends ASN1Type {
 
     private void addIdentifier(TreeMap map, int identifier, int index){
         if (map.put(BigInteger.valueOf(identifier), BigInteger.valueOf(index)) != null) {
-            throw new IllegalArgumentException(Messages.getString("security.10F", //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.10F", 
                     getClass().getName())); // FIXME name
         }
     }
@@ -312,7 +312,7 @@ public abstract class ASN1Choice extends ASN1Type {
 
         int index = Arrays.binarySearch(identifiers[0], in.tag);
         if (index < 0) {
-            throw new ASN1Exception(Messages.getString("security.110", //$NON-NLS-1$
+            throw new ASN1Exception(Messages.getString("security.110", 
                     getClass().getName()));// FIXME message
         }
 

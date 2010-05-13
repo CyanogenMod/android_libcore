@@ -174,7 +174,7 @@ public class ByteArrayInputStream extends InputStream {
         // END android-note
         // BEGIN android-changed
         if (b == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         // avoid int overflow
         // Exception priorities (in case of multiple errors) differ from
@@ -182,7 +182,7 @@ public class ByteArrayInputStream extends InputStream {
         // removed redundant check, used (offset | length) < 0 instead of
         // (offset < 0) || (length < 0) to safe one operation
         if ((offset | length) < 0 || length > b.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
         }
         // END android-changed
         // Are there any bytes available?

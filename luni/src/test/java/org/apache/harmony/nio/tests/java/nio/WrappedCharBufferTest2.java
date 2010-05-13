@@ -52,31 +52,31 @@ public class WrappedCharBufferTest2 extends ReadOnlyCharBufferTest {
         String str = TEST_STRING;
         try {
             CharBuffer.wrap(str, -1, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap(str, 21, 21);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap(str, 2, 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap(str, 0, 21);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             CharBuffer.wrap((String)null, -1, 21);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (NullPointerException e) {
             // expected
         }
@@ -91,7 +91,7 @@ public class WrappedCharBufferTest2 extends ReadOnlyCharBufferTest {
     public void testArray() {
         try {
             buf.array();
-            fail("Should throw UnsupportedOperationException"); //$NON-NLS-1$
+            fail("Should throw UnsupportedOperationException"); 
         } catch (UnsupportedOperationException e) {
         }
     }
@@ -105,7 +105,7 @@ public class WrappedCharBufferTest2 extends ReadOnlyCharBufferTest {
     public void testArrayOffset() {
         try {
             buf.arrayOffset();
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (UnsupportedOperationException e) {
         }
     }
@@ -120,25 +120,25 @@ public class WrappedCharBufferTest2 extends ReadOnlyCharBufferTest {
         char array[] = new char[1];
         try {
             buf.put(array, 0, array.length);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
         try {
             buf.put((char[]) null, 0, 1);
-            fail("Should throw NullPointerException"); //$NON-NLS-1$
+            fail("Should throw NullPointerException"); 
         } catch (NullPointerException e) {
             // expected
         }
         try {
             buf.put(new char[buf.capacity() + 1], 0, buf.capacity() + 1);
-            fail("Should throw BufferOverflowException"); //$NON-NLS-1$
+            fail("Should throw BufferOverflowException"); 
         } catch (BufferOverflowException e) {
             // expected
         }
         try {
             buf.put(array, -1, array.length);
-            fail("Should throw IndexOutOfBoundsException"); //$NON-NLS-1$
+            fail("Should throw IndexOutOfBoundsException"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
@@ -154,19 +154,19 @@ public class WrappedCharBufferTest2 extends ReadOnlyCharBufferTest {
         CharBuffer other = CharBuffer.allocate(1);
         try {
             buf.put(other);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
+            fail("Should throw ReadOnlyBufferException"); 
         } catch (ReadOnlyBufferException e) {
             // expected
         }
         try {
             buf.put((CharBuffer) null);
-            fail("Should throw NullPointerException"); //$NON-NLS-1$
+            fail("Should throw NullPointerException"); 
         } catch (NullPointerException e) {
             // expected
         }
         try {
             buf.put(buf);
-            fail("Should throw IllegalArgumentException"); //$NON-NLS-1$
+            fail("Should throw IllegalArgumentException"); 
         } catch (IllegalArgumentException e) {
             // expected
         }

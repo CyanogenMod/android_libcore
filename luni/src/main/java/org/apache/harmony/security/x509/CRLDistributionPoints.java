@@ -75,7 +75,7 @@ public class CRLDistributionPoints extends ExtensionValue {
     public CRLDistributionPoints(List distributionPoints) {
         if ((distributionPoints == null) 
                 || (distributionPoints.size() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.17D")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.17D")); 
         }
         this.distributionPoints = distributionPoints;
     }
@@ -83,7 +83,7 @@ public class CRLDistributionPoints extends ExtensionValue {
     public CRLDistributionPoints(List distributionPoints, byte[] encoding) {
         if ((distributionPoints == null) 
                 || (distributionPoints.size() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.17D")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.17D")); 
         }
         this.distributionPoints = distributionPoints;
         this.encoding = encoding;
@@ -107,14 +107,14 @@ public class CRLDistributionPoints extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("CRL Distribution Points: [\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("CRL Distribution Points: [\n"); 
         int number = 0;
         for (Iterator it=distributionPoints.iterator();
                 it.hasNext();) {
-            buffer.append(prefix).append("  [").append(++number).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
-            ((DistributionPoint) it.next()).dumpValue(buffer, prefix + "  "); //$NON-NLS-1$
+            buffer.append(prefix).append("  [").append(++number).append("]\n");  
+            ((DistributionPoint) it.next()).dumpValue(buffer, prefix + "  "); 
         }
-        buffer.append(prefix).append("]\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("]\n"); 
     }
     
     /**

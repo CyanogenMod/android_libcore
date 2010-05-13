@@ -281,7 +281,7 @@ public class CodeSource implements Serializable {
     private CertPath makeCertPath(List<? extends Certificate> list) {
         if (factory == null) {
             try {
-                factory = CertificateFactory.getInstance("X.509"); //$NON-NLS-1$
+                factory = CertificateFactory.getInstance("X.509"); 
             } catch (CertificateException ex) {
                 //? throw new Error("X.509 is a 'must be'", ex);
                 return null;
@@ -451,8 +451,8 @@ public class CodeSource implements Serializable {
                 // if( !(thisIsLocalHost && thatIsLocalHost) &&
                 // !thisHost.equals(thatHost)) {
 
-                if (!((thisHost.length() == 0 || "localhost".equals(thisHost)) && (thatHost //$NON-NLS-1$
-                        .length() == 0 || "localhost".equals(thatHost))) //$NON-NLS-1$
+                if (!((thisHost.length() == 0 || "localhost".equals(thisHost)) && (thatHost 
+                        .length() == 0 || "localhost".equals(thatHost))) 
                         && !thisHost.equals(thatHost)) {
 
                     // Obvious, but very slow way....
@@ -468,11 +468,11 @@ public class CodeSource implements Serializable {
                     // let's cache it: 
 
                     if (this.sp == null) {
-                        this.sp = new SocketPermission(thisHost, "resolve"); //$NON-NLS-1$
+                        this.sp = new SocketPermission(thisHost, "resolve"); 
                     }
 
                     if (cs.sp == null) {
-                        cs.sp = new SocketPermission(thatHost, "resolve"); //$NON-NLS-1$
+                        cs.sp = new SocketPermission(thatHost, "resolve"); 
                     }
 
                     if (!this.sp.implies(cs.sp)) {
@@ -492,25 +492,25 @@ public class CodeSource implements Serializable {
             String thisFile = this.location.getFile();
             String thatFile = cs.location.getFile();
 
-            if (thisFile.endsWith("/-")) { //javadoc:3.6."/-" //$NON-NLS-1$
+            if (thisFile.endsWith("/-")) { //javadoc:3.6."/-" 
                 if (!thatFile.startsWith(thisFile.substring(0, thisFile
                         .length() - 2))) {
                     return false;
                 }
-            } else if (thisFile.endsWith("/*")) { //javadoc:3.6."/*" //$NON-NLS-1$
+            } else if (thisFile.endsWith("/*")) { //javadoc:3.6."/*" 
                 if (!thatFile.startsWith(thisFile.substring(0, thisFile
                         .length() - 2))) {
                     return false;
                 }
                 // no further separators(s) allowed
-                if (thatFile.indexOf("/", thisFile.length() - 1) != -1) { //$NON-NLS-1$
+                if (thatFile.indexOf("/", thisFile.length() - 1) != -1) { 
                     return false;
                 }
             } else {
                 // javadoc:3.6."/"
                 if (!thisFile.equals(thatFile)) {
-                    if (!thisFile.endsWith("/")) { //$NON-NLS-1$
-                        if (!thatFile.equals(thisFile + "/")) { //$NON-NLS-1$
+                    if (!thisFile.endsWith("/")) { 
+                        if (!thatFile.equals(thisFile + "/")) { 
                             return false;
                         }
                     } else {
@@ -544,24 +544,24 @@ public class CodeSource implements Serializable {
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        buf.append("CodeSource, url="); //$NON-NLS-1$
-        buf.append(location == null ? "<null>" : location.toString()); //$NON-NLS-1$
+        buf.append("CodeSource, url="); 
+        buf.append(location == null ? "<null>" : location.toString()); 
 
         if (certs == null) {
-            buf.append(", <no certificates>"); //$NON-NLS-1$
+            buf.append(", <no certificates>"); 
         } else {
-            buf.append("\nCertificates [\n"); //$NON-NLS-1$
+            buf.append("\nCertificates [\n"); 
             for (int i = 0; i < certs.length; i++) {
-                buf.append(i + 1).append(") ").append(certs[i]).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                buf.append(i + 1).append(") ").append(certs[i]).append("\n");  
             }
-            buf.append("]\n"); //$NON-NLS-1$
+            buf.append("]\n"); 
         }
         if (signers != null) {
-            buf.append("\nCodeSigners [\n"); //$NON-NLS-1$
+            buf.append("\nCodeSigners [\n"); 
             for (int i = 0; i < signers.length; i++) {
-                buf.append(i + 1).append(") ").append(signers[i]).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                buf.append(i + 1).append(") ").append(signers[i]).append("\n");  
             }
-            buf.append("]\n"); //$NON-NLS-1$
+            buf.append("]\n"); 
         }
         return buf.toString();
     }
@@ -583,7 +583,7 @@ public class CodeSource implements Serializable {
                     oos.write(data);
                 } catch (CertificateEncodingException ex) {
                     throw (IOException) new IOException(
-                            Messages.getString("security.18")).initCause(ex); //$NON-NLS-1$
+                            Messages.getString("security.18")).initCause(ex); 
                 }
             }
         }
@@ -608,7 +608,7 @@ public class CodeSource implements Serializable {
                     factory = CertificateFactory.getInstance(type);
                 } catch (CertificateException ex) {
                     throw new ClassNotFoundException(
-                            Messages.getString("security.19", type), //$NON-NLS-1$
+                            Messages.getString("security.19", type), 
                             ex);
                 }
                 int dataLen = ois.readInt();
@@ -619,7 +619,7 @@ public class CodeSource implements Serializable {
                     certs[i] = factory.generateCertificate(bais);
                 } catch (CertificateException ex) {
                     throw (IOException) new IOException(
-                            Messages.getString("security.1A")).initCause(ex); //$NON-NLS-1$
+                            Messages.getString("security.1A")).initCause(ex); 
                 }
             }
         }

@@ -142,12 +142,12 @@ public class DefaultPolicy extends Policy {
     /**
      * System property for dynamically added policy location.
      */
-    public static final String JAVA_SECURITY_POLICY = "java.security.policy"; //$NON-NLS-1$
+    public static final String JAVA_SECURITY_POLICY = "java.security.policy"; 
 
     /**
      * Prefix for numbered Policy locations specified in security.properties.
      */
-    public static final String POLICY_URL_PREFIX = "policy.url."; //$NON-NLS-1$
+    public static final String POLICY_URL_PREFIX = "policy.url."; 
 
     // A set of PolicyEntries constituting this Policy.
     private final Set<PolicyEntry> grants = new HashSet<PolicyEntry>();
@@ -274,7 +274,7 @@ public class DefaultPolicy extends Policy {
         Set<PolicyEntry> fresh = new HashSet<PolicyEntry>();
         Properties system = new Properties(AccessController
                 .doPrivileged(new PolicyUtils.SystemKit()));
-        system.setProperty("/", File.separator); //$NON-NLS-1$
+        system.setProperty("/", File.separator); 
         URL[] policyLocations = PolicyUtils.getPolicyURLs(system,
                                                           JAVA_SECURITY_POLICY,
                                                           POLICY_URL_PREFIX);

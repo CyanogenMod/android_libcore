@@ -66,6 +66,6 @@ public abstract class KeyPairGeneratorSpi {
      */
     public void initialize(AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidAlgorithmParameterException {
-        throw new UnsupportedOperationException(Messages.getString("security.2E")); //$NON-NLS-1$
+        throw new UnsupportedOperationException(Messages.getString("security.2E")); 
     }
 }

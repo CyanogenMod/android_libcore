@@ -1795,7 +1795,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                 name = (String) readNewString(unshared);
                 break;
             default:
-                throw new StreamCorruptedException(Msg.getString("K00d2"));//$NON-NLS-1$
+                throw new StreamCorruptedException(Msg.getString("K00d2"));
         }
 
         Enum<?> result = Enum.valueOf((Class) classDesc.forClass(), name);

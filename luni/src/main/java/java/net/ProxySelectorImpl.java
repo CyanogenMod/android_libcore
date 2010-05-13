@@ -49,9 +49,9 @@ class ProxySelectorImpl extends ProxySelector {
     static {
         AccessController.doPrivileged(new java.security.PrivilegedAction() {
             public Object run() {
-                File f = new File(System.getProperty("java.home") //$NON-NLS-1$
-                        + File.separator + "lib" + File.separator //$NON-NLS-1$
-                        + "net.properties"); //$NON-NLS-1$
+                File f = new File(System.getProperty("java.home") 
+                        + File.separator + "lib" + File.separator 
+                        + "net.properties"); 
 
                 if (f.exists()) {
                     try {
@@ -76,7 +76,7 @@ class ProxySelectorImpl extends ProxySelector {
     public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
         if (null == uri || null == sa || null == ioe) {
             // "KA001=Argument must not be null"
-            throw new IllegalArgumentException(Msg.getString("KA001")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("KA001")); 
         }
     }
 
@@ -85,7 +85,7 @@ class ProxySelectorImpl extends ProxySelector {
         // argument check
         if (null == uri) {
             // KA001=Argument must not be null
-            throw new IllegalArgumentException(Msg.getString("KA001")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("KA001")); 
         }
         // check scheme
         String scheme = uri.getScheme();
@@ -96,13 +96,13 @@ class ProxySelectorImpl extends ProxySelector {
         String host = uri.getHost();
         Proxy proxy = Proxy.NO_PROXY;
 
-        if ("http".equals(scheme)) { //$NON-NLS-1$
+        if ("http".equals(scheme)) { 
             proxy = selectHttpProxy(host);
-        } else if ("https".equals(scheme)) { //$NON-NLS-1$
+        } else if ("https".equals(scheme)) { 
             proxy = selectHttpsProxy();
-        } else if ("ftp".equals(scheme)) { //$NON-NLS-1$
+        } else if ("ftp".equals(scheme)) { 
             proxy = selectFtpProxy(host);
-        } else if ("socket".equals(scheme)) { //$NON-NLS-1$
+        } else if ("socket".equals(scheme)) { 
             proxy = selectSocksProxy();
         }
         List<Proxy> proxyList = new ArrayList<Proxy>(1);
@@ -123,29 +123,29 @@ class ProxySelectorImpl extends ProxySelector {
         String port = null;
         Proxy.Type type = Proxy.Type.DIRECT;
 
-        String nonProxyHosts = getSystemProperty("http.nonProxyHosts"); //$NON-NLS-1$
+        String nonProxyHosts = getSystemProperty("http.nonProxyHosts"); 
         // if host is in non proxy host list, returns Proxy.NO_PROXY
         if (isNonProxyHost(uriHost, nonProxyHosts)) {
             return Proxy.NO_PROXY;
         }
 
-        host = getSystemProperty("http.proxyHost"); //$NON-NLS-1$
+        host = getSystemProperty("http.proxyHost"); 
         if (null != host) {
             // case 1: http.proxyHost is set, use exact http proxy
             type = Proxy.Type.HTTP;
-            port = getSystemPropertyOrAlternative("http.proxyPort", //$NON-NLS-1$
-                    "proxyPort", String.valueOf(HTTP_PROXY_PORT)); //$NON-NLS-1$
-        } else if ((host = getSystemProperty("proxyHost", null)) != null) { //$NON-NLS-1$
+            port = getSystemPropertyOrAlternative("http.proxyPort", 
+                    "proxyPort", String.valueOf(HTTP_PROXY_PORT)); 
+        } else if ((host = getSystemProperty("proxyHost", null)) != null) { 
             // case 2: proxyHost is set, use exact http proxy
             type = Proxy.Type.HTTP;
-            port = getSystemPropertyOrAlternative("proxyPort", //$NON-NLS-1$
-                    "http.proxyPort", String.valueOf(HTTP_PROXY_PORT)); //$NON-NLS-1$
+            port = getSystemPropertyOrAlternative("proxyPort", 
+                    "http.proxyPort", String.valueOf(HTTP_PROXY_PORT)); 
 
-        } else if ((host = getSystemProperty("socksProxyHost")) != null) { //$NON-NLS-1$
+        } else if ((host = getSystemProperty("socksProxyHost")) != null) { 
             // case 3: use socks proxy instead
             type = Proxy.Type.SOCKS;
             port = getSystemProperty(
-                    "socksProxyPort", String.valueOf(SOCKS_PROXY_PORT)); //$NON-NLS-1$
+                    "socksProxyPort", String.valueOf(SOCKS_PROXY_PORT)); 
         }
         int defaultPort = (type == Proxy.Type.SOCKS) ? SOCKS_PROXY_PORT
                 : HTTP_PROXY_PORT;
@@ -160,19 +160,19 @@ class ProxySelectorImpl extends ProxySelector {
         String port = null;
         Proxy.Type type = Proxy.Type.DIRECT;
 
-        host = getSystemProperty("https.proxyHost"); //$NON-NLS-1$
+        host = getSystemProperty("https.proxyHost"); 
         if (null != host) {
             // case 1: use exact https proxy
             type = Proxy.Type.HTTP;
             port = getSystemProperty(
-                    "https.proxyPort", String.valueOf(HTTPS_PROXY_PORT)); //$NON-NLS-1$
+                    "https.proxyPort", String.valueOf(HTTPS_PROXY_PORT)); 
         } else {
-            host = getSystemProperty("socksProxyHost"); //$NON-NLS-1$
+            host = getSystemProperty("socksProxyHost"); 
             if (null != host) {
                 // case 2: use socks proxy instead
                 type = Proxy.Type.SOCKS;
                 port = getSystemProperty(
-                        "socksProxyPort", String.valueOf(SOCKS_PROXY_PORT)); //$NON-NLS-1$
+                        "socksProxyPort", String.valueOf(SOCKS_PROXY_PORT)); 
             }
         }
         int defaultPort = (type == Proxy.Type.SOCKS) ? SOCKS_PROXY_PORT
@@ -187,25 +187,25 @@ class ProxySelectorImpl extends ProxySelector {
         String host;
         String port = null;
         Proxy.Type type = Proxy.Type.DIRECT;
-        String nonProxyHosts = getSystemProperty("ftp.nonProxyHosts"); //$NON-NLS-1$
+        String nonProxyHosts = getSystemProperty("ftp.nonProxyHosts"); 
         // if host is in non proxy host list, returns Proxy.NO_PROXY
         if (isNonProxyHost(uriHost, nonProxyHosts)) {
             return Proxy.NO_PROXY;
         }
 
-        host = getSystemProperty("ftp.proxyHost"); //$NON-NLS-1$
+        host = getSystemProperty("ftp.proxyHost"); 
         if (null != host) {
             // case 1: use exact ftp proxy
             type = Proxy.Type.HTTP;
             port = getSystemProperty(
-                    "ftp.proxyPort", String.valueOf(FTP_PROXY_PORT)); //$NON-NLS-1$
+                    "ftp.proxyPort", String.valueOf(FTP_PROXY_PORT)); 
         } else {
-            host = getSystemProperty("socksProxyHost"); //$NON-NLS-1$
+            host = getSystemProperty("socksProxyHost"); 
             if (null != host) {
                 // case 2: use socks proxy instead
                 type = Proxy.Type.SOCKS;
                 port = getSystemProperty(
-                        "socksProxyPort", String.valueOf(SOCKS_PROXY_PORT)); //$NON-NLS-1$
+                        "socksProxyPort", String.valueOf(SOCKS_PROXY_PORT)); 
             }
         }
         int defaultPort = (type == Proxy.Type.SOCKS) ? SOCKS_PROXY_PORT
@@ -221,11 +221,11 @@ class ProxySelectorImpl extends ProxySelector {
         String port = null;
         Proxy.Type type = Proxy.Type.DIRECT;
 
-        host = getSystemProperty("socksProxyHost"); //$NON-NLS-1$
+        host = getSystemProperty("socksProxyHost"); 
         if (null != host) {
             type = Proxy.Type.SOCKS;
             port = getSystemProperty(
-                    "socksProxyPort", String.valueOf(SOCKS_PROXY_PORT)); //$NON-NLS-1$
+                    "socksProxyPort", String.valueOf(SOCKS_PROXY_PORT)); 
         }
         return createProxy(type, host, port, SOCKS_PROXY_PORT);
     }
@@ -247,10 +247,10 @@ class ProxySelectorImpl extends ProxySelector {
             ch = nonProxyHosts.charAt(i);
             switch (ch) {
                 case '.':
-                    buf.append("\\."); //$NON-NLS-1$
+                    buf.append("\\."); 
                     break;
                 case '*':
-                    buf.append(".*"); //$NON-NLS-1$
+                    buf.append(".*"); 
                     break;
                 default:
                     buf.append(ch);
@@ -300,7 +300,7 @@ class ProxySelectorImpl extends ProxySelector {
             final String defaultValue) {
         String value = AccessController.doPrivileged(new PriviAction<String>(
                 property));
-        if (null == value || "".equals(value)) { //$NON-NLS-1$
+        if (null == value || "".equals(value)) { 
             value = (netProps != null)
                     ? netProps.getProperty(property, defaultValue)
                     : defaultValue;

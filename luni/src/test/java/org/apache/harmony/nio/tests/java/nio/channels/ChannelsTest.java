@@ -53,9 +53,9 @@ import junit.framework.TestCase;
  */
 @TestTargetClass(Channels.class)
 public class ChannelsTest extends TestCase {
-    private static final String CODE_SET = "GB2312"; //$NON-NLS-1$
+    private static final String CODE_SET = "GB2312"; 
 
-    private static final String BAD_CODE_SET = "GB2313"; //$NON-NLS-1$
+    private static final String BAD_CODE_SET = "GB2313"; 
 
     private FileInputStream fins;
 
@@ -98,7 +98,7 @@ public class ChannelsTest extends TestCase {
         bit[0] = 80;
         this.fouts.write(bit);
         this.fouts.flush();
-        String writebuf = ""; //$NON-NLS-1$
+        String writebuf = ""; 
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -510,7 +510,7 @@ public class ChannelsTest extends TestCase {
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         try {
             Channels.newReader(rbChannel, Charset.forName(BAD_CODE_SET)
-                    .newDecoder(), //$NON-NLS-1$
+                    .newDecoder(), 
                     -1);
             fail();
         } catch (UnsupportedCharsetException e) {
@@ -610,7 +610,7 @@ public class ChannelsTest extends TestCase {
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         // channel with null inputs
         testReader = Channels.newReader(rbChannel, Charset.forName(CODE_SET)
-                .newDecoder(), //$NON-NLS-1$
+                .newDecoder(), 
                 -1);
         assertNotNull(testReader);
         assertFalse(testReader.ready());
@@ -688,7 +688,7 @@ public class ChannelsTest extends TestCase {
         this.fins = new FileInputStream(tmpFile);
         // channel null
         Reader testReader = Channels.newReader(null, Charset.forName(CODE_SET)
-                .newDecoder(), //$NON-NLS-1$
+                .newDecoder(), 
                 0);
         assertNotNull(testReader);
         assertFalse(testReader.ready());
@@ -709,7 +709,7 @@ public class ChannelsTest extends TestCase {
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         // channel with null inputs
         testReader = Channels.newReader(rbChannel, Charset.forName(CODE_SET)
-                .newDecoder(), //$NON-NLS-1$
+                .newDecoder(), 
                 -1);
         assertNotNull(testReader);
         assertFalse(testReader.ready());
@@ -793,9 +793,9 @@ public class ChannelsTest extends TestCase {
         this.fins = new FileInputStream(tmpFile);
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         Reader testReader = Channels.newReader(rbChannel, Charset.forName(
-                CODE_SET).newDecoder(), //$NON-NLS-1$
+                CODE_SET).newDecoder(), 
                 -1);
-        Reader testReader_s = Channels.newReader(rbChannel, CODE_SET); //$NON-NLS-1$
+        Reader testReader_s = Channels.newReader(rbChannel, CODE_SET); 
 
         assertEquals(this.fileSize, this.fins.available());
         // not ready...
@@ -831,13 +831,13 @@ public class ChannelsTest extends TestCase {
     public void testNewWriterWritableByteChannelCharsetEncoderI_internalBufZero()
             throws IOException {
 
-        String writebuf = ""; //$NON-NLS-1$
+        String writebuf = ""; 
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
         // null channel
         Writer testWriter = Channels.newWriter(null, Charset.forName(CODE_SET)
-                .newEncoder(), //$NON-NLS-1$
+                .newEncoder(), 
                 -1);
         // can write to buffer
         testWriter.write(writebuf);
@@ -858,7 +858,7 @@ public class ChannelsTest extends TestCase {
         this.fouts = null;
         WritableByteChannel wbChannel = Channels.newChannel(this.fouts);
         testWriter = Channels.newWriter(wbChannel, Charset.forName(CODE_SET)
-                .newEncoder(), //$NON-NLS-1$
+                .newEncoder(), 
                 -1);
         // can write to buffer
         testWriter.write(writebuf);
@@ -888,7 +888,7 @@ public class ChannelsTest extends TestCase {
     public void testNewWriterWritableByteChannelString_internalBufZero()
             throws IOException {
 
-        String writebuf = ""; //$NON-NLS-1$
+        String writebuf = ""; 
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -943,10 +943,10 @@ public class ChannelsTest extends TestCase {
         this.fouts = new FileOutputStream(tmpFile);
         WritableByteChannel wbChannel = Channels.newChannel(this.fouts);
         Writer testWriter = Channels.newWriter(wbChannel, Charset.forName(
-                CODE_SET).newEncoder(), //$NON-NLS-1$
+                CODE_SET).newEncoder(), 
                 1);
 
-        String writebuf = ""; //$NON-NLS-1$
+        String writebuf = ""; 
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -972,7 +972,7 @@ public class ChannelsTest extends TestCase {
         WritableByteChannel wbChannel = Channels.newChannel(this.fouts);
         Writer testWriter = Channels.newWriter(wbChannel, CODE_SET);
 
-        String writebuf = ""; //$NON-NLS-1$
+        String writebuf = ""; 
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -1004,12 +1004,12 @@ public class ChannelsTest extends TestCase {
     public void testNewWriterWritableByteChannelString() throws IOException {
         this.fouts = new FileOutputStream(tmpFile);
         WritableByteChannel wbChannel = Channels.newChannel(this.fouts);
-        Writer testWriter = Channels.newWriter(wbChannel, CODE_SET); //$NON-NLS-1$
+        Writer testWriter = Channels.newWriter(wbChannel, CODE_SET); 
         Writer testWriter_s = Channels.newWriter(wbChannel, Charset.forName(
-                CODE_SET).newEncoder(), //$NON-NLS-1$
+                CODE_SET).newEncoder(), 
                 -1);
 
-        String writebuf = ""; //$NON-NLS-1$
+        String writebuf = ""; 
         for (int val = 0; val < this.writebufSize / 2; val++) {
             writebuf = writebuf + ((char) (val + 64));
         }
@@ -1070,7 +1070,7 @@ public class ChannelsTest extends TestCase {
         }
         
         writer = Channels.newWriter(chan, Charset.forName(
-                CODE_SET).newEncoder(), //$NON-NLS-1$
+                CODE_SET).newEncoder(), 
                 -1);
         try {
             writer.write(10);

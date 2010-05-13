@@ -49,43 +49,43 @@ public class WrappedDoubleBufferTest extends DoubleBufferTest {
         double array[] = new double[20];
         try {
             DoubleBuffer.wrap(array, -1, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             DoubleBuffer.wrap(array, 21, 0);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             DoubleBuffer.wrap(array, 0, -1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             DoubleBuffer.wrap(array, 0, 21);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             DoubleBuffer.wrap(array, Integer.MAX_VALUE, 1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             DoubleBuffer.wrap(array, 1, Integer.MAX_VALUE);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
         try {
             DoubleBuffer.wrap((double[])null, -1, 0);
-            fail("Should throw NPE"); //$NON-NLS-1$
+            fail("Should throw NPE"); 
         } catch (NullPointerException e) {
         }
 

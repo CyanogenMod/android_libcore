@@ -96,9 +96,9 @@ public class CollectionCertStoreParameters implements CertStoreParameters {
      */
     public String toString() {
         StringBuilder sb =
-            new StringBuilder("CollectionCertStoreParameters: [\ncollection: "); //$NON-NLS-1$
+            new StringBuilder("CollectionCertStoreParameters: [\ncollection: "); 
         sb.append(getCollection().toString());
-        sb.append("\n]"); //$NON-NLS-1$
+        sb.append("\n]"); 
         return sb.toString();
     }
 }

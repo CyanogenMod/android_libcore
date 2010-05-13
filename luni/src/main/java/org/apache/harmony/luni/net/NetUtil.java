@@ -47,7 +47,7 @@ public class NetUtil {
      * @return boolean
      */
     public static boolean preferIPv6Addresses() {
-        final Action a = new Action("java.net.preferIPv6Addresses");//$NON-NLS-1$
+        final Action a = new Action("java.net.preferIPv6Addresses");
         return AccessController.doPrivileged(a).booleanValue();
     }
 
@@ -57,7 +57,7 @@ public class NetUtil {
      * @return boolean
      */
     public static boolean preferIPv4Stack() {
-        final Action a = new Action("java.net.preferIPv4Stack");//$NON-NLS-1$
+        final Action a = new Action("java.net.preferIPv4Stack");
         return AccessController.doPrivileged(a).booleanValue();
     }
 

@@ -79,7 +79,7 @@ public class InvalidClassException extends ObjectStreamException {
     public String getMessage() {
         String msg = super.getMessage();
         if (classname != null) {
-            msg = classname + "; " + msg; //$NON-NLS-1$
+            msg = classname + "; " + msg; 
         }
         return msg;
     }

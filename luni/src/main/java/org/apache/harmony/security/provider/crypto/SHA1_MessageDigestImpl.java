@@ -213,17 +213,17 @@ public class SHA1_MessageDigestImpl extends MessageDigestSpi
     protected int engineDigest(byte[] buf, int offset, int len) throws DigestException { 
 
         if ( buf == null ) {
-            throw new IllegalArgumentException(Messages.getString("security.162"));  //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.162"));  
         }
         if ( offset > buf.length || len > buf.length || (len + offset) > buf.length ) {
             throw new IllegalArgumentException(
-               Messages.getString("security.163")); //$NON-NLS-1$
+               Messages.getString("security.163")); 
         }
         if ( len < DIGEST_LENGTH ) {
-            throw new DigestException(Messages.getString("security.164")); //$NON-NLS-1$
+            throw new DigestException(Messages.getString("security.164")); 
         }
         if ( offset < 0 ) {
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("security.165", offset)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Messages.getString("security.165", offset)); 
         }
 
         processDigest(buf, offset);
@@ -305,17 +305,17 @@ public class SHA1_MessageDigestImpl extends MessageDigestSpi
     protected void engineUpdate(byte[] input, int offset, int len) {
 
         if ( input == null ) {
-            throw new IllegalArgumentException(Messages.getString("security.166"));  //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.166"));  
         }
         if ( len <= 0 ) {
             return;
         }
         if ( offset < 0 ) {
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("security.165", offset)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException(Messages.getString("security.165", offset)); 
         }
         if ( offset > input.length || len > input.length || (len + offset) > input.length ) {
             throw new IllegalArgumentException(
-               Messages.getString("security.167")); //$NON-NLS-1$
+               Messages.getString("security.167")); 
         }
 
         SHA1Impl.updateHash(buffer, input, offset, offset + len -1 );

@@ -33,7 +33,7 @@ public class AlgorithmParameters {
     /**
      * The service name.
      */
-    private static final String SEVICE = "AlgorithmParameters"; //$NON-NLS-1$
+    private static final String SEVICE = "AlgorithmParameters"; 
 
     /**
      * Used to access common engine functionality.
@@ -94,7 +94,7 @@ public class AlgorithmParameters {
     public static AlgorithmParameters getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         synchronized (engine) {       
             engine.getInstance(algorithm, null);
@@ -126,11 +126,11 @@ public class AlgorithmParameters {
             String provider) throws NoSuchAlgorithmException,
             NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.02")); 
         }
         Provider p = Security.getProvider(provider);
         if (p == null) {
-            throw new NoSuchProviderException(Messages.getString("security.03", //$NON-NLS-1$
+            throw new NoSuchProviderException(Messages.getString("security.03", 
                     provider));
         }
         return getInstance(algorithm, p);
@@ -156,10 +156,10 @@ public class AlgorithmParameters {
     public static AlgorithmParameters getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.04")); 
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.01")); 
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);
@@ -201,7 +201,7 @@ public class AlgorithmParameters {
             throws InvalidParameterSpecException {
         if (initialized) {
             throw new InvalidParameterSpecException(
-                    Messages.getString("security.1E")); //$NON-NLS-1$
+                    Messages.getString("security.1E")); 
         }
         spiImpl.engineInit(paramSpec);
         initialized = true;
@@ -220,7 +220,7 @@ public class AlgorithmParameters {
      */
     public final void init(byte[] params) throws IOException {
         if (initialized) {
-            throw new IOException(Messages.getString("security.1E")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("security.1E")); 
         }
         spiImpl.engineInit(params);
         initialized = true;
@@ -240,7 +240,7 @@ public class AlgorithmParameters {
      */
     public final void init(byte[] params, String format) throws IOException {
         if (initialized) {
-            throw new IOException(Messages.getString("security.1E")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("security.1E")); 
         }
         spiImpl.engineInit(params, format);
         initialized = true;
@@ -264,7 +264,7 @@ public class AlgorithmParameters {
             throws InvalidParameterSpecException {
         if (!initialized) {
             throw new InvalidParameterSpecException(
-                    Messages.getString("security.1F")); //$NON-NLS-1$
+                    Messages.getString("security.1F")); 
         }
         return spiImpl.engineGetParameterSpec(paramSpec);
     }
@@ -280,7 +280,7 @@ public class AlgorithmParameters {
      */
     public final byte[] getEncoded() throws IOException {
         if (!initialized) {
-            throw new IOException(Messages.getString("security.1F")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("security.1F")); 
         }
         return spiImpl.engineGetEncoded();
     }
@@ -298,7 +298,7 @@ public class AlgorithmParameters {
      */
     public final byte[] getEncoded(String format) throws IOException {
         if (!initialized) {
-            throw new IOException(Messages.getString("security.1F")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("security.1F")); 
         }
         return spiImpl.engineGetEncoded(format);
     }

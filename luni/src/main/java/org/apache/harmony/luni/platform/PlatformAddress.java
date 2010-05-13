@@ -269,7 +269,7 @@ public class PlatformAddress implements ICommonDataTypes, Comparable {
     }
 
     public final String toString() {
-        return "PlatformAddress[" + osaddr + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+        return "PlatformAddress[" + osaddr + "]";  
     }
     
     public final long getSize() {

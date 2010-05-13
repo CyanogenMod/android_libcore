@@ -65,6 +65,6 @@ public class EventObject implements Serializable {
      */
     @Override
     public String toString() {
-        return getClass().getName() + "[source=" + source + ']'; //$NON-NLS-1$
+        return getClass().getName() + "[source=" + source + ']'; 
     }
 }

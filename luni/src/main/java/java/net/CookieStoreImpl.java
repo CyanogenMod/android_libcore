@@ -51,7 +51,7 @@ class CookieStoreImpl implements CookieStore {
 
     public List<HttpCookie> get(URI uri) {
         if (uri == null) {
-            throw new NullPointerException(Msg.getString("KA019")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("KA019")); 
         }
         // get cookies associated with given URI. If none, returns an empty list
         List<HttpCookie> cookies = storeMap.get(uri);
@@ -110,7 +110,7 @@ class CookieStoreImpl implements CookieStore {
 
     public boolean remove(URI uri, HttpCookie cookie) {
         if (cookie == null) {
-            throw new NullPointerException(Msg.getString("KA020")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("KA020")); 
         }
         boolean success = false;
         Collection<ArrayList<HttpCookie>> values = storeMap.values();

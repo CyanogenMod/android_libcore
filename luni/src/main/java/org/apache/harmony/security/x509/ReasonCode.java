@@ -89,40 +89,40 @@ public class ReasonCode extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("Reason Code: [ "); //$NON-NLS-1$
+        buffer.append(prefix).append("Reason Code: [ "); 
         switch (code) {
             case UNSPECIFIED:
-                buffer.append("unspecified"); //$NON-NLS-1$
+                buffer.append("unspecified"); 
                 break;
             case KEY_COMPROMISE:
-                buffer.append("keyCompromise"); //$NON-NLS-1$
+                buffer.append("keyCompromise"); 
                 break;
             case CA_COMPROMISE:
-                buffer.append("cACompromise"); //$NON-NLS-1$
+                buffer.append("cACompromise"); 
                 break;
             case AFFILIATION_CHANGED:
-                buffer.append("affiliationChanged"); //$NON-NLS-1$
+                buffer.append("affiliationChanged"); 
                 break;
             case SUPERSEDED:
-                buffer.append("superseded"); //$NON-NLS-1$
+                buffer.append("superseded"); 
                 break;
             case CESSATION_OF_OPERATION:
-                buffer.append("cessationOfOperation"); //$NON-NLS-1$
+                buffer.append("cessationOfOperation"); 
                 break;
             case CERTIFICATE_HOLD:
-                buffer.append("certificateHold"); //$NON-NLS-1$
+                buffer.append("certificateHold"); 
                 break;
             case REMOVE_FROM_CRL:
-                buffer.append("removeFromCRL"); //$NON-NLS-1$
+                buffer.append("removeFromCRL"); 
                 break;
             case PRIVILEGE_WITHDRAWN:
-                buffer.append("privilegeWithdrawn"); //$NON-NLS-1$
+                buffer.append("privilegeWithdrawn"); 
                 break;
             case AA_COMPROMISE:
-                buffer.append("aACompromise"); //$NON-NLS-1$
+                buffer.append("aACompromise"); 
                 break;
         }
-        buffer.append(" ]\n"); //$NON-NLS-1$
+        buffer.append(" ]\n"); 
     }
 
     /**

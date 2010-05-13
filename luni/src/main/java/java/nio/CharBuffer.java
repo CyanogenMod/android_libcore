@@ -703,7 +703,7 @@ public abstract class CharBuffer extends Buffer implements
         if (csq != null) {
             return put(csq.toString());
         }
-        return put("null"); //$NON-NLS-1$
+        return put("null"); 
     }
 
     /**
@@ -728,7 +728,7 @@ public abstract class CharBuffer extends Buffer implements
      */
     public CharBuffer append(CharSequence csq, int start, int end) {
         if (csq == null) {
-            csq = "null"; //$NON-NLS-1$
+            csq = "null"; 
         }
         CharSequence cs = csq.subSequence(start, end);
         if (cs.length() > 0) {

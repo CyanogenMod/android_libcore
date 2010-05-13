@@ -86,10 +86,10 @@ public class AlternativeName extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append((which) ? "Subject" : "Issuer") //$NON-NLS-1$ //$NON-NLS-2$
-            .append(" Alternative Names [\n"); //$NON-NLS-1$
-        alternativeNames.dumpValue(buffer, prefix + "  "); //$NON-NLS-1$
-        buffer.append(prefix).append("]\n"); //$NON-NLS-1$
+        buffer.append(prefix).append((which) ? "Subject" : "Issuer")  
+            .append(" Alternative Names [\n"); 
+        alternativeNames.dumpValue(buffer, prefix + "  "); 
+        buffer.append(prefix).append("]\n"); 
     }
 }
 

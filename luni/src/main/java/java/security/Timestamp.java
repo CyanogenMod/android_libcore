@@ -52,10 +52,10 @@ public final class Timestamp implements Serializable {
      */
     public Timestamp(Date timestamp, CertPath signerCertPath) {
         if (timestamp == null) {
-            throw new NullPointerException(Messages.getString("security.0F")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.0F")); 
         }
         if (signerCertPath == null) {
-            throw new NullPointerException(Messages.getString("security.10")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.10")); 
         }
         // Clone timestamp to prevent modifications
         this.timestamp = new Date(timestamp.getTime());
@@ -134,8 +134,8 @@ public final class Timestamp implements Serializable {
     public String toString() {
         StringBuilder buf = new StringBuilder(256);
         // Dump only the first certificate
-        buf.append("Timestamp [").append(timestamp).append(" certPath="); //$NON-NLS-1$ //$NON-NLS-2$
-        buf.append(signerCertPath.getCertificates().get(0)).append("]"); //$NON-NLS-1$
+        buf.append("Timestamp [").append(timestamp).append(" certPath=");  
+        buf.append(signerCertPath.getCertificates().get(0)).append("]"); 
         return buf.toString();
     }
 }

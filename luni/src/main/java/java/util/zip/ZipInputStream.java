@@ -174,17 +174,17 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         if (hasDD) {
             in.read(hdrBuf, 0, EXTHDR);
             if (getLong(hdrBuf, 0) != EXTSIG) {
-                throw new ZipException(Messages.getString("archive.1F")); //$NON-NLS-1$
+                throw new ZipException(Messages.getString("archive.1F")); 
             }
             currentEntry.crc = getLong(hdrBuf, EXTCRC);
             currentEntry.compressedSize = getLong(hdrBuf, EXTSIZ);
             currentEntry.size = getLong(hdrBuf, EXTLEN);
         }
         if (currentEntry.crc != crc.getValue()) {
-            throw new ZipException(Messages.getString("archive.20")); //$NON-NLS-1$
+            throw new ZipException(Messages.getString("archive.20")); 
         }
         if (currentEntry.compressedSize != inB || currentEntry.size != out) {
-            throw new ZipException(Messages.getString("archive.21")); //$NON-NLS-1$
+            throw new ZipException(Messages.getString("archive.21")); 
         }
     }
 
@@ -229,7 +229,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
         int version = getShort(hdrBuf, 0) & 0xff;
         if (version > ZIPLocalHeaderVersionNeeded) {
-            throw new ZipException(Messages.getString("archive.22")); //$NON-NLS-1$
+            throw new ZipException(Messages.getString("archive.22")); 
         }
         int flags = getShort(hdrBuf, LOCFLG - LOCVER);
         hasDD = ((flags & ZipFile.GPBF_DATA_DESCRIPTOR_FLAG) != 0);
@@ -244,7 +244,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
         int flen = getShort(hdrBuf, LOCNAM - LOCVER);
         if (flen == 0) {
-            throw new ZipException(Messages.getString("archive.23")); //$NON-NLS-1$
+            throw new ZipException(Messages.getString("archive.23")); 
         }
         int elen = getShort(hdrBuf, LOCEXT - LOCVER);
 

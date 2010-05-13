@@ -77,7 +77,7 @@ public class JarUtils {
         ContentInfo info = (ContentInfo)ContentInfo.ASN1.decode(bis);      
         SignedData signedData = info.getSignedData();
         if (signedData == null) {
-            throw new IOException(Messages.getString("security.173")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("security.173")); 
         }
         Collection encCerts = signedData.getCertificates();
         if (encCerts.isEmpty()) {
@@ -117,7 +117,7 @@ public class JarUtils {
         }
 
         if (certs[issuerSertIndex].hasUnsupportedCriticalExtension()) {
-            throw new SecurityException(Messages.getString("security.174")); //$NON-NLS-1$
+            throw new SecurityException(Messages.getString("security.174")); 
         }
 
         // Get Signature instance
@@ -126,7 +126,7 @@ public class JarUtils {
         String dea = sigInfo.getDigestEncryptionAlgorithm();
         String alg = null;
         if (da != null && dea != null) {
-            alg = da + "with" +  dea; //$NON-NLS-1$
+            alg = da + "with" +  dea; 
             try{ 
                 // BEGIN android-removed
                 // sig = OpenSSLSignature.getInstance(alg);
@@ -185,13 +185,13 @@ public class JarUtils {
                 // END android-added
                 byte[] computedDigest = md.digest(sfBytes);
                 if (!Arrays.equals(existingDigest, computedDigest)) {
-                    throw new SecurityException(Messages.getString("security.175")); //$NON-NLS-1$
+                    throw new SecurityException(Messages.getString("security.175")); 
                 }
             }
         }
 
         if (!sig.verify(sigInfo.getEncryptedDigest())) {
-            throw new SecurityException(Messages.getString("security.176")); //$NON-NLS-1$
+            throw new SecurityException(Messages.getString("security.176")); 
         }
 
         return createChain(certs[issuerSertIndex], certs);

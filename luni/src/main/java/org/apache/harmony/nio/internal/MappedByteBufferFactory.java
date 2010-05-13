@@ -35,7 +35,7 @@ class MappedByteBufferFactory {
                         try {
                             Class<?> wrapperClazz = ClassLoader
                                     .getSystemClassLoader().loadClass(
-                                            "java.nio.MappedByteBufferAdapter"); //$NON-NLS-1$
+                                            "java.nio.MappedByteBufferAdapter"); 
                             Constructor<?> result = wrapperClazz
                                     .getConstructor(new Class[] {
                                             PlatformAddress.class, int.class,

@@ -52,9 +52,9 @@ public class CharsetDecoderTest extends TestCase {
     public void test_ConstructorLjava_nio_charset_CharsetFF() {
         // Regression for HARMONY-142
         try {
-            Charset cs = Charset.forName("UTF-8"); //$NON-NLS-1$
+            Charset cs = Charset.forName("UTF-8"); 
             new MockCharsetDecoderForHarmony142(cs, 1.1f, 1);
-            fail("Assert 0: Should throw IllegalArgumentException."); //$NON-NLS-1$
+            fail("Assert 0: Should throw IllegalArgumentException."); 
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -128,21 +128,21 @@ public class CharsetDecoderTest extends TestCase {
     )
     public void test_decodeLjava_nio_ByteBuffer() throws Exception {
         MockMalfunctionCharset cs1 = new MockMalfunctionCharset(
-                "Harmony-124-1", null); //$NON-NLS-1$
+                "Harmony-124-1", null); 
         try {
             cs1.newDecoder().onMalformedInput(CodingErrorAction.REPLACE)
                     .onUnmappableCharacter(CodingErrorAction.REPLACE).decode(
                             ByteBuffer.wrap(new byte[] { 0x00, 0x11 }));
-            fail("Assert 0: should throw CoderMalfunctionError");  // NON-NLS-1$
+            fail("Assert 0: should throw CoderMalfunctionError");
         } catch (CoderMalfunctionError e) {
             // expected
         }
 
         MockMalfunctionCharset cs2 = new MockMalfunctionCharset(
-                "Harmony-124-2", null); //$NON-NLS-1$
+                "Harmony-124-2", null); 
         try {
             cs2.decode(ByteBuffer.wrap(new byte[] { 0x00, 0x11 }));
-            fail("Assert 1: Charset.decode should throw CoderMalfunctionError");  // NON-NLS-1
+            fail("Assert 1: Charset.decode should throw CoderMalfunctionError");
         } catch (CoderMalfunctionError e) {
             // expected
         }

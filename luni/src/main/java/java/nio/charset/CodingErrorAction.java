@@ -27,14 +27,14 @@ public class CodingErrorAction {
      * Denotes the action to ignore any errors.
      */
     public static final CodingErrorAction IGNORE = new CodingErrorAction(
-            "IGNORE"); //$NON-NLS-1$
+            "IGNORE"); 
 
     /**
      * Denotes the action to fill in the output with a replacement character
      * when malformed input or an unmappable character is encountered.
      */
     public static final CodingErrorAction REPLACE = new CodingErrorAction(
-            "REPLACE"); //$NON-NLS-1$
+            "REPLACE"); 
 
     /**
      * Denotes the action to report the encountered error in an appropriate
@@ -42,7 +42,7 @@ public class CodingErrorAction {
      * result.
      */
     public static final CodingErrorAction REPORT = new CodingErrorAction(
-            "REPORT"); //$NON-NLS-1$
+            "REPORT"); 
 
     // The name of this action
     private String action;
@@ -61,6 +61,6 @@ public class CodingErrorAction {
      */
     @Override
     public String toString() {
-        return "Action: " + this.action; //$NON-NLS-1$
+        return "Action: " + this.action; 
     }
 }

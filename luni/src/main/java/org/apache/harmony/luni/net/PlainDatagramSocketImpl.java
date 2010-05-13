@@ -107,8 +107,8 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void bind(int port, InetAddress addr) throws SocketException {
-        String prop = AccessController.doPrivileged(new PriviAction<String>("bindToDevice")); //$NON-NLS-1$
-        boolean useBindToDevice = prop != null && prop.toLowerCase().equals("true"); //$NON-NLS-1$
+        String prop = AccessController.doPrivileged(new PriviAction<String>("bindToDevice")); 
+        boolean useBindToDevice = prop != null && prop.toLowerCase().equals("true"); 
         netImpl.bind(fd, addr, port);
         if (0 != port) {
             localPort = port;
@@ -311,7 +311,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         } catch (UnknownHostException e) {
             // this is never expected to happen as we should not have gotten
             // here if the address is not resolvable
-            throw new SocketException(Msg.getString("K0317", inetAddr.getHostName())); //$NON-NLS-1$
+            throw new SocketException(Msg.getString("K0317", inetAddr.getHostName())); 
         }
         connectedPort = port;
         isNativeConnected = true;

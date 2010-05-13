@@ -45,7 +45,7 @@ public class HttpConfiguration {
         this.hostName = uri.getHost();
         this.hostPort = uri.getPort();
         if(hostPort == -1) {
-            if(uri.getScheme().equals("https")) { //$NON-NLS-1$
+            if(uri.getScheme().equals("https")) { 
                 hostPort = 443;
             } else {
                 hostPort = 80;
@@ -60,7 +60,7 @@ public class HttpConfiguration {
             SocketAddress proxyAddr = proxy.address();
             if (!(proxyAddr instanceof InetSocketAddress)) {
                throw new IllegalArgumentException(Msg.getString(
-                   "K0316", proxyAddr.getClass())); //$NON-NLS-1$
+                   "K0316", proxyAddr.getClass())); 
             }
             InetSocketAddress iProxyAddr = (InetSocketAddress) proxyAddr;
             this.hostName = iProxyAddr.getHostName();
@@ -70,7 +70,7 @@ public class HttpConfiguration {
             this.hostName = uri.getHost();
             this.hostPort = uri.getPort();
             if(hostPort == -1) {
-                if(uri.getScheme().equals("https")) { //$NON-NLS-1$
+                if(uri.getScheme().equals("https")) { 
                     hostPort = 443;
                 } else {
                     hostPort = 80;
@@ -81,7 +81,7 @@ public class HttpConfiguration {
         SocketAddress proxyAddr = proxy.address();
         if (!(proxyAddr instanceof InetSocketAddress)) {
            throw new IllegalArgumentException(Msg.getString(
-               "K0316", proxyAddr.getClass())); //$NON-NLS-1$
+               "K0316", proxyAddr.getClass())); 
         }
         InetSocketAddress iProxyAddr = (InetSocketAddress) proxyAddr;
         this.hostName = iProxyAddr.getHostName();

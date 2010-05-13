@@ -40,7 +40,7 @@ public class HeapLongBufferTest extends LongBufferTest {
     public void testAllocatedLongBuffer_IllegalArg() {
         try {
             LongBuffer.allocate(-1);
-            fail("Should throw Exception"); //$NON-NLS-1$
+            fail("Should throw Exception"); 
         } catch (IllegalArgumentException e) {
             // expected
         }

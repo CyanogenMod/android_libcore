@@ -110,7 +110,7 @@ public class PKIXBuilderParameters extends PKIXParameters {
     public void setMaxPathLength(int maxPathLength) {
         if (maxPathLength < -1) {
             throw new InvalidParameterException(
-                    Messages.getString("security.5B")); //$NON-NLS-1$
+                    Messages.getString("security.5B")); 
         }
         this.maxPathLength = maxPathLength;
     }
@@ -123,11 +123,11 @@ public class PKIXBuilderParameters extends PKIXParameters {
      *         instance.
      */
     public String toString() {
-        StringBuilder sb = new StringBuilder("[\n"); //$NON-NLS-1$
+        StringBuilder sb = new StringBuilder("[\n"); 
         sb.append(super.toString());
-        sb.append(" Max Path Length: "); //$NON-NLS-1$
+        sb.append(" Max Path Length: "); 
         sb.append(maxPathLength);
-        sb.append("\n]"); //$NON-NLS-1$
+        sb.append("\n]"); 
         return sb.toString();
     }
 }

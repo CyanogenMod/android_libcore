@@ -563,7 +563,7 @@ public abstract class AbstractPreferences extends Preferences {
 
     private AbstractPreferences nodeImpl(String path, boolean createNew)
             throws BackingStoreException {
-        String[] names = path.split("/");//$NON-NLS-1$
+        String[] names = path.split("/");
         AbstractPreferences currentNode = this;
         AbstractPreferences temp = null;
         if (null != currentNode) {

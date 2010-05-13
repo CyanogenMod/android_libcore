@@ -955,7 +955,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isConnected());
         try {
             this.channel1.connect(null);
-            fail("Should throw an IllegalArgumentException here."); //$NON-NLS-1$
+            fail("Should throw an IllegalArgumentException here."); 
         } catch (IllegalArgumentException e) {
             // OK.
         }
@@ -1055,7 +1055,7 @@ public class DatagramChannelTest extends TestCase {
                 "unresolved address", 1080);
         try {
             this.channel1.connect(unresolved);
-            fail("Should throw an UnresolvedAddressException here."); //$NON-NLS-1$
+            fail("Should throw an UnresolvedAddressException here."); 
         } catch (UnresolvedAddressException e) {
             // OK.
         }
@@ -1071,7 +1071,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isConnected());
 
         assertEquals(this.channel1, this.channel1
-                .connect(new InetSocketAddress("", 1081))); //$NON-NLS-1$
+                .connect(new InetSocketAddress("", 1081))); 
 
     }
 
@@ -1093,7 +1093,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isOpen());
         try {
             this.channel1.connect(localAddr1);
-            fail("Should throw ClosedChannelException."); //$NON-NLS-1$
+            fail("Should throw ClosedChannelException."); 
         } catch (ClosedChannelException e) {
             // OK.
         }
@@ -1118,7 +1118,7 @@ public class DatagramChannelTest extends TestCase {
         // connect after connected.
         try {
             this.channel1.connect(localAddr1);
-            fail("Should throw IllegalStateException."); //$NON-NLS-1$
+            fail("Should throw IllegalStateException."); 
         } catch (IllegalStateException e) {
             // OK.
         }
@@ -1146,7 +1146,7 @@ public class DatagramChannelTest extends TestCase {
         // checking open is before checking status.
         try {
             this.channel1.connect(localAddr1);
-            fail("Should throw ClosedChannelException."); //$NON-NLS-1$
+            fail("Should throw ClosedChannelException."); 
         } catch (ClosedChannelException e) {
             // OK.
         }
@@ -1324,7 +1324,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isConnected());
         try {
             this.channel1.receive(null);
-            fail("Should throw a NPE here."); //$NON-NLS-1$
+            fail("Should throw a NPE here."); 
         } catch (NullPointerException e) {
             // OK.
         }
@@ -1348,7 +1348,7 @@ public class DatagramChannelTest extends TestCase {
         assertTrue(dst.isReadOnly());
         try {
             this.channel1.receive(dst);
-            fail("Should throw an IllegalArgumentException here."); //$NON-NLS-1$
+            fail("Should throw an IllegalArgumentException here."); 
         } catch (IllegalArgumentException e) {
             // OK.
         }
@@ -1447,7 +1447,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isOpen());
         try {
             assertNull(this.channel1.receive(dst));
-            fail("Should throw a ClosedChannelException here."); //$NON-NLS-1$
+            fail("Should throw a ClosedChannelException here."); 
         } catch (ClosedChannelException e) {
             // OK.
         }
@@ -1471,7 +1471,7 @@ public class DatagramChannelTest extends TestCase {
         // checking buffer before checking open
         try {
             this.channel1.receive(null);
-            fail("Should throw a NPE here."); //$NON-NLS-1$
+            fail("Should throw a NPE here."); 
         } catch (NullPointerException e) {
             // OK.
         }
@@ -1497,7 +1497,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isOpen());
         try {
             this.channel1.receive(dst);
-            fail("Should throw an IllegalArgumentException here."); //$NON-NLS-1$
+            fail("Should throw an IllegalArgumentException here."); 
         } catch (IllegalArgumentException e) {
             // OK.
         }
@@ -1736,7 +1736,7 @@ public class DatagramChannelTest extends TestCase {
         connectWithoutServer();
         try {
             this.channel1.receive(null);
-            fail("Should throw a NPE here."); //$NON-NLS-1$
+            fail("Should throw a NPE here."); 
         } catch (NullPointerException e) {
             // OK.
         }
@@ -1749,7 +1749,7 @@ public class DatagramChannelTest extends TestCase {
         assertTrue(dst.isReadOnly());
         try {
             this.channel1.receive(dst);
-            fail("Should throw an IllegalArgumentException here."); //$NON-NLS-1$
+            fail("Should throw an IllegalArgumentException here."); 
         } catch (IllegalArgumentException e) {
             // OK.
         }
@@ -1768,7 +1768,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isOpen());
         try {
             assertNull(this.channel1.receive(dst));
-            fail("Should throw a ClosedChannelException here."); //$NON-NLS-1$
+            fail("Should throw a ClosedChannelException here."); 
         } catch (ClosedChannelException e) {
             // OK.
         }
@@ -1780,7 +1780,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isOpen());
         try {
             this.channel1.receive(null);
-            fail("Should throw a NPE here."); //$NON-NLS-1$
+            fail("Should throw a NPE here."); 
         } catch (NullPointerException e) {
             // OK.
         }
@@ -1795,7 +1795,7 @@ public class DatagramChannelTest extends TestCase {
         assertTrue(dst.isReadOnly());
         try {
             this.channel1.receive(dst);
-            fail("Should throw an IllegalArgumentException here."); //$NON-NLS-1$
+            fail("Should throw an IllegalArgumentException here."); 
         } catch (IllegalArgumentException e) {
             // OK.
         }

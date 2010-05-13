@@ -82,7 +82,7 @@ public class GZIPInputStream extends InflaterInputStream {
         byte[] header = new byte[10];
         readFully(header, 0, header.length);
         if (getShort(header, 0) != GZIP_MAGIC) {
-            throw new IOException(Messages.getString("archive.1F")); //$NON-NLS-1$;
+            throw new IOException(Messages.getString("archive.1F"));
         }
         int flags = header[3];
         boolean hcrc = (flags & FHCRC) != 0;
@@ -117,7 +117,7 @@ public class GZIPInputStream extends InflaterInputStream {
             readFully(header, 0, 2);
             int crc16 = getShort(header, 0);
             if ((crc.getValue() & 0xffff) != crc16) {
-                throw new IOException(Messages.getString("archive.20")); //$NON-NLS-1$
+                throw new IOException(Messages.getString("archive.20")); 
             }
             crc.reset();
         }
@@ -199,10 +199,10 @@ public class GZIPInputStream extends InflaterInputStream {
         readFully(b, copySize, trailerSize - copySize);
 
         if (getLong(b, 0) != crc.getValue()) {
-            throw new IOException(Messages.getString("archive.20")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("archive.20")); 
         }
         if ((int) getLong(b, 4) != inf.getTotalOut()) {
-            throw new IOException(Messages.getString("archive.21")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("archive.21")); 
         }
     }
 

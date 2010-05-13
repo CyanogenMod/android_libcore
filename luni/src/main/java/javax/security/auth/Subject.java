@@ -56,25 +56,25 @@ public final class Subject implements Serializable {
 
     private static final long serialVersionUID = -8308522755600156056L;
     
-    private static final AuthPermission _AS = new AuthPermission("doAs"); //$NON-NLS-1$
+    private static final AuthPermission _AS = new AuthPermission("doAs"); 
 
     private static final AuthPermission _AS_PRIVILEGED = new AuthPermission(
-            "doAsPrivileged"); //$NON-NLS-1$
+            "doAsPrivileged"); 
 
     private static final AuthPermission _SUBJECT = new AuthPermission(
-            "getSubject"); //$NON-NLS-1$
+            "getSubject"); 
 
     private static final AuthPermission _PRINCIPALS = new AuthPermission(
-            "modifyPrincipals"); //$NON-NLS-1$
+            "modifyPrincipals"); 
 
     private static final AuthPermission _PRIVATE_CREDENTIALS = new AuthPermission(
-            "modifyPrivateCredentials"); //$NON-NLS-1$
+            "modifyPrivateCredentials"); 
 
     private static final AuthPermission _PUBLIC_CREDENTIALS = new AuthPermission(
-            "modifyPublicCredentials"); //$NON-NLS-1$
+            "modifyPublicCredentials"); 
 
     private static final AuthPermission _READ_ONLY = new AuthPermission(
-            "setReadOnly"); //$NON-NLS-1$
+            "setReadOnly"); 
 
     private final Set<Principal> principals;
 
@@ -430,18 +430,18 @@ public final class Subject implements Serializable {
     @Override
     public String toString() {
 
-        StringBuffer buf = new StringBuffer("Subject:\n"); //$NON-NLS-1$
+        StringBuffer buf = new StringBuffer("Subject:\n"); 
 
         Iterator<?> it = principals.iterator();
         while (it.hasNext()) {
-            buf.append("\tPrincipal: "); //$NON-NLS-1$
+            buf.append("\tPrincipal: "); 
             buf.append(it.next());
             buf.append('\n');
         }
 
         it = publicCredentials.iterator();
         while (it.hasNext()) {
-            buf.append("\tPublic Credential: "); //$NON-NLS-1$
+            buf.append("\tPublic Credential: "); 
             buf.append(it.next());
             buf.append('\n');
         }
@@ -450,13 +450,13 @@ public final class Subject implements Serializable {
         it = privateCredentials.iterator();
         try {
             while (it.hasNext()) {
-                buf.append("\tPrivate Credential: "); //$NON-NLS-1$
+                buf.append("\tPrivate Credential: "); 
                 buf.append(it.next());
                 buf.append('\n');
             }
         } catch (SecurityException e) {
             buf.delete(offset, buf.length());
-            buf.append("\tPrivate Credentials: no accessible information\n"); //$NON-NLS-1$
+            buf.append("\tPrivate Credentials: no accessible information\n"); 
         }
         return buf.toString();
     }
@@ -487,7 +487,7 @@ public final class Subject implements Serializable {
     public static Subject getSubject(final AccessControlContext context) {
         checkPermission(_SUBJECT);
         if (context == null) {
-            throw new NullPointerException(Messages.getString("auth.09")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("auth.09")); 
         }
         PrivilegedAction<DomainCombiner> action = new PrivilegedAction<DomainCombiner>() {
             public DomainCombiner run() {
@@ -513,7 +513,7 @@ public final class Subject implements Serializable {
     // FIXME is used only in two places. remove?
     private void checkState() {
         if (readOnly) {
-            throw new IllegalStateException(Messages.getString("auth.0A")); //$NON-NLS-1$
+            throw new IllegalStateException(Messages.getString("auth.0A")); 
         }
     }
 
@@ -588,7 +588,7 @@ public final class Subject implements Serializable {
                 throw new NullPointerException();
             }
             if (permission == _PRINCIPALS && !(Principal.class.isAssignableFrom(o.getClass()))) {
-                throw new IllegalArgumentException(Messages.getString("auth.0B")); //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("auth.0B")); 
             }
         }
 
@@ -669,7 +669,7 @@ public final class Subject implements Serializable {
 
                     if (!c.isAssignableFrom(o.getClass())) {
                         throw new IllegalArgumentException(
-                                Messages.getString("auth.0C", c.getName())); //$NON-NLS-1$
+                                Messages.getString("auth.0C", c.getName())); 
                     }
 
                     if (elements.contains(o)) {

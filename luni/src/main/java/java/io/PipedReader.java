@@ -172,7 +172,7 @@ public class PipedReader extends Reader {
      */
     synchronized void establishConnection() throws IOException {
         if (isConnected) {
-            throw new IOException(Msg.getString("K007a")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K007a")); 
         }
         if (buffer == null) { // We may already have allocated the buffer.
             buffer = new char[PIPE_SIZE];
@@ -236,10 +236,10 @@ public class PipedReader extends Reader {
     @Override
     public synchronized int read(char[] buffer, int offset, int count) throws IOException {
         if (!isConnected) {
-            throw new IOException(Msg.getString("K007b")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K007b")); 
         }
         if (this.buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0078")); 
         }
         // avoid int overflow
         // BEGIN android-changed
@@ -249,10 +249,10 @@ public class PipedReader extends Reader {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
         }
         // END android-changed
         if (count == 0) {
@@ -272,7 +272,7 @@ public class PipedReader extends Reader {
                     return -1;
                 }
                 if (!first && lastWriter != null && !lastWriter.isAlive()) {
-                    throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+                    throw new IOException(Msg.getString("K0076")); 
                 }
                 first = false;
                 // Notify callers of receive()
@@ -340,10 +340,10 @@ public class PipedReader extends Reader {
     @Override
     public synchronized boolean ready() throws IOException {
         if (!isConnected) {
-            throw new IOException(Msg.getString("K007b")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K007b")); 
         }
         if (buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0078")); 
         }
         return in != -1;
     }
@@ -364,10 +364,10 @@ public class PipedReader extends Reader {
      */
     synchronized void receive(char oneChar) throws IOException {
         if (buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0078")); 
         }
         if (lastReader != null && !lastReader.isAlive()) {
-            throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0076")); 
         }
         /*
         * Set the last thread to be writing on this PipedWriter. If
@@ -382,14 +382,14 @@ public class PipedReader extends Reader {
                 wait(1000);
                 // END android-changed
                 if (lastReader != null && !lastReader.isAlive()) {
-                    throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+                    throw new IOException(Msg.getString("K0076")); 
                 }
             }
         } catch (InterruptedException e) {
             throw new InterruptedIOException();
         }
         if (buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0078")); 
         }
         if (in == -1) {
             in = 0;
@@ -420,16 +420,16 @@ public class PipedReader extends Reader {
      */
     synchronized void receive(char[] chars, int offset, int count) throws IOException {
         if (chars == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047")); 
         }
         if ((offset | count) < 0 || count > chars.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException(Msg.getString("K002f")); 
         }
         if (buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0078")); 
         }
         if (lastReader != null && !lastReader.isAlive()) {
-            throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+            throw new IOException(Msg.getString("K0076")); 
         }
         /**
          * Set the last thread to be writing on this PipedWriter. If
@@ -445,14 +445,14 @@ public class PipedReader extends Reader {
                     wait(1000);
                     // END android-changed
                     if (lastReader != null && !lastReader.isAlive()) {
-                        throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+                        throw new IOException(Msg.getString("K0076")); 
                     }
                 }
             } catch (InterruptedException e) {
                 throw new InterruptedIOException();
             }
             if (buffer == null) {
-                throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+                throw new IOException(Msg.getString("K0078")); 
             }
             if (in == -1) {
                 in = 0;

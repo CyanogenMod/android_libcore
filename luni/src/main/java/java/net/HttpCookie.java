@@ -61,27 +61,27 @@ public final class HttpCookie implements Cloneable {
         }
     }
 
-    private static final String DOT_STR = "."; //$NON-NLS-1$
+    private static final String DOT_STR = "."; 
 
-    private static final String LOCAL_STR = ".local"; //$NON-NLS-1$
+    private static final String LOCAL_STR = ".local"; 
 
-    private static final String QUOTE_STR = "\""; //$NON-NLS-1$
+    private static final String QUOTE_STR = "\""; 
 
-    private static final String COMMA_STR = ","; //$NON-NLS-1$
+    private static final String COMMA_STR = ","; 
 
-    private static Pattern HEAD_PATTERN = Pattern.compile("Set-Cookie2?:", //$NON-NLS-1$
+    private static Pattern HEAD_PATTERN = Pattern.compile("Set-Cookie2?:", 
             Pattern.CASE_INSENSITIVE);
 
     private static Pattern NAME_PATTERN = Pattern
             .compile(
-                    "([^$=,\u0085\u2028\u2029][^,\n\t\r\r\n\u0085\u2028\u2029]*?)=([^;]*)(;)?", //$NON-NLS-1$
+                    "([^$=,\u0085\u2028\u2029][^,\n\t\r\r\n\u0085\u2028\u2029]*?)=([^;]*)(;)?", 
                     Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
     private static Pattern ATTR_PATTERN0 = Pattern
-            .compile("([^;=]*)(?:=([^;]*))?"); //$NON-NLS-1$
+            .compile("([^;=]*)(?:=([^;]*))?"); 
 
     private static Pattern ATTR_PATTERN1 = Pattern
-            .compile("(,?[^;=]*)(?:=([^;,]*))?((?=.))?"); //$NON-NLS-1$
+            .compile("(,?[^;=]*)(?:=([^;,]*))?((?=.))?"); 
 
     private HashMap<String, Setter> attributeSet = new HashMap<String, Setter>();
 
@@ -179,7 +179,7 @@ public final class HttpCookie implements Cloneable {
         // process set-cookie | set-cookie2 head
         if (matcher.find()) {
             String cookieHead = matcher.group();
-            if ("set-cookie2:".equalsIgnoreCase(cookieHead)) { //$NON-NLS-1$
+            if ("set-cookie2:".equalsIgnoreCase(cookieHead)) { 
                 version = 1;
             }
             headerString = header.substring(cookieHead.length());
@@ -225,8 +225,8 @@ public final class HttpCookie implements Cloneable {
 
                 // If port is the attribute, then comma will not be used as a
                 // delimiter
-                if (attrName.equalsIgnoreCase("port") //$NON-NLS-1$
-                        || attrName.equalsIgnoreCase("expires")) { //$NON-NLS-1$
+                if (attrName.equalsIgnoreCase("port") 
+                        || attrName.equalsIgnoreCase("expires")) { 
                     int start = matcher.regionStart();
                     matcher = ATTR_PATTERN0.matcher(headerString);
                     matcher.region(start, headerString.length());
@@ -287,7 +287,7 @@ public final class HttpCookie implements Cloneable {
     private int version = 1;
 
     {
-        attributeSet.put("comment", new Setter() { //$NON-NLS-1$
+        attributeSet.put("comment", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         cookie.setComment(value);
@@ -296,7 +296,7 @@ public final class HttpCookie implements Cloneable {
                         }
                     }
                 });
-        attributeSet.put("commenturl", new Setter() { //$NON-NLS-1$
+        attributeSet.put("commenturl", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         cookie.setCommentURL(value);
@@ -305,14 +305,14 @@ public final class HttpCookie implements Cloneable {
                         }
                     }
                 });
-        attributeSet.put("discard", new Setter() { //$NON-NLS-1$
+        attributeSet.put("discard", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         cookie.setDiscard(true);
                         set(true);
                     }
                 });
-        attributeSet.put("domain", new Setter() { //$NON-NLS-1$
+        attributeSet.put("domain", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         cookie.setDomain(value);
@@ -321,24 +321,24 @@ public final class HttpCookie implements Cloneable {
                         }
                     }
                 });
-        attributeSet.put("max-age", new Setter() { //$NON-NLS-1$
+        attributeSet.put("max-age", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         try {
                             cookie.setMaxAge(Long.parseLong(value));
                         } catch (NumberFormatException e) {
                             throw new IllegalArgumentException(Msg.getString(
-                                    "KB001", "max-age")); //$NON-NLS-1$//$NON-NLS-2$
+                                    "KB001", "max-age")); 
                         }
                         set(true);
 
-                        if (!attributeSet.get("version").isSet()) { //$NON-NLS-1$
+                        if (!attributeSet.get("version").isSet()) { 
                             cookie.setVersion(1);
                         }
                     }
                 });
 
-        attributeSet.put("path", new Setter() { //$NON-NLS-1$
+        attributeSet.put("path", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         cookie.setPath(value);
@@ -347,7 +347,7 @@ public final class HttpCookie implements Cloneable {
                         }
                     }
                 });
-        attributeSet.put("port", new Setter() { //$NON-NLS-1$
+        attributeSet.put("port", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         cookie.setPortlist(value);
@@ -361,14 +361,14 @@ public final class HttpCookie implements Cloneable {
                         return;
                     }
                 });
-        attributeSet.put("secure", new Setter() { //$NON-NLS-1$
+        attributeSet.put("secure", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         cookie.setSecure(true);
                         set(true);
                     }
                 });
-        attributeSet.put("version", new Setter() { //$NON-NLS-1$
+        attributeSet.put("version", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         try {
@@ -378,7 +378,7 @@ public final class HttpCookie implements Cloneable {
                             }
                         } catch (NumberFormatException e) {
                             throw new IllegalArgumentException(Msg.getString(
-                                    "KB001", "version"));//$NON-NLS-1$//$NON-NLS-2$
+                                    "KB001", "version"));
                         }
                         if (cookie.getVersion() != 0) {
                             set(true);
@@ -386,14 +386,14 @@ public final class HttpCookie implements Cloneable {
                     }
                 });
 
-        attributeSet.put("expires", new Setter() { //$NON-NLS-1$
+        attributeSet.put("expires", new Setter() { 
                     @Override
                     void setValue(String value, HttpCookie cookie) {
                         cookie.setVersion(0);
-                        attributeSet.get("version").set(true); //$NON-NLS-1$
-                        if (!attributeSet.get("max-age").isSet()) { //$NON-NLS-1$
-                            attributeSet.get("max-age").set(true); //$NON-NLS-1$
-                            if (!"en".equalsIgnoreCase(Locale.getDefault() //$NON-NLS-1$
+                        attributeSet.get("version").set(true); 
+                        if (!attributeSet.get("max-age").isSet()) { 
+                            attributeSet.get("max-age").set(true); 
+                            if (!"en".equalsIgnoreCase(Locale.getDefault() 
                                     .getLanguage())) {
                                 cookie.setMaxAge(0);
                                 return;
@@ -441,7 +441,7 @@ public final class HttpCookie implements Cloneable {
     public HttpCookie(String name, String value) {
         String ntrim = name.trim(); // erase leading and trailing whitespaces
         if (!isValidName(ntrim)) {
-            throw new IllegalArgumentException(Msg.getString("KB002")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("KB002")); 
         }
 
         this.name = ntrim;
@@ -451,10 +451,10 @@ public final class HttpCookie implements Cloneable {
     private void attrToString(StringBuilder builder, String attrName,
             String attrValue) {
         if (attrValue != null && builder != null) {
-            builder.append(";"); //$NON-NLS-1$
-            builder.append("$");//$NON-NLS-1$
+            builder.append(";"); 
+            builder.append("$");
             builder.append(attrName);
-            builder.append("=\""); //$NON-NLS-1$
+            builder.append("=\""); 
             builder.append(attrValue);
             builder.append(QUOTE_STR);
         }
@@ -610,7 +610,7 @@ public final class HttpCookie implements Cloneable {
     private boolean isValidName(String n) {
         // name cannot be empty or begin with '$' or equals the reserved
         // attributes (case-insensitive)
-        boolean isValid = !(n.length() == 0 || n.startsWith("$") || attributeSet.containsKey(n.toLowerCase())); //$NON-NLS-1$
+        boolean isValid = !(n.length() == 0 || n.startsWith("$") || attributeSet.containsKey(n.toLowerCase())); 
         if (isValid) {
             for (int i = 0; i < n.length(); i++) {
                 char nameChar = n.charAt(i);
@@ -748,7 +748,7 @@ public final class HttpCookie implements Cloneable {
      */
     public void setVersion(int v) {
         if (v != 0 && v != 1) {
-            throw new IllegalArgumentException(Msg.getString("KB003")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("KB003")); 
         }
         version = v;
     }
@@ -763,7 +763,7 @@ public final class HttpCookie implements Cloneable {
     public String toString() {
         StringBuilder cookieStr = new StringBuilder();
         cookieStr.append(name);
-        cookieStr.append("="); //$NON-NLS-1$
+        cookieStr.append("="); 
         if (version == 0) {
             cookieStr.append(value);
         } else if (version == 1) {
@@ -771,9 +771,9 @@ public final class HttpCookie implements Cloneable {
             cookieStr.append(value);
             cookieStr.append(QUOTE_STR);
 
-            attrToString(cookieStr, "Path", path); //$NON-NLS-1$
-            attrToString(cookieStr, "Domain", domain); //$NON-NLS-1$
-            attrToString(cookieStr, "Port", portList);//$NON-NLS-1$
+            attrToString(cookieStr, "Path", path); 
+            attrToString(cookieStr, "Domain", domain); 
+            attrToString(cookieStr, "Port", portList);
         }
         return cookieStr.toString();
     }

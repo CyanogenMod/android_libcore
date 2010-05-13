@@ -64,7 +64,7 @@ public class WriteAbortedException extends ObjectStreamException {
     public String getMessage() {
         String msg = super.getMessage();
         if (detail != null) {
-            msg = msg + "; " + detail.toString(); //$NON-NLS-1$
+            msg = msg + "; " + detail.toString(); 
         }
         return msg;
     }

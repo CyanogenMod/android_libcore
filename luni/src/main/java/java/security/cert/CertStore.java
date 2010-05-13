@@ -37,17 +37,17 @@ import org.apache.harmony.security.internal.nls.Messages;
 public class CertStore {
 
     // Store spi implementation service name
-    private static final String SERVICE = "CertStore"; //$NON-NLS-1$
+    private static final String SERVICE = "CertStore"; 
 
     // Used to access common engine functionality
     private static Engine engine = new Engine(SERVICE);
 
     // Store default property name
-    private static final String PROPERTYNAME = "certstore.type"; //$NON-NLS-1$
+    private static final String PROPERTYNAME = "certstore.type"; 
 
     // Default value of CertStore type. It returns if certpathbuild.type
     // property is not defined in java.security file
-    private static final String DEFAULTPROPERTY = "LDAP"; //$NON-NLS-1$
+    private static final String DEFAULTPROPERTY = "LDAP"; 
 
     // Store used provider
     private final Provider provider;
@@ -102,7 +102,7 @@ public class CertStore {
     public static CertStore getInstance(String type, CertStoreParameters params)
             throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.07")); 
         }
         try {
             synchronized (engine) {
@@ -149,7 +149,7 @@ public class CertStore {
             throws InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.02")); 
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -183,10 +183,10 @@ public class CertStore {
             CertStoreParameters params, Provider provider)
             throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.04")); 
         }
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.07")); 
         }
         try {
             synchronized (engine) {

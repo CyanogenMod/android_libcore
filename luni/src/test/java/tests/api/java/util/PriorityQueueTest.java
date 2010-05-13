@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 @TestTargetClass(PriorityQueue.class) 
 public class PriorityQueueTest extends TestCase {
 
-    private static final String SERIALIZATION_FILE_NAME = "/serialization/tests/api/java/util/PriorityQueue.golden.ser"; //$NON-NLS-1$    
+    private static final String SERIALIZATION_FILE_NAME = "/serialization/tests/api/java/util/PriorityQueue.golden.ser";     
                                                             
     /**
      * @tests java.util.PriorityQueue#iterator()

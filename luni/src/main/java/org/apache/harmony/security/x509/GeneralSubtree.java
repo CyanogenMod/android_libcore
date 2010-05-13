@@ -130,15 +130,15 @@ public class GeneralSubtree {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("General Subtree: [\n"); //$NON-NLS-1$
-        buffer.append(prefix).append("  base: ").append(base).append('\n'); //$NON-NLS-1$
-        buffer.append(prefix).append("  minimum: ") //$NON-NLS-1$
+        buffer.append(prefix).append("General Subtree: [\n"); 
+        buffer.append(prefix).append("  base: ").append(base).append('\n'); 
+        buffer.append(prefix).append("  minimum: ") 
             .append(minimum).append('\n');
         if (maximum >= 0) {
-            buffer.append(prefix).append("  maximum: ") //$NON-NLS-1$
+            buffer.append(prefix).append("  maximum: ") 
                 .append(maximum).append('\n');
         }
-        buffer.append(prefix).append("]\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("]\n"); 
     }
 
     /**

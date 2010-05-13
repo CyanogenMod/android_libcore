@@ -54,11 +54,11 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
         this.policyTree = policyTree;
         this.subjectPublicKey = subjectPublicKey;
         if (this.trustAnchor == null) {
-            throw new NullPointerException(Messages.getString("security.64")); //$NON-NLS-1$
+            throw new NullPointerException(Messages.getString("security.64")); 
         }
         if (this.subjectPublicKey == null) {
             throw new NullPointerException(
-                    Messages.getString("security.65")); //$NON-NLS-1$
+                    Messages.getString("security.65")); 
         }
     }
 
@@ -112,14 +112,14 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
      */
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
-        sb.append(": [\n Trust Anchor: "); //$NON-NLS-1$
+        sb.append(": [\n Trust Anchor: "); 
         sb.append(trustAnchor.toString());
-        sb.append("\n Policy Tree: "); //$NON-NLS-1$
-        sb.append(policyTree == null ? "no valid policy tree\n" //$NON-NLS-1$
+        sb.append("\n Policy Tree: "); 
+        sb.append(policyTree == null ? "no valid policy tree\n" 
                                      : policyTree.toString());
-        sb.append("\n Subject Public Key: "); //$NON-NLS-1$
+        sb.append("\n Subject Public Key: "); 
         sb.append(subjectPublicKey.toString());
-        sb.append("\n]"); //$NON-NLS-1$
+        sb.append("\n]"); 
         return sb.toString();
     }
 }

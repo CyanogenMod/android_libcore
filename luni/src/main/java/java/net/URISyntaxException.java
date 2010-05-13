@@ -127,10 +127,10 @@ public class URISyntaxException extends Exception {
         String reason = super.getMessage();
 
         if (index != -1) {
-            return Msg.getString("K0326", //$NON-NLS-1$
+            return Msg.getString("K0326", 
                     new String[] { reason, Integer.toString(index), input });
         }
-        return Msg.getString("K0327", //$NON-NLS-1$
+        return Msg.getString("K0327", 
                 new String[] { reason, input });
     }
 }

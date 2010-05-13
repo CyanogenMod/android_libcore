@@ -587,16 +587,16 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
             String tempPath3 = "http://localhost:" + port + "/";
             URLClassLoader urlLoader = getURLClassLoader(tempPath1, tempPath2);
             assertNull("Found inexistant resource",
-                    urlLoader.findResource("XXX")); //$NON-NLS-1$
+                    urlLoader.findResource("XXX")); 
             assertNotNull("Couldn't find resource from directory",
-                    urlLoader.findResource(tempFile1.getName())); //$NON-NLS-1$
+                    urlLoader.findResource(tempFile1.getName())); 
             assertNotNull("Couldn't find resource from jar",
-                    urlLoader.findResource("Blah.txt")); //$NON-NLS-1$
+                    urlLoader.findResource("Blah.txt")); 
             urlLoader = getURLClassLoader(tempPath1, tempPath2, tempPath3);
             assertNotNull("Couldn't find resource from web",
-                    urlLoader.findResource("test1")); //$NON-NLS-1$
+                    urlLoader.findResource("test1")); 
             assertNull("Found inexistant resource from web",
-                    urlLoader.findResource("test3")); //$NON-NLS-1$
+                    urlLoader.findResource("test3")); 
         } finally {
             server.close();
         }

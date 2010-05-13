@@ -59,10 +59,10 @@ public class RC2ParameterSpec implements AlgorithmParameterSpec {
      */
     public RC2ParameterSpec(int effectiveKeyBits, byte[] iv) {
         if (iv == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.31")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("crypto.31")); 
         }
         if (iv.length < 8) {
-            throw new IllegalArgumentException(Messages.getString("crypto.41")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("crypto.41")); 
         }
         this.effectiveKeyBits = effectiveKeyBits;
         this.iv = new byte[8];
@@ -89,10 +89,10 @@ public class RC2ParameterSpec implements AlgorithmParameterSpec {
      */
     public RC2ParameterSpec(int effectiveKeyBits, byte[] iv, int offset) {
         if (iv == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.31")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("crypto.31")); 
         }
         if (iv.length - offset < 8) {
-            throw new IllegalArgumentException(Messages.getString("crypto.41")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("crypto.41")); 
         }
         this.effectiveKeyBits = effectiveKeyBits;
         this.iv = new byte[8];

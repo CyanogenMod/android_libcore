@@ -91,7 +91,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
     public Certificate engineGenerateCertificate(InputStream inStream)
             throws CertificateException {
         if (inStream == null) {
-            throw new CertificateException(Messages.getString("security.153")); //$NON-NLS-1$
+            throw new CertificateException(Messages.getString("security.153")); 
         }
         try {
             if (!inStream.markSupported()) {
@@ -125,7 +125,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             engineGenerateCertificates(InputStream inStream)
                 throws CertificateException {
         if (inStream == null) {
-            throw new CertificateException(Messages.getString("security.153")); //$NON-NLS-1$
+            throw new CertificateException(Messages.getString("security.153")); 
         }
         ArrayList result = new ArrayList();
         try {
@@ -156,7 +156,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 } else { // unsupported data
                     if (result.size() == 0) {
                         throw new CertificateException(
-                                Messages.getString("security.15F")); //$NON-NLS-1$
+                                Messages.getString("security.15F")); 
                     } else {
                         // it can be trailing user data,
                         // so keep it in the stream
@@ -201,7 +201,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 return result;
             } else if (ch == -1) {
                 throw new CertificateException(
-                        Messages.getString("security.155")); //$NON-NLS-1$
+                        Messages.getString("security.155")); 
             }
             // else: check if it is PKCS7
             if (second_asn1_tag == ASN1Constants.TAG_OID) {
@@ -214,7 +214,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 SignedData data = info.getSignedData();
                 if (data == null) {
                     throw new CertificateException(
-                            Messages.getString("security.154")); //$NON-NLS-1$
+                            Messages.getString("security.154")); 
                 }
                 List certs = data.getCertificates();
                 if (certs != null) {
@@ -228,7 +228,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             }
             // else: Unknown data format
             throw new CertificateException(
-                            Messages.getString("security.15F")); //$NON-NLS-1$
+                            Messages.getString("security.15F")); 
         } catch (IOException e) {
             throw new CertificateException(e);
         }
@@ -241,7 +241,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
     public CRL engineGenerateCRL(InputStream inStream)
             throws CRLException {
         if (inStream == null) {
-            throw new CRLException(Messages.getString("security.153")); //$NON-NLS-1$
+            throw new CRLException(Messages.getString("security.153")); 
         }
         try {
             if (!inStream.markSupported()) {
@@ -272,7 +272,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
     public Collection<? extends CRL> engineGenerateCRLs(InputStream inStream)
             throws CRLException {
         if (inStream == null) {
-            throw new CRLException(Messages.getString("security.153")); //$NON-NLS-1$
+            throw new CRLException(Messages.getString("security.153")); 
         }
         ArrayList result = new ArrayList();
         try {
@@ -302,7 +302,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 } else { // unsupported data
                     if (result.size() == 0) {
                         throw new CRLException(
-                                Messages.getString("security.15F")); //$NON-NLS-1$
+                                Messages.getString("security.15F")); 
                     } else {
                         // it can be trailing user data,
                         // so keep it in the stream
@@ -346,7 +346,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 return result;
             } else if (ch == -1) {
                 throw new CRLException(
-                        Messages.getString("security.155")); //$NON-NLS-1$
+                        Messages.getString("security.155")); 
             }
             // else: check if it is PKCS7
             if (second_asn1_tag == ASN1Constants.TAG_OID) {
@@ -359,7 +359,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 SignedData data = info.getSignedData();
                 if (data == null) {
                     throw new CRLException(
-                            Messages.getString("security.154")); //$NON-NLS-1$
+                            Messages.getString("security.154")); 
                 }
                 List crls = data.getCRLs();
                 if (crls != null) {
@@ -372,7 +372,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             }
             // else: Unknown data format
             throw new CRLException(
-                        Messages.getString("security.15F")); //$NON-NLS-1$
+                        Messages.getString("security.15F")); 
         } catch (IOException e) {
             throw new CRLException(e);
         }
@@ -386,9 +386,9 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             throws CertificateException {
         if (inStream == null) {
             throw new CertificateException(
-                    Messages.getString("security.153")); //$NON-NLS-1$
+                    Messages.getString("security.153")); 
         }
-        return engineGenerateCertPath(inStream, "PkiPath"); //$NON-NLS-1$
+        return engineGenerateCertPath(inStream, "PkiPath"); 
     }
 
     /**
@@ -399,7 +399,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             InputStream inStream, String encoding) throws CertificateException {
         if (inStream == null) {
             throw new CertificateException(
-                    Messages.getString("security.153")); //$NON-NLS-1$
+                    Messages.getString("security.153")); 
         }
         if (!inStream.markSupported()) {
             inStream = new RestoringInputStream(inStream);
@@ -419,7 +419,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 return X509CertPathImpl.getInstance(inStream, encoding);
             } else {
                 throw new CertificateException(
-                            Messages.getString("security.15F")); //$NON-NLS-1$
+                            Messages.getString("security.15F")); 
             }
         } catch (IOException e) {
             throw new CertificateException(e);
@@ -465,9 +465,9 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
     static {
         // Initialise statics
         try {
-            pemBegin = "-----BEGIN".getBytes("UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
-            pemClose = "-----END".getBytes("UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
-            CERT_BOUND_SUFFIX = " CERTIFICATE-----".getBytes("UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+            pemBegin = "-----BEGIN".getBytes("UTF-8");  
+            pemClose = "-----END".getBytes("UTF-8");  
+            CERT_BOUND_SUFFIX = " CERTIFICATE-----".getBytes("UTF-8");  
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -518,15 +518,15 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             while ((ch = inStream.read()) != '\n') {
                 if (ch == -1) {
                     throw new IOException(
-                        Messages.getString("security.156")); //$NON-NLS-1$
+                        Messages.getString("security.156")); 
                 }
             }
         } else {
             for (int i=0; i<boundary_suffix.length; i++) {
                 if (boundary_suffix[i] != inStream.read()) {
                     throw new IOException(
-                        Messages.getString("security.15B", //$NON-NLS-1$
-                            new String(boundary_suffix))); //$NON-NLS-1$
+                        Messages.getString("security.15B", 
+                            new String(boundary_suffix))); 
                 }
             }
             // read new line characters
@@ -536,7 +536,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             }
             if (ch != '\n') {
                 throw new IOException(
-                    Messages.getString("security.15B2")); //$NON-NLS-1$
+                    Messages.getString("security.15B2")); 
             }
         }
         int size = 1024; // the size of the buffer containing Base64 data
@@ -546,7 +546,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
         while ((ch = inStream.read()) != '-') {
             if (ch == -1) {
                 throw new IOException(
-                        Messages.getString("security.157")); //$NON-NLS-1$
+                        Messages.getString("security.157")); 
             }
             buff[index++] = (byte) ch;
             if (index == size) {
@@ -559,17 +559,17 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
         }
         if (buff[index-1] != '\n') {
             throw new IOException(
-                Messages.getString("security.158")); //$NON-NLS-1$
+                Messages.getString("security.158")); 
         }
         // check and skip closing boundary delimiter prefix
         // (first '-' was read)
         for (int i=1; i<pemClose.length; i++) {
             if (pemClose[i] != inStream.read()) {
                 throw new IOException(
-                    Messages.getString("security.15B1", //$NON-NLS-1$
+                    Messages.getString("security.15B1", 
                         ((boundary_suffix == null) 
                             ? "" 
-                            : new String(boundary_suffix)))); //$NON-NLS-1$
+                            : new String(boundary_suffix)))); 
             }
         }
         if (boundary_suffix == null) {
@@ -582,8 +582,8 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             for (int i=0; i<boundary_suffix.length; i++) {
                 if (boundary_suffix[i] != inStream.read()) {
                     throw new IOException(
-                        Messages.getString("security.15B1", //$NON-NLS-1$
-                            new String(boundary_suffix))); //$NON-NLS-1$
+                        Messages.getString("security.15B1", 
+                            new String(boundary_suffix))); 
                 }
             }
         }
@@ -595,7 +595,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
         inStream.reset();
         buff = Base64.decode(buff, index);
         if (buff == null) {
-            throw new IOException(Messages.getString("security.159")); //$NON-NLS-1$
+            throw new IOException(Messages.getString("security.159")); 
         }
         return buff;
     };
@@ -633,7 +633,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                                     throws CertificateException, IOException {
         if (encoding.length < CERT_CACHE_SEED_LENGTH) {
             throw new CertificateException(
-                    Messages.getString("security.152")); //$NON-NLS-1$
+                    Messages.getString("security.152")); 
         }
         synchronized (CERT_CACHE) {
             long hash = CERT_CACHE.getHash(encoding);
@@ -669,14 +669,14 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             inStream.reset();
             if (buff == null) {
                 throw new CertificateException(
-                        Messages.getString("security.152")); //$NON-NLS-1$
+                        Messages.getString("security.152")); 
             }
             long hash = CERT_CACHE.getHash(buff);
             if (CERT_CACHE.contains(hash)) {
                 byte[] encoding = new byte[BerInputStream.getLength(buff)];
                 if (encoding.length < CERT_CACHE_SEED_LENGTH) {
                     throw new CertificateException(
-                        Messages.getString("security.15B3")); //$NON-NLS-1$
+                        Messages.getString("security.15B3")); 
                 }
                 inStream.read(encoding);
                 Certificate res = (Certificate) CERT_CACHE.get(hash, encoding);
@@ -708,7 +708,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                                             throws CRLException, IOException {
         if (encoding.length < CRL_CACHE_SEED_LENGTH) {
             throw new CRLException(
-                    Messages.getString("security.152")); //$NON-NLS-1$
+                    Messages.getString("security.152")); 
         }
         synchronized (CRL_CACHE) {
             long hash = CRL_CACHE.getHash(encoding);
@@ -743,14 +743,14 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
             inStream.reset();
             if (buff == null) {
                 throw new CRLException(
-                        Messages.getString("security.152")); //$NON-NLS-1$
+                        Messages.getString("security.152")); 
             }
             long hash = CRL_CACHE.getHash(buff);
             if (CRL_CACHE.contains(hash)) {
                 byte[] encoding = new byte[BerInputStream.getLength(buff)];
                 if (encoding.length < CRL_CACHE_SEED_LENGTH) {
                     throw new CRLException(
-                        Messages.getString("security.15B4")); //$NON-NLS-1$
+                        Messages.getString("security.15B4")); 
                 }
                 inStream.read(encoding);
                 CRL res = (CRL) CRL_CACHE.get(hash, encoding);
@@ -893,7 +893,7 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 pos = (end + 1) % BUFF_SIZE;
             } else {
                 throw new IOException(
-                        Messages.getString("security.15A")); //$NON-NLS-1$
+                        Messages.getString("security.15A")); 
             }
         }
 

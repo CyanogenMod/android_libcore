@@ -43,9 +43,9 @@ final class BasicPermissionCollection extends PermissionCollection {
     private static final long serialVersionUID = 739301742472979399L;
 
     private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("all_allowed", Boolean.TYPE), //$NON-NLS-1$
-        new ObjectStreamField("permissions", Hashtable.class), //$NON-NLS-1$
-        new ObjectStreamField("permClass", Class.class), }; //$NON-NLS-1$
+        new ObjectStreamField("all_allowed", Boolean.TYPE), 
+        new ObjectStreamField("permissions", Hashtable.class), 
+        new ObjectStreamField("permClass", Class.class), }; 
 
     //should be final, but because of writeObject() cannot be
     private transient Map<String, Permission> items = new HashMap<String, Permission>();
@@ -65,26 +65,26 @@ final class BasicPermissionCollection extends PermissionCollection {
     @Override
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15")); //$NON-NLS-1$
+            throw new SecurityException(Messages.getString("security.15")); 
         }
         if (permission == null) {
-            throw new IllegalArgumentException(Messages.getString("security.20")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.20")); 
         }
 
         Class<? extends Permission> inClass = permission.getClass();
         if (permClass != null) {
             if (permClass != inClass) {
-                throw new IllegalArgumentException(Messages.getString("security.16", //$NON-NLS-1$
+                throw new IllegalArgumentException(Messages.getString("security.16", 
                     permission));
             }
         } else if( !(permission instanceof BasicPermission)) {
-            throw new IllegalArgumentException(Messages.getString("security.16", //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("security.16", 
                 permission));
         } else { 
             // this is the first element provided that another thread did not add
             synchronized (this) {
                 if (permClass != null && inClass != permClass) {
-                    throw new IllegalArgumentException(Messages.getString("security.16", //$NON-NLS-1$
+                    throw new IllegalArgumentException(Messages.getString("security.16", 
                         permission));
                 }
                 permClass = inClass;
@@ -169,9 +169,9 @@ final class BasicPermissionCollection extends PermissionCollection {
      */
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         ObjectOutputStream.PutField fields = out.putFields();
-        fields.put("all_allowed", allEnabled); //$NON-NLS-1$
-        fields.put("permissions", new Hashtable<String, Permission>(items)); //$NON-NLS-1$
-        fields.put("permClass", permClass); //$NON-NLS-1$
+        fields.put("all_allowed", allEnabled); 
+        fields.put("permissions", new Hashtable<String, Permission>(items)); 
+        fields.put("permClass", permClass); 
         out.writeFields();
     }
 
@@ -185,17 +185,17 @@ final class BasicPermissionCollection extends PermissionCollection {
 
         items = new HashMap<String, Permission>();
         synchronized (this) {
-            permClass = (Class<? extends Permission>)fields.get("permClass", null); //$NON-NLS-1$
+            permClass = (Class<? extends Permission>)fields.get("permClass", null); 
             items.putAll((Hashtable<String, Permission>) fields.get(
-                    "permissions", new Hashtable<String, Permission>())); //$NON-NLS-1$
+                    "permissions", new Hashtable<String, Permission>())); 
             for (Iterator<Permission> iter = items.values().iterator(); iter.hasNext();) {
                 if (iter.next().getClass() != permClass) {
-                    throw new InvalidObjectException(Messages.getString("security.24")); //$NON-NLS-1$
+                    throw new InvalidObjectException(Messages.getString("security.24")); 
                 }
             }
-            allEnabled = fields.get("all_allowed", false); //$NON-NLS-1$
-            if (allEnabled && !items.containsKey("*")) { //$NON-NLS-1$
-                throw new InvalidObjectException(Messages.getString("security.25")); //$NON-NLS-1$
+            allEnabled = fields.get("all_allowed", false); 
+            if (allEnabled && !items.containsKey("*")) { 
+                throw new InvalidObjectException(Messages.getString("security.25")); 
             }
         }
     }

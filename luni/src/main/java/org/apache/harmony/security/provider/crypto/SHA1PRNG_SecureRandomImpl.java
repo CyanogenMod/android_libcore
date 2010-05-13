@@ -207,7 +207,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
 
         if (seed == null) {
             throw new NullPointerException(
-                    Messages.getString("security.83", "seed")); //$NON-NLS-1$ //$NON-NLS-2$
+                    Messages.getString("security.83", "seed"));  
         }
 
         if (state == NEXT_BYTES) { // first setSeed after NextBytes; restoring hash
@@ -238,7 +238,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
         byte[] myBytes; // byte[] for bytes returned by "nextBytes()"
 
         if (numBytes < 0) {
-            throw new NegativeArraySizeException(Messages.getString("security.171", numBytes)); //$NON-NLS-1$
+            throw new NegativeArraySizeException(Messages.getString("security.171", numBytes)); 
         }
         if (numBytes == 0) {
             return new byte[0];
@@ -283,7 +283,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
 
         if (bytes == null) {
             throw new NullPointerException(
-                    Messages.getString("security.83", "bytes")); //$NON-NLS-1$ //$NON-NLS-2$
+                    Messages.getString("security.83", "bytes"));  
         }
 
         lastWord = seed[BYTES_OFFSET] == 0 ? 0

@@ -86,7 +86,7 @@ public class PrivilegedActionException extends Exception {
     @Override
     public String toString() {
         String s = getClass().getName();
-        return exception == null ? s : s + ": " + exception; //$NON-NLS-1$
+        return exception == null ? s : s + ": " + exception; 
     }
 
 }

@@ -127,16 +127,16 @@ public class PolicyConstraints extends ExtensionValue {
      * into the StringBuffer object.
      */
     public void dumpValue(StringBuffer buffer, String prefix) {
-        buffer.append(prefix).append("PolicyConstraints: [\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("PolicyConstraints: [\n"); 
         if (requireExplicitPolicy != null) {
-            buffer.append(prefix).append("  requireExplicitPolicy: ") //$NON-NLS-1$
+            buffer.append(prefix).append("  requireExplicitPolicy: ") 
                 .append(requireExplicitPolicy).append('\n');
         }
         if (inhibitPolicyMapping != null) {
-            buffer.append(prefix).append("  inhibitPolicyMapping: ") //$NON-NLS-1$
+            buffer.append(prefix).append("  inhibitPolicyMapping: ") 
                 .append(inhibitPolicyMapping).append('\n');
         }
-        buffer.append(prefix).append("]\n"); //$NON-NLS-1$
+        buffer.append(prefix).append("]\n"); 
     }
 
     /**

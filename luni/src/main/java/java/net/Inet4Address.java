@@ -35,7 +35,7 @@ public final class Inet4Address extends InetAddress {
 
     final static InetAddress ANY = new Inet4Address(new byte[] { 0, 0, 0, 0 });
     final static InetAddress LOOPBACK = new Inet4Address(
-            new byte[] { 127, 0, 0, 1 }, "localhost"); //$NON-NLS-1$
+            new byte[] { 127, 0, 0, 1 }, "localhost"); 
 
     Inet4Address(byte[] address) {
         family = AF_INET;

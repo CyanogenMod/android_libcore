@@ -64,13 +64,13 @@ public abstract class ASN1StringType extends ASN1Type {
             TAG_UTF8STRING) {
 
         public Object getDecodedObject(BerInputStream in) throws IOException {
-            return new String(in.buffer, in.contentOffset, in.length, "UTF-8"); //$NON-NLS-1$
+            return new String(in.buffer, in.contentOffset, in.length, "UTF-8"); 
         }
 
         public void setEncodingContent(BerOutputStream out) {
 
             try {
-                byte[] bytes = ((String) out.content).getBytes("UTF-8"); //$NON-NLS-1$
+                byte[] bytes = ((String) out.content).getBytes("UTF-8"); 
                 out.content = bytes;
                 out.length = bytes.length;
             } catch (UnsupportedEncodingException e) {
@@ -140,7 +140,7 @@ public abstract class ASN1StringType extends ASN1Type {
 
     public void setEncodingContent(BerOutputStream out) {
         try {
-            byte[] bytes = ((String) out.content).getBytes("UTF-8"); //$NON-NLS-1$
+            byte[] bytes = ((String) out.content).getBytes("UTF-8"); 
             out.content = bytes;
             out.length = bytes.length;
         } catch (UnsupportedEncodingException e) {

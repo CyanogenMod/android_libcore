@@ -39,7 +39,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * The HTTP request method of this {@code HttpURLConnection}. The default
      * value is {@code "GET"}.
      */
-    protected String method = "GET"; //$NON-NLS-1$
+    protected String method = "GET"; 
 
     /**
      * The status code of the response obtained from the HTTP request. The
@@ -330,8 +330,8 @@ public abstract class HttpURLConnection extends URLConnection {
         if (port < 0) {
             port = 80;
         }
-        return new SocketPermission(url.getHost() + ":" + port, //$NON-NLS-1$
-                "connect, resolve"); //$NON-NLS-1$
+        return new SocketPermission(url.getHost() + ":" + port, 
+                "connect, resolve"); 
     }
 
     /**
@@ -364,7 +364,7 @@ public abstract class HttpURLConnection extends URLConnection {
             return -1;
         }
         response = response.trim();
-        int mark = response.indexOf(" ") + 1; //$NON-NLS-1$
+        int mark = response.indexOf(" ") + 1; 
         if (mark == 0) {
             return -1;
         }
@@ -426,7 +426,7 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     public void setRequestMethod(String method) throws ProtocolException {
         if (connected) {
-            throw new ProtocolException(Msg.getString("K0037")); //$NON-NLS-1$
+            throw new ProtocolException(Msg.getString("K0037")); 
         }
         for (int i = 0; i < methodTokens.length; i++) {
             if (methodTokens[i].equals(method)) {
@@ -502,13 +502,13 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     public void setFixedLengthStreamingMode(int contentLength) {
         if (super.connected) {
-            throw new IllegalStateException(Msg.getString("K0079")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0079")); 
         }
         if (0 < chunkLength) {
-            throw new IllegalStateException(Msg.getString("KA003")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("KA003")); 
         }
         if (0 > contentLength) {
-            throw new IllegalArgumentException(Msg.getString("K0051")); //$NON-NLS-1$
+            throw new IllegalArgumentException(Msg.getString("K0051")); 
         }
         this.fixedContentLength = contentLength;
     }
@@ -527,10 +527,10 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     public void setChunkedStreamingMode(int chunklen) {
         if (super.connected) {
-            throw new IllegalStateException(Msg.getString("K0079")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("K0079")); 
         }
         if (0 <= fixedContentLength) {
-            throw new IllegalStateException(Msg.getString("KA003")); //$NON-NLS-1$
+            throw new IllegalStateException(Msg.getString("KA003")); 
         }
         if (0 >= chunklen) {
             chunkLength = DEFAULT_CHUNK_LENGTH;

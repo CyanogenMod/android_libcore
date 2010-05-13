@@ -52,7 +52,7 @@ public class Messages {
 
     // BEGIN android-changed
     private static final String sResource =
-        "org.apache.harmony.security.internal.nls.messages"; //$NON-NLS-1$
+        "org.apache.harmony.security.internal.nls.messages"; 
     // END android-changed
 
     /**

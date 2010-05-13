@@ -58,10 +58,10 @@ class SocketOutputStream extends OutputStream {
                     && count <= buffer.length - offset) {
                 socket.write(buffer, offset, count);
             } else {
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002f"));//$NON-NLS-1$
+                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002f"));
             }
         } else {
-            throw new NullPointerException(Msg.getString("K0047"));//$NON-NLS-1$
+            throw new NullPointerException(Msg.getString("K0047"));
         }
     }
 
