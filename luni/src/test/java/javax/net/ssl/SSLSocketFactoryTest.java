@@ -36,7 +36,6 @@ public class SSLSocketFactoryTest extends TestCase {
         assertTrue(SSLSocketFactory.class.isAssignableFrom(sf.getClass()));
     }
 
-    @KnownFailure("Using OpenSSL cipher suite names")
     public void test_SSLSocketFactory_getDefaultCipherSuites() {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         String[] cipherSuites = sf.getDefaultCipherSuites();
@@ -52,13 +51,10 @@ public class SSLSocketFactoryTest extends TestCase {
 
         // Make sure all cipherSuites names are expected
         for (String cipherSuite : cipherSuites) {
-            // TODO Fix Known Failure
-            // Need to fix CipherSuites methods to use JSSE names
             assertTrue(StandardNames.CIPHER_SUITES.contains(cipherSuite));
         }
     }
 
-    @KnownFailure("Using OpenSSL cipher suite names")
     public void test_SSLSocketFactory_getSupportedCipherSuites() {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         String[] cipherSuites = sf.getSupportedCipherSuites();
@@ -75,11 +71,11 @@ public class SSLSocketFactoryTest extends TestCase {
         // Make sure all cipherSuites names are expected
         Set remainingCipherSuites = new HashSet<String>(StandardNames.CIPHER_SUITES);
         for (String cipherSuite : cipherSuites) {
-            assertNotNull(remainingCipherSuites.remove(cipherSuite));
+            assertTrue(remainingCipherSuites.remove(cipherSuite));
         }
-        // TODO Fix Known Failure
-        // Need to fix CipherSuites methods to use JSSE names
         assertEquals(Collections.EMPTY_SET, remainingCipherSuites);
+
+        assertEquals(StandardNames.CIPHER_SUITES.size(), cipherSuites.length);
     }
 
     @KnownFailure("Should not parse bogus port number -1 during createSocket")

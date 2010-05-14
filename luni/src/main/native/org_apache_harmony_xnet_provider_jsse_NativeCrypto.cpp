@@ -1340,43 +1340,6 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
     return (jint) sslCtx;
 }
 
-static jobjectArray makeCipherList(JNIEnv* env, STACK_OF(SSL_CIPHER)* cipher_list) {
-    // Create a String[].
-    jclass stringClass = env->FindClass("java/lang/String");
-    if (stringClass == NULL) {
-        return NULL;
-    }
-    int cipherCount = sk_SSL_CIPHER_num(cipher_list);
-    jobjectArray array = env->NewObjectArray(cipherCount, stringClass, NULL);
-    if (array == NULL) {
-        return NULL;
-    }
-
-    // Fill in the cipher names.
-    for (int i = 0; i < cipherCount; ++i) {
-        const char* c = sk_SSL_CIPHER_value(cipher_list, i)->name;
-        JNI_TRACE("makeCipherList[i=%d]=%s", i, c);
-        env->SetObjectArrayElement(array, i, env->NewStringUTF(c));
-    }
-    return array;
-}
-
-/**
- * Loads the ciphers suites that are supported by an SSL_CTX
- * and returns them in a string array.
- */
-static jobjectArray NativeCrypto_SSL_CTX_get_ciphers(JNIEnv* env,
-        jclass, jint ssl_ctx_address)
-{
-    SSL_CTX* ssl_ctx = to_SSL_CTX(ssl_ctx_address);
-    JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_CTX_get_ciphers", ssl_ctx);
-    if (ssl_ctx == NULL) {
-        jniThrowNullPointerException(env, "SSL_CTX is null");
-        return NULL;
-    }
-    return makeCipherList(env, ssl_ctx->cipher_list);
-}
-
 /**
  * public static native void SSL_CTX_free(int ssl_ctx)
  */
@@ -1617,34 +1580,50 @@ static jlong NativeCrypto_SSL_clear_options(JNIEnv* env, jclass,
 }
 
 /**
- * Loads the ciphers suites that are enabled in the SSL
- * and returns them in a string array.
- */
-static jobjectArray NativeCrypto_SSL_get_ciphers(JNIEnv* env,
-        jclass, jint ssl_address)
-{
-    SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_get_ciphers", ssl);
-    if (ssl == NULL) {
-      return NULL;
-    }
-    return makeCipherList(env, SSL_get_ciphers(ssl));
-}
-
-/**
  * Sets the ciphers suites that are enabled in the SSL
  */
-static void NativeCrypto_SSL_set_cipher_list(JNIEnv* env, jclass,
-        jint ssl_address, jstring controlString)
+static void NativeCrypto_SSL_set_cipher_lists(JNIEnv* env, jclass,
+        jint ssl_address, jobjectArray cipherSuites)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_list controlString=%p", ssl, controlString);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists cipherSuites=%p", ssl, cipherSuites);
     if (ssl == NULL) {
-      return;
+        return;
     }
-    ScopedUtfChars str(env, controlString);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_controlString str=%s", ssl, str.c_str());
-    int rc = SSL_set_cipher_list(ssl, str.c_str());
+
+    STACK_OF(SSL_CIPHER)* cipherstack = sk_SSL_CIPHER_new_null();
+    if (cipherstack == NULL) {
+        jniThrowRuntimeException(env, "sk_SSL_CIPHER_new_null failed");
+        return;
+    }
+
+    const SSL_METHOD* ssl_method = ssl->method;
+    int num_ciphers = ssl_method->num_ciphers();
+
+    int length = env->GetArrayLength(cipherSuites);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists length=%d", ssl, length);
+    for (int i = 0; i < length; i++) {
+        jstring cipherSuite = (jstring) env->GetObjectArrayElement(cipherSuites, i);
+        ScopedUtfChars c(env, cipherSuite);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists cipherSuite=%s", ssl, c.c_str());
+        bool found = false;
+        for (int j = 0; j < num_ciphers; j++) {
+            const SSL_CIPHER* cipher = ssl_method->get_cipher(j);
+            if ((strcmp(c.c_str(), cipher->name) == 0)
+                    && (strcmp(SSL_CIPHER_get_version(cipher), "SSLv2"))) {
+                sk_SSL_CIPHER_push(cipherstack, cipher);
+                found = true;
+            }
+        }
+        if (!found) {
+            sk_SSL_CIPHER_free(cipherstack);
+            jniThrowException(env, "java/lang/IllegalArgumentException",
+                              "Could not find cipher suite.");
+            return;
+        }
+    }
+
+    int rc = SSL_set_cipher_lists(ssl, cipherstack);
     if (rc == 0) {
         freeSslErrorState();
         jniThrowException(env, "java/lang/IllegalArgumentException",
@@ -2561,53 +2540,51 @@ static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray bytes, 
  * (3) pointer to C function.
  */
 static JNINativeMethod sNativeCryptoMethods[] = {
-    { "clinit",              "()V",           (void*)NativeCrypto_clinit},
-    { "EVP_PKEY_new_DSA",    "([B[B[B[B[B)I", (void*)NativeCrypto_EVP_PKEY_new_DSA },
-    { "EVP_PKEY_new_RSA",    "([B[B[B[B[B)I", (void*)NativeCrypto_EVP_PKEY_new_RSA },
-    { "EVP_PKEY_free",       "(I)V",          (void*)NativeCrypto_EVP_PKEY_free },
-    { "EVP_new",             "()I",           (void*)NativeCrypto_EVP_new },
-    { "EVP_free",            "(I)V",          (void*)NativeCrypto_EVP_free },
-    { "EVP_DigestFinal",     "(I[BI)I",       (void*)NativeCrypto_EVP_DigestFinal },
-    { "EVP_DigestInit",      "(ILjava/lang/String;)V", (void*)NativeCrypto_EVP_DigestInit },
-    { "EVP_DigestBlockSize", "(I)I",          (void*)NativeCrypto_EVP_DigestBlockSize },
-    { "EVP_DigestSize",      "(I)I",          (void*)NativeCrypto_EVP_DigestSize },
-    { "EVP_DigestUpdate",    "(I[BII)V",      (void*)NativeCrypto_EVP_DigestUpdate },
-    { "EVP_VerifyInit",      "(ILjava/lang/String;)V", (void*)NativeCrypto_EVP_VerifyInit },
-    { "EVP_VerifyUpdate",    "(I[BII)V",      (void*)NativeCrypto_EVP_VerifyUpdate },
-    { "EVP_VerifyFinal",     "(I[BIII)I",     (void*)NativeCrypto_EVP_VerifyFinal },
-    { "verifySignature",     "([B[BLjava/lang/String;[B[B)I", (void*)NativeCrypto_verifysignature},
-    { "SSL_CTX_new",         "()I",           (void*)NativeCrypto_SSL_CTX_new },
-    { "SSL_CTX_get_ciphers", "(I)[Ljava/lang/String;", (void*)NativeCrypto_SSL_CTX_get_ciphers},
-    { "SSL_CTX_free",        "(I)V",          (void*)NativeCrypto_SSL_CTX_free },
-    { "SSL_new",             "(ILjava/lang/String;Ljava/lang/String;[B)I", (void*)NativeCrypto_SSL_new},
-    { "SSL_get_mode",        "(I)J",          (void*)NativeCrypto_SSL_get_mode },
-    { "SSL_set_mode",        "(IJ)J",         (void*)NativeCrypto_SSL_set_mode },
-    { "SSL_clear_mode",      "(IJ)J",         (void*)NativeCrypto_SSL_clear_mode },
-    { "SSL_get_options",     "(I)J",          (void*)NativeCrypto_SSL_get_options },
-    { "SSL_set_options",     "(IJ)J",         (void*)NativeCrypto_SSL_set_options },
-    { "SSL_clear_options",   "(IJ)J",         (void*)NativeCrypto_SSL_clear_options },
-    { "SSL_get_ciphers",     "(I)[Ljava/lang/String;", (void*)NativeCrypto_SSL_get_ciphers },
-    { "SSL_set_cipher_list", "(ILjava/lang/String;)V", (void*)NativeCrypto_SSL_set_cipher_list },
-    { "SSL_set_verify",      "(II)V",         (void*)NativeCrypto_SSL_set_verify},
-    { "SSL_set_session",     "(II)V",         (void*)NativeCrypto_SSL_set_session },
+    { "clinit",               "()V",           (void*)NativeCrypto_clinit},
+    { "EVP_PKEY_new_DSA",     "([B[B[B[B[B)I", (void*)NativeCrypto_EVP_PKEY_new_DSA },
+    { "EVP_PKEY_new_RSA",     "([B[B[B[B[B)I", (void*)NativeCrypto_EVP_PKEY_new_RSA },
+    { "EVP_PKEY_free",        "(I)V",          (void*)NativeCrypto_EVP_PKEY_free },
+    { "EVP_new",              "()I",           (void*)NativeCrypto_EVP_new },
+    { "EVP_free",             "(I)V",          (void*)NativeCrypto_EVP_free },
+    { "EVP_DigestFinal",      "(I[BI)I",       (void*)NativeCrypto_EVP_DigestFinal },
+    { "EVP_DigestInit",       "(ILjava/lang/String;)V", (void*)NativeCrypto_EVP_DigestInit },
+    { "EVP_DigestBlockSize",  "(I)I",          (void*)NativeCrypto_EVP_DigestBlockSize },
+    { "EVP_DigestSize",       "(I)I",          (void*)NativeCrypto_EVP_DigestSize },
+    { "EVP_DigestUpdate",     "(I[BII)V",      (void*)NativeCrypto_EVP_DigestUpdate },
+    { "EVP_VerifyInit",       "(ILjava/lang/String;)V", (void*)NativeCrypto_EVP_VerifyInit },
+    { "EVP_VerifyUpdate",     "(I[BII)V",      (void*)NativeCrypto_EVP_VerifyUpdate },
+    { "EVP_VerifyFinal",      "(I[BIII)I",     (void*)NativeCrypto_EVP_VerifyFinal },
+    { "verifySignature",      "([B[BLjava/lang/String;[B[B)I", (void*)NativeCrypto_verifysignature},
+    { "SSL_CTX_new",          "()I",           (void*)NativeCrypto_SSL_CTX_new },
+    { "SSL_CTX_free",         "(I)V",          (void*)NativeCrypto_SSL_CTX_free },
+    { "SSL_new",              "(ILjava/lang/String;Ljava/lang/String;[B)I", (void*)NativeCrypto_SSL_new},
+    { "SSL_get_mode",         "(I)J",          (void*)NativeCrypto_SSL_get_mode },
+    { "SSL_set_mode",         "(IJ)J",         (void*)NativeCrypto_SSL_set_mode },
+    { "SSL_clear_mode",       "(IJ)J",         (void*)NativeCrypto_SSL_clear_mode },
+    { "SSL_get_options",      "(I)J",          (void*)NativeCrypto_SSL_get_options },
+    { "SSL_set_options",      "(IJ)J",         (void*)NativeCrypto_SSL_set_options },
+    { "SSL_clear_options",    "(IJ)J",         (void*)NativeCrypto_SSL_clear_options },
+    { "SSL_set_cipher_lists", "(I[Ljava/lang/String;)V", (void*)NativeCrypto_SSL_set_cipher_lists },
+    { "SSL_set_verify",       "(II)V",         (void*)NativeCrypto_SSL_set_verify},
+    { "SSL_set_session",      "(II)V",         (void*)NativeCrypto_SSL_set_session },
     { "SSL_set_session_creation_enabled", "(IZ)V", (void*)NativeCrypto_SSL_set_session_creation_enabled },
-    { "SSL_do_handshake",    "(ILjava/net/Socket;Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$CertificateChainVerifier;Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$HandshakeCompletedCallback;IZ)I",(void*)NativeCrypto_SSL_do_handshake},
-    { "SSL_get_certificate", "(I)[[B",        (void*)NativeCrypto_SSL_get_certificate},
-    { "SSL_read_byte",       "(II)I",         (void*)NativeCrypto_SSL_read_byte},
-    { "SSL_read",            "(I[BIII)I",     (void*)NativeCrypto_SSL_read},
-    { "SSL_write_byte",      "(II)V",         (void*)NativeCrypto_SSL_write_byte},
-    { "SSL_write",           "(I[BII)V",      (void*)NativeCrypto_SSL_write},
-    { "SSL_interrupt",       "(I)V",          (void*)NativeCrypto_SSL_interrupt},
-    { "SSL_shutdown",        "(I)V",          (void*)NativeCrypto_SSL_shutdown},
-    { "SSL_free",            "(I)V",          (void*)NativeCrypto_SSL_free},
-    { "SSL_SESSION_session_id", "(I)[B",      (void*)NativeCrypto_SSL_SESSION_session_id },
+    { "SSL_do_handshake",     "(ILjava/net/Socket;Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$CertificateChainVerifier;Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$HandshakeCompletedCallback;IZ)I",(void*)NativeCrypto_SSL_do_handshake},
+    { "SSL_get_certificate",  "(I)[[B",        (void*)NativeCrypto_SSL_get_certificate},
+    { "SSL_read_byte",        "(II)I",         (void*)NativeCrypto_SSL_read_byte},
+    { "SSL_read",             "(I[BIII)I",     (void*)NativeCrypto_SSL_read},
+    { "SSL_write_byte",       "(II)V",         (void*)NativeCrypto_SSL_write_byte},
+    { "SSL_write",            "(I[BII)V",      (void*)NativeCrypto_SSL_write},
+    { "SSL_interrupt",        "(I)V",          (void*)NativeCrypto_SSL_interrupt},
+    { "SSL_shutdown",         "(I)V",          (void*)NativeCrypto_SSL_shutdown},
+    { "SSL_free",             "(I)V",          (void*)NativeCrypto_SSL_free},
+    { "SSL_SESSION_session_id", "(I)[B",       (void*)NativeCrypto_SSL_SESSION_session_id },
     { "SSL_SESSION_get_peer_cert_chain", "(II)[[B", (void*)NativeCrypto_SSL_SESSION_get_peer_cert_chain },
-    { "SSL_SESSION_get_time", "(I)J",         (void*)NativeCrypto_SSL_SESSION_get_time },
+    { "SSL_SESSION_get_time", "(I)J",          (void*)NativeCrypto_SSL_SESSION_get_time },
     { "SSL_SESSION_get_version", "(I)Ljava/lang/String;", (void*)NativeCrypto_SSL_SESSION_get_version },
-    { "SSL_SESSION_cipher",  "(I)Ljava/lang/String;", (void*)NativeCrypto_SSL_SESSION_cipher },
-    { "SSL_SESSION_free",    "(I)V",          (void*)NativeCrypto_SSL_SESSION_free },
-    { "i2d_SSL_SESSION",     "(I)[B",         (void*)NativeCrypto_i2d_SSL_SESSION },
-    { "d2i_SSL_SESSION",     "([BI)I",        (void*)NativeCrypto_d2i_SSL_SESSION },
+    { "SSL_SESSION_cipher",   "(I)Ljava/lang/String;", (void*)NativeCrypto_SSL_SESSION_cipher },
+    { "SSL_SESSION_free",     "(I)V",          (void*)NativeCrypto_SSL_SESSION_free },
+    { "i2d_SSL_SESSION",      "(I)[B",         (void*)NativeCrypto_i2d_SSL_SESSION },
+    { "d2i_SSL_SESSION",      "([BI)I",        (void*)NativeCrypto_d2i_SSL_SESSION },
 };
 
 int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env) {

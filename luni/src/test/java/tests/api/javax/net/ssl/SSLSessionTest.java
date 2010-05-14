@@ -178,7 +178,7 @@ public class SSLSessionTest extends TestCase {
     @AndroidOnly("Uses bks key store. Change useBKS to false to run on the RI")
     public void test_getCipherSuite() {
         try {
-            assertEquals(cipherSuite, clientSession.getCipherSuite());
+            assertEquals(CIPHER_SUITE, clientSession.getCipherSuite());
         } catch (Exception ex) {
             fail("Unexpected exception " + ex);
         }
@@ -571,9 +571,6 @@ public class SSLSessionTest extends TestCase {
         public void valueUnbound(SSLSessionBindingEvent event) {}
     }
 
-
-
-    String cipherSuiteBKS = "AES256-SHA";
     /**
      * Defines the keystore contents for the server, BKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
@@ -634,7 +631,7 @@ public class SSLSessionTest extends TestCase {
         "uJk07h3IZnNxE+/IKgeMTP/H4+jmyT4mhsexJ2BFHeiKF1KT/FMcJdSi+ZK5yoNVcYuY8aZbx0Ef" +
         "lHorCXAmLFB0W6Cz4KPP01nD9YBB4olxiK1t7m0AU9zscdivNiuUaB5OIEr+JuZ6dNw=";
 
-    String cipherSuiteJKS = "SSL_RSA_WITH_RC4_128_MD5";
+    private static final String CIPHER_SUITE = "SSL_RSA_WITH_RC4_128_MD5";
     /**
      * Defines the keystore contents for the server, JKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
@@ -706,8 +703,6 @@ public class SSLSessionTest extends TestCase {
     String testData = "PING";
 
     private String PASSWORD = "android";
-
-    String cipherSuite = (useBKS ? cipherSuiteBKS : cipherSuiteJKS);
 
     /**
      * Implements a test SSL socket server. It waits for a connection on a given

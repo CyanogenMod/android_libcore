@@ -16,32 +16,44 @@
 
 package javax.net.ssl;
 
-import dalvik.annotation.KnownFailure;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import junit.framework.TestCase;
 
 public class SSLSessionContextTest extends TestCase {
 
-    public static final void assertSSLSessionContextSize(int expected, SSLSessionContext s) {
-        assertEquals(expected, Collections.list(s.getIds()).size());
+    public static final void assertSSLSessionContextSize(int expected, SSLContext sslContext) {
+        assertSSLSessionContextSize(expected, 
+                                    sslContext.getClientSessionContext(),
+                                    sslContext.getServerSessionContext());
+    }
+
+    public static final void assertSSLSessionContextSize(int expected, 
+                                                         SSLSessionContext client, 
+                                                         SSLSessionContext server) {
+        assertSSLSessionContextSize(expected, client, false);
+        assertSSLSessionContextSize(expected, server, true);
+    }
+
+    public static final void assertSSLSessionContextSize(int expected, SSLSessionContext s, boolean server) {
+        int size = Collections.list(s.getIds()).size();
+        if (server && TestSSLContext.sslServerSocketSupportsSessionTickets()) {
+            assertEquals(0, size);
+        } else {
+            assertEquals(expected, size);
+        }
     }
 
     public void test_SSLSessionContext_getIds() {
         TestSSLContext c = TestSSLContext.create();
-        assertSSLSessionContextSize(0, c.sslContext.getClientSessionContext());
-        assertSSLSessionContextSize(0, c.sslContext.getServerSessionContext());
+        assertSSLSessionContextSize(0, c.sslContext);
 
         TestSSLSocketPair s = TestSSLSocketPair.create();
-        assertSSLSessionContextSize(1, s.c.sslContext.getClientSessionContext());
-        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-            assertSSLSessionContextSize(0, s.c.sslContext.getServerSessionContext());
-        } else {
-            assertSSLSessionContextSize(1, s.c.sslContext.getServerSessionContext());
-        }
+        assertSSLSessionContextSize(1, s.c.sslContext);
         Enumeration clientIds = s.c.sslContext.getClientSessionContext().getIds();
         Enumeration serverIds = s.c.sslContext.getServerSessionContext().getIds();
         byte[] clientId = (byte[]) clientIds.nextElement();
@@ -101,15 +113,15 @@ public class SSLSessionContextTest extends TestCase {
                      s.c.sslContext.getServerSessionContext().getSessionCacheSize());
     }
 
-    public void test_SSLSessionContext_setSessionCacheSize_basic() {
+    public void test_SSLSessionContext_setSessionCacheSize_noConnect() {
         TestSSLContext c = TestSSLContext.create();
-        assertBasicSetSessionCacheSizeBehavior(TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE,
-                                               c.sslContext.getClientSessionContext());
-        assertBasicSetSessionCacheSizeBehavior(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE,
-                                               c.sslContext.getServerSessionContext());
+        assertNoConnectSetSessionCacheSizeBehavior(TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE,
+                                                   c.sslContext.getClientSessionContext());
+        assertNoConnectSetSessionCacheSizeBehavior(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE,
+                                                   c.sslContext.getServerSessionContext());
     }
 
-    private static void assertBasicSetSessionCacheSizeBehavior(int expectedDefault, SSLSessionContext s) {
+    private static void assertNoConnectSetSessionCacheSizeBehavior(int expectedDefault, SSLSessionContext s) {
         try {
             s.setSessionCacheSize(-1);
             fail();
@@ -120,9 +132,7 @@ public class SSLSessionContextTest extends TestCase {
         assertEquals(1, s.getSessionCacheSize());
     }
 
-    @KnownFailure("Using OpenSSL cipher suite names")
-    public void test_SSLSessionContext_setSessionCacheSize_dynamic() {
-
+    public void test_SSLSessionContext_setSessionCacheSize_oneConnect() {
         TestSSLSocketPair s = TestSSLSocketPair.create();
         SSLSessionContext client = s.c.sslContext.getClientSessionContext();
         SSLSessionContext server = s.c.sslContext.getServerSessionContext();
@@ -130,21 +140,29 @@ public class SSLSessionContextTest extends TestCase {
                      client.getSessionCacheSize());
         assertEquals(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE,
                      server.getSessionCacheSize());
-        assertSSLSessionContextSize(1, client);
-        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-            assertSSLSessionContextSize(0, server);
-        } else {
-            assertSSLSessionContextSize(1, server);
-        }
+        assertSSLSessionContextSize(1, s.c.sslContext);
+    }
 
-        LinkedList<String> uniqueCipherSuites
-            = new LinkedList(Arrays.asList(s.server.getEnabledCipherSuites()));
-        uniqueCipherSuites.remove(s.client.getSession().getCipherSuite());
+    public void test_SSLSessionContext_setSessionCacheSize_dynamic() {
+        TestSSLContext c = TestSSLContext.create();
+        SSLSessionContext client = c.sslContext.getClientSessionContext();
+        SSLSessionContext server = c.sslContext.getServerSessionContext();
 
+        String[] supportedCipherSuites = c.serverSocket.getSupportedCipherSuites();
+        c.serverSocket.setEnabledCipherSuites(supportedCipherSuites);
+        LinkedList<String> uniqueCipherSuites 
+            = new LinkedList(Arrays.asList(supportedCipherSuites));
         // only use RSA cipher suites which will work with our TrustProvider
         Iterator<String> i = uniqueCipherSuites.iterator();
         while (i.hasNext()) {
             String cipherSuite = i.next();
+
+            // Certificate key length too long for export ciphers
+            if (cipherSuite.startsWith("SSL_RSA_EXPORT_")) {
+                i.remove();
+                continue;
+            }
+
             if (cipherSuite.startsWith("SSL_RSA_")) {
                 continue;
             }
@@ -161,7 +179,7 @@ public class SSLSessionContextTest extends TestCase {
         }
 
         /*
-         * having more than 5 uniqueCipherSuites is a test
+         * having more than 3 uniqueCipherSuites is a test
          * requirement, not a requirement of the interface or
          * implementation. It simply allows us to make sure that we
          * will not get a cached session ID since we'll have to
@@ -170,59 +188,32 @@ public class SSLSessionContextTest extends TestCase {
          * reused the unique cipher suites every time it resets the
          * session cache.
          */
-        // TODO Fix Known Failure
-        // Need to fix CipherSuites methods to use JSSE names
-        assertTrue(uniqueCipherSuites.size() > 5);
-
-        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 1
-        assertSSLSessionContextSize(2, client);
-        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-            assertSSLSessionContextSize(0, server);
-        } else {
-            assertSSLSessionContextSize(2, server);
-        }
-        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 2
-        assertSSLSessionContextSize(3, client);
-        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-            assertSSLSessionContextSize(0, server);
-        } else {
-            assertSSLSessionContextSize(3, server);
-        }
+        assertTrue(uniqueCipherSuites.size() >= 3);
+        String cipherSuite1 = uniqueCipherSuites.get(0);
+        String cipherSuite2 = uniqueCipherSuites.get(1);
+        String cipherSuite3 = uniqueCipherSuites.get(2);
+        
+        TestSSLSocketPair.connect(c, new String[] { cipherSuite1 });
+        assertSSLSessionContextSize(1, c.sslContext);
+        TestSSLSocketPair.connect(c, new String[] { cipherSuite2 });
+        assertSSLSessionContextSize(2, c.sslContext);
+        TestSSLSocketPair.connect(c, new String[] { cipherSuite3 });
+        assertSSLSessionContextSize(3, c.sslContext);
 
         client.setSessionCacheSize(1);
         server.setSessionCacheSize(1);
         assertEquals(1, client.getSessionCacheSize());
         assertEquals(1, server.getSessionCacheSize());
-        assertSSLSessionContextSize(1, client);
-        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-            assertSSLSessionContextSize(0, server);
-        } else {
-            assertSSLSessionContextSize(1, server);
-        }
-        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 3
-        assertSSLSessionContextSize(1, client);
-        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-            assertSSLSessionContextSize(0, server);
-        } else {
-            assertSSLSessionContextSize(1, server);
-        }
+        assertSSLSessionContextSize(1, c.sslContext);
+        TestSSLSocketPair.connect(c, new String[] { cipherSuite1 });
+        assertSSLSessionContextSize(1, c.sslContext);
 
         client.setSessionCacheSize(2);
         server.setSessionCacheSize(2);
-        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 4
-        assertSSLSessionContextSize(2, client);
-        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-            assertSSLSessionContextSize(0, server);
-        } else {
-            assertSSLSessionContextSize(2, server);
-        }
-        TestSSLSocketPair.connect(s.c, new String[] { uniqueCipherSuites.remove() }); // 5
-        assertSSLSessionContextSize(2, client);
-        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-            assertSSLSessionContextSize(0, server);
-        } else {
-            assertSSLSessionContextSize(2, server);
-        }
+        TestSSLSocketPair.connect(c, new String[] { cipherSuite2 });
+        assertSSLSessionContextSize(2, c.sslContext);
+        TestSSLSocketPair.connect(c, new String[] { cipherSuite3 });
+        assertSSLSessionContextSize(2, c.sslContext);
     }
 
     public void test_SSLSessionContext_getSessionTimeout() {
@@ -262,16 +253,10 @@ public class SSLSessionContextTest extends TestCase {
         }
 
         TestSSLSocketPair s = TestSSLSocketPair.create();
-        assertSSLSessionContextSize(1, s.c.sslContext.getClientSessionContext());
-        if (TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-            assertSSLSessionContextSize(0, s.c.sslContext.getServerSessionContext());
-        } else {
-            assertSSLSessionContextSize(1, s.c.sslContext.getServerSessionContext());
-        }
+        assertSSLSessionContextSize(1, s.c.sslContext);
         Thread.sleep(1 * 1000);
         s.c.sslContext.getClientSessionContext().setSessionTimeout(1);
         s.c.sslContext.getServerSessionContext().setSessionTimeout(1);
-        assertSSLSessionContextSize(0, s.c.sslContext.getClientSessionContext());
-        assertSSLSessionContextSize(0, s.c.sslContext.getServerSessionContext());
+        assertSSLSessionContextSize(0, s.c.sslContext);
     }
 }

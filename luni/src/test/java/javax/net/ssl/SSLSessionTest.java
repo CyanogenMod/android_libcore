@@ -47,6 +47,7 @@ public class SSLSessionTest extends TestCase {
         assertNotNull(s.client.getCipherSuite());
         assertEquals(s.server.getCipherSuite(),
                      s.client.getCipherSuite());
+        assertTrue(StandardNames.CIPHER_SUITES.contains(s.server.getCipherSuite()));
     }
 
     public void test_SSLSession_getCreationTime() {
@@ -199,6 +200,7 @@ public class SSLSessionTest extends TestCase {
         assertNotNull(s.client.getProtocol());
         assertEquals(s.server.getProtocol(),
                      s.client.getProtocol());
+        assertTrue(StandardNames.SSL_SOCKET_PROTOCOLS.contains(s.server.getProtocol()));
     }
 
     public void test_SSLSession_getSessionContext() {

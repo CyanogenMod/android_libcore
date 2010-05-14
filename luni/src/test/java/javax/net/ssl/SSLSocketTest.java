@@ -33,7 +33,6 @@ import junit.framework.TestCase;
 
 public class SSLSocketTest extends TestCase {
 
-    @KnownFailure("Using OpenSSL cipher suite names")
     public void test_SSLSocket_getSupportedCipherSuites() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
@@ -42,14 +41,12 @@ public class SSLSocketTest extends TestCase {
         assertTrue(cipherSuites.length != 0);
         Set remainingCipherSuites = new HashSet<String>(StandardNames.CIPHER_SUITES);
         for (String cipherSuite : cipherSuites) {
-            assertNotNull(remainingCipherSuites.remove(cipherSuite));
+            assertTrue(remainingCipherSuites.remove(cipherSuite));
         }
-        // TODO Fix Known Failure
-        // Need to fix CipherSuites methods to use JSSE names
         assertEquals(Collections.EMPTY_SET, remainingCipherSuites);
+        assertEquals(StandardNames.CIPHER_SUITES.size(), cipherSuites.length);
     }
 
-    @KnownFailure("Using OpenSSL cipher suite names")
     public void test_SSLSocket_getEnabledCipherSuites() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
@@ -66,8 +63,6 @@ public class SSLSocketTest extends TestCase {
 
         // Make sure all cipherSuites names are expected
         for (String cipherSuite : cipherSuites) {
-            // TODO Fix Known Failure
-            // Need to fix CipherSuites methods to use JSSE names
             assertTrue(StandardNames.CIPHER_SUITES.contains(cipherSuite));
         }
     }
