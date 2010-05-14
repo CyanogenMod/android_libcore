@@ -43,9 +43,7 @@ import org.apache.harmony.luni.platform.Platform;
 /*
  * The default implementation class of java.nio.channels.ServerSocketChannel.
  */
-public class ServerSocketChannelImpl extends ServerSocketChannel implements
-        FileDescriptorHandler {
-
+public class ServerSocketChannelImpl extends ServerSocketChannel implements FileDescriptorHandler {
     // The fd to interact with native code
     private final FileDescriptor fd;
 
@@ -67,8 +65,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
     public ServerSocketChannelImpl(SelectorProvider sp) throws IOException {
         super(sp);
         fd = new FileDescriptor();
-        Platform.getNetworkSystem().createStreamSocket(fd,
-                NetUtil.preferIPv4Stack());
+        Platform.getNetworkSystem().createStreamSocket(fd, NetUtil.preferIPv4Stack());
         impl = new PlainServerSocketImpl(fd);
         socket = new ServerSocketAdapter(impl, this);
     }
@@ -83,19 +80,11 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
         isBound = false;
     }
 
-    /*
-     * Getting the internal Socket If we have not the socket, we create a new
-     * one.
-     */
     public ServerSocket socket() {
         return socket;
     }
 
-    /*
-     *
-     * @see java.nio.channels.ServerSocketChannel#accept()
-     */
-    public SocketChannel accept() throws IOException {
+    @Override public SocketChannel accept() throws IOException {
         if (!isOpen()) {
             throw new ClosedChannelException();
         }
@@ -103,7 +92,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
             throw new NotYetBoundException();
         }
 
-        SocketChannel sockChannel = new SocketChannelImpl(SelectorProvider.provider(), false);
+        SocketChannelImpl sockChannel = new SocketChannelImpl(SelectorProvider.provider(), false);
         Socket socketGot = sockChannel.socket();
 
         try {
@@ -113,8 +102,6 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
                 synchronized (blockingLock()) {
                     boolean isBlocking = isBlocking();
                     if (!isBlocking) {
-                        // BEGIN android-changed
-                        //     copied from a newer version of Harmony
                         int[] tryResult = new int[1];
                         boolean success = Platform.getNetworkSystem().select(
                                 new FileDescriptor[] { this.fd },
@@ -123,13 +110,11 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
                             // no pending connections, returns immediately.
                             return null;
                         }
-                        // END android-changed
                     }
                     // do accept.
                     do {
                         try {
-                            ((ServerSocketAdapter) socket).accept(socketGot,
-                                    (SocketChannelImpl) sockChannel);
+                            ((ServerSocketAdapter) socket).accept(socketGot, sockChannel);
                             // select successfully, break out immediately.
                             break;
                         } catch (SocketTimeoutException e) {
@@ -150,8 +135,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
      *
      * (boolean)
      */
-    protected void implConfigureBlocking(boolean blockingMode)
-            throws IOException {
+    protected void implConfigureBlocking(boolean blockingMode) throws IOException {
         // Do nothing here. For real accept() operation in nonblocking mode,
         // it uses INetworkSystem.select. Whether a channel is blocking can be
         // decided by isBlocking() method.
@@ -186,8 +170,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
         /*
          * The Constructor.
          */
-        ServerSocketAdapter(SocketImpl impl,
-                ServerSocketChannelImpl aChannelImpl) {
+        ServerSocketAdapter(SocketImpl impl, ServerSocketChannelImpl aChannelImpl) {
             super(impl);
             this.channelImpl = aChannelImpl;
         }
@@ -196,8 +179,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
          *
          * @see java.net.ServerSocket#bind(java.net.SocketAddress, int)
          */
-        public void bind(SocketAddress localAddr, int backlog)
-                throws IOException {
+        public void bind(SocketAddress localAddr, int backlog) throws IOException {
             super.bind(localAddr, backlog);
             channelImpl.isBound = true;
         }
@@ -223,8 +205,7 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
         /*
          * do the accept.
          */
-        private Socket accept(Socket aSocket, SocketChannelImpl sockChannel)
-                throws IOException {
+        private Socket accept(Socket aSocket, SocketChannelImpl sockChannel) throws IOException {
             // a new socket is pass in so we do not need to "Socket aSocket =
             // new Socket();"
             boolean connectOK = false;
@@ -233,11 +214,11 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements
                     super.implAccept(aSocket);
                     sockChannel.setConnected();
                     sockChannel.setBound(true);
+                    sockChannel.finishAccept();
                 }
                 SecurityManager sm = System.getSecurityManager();
                 if (sm != null) {
-                    sm.checkAccept(aSocket.getInetAddress().getHostAddress(),
-                            aSocket.getPort());
+                    sm.checkAccept(aSocket.getInetAddress().getHostAddress(), aSocket.getPort());
                 }
                 connectOK = true;
             } finally {
