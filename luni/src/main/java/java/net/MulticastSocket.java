@@ -140,7 +140,7 @@ public class MulticastSocket extends DatagramSocket {
             // interface with only the any address. We do this to be
             // compatible
             InetAddress theAddresses[] = new InetAddress[1];
-            if (!Socket.preferIPv4Stack() && NetUtil.preferIPv6Addresses()) {
+            if (!NetUtil.preferIPv4Stack() && NetUtil.preferIPv6Addresses()) {
                 theAddresses[0] = Inet6Address.ANY;
             } else {
                 theAddresses[0] = Inet4Address.ANY;

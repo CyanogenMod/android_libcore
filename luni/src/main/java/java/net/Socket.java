@@ -1152,12 +1152,6 @@ public class Socket {
         this.localAddress = Platform.getNetworkSystem().getSocketLocalAddress(impl.fd);
     }
 
-    static boolean preferIPv4Stack() {
-        String result = AccessController.doPrivileged(new PriviAction<String>(
-                "java.net.preferIPv4Stack"));
-        return "true".equals(result);
-    }
-
     /**
      * Gets the SocketChannel of this socket, if one is available. The current
      * implementation of this method returns always {@code null}.
