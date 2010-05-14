@@ -110,6 +110,7 @@ static struct CachedFields {
     jclass socketimpl_class;
     jfieldID socketimpl_address;
     jfieldID socketimpl_port;
+    jfieldID socketimpl_localport;
     jclass dpack_class;
     jfieldID dpack_address;
     jfieldID dpack_port;
@@ -216,7 +217,7 @@ static int getSocketAddressPort(struct sockaddr_storage *address) {
 
 /**
  * Obtain the socket address family from an existing socket.
- * 
+ *
  * @param socket the file descriptor of the socket to examine
  * @return an integer, the address family of the socket
  */
@@ -459,7 +460,7 @@ static jbyteArray osNetworkSystem_ipStringToByteArray(JNIEnv* env, jobject,
 
     sockaddr_storage ss;
     memset(&ss, 0, sizeof(ss));
-    
+
     addrinfo* res = NULL;
     int ret = getaddrinfo(ipString, NULL, &hints, &res);
     if (ret == 0 && res) {
@@ -723,7 +724,7 @@ static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int time
          * set the timeout value to be used. Because on some unix platforms we
          * don't get notified when a socket is closed we only sleep for 100ms
          * at a time
-         * 
+         *
          * TODO: is this relevant for Android?
          */
         if (timeout > 100) {
@@ -1018,10 +1019,9 @@ static bool initCachedFields(JNIEnv* env) {
         {&c->boolean_class_value, c->boolean_class, "value", "Z"},
         {&c->byte_class_value, c->byte_class, "value", "B"},
         {&c->socketimpl_port, c->socketimpl_class, "port", "I"},
-        {&c->socketimpl_address, c->socketimpl_class, "address",
-                "Ljava/net/InetAddress;"},
-        {&c->dpack_address, c->dpack_class, "address",
-                "Ljava/net/InetAddress;"},
+        {&c->socketimpl_localport, c->socketimpl_class, "localport", "I"},
+        {&c->socketimpl_address, c->socketimpl_class, "address", "Ljava/net/InetAddress;"},
+        {&c->dpack_address, c->dpack_class, "address", "Ljava/net/InetAddress;"},
         {&c->dpack_port, c->dpack_class, "port", "I"},
         {&c->dpack_length, c->dpack_class, "length", "I"}
     };
@@ -1392,9 +1392,8 @@ static void osNetworkSystem_accept(JNIEnv* env, jobject,
     }
 
     sockaddr_storage sa;
-    socklen_t addrlen = sizeof(sa);
-    int clientFd = TEMP_FAILURE_RETRY(accept(serverFd,
-            reinterpret_cast<sockaddr*>(&sa), &addrlen));
+    socklen_t addrLen = sizeof(sa);
+    int clientFd = TEMP_FAILURE_RETRY(accept(serverFd, reinterpret_cast<sockaddr*>(&sa), &addrLen));
     if (clientFd == -1) {
         jniThrowSocketException(env, errno);
         return;
@@ -1406,17 +1405,26 @@ static void osNetworkSystem_accept(JNIEnv* env, jobject,
      * anonymous anyway.
      */
     if (sa.ss_family == AF_INET || sa.ss_family == AF_INET6) {
-        jobject inetAddress = socketAddressToInetAddress(env, &sa);
-        if (inetAddress == NULL) {
+        // Remote address and port.
+        jobject remoteAddress = socketAddressToInetAddress(env, &sa);
+        if (remoteAddress == NULL) {
             close(clientFd);
             return;
         }
+        int remotePort = getSocketAddressPort(&sa);
+        env->SetObjectField(newSocket, gCachedFields.socketimpl_address, remoteAddress);
+        env->SetIntField(newSocket, gCachedFields.socketimpl_port, remotePort);
 
-        env->SetObjectField(newSocket,
-                gCachedFields.socketimpl_address, inetAddress);
-
-        int port = getSocketAddressPort(&sa);
-        env->SetIntField(newSocket, gCachedFields.socketimpl_port, port);
+        // Local port.
+        memset(&sa, 0, addrLen);
+        int rc = getsockname(clientFd, reinterpret_cast<sockaddr*>(&sa), &addrLen);
+        if (rc == -1) {
+            close(clientFd);
+            jniThrowSocketException(env, errno);
+            return;
+        }
+        int localPort = getSocketAddressPort(&sa);
+        env->SetIntField(newSocket, gCachedFields.socketimpl_localport, localPort);
     }
 
     jniSetFileDescriptorOfFD(env, clientFileDescriptor, clientFd);
@@ -1494,7 +1502,7 @@ static jint osNetworkSystem_peekDatagram(JNIEnv* env, jobject,
     if (!jniGetFd(env, fileDescriptor, fd)) {
         return 0;
     }
-    
+
     sockaddr_storage sockAddr;
     socklen_t sockAddrLen = sizeof(sockAddr);
     ssize_t length = TEMP_FAILURE_RETRY(recvfrom(fd, NULL, 0, MSG_PEEK,
@@ -1593,7 +1601,7 @@ static jint osNetworkSystem_recvConnectedDatagramDirect(JNIEnv* env,
     if (!jniGetFd(env, fileDescriptor, fd)) {
         return 0;
     }
-    
+
     char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
     int mode = peek ? MSG_PEEK : 0;
     int actualLength = recvfrom(fd, buf, length, mode, NULL, NULL);
@@ -1786,15 +1794,15 @@ static bool initFdSet(JNIEnv* env, jobjectArray fdArray, jint count, fd_set* fdS
         if (fileDescriptor == NULL) {
             return false;
         }
-        
+
         const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
         if (!isValidFd(fd)) {
             LOGE("selectImpl: ignoring invalid fd %i", fd);
             continue;
         }
-        
+
         FD_SET(fd, fdSet);
-        
+
         if (fd > *maxFd) {
             *maxFd = fd;
         }
@@ -1814,7 +1822,7 @@ static bool translateFdSet(JNIEnv* env, jobjectArray fdArray, jint count, fd_set
         if (fileDescriptor == NULL) {
             return false;
         }
-        
+
         const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
         if (isValidFd(fd) && FD_ISSET(fd, &fdSet)) {
             flagArray[i + offset] = op;
@@ -1829,7 +1837,7 @@ static jboolean osNetworkSystem_selectImpl(JNIEnv* env, jclass,
         jobjectArray readFDArray, jobjectArray writeFDArray, jint countReadC,
         jint countWriteC, jintArray outFlags, jlong timeoutMs) {
     // LOGD("ENTER selectImpl");
-    
+
     // Initialize the fd_sets.
     int maxFd = -1;
     fd_set readFds;
@@ -1841,7 +1849,7 @@ static jboolean osNetworkSystem_selectImpl(JNIEnv* env, jclass,
     if (!initialized) {
         return -1;
     }
-    
+
     // Initialize the timeout, if any.
     timeval tv;
     timeval* tvp = NULL;
@@ -1849,7 +1857,7 @@ static jboolean osNetworkSystem_selectImpl(JNIEnv* env, jclass,
         tv = toTimeval(timeoutMs);
         tvp = &tv;
     }
-    
+
     // Perform the select.
     int result = select(maxFd + 1, &readFds, &writeFds, NULL, tvp);
     if (result == 0) {
@@ -1864,7 +1872,7 @@ static jboolean osNetworkSystem_selectImpl(JNIEnv* env, jclass,
             return JNI_FALSE;
         }
     }
-    
+
     // Translate the result into the int[] we're supposed to fill in.
     jint* flagArray = env->GetIntArrayElements(outFlags, NULL);
     if (flagArray == NULL) {

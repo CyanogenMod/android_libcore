@@ -53,8 +53,6 @@ public class PlainSocketImpl extends SocketImpl {
 
     private static Field fdField;
 
-    private static Field localportField;
-
     /**
      * used to store the trafficClass value which is simply returned as the
      * value that was set. We also need it to pass it to methods that specify an
@@ -109,28 +107,15 @@ public class PlainSocketImpl extends SocketImpl {
         try {
             if (newImpl instanceof PlainSocketImpl) {
                 PlainSocketImpl newPlainSocketImpl = (PlainSocketImpl) newImpl;
-                // BEGIN android-changed
-                // call accept instead of acceptStreamImpl (native impl is identical)
-                netImpl.accept(fd, newImpl, newPlainSocketImpl
-                        .getFileDescriptor(), receiveTimeout);
-                // END android-changed
-                newPlainSocketImpl.setLocalport(getLocalPort());
+                netImpl.accept(fd, newImpl, newPlainSocketImpl.getFileDescriptor(), receiveTimeout);
             } else {
                 // if newImpl is not an instance of PlainSocketImpl, use
                 // reflection to get/set protected fields.
-                if (null == fdField) {
+                if (fdField == null) {
                     fdField = getSocketImplField("fd");
                 }
                 FileDescriptor newFd = (FileDescriptor) fdField.get(newImpl);
-                // BEGIN android-changed
-                // call accept instead of acceptStreamImpl (native impl is identical)
                 netImpl.accept(fd, newImpl, newFd, receiveTimeout);
-                // END android-cahnged
-
-                if (null == localportField) {
-                    localportField = getSocketImplField("localport");
-                }
-                localportField.setInt(newImpl, getLocalPort());
             }
         } catch (InterruptedIOException e) {
             throw new SocketTimeoutException(e.getMessage());
@@ -157,6 +142,15 @@ public class PlainSocketImpl extends SocketImpl {
         });
     }
 
+    public void initLocalPort(int localPort) {
+        this.localport = localPort;
+    }
+
+    public void initRemoteAddressAndPort(InetAddress remoteAddress, int remotePort) {
+        this.address = remoteAddress;
+        this.port = remotePort;
+    }
+
     @Override
     protected synchronized int available() throws IOException {
         // we need to check if the input has been shutdown. If so
@@ -168,14 +162,13 @@ public class PlainSocketImpl extends SocketImpl {
     }
 
     @Override
-    protected void bind(InetAddress anAddr, int aPort) throws IOException {
-        netImpl.bind(fd, anAddr, aPort);
-        // PlainSocketImpl2.socketBindImpl2(fd, aPort, anAddr);
-        address = anAddr;
-        if (0 != aPort) {
-            localport = aPort;
+    protected void bind(InetAddress address, int port) throws IOException {
+        netImpl.bind(fd, address, port);
+        this.address = address;
+        if (port != 0) {
+            this.localport = port;
         } else {
-            localport = netImpl.getSocketLocalPort(fd);
+            this.localport = netImpl.getSocketLocalPort(fd);
         }
     }
 
@@ -211,9 +204,7 @@ public class PlainSocketImpl extends SocketImpl {
      * @throws IOException
      *             if an error occurs while connecting
      */
-    private void connect(InetAddress anAddr, int aPort, int timeout)
-            throws IOException {
-
+    private void connect(InetAddress anAddr, int aPort, int timeout) throws IOException {
         InetAddress normalAddr = anAddr.isAnyLocalAddress() ? InetAddress.getLocalHost() : anAddr;
         try {
             if (streaming) {
@@ -228,11 +219,10 @@ public class PlainSocketImpl extends SocketImpl {
                     }
                 }
             } else {
-            	netImpl.connectDatagram(fd, aPort, trafficClass, normalAddr);
+                netImpl.connectDatagram(fd, aPort, trafficClass, normalAddr);
             }
         } catch (ConnectException e) {
-            throw new ConnectException(anAddr + ":" + aPort + " - "
-                    + e.getMessage());
+            throw new ConnectException(anAddr + ":" + aPort + " - " + e.getMessage());
         }
         super.address = normalAddr;
         super.port = aPort;
@@ -515,10 +505,6 @@ public class PlainSocketImpl extends SocketImpl {
 
     FileDescriptor getFD() {
         return fd;
-    }
-
-    private void setLocalport(int localport) {
-        this.localport = localport;
     }
 
     int read(byte[] buffer, int offset, int count) throws IOException {
