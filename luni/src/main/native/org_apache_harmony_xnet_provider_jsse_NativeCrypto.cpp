@@ -37,7 +37,7 @@
 #include <openssl/ssl.h>
 
 #include "ScopedByteArray.h"
-#include "ScopedGlobalRef.h"
+#include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 
@@ -986,50 +986,61 @@ class AppData {
     int fdsEmergency[2];
     MUTEX_TYPE mutex;
     JNIEnv* env;
-    ScopedGlobalRef certificateChainVerifier;
-    ScopedGlobalRef handshakeCompletedCallback;
+    jobject certificateChainVerifier;
+    jobject handshakeCompletedCallback;
 
     /**
      * Creates our application data and attaches it to a given SSL connection.
      *
-     * @param ssl The SSL connection to attach the data to.
      * @param env The JNIEnv
      * @param ccv The CertificateChainVerifier
      * @param hcc The HandshakeCompletedCallback
      */
   public:
-    static AppData* create(JNIEnv* e,
-                           jobject certificateChainVerifier,
-                           jobject handshakeCompletedCallback) {
-        if (certificateChainVerifier == NULL) {
+    static AppData* create(JNIEnv* env,
+                           jobject ccv,
+                           jobject hcc) {
+        if (ccv == NULL || hcc == NULL) {
             return NULL;
         }
-        if (handshakeCompletedCallback == NULL) {
-            return NULL;
-        }
-        UniquePtr<AppData> appData(new AppData(e, certificateChainVerifier, handshakeCompletedCallback));
-        if (appData->certificateChainVerifier.get() == NULL) {
-            return NULL;
-        }
-        if (appData->handshakeCompletedCallback.get() == NULL) {
-            return NULL;
-        }
+        AppData* appData = new AppData(env);
         if (pipe(appData->fdsEmergency) == -1) {
+            destroy(env, appData);
             return NULL;
         }
         if (MUTEX_SETUP(appData->mutex) == -1) {
+            destroy(env, appData);
             return NULL;
         }
-        return appData.release();
+        appData->certificateChainVerifier = env->NewGlobalRef(ccv);
+        if (appData->certificateChainVerifier == NULL) {
+            destroy(env, appData);
+            return NULL;
+        }
+        appData->handshakeCompletedCallback = env->NewGlobalRef(hcc);
+        if (appData->handshakeCompletedCallback == NULL) {
+            destroy(env, appData);
+            return NULL;
+        }
+        return appData;
+    }
+
+    static void destroy(JNIEnv* env, AppData* appData) {
+        if (appData == NULL) {
+            return;
+        }
+        appData->cleanupGlobalRefs(env);
+        delete appData;
     }
 
   private:
-    AppData(JNIEnv* e, jobject ccv, jobject hcc) :
+    AppData(JNIEnv* env) :
             aliveAndKicking(1),
             waitingThreads(0),
-            env(e),
-            certificateChainVerifier(e, ccv),
-            handshakeCompletedCallback(e, hcc) {
+            env(NULL),
+            certificateChainVerifier(NULL),
+            handshakeCompletedCallback(NULL) {
+        setEnv(env);
         fdsEmergency[0] = -1;
         fdsEmergency[1] = -1;
     }
@@ -1037,7 +1048,6 @@ class AppData {
     /**
      * Destroys our application data, cleaning up everything in the process.
      */
-  public:
     ~AppData() {
         aliveAndKicking = 0;
         if (fdsEmergency[0] != -1) {
@@ -1049,20 +1059,29 @@ class AppData {
         MUTEX_CLEANUP(mutex);
     }
 
-    void setEnv(JNIEnv* e) {
-        if (handshakeCompletedCallback.get() == NULL) {
-            return;
+    void cleanupGlobalRefs(JNIEnv* env) {
+        if (certificateChainVerifier != NULL) {
+            env->DeleteGlobalRef(certificateChainVerifier);
+            certificateChainVerifier = NULL;
         }
+        if (handshakeCompletedCallback != NULL) {
+            env->DeleteGlobalRef(handshakeCompletedCallback);
+            handshakeCompletedCallback = NULL;
+        }
+        clearEnv();
+    }
+
+  public:
+    void setEnv(JNIEnv* e) {
         env = e;
     }
+
     void clearEnv() {
         env = NULL;
     }
 
-    void handshakeCompleted() {
-        certificateChainVerifier.reset();
-        handshakeCompletedCallback.reset();
-        clearEnv();
+    void handshakeCompleted(JNIEnv* e) {
+        cleanupGlobalRefs(e);
     }
 };
 
@@ -1229,7 +1248,7 @@ static int cert_verify_callback(X509_STORE_CTX* x509_store_ctx, void* arg __attr
         JNI_TRACE("ssl=%p cert_verify_callback => 0", ssl);
         return 0;
     }
-    jobject certificateChainVerifier = appData->certificateChainVerifier.get();
+    jobject certificateChainVerifier = appData->certificateChainVerifier;
 
     jclass cls = env->GetObjectClass(certificateChainVerifier);
     jmethodID methodID = env->GetMethodID(cls, "verifyCertificateChain", "([[BLjava/lang/String;)V");
@@ -1281,7 +1300,7 @@ static void info_callback(const SSL *ssl, int where, int ret __attribute__ ((unu
         JNI_TRACE("ssl=%p info_callback env error", ssl);
         return;
     }
-    jobject handshakeCompletedCallback = appData->handshakeCompletedCallback.get();
+    jobject handshakeCompletedCallback = appData->handshakeCompletedCallback;
 
     jclass cls = env->GetObjectClass(handshakeCompletedCallback);
     jmethodID methodID = env->GetMethodID(cls, "handshakeCompleted", "()V");
@@ -1293,7 +1312,7 @@ static void info_callback(const SSL *ssl, int where, int ret __attribute__ ((unu
       JNI_TRACE("ssl=%p info_callback exception", ssl);
     }
 
-    appData->handshakeCompleted();
+    appData->handshakeCompleted(env);
     JNI_TRACE("ssl=%p info_callback completed", ssl);
 }
 
@@ -1603,8 +1622,8 @@ static void NativeCrypto_SSL_set_cipher_lists(JNIEnv* env, jclass,
     int length = env->GetArrayLength(cipherSuites);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists length=%d", ssl, length);
     for (int i = 0; i < length; i++) {
-        jstring cipherSuite = (jstring) env->GetObjectArrayElement(cipherSuites, i);
-        ScopedUtfChars c(env, cipherSuite);
+        ScopedLocalRef cipherSuite(env, env->GetObjectArrayElement(cipherSuites, i));
+        ScopedUtfChars c(env, reinterpret_cast<jstring>(cipherSuite.get()));
         JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists cipherSuite=%s", ssl, c.c_str());
         bool found = false;
         for (int j = 0; j < num_ciphers; j++) {
@@ -1776,6 +1795,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
         return 0;
     }
     SSL_set_app_data(ssl, (char*) appData);
+    JNI_TRACE("ssl=%p AppData::create => %p", ssl, appData);
 
     if (client_mode) {
         SSL_set_connect_state(ssl);
@@ -2368,11 +2388,12 @@ static void NativeCrypto_SSL_free(JNIEnv* env, jclass, jint ssl_address)
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_free", ssl);
     if (ssl == NULL) {
-      return;
+        return;
     }
     AppData* appData = (AppData*) SSL_get_app_data(ssl);
     SSL_set_app_data(ssl, NULL);
-    delete appData;
+    JNI_TRACE("ssl=%p AppData::destroy(%p)", ssl, appData);
+    AppData::destroy(env, appData);
     SSL_free(ssl);
 }
 
