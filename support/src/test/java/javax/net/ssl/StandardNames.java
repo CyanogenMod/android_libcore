@@ -23,10 +23,16 @@ import java.util.Set;
 
 /**
  * This class defines expected string names for protocols, key types, client and server auth types, cipher suites.
- * 
- * Based on documentation from http://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#AppA
  *
- * Java 6 version http://java.sun.com/javase/6/docs/technotes/guides/security/SunProviders.html
+ * Initially based on "Appendix A: Standard Names" of
+ * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#AppA">
+ * Java Secure Socket Extension (JSSE) Reference Guide for the JavaTM 2 Platform Standard Edition 5
+ * </a>
+ *
+ * Updated based on the "The SunJSSE Provider" section of
+ * <a href="java.sun.com/javase/6/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider">
+ * Java Cryptography Architecture Sun Providers Documentation for JavaTM Platform Standard Edition 6
+ * </a>
  */
 public final class StandardNames {
 
@@ -161,12 +167,12 @@ public final class StandardNames {
         // Old non standard exportable encryption
         CIPHER_SUITES_NEITHER.add("SSL_RSA_EXPORT1024_WITH_DES_CBC_SHA");
         CIPHER_SUITES_NEITHER.add("SSL_RSA_EXPORT1024_WITH_RC4_56_SHA");
-        
+
         // No RC2
         CIPHER_SUITES_NEITHER.add("SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5");
         CIPHER_SUITES_NEITHER.add("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA");
         CIPHER_SUITES_NEITHER.add("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
-        
+
         CIPHER_SUITES = (TestSSLContext.IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
     }
 }
