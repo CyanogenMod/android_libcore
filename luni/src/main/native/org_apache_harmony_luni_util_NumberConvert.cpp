@@ -22,7 +22,7 @@
 #include "JNIHelp.h"
 #include "cbigint.h"
 
-#if defined(LINUX) || defined(FREEBSD)
+#if defined(__linux__) || defined(FREEBSD)
 #define USE_LL
 #endif
 
@@ -63,7 +63,7 @@
  *           1.234123412431233E107
  *           1.2341234124312331E107
  *           1.2341234124312331E107
- * 
+ *
  */
 JNIEXPORT void JNICALL
 Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (

@@ -18,7 +18,6 @@
 #if !defined(cbigint_h)
 #define cbigint_h
 
-#include "hycomp.h"
 #include "fltconst.h"
 #include "JNIHelp.h"
 

@@ -552,7 +552,7 @@ static long toMs(const timeval& tv) {
  * @return 0 on failure, time value in milliseconds on success.
  * @deprecated Use @ref time_hires_clock and @ref time_hires_delta
  *
- * technically, this should return I_64 since both timeval.tv_sec and
+ * technically, this should return uint64_t since both timeval.tv_sec and
  * timeval.tv_usec are long
  */
 

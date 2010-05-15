@@ -23,7 +23,7 @@
 
 
 /* ************************* Defines ************************* */
-#if defined(LINUX) || defined(FREEBSD)
+#if defined(__linux__) || defined(FREEBSD)
 #define USE_LL
 #endif
 

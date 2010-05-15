@@ -22,7 +22,7 @@
 #include "commonDblParce.h"
 #include "cbigint.h"
 
-#if defined(LINUX) || defined(FREEBSD) || defined(ZOS)
+#if defined(__linux__) || defined(FREEBSD) || defined(ZOS)
 #define USE_LL
 #endif
 
