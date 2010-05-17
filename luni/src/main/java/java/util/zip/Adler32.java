@@ -19,10 +19,8 @@ package java.util.zip;
 
 /**
  * The Adler-32 class is used to compute the {@code Adler32} checksum from a set
- * of data. Compared to the CRC-32 algorithm it trades reliabilty for speed.
+ * of data. Compared to {@link CRC32} it trades reliability for speed.
  * Refer to RFC 1950 for the specification.
- *
- * @see CRC32
  */
 public class Adler32 implements java.util.zip.Checksum {
 

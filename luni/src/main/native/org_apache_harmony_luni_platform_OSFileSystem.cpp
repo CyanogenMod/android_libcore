@@ -30,7 +30,7 @@
 
 #include "JNIHelp.h"
 #include "LocalArray.h"
-#include "ScopedByteArray.h"
+#include "ScopedPrimitiveArray.h"
 #include "UniquePtr.h"
 
 #include <assert.h>
@@ -198,16 +198,13 @@ static iovec* initIoVec(JNIEnv* env,
         jniThrowException(env, "java/lang/OutOfMemoryError", "native heap");
         return NULL;
     }
-    jint *buffers = env->GetIntArrayElements(jBuffers, NULL);
-    jint *offsets = env->GetIntArrayElements(jOffsets, NULL);
-    jint *lengths = env->GetIntArrayElements(jLengths, NULL);
+    ScopedIntArray buffers(env, jBuffers);
+    ScopedIntArray offsets(env, jOffsets);
+    ScopedIntArray lengths(env, jLengths);
     for (int i = 0; i < size; ++i) {
         vectors[i].iov_base = reinterpret_cast<void*>(buffers[i] + offsets[i]);
         vectors[i].iov_len = lengths[i];
     }
-    env->ReleaseIntArrayElements(jBuffers, buffers, JNI_ABORT);
-    env->ReleaseIntArrayElements(jOffsets, offsets, JNI_ABORT);
-    env->ReleaseIntArrayElements(jLengths, lengths, JNI_ABORT);
     return vectors;
 }
 
@@ -297,7 +294,6 @@ static jlong harmony_io_readImpl(JNIEnv* env, jobject, jint fd,
     jbyte* bytes = env->GetByteArrayElements(byteArray, NULL);
     jlong rc = TEMP_FAILURE_RETRY(read(fd, bytes + offset, nbytes));
     env->ReleaseByteArrayElements(byteArray, bytes, 0);
-
     if (rc == 0) {
         return -1;
     }
@@ -315,10 +311,8 @@ static jlong harmony_io_readImpl(JNIEnv* env, jobject, jint fd,
 static jlong harmony_io_writeImpl(JNIEnv* env, jobject, jint fd,
         jbyteArray byteArray, jint offset, jint nbytes) {
 
-    jbyte* bytes = env->GetByteArrayElements(byteArray, NULL);
-    jlong result = TEMP_FAILURE_RETRY(write(fd, bytes + offset, nbytes));
-    env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT);
-
+    ScopedByteArray bytes(env, byteArray);
+    jlong result = TEMP_FAILURE_RETRY(write(fd, bytes.get() + offset, nbytes));
     if (result == -1) {
         if (errno == EAGAIN) {
             jniThrowException(env, "java/io/InterruptedIOException",
@@ -425,16 +419,15 @@ static jint harmony_io_openImpl(JNIEnv* env, jobject, jbyteArray pathByteArray,
     flags = EsTranslateOpenFlags(flags);
 
     ScopedByteArray path(env, pathByteArray);
-    jint rc = TEMP_FAILURE_RETRY(open(&path[0], flags, mode));
+    jint rc = TEMP_FAILURE_RETRY(open(reinterpret_cast<const char*>(&path[0]), flags, mode));
     if (rc == -1) {
         // Get the human-readable form of errno.
         char buffer[80];
         const char* reason = jniStrError(errno, &buffer[0], sizeof(buffer));
 
         // Construct a message that includes the path and the reason.
-        // (pathByteCount already includes space for our trailing NUL.)
-        size_t pathByteCount = env->GetArrayLength(pathByteArray);
-        LocalArray<128> message(pathByteCount + 2 + strlen(reason) + 1);
+        // (path.size() already includes space for our trailing NUL.)
+        LocalArray<128> message(path.size() + 2 + strlen(reason) + 1);
         snprintf(&message[0], message.size(), "%s (%s)", &path[0], reason);
 
         // We always throw FileNotFoundException, regardless of the specific

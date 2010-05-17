@@ -25,6 +25,7 @@
 
 #include "JNIHelp.h"
 #include "LocalArray.h"
+#include "ScopedPrimitiveArray.h"
 #include "jni.h"
 
 #include <arpa/inet.h>
@@ -1671,12 +1672,10 @@ static jint osNetworkSystem_sendDatagramDirect(JNIEnv* env, jobject,
 static jint osNetworkSystem_sendDatagram(JNIEnv* env, jobject,
         jobject fd, jbyteArray data, jint offset, jint length, jint port,
         jboolean bindToDevice, jint trafficClass, jobject inetAddress) {
-    jbyte *bytes = env->GetByteArrayElements(data, NULL);
-    int actualLength = osNetworkSystem_sendDatagramDirect(env, NULL, fd,
-            (jint)bytes, offset, length, port, bindToDevice, trafficClass,
-            inetAddress);
-    env->ReleaseByteArrayElements(data, bytes, JNI_ABORT);
-    return actualLength;
+    ScopedByteArray bytes(env, data);
+    return osNetworkSystem_sendDatagramDirect(env, NULL, fd,
+            reinterpret_cast<uintptr_t>(bytes.get()), offset, length, port,
+            bindToDevice, trafficClass, inetAddress);
 }
 
 static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env,
@@ -1704,12 +1703,9 @@ static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env,
 static jint osNetworkSystem_sendConnectedDatagram(JNIEnv* env, jobject,
         jobject fd, jbyteArray data, jint offset, jint length,
         jboolean bindToDevice) {
-    jbyte *bytes = env->GetByteArrayElements(data, NULL);
-    int actualLength = osNetworkSystem_sendConnectedDatagramDirect(env,
-            NULL, fd, (jint)bytes, offset, length, bindToDevice);
-    env->ReleaseByteArrayElements(data, bytes, JNI_ABORT);
-
-    return actualLength;
+    ScopedByteArray bytes(env, data);
+    return osNetworkSystem_sendConnectedDatagramDirect(env, NULL, fd,
+            reinterpret_cast<uintptr_t>(bytes.get()), offset, length, bindToDevice);
 }
 
 static void osNetworkSystem_createServerStreamSocket(JNIEnv* env, jobject,
