@@ -73,6 +73,8 @@ public final class StandardNames {
         "RSA_EXPORT1024",
         "UNKNOWN"));
 
+    public static final String CIPHER_SUITE_INVALID = "SSL_NULL_WITH_NULL_NULL";
+
     public static final Set<String> CIPHER_SUITES_NEITHER = new HashSet<String>();
 
     public static final Set<String> CIPHER_SUITES_RI = new LinkedHashSet<String>();

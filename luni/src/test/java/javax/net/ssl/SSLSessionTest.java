@@ -38,11 +38,10 @@ public class SSLSessionTest extends TestCase {
         assertTrue(s.client.getApplicationBufferSize() > 0);
     }
 
-    @KnownFailure("Expected SSL_NULL_WITH_NULL_NULL but received TLS_NULL_WITH_NULL_NULL")
     public void test_SSLSession_getCipherSuite() {
         TestSSLSessions s = TestSSLSessions.create();
         assertNotNull(s.invalid.getCipherSuite());
-        assertEquals("SSL_NULL_WITH_NULL_NULL", s.invalid.getCipherSuite());
+        assertEquals(StandardNames.CIPHER_SUITE_INVALID, s.invalid.getCipherSuite());
         assertNotNull(s.server.getCipherSuite());
         assertNotNull(s.client.getCipherSuite());
         assertEquals(s.server.getCipherSuite(),
