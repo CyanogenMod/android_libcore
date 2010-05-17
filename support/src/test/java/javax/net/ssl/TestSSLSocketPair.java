@@ -39,17 +39,20 @@ public final class TestSSLSocketPair {
      */
     public static TestSSLSocketPair create () {
         TestSSLContext c = TestSSLContext.create();
-        SSLSocket[] sockets = connect(c, null);
+        SSLSocket[] sockets = connect(c, null, null);
         return new TestSSLSocketPair(c, sockets[0], sockets[1]);
     }
 
     /**
      * Create a new connected server/client socket pair within a
-     * existing SSLContext. Optional clientCipherSuites allows
-     * forcing new SSLSession to test SSLSessionContext caching
+     * existing SSLContext. Optionally specify clientCipherSuites to
+     * allow forcing new SSLSession to test SSLSessionContext
+     * caching. Optionally specify serverCipherSuites for testing
+     * cipher suite negotiation.
      */
     public static SSLSocket[] connect (final TestSSLContext c,
-                                       String[] clientCipherSuites) {
+                                       final String[] clientCipherSuites,
+                                       final String[] serverCipherSuites) {
         try {
             SSLSocket client = (SSLSocket)
                 c.sslContext.getSocketFactory().createSocket(c.host, c.port);
@@ -57,6 +60,9 @@ public final class TestSSLSocketPair {
             Thread thread = new Thread(new Runnable () {
                     public void run() {
                         try {
+                            if (serverCipherSuites != null) {
+                                server.setEnabledCipherSuites(serverCipherSuites);
+                            }
                             server.startHandshake();
                         } catch (RuntimeException e) {
                             throw e;

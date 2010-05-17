@@ -159,8 +159,6 @@ public class SSLContextTest extends TestCase {
         assertNotNull(testContext);
         assertNotNull(testContext.keyStore);
         assertNull(testContext.keyStorePassword);
-        assertNotNull(testContext.publicAlias);
-        assertNotNull(testContext.privateAlias);
         assertNotNull(testContext.sslContext);
         assertNotNull(testContext.serverSocket);
         assertNotNull(testContext.host);

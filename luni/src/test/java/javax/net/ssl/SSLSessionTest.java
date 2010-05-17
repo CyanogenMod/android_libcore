@@ -95,8 +95,8 @@ public class SSLSessionTest extends TestCase {
         assertNull(s.client.getLocalCertificates());
         assertNotNull(s.server.getLocalCertificates());
         assertEquals(1, s.server.getLocalCertificates().length);
-        assertEquals(s.s.c.keyStore.getCertificate(s.s.c.publicAlias),
-                     s.server.getLocalCertificates()[0]);
+        TestSSLContext.assertCertificateInKeyStore(s.server.getLocalCertificates()[0],
+                                                   s.s.c.keyStore);
     }
 
     @KnownFailure("client local principal should be null as it should not have been requested by server")
@@ -108,10 +108,8 @@ public class SSLSessionTest extends TestCase {
         assertNull(s.client.getLocalPrincipal());
         assertNotNull(s.server.getLocalPrincipal());
         assertNotNull(s.server.getLocalPrincipal().getName());
-        X509Certificate x509certificate = (X509Certificate)
-            s.s.c.keyStore.getCertificate(s.s.c.publicAlias);
-        assertEquals(x509certificate.getSubjectDN().getName(),
-                     s.server.getLocalPrincipal().getName());
+        TestSSLContext.assertCertificateInKeyStore(s.server.getLocalPrincipal(),
+                                                   s.s.c.keyStore);
     }
 
     public void test_SSLSession_getPacketBufferSize() {
@@ -130,8 +128,9 @@ public class SSLSessionTest extends TestCase {
         }
         assertNotNull(s.client.getPeerCertificates());
         assertEquals(1, s.client.getPeerCertificates().length);
-        assertEquals(s.s.c.keyStore.getCertificate(s.s.c.publicAlias),
-                     s.client.getPeerCertificates()[0]);
+        TestSSLContext.assertCertificateInKeyStore(s.client.getPeerCertificates()[0],
+                                                   s.s.c.keyStore);
+
         try {
             assertNull(s.server.getPeerCertificates());
             fail();
@@ -148,8 +147,8 @@ public class SSLSessionTest extends TestCase {
         }
         assertNotNull(s.client.getPeerCertificates());
         assertEquals(1, s.client.getPeerCertificates().length);
-        assertEquals(s.s.c.keyStore.getCertificate(s.s.c.publicAlias),
-                     s.client.getPeerCertificates()[0]);
+        TestSSLContext.assertCertificateInKeyStore(s.client.getPeerCertificates()[0],
+                                                   s.s.c.keyStore);
         try {
             s.server.getPeerCertificates();
             fail();
@@ -185,11 +184,8 @@ public class SSLSessionTest extends TestCase {
         }
         assertNotNull(s.client.getPeerPrincipal());
         assertNotNull(s.client.getPeerPrincipal().getName());
-        X509Certificate x509certificate = (X509Certificate)
-            s.s.c.keyStore.getCertificate(s.s.c.publicAlias);
-        assertEquals(x509certificate.getSubjectDN().getName(),
-                     s.client.getPeerPrincipal().getName());
-
+        TestSSLContext.assertCertificateInKeyStore(s.client.getPeerPrincipal(),
+                                                   s.s.c.keyStore);
     }
 
     public void test_SSLSession_getProtocol() {

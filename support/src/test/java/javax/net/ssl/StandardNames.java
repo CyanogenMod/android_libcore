@@ -93,60 +93,65 @@ public final class StandardNames {
         addOpenSsl(cipherSuite);
     }
 
+    private static final void addNeither(String cipherSuite) {
+        CIPHER_SUITES_NEITHER.add(cipherSuite);
+    }
+
     static {
         // Note these are added in priority order as defined by RI 6 documentation.
+        // Android currently does not support Elliptic Curve or Diffie-Hellman
         addBoth(   "SSL_RSA_WITH_RC4_128_MD5");
         addBoth(   "SSL_RSA_WITH_RC4_128_SHA");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
         addOpenSsl("TLS_RSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
-        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_ECDH_RSA_WITH_RC4_128_SHA");
-        addOpenSsl("TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
-        addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_ECDHE_RSA_WITH_RC4_128_SHA");
-        addOpenSsl("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
+        addNeither("TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
+        addNeither("TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
+        addNeither("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+        addNeither("TLS_ECDH_RSA_WITH_RC4_128_SHA");
+        addNeither("TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
+        addNeither("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
+        addNeither("TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
+        addNeither("TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
+        addNeither("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
+        addNeither("TLS_ECDHE_RSA_WITH_RC4_128_SHA");
+        addNeither("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
+        addNeither("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
+        addNeither("TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
+        addNeither("TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_3DES_EDE_CBC_SHA");
-        addOpenSsl("TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
-        addOpenSsl("TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
-        addOpenSsl("TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
-        addOpenSsl("TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
+        addNeither("TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
+        addNeither("TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
+        addNeither("TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
+        addNeither("TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_DES_CBC_SHA");
-        addBoth(   "SSL_DHE_RSA_WITH_DES_CBC_SHA");
-        addBoth(   "SSL_DHE_DSS_WITH_DES_CBC_SHA");
+        addRi(     "SSL_DHE_RSA_WITH_DES_CBC_SHA");
+        addRi(     "SSL_DHE_DSS_WITH_DES_CBC_SHA");
         addBoth(   "SSL_RSA_EXPORT_WITH_RC4_40_MD5");
         addBoth(   "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA");
-        addBoth(   "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
-        addBoth(   "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
+        addRi(     "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
+        addRi(     "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_NULL_MD5");
         addBoth(   "SSL_RSA_WITH_NULL_SHA");
-        addOpenSsl("TLS_ECDH_ECDSA_WITH_NULL_SHA");
-        addOpenSsl("TLS_ECDH_RSA_WITH_NULL_SHA");
-        addOpenSsl("TLS_ECDHE_ECDSA_WITH_NULL_SHA");
-        addOpenSsl("TLS_ECDHE_RSA_WITH_NULL_SHA");
-        addBoth(   "SSL_DH_anon_WITH_RC4_128_MD5");
-        addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_DH_anon_WITH_AES_256_CBC_SHA");
-        addBoth(   "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_DH_anon_WITH_DES_CBC_SHA");
-        addOpenSsl("TLS_ECDH_anon_WITH_RC4_128_SHA");
-        addOpenSsl("TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
-        addOpenSsl("TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
-        addBoth(   "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
-        addOpenSsl("TLS_ECDH_anon_WITH_NULL_SHA");
+        addNeither("TLS_ECDH_ECDSA_WITH_NULL_SHA");
+        addNeither("TLS_ECDH_RSA_WITH_NULL_SHA");
+        addNeither("TLS_ECDHE_ECDSA_WITH_NULL_SHA");
+        addNeither("TLS_ECDHE_RSA_WITH_NULL_SHA");
+        addRi(     "SSL_DH_anon_WITH_RC4_128_MD5");
+        addRi(     "TLS_DH_anon_WITH_AES_128_CBC_SHA");
+        addNeither("TLS_DH_anon_WITH_AES_256_CBC_SHA");
+        addRi(     "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "SSL_DH_anon_WITH_DES_CBC_SHA");
+        addNeither("TLS_ECDH_anon_WITH_RC4_128_SHA");
+        addNeither("TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
+        addNeither("TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
+        addNeither("TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
+        addRi(     "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
+        addNeither("TLS_ECDH_anon_WITH_NULL_SHA");
 
         // Android does not have Keberos support
         addRi     ("TLS_KRB5_WITH_RC4_128_SHA");
@@ -161,17 +166,17 @@ public final class StandardNames {
         addRi     ("TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5");
 
         // Dropped
-        CIPHER_SUITES_NEITHER.add("SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
-        CIPHER_SUITES_NEITHER.add("SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA");
+        addNeither("SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
+        addNeither("SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA");
 
         // Old non standard exportable encryption
-        CIPHER_SUITES_NEITHER.add("SSL_RSA_EXPORT1024_WITH_DES_CBC_SHA");
-        CIPHER_SUITES_NEITHER.add("SSL_RSA_EXPORT1024_WITH_RC4_56_SHA");
+        addNeither("SSL_RSA_EXPORT1024_WITH_DES_CBC_SHA");
+        addNeither("SSL_RSA_EXPORT1024_WITH_RC4_56_SHA");
 
         // No RC2
-        CIPHER_SUITES_NEITHER.add("SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5");
-        CIPHER_SUITES_NEITHER.add("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA");
-        CIPHER_SUITES_NEITHER.add("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
+        addNeither("SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5");
+        addNeither("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA");
+        addNeither("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
 
         CIPHER_SUITES = (TestSSLContext.IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
     }

@@ -21,6 +21,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.security.Key;
+import java.security.KeyStore;
 import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -33,7 +34,7 @@ import junit.framework.TestCase;
 
 public class SSLSocketTest extends TestCase {
 
-    public void test_SSLSocket_getSupportedCipherSuites() throws Exception {
+    public void test_SSLSocket_getSupportedCipherSuites_names() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] cipherSuites = ssl.getSupportedCipherSuites();
@@ -45,6 +46,26 @@ public class SSLSocketTest extends TestCase {
         }
         assertEquals(Collections.EMPTY_SET, remainingCipherSuites);
         assertEquals(StandardNames.CIPHER_SUITES.size(), cipherSuites.length);
+    }
+
+    @KnownFailure("Need to support SSL_RSA_EXPORT_WITH_RC4_40_MD5")
+    public void test_SSLSocket_getSupportedCipherSuites_connect() throws Exception {
+        TestSSLContext c = TestSSLContext.create();
+        String[] cipherSuites = c.sslContext.getSocketFactory().getSupportedCipherSuites();
+        for (String cipherSuite : cipherSuites) {
+            if (cipherSuite.startsWith("TLS_KRB5_")) {
+                /*
+                 * Kerberos cipher suites require external setup. See "3.1 Kerberos Requirements" in
+                 * http://midatl.radford.edu/docs/java-se-5/docs/guide/security/jsse/jsse-tiger-beta1.html#KRB
+                 */
+                continue;
+            }
+            // System.out.println("Trying to connect cipher suite " + cipherSuite);
+            String[] cipherSuiteArray = new String[] { cipherSuite };
+            // TODO Fix Known Failure
+            // Need to support SSL_RSA_EXPORT_WITH_RC4_40_MD5
+            TestSSLSocketPair.connect(c, cipherSuiteArray, cipherSuiteArray);
+        }
     }
 
     public void test_SSLSocket_getEnabledCipherSuites() throws Exception {
@@ -183,7 +204,7 @@ public class SSLSocketTest extends TestCase {
                     assertNotNull(localCertificates);
                     assertEquals(1, localCertificates.length);
                     assertNotNull(localCertificates[0]);
-                    assertNotNull(localCertificates[0].equals(c.keyStore.getCertificate(c.privateAlias)));
+                    TestSSLContext.assertCertificateInKeyStore(localCertificates[0], c.keyStore);
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Exception e) {
@@ -199,13 +220,13 @@ public class SSLSocketTest extends TestCase {
         assertNotNull(peerCertificates);
         assertEquals(1, peerCertificates.length);
         assertNotNull(peerCertificates[0]);
-        assertNotNull(peerCertificates[0].equals(c.keyStore.getCertificate(c.publicAlias)));
+        TestSSLContext.assertCertificateInKeyStore(peerCertificates[0], c.keyStore);
         thread.join();
     }
 
     @KnownFailure("Should throw SSLException from SSLServerSocket.accept with no private key configured")
     public void test_SSLSocket_startHandshake_noKeyStore() throws Exception {
-        TestSSLContext c = TestSSLContext.create(null, null, null, null);
+        TestSSLContext c = TestSSLContext.create(null, null);
         SSLSocket client = (SSLSocket) c.sslContext.getSocketFactory().createSocket(c.host, c.port);
         try {
             SSLSocket server = (SSLSocket) c.serverSocket.accept();
@@ -293,27 +314,6 @@ public class SSLSocketTest extends TestCase {
                     assertTrue(Arrays.asList(client.getEnabledCipherSuites()).contains(cipherSuite));
                     assertTrue(Arrays.asList(c.serverSocket.getEnabledCipherSuites()).contains(cipherSuite));
 
-                    Enumeration e = c.keyStore.aliases();
-                    Certificate certificate = null;
-                    Key key = null;
-                    while (e.hasMoreElements()) {
-                        String alias = (String) e.nextElement();
-                        if (c.keyStore.isCertificateEntry(alias)) {
-                            assertNull(certificate);
-                            certificate = c.keyStore.getCertificate(alias);
-                        } else if (c.keyStore.isKeyEntry(alias)) {
-                            assertNull(key);
-                            key = c.keyStore.getKey(alias, c.keyStorePassword);
-                        } else {
-                            fail();
-                        }
-                    }
-                    assertNotNull(certificate);
-                    assertNotNull(key);
-
-                    assertTrue(X509Certificate.class.isAssignableFrom(certificate.getClass()));
-                    X509Certificate x509certificate = (X509Certificate) certificate;
-
                     // TODO Fix Known Failure
                     // Need to fix NativeCrypto.SSL_new to not use SSL_use_certificate
                     assertNull(localCertificates);
@@ -321,17 +321,16 @@ public class SSLSocketTest extends TestCase {
                     assertNotNull(peerCertificates);
                     assertEquals(1, peerCertificates.length);
                     assertNotNull(peerCertificates[0]);
-                    assertEquals(peerCertificates[0], x509certificate);
+                    TestSSLContext.assertCertificateInKeyStore(peerCertificates[0], c.keyStore);
 
                     assertNotNull(peerCertificateChain);
                     assertEquals(1, peerCertificateChain.length);
                     assertNotNull(peerCertificateChain[0]);
-                    assertEquals(x509certificate.getSubjectDN().getName(),
-                                 peerCertificateChain[0].getSubjectDN().getName());
+                    TestSSLContext.assertCertificateInKeyStore(
+                        peerCertificateChain[0].getSubjectDN(), c.keyStore);
 
                     assertNotNull(peerPrincipal);
-                    assertEquals(x509certificate.getSubjectDN().getName(),
-                                 peerPrincipal.getName());
+                    TestSSLContext.assertCertificateInKeyStore(peerPrincipal, c.keyStore);
 
                     assertNull(localPrincipal);
 

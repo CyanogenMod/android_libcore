@@ -115,7 +115,7 @@ static void throwSSLExceptionStr(JNIEnv* env, const char* message) {
  * @param sslErrorCode error code returned from SSL_get_error()
  * @param message null-ok; general error message
  */
-static void throwSSLExceptionWithSslErrors(JNIEnv* env, int sslErrorCode, const char* message) {
+static void throwSSLExceptionWithSslErrors(JNIEnv* env, SSL* ssl, int sslErrorCode, const char* message) {
     const char* messageStr = NULL;
     char* str;
     int ret;
@@ -154,8 +154,8 @@ static void throwSSLExceptionWithSslErrors(JNIEnv* env, int sslErrorCode, const 
     }
 
     // Prepend either our explicit message or a default one.
-    if (asprintf(&str, "%s: %s",
-            (message != NULL) ? message : "SSL error", messageStr) <= 0) {
+    if (asprintf(&str, "%s: ssl=%p: %s",
+            (message != NULL) ? message : "SSL error", ssl, messageStr) <= 0) {
         // problem with asprintf
         throwSSLExceptionStr(env, messageStr);
         LOGV("%s", messageStr);
@@ -1421,7 +1421,7 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass,
 
     SSL* ssl = SSL_new(ssl_ctx);
     if (ssl == NULL) {
-        throwSSLExceptionWithSslErrors(env, 0,
+        throwSSLExceptionWithSslErrors(env, ssl, 0,
                 "Unable to create SSL structure");
         JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_new => NULL", ssl_ctx);
         return NULL;
@@ -1445,7 +1445,7 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass,
 
         if (privatekeyevp == NULL) {
             LOGE(ERR_error_string(ERR_get_error(), NULL));
-            throwSSLExceptionWithSslErrors(env, 0,
+            throwSSLExceptionWithSslErrors(env, ssl, 0,
                     "Error parsing the private key");
             SSL_free(ssl);
             JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_new => NULL", ssl_ctx);
@@ -1459,7 +1459,7 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass,
 
         if (certificatesx509 == NULL) {
             LOGE(ERR_error_string(ERR_get_error(), NULL));
-            throwSSLExceptionWithSslErrors(env, 0,
+            throwSSLExceptionWithSslErrors(env, ssl, 0,
                     "Error parsing the certificates");
             EVP_PKEY_free(privatekeyevp);
             SSL_free(ssl);
@@ -1470,7 +1470,7 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass,
         int ret = SSL_use_certificate(ssl, certificatesx509);
         if (ret != 1) {
             LOGE(ERR_error_string(ERR_get_error(), NULL));
-            throwSSLExceptionWithSslErrors(env, 0,
+            throwSSLExceptionWithSslErrors(env, ssl, 0,
                     "Error setting the certificates");
             X509_free(certificatesx509);
             EVP_PKEY_free(privatekeyevp);
@@ -1482,7 +1482,7 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass,
         ret = SSL_use_PrivateKey(ssl, privatekeyevp);
         if (ret != 1) {
             LOGE(ERR_error_string(ERR_get_error(), NULL));
-            throwSSLExceptionWithSslErrors(env, 0,
+            throwSSLExceptionWithSslErrors(env, ssl, 0,
                     "Error setting the private key");
             X509_free(certificatesx509);
             EVP_PKEY_free(privatekeyevp);
@@ -1493,7 +1493,7 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass,
 
         ret = SSL_check_private_key(ssl);
         if (ret != 1) {
-            throwSSLExceptionWithSslErrors(env, 0,
+            throwSSLExceptionWithSslErrors(env, ssl, 0,
                     "Error checking the private key");
             X509_free(certificatesx509);
             EVP_PKEY_free(privatekeyevp);
@@ -1685,7 +1685,7 @@ static void NativeCrypto_SSL_set_session(JNIEnv* env, jclass,
          */
         int sslErrorCode = SSL_get_error(ssl, ret);
         if (sslErrorCode != SSL_ERROR_ZERO_RETURN) {
-            throwSSLExceptionWithSslErrors(env, sslErrorCode,
+            throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode,
                                           "SSL session set");
             SSL_clear(ssl);
         }
@@ -1765,7 +1765,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
     JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake s=%d", ssl, fd);
 
     if (ret != 1) {
-        throwSSLExceptionWithSslErrors(env, 0,
+        throwSSLExceptionWithSslErrors(env, ssl, 0,
                 "Error setting the file descriptor");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
@@ -1835,7 +1835,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
                 int selectResult = sslSelect(error, fd, appData, timeout);
 
                 if (selectResult == -1) {
-                    throwSSLExceptionWithSslErrors(env, error, "handshake error");
+                    throwSSLExceptionWithSslErrors(env, ssl, error, "handshake error");
                     SSL_clear(ssl);
                     JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
                     return 0;
@@ -1864,8 +1864,8 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
             (sslErrorCode == SSL_ERROR_SYSCALL && errno == 0)) {
           throwSSLExceptionStr(env, "Connection closed by peer");
         } else {
-          throwSSLExceptionWithSslErrors(env, sslErrorCode,
-              "Trouble accepting connection");
+          throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode,
+              "Trouble with SSL handshake");
         }
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
@@ -1877,8 +1877,8 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
          * at this point.
          */
         int sslErrorCode = SSL_get_error(ssl, ret);
-        throwSSLExceptionWithSslErrors(env, sslErrorCode,
-                "Trouble accepting connection");
+        throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode,
+                "Trouble with SSL handshake");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
         return 0;
@@ -2064,7 +2064,7 @@ static jint NativeCrypto_SSL_read_byte(JNIEnv* env, jclass, jint ssl_address, ji
     switch (ret) {
         case THROW_EXCEPTION:
             // See sslRead() regarding improper failure to handle normal cases.
-            throwSSLExceptionWithSslErrors(env, errorCode, "Read error");
+            throwSSLExceptionWithSslErrors(env, ssl, errorCode, "Read error");
             result = -1;
             break;
         case THROW_SOCKETTIMEOUTEXCEPTION:
@@ -2107,7 +2107,7 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jbyteAr
     int result;
     if (ret == THROW_EXCEPTION) {
         // See sslRead() regarding improper failure to handle normal cases.
-        throwSSLExceptionWithSslErrors(env, errorCode,
+        throwSSLExceptionWithSslErrors(env, ssl, errorCode,
                 "Read error");
         result = -1;
     } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
@@ -2263,7 +2263,7 @@ static void NativeCrypto_SSL_write_byte(JNIEnv* env, jclass, jint ssl_address, j
 
     if (ret == THROW_EXCEPTION) {
         // See sslWrite() regarding improper failure to handle normal cases.
-        throwSSLExceptionWithSslErrors(env, errorCode,
+        throwSSLExceptionWithSslErrors(env, ssl, errorCode,
                 "Write error");
     } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
         throwSocketTimeoutException(env, "Write timed out");
@@ -2289,7 +2289,7 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
 
     if (ret == THROW_EXCEPTION) {
         // See sslWrite() regarding improper failure to handle normal cases.
-        throwSSLExceptionWithSslErrors(env, errorCode,
+        throwSSLExceptionWithSslErrors(env, ssl, errorCode,
                 "Write error");
     } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
         throwSocketTimeoutException(env, "Write timed out");
@@ -2372,7 +2372,7 @@ static void NativeCrypto_SSL_shutdown(
              * exception.
              */
             int sslErrorCode = SSL_get_error(ssl, ret);
-            throwSSLExceptionWithSslErrors(env, sslErrorCode, "SSL shutdown failed");
+            throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "SSL shutdown failed");
             break;
     }
 

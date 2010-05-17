@@ -16,10 +16,8 @@ import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.cryptopro.CryptoProObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-// BEGIN android-removed
-// import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
-// import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
-// END android-removed
+import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
+import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
 import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.util.Strings;
 
@@ -46,18 +44,16 @@ class X509Util
         algorithms.put("SHA512WITHRSA", PKCSObjectIdentifiers.sha512WithRSAEncryption);
         algorithms.put("RIPEMD160WITHRSAENCRYPTION", new DERObjectIdentifier("1.3.36.3.3.1.2"));
         algorithms.put("RIPEMD160WITHRSA", new DERObjectIdentifier("1.3.36.3.3.1.2"));
-        // BEGIN android-removed
-        // algorithms.put("SHA1WITHDSA", X9ObjectIdentifiers.id_dsa_with_sha1);
-        // algorithms.put("DSAWITHSHA1", X9ObjectIdentifiers.id_dsa_with_sha1);
-        // algorithms.put("SHA224WITHDSA", NISTObjectIdentifiers.dsa_with_sha224);
-        // algorithms.put("SHA256WITHDSA", NISTObjectIdentifiers.dsa_with_sha256);
-        // algorithms.put("SHA1WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA1);
-        // algorithms.put("ECDSAWITHSHA1", X9ObjectIdentifiers.ecdsa_with_SHA1);
-        // algorithms.put("SHA224WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA224);
-        // algorithms.put("SHA256WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA256);
-        // algorithms.put("SHA384WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA384);
-        // algorithms.put("SHA512WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA512);
-        // END android-removed
+        algorithms.put("SHA1WITHDSA", X9ObjectIdentifiers.id_dsa_with_sha1);
+        algorithms.put("DSAWITHSHA1", X9ObjectIdentifiers.id_dsa_with_sha1);
+        algorithms.put("SHA224WITHDSA", NISTObjectIdentifiers.dsa_with_sha224);
+        algorithms.put("SHA256WITHDSA", NISTObjectIdentifiers.dsa_with_sha256);
+        algorithms.put("SHA1WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA1);
+        algorithms.put("ECDSAWITHSHA1", X9ObjectIdentifiers.ecdsa_with_SHA1);
+        algorithms.put("SHA224WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA224);
+        algorithms.put("SHA256WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA256);
+        algorithms.put("SHA384WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA384);
+        algorithms.put("SHA512WITHECDSA", X9ObjectIdentifiers.ecdsa_with_SHA512);
         algorithms.put("GOST3411WITHGOST3410", CryptoProObjectIdentifiers.gostR3411_94_with_gostR3410_94);
         algorithms.put("GOST3411WITHGOST3410-94", CryptoProObjectIdentifiers.gostR3411_94_with_gostR3410_94);
         
@@ -65,16 +61,14 @@ class X509Util
         // According to RFC 3279, the ASN.1 encoding SHALL (id-dsa-with-sha1) or MUST (ecdsa-with-SHA*) omit the parameters field. 
         // The parameters field SHALL be NULL for RSA based signature algorithms.
         //
-        // BEGIN android-removed
-        // noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA1);
-        // noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA224);
-        // noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA256);
-        // noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA384);
-        // noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA512);
-        // noParams.add(X9ObjectIdentifiers.id_dsa_with_sha1);
-        // noParams.add(NISTObjectIdentifiers.dsa_with_sha224);
-        // noParams.add(NISTObjectIdentifiers.dsa_with_sha256);
-        // END android-removed
+        noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA1);
+        noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA224);
+        noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA256);
+        noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA384);
+        noParams.add(X9ObjectIdentifiers.ecdsa_with_SHA512);
+        noParams.add(X9ObjectIdentifiers.id_dsa_with_sha1);
+        noParams.add(NISTObjectIdentifiers.dsa_with_sha224);
+        noParams.add(NISTObjectIdentifiers.dsa_with_sha256);
     }
      
     static DERObjectIdentifier getAlgorithmOID(

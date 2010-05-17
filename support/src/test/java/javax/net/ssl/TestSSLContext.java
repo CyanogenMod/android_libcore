@@ -16,23 +16,17 @@
 
 package javax.net.ssl;
 
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.Principal;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Date;
-import java.util.Hashtable;
-import org.bouncycastle.jce.X509Principal;
+import java.util.Collections;
+import junit.framework.AssertionFailedError;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
 
 /**
  * TestSSLContext is a convenience class for other tests that
@@ -79,8 +73,6 @@ public final class TestSSLContext {
 
     public final KeyStore keyStore;
     public final char[] keyStorePassword;
-    public final String publicAlias;
-    public final String privateAlias;
     public final SSLContext sslContext;
     public final SSLServerSocket serverSocket;
     public final InetAddress host;
@@ -88,16 +80,12 @@ public final class TestSSLContext {
 
     private TestSSLContext(KeyStore keyStore,
                            char[] keyStorePassword,
-                           String publicAlias,
-                           String privateAlias,
                            SSLContext sslContext,
                            SSLServerSocket serverSocket,
                            InetAddress host,
                            int port) {
         this.keyStore = keyStore;
         this.keyStorePassword = keyStorePassword;
-        this.publicAlias = publicAlias;
-        this.privateAlias = privateAlias;
         this.sslContext = sslContext;
         this.serverSocket = serverSocket;
         this.host = host;
@@ -110,28 +98,14 @@ public final class TestSSLContext {
      * listening provided host and port.
      */
     public static TestSSLContext create() {
-        try {
-            char[] keyStorePassword = null;
-            String publicAlias = "public";
-            String privateAlias = "private";
-            return create(createKeyStore(keyStorePassword, publicAlias, privateAlias),
-                          keyStorePassword,
-                          publicAlias,
-                          privateAlias);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        TestKeyStore testKeyStore = TestKeyStore.get();
+        return create(testKeyStore.keyStore, testKeyStore.keyStorePassword);
     }
 
     /**
      * TestSSLContext creation method that allows separate creation of key store
      */
-    public static TestSSLContext create(KeyStore keyStore,
-                                        char[] keyStorePassword,
-                                        String publicAlias,
-                                        String privateAlias) {
+    public static TestSSLContext create(KeyStore keyStore, char[] keyStorePassword) {
         try {
             SSLContext sslContext = createSSLContext(keyStore, keyStorePassword);
 
@@ -141,7 +115,7 @@ public final class TestSSLContext {
             InetAddress host = sa.getAddress();
             int port = sa.getPort();
 
-            return new TestSSLContext(keyStore, keyStorePassword, publicAlias, privateAlias,
+            return new TestSSLContext(keyStore, keyStorePassword,
                                       sslContext, serverSocket, host, port);
         } catch (RuntimeException e) {
             throw e;
@@ -157,15 +131,17 @@ public final class TestSSLContext {
      */
     public static TestSSLContext createClient(TestSSLContext server) {
         try {
-            String publicAlias = server.publicAlias;
-            Certificate cert = server.keyStore.getCertificate(publicAlias);
-
             KeyStore keyStore = KeyStore.getInstance("BKS");
             keyStore.load(null, null);
-            keyStore.setCertificateEntry(publicAlias, cert);
+            for (String alias: Collections.list(server.keyStore.aliases())) {
+                if (!server.keyStore.isCertificateEntry(alias)) {
+                    continue;
+                }
+                Certificate cert = server.keyStore.getCertificate(alias);
+                keyStore.setCertificateEntry(alias, cert);
+            }
 
             char[] keyStorePassword = server.keyStorePassword;
-            String privateAlias = null;
 
             String tmfa = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfa);
@@ -174,102 +150,13 @@ public final class TestSSLContext {
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, tmf.getTrustManagers(), new SecureRandom());
 
-            return new TestSSLContext(keyStore, keyStorePassword, publicAlias, publicAlias,
+            return new TestSSLContext(keyStore, keyStorePassword,
                                       sslContext, null, null, -1);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Create a BKS KeyStore containing an RSAPrivateKey with alias
-     * "private" and a X509Certificate based on the matching
-     * RSAPublicKey stored under the alias name publicAlias.
-     *
-     * The private key will have a certificate chain including the
-     * certificate stored under the alias name privateAlias. The
-     * certificate will be signed by the private key. The certificate
-     * Subject and Issuer Common-Name will be the local host's
-     * canonical hostname. The certificate will be valid for one day
-     * before and one day after the time of creation.
-     *
-     * The KeyStore is optionally password protected by the
-     * keyStorePassword argument, which can be null if a password is
-     * not desired.
-     *
-     * Based on:
-     * org.bouncycastle.jce.provider.test.SigTest
-     * org.bouncycastle.jce.provider.test.CertTest
-     */
-    public static KeyStore createKeyStore(char[] keyStorePassword,
-                                          String publicAlias,
-                                          String privateAlias)
-        throws Exception {
-
-        RSAPrivateKey privateKey;
-        X509Certificate x509c;
-        if (publicAlias == null && privateAlias == null) {
-            // don't want anything apparently
-            privateKey = null;
-            x509c = null;
-        } else {
-            // 1.) we make the keys
-            int keysize = 1024;
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(keysize, new SecureRandom());
-            KeyPair kp = kpg.generateKeyPair();
-            privateKey = (RSAPrivateKey)kp.getPrivate();
-            RSAPublicKey publicKey  = (RSAPublicKey)kp.getPublic();
-
-            // 2.) use keys to make certficate
-
-            // note that there doesn't seem to be a standard way to make a
-            // certificate using java.* or javax.*. The CertificateFactory
-            // interface assumes you want to read in a stream of bytes a
-            // factory specific format. So here we use Bouncy Castle's
-            // X509V3CertificateGenerator and related classes.
-
-            Hashtable attributes = new Hashtable();
-            attributes.put(X509Principal.CN, InetAddress.getLocalHost().getCanonicalHostName());
-            X509Principal dn = new X509Principal(attributes);
-
-            long millisPerDay = 24 * 60 * 60 * 1000;
-            long now = System.currentTimeMillis();
-            Date start = new Date(now - millisPerDay);
-            Date end = new Date(now + millisPerDay);
-            BigInteger serial = BigInteger.valueOf(1);
-
-            X509V3CertificateGenerator x509cg = new X509V3CertificateGenerator();
-            x509cg.setSubjectDN(dn);
-            x509cg.setIssuerDN(dn);
-            x509cg.setNotBefore(start);
-            x509cg.setNotAfter(end);
-            x509cg.setPublicKey(publicKey);
-            x509cg.setSignatureAlgorithm("sha1WithRSAEncryption");
-            x509cg.setSerialNumber(serial);
-            x509c = x509cg.generateX509Certificate(privateKey);
-        }
-
-        X509Certificate[] x509cc;
-        if (privateAlias == null) {
-            // don't need certificate chain
-            x509cc = null;
-        } else {
-            x509cc = new X509Certificate[] { x509c };
-        }
-
-        // 3.) put certificate and private key to make a key store
-        KeyStore ks = KeyStore.getInstance("BKS");
-        ks.load(null, null);
-        if (privateAlias != null) {
-            ks.setKeyEntry(privateAlias, privateKey, keyStorePassword, x509cc);
-        }
-        if (publicAlias != null) {
-            ks.setCertificateEntry(publicAlias, x509c);
-        }
-        return ks;
     }
 
     /**
@@ -290,5 +177,42 @@ public final class TestSSLContext {
         SSLContext context = SSLContext.getInstance("TLS");
         context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
         return context;
+    }
+
+    public static void assertCertificateInKeyStore(Principal principal,
+                                                   KeyStore keyStore) throws Exception {
+        String subjectName = principal.getName();
+        boolean found = false;
+        for (String alias: Collections.list(keyStore.aliases())) {
+            if (!keyStore.isCertificateEntry(alias)) {
+                continue;
+            }
+            X509Certificate keyStoreCertificate = (X509Certificate) keyStore.getCertificate(alias);
+            if (subjectName.equals(keyStoreCertificate.getSubjectDN().getName())) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            throw new AssertionFailedError("Could not find princial " + principal + " in key store");
+        }
+    }
+
+    public static void assertCertificateInKeyStore(Certificate certificate,
+                                                   KeyStore keyStore) throws Exception {
+        boolean found = false;
+        for (String alias: Collections.list(keyStore.aliases())) {
+            if (!keyStore.isCertificateEntry(alias)) {
+                continue;
+            }
+            Certificate keyStoreCertificate = keyStore.getCertificate(alias);
+            if (certificate.equals(keyStoreCertificate)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            throw new AssertionFailedError("Could not find certificate " + certificate + " in key store");
+        }
     }
 }
