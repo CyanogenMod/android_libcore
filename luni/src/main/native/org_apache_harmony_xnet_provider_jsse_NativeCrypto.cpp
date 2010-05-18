@@ -36,8 +36,8 @@
 #include <openssl/rsa.h>
 #include <openssl/ssl.h>
 
-#include "ScopedByteArray.h"
 #include "ScopedLocalRef.h"
+#include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 
@@ -256,9 +256,7 @@ static BIGNUM* arrayToBignum(JNIEnv* env, jbyteArray source) {
     // LOGD("Entering arrayToBignum()");
 
     ScopedByteArray sourceBytes(env, source);
-    int sourceLength = env->GetArrayLength(source);
-    BIGNUM* bignum = BN_bin2bn((unsigned char*) sourceBytes.bytes(), sourceLength, NULL);
-    return bignum;
+    return BN_bin2bn((unsigned char*) sourceBytes.get(), sourceBytes.size(), NULL);
 }
 
 /**
@@ -551,7 +549,7 @@ static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx, 
     }
 
     ScopedByteArray bufferBytes(env, buffer);
-    EVP_DigestUpdate(ctx, (unsigned char*) (bufferBytes.bytes() + offset), length);
+    EVP_DigestUpdate(ctx, (unsigned char*) (bufferBytes.get() + offset), length);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestUpdate");
 }
@@ -593,7 +591,7 @@ static void NativeCrypto_EVP_VerifyUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx, 
     }
 
     ScopedByteArray bufferBytes(env, buffer);
-    EVP_VerifyUpdate(ctx, (unsigned char*) (bufferBytes.bytes() + offset), length);
+    EVP_VerifyUpdate(ctx, (unsigned char*) (bufferBytes.get() + offset), length);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyUpdate");
 }
@@ -610,7 +608,7 @@ static int NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx, jb
     }
 
     ScopedByteArray bufferBytes(env, buffer);
-    int result = EVP_VerifyFinal(ctx, (unsigned char*) (bufferBytes.bytes() + offset), length, pkey);
+    int result = EVP_VerifyFinal(ctx, (unsigned char*) (bufferBytes.get() + offset), length, pkey);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyFinal");
 
@@ -709,23 +707,16 @@ static int NativeCrypto_verifysignature(JNIEnv* env, jclass,
     int result = -1;
 
     ScopedByteArray msgBytes(env, msg);
-    jint msgLength = env->GetArrayLength(msg);
-
     ScopedByteArray sigBytes(env, sig);
-    jint sigLength = env->GetArrayLength(sig);
-
     ScopedByteArray modBytes(env, mod);
-    jint modLength = env->GetArrayLength(mod);
-
     ScopedByteArray expBytes(env, exp);
-    jint expLength = env->GetArrayLength(exp);
 
     ScopedUtfChars algorithmChars(env, algorithm);
     JNI_TRACE("NativeCrypto_verifysignature algorithmChars=%s", algorithmChars.c_str());
 
-    RSA* rsa = rsaCreateKey((unsigned char*) modBytes.bytes(), modLength, (unsigned char*) expBytes.bytes(), expLength);
+    RSA* rsa = rsaCreateKey((unsigned char*) modBytes.get(), modBytes.size(), (unsigned char*) expBytes.get(), expBytes.size());
     if (rsa != NULL) {
-        result = rsaVerify((unsigned char*) msgBytes.bytes(), msgLength, (unsigned char*) sigBytes.bytes(), sigLength,
+        result = rsaVerify((unsigned char*) msgBytes.get(), msgBytes.size(), (unsigned char*) sigBytes.get(), sigBytes.size(),
                 (char*) algorithmChars.c_str(), rsa);
         RSA_free(rsa);
     }
@@ -2285,12 +2276,11 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
     ScopedByteArray bytes(env, dest);
     int returnCode = 0;
     int errorCode = 0;
-    int ret = sslWrite(env, ssl, (const char *) (bytes.bytes() + offset), len, &returnCode, &errorCode);
+    int ret = sslWrite(env, ssl, (const char *) (bytes.get() + offset), len, &returnCode, &errorCode);
 
     if (ret == THROW_EXCEPTION) {
         // See sslWrite() regarding improper failure to handle normal cases.
-        throwSSLExceptionWithSslErrors(env, ssl, errorCode,
-                "Write error");
+        throwSSLExceptionWithSslErrors(env, ssl, errorCode, "Write error");
     } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
         throwSocketTimeoutException(env, "Write timed out");
     }
@@ -2548,7 +2538,7 @@ static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray bytes, 
     }
 
     ScopedByteArray tmp(env, bytes);
-    const unsigned char* ucp = reinterpret_cast<const unsigned char*>(tmp.bytes());
+    const unsigned char* ucp = reinterpret_cast<const unsigned char*>(tmp.get());
     SSL_SESSION* ssl_session = d2i_SSL_SESSION(NULL, &ucp, size);
 
     JNI_TRACE("NativeCrypto_d2i_SSL_SESSION => %p", ssl_session);

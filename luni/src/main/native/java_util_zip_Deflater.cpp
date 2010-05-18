@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include "ScopedPrimitiveArray.h"
 #include "zip.h"
 
 static struct {
@@ -76,13 +77,12 @@ static jint Deflater_deflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int 
     stream->stream.avail_out = len;
     jint sin = stream->stream.total_in;
     jint sout = stream->stream.total_out;
-    jbyte* out = (jbyte*) env->GetPrimitiveArrayCritical(buf, NULL);
-    if (out == NULL) {
+    ScopedByteArray out(env, buf);
+    if (out.get() == NULL) {
         return -1;
     }
-    stream->stream.next_out = (Bytef *) out + off;
+    stream->stream.next_out = (Bytef *) out.get() + off;
     int err = deflate(&stream->stream, flushParm);
-    env->ReleasePrimitiveArrayCritical(buf, out, 0);
     if (err != Z_OK) {
         if (err == Z_MEM_ERROR) {
             jniThrowOutOfMemoryError(env, NULL);

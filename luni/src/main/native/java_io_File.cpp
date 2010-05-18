@@ -17,8 +17,8 @@
 
 #include "JNIHelp.h"
 #include "LocalArray.h"
-#include "ScopedByteArray.h"
 #include "ScopedFd.h"
+#include "ScopedPrimitiveArray.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -37,25 +37,29 @@
 // poor choices of where to divide the work between Java and native
 // code.
 
+static const char* toPath(const ScopedByteArray& path) {
+    return reinterpret_cast<const char*>(&path[0]);
+}
+
 static jbyteArray java_io_File_getCanonImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
     ScopedByteArray path(env, pathBytes);
     // The only thing this native code currently does is truncate the byte[] at
     // the first NUL.
     // TODO: this is completely pointless. we should do this in Java, or do all of getCanonicalPath in native code. (realpath(2)?)
-    size_t length = strlen(&path[0]);
+    size_t length = strlen(toPath(path));
     jbyteArray result = env->NewByteArray(length);
-    env->SetByteArrayRegion(result, 0, length, path.bytes());
+    env->SetByteArrayRegion(result, 0, length, path.get());
     return result;
 }
 
 static jboolean java_io_File_deleteImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
     ScopedByteArray path(env, pathBytes);
-    return (remove(&path[0]) == 0);
+    return (remove(toPath(path)) == 0);
 }
 
 static bool doStat(JNIEnv* env, jbyteArray pathBytes, struct stat& sb) {
     ScopedByteArray path(env, pathBytes);
-    return (stat(&path[0], &sb) == 0);
+    return (stat(toPath(path), &sb) == 0);
 }
 
 static jlong java_io_File_lengthImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
@@ -65,7 +69,7 @@ static jlong java_io_File_lengthImpl(JNIEnv* env, jobject, jbyteArray pathBytes)
         // TODO: shouldn't we throw an IOException for ELOOP or EACCES?
         return 0;
     }
-    
+
     /*
      * This android-changed code explicitly treats non-regular files (e.g.,
      * sockets and block-special devices) as having size zero. Some synthetic
@@ -73,7 +77,7 @@ static jlong java_io_File_lengthImpl(JNIEnv* env, jobject, jbyteArray pathBytes)
      * in these cases they generally report a block count of zero.
      * So, use a zero block count to trump any other concept of
      * size.
-     * 
+     *
      * TODO: why do we do this?
      */
     if (!S_ISREG(sb.st_mode) || sb.st_blocks == 0) {
@@ -102,22 +106,22 @@ static jboolean java_io_File_isFileImpl(JNIEnv* env, jobject, jbyteArray pathByt
 
 static jboolean java_io_File_existsImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
     ScopedByteArray path(env, pathBytes);
-    return (access(&path[0], F_OK) == 0);
+    return (access(toPath(path), F_OK) == 0);
 }
 
 static jboolean java_io_File_canExecuteImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
     ScopedByteArray path(env, pathBytes);
-    return (access(&path[0], X_OK) == 0);
+    return (access(toPath(path), X_OK) == 0);
 }
 
 static jboolean java_io_File_canReadImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
     ScopedByteArray path(env, pathBytes);
-    return (access(&path[0], R_OK) == 0);
+    return (access(toPath(path), R_OK) == 0);
 }
 
 static jboolean java_io_File_canWriteImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
     ScopedByteArray path(env, pathBytes);
-    return (access(&path[0], W_OK) == 0);
+    return (access(toPath(path), W_OK) == 0);
 }
 
 static jbyteArray java_io_File_getLinkImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
@@ -128,7 +132,7 @@ static jbyteArray java_io_File_getLinkImpl(JNIEnv* env, jobject, jbyteArray path
     size_t bufSize = 512;
     while (true) {
         LocalArray<512> buf(bufSize);
-        ssize_t len = readlink(&path[0], &buf[0], buf.size() - 1);
+        ssize_t len = readlink(toPath(path), &buf[0], buf.size() - 1);
         if (len == -1) {
             // An error occurred.
             return pathBytes;
@@ -149,28 +153,28 @@ static jbyteArray java_io_File_getLinkImpl(JNIEnv* env, jobject, jbyteArray path
 
 static jboolean java_io_File_setLastModifiedImpl(JNIEnv* env, jobject, jbyteArray pathBytes, jlong ms) {
     ScopedByteArray path(env, pathBytes);
-    
+
     // We want to preserve the access time.
     struct stat sb;
-    if (stat(&path[0], &sb) == -1) {
+    if (stat(toPath(path), &sb) == -1) {
         return JNI_FALSE;
     }
-    
+
     // TODO: we could get microsecond resolution with utimes(3), "legacy" though it is.
     utimbuf times;
     times.actime = sb.st_atime;
     times.modtime = static_cast<time_t>(ms / 1000);
-    return (utime(&path[0], &times) == 0);
+    return (utime(toPath(path), &times) == 0);
 }
 
 static jboolean doChmod(JNIEnv* env, jbyteArray pathBytes, mode_t mask, bool set) {
     ScopedByteArray path(env, pathBytes);
     struct stat sb;
-    if (stat(&path[0], &sb) == -1) {
+    if (stat(toPath(path), &sb) == -1) {
         return JNI_FALSE;
     }
     mode_t newMode = set ? (sb.st_mode | mask) : (sb.st_mode & ~mask);
-    return (chmod(&path[0], newMode) == 0);
+    return (chmod(toPath(path), newMode) == 0);
 }
 
 static jboolean java_io_File_setExecutableImpl(JNIEnv* env, jobject, jbyteArray pathBytes,
@@ -190,7 +194,7 @@ static jboolean java_io_File_setWritableImpl(JNIEnv* env, jobject, jbyteArray pa
 
 static bool doStatFs(JNIEnv* env, jbyteArray pathBytes, struct statfs& sb) {
     ScopedByteArray path(env, pathBytes);
-    int rc = statfs(&path[0], &sb);
+    int rc = statfs(toPath(path), &sb);
     return (rc != -1);
 }
 
@@ -323,7 +327,7 @@ private:
 // to 'entries'.
 static bool readDirectory(JNIEnv* env, jbyteArray pathBytes, DirEntries& entries) {
     ScopedByteArray path(env, pathBytes);
-    ScopedReaddir dir(&path[0]);
+    ScopedReaddir dir(toPath(path));
     if (dir.isBad()) {
         return false;
     }
@@ -368,13 +372,13 @@ static jobjectArray java_io_File_listImpl(JNIEnv* env, jobject, jbyteArray pathB
 static jboolean java_io_File_mkdirImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
     ScopedByteArray path(env, pathBytes);
     // On Android, we don't want default permissions to allow global access.
-    return (mkdir(&path[0], S_IRWXU) == 0);
+    return (mkdir(toPath(path), S_IRWXU) == 0);
 }
 
 static jboolean java_io_File_createNewFileImpl(JNIEnv* env, jobject, jbyteArray pathBytes) {
     ScopedByteArray path(env, pathBytes);
     // On Android, we don't want default permissions to allow global access.
-    ScopedFd fd(open(&path[0], O_CREAT | O_EXCL, 0600));
+    ScopedFd fd(open(toPath(path), O_CREAT | O_EXCL, 0600));
     if (fd.get() != -1) {
         // We created a new file. Success!
         return JNI_TRUE;
@@ -390,7 +394,7 @@ static jboolean java_io_File_createNewFileImpl(JNIEnv* env, jobject, jbyteArray 
 static jboolean java_io_File_renameToImpl(JNIEnv* env, jobject, jbyteArray oldPathBytes, jbyteArray newPathBytes) {
     ScopedByteArray oldPath(env, oldPathBytes);
     ScopedByteArray newPath(env, newPathBytes);
-    return (rename(&oldPath[0], &newPath[0]) == 0);
+    return (rename(toPath(oldPath), toPath(newPath)) == 0);
 }
 
 static JNINativeMethod gMethods[] = {

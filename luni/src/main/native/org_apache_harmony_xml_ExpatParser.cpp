@@ -18,6 +18,7 @@
 
 #include "JNIHelp.h"
 #include "LocalArray.h"
+#include "ScopedPrimitiveArray.h"
 #include "jni.h"
 #include "utils/Log.h"
 
@@ -40,7 +41,7 @@ struct InternedString {
     const char* bytes;
 
     /** Hash code of the interned string. */
-    int hash;    
+    int hash;
 };
 
 /**
@@ -936,10 +937,10 @@ static void unparsedEntityDecl(void* data, const char* name, const char* base, c
     ParsingContext* parsingContext = reinterpret_cast<ParsingContext*>(data);
     jobject javaParser = parsingContext->object;
     JNIEnv* env = parsingContext->env;
-    
+
     // Bail out if a previously called handler threw an exception.
     if (env->ExceptionCheck()) return;
-    
+
     jstring javaName = env->NewStringUTF(name);
     if (env->ExceptionCheck()) return;
     jstring javaPublicId = env->NewStringUTF(publicId);
@@ -948,9 +949,9 @@ static void unparsedEntityDecl(void* data, const char* name, const char* base, c
     if (env->ExceptionCheck()) return;
     jstring javaNotationName = env->NewStringUTF(notationName);
     if (env->ExceptionCheck()) return;
-    
+
     env->CallVoidMethod(javaParser, unparsedEntityDeclMethod, javaName, javaPublicId, javaSystemId, javaNotationName);
-    
+
     env->DeleteLocalRef(javaName);
     env->DeleteLocalRef(javaPublicId);
     env->DeleteLocalRef(javaSystemId);
@@ -961,19 +962,19 @@ static void notationDecl(void* data, const char* name, const char* base, const c
     ParsingContext* parsingContext = reinterpret_cast<ParsingContext*>(data);
     jobject javaParser = parsingContext->object;
     JNIEnv* env = parsingContext->env;
-    
+
     // Bail out if a previously called handler threw an exception.
     if (env->ExceptionCheck()) return;
-    
+
     jstring javaName = env->NewStringUTF(name);
     if (env->ExceptionCheck()) return;
     jstring javaPublicId = env->NewStringUTF(publicId);
     if (env->ExceptionCheck()) return;
     jstring javaSystemId = env->NewStringUTF(systemId);
     if (env->ExceptionCheck()) return;
-    
+
     env->CallVoidMethod(javaParser, notationDeclMethod, javaName, javaPublicId, javaSystemId);
-    
+
     env->DeleteLocalRef(javaName);
     env->DeleteLocalRef(javaPublicId);
     env->DeleteLocalRef(javaSystemId);
@@ -1066,91 +1067,47 @@ static jint initialize(JNIEnv* env, jobject object, jstring javaEncoding,
 }
 
 /**
- * Passes some XML to the parser.
- *
- * @param object the Java ExpatParser instance
- * @param pointer to the C expat parser
- * @param xml Java string containing an XML snippet
- * @param isFinal whether or not this is the last snippet; enables more error
- *  checking, i.e. is the document complete?
+ * Expat decides for itself what character encoding it's looking at. The interface is in terms of
+ * bytes, which may point to UTF-8, UTF-16, ISO-8859-1, or US-ASCII. appendBytes, appendCharacters,
+ * and appendString thus all call through to this method, strange though that appears.
  */
-static void appendString(JNIEnv* env, jobject object, jint pointer, jstring xml,
-        jboolean isFinal) {
+static void append(JNIEnv* env, jobject object, jint pointer,
+        const char* bytes, size_t byteOffset, size_t byteCount, jboolean isFinal) {
     XML_Parser parser = (XML_Parser) pointer;
     ParsingContext* context = (ParsingContext*) XML_GetUserData(parser);
     context->env = env;
     context->object = object;
-
-    int length = env->GetStringLength(xml) << 1; // in bytes
-    const jchar* characters = env->GetStringChars(xml, NULL);
-
-    if (!XML_Parse(parser, (char*) characters, length, isFinal)
-            && !env->ExceptionCheck()) {
+    if (!XML_Parse(parser, bytes + byteOffset, byteCount, isFinal) &&
+            !env->ExceptionCheck()) {
         jniThrowExpatException(env, XML_GetErrorCode(parser));
     }
-
-    env->ReleaseStringChars(xml, characters);
-
     context->object = NULL;
     context->env = NULL;
 }
 
-/**
- * Passes some XML to the parser.
- *
- * @param object the Java ExpatParser instance
- * @param pointer to the C expat parser
- * @param xml Java char[] containing XML
- * @param offset into the xml buffer
- * @param length of text in the xml buffer
- */
-static void appendCharacters(JNIEnv* env, jobject object, jint pointer,
-        jcharArray xml, jint offset, jint length) {
-    XML_Parser parser = (XML_Parser) pointer;
-    ParsingContext* context = (ParsingContext*) XML_GetUserData(parser);
-    context->env = env;
-    context->object = object;
-
-    jchar* characters = env->GetCharArrayElements(xml, NULL);
-
-    if (!XML_Parse(parser, ((char*) characters) + (offset << 1),
-            length << 1, XML_FALSE) && !env->ExceptionCheck()) {
-        jniThrowExpatException(env, XML_GetErrorCode(parser));
-    }
-
-    env->ReleaseCharArrayElements(xml, characters, JNI_ABORT);
-
-    context->object = NULL;
-    context->env = NULL;
-}
-
-/**
- * Passes some XML to the parser.
- *
- * @param object the Java ExpatParser instance
- * @param pointer to the C expat parser
- * @param xml Java byte[] containing XML
- * @param offset into the xml buffer
- * @param length of text in the xml buffer
- */
 static void appendBytes(JNIEnv* env, jobject object, jint pointer,
-        jbyteArray xml, jint offset, jint length) {
-    XML_Parser parser = (XML_Parser) pointer;
-    ParsingContext* context = (ParsingContext*) XML_GetUserData(parser);
-    context->env = env;
-    context->object = object;
+        jbyteArray xml, jint byteOffset, jint byteCount) {
+    ScopedByteArray byteArray(env, xml);
+    const char* bytes = reinterpret_cast<const char*>(byteArray.get());
+    append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
+}
 
-    jbyte* bytes = env->GetByteArrayElements(xml, NULL);
+static void appendCharacters(JNIEnv* env, jobject object, jint pointer,
+        jcharArray xml, jint charOffset, jint charCount) {
+    ScopedCharArray charArray(env, xml);
+    const char* bytes = reinterpret_cast<const char*>(charArray.get());
+    size_t byteOffset = 2 * charOffset;
+    size_t byteCount = 2 * charCount;
+    append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
+}
 
-    if (!XML_Parse(parser, ((char*) bytes) + offset, length, XML_FALSE)
-            && !env->ExceptionCheck()) {
-        jniThrowExpatException(env, XML_GetErrorCode(parser));
-    }
-
-    env->ReleaseByteArrayElements(xml, bytes, JNI_ABORT);
-
-    context->object = NULL;
-    context->env = NULL;
+static void appendString(JNIEnv* env, jobject object, jint pointer,
+        jstring xml, jboolean isFinal) {
+    const jchar* chars = env->GetStringChars(xml, NULL);
+    const char* bytes = reinterpret_cast<const char*>(chars);
+    size_t byteCount = 2 * env->GetStringLength(xml);
+    append(env, object, pointer, bytes, 0, byteCount, isFinal);
+    env->ReleaseStringChars(xml, chars);
 }
 
 /**
@@ -1433,7 +1390,7 @@ static void staticInitialize(JNIEnv* env, jobject classObject, jstring empty) {
     startElementMethod = env->GetMethodID(clazz, "startElement",
         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V");
     if (startElementMethod == NULL) return;
-    
+
     endElementMethod = env->GetMethodID(clazz, "endElement",
         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     if (endElementMethod == NULL) return;
