@@ -207,7 +207,7 @@ public final class Matcher implements MatchResult {
         }
 
         if (start < 0 || end < 0 || start > input.length() || end > input.length() || start > end) {
-            throw new IllegalArgumentException();
+            throw new IndexOutOfBoundsException();
         }
 
         // Maybe should have a reset() here, but it makes thing worse...
