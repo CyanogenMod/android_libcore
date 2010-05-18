@@ -73,11 +73,11 @@ public class NativeBN {
     public static native String BN_bn2hex(int a);
     // char * BN_bn2hex(const BIGNUM *a);
 
-    public static native byte[] BN_bn2bin(int a, byte[] to);
+    public static native byte[] BN_bn2bin(int a);
     // Returns result byte[] AND NOT length.
     // int BN_bn2bin(const BIGNUM *a, unsigned char *to);
 
-    public static native int[] bn2litEndInts(int a, int[] to);
+    public static native int[] bn2litEndInts(int a);
 
     public static native int sign(int a);
     // Returns -1, 0, 1 AND NOT boolean.

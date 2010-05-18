@@ -378,53 +378,40 @@ static jstring NativeBN_BN_bn2hex(JNIEnv* env, jclass, BIGNUM* a) {
     else return NULL;
 }
 
-/**
- * public static native byte[] BN_bn2bin(int, byte[])
- */
-static jbyteArray NativeBN_BN_bn2bin(JNIEnv* env, jclass, BIGNUM* a, jbyteArray to) {
+static jbyteArray NativeBN_BN_bn2bin(JNIEnv* env, jclass, BIGNUM* a) {
     if (!oneValidHandle(env, a)) return NULL;
-    jbyteArray returnJBytes = to;
-    unsigned char * tmpBytes;
-    int len, byteCnt;
-    byteCnt = BN_num_bytes(a);
-// FIXME: Currently ignoring array passed in to:
-    returnJBytes = env->NewByteArray(byteCnt);
-// FIXME: is it neccessary to check for returnJBytes != NULL?
-    tmpBytes = (unsigned char *)env->GetPrimitiveArrayCritical(returnJBytes, NULL);
-    if (tmpBytes != NULL) {
-        len = BN_bn2bin(a, tmpBytes);
-        env->ReleasePrimitiveArrayCritical(returnJBytes, tmpBytes, 0);
-        return returnJBytes;
+    jbyteArray result = env->NewByteArray(BN_num_bytes(a));
+    if (result == NULL) {
+        return NULL;
     }
-    else return NULL;
+    jbyte* bytes = env->GetByteArrayElements(result, NULL);
+    if (bytes == NULL) {
+        return NULL;
+    }
+    BN_bn2bin(a, reinterpret_cast<unsigned char*>(bytes));
+    env->ReleaseByteArrayElements(result, bytes, 0);
+    return result;
 }
 
-/**
- * public static native int[] bn2litEndInts(int, int[])
- * cf. litEndInts2bn
- */
-static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass, BIGNUM* a, jintArray to) {
+static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass, BIGNUM* a) {
     if (!oneValidHandle(env, a)) return NULL;
-    jintArray returnJInts = to;
     bn_check_top(a);
     int len = a->top;
-    if (len > 0) {
-// FIXME: Currently ignoring array passed in to:
-        returnJInts = env->NewIntArray(len);
-// FIXME: is it neccessary to check for returnJBytes != NULL?
-        BN_ULONG* tmpInts = (BN_ULONG*)env->GetPrimitiveArrayCritical(returnJInts, NULL);
-        if (tmpInts != NULL) {
-            int i = len; do { i--; tmpInts[i] = a->d[i]; } while (i > 0);
-            env->ReleasePrimitiveArrayCritical(returnJInts, tmpInts, 0);
-            return returnJInts;
-        }
-        else return NULL;
+    if (len == 0) {
+        return NULL;
     }
-    else { // value = 0
-        return NULL; // Client should not call when sign = 0!
+    jintArray result = env->NewIntArray(len);
+    if (result == NULL) {
+        return NULL;
     }
+    BN_ULONG* longs = reinterpret_cast<BN_ULONG*>(env->GetIntArrayElements(result, NULL));
+    if (longs == NULL) {
+        return NULL;
+    }
+    int i = len; do { i--; longs[i] = a->d[i]; } while (i > 0);
+    env->ReleaseIntArrayElements(result, reinterpret_cast<jint*>(longs), 0);
+    return result;
 }
-
 
 /**
  * public static native int sign(int)
@@ -651,8 +638,8 @@ static JNINativeMethod METHODS[] = {
    { "longInt", "(I)J", (void*)NativeBN_longInt },
    { "BN_bn2dec", "(I)Ljava/lang/String;", (void*)NativeBN_BN_bn2dec },
    { "BN_bn2hex", "(I)Ljava/lang/String;", (void*)NativeBN_BN_bn2hex },
-   { "BN_bn2bin", "(I[B)[B", (void*)NativeBN_BN_bn2bin },
-   { "bn2litEndInts", "(I[I)[I", (void*)NativeBN_bn2litEndInts },
+   { "BN_bn2bin", "(I)[B", (void*)NativeBN_BN_bn2bin },
+   { "bn2litEndInts", "(I)[I", (void*)NativeBN_bn2litEndInts },
    { "sign", "(I)I", (void*)NativeBN_sign },
    { "BN_set_negative", "(II)V", (void*)NativeBN_BN_set_negative },
    { "bitLength", "(I)I", (void*)NativeBN_bitLength },

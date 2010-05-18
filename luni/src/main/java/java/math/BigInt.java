@@ -261,13 +261,11 @@ class BigInt
     }
 
     public byte[] bigEndianMagnitude() {
-        byte[] a = NativeBN.BN_bn2bin(this.bignum, null);
-        return a;
+        return NativeBN.BN_bn2bin(this.bignum);
     }
 
     public int[] littleEndianIntsMagnitude() {
-        int[] a = NativeBN.bn2litEndInts(this.bignum, null);
-        return a;
+        return NativeBN.bn2litEndInts(this.bignum);
     }
 
     public int sign() {
