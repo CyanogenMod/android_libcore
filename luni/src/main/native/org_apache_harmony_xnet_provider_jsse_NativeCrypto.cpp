@@ -1613,8 +1613,9 @@ static void NativeCrypto_SSL_set_cipher_lists(JNIEnv* env, jclass,
     int length = env->GetArrayLength(cipherSuites);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists length=%d", ssl, length);
     for (int i = 0; i < length; i++) {
-        ScopedLocalRef cipherSuite(env, env->GetObjectArrayElement(cipherSuites, i));
-        ScopedUtfChars c(env, reinterpret_cast<jstring>(cipherSuite.get()));
+        ScopedLocalRef<jstring> cipherSuite(env,
+                reinterpret_cast<jstring>(env->GetObjectArrayElement(cipherSuites, i)));
+        ScopedUtfChars c(env, cipherSuite.get());
         JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists cipherSuite=%s", ssl, c.c_str());
         bool found = false;
         for (int j = 0; j < num_ciphers; j++) {

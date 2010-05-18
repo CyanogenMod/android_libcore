@@ -18,7 +18,9 @@
 
 #include "JNIHelp.h"
 #include "LocalArray.h"
+#include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
+#include "UniquePtr.h"
 #include "jni.h"
 #include "utils/Log.h"
 
@@ -144,9 +146,8 @@ static int hashString(const char* s) {
 static InternedString* newInternedString(JNIEnv* env,
         ParsingContext* parsingContext, const char* bytes, int hash) {
     // Allocate a new wrapper.
-    InternedString* wrapper
-        = (InternedString* ) malloc(sizeof(InternedString));
-    if (wrapper == NULL) {
+    UniquePtr<InternedString> wrapper(new InternedString);
+    if (wrapper.get() == NULL) {
         throw_OutOfMemoryError(env);
         return NULL;
     }
@@ -157,7 +158,6 @@ static InternedString* newInternedString(JNIEnv* env,
     wrapper->bytes = copy;
     if (wrapper->bytes == NULL) {
         throw_OutOfMemoryError(env);
-        free(wrapper);
         return NULL;
     }
 
@@ -166,34 +166,28 @@ static InternedString* newInternedString(JNIEnv* env,
 
     // To intern a string, we must first create a new string and then call
     // intern() on it. We then keep a global reference to the interned string.
-    jstring newString = env->NewStringUTF(bytes);
+    ScopedLocalRef<jstring> newString(env, env->NewStringUTF(bytes));
     if (env->ExceptionCheck()) {
         free(copy);
-        free(wrapper);
         return NULL;
     }
 
     // Call intern().
-    jstring interned =
-        (jstring) env->CallObjectMethod(newString, internMethod);
+    ScopedLocalRef<jstring> interned(env,
+            reinterpret_cast<jstring>(env->CallObjectMethod(newString.get(), internMethod)));
     if (env->ExceptionCheck()) {
         free(copy);
-        free(wrapper);
         return NULL;
     }
 
     // Create a global reference to the interned string.
-    wrapper->interned = (jstring) env->NewGlobalRef(interned);
+    wrapper->interned = (jstring) env->NewGlobalRef(interned.get());
     if (env->ExceptionCheck()) {
         free(copy);
-        free(wrapper);
         return NULL;
     }
 
-    env->DeleteLocalRef(interned);
-    env->DeleteLocalRef(newString);
-
-    return wrapper;
+    return wrapper.release();
 }
 
 /**
@@ -827,8 +821,7 @@ static void endDtd(void* data) {
  * @param target of the instruction
  * @param instructionData
  */
-static void processingInstruction(void* data, const char* target,
-        const char* instructionData) {
+static void processingInstruction(void* data, const char* target, const char* instructionData) {
     ParsingContext* parsingContext = (ParsingContext*) data;
     JNIEnv* env = parsingContext->env;
 
@@ -838,14 +831,11 @@ static void processingInstruction(void* data, const char* target,
     jstring javaTarget = internString(env, parsingContext, target);
     if (env->ExceptionCheck()) return;
 
-    jstring javaInstructionData = env->NewStringUTF(instructionData);
+    ScopedLocalRef<jstring> javaInstructionData(env, env->NewStringUTF(instructionData));
     if (env->ExceptionCheck()) return;
 
     jobject javaParser = parsingContext->object;
-    env->CallVoidMethod(javaParser, processingInstructionMethod, javaTarget,
-        javaInstructionData);
-
-    env->DeleteLocalRef(javaInstructionData);
+    env->CallVoidMethod(javaParser, processingInstructionMethod, javaTarget, javaInstructionData.get());
 }
 
 /**
@@ -899,22 +889,22 @@ static int handleExternalEntity(XML_Parser parser, const char* context,
         return XML_STATUS_ERROR;
     }
 
-    jstring javaSystemId = env->NewStringUTF(systemId);
+    ScopedLocalRef<jstring> javaSystemId(env, env->NewStringUTF(systemId));
     if (env->ExceptionCheck()) {
         return XML_STATUS_ERROR;
     }
-    jstring javaPublicId = env->NewStringUTF(publicId);
+    ScopedLocalRef<jstring> javaPublicId(env, env->NewStringUTF(publicId));
     if (env->ExceptionCheck()) {
         return XML_STATUS_ERROR;
     }
-    jstring javaContext = env->NewStringUTF(context);
+    ScopedLocalRef<jstring> javaContext(env, env->NewStringUTF(context));
     if (env->ExceptionCheck()) {
         return XML_STATUS_ERROR;
     }
 
     // Pass the wrapped parser and both strings to java.
-    env->CallVoidMethod(javaParser, handleExternalEntityMethod, javaContext,
-        javaPublicId, javaSystemId);
+    env->CallVoidMethod(javaParser, handleExternalEntityMethod, javaContext.get(),
+            javaPublicId.get(), javaSystemId.get());
 
     /*
      * Parsing the external entity leaves parsingContext->env and object set to
@@ -925,10 +915,6 @@ static int handleExternalEntity(XML_Parser parser, const char* context,
      */
     parsingContext->env = env;
     parsingContext->object = object;
-
-    env->DeleteLocalRef(javaSystemId);
-    env->DeleteLocalRef(javaPublicId);
-    env->DeleteLocalRef(javaContext);
 
     return env->ExceptionCheck() ? XML_STATUS_ERROR : XML_STATUS_OK;
 }
@@ -941,21 +927,16 @@ static void unparsedEntityDecl(void* data, const char* name, const char* base, c
     // Bail out if a previously called handler threw an exception.
     if (env->ExceptionCheck()) return;
 
-    jstring javaName = env->NewStringUTF(name);
+    ScopedLocalRef<jstring> javaName(env, env->NewStringUTF(name));
     if (env->ExceptionCheck()) return;
-    jstring javaPublicId = env->NewStringUTF(publicId);
+    ScopedLocalRef<jstring> javaPublicId(env, env->NewStringUTF(publicId));
     if (env->ExceptionCheck()) return;
-    jstring javaSystemId = env->NewStringUTF(systemId);
+    ScopedLocalRef<jstring> javaSystemId(env, env->NewStringUTF(systemId));
     if (env->ExceptionCheck()) return;
-    jstring javaNotationName = env->NewStringUTF(notationName);
+    ScopedLocalRef<jstring> javaNotationName(env, env->NewStringUTF(notationName));
     if (env->ExceptionCheck()) return;
 
-    env->CallVoidMethod(javaParser, unparsedEntityDeclMethod, javaName, javaPublicId, javaSystemId, javaNotationName);
-
-    env->DeleteLocalRef(javaName);
-    env->DeleteLocalRef(javaPublicId);
-    env->DeleteLocalRef(javaSystemId);
-    env->DeleteLocalRef(javaNotationName);
+    env->CallVoidMethod(javaParser, unparsedEntityDeclMethod, javaName.get(), javaPublicId.get(), javaSystemId.get(), javaNotationName.get());
 }
 
 static void notationDecl(void* data, const char* name, const char* base, const char* systemId, const char* publicId) {
@@ -966,18 +947,14 @@ static void notationDecl(void* data, const char* name, const char* base, const c
     // Bail out if a previously called handler threw an exception.
     if (env->ExceptionCheck()) return;
 
-    jstring javaName = env->NewStringUTF(name);
+    ScopedLocalRef<jstring> javaName(env, env->NewStringUTF(name));
     if (env->ExceptionCheck()) return;
-    jstring javaPublicId = env->NewStringUTF(publicId);
+    ScopedLocalRef<jstring> javaPublicId(env, env->NewStringUTF(publicId));
     if (env->ExceptionCheck()) return;
-    jstring javaSystemId = env->NewStringUTF(systemId);
+    ScopedLocalRef<jstring> javaSystemId(env, env->NewStringUTF(systemId));
     if (env->ExceptionCheck()) return;
 
-    env->CallVoidMethod(javaParser, notationDeclMethod, javaName, javaPublicId, javaSystemId);
-
-    env->DeleteLocalRef(javaName);
-    env->DeleteLocalRef(javaPublicId);
-    env->DeleteLocalRef(javaSystemId);
+    env->CallVoidMethod(javaParser, notationDeclMethod, javaName.get(), javaPublicId.get(), javaSystemId.get());
 }
 
 /**

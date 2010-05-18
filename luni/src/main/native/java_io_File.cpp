@@ -18,6 +18,7 @@
 #include "JNIHelp.h"
 #include "LocalArray.h"
 #include "ScopedFd.h"
+#include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 
 #include <dirent.h>
@@ -356,15 +357,14 @@ static jobjectArray java_io_File_listImpl(JNIEnv* env, jobject, jbyteArray pathB
     }
     jobjectArray result = env->NewObjectArray(files.size(), stringClass, NULL);
     for (int i = 0; files.size() != 0; files.pop_front(), ++i) {
-        jstring javaFilename = env->NewStringUTF(files.front());
+        ScopedLocalRef<jstring> javaFilename(env, env->NewStringUTF(files.front()));
         if (env->ExceptionCheck()) {
             return NULL;
         }
-        env->SetObjectArrayElement(result, i, javaFilename);
+        env->SetObjectArrayElement(result, i, javaFilename.get());
         if (env->ExceptionCheck()) {
             return NULL;
         }
-        env->DeleteLocalRef(javaFilename);
     }
     return result;
 }

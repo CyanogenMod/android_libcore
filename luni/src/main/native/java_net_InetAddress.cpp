@@ -19,6 +19,7 @@
 #define LOG_DNS 0
 
 #include "JNIHelp.h"
+#include "ScopedLocalRef.h"
 #include "utils/Log.h"
 #include "jni.h"
 
@@ -123,16 +124,15 @@ static jobjectArray InetAddress_getaddrinfoImpl(JNIEnv* env, const char* name) {
             }
 
             // Convert each IP address into a Java byte array.
-            jbyteArray bytearray = env->NewByteArray(addressLength);
-            if (bytearray == NULL) {
+            ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(addressLength));
+            if (byteArray.get() == NULL) {
                 // Out of memory error will be thrown on return.
                 LOGE("getaddrinfo: Can't allocate %d-byte array", addressLength);
                 addressArray = NULL;
                 break;
             }
-            env->SetByteArrayRegion(bytearray, 0, addressLength, (jbyte*) rawAddress);
-            env->SetObjectArrayElement(addressArray, index, bytearray);
-            env->DeleteLocalRef(bytearray);
+            env->SetByteArrayRegion(byteArray.get(), 0, addressLength, (jbyte*) rawAddress);
+            env->SetObjectArrayElement(addressArray, index, byteArray.get());
             index++;
         }
     } else if (result == EAI_SYSTEM && errno == EACCES) {

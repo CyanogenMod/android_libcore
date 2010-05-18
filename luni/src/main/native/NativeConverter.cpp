@@ -19,6 +19,7 @@
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
+#include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "unicode/ucnv.h"
@@ -558,9 +559,8 @@ static jobjectArray getAvailableCharsetNames(JNIEnv* env, jclass) {
     jobjectArray result = env->NewObjectArray(num, env->FindClass("java/lang/String"), NULL);
     for (int i = 0; i < num; ++i) {
         const char* name = ucnv_getAvailableName(i);
-        jstring javaCanonicalName = getJavaCanonicalName(env, name);
-        env->SetObjectArrayElement(result, i, javaCanonicalName);
-        env->DeleteLocalRef(javaCanonicalName);
+        ScopedLocalRef<jstring> javaCanonicalName(env, getJavaCanonicalName(env, name));
+        env->SetObjectArrayElement(result, i, javaCanonicalName.get());
     }
     return result;
 }
@@ -595,9 +595,8 @@ static jobjectArray getAliases(JNIEnv* env, const char* icuCanonicalName) {
     // Convert our C++ char*[] into a Java String[]...
     jobjectArray result = env->NewObjectArray(actualAliasCount, env->FindClass("java/lang/String"), NULL);
     for (int i = 0; i < actualAliasCount; ++i) {
-        jstring alias = env->NewStringUTF(aliasArray[i]);
-        env->SetObjectArrayElement(result, i, alias);
-        env->DeleteLocalRef(alias);
+        ScopedLocalRef<jstring> alias(env, env->NewStringUTF(aliasArray[i]));
+        env->SetObjectArrayElement(result, i, alias.get());
     }
     return result;
 }
