@@ -43,9 +43,6 @@ public final class MockWebServer {
 
     static final String ASCII = "US-ASCII";
 
-    /** sentinel object to shut down the server */
-    private static final MockResponse NO_MORE_REQUESTS = new MockResponse();
-
     private final BlockingQueue<RecordedRequest> requestQueue
             = new LinkedBlockingQueue<RecordedRequest>();
     private final BlockingQueue<MockResponse> responseQueue
@@ -80,9 +77,6 @@ public final class MockWebServer {
     }
 
     public void enqueue(MockResponse response) {
-        if (port != -1) {
-            throw new IllegalStateException("Cannot enqueue responses after calling play().");
-        }
         responseQueue.add(response);
     }
 
@@ -99,20 +93,21 @@ public final class MockWebServer {
      * down.
      */
     public void play() throws IOException {
-        responseQueue.add(NO_MORE_REQUESTS);
         final ServerSocket ss = new ServerSocket(0);
         ss.setReuseAddress(true);
         port = ss.getLocalPort();
         executor.submit(new Callable<Void>() {
             public Void call() throws Exception {
+                int count = 0;
                 while (true) {
-                    if (responseQueue.peek() == NO_MORE_REQUESTS) {
+                    if (count > 0 && responseQueue.isEmpty()) {
                         ss.close();
                         executor.shutdown();
                         return null;
                     }
 
                     serveConnection(ss.accept());
+                    count++;
                 }
             }
         });
@@ -211,7 +206,7 @@ public final class MockWebServer {
      * Returns a response to satisfy {@code request}.
      */
     private MockResponse computeResponse(RecordedRequest request) throws InterruptedException {
-        if (responseQueue.peek() == NO_MORE_REQUESTS) {
+        if (responseQueue.isEmpty()) {
             throw new IllegalStateException("Unexpected request: " + request);
         }
         return responseQueue.take();
