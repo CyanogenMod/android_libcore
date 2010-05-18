@@ -16,7 +16,6 @@
 
 package javax.net.ssl;
 
-import dalvik.annotation.KnownFailure;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.ServerSocket;
@@ -78,7 +77,6 @@ public class SSLSocketFactoryTest extends TestCase {
         assertEquals(StandardNames.CIPHER_SUITES.size(), cipherSuites.length);
     }
 
-    @KnownFailure("Should not parse bogus port number -1 during createSocket")
     public void test_SSLSocketFactory_createSocket() throws Exception {
         try {
             SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();

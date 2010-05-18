@@ -24,7 +24,8 @@ mkdir $tmp
 chmod 777 $tmp
 
 # Build the classpath by putting together the jar file for each module.
-classpath="/system/framework/sqlite-jdbc.jar" # Bonus item for jdbc testing.
+classpath="/system/framework/core-junit.jar:/system/framework/core-junitrunner.jar"
+classpath="$classpath:/system/framework/sqlite-jdbc.jar" # Bonus item for jdbc testing.
 modules="dom json luni support xml"
 for module in $modules; do
   classpath="$classpath:/system/framework/core-tests-$module.jar"
