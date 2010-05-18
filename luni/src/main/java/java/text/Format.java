@@ -83,36 +83,6 @@ public abstract class Format implements Serializable, Cloneable {
         }
     }
 
-    String convertPattern(String template, String fromChars, String toChars,
-            boolean check) {
-        if (!check && fromChars.equals(toChars)) {
-            return template;
-        }
-        boolean quote = false;
-        StringBuilder output = new StringBuilder();
-        int length = template.length();
-        for (int i = 0; i < length; i++) {
-            int index;
-            char next = template.charAt(i);
-            if (next == '\'') {
-                quote = !quote;
-            }
-            if (!quote && (index = fromChars.indexOf(next)) != -1) {
-                output.append(toChars.charAt(index));
-            } else if (check && !quote
-                    && ((next >= 'a' && next <= 'z') || (next >= 'A' && next <= 'Z'))) {
-                throw new IllegalArgumentException("Invalid pattern character '" + next + "' in " +
-                        "'" + template + "'");
-            } else {
-                output.append(next);
-            }
-        }
-        if (quote) {
-            throw new IllegalArgumentException("Unterminated quote");
-        }
-        return output.toString();
-    }
-
     /**
      * Formats the specified object using the rules of this format.
      *

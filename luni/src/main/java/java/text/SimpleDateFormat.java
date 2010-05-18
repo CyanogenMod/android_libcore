@@ -461,14 +461,8 @@ public class SimpleDateFormat extends DateFormat {
     public SimpleDateFormat(String template, Locale locale) {
         this(locale);
         validatePattern(template);
-        // BEGIN android-removed
-        // icuFormat = new com.ibm.icu.text.SimpleDateFormat(template, locale);
-        // icuFormat.setTimeZone(com.ibm.icu.util.TimeZone.getTimeZone(tzId));
-        // END android-removed
         pattern = template;
-        // BEGIN android-changed
         formatData = new DateFormatSymbols(locale);
-        // END android-changed
     }
 
     private SimpleDateFormat(Locale locale) {
@@ -477,9 +471,6 @@ public class SimpleDateFormat extends DateFormat {
         numberFormat.setGroupingUsed(false);
         calendar = new GregorianCalendar(locale);
         calendar.add(Calendar.YEAR, -80);
-        // BEGIN android-removed
-        // tzId = calendar.getTimeZone().getID();
-        // END android-removed
         creationYear = calendar.get(Calendar.YEAR);
         defaultCenturyStart = calendar.getTime();
     }
@@ -492,10 +483,7 @@ public class SimpleDateFormat extends DateFormat {
      *            the localized pattern.
      */
     public void applyLocalizedPattern(String template) {
-        // BEGIN android-changed
-        pattern = convertPattern(template, formatData.getLocalPatternChars(),
-                patternChars, true);
-        // END android-changed
+        pattern = convertPattern(template, formatData.getLocalPatternChars(), patternChars, true);
     }
 
     /**
@@ -511,15 +499,6 @@ public class SimpleDateFormat extends DateFormat {
      */
     public void applyPattern(String template) {
         validatePattern(template);
-        // BEGIN android-removed
-        // /*
-        //  * ICU spec explicitly mentions that "ICU interprets a single 'y'
-        //  * differently than Java." We need to do a trick here to follow Java
-        //  * spec.
-        //  */
-        // String templateForICU = patternForICU(template);
-        // icuFormat.applyPattern(templateForICU);
-        // END android-removed
         pattern = template;
     }
 
@@ -622,8 +601,7 @@ public class SimpleDateFormat extends DateFormat {
             return formatToCharacterIteratorImpl((Date) object);
         }
         if (object instanceof Number) {
-            return formatToCharacterIteratorImpl(new Date(((Number) object)
-                    .longValue()));
+            return formatToCharacterIteratorImpl(new Date(((Number) object).longValue()));
         }
         throw new IllegalArgumentException();
 
@@ -747,7 +725,6 @@ public class SimpleDateFormat extends DateFormat {
             case YEAR_FIELD:
                 dateFormatField = Field.YEAR;
                 int year = calendar.get(Calendar.YEAR);
-                // BEGIN android-changed
                 // According to Unicode CLDR TR35(http://unicode.org/reports/tr35/) :
                 // If date pattern is "yy", display the last 2 digits of year.
                 // Otherwise, display the actual year with minimum digit count.
@@ -757,7 +734,6 @@ public class SimpleDateFormat extends DateFormat {
                 } else {
                     appendNumber(buffer, count, year);
                 }
-               // END android-changed
                 break;
             case MONTH_FIELD:
                 dateFormatField = Field.MONTH;
@@ -838,12 +814,10 @@ public class SimpleDateFormat extends DateFormat {
                 dateFormatField = Field.TIME_ZONE;
                 appendTimeZone(buffer, count, true);
                 break;
-            // BEGIN android-changed
             case (TIMEZONE_FIELD + 1): // Z
                 dateFormatField = Field.TIME_ZONE;
                 appendNumericTimeZone(buffer, false);
                 break;
-            // END android-changed
         }
         if (field != -1) {
             appendNumber(buffer, count, calendar.get(field));
@@ -875,7 +849,6 @@ public class SimpleDateFormat extends DateFormat {
      * versus 'Z' in the format string.
      */
     private void appendTimeZone(StringBuffer buffer, int count, boolean generalTimeZone) {
-        // BEGIN android-changed: optimized.
         if (generalTimeZone) {
             TimeZone tz = calendar.getTimeZone();
             boolean daylight = (calendar.get(Calendar.DST_OFFSET) != 0);
@@ -894,10 +867,8 @@ public class SimpleDateFormat extends DateFormat {
         }
         // We didn't find what we were looking for, so default to a numeric time zone.
         appendNumericTimeZone(buffer, generalTimeZone);
-        // END android-changed
     }
 
-    // BEGIN android-added: factored out duplication.
     /**
      * @param generalTimeZone "GMT-08:00" rather than "-0800".
      */
@@ -918,7 +889,6 @@ public class SimpleDateFormat extends DateFormat {
         }
         appendNumber(buffer, 2, (offset % 3600000) / 60000);
     }
-    // END android-added
 
     private void appendNumber(StringBuffer buffer, int count, int value) {
         int minimumIntegerDigits = numberFormat.getMinimumIntegerDigits();
@@ -927,13 +897,11 @@ public class SimpleDateFormat extends DateFormat {
         numberFormat.setMinimumIntegerDigits(minimumIntegerDigits);
     }
 
-    // BEGIN android-added
     private Date error(ParsePosition position, int offset, TimeZone zone) {
         position.setErrorIndex(offset);
         calendar.setTimeZone(zone);
         return null;
     }
-    // END android-added
 
     /**
      * Formats the specified date as a string using the pattern of this date
@@ -957,10 +925,8 @@ public class SimpleDateFormat extends DateFormat {
      */
     @Override
     public StringBuffer format(Date date, StringBuffer buffer, FieldPosition fieldPos) {
-        // BEGIN android-changed
         // Harmony delegates to ICU's SimpleDateFormat, we implement it directly
         return formatImpl(date, buffer, fieldPos, null);
-        // END android-changed
     }
 
     /**
@@ -985,7 +951,6 @@ public class SimpleDateFormat extends DateFormat {
                 + creationYear;
     }
 
-    // BEGIN android-added
     private int parse(String string, int offset, char format, int count) {
         int index = patternChars.indexOf(format);
         if (index == -1) {
@@ -1108,7 +1073,6 @@ public class SimpleDateFormat extends DateFormat {
         }
         return offset;
     }
-    // END android-added
 
     /**
      * Parses a date from the specified string starting at the index specified
@@ -1133,7 +1097,6 @@ public class SimpleDateFormat extends DateFormat {
      */
     @Override
     public Date parse(String string, ParsePosition position) {
-        // BEGIN android-changed
         // Harmony delegates to ICU's SimpleDateFormat, we implement it directly
         boolean quote = false;
         int next, last = -1, count = 0, offset = position.getIndex();
@@ -1203,10 +1166,8 @@ public class SimpleDateFormat extends DateFormat {
         position.setIndex(offset);
         calendar.setTimeZone(zone);
         return date;
-        // END android-changed
     }
 
-    // BEGIN android-added
     private Number parseNumber(int max, String string, ParsePosition position) {
         int digit, length = string.length(), result = 0;
         int index = position.getIndex();
@@ -1268,9 +1229,7 @@ public class SimpleDateFormat extends DateFormat {
     }
 
     private int parseTimeZone(String string, int offset) {
-        // BEGIN android-changed
         String[][] zones = formatData.internalZoneStrings();
-        // END android-changed
         boolean foundGMT = string.regionMatches(offset, "GMT", 0, 3);
         if (foundGMT) {
             offset += 3;
@@ -1326,7 +1285,6 @@ public class SimpleDateFormat extends DateFormat {
         }
         return -offset - 1;
     }
-    // END android-added
 
     /**
      * Sets the date which is the start of the one hundred year period for two-digit year values.
@@ -1345,11 +1303,6 @@ public class SimpleDateFormat extends DateFormat {
      *            the new {@code DateFormatSymbols} object.
      */
     public void setDateFormatSymbols(DateFormatSymbols value) {
-        // BEGIN android-removed
-        // com.ibm.icu.text.DateFormatSymbols icuSymbols = new com.ibm.icu.text.DateFormatSymbols();
-        // copySymbols(value, icuSymbols);
-        // icuFormat.setDateFormatSymbols(icuSymbols);
-        // END android-removed
         formatData = (DateFormatSymbols) value.clone();
     }
 
@@ -1360,10 +1313,34 @@ public class SimpleDateFormat extends DateFormat {
      * @return the localized pattern.
      */
     public String toLocalizedPattern() {
-        // BEGIN android-changed
-        return convertPattern(pattern, patternChars, formatData
-                .getLocalPatternChars(), false);
-        // END android-changed
+        return convertPattern(pattern, patternChars, formatData.getLocalPatternChars(), false);
+    }
+
+    private static String convertPattern(String template, String fromChars, String toChars, boolean check) {
+        if (!check && fromChars.equals(toChars)) {
+            return template;
+        }
+        boolean quote = false;
+        StringBuilder output = new StringBuilder();
+        int length = template.length();
+        for (int i = 0; i < length; i++) {
+            int index;
+            char next = template.charAt(i);
+            if (next == '\'') {
+                quote = !quote;
+            }
+            if (!quote && (index = fromChars.indexOf(next)) != -1) {
+                output.append(toChars.charAt(index));
+            } else if (check && !quote && ((next >= 'a' && next <= 'z') || (next >= 'A' && next <= 'Z'))) {
+                throw new IllegalArgumentException("Invalid pattern character '" + next + "' in " + "'" + template + "'");
+            } else {
+                output.append(next);
+            }
+        }
+        if (quote) {
+            throw new IllegalArgumentException("Unterminated quote");
+        }
+        return output.toString();
     }
 
     /**
@@ -1391,8 +1368,7 @@ public class SimpleDateFormat extends DateFormat {
         stream.writeFields();
     }
 
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         ObjectInputStream.GetField fields = stream.readFields();
         int version = fields.get("serialVersionOnStream", 0);
         Date date;

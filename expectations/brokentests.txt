@@ -893,3 +893,18 @@ pattern .*junit.framework.AssertionFailedError: stripTrailingZero failed for 0.0
 test org.apache.harmony.nio.tests.java.nio.channels.DatagramChannelTest#testReadByteBuffer_readOnlyBuf
 result EXEC_FAILED
 pattern .*java.lang.IllegalArgumentException: read-only buffer.*
+
+# we don't cache canonical paths.
+test org.apache.harmony.luni.tests.java.io.FileCanonPathCacheTest
+result EXEC_FAILED
+
+# ICU doesn't provide localized pattern characters, and these tests assume the locale they're using has them.
+test org.apache.harmony.text.tests.java.text.SimpleDateFormatTest#test_applyLocalizedPatternLjava_lang_String
+result EXEC_FAILED
+pattern .*java.lang.IllegalArgumentException: Invalid pattern character 'u' in 'GuMtkHmsSEDFwWahKz'.*
+test org.apache.harmony.text.tests.java.text.SimpleDateFormatTest#test_toLocalizedPattern
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: Wrong pattern: GyMdkHmsSEDFwWahKz.*
+test org.apache.harmony.text.tests.java.text.DateFormatSymbolsTest#test_getLocalPatternChars
+result EXEC_FAILED
+pattern .*junit.framework.ComparisonFailure: Returned incorrect pattern string expected:<...YeugAZvcLQqV> but was:<...Z>.*
