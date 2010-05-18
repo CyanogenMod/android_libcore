@@ -16,8 +16,6 @@
 
 package javax.net.ssl;
 
-import dalvik.annotation.KnownFailure;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import junit.framework.TestCase;
 
@@ -85,12 +83,9 @@ public class SSLSessionTest extends TestCase {
                    s.client.getCreationTime());
     }
 
-    @KnownFailure("client local certificates should be null as it should not have been requested by server")
     public void test_SSLSession_getLocalCertificates() throws Exception {
         TestSSLSessions s = TestSSLSessions.create();
         assertNull(s.invalid.getLocalCertificates());
-        // TODO Fix Known Failure
-        // Need to fix NativeCrypto.SSL_new to not use SSL_use_certificate
         assertNull(s.client.getLocalCertificates());
         assertNotNull(s.server.getLocalCertificates());
         assertEquals(1, s.server.getLocalCertificates().length);
@@ -98,12 +93,9 @@ public class SSLSessionTest extends TestCase {
                                                    s.s.c.keyStore);
     }
 
-    @KnownFailure("client local principal should be null as it should not have been requested by server")
     public void test_SSLSession_getLocalPrincipal() throws Exception {
         TestSSLSessions s = TestSSLSessions.create();
         assertNull(s.invalid.getLocalPrincipal());
-        // TODO Fix Known Failure
-        // Need to fix NativeCrypto.SSL_new to not use SSL_use_certificate
         assertNull(s.client.getLocalPrincipal());
         assertNotNull(s.server.getLocalPrincipal());
         assertNotNull(s.server.getLocalPrincipal().getName());
