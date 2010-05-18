@@ -26,12 +26,12 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * Encapsulates localizable date-time formatting data, such as the names of the
+ * Encapsulates localized date-time formatting data, such as the names of the
  * months, the names of the days of the week, and the time zone data.
  * {@code DateFormat} and {@code SimpleDateFormat} both use
  * {@code DateFormatSymbols} to encapsulate this information.
- * <p>
- * Typically you shouldn't use {@code DateFormatSymbols} directly. Rather, you
+ *
+ * <p>Typically you shouldn't use {@code DateFormatSymbols} directly. Rather, you
  * are encouraged to create a date/time formatter with the {@code DateFormat}
  * class's factory methods: {@code getTimeInstance}, {@code getDateInstance},
  * or {@code getDateTimeInstance}. These methods automatically create a
@@ -39,25 +39,10 @@ import java.util.Locale;
  * the formatter is created, you may modify its format pattern using the
  * {@code setPattern} method. For more information about creating formatters
  * using {@code DateFormat}'s factory methods, see {@link DateFormat}.
- * <p>
- * If you decide to create a date/time formatter with a specific format pattern
- * for a specific locale, you can do so with:
- * <blockquote>
  *
- * <pre>
- * new SimpleDateFormat(aPattern, new DateFormatSymbols(aLocale)).
- * </pre>
- *
- * </blockquote>
- * <p>
- * {@code DateFormatSymbols} objects can be cloned. When you obtain a
- * {@code DateFormatSymbols} object, feel free to modify the date/time
- * formatting data. For instance, you can replace the localized date/time format
- * pattern characters with the ones that you feel easy to remember or you can
- * change the representative cities to your favorite ones.
- * <p>
- * New {@code DateFormatSymbols} subclasses may be added to support
- * {@code SimpleDateFormat} for date/time formatting for additional locales.
+ * <p>Direct use of {@code DateFormatSymbols} is likely to be less efficient
+ * because the implementation cannot make assumptions about user-supplied/user-modifiable data
+ * to the same extent that it can with its own built-in data.
  *
  * @see DateFormat
  * @see SimpleDateFormat
@@ -75,11 +60,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     // Has the user called setZoneStrings?
     transient boolean customZoneStrings;
 
-    // BEGIN android-removed
-    // transient private com.ibm.icu4jni.text.DateFormatSymbols icuSymbols;
-    // END android-removed
-
-// BEGIN android-added
     /**
      * Locale, necessary to lazily load time zone strings. We force the time
      * zone names to load upon serialization, so this will never be needed
@@ -98,7 +78,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         }
         return zoneStrings;
     }
-// END android-added
 
     /**
      * Constructs a new {@code DateFormatSymbols} instance containing the
@@ -167,36 +146,17 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     }
 
     private void writeObject(ObjectOutputStream oos) throws IOException {
-        // BEGIN android-changed
         internalZoneStrings();
-        // END android-changed
         oos.defaultWriteObject();
     }
 
-    // BEGIN android-removed
-    // DateFormatSymbols(Locale locale,
-    //         com.ibm.icu4jni.text.DateFormatSymbols icuSymbols) {
-    //
-    //     this.icuSymbols = icuSymbols;
-    //     localPatternChars = icuSymbols.getLocalPatternChars();
-    //     ampms = icuSymbols.getAmPmStrings();
-    //     eras = icuSymbols.getEras();
-    //     months = icuSymbols.getMonths();
-    //     shortMonths = icuSymbols.getShortMonths();
-    //     shortWeekdays = icuSymbols.getShortWeekdays();
-    //     weekdays = icuSymbols.getWeekdays();
-    // }
-    // END android-removed
-
     @Override
     public Object clone() {
-        // BEGIN android-changed
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
-        // END android-changed
     }
 
     /**
@@ -333,13 +293,16 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the two-dimensional array of strings containing the names of the
-     * time zones. Each element in the array is an array of five strings, the
-     * first is a TimeZone ID, the second and third are the full and abbreviated
-     * time zone names for standard time, and the fourth and fifth are the full
-     * and abbreviated names for daylight time.
-     *
-     * @return a two-dimensional array of strings.
+     * Returns the two-dimensional array of strings containing localized names for time zones.
+     * Each row is an array of five strings:
+     * <ul>
+     * <li>The time zone ID, for example "America/Los_Angeles".
+     * This is not localized, and is used as a key into the table.
+     * <li>The long display name, for example "Pacific Standard Time".
+     * <li>The short display name, for example "PST".
+     * <li>The long display name for DST, for example "Pacific Daylight Time".
+     * <li>The short display name for DST, for example "PDT".
+     * </ul>
      */
     public String[][] getZoneStrings() {
         return ICU.clone2dStringArray(internalZoneStrings());
@@ -347,9 +310,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
 
     @Override
     public int hashCode() {
-        // BEGIN android-changed
         String[][] zoneStrings = internalZoneStrings();
-        // END android-changed
         int hashCode;
         hashCode = localPatternChars.hashCode();
         for (String element : ampms) {
@@ -469,17 +430,21 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     }
 
     /**
-     * Sets the two-dimensional array of strings containing the names of the
-     * time zones. Each element in the array is an array of five strings, the
-     * first is a TimeZone ID, and second and third are the full and abbreviated
-     * time zone names for standard time, and the fourth and fifth are the full
-     * and abbreviated names for daylight time.
-     *
-     * @param data
-     *            the two-dimensional array of strings.
+     * Sets the two-dimensional array of strings containing localized names for time zones.
+     * See {@link #getZoneStrings} for details.
+     * @throws IllegalArgumentException if any row has fewer than 5 elements.
+     * @throws NullPointerException if {@code zoneStrings == null}.
      */
-    public void setZoneStrings(String[][] data) {
-        zoneStrings = ICU.clone2dStringArray(data);
-        customZoneStrings = true;
+    public void setZoneStrings(String[][] zoneStrings) {
+        if (zoneStrings == null) {
+            throw new NullPointerException();
+        }
+        for (String[] row : zoneStrings) {
+            if (row.length < 5) {
+                throw new IllegalArgumentException(Arrays.toString(row) + ".length < 5");
+            }
+        }
+        this.zoneStrings = ICU.clone2dStringArray(zoneStrings);
+        this.customZoneStrings = true;
     }
 }
