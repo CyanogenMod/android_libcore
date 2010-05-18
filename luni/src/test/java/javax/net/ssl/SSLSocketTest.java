@@ -185,7 +185,6 @@ public class SSLSocketTest extends TestCase {
         assertFalse(session.isValid());
     }
 
-    @KnownFailure("local certificates should be null as it should not have been requested by server")
     public void test_SSLSocket_startHandshake() throws Exception {
         final TestSSLContext c = TestSSLContext.create();
         SSLSocket client = (SSLSocket) c.sslContext.getSocketFactory().createSocket(c.host, c.port);
@@ -260,7 +259,6 @@ public class SSLSocketTest extends TestCase {
         thread.join();
     }
 
-    @KnownFailure("local certificates should be null as it should not have been requested by server")
     public void test_SSLSocket_HandshakeCompletedListener() throws Exception {
         final TestSSLContext c = TestSSLContext.create();
         final SSLSocket client = (SSLSocket) c.sslContext.getSocketFactory().createSocket(c.host, c.port);
@@ -314,8 +312,6 @@ public class SSLSocketTest extends TestCase {
                     assertTrue(Arrays.asList(client.getEnabledCipherSuites()).contains(cipherSuite));
                     assertTrue(Arrays.asList(c.serverSocket.getEnabledCipherSuites()).contains(cipherSuite));
 
-                    // TODO Fix Known Failure
-                    // Need to fix NativeCrypto.SSL_new to not use SSL_use_certificate
                     assertNull(localCertificates);
 
                     assertNotNull(peerCertificates);
