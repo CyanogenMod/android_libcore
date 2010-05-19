@@ -16,7 +16,6 @@
 
 package javax.net.ssl;
 
-import dalvik.annotation.KnownFailure;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -48,7 +47,6 @@ public class SSLSocketTest extends TestCase {
         assertEquals(StandardNames.CIPHER_SUITES.size(), cipherSuites.length);
     }
 
-    @KnownFailure("Need to support SSL_RSA_EXPORT_WITH_RC4_40_MD5")
     public void test_SSLSocket_getSupportedCipherSuites_connect() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         String[] cipherSuites = c.sslContext.getSocketFactory().getSupportedCipherSuites();
@@ -62,8 +60,6 @@ public class SSLSocketTest extends TestCase {
             }
             // System.out.println("Trying to connect cipher suite " + cipherSuite);
             String[] cipherSuiteArray = new String[] { cipherSuite };
-            // TODO Fix Known Failure
-            // Need to support SSL_RSA_EXPORT_WITH_RC4_40_MD5
             TestSSLSocketPair.connect(c, cipherSuiteArray, cipherSuiteArray);
         }
     }
