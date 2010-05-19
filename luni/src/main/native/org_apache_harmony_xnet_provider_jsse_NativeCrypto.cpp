@@ -77,7 +77,7 @@ static int throwExceptionIfNecessary(JNIEnv* env, const char* /*location*/) {
     int result = 0;
 
     if (error != 0) {
-        char message[50];
+        char message[256];
         ERR_error_string_n(error, message, sizeof(message));
         // LOGD("OpenSSL error in %s %d: %s", location, error, message);
         jniThrowRuntimeException(env, message);
@@ -108,66 +108,82 @@ static void throwSSLExceptionStr(JNIEnv* env, const char* message) {
 }
 
 /**
+ * Throws a javax.net.ssl.SSLProcotolException with the given string as a message.
+ */
+static void throwSSLProtocolExceptionStr(JNIEnv* env, const char* message) {
+    if (jniThrowException(env, "javax/net/ssl/SSLProtocolException", message)) {
+        LOGE("Unable to throw");
+    }
+}
+
+/**
  * Throws an SSLException with a message constructed from the current
  * SSL errors. This will also log the errors.
  *
  * @param env the JNI environment
- * @param sslErrorCode error code returned from SSL_get_error()
+ * @param sslErrorCode error code returned from SSL_get_error() or
+ * SSL_ERROR_NONE to probe with ERR_get_error
  * @param message null-ok; general error message
  */
 static void throwSSLExceptionWithSslErrors(
         JNIEnv* env, SSL* ssl, int sslErrorCode, const char* message) {
-    const char* messageStr = NULL;
-    char* str;
-    int ret;
+
+    if (message == NULL) {
+        message = "SSL error";
+    }
 
     // First consult the SSL error code for the general message.
+    const char* sslErrorStr = NULL;
     switch (sslErrorCode) {
         case SSL_ERROR_NONE:
-            messageStr = "Ok";
+            if (ERR_peek_error() == 0) {
+                sslErrorStr = "OK";
+            } else {
+                sslErrorStr = "";
+            }
             break;
         case SSL_ERROR_SSL:
-            messageStr = "Failure in SSL library, usually a protocol error";
+            sslErrorStr = "Failure in SSL library, usually a protocol error";
             break;
         case SSL_ERROR_WANT_READ:
-            messageStr = "SSL_ERROR_WANT_READ occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_READ occured. You should never see this.";
             break;
         case SSL_ERROR_WANT_WRITE:
-            messageStr = "SSL_ERROR_WANT_WRITE occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_WRITE occured. You should never see this.";
             break;
         case SSL_ERROR_WANT_X509_LOOKUP:
-            messageStr = "SSL_ERROR_WANT_X509_LOOKUP occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_X509_LOOKUP occured. You should never see this.";
             break;
         case SSL_ERROR_SYSCALL:
-            messageStr = "I/O error during system call";
+            sslErrorStr = "I/O error during system call";
             break;
         case SSL_ERROR_ZERO_RETURN:
-            messageStr = "SSL_ERROR_ZERO_RETURN occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_ZERO_RETURN occured. You should never see this.";
             break;
         case SSL_ERROR_WANT_CONNECT:
-            messageStr = "SSL_ERROR_WANT_CONNECT occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_CONNECT occured. You should never see this.";
             break;
         case SSL_ERROR_WANT_ACCEPT:
-            messageStr = "SSL_ERROR_WANT_ACCEPT occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_ACCEPT occured. You should never see this.";
             break;
         default:
-            messageStr = "Unknown SSL error";
+            sslErrorStr = "Unknown SSL error";
     }
 
     // Prepend either our explicit message or a default one.
-    if (asprintf(&str, "%s: ssl=%p: %s",
-            (message != NULL) ? message : "SSL error", ssl, messageStr) <= 0) {
-        // problem with asprintf
-        throwSSLExceptionStr(env, messageStr);
-        LOGV("%s", messageStr);
+    char* str;
+    if (asprintf(&str, "%s: ssl=%p: %s", message, ssl, sslErrorStr) <= 0) {
+        // problem with asprintf, just throw argument message, log everything
+        throwSSLExceptionStr(env, message);
+        LOGV("%s: ssl=%p: %s", message, ssl, sslErrorStr);
         freeSslErrorState();
         return;
     }
 
     char* allocStr = str;
 
-    // For SSL protocol errors, SSL might have more information.
-    if (sslErrorCode == SSL_ERROR_SSL) {
+    // For protocol errors, SSL might have more information.
+    if (sslErrorCode == SSL_ERROR_NONE || sslErrorCode == SSL_ERROR_SSL) {
         // Append each error as an additional line to the message.
         for (;;) {
             char errStr[256];
@@ -175,21 +191,20 @@ static void throwSSLExceptionWithSslErrors(
             int line;
             const char* data;
             int flags;
-            unsigned long err =
-                ERR_get_error_line_data(&file, &line, &data, &flags);
+            unsigned long err = ERR_get_error_line_data(&file, &line, &data, &flags);
             if (err == 0) {
                 break;
             }
 
             ERR_error_string_n(err, errStr, sizeof(errStr));
 
-            ret = asprintf(&str, "%s\n%s (%s:%d %p:0x%08x)",
-                    (allocStr == NULL) ? "" : allocStr,
-                    errStr,
-                    file,
-                    line,
-                    data,
-                    flags);
+            int ret = asprintf(&str, "%s\n%s (%s:%d %p:0x%08x)",
+                               (allocStr == NULL) ? "" : allocStr,
+                               errStr,
+                               file,
+                               line,
+                               (flags & ERR_TXT_STRING) ? data : "(no data)",
+                               flags);
 
             if (ret < 0) {
                 break;
@@ -212,7 +227,11 @@ static void throwSSLExceptionWithSslErrors(
         }
     }
 
-    throwSSLExceptionStr(env, allocStr);
+    if (sslErrorCode == SSL_ERROR_SSL) {
+        throwSSLProtocolExceptionStr(env, allocStr);
+    } else {
+        throwSSLExceptionStr(env, allocStr);
+    }
 
     LOGV("%s", allocStr);
     free(allocStr);
@@ -1465,7 +1484,7 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass, jint ssl_ctx_address)
     }
     SSL* ssl = SSL_new(ssl_ctx);
     if (ssl == NULL) {
-        throwSSLExceptionWithSslErrors(env, ssl, 0,
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
                 "Unable to create SSL structure");
         JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_new => NULL", ssl_ctx);
         return NULL;
@@ -1519,8 +1538,8 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
     BIO_free(privatekeybio);
 
     if (privatekeyevp == NULL) {
-        LOGE(ERR_error_string(ERR_get_error(), NULL));
-        throwSSLExceptionWithSslErrors(env, ssl, 0, "Error parsing the private key");
+        LOGE(ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing the private key");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => privatekeyevp error", ssl);
         return;
@@ -1528,8 +1547,8 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
 
     int ret = SSL_use_PrivateKey(ssl, privatekeyevp);
     if (ret != 1) {
-        LOGE(ERR_error_string(ERR_get_error(), NULL));
-        throwSSLExceptionWithSslErrors(env, ssl, 0, "Error setting the private key");
+        LOGE(ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting the private key");
         EVP_PKEY_free(privatekeyevp);
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => error", ssl);
@@ -1559,8 +1578,8 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
     BIO_free(certificatesbio);
 
     if (certificatesx509 == NULL) {
-        LOGE(ERR_error_string(ERR_get_error(), NULL));
-        throwSSLExceptionWithSslErrors(env, ssl, 0, "Error parsing the certificates");
+        LOGE(ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing the certificates");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificatesx509 error", ssl);
         return;
@@ -1568,8 +1587,8 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
 
     int ret = SSL_use_certificate(ssl, certificatesx509);
     if (ret != 1) {
-        LOGE(ERR_error_string(ERR_get_error(), NULL));
-        throwSSLExceptionWithSslErrors(env, ssl, 0, "Error setting the certificates");
+        LOGE(ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting the certificates");
         X509_free(certificatesx509);
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => error", ssl);
@@ -1588,7 +1607,7 @@ static void NativeCrypto_SSL_check_private_key(JNIEnv* env, jclass, jint ssl_add
     }
     int ret = SSL_check_private_key(ssl);
     if (ret != 1) {
-        throwSSLExceptionWithSslErrors(env, ssl, 0, "Error checking the private key");
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error checking the private key");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_check_private_key => error", ssl);
         return;
@@ -1773,8 +1792,7 @@ static void NativeCrypto_SSL_set_session(JNIEnv* env, jclass,
          */
         int sslErrorCode = SSL_get_error(ssl, ret);
         if (sslErrorCode != SSL_ERROR_ZERO_RETURN) {
-            throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode,
-                                          "SSL session set");
+            throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "SSL session set");
             SSL_clear(ssl);
         }
     }
@@ -1854,8 +1872,8 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
     JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake s=%d", ssl, fd);
 
     if (ret != 1) {
-        throwSSLExceptionWithSslErrors(env, ssl, 0,
-                "Error setting the file descriptor");
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
+                                       "Error setting the file descriptor");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
         return 0;
@@ -1909,7 +1927,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
             continue;
         } else {
             // LOGD("SSL_connect: result %d, errno %d, timeout %d", ret, errno, timeout);
-            int error = SSL_get_error(ssl, ret);
+            int sslError = SSL_get_error(ssl, ret);
 
             /*
              * If SSL_connect doesn't succeed due to the socket being
@@ -1919,12 +1937,12 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
              * cancel the handshake. Otherwise we try the SSL_connect
              * again.
              */
-            if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+            if (sslError == SSL_ERROR_WANT_READ || sslError == SSL_ERROR_WANT_WRITE) {
                 appData->waitingThreads++;
-                int selectResult = sslSelect(error, fd, appData, timeout);
+                int selectResult = sslSelect(sslError, fd, appData, timeout);
 
                 if (selectResult == -1) {
-                    throwSSLExceptionWithSslErrors(env, ssl, error, "handshake error");
+                    throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_SYSCALL, "handshake error");
                     SSL_clear(ssl);
                     JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
                     return 0;
@@ -1948,13 +1966,11 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
          * completed, but everything is within the bounds of the TLS protocol.
          * We still might want to find out the real reason of the failure.
          */
-        int sslErrorCode = SSL_get_error(ssl, ret);
-        if (sslErrorCode == SSL_ERROR_NONE ||
-            (sslErrorCode == SSL_ERROR_SYSCALL && errno == 0)) {
-          throwSSLExceptionStr(env, "Connection closed by peer");
+        int sslError = SSL_get_error(ssl, ret);
+        if (sslError == SSL_ERROR_NONE || (sslError == SSL_ERROR_SYSCALL && errno == 0)) {
+            throwSSLExceptionStr(env, "Connection closed by peer");
         } else {
-          throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode,
-              "Trouble with SSL handshake");
+            throwSSLExceptionWithSslErrors(env, ssl, sslError, "Trouble with SSL handshake");
         }
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
@@ -1965,9 +1981,8 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
          * Translate the error and throw exception. We are sure it is an error
          * at this point.
          */
-        int sslErrorCode = SSL_get_error(ssl, ret);
-        throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode,
-                "Trouble with SSL handshake");
+        int sslError = SSL_get_error(ssl, ret);
+        throwSSLExceptionWithSslErrors(env, ssl, sslError, "Trouble with SSL handshake");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
         return 0;
@@ -2052,12 +2067,12 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
         appData->setEnv(env);
         int result = SSL_read(ssl, buf, len);
         appData->clearEnv();
-        int error = SSL_ERROR_NONE;
+        int sslError = SSL_ERROR_NONE;
         if (result <= 0) {
-            error = SSL_get_error(ssl, result);
+            sslError = SSL_get_error(ssl, result);
             freeSslErrorState();
         }
-        // LOGD("Returned from SSL_Read() with result %d, error code %d", result, error);
+        // LOGD("Returned from SSL_Read() with result %d, error code %d", result, sslError);
 
         // If we have been successful in moving data around, check whether it
         // might make sense to wake up other blocked threads, so they can give
@@ -2069,14 +2084,14 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
 
         // If we are blocked by the underlying socket, tell the world that
         // there will be one more waiting thread now.
-        if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+        if (sslError == SSL_ERROR_WANT_READ || sslError == SSL_ERROR_WANT_WRITE) {
             appData->waitingThreads++;
         }
 
         // Unlock
         MUTEX_UNLOCK(appData->mutex);
 
-        switch (error) {
+        switch (sslError) {
             // Sucessfully read at least one byte.
             case SSL_ERROR_NONE: {
                 return result;
@@ -2090,10 +2105,10 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
             // Need to wait for availability of underlying layer, then retry.
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE: {
-                int selectResult = sslSelect(error, fd, appData, timeout);
+                int selectResult = sslSelect(sslError, fd, appData, timeout);
                 if (selectResult == -1) {
                     *sslReturnCode = -1;
-                    *sslErrorCode = error;
+                    *sslErrorCode = sslError;
                     return THROW_EXCEPTION;
                 } else if (selectResult == 0) {
                     return THROW_SOCKETTIMEOUTEXCEPTION;
@@ -2123,7 +2138,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
             // Everything else is basically an error.
             default: {
                 *sslReturnCode = result;
-                *sslErrorCode = error;
+                *sslErrorCode = sslError;
                 return THROW_EXCEPTION;
             }
         }
@@ -2145,15 +2160,15 @@ static jint NativeCrypto_SSL_read_byte(JNIEnv* env, jclass, jint ssl_address, ji
 
     unsigned char byteRead;
     int returnCode = 0;
-    int errorCode = 0;
+    int sslErrorCode = SSL_ERROR_NONE;
 
-    int ret = sslRead(env, ssl, (char *) &byteRead, 1, &returnCode, &errorCode, timeout);
+    int ret = sslRead(env, ssl, (char *) &byteRead, 1, &returnCode, &sslErrorCode, timeout);
 
     int result;
     switch (ret) {
         case THROW_EXCEPTION:
             // See sslRead() regarding improper failure to handle normal cases.
-            throwSSLExceptionWithSslErrors(env, ssl, errorCode, "Read error");
+            throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "Read error");
             result = -1;
             break;
         case THROW_SOCKETTIMEOUTEXCEPTION:
@@ -2189,17 +2204,16 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
 
     jbyte* bytes = env->GetByteArrayElements(dest, NULL);
     int returnCode = 0;
-    int errorCode = 0;
+    int sslErrorCode = SSL_ERROR_NONE;;
 
-    int ret = sslRead(env, ssl, (char*) (bytes + offset), len, &returnCode, &errorCode, timeout);
+    int ret = sslRead(env, ssl, (char*) (bytes + offset), len, &returnCode, &sslErrorCode, timeout);
 
     env->ReleaseByteArrayElements(dest, bytes, 0);
 
     int result;
     if (ret == THROW_EXCEPTION) {
         // See sslRead() regarding improper failure to handle normal cases.
-        throwSSLExceptionWithSslErrors(env, ssl, errorCode,
-                "Read error");
+        throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "Read error");
         result = -1;
     } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
         throwSocketTimeoutException(env, "Read timed out");
@@ -2253,9 +2267,9 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
         appData->setEnv(env);
         int result = SSL_write(ssl, buf, len);
         appData->clearEnv();
-        int error = SSL_ERROR_NONE;
+        int sslError = SSL_ERROR_NONE;
         if (result <= 0) {
-            error = SSL_get_error(ssl, result);
+            sslError = SSL_get_error(ssl, result);
             freeSslErrorState();
         }
         // LOGD("Returned from SSL_write() with result %d, error code %d", result, error);
@@ -2270,13 +2284,13 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
 
         // If we are blocked by the underlying socket, tell the world that
         // there will be one more waiting thread now.
-        if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+        if (sslError == SSL_ERROR_WANT_READ || sslError == SSL_ERROR_WANT_WRITE) {
             appData->waitingThreads++;
         }
 
         MUTEX_UNLOCK(appData->mutex);
 
-        switch (error) {
+        switch (sslError) {
             // Sucessfully write at least one byte.
             case SSL_ERROR_NONE: {
                 buf += result;
@@ -2294,10 +2308,10 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
             // it's also not standard Java behavior, so we wait forever here.
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE: {
-                int selectResult = sslSelect(error, fd, appData, 0);
+                int selectResult = sslSelect(sslError, fd, appData, 0);
                 if (selectResult == -1) {
                     *sslReturnCode = -1;
-                    *sslErrorCode = error;
+                    *sslErrorCode = sslError;
                     return THROW_EXCEPTION;
                 } else if (selectResult == 0) {
                     return THROW_SOCKETTIMEOUTEXCEPTION;
@@ -2327,7 +2341,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
             // Everything else is basically an error.
             default: {
                 *sslReturnCode = result;
-                *sslErrorCode = error;
+                *sslErrorCode = sslError;
                 return THROW_EXCEPTION;
             }
         }
@@ -2349,14 +2363,13 @@ static void NativeCrypto_SSL_write_byte(JNIEnv* env, jclass, jint ssl_address, j
     }
 
     int returnCode = 0;
-    int errorCode = 0;
+    int sslErrorCode = SSL_ERROR_NONE;
     char buf[1] = { (char) b };
-    int ret = sslWrite(env, ssl, buf, 1, &returnCode, &errorCode);
+    int ret = sslWrite(env, ssl, buf, 1, &returnCode, &sslErrorCode);
 
     if (ret == THROW_EXCEPTION) {
         // See sslWrite() regarding improper failure to handle normal cases.
-        throwSSLExceptionWithSslErrors(env, ssl, errorCode,
-                "Write error");
+        throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "Write error");
     } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
         throwSocketTimeoutException(env, "Write timed out");
     }
@@ -2376,17 +2389,17 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
 
     ScopedByteArray bytes(env, dest);
     int returnCode = 0;
-    int errorCode = 0;
+    int sslErrorCode = SSL_ERROR_NONE;
     int ret = sslWrite(env,
                        ssl,
                        (const char *) (bytes.get() + offset),
                        len,
                        &returnCode,
-                       &errorCode);
+                       &sslErrorCode);
 
     if (ret == THROW_EXCEPTION) {
         // See sslWrite() regarding improper failure to handle normal cases.
-        throwSSLExceptionWithSslErrors(env, ssl, errorCode, "Write error");
+        throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "Write error");
     } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
         throwSocketTimeoutException(env, "Write timed out");
     }
@@ -2467,8 +2480,8 @@ static void NativeCrypto_SSL_shutdown(
              * let the Java layer know about this by throwing an
              * exception.
              */
-            int sslErrorCode = SSL_get_error(ssl, ret);
-            throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "SSL shutdown failed");
+            int sslError = SSL_get_error(ssl, ret);
+            throwSSLExceptionWithSslErrors(env, ssl, sslError, "SSL shutdown failed");
             break;
     }
 

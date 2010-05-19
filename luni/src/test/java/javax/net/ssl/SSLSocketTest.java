@@ -55,8 +55,8 @@ public class SSLSocketTest extends TestCase {
         for (String cipherSuite : cipherSuites) {
             if (cipherSuite.startsWith("TLS_KRB5_")) {
                 /*
-                 * Kerberos cipher suites require external setup. See "3.1 Kerberos Requirements" in
-                 * http://midatl.radford.edu/docs/java-se-5/docs/guide/security/jsse/jsse-tiger-beta1.html#KRB
+                 * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
+                 * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#KRBRequire
                  */
                 continue;
             }
@@ -384,7 +384,6 @@ public class SSLSocketTest extends TestCase {
         assertFalse(server.getUseClientMode());
     }
 
-    @KnownFailure("This test relies on socket timeouts which are not working. It also fails because SSLException is thrown instead of SSLProtocolException")
     public void test_SSLSocket_setUseClientMode() throws Exception {
         // client is client, server is server
         test_SSLSocket_setUseClientMode(true, false);
@@ -395,8 +394,6 @@ public class SSLSocketTest extends TestCase {
             test_SSLSocket_setUseClientMode(true, true);
             fail();
         } catch (SSLProtocolException e) {
-            // TODO Fix [Un]KnownFailure
-            // The more generic SSLException is thrown instead of SSLProtocolException
         }
 
         // both are server
