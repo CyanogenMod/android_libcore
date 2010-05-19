@@ -18,6 +18,7 @@
 
 #include <JNIHelp.h>
 #include "ErrorCode.h"
+#include "ScopedPrimitiveArray.h"
 #include "UniquePtr.h"
 #include "unicode/ubidi.h"
 #include <stdlib.h>
@@ -79,9 +80,8 @@ static void BidiWrapper_ubidi_setPara(JNIEnv* env, jclass, jlong ptr, jcharArray
         data->setEmbeddingLevels(NULL);
     }
     UErrorCode err = U_ZERO_ERROR;
-    jchar* chars = env->GetCharArrayElements(text, NULL);
-    ubidi_setPara(data->uBiDi(), chars, length, paraLevel, data->embeddingLevels(), &err);
-    env->ReleaseCharArrayElements(text, chars, 0);
+    ScopedCharArray chars(env, text);
+    ubidi_setPara(data->uBiDi(), chars.get(), length, paraLevel, data->embeddingLevels(), &err);
     icu4jni_error(env, err);
 }
 
@@ -150,14 +150,15 @@ static jobjectArray BidiWrapper_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
     return runs;
 }
 
-static jintArray BidiWrapper_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray levels, jint length) {
-    UniquePtr<int[]> local_indexMap(new int[length]);
-    jbyte* local_levelBytes = env->GetByteArrayElements(levels, NULL);
-    UBiDiLevel* local_levels = reinterpret_cast<UBiDiLevel*>(local_levelBytes);
-    ubidi_reorderVisual(local_levels, length, &local_indexMap[0]);
+static jintArray BidiWrapper_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray javaLevels, jint length) {
+    ScopedByteArray levelBytes(env, javaLevels);
+    const UBiDiLevel* levels = reinterpret_cast<const UBiDiLevel*>(levelBytes.get());
+
+    UniquePtr<int[]> indexMap(new int[length]);
+    ubidi_reorderVisual(levels, length, &indexMap[0]);
+
     jintArray result = env->NewIntArray(length);
-    env->SetIntArrayRegion(result, 0, length, &local_indexMap[0]);
-    env->ReleaseByteArrayElements(levels, local_levelBytes, 0);
+    env->SetIntArrayRegion(result, 0, length, &indexMap[0]);
     return result;
 }
 
