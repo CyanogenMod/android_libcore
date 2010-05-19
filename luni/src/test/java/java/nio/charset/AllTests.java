@@ -23,6 +23,7 @@ public class AllTests {
     public static final Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(java.nio.charset.CharsetDecoderTest.class);
+        suite.addTestSuite(java.nio.charset.CharsetEncoderTest.class);
         return suite;
     }
 }

@@ -28,7 +28,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.ByteBuffer;
 
 public final class CharsetDecoderICU extends CharsetDecoder{
-
+    private static final int MAX_CHARS_PER_BYTE = 2;
 
     private static final int INPUT_OFFSET   = 0,
                              OUTPUT_OFFSET  = 1,
@@ -64,8 +64,6 @@ public final class CharsetDecoderICU extends CharsetDecoder{
     private int inEnd;
     private int outEnd;
     private int ec;
-    private int onUnmappableInput = NativeConverter.STOP_CALLBACK;;
-    private int onMalformedInput = NativeConverter.STOP_CALLBACK;;
     private int savedInputHeldLen;
 
     /**
@@ -76,22 +74,9 @@ public final class CharsetDecoderICU extends CharsetDecoder{
      * @stable ICU 2.4
      */
     public CharsetDecoderICU(Charset cs,long cHandle){
-         super(cs,
-               NativeConverter.getAveCharsPerByte(cHandle),
-               NativeConverter.getMaxCharsPerByte(cHandle)
-               );
-
-         char[] sub = replacement().toCharArray();
-         ec = NativeConverter.setCallbackDecode(cHandle,
-                                                onMalformedInput,
-                                                onUnmappableInput,
-                                                sub, sub.length);
-         if(ErrorCode.isFailure(ec)){
-            throw ErrorCode.getException(ec);
-         }
-         // store the converter handle
-         converterHandle=cHandle;
-
+        super(cs, NativeConverter.getAveCharsPerByte(cHandle), MAX_CHARS_PER_BYTE);
+        converterHandle = cHandle;
+        updateCallback();
     }
 
     /**
@@ -101,17 +86,11 @@ public final class CharsetDecoderICU extends CharsetDecoder{
      * @stable ICU 2.4
      */
     protected void implReplaceWith(String newReplacement) {
-        if(converterHandle > 0){
-            if( newReplacement.length() > NativeConverter.getMaxBytesPerChar(converterHandle)) {
-                    throw new IllegalArgumentException();
+        if (converterHandle > 0) {
+            if (newReplacement.length() > NativeConverter.getMaxBytesPerChar(converterHandle)) {
+                throw new IllegalArgumentException();
             }
-            ec =NativeConverter.setSubstitutionChars(converterHandle,
-                                                    newReplacement.toCharArray(),
-                                                    newReplacement.length()
-                                                    );
-            if(ErrorCode.isFailure(ec)){
-                throw ErrorCode.getException(ec);
-            }
+            updateCallback();
         }
      }
 
@@ -122,19 +101,7 @@ public final class CharsetDecoderICU extends CharsetDecoder{
      * @stable ICU 2.4
      */
     protected final void implOnMalformedInput(CodingErrorAction newAction) {
-        if(newAction.equals(CodingErrorAction.IGNORE)){
-            onMalformedInput = NativeConverter.SKIP_CALLBACK;
-        }else if(newAction.equals(CodingErrorAction.REPLACE)){
-            onMalformedInput = NativeConverter.SUBSTITUTE_CALLBACK;
-        }else if(newAction.equals(CodingErrorAction.REPORT)){
-            onMalformedInput = NativeConverter.STOP_CALLBACK;
-        }
-        char[] sub = replacement().toCharArray();
-        //System.out.println(" setting callbacks mfi " + onMalformedInput +" umi " + onUnmappableInput);
-        ec = NativeConverter.setCallbackDecode(converterHandle, onMalformedInput, onUnmappableInput, sub, sub.length);
-        if(ErrorCode.isFailure(ec)){
-            throw ErrorCode.getException(ec);
-        }
+        updateCallback();
     }
 
     /**
@@ -144,16 +111,12 @@ public final class CharsetDecoderICU extends CharsetDecoder{
      * @stable ICU 2.4
      */
     protected final void implOnUnmappableCharacter(CodingErrorAction newAction) {
-        if(newAction.equals(CodingErrorAction.IGNORE)){
-            onUnmappableInput = NativeConverter.SKIP_CALLBACK;
-        }else if(newAction.equals(CodingErrorAction.REPLACE)){
-            onUnmappableInput = NativeConverter.SUBSTITUTE_CALLBACK;
-        }else if(newAction.equals(CodingErrorAction.REPORT)){
-            onUnmappableInput = NativeConverter.STOP_CALLBACK;
-        }
-        char[] sub = replacement().toCharArray();
-        ec = NativeConverter.setCallbackDecode(converterHandle,onMalformedInput, onUnmappableInput, sub, sub.length);
-        if(ErrorCode.isFailure(ec)){
+        updateCallback();
+    }
+
+    private void updateCallback() {
+        ec = NativeConverter.setCallbackDecode(converterHandle, this);
+        if (ErrorCode.isFailure(ec)){
             throw ErrorCode.getException(ec);
         }
     }

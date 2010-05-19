@@ -62,7 +62,7 @@ public final class CharsetICU extends Charset {
        try {
             return new CharsetEncoderICU(this,converterHandle, replacement);
         } catch (IllegalArgumentException ex) {
-            // work around for the non-sensical check in the nio API that
+            // work around for the nonsensical check in the nio API that
             // a substitution character must be mappable while decoding!!
             replacement = subByteMap.get(icuCanonicalName);
             if (replacement == null) {
@@ -71,8 +71,7 @@ public final class CharsetICU extends Charset {
                     replacement[i]= 0x3f;
                 }
             }
-            NativeConverter.setSubstitutionBytes(converterHandle, replacement, replacement.length);
-            return new CharsetEncoderICU(this,converterHandle, replacement);
+            return new CharsetEncoderICU(this, converterHandle, replacement);
         }
     }
 

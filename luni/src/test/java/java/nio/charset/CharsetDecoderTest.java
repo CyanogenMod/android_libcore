@@ -19,13 +19,20 @@ package java.nio.charset;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 public class CharsetDecoderTest extends junit.framework.TestCase {
     private static final String CHARSET = "UTF-16";
 
     private static final String SAMPLE_STRING = "Android";
+
+    // None of the harmony or jtreg tests actually check that replaceWith does the right thing!
+    public void test_replaceWith() throws Exception {
+        CharsetDecoder d = Charset.forName("UTF-16").newDecoder();
+        d.replaceWith("x");
+        d.onMalformedInput(CodingErrorAction.REPLACE);
+        d.onUnmappableCharacter(CodingErrorAction.REPLACE);
+        ByteBuffer in = ByteBuffer.wrap(new byte[] { 109, 97, 109 });
+        assertEquals("\u6d61x", d.decode(in).toString());
+    }
 
     // http://code.google.com/p/android/issues/detail?id=4237
     public void test_ByteArray_decode_no_offset() throws Exception {

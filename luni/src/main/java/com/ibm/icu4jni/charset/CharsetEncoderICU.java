@@ -61,8 +61,6 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     private int outEnd;
     private int ec;
     private int savedInputHeldLen;
-    private int onUnmappableInput = NativeConverter.STOP_CALLBACK;;
-    private int onMalformedInput = NativeConverter.STOP_CALLBACK;;
 
     /**
      * Construcs a new encoder for the given charset
@@ -72,43 +70,24 @@ public final class CharsetEncoderICU extends CharsetEncoder {
      * @stable ICU 2.4
      */
     public CharsetEncoderICU(Charset cs, long cHandle, byte[] replacement) {
-        super(
-            cs,
-            (float) NativeConverter.getAveBytesPerChar(cHandle),
-            (float) NativeConverter.getMaxBytesPerChar(cHandle),
-            replacement);
-        byte[] sub = replacement();
-        // The default callback action on unmappable input
-        // or malformed input is to ignore so we set ICU converter
-        // callback to stop and report the error
-        ec = NativeConverter.setCallbackEncode( cHandle,
-                                                onMalformedInput,
-                                                onUnmappableInput,
-                                                sub, sub.length);
+        super(cs, (float) NativeConverter.getAveBytesPerChar(cHandle),
+                (float) NativeConverter.getMaxBytesPerChar(cHandle), replacement);
         converterHandle = cHandle;
-        if (ErrorCode.isFailure(ec)) {
-            throw ErrorCode.getException(ec);
-        }
+        updateCallback();
     }
 
     /**
      * Sets this encoders replacement string. Substitutes the string in output if an
-     * umappable or illegal sequence is encountered
+     * unmappable or illegal sequence is encountered
      * @param newReplacement to replace the error chars with
      * @stable ICU 2.4
      */
     protected void implReplaceWith(byte[] newReplacement) {
         if (converterHandle != 0) {
-            if (newReplacement.length
-                > NativeConverter.getMaxBytesPerChar(converterHandle)) {
+            if (newReplacement.length > NativeConverter.getMaxBytesPerChar(converterHandle)) {
                 throw new IllegalArgumentException("Number of replacement Bytes are greater than max bytes per char");
             }
-            ec = NativeConverter.setSubstitutionBytes(converterHandle,
-                                                      newReplacement,
-                                                      newReplacement.length);
-            if (ErrorCode.isFailure(ec)) {
-                throw ErrorCode.getException(ec);
-            }
+            updateCallback();
         }
     }
 
@@ -119,19 +98,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
      * @stable ICU 2.4
      */
     protected void implOnMalformedInput(CodingErrorAction newAction) {
-        onMalformedInput = NativeConverter.STOP_CALLBACK;
-
-        if (newAction.equals(CodingErrorAction.IGNORE)) {
-            onMalformedInput = NativeConverter.SKIP_CALLBACK;
-        } else if (newAction.equals(CodingErrorAction.REPLACE)) {
-            onMalformedInput = NativeConverter.SUBSTITUTE_CALLBACK;
-        }
-        byte[] sub = replacement();
-        ec = NativeConverter.setCallbackEncode(converterHandle, onMalformedInput, onUnmappableInput, sub, sub.length);
-        if (ErrorCode.isFailure(ec)) {
-            throw ErrorCode.getException(ec);
-        }
-
+        updateCallback();
     }
 
     /**
@@ -141,16 +108,12 @@ public final class CharsetEncoderICU extends CharsetEncoder {
      * @stable ICU 2.4
      */
     protected void implOnUnmappableCharacter(CodingErrorAction newAction) {
-        onUnmappableInput = NativeConverter.STOP_CALLBACK;
+        updateCallback();
+    }
 
-        if (newAction.equals(CodingErrorAction.IGNORE)) {
-            onUnmappableInput = NativeConverter.SKIP_CALLBACK;
-        } else if (newAction.equals(CodingErrorAction.REPLACE)) {
-            onUnmappableInput = NativeConverter.SUBSTITUTE_CALLBACK;
-        }
-        byte[] sub = replacement();
-        ec = NativeConverter.setCallbackEncode(converterHandle, onMalformedInput, onUnmappableInput, sub, sub.length);
-        if (ErrorCode.isFailure(ec)) {
+    private void updateCallback() {
+        ec = NativeConverter.setCallbackEncode(converterHandle, this);
+        if (ErrorCode.isFailure(ec)){
             throw ErrorCode.getException(ec);
         }
     }

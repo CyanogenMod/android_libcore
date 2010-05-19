@@ -10,6 +10,9 @@
 package com.ibm.icu4jni.charset;
 
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 
 public final class NativeConverter {
     /**
@@ -92,17 +95,14 @@ public final class NativeConverter {
     public static native long openConverter(String encoding);
     public static native void closeConverter(long converterHandle);
 
-    public static native void resetByteToChar(long  converterHandle);
-    public static native void resetCharToByte(long  converterHandle);
+    public static native void resetByteToChar(long converterHandle);
+    public static native void resetCharToByte(long converterHandle);
 
-    public static native int setSubstitutionChars(long converterHandle, char[] subChars,int length);
-    public static native int setSubstitutionBytes(long converterHandle, byte[] subChars,int length);
     public static native byte[] getSubstitutionBytes(long converterHandle);
 
     public static native int getMaxBytesPerChar(long converterHandle);
     public static native int getMinBytesPerChar(long converterHandle);
     public static native float getAveBytesPerChar(long converterHandle);
-    public static native int getMaxCharsPerByte(long converterHandle);
     public static native float getAveCharsPerByte(long converterHandle);
 
     public static native boolean contains(long converterHandle1, long converterHandle2);
@@ -112,9 +112,32 @@ public final class NativeConverter {
     public static native String[] getAvailableCharsetNames();
     public static native Charset charsetForName(String charsetName);
 
-    public static final int STOP_CALLBACK = 0;//CodingErrorAction.REPORT
-    public static final int SKIP_CALLBACK = 1;//CodingErrorAction.IGNORE
-    public static final int SUBSTITUTE_CALLBACK = 2;//CodingErrorAction.REPLACE
-    public static native int setCallbackDecode(long converterHandle, int onMalformedInput, int onUnmappableInput, char[] subChars, int length);
-    public static native int setCallbackEncode(long converterHandle, int onMalformedInput, int onUnmappableInput, byte[] subBytes, int length);
+    // Translates from Java's enum to the magic numbers #defined in "NativeConverter.cpp".
+    private static int translateCodingErrorAction(CodingErrorAction action) {
+        if (action == CodingErrorAction.REPORT) {
+            return 0;
+        } else if (action == CodingErrorAction.IGNORE) {
+            return 1;
+        } else if (action == CodingErrorAction.REPLACE) {
+            return 2;
+        } else {
+            throw new AssertionError(); // Someone changed the enum.
+        }
+    }
+
+    public static int setCallbackDecode(long converterHandle, CharsetDecoder decoder) {
+        return setCallbackDecode(converterHandle,
+                translateCodingErrorAction(decoder.malformedInputAction()),
+                translateCodingErrorAction(decoder.unmappableCharacterAction()),
+                decoder.replacement().toCharArray());
+    }
+    private static native int setCallbackDecode(long converterHandle, int onMalformedInput, int onUnmappableInput, char[] subChars);
+
+    public static int setCallbackEncode(long converterHandle, CharsetEncoder encoder) {
+        return setCallbackEncode(converterHandle,
+                translateCodingErrorAction(encoder.malformedInputAction()),
+                translateCodingErrorAction(encoder.unmappableCharacterAction()),
+                encoder.replacement());
+    }
+    private static native int setCallbackEncode(long converterHandle, int onMalformedInput, int onUnmappableInput, byte[] subBytes);
 }

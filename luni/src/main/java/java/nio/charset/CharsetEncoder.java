@@ -137,10 +137,8 @@ public abstract class CharsetEncoder {
      *             if <code>maxBytesPerChar</code> or
      *             <code>averageBytesPerChar</code> is negative.
      */
-    protected CharsetEncoder(Charset cs, float averageBytesPerChar,
-            float maxBytesPerChar) {
-        this(cs, averageBytesPerChar, maxBytesPerChar,
-                new byte[] { (byte) '?' });
+    protected CharsetEncoder(Charset cs, float averageBytesPerChar, float maxBytesPerChar) {
+        this(cs, averageBytesPerChar, maxBytesPerChar, new byte[] { (byte) '?' });
     }
 
     /**
@@ -432,8 +430,7 @@ public abstract class CharsetEncoder {
      *             method threw an <code>BufferUnderflowException</code> or
      *             <code>BufferUnderflowException</code>.
      */
-    public final CoderResult encode(CharBuffer in, ByteBuffer out,
-            boolean endOfInput) {
+    public final CoderResult encode(CharBuffer in, ByteBuffer out, boolean endOfInput) {
         if ((status == FLUSH) || (!endOfInput && status == END)) {
             throw new IllegalStateException();
         }
