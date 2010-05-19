@@ -95,17 +95,17 @@ public class SSLSocketTest extends TestCase {
         try {
             ssl.setEnabledCipherSuites(null);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             ssl.setEnabledCipherSuites(new String[1]);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             ssl.setEnabledCipherSuites(new String[] { "Bogus" } );
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
 
         ssl.setEnabledCipherSuites(new String[0]);
@@ -160,17 +160,17 @@ public class SSLSocketTest extends TestCase {
         try {
             ssl.setEnabledProtocols(null);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             ssl.setEnabledProtocols(new String[1]);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             ssl.setEnabledProtocols(new String[] { "Bogus" } );
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         ssl.setEnabledProtocols(new String[0]);
         ssl.setEnabledProtocols(ssl.getEnabledProtocols());
@@ -197,7 +197,7 @@ public class SSLSocketTest extends TestCase {
                     try {
                         server.getSession().getPeerCertificates();
                         fail();
-                    } catch (SSLPeerUnverifiedException e) {
+                    } catch (SSLPeerUnverifiedException expected) {
                     }
                     Certificate[] localCertificates = server.getSession().getLocalCertificates();
                     assertNotNull(localCertificates);
@@ -229,7 +229,7 @@ public class SSLSocketTest extends TestCase {
         try {
             SSLSocket server = (SSLSocket) c.serverSocket.accept();
             fail();
-        } catch (SSLException e) {
+        } catch (SSLException expected) {
         }
     }
 
@@ -258,7 +258,8 @@ public class SSLSocketTest extends TestCase {
 
     public void test_SSLSocket_HandshakeCompletedListener() throws Exception {
         final TestSSLContext c = TestSSLContext.create();
-        final SSLSocket client = (SSLSocket) c.sslContext.getSocketFactory().createSocket(c.host, c.port);
+        final SSLSocket client = (SSLSocket) c.sslContext.getSocketFactory().createSocket(c.host,
+                                                                                          c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
         Thread thread = new Thread(new Runnable () {
             public void run() {
@@ -280,7 +281,8 @@ public class SSLSocketTest extends TestCase {
                     String cipherSuite = event.getCipherSuite();
                     Certificate[] localCertificates = event.getLocalCertificates();
                     Certificate[] peerCertificates = event.getPeerCertificates();
-                    javax.security.cert.X509Certificate[] peerCertificateChain = event.getPeerCertificateChain();
+                    javax.security.cert.X509Certificate[] peerCertificateChain
+                            = event.getPeerCertificateChain();
                     Principal peerPrincipal = event.getPeerPrincipal();
                     Principal localPrincipal = event.getLocalPrincipal();
                     Socket socket = event.getSocket();
@@ -306,8 +308,10 @@ public class SSLSocketTest extends TestCase {
                     }
 
                     assertNotNull(cipherSuite);
-                    assertTrue(Arrays.asList(client.getEnabledCipherSuites()).contains(cipherSuite));
-                    assertTrue(Arrays.asList(c.serverSocket.getEnabledCipherSuites()).contains(cipherSuite));
+                    assertTrue(Arrays.asList(
+                            client.getEnabledCipherSuites()).contains(cipherSuite));
+                    assertTrue(Arrays.asList(
+                            c.serverSocket.getEnabledCipherSuites()).contains(cipherSuite));
 
                     assertNull(localCertificates);
 
@@ -353,7 +357,8 @@ public class SSLSocketTest extends TestCase {
 
     public void test_SSLSocket_HandshakeCompletedListener_RuntimeException() throws Exception {
         final TestSSLContext c = TestSSLContext.create();
-        final SSLSocket client = (SSLSocket) c.sslContext.getSocketFactory().createSocket(c.host, c.port);
+        final SSLSocket client = (SSLSocket) c.sslContext.getSocketFactory().createSocket(c.host,
+                                                                                          c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
         Thread thread = new Thread(new Runnable () {
             public void run() {
@@ -393,14 +398,14 @@ public class SSLSocketTest extends TestCase {
         try {
             test_SSLSocket_setUseClientMode(true, true);
             fail();
-        } catch (SSLProtocolException e) {
+        } catch (SSLProtocolException expected) {
         }
 
         // both are server
         try {
             test_SSLSocket_setUseClientMode(false, false);
             fail();
-        } catch (SocketTimeoutException e) {
+        } catch (SocketTimeoutException expected) {
         }
     }
 
@@ -507,7 +512,7 @@ public class SSLSocketTest extends TestCase {
                     try {
                         server.startHandshake();
                         fail();
-                    } catch (SSLException e) {
+                    } catch (SSLException expected) {
                     }
                 } catch (RuntimeException e) {
                     throw e;
@@ -520,7 +525,7 @@ public class SSLSocketTest extends TestCase {
         try {
             client.startHandshake();
             fail();
-        } catch (SSLException e) {
+        } catch (SSLException expected) {
         }
         thread.join();
     }
@@ -535,7 +540,7 @@ public class SSLSocketTest extends TestCase {
                     try {
                         server.startHandshake();
                         fail();
-                    } catch (SSLException e) {
+                    } catch (SSLException expected) {
                     }
                 } catch (RuntimeException e) {
                     throw e;
@@ -549,7 +554,7 @@ public class SSLSocketTest extends TestCase {
         try {
             client.startHandshake();
             fail();
-        } catch (SSLException e) {
+        } catch (SSLException expected) {
         }
         thread.join();
     }

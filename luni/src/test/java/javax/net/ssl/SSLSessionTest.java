@@ -75,8 +75,8 @@ public class SSLSessionTest extends TestCase {
         assertTrue(s.invalid.getLastAccessedTime() > 0);
         assertTrue(s.server.getLastAccessedTime() > 0);
         assertTrue(s.client.getLastAccessedTime() > 0);
-        assertTrue(Math.abs(s.server.getLastAccessedTime() -
-                            s.client.getLastAccessedTime()) < 1 * 1000);
+        assertTrue(Math.abs(s.server.getLastAccessedTime()
+                            - s.client.getLastAccessedTime()) < 1 * 1000);
         assertTrue(s.server.getLastAccessedTime() >=
                    s.server.getCreationTime());
         assertTrue(s.client.getLastAccessedTime() >=
@@ -115,7 +115,7 @@ public class SSLSessionTest extends TestCase {
         try {
             s.invalid.getPeerCertificateChain();
             fail();
-        } catch (SSLPeerUnverifiedException e) {
+        } catch (SSLPeerUnverifiedException expected) {
         }
         assertNotNull(s.client.getPeerCertificates());
         assertEquals(1, s.client.getPeerCertificates().length);
@@ -125,7 +125,7 @@ public class SSLSessionTest extends TestCase {
         try {
             assertNull(s.server.getPeerCertificates());
             fail();
-        } catch (SSLPeerUnverifiedException e) {
+        } catch (SSLPeerUnverifiedException expected) {
         }
     }
 
@@ -134,7 +134,7 @@ public class SSLSessionTest extends TestCase {
         try {
             s.invalid.getPeerCertificates();
             fail();
-        } catch (SSLPeerUnverifiedException e) {
+        } catch (SSLPeerUnverifiedException expected) {
         }
         assertNotNull(s.client.getPeerCertificates());
         assertEquals(1, s.client.getPeerCertificates().length);
@@ -143,7 +143,7 @@ public class SSLSessionTest extends TestCase {
         try {
             s.server.getPeerCertificates();
             fail();
-        } catch (SSLPeerUnverifiedException e) {
+        } catch (SSLPeerUnverifiedException expected) {
         }
     }
 
@@ -166,12 +166,12 @@ public class SSLSessionTest extends TestCase {
         try {
             s.invalid.getPeerPrincipal();
             fail();
-        } catch (SSLPeerUnverifiedException e) {
+        } catch (SSLPeerUnverifiedException expected) {
         }
         try {
             s.server.getPeerPrincipal();
             fail();
-        } catch (SSLPeerUnverifiedException e) {
+        } catch (SSLPeerUnverifiedException expected) {
         }
         assertNotNull(s.client.getPeerPrincipal());
         assertNotNull(s.client.getPeerPrincipal().getName());
@@ -207,7 +207,7 @@ public class SSLSessionTest extends TestCase {
         TestSSLSessions s = TestSSLSessions.create();
         try {
             s.invalid.getValue(null);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         assertNull(s.invalid.getValue("BOGUS"));
     }

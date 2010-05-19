@@ -27,7 +27,7 @@ public class SSLContextTest extends TestCase {
         try {
             SSLContext.getInstance(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         assertNotNull(SSLContext.getInstance("SSL"));
         assertNotNull(SSLContext.getInstance("SSLv3"));
@@ -40,22 +40,22 @@ public class SSLContextTest extends TestCase {
         try {
             SSLContext.getInstance(null, (String) null);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             SSLContext.getInstance(null, "");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             SSLContext.getInstance("TLS", (String) null);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             SSLContext.getInstance(null, TestSSLContext.PROVIDER_NAME);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -86,7 +86,7 @@ public class SSLContextTest extends TestCase {
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.getSocketFactory();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException expected) {
         }
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, null, null);
@@ -100,7 +100,7 @@ public class SSLContextTest extends TestCase {
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.getServerSocketFactory();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException expected) {
         }
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, null, null);
@@ -114,13 +114,13 @@ public class SSLContextTest extends TestCase {
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.createSSLEngine();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException expected) {
         }
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.createSSLEngine(null, -1);
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException expected) {
         }
         {
             SSLContext sslContext = SSLContext.getInstance("TLS");

@@ -39,7 +39,9 @@ public class SSLSessionContextTest extends TestCase {
         assertSSLSessionContextSize(expected, server, true);
     }
 
-    public static final void assertSSLSessionContextSize(int expected, SSLSessionContext s, boolean server) {
+    public static final void assertSSLSessionContextSize(int expected,
+                                                         SSLSessionContext s,
+                                                         boolean server) {
         int size = Collections.list(s.getIds()).size();
         if (server && TestSSLContext.sslServerSocketSupportsSessionTickets()) {
             assertEquals(0, size);
@@ -72,14 +74,14 @@ public class SSLSessionContextTest extends TestCase {
         try {
             c.sslContext.getClientSessionContext().getSession(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         assertNull(c.sslContext.getClientSessionContext().getSession(new byte[0]));
         assertNull(c.sslContext.getClientSessionContext().getSession(new byte[1]));
         try {
             c.sslContext.getServerSessionContext().getSession(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         assertNull(c.sslContext.getServerSessionContext().getSession(new byte[0]));
         assertNull(c.sslContext.getServerSessionContext().getSession(new byte[1]));
@@ -115,17 +117,20 @@ public class SSLSessionContextTest extends TestCase {
 
     public void test_SSLSessionContext_setSessionCacheSize_noConnect() {
         TestSSLContext c = TestSSLContext.create();
-        assertNoConnectSetSessionCacheSizeBehavior(TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE,
-                                                   c.sslContext.getClientSessionContext());
-        assertNoConnectSetSessionCacheSizeBehavior(TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE,
-                                                   c.sslContext.getServerSessionContext());
+        assertNoConnectSetSessionCacheSizeBehavior(
+                TestSSLContext.EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE,
+                c.sslContext.getClientSessionContext());
+        assertNoConnectSetSessionCacheSizeBehavior(
+                TestSSLContext.EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE,
+                c.sslContext.getServerSessionContext());
     }
 
-    private static void assertNoConnectSetSessionCacheSizeBehavior(int expectedDefault, SSLSessionContext s) {
+    private static void assertNoConnectSetSessionCacheSizeBehavior(int expectedDefault,
+                                                                   SSLSessionContext s) {
         try {
             s.setSessionCacheSize(-1);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         assertEquals(expectedDefault, s.getSessionCacheSize());
         s.setSessionCacheSize(1);
@@ -244,12 +249,12 @@ public class SSLSessionContextTest extends TestCase {
         try {
             c.sslContext.getClientSessionContext().setSessionTimeout(-1);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             c.sslContext.getServerSessionContext().setSessionTimeout(-1);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
 
         TestSSLSocketPair s = TestSSLSocketPair.create();

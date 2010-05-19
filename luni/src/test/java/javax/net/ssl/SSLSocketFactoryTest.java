@@ -82,14 +82,14 @@ public class SSLSocketFactoryTest extends TestCase {
             SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
             Socket s = sf.createSocket(null, null, -1, false);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
 
         try {
             SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
             Socket ssl = sf.createSocket(new Socket(), null, -1, false);
             fail();
-        } catch (SocketException e) {
+        } catch (SocketException expected) {
         }
 
         ServerSocket ss = ServerSocketFactory.getDefault().createServerSocket(0);
