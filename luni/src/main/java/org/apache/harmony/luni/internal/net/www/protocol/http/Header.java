@@ -111,6 +111,18 @@ public class Header implements Cloneable {
         props.add(value);
     }
 
+    public void addAll(String key, List<String> headers) {
+        for (String header : headers) {
+            add(key, header);
+        }
+    }
+
+    public void addIfAbsent(String key, String value) {
+        if (get(key) == null) {
+            add(key, value);
+        }
+    }
+
     /**
      * Set a field with the specified value. If the field is not found, it is
      * added. If the field is found, the existing value(s) are overwritten.

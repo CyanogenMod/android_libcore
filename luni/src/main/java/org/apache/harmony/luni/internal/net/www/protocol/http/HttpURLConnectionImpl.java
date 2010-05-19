@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
+import java.net.CookieHandler;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -1311,18 +1312,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * iso-8859-5, unicode-1-1;q=0.8
      */
     private boolean sendRequest() throws IOException {
-        byte[] request = createRequest();
 
-        // make sure we have a connection
-        if (!connected) {
-            connect();
-        }
-        if (null != cacheResponse) {
+        if (cacheResponse != null) {
             // does not send if already has a response cache
             return true;
         }
-        // send out the HTTP request
-        socketOut.write(request);
+        if (!connected) {
+            connect();
+        }
+        writeRequest(socketOut);
         sentRequest = true;
         // send any output to the socket (i.e. POST data)
         if (os != null) {
@@ -1405,104 +1403,76 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
     }
 
-    private byte[] createRequest() throws IOException {
-        StringBuilder output = new StringBuilder(256);
-        output.append(method);
-        output.append(' ');
-        output.append(requestString());
-        output.append(' ');
-        output.append("HTTP/1.");
-        if (httpVersion == 0) {
-            output.append("0\r\n");
-        } else {
-            output.append("1\r\n");
-        }
-        // add user-specified request headers if any
-        boolean hasContentLength = false;
+    private void writeRequest(OutputStream out) throws IOException {
+        prepareRequestHeaders();
+
+        StringBuilder result = new StringBuilder(256);
+        result.append(reqHeader.getStatusLine()).append("\r\n");
         for (int i = 0; i < reqHeader.length(); i++) {
             String key = reqHeader.getKey(i);
+            String value = reqHeader.get(i);
             if (key != null) {
-                String lKey = key.toLowerCase();
-                if ((os != null && !os.isChunked())
-                        || (!lKey.equals("transfer-encoding") && !lKey.equals("content-length"))) {
-                    output.append(key);
-                    String value = reqHeader.get(i);
-                    /*
-                     * duplicates are allowed under certain conditions see
-                     * http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
-                     */
-                    if (lKey.equals("content-length")) {
-                        hasContentLength = true;
-                        /*
-                         * if both setFixedLengthStreamingMode and
-                         * content-length are set, use fixedContentLength first
-                         */
-                        if(fixedContentLength >= 0){
-                            value = String.valueOf(fixedContentLength);
-                        }
-                    }
-                    if (value != null) {
-                        output.append(": ");
-                        output.append(value);
-                    }
-                    output.append("\r\n");
-                }
+                result.append(key).append(": ").append(value).append("\r\n");
             }
         }
-        if (fixedContentLength >= 0 && !hasContentLength) {
-            output.append("content-length: ");
-            output.append(String.valueOf(fixedContentLength));
-            output.append("\r\n");
-        }
+        result.append("\r\n");
+        out.write(result.toString().getBytes("ISO-8859-1"));
+    }
+
+    /**
+     * Populates reqHeader with the HTTP headers to be sent. Header values are
+     * derived from the request itself and the cookie manager.
+     *
+     * <p>This client doesn't specify a default {@code Accept} header because it
+     * doesn't know what content types the application is interested in.
+     */
+    private void prepareRequestHeaders() throws IOException {
+        String protocol = (httpVersion == 0) ? "HTTP/1.0" : "HTTP/1.1";
+        reqHeader.setStatusLine(method + " " + requestString() + " " + protocol);
 
         if (reqHeader.get("User-Agent") == null) {
-            output.append("User-Agent: ");
             String agent = getSystemProperty("http.agent");
             if (agent == null) {
-                output.append("Java");
-                output.append(getSystemProperty("java.version"));
-            } else {
-                output.append(agent);
+                agent = "Java" + getSystemProperty("java.version");
             }
-            output.append("\r\n");
-        }
-        if (reqHeader.get("Host") == null) {
-            output.append("Host: ");
-            output.append(url.getHost());
-            int port = url.getPort();
-            if (port > 0 && port != defaultPort) {
-                output.append(':');
-                output.append(Integer.toString(port));
-            }
-            output.append("\r\n");
-        }
-        // BEGIN android-removed
-        //     there's no utility in sending an "accept everything" header "*/*"
-        // if (reqHeader.get("Accept") == null) {
-        // }
-        // END android-removed
-        if (httpVersion > 0 && reqHeader.get("Connection") == null) {
-            output.append("Connection: Keep-Alive\r\n");
+            reqHeader.add("User-Agent", agent);
         }
 
-        // if we are doing output make sure the appropriate headers are sent
+        if (reqHeader.get("Host") == null) {
+            int port = url.getPort();
+            String host = (port > 0 && port != defaultPort)
+                    ? url.getHost() + ":" + port
+                    : url.getHost();
+            reqHeader.add("Host", host);
+        }
+
+        if (httpVersion > 0) {
+            reqHeader.addIfAbsent("Connection", "Keep-Alive");
+        }
+
+        if (fixedContentLength >= 0) {
+            reqHeader.addIfAbsent("Content-Length", Integer.toString(fixedContentLength));
+        } else if (os != null && os.isCached()) {
+            reqHeader.addIfAbsent("Content-Length", Integer.toString(os.size()));
+        } else if (os != null && os.isChunked()) {
+            reqHeader.addIfAbsent("Transfer-Encoding", "chunked");
+        }
+
         if (os != null) {
-            if (reqHeader.get("Content-Type") == null) {
-                output.append("Content-Type: application/x-www-form-urlencoded\r\n");
-            }
-            if (os.isCached()) {
-                if (reqHeader.get("Content-Length") == null) {
-                    output.append("Content-Length: ");
-                    output.append(Integer.toString(os.size()));
-                    output.append("\r\n");
+            reqHeader.addIfAbsent("Content-Type", "application/x-www-form-urlencoded");
+        }
+
+        CookieHandler cookieHandler = CookieHandler.getDefault();
+        if (cookieHandler != null) {
+            Map<String, List<String>> allCookieHeaders
+                    = cookieHandler.get(uri, reqHeader.getFieldMap());
+            for (Map.Entry<String, List<String>> entry : allCookieHeaders.entrySet()) {
+                String key = entry.getKey();
+                if ("Cookie".equalsIgnoreCase(key) || "Cookie2".equalsIgnoreCase(key)) {
+                    reqHeader.addAll(key, entry.getValue());
                 }
-            } else if (os.isChunked()) {
-                output.append("Transfer-Encoding: chunked\r\n");
             }
         }
-        // end the headers
-        output.append("\r\n");
-        return output.toString().getBytes("ISO8859_1");
     }
 
     /**

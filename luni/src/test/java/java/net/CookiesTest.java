@@ -16,10 +16,12 @@
 
 package java.net;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
@@ -223,9 +225,97 @@ public class CookiesTest extends TestCase {
                 + "b=\"banana\";$Path=\"/\";$Domain=\"localhost\"");
     }
 
-    private <T> void assertContains(Collection<T> collection, T element) {
-        if (!collection.contains(element)) {
-            fail("No " + element + " in " + collection);
+    /**
+     * Test which headers show up where. The cookie manager should be notified of both
+     * user-specified and derived headers like {@code Content-Length}. Headers named {@code Cookie}
+     * or {@code Cookie2} that are returned by the cookie manager should show up in the request and
+     * in {@code getRequestProperties}.
+     */
+    public void testHeadersSentToCookieHandler() throws IOException, InterruptedException {
+        final Map<String, List<String>> cookieHandlerHeaders = new HashMap<String, List<String>>();
+        CookieHandler.setDefault(new CookieManager() {
+            @Override public Map<String, List<String>> get(URI uri,
+                    Map<String, List<String>> requestHeaders) throws IOException {
+                cookieHandlerHeaders.putAll(requestHeaders);
+                Map<String, List<String>> result = new HashMap<String, List<String>>();
+                result.put("Cookie", Collections.singletonList("Bar=bar"));
+                result.put("Cookie2", Collections.singletonList("Baz=baz"));
+                result.put("Quux", Collections.singletonList("quux"));
+                return result;
+            }
+        });
+        MockWebServer server = new MockWebServer();
+        server.play();
+
+        server.enqueue(new MockResponse());
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals(Collections.<String, List<String>>emptyMap(),
+                connection.getRequestProperties());
+
+        connection.setRequestProperty("Foo", "foo");
+        connection.setDoOutput(true);
+        connection.getOutputStream().write(5);
+        connection.getOutputStream().close();
+        connection.getInputStream().close();
+
+        RecordedRequest request = server.takeRequest();
+
+        assertContainsAll(cookieHandlerHeaders.keySet(), "Foo");
+        assertContainsAll(cookieHandlerHeaders.keySet(),
+                "Content-Type", "Content-Length", "User-Agent", "Connection", "Host");
+        assertFalse(cookieHandlerHeaders.containsKey("Cookie"));
+
+        /*
+         * The API specifies that calling getRequestProperties() on a connected instance should fail
+         * with an IllegalStateException, but the RI violates the spec and returns a valid map.
+         * http://www.mail-archive.com/net-dev@openjdk.java.net/msg01768.html
+         */
+        try {
+            assertContainsAll(connection.getRequestProperties().keySet(), "Foo");
+            assertContainsAll(connection.getRequestProperties().keySet(),
+                    "Content-Type", "Content-Length", "User-Agent", "Connection", "Host");
+            assertContainsAll(connection.getRequestProperties().keySet(), "Cookie", "Cookie2");
+            assertFalse(connection.getRequestProperties().containsKey("Quux"));
+        } catch (IllegalStateException expected) {
+        }
+
+        assertContainsAll(request.getHeaders(), "Foo: foo", "Cookie: Bar=bar", "Cookie2: Baz=baz");
+        assertFalse(request.getHeaders().contains("Quux: quux"));
+    }
+
+    public void testCookiesSentIgnoresCase() throws Exception {
+        CookieHandler.setDefault(new CookieManager() {
+            @Override public Map<String, List<String>> get(URI uri,
+                    Map<String, List<String>> requestHeaders) throws IOException {
+                Map<String, List<String>> result = new HashMap<String, List<String>>();
+                result.put("COOKIE", Collections.singletonList("Bar=bar"));
+                result.put("cooKIE2", Collections.singletonList("Baz=baz"));
+                return result;
+            }
+        });
+        MockWebServer server = new MockWebServer();
+        server.play();
+
+        server.enqueue(new MockResponse());
+        get(server);
+
+        RecordedRequest request = server.takeRequest();
+        assertContainsAll(request.getHeaders(), "COOKIE: Bar=bar", "cooKIE2: Baz=baz");
+        assertFalse(request.getHeaders().contains("Quux: quux"));
+    }
+
+    private void assertContains(Collection<String> collection, String element) {
+        for (String c : collection) {
+            if (c.equalsIgnoreCase(element)) {
+                return;
+            }
+        }
+        fail("No " + element + " in " + collection);
+    }
+
+    private void assertContainsAll(Collection<String> collection, String... toFind) {
+        for (String s : toFind) {
+            assertContains(collection, s);
         }
     }
 
