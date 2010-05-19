@@ -223,14 +223,11 @@ public class SSLSocketTest extends TestCase {
         thread.join();
     }
 
-    @KnownFailure("Should throw SSLException from SSLServerSocket.accept with no private key configured")
     public void test_SSLSocket_startHandshake_noKeyStore() throws Exception {
         TestSSLContext c = TestSSLContext.create(null, null);
         SSLSocket client = (SSLSocket) c.sslContext.getSocketFactory().createSocket(c.host, c.port);
         try {
             SSLSocket server = (SSLSocket) c.serverSocket.accept();
-            // TODO Fix Known Failure
-            // Need to make SSLServerSocket.accept check if necessary private keys for enabled cipher suites are available
             fail();
         } catch (SSLException e) {
         }
