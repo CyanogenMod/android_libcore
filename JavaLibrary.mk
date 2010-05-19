@@ -54,6 +54,11 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(core_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 
+ifeq ($(EMMA_INSTRUMENT),true)
+LOCAL_SRC_FILES += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
+LOCAL_JAVA_RESOURCE_DIRS += ../external/emma/core/res ../external/emma/pregenerated/res
+endif
+
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_DX_FLAGS := --core-library
 
@@ -80,6 +85,9 @@ LOCAL_DX_FLAGS := --core-library
 
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests
+
+LOCAL_NO_EMMA_INSTRUMENT := true
+LOCAL_NO_EMMA_COMPILE := true
 
 include $(BUILD_JAVA_LIBRARY)
 
