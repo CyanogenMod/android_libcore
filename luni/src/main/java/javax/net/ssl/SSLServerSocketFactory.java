@@ -18,9 +18,9 @@
 package javax.net.ssl;
 
 import java.security.AccessController;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
 import java.security.Security;
-
 import javax.net.ServerSocketFactory;
 
 /**
@@ -65,8 +65,12 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory {
             });
         }
         if (defaultServerSocketFactory == null) {
-            // Try to find in providers
-            SSLContext context = DefaultSSLContext.getContext();
+            SSLContext context;
+            try {
+                context = SSLContext.getDefault();
+            } catch (NoSuchAlgorithmException e) {
+                context = null;
+            }
             if (context != null) {
                 defaultServerSocketFactory = context.getServerSocketFactory();
             }

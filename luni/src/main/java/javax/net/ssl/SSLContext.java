@@ -36,7 +36,49 @@ public class SSLContext {
     private static final String SERVICE = "SSLContext";
 
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
+
+    /**
+     * Default SSLContext that can be replaced with SSLContext.setDefault()
+     */
+    private static SSLContext DEFAULT;
+
+    /**
+     * Returns the default SSLContext.
+     *
+     * The default SSL context can be set with {@link #setDefault}. If
+     * not, one will be created with {@code
+     * SSLContext.getInstance("Default")}, which will already be
+     * initialized.
+     *
+     * @throws NoSuchAlgorithmException if there is a problem creating
+     * the default instance.
+     * @since 1.6
+     */
+    public static SSLContext getDefault() throws NoSuchAlgorithmException {
+        synchronized (ENGINE) {
+            if (DEFAULT == null) {
+                DEFAULT = SSLContext.getInstance("Default");
+            }
+            return DEFAULT;
+        }
+    }
+
+    /**
+     * Sets the default SSLContext instance as returned by {@link
+     * #getDefault()} to a non-null initialized value.
+     *
+     * @throws NullPointerException on a null argument
+     * @since 1.6
+     */
+    public static void setDefault(SSLContext sslContext) {
+        if (sslContext == null) {
+            throw new NullPointerException("sslContext == null");
+        }
+        synchronized (ENGINE) {
+            DEFAULT = sslContext;
+        }
+    }
 
     /**
      * Creates a new {@code SSLContext} instance for the specified protocol.
@@ -54,9 +96,9 @@ public class SSLContext {
         if (protocol == null) {
             throw new NullPointerException("protocol is null");
         }
-        synchronized (engine) {
-            engine.getInstance(protocol, null);
-            return new SSLContext((SSLContextSpi) engine.spi, engine.provider, protocol);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(protocol, null);
+            return new SSLContext((SSLContextSpi) ENGINE.spi, ENGINE.provider, protocol);
         }
     }
 
@@ -117,9 +159,9 @@ public class SSLContext {
         if (protocol == null) {
             throw new NullPointerException("protocol is null");
         }
-        synchronized (engine) {
-            engine.getInstance(protocol, provider, null);
-            return new SSLContext((SSLContextSpi) engine.spi, provider, protocol);
+        synchronized (ENGINE) {
+            ENGINE.getInstance(protocol, provider, null);
+            return new SSLContext((SSLContextSpi) ENGINE.spi, provider, protocol);
         }
     }
 
@@ -249,5 +291,27 @@ public class SSLContext {
      */
     public final SSLSessionContext getClientSessionContext() {
         return spiImpl.engineGetClientSessionContext();
+    }
+
+    /**
+     * Returns the default SSL handshake parameters for SSLSockets
+     * created by this SSLContext.
+     *
+     * @throws UnsupportedOperationException
+     * @since 1.6
+     */
+    public final SSLParameters getDefaultSSLParameters() {
+        return spiImpl.engineGetDefaultSSLParameters();
+    }
+
+    /**
+     * Returns SSL handshake parameters for SSLSockets that includes
+     * all supported cipher suites and protocols.
+     *
+     * @throws UnsupportedOperationException
+     * @since 1.6
+     */
+    public final SSLParameters getSupportedSSLParameters() {
+        return spiImpl.engineGetSupportedSSLParameters();
     }
 }

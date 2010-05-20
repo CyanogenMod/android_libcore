@@ -25,7 +25,7 @@ import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
-import junit.framework.AssertionFailedError;
+import junit.framework.Assert;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
@@ -33,9 +33,10 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  * want a canned SSLContext and related state for testing so they
  * don't have to duplicate the logic.
  */
-public final class TestSSLContext {
+public final class TestSSLContext extends Assert {
 
-    public static final boolean IS_RI = !"Dalvik Core Library".equals(System.getProperty("java.specification.name"));
+    public static final boolean IS_RI
+            = !"Dalvik Core Library".equals(System.getProperty("java.specification.name"));
     public static final String PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "HarmonyJSSE";
 
     /*
@@ -68,7 +69,9 @@ public final class TestSSLContext {
      * results appropriately.
      */
     public static boolean sslServerSocketSupportsSessionTickets () {
-        return !IS_RI;
+        // Disabled session tickets for better compatability b/2682876
+        // return !IS_RI;
+        return false;
     }
 
     public final KeyStore keyStore;
@@ -164,7 +167,8 @@ public final class TestSSLContext {
      * certificate chain from the given KeyStore and a TrustManager
      * using the certificates authorities from the same KeyStore.
      */
-    public static final SSLContext createSSLContext(final KeyStore keyStore, final char[] keyStorePassword)
+    public static final SSLContext createSSLContext(final KeyStore keyStore,
+                                                    final char[] keyStorePassword)
         throws Exception {
         String kmfa = KeyManagerFactory.getDefaultAlgorithm();
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(kmfa);
@@ -193,9 +197,7 @@ public final class TestSSLContext {
                 break;
             }
         }
-        if (!found) {
-            throw new AssertionFailedError("Could not find princial " + principal + " in key store");
-        }
+        assertTrue(found);
     }
 
     public static void assertCertificateInKeyStore(Certificate certificate,
@@ -211,8 +213,6 @@ public final class TestSSLContext {
                 break;
             }
         }
-        if (!found) {
-            throw new AssertionFailedError("Could not find certificate " + certificate + " in key store");
-        }
+        assertTrue(found);
     }
 }

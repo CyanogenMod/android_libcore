@@ -22,9 +22,11 @@ import junit.framework.TestSuite;
 public class AllTests {
     public static final Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTestSuite(SSLSocketFactoryTest.class);
+        suite.addTestSuite(SSLParametersTest.class);
         suite.addTestSuite(SSLContextTest.class);
+        suite.addTestSuite(SSLSocketFactoryTest.class);
         suite.addTestSuite(SSLSocketTest.class);
+        suite.addTestSuite(SSLEngineTest.class);
         suite.addTestSuite(SSLSessionTest.class);
         suite.addTestSuite(SSLSessionContextTest.class);
         return suite;

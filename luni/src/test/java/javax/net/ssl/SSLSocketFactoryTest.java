@@ -16,14 +16,11 @@
 
 package javax.net.ssl;
 
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.ServerSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Collections;
-import java.util.Set;
-import java.util.HashSet;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import junit.framework.TestCase;
@@ -38,43 +35,15 @@ public class SSLSocketFactoryTest extends TestCase {
     public void test_SSLSocketFactory_getDefaultCipherSuites() {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         String[] cipherSuites = sf.getDefaultCipherSuites();
-        assertNotNull(cipherSuites);
-        assertTrue(cipherSuites.length != 0);
-
-        // Make sure modifying the result is not observable
-        String savedCipherSuite = cipherSuites[0];
-        assertNotNull(savedCipherSuite);
-        cipherSuites[0] = null;
-        assertNotNull(sf.getSupportedCipherSuites()[0]);
-        cipherSuites[0] = savedCipherSuite;
-
-        // Make sure all cipherSuites names are expected
-        for (String cipherSuite : cipherSuites) {
-            assertTrue(StandardNames.CIPHER_SUITES.contains(cipherSuite));
-        }
+        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        assertNotSame(cipherSuites, sf.getDefaultCipherSuites());
     }
 
     public void test_SSLSocketFactory_getSupportedCipherSuites() {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         String[] cipherSuites = sf.getSupportedCipherSuites();
-        assertNotNull(cipherSuites);
-        assertTrue(cipherSuites.length != 0);
-
-        // Make sure modifying the result is not observable
-        String savedCipherSuite = cipherSuites[0];
-        assertNotNull(savedCipherSuite);
-        cipherSuites[0] = null;
-        assertNotNull(sf.getSupportedCipherSuites()[0]);
-        cipherSuites[0] = savedCipherSuite;
-
-        // Make sure all cipherSuites names are expected
-        Set remainingCipherSuites = new HashSet<String>(StandardNames.CIPHER_SUITES);
-        for (String cipherSuite : cipherSuites) {
-            assertTrue(remainingCipherSuites.remove(cipherSuite));
-        }
-        assertEquals(Collections.EMPTY_SET, remainingCipherSuites);
-
-        assertEquals(StandardNames.CIPHER_SUITES.size(), cipherSuites.length);
+        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        assertNotSame(cipherSuites, sf.getSupportedCipherSuites());
     }
 
     public void test_SSLSocketFactory_createSocket() throws Exception {

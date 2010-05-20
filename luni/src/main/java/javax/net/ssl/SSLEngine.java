@@ -324,8 +324,10 @@ public abstract class SSLEngine {
      *             if the engine does not have all the needed settings (e.g.
      *             client/server mode not set).
      */
-    public abstract SSLEngineResult unwrap(ByteBuffer src, ByteBuffer[] dsts, int offset, int length)
-            throws SSLException;
+    public abstract SSLEngineResult unwrap(ByteBuffer src,
+                                           ByteBuffer[] dsts,
+                                           int offset,
+                                           int length) throws SSLException;
 
     /**
      * Encodes the outgoing application data buffers into the network data
@@ -460,5 +462,47 @@ public abstract class SSLEngine {
      */
     public SSLEngineResult wrap(ByteBuffer src, ByteBuffer dst) throws SSLException {
         return wrap(new ByteBuffer[] { src }, 0, 1, dst);
+    }
+
+    /**
+     * Returns a new SSLParameters based on this SSLSocket's current
+     * cipher suites, protocols, and client authentication settings.
+     *
+     * @since 1.6
+     */
+    public SSLParameters getSSLParameters() {
+        SSLParameters p = new SSLParameters();
+        p.setCipherSuites(getEnabledCipherSuites());
+        p.setProtocols(getEnabledProtocols());
+        p.setNeedClientAuth(getNeedClientAuth());
+        p.setWantClientAuth(getWantClientAuth());
+        return p;
+    }
+
+    /**
+     * Sets various SSL handshake parameters based on the SSLParameter
+     * argument. Specifically, sets the SSLEngine's enabled cipher
+     * suites if the parameter's cipher suites are non-null. Similarly
+     * sets the enabled protocols. If the parameters specify the want
+     * or need for client authentication, those requirements are set
+     * on the SSLEngine, otherwise both are set to false.
+     * @since 1.6
+     */
+    public void setSSLParameters(SSLParameters p) {
+        String[] cipherSuites = p.getCipherSuites();
+        if (cipherSuites != null) {
+            setEnabledCipherSuites(cipherSuites);
+        }
+        String[] protocols = p.getProtocols();
+        if (protocols != null) {
+            setEnabledProtocols(protocols);
+        }
+        if (p.getNeedClientAuth()) {
+            setNeedClientAuth(true);
+        } else if (p.getWantClientAuth()) {
+            setWantClientAuth(true);
+        } else {
+            setWantClientAuth(false);
+        }
     }
 }

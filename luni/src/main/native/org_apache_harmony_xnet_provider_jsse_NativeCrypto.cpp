@@ -1421,6 +1421,11 @@ static void info_callback(const SSL *ssl, int where, int ret __attribute__ ((unu
         JNI_TRACE("ssl=%p info_callback env error", ssl);
         return;
     }
+    if (env->ExceptionCheck()) {
+        JNI_TRACE("ssl=%p info_callback already pending exception", ssl);
+        return;
+    }
+
     jobject sslHandshakeCallbacks = appData->sslHandshakeCallbacks;
 
     jclass cls = env->GetObjectClass(sslHandshakeCallbacks);

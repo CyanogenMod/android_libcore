@@ -17,12 +17,15 @@
 package javax.net.ssl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import junit.framework.Assert;
 
 /**
- * This class defines expected string names for protocols, key types, client and server auth types, cipher suites.
+ * This class defines expected string names for protocols, key types,
+ * client and server auth types, cipher suites.
  *
  * Initially based on "Appendix A: Standard Names" of
  * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#AppA">
@@ -34,14 +37,17 @@ import java.util.Set;
  * Java Cryptography Architecture Sun Providers Documentation for JavaTM Platform Standard Edition 6
  * </a>
  */
-public final class StandardNames {
+public final class StandardNames extends Assert {
 
+    public static final String SSL_CONTEXT_PROTOCOLS_DEFAULT = "Default";
     public static final Set<String> SSL_CONTEXT_PROTOCOLS = new HashSet<String>(Arrays.asList(
+        SSL_CONTEXT_PROTOCOLS_DEFAULT,
         "SSL",
-        "SSLv2",
+        // "SSLv2",
         "SSLv3",
         "TLS",
         "TLSv1"));
+    public static final String SSL_CONTEXT_PROTOCOL_DEFAULT = "TLS";
 
     public static final Set<String> KEY_TYPES = new HashSet<String>(Arrays.asList(
         "RSA",
@@ -50,10 +56,20 @@ public final class StandardNames {
         "DH_DSA"));
 
     public static final Set<String> SSL_SOCKET_PROTOCOLS = new HashSet<String>(Arrays.asList(
-        "SSLv2",
+        // "SSLv2",
         "SSLv3",
-        "TLSv1",
-        "SSLv2Hello"));
+        "TLSv1"));
+    static {
+        if (TestSSLContext.IS_RI) {
+            /* Even though we use OpenSSL's SSLv23_method which
+             * supports sending SSLv2 client hello messages, the
+             * OpenSSL implementation in s23_client_hello disables
+             * this if SSL_OP_NO_SSLv2 is specified, which we always
+             * do to disable general use of SSLv2.
+             */
+            SSL_SOCKET_PROTOCOLS.add("SSLv2Hello");
+        }
+    }
 
     public static final Set<String> CLIENT_AUTH_TYPES = new HashSet<String>(KEY_TYPES);
 
@@ -181,5 +197,108 @@ public final class StandardNames {
         addNeither("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
 
         CIPHER_SUITES = (TestSSLContext.IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
+    }
+
+    public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
+    static {
+        if (!TestSSLContext.IS_RI) {
+            // Android does not include Java versions of RC4 and IDEA
+            // Java crypto implementations so these fail to work for
+            // the SSLEngine implementation.
+            CIPHER_SUITES_SSLENGINE.remove("SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
+            CIPHER_SUITES_SSLENGINE.remove("SSL_DH_anon_WITH_RC4_128_MD5");
+            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5");
+            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_EXPORT_WITH_RC4_40_MD5");
+            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_WITH_RC4_128_MD5");
+            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_WITH_RC4_128_SHA");
+            CIPHER_SUITES_SSLENGINE.remove("TLS_RSA_WITH_IDEA_CBC_SHA");
+            // Harmony SSLEngine does not support AES cipher suites
+            // that are supported by the OpenSSL based SSLSocket
+            // implementations
+            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.remove("TLS_DH_anon_WITH_AES_128_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.remove("TLS_DH_anon_WITH_AES_256_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.remove("TLS_RSA_WITH_AES_128_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.remove("TLS_RSA_WITH_AES_256_CBC_SHA");
+            // Harmony SSLEngine supports has some older cipher suites
+            CIPHER_SUITES_SSLENGINE.add("SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.add("SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.add("SSL_DH_DSS_WITH_DES_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.add("SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.add("SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA");
+            CIPHER_SUITES_SSLENGINE.add("SSL_DH_RSA_WITH_DES_CBC_SHA");
+        }
+    }
+
+    /**
+     * Asserts that the cipher suites array is non-null and that it
+     * all of its contents are cipher suites known to this
+     * implementation. As a convenience, returns any unenabled cipher
+     * suites in a test for those that want to verify separately that
+     * all cipher suites were included.
+     */
+    public static Set<String> assertValidCipherSuites(Set<String> expected, String[] cipherSuites) {
+        assertNotNull(cipherSuites);
+        assertTrue(cipherSuites.length != 0);
+
+        // Make sure all cipherSuites names are expected
+        Set remainingCipherSuites = new HashSet<String>(expected);
+        Set unknownCipherSuites = new HashSet<String>();
+        for (String cipherSuite : cipherSuites) {
+            boolean removed = remainingCipherSuites.remove(cipherSuite);
+            if (!removed) {
+                unknownCipherSuites.add(cipherSuite);
+            }
+        }
+        assertEquals(Collections.EMPTY_SET, unknownCipherSuites);
+        return remainingCipherSuites;
+    }
+
+    /**
+     * After using assertValidCipherSuites on cipherSuites,
+     * assertSupportedCipherSuites additionally verifies that all
+     * supported cipher suites where in the input array.
+     */
+    public static void assertSupportedCipherSuites(Set<String> expected, String[] cipherSuites) {
+        Set<String> remainingCipherSuites = assertValidCipherSuites(expected, cipherSuites);
+        assertEquals(Collections.EMPTY_SET, remainingCipherSuites);
+        assertEquals(expected.size(), cipherSuites.length);
+    }
+
+    /**
+     * Asserts that the protocols array is non-null and that it all of
+     * its contents are protocols known to this implementation. As a
+     * convenience, returns any unenabled protocols in a test for
+     * those that want to verify separately that all protocols were
+     * included.
+     */
+    public static Set<String> assertValidProtocols(Set<String> expected, String[] protocols) {
+        assertNotNull(protocols);
+        assertTrue(protocols.length != 0);
+
+        // Make sure all protocols names are expected
+        Set remainingProtocols = new HashSet<String>(StandardNames.SSL_SOCKET_PROTOCOLS);
+        Set unknownProtocols = new HashSet<String>();
+        for (String protocol : protocols) {
+            if (!remainingProtocols.remove(protocol)) {
+                unknownProtocols.add(protocol);
+            }
+        }
+        assertEquals(Collections.EMPTY_SET, unknownProtocols);
+        return remainingProtocols;
+    }
+
+    /**
+     * After using assertValidProtocols on protocols,
+     * assertSupportedProtocols additionally verifies that all
+     * supported protocols where in the input array.
+     */
+    public static void assertSupportedProtocols(Set<String> expected, String[] protocols) {
+        Set<String> remainingProtocols = assertValidProtocols(expected, protocols);
+        assertEquals(Collections.EMPTY_SET, remainingProtocols);
+        assertEquals(expected.size(), protocols.length);
     }
 }

@@ -505,7 +505,7 @@ public class Cipher {
      *             if the specified opmode is invalid.
      */
     public final void init(int opmode, Key key, SecureRandom random) throws InvalidKeyException {
-        checkMode(mode);
+        checkMode(opmode);
         //        FIXME InvalidKeyException
         //        if keysize exceeds the maximum allowable keysize
         //        (jurisdiction policy files)
@@ -598,7 +598,7 @@ public class Cipher {
     public final void init(int opmode, Key key, AlgorithmParameterSpec params,
             SecureRandom random) throws InvalidKeyException,
             InvalidAlgorithmParameterException {
-        checkMode(mode);
+        checkMode(opmode);
         //        FIXME InvalidKeyException
         //        if keysize exceeds the maximum allowable keysize
         //        (jurisdiction policy files)
@@ -689,7 +689,7 @@ public class Cipher {
     public final void init(int opmode, Key key, AlgorithmParameters params,
             SecureRandom random) throws InvalidKeyException,
             InvalidAlgorithmParameterException {
-        checkMode(mode);
+        checkMode(opmode);
         //        FIXME InvalidKeyException
         //        if keysize exceeds the maximum allowable keysize
         //        (jurisdiction policy files)
@@ -777,7 +777,7 @@ public class Cipher {
      */
     public final void init(int opmode, Certificate certificate,
             SecureRandom random) throws InvalidKeyException {
-        checkMode(mode);
+        checkMode(opmode);
         if (certificate instanceof X509Certificate) {
             Set<String> ce = ((X509Certificate) certificate).getCriticalExtensionOIDs();
             boolean critical = false;

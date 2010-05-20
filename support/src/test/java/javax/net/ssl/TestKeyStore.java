@@ -106,9 +106,7 @@ public final class TestKeyStore {
                                       char[] keyStorePassword,
                                       String keyAlgorithm,
                                       String publicAlias,
-                                      String privateAlias)
-        throws Exception {
-
+                                      String privateAlias) throws Exception {
         PrivateKey privateKey;
         X509Certificate x509c;
         if (publicAlias == null && privateAlias == null) {

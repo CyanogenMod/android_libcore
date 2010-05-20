@@ -16,6 +16,7 @@
 
 package javax.net.ssl;
 
+import java.security.KeyManagementException;
 import java.security.Provider;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
@@ -23,19 +24,45 @@ import junit.framework.TestCase;
 
 public class SSLContextTest extends TestCase {
 
+    public void test_SSLContext_getDefault() throws Exception {
+        SSLContext sslContext = SSLContext.getDefault();
+        assertNotNull(sslContext);
+        try {
+            sslContext.init(null, null, null);
+        } catch (KeyManagementException expected) {
+        }
+    }
+
+    public void test_SSLContext_setDefault() throws Exception {
+        try {
+            SSLContext.setDefault(null);
+        } catch (NullPointerException expected) {
+        }
+
+        SSLContext defaultContext = SSLContext.getDefault();
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            SSLContext oldContext = SSLContext.getDefault();
+            assertNotNull(oldContext);
+            SSLContext newContext = SSLContext.getInstance(protocol);
+            assertNotNull(newContext);
+            assertNotSame(oldContext, newContext);
+            SSLContext.setDefault(newContext);
+            assertSame(newContext, SSLContext.getDefault());
+        }
+        SSLContext.setDefault(defaultContext);
+    }
+
     public void test_SSLContext_getInstance() throws Exception {
         try {
             SSLContext.getInstance(null);
             fail();
         } catch (NullPointerException expected) {
         }
-        assertNotNull(SSLContext.getInstance("SSL"));
-        assertNotNull(SSLContext.getInstance("SSLv3"));
-        assertNotNull(SSLContext.getInstance("TLS"));
-        assertNotNull(SSLContext.getInstance("TLSv1"));
-
-        assertNotSame(SSLContext.getInstance("TLS"),
-                      SSLContext.getInstance("TLS"));
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            assertNotNull(SSLContext.getInstance(protocol));
+            assertNotSame(SSLContext.getInstance(protocol),
+                          SSLContext.getInstance(protocol));
+        }
 
         try {
             SSLContext.getInstance(null, (String) null);
@@ -47,10 +74,12 @@ public class SSLContextTest extends TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
         }
-        try {
-            SSLContext.getInstance("TLS", (String) null);
-            fail();
-        } catch (IllegalArgumentException expected) {
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            try {
+                SSLContext.getInstance(protocol, (String) null);
+                fail();
+            } catch (IllegalArgumentException expected) {
+            }
         }
         try {
             SSLContext.getInstance(null, TestSSLContext.PROVIDER_NAME);
@@ -60,98 +89,197 @@ public class SSLContextTest extends TestCase {
     }
 
     public void test_SSLContext_getProtocol() throws Exception {
-        assertProtocolExistsForName("SSL");
-        assertProtocolExistsForName("TLS");
-    }
-
-    private void assertProtocolExistsForName(String protocolName) throws Exception {
-        String protocol = SSLContext.getInstance(protocolName).getProtocol();
-        assertNotNull(protocol);
-        assertEquals(protocolName, protocol);
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            String protocolName = SSLContext.getInstance(protocol).getProtocol();
+            assertNotNull(protocolName);
+            assertTrue(protocol.startsWith(protocolName));
+        }
     }
 
     public void test_SSLContext_getProvider() throws Exception {
-        Provider provider = SSLContext.getInstance("TLS").getProvider();
+        Provider provider = SSLContext.getDefault().getProvider();
         assertNotNull(provider);
         assertEquals(TestSSLContext.PROVIDER_NAME, provider.getName());
     }
 
     public void test_SSLContext_init() throws Exception {
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, null, null);
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                try {
+                    sslContext.init(null, null, null);
+                } catch (KeyManagementException expected) {
+                }
+            } else {
+                sslContext.init(null, null, null);
+            }
+        }
     }
 
     public void test_SSLContext_getSocketFactory() throws Exception {
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.getSocketFactory();
-            fail();
-        } catch (IllegalStateException expected) {
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                SSLContext.getInstance(protocol).getSocketFactory();
+            } else {
+                try {
+                    SSLContext.getInstance(protocol).getSocketFactory();
+                    fail();
+                } catch (IllegalStateException expected) {
+                }
+            }
+
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                sslContext.init(null, null, null);
+            }
+            SocketFactory sf = sslContext.getSocketFactory();
+            assertNotNull(sf);
+            assertTrue(SSLSocketFactory.class.isAssignableFrom(sf.getClass()));
         }
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, null, null);
-        SocketFactory sf = sslContext.getSocketFactory();
-        assertNotNull(sf);
-        assertTrue(SSLSocketFactory.class.isAssignableFrom(sf.getClass()));
     }
 
     public void test_SSLContext_getServerSocketFactory() throws Exception {
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.getServerSocketFactory();
-            fail();
-        } catch (IllegalStateException expected) {
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                SSLContext.getInstance(protocol).getServerSocketFactory();
+            } else {
+                try {
+                    SSLContext.getInstance(protocol).getServerSocketFactory();
+                    fail();
+                } catch (IllegalStateException expected) {
+                }
+            }
+
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                sslContext.init(null, null, null);
+            }
+            ServerSocketFactory ssf = sslContext.getServerSocketFactory();
+            assertNotNull(ssf);
+            assertTrue(SSLServerSocketFactory.class.isAssignableFrom(ssf.getClass()));
         }
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, null, null);
-        ServerSocketFactory ssf = sslContext.getServerSocketFactory();
-        assertNotNull(ssf);
-        assertTrue(SSLServerSocketFactory.class.isAssignableFrom(ssf.getClass()));
     }
 
     public void test_SSLContext_createSSLEngine() throws Exception {
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.createSSLEngine();
-            fail();
-        } catch (IllegalStateException expected) {
-        }
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.createSSLEngine(null, -1);
-            fail();
-        } catch (IllegalStateException expected) {
-        }
-        {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, null, null);
-            SSLEngine se = sslContext.createSSLEngine();
-            assertNotNull(se);
-        }
-        {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, null, null);
-            SSLEngine se = sslContext.createSSLEngine(null, -1);
-            assertNotNull(se);
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+
+            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                SSLContext.getInstance(protocol).createSSLEngine();
+            } else {
+                try {
+                    SSLContext.getInstance(protocol).createSSLEngine();
+                    fail();
+                } catch (IllegalStateException expected) {
+                }
+            }
+
+            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                SSLContext.getInstance(protocol).createSSLEngine(null, -1);
+            } else {
+                try {
+                    SSLContext.getInstance(protocol).createSSLEngine(null, -1);
+                    fail();
+                } catch (IllegalStateException expected) {
+                }
+            }
+
+            {
+                SSLContext sslContext = SSLContext.getInstance(protocol);
+                if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                    sslContext.init(null, null, null);
+                }
+                SSLEngine se = sslContext.createSSLEngine();
+                assertNotNull(se);
+            }
+
+            {
+                SSLContext sslContext = SSLContext.getInstance(protocol);
+                if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                    sslContext.init(null, null, null);
+                }
+                SSLEngine se = sslContext.createSSLEngine(null, -1);
+                assertNotNull(se);
+            }
         }
     }
 
     public void test_SSLContext_getServerSessionContext() throws Exception {
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        SSLSessionContext sessionContext = sslContext.getServerSessionContext();
-        assertNotNull(sessionContext);
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            SSLSessionContext sessionContext = sslContext.getServerSessionContext();
+            assertNotNull(sessionContext);
 
-        assertNotSame(SSLContext.getInstance("TLS").getServerSessionContext(),
-                      sessionContext);
+            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                assertSame(SSLContext.getInstance(protocol).getServerSessionContext(),
+                           sessionContext);
+            } else {
+                assertNotSame(SSLContext.getInstance(protocol).getServerSessionContext(),
+                              sessionContext);
+            }
+        }
     }
 
     public void test_SSLContext_getClientSessionContext() throws Exception {
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        SSLSessionContext sessionContext = sslContext.getClientSessionContext();
-        assertNotNull(sessionContext);
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            SSLSessionContext sessionContext = sslContext.getClientSessionContext();
+            assertNotNull(sessionContext);
 
-        assertNotSame(SSLContext.getInstance("TLS").getClientSessionContext(),
-                      sessionContext);
+            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                assertSame(SSLContext.getInstance(protocol).getClientSessionContext(),
+                           sessionContext);
+            } else {
+                assertNotSame(SSLContext.getInstance(protocol).getClientSessionContext(),
+                              sessionContext);
+            }
+        }
+    }
+
+    public void test_SSLContext_getDefaultSSLParameters() throws Exception {
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                sslContext.init(null, null, null);
+            }
+
+            SSLParameters p = sslContext.getDefaultSSLParameters();
+            assertNotNull(p);
+
+            String[] cipherSuites = p.getCipherSuites();
+            assertNotNull(cipherSuites);
+            StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+
+            String[] protocols = p.getProtocols();
+            assertNotNull(protocols);
+            StandardNames.assertValidCipherSuites(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+
+            assertFalse(p.getWantClientAuth());
+            assertFalse(p.getNeedClientAuth());
+        }
+    }
+
+    public void test_SSLContext_getSupportedSSLParameters() throws Exception {
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                sslContext.init(null, null, null);
+            }
+
+            SSLParameters p = sslContext.getSupportedSSLParameters();
+            assertNotNull(p);
+
+            String[] cipherSuites = p.getCipherSuites();
+            assertNotNull(cipherSuites);
+            StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+
+            String[] protocols = p.getProtocols();
+            assertNotNull(protocols);
+            StandardNames.assertSupportedProtocols(StandardNames.SSL_SOCKET_PROTOCOLS,
+                                                   protocols);
+
+            assertFalse(p.getWantClientAuth());
+            assertFalse(p.getNeedClientAuth());
+        }
     }
 
     public void test_SSLContextTest_TestSSLContext_create() {

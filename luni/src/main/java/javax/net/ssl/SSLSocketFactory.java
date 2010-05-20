@@ -20,13 +20,11 @@ package javax.net.ssl;
 import java.io.IOException;
 import java.net.Socket;
 import java.security.AccessController;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
 import java.security.Security;
-// BEGIN android-added
 import java.util.logging.Level;
 import java.util.logging.Logger;
-// END android-added
-
 import javax.net.SocketFactory;
 
 /**
@@ -77,8 +75,12 @@ public abstract class SSLSocketFactory extends SocketFactory {
         }
 
         if (defaultSocketFactory == null) {
-            // Try to find in providers
-            SSLContext context = DefaultSSLContext.getContext();
+            SSLContext context;
+            try {
+                context = SSLContext.getDefault();
+            } catch (NoSuchAlgorithmException e) {
+                context = null;
+            }
             if (context != null) {
                 defaultSocketFactory = context.getSocketFactory();
             }

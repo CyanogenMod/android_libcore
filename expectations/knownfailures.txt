@@ -871,8 +871,32 @@ result EXEC_FAILED
 test tests.api.javax.net.ssl.HostnameVerifierTest#testSubjectAlt
 result EXEC_FAILED
 
-# Need to support SSL_RSA_EXPORT_WITH_RC4_40_MD5
-test javax.net.ssl.SSLSocketTest#test_SSLSocket_getSupportedCipherSuites_connect
+# NO SERVER CERTIFICATE FOUND - selectSuite should not pick a suite that needs a certificate if it is missing
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_beginHandshake_noKeyStore
+result EXEC_FAILED
+
+# NO SERVER CERTIFICATE FOUND - selectSuite should not pick a suite that needs a certificate if it is missing
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_getSupportedCipherSuites_connect
+result EXEC_FAILED
+
+# init - invalid private key
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_clientAuth
+result EXEC_FAILED
+
+# AlertException instead of SSLException
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_client
+result EXEC_FAILED
+
+# SSLException instead of failure to handshake
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_server
+result EXEC_FAILED
+
+# SSLHandshakeException instead of failure to handshake
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_setUseClientMode
+result EXEC_FAILED
+
+# No *_WITH_NULL_* ciphers work because of 'Invalid transformation: null'
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_getSupportedCipherSuites_connect
 result EXEC_FAILED
 
 # method test fails once in a while. Cannot be sure that exception is thrown in every test execution.

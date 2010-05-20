@@ -106,4 +106,27 @@ public abstract class SSLContextSpi {
      */
     protected abstract SSLSessionContext engineGetClientSessionContext();
 
+
+    /**
+     * Returns a new SSLParameters instance that includes the default
+     * SSL handshake parameters values including cipher suites,
+     * protocols, and client authentication.
+     *
+     * The default implementation returns an SSLParameters with values
+     * based an SSLSocket created from this instances SocketFactory.
+     *
+     * @since 1.6
+     */
+    protected abstract SSLParameters engineGetDefaultSSLParameters();
+
+    /**
+     * Returns a new SSLParameters instance that includes all
+     * supported cipher suites and protocols.
+     *
+     * The default implementation returns an SSLParameters with values
+     * based an SSLSocket created from this instances SocketFactory.
+     *
+     * @since 1.6
+     */
+    protected abstract SSLParameters engineGetSupportedSSLParameters();
 }

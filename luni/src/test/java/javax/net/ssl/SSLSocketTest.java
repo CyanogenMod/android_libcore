@@ -16,19 +16,12 @@
 
 package javax.net.ssl;
 
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.security.Key;
-import java.security.KeyStore;
 import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
 import junit.framework.TestCase;
 
 public class SSLSocketTest extends TestCase {
@@ -37,25 +30,19 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] cipherSuites = ssl.getSupportedCipherSuites();
-        assertNotNull(cipherSuites);
-        assertTrue(cipherSuites.length != 0);
-        Set remainingCipherSuites = new HashSet<String>(StandardNames.CIPHER_SUITES);
-        for (String cipherSuite : cipherSuites) {
-            assertTrue(remainingCipherSuites.remove(cipherSuite));
-        }
-        assertEquals(Collections.EMPTY_SET, remainingCipherSuites);
-        assertEquals(StandardNames.CIPHER_SUITES.size(), cipherSuites.length);
+        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        assertNotSame(cipherSuites, ssl.getSupportedCipherSuites());
     }
 
     public void test_SSLSocket_getSupportedCipherSuites_connect() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         String[] cipherSuites = c.sslContext.getSocketFactory().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
+            /*
+             * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
+             * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#KRBRequire
+             */
             if (cipherSuite.startsWith("TLS_KRB5_")) {
-                /*
-                 * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
-                 * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#KRBRequire
-                 */
                 continue;
             }
             // System.out.println("Trying to connect cipher suite " + cipherSuite);
@@ -68,20 +55,8 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] cipherSuites = ssl.getEnabledCipherSuites();
-        assertNotNull(cipherSuites);
-        assertTrue(cipherSuites.length != 0);
-
-        // Make sure modifying the result is not observable
-        String savedCipherSuite = cipherSuites[0];
-        assertNotNull(savedCipherSuite);
-        cipherSuites[0] = null;
-        assertNotNull(ssl.getEnabledCipherSuites()[0]);
-        cipherSuites[0] = savedCipherSuite;
-
-        // Make sure all cipherSuites names are expected
-        for (String cipherSuite : cipherSuites) {
-            assertTrue(StandardNames.CIPHER_SUITES.contains(cipherSuite));
-        }
+        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        assertNotSame(cipherSuites, ssl.getEnabledCipherSuites());
     }
 
     public void test_SSLSocket_setEnabledCipherSuites() throws Exception {
@@ -113,40 +88,16 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] protocols = ssl.getSupportedProtocols();
-        assertNotNull(protocols);
-        assertTrue(protocols.length != 0);
-
-        // Make sure modifying the result is not observable
-        String savedProtocol = protocols[0];
-        assertNotNull(savedProtocol);
-        protocols[0] = null;
-        assertNotNull(ssl.getSupportedProtocols()[0]);
-        protocols[0] = savedProtocol;
-
-        // Make sure all protocol names are expected
-        for (String protocol : protocols) {
-            assertNotNull(StandardNames.SSL_SOCKET_PROTOCOLS.contains(protocol));
-        }
+        StandardNames.assertSupportedProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+        assertNotSame(protocols, ssl.getSupportedProtocols());
     }
 
     public void test_SSLSocket_getEnabledProtocols() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] protocols = ssl.getEnabledProtocols();
-        assertNotNull(protocols);
-        assertTrue(protocols.length != 0);
-
-        // Make sure modifying the result is not observable
-        String savedProtocol = protocols[0];
-        assertNotNull(savedProtocol);
-        protocols[0] = null;
-        assertNotNull(ssl.getEnabledProtocols()[0]);
-        protocols[0] = savedProtocol;
-
-        // Make sure all protocol names are expected
-        for (String protocol : protocols) {
-            assertNotNull(StandardNames.SSL_SOCKET_PROTOCOLS.contains(protocol));
-        }
+        StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+        assertNotSame(protocols, ssl.getEnabledProtocols());
     }
 
     public void test_SSLSocket_setEnabledProtocols() throws Exception {
@@ -299,9 +250,6 @@ public class SSLSocketTest extends TestCase {
                     assertNotNull(id);
                     assertEquals(32, id.length);
                     assertNotNull(c.sslContext.getClientSessionContext().getSession(id));
-                    if (!TestSSLContext.sslServerSocketSupportsSessionTickets()) {
-                        assertNotNull(c.sslContext.getServerSessionContext().getSession(id));
-                    }
 
                     assertNotNull(cipherSuite);
                     assertTrue(Arrays.asList(
@@ -344,6 +292,10 @@ public class SSLSocketTest extends TestCase {
         });
         client.startHandshake();
         thread.join();
+        if (!TestSSLContext.sslServerSocketSupportsSessionTickets()) {
+            assertNotNull(c.sslContext.getServerSessionContext().getSession(
+                    client.getSession().getId()));
+        }
         synchronized (handshakeCompletedListenerCalled) {
             while (!handshakeCompletedListenerCalled[0]) {
                 handshakeCompletedListenerCalled.wait();
@@ -555,7 +507,80 @@ public class SSLSocketTest extends TestCase {
         thread.join();
     }
 
-    public void test_SSLSocketTest_Test_create() {
+    public void test_SSLSocket_getSSLParameters() throws Exception {
+        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket ssl = (SSLSocket) sf.createSocket();
+
+        SSLParameters p = ssl.getSSLParameters();
+        assertNotNull(p);
+
+        String[] cipherSuites = p.getCipherSuites();
+        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        assertNotSame(cipherSuites, ssl.getEnabledCipherSuites());
+        assertEquals(Arrays.asList(cipherSuites), Arrays.asList(ssl.getEnabledCipherSuites()));
+
+        String[] protocols = p.getProtocols();
+        StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+        assertNotSame(protocols, ssl.getEnabledProtocols());
+        assertEquals(Arrays.asList(protocols), Arrays.asList(ssl.getEnabledProtocols()));
+
+        assertEquals(p.getWantClientAuth(), ssl.getWantClientAuth());
+        assertEquals(p.getNeedClientAuth(), ssl.getNeedClientAuth());
+    }
+
+    public void test_SSLSocket_setSSLParameters() throws Exception {
+        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket ssl = (SSLSocket) sf.createSocket();
+        String[] defaultCipherSuites = ssl.getEnabledCipherSuites();
+        String[] defaultProtocols = ssl.getEnabledProtocols();
+        String[] supportedCipherSuites = ssl.getSupportedCipherSuites();
+        String[] supportedProtocols = ssl.getSupportedProtocols();
+
+        {
+            SSLParameters p = new SSLParameters();
+            ssl.setSSLParameters(p);
+            assertEquals(Arrays.asList(defaultCipherSuites),
+                         Arrays.asList(ssl.getEnabledCipherSuites()));
+            assertEquals(Arrays.asList(defaultProtocols),
+                         Arrays.asList(ssl.getEnabledProtocols()));
+        }
+
+        {
+            SSLParameters p = new SSLParameters(supportedCipherSuites,
+                                                supportedProtocols);
+            ssl.setSSLParameters(p);
+            assertEquals(Arrays.asList(supportedCipherSuites),
+                         Arrays.asList(ssl.getEnabledCipherSuites()));
+            assertEquals(Arrays.asList(supportedProtocols),
+                         Arrays.asList(ssl.getEnabledProtocols()));
+        }
+        {
+            SSLParameters p = new SSLParameters();
+
+            p.setNeedClientAuth(true);
+            assertFalse(ssl.getNeedClientAuth());
+            assertFalse(ssl.getWantClientAuth());
+            ssl.setSSLParameters(p);
+            assertTrue(ssl.getNeedClientAuth());
+            assertFalse(ssl.getWantClientAuth());
+
+            p.setWantClientAuth(true);
+            assertTrue(ssl.getNeedClientAuth());
+            assertFalse(ssl.getWantClientAuth());
+            ssl.setSSLParameters(p);
+            assertFalse(ssl.getNeedClientAuth());
+            assertTrue(ssl.getWantClientAuth());
+
+            p.setWantClientAuth(false);
+            assertFalse(ssl.getNeedClientAuth());
+            assertTrue(ssl.getWantClientAuth());
+            ssl.setSSLParameters(p);
+            assertFalse(ssl.getNeedClientAuth());
+            assertFalse(ssl.getWantClientAuth());
+        }
+    }
+
+    public void test_TestSSLSocketPair_create() {
         TestSSLSocketPair test = TestSSLSocketPair.create();
         assertNotNull(test.c);
         assertNotNull(test.server);
@@ -564,13 +589,15 @@ public class SSLSocketTest extends TestCase {
         assertTrue(test.client.isConnected());
         assertNotNull(test.server.getSession());
         assertNotNull(test.client.getSession());
+        assertTrue(test.server.getSession().isValid());
+        assertTrue(test.client.getSession().isValid());
     }
 
     /**
      * Not run by default by JUnit, but can be run by Vogar by
      * specifying it explictly (or with main method below)
      */
-    public void stress_test_SSLSocketTest_Test_create() {
+    public void stress_test_TestSSLSocketPair_create() {
         final boolean verbose = true;
         while (true) {
             TestSSLSocketPair test = TestSSLSocketPair.create();
@@ -584,6 +611,6 @@ public class SSLSocketTest extends TestCase {
     }
 
     public static final void main (String[] args) {
-        new SSLSocketTest().stress_test_SSLSocketTest_Test_create();
+        new SSLSocketTest().stress_test_TestSSLSocketPair_create();
     }
 }

@@ -296,4 +296,45 @@ public abstract class SSLSocket extends Socket {
      */
     public abstract boolean getEnableSessionCreation();
 
+    /**
+     * Returns a new SSLParameters based on this SSLSocket's current
+     * cipher suites, protocols, and client authentication settings.
+     *
+     * @since 1.6
+     */
+    public SSLParameters getSSLParameters() {
+        SSLParameters p = new SSLParameters();
+        p.setCipherSuites(getEnabledCipherSuites());
+        p.setProtocols(getEnabledProtocols());
+        p.setNeedClientAuth(getNeedClientAuth());
+        p.setWantClientAuth(getWantClientAuth());
+        return p;
+    }
+
+    /**
+     * Sets various SSL handshake parameters based on the SSLParameter
+     * argument. Specifically, sets the SSLSocket's enabled cipher
+     * suites if the parameter's cipher suites are non-null. Similarly
+     * sets the enabled protocols. If the parameters specify the want
+     * or need for client authentication, those requirements are set
+     * on the SSLSocket, otherwise both are set to false.
+     * @since 1.6
+     */
+    public void setSSLParameters(SSLParameters p) {
+        String[] cipherSuites = p.getCipherSuites();
+        if (cipherSuites != null) {
+            setEnabledCipherSuites(cipherSuites);
+        }
+        String[] protocols = p.getProtocols();
+        if (protocols != null) {
+            setEnabledProtocols(protocols);
+        }
+        if (p.getNeedClientAuth()) {
+            setNeedClientAuth(true);
+        } else if (p.getWantClientAuth()) {
+            setWantClientAuth(true);
+        } else {
+            setWantClientAuth(false);
+        }
+    }
 }

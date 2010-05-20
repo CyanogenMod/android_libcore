@@ -20,15 +20,15 @@ package org.apache.harmony.xnet.tests.support;
 import java.nio.ByteBuffer;
 import java.security.KeyManagementException;
 import java.security.SecureRandom;
-
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContextSpi;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
-import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
@@ -74,6 +74,16 @@ public class MySSLContextSpi extends SSLContextSpi {
         if (!init) {
             throw new RuntimeException("Not initialiazed");
         }
+        return null;
+    }
+
+    protected SSLParameters engineGetDefaultSSLParameters() {
+        engineGetSocketFactory();
+        return null;
+    }
+
+    protected SSLParameters engineGetSupportedSSLParameters() {
+        engineGetSocketFactory();
         return null;
     }
 

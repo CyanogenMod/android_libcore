@@ -54,8 +54,7 @@ public class KeyStoreBuilderParameters implements ManagerFactoryParameters {
      * @throws IllegalArgumentException
      *             if the specified list is empty.
      */
-    @SuppressWarnings("unchecked")
-    public KeyStoreBuilderParameters(List parameters) {
+    public KeyStoreBuilderParameters(List<KeyStore.Builder> parameters) {
         super();
         if (parameters == null) {
             throw new NullPointerException("Builders list is null");
@@ -72,8 +71,7 @@ public class KeyStoreBuilderParameters implements ManagerFactoryParameters {
      *
      * @return the unmodifiable list of {@code KeyStore.Builder}s.
      */
-    @SuppressWarnings("unchecked")
-    public List getParameters() {
+    public List<KeyStore.Builder> getParameters() {
         return ksbuilders;
     }
 }
