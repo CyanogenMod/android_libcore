@@ -68,6 +68,13 @@ struct BIGNUM_Delete {
 };
 typedef UniquePtr<BIGNUM, BIGNUM_Delete> Unique_BIGNUM;
 
+struct DH_Delete {
+    void operator()(DH* p) const {
+        DH_free(p);
+    }
+};
+typedef UniquePtr<DH, DH_Delete> Unique_DH;
+
 struct DSA_Delete {
     void operator()(DSA* p) const {
         DSA_free(p);
@@ -1090,6 +1097,11 @@ static jobjectArray getCertificateBytes(JNIEnv* env,
  * can read and write to the SSL such as SSL_do_handshake, SSL_read,
  * SSL_write, and SSL_shutdown if handshaking is not complete.
  *
+ * Finally, we have one other piece of state setup by OpenSSL callbacks:
+ *
+ * (7) a set of emphemeral RSA keys that is lazily generated if a peer
+ * wants to use an exportable RSA cipher suite.
+ *
  */
 class AppData {
   public:
@@ -1099,6 +1111,7 @@ class AppData {
     MUTEX_TYPE mutex;
     JNIEnv* env;
     jobject sslHandshakeCallbacks;
+    Unique_RSA ephemeralRsa;
 
     /**
      * Creates our application data and attaches it to a given SSL connection.
@@ -1142,7 +1155,8 @@ class AppData {
             aliveAndKicking(1),
             waitingThreads(0),
             env(NULL),
-            sslHandshakeCallbacks(NULL) {
+            sslHandshakeCallbacks(NULL),
+            ephemeralRsa(NULL) {
         setEnv(env);
         fdsEmergency[0] = -1;
         fdsEmergency[1] = -1;
@@ -1493,22 +1507,64 @@ static RSA* rsaGenerateKey(int keylength) {
 }
 
 /**
- * Lazily generated emphemeral RSA key
- */
-static RSA* tmp_rsa = NULL;
-
-/**
- * Call back to ask for an tempheral RSA key for SSL_RSA_EXPORT_WITH_RC4_40_MD5 (aka EXP-RC4-MD5)
+ * Call back to ask for an ephemeral RSA key for SSL_RSA_EXPORT_WITH_RC4_40_MD5 (aka EXP-RC4-MD5)
  */
 static RSA* tmp_rsa_callback(SSL* ssl __attribute__ ((unused)),
                              int is_export __attribute__ ((unused)),
                              int keylength) {
-    JNI_TRACE("ssl=%p tmp_rsa_callback_cb is_export=%d keylength=%d", ssl, is_export, keylength);
-    if (tmp_rsa == NULL) {
-        tmp_rsa = rsaGenerateKey(keylength);
+    JNI_TRACE("ssl=%p tmp_rsa_callback is_export=%d keylength=%d", ssl, is_export, keylength);
+
+    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    if (appData->ephemeralRsa.get() == NULL) {
+        JNI_TRACE("ssl=%p tmp_rsa_callback generating ephemeral RSA key", ssl);
+        appData->ephemeralRsa.reset(rsaGenerateKey(keylength));
     }
-    JNI_TRACE("ssl=%p tmp_rsa_callback_cb => %p", ssl, tmp_rsa);
-    return tmp_rsa;
+    JNI_TRACE("ssl=%p tmp_rsa_callback => %p", ssl, appData->ephemeralRsa.get());
+    return appData->ephemeralRsa.get();
+}
+
+static DH* dhGenerateParameters(int keylength) {
+
+    /*
+     * The SSL_CTX_set_tmp_dh_callback(3SSL) man page discusses two
+     * different options for generating DH keys. One is generating the
+     * keys using a single set of DH parameters. However, generating
+     * DH parameters is slow enough (minutes) that they suggest doing
+     * it once at install time. The other is to generate DH keys from
+     * DSA parameters. Generating DSA parameters is faster than DH
+     * parameters, but to prevent small subgroup attacks, they needed
+     * to be regenerated for each set of DH keys. Setting the
+     * SSL_OP_SINGLE_DH_USE option make sure OpenSSL will call back
+     * for new DH parameters every type it needs to generate DH keys.
+     */
+#if 0
+    // Slow path that takes minutes but could be cached
+    Unique_DH dh(DH_new());
+    if (!DH_generate_parameters_ex(dh.get(), keylength, 2, NULL)) {
+        return NULL;
+    }
+    return dh.release();
+#else
+    // Faster path but must have SSL_OP_SINGLE_DH_USE set
+    Unique_DSA dsa(DSA_new());
+    if (!DSA_generate_parameters_ex(dsa.get(), keylength, NULL, 0, NULL, NULL, NULL)) {
+        return NULL;
+    }
+    DH* dh = DSA_dup_DH(dsa.get());
+    return dh;
+#endif
+}
+
+/**
+ * Call back to ask for Diffie-Hellman parameters
+ */
+static DH* tmp_dh_callback(SSL* ssl __attribute__ ((unused)),
+                           int is_export __attribute__ ((unused)),
+                           int keylength) {
+    JNI_TRACE("ssl=%p tmp_dh_callback is_export=%d keylength=%d", ssl, is_export, keylength);
+    DH* tmp_dh = dhGenerateParameters(keylength);
+    JNI_TRACE("ssl=%p tmp_dh_callback => %p", ssl, tmp_dh);
+    return tmp_dh;
 }
 
 /*
@@ -1521,7 +1577,8 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
         return NULL;
     }
     // Note: We explicitly do not allow SSLv2 to be used.
-    SSL_CTX_set_options(sslCtx.get(), SSL_OP_ALL | SSL_OP_NO_SSLv2);
+    SSL_CTX_set_options(sslCtx.get(),
+                        SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_SINGLE_DH_USE);
 
     int mode = SSL_CTX_get_mode(sslCtx.get());
     /*
@@ -1548,6 +1605,7 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
     SSL_CTX_set_info_callback(sslCtx.get(), info_callback);
     SSL_CTX_set_client_cert_cb(sslCtx.get(), client_cert_cb);
     SSL_CTX_set_tmp_rsa_callback(sslCtx.get(), tmp_rsa_callback);
+    SSL_CTX_set_tmp_dh_callback(sslCtx.get(), tmp_dh_callback);
 
 #ifdef WITH_JNI_TRACE
     SSL_CTX_set_msg_callback(sslCtx.get(), ssl_msg_callback_LOG); /* enable for message debug */
