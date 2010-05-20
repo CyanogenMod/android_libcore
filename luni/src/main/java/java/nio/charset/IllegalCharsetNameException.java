@@ -36,18 +36,18 @@ public class IllegalCharsetNameException extends IllegalArgumentException {
      * Constructs a new {@code IllegalCharsetNameException} with the supplied
      * charset name.
      *
-     * @param charset
+     * @param charsetName
      *            the encountered illegal charset name.
      */
-    public IllegalCharsetNameException(String charset) {
-        super(charset);
-        this.charsetName = charset;
+    public IllegalCharsetNameException(String charsetName) {
+        super((charsetName != null) ? charsetName : "null");
+        this.charsetName = charsetName;
     }
 
     /**
      * Returns the encountered illegal charset name.
      */
     public String getCharsetName() {
-        return this.charsetName;
+        return charsetName;
     }
 }

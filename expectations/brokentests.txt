@@ -908,3 +908,16 @@ pattern .*junit.framework.AssertionFailedError: Wrong pattern: GyMdkHmsSEDFwWahK
 test org.apache.harmony.text.tests.java.text.DateFormatSymbolsTest#test_getLocalPatternChars
 result EXEC_FAILED
 pattern .*junit.framework.ComparisonFailure: Returned incorrect pattern string expected:<...YeugAZvcLQqV> but was:<...Z>.*
+
+# we don't support the CharsetProvider spi, so we don't have "mockCharset00".
+test tests.api.java.nio.charset.CharsetTest#test_availableCharsets
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError.*
+test tests.api.java.nio.charset.CharsetTest#test_forNameLString
+result EXEC_FAILED
+pattern .*java.nio.charset.UnsupportedCharsetException: mockCharset00.*
+
+# the average length of possible UTF-8 sequences is 2 bytes.
+test tests.api.java.nio.charset.UTFCharsetEncoderTest#testSpecificDefaultValue
+result EXEC_FAILED
+pattern .*junit.framework.AssertionFailedError: expected:<1.1> but was:<2.0>.*

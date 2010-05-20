@@ -203,7 +203,7 @@ public class CoderResult {
 
     /**
      * Gets the length of the erroneous input. The length is only meaningful to
-     * a malformed-input error or an unmappble character error.
+     * a malformed-input error or an unmappable character error.
      *
      * @return the length, as an integer, of this object's erroneous input.
      * @throws UnsupportedOperationException

@@ -16,76 +16,49 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class CharsetICU extends Charset {
+    private static final Map<String, byte[]> DEFAULT_REPLACEMENTS = new HashMap<String, byte[]>();
+    static {
+        // ICU has different default replacements to the RI in these cases. There are probably
+        // more cases too, but this covers all the charsets that Java guarantees will be available.
+        // These use U+FFFD REPLACEMENT CHARACTER...
+        DEFAULT_REPLACEMENTS.put("UTF-16",   new byte[] { (byte) 0xff, (byte) 0xfd });
+        DEFAULT_REPLACEMENTS.put("UTF-32",   new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xff, (byte) 0xfd });
+        // These use '?'. It's odd that UTF-8 doesn't use U+FFFD, given that (unlike ISO-8859-1
+        // and US-ASCII) it can represent it, but this is what the RI does...
+        byte[] questionMark = new byte[] { (byte) '?' };
+        DEFAULT_REPLACEMENTS.put("UTF-8",      questionMark);
+        DEFAULT_REPLACEMENTS.put("ISO-8859-1", questionMark);
+        DEFAULT_REPLACEMENTS.put("US-ASCII",   questionMark);
+    }
+
     private final String icuCanonicalName;
-    /**
-     * Constructor to create a the CharsetICU object
-     * @param canonicalName the canonical name as a string
-     * @param aliases the alias set as an array of strings
-     * @stable ICU 2.4
-     */
+
     protected CharsetICU(String canonicalName, String icuCanonName, String[] aliases) {
          super(canonicalName, aliases);
          icuCanonicalName = icuCanonName;
     }
-    /**
-     * Returns a new decoder instance of this charset object
-     * @return a new decoder object
-     * @stable ICU 2.4
-     */
+
     public CharsetDecoder newDecoder() {
-        long converterHandle = NativeConverter.openConverter(icuCanonicalName);
-        return new CharsetDecoderICU(this, converterHandle);
+        return new CharsetDecoderICU(this, NativeConverter.openConverter(icuCanonicalName));
     }
 
-    // hardCoded list of replacement bytes
-    private static final Map<String, byte[]> subByteMap = new HashMap<String, byte[]>();
-    static {
-        subByteMap.put("UTF-32", new byte[]{0x00, 0x00, (byte)0xfe, (byte)0xff});
-        subByteMap.put("ibm-16684_P110-2003", new byte[]{0x40, 0x40}); // make \u3000 the sub char
-        subByteMap.put("ibm-971_P100-1995", new byte[]{(byte)0xa1, (byte)0xa1}); // make \u3000 the sub char
-    }
-    /**
-     * Returns a new encoder object of the charset
-     * @return a new encoder
-     * @stable ICU 2.4
-     */
     public CharsetEncoder newEncoder() {
-        // the arrays are locals and not
-        // instance variables since the
-        // methods on this class need to
-        // be thread safe
         long converterHandle = NativeConverter.openConverter(icuCanonicalName);
-
-        //According to the contract all converters should have non-empty replacement
-        byte[] replacement = NativeConverter.getSubstitutionBytes(converterHandle);
-
-       try {
-            return new CharsetEncoderICU(this,converterHandle, replacement);
-        } catch (IllegalArgumentException ex) {
-            // work around for the nonsensical check in the nio API that
-            // a substitution character must be mappable while decoding!!
-            replacement = subByteMap.get(icuCanonicalName);
-            if (replacement == null) {
-                replacement = new byte[NativeConverter.getMinBytesPerChar(converterHandle)];
-                for(int i = 0; i < replacement.length; ++i) {
-                    replacement[i]= 0x3f;
-                }
-            }
-            return new CharsetEncoderICU(this, converterHandle, replacement);
+        // We have our own map of RI-compatible default replacements...
+        byte[] replacement = DEFAULT_REPLACEMENTS.get(icuCanonicalName);
+        if (replacement == null) {
+            // ...but fall back to asking ICU.
+            // TODO: should we just try to use U+FFFD and fall back to '?' if U+FFFD can't be encoded?
+            replacement = NativeConverter.getSubstitutionBytes(converterHandle);
+        } else {
+            replacement = replacement.clone();
         }
+        return new CharsetEncoderICU(this, converterHandle, replacement);
     }
 
-    /**
-     * Ascertains if a charset is a sub set of this charset
-     * @param cs charset to test
-     * @return true if the given charset is a subset of this charset
-     * @stable ICU 2.4
-     *
-     * //CSDL: major changes by Jack
-     */
-    public boolean contains(Charset cs){
-        if (null == cs) {
-        return false;
+    public boolean contains(Charset cs) {
+        if (cs == null) {
+            return false;
         } else if (this.equals(cs)) {
             return true;
         }
@@ -98,8 +71,7 @@ public final class CharsetICU extends Charset {
             if (converterHandle1 > 0) {
                 converterHandle2 = NativeConverter.openConverter(cs.name());
                 if (converterHandle2 > 0) {
-                    return NativeConverter.contains(converterHandle1,
-                            converterHandle2);
+                    return NativeConverter.contains(converterHandle1, converterHandle2);
                 }
             }
             return false;

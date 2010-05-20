@@ -121,21 +121,8 @@ public abstract class CharsetEncoder {
     private CharsetDecoder decoder;
 
     /**
-     * Constructs a new <code>CharsetEncoder</code> using the given
-     * <code>Charset</code>, average number and maximum number of bytes
-     * created by this encoder for one input character.
-     *
-     * @param cs
-     *            the <code>Charset</code> to be used by this encoder.
-     * @param averageBytesPerChar
-     *            average number of bytes created by this encoder for one input
-     *            character, must be positive.
-     * @param maxBytesPerChar
-     *            maximum number of bytes which can be created by this encoder
-     *            for one input character, must be positive.
-     * @throws IllegalArgumentException
-     *             if <code>maxBytesPerChar</code> or
-     *             <code>averageBytesPerChar</code> is negative.
+     * Constructs a new {@code CharsetEncoder} using the given parameters and
+     * the replacement byte array {@code { (byte) '?' }}.
      */
     protected CharsetEncoder(Charset cs, float averageBytesPerChar, float maxBytesPerChar) {
         this(cs, averageBytesPerChar, maxBytesPerChar, new byte[] { (byte) '?' });
@@ -743,8 +730,9 @@ public abstract class CharsetEncoder {
                 || !isLegalReplacement(replacement)) {
             throw new IllegalArgumentException("bad replacement: " + Arrays.toString(replacement));
         }
+        // It seems like a bug, but the RI doesn't clone, and we have tests that check we don't.
         replace = replacement;
-        implReplaceWith(replacement);
+        implReplaceWith(replace);
         return this;
     }
 
