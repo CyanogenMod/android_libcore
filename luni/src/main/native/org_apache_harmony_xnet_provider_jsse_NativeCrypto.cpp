@@ -1575,9 +1575,14 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
         jniThrowRuntimeException(env, "SSL_CTX_new");
         return NULL;
     }
-    // Note: We explicitly do not allow SSLv2 to be used.
     SSL_CTX_set_options(sslCtx.get(),
-                        SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_SINGLE_DH_USE);
+                        SSL_OP_ALL
+                        // Note: We explicitly do not allow SSLv2 to be used.
+                        | SSL_OP_NO_SSLv2
+                        // We also disable session tickets for better compatability b/2682876
+                        | SSL_OP_NO_TICKET
+                        // Because dhGenerateParameters uses DSA_generate_parameters_ex
+                        | SSL_OP_SINGLE_DH_USE);
 
     int mode = SSL_CTX_get_mode(sslCtx.get());
     /*
@@ -2361,7 +2366,8 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;;
 
-    int ret = sslRead(env, ssl, (char*) (bytes.get() + offset), len, &returnCode, &sslErrorCode, timeout);
+    int ret = sslRead(env, ssl, (char*) (bytes.get() + offset), len,
+                      &returnCode, &sslErrorCode, timeout);
 
     int result;
     if (ret == THROW_EXCEPTION) {
