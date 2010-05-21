@@ -21,7 +21,7 @@
 #include "zlib.h"
 
 static jlong Adler32_updateImpl(JNIEnv* env, jobject, jbyteArray byteArray, int off, int len, jlong crc) {
-    ScopedByteArray bytes(env, byteArray);
+    ScopedByteArrayRO bytes(env, byteArray);
     if (bytes.get() == NULL) {
         jniThrowNullPointerException(env, NULL);
         return 0;

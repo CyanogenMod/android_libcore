@@ -198,9 +198,9 @@ static iovec* initIoVec(JNIEnv* env,
         jniThrowException(env, "java/lang/OutOfMemoryError", "native heap");
         return NULL;
     }
-    ScopedIntArray buffers(env, jBuffers);
-    ScopedIntArray offsets(env, jOffsets);
-    ScopedIntArray lengths(env, jLengths);
+    ScopedIntArrayRO buffers(env, jBuffers);
+    ScopedIntArrayRO offsets(env, jOffsets);
+    ScopedIntArrayRO lengths(env, jLengths);
     for (int i = 0; i < size; ++i) {
         vectors[i].iov_base = reinterpret_cast<void*>(buffers[i] + offsets[i]);
         vectors[i].iov_len = lengths[i];
@@ -291,16 +291,14 @@ static jlong harmony_io_readImpl(JNIEnv* env, jobject, jint fd,
         return 0;
     }
 
-    jbyte* bytes = env->GetByteArrayElements(byteArray, NULL);
-    jlong rc = TEMP_FAILURE_RETRY(read(fd, bytes + offset, nbytes));
-    env->ReleaseByteArrayElements(byteArray, bytes, 0);
+    ScopedByteArrayRW bytes(env, byteArray);
+    jlong rc = TEMP_FAILURE_RETRY(read(fd, bytes.get() + offset, nbytes));
     if (rc == 0) {
         return -1;
     }
     if (rc == -1) {
         if (errno == EAGAIN) {
-            jniThrowException(env, "java/io/InterruptedIOException",
-                    "Read timed out");
+            jniThrowException(env, "java/io/InterruptedIOException", "Read timed out");
         } else {
             jniThrowIOException(env, errno);
         }
@@ -311,7 +309,7 @@ static jlong harmony_io_readImpl(JNIEnv* env, jobject, jint fd,
 static jlong harmony_io_writeImpl(JNIEnv* env, jobject, jint fd,
         jbyteArray byteArray, jint offset, jint nbytes) {
 
-    ScopedByteArray bytes(env, byteArray);
+    ScopedByteArrayRO bytes(env, byteArray);
     jlong result = TEMP_FAILURE_RETRY(write(fd, bytes.get() + offset, nbytes));
     if (result == -1) {
         if (errno == EAGAIN) {
@@ -418,7 +416,7 @@ static jint harmony_io_openImpl(JNIEnv* env, jobject, jbyteArray pathByteArray,
 
     flags = EsTranslateOpenFlags(flags);
 
-    ScopedByteArray path(env, pathByteArray);
+    ScopedByteArrayRO path(env, pathByteArray);
     jint rc = TEMP_FAILURE_RETRY(open(reinterpret_cast<const char*>(&path[0]), flags, mode));
     if (rc == -1) {
         // Get the human-readable form of errno.

@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "ScopedPrimitiveArray.h"
 #include "unicode/uregex.h"
 #include "unicode/utypes.h"
 #include "unicode/parseerr.h"
@@ -208,29 +209,20 @@ static jint groupCount(JNIEnv* env, jclass, RegExData* data)
     return result;
 }
 
-static void startEnd(JNIEnv* env, jclass, RegExData* data,
-                     jintArray offsets)
-{
+static void startEnd(JNIEnv* env, jclass, RegExData* data, jintArray javaOffsets) {
     UErrorCode status = U_ZERO_ERROR;
-
-    jint * offsetsRaw = env->GetIntArrayElements(offsets, NULL);
-
+    ScopedIntArrayRW offsets(env, javaOffsets);
     int groupCount = uregex_groupCount(data->regex, &status);
     for (int i = 0; i <= groupCount && U_SUCCESS(status); i++) {
-        offsetsRaw[2 * i + 0] = uregex_start(data->regex, i, &status);
-        offsetsRaw[2 * i + 1] = uregex_end(data->regex, i, &status);
+        offsets[2 * i + 0] = uregex_start(data->regex, i, &status);
+        offsets[2 * i + 1] = uregex_end(data->regex, i, &status);
     }
-
-    env->ReleaseIntArrayElements(offsets, offsetsRaw, 0);
-
     if (!U_SUCCESS(status)) {
         throwRuntimeException(env, status);
     }
 }
 
-static void setRegion(JNIEnv* env, jclass, RegExData* data, jint start,
-                      jint end)
-{
+static void setRegion(JNIEnv* env, jclass, RegExData* data, jint start, jint end) {
     UErrorCode status = U_ZERO_ERROR;
     uregex_setRegion(data->regex, start, end, &status);
     if (!U_SUCCESS(status)) {

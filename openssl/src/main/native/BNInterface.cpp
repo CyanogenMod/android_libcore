@@ -178,7 +178,7 @@ static int NativeBN_BN_hex2bn(JNIEnv* env, jclass, BIGNUM* a, jstring str) {
  */
 static jboolean NativeBN_BN_bin2bn(JNIEnv* env, jclass, jbyteArray arr, int len, jboolean neg, BIGNUM* ret) {
     if (!oneValidHandle(env, ret)) return JNI_FALSE;
-    ScopedByteArray bytes(env, arr);
+    ScopedByteArrayRO bytes(env, arr);
     if (bytes.get() == NULL) {
         return -1;
     }
@@ -201,7 +201,7 @@ static jboolean NativeBN_litEndInts2bn(JNIEnv* env, jclass, jintArray arr, int l
     if (!oneValidHandle(env, ret)) return JNI_FALSE;
     bn_check_top(ret);
     if (len > 0) {
-        ScopedIntArray scopedArray(env, arr);
+        ScopedIntArrayRO scopedArray(env, arr);
         assert(sizeof(BN_ULONG) == sizeof(jint));
         const BN_ULONG* tmpInts = reinterpret_cast<const BN_ULONG*>(scopedArray.get());
         if ((tmpInts != NULL) && (bn_wexpand(ret, len) != NULL)) {
@@ -287,7 +287,7 @@ static jboolean negBigEndianBytes2bn(JNIEnv*, jclass, const unsigned char* bytes
  */
 static jboolean NativeBN_twosComp2bn(JNIEnv* env, jclass cls, jbyteArray arr, int bytesLen, BIGNUM* ret) {
     if (!oneValidHandle(env, ret)) return JNI_FALSE;
-    ScopedByteArray bytes(env, arr);
+    ScopedByteArrayRO bytes(env, arr);
     if (bytes.get() == NULL) {
         return -1;
     }
@@ -384,12 +384,11 @@ static jbyteArray NativeBN_BN_bn2bin(JNIEnv* env, jclass, BIGNUM* a) {
     if (result == NULL) {
         return NULL;
     }
-    jbyte* bytes = env->GetByteArrayElements(result, NULL);
-    if (bytes == NULL) {
+    ScopedByteArrayRW bytes(env, result);
+    if (bytes.get() == NULL) {
         return NULL;
     }
-    BN_bn2bin(a, reinterpret_cast<unsigned char*>(bytes));
-    env->ReleaseByteArrayElements(result, bytes, 0);
+    BN_bn2bin(a, reinterpret_cast<unsigned char*>(bytes.get()));
     return result;
 }
 
@@ -404,12 +403,12 @@ static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass, BIGNUM* a) {
     if (result == NULL) {
         return NULL;
     }
-    BN_ULONG* longs = reinterpret_cast<BN_ULONG*>(env->GetIntArrayElements(result, NULL));
-    if (longs == NULL) {
+    ScopedIntArrayRW ints(env, result);
+    BN_ULONG* ulongs = reinterpret_cast<BN_ULONG*>(ints.get());
+    if (ulongs == NULL) {
         return NULL;
     }
-    int i = len; do { i--; longs[i] = a->d[i]; } while (i > 0);
-    env->ReleaseIntArrayElements(result, reinterpret_cast<jint*>(longs), 0);
+    int i = len; do { i--; ulongs[i] = a->d[i]; } while (i > 0);
     return result;
 }
 

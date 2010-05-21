@@ -359,7 +359,7 @@ static SSL_SESSION* to_SSL_SESSION(JNIEnv* env, int ssl_session_address, bool th
 static BIGNUM* arrayToBignum(JNIEnv* env, jbyteArray source) {
     // LOGD("Entering arrayToBignum()");
 
-    ScopedByteArray sourceBytes(env, source);
+    ScopedByteArrayRO sourceBytes(env, source);
     return BN_bin2bn((unsigned char*) sourceBytes.get(), sourceBytes.size(), NULL);
 }
 
@@ -576,9 +576,8 @@ static jint NativeCrypto_EVP_DigestFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
 
     int result = -1;
 
-    jbyte* hashBytes = env->GetByteArrayElements(hash, NULL);
-    EVP_DigestFinal(ctx, (unsigned char*) (hashBytes + offset), (unsigned int*)&result);
-    env->ReleaseByteArrayElements(hash, hashBytes, 0);
+    ScopedByteArrayRW hashBytes(env, hash);
+    EVP_DigestFinal(ctx, (unsigned char*) (hashBytes.get() + offset), (unsigned int*)&result);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestFinal");
 
@@ -658,7 +657,7 @@ static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
         return;
     }
 
-    ScopedByteArray bufferBytes(env, buffer);
+    ScopedByteArrayRO bufferBytes(env, buffer);
     EVP_DigestUpdate(ctx, (unsigned char*) (bufferBytes.get() + offset), length);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestUpdate");
@@ -701,7 +700,7 @@ static void NativeCrypto_EVP_VerifyUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
         return;
     }
 
-    ScopedByteArray bufferBytes(env, buffer);
+    ScopedByteArrayRO bufferBytes(env, buffer);
     EVP_VerifyUpdate(ctx, (unsigned char*) (bufferBytes.get() + offset), length);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyUpdate");
@@ -719,7 +718,7 @@ static int NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx, jb
         return -1;
     }
 
-    ScopedByteArray bufferBytes(env, buffer);
+    ScopedByteArrayRO bufferBytes(env, buffer);
     int result = EVP_VerifyFinal(ctx, (unsigned char*) (bufferBytes.get() + offset), length, pkey);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyFinal");
@@ -814,10 +813,10 @@ static int NativeCrypto_verifysignature(JNIEnv* env, jclass,
 
     int result = -1;
 
-    ScopedByteArray msgBytes(env, msg);
-    ScopedByteArray sigBytes(env, sig);
-    ScopedByteArray modBytes(env, mod);
-    ScopedByteArray expBytes(env, exp);
+    ScopedByteArrayRO msgBytes(env, msg);
+    ScopedByteArrayRO sigBytes(env, sig);
+    ScopedByteArrayRO modBytes(env, mod);
+    ScopedByteArrayRO expBytes(env, exp);
 
     ScopedUtfChars algorithmChars(env, algorithm);
     JNI_TRACE("NativeCrypto_verifysignature algorithmChars=%s", algorithmChars.c_str());
@@ -846,7 +845,7 @@ static void NativeCrypto_RAND_seed(JNIEnv* env, jclass, jbyteArray seed) {
         jniThrowNullPointerException(env, "seed == null");
         return;
     }
-    ScopedByteArray randseed(env, seed);
+    ScopedByteArrayRO randseed(env, seed);
     RAND_seed(randseed.get(), randseed.size());
 }
 
@@ -1665,7 +1664,7 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass, jint ssl_ctx_address)
  * Gets the bytes from a jbyteArray and stores them in a freshly-allocated BIO memory buffer.
  */
 static BIO* jbyteArrayToMemBuf(JNIEnv* env, jbyteArray byteArray) {
-    ScopedByteArray buf(env, byteArray);
+    ScopedByteArrayRO buf(env, byteArray);
     Unique_BIO bio(BIO_new(BIO_s_mem()));
     if (bio.get() == NULL) {
         jniThrowRuntimeException(env, "BIO_new failed");
@@ -2358,13 +2357,11 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
         return 0;
     }
 
-    jbyte* bytes = env->GetByteArrayElements(dest, NULL);
+    ScopedByteArrayRW bytes(env, dest);
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;;
 
-    int ret = sslRead(env, ssl, (char*) (bytes + offset), len, &returnCode, &sslErrorCode, timeout);
-
-    env->ReleaseByteArrayElements(dest, bytes, 0);
+    int ret = sslRead(env, ssl, (char*) (bytes.get() + offset), len, &returnCode, &sslErrorCode, timeout);
 
     int result;
     if (ret == THROW_EXCEPTION) {
@@ -2543,7 +2540,7 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
         return;
     }
 
-    ScopedByteArray bytes(env, dest);
+    ScopedByteArrayRO bytes(env, dest);
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
     int ret = sslWrite(env,
@@ -2807,10 +2804,9 @@ static jbyteArray NativeCrypto_i2d_SSL_SESSION(JNIEnv* env, jclass, jint ssl_ses
 
     jbyteArray bytes = env->NewByteArray(size);
     if (bytes != NULL) {
-        jbyte* tmp = env->GetByteArrayElements(bytes, NULL);
-        unsigned char* ucp = reinterpret_cast<unsigned char*>(tmp);
+        ScopedByteArrayRW tmp(env, bytes);
+        unsigned char* ucp = reinterpret_cast<unsigned char*>(tmp.get());
         i2d_SSL_SESSION(ssl_session, &ucp);
-        env->ReleaseByteArrayElements(bytes, tmp, 0);
     }
 
     JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => size=%d", ssl_session, size);
@@ -2827,7 +2823,7 @@ static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray bytes, 
         return 0;
     }
 
-    ScopedByteArray tmp(env, bytes);
+    ScopedByteArrayRO tmp(env, bytes);
     const unsigned char* ucp = reinterpret_cast<const unsigned char*>(tmp.get());
     SSL_SESSION* ssl_session = d2i_SSL_SESSION(NULL, &ucp, size);
 
