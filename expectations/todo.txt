@@ -116,3 +116,17 @@ pattern .*Large hex longs shouldn't be yield ints or strings expected:<-1> but w
 # this test needs to be fixed. We supply optional qnames, but this test doesn't expect them
 test tests.api.javax.xml.parsers.SAXParserTest#test_parseLjava_io_InputStreamLorg_xml_sax_helpers_DefaultHandlerLjava_lang_String
 result EXEC_FAILED
+
+# these enforce a bug where an exception is incorrectly unthrown, but should maybe be fixed for
+# compatibility.
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_headMapLjava_lang_ObjectZL
+result EXEC_FAILED
+pattern .*java.lang.IllegalArgumentException: null not in range ...5\).*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_tailMapLjava_lang_ObjectZL
+result EXEC_FAILED
+pattern .*java.lang.IllegalArgumentException: 5 not in range \(5....*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_descendingMap_subMap
+result EXEC_FAILED
+pattern .*java.lang.IllegalArgumentException: 5 not in range \(5....*

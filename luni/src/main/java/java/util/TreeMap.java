@@ -583,8 +583,16 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
      * Navigable methods.
      */
 
+    /**
+     * Returns an immutable version of {@param entry}. Need this because we allow entry to be null,
+     * in which case we return a null SimpleImmutableEntry.
+     */
+    private SimpleImmutableEntry<K, V> immutableCopy(Entry<K, V> entry) {
+        return entry == null ? null : new SimpleImmutableEntry<K, V>(entry);
+    }
+
     public Entry<K, V> firstEntry() {
-        return new SimpleImmutableEntry<K, V>(root == null ? null : root.first());
+        return immutableCopy(root == null ? null : root.first());
     }
 
     private Entry<K, V> internalPollFirstEntry() {
@@ -597,7 +605,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
     }
 
     public Entry<K, V> pollFirstEntry() {
-        return new SimpleImmutableEntry<K, V>(internalPollFirstEntry());
+        return immutableCopy(internalPollFirstEntry());
     }
 
     public K firstKey() {
@@ -608,7 +616,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
     }
 
     public Entry<K, V> lastEntry() {
-        return new SimpleImmutableEntry<K, V>(root == null ? null : root.last());
+        return immutableCopy(root == null ? null : root.last());
     }
 
     private Entry<K, V> internalPollLastEntry() {
@@ -621,7 +629,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
     }
 
     public Entry<K, V> pollLastEntry() {
-        return new SimpleImmutableEntry<K, V>(internalPollLastEntry());
+        return immutableCopy(internalPollLastEntry());
     }
 
     public K lastKey() {
@@ -632,7 +640,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
     }
 
     public Entry<K, V> lowerEntry(K key) {
-        return new SimpleImmutableEntry<K, V>(find(key, LOWER));
+        return immutableCopy(find(key, LOWER));
     }
 
     public K lowerKey(K key) {
@@ -641,7 +649,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
     }
 
     public Entry<K, V> floorEntry(K key) {
-        return new SimpleImmutableEntry<K, V>(find(key, FLOOR));
+        return immutableCopy(find(key, FLOOR));
     }
 
     public K floorKey(K key) {
@@ -650,7 +658,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
     }
 
     public Entry<K, V> ceilingEntry(K key) {
-        return new SimpleImmutableEntry<K, V>(find(key, CEILING));
+        return immutableCopy(find(key, CEILING));
     }
 
     public K ceilingKey(K key) {
@@ -659,7 +667,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
     }
 
     public Entry<K, V> higherEntry(K key) {
-        return new SimpleImmutableEntry<K, V>(find(key, HIGHER));
+        return immutableCopy(find(key, HIGHER));
     }
 
     public K higherKey(K key) {
@@ -1196,7 +1204,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
          */
 
         public Entry<K, V> firstEntry() {
-            return new SimpleImmutableEntry<K, V>(endpoint(true));
+            return immutableCopy(endpoint(true));
         }
 
         public Entry<K, V> pollFirstEntry() {
@@ -1204,7 +1212,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
             if (result != null) {
                 removeInternal(result);
             }
-            return new SimpleImmutableEntry<K, V>(result);
+            return immutableCopy(result);
         }
 
         public K firstKey() {
@@ -1216,7 +1224,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
         }
 
         public Entry<K, V> lastEntry() {
-            return new SimpleImmutableEntry<K, V>(endpoint(false));
+            return immutableCopy(endpoint(false));
         }
 
         public Entry<K, V> pollLastEntry() {
@@ -1224,7 +1232,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
             if (result != null) {
                 removeInternal(result);
             }
-            return new SimpleImmutableEntry<K, V>(result);
+            return immutableCopy(result);
         }
 
         public K lastKey() {
@@ -1327,7 +1335,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
         }
 
         public Entry<K, V> lowerEntry(K key) {
-            return new SimpleImmutableEntry<K, V>(findBounded(key, LOWER));
+            return immutableCopy(findBounded(key, LOWER));
         }
 
         public K lowerKey(K key) {
@@ -1336,7 +1344,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
         }
 
         public Entry<K, V> floorEntry(K key) {
-            return new SimpleImmutableEntry<K, V>(findBounded(key, FLOOR));
+            return immutableCopy(findBounded(key, FLOOR));
         }
 
         public K floorKey(K key) {
@@ -1345,7 +1353,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
         }
 
         public Entry<K, V> ceilingEntry(K key) {
-            return new SimpleImmutableEntry<K, V>(findBounded(key, CEILING));
+            return immutableCopy(findBounded(key, CEILING));
         }
 
         public K ceilingKey(K key) {
@@ -1354,7 +1362,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
         }
 
         public Entry<K, V> higherEntry(K key) {
-            return new SimpleImmutableEntry<K, V>(findBounded(key, HIGHER));
+            return immutableCopy(findBounded(key, HIGHER));
         }
 
         public K higherKey(K key) {

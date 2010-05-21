@@ -457,19 +457,48 @@ test org.apache.harmony.luni.tests.java.util.TreeMapExtendTest#test_SubMap_headM
 result EXEC_FAILED
 pattern .*java.lang.IllegalArgumentException: 100 not in range \(100..109\].*
 
-test org.apache.harmony.luni.tests.java.util.TreeMapExtendTest#test_Entry_setValue
-result EXEC_FAILED
-pattern .*java.lang.UnsupportedOperationException.*.setValue.*
-
 # why are they using reflection to test implementation details?
 test org.apache.harmony.luni.tests.java.util.ArraysTest#test_swap_I_I_$Ljava_lang_Object
 result EXEC_FAILED
 pattern .*java.lang.NoSuchMethodException.*
 
-# these tests rely on a Harmony bug where TreeMaps may have a singleton null
+# all these tests rely on a Harmony bug where TreeMaps may have a singleton null, which we choose
+# to disallow.
 test org.apache.harmony.luni.tests.java.util.SimpleImmutableEntryTest#test_SimpleImmutableEntry_Constructor_LEntry
 result EXEC_FAILED
 pattern .*java.lang.NullPointerException.*at java.util.TreeMap.find.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_ceilingEntry
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_ceilingKey
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_floorEntry
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_floorKey
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_higherEntry
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_higherKey
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_lowerEntry
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_lowerKey
+result EXEC_FAILED
+pattern .*java.lang.NullPointerException.*
 
 test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_illegalFirstNullKey
 result EXEC_FAILED
@@ -484,6 +513,15 @@ pattern .*java.lang.ClassCastException: java.lang.Object.*
 test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_subMapLjava_lang_ObjectZLjava_lang_ObjectZ
 result EXEC_FAILED
 pattern .*java.lang.NullPointerException.*
+
+# we fail fast on not-comparable objects
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_equals
+result EXEC_FAILED
+pattern .*java.lang.ClassCastException: java.lang.Object.*
+
+test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_putLjava_lang_ObjectLjava_lang_Object
+result EXEC_FAILED
+pattern .*java.lang.ClassCastException: java.lang.Object.*
 
 # tests that depend on the iteration order of a hash
 test org.apache.harmony.luni.tests.java.util.CollectionsTest#test_unmodifiable_toString_methods
