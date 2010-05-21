@@ -40,15 +40,12 @@ class InitManifest {
     CharsetDecoder decoder = ThreadLocalCache.utf8Decoder.get();
     CharBuffer cBuf = ThreadLocalCache.charBuffer.get();
 
-    InitManifest(byte[] buf, Attributes main, Attributes.Name ver)
-            throws IOException {
-
+    InitManifest(byte[] buf, Attributes main, Attributes.Name ver) throws IOException {
         this.buf = buf;
 
         // check a version attribute
         if (!readHeader() || (ver != null && !name.equals(ver))) {
-            throw new IOException(Messages.getString(
-                    "archive.2D", ver));
+            throw new IOException("Missing version attribute: " + ver);
         }
 
         main.put(name, value);
@@ -63,7 +60,7 @@ class InitManifest {
         int mark = pos;
         while (readHeader()) {
             if (!Attributes.Name.NAME.equals(name)) {
-                throw new IOException(Messages.getString("archive.23"));
+                throw new IOException("Entry is not named");
             }
             String entryNameValue = value;
 
@@ -84,7 +81,7 @@ class InitManifest {
                     // this: either use a list of chunks, or decide on used
                     // signature algorithm in advance and reread the chunks while
                     // updating the signature; for now a defensive error is thrown
-                    throw new IOException(Messages.getString("archive.34"));
+                    throw new IOException("A jar verifier does not support more than one entry with the same name");
                 }
                 chunks.put(entryNameValue, new Manifest.Chunk(mark, pos));
                 mark = pos;
@@ -137,8 +134,7 @@ class InitManifest {
                 byte[] nameBuffer = wrap(mark, pos - 1);
 
                 if (buf[pos++] != ' ') {
-                    throw new IOException(Messages.getString(
-                            "archive.30", nameBuffer));
+                    throw new IOException("Invalid attribute: " + nameBuffer);
                 }
 
                 name = new Attributes.Name(nameBuffer);
@@ -147,12 +143,11 @@ class InitManifest {
 
             if (!((b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || b == '_'
                     || b == '-' || (b >= '0' && b <= '9'))) {
-                throw new IOException(Messages.getString("archive.30", b));
+                throw new IOException("Invalid byte " + b + " in attribute");
             }
         }
         if (i > 0) {
-            throw new IOException(Messages.getString(
-                    "archive.30", wrap(mark, buf.length)));
+            throw new IOException("Invalid attribute: " + wrap(mark, buf.length));
         }
     }
 
@@ -170,7 +165,7 @@ class InitManifest {
 
             switch (next) {
             case 0:
-                throw new IOException(Messages.getString("archive.2F"));
+                throw new IOException("NUL character in a manifest");
             case '\n':
                 if (lastCr) {
                     lastCr = false;

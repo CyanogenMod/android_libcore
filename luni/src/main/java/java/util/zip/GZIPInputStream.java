@@ -81,8 +81,9 @@ public class GZIPInputStream extends InflaterInputStream {
         super(is, new Inflater(true), size);
         byte[] header = new byte[10];
         readFully(header, 0, header.length);
-        if (getShort(header, 0) != GZIP_MAGIC) {
-            throw new IOException(Messages.getString("archive.1F"));
+        int magic = getShort(header, 0);
+        if (magic != GZIP_MAGIC) {
+            throw new IOException(String.format("unknown format (magic number %x)", magic));
         }
         int flags = header[3];
         boolean hcrc = (flags & FHCRC) != 0;
@@ -117,7 +118,7 @@ public class GZIPInputStream extends InflaterInputStream {
             readFully(header, 0, 2);
             int crc16 = getShort(header, 0);
             if ((crc.getValue() & 0xffff) != crc16) {
-                throw new IOException(Messages.getString("archive.20"));
+                throw new IOException("CRC mismatch");
             }
             crc.reset();
         }
@@ -199,10 +200,10 @@ public class GZIPInputStream extends InflaterInputStream {
         readFully(b, copySize, trailerSize - copySize);
 
         if (getLong(b, 0) != crc.getValue()) {
-            throw new IOException(Messages.getString("archive.20"));
+            throw new IOException("CRC mismatch");
         }
         if ((int) getLong(b, 4) != inf.getTotalOut()) {
-            throw new IOException(Messages.getString("archive.21"));
+            throw new IOException("Size mismatch");
         }
     }
 

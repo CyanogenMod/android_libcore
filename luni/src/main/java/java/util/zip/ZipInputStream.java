@@ -173,18 +173,19 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
     private void readAndVerifyDataDescriptor(int inB, int out) throws IOException {
         if (hasDD) {
             in.read(hdrBuf, 0, EXTHDR);
-            if (getLong(hdrBuf, 0) != EXTSIG) {
-                throw new ZipException(Messages.getString("archive.1F"));
+            long sig = getLong(hdrBuf, 0);
+            if (sig != EXTSIG) {
+                throw new ZipException(String.format("unknown format (EXTSIG=%x)", sig));
             }
             currentEntry.crc = getLong(hdrBuf, EXTCRC);
             currentEntry.compressedSize = getLong(hdrBuf, EXTSIZ);
             currentEntry.size = getLong(hdrBuf, EXTLEN);
         }
         if (currentEntry.crc != crc.getValue()) {
-            throw new ZipException(Messages.getString("archive.20"));
+            throw new ZipException("CRC mismatch");
         }
         if (currentEntry.compressedSize != inB || currentEntry.size != out) {
-            throw new ZipException(Messages.getString("archive.21"));
+            throw new ZipException("Size mismatch");
         }
     }
 
@@ -229,7 +230,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
         int version = getShort(hdrBuf, 0) & 0xff;
         if (version > ZIPLocalHeaderVersionNeeded) {
-            throw new ZipException(Messages.getString("archive.22"));
+            throw new ZipException("Cannot read local header version " + version);
         }
         int flags = getShort(hdrBuf, LOCFLG - LOCVER);
         hasDD = ((flags & ZipFile.GPBF_DATA_DESCRIPTOR_FLAG) != 0);
@@ -244,7 +245,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
         int flen = getShort(hdrBuf, LOCNAM - LOCVER);
         if (flen == 0) {
-            throw new ZipException(Messages.getString("archive.23"));
+            throw new ZipException("Entry is not named");
         }
         int elen = getShort(hdrBuf, LOCEXT - LOCVER);
 

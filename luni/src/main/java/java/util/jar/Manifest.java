@@ -256,8 +256,7 @@ public class Manifest implements Cloneable {
 
         // Does it look like a manifest?
         if (!containsLine(buffer, count)) {
-            // archive.2E=Manifest is too long
-            throw new IOException(Messages.getString("archive.2E"));
+            throw new IOException("Manifest is too long");
         }
 
         // Requires additional reads
@@ -381,8 +380,8 @@ public class Manifest implements Cloneable {
             throws IOException {
         byte[] out = name.getBytes();
         if (out.length > LINE_LENGTH_LIMIT) {
-            throw new IOException(Messages.getString(
-                    "archive.33", name, Integer.valueOf(LINE_LENGTH_LIMIT)));
+            throw new IOException("Encoded header name " + name + " exceeded maximum length " +
+                    LINE_LENGTH_LIMIT);
         }
 
         os.write(out);

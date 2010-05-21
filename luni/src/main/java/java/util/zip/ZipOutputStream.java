@@ -120,10 +120,10 @@ public class ZipOutputStream extends DeflaterOutputStream implements
         // Verify values for STORED types
         if (currentEntry.getMethod() == STORED) {
             if (crc.getValue() != currentEntry.crc) {
-                throw new ZipException(Messages.getString("archive.20"));
+                throw new ZipException("CRC mismatch");
             }
             if (currentEntry.size != crc.tbytes) {
-                throw new ZipException(Messages.getString("archive.21"));
+                throw new ZipException("Size mismatch");
             }
         }
         curOffset = LOCHDR;
@@ -202,7 +202,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements
             return;
         }
         if (entries.size() == 0) {
-            throw new ZipException(Messages.getString("archive.28"));
+            throw new ZipException("No entries");
         }
         if (currentEntry != null) {
             closeEntry();
@@ -244,32 +244,24 @@ public class ZipOutputStream extends DeflaterOutputStream implements
         if (currentEntry != null) {
             closeEntry();
         }
-        if (ze.getMethod() == STORED
-                || (compressMethod == STORED && ze.getMethod() == -1)) {
+        if (ze.getMethod() == STORED || (compressMethod == STORED && ze.getMethod() == -1)) {
             if (ze.crc == -1) {
-                /* [MSG "archive.20", "Crc mismatch"] */
-                throw new ZipException(Messages.getString("archive.20"));
+                throw new ZipException("CRC mismatch");
             }
             if (ze.size == -1 && ze.compressedSize == -1) {
-                /* [MSG "archive.21", "Size mismatch"] */
-                throw new ZipException(Messages.getString("archive.21"));
+                throw new ZipException("Size mismatch");
             }
-            if (ze.size != ze.compressedSize && ze.compressedSize != -1
-                    && ze.size != -1) {
-                /* [MSG "archive.21", "Size mismatch"] */
-                throw new ZipException(Messages.getString("archive.21"));
+            if (ze.size != ze.compressedSize && ze.compressedSize != -1 && ze.size != -1) {
+                throw new ZipException("Size mismatch");
             }
         }
         checkClosed();
         if (entries.contains(ze.name)) {
-            /* [MSG "archive.29", "Entry already exists: {0}"] */
-            throw new ZipException(Messages.getString("archive.29", ze.name));
+            throw new ZipException("Entry already exists: " + ze.name);
         }
         nameLength = utf8Count(ze.name);
         if (nameLength > 0xffff) {
-            /* [MSG "archive.2A", "Name too long: {0}"] */
-            throw new IllegalArgumentException(Messages.getString(
-                    "archive.2A", ze.name));
+            throw new IllegalArgumentException("Name too long: " + nameLength + " UTF-8 bytes");
         }
 
         def.setLevel(compressLevel);
@@ -331,7 +323,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements
      */
     public void setComment(String comment) {
         if (comment.length() > 0xFFFF) {
-            throw new IllegalArgumentException(Messages.getString("archive.2B"));
+            throw new IllegalArgumentException("Comment too long: " + comment.length() + " characters");
         }
         this.comment = comment;
     }
@@ -401,8 +393,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements
         }
 
         if (currentEntry == null) {
-            /* [MSG "archive.2C", "No active entry"] */
-            throw new ZipException(Messages.getString("archive.2C"));
+            throw new ZipException("No active entry");
         }
 
         if (currentEntry.getMethod() == STORED) {

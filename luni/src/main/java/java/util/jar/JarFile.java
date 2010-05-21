@@ -295,8 +295,7 @@ public class JarFile extends ZipFile {
      */
     public Manifest getManifest() throws IOException {
         if (closed) {
-            // archive.35=JarFile has been closed
-            throw new IllegalStateException(Messages.getString("archive.35"));
+            throw new IllegalStateException("JarFile has been closed");
         }
         if (manifest != null) {
             return manifest;

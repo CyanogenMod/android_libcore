@@ -246,8 +246,7 @@ public class Inflater {
         needsDictionary = false;
         int result = inflateImpl(buf, off, nbytes, streamHandle);
         if (needsDictionary && neededDict) {
-            throw new DataFormatException(
-                    Messages.getString("archive.27"));
+            throw new DataFormatException("Needs dictionary");
         }
 
         return result;

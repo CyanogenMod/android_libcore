@@ -126,13 +126,20 @@ class JarVerifier {
         void verify() {
             byte[] d = digest.digest();
             if (!MessageDigest.isEqual(d, Base64.decode(hash))) {
-                throw new SecurityException(Messages.getString(
-                        "archive.32", new Object[] {
-                        JarFile.MANIFEST_NAME, name, jarName }));
+                throw invalidDigest(JarFile.MANIFEST_NAME, name, jarName);
             }
             verifiedEntries.put(name, certificates);
         }
 
+    }
+
+    private SecurityException invalidDigest(String signatureFile, String name, String jarName) {
+        throw new SecurityException(signatureFile + " has invalid digest for " + name +
+                " in " + jarName);
+    }
+
+    private SecurityException failedVerification(String jarName, String signatureFile) {
+        throw new SecurityException(jarName + " failed verification of " + signatureFile);
     }
 
     /**
@@ -316,9 +323,7 @@ class JarVerifier {
         } catch (IOException e) {
             return;
         } catch (GeneralSecurityException e) {
-            /* [MSG "archive.31", "{0} failed verification of {1}"] */
-            throw new SecurityException(Messages.getString(
-                    "archive.31", jarName, signatureFile));
+            throw failedVerification(jarName, signatureFile);
         }
 
         // Verify manifest hash in .sf file
@@ -343,11 +348,8 @@ class JarVerifier {
         // such verification.
         if (mainAttributesEnd > 0 && !createdBySigntool) {
             String digestAttribute = "-Digest-Manifest-Main-Attributes";
-            if (!verify(attributes, digestAttribute, manifest, 0,
-                    mainAttributesEnd, false, true)) {
-                /* [MSG "archive.31", "{0} failed verification of {1}"] */
-                throw new SecurityException(Messages.getString(
-                        "archive.31", jarName, signatureFile));
+            if (!verify(attributes, digestAttribute, manifest, 0, mainAttributesEnd, false, true)) {
+                throw failedVerification(jarName, signatureFile);
             }
         }
 
@@ -366,10 +368,7 @@ class JarVerifier {
                 }
                 if (!verify(entry.getValue(), "-Digest", manifest,
                         chunk.start, chunk.end, createdBySigntool, false)) {
-                    throw new SecurityException(Messages.getString(
-                            "archive.32",
-                            new Object[] { signatureFile, entry.getKey(),
-                                    jarName }));
+                    throw invalidDigest(signatureFile, entry.getKey(), jarName);
                 }
             }
         }
