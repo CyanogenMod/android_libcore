@@ -80,7 +80,7 @@ static void BidiWrapper_ubidi_setPara(JNIEnv* env, jclass, jlong ptr, jcharArray
         data->setEmbeddingLevels(NULL);
     }
     UErrorCode err = U_ZERO_ERROR;
-    ScopedCharArray chars(env, text);
+    ScopedCharArrayRO chars(env, text);
     ubidi_setPara(data->uBiDi(), chars.get(), length, paraLevel, data->embeddingLevels(), &err);
     icu4jni_error(env, err);
 }
@@ -151,7 +151,7 @@ static jobjectArray BidiWrapper_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
 }
 
 static jintArray BidiWrapper_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray javaLevels, jint length) {
-    ScopedByteArray levelBytes(env, javaLevels);
+    ScopedByteArrayRO levelBytes(env, javaLevels);
     const UBiDiLevel* levels = reinterpret_cast<const UBiDiLevel*>(levelBytes.get());
 
     UniquePtr<int[]> indexMap(new int[length]);

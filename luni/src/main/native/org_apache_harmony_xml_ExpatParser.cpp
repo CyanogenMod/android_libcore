@@ -391,24 +391,17 @@ static jcharArray ensureCapacity(ParsingContext* parsingContext, int length) {
  * @param length of characters to copy (in bytes)
  * @returns number of UTF-16 characters which were copied
  */
-static size_t fillBuffer(ParsingContext* parsingContext, const char* characters,
-        int length) {
+static size_t fillBuffer(ParsingContext* parsingContext, const char* characters, int length) {
     JNIEnv* env = parsingContext->env;
 
     // Grow buffer if necessary.
     jcharArray buffer = ensureCapacity(parsingContext, length);
     if (buffer == NULL) return -1;
 
-    // Get a native reference to our buffer.
-    jchar* nativeBuffer = env->GetCharArrayElements(buffer, NULL);
-
     // Decode UTF-8 characters into our buffer.
+    ScopedCharArrayRW nativeBuffer(env, buffer);
     size_t utf16length;
-    strcpylen8to16((char16_t*) nativeBuffer, characters, length, &utf16length);
-
-    // Release our native reference.
-    env->ReleaseCharArrayElements(buffer, nativeBuffer, 0);
-
+    strcpylen8to16((char16_t*) nativeBuffer.get(), characters, length, &utf16length);
     return utf16length;
 }
 
@@ -1064,14 +1057,14 @@ static void append(JNIEnv* env, jobject object, jint pointer,
 
 static void appendBytes(JNIEnv* env, jobject object, jint pointer,
         jbyteArray xml, jint byteOffset, jint byteCount) {
-    ScopedByteArray byteArray(env, xml);
+    ScopedByteArrayRO byteArray(env, xml);
     const char* bytes = reinterpret_cast<const char*>(byteArray.get());
     append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
 }
 
 static void appendCharacters(JNIEnv* env, jobject object, jint pointer,
         jcharArray xml, jint charOffset, jint charCount) {
-    ScopedCharArray charArray(env, xml);
+    ScopedCharArrayRO charArray(env, xml);
     const char* bytes = reinterpret_cast<const char*>(charArray.get());
     size_t byteOffset = 2 * charOffset;
     size_t byteCount = 2 * charCount;

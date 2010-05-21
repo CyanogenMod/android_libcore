@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include "JNIHelp.h"
+#include "ScopedPrimitiveArray.h"
 #include "cbigint.h"
 
 #if defined(__linux__) || defined(FREEBSD)
@@ -78,7 +79,6 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
   int high, low, i;
   jint k, firstK, U;
   jint getCount, setCount;
-  jint *uArray;
 
   jclass clazz;
   jfieldID fid;
@@ -189,7 +189,7 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
   clazz = env->GetObjectClass(inst);
   fid = env->GetFieldID(clazz, "uArray", "[I");
   uArrayObject = (jintArray) env->GetObjectField(inst, fid);
-  uArray = env->GetIntArrayElements(uArrayObject, 0);
+  ScopedIntArrayRW uArray(env, uArrayObject);
 
   getCount = setCount = 0;
   do
@@ -242,8 +242,6 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
     uArray[setCount++] = U;
   else
     uArray[setCount++] = U + 1;
-
-  env->ReleaseIntArrayElements(uArrayObject, uArray, 0);
 
   fid = env->GetFieldID(clazz, "setCount", "I");
   env->SetIntField(inst, fid, setCount);

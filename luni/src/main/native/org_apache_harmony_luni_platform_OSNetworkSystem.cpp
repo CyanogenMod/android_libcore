@@ -1121,15 +1121,12 @@ static jint osNetworkSystem_readSocketImpl(JNIEnv* env, jclass,
         jint timeout) {
     // LOGD("ENTER readSocketImpl");
 
-    jbyte* bytes = env->GetByteArrayElements(byteArray, NULL);
-    if (bytes == NULL) {
+    ScopedByteArrayRW bytes(env, byteArray);
+    if (bytes.get() == NULL) {
         return -1;
     }
-    jint address =
-            static_cast<jint>(reinterpret_cast<uintptr_t>(bytes + offset));
-    int result = osNetworkSystem_readDirect(env, NULL,
-            fileDescriptor, address, count, timeout);
-    env->ReleaseByteArrayElements(byteArray, bytes, 0);
+    jint address = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get() + offset));
+    int result = osNetworkSystem_readDirect(env, NULL, fileDescriptor, address, count, timeout);
     return result;
 }
 
@@ -1161,14 +1158,12 @@ static jint osNetworkSystem_writeDirect(JNIEnv* env, jobject,
 
 static jint osNetworkSystem_write(JNIEnv* env, jobject,
         jobject fileDescriptor, jbyteArray byteArray, jint offset, jint count) {
-    jbyte* bytes = env->GetByteArrayElements(byteArray, NULL);
-    if (bytes == NULL) {
+    ScopedByteArrayRW bytes(env, byteArray);
+    if (bytes.get() == NULL) {
         return -1;
     }
-    jint address = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes));
-    int result = osNetworkSystem_writeDirect(env, NULL,
-            fileDescriptor, address, offset, count);
-    env->ReleaseByteArrayElements(byteArray, bytes, 0);
+    jint address = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get()));
+    int result = osNetworkSystem_writeDirect(env, NULL, fileDescriptor, address, offset, count);
     return result;
 }
 
@@ -1199,8 +1194,8 @@ static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
         return JNI_FALSE;
     }
 
-    jbyte* contextBytes = env->GetByteArrayElements(passContext, NULL);
-    selectFDSet* context = reinterpret_cast<selectFDSet*>(contextBytes);
+    ScopedByteArrayRW contextBytes(env, passContext);
+    selectFDSet* context = reinterpret_cast<selectFDSet*>(contextBytes.get());
     int result = 0;
     switch (step) {
     case SOCKET_CONNECT_STEP_START:
@@ -1212,7 +1207,6 @@ static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
     default:
         assert(false);
     }
-    env->ReleaseByteArrayElements(passContext, contextBytes, 0);
 
     if (result == 0) {
         // Connected!
@@ -1672,7 +1666,7 @@ static jint osNetworkSystem_sendDatagramDirect(JNIEnv* env, jobject,
 static jint osNetworkSystem_sendDatagram(JNIEnv* env, jobject,
         jobject fd, jbyteArray data, jint offset, jint length, jint port,
         jboolean bindToDevice, jint trafficClass, jobject inetAddress) {
-    ScopedByteArray bytes(env, data);
+    ScopedByteArrayRO bytes(env, data);
     return osNetworkSystem_sendDatagramDirect(env, NULL, fd,
             reinterpret_cast<uintptr_t>(bytes.get()), offset, length, port,
             bindToDevice, trafficClass, inetAddress);
@@ -1703,7 +1697,7 @@ static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env,
 static jint osNetworkSystem_sendConnectedDatagram(JNIEnv* env, jobject,
         jobject fd, jbyteArray data, jint offset, jint length,
         jboolean bindToDevice) {
-    ScopedByteArray bytes(env, data);
+    ScopedByteArrayRO bytes(env, data);
     return osNetworkSystem_sendConnectedDatagramDirect(env, NULL, fd,
             reinterpret_cast<uintptr_t>(bytes.get()), offset, length, bindToDevice);
 }
@@ -1870,14 +1864,12 @@ static jboolean osNetworkSystem_selectImpl(JNIEnv* env, jclass,
     }
 
     // Translate the result into the int[] we're supposed to fill in.
-    jint* flagArray = env->GetIntArrayElements(outFlags, NULL);
-    if (flagArray == NULL) {
+    ScopedIntArrayRW flagArray(env, outFlags);
+    if (flagArray.get() == NULL) {
         return JNI_FALSE;
     }
-    bool okay = translateFdSet(env, readFDArray, countReadC, readFds, flagArray, 0, SOCKET_OP_READ) &&
-                translateFdSet(env, writeFDArray, countWriteC, writeFds, flagArray, countReadC, SOCKET_OP_WRITE);
-    env->ReleaseIntArrayElements(outFlags, flagArray, 0);
-    return okay;
+    return translateFdSet(env, readFDArray, countReadC, readFds, flagArray.get(), 0, SOCKET_OP_READ) &&
+            translateFdSet(env, writeFDArray, countWriteC, writeFds, flagArray.get(), countReadC, SOCKET_OP_WRITE);
 }
 
 static jobject osNetworkSystem_getSocketLocalAddress(JNIEnv* env,

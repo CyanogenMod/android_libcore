@@ -98,7 +98,7 @@ static UErrorCode convertCharsToBytes(JNIEnv* env, jclass, jlong handle,  jcharA
     if (!cnv) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
-    ScopedCharArray uSource(env, source);
+    ScopedCharArrayRO uSource(env, source);
     UErrorCode errorCode = U_ZERO_ERROR;
     jint* myData = (jint*) env->GetPrimitiveArrayCritical(data, NULL);
     if (myData) {
@@ -172,7 +172,7 @@ static UErrorCode convertBytesToChars(JNIEnv* env, jclass, jlong handle, jbyteAr
     UErrorCode errorCode =U_ZERO_ERROR;
     UConverter* cnv = (UConverter*)handle;
     if (cnv) {
-        ScopedByteArray uSource(env, source);
+        ScopedByteArrayRO uSource(env, source);
         jint* myData = (jint*) env->GetPrimitiveArrayCritical(data,NULL);
         if(myData) {
             jint* sourceOffset = &myData[0];
@@ -552,7 +552,7 @@ static jint setCallbackEncode(JNIEnv* env, jclass, jlong handle, jint onMalforme
     }
     fromUNewContext->onMalformedInput = getFromUCallback(onMalformedInput);
     fromUNewContext->onUnmappableInput = getFromUCallback(onUnmappableInput);
-    ScopedByteArray sub(env, subBytes);
+    ScopedByteArrayRO sub(env, subBytes);
     if (sub.get() == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
@@ -637,7 +637,7 @@ static jint setCallbackDecode(JNIEnv* env, jclass, jlong handle, jint onMalforme
     }
     toUNewContext->onMalformedInput = getToUCallback(onMalformedInput);
     toUNewContext->onUnmappableInput = getToUCallback(onUnmappableInput);
-    ScopedCharArray sub(env, subChars);
+    ScopedCharArrayRO sub(env, subChars);
     if (sub.get() == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }

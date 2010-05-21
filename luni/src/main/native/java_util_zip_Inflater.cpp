@@ -76,7 +76,7 @@ static jint Inflater_inflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int 
     stream->stream.avail_out = len;
     jint sin = stream->stream.total_in;
     jint sout = stream->stream.total_out;
-    ScopedByteArray out(env, buf);
+    ScopedByteArrayRO out(env, buf);
     if (out.get() == NULL) {
         jniThrowOutOfMemoryError(env, NULL);
         return -1;
