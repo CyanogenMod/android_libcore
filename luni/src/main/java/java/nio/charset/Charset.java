@@ -45,16 +45,23 @@ import java.util.TreeMap;
  * sequence. It facilitates the encoding from a Unicode character sequence into
  * a byte sequence, and the decoding from a byte sequence into a Unicode
  * character sequence.
- * <p>
- * A charset has a canonical name, which is usually in uppercase. Typically it
+ *
+ * <p>A charset has a canonical name, which is usually in uppercase. Typically it
  * also has one or more aliases. The name string can only consist of the
  * following characters: '0' - '9', 'A' - 'Z', 'a' - 'z', '.', ':'. '-' and '_'.
  * The first character of the name must be a digit or a letter.
- * <p>
- * The following charsets should be supported by any java platform: US-ASCII,
- * ISO-8859-1, UTF-8, UTF-16BE, UTF-16LE, UTF-16.
- * <p>
- * Additional charsets can be made available by configuring one or more charset
+ *
+ * <p>The following charsets must be available on every Java implementation:
+ * <ul>
+ * <li>ISO-8859-1
+ * <li>US-ASCII
+ * <li>UTF-16
+ * <li>UTF-16BE
+ * <li>UTF-16LE
+ * <li>UTF-8
+ * </ul>
+ *
+ * <p>Additional charsets can be made available by configuring one or more charset
  * providers through provider configuration files. Such files are always named
  * as "java.nio.charset.spi.CharsetProvider" and located in the
  * "META-INF/services" sub folder of one or more classpaths. The files should be
@@ -72,7 +79,6 @@ import java.util.TreeMap;
  * @see java.nio.charset.spi.CharsetProvider
  */
 public abstract class Charset implements Comparable<Charset> {
-
     /*
      * The name of configuration files where charset provider class names can be
      * specified.

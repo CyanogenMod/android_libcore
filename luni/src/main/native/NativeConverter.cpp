@@ -32,9 +32,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define com_ibm_icu4jni_converters_NativeConverter_STOP_CALLBACK 0L
-#define com_ibm_icu4jni_converters_NativeConverter_SKIP_CALLBACK 1L
-#define com_ibm_icu4jni_converters_NativeConverter_SUBSTITUTE_CALLBACK 2L
+#define NativeConverter_REPORT 0
+#define NativeConverter_IGNORE 1
+#define NativeConverter_REPLACE 2
 
 struct DecoderCallbackContext {
     int length;
@@ -93,32 +93,31 @@ static void closeConverter(JNIEnv*, jclass, jlong handle) {
  * @param data buffer to recieve state of the current conversion
  * @param flush boolean that specifies end of source input
  */
-static jint convertCharToByte(JNIEnv* env, jclass, jlong handle,  jcharArray source,  jint sourceEnd, jbyteArray target, jint targetEnd, jintArray data, jboolean flush) {
+static UErrorCode convertCharsToBytes(JNIEnv* env, jclass, jlong handle,  jcharArray source,  jint sourceEnd, jbyteArray target, jint targetEnd, jintArray data, jboolean flush) {
     UConverter* cnv = (UConverter*)handle;
     if (!cnv) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
+    ScopedCharArray uSource(env, source);
     UErrorCode errorCode = U_ZERO_ERROR;
-    jint* myData = (jint*) env->GetPrimitiveArrayCritical(data,NULL);
-    if(myData) {
+    jint* myData = (jint*) env->GetPrimitiveArrayCritical(data, NULL);
+    if (myData) {
         jint* sourceOffset = &myData[0];
         jint* targetOffset = &myData[1];
-        const jchar* uSource =(jchar*) env->GetPrimitiveArrayCritical(source, NULL);
-        if(uSource) {
+        if (uSource.get() != NULL) {
             jbyte* uTarget=(jbyte*) env->GetPrimitiveArrayCritical(target,NULL);
             if(uTarget) {
-                const jchar* mySource = uSource+ *sourceOffset;
-                const UChar* mySourceLimit= uSource+sourceEnd;
+                const jchar* mySource = uSource.get() + *sourceOffset;
+                const UChar* mySourceLimit= uSource.get() + sourceEnd;
                 char* cTarget = reinterpret_cast<char*>(uTarget+ *targetOffset);
                 const char* cTargetLimit = reinterpret_cast<const char*>(uTarget+targetEnd);
 
                 ucnv_fromUnicode( cnv , &cTarget, cTargetLimit,&mySource, mySourceLimit,NULL,(UBool) flush, &errorCode);
 
-                *sourceOffset = (jint) (mySource - uSource)-*sourceOffset;
+                *sourceOffset = (jint) (mySource - uSource.get())-*sourceOffset;
                 *targetOffset = (jint) ((jbyte*)cTarget - uTarget)- *targetOffset;
                 if(U_FAILURE(errorCode)) {
                     env->ReleasePrimitiveArrayCritical(target,uTarget,0);
-                    env->ReleasePrimitiveArrayCritical(source,(jchar*)uSource,0);
                     env->ReleasePrimitiveArrayCritical(data,(jint*)myData,0);
                     return errorCode;
                 }
@@ -129,7 +128,6 @@ static jint convertCharToByte(JNIEnv* env, jclass, jlong handle,  jcharArray sou
         }else{
             errorCode = U_ILLEGAL_ARGUMENT_ERROR;
         }
-        env->ReleasePrimitiveArrayCritical(source,(jchar*)uSource,0);
     }else{
         errorCode = U_ILLEGAL_ARGUMENT_ERROR;
     }
@@ -138,27 +136,23 @@ static jint convertCharToByte(JNIEnv* env, jclass, jlong handle,  jcharArray sou
 }
 
 static jint encode(JNIEnv* env, jclass, jlong handle, jcharArray source, jint sourceEnd, jbyteArray target, jint targetEnd, jintArray data, jboolean flush) {
-
-    UErrorCode ec = UErrorCode(convertCharToByte(env, NULL,handle,source,sourceEnd, target,targetEnd,data,flush));
+    UErrorCode ec = convertCharsToBytes(env, NULL, handle, source, sourceEnd, target, targetEnd, data, flush);
     UConverter* cnv = (UConverter*)handle;
-    jint* myData = (jint*) env->GetPrimitiveArrayCritical(data,NULL);
+    if (cnv) {
+        UErrorCode errorCode = U_ZERO_ERROR;
+        jint count = ucnv_fromUCountPending(cnv, &errorCode);
+        env->SetIntArrayRegion(data, 3, 1, &count);
 
-    if(cnv && myData) {
-
-       UErrorCode errorCode = U_ZERO_ERROR;
-       myData[3] = ucnv_fromUCountPending(cnv, &errorCode);
-
-       if(ec == U_ILLEGAL_CHAR_FOUND || ec == U_INVALID_CHAR_FOUND) {
-            int8_t count =32;
+        if (ec == U_ILLEGAL_CHAR_FOUND || ec == U_INVALID_CHAR_FOUND) {
+            int8_t len = 32;
             UChar invalidUChars[32];
-            ucnv_getInvalidUChars(cnv,invalidUChars,&count,&errorCode);
-
-            if(U_SUCCESS(errorCode)) {
-                myData[2] = count;
+            ucnv_getInvalidUChars(cnv, invalidUChars, &len, &errorCode);
+            if (U_SUCCESS(errorCode)) {
+                jint value = len;
+                env->SetIntArrayRegion(data, 2, 1, &value);
             }
         }
     }
-    env->ReleasePrimitiveArrayCritical(data,(jint*)myData,0);
     return ec;
 }
 
@@ -174,33 +168,31 @@ static jint encode(JNIEnv* env, jclass, jlong handle, jcharArray source, jint so
  * @param data buffer to recieve state of the current conversion
  * @param flush boolean that specifies end of source input
  */
-static jint convertByteToChar(JNIEnv* env, jclass, jlong handle, jbyteArray source, jint sourceEnd, jcharArray target, jint targetEnd, jintArray data, jboolean flush) {
-
+static UErrorCode convertBytesToChars(JNIEnv* env, jclass, jlong handle, jbyteArray source, jint sourceEnd, jcharArray target, jint targetEnd, jintArray data, jboolean flush) {
     UErrorCode errorCode =U_ZERO_ERROR;
     UConverter* cnv = (UConverter*)handle;
-    if(cnv) {
+    if (cnv) {
+        ScopedByteArray uSource(env, source);
         jint* myData = (jint*) env->GetPrimitiveArrayCritical(data,NULL);
         if(myData) {
             jint* sourceOffset = &myData[0];
             jint* targetOffset = &myData[1];
 
-            const jbyte* uSource =(jbyte*) env->GetPrimitiveArrayCritical(source, NULL);
-            if(uSource) {
+            if (uSource.get() != NULL) {
                 jchar* uTarget=(jchar*) env->GetPrimitiveArrayCritical(target,NULL);
                 if(uTarget) {
-                    const jbyte* mySource = uSource+ *sourceOffset;
-                    const char* mySourceLimit = reinterpret_cast<const char*>(uSource+sourceEnd);
+                    const jbyte* mySource = uSource.get() + *sourceOffset;
+                    const char* mySourceLimit = reinterpret_cast<const char*>(uSource.get() + sourceEnd);
                     UChar* cTarget=uTarget+ *targetOffset;
                     const UChar* cTargetLimit=uTarget+targetEnd;
 
                     ucnv_toUnicode( cnv , &cTarget, cTargetLimit,(const char**)&mySource,
                                    mySourceLimit,NULL,(UBool) flush, &errorCode);
 
-                    *sourceOffset = mySource - uSource - *sourceOffset  ;
+                    *sourceOffset = mySource - uSource.get() - *sourceOffset;
                     *targetOffset = cTarget - uTarget - *targetOffset;
                     if(U_FAILURE(errorCode)) {
                         env->ReleasePrimitiveArrayCritical(target,uTarget,0);
-                        env->ReleasePrimitiveArrayCritical(source,(jchar*)uSource,0);
                         env->ReleasePrimitiveArrayCritical(data,(jint*)myData,0);
                         return errorCode;
                     }
@@ -211,7 +203,6 @@ static jint convertByteToChar(JNIEnv* env, jclass, jlong handle, jbyteArray sour
             }else{
                 errorCode = U_ILLEGAL_ARGUMENT_ERROR;
             }
-            env->ReleasePrimitiveArrayCritical(source,(jchar*)uSource,0);
         }else{
             errorCode = U_ILLEGAL_ARGUMENT_ERROR;
         }
@@ -223,27 +214,23 @@ static jint convertByteToChar(JNIEnv* env, jclass, jlong handle, jbyteArray sour
 }
 
 static jint decode(JNIEnv* env, jclass, jlong handle, jbyteArray source, jint sourceEnd, jcharArray target, jint targetEnd, jintArray data, jboolean flush) {
-
-    jint ec = convertByteToChar(env, NULL,handle,source,sourceEnd, target,targetEnd,data,flush);
-
-    jint* myData = (jint*) env->GetPrimitiveArrayCritical(data,NULL);
+    UErrorCode ec = convertBytesToChars(env, NULL, handle, source, sourceEnd, target, targetEnd, data, flush);
     UConverter* cnv = (UConverter*)handle;
-
-    if(myData && cnv) {
+    if (cnv) {
         UErrorCode errorCode = U_ZERO_ERROR;
-        myData[3] = ucnv_toUCountPending(cnv, &errorCode);
+        jint count = ucnv_toUCountPending(cnv, &errorCode);
+        env->SetIntArrayRegion(data, 3, 1, &count);
 
-        if(ec == U_ILLEGAL_CHAR_FOUND || ec == U_INVALID_CHAR_FOUND ) {
-            char invalidChars[32] = {'\0'};
+        if (ec == U_ILLEGAL_CHAR_FOUND || ec == U_INVALID_CHAR_FOUND) {
             int8_t len = 32;
-            ucnv_getInvalidChars(cnv,invalidChars,&len,&errorCode);
-
-            if(U_SUCCESS(errorCode)) {
-                myData[2] = len;
+            char invalidChars[32] = {'\0'};
+            ucnv_getInvalidChars(cnv, invalidChars, &len, &errorCode);
+            if (U_SUCCESS(errorCode)) {
+                jint value = len;
+                env->SetIntArrayRegion(data, 2, 1, &value);
             }
         }
     }
-    env->ReleasePrimitiveArrayCritical(data,(jint*)myData,0);
     return ec;
 }
 
@@ -273,16 +260,10 @@ static jint getMinBytesPerChar(JNIEnv*, jclass, jlong handle) {
 
 static jfloat getAveBytesPerChar(JNIEnv*, jclass, jlong handle) {
     UConverter* cnv = (UConverter*)handle;
-    if (cnv) {
-         jfloat max = (jfloat)ucnv_getMaxCharSize(cnv);
-         jfloat min = (jfloat)ucnv_getMinCharSize(cnv);
-         return (jfloat) ( (max+min)/2 );
-    }
-    return -1;
+    return (cnv != NULL) ? ((ucnv_getMaxCharSize(cnv) + ucnv_getMinCharSize(cnv)) / 2.0) : -1;
 }
 
 static jint flushByteToChar(JNIEnv* env, jclass,jlong handle, jcharArray target, jint targetEnd, jintArray data) {
-
     UErrorCode errorCode =U_ZERO_ERROR;
     UConverter* cnv = (UConverter*)handle;
     if(cnv) {
@@ -522,7 +503,7 @@ static void CHARSET_ENCODER_CALLBACK(const void* rawContext, UConverterFromUnico
     }
 }
 
-static void JNI_FROM_U_CALLBACK_SUBSTITUTE_ENCODER(const void* rawContext,
+static void encoderReplaceCallback(const void* rawContext,
         UConverterFromUnicodeArgs *fromArgs, const UChar*, int32_t, UChar32,
         UConverterCallbackReason, UErrorCode * err) {
     if (rawContext == NULL) {
@@ -535,12 +516,12 @@ static void JNI_FROM_U_CALLBACK_SUBSTITUTE_ENCODER(const void* rawContext,
 
 static UConverterFromUCallback getFromUCallback(int32_t mode) {
     switch(mode) {
-    case com_ibm_icu4jni_converters_NativeConverter_STOP_CALLBACK:
+    case NativeConverter_REPORT:
         return UCNV_FROM_U_CALLBACK_STOP;
-    case com_ibm_icu4jni_converters_NativeConverter_SKIP_CALLBACK:
+    case NativeConverter_IGNORE:
         return UCNV_FROM_U_CALLBACK_SKIP;
-    case com_ibm_icu4jni_converters_NativeConverter_SUBSTITUTE_CALLBACK:
-        return JNI_FROM_U_CALLBACK_SUBSTITUTE_ENCODER;
+    case NativeConverter_REPLACE:
+        return encoderReplaceCallback;
     }
     abort();
 }
@@ -576,13 +557,19 @@ static jint setCallbackEncode(JNIEnv* env, jclass, jlong handle, jint onMalforme
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
     fromUNewContext->length = sub.size();
-    strncpy(fromUNewContext->subBytes, reinterpret_cast<const char*>(sub.get()), sub.size());
+    memcpy(fromUNewContext->subBytes, sub.get(), sub.size());
     UErrorCode errorCode = U_ZERO_ERROR;
     ucnv_setFromUCallBack(conv, fromUNewAction, fromUNewContext, &fromUOldAction, (const void**)&fromUOldContext, &errorCode);
     return errorCode;
 }
 
-static void JNI_TO_U_CALLBACK_SUBSTITUTE_DECODER(const void* rawContext,
+static void decoderIgnoreCallback(const void*, UConverterToUnicodeArgs*, const char*, int32_t, UConverterCallbackReason, UErrorCode* err) {
+    // The icu4c UCNV_FROM_U_CALLBACK_SKIP callback requires that the context is NULL, which is
+    // never true for us.
+    *err = U_ZERO_ERROR;
+}
+
+static void decoderReplaceCallback(const void* rawContext,
         UConverterToUnicodeArgs* toArgs, const char*, int32_t, UConverterCallbackReason,
         UErrorCode* err) {
     if (!rawContext) {
@@ -590,17 +577,14 @@ static void JNI_TO_U_CALLBACK_SUBSTITUTE_DECODER(const void* rawContext,
     }
     const DecoderCallbackContext* context = reinterpret_cast<const DecoderCallbackContext*>(rawContext);
     *err = U_ZERO_ERROR;
-    ucnv_cbToUWriteUChars(toArgs,context->subUChars ,context->length , 0, err);
+    ucnv_cbToUWriteUChars(toArgs,context->subUChars, context->length, 0, err);
 }
 
 static UConverterToUCallback getToUCallback(int32_t mode) {
     switch (mode) {
-    case com_ibm_icu4jni_converters_NativeConverter_STOP_CALLBACK:
-        return UCNV_TO_U_CALLBACK_STOP;
-    case com_ibm_icu4jni_converters_NativeConverter_SKIP_CALLBACK:
-        return UCNV_TO_U_CALLBACK_SKIP;
-    case com_ibm_icu4jni_converters_NativeConverter_SUBSTITUTE_CALLBACK:
-        return JNI_TO_U_CALLBACK_SUBSTITUTE_DECODER;
+    case NativeConverter_IGNORE: return decoderIgnoreCallback;
+    case NativeConverter_REPLACE: return decoderReplaceCallback;
+    case NativeConverter_REPORT: return UCNV_TO_U_CALLBACK_STOP;
     }
     abort();
 }

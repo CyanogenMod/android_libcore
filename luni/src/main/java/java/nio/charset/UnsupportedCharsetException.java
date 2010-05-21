@@ -36,12 +36,12 @@ public class UnsupportedCharsetException extends IllegalArgumentException {
      * Constructs a new {@code UnsupportedCharsetException} with the supplied
      * charset name.
      *
-     * @param charset
+     * @param charsetName
      *            the encountered unsupported charset name.
      */
-    public UnsupportedCharsetException(String charset) {
-        super(charset);
-        this.charsetName = charset;
+    public UnsupportedCharsetException(String charsetName) {
+        super((charsetName != null) ? charsetName : "null");
+        this.charsetName = charsetName;
     }
 
     /**
@@ -50,6 +50,6 @@ public class UnsupportedCharsetException extends IllegalArgumentException {
      * @return the encountered unsupported charset name.
      */
     public String getCharsetName() {
-        return this.charsetName;
+        return charsetName;
     }
 }

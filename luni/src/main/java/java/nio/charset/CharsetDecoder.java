@@ -360,10 +360,6 @@ public abstract class CharsetDecoder {
                 status = endOfInput ? END : ONGOING;
                 if (endOfInput && remaining > 0) {
                     result = CoderResult.malformedForLength(remaining);
-                    // BEGIN android-added
-                    // needed to adjust for the changed call to position() below
-                    in.position(in.position() + result.length());
-                    // END android-added
                 } else {
                     return result;
                 }
@@ -386,14 +382,7 @@ public abstract class CharsetDecoder {
                 if (action != CodingErrorAction.IGNORE)
                     return result;
             }
-            // BEGIN android-changed
-            // the condition is removed in Harmony revision 518047. However,
-            // making the conditional statement unconditional leads to
-            // misbehavior when using REPLACE on malformedInput.
-            if (!result.isMalformed()) {
-                in.position(in.position() + result.length());
-            }
-            // END android-changed
+            in.position(in.position() + result.length());
         }
     }
 

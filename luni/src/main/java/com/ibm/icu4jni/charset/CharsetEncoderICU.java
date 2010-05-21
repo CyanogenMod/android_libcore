@@ -28,18 +28,17 @@ import com.ibm.icu4jni.common.ErrorCode;
 
 public final class CharsetEncoderICU extends CharsetEncoder {
 
-    private static final int INPUT_OFFSET = 0,
-                             OUTPUT_OFFSET = 1,
-                             INVALID_CHARS  = 2,
-                             INPUT_HELD     = 3,
-                             LIMIT          = 4;
-    /* data is 3 element array where
+    private static final int INPUT_OFFSET = 0;
+    private static final int OUTPUT_OFFSET = 1;
+    private static final int INVALID_CHARS = 2;
+    private static final int INPUT_HELD = 3;
+    /*
      * data[INPUT_OFFSET]   = on input contains the start of input and on output the number of input chars consumed
      * data[OUTPUT_OFFSET]  = on input contains the start of output and on output the number of output bytes written
      * data[INVALID_CHARS]  = number of invalid chars
      * data[INPUT_HELD]     = number of input chars held in the converter's state
      */
-    private int[] data = new int[LIMIT];
+    private int[] data = new int[4];
     /* handle to the ICU converter that is opened */
     private long converterHandle=0;
 
@@ -63,7 +62,7 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     private int savedInputHeldLen;
 
     /**
-     * Construcs a new encoder for the given charset
+     * Constructs a new encoder for the given charset
      * @param cs for which the decoder is created
      * @param cHandle the address of ICU converter
      * @param replacement the substitution bytes
@@ -139,11 +138,11 @@ public final class CharsetEncoderICU extends CharsetEncoder {
             if (ErrorCode.isFailure(ec)) {
                 if (ec == ErrorCode.U_BUFFER_OVERFLOW_ERROR) {
                     return CoderResult.OVERFLOW;
-                }else if (ec == ErrorCode.U_TRUNCATED_CHAR_FOUND) {//CSDL: add this truncated character error handling
-                    if(data[INPUT_OFFSET]>0){
+                } else if (ec == ErrorCode.U_TRUNCATED_CHAR_FOUND) {//CSDL: add this truncated character error handling
+                    if (data[INPUT_OFFSET] > 0) {
                         return CoderResult.malformedForLength(data[INPUT_OFFSET]);
                     }
-                }else {
+                } else {
                     ErrorCode.getException(ec);
                 }
             }
@@ -178,7 +177,6 @@ public final class CharsetEncoderICU extends CharsetEncoder {
      * @stable ICU 2.4
      */
     protected CoderResult encodeLoop(CharBuffer in, ByteBuffer out) {
-
         if (!in.hasRemaining()) {
             return CoderResult.UNDERFLOW;
         }

@@ -18,6 +18,7 @@ package java.nio.charset;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.util.Arrays;
 
 public class CharsetEncoderTest extends junit.framework.TestCase {
     // None of the harmony or jtreg tests actually check that replaceWith does the right thing!
@@ -30,5 +31,20 @@ public class CharsetEncoderTest extends junit.framework.TestCase {
         String input = "hello\u0666world";
         String output = ascii.decode(e.encode(CharBuffer.wrap(input))).toString();
         assertEquals("hello=world", output);
+    }
+
+    private void assertReplacementBytesForEncoder(String charset, byte[] bytes) {
+        byte[] result = Charset.forName(charset).newEncoder().replacement();
+        assertEquals(Arrays.toString(bytes), Arrays.toString(result));
+    }
+
+    // For all the guaranteed built-in charsets, check that we have the right default replacements.
+    public void test_defaultReplacementBytes() throws Exception {
+        assertReplacementBytesForEncoder("ISO-8859-1", new byte[] { (byte) '?' });
+        assertReplacementBytesForEncoder("US-ASCII", new byte[] { (byte) '?' });
+        assertReplacementBytesForEncoder("UTF-16", new byte[] { (byte) 0xff, (byte) 0xfd });
+        assertReplacementBytesForEncoder("UTF-16BE", new byte[] { (byte) 0xff, (byte) 0xfd });
+        assertReplacementBytesForEncoder("UTF-16LE", new byte[] { (byte) 0xfd, (byte) 0xff });
+        assertReplacementBytesForEncoder("UTF-8", new byte[] { (byte) '?' });
     }
 }
