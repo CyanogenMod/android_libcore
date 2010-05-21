@@ -476,11 +476,11 @@ public class Logger {
             }
         }
 
-        String handlersPropertyName = "".equals(name) ? "handlers" : name + ".handlers";
+        String handlersPropertyName = name.isEmpty() ? "handlers" : name + ".handlers";
         String handlersProperty = manager.getProperty(handlersPropertyName);
         if (handlersProperty != null) {
             for (String handlerName : handlersProperty.split(",|\\s")) {
-                if (handlerName.equals("")) {
+                if (handlerName.isEmpty()) {
                     continue;
                 }
 

@@ -70,7 +70,7 @@ public class Handler extends URLStreamHandler {
         if (spec.indexOf("!/") == -1 && (file.indexOf("!/") == -1)) {
             throw new NullPointerException(Msg.getString("K01b6"));
         }
-        if (file.equals("")) {
+        if (file.isEmpty()) {
             file = spec;
         } else if (spec.charAt(0) == '/') {
             file = file.substring(0, file.indexOf('!') + 1) + spec;

@@ -163,7 +163,7 @@ public class KXmlParser implements XmlPullParser {
                 nspStack[j] = attrName;
                 nspStack[j + 1] = attributes[i + 3];
 
-                if (attrName != null && attributes[i + 3].equals(""))
+                if (attrName != null && attributes[i + 3].isEmpty())
                     error("illegal empty namespace");
 
                 //  prefixMap = new PrefixMap (prefixMap, attrName, attr.getValue ());

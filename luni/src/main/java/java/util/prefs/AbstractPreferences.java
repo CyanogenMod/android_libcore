@@ -532,7 +532,7 @@ public abstract class AbstractPreferences extends Preferences {
         synchronized (lock) {
             checkState();
             validateName(name);
-            if ("".equals(name)) {
+            if (name.isEmpty()) {
                 return this;
             } else if ("/".equals(name)) {
                 return root;

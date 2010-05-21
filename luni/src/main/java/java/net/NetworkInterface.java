@@ -174,10 +174,7 @@ public final class NetworkInterface extends Object {
          * we should return the display name unless it is blank in this case
          * return the name so that something is displayed.
          */
-        if (!(displayName.equals(""))) {
-            return displayName;
-        }
-        return name;
+        return displayName.isEmpty() ? name : displayName;
     }
 
     /**

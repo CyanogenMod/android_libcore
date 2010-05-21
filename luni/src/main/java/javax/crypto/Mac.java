@@ -27,7 +27,6 @@ import java.security.Provider;
 import java.security.Security;
 import java.security.spec.AlgorithmParameterSpec;
 
-import org.apache.harmony.crypto.internal.nls.Messages;
 import org.apache.harmony.security.fortress.Engine;
 
 
@@ -103,7 +102,7 @@ public class Mac implements Cloneable {
     public static final Mac getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("crypto.02"));
+            throw new NullPointerException();
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -133,8 +132,8 @@ public class Mac implements Cloneable {
      */
     public static final Mac getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
-        if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("crypto.03"));
+        if (provider == null || provider.isEmpty()) {
+            throw new IllegalArgumentException("Provider is null or empty");
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -164,10 +163,10 @@ public class Mac implements Cloneable {
     public static final Mac getInstance(String algorithm, Provider provider)
             throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.04"));
+            throw new IllegalArgumentException("provider == null");
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("crypto.02"));
+            throw new NullPointerException();
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);
@@ -202,7 +201,7 @@ public class Mac implements Cloneable {
     public final void init(Key key, AlgorithmParameterSpec params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
         if (key == null) {
-            throw new InvalidKeyException(Messages.getString("crypto.05"));
+            throw new InvalidKeyException("key == null");
         }
         spiImpl.engineInit(key, params);
         isInitMac = true;
@@ -222,7 +221,7 @@ public class Mac implements Cloneable {
      */
     public final void init(Key key) throws InvalidKeyException {
         if (key == null) {
-            throw new InvalidKeyException(Messages.getString("crypto.05"));
+            throw new InvalidKeyException("key == null");
         }
         try {
             spiImpl.engineInit(key, null);
@@ -242,7 +241,7 @@ public class Mac implements Cloneable {
      */
     public final void update(byte input) throws IllegalStateException {
         if (!isInitMac) {
-            throw new IllegalStateException(Messages.getString("crypto.01"));
+            throw new IllegalStateException();
         }
         spiImpl.engineUpdate(input);
     }
@@ -263,16 +262,15 @@ public class Mac implements Cloneable {
      *             if {@code offset} and {@code len} do not specified a valid
      *             chunk in {@code input} buffer.
      */
-    public final void update(byte[] input, int offset, int len)
-            throws IllegalStateException {
+    public final void update(byte[] input, int offset, int len) throws IllegalStateException {
         if (!isInitMac) {
-            throw new IllegalStateException(Messages.getString("crypto.01"));
+            throw new IllegalStateException();
         }
         if (input == null) {
             return;
         }
         if ((offset < 0) || (len < 0) || ((offset + len) > input.length)) {
-            throw new IllegalArgumentException(Messages.getString("crypto.06"));
+            throw new IllegalArgumentException("Incorrect arguments");
         }
         spiImpl.engineUpdate(input, offset, len);
     }
@@ -287,7 +285,7 @@ public class Mac implements Cloneable {
      */
     public final void update(byte[] input) throws IllegalStateException {
         if (!isInitMac) {
-            throw new IllegalStateException(Messages.getString("crypto.01"));
+            throw new IllegalStateException();
         }
         if (input != null) {
             spiImpl.engineUpdate(input, 0, input.length);
@@ -306,12 +304,12 @@ public class Mac implements Cloneable {
      */
     public final void update(ByteBuffer input) {
         if (!isInitMac) {
-            throw new IllegalStateException(Messages.getString("crypto.01"));
+            throw new IllegalStateException();
         }
         if (input != null) {
             spiImpl.engineUpdate(input);
         } else {
-            throw new IllegalArgumentException(Messages.getString("crypto.07"));
+            throw new IllegalArgumentException("input == null");
         }
     }
 
@@ -329,7 +327,7 @@ public class Mac implements Cloneable {
      */
     public final byte[] doFinal() throws IllegalStateException {
         if (!isInitMac) {
-            throw new IllegalStateException(Messages.getString("crypto.01"));
+            throw new IllegalStateException();
         }
         return spiImpl.engineDoFinal();
     }
@@ -358,20 +356,17 @@ public class Mac implements Cloneable {
     public final void doFinal(byte[] output, int outOffset)
             throws ShortBufferException, IllegalStateException {
         if (!isInitMac) {
-            throw new IllegalStateException(Messages.getString("crypto.01"));
+            throw new IllegalStateException();
         }
         if (output == null) {
-            throw new ShortBufferException(Messages.getString("crypto.08"));
+            throw new ShortBufferException("output == null");
         }
         if ((outOffset < 0) || (outOffset >= output.length)) {
-            throw new ShortBufferException(Messages.getString("crypto.09",
-                    Integer.toString(outOffset)));
+            throw new ShortBufferException("Incorrect outOffset: " + outOffset);
         }
         int t = spiImpl.engineGetMacLength();
         if (t > (output.length - outOffset)) {
-            throw new ShortBufferException(
-                    Messages.getString("crypto.0A",
-                            Integer.toString(t)));
+            throw new ShortBufferException("Output buffer is short. Needed " + t + " bytes.");
         }
         byte[] result = spiImpl.engineDoFinal();
         System.arraycopy(result, 0, output, outOffset, result.length);
@@ -395,7 +390,7 @@ public class Mac implements Cloneable {
      */
     public final byte[] doFinal(byte[] input) throws IllegalStateException {
         if (!isInitMac) {
-            throw new IllegalStateException(Messages.getString("crypto.0B"));
+            throw new IllegalStateException();
         }
         if (input != null) {
             spiImpl.engineUpdate(input, 0, input.length);

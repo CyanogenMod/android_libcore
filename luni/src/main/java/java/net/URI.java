@@ -502,7 +502,7 @@ public final class URI implements Comparable<URI>, Serializable {
             tempHost = temp;
         }
 
-        if (tempHost.equals("")) {
+        if (tempHost.isEmpty()) {
             if (forceServer) {
                 throw new URISyntaxException(authority, "Expected host", hostIndex);
             }
@@ -1303,7 +1303,7 @@ public final class URI implements Comparable<URI>, Serializable {
         }
 
         URI result;
-        if (relative.path.equals("") && relative.scheme == null
+        if (relative.path.isEmpty() && relative.scheme == null
                 && relative.authority == null && relative.query == null
                 && relative.fragment != null) {
             // if the relative URI only consists of fragment,

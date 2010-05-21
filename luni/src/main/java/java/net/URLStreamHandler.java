@@ -183,7 +183,7 @@ public abstract class URLStreamHandler {
         if (queryIdx > -1) {
             query = parseString.substring(queryIdx + 1, fileEnd);
             if (queryIdx == 0 && file != null) {
-                if (file.equals("")) {
+                if (file.isEmpty()) {
                     file = "/";
                 } else if (file.startsWith("/")) {
                     canonicalize = true;
@@ -204,7 +204,7 @@ public abstract class URLStreamHandler {
             } else if (fileEnd > fileIdx) {
                 if (file == null) {
                     file = "";
-                } else if (file.equals("")) {
+                } else if (file.isEmpty()) {
                     file = "/";
                 } else if (file.startsWith("/")) {
                     canonicalize = true;
@@ -458,8 +458,7 @@ public abstract class URLStreamHandler {
      */
     private static String getHost(URL url) {
         String host = url.getHost();
-        if ("file".equals(url.getProtocol())
-                && "".equals(host)) {
+        if ("file".equals(url.getProtocol()) && host.isEmpty()) {
             host = "localhost";
         }
         return host;

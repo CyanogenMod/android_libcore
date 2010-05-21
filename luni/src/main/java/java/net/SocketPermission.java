@@ -123,12 +123,12 @@ public final class SocketPermission extends Permission implements Serializable {
      *            the action string of this permission.
      */
     public SocketPermission(String host, String action) {
-        super(host.equals("") ? "localhost" : host);
+        super(host.isEmpty() ? "localhost" : host);
         hostName = getHostString(host);
         if (action == null) {
             throw new NullPointerException();
         }
-        if (action.equals("")) {
+        if (action.isEmpty()) {
             throw new IllegalArgumentException();
         }
 
@@ -206,7 +206,7 @@ public final class SocketPermission extends Permission implements Serializable {
      *            java.lang.String the action list
      */
     private void setActions(String actions) throws IllegalArgumentException {
-        if (actions.equals("")) {
+        if (actions.isEmpty()) {
             return;
         }
         boolean parsing = true;
@@ -356,7 +356,7 @@ public final class SocketPermission extends Permission implements Serializable {
      * @return java.lang.String
      */
     private String toCanonicalActionString(String action) {
-        if (action == null || action.equals("") || actionsMask == SP_RESOLVE) {
+        if (action == null || action.isEmpty() || actionsMask == SP_RESOLVE) {
             return actionNames[SP_RESOLVE]; // If none specified return the
         }
         // implied action resolve

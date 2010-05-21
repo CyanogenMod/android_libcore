@@ -143,7 +143,7 @@ public class URLClassLoader extends SecureClassLoader {
                         if (line == null) {
                             break TOP_CYCLE;
                         }
-                        if ("".equals(line)) {
+                        if (line.isEmpty()) {
                             break;
                         }
                         ArrayList<URL> list;
@@ -1179,7 +1179,7 @@ public class URLClassLoader extends SecureClassLoader {
         file = file.substring(0, index);
         while (tokenizer.hasMoreElements()) {
             String element = tokenizer.nextToken();
-            if (!element.equals("")) {
+            if (!element.isEmpty()) {
                 try {
                     // Take absolute path case into consideration
                     URL url = new URL(new URL(file), element);

@@ -92,7 +92,7 @@ public final class FilePermission extends Permission implements Serializable {
     }
 
     private void init(final String path, String pathActions) {
-        if (pathActions == null || pathActions.equals("")) {
+        if (pathActions == null || pathActions.isEmpty()) {
             throw new IllegalArgumentException(Msg.getString("K006d"));
         }
         this.actions = toCanonicalActionString(pathActions);

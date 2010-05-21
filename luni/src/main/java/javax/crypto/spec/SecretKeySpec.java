@@ -27,8 +27,6 @@ import java.security.spec.KeySpec;
 import java.util.Arrays;
 import javax.crypto.SecretKey;
 
-import org.apache.harmony.crypto.internal.nls.Messages;
-
 /**
  * A key specification for a <code>SecretKey</code> and also a secret key
  * implementation that is provider-independent. It can be used for raw secret
@@ -59,13 +57,13 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
      */
     public SecretKeySpec(byte[] key, String algorithm) {
         if (key == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.05"));
+            throw new IllegalArgumentException("key == null");
         }
         if (key.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.35"));
+            throw new IllegalArgumentException("key.length == 0");
         }
         if (algorithm == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.02"));
+            throw new IllegalArgumentException("algorithm == null");
         }
 
         this.algorithm = algorithm;
@@ -95,21 +93,21 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
      */
     public SecretKeySpec(byte[] key, int offset, int len, String algorithm) {
         if (key == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.05"));
+            throw new IllegalArgumentException("key == null");
         }
         if (key.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("crypto.35"));
+            throw new IllegalArgumentException("key.length == 0");
         }
         // BEGIN android-changed
         if (len < 0 || offset < 0) {
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("crypto.36"));
+            throw new ArrayIndexOutOfBoundsException("len < 0 || offset < 0");
         }
         // END android-changed
-        if ((key.length - offset < len)) {
-            throw new IllegalArgumentException(Messages.getString("crypto.37"));
+        if (key.length - offset < len) {
+            throw new IllegalArgumentException("key too short");
         }
         if (algorithm == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.02"));
+            throw new IllegalArgumentException("algorithm == null");
         }
         this.algorithm = algorithm;
         this.key = new byte[len];
@@ -181,4 +179,3 @@ public class SecretKeySpec implements SecretKey, KeySpec, Serializable {
             && (Arrays.equals(key, ks.key));
     }
 }
-
