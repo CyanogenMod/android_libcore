@@ -23,8 +23,6 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
-
-import org.apache.harmony.archive.internal.nls.Messages;
 import org.apache.harmony.luni.util.Util;
 
 /**

@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.harmony.archive.internal.nls.Messages;
 import org.apache.harmony.luni.util.InputStreamHelper;
 import org.apache.harmony.luni.util.ThreadLocalCache;
 

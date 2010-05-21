@@ -23,8 +23,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.util.Map;
-
-import org.apache.harmony.archive.internal.nls.Messages;
 import org.apache.harmony.luni.util.ThreadLocalCache;
 
 class InitManifest {

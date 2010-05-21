@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.apache.harmony.archive.internal.nls.Messages;
 import org.apache.harmony.luni.util.Base64;
 import org.apache.harmony.security.utils.JarUtils;
 

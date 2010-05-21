@@ -22,8 +22,6 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.harmony.archive.internal.nls.Messages;
-
 /**
  * This class provides an implementation of {@code FilterInputStream} that
  * uncompresses data that was compressed using the <i>DEFLATE</i> algorithm

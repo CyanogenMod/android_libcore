@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 
-import org.apache.harmony.archive.internal.nls.Messages;
-
 /**
  * This class provides an implementation of {@code FilterOutputStream} that
  * compresses data entries into a <i>ZIP-archive</i> output stream.

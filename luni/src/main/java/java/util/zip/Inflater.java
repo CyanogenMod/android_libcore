@@ -17,9 +17,7 @@
 
 package java.util.zip;
 
-import org.apache.harmony.archive.internal.nls.Messages;
-
-import java.io.FileDescriptor; // android-only
+import java.io.FileDescriptor;
 
 /**
  * This class uncompresses data that was compressed using the <i>DEFLATE</i>

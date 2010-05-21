@@ -21,8 +21,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.harmony.archive.internal.nls.Messages;
-
 /**
  * The {@code GZIPInputStream} class is used to read data stored in the GZIP
  * format, reading and decompressing GZIP data from the underlying stream into

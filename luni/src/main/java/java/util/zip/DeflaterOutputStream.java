@@ -21,8 +21,6 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.harmony.archive.internal.nls.Messages;
-
 /**
  * This class provides an implementation of {@code FilterOutputStream} that
  * compresses data using the <i>DEFLATE</i> algorithm. Basically it wraps the
