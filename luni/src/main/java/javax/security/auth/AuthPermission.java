@@ -19,8 +19,6 @@ package javax.security.auth;
 
 import java.security.BasicPermission;
 
-import org.apache.harmony.auth.internal.nls.Messages;
-
 /**
  * Governs the use of methods in this package and also its subpackages. A
  * <i>target name</i> of the permission specifies which methods are allowed
@@ -62,9 +60,8 @@ public final class AuthPermission extends BasicPermission {
 
     // inits permission name.
     private static String init(String name) {
-
         if (name == null) {
-            throw new NullPointerException(Messages.getString("auth.13"));
+            throw new NullPointerException("name == null");
         }
 
         if (CREATE_LOGIN_CONTEXT.equals(name)) {

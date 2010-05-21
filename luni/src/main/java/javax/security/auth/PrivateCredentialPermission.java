@@ -25,8 +25,6 @@ import java.security.PermissionCollection;
 import java.security.Principal;
 import java.util.Set;
 
-import org.apache.harmony.auth.internal.nls.Messages;
-
 /**
  * Protects private credential objects belonging to a {@code Subject}. It has
  * only one action which is "read". The target name of this permission has a
@@ -79,7 +77,7 @@ public final class PrivateCredentialPermission extends Permission {
         if (READ.equalsIgnoreCase(action)) {
             initTargetName(name);
         } else {
-            throw new IllegalArgumentException(Messages.getString("auth.11"));
+            throw new IllegalArgumentException("Action must be \"read\"");
         }
     }
 
@@ -121,19 +119,19 @@ public final class PrivateCredentialPermission extends Permission {
     private void initTargetName(String name) {
 
         if (name == null) {
-            throw new NullPointerException(Messages.getString("auth.0E"));
+            throw new NullPointerException("name == null");
         }
 
         // check empty string
         name = name.trim();
-        if (name.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("auth.0F"));
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("name is empty");
         }
 
         // get CredentialClass
         int beg = name.indexOf(' ');
         if (beg == -1) {
-            throw new IllegalArgumentException(Messages.getString("auth.10"));
+            throw badSyntax();
         }
         credentialClass = name.substring(0, beg);
 
@@ -146,13 +144,13 @@ public final class PrivateCredentialPermission extends Permission {
             j = name.indexOf('"', i + 2);
 
             if (i == -1 || j == -1 || name.charAt(i + 1) != '"') {
-                throw new IllegalArgumentException(Messages.getString("auth.10"));
+                throw badSyntax();
             }
         }
 
         // name MUST have one pair at least
         if (count < 1) {
-            throw new IllegalArgumentException(Messages.getString("auth.10"));
+            throw badSyntax();
         }
 
         beg = name.indexOf(' ');
@@ -183,6 +181,11 @@ public final class PrivateCredentialPermission extends Permission {
                 set[offset++] = element;
             }
         }
+    }
+
+    private IllegalArgumentException badSyntax() {
+        throw new IllegalArgumentException("Target name MUST have the following syntax: " +
+                "CredentialClass 1*(PrincipalClass \"PrincipalName\")");
     }
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
@@ -349,11 +352,16 @@ public final class PrivateCredentialPermission extends Permission {
             }
 
             if (isClassWildcard && !isPNameWildcard) {
-                throw new IllegalArgumentException(Messages.getString("auth.12"));
+                throw badPrincipal();
             }
 
             this.principalClass = principalClass;
             this.principalName = principalName;
+        }
+
+        private IllegalArgumentException badPrincipal() {
+            throw new IllegalArgumentException("invalid syntax: Principal Class can not be a " +
+                    "wildcard (*) value if Principal Name is not a wildcard (*) value");
         }
 
         // Checks if this CredOwner implies the specified Object.

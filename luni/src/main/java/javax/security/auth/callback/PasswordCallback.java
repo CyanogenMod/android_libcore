@@ -20,10 +20,8 @@ package javax.security.auth.callback;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.apache.harmony.auth.internal.nls.Messages;
-
 /**
- * Is used in conjunction with a {@link CallbackHandler} to retrieve a password
+ * Used in conjunction with a {@link CallbackHandler} to retrieve a password
  * when needed.
  */
 public class PasswordCallback implements Callback, Serializable {
@@ -38,7 +36,7 @@ public class PasswordCallback implements Callback, Serializable {
 
     private void setPrompt(String prompt) throws IllegalArgumentException {
         if (prompt == null || prompt.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("auth.14"));
+            throw new IllegalArgumentException("Invalid prompt");
         }
         this.prompt = prompt;
     }

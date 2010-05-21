@@ -36,8 +36,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.apache.harmony.auth.internal.nls.Messages;
-
 /**
  * The central class of the {@code javax.security.auth} package representing an
  * authenticated user or entity (both referred to as "subject"). IT defines also
@@ -487,7 +485,7 @@ public final class Subject implements Serializable {
     public static Subject getSubject(final AccessControlContext context) {
         checkPermission(_SUBJECT);
         if (context == null) {
-            throw new NullPointerException(Messages.getString("auth.09"));
+            throw new NullPointerException("AccessControlContext cannot be null");
         }
         PrivilegedAction<DomainCombiner> action = new PrivilegedAction<DomainCombiner>() {
             public DomainCombiner run() {
@@ -513,7 +511,7 @@ public final class Subject implements Serializable {
     // FIXME is used only in two places. remove?
     private void checkState() {
         if (readOnly) {
-            throw new IllegalStateException(Messages.getString("auth.0A"));
+            throw new IllegalStateException("Set is read-only");
         }
     }
 
@@ -588,7 +586,7 @@ public final class Subject implements Serializable {
                 throw new NullPointerException();
             }
             if (permission == _PRINCIPALS && !(Principal.class.isAssignableFrom(o.getClass()))) {
-                throw new IllegalArgumentException(Messages.getString("auth.0B"));
+                throw new IllegalArgumentException("Element is not instance of java.security.Principal");
             }
         }
 
@@ -666,10 +664,8 @@ public final class Subject implements Serializable {
 
                 @Override
                 public boolean add(E o) {
-
                     if (!c.isAssignableFrom(o.getClass())) {
-                        throw new IllegalArgumentException(
-                                Messages.getString("auth.0C", c.getName()));
+                        throw new IllegalArgumentException("Invalid type: " + o.getClass());
                     }
 
                     if (elements.contains(o)) {

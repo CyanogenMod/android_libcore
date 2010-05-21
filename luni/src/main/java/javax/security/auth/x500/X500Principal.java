@@ -23,8 +23,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Principal;
-
-import org.apache.harmony.auth.internal.nls.Messages;
 import org.apache.harmony.security.x501.Name;
 
 /**
@@ -71,18 +69,14 @@ public final class X500Principal implements Serializable, Principal {
      *             if the ASN.1 DER-encoded distinguished name is incorrect
      */
     public X500Principal(byte[] name) {
-        super();
         if (name == null) {
-            throw new IllegalArgumentException(Messages.getString("auth.00"));
+            throw new IllegalArgumentException("Name cannot be null");
         }
         try {
             // FIXME dn = new Name(name);
             dn = (Name) Name.ASN1.decode(name);
         } catch (IOException e) {
-            IllegalArgumentException iae = new IllegalArgumentException(Messages
-                    .getString("auth.2B"));
-            iae.initCause(e);
-            throw iae;
+            throw incorrectInputEncoding(e);
         }
     }
 
@@ -98,19 +92,21 @@ public final class X500Principal implements Serializable, Principal {
      *             if the ASN.1 DER-encoded distinguished name is incorrect
      */
     public X500Principal(InputStream in) {
-        super();
         if (in == null) {
-            throw new NullPointerException(Messages.getString("auth.2C"));
+            throw new NullPointerException("in == null");
         }
         try {
             // FIXME dn = new Name(is);
             dn = (Name) Name.ASN1.decode(in);
         } catch (IOException e) {
-            IllegalArgumentException iae = new IllegalArgumentException(Messages
-                    .getString("auth.2B"));
-            iae.initCause(e);
-            throw iae;
+            throw incorrectInputEncoding(e);
         }
+    }
+
+    private IllegalArgumentException incorrectInputEncoding(IOException e) {
+        IllegalArgumentException iae = new IllegalArgumentException("Incorrect input encoding");
+        iae.initCause(e);
+        throw iae;
     }
 
     /**
@@ -127,13 +123,12 @@ public final class X500Principal implements Serializable, Principal {
     public X500Principal(String name) {
         super();
         if (name == null) {
-            throw new NullPointerException(Messages.getString("auth.00"));
+            throw new NullPointerException("Name cannot be null");
         }
         try {
             dn = new Name(name);
         } catch (IOException e) {
-            IllegalArgumentException iae = new IllegalArgumentException(Messages
-                    .getString("auth.2D"));
+            IllegalArgumentException iae = new IllegalArgumentException("Incorrect input name");
             iae.initCause(e);
             throw iae;
         }
