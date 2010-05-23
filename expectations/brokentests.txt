@@ -9,6 +9,12 @@ result EXEC_FAILED
 pattern .*java.lang.UnsupportedOperationException\s+at java.lang.System.setSecurityManager.*
 
 
+# ignore compilation errors due to different available APIs
+failure ignore compilation errors
+result COMPILE_FAILED
+pattern .*\.java:\d+: cannot find symbol.*
+
+
 # The RI avoids blocking calls when '\r' is the last character. We don't
 # bother since that adds complexity to every other read call, and '\r' as the
 # last character will be diminishingly rare anyway.
@@ -276,6 +282,10 @@ failure Dalvik doesn't include AWT (bug it has java.awt.font)
 result COMPILE_FAILED
 pattern .*package java.awt(\.image)? does not exist.* 
 
+failure Dalvik doesn't include NIO.2
+result COMPILE_FAILED
+pattern .*package java.nio.file does not exist.*
+
 failure Dalvik doesn't include RMI
 result COMPILE_FAILED
 pattern .*package java.rmi does not exist.*
@@ -287,6 +297,10 @@ pattern .*package javax.naming does not exist.*
 failure Dalvik doesn't include JMX
 result COMPILE_FAILED
 pattern .*package java.lang.management does not exist.*
+
+failure Dalvik doesn't include Swing
+result COMPILE_FAILED
+pattern .*package javax.swing.tree does not exist.*
 
 failure Dalvik doesn't include javax.crypto
 result COMPILE_FAILED
@@ -382,11 +396,6 @@ test java.lang.StringBuffer.Exceptions
 result EXEC_FAILED
 pattern .*got java\.lang\.StringIndexOutOfBoundsException: null - FAILED.*
 
-
-# We don't have AWT
-test java.io.File.isDirectory.Applet
-result COMPILE_FAILED
-pattern .*package java.applet does not exist.*
 
 # ICU doesn't like 3-letter names like CST because they're ambiguous.
 # Harmony prefers them because they're more human readable. We'll be
