@@ -20,8 +20,6 @@ package javax.crypto.spec;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 
-import org.apache.harmony.crypto.internal.nls.Messages;
-
 /**
  * The algorithm parameter specification for the <a
  * href="http://www.ietf.org/rfc/rfc2268.txt">RC2</a> algorithm.
@@ -59,10 +57,10 @@ public class RC2ParameterSpec implements AlgorithmParameterSpec {
      */
     public RC2ParameterSpec(int effectiveKeyBits, byte[] iv) {
         if (iv == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.31"));
+            throw new IllegalArgumentException("iv == null");
         }
         if (iv.length < 8) {
-            throw new IllegalArgumentException(Messages.getString("crypto.41"));
+            throw new IllegalArgumentException("iv.length < 8");
         }
         this.effectiveKeyBits = effectiveKeyBits;
         this.iv = new byte[8];
@@ -89,10 +87,10 @@ public class RC2ParameterSpec implements AlgorithmParameterSpec {
      */
     public RC2ParameterSpec(int effectiveKeyBits, byte[] iv, int offset) {
         if (iv == null) {
-            throw new IllegalArgumentException(Messages.getString("crypto.31"));
+            throw new IllegalArgumentException("iv == null");
         }
         if (iv.length - offset < 8) {
-            throw new IllegalArgumentException(Messages.getString("crypto.41"));
+            throw new IllegalArgumentException("iv.length - offset < 8");
         }
         this.effectiveKeyBits = effectiveKeyBits;
         this.iv = new byte[8];
@@ -161,4 +159,3 @@ public class RC2ParameterSpec implements AlgorithmParameterSpec {
         return result;
     }
 }
-

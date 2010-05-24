@@ -456,7 +456,7 @@ public class PathClassLoader extends ClassLoader {
      */
     @Override
     protected Package getPackage(String name) {
-        if (name != null && !"".equals(name)) {
+        if (name != null && !name.isEmpty()) {
             synchronized(this) {
                 Package pack = super.getPackage(name);
 

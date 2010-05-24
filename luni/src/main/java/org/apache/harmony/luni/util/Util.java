@@ -17,7 +17,6 @@
 
 package org.apache.harmony.luni.util;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.UTFDataFormatException;
 import java.io.UnsupportedEncodingException;
@@ -25,13 +24,6 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public final class Util {
-
-	private static String[] WEEKDAYS = new String[] { "", "Sunday", "Monday",
-			"Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-
-	private static String[] MONTHS = new String[] { "January", "February",
-			"March", "April", "May", "June", "July", "August", "September",
-			"October", "November", "December" };
 
 	private static final String defaultEncoding;
 
@@ -48,36 +40,6 @@ public final class Util {
 		}
         defaultEncoding = encoding;
 	}
-
-    /**
-     * Get bytes from String using default encoding; default encoding can
-     * be changed via "os.encoding" property
-     * @param name input String
-     * @return byte array
-     */
-    public static byte[] getBytes(String name) {
-		if (defaultEncoding != null) {
-			try {
-				return name.getBytes(defaultEncoding);
-			} catch (java.io.UnsupportedEncodingException e) {
-			}
-		}
-        return name.getBytes();
-	}
-
-    /**
-     * Get bytes from String with UTF8 encoding
-     * @param name
-     *          input String
-     * @return byte array
-     */
-    public static byte[] getUTF8Bytes(String name) {
-        try {
-            return name.getBytes("UTF-8");
-        } catch (java.io.UnsupportedEncodingException e) {
-            return getBytes(name);
-        }
-    }
 
 	public static String toString(byte[] bytes) {
 		if (defaultEncoding != null) {
@@ -110,118 +72,6 @@ public final class Util {
             return toString(bytes, offset, length);
         }
     }
-
-	/**
-	 * Returns the millisecond value of the date and time parsed from the
-	 * specified String. Many date/time formats are recognized
-	 *
-	 * @param string
-	 *            the String to parse
-	 * @return the millisecond value parsed from the String
-	 */
-	public static long parseDate(String string) {
-		int offset = 0, length = string.length(), state = 0;
-		int year = -1, month = -1, date = -1;
-		int hour = -1, minute = -1, second = -1;
-		final int PAD = 0, LETTERS = 1, NUMBERS = 2;
-		StringBuilder buffer = new StringBuilder();
-
-		while (offset <= length) {
-			char next = offset < length ? string.charAt(offset) : '\r';
-			offset++;
-
-			int nextState;
-			if ((next >= 'a' && next <= 'z') || (next >= 'A' && next <= 'Z'))
-				nextState = LETTERS;
-			else if (next >= '0' && next <= '9')
-				nextState = NUMBERS;
-			else if (" ,-:\r\t".indexOf(next) == -1)
-				throw new IllegalArgumentException();
-			else
-				nextState = PAD;
-
-			if (state == NUMBERS && nextState != NUMBERS) {
-				int digit = Integer.parseInt(buffer.toString());
-				buffer.setLength(0);
-				if (digit >= 70) {
-					if (year != -1
-							|| (next != ' ' && next != ',' && next != '\r'))
-						throw new IllegalArgumentException();
-					year = digit;
-				} else if (next == ':') {
-					if (hour == -1)
-						hour = digit;
-					else if (minute == -1)
-						minute = digit;
-					else
-						throw new IllegalArgumentException();
-				} else if (next == ' ' || next == ',' || next == '-'
-						|| next == '\r') {
-					if (hour != -1 && minute == -1)
-						minute = digit;
-					else if (minute != -1 && second == -1)
-						second = digit;
-					else if (date == -1)
-						date = digit;
-					else if (year == -1)
-						year = digit;
-					else
-						throw new IllegalArgumentException();
-				} else if (year == -1 && month != -1 && date != -1)
-					year = digit;
-				else
-					throw new IllegalArgumentException();
-			} else if (state == LETTERS && nextState != LETTERS) {
-				String text = buffer.toString().toUpperCase();
-				buffer.setLength(0);
-				if (text.length() < 3)
-					throw new IllegalArgumentException();
-				if (parse(text, WEEKDAYS) != -1) {
-				} else if (month == -1 && (month = parse(text, MONTHS)) != -1) {
-				} else if (text.equals("GMT")) {
-				} else
-					throw new IllegalArgumentException();
-			}
-
-			if (nextState == LETTERS || nextState == NUMBERS)
-				buffer.append(next);
-			state = nextState;
-		}
-
-		if (year != -1 && month != -1 && date != -1) {
-			if (hour == -1)
-				hour = 0;
-			if (minute == -1)
-				minute = 0;
-			if (second == -1)
-				second = 0;
-			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-			int current = cal.get(Calendar.YEAR) - 80;
-			if (year < 100) {
-				year += current / 100 * 100;
-				if (year < current)
-					year += 100;
-			}
-			cal.set(Calendar.YEAR, year);
-			cal.set(Calendar.MONTH, month);
-			cal.set(Calendar.DATE, date);
-			cal.set(Calendar.HOUR_OF_DAY, hour);
-			cal.set(Calendar.MINUTE, minute);
-			cal.set(Calendar.SECOND, second);
-			cal.set(Calendar.MILLISECOND, 0);
-			return cal.getTime().getTime();
-		}
-		throw new IllegalArgumentException();
-	}
-
-	private static int parse(String string, String[] array) {
-		int length = string.length();
-		for (int i = 0; i < array.length; i++) {
-			if (string.regionMatches(true, 0, array[i], 0, length))
-				return i;
-		}
-		return -1;
-	}
 
 	public static String convertFromUTF8(byte[] buf, int offset, int utfSize)
 			throws UTFDataFormatException {
@@ -329,7 +179,7 @@ public final class Util {
         }
         return result.toString();
     }
-	
+
 	public static String toASCIILowerCase(String s) {
         int len = s.length();
 		StringBuilder buffer = new StringBuilder(len);
@@ -343,7 +193,7 @@ public final class Util {
 		}
 		return buffer.toString();
 	}
-	
+
 	public static String toASCIIUpperCase(String s) {
         int len = s.length();
         StringBuilder buffer = new StringBuilder(len);

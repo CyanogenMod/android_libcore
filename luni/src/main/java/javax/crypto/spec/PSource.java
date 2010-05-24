@@ -17,8 +17,6 @@
 
 package javax.crypto.spec;
 
-import org.apache.harmony.crypto.internal.nls.Messages;
-
 /**
  * The source of the label <code>L</code> as specified in <a
  * href="http://www.ietf.org/rfc/rfc3447.txt"> PKCS #1</a>.
@@ -40,7 +38,7 @@ public class PSource {
      */
     protected PSource(String pSrcName) {
         if (pSrcName == null) {
-            throw new NullPointerException(Messages.getString("crypto.42"));
+            throw new NullPointerException();
         }
         this.pSrcName = pSrcName;
     }
@@ -85,7 +83,7 @@ public class PSource {
         public PSpecified(byte[] p) {
             super("PSpecified");
             if (p == null) {
-                throw new NullPointerException(Messages.getString("crypto.43"));
+                throw new NullPointerException();
             }
             //TODO: It is unknown which name should be used!
             //super("");
@@ -105,4 +103,3 @@ public class PSource {
         }
     }
 }
-

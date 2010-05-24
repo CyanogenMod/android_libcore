@@ -23,8 +23,6 @@ package javax.crypto.spec;
 
 import java.security.spec.AlgorithmParameterSpec;
 
-import org.apache.harmony.crypto.internal.nls.Messages;
-
 /**
  * The algorithm parameter specification for an <i>initialization vector</i>.
  */
@@ -43,7 +41,7 @@ public class IvParameterSpec implements AlgorithmParameterSpec {
      */
     public IvParameterSpec(byte[] iv) {
         if (iv == null) {
-            throw new NullPointerException(Messages.getString("crypto.38"));
+            throw new NullPointerException("iv == null");
         }
         this.iv = new byte[iv.length];
         System.arraycopy(iv, 0, this.iv, 0, iv.length);
@@ -69,11 +67,10 @@ public class IvParameterSpec implements AlgorithmParameterSpec {
      */
     public IvParameterSpec(byte[] iv, int offset, int len) {
         if ((iv == null) || (iv.length - offset < len)) {
-            throw new IllegalArgumentException(
-                    Messages.getString("crypto.39"));
+            throw new IllegalArgumentException();
         }
         if (offset < 0 || len < 0) {
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("crypto.3A"));
+            throw new ArrayIndexOutOfBoundsException();
         }
         this.iv = new byte[len];
         System.arraycopy(iv, offset, this.iv, 0, len);
@@ -90,4 +87,3 @@ public class IvParameterSpec implements AlgorithmParameterSpec {
         return res;
     }
 }
-

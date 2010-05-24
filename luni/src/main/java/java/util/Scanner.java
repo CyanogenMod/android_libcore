@@ -1862,10 +1862,10 @@ public final class Scanner implements Iterator<String> {
     private StringBuilder addPositiveSign(StringBuilder unSignNumeral) {
         String positivePrefix = "";
         String positiveSuffix = "";
-        if (!decimalFormat.getPositivePrefix().equals("")) {
+        if (!decimalFormat.getPositivePrefix().isEmpty()) {
             positivePrefix = "\\Q" + decimalFormat.getPositivePrefix() + "\\E";
         }
-        if (!decimalFormat.getPositiveSuffix().equals("")) {
+        if (!decimalFormat.getPositiveSuffix().isEmpty()) {
             positiveSuffix = "\\Q" + decimalFormat.getPositiveSuffix() + "\\E";
         }
         StringBuilder signedNumeral = new StringBuilder()
@@ -1880,10 +1880,10 @@ public final class Scanner implements Iterator<String> {
     private StringBuilder addNegativeSign(StringBuilder unSignNumeral) {
         String negativePrefix = "";
         String negativeSuffix = "";
-        if (!decimalFormat.getNegativePrefix().equals("")) {
+        if (!decimalFormat.getNegativePrefix().isEmpty()) {
             negativePrefix = "\\Q" + decimalFormat.getNegativePrefix() + "\\E";
         }
-        if (!decimalFormat.getNegativeSuffix().equals("")) {
+        if (!decimalFormat.getNegativeSuffix().isEmpty()) {
             negativeSuffix = "\\Q" + decimalFormat.getNegativeSuffix() + "\\E";
         }
         StringBuilder signedNumeral = new StringBuilder()
@@ -1987,11 +1987,10 @@ public final class Scanner implements Iterator<String> {
         if (0 == tokenBuilder.indexOf("+")) {
             tokenBuilder.delete(0, 1);
         }
-        if (!positivePrefix.equals("")
-                && 0 == tokenBuilder.indexOf(positivePrefix)) {
+        if (!positivePrefix.isEmpty() && 0 == tokenBuilder.indexOf(positivePrefix)) {
             tokenBuilder.delete(0, positivePrefix.length());
         }
-        if (!positiveSuffix.equals("")
+        if (!positiveSuffix.isEmpty()
                 && -1 != tokenBuilder.indexOf(positiveSuffix)) {
             tokenBuilder.delete(
                     tokenBuilder.length() - positiveSuffix.length(),
@@ -2002,12 +2001,12 @@ public final class Scanner implements Iterator<String> {
             tokenBuilder.delete(0, 1);
             negative = true;
         }
-        if (!negativePrefix.equals("")
+        if (!negativePrefix.isEmpty()
                 && 0 == tokenBuilder.indexOf(negativePrefix)) {
             tokenBuilder.delete(0, negativePrefix.length());
             negative = true;
         }
-        if (!negativeSuffix.equals("")
+        if (!negativeSuffix.isEmpty()
                 && -1 != tokenBuilder.indexOf(negativeSuffix)) {
             tokenBuilder.delete(
                     tokenBuilder.length() - negativeSuffix.length(),

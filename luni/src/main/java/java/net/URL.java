@@ -900,7 +900,7 @@ public final class URL implements java.io.Serializable {
             String authority, String userInfo, String path, String query,
             String ref) {
         String filePart = path;
-        if (query != null && !query.equals("")) {
+        if (query != null && !query.isEmpty()) {
             if (filePart != null) {
                 filePart = filePart + "?" + query;
             } else {

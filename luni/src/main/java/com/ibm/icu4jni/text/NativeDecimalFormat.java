@@ -522,7 +522,7 @@ public final class NativeDecimalFormat {
     }
 
     protected Format.Field getField(String type) {
-        if(type.equals("")) {
+        if (type.isEmpty()) {
             return null;
         }
         if(type.equals("sign")) {

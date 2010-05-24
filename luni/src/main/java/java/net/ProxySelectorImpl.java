@@ -300,7 +300,7 @@ class ProxySelectorImpl extends ProxySelector {
             final String defaultValue) {
         String value = AccessController.doPrivileged(new PriviAction<String>(
                 property));
-        if (null == value || "".equals(value)) {
+        if (value == null || value.isEmpty()) {
             value = (netProps != null)
                     ? netProps.getProperty(property, defaultValue)
                     : defaultValue;
