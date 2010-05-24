@@ -868,7 +868,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                           null,
                           url.getHost(),
                           url.getPort(),
-                          null,
+                          url.getPath(),
                           null,
                           null);
         } catch (URISyntaxException e1) {
@@ -1395,12 +1395,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         while (((line = readln()) != null) && (line.length() > 1)) {
             // Header parsing
             int idx;
-            if ((idx = line.indexOf(":")) < 0) {
+            if ((idx = line.indexOf(":")) == -1) {
                 resHeader.add("", line.trim());
             } else {
                 resHeader.add(line.substring(0, idx), line.substring(idx + 1).trim());
             }
         }
+
+        CookieHandler cookieHandler = CookieHandler.getDefault();
+        cookieHandler.put(uri, resHeader.getFieldMap());
     }
 
     private void writeRequest(OutputStream out) throws IOException {

@@ -18,12 +18,9 @@ package java.net;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
-
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * This class provides a concrete implementation of CookieHandler. It separates
@@ -93,7 +90,7 @@ public class CookieManager extends CookieHandler {
     }
 
     /**
-     * Searchs and gets all cookies in the cache by the specified uri in the
+     * Searches and gets all cookies in the cache by the specified uri in the
      * request header.
      *
      * @param uri
@@ -108,46 +105,41 @@ public class CookieManager extends CookieHandler {
     public Map<String, List<String>> get(URI uri,
             Map<String, List<String>> requestHeaders) throws IOException {
         if (uri == null || requestHeaders == null) {
-            throw new IllegalArgumentException(Msg.getString("KB004"));
+            throw new IllegalArgumentException();
         }
-        List<HttpCookie> cookies = store.get(uri);
-        for (int i = 0; i < cookies.size(); i++) {
-            HttpCookie cookie = cookies.get(i);
-            String uriPath = uri.getPath();
-            String cookiePath = cookie.getPath();
-            // if the uri's path does not path-match cookie's path, remove
-            // cookies from the list
-            if (cookiePath == null || uriPath.length() == 0
-                    || !uriPath.startsWith(cookiePath)) {
-                cookies.remove(i);
+
+        List<HttpCookie> result = new ArrayList<HttpCookie>();
+        for (HttpCookie cookie : store.get(uri)) {
+            if (HttpCookie.pathMatches(uri, cookie)) {
+                result.add(cookie);
             }
         }
-        // TODO parse cookies into Map and so far requesterHeaders are not used
-        return getCookieMap(cookies, requestHeaders);
+
+        return cookiesToHeaders(result);
     }
 
-    private static Map<String, List<String>> getCookieMap(
-            List<HttpCookie> cookies, Map<String, List<String>> requestHeaders) {
-        HashMap<String, List<String>> map = new HashMap<String, List<String>>();
-        ArrayList<String> cookieStr = new ArrayList<String>();
-        // If all cookies are version 1, add a "$Version="1"" header
-        boolean versionOne = true;
+    private static Map<String, List<String>> cookiesToHeaders(List<HttpCookie> cookies) {
+        if (cookies.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        // If all cookies are version 1, add a version 1 header. No header for version 0 cookies.
+        int minVersion = 1;
         for (HttpCookie cookie : cookies) {
-            if (cookie.getVersion() == 0) {
-                versionOne = false;
-                break;
-            }
+            minVersion = Math.min(minVersion, cookie.getVersion());
         }
-        if (versionOne && !cookies.isEmpty()) {
-            cookieStr.add("$Version=\"1\"");
+        if (minVersion == 1) {
+            result.append("$Version=\"1\"; ");
         }
-        // add every cookie's string representation into map
-        for (HttpCookie cookie : cookies) {
-            cookieStr.add(cookie.toString());
+
+        result.append(cookies.get(0).toString());
+        for (int i = 1; i < cookies.size(); i++) {
+            result.append("; ").append(cookies.get(i).toString());
         }
-        // TODO So far only "Cookie" head detected
-        map.put("Cookie", cookieStr);
-        return Collections.unmodifiableMap(map);
+
+        return Collections.singletonMap("Cookie", Collections.singletonList(result.toString()));
     }
 
     /**
@@ -161,38 +153,54 @@ public class CookieManager extends CookieHandler {
      *             if some error of I/O operation occurs
      */
     @Override
-    public void put(URI uri, Map<String, List<String>> responseHeaders)
-            throws IOException {
+    public void put(URI uri, Map<String, List<String>> responseHeaders) throws IOException {
         if (uri == null || responseHeaders == null) {
-            throw new IllegalArgumentException(Msg.getString("KA019"));
+            throw new IllegalArgumentException();
         }
+
+        String uriPath = uri.getPath();
+        if (uriPath == null) {
+            uriPath = "/";
+        }
+
         // parse and construct cookies according to the map
         List<HttpCookie> cookies = parseCookie(responseHeaders);
         for (HttpCookie cookie : cookies) {
-            // if the cookie conforms to the policy and matches the uri's path,
-            // add it into the store
+
+            // if the cookie doesn't have a domain, set one.
+            if (cookie.getDomain() == null) {
+                cookie.setDomain(uri.getHost());
+            }
+
+            // If the cookie doesn't have a path, set one. If it does, validate it.
+            if (cookie.getPath() == null) {
+                int lastSlash = uriPath.lastIndexOf('/'); // -1 yields the empty string
+                cookie.setPath(uriPath.substring(0, lastSlash + 1));
+            } else if (!HttpCookie.pathMatches(uri, cookie)) {
+                continue;
+            }
+
+            // if the cookie conforms to the policy, add it into the store
             if (policy.shouldAccept(uri, cookie)) {
                 store.add(uri, cookie);
             }
         }
     }
 
-    private static List<HttpCookie> parseCookie(
-            Map<String, List<String>> responseHeaders) {
+    private static List<HttpCookie> parseCookie(Map<String, List<String>> responseHeaders) {
         List<HttpCookie> cookies = new ArrayList<HttpCookie>();
         for (Map.Entry<String, List<String>> entry : responseHeaders.entrySet()) {
             String key = entry.getKey();
             // Only "Set-cookie" and "Set-cookie2" pair will be parsed
-            if (key != null
-                    && (key.equalsIgnoreCase(VERSION_ZERO_HEADER) || key
-                            .equalsIgnoreCase(VERSION_ONE_HEADER))) {
+            if (key != null && (key.equalsIgnoreCase(VERSION_ZERO_HEADER)
+                    || key.equalsIgnoreCase(VERSION_ONE_HEADER))) {
                 // parse list elements one by one
                 for (String cookieStr : entry.getValue()) {
                     try {
                         for (HttpCookie cookie : HttpCookie.parse(cookieStr)) {
                             cookies.add(cookie);
                         }
-                    } catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException ignored) {
                         // this string is invalid, jump to the next one.
                     }
                 }

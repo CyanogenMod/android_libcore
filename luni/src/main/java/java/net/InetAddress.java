@@ -495,7 +495,7 @@ public class InetAddress implements Serializable {
     /**
      * Returns true if the string is a host name, false if it is an IP Address.
      */
-    private static boolean isHostName(String value) {
+    static boolean isHostName(String value) {
         try {
             NETIMPL.ipStringToByteArray(value);
             return false;
