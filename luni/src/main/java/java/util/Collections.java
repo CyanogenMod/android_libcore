@@ -1503,7 +1503,7 @@ public class Collections {
 
         int low = 0, mid = list.size(), high = mid - 1, result = -1;
         while (low <= high) {
-            mid = (low + high) >> 1;
+            mid = (low + high) >>> 1;
             if ((result = -list.get(mid).compareTo(object)) > 0) {
                 low = mid + 1;
             } else if (result == 0) {
@@ -1561,7 +1561,7 @@ public class Collections {
 
         int low = 0, mid = list.size(), high = mid - 1, result = -1;
         while (low <= high) {
-            mid = (low + high) >> 1;
+            mid = (low + high) >>> 1;
             if ((result = -comparator.compare(list.get(mid),object)) > 0) {
                 low = mid + 1;
             } else if (result == 0) {
