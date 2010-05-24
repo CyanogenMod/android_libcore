@@ -23,9 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Permission;
 import java.security.PermissionCollection;
-
 import org.apache.harmony.luni.util.Inet6Util;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * Regulates the access to network operations available through sockets through
@@ -232,8 +230,7 @@ public final class SocketPermission extends Permission implements Serializable {
             } else if (action.equals(actionNames[SP_RESOLVE])) {
                 // do nothing
             } else {
-                throw new IllegalArgumentException(Msg.getString("K0048",
-                        action));
+                throw new IllegalArgumentException("Invalid action: " + action);
             }
         }
     }
@@ -338,12 +335,10 @@ public final class SocketPermission extends Permission implements Serializable {
            portMax = Integer.valueOf(strPortMax).intValue();
 
            if (portMin > portMax) {
-               // K0049=MinPort is greater than MaxPort\: {0}
-               throw new IllegalArgumentException(Msg.getString("K0049", port));
+               throw new IllegalArgumentException("MinPort is greater than MaxPort: " + port);
            }
        } catch (NumberFormatException e) {
-           // K004a=Invalid port number specified\: {0}
-           throw new IllegalArgumentException(Msg.getString("K004a", port));
+           throw new IllegalArgumentException("Invalid port number: " + port);
        }
     }
 
@@ -450,22 +445,19 @@ public final class SocketPermission extends Permission implements Serializable {
             if (Inet6Util.isIP6AddressInFullForm(host)) {
                 return host.toLowerCase();
             }
-            // K004a=Invalid port number specified\: {0}
-            throw new IllegalArgumentException(Msg.getString("K004a", host));
+            throw new IllegalArgumentException("Invalid port number: " + host);
         }
         // forward bracket found
         int bbracketIdx = host.indexOf(']');
         if (-1 == bbracketIdx) {
             // no back bracket found, wrong
-            // K004a=Invalid port number specified\: {0}
-            throw new IllegalArgumentException(Msg.getString("K004a", host));
+            throw new IllegalArgumentException("Invalid port number: " + host);
         }
         host = host.substring(0, bbracketIdx + 1);
         if (Inet6Util.isValidIP6Address(host)) {
             return host.toLowerCase();
         }
-        // K004a=Invalid port number specified\: {0}
-        throw new IllegalArgumentException(Msg.getString("K004a", host));
+        throw new IllegalArgumentException("Invalid port number: " + host);
     }
 
     /**

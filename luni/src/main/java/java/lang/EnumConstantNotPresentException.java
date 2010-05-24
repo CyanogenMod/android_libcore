@@ -16,8 +16,6 @@
 
 package java.lang;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Thrown if an {@code enum} constant does not exist for a particular name.
  *

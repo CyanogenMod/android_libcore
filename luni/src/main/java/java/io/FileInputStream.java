@@ -21,7 +21,6 @@ import java.nio.channels.FileChannel;
 
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.nio.FileChannelFactory;
 
 /**
@@ -272,7 +271,7 @@ public class FileInputStream extends InputStream implements Closeable {
             throw new NullPointerException("buffer == null");
         }
         if ((count | offset) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         if (0 == count) {
@@ -307,8 +306,7 @@ public class FileInputStream extends InputStream implements Closeable {
             return 0;
         }
         if (count < 0) {
-            // KA013=Number of bytes to skip cannot be negative
-            throw new IOException(Msg.getString("KA013"));
+            throw new IOException("count < 0");
         }
 
         // The RI doesn't treat stdin as special. It throws IOException for

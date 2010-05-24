@@ -15,8 +15,6 @@
  */
 package java.util;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * An {@code UnknownFormatConversionException} will be thrown if the format
  * conversion is unknown.
@@ -58,6 +56,6 @@ public class UnknownFormatConversionException extends IllegalFormatException {
      */
     @Override
     public String getMessage() {
-        return Msg.getString("K0349", s);
+        return "Conversion: " + s;
     }
 }

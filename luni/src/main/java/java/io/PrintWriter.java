@@ -21,8 +21,6 @@ import java.security.AccessController;
 import java.util.Formatter;
 import java.util.IllegalFormatException;
 import java.util.Locale;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -324,7 +322,7 @@ public class PrintWriter extends Writer {
      */
     public PrintWriter format(Locale l, String format, Object... args) {
         if (format == null) {
-            throw new NullPointerException(Msg.getString("K0351"));
+            throw new NullPointerException("format == null");
         }
         new Formatter(this, l).format(format, args);
         if (autoflush) {

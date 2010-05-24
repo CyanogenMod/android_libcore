@@ -22,7 +22,6 @@ import java.nio.channels.DatagramChannel;
 
 import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * This class implements a UDP socket for sending and receiving {@code
@@ -108,7 +107,7 @@ public class DatagramSocket {
      */
     void checkListen(int aPort) {
         if (aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0325", aPort));
+            throw new IllegalArgumentException("Port out of range: " + aPort);
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -140,7 +139,7 @@ public class DatagramSocket {
      */
     public void connect(InetAddress anAddress, int aPort) {
         if (anAddress == null || aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0032"));
+            throw new IllegalArgumentException("Address null or destination port out of range");
         }
 
         synchronized (lock) {
@@ -429,7 +428,7 @@ public class DatagramSocket {
         if (address != null) { // The socket is connected
             if (packAddr != null) {
                 if (!address.equals(packAddr) || port != pack.getPort()) {
-                    throw new IllegalArgumentException(Msg.getString("K0034"));
+                    throw new IllegalArgumentException("Packet address mismatch with connected address");
                 }
             } else {
                 pack.setAddress(address);
@@ -439,8 +438,7 @@ public class DatagramSocket {
             // not connected so the target address is not allowed to be null
             if (packAddr == null) {
                 if (pack.getPort() == -1) {
-                    // KA019 Destination address is null
-                    throw new NullPointerException(Msg.getString("KA019"));
+                    throw new NullPointerException("Destination address is null");
                 }
                 return;
             }
@@ -470,7 +468,7 @@ public class DatagramSocket {
      */
     public synchronized void setSendBufferSize(int size) throws SocketException {
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035"));
+            throw new IllegalArgumentException("size < 1");
         }
         checkClosedAndBind(false);
         impl.setOption(SocketOptions.SO_SNDBUF, Integer.valueOf(size));
@@ -487,10 +485,9 @@ public class DatagramSocket {
      * @throws SocketException
      *                if an error occurs while setting the option.
      */
-    public synchronized void setReceiveBufferSize(int size)
-            throws SocketException {
+    public synchronized void setReceiveBufferSize(int size) throws SocketException {
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035"));
+            throw new IllegalArgumentException("size < 1");
         }
         checkClosedAndBind(false);
         impl.setOption(SocketOptions.SO_RCVBUF, Integer.valueOf(size));
@@ -511,7 +508,7 @@ public class DatagramSocket {
      */
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         if (timeout < 0) {
-            throw new IllegalArgumentException(Msg.getString("K0036"));
+            throw new IllegalArgumentException("timeout < 0");
         }
         checkClosedAndBind(false);
         impl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(timeout));
@@ -538,7 +535,7 @@ public class DatagramSocket {
             security.checkSetFactory();
         }
         if (factory != null) {
-            throw new SocketException(Msg.getString("K0044"));
+            throw new SocketException("Factory already set");
         }
         factory = fac;
     }
@@ -573,8 +570,8 @@ public class DatagramSocket {
     public DatagramSocket(SocketAddress localAddr) throws SocketException {
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
-                throw new IllegalArgumentException(Msg.getString(
-                        "K0316", localAddr.getClass()));
+                throw new IllegalArgumentException("Local address not an InetSocketAddress: " +
+                        localAddr.getClass());
             }
             checkListen(((InetSocketAddress) localAddr).getPort());
         }
@@ -595,7 +592,7 @@ public class DatagramSocket {
 
     void checkClosedAndBind(boolean bind) throws SocketException {
         if (isClosed()) {
-            throw new SocketException(Msg.getString("K003d"));
+            throw new SocketException("Socket is closed");
         }
         if (bind && !isBound()) {
             checkListen(0);
@@ -623,14 +620,13 @@ public class DatagramSocket {
         InetAddress addr = Inet4Address.ANY;
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
-                throw new IllegalArgumentException(Msg.getString(
-                        "K0316", localAddr.getClass()));
+                throw new IllegalArgumentException("Local address not an InetSocketAddress: " +
+                        localAddr.getClass());
             }
             InetSocketAddress inetAddr = (InetSocketAddress) localAddr;
             addr = inetAddr.getAddress();
             if (addr == null) {
-                throw new SocketException(Msg.getString(
-                        "K0317", inetAddr.getHostName()));
+                throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
             }
             localPort = inetAddr.getPort();
             checkListen(localPort);
@@ -652,18 +648,17 @@ public class DatagramSocket {
      */
     public void connect(SocketAddress remoteAddr) throws SocketException {
         if (remoteAddr == null) {
-            throw new IllegalArgumentException(Msg.getString("K0318"));
+            throw new IllegalArgumentException("remoteAddr == null");
         }
 
         if (!(remoteAddr instanceof InetSocketAddress)) {
-            throw new IllegalArgumentException(Msg.getString(
-                    "K0316", remoteAddr.getClass()));
+            throw new IllegalArgumentException("Remote address not an InetSocketAddress: " +
+                    remoteAddr.getClass());
         }
 
         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
         if (inetAddr.getAddress() == null) {
-            throw new SocketException(Msg.getString(
-                    "K0317", inetAddr.getHostName()));
+            throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
         }
 
         synchronized (lock) {

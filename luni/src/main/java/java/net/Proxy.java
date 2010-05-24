@@ -15,8 +15,6 @@
  */
 package java.net;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * This class represents proxy server settings. A created instance of {@code
  * Proxy} stores a type and an address and is immutable. There are three types
@@ -60,9 +58,8 @@ public class Proxy {
          * Don't use DIRECT type to construct a proxy instance directly.
          * SocketAddress must NOT be null.
          */
-        if (type == Type.DIRECT || null == sa) {
-            // KA022=Illegal Proxy.Type or SocketAddress argument
-            throw new IllegalArgumentException(Msg.getString("KA022"));
+        if (type == Type.DIRECT || sa == null) {
+            throw new IllegalArgumentException("Illegal Proxy.Type or SocketAddress argument");
         }
         this.type = type;
         address = sa;

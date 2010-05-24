@@ -27,8 +27,6 @@ import java.util.WeakHashMap;
 // import org.apache.harmony.luni.internal.reflect.ProxyClassFile;
 // END android-removed
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * {@code Proxy} defines methods for creating dynamic proxy classes and instances.
  * A proxy class implements a declared set of interfaces and delegates method
@@ -108,23 +106,21 @@ public class Proxy implements Serializable {
             }
             String name = next.getName();
             if (!next.isInterface()) {
-                throw new IllegalArgumentException(Msg.getString("K00ed", name));
+                throw new IllegalArgumentException(name + " is not an interface");
             }
             if (loader != next.getClassLoader()) {
                 try {
                     if (next != Class.forName(name, false, loader)) {
-                        throw new IllegalArgumentException(Msg.getString(
-                                "K00ee", name));
+                        throw new IllegalArgumentException(name +
+                                " is not visible from class loader");
                     }
                 } catch (ClassNotFoundException ex) {
-                    throw new IllegalArgumentException(Msg.getString("K00ee",
-                            name));
+                    throw new IllegalArgumentException(name + " is not visible from class loader");
                 }
             }
             for (int j = i + 1; j < length; j++) {
                 if (next == interfaces[j]) {
-                    throw new IllegalArgumentException(Msg.getString("K00ef",
-                            name));
+                    throw new IllegalArgumentException(name + " appears more than once");
                 }
             }
             if (!Modifier.isPublic(next.getModifiers())) {
@@ -133,7 +129,8 @@ public class Proxy implements Serializable {
                 if (commonPackageName == null) {
                     commonPackageName = p;
                 } else if (!commonPackageName.equals(p)) {
-                    throw new IllegalArgumentException(Msg.getString("K00f0"));
+                    throw new IllegalArgumentException("non-public interfaces must be " +
+                            "in the same package");
                 }
             }
         }
@@ -282,7 +279,7 @@ public class Proxy implements Serializable {
             return ((Proxy) proxy).h;
         }
 
-        throw new IllegalArgumentException(Msg.getString("K00f1"));
+        throw new IllegalArgumentException("not a proxy instance");
     }
 
     // BEGIN android-changed

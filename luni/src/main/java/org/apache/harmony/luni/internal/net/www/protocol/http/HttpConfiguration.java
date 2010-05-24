@@ -21,8 +21,6 @@ import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URI;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * An <code>HttpConfiguration</code> contains all the details needed to create an http connection
  * and to compare whether or not two connections are the same.  An HttpConfiguration
@@ -59,8 +57,8 @@ public class HttpConfiguration {
         if (proxy.type() == Proxy.Type.HTTP) {
             SocketAddress proxyAddr = proxy.address();
             if (!(proxyAddr instanceof InetSocketAddress)) {
-               throw new IllegalArgumentException(Msg.getString(
-                   "K0316", proxyAddr.getClass()));
+                throw new IllegalArgumentException("Proxy address not an InetSocketAddress: " +
+                        proxyAddr.getClass());
             }
             InetSocketAddress iProxyAddr = (InetSocketAddress) proxyAddr;
             this.hostName = iProxyAddr.getHostName();
@@ -80,8 +78,8 @@ public class HttpConfiguration {
         this.uri = uri;
         SocketAddress proxyAddr = proxy.address();
         if (!(proxyAddr instanceof InetSocketAddress)) {
-           throw new IllegalArgumentException(Msg.getString(
-               "K0316", proxyAddr.getClass()));
+            throw new IllegalArgumentException("Proxy address not an InetSocketAddress: " +
+                    proxyAddr.getClass());
         }
         InetSocketAddress iProxyAddr = (InetSocketAddress) proxyAddr;
         this.hostName = iProxyAddr.getHostName();

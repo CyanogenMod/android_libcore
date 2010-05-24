@@ -17,10 +17,6 @@
 
 package java.io;
 
-// BEGIN android-added
-import org.apache.harmony.luni.util.Msg;
-// BEGIN android-added
-
 /**
  * A specialized {@link InputStream } for reading the contents of a byte array.
  *
@@ -151,7 +147,7 @@ public class ByteArrayInputStream extends InputStream {
      * them in byte array {@code b} starting at {@code offset}. This
      * implementation reads bytes from the source byte array.
      *
-     * @param b
+     * @param buffer
      *            the byte array in which to store the bytes read.
      * @param offset
      *            the initial position in {@code b} to store the bytes read from
@@ -168,21 +164,21 @@ public class ByteArrayInputStream extends InputStream {
      *             if {@code b} is {@code null}.
      */
     @Override
-    public synchronized int read(byte[] b, int offset, int length) {
+    public synchronized int read(byte[] buffer, int offset, int length) {
         // BEGIN android-note
         // changed array notation to be consistent with the rest of harmony
         // END android-note
         // BEGIN android-changed
-        if (b == null) {
-            throw new NullPointerException(Msg.getString("K0047"));
+        if (buffer == null) {
+            throw new NullPointerException("buffer == null");
         }
         // avoid int overflow
         // Exception priorities (in case of multiple errors) differ from
         // RI, but are spec-compliant.
         // removed redundant check, used (offset | length) < 0 instead of
         // (offset < 0) || (length < 0) to safe one operation
-        if ((offset | length) < 0 || length > b.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
+        if ((offset | length) < 0 || length > buffer.length - offset) {
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         // Are there any bytes available?
@@ -194,7 +190,7 @@ public class ByteArrayInputStream extends InputStream {
         }
 
         int copylen = this.count - pos < length ? this.count - pos : length;
-        System.arraycopy(buf, pos, b, offset, copylen);
+        System.arraycopy(this.buf, pos, buffer, offset, copylen);
         pos += copylen;
         return copylen;
     }

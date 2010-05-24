@@ -23,8 +23,6 @@ import java.security.AccessController;
 import java.util.Formatter;
 import java.util.IllegalFormatException;
 import java.util.Locale;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -328,7 +326,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      */
     public PrintStream format(Locale l, String format, Object... args) {
         if (format == null) {
-            throw new NullPointerException(Msg.getString("K0351"));
+            throw new NullPointerException("format == null");
         }
         new Formatter(this, l).format(format, args);
         return this;
@@ -667,12 +665,10 @@ public class PrintStream extends FilterOutputStream implements Appendable,
     public void write(byte[] buffer, int offset, int length) {
         // Force buffer null check first!
         if (offset > buffer.length || offset < 0) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
         if (length < 0 || length > buffer.length - offset) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
         synchronized (this) {
             if (out == null) {

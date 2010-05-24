@@ -23,8 +23,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Places information on a communications pipe. When two threads want to pass
  * data back and forth, one creates a piped output stream and the other one
@@ -95,10 +93,10 @@ public class PipedOutputStream extends OutputStream {
         }
         synchronized (stream) {
             if (this.dest != null) {
-                throw new IOException(Msg.getString("K0079"));
+                throw new IOException("Already connected");
             }
             if (stream.isConnected) {
-                throw new IOException(Msg.getString("K007a"));
+                throw new IOException("Pipe already connected");
             }
             stream.establishConnection();
             this.dest = stream;
@@ -181,8 +179,7 @@ public class PipedOutputStream extends OutputStream {
     public void write(int oneByte) throws IOException {
         PipedInputStream stream = dest;
         if (stream == null) {
-            // K007b=Pipe Not Connected
-            throw new IOException(Msg.getString("K007b"));
+            throw new IOException("Pipe not connected");
         }
         stream.receive(oneByte);
     }

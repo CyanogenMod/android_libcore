@@ -19,8 +19,6 @@ package org.apache.harmony.luni.net;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.harmony.luni.util.Msg;
-
 class Socks4Message {
     static final int COMMAND_CONNECT = 1;
 
@@ -161,14 +159,14 @@ class Socks4Message {
      */
     public String getErrorString(int error) {
         switch (error) {
-            case RETURN_FAILURE:
-                return Msg.getString("K00cd");
-            case RETURN_CANNOT_CONNECT_TO_IDENTD:
-                return Msg.getString("K00ce");
-            case RETURN_DIFFERENT_USER_IDS:
-                return Msg.getString("K00cf");
-            default:
-                return Msg.getString("K00d0");
+        case RETURN_FAILURE:
+            return "Failure to connect to SOCKS server";
+        case RETURN_CANNOT_CONNECT_TO_IDENTD:
+            return "Unable to connect to identd to verify user";
+        case RETURN_DIFFERENT_USER_IDS:
+            return "Failure - user ids do not match";
+        default:
+            return "Success";
         }
     }
 

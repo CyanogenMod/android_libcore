@@ -19,10 +19,8 @@ package java.net;
 
 import java.io.IOException;
 import java.util.Enumeration;
-
 import org.apache.harmony.luni.net.NetUtil;
 import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * This class implements a multicast socket for sending and receiving IP
@@ -191,14 +189,7 @@ public class MulticastSocket extends DatagramSocket {
      *                if an error occurs while joining a group.
      */
     public void joinGroup(InetAddress groupAddr) throws IOException {
-        checkClosedAndBind(false);
-        if (!groupAddr.isMulticastAddress()) {
-            throw new IOException(Msg.getString("K0039"));
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkMulticast(groupAddr);
-        }
+        checkJoinOrLeave(groupAddr);
         impl.join(groupAddr);
     }
 
@@ -220,37 +211,8 @@ public class MulticastSocket extends DatagramSocket {
      *                if no multicast group is specified.
      * @since 1.4
      */
-    public void joinGroup(SocketAddress groupAddress,
-            NetworkInterface netInterface) throws IOException {
-        checkClosedAndBind(false);
-        if (null == groupAddress) {
-            throw new IllegalArgumentException(Msg.getString("K0318"));
-        }
-
-        if ((netInterface != null) && (netInterface.getFirstAddress() == null)) {
-            // this is ok if we could set it at the
-            throw new SocketException(Msg.getString("K0335"));
-        }
-
-        if (!(groupAddress instanceof InetSocketAddress)) {
-            throw new IllegalArgumentException(Msg.getString(
-                    "K0316", groupAddress.getClass()));
-        }
-
-        InetAddress groupAddr = ((InetSocketAddress) groupAddress).getAddress();
-
-        if (groupAddr == null) {
-            throw new SocketException(Msg.getString("K0331"));
-        }
-
-        if (!groupAddr.isMulticastAddress()) {
-            throw new IOException(Msg.getString("K0039"));
-        }
-
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkMulticast(groupAddr);
-        }
+    public void joinGroup(SocketAddress groupAddress, NetworkInterface netInterface) throws IOException {
+        checkJoinOrLeave(groupAddress, netInterface);
         impl.joinGroup(groupAddress, netInterface);
     }
 
@@ -267,14 +229,7 @@ public class MulticastSocket extends DatagramSocket {
      *                if the caller is not authorized to leave the group.
      */
     public void leaveGroup(InetAddress groupAddr) throws IOException {
-        checkClosedAndBind(false);
-        if (!groupAddr.isMulticastAddress()) {
-            throw new IOException(Msg.getString("K003a"));
-        }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkMulticast(groupAddr);
-        }
+        checkJoinOrLeave(groupAddr);
         impl.leave(groupAddr);
     }
 
@@ -294,37 +249,49 @@ public class MulticastSocket extends DatagramSocket {
      *                if {@code groupAddress} is {@code null}.
      * @since 1.4
      */
-    public void leaveGroup(SocketAddress groupAddress,
-            NetworkInterface netInterface) throws IOException {
+    public void leaveGroup(SocketAddress groupAddress, NetworkInterface netInterface) throws IOException {
+        checkJoinOrLeave(groupAddress, netInterface);
+        impl.leaveGroup(groupAddress, netInterface);
+    }
+
+    private void checkJoinOrLeave(SocketAddress groupAddress, NetworkInterface netInterface) throws IOException {
         checkClosedAndBind(false);
-        if (null == groupAddress) {
-            throw new IllegalArgumentException(Msg.getString("K0318"));
+        if (groupAddress == null) {
+            throw new IllegalArgumentException("groupAddress == null");
         }
 
         if ((netInterface != null) && (netInterface.getFirstAddress() == null)) {
-            // this is ok if we could set it at the
-            throw new SocketException(Msg.getString("K0335"));
+            throw new SocketException("No address associated with interface");
         }
 
         if (!(groupAddress instanceof InetSocketAddress)) {
-            throw new IllegalArgumentException(Msg.getString(
-                    "K0316", groupAddress.getClass()));
+            throw new IllegalArgumentException("Group address not an InetSocketAddress: " +
+                    groupAddress.getClass());
         }
 
         InetAddress groupAddr = ((InetSocketAddress) groupAddress).getAddress();
-
         if (groupAddr == null) {
-            throw new SocketException(Msg.getString("K0331"));
+            throw new SocketException("Group address is null");
         }
 
         if (!groupAddr.isMulticastAddress()) {
-            throw new IOException(Msg.getString("K003a"));
+            throw new IOException("Not a multicast group");
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkMulticast(groupAddr);
         }
-        impl.leaveGroup(groupAddress, netInterface);
+    }
+
+    private void checkJoinOrLeave(InetAddress groupAddr) throws IOException {
+        checkClosedAndBind(false);
+        if (!groupAddr.isMulticastAddress()) {
+            throw new IOException("Not a multicast group");
+        }
+        SecurityManager security = System.getSecurityManager();
+        if (security != null) {
+            security.checkMulticast(groupAddr);
+        }
     }
 
     /**
@@ -412,7 +379,7 @@ public class MulticastSocket extends DatagramSocket {
                 // Ignored
             }
         } else if (addr instanceof Inet6Address) {
-            throw new SocketException(Msg.getString("K0338"));
+            throw new SocketException("Address not associated with an interface - not set");
         }
     }
 
@@ -427,20 +394,17 @@ public class MulticastSocket extends DatagramSocket {
      *                option.
      * @since 1.4
      */
-    public void setNetworkInterface(NetworkInterface netInterface)
-            throws SocketException {
-
+    public void setNetworkInterface(NetworkInterface netInterface) throws SocketException {
         checkClosedAndBind(false);
 
         if (netInterface == null) {
             // throw a socket exception indicating that we do not support this
-            throw new SocketException(Msg.getString("K0334"));
+            throw new SocketException("netInterface == null");
         }
 
         InetAddress firstAddress = netInterface.getFirstAddress();
         if (firstAddress == null) {
-            // this is ok if we could set it at the
-            throw new SocketException(Msg.getString("K0335"));
+            throw new SocketException("No address associated with interface");
         }
 
         if (netInterface.getIndex() == NetworkInterface.UNSET_INTERFACE_INDEX) {
@@ -487,7 +451,7 @@ public class MulticastSocket extends DatagramSocket {
                  * interfaces which have no IPV4 address and which does not have
                  * the network interface index not set correctly
                  */
-                throw new SocketException(Msg.getString("K0335"));
+                throw new SocketException("No address associated with interface");
             }
         } else {
             // set the address using IP_MULTICAST_IF to make sure this
@@ -523,7 +487,7 @@ public class MulticastSocket extends DatagramSocket {
     public void setTimeToLive(int ttl) throws IOException {
         checkClosedAndBind(false);
         if (ttl < 0 || ttl > 255) {
-            throw new IllegalArgumentException(Msg.getString("K003c"));
+            throw new IllegalArgumentException("TimeToLive out of bounds: " + ttl);
         }
         impl.setTimeToLive(ttl);
     }

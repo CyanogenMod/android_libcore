@@ -22,8 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.URLUtil;
 
 public class Handler extends URLStreamHandler {
@@ -68,7 +66,7 @@ public class Handler extends URLStreamHandler {
             spec = "";
         }
         if (spec.indexOf("!/") == -1 && (file.indexOf("!/") == -1)) {
-            throw new NullPointerException(Msg.getString("K01b6"));
+            throw new NullPointerException("Cannot find \"!/\"");
         }
         if (file.isEmpty()) {
             file = spec;

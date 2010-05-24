@@ -23,8 +23,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * This is the handler that is responsible for reading files from the file
  * system.
@@ -63,23 +61,19 @@ public class Handler extends URLStreamHandler {
      *             if the protocol handler doesn't support this method.
      */
     @Override
-    public URLConnection openConnection(URL url, Proxy proxy)
-            throws IOException {
-        if (null == url) {
-            // K034b=url and proxy can not be null
-            throw new IllegalArgumentException(Msg.getString("K034b"));
+    public URLConnection openConnection(URL url, Proxy proxy) throws IOException {
+        if (url == null) {
+            throw new IllegalArgumentException("url == null");
         }
 
         String host = url.getHost();
-        if (host == null || host.length() == 0
-                || host.equalsIgnoreCase("localhost")) {
+        if (host == null || host.isEmpty() || host.equalsIgnoreCase("localhost")) {
             return new FileURLConnection(url);
         }
 
         // If a hostname is specified try to get the resource using FTP
         URL ftpURL = new URL("ftp", host, url.getFile());
-        return (proxy == null) ? ftpURL.openConnection() : ftpURL
-                .openConnection(proxy);
+        return (proxy == null) ? ftpURL.openConnection() : ftpURL.openConnection(proxy);
     }
 
     /**

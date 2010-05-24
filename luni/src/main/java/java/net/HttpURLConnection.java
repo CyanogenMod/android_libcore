@@ -19,8 +19,6 @@ package java.net;
 
 import java.io.IOException;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * This abstract subclass of {@code URLConnection} defines methods for managing
  * HTTP connection according to the description given by RFC 2068.
@@ -426,7 +424,7 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     public void setRequestMethod(String method) throws ProtocolException {
         if (connected) {
-            throw new ProtocolException(Msg.getString("K0037"));
+            throw new ProtocolException("Connection already established");
         }
         for (int i = 0; i < methodTokens.length; i++) {
             if (methodTokens[i].equals(method)) {
@@ -502,13 +500,13 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     public void setFixedLengthStreamingMode(int contentLength) {
         if (super.connected) {
-            throw new IllegalStateException(Msg.getString("K0079"));
+            throw new IllegalStateException("Already connected");
         }
-        if (0 < chunkLength) {
-            throw new IllegalStateException(Msg.getString("KA003"));
+        if (chunkLength > 0) {
+            throw new IllegalStateException("Already in chunked mode");
         }
-        if (0 > contentLength) {
-            throw new IllegalArgumentException(Msg.getString("K0051"));
+        if (contentLength < 0) {
+            throw new IllegalArgumentException("contentLength < 0");
         }
         this.fixedContentLength = contentLength;
     }
@@ -527,10 +525,10 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     public void setChunkedStreamingMode(int chunklen) {
         if (super.connected) {
-            throw new IllegalStateException(Msg.getString("K0079"));
+            throw new IllegalStateException("Already connected");
         }
         if (0 <= fixedContentLength) {
-            throw new IllegalStateException(Msg.getString("KA003"));
+            throw new IllegalStateException("Already in fixed-length mode");
         }
         if (0 >= chunklen) {
             chunkLength = DEFAULT_CHUNK_LENGTH;

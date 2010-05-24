@@ -49,9 +49,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-
 import org.apache.harmony.luni.util.Base64;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -285,12 +283,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         public int read(byte[] buf, int offset, int length) throws IOException {
             // Force buf null check first, and avoid int overflow
             if (offset < 0 || offset > buf.length) {
-                // K002e=Offset out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
+                throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
             }
             if (length < 0 || buf.length - offset < length) {
-                // K0031=Length out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
+                throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
             }
             if (bytesRemaining <= 0) {
                 disconnect(false);
@@ -439,12 +435,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         public int read(byte[] buf, int offset, int length) throws IOException {
             // Force buf null check first, and avoid int overflow
             if (offset > buf.length || offset < 0) {
-                // K002e=Offset out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
+                throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
             }
             if (length < 0 || buf.length - offset < length) {
-                // K0031=Length out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
+                throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
             }
             if (bytesRemaining <= 0) {
                 readChunkSize();
@@ -529,7 +523,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 throw new NullPointerException();
             }
             if (offset < 0 || count < 0 || offset > buffer.length || buffer.length - offset < count) {
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002f"));
+                throw new ArrayIndexOutOfBoundsException();
             }
             checkSpace(count);
             socketOut.write(buffer, offset, count);
@@ -560,7 +554,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         protected void checkClosed() throws IOException {
             if (closed) {
-                throw new IOException(Msg.getString("K0059"));
+                throw new IOException("Stream is closed");
             }
         }
 
@@ -690,7 +684,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             closed = true;
             if (writeToSocket) {
                 if (limit > 0) {
-                    throw new IOException(Msg.getString("K00a4"));
+                    throw new IOException("Content-Length underflow");
                 }
                 sendCache(closed);
             }
@@ -715,7 +709,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             checkClosed();
             if (limit >= 0) {
                 if (limit == 0) {
-                    throw new IOException(Msg.getString("K00b2"));
+                    throw new IOException("Content-Length exceeded");
                 }
                 limit--;
             }
@@ -732,14 +726,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 throw new NullPointerException();
             }
             // avoid int overflow
-            if (offset < 0 || count < 0 || offset > buffer.length
-                    || buffer.length - offset < count) {
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002f"));
+            if (offset < 0 || count < 0 || offset > buffer.length || buffer.length - offset < count) {
+                throw new ArrayIndexOutOfBoundsException();
             }
 
             if (limit >= 0) {
                 if (count > limit) {
-                    throw new IOException(Msg.getString("K00b2"));
+                    throw new IOException("Content-Length exceeded");
                 }
                 limit -= count;
                 cache.write(buffer, offset, count);
@@ -1131,7 +1124,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public Map<String, List<String>> getRequestProperties() {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0091"));
+            throw new IllegalStateException("Cannot access request header fields after connection is set");
         }
         return reqHeader.getFieldMap();
     }
@@ -1139,7 +1132,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public InputStream getInputStream() throws IOException {
         if (!doInput) {
-            throw new ProtocolException(Msg.getString("K008d"));
+            throw new ProtocolException("This protocol does not support input");
         }
 
         // connect before sending requests
@@ -1191,12 +1184,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public OutputStream getOutputStream() throws IOException {
         if (!doOutput) {
-            throw new ProtocolException(Msg.getString("K008e"));
+            throw new ProtocolException("Does not support output");
         }
 
         // you can't write after you read
         if (sentRequest) {
-            throw new ProtocolException(Msg.getString("K0090"));
+            throw new ProtocolException("can't open OutputStream after reading from InputStream");
         }
 
         if (os != null) {
@@ -1210,7 +1203,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         // If the request method is neither PUT or POST, then you're not writing
         if (method != PUT && method != POST) {
-            throw new ProtocolException(Msg.getString("K008f", method));
+            throw new ProtocolException(method + " does not support writing");
         }
 
         int limit = -1;
@@ -1517,7 +1510,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public void setRequestProperty(String field, String newValue) {
         if (connected) {
-            throw new IllegalStateException(Msg.getString("K0092"));
+            throw new IllegalStateException("Cannot set method after connection is made");
         }
         if (field == null) {
             throw new NullPointerException();
@@ -1528,7 +1521,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public void addRequestProperty(String field, String value) {
         if (connected) {
-            throw new IllegalAccessError(Msg.getString("K0092"));
+            throw new IllegalAccessError("Cannot set method after connection is made");
         }
         if (field == null) {
             throw new NullPointerException();
@@ -1631,8 +1624,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 // until authorized
                 String challenge = resHeader.get("Proxy-Authenticate");
                 if (challenge == null) {
-                    // KA016=Received authentication challenge is null.
-                    throw new IOException(Msg.getString("KA016"));
+                    throw new IOException("Received authentication challenge is null");
                 }
                 // drop everything and reconnect, might not be required for
                 // HTTP/1.1
@@ -1683,7 +1675,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                         && os == null) {
 
                     if (++redirect > 4) {
-                        throw new ProtocolException(Msg.getString("K0093"));
+                        throw new ProtocolException("Too many redirects");
                     }
                     String location = getHeaderField("Location");
                     if (location != null) {
@@ -1765,10 +1757,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             try {
                 hostPort = Integer.parseInt(port);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(Msg.getString("K00af", port));
+                throw new IllegalArgumentException("Invalid port: " + port);
             }
             if (hostPort < 0 || hostPort > 65535) {
-                throw new IllegalArgumentException(Msg.getString("K00b0"));
+                throw new IllegalArgumentException("Port out of range: " + hostPort);
             }
         }
     }

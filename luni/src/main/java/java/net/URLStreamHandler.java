@@ -18,8 +18,6 @@
 package java.net;
 
 import java.io.IOException;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.URLUtil;
 
 /**
@@ -59,9 +57,8 @@ public abstract class URLStreamHandler {
      * @throws UnsupportedOperationException
      *             if the protocol handler doesn't support this method.
      */
-    protected URLConnection openConnection(URL u, Proxy proxy)
-            throws IOException {
-        throw new UnsupportedOperationException(Msg.getString("K034d"));
+    protected URLConnection openConnection(URL u, Proxy proxy) throws IOException {
+        throw new UnsupportedOperationException();
     }
 
     /**

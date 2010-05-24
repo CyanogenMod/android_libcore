@@ -20,8 +20,6 @@ package java.lang;
 import java.io.InvalidObjectException;
 import java.util.Arrays;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A modifiable {@link CharSequence sequence of characters} for use in creating
  * and modifying Strings. This class is intended as a base class for
@@ -64,7 +62,7 @@ abstract class AbstractStringBuilder {
             val = new char[0];
         }
         if (val.length < len) {
-            throw new InvalidObjectException(Msg.getString("K0199"));
+            throw new InvalidObjectException("count out of range");
         }
 
         shared = false;
@@ -123,12 +121,10 @@ abstract class AbstractStringBuilder {
     final void append0(char[] chars, int offset, int length) {
         // Force null check of chars first!
         if (offset > chars.length || offset < 0) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
         if (length < 0 || chars.length - offset < length) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
 
         int newSize = count + length;

@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * This class is used to represent a network interface of the local device. An
  * interface is defined by its address and a platform dependent name. The class
@@ -192,7 +190,7 @@ public final class NetworkInterface extends Object {
      */
     public static NetworkInterface getByName(String interfaceName) throws SocketException {
         if (interfaceName == null) {
-            throw new NullPointerException(Msg.getString("K0330"));
+            throw new NullPointerException();
         }
         for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
             if (networkInterface.name.equals(interfaceName)) {
@@ -217,7 +215,7 @@ public final class NetworkInterface extends Object {
      */
     public static NetworkInterface getByInetAddress(InetAddress address) throws SocketException {
         if (address == null) {
-            throw new NullPointerException(Msg.getString("K0331"));
+            throw new NullPointerException("address == null");
         }
         for (NetworkInterface networkInterface : getNetworkInterfacesList()) {
             if (networkInterface.addresses.contains(address)) {

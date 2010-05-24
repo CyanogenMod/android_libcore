@@ -16,8 +16,6 @@
 
 package java.util;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * An {@code UnknownFormatFlagsException} will be thrown if there is
  * an unknown flag.
@@ -38,7 +36,7 @@ public class UnknownFormatFlagsException extends IllegalFormatException {
      *           the specified flags.
      */
     public UnknownFormatFlagsException(String f) {
-        if (null == f) {
+        if (f == null) {
             throw new NullPointerException();
         }
         flags = f;
@@ -60,7 +58,6 @@ public class UnknownFormatFlagsException extends IllegalFormatException {
      */
     @Override
     public String getMessage() {
-        // K034a=The flags are {0}
-        return Msg.getString("K034a", flags);
+        return "Flags: " + flags;
     }
 }
