@@ -161,7 +161,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
         try {
             @SuppressWarnings("unchecked") // super.clone() must return the same type
             TreeMap<K, V> map = (TreeMap<K, V>) super.clone();
-            map.root = root.copy(null);
+            map.root = root != null ? root.copy(null) : null;
             map.entrySet = null;
             map.keySet = null;
             return map;

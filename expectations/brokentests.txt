@@ -47,6 +47,11 @@ result EXEC_FAILED
 pattern .*junit.framework.AssertionFailedError.*
 
 
+# This tests implementation details
+test java.util.EnumSet.OneUniverse
+result UNSUPPORTED
+
+
 # Dalvik doesn't include the "SunJCE" crypto provider
 test com.sun.crypto.provider.Cipher.AES.Test4513830
 result EXEC_FAILED

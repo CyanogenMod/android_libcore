@@ -1,0 +1,5 @@
+# This file contains expectations for tests that require support from the test runner to complete successfully
+
+test java.util.EnumSet.EnumSetBash
+tags large
+
