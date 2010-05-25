@@ -154,7 +154,7 @@ public final class HttpCookie implements Cloneable {
      * {@code android.com} and {@code co.uk} to be fully qualified domain names,
      * but not {@code android.com.}, {@code .com}. or {@code android}.
      */
-    public static boolean isFullyQualifiedDomainName(String s, int firstCharacter) {
+    private static boolean isFullyQualifiedDomainName(String s, int firstCharacter) {
         int dotPosition = s.indexOf('.', firstCharacter + 1);
         return dotPosition != -1 && dotPosition < s.length() - 1;
     }
