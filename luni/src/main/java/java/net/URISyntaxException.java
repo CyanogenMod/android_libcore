@@ -17,8 +17,6 @@
 
 package java.net;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A {@code URISyntaxException} will be thrown if some information could not be parsed
  * while creating a URI.
@@ -125,12 +123,9 @@ public class URISyntaxException extends Exception {
     @Override
     public String getMessage() {
         String reason = super.getMessage();
-
         if (index != -1) {
-            return Msg.getString("K0326",
-                    new String[] { reason, Integer.toString(index), input });
+            return reason + " at index " + index + ": " + input;
         }
-        return Msg.getString("K0327",
-                new String[] { reason, input });
+        return reason + ": " + input;
     }
 }

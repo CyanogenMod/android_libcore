@@ -17,9 +17,6 @@
 
 package java.lang;
 
-
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Thrown when the a string is indexed with a value less than zero, or greater
  * than or equal to the size of the array.
@@ -45,7 +42,7 @@ public class StringIndexOutOfBoundsException extends IndexOutOfBoundsException {
      *            the index which is out of bounds.
      */
     public StringIndexOutOfBoundsException(int index) {
-        super(Msg.getString("K0055", index));
+        super("String index out of range: " + index);
     }
 
     /**

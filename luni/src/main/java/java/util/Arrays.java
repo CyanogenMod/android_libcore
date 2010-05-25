@@ -20,8 +20,6 @@ package java.util;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * {@code Arrays} contains static methods which operate on arrays.
  *
@@ -1748,17 +1746,14 @@ public class Arrays {
 
     private static void checkFillBounds(int arrLength, int start, int end) {
         if (start > end) {
-            // K0033=Start index ({0}) is greater than end index ({1})
-            throw new IllegalArgumentException(Msg.getString("K0033",
-                    start, end));
+            throw new IllegalArgumentException("start < end: " + start + " < " + end);
         }
         if (start < 0) {
-            // K0052=Array index out of range\: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0052", start));
+            throw new ArrayIndexOutOfBoundsException("start < 0: " + start);
         }
         if (end > arrLength) {
-            // K0052=Array index out of range\: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0052", end));
+            throw new ArrayIndexOutOfBoundsException("end > array length: " +
+                    end + " > " + arrLength);
         }
     }
 

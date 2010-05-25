@@ -24,9 +24,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.security.AccessController;
-
 import org.apache.harmony.luni.util.HistoricalNamesUtil;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -181,8 +179,7 @@ public class OutputStreamWriter extends Writer {
 
     private void checkStatus() throws IOException {
         if (encoder == null) {
-            // K005d=Writer is closed.
-            throw new IOException(Msg.getString("K005d"));
+            throw new IOException("OutputStreamWriter is closed");
         }
     }
 
@@ -221,7 +218,7 @@ public class OutputStreamWriter extends Writer {
      *             occurs.
      */
     @Override
-    public void write(char[] buf, int offset, int count) throws IOException {
+    public void write(char[] buffer, int offset, int count) throws IOException {
         synchronized (lock) {
             checkStatus();
             // BEGIN android-changed
@@ -230,14 +227,14 @@ public class OutputStreamWriter extends Writer {
             // made implicit null check explicit,
             // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
             // to safe one operation
-            if (buf == null) {
-                throw new NullPointerException(Msg.getString("K0047"));
+            if (buffer == null) {
+                throw new NullPointerException("buffer == null");
             }
-            if ((offset | count) < 0 || offset > buf.length - count) {
-                throw new IndexOutOfBoundsException(Msg.getString("K002f"));
+            if ((offset | count) < 0 || offset > buffer.length - count) {
+                throw new IndexOutOfBoundsException();
             }
             // END android-changed
-            CharBuffer chars = CharBuffer.wrap(buf, offset, count);
+            CharBuffer chars = CharBuffer.wrap(buffer, offset, count);
             convert(chars);
         }
     }
@@ -307,10 +304,10 @@ public class OutputStreamWriter extends Writer {
             // made implicit null check explicit, used (offset | count) < 0
             // instead of (offset < 0) || (count < 0) to safe one operation
             if (str == null) {
-                throw new NullPointerException(Msg.getString("K0047"));
+                throw new NullPointerException("str == null");
             }
             if ((offset | count) < 0 || offset > str.length() - count) {
-                throw new StringIndexOutOfBoundsException(Msg.getString("K002f"));
+                throw new StringIndexOutOfBoundsException();
             }
             // END android-changed
             checkStatus();

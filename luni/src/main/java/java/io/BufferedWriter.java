@@ -18,14 +18,9 @@
 package java.io;
 
 import java.security.AccessController;
-
-import org.apache.harmony.luni.util.Msg;
+import java.util.logging.Logger;
 import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.SneakyThrow;
-
-// BEGIN android-added
-import java.util.logging.Logger;
-// END android-added
 
 /**
  * Wraps an existing {@link Writer} and <em>buffers</em> the output. Expensive
@@ -75,7 +70,7 @@ public class BufferedWriter extends Writer {
     public BufferedWriter(Writer out, int size) {
         super(out);
         if (size <= 0) {
-            throw new IllegalArgumentException(Msg.getString("K0058"));
+            throw new IllegalArgumentException("size <= 0");
         }
         this.out = out;
         this.buf = new char[size];
@@ -129,11 +124,15 @@ public class BufferedWriter extends Writer {
     @Override
     public void flush() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005d"));
-            }
+            checkNotClosed();
             flushInternal();
             out.flush();
+        }
+    }
+
+    private void checkNotClosed() throws IOException {
+        if (isClosed()) {
+            throw new IOException("BufferedWriter is closed");
         }
     }
 
@@ -190,19 +189,17 @@ public class BufferedWriter extends Writer {
     @Override
     public void write(char[] cbuf, int offset, int count) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005d"));
-            }
+            checkNotClosed();
             // BEGIN android-changed
             // Exception priorities (in case of multiple errors) differ from
             // RI, but are spec-compliant.
             // made implicit null check explicit, used (offset | count) < 0
             // instead of (offset < 0) || (count < 0) to safe one operation
             if (cbuf == null) {
-                throw new NullPointerException(Msg.getString("K0047"));
+                throw new NullPointerException("buffer == null");
             }
             if ((offset | count) < 0 || offset > cbuf.length - count) {
-                throw new IndexOutOfBoundsException(Msg.getString("K002f"));
+                throw new IndexOutOfBoundsException();
             }
             // END android-changed
             if (pos == 0 && count >= this.buf.length) {
@@ -248,9 +245,7 @@ public class BufferedWriter extends Writer {
     @Override
     public void write(int oneChar) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005d"));
-            }
+            checkNotClosed();
             if (pos >= buf.length) {
                 out.write(buf, 0, buf.length);
                 pos = 0;
@@ -282,9 +277,7 @@ public class BufferedWriter extends Writer {
     @Override
     public void write(String str, int offset, int count) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005d"));
-            }
+            checkNotClosed();
             if (count <= 0) {
                 return;
             }

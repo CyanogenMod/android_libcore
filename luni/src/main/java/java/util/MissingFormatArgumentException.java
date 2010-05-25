@@ -16,8 +16,6 @@
 
 package java.util;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A {@code MissingFormatArgumentException} will be thrown if there is no
  * corresponding argument with the specified conversion or an argument index
@@ -60,6 +58,6 @@ public class MissingFormatArgumentException extends IllegalFormatException {
      */
     @Override
     public String getMessage() {
-        return Msg.getString("K0348", s);
+        return "Format specifier: " + s;
     }
 }

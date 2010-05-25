@@ -17,8 +17,6 @@
 
 package java.util;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Timers schedule one-shot or recurring {@link TimerTask tasks} for execution.
  * Prefer {@link java.util.concurrent.ScheduledThreadPoolExecutor
@@ -556,26 +554,25 @@ public class Timer {
     /*
      * Schedule a task.
      */
-    private void scheduleImpl(TimerTask task, long delay, long period,
-            boolean fixed) {
+    private void scheduleImpl(TimerTask task, long delay, long period, boolean fixed) {
         synchronized (impl) {
             if (impl.cancelled) {
-                throw new IllegalStateException(Msg.getString("K00f3"));
+                throw new IllegalStateException("Timer was canceled");
             }
 
             long when = delay + System.currentTimeMillis();
 
             if (when < 0) {
-                throw new IllegalArgumentException(Msg.getString("K00f5"));
+                throw new IllegalArgumentException("Illegal delay to start the TimerTask: " + when);
             }
 
             synchronized (task.lock) {
                 if (task.isScheduled()) {
-                    throw new IllegalStateException(Msg.getString("K00f6"));
+                    throw new IllegalStateException("TimerTask is scheduled already");
                 }
 
                 if (task.cancelled) {
-                    throw new IllegalStateException(Msg.getString("K00f7"));
+                    throw new IllegalStateException("TimerTask is canceled");
                 }
 
                 task.when = when;

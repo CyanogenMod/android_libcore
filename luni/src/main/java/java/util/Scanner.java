@@ -181,14 +181,12 @@ public final class Scanner implements Iterator<String> {
      *             if the specified coding does not exist.
      */
     public Scanner(File src, String charsetName) throws FileNotFoundException {
-        if (null == src) {
-            throw new NullPointerException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00a"));
+        if (src == null) {
+            throw new NullPointerException("src == null");
         }
         FileInputStream fis = new FileInputStream(src);
-        if (null == charsetName) {
-            throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA009"));
+        if (charsetName == null) {
+            throw new IllegalArgumentException("charsetName == null");
         }
         try {
             input = new InputStreamReader(fis, charsetName);
@@ -237,9 +235,8 @@ public final class Scanner implements Iterator<String> {
      *             if the specified character set is not found.
      */
     public Scanner(InputStream src, String charsetName) {
-        if (null == src) {
-            throw new NullPointerException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00b"));
+        if (src == null) {
+            throw new NullPointerException("src == null");
         }
         try {
             input = new InputStreamReader(src, charsetName);
@@ -286,13 +283,11 @@ public final class Scanner implements Iterator<String> {
      *             if the specified character set is not found.
      */
     public Scanner(ReadableByteChannel src, String charsetName) {
-        if (null == src) {
-            throw new NullPointerException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00d"));
+        if (src == null) {
+            throw new NullPointerException("src == null");
         }
-        if (null == charsetName) {
-            throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA009"));
+        if (charsetName == null) {
+            throw new IllegalArgumentException("charsetName == null");
         }
         input = Channels.newReader(src, charsetName);
         initialization();
@@ -476,8 +471,7 @@ public final class Scanner implements Iterator<String> {
         checkClosed();
         checkNull(pattern);
         if (horizon < 0) {
-            throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00e"));
+            throw new IllegalArgumentException("horizon < 0");
         }
         matcher.usePattern(pattern);
 
@@ -1697,12 +1691,15 @@ public final class Scanner implements Iterator<String> {
      * @return this {@code Scanner}.
      */
     public Scanner useRadix(int radix) {
-        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
-            throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA008", radix));
-        }
+        checkRadix(radix);
         this.integerRadix = radix;
         return this;
+    }
+
+    private void checkRadix(int radix) {
+        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
+            throw new IllegalArgumentException("Invalid radix: " + radix);
+        }
     }
 
     /**
@@ -1774,10 +1771,7 @@ public final class Scanner implements Iterator<String> {
      * Get integer's pattern
      */
     private Pattern getIntegerPattern(int radix) {
-        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
-            throw new IllegalArgumentException(org.apache.harmony.luni.util.Msg
-                    .getString("KA00e", radix));
-        }
+        checkRadix(radix);
         decimalFormat = (DecimalFormat) NumberFormat.getInstance(locale);
 
         String allAvailableDigits = "0123456789abcdefghijklmnopqrstuvwxyz";

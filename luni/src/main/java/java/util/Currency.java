@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.logging.Logger;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * This class represents a currency as identified in the ISO 4217 currency
@@ -58,7 +57,7 @@ public final class Currency implements Serializable {
         // Ensure that we throw if the our currency code isn't an ISO currency code.
         String symbol = ICU.getCurrencySymbolNative(Locale.US.toString(), currencyCode);
         if (symbol == null) {
-            throw new IllegalArgumentException(Msg.getString("K0322", currencyCode));
+            throw badCurrency(currencyCode);
         }
 
         this.defaultFractionDigits = ICU.getCurrencyFractionDigitsNative(currencyCode);
@@ -66,9 +65,14 @@ public final class Currency implements Serializable {
             // In practice, I don't think this can fail because ICU doesn't care whether you give
             // it a valid country code, and will just return a sensible default for the default
             // locale's currency.
-            throw new IllegalArgumentException(Msg.getString("K0322", currencyCode));
+            throw badCurrency(currencyCode);
         }
         // END android-changed
+    }
+
+    private IllegalArgumentException badCurrency(String currencyCode) {
+        throw new IllegalArgumentException("Not a supported ISO 4217 currency code: " +
+                currencyCode);
     }
 
     /**
@@ -119,7 +123,7 @@ public final class Currency implements Serializable {
 
         String currencyCode = ICU.getCurrencyCodeNative(country);
         if (currencyCode == null) {
-            throw new IllegalArgumentException(Msg.getString("K0323", locale.toString()));
+            throw new IllegalArgumentException("Not a supported ISO 3166 country: " + locale);
         } else if (currencyCode.equals("None")) {
             return null;
         }

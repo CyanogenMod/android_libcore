@@ -17,11 +17,7 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
-// BEGIN android-added
 import java.util.logging.Logger;
-// END android-added
 
 /**
  * Wraps an existing {@link OutputStream} and <em>buffers</em> the output.
@@ -71,8 +67,7 @@ public class BufferedOutputStream extends FilterOutputStream {
     public BufferedOutputStream(OutputStream out, int size) {
         super(out);
         if (size <= 0) {
-            // K0058=size must be > 0
-            throw new IllegalArgumentException(Msg.getString("K0058"));
+            throw new IllegalArgumentException("size <= 0");
         }
         buf = new byte[size];
     }
@@ -86,12 +81,15 @@ public class BufferedOutputStream extends FilterOutputStream {
      */
     @Override
     public synchronized void flush() throws IOException {
-        if (buf == null) {
-            throw new IOException(Msg.getString("K0059"));
-        }
-
+        checkNotClosed();
         flushInternal();
         out.flush();
+    }
+
+    private void checkNotClosed() throws IOException {
+        if (buf == null) {
+            throw new IOException("BufferedOutputStream is closed");
+        }
     }
 
     /**
@@ -120,18 +118,14 @@ public class BufferedOutputStream extends FilterOutputStream {
      *             If offset or count is outside of bounds.
      */
     @Override
-    public synchronized void write(byte[] buffer, int offset, int length)
-            throws IOException {
-        byte[] internalBuffer = buf;
-        if (internalBuffer == null) {
-            throw new IOException(Msg.getString("K0059"));
-        }
+    public synchronized void write(byte[] buffer, int offset, int length) throws IOException {
+        checkNotClosed();
 
         if (buffer == null) {
-            // K0047=buffer is null
-            throw new NullPointerException(Msg.getString("K0047"));
+            throw new NullPointerException("buffer == null");
         }
 
+        byte[] internalBuffer = buf;
         if (length >= internalBuffer.length) {
             flushInternal();
             out.write(buffer, offset, length);
@@ -139,13 +133,11 @@ public class BufferedOutputStream extends FilterOutputStream {
         }
 
         if (offset < 0 || offset > buffer.length - length) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
 
         }
         if (length < 0) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
 
         // flush the internal buffer first if we have not enough space left
@@ -184,16 +176,12 @@ public class BufferedOutputStream extends FilterOutputStream {
      */
     @Override
     public synchronized void write(int oneByte) throws IOException {
-        byte[] internalBuffer = buf;
-        if (internalBuffer == null) {
-            throw new IOException(Msg.getString("K0059"));
-        }
-
-        if (count == internalBuffer.length) {
-            out.write(internalBuffer, 0, count);
+        checkNotClosed();
+        if (count == buf.length) {
+            out.write(buf, 0, count);
             count = 0;
         }
-        internalBuffer[count++] = (byte) oneByte;
+        buf[count++] = (byte) oneByte;
     }
 
     /**

@@ -17,8 +17,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A specialized {@link Reader} for reading the contents of a char array.
  *
@@ -138,10 +136,14 @@ public class CharArrayReader extends Reader {
     @Override
     public void mark(int readLimit) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0060"));
-            }
+            checkNotClosed();
             markedPos = pos;
+        }
+    }
+
+    private void checkNotClosed() throws IOException {
+        if (isClosed()) {
+            throw new IOException("CharArrayReader is closed");
         }
     }
 
@@ -171,9 +173,7 @@ public class CharArrayReader extends Reader {
     @Override
     public int read() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0060"));
-            }
+            checkNotClosed();
             if (pos == count) {
                 return -1;
             }
@@ -209,19 +209,13 @@ public class CharArrayReader extends Reader {
         // changed array notation to be consistent with the rest of harmony
         // END android-note
         if (offset < 0 || offset > buffer.length) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(
-                    Msg.getString("K002e", offset));
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
         if (len < 0 || len > buffer.length - offset) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(
-                    Msg.getString("K0031", len));
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + len);
         }
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0060"));
-            }
+            checkNotClosed();
             if (pos < this.count) {
                 int bytesRead = pos + len > this.count ? this.count - pos : len;
                 System.arraycopy(this.buf, pos, buffer, offset, bytesRead);
@@ -247,9 +241,7 @@ public class CharArrayReader extends Reader {
     @Override
     public boolean ready() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0060"));
-            }
+            checkNotClosed();
             return pos != count;
         }
     }
@@ -266,9 +258,7 @@ public class CharArrayReader extends Reader {
     @Override
     public void reset() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0060"));
-            }
+            checkNotClosed();
             pos = markedPos != -1 ? markedPos : 0;
         }
     }
@@ -287,9 +277,7 @@ public class CharArrayReader extends Reader {
     @Override
     public long skip(long n) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0060"));
-            }
+            checkNotClosed();
             if (n <= 0) {
                 return 0;
             }

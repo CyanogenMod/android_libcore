@@ -31,8 +31,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.WeakHashMap;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.ThreadLocalCache;
 
@@ -414,8 +412,7 @@ public class ObjectStreamClass implements Serializable {
                             // Static field, parameter is ignored
                             return field.getLong(null);
                         } catch (IllegalAccessException iae) {
-                            throw new RuntimeException(Msg.getString(
-                                    "K0071", iae));
+                            throw new RuntimeException("Error fetching SUID: " + iae);
                         }
                     }
                 }
@@ -586,7 +583,7 @@ public class ObjectStreamClass implements Serializable {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(Msg.getString("K0072", e));
+            throw new RuntimeException(e + " computing SHA-1/SUID");
         }
 
         // now compute the UID based on the SHA

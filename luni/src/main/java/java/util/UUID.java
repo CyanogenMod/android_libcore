@@ -24,8 +24,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * UUID is an immutable representation of a 128-bit universally unique
  * identifier (UUID).
@@ -225,7 +223,7 @@ public final class UUID implements Serializable, Comparable<UUID> {
 
         // should have and only can have four "-" in UUID
         if (i != position.length || lastPosition != -1) {
-            throw new IllegalArgumentException(Msg.getString("KA014") + uuid);
+            throw new IllegalArgumentException("Invalid UUID: " + uuid);
         }
 
         long m1 = Long.parseLong(uuid.substring(0, position[0]), 16);

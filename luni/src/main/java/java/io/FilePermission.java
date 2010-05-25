@@ -22,8 +22,6 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.PrivilegedAction;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A permission for accessing a file or directory. The FilePermission is made up
  * of a pathname and a set of actions which are valid for the pathname.
@@ -93,12 +91,12 @@ public final class FilePermission extends Permission implements Serializable {
 
     private void init(final String path, String pathActions) {
         if (pathActions == null || pathActions.isEmpty()) {
-            throw new IllegalArgumentException(Msg.getString("K006d"));
+            throw new IllegalArgumentException("pathActions == null || pathActions.isEmpty()");
         }
         this.actions = toCanonicalActionString(pathActions);
 
         if (path == null) {
-            throw new NullPointerException(Msg.getString("K006e"));
+            throw new NullPointerException("path == null");
         }
         if (path.equals("<<ALL FILES>>")) {
             includeAll = true;
@@ -181,8 +179,7 @@ public final class FilePermission extends Permission implements Serializable {
             } else if (action.equals("delete")) {
                 actionInt |= 1;
             } else {
-                throw new IllegalArgumentException(Msg.getString(
-                        "K006f", action));
+                throw new IllegalArgumentException("Invalid action: " + action);
             }
             head = tail + 1;
         } while (tail > 0);

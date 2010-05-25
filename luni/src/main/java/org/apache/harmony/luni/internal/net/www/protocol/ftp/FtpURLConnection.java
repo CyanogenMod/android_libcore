@@ -39,10 +39,8 @@ import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.harmony.luni.internal.net.www.MimeTable;
 import org.apache.harmony.luni.net.NetUtil;
-import org.apache.harmony.luni.util.Msg;
 
 public class FtpURLConnection extends URLConnection {
 
@@ -153,7 +151,7 @@ public class FtpURLConnection extends URLConnection {
                 reply = getReply();
             }
             if (reply != FTP_FILEOK) {
-                throw new IOException(Msg.getString("K0094"));
+                throw new IOException("Unable to change directories");
             }
         }
     }
@@ -200,8 +198,7 @@ public class FtpURLConnection extends URLConnection {
                 }
             }
             if (!connectOK) {
-                // K0097=Unable to connect to server\: {0}
-                throw new IOException(Msg.getString("K0097", failureReason));
+                throw new IOException("Unable to connect to server: " + failureReason);
             }
         }
     }
@@ -247,7 +244,7 @@ public class FtpURLConnection extends URLConnection {
             dataSocket.setSoTimeout(getReadTimeout());
             acceptSocket.close();
         } catch (InterruptedIOException e) {
-            throw new IOException(Msg.getString("K0095"));
+            throw new IOException("Could not establish data connection");
         }
         if (getDoInput()) {
             inputStream = new FtpURLInputStream(
@@ -278,7 +275,7 @@ public class FtpURLConnection extends URLConnection {
             reply = getReply();
         }
         if (!(reply == FTP_OPENDATA || reply == FTP_TRANSFEROK)) {
-            throw new FileNotFoundException(Msg.getString("K0096", reply));
+            throw new FileNotFoundException("Unable to retrieve file: " + reply);
         }
     }
 
@@ -375,19 +372,19 @@ public class FtpURLConnection extends URLConnection {
         reply = getReply();
         if (reply == FTP_USERREADY) {
         } else {
-            throw new IOException(Msg.getString("K0097", url.getHost()));
+            throw new IOException("Unable to connect to server: " + url.getHost());
         }
         write("USER " + username + "\r\n");
         reply = getReply();
         if (reply == FTP_PASWD || reply == FTP_LOGGEDIN) {
         } else {
-            throw new IOException(Msg.getString("K0098", url.getHost()));
+            throw new IOException("Unable to log in to server (USER): " + url.getHost());
         }
         if (reply == FTP_PASWD) {
             write("PASS " + password + "\r\n");
             reply = getReply();
             if (!(reply == FTP_OK || reply == FTP_USERREADY || reply == FTP_LOGGEDIN)) {
-                throw new IOException(Msg.getString("K0098", url.getHost()));
+                throw new IOException("Unable to log in to server (PASS): " + url.getHost());
             }
         }
     }
@@ -399,7 +396,7 @@ public class FtpURLConnection extends URLConnection {
                 + (dataPort & 255)
                 + "\r\n");
         if (getReply() != FTP_OK) {
-            throw new IOException(Msg.getString("K0099"));
+            throw new IOException("Unable to configure data port");
         }
     }
 
@@ -437,7 +434,7 @@ public class FtpURLConnection extends URLConnection {
                         url.getFile().length()) + "\r\n");
         reply = getReply();
         if (!(reply == FTP_OPENDATA || reply == FTP_OK || reply == FTP_DATAOPEN)) {
-            throw new IOException(Msg.getString("K009a"));
+            throw new IOException("Unable to store file");
         }
     }
 
@@ -493,7 +490,7 @@ public class FtpURLConnection extends URLConnection {
     private void setType() throws IOException {
         write("TYPE I\r\n");
         if (getReply() != FTP_OK) {
-            throw new IOException(Msg.getString("K009b"));
+            throw new IOException("Unable to set transfer type");
         }
     }
 

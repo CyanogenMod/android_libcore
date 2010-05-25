@@ -17,11 +17,7 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
-// BEGIN android-added
 import java.util.logging.Logger;
-// END android-added
 
 /**
  * Wraps an existing {@link Reader} and <em>buffers</em> the input. Expensive
@@ -95,7 +91,7 @@ public class BufferedReader extends Reader {
     public BufferedReader(Reader in, int size) {
         super(in);
         if (size <= 0) {
-            throw new IllegalArgumentException(Msg.getString("K0058"));
+            throw new IllegalArgumentException("size <= 0");
         }
         this.in = in;
         buf = new char[size];
@@ -197,11 +193,15 @@ public class BufferedReader extends Reader {
             throw new IllegalArgumentException();
         }
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b"));
-            }
+            checkNotClosed();
             this.markLimit = markLimit;
             mark = pos;
+        }
+    }
+
+    private void checkNotClosed() throws IOException {
+        if (isClosed()) {
+            throw new IOException("BufferedReader is closed");
         }
     }
 
@@ -233,9 +233,7 @@ public class BufferedReader extends Reader {
     @Override
     public int read() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b"));
-            }
+            checkNotClosed();
             /* Are there buffered characters available? */
             if (pos < end || fillBuf() != -1) {
                 return buf[pos++];
@@ -273,9 +271,7 @@ public class BufferedReader extends Reader {
     @Override
     public int read(char[] buffer, int offset, int length) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b"));
-            }
+            checkNotClosed();
             if (offset < 0 || offset > buffer.length - length || length < 0) {
                 throw new IndexOutOfBoundsException();
             }
@@ -358,9 +354,7 @@ public class BufferedReader extends Reader {
      */
     public String readLine() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b"));
-            }
+            checkNotClosed();
             /* has the underlying stream been exhausted? */
             if (pos == end && fillBuf() == -1) {
                 return null;
@@ -451,9 +445,7 @@ public class BufferedReader extends Reader {
     @Override
     public boolean ready() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b"));
-            }
+            checkNotClosed();
             return ((end - pos) > 0) || in.ready();
         }
     }
@@ -471,11 +463,9 @@ public class BufferedReader extends Reader {
     @Override
     public void reset() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b"));
-            }
+            checkNotClosed();
             if (mark == -1) {
-                throw new IOException(Msg.getString("K005c"));
+                throw new IOException("Invalid mark");
             }
             pos = mark;
         }
@@ -504,9 +494,7 @@ public class BufferedReader extends Reader {
             throw new IllegalArgumentException();
         }
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b"));
-            }
+            checkNotClosed();
             if (amount < 1) {
                 return 0;
             }

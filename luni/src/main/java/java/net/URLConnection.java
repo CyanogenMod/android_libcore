@@ -28,9 +28,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import org.apache.harmony.luni.internal.net.www.MimeTable;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -446,10 +444,14 @@ public abstract class URLConnection {
      * @since 1.4
      */
     public Map<String, List<String>> getRequestProperties() {
-        if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037"));
-        }
+        checkNotConnected();
         return Collections.emptyMap();
+    }
+
+    private void checkNotConnected() {
+        if (connected) {
+            throw new IllegalStateException("Already connected");
+        }
     }
 
     /**
@@ -467,11 +469,9 @@ public abstract class URLConnection {
      * @since 1.4
      */
     public void addRequestProperty(String field, String newValue) {
-        if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037"));
-        }
+        checkNotConnected();
         if (field == null) {
-            throw new NullPointerException(Msg.getString("KA007"));
+            throw new NullPointerException("field == null");
         }
     }
 
@@ -575,7 +575,7 @@ public abstract class URLConnection {
      *             if no InputStream could be created.
      */
     public InputStream getInputStream() throws IOException {
-        throw new UnknownServiceException(Msg.getString("K004d"));
+        throw new UnknownServiceException("Does not support writing to the input stream");
     }
 
     /**
@@ -601,7 +601,7 @@ public abstract class URLConnection {
      *             if no OutputStream could be created.
      */
     public OutputStream getOutputStream() throws IOException {
-        throw new UnknownServiceException(Msg.getString("K005f"));
+        throw new UnknownServiceException("Does not support writing to the output stream");
     }
 
     /**
@@ -633,9 +633,7 @@ public abstract class URLConnection {
      *             if the connection has been already established.
      */
     public String getRequestProperty(String field) {
-        if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037"));
-        }
+        checkNotConnected();
         return null;
     }
 
@@ -802,9 +800,7 @@ public abstract class URLConnection {
      * @see #allowUserInteraction
      */
     public void setAllowUserInteraction(boolean newValue) {
-        if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037"));
-        }
+        checkNotConnected();
         this.allowUserInteraction = newValue;
     }
 
@@ -822,7 +818,7 @@ public abstract class URLConnection {
     public static synchronized void setContentHandlerFactory(
             ContentHandlerFactory contentFactory) {
         if (contentHandlerFactory != null) {
-            throw new Error(Msg.getString("K004e"));
+            throw new Error("Factory already set");
         }
         SecurityManager sManager = System.getSecurityManager();
         if (sManager != null) {
@@ -871,12 +867,6 @@ public abstract class URLConnection {
      * @see #useCaches
      */
     public void setDefaultUseCaches(boolean newValue) {
-        // BEGIN android-removed
-        // Setting the default doesn't concern the current connection.
-        // if (connected) {
-        //     throw new IllegalAccessError(Msg.getString("K0037"));
-        // }
-        // END android-removed
         defaultUseCaches = newValue;
     }
 
@@ -892,9 +882,7 @@ public abstract class URLConnection {
      * @see #doInput
      */
     public void setDoInput(boolean newValue) {
-        if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037"));
-        }
+        checkNotConnected();
         this.doInput = newValue;
     }
 
@@ -910,9 +898,7 @@ public abstract class URLConnection {
      * @see #doOutput
      */
     public void setDoOutput(boolean newValue) {
-        if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037"));
-        }
+        checkNotConnected();
         this.doOutput = newValue;
     }
 
@@ -946,9 +932,7 @@ public abstract class URLConnection {
      * @see #ifModifiedSince
      */
     public void setIfModifiedSince(long newValue) {
-        if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037"));
-        }
+        checkNotConnected();
         this.ifModifiedSince = newValue;
     }
 
@@ -967,11 +951,9 @@ public abstract class URLConnection {
      *             if the parameter {@code field} is {@code null}.
      */
     public void setRequestProperty(String field, String newValue) {
-        if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037"));
-        }
+        checkNotConnected();
         if (field == null) {
-            throw new NullPointerException(Msg.getString("KA007"));
+            throw new NullPointerException("field == null");
         }
     }
 
@@ -988,9 +970,7 @@ public abstract class URLConnection {
      * @see #useCaches
      */
     public void setUseCaches(boolean newValue) {
-        if (connected) {
-            throw new IllegalStateException(Msg.getString("K0037"));
-        }
+        checkNotConnected();
         this.useCaches = newValue;
     }
 
@@ -1007,8 +987,8 @@ public abstract class URLConnection {
      *             if the parameter {@code timeout} is less than zero.
      */
     public void setConnectTimeout(int timeout) {
-        if (0 > timeout) {
-            throw new IllegalArgumentException(Msg.getString("K0036"));
+        if (timeout < 0) {
+            throw new IllegalArgumentException("timeout < 0");
         }
         this.connectTimeout = timeout;
     }
@@ -1035,8 +1015,8 @@ public abstract class URLConnection {
      *             if the parameter {@code timeout} is less than zero.
      */
     public void setReadTimeout(int timeout) {
-        if (0 > timeout) {
-            throw new IllegalArgumentException(Msg.getString("K0036"));
+        if (timeout < 0) {
+            throw new IllegalArgumentException("timeout < 0");
         }
         this.readTimeout = timeout;
     }

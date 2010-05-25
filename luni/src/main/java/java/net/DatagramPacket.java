@@ -17,8 +17,6 @@
 
 package java.net;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * This class represents a datagram packet which contains data either to be sent
  * or received through a {@code DatagramSocket}. It holds additional information
@@ -192,7 +190,7 @@ public final class DatagramPacket {
     public synchronized void setData(byte[] buf, int anOffset, int aLength) {
         if (0 > anOffset || anOffset > buf.length || 0 > aLength
                 || aLength > buf.length - anOffset) {
-            throw new IllegalArgumentException(Msg.getString("K002f"));
+            throw new IndexOutOfBoundsException();
         }
         data = buf;
         offset = anOffset;
@@ -232,7 +230,7 @@ public final class DatagramPacket {
      */
     public synchronized void setLength(int len) {
         if (0 > len || offset + len > data.length) {
-            throw new IllegalArgumentException(Msg.getString("K002f"));
+            throw new IndexOutOfBoundsException();
         }
         length = len;
         capacity = len;
@@ -246,7 +244,7 @@ public final class DatagramPacket {
      */
     synchronized void setLengthOnly(int len) {
         if (0 > len || offset + len > data.length) {
-            throw new IllegalArgumentException(Msg.getString("K002f"));
+            throw new IndexOutOfBoundsException();
         }
         length = len;
     }
@@ -259,7 +257,7 @@ public final class DatagramPacket {
      */
     public synchronized void setPort(int aPort) {
         if (aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0325", aPort));
+            throw new IllegalArgumentException("Port out of range: " + aPort);
         }
         port = aPort;
     }
@@ -326,8 +324,8 @@ public final class DatagramPacket {
      */
     public synchronized void setSocketAddress(SocketAddress sockAddr) {
         if (!(sockAddr instanceof InetSocketAddress)) {
-            throw new IllegalArgumentException(Msg.getString(
-                    "K0316", sockAddr == null ? null : sockAddr.getClass()));
+            throw new IllegalArgumentException("Socket address not an InetSocketAddress: " +
+                    (sockAddr == null ? null : sockAddr.getClass()));
         }
         InetSocketAddress inetAddr = (InetSocketAddress) sockAddr;
         port = inetAddr.getPort();

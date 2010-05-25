@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Provides an in-memory implementation of CookieStore as the default value of
  * HttpCookie.getCookieStore().
@@ -51,7 +49,7 @@ class CookieStoreImpl implements CookieStore {
 
     public List<HttpCookie> get(URI uri) {
         if (uri == null) {
-            throw new NullPointerException(Msg.getString("KA019"));
+            throw new NullPointerException("uri == null");
         }
         // get cookies associated with given URI. If none, returns an empty list
         List<HttpCookie> cookies = storeMap.get(uri);
@@ -110,7 +108,7 @@ class CookieStoreImpl implements CookieStore {
 
     public boolean remove(URI uri, HttpCookie cookie) {
         if (cookie == null) {
-            throw new NullPointerException(Msg.getString("KA020"));
+            throw new NullPointerException("cookie == null");
         }
         boolean success = false;
         Collection<ArrayList<HttpCookie>> values = storeMap.values();

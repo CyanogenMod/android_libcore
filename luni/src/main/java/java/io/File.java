@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.harmony.luni.util.DeleteOnExit;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.Util;
 
@@ -267,34 +266,26 @@ public class File implements Serializable, Comparable<File> {
     @SuppressWarnings("nls")
     private void checkURI(URI uri) {
         if (!uri.isAbsolute()) {
-            throw new IllegalArgumentException(Msg.getString("K031a", uri));
+            throw new IllegalArgumentException("URI is not absolute: " + uri);
         } else if (!uri.getRawSchemeSpecificPart().startsWith("/")) {
-            throw new IllegalArgumentException(Msg.getString("K031b", uri));
+            throw new IllegalArgumentException("URI is not hierarchical: " + uri);
         }
-
         String temp = uri.getScheme();
         if (temp == null || !temp.equals("file")) {
-            throw new IllegalArgumentException(Msg.getString("K031c", uri));
+            throw new IllegalArgumentException("Expected file scheme in URI: " + uri);
         }
-
         temp = uri.getRawPath();
         if (temp == null || temp.isEmpty()) {
-            throw new IllegalArgumentException(Msg.getString("K031d", uri));
+            throw new IllegalArgumentException("Expected non-empty path in URI: " + uri);
         }
-
         if (uri.getRawAuthority() != null) {
-            throw new IllegalArgumentException(Msg.getString("K031e",
-                    new String[] { "authority", uri.toString() }));
+            throw new IllegalArgumentException("Found authority in URI: " + uri);
         }
-
         if (uri.getRawQuery() != null) {
-            throw new IllegalArgumentException(Msg.getString("K031e",
-                    new String[] { "query", uri.toString() }));
+            throw new IllegalArgumentException("Found query in URI: " + uri);
         }
-
         if (uri.getRawFragment() != null) {
-            throw new IllegalArgumentException(Msg.getString("K031e",
-                    new String[] { "fragment", uri.toString() }));
+            throw new IllegalArgumentException("Found fragment in URI: " + uri);
         }
     }
 
@@ -906,7 +897,7 @@ public class File implements Serializable, Comparable<File> {
             return false;
         }
         if (time < 0) {
-            throw new IllegalArgumentException(Msg.getString("K006a"));
+            throw new IllegalArgumentException("time < 0");
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -1320,7 +1311,7 @@ public class File implements Serializable, Comparable<File> {
             security.checkWrite(path);
         }
         if (path.isEmpty()) {
-            throw new IOException(Msg.getString("KA012"));
+            throw new IOException("No such file or directory");
         }
         return createNewFileImpl(pathBytes);
     }
@@ -1372,7 +1363,7 @@ public class File implements Serializable, Comparable<File> {
             File directory) throws IOException {
         // Force a prefix null check first
         if (prefix.length() < 3) {
-            throw new IllegalArgumentException(Msg.getString("K006b"));
+            throw new IllegalArgumentException("prefix must be at least 3 characters");
         }
         String newSuffix = suffix == null ? ".tmp" : suffix;
         File tmpDirFile;

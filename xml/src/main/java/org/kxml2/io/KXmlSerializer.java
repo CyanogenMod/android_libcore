@@ -397,7 +397,7 @@ public class KXmlSerializer implements XmlSerializer {
                 ? ""
                 : getPrefix(namespace, true, true);
 
-        if (namespace.isEmpty()) {
+        if (namespace != null && namespace.isEmpty()) {
             for (int i = nspCounts[depth];
                 i < nspCounts[depth + 1];
                 i++) {

@@ -27,12 +27,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
-// BEGIN android-removed
-// import java.security.AccessController;
-// import java.security.PrivilegedAction;
-// END android-removed
-
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * {@code SimpleTimeZone} is a concrete subclass of {@code TimeZone}
@@ -267,8 +261,7 @@ public class SimpleTimeZone extends TimeZone {
         this(offset, name);
         // END android-changed
         if (daylightSavings <= 0) {
-            throw new IllegalArgumentException(Msg.getString(
-                    "K00e9", daylightSavings));
+            throw new IllegalArgumentException("Invalid daylightSavings: " + daylightSavings);
         }
         dstSavings = daylightSavings;
 
@@ -389,10 +382,9 @@ public class SimpleTimeZone extends TimeZone {
     }
 
     @Override
-    public int getOffset(int era, int year, int month, int day, int dayOfWeek,
-            int time) {
+    public int getOffset(int era, int year, int month, int day, int dayOfWeek, int time) {
         if (era != GregorianCalendar.BC && era != GregorianCalendar.AD) {
-            throw new IllegalArgumentException(Msg.getString("K00ea", era));
+            throw new IllegalArgumentException("Invalid era: " + era);
         }
         checkRange(month, dayOfWeek, time);
         if (month != Calendar.FEBRUARY || day != 29 || !isLeapYear(year)) {
@@ -401,8 +393,7 @@ public class SimpleTimeZone extends TimeZone {
 
         // BEGIN android-changed
         // return icuTZ.getOffset(era, year, month, day, dayOfWeek, time);
-        if (!useDaylightTime() || era != GregorianCalendar.AD
-                || year < startYear) {
+        if (!useDaylightTime() || era != GregorianCalendar.AD || year < startYear) {
             return rawOffset;
         }
         if (endMonth < startMonth) {
@@ -616,20 +607,19 @@ public class SimpleTimeZone extends TimeZone {
 
     private void checkRange(int month, int dayOfWeek, int time) {
         if (month < Calendar.JANUARY || month > Calendar.DECEMBER) {
-            throw new IllegalArgumentException(Msg.getString("K00e5", month));
+            throw new IllegalArgumentException("Invalid month: " + month);
         }
         if (dayOfWeek < Calendar.SUNDAY || dayOfWeek > Calendar.SATURDAY) {
-            throw new IllegalArgumentException(Msg
-                    .getString("K00e7", dayOfWeek));
+            throw new IllegalArgumentException("Invalid day of week: " + dayOfWeek);
         }
         if (time < 0 || time >= 24 * 3600000) {
-            throw new IllegalArgumentException(Msg.getString("K00e8", time));
+            throw new IllegalArgumentException("Invalid time: " + time);
         }
     }
 
     private void checkDay(int month, int day) {
         if (day <= 0 || day > GregorianCalendar.DaysInMonth[month]) {
-            throw new IllegalArgumentException(Msg.getString("K00e6", day));
+            throw new IllegalArgumentException("Invalid day of month: " + day);
         }
     }
 
@@ -655,8 +645,7 @@ public class SimpleTimeZone extends TimeZone {
                 checkDay(endMonth, endDay);
             } else {
                 if (endDay < -5 || endDay > 5) {
-                    throw new IllegalArgumentException(Msg.getString(
-                            "K00f8", endDay));
+                    throw new IllegalArgumentException("Day of week in month: " + endDay);
                 }
             }
         }
@@ -787,8 +776,7 @@ public class SimpleTimeZone extends TimeZone {
                 checkDay(startMonth, startDay);
             } else {
                 if (startDay < -5 || startDay > 5) {
-                    throw new IllegalArgumentException(Msg.getString(
-                            "K00f8", startDay));
+                    throw new IllegalArgumentException("Day of week in month: " + startDay);
                 }
             }
         }

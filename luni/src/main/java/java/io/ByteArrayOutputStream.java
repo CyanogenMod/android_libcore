@@ -17,8 +17,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A specialized {@link OutputStream} for class for writing content to an
  * (internal) byte array. As bytes are written to this stream, the byte array
@@ -64,7 +62,7 @@ public class ByteArrayOutputStream extends OutputStream {
         if (size >= 0) {
             buf = new byte[size];
         } else {
-            throw new IllegalArgumentException(Msg.getString("K005e"));
+            throw new IllegalArgumentException("size < 0");
         }
     }
 
@@ -204,10 +202,10 @@ public class ByteArrayOutputStream extends OutputStream {
         // used (offset | len) < 0 instead of (offset < 0) || (len < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047"));
+            throw new NullPointerException("buffer == null");
         }
         if ((offset | len) < 0 || len > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         if (len == 0) {

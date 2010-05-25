@@ -17,8 +17,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A specialized {@link Reader} that reads characters from a {@code String} in
  * a sequential manner.
@@ -88,10 +86,14 @@ public class StringReader extends Reader {
         }
 
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0083"));
-            }
+            checkNotClosed();
             markpos = pos;
+        }
+    }
+
+    private void checkNotClosed() throws IOException {
+        if (isClosed()) {
+            throw new IOException("StringReader is closed");
         }
     }
 
@@ -119,9 +121,7 @@ public class StringReader extends Reader {
     @Override
     public int read() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0083"));
-            }
+            checkNotClosed();
             if (pos != count) {
                 return str.charAt(pos++);
             }
@@ -156,17 +156,12 @@ public class StringReader extends Reader {
         // changed array notation to be consistent with the rest of harmony
         // END android-note
         synchronized (lock) {
-            if (isClosed()) {
-                // K0083=StringReader is closed.
-                throw new IOException(Msg.getString("K0083"));
-            }
+            checkNotClosed();
             if (offset < 0 || offset > buf.length) {
-                // K002e=Offset out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
+                throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
             }
             if (len < 0 || len > buf.length - offset) {
-                // K0031=Length out of bounds \: {0}
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", len));
+                throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + len);
             }
             if (len == 0) {
                 return 0;
@@ -195,9 +190,7 @@ public class StringReader extends Reader {
     @Override
     public boolean ready() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0083"));
-            }
+            checkNotClosed();
             return true;
         }
     }
@@ -216,9 +209,7 @@ public class StringReader extends Reader {
     @Override
     public void reset() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0083"));
-            }
+            checkNotClosed();
             pos = markpos != -1 ? markpos : 0;
         }
     }
@@ -246,9 +237,7 @@ public class StringReader extends Reader {
     @Override
     public long skip(long ns) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K0083"));
-            }
+            checkNotClosed();
 
             int minSkip = -pos;
             int maxSkip = count - pos;

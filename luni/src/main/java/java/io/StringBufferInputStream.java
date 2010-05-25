@@ -17,8 +17,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A specialized {@link InputStream} that reads bytes from a {@code String} in
  * a sequential manner.
@@ -99,7 +97,7 @@ public class StringBufferInputStream extends InputStream {
      *             if {@code b} is {@code null}.
      */
     @Override
-    public synchronized int read(byte[] b, int offset, int length) {
+    public synchronized int read(byte[] buffer, int offset, int length) {
         // BEGIN android-note
         // changed array notation to be consistent with the rest of harmony
         // END android-note
@@ -108,18 +106,15 @@ public class StringBufferInputStream extends InputStream {
         if (pos >= count) {
             return -1;
         }
-        if (b == null) {
-            // K0047=buffer is null
-            throw new NullPointerException(Msg.getString("K0047"));
+        if (buffer == null) {
+            throw new NullPointerException("buffer == null");
         }
         // avoid int overflow
-        if (offset < 0 || offset > b.length) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));
+        if (offset < 0 || offset > buffer.length) {
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
-        if (length < 0 || length > b.length - offset) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length));
+        if (length < 0 || length > buffer.length - offset) {
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
 
         if (length == 0) {
@@ -128,7 +123,7 @@ public class StringBufferInputStream extends InputStream {
 
         int copylen = count - pos < length ? count - pos : length;
         for (int i = 0; i < copylen; i++) {
-            b[offset + i] = (byte) buffer.charAt(pos + i);
+            buffer[offset + i] = (byte) this.buffer.charAt(pos + i);
         }
         pos += copylen;
         return copylen;

@@ -23,8 +23,6 @@ import java.io.ObjectOutputStream;
 import java.security.AccessController;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.Util;
 
@@ -136,7 +134,7 @@ public final class URL implements java.io.Serializable {
     public static synchronized void setURLStreamHandlerFactory(
             URLStreamHandlerFactory streamFactory) {
         if (streamHandlerFactory != null) {
-            throw new Error(Msg.getString("K004b"));
+            throw new Error("Factory already set");
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -272,9 +270,7 @@ public final class URL implements java.io.Serializable {
             // values in the context, but still allow them to be over-ridden
             // by the values in the ("relative") spec.
             if (context == null) {
-                throw new MalformedURLException(
-                        org.apache.harmony.luni.util.Msg.getString(
-                                "K00d8", spec));
+                throw new MalformedURLException("Protocol not found: " + spec);
             }
             set(context.getProtocol(), context.getHost(), context.getPort(),
                     context.getAuthority(), context.getUserInfo(), context
@@ -289,9 +285,7 @@ public final class URL implements java.io.Serializable {
         if (strmHandler == null) {
             setupStreamHandler();
             if (strmHandler == null) {
-                throw new MalformedURLException(
-                        org.apache.harmony.luni.util.Msg.getString(
-                                "K00b3", protocol));
+                throw new MalformedURLException("Unknown protocol: " + protocol);
             }
         }
 
@@ -310,8 +304,7 @@ public final class URL implements java.io.Serializable {
         }
 
         if (port < -1) {
-            throw new MalformedURLException(org.apache.harmony.luni.util.Msg
-                    .getString("K0325", port));
+            throw new MalformedURLException("Port out of range: " + port);
         }
     }
 
@@ -382,7 +375,7 @@ public final class URL implements java.io.Serializable {
     public URL(String protocol, String host, int port, String file,
             URLStreamHandler handler) throws MalformedURLException {
         if (port < -1) {
-            throw new MalformedURLException(Msg.getString("K0325", port));
+            throw new MalformedURLException("Port out of range: " + port);
         }
 
         if (host != null && host.indexOf(":") != -1 && host.charAt(0) != '[') {
@@ -390,7 +383,7 @@ public final class URL implements java.io.Serializable {
         }
 
         if (protocol == null) {
-            throw new NullPointerException(Msg.getString("K00b3", "null"));
+            throw new NullPointerException("Unknown protocol: null");
         }
 
         this.protocol = protocol;
@@ -415,8 +408,7 @@ public final class URL implements java.io.Serializable {
         if (handler == null) {
             setupStreamHandler();
             if (strmHandler == null) {
-                throw new MalformedURLException(
-                        Msg.getString("K00b3", protocol));
+                throw new MalformedURLException("Unknown protocol: " + protocol);
             }
         } else {
             SecurityManager sm = System.getSecurityManager();
@@ -698,8 +690,7 @@ public final class URL implements java.io.Serializable {
      */
     public URLConnection openConnection(Proxy proxy) throws IOException {
         if (proxy == null) {
-            // K034c=proxy should not be null
-            throw new IllegalArgumentException(Msg.getString("K034c"));
+            throw new IllegalArgumentException("proxy == null");
         }
 
         SecurityManager sm = System.getSecurityManager();
@@ -769,7 +760,7 @@ public final class URL implements java.io.Serializable {
             }
             setupStreamHandler();
             if (strmHandler == null) {
-                throw new IOException(Msg.getString("K00b3", protocol));
+                throw new IOException("Unknown protocol: " + protocol);
             }
         } catch (ClassNotFoundException e) {
             throw new IOException(e.toString());

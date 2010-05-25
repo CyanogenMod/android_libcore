@@ -31,10 +31,8 @@ import java.net.SocketOptions;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.security.AccessController;
-
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -311,7 +309,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         } catch (UnknownHostException e) {
             // this is never expected to happen as we should not have gotten
             // here if the address is not resolvable
-            throw new SocketException(Msg.getString("K0317", inetAddr.getHostName()));
+            throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
         }
         connectedPort = port;
         isNativeConnected = true;

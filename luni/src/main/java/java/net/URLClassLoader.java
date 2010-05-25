@@ -46,8 +46,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * This class loader is responsible for loading classes and resources from a
  * list of URLs which can refer to either directories or JAR files. Classes
@@ -255,8 +253,7 @@ public class URLClassLoader extends SecureClassLoader {
                             null, null, null, null, null);
                 } else {
                     if (packageObj.isSealed()) {
-                        throw new SecurityException(Msg
-                                .getString("K004c"));
+                        throw new SecurityException("Package is sealed");
                     }
                 }
             }
@@ -431,8 +428,8 @@ public class URLClassLoader extends SecureClassLoader {
                         }
                     }
                     if (exception) {
-                        throw new SecurityException(Msg
-                                .getString("K0352", packageName));
+                        throw new SecurityException(String.format("Package %s is sealed",
+                                packageName));
                     }
                 }
             }
@@ -1002,8 +999,8 @@ public class URLClassLoader extends SecureClassLoader {
     private synchronized void makeNewHandler() {
         while (!searchList.isEmpty()) {
             URL nextCandidate = searchList.remove(0);
-            if (nextCandidate == null) {  // KA024=One of urls is null
-                throw new NullPointerException(Msg.getString("KA024"));
+            if (nextCandidate == null) {
+                throw new NullPointerException("A URL is null");
             }
             if (!handlerMap.containsKey(nextCandidate)) {
                 URLHandler result;

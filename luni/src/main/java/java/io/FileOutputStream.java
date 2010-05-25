@@ -21,7 +21,6 @@ import java.nio.channels.FileChannel;
 
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.nio.FileChannelFactory;
 
 /**
@@ -116,7 +115,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
     public FileOutputStream(FileDescriptor fd) {
         super();
         if (fd == null) {
-            throw new NullPointerException(Msg.getString("K006c"));
+            throw new NullPointerException();
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -280,10 +279,10 @@ public class FileOutputStream extends OutputStream implements Closeable {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047"));
+            throw new NullPointerException("buffer == null");
         }
         if ((count | offset) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f"));
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
 
