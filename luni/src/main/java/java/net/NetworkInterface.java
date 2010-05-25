@@ -365,7 +365,6 @@ public final class NetworkInterface extends Object {
      *
      * @return a List of the InterfaceAddresses for this network interface.
      * @since 1.6
-     * @hide
      */
     public List<InterfaceAddress> getInterfaceAddresses() {
         SecurityManager sm = System.getSecurityManager();
@@ -393,7 +392,6 @@ public final class NetworkInterface extends Object {
      *
      * @return an Enumeration of all the sub-interfaces of this network interface
      * @since 1.6
-     * @hide
      */
     public Enumeration<NetworkInterface> getSubInterfaces() {
         return Collections.enumeration(children);
@@ -405,7 +403,6 @@ public final class NetworkInterface extends Object {
      *
      * @return the NetworkInterface this interface is attached to.
      * @since 1.6
-     * @hide
      */
     public NetworkInterface getParent() {
         return parent;
@@ -417,7 +414,6 @@ public final class NetworkInterface extends Object {
      * @return true if the interface is up.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
-     * @hide
      */
     public boolean isUp() throws SocketException {
         if (addresses.isEmpty()) {
@@ -433,7 +429,6 @@ public final class NetworkInterface extends Object {
      * @return true if the interface is a loopback interface.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
-     * @hide
      */
     public boolean isLoopback() throws SocketException {
         if (addresses.isEmpty()) {
@@ -450,7 +445,6 @@ public final class NetworkInterface extends Object {
      * @return true if the interface is point-to-point.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
-     * @hide
      */
     public boolean isPointToPoint() throws SocketException {
         if (addresses.isEmpty()) {
@@ -465,7 +459,6 @@ public final class NetworkInterface extends Object {
      *
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
-     * @hide
      */
     public boolean supportsMulticast() throws SocketException {
         if (addresses.isEmpty()) {
@@ -483,7 +476,6 @@ public final class NetworkInterface extends Object {
      *         doesn't exist or is not accessible.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
-     * @hide
      */
     public byte[] getHardwareAddress() throws SocketException {
         if (addresses.isEmpty()) {
@@ -499,7 +491,6 @@ public final class NetworkInterface extends Object {
      * @return the value of the MTU for the interface.
      * @throws SocketException if an I/O error occurs.
      * @since 1.6
-     * @hide
      */
     public int getMTU() throws SocketException {
         if (addresses.isEmpty()) {
@@ -520,7 +511,6 @@ public final class NetworkInterface extends Object {
      *
      * @return true if this interface is a virtual interface.
      * @since 1.6
-     * @hide
      */
     public boolean isVirtual() {
         return parent != null;

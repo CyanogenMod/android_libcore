@@ -58,7 +58,6 @@ public class PropertyResourceBundle extends ResourceBundle {
      * @param reader the {@code Reader}
      * @throws IOException
      * @since 1.6
-     * @hide
      */
     public PropertyResourceBundle(Reader reader) throws IOException {
         resources = new Properties();

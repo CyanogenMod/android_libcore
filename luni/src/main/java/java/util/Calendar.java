@@ -673,7 +673,6 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * Requests both {@code SHORT} and {@code LONG} styles in the map returned by
      * {@link getDisplayNames}.
      * @since 1.6
-     * @hide
      */
     public static final int ALL_STYLES = 0;
 
@@ -681,7 +680,6 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * Requests short names (such as "Jan") from
      * {@link getDisplayName} or {@link getDisplayNames}.
      * @since 1.6
-     * @hide
      */
     public static final int SHORT = 1;
 
@@ -689,7 +687,6 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * Requests long names (such as "January") from
      * {@link getDisplayName} or {@link getDisplayNames}.
      * @since 1.6
-     * @hide
      */
     public static final int LONG = 2;
 
@@ -1428,7 +1425,6 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * @throws NullPointerException if {@code locale == null}
      * @throws IllegalArgumentException if {@code field} or {@code style} is invalid
      * @since 1.6
-     * @hide
      */
     public String getDisplayName(int field, int style, Locale locale) {
         // TODO: the RI's documentation says ALL_STYLES is invalid, but actually treats it as SHORT.
@@ -1480,7 +1476,6 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * @throws NullPointerException if {@code locale == null}
      * @throws IllegalArgumentException if {@code field} or {@code style} is invalid
      * @since 1.6
-     * @hide
      */
     public Map<String, Integer> getDisplayNames(int field, int style, Locale locale) {
         checkStyle(style);

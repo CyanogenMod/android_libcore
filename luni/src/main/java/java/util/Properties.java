@@ -290,7 +290,6 @@ public class Properties extends Hashtable<Object, Object> {
      * @param in the {@code Reader}
      * @throws IOException
      * @since 1.6
-     * @hide
      */
     @SuppressWarnings("fallthrough")
     public synchronized void load(Reader in) throws IOException {
@@ -470,7 +469,6 @@ public class Properties extends Hashtable<Object, Object> {
      *
      * @return a set of keys in the property list
      * @since 1.6
-     * @hide
      */
     public Set<String> stringPropertyNames() {
         Hashtable<String, String> stringProperties = new Hashtable<String, String>();
@@ -562,7 +560,6 @@ public class Properties extends Hashtable<Object, Object> {
      * @throws IOException
      * @throws ClassCastException if a key or value is not a string
      * @since 1.6
-     * @hide
      */
     public synchronized void store(Writer writer, String comment) throws IOException {
         if (lineSeparator == null) {

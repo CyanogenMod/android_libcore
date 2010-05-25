@@ -183,7 +183,6 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
      * Enum types may not have finalizers.
      *
      * @since 1.6
-     * @hide
      */
     @Override
     protected final void finalize() {

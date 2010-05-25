@@ -20,7 +20,6 @@ package java.util;
 /**
  * Thrown when a service provider can't be loaded by {@link ServiceLoader}.
  * @since 1.6
- * @hide
  */
 public class ServiceConfigurationError extends Error {
     private static final long serialVersionUID = 74132770414881L;

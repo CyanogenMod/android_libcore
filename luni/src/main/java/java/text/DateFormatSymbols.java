@@ -113,7 +113,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      *
      * @return an instance of {@code DateFormatSymbols}
      * @since 1.6
-     * @hide
      */
     public static final DateFormatSymbols getInstance() {
         return getInstance(Locale.getDefault());
@@ -126,7 +125,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * @return an instance of {@code DateFormatSymbols}
      * @throws NullPointerException if {@code locale == null}
      * @since 1.6
-     * @hide
      */
     public static final DateFormatSymbols getInstance(Locale locale) {
         if (locale == null) {
@@ -139,7 +137,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Returns an array of locales for which custom {@code DateFormatSymbols} instances
      * are available.
      * @since 1.6
-     * @hide
      */
     public static Locale[] getAvailableLocales() {
         return ICU.getAvailableDateFormatSymbolsLocales();

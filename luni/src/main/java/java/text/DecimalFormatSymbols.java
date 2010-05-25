@@ -113,7 +113,6 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
      *
      * @return an instance of {@code DecimalFormatSymbols}
      * @since 1.6
-     * @hide
      */
     public static final DecimalFormatSymbols getInstance() {
         return getInstance(Locale.getDefault());
@@ -126,7 +125,6 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
      * @return an instance of {@code DecimalFormatSymbols}
      * @throws NullPointerException if {@code locale == null}
      * @since 1.6
-     * @hide
      */
     public static final DecimalFormatSymbols getInstance(Locale locale) {
         if (locale == null) {
@@ -139,7 +137,6 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
      * Returns an array of locales for which custom {@code DecimalFormatSymbols} instances
      * are available.
      * @since 1.6
-     * @hide
      */
     public static Locale[] getAvailableLocales() {
         return ICU.getAvailableDecimalFormatSymbolsLocales();
@@ -353,7 +350,6 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
     /*
      * Returns the string used to separate mantissa and exponent. Typically "E", as in "1.2E3".
      * @since 1.6
-     * @hide
      */
     public String getExponentSeparator() {
         return exponentSeparator;
@@ -559,7 +555,6 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
     /**
      * Sets the string used to separate mantissa and exponent. Typically "E", as in "1.2E3".
      * @since 1.6
-     * @hide
      */
     public void setExponentSeparator(String value) {
         if (value == null) {

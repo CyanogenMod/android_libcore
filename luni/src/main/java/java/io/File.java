@@ -314,7 +314,6 @@ public class File implements Serializable, Comparable<File> {
      * @see java.lang.SecurityManager#checkExec(String)
      *
      * @since 1.6
-     * @hide
      */
     public boolean canExecute() {
         if (path.isEmpty()) {
@@ -941,7 +940,6 @@ public class File implements Serializable, Comparable<File> {
      *             SecurityManager.checkWrite(java.lang.String) disallows write
      *             permission to this file object
      * @since 1.6
-     * @hide
      */
     public boolean setExecutable(boolean executable, boolean ownerOnly) {
         if (path.isEmpty()) {
@@ -958,7 +956,6 @@ public class File implements Serializable, Comparable<File> {
      * Equivalent to setExecutable(executable, true).
      * @see #setExecutable(boolean, boolean)
      * @since 1.6
-     * @hide
      */
     public boolean setExecutable(boolean executable) {
         return setExecutable(executable, true);
@@ -987,7 +984,6 @@ public class File implements Serializable, Comparable<File> {
      *             SecurityManager.checkWrite(java.lang.String) disallows write
      *             permission to this file object
      * @since 1.6
-     * @hide
      */
     public boolean setReadable(boolean readable, boolean ownerOnly) {
         if (path.isEmpty()) {
@@ -1004,7 +1000,6 @@ public class File implements Serializable, Comparable<File> {
      * Equivalent to setReadable(readable, true).
      * @see #setReadable(boolean, boolean)
      * @since 1.6
-     * @hide
      */
     public boolean setReadable(boolean readable) {
         return setReadable(readable, true);
@@ -1031,7 +1026,6 @@ public class File implements Serializable, Comparable<File> {
      *             SecurityManager.checkWrite(java.lang.String) disallows write
      *             permission to this file object
      * @since 1.6
-     * @hide
      */
     public boolean setWritable(boolean writable, boolean ownerOnly) {
         if (path.isEmpty()) {
@@ -1048,7 +1042,6 @@ public class File implements Serializable, Comparable<File> {
      * Equivalent to setWritable(writable, true).
      * @see #setWritable(boolean, boolean)
      * @since 1.6
-     * @hide
      */
     public boolean setWritable(boolean writable) {
         return setWritable(writable, true);
@@ -1524,7 +1517,6 @@ public class File implements Serializable, Comparable<File> {
      * Returns 0 if this path does not exist.
      *
      * @since 1.6
-     * @hide
      */
     public long getTotalSpace() {
         SecurityManager security = System.getSecurityManager();
@@ -1547,7 +1539,6 @@ public class File implements Serializable, Comparable<File> {
      * (The {@code getFreeSpace} method returns the number of bytes potentially available to root.)
      *
      * @since 1.6
-     * @hide
      */
     public long getUsableSpace() {
         SecurityManager security = System.getSecurityManager();
@@ -1566,7 +1557,6 @@ public class File implements Serializable, Comparable<File> {
      * be taken as a guarantee your application can actually write this many bytes.
      *
      * @since 1.6
-     * @hide
      */
     public long getFreeSpace() {
         SecurityManager security = System.getSecurityManager();

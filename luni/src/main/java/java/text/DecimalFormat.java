@@ -1295,7 +1295,6 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Returns the {@code RoundingMode} used by this {@code NumberFormat}.
      * @since 1.6
-     * @hide
      */
     public RoundingMode getRoundingMode() {
         return roundingMode;
@@ -1304,7 +1303,6 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Sets the {@code RoundingMode} used by this {@code NumberFormat}.
      * @since 1.6
-     * @hide
      */
     public void setRoundingMode(RoundingMode roundingMode) {
         if (roundingMode == null) {

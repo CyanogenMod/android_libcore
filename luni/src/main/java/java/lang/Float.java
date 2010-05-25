@@ -61,7 +61,6 @@ public final class Float extends Number implements Comparable<Float> {
      * Constant for the smallest positive normal value of the {@code float} type.
      *
      * @since 1.6
-     * @hide
      */
     public static final float MIN_NORMAL = 1.1754943508222875E-38f;
 
@@ -70,7 +69,6 @@ public final class Float extends Number implements Comparable<Float> {
      * Equal to {@code Math.getExponent(Float.MAX_VALUE)}.
      *
      * @since 1.6
-     * @hide
      */
     public static final int MAX_EXPONENT = 127;
 
@@ -79,7 +77,6 @@ public final class Float extends Number implements Comparable<Float> {
      * Equal to {@code Math.getExponent(Float.MIN_NORMAL)}.
      *
      * @since 1.6
-     * @hide
      */
     public static final int MIN_EXPONENT = -126;
 

@@ -448,7 +448,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * @see #valueOf(long)
      * @see #valueOf(Object)
      * @since 1.6
-     * @hide
      */
     public String(byte[] data, int start, int length, final Charset encoding) {
         if (encoding == null) {
@@ -489,7 +488,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * @see #valueOf(long)
      * @see #valueOf(Object)
      * @since 1.6
-     * @hide
      */
     public String(byte[] data, Charset encoding) {
         this(data, 0, data.length, encoding);
@@ -1040,7 +1038,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * @param encoding the encoding
      *
      * @since 1.6
-     * @hide
      */
     public byte[] getBytes(Charset encoding) {
         CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
@@ -1285,7 +1282,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * Returns true if the length of this string is 0.
      *
      * @since 1.6
-     * @hide
      */
     public boolean isEmpty() {
         return count == 0;

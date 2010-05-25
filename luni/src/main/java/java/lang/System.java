@@ -470,7 +470,6 @@ public final class System {
      * Not all VMs will have an associated console. A console is typically only
      * available for programs run from the command line.
      * @since 1.6
-     * @hide
      */
     public static Console console() {
         return Console.getConsole();

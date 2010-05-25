@@ -108,7 +108,6 @@ public class PipedReader extends Reader {
      * @param pipeSize the size of the buffer in chars.
      * @throws IllegalArgumentException if pipeSize is less than or equal to zero.
      * @since 1.6
-     * @hide
      */
     public PipedReader(int pipeSize) {
         if (pipeSize <= 0) {
@@ -127,7 +126,6 @@ public class PipedReader extends Reader {
      * @throws IOException if an I/O error occurs
      * @throws IllegalArgumentException if pipeSize is less than or equal to zero.
      * @since 1.6
-     * @hide
      */
     public PipedReader(PipedWriter out, int pipeSize) throws IOException {
         this(pipeSize);

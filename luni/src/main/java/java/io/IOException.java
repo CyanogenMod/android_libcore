@@ -54,7 +54,6 @@ public class IOException extends Exception {
      * @param cause
      *            The detail cause for the exception.
      * @since 1.6
-     * @hide
      */
     public IOException(String message, Throwable cause) {
         super(message, cause);
@@ -66,7 +65,6 @@ public class IOException extends Exception {
      * @param cause
      *            The detail cause for the exception.
      * @since 1.6
-     * @hide
      */
     public IOException(Throwable cause) {
         super(cause == null ? null : cause.toString(), cause);

@@ -20,7 +20,6 @@ package java.util.zip;
 /**
  * Thrown when an unrecoverable ZIP error has occurred.
  * @since 1.6
- * @hide
  */
 public class ZipError extends InternalError {
     private static final long serialVersionUID = 853973422266861979L;

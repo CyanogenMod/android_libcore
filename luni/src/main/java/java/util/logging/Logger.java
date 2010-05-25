@@ -97,7 +97,6 @@ public class Logger {
      * The name of the global logger. Before using this, see the discussion of how to use
      * {@code Logger} in the class documentation.
      * @since 1.6
-     * @hide
      */
     public static final String GLOBAL_LOGGER_NAME = "global";
 

@@ -232,7 +232,6 @@ public class PrintWriter extends Writer {
     /**
      * Sets the error state of the stream to false.
      * @since 1.6
-     * @hide
      */
     protected void clearError() {
         synchronized (lock) {

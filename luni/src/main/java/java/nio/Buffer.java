@@ -124,7 +124,6 @@ public abstract class Buffer {
      * @throws ReadOnlyBufferException if the buffer is read-only
      *         UnsupportedOperationException if the buffer does not expose an array
      * @since 1.6
-     * @hide
      */
     public abstract Object array();
 
@@ -143,7 +142,6 @@ public abstract class Buffer {
      * @throws ReadOnlyBufferException if the buffer is read-only
      *         UnsupportedOperationException if the buffer does not expose an array
      * @since 1.6
-     * @hide
      */
     public abstract int arrayOffset();
 
@@ -196,7 +194,6 @@ public abstract class Buffer {
      * {@code UnsupportedOperationException}, nor does it return true for buffers backed by
      * read-only arrays, because the other methods would throw {@code ReadOnlyBufferException}.
      * @since 1.6
-     * @hide
      */
     public abstract boolean hasArray();
 
@@ -214,7 +211,6 @@ public abstract class Buffer {
     /**
      * Returns true if this is a direct buffer.
      * @since 1.6
-     * @hide
      */
     public abstract boolean isDirect();
 

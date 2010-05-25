@@ -132,7 +132,6 @@ public abstract class ListResourceBundle extends ResourceBundle {
      *
      * @return a set of the keys in this ResourceBundle but not in its parents.
      * @since 1.6
-     * @hide
      */
     protected Set<String> handleKeySet() {
         initializeTable();

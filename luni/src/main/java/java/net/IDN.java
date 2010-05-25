@@ -25,7 +25,6 @@ import com.ibm.icu4jni.text.NativeIDN;
  * <p>See <a href="http://www.ietf.org/rfc/rfc3490.txt">RFC 3490</a> for full details.
  *
  * @since 1.6
- * @hide
  */
 public final class IDN {
     /**

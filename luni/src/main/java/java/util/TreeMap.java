@@ -118,8 +118,8 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
      * Create a tree map ordered by {@code comparator}. This map's keys may only
      * be null if {@code comparator} permits.
      *
-     * @parameter comparator the comparator to order elements with, or {@code
-     *     null} to use the natural ordering.
+     * @param comparator the comparator to order elements with, or {@code null} to use the natural
+     * ordering.
      */
     @SuppressWarnings("unchecked") // unsafe! if comparator is null, this assumes K is comparable
     public TreeMap(Comparator<? super K> comparator) {

@@ -24,7 +24,6 @@ import com.ibm.icu4jni.text.NativeNormalizer;
  * Unicode Normalization Forms</a>. Normalization can decompose and compose
  * characters for equivalency checking.
  *
- * @hide
  * @since 1.6
  */
 public final class Normalizer {

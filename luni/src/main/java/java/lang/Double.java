@@ -64,7 +64,6 @@ public final class Double extends Number implements Comparable<Double> {
      * Constant for the smallest positive normal value of the {@code double} type.
      *
      * @since 1.6
-     * @hide
      */
     public static final double MIN_NORMAL = 2.2250738585072014E-308;
 
@@ -73,7 +72,6 @@ public final class Double extends Number implements Comparable<Double> {
      * Equal to {@code Math.getExponent(Double.MAX_VALUE)}.
      *
      * @since 1.6
-     * @hide
      */
     public static final int MAX_EXPONENT = 1023;
 
@@ -82,7 +80,6 @@ public final class Double extends Number implements Comparable<Double> {
      * Equal to {@code Math.getExponent(Double.MIN_NORMAL)}.
      *
      * @since 1.6
-     * @hide
      */
     public static final int MIN_EXPONENT = -1022;
 

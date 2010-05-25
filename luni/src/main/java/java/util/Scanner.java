@@ -2192,7 +2192,6 @@ public final class Scanner implements Iterator<String> {
      *
      * @return this scanner
      * @since 1.6
-     * @hide
      */
     public Scanner reset() {
         delimiter = DEFAULT_DELIMITER;

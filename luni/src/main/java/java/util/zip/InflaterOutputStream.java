@@ -26,7 +26,6 @@ import java.io.OutputStream;
  * compressed data in the "deflate" format, and uncompressed data is
  * written to the underlying stream.
  * @since 1.6
- * @hide
  */
 public class InflaterOutputStream extends FilterOutputStream {
     private static final int DEFAULT_BUFFER_SIZE = 1024;

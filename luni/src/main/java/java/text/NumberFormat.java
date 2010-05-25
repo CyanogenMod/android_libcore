@@ -870,7 +870,6 @@ public abstract class NumberFormat extends Format {
      * implementation in {@code NumberFormat} throws {@code UnsupportedOperationException}.
      * Subclasses for which a rounding mode is meaningful are expected to override this method.
      * @since 1.6
-     * @hide
      */
     public RoundingMode getRoundingMode() {
         throw new UnsupportedOperationException();
@@ -881,7 +880,6 @@ public abstract class NumberFormat extends Format {
      * implementation in {@code NumberFormat} throws {@code UnsupportedOperationException}.
      * Subclasses for which a rounding mode is meaningful are expected to override this method.
      * @since 1.6
-     * @hide
      */
     public void setRoundingMode(RoundingMode roundingMode) {
         throw new UnsupportedOperationException();

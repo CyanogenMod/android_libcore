@@ -1040,7 +1040,6 @@ public final class StrictMath {
      * Returns a double with the given magnitude and the sign of {@code sign}.
      * If {@code sign} is NaN, the sign of the result is positive.
      * @since 1.6
-     * @hide
      */
     public static double copySign(double magnitude, double sign) {
         return Math.copySign(magnitude, sign);
@@ -1050,7 +1049,6 @@ public final class StrictMath {
      * Returns a float with the given magnitude and the sign of {@code sign}.
      * If {@code sign} is NaN, the sign of the result is positive.
      * @since 1.6
-     * @hide
      */
     public static float copySign(float magnitude, float sign) {
         return Math.copySign(magnitude, sign);
@@ -1059,7 +1057,6 @@ public final class StrictMath {
     /**
      * Returns the exponent of float {@code f}.
      * @since 1.6
-     * @hide
      */
     public static int getExponent(float f) {
         return Math.getExponent(f);
@@ -1068,7 +1065,6 @@ public final class StrictMath {
     /**
      * Returns the exponent of double {@code d}.
      * @since 1.6
-     * @hide
      */
     public static int getExponent(double d){
         return Math.getExponent(d);
@@ -1077,7 +1073,6 @@ public final class StrictMath {
     /**
      * Returns the next double after {@code start} in the given {@code direction}.
      * @since 1.6
-     * @hide
      */
     public static double nextAfter(double start, double direction) {
         if (start == 0 && direction == 0) {
@@ -1089,7 +1084,6 @@ public final class StrictMath {
     /**
      * Returns the next float after {@code start} in the given {@code direction}.
      * @since 1.6
-     * @hide
      */
     public static float nextAfter(float start, double direction) {
         return Math.nextAfter(start, direction);
@@ -1098,7 +1092,6 @@ public final class StrictMath {
     /**
      * Returns the next double larger than {@code d}.
      * @since 1.6
-     * @hide
      */
     public static double nextUp(double d) {
         return Math.nextUp(d);
@@ -1107,7 +1100,6 @@ public final class StrictMath {
     /**
      * Returns the next float larger than {@code f}.
      * @since 1.6
-     * @hide
      */
     public static float nextUp(float f) {
         return Math.nextUp(f);
@@ -1116,7 +1108,6 @@ public final class StrictMath {
     /**
      * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
      * @since 1.6
-     * @hide
      */
     public static double scalb(double d, int scaleFactor) {
         if (Double.isNaN(d) || Double.isInfinite(d) || d == 0) {
@@ -1175,7 +1166,6 @@ public final class StrictMath {
     /**
      * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
      * @since 1.6
-     * @hide
      */
     public static float scalb(float d, int scaleFactor) {
         if (Float.isNaN(d) || Float.isInfinite(d) || d == 0) {

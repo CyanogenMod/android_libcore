@@ -1097,7 +1097,6 @@ public final class Math {
      * If {@code sign} is NaN, the sign of the result is arbitrary.
      * If you need a determinate sign in such cases, use {@code StrictMath.copySign}.
      * @since 1.6
-     * @hide
      */
     public static native double copySign(double magnitude, double sign);
 
@@ -1106,14 +1105,12 @@ public final class Math {
      * If {@code sign} is NaN, the sign of the result is arbitrary.
      * If you need a determinate sign in such cases, use {@code StrictMath.copySign}.
      * @since 1.6
-     * @hide
      */
     public static native float copySign(float magnitude, float sign);
 
     /**
      * Returns the exponent of float {@code f}.
      * @since 1.6
-     * @hide
      */
     public static int getExponent(float f) {
         int bits = Float.floatToRawIntBits(f);
@@ -1124,7 +1121,6 @@ public final class Math {
     /**
      * Returns the exponent of double {@code d}.
      * @since 1.6
-     * @hide
      */
     public static int getExponent(double d) {
         long bits = Double.doubleToRawLongBits(d);
@@ -1135,7 +1131,6 @@ public final class Math {
     /**
      * Returns the next double after {@code start} in the given {@code direction}.
      * @since 1.6
-     * @hide
      */
     public static double nextAfter(double start, double direction) {
         if (start == 0 && direction == 0) {
@@ -1147,7 +1142,6 @@ public final class Math {
     /**
      * Returns the next float after {@code start} in the given {@code direction}.
      * @since 1.6
-     * @hide
      */
     public static float nextAfter(float start, double direction) {
         if (Float.isNaN(start) || Double.isNaN(direction)) {
@@ -1192,7 +1186,6 @@ public final class Math {
     /**
      * Returns the next double larger than {@code d}.
      * @since 1.6
-     * @hide
      */
     public static double nextUp(double d) {
         if (Double.isNaN(d)) {
@@ -1213,7 +1206,6 @@ public final class Math {
     /**
      * Returns the next float larger than {@code f}.
      * @since 1.6
-     * @hide
      */
     public static float nextUp(float f) {
         if (Float.isNaN(f)) {
@@ -1234,7 +1226,6 @@ public final class Math {
     /**
      * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
      * @since 1.6
-     * @hide
      */
     public static double scalb(double d, int scaleFactor) {
         if (Double.isNaN(d) || Double.isInfinite(d) || d == 0) {
@@ -1292,7 +1283,6 @@ public final class Math {
     /**
      * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
      * @since 1.6
-     * @hide
      */
     public static float scalb(float d, int scaleFactor) {
         if (Float.isNaN(d) || Float.isInfinite(d) || d == 0) {

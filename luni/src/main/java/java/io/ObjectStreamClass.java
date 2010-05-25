@@ -958,7 +958,6 @@ public class ObjectStreamClass implements Serializable {
      *            descriptor
      * @return the descriptor
      * @since 1.6
-     * @hide
      */
     public static ObjectStreamClass lookupAny(Class<?> cl) {
         return  lookupStreamClass(cl);

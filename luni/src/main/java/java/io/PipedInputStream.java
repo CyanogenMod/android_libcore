@@ -108,7 +108,6 @@ public class PipedInputStream extends InputStream {
      * @param pipeSize the size of the buffer in bytes.
      * @throws IllegalArgumentException if pipeSize is less than or equal to zero.
      * @since 1.6
-     * @hide
      */
     public PipedInputStream(int pipeSize) {
         if (pipeSize <= 0) {
@@ -127,7 +126,6 @@ public class PipedInputStream extends InputStream {
      * @throws IOException if an I/O error occurs.
      * @throws IllegalArgumentException if pipeSize is less than or equal to zero.
      * @since 1.6
-     * @hide
      */
     public PipedInputStream(PipedOutputStream out, int pipeSize) throws IOException {
         this(pipeSize);

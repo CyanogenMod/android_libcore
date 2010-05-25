@@ -166,7 +166,6 @@ public final class Locale implements Cloneable, Serializable {
      * country, and variant.
      *
      * @since 1.6
-     * @hide
      */
     public static final Locale ROOT = new Locale("", "", "");
 

@@ -69,7 +69,6 @@ import java.security.PrivilegedAction;
  *
  * @param <S> the service class or interface
  * @since 1.6
- * @hide
  */
 public final class ServiceLoader<S> implements Iterable<S> {
     private final Class<S> service;

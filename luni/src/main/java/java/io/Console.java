@@ -24,7 +24,6 @@ import java.util.Formatter;
  * Provides access to the console, if available. The system-wide instance can
  * be accessed via {@link java.lang.System.console}.
  * @since 1.6
- * @hide
  */
 public final class Console implements Flushable {
     private static final Object CONSOLE_LOCK = new Object();

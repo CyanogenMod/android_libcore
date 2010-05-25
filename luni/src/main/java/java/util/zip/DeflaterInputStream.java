@@ -26,7 +26,6 @@ import java.io.InputStream;
  * compressed data in the "deflate" format from the uncompressed
  * underlying stream.
  * @since 1.6
- * @hide
  */
 public class DeflaterInputStream extends FilterInputStream {
     private static final int DEFAULT_BUFFER_SIZE = 1024;

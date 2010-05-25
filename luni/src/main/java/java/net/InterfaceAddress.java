@@ -21,7 +21,6 @@ package java.net;
  * These are passed back from the JNI behind NetworkInterface.getNetworkInterfaces.
  * Multiple addresses for the same interface are collected together on the Java side.
  *
- * @hide
  * @since 1.6
  */
 public class InterfaceAddress {

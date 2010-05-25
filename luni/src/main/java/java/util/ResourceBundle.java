@@ -235,7 +235,6 @@ public abstract class ResourceBundle {
      * @return the named resource bundle
      *
      * @since 1.6
-     * @hide
      */
     public static final ResourceBundle getBundle(String baseName, ResourceBundle.Control control) {
         return getBundle(baseName, Locale.getDefault(), getLoader(), control);
@@ -253,7 +252,6 @@ public abstract class ResourceBundle {
      * @return the named resource bundle
      *
      * @since 1.6
-     * @hide
      */
     public static final ResourceBundle getBundle(String baseName,
             Locale targetLocale, ResourceBundle.Control control) {
@@ -287,7 +285,6 @@ public abstract class ResourceBundle {
      * @return the named resource bundle
      *
      * @since 1.6
-     * @hide
      */
     public static ResourceBundle getBundle(String baseName,
             Locale targetLocale, ClassLoader loader,
@@ -721,7 +718,6 @@ public abstract class ResourceBundle {
      * However users can implement their own control.
      *
      * @since 1.6
-     * @hide
      */
     public static class Control {
         static List<String> listDefault = new ArrayList<String>();
