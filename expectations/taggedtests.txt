@@ -3,3 +3,6 @@
 test java.util.EnumSet.EnumSetBash
 tags large
 
+test org.apache.harmony.tests.java.util.regex.MatcherTest.testAllCodePoints
+tags large
+
