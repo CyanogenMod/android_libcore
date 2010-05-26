@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -62,17 +63,42 @@ import java.util.Set;
  */
 public final class HttpCookie implements Cloneable {
 
-    private static final ThreadLocal<DateFormat[]> DATE_FORMATS = new ThreadLocal<DateFormat[]>() {
-        @Override protected DateFormat[] initialValue() {
-            return new DateFormat[] {
-                    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz"), // RFC 1123
-                    new SimpleDateFormat("EEEE, dd-MMM-yy HH:mm:ss zzz"),  // RFC 1036
-                    new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy"),       // ANSI C asctime()
-            };
+    /**
+     * Most websites serve cookies in the blessed format. Eagerly create the parser to ensure such
+     * cookies are on the fast path.
+     */
+    private static final ThreadLocal<DateFormat> STANDARD_DATE_FORMAT
+            = new ThreadLocal<DateFormat>() {
+        @Override protected DateFormat initialValue() {
+            return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US); // RFC 1123
         }
     };
 
+    /**
+     * If we fail to parse a date in a non-standard format, try each of these formats in sequence.
+     */
+    private static final String[] BROWSER_COMPATIBLE_DATE_FORMATS = new String[] {
+            /* This list comes from  {@code org.apache.http.impl.cookie.BrowserCompatSpec}. */
+            "EEEE, dd-MMM-yy HH:mm:ss zzz", // RFC 1036
+            "EEE MMM d HH:mm:ss yyyy", // ANSI C asctime()
+            "EEE, dd-MMM-yyyy HH:mm:ss z",
+            "EEE, dd-MMM-yyyy HH-mm-ss z",
+            "EEE, dd MMM yy HH:mm:ss z",
+            "EEE dd-MMM-yyyy HH:mm:ss z",
+            "EEE dd MMM yyyy HH:mm:ss z",
+            "EEE dd-MMM-yyyy HH-mm-ss z",
+            "EEE dd-MMM-yy HH:mm:ss z",
+            "EEE dd MMM yy HH:mm:ss z",
+            "EEE,dd-MMM-yy HH:mm:ss z",
+            "EEE,dd-MMM-yyyy HH:mm:ss z",
+            "EEE, dd-MM-yyyy HH:mm:ss z",
+
+            /* RI bug 6641315 claims a cookie of this format was once served by www.yahoo.com */
+            "EEE MMM d yyyy HH:mm:ss z",
+    };
+
     private static final Set<String> RESERVED_NAMES = new HashSet<String>();
+
     static {
         RESERVED_NAMES.add("comment");    //           RFC 2109  RFC 2965
         RESERVED_NAMES.add("commenturl"); //                     RFC 2965
@@ -115,6 +141,18 @@ public final class HttpCookie implements Cloneable {
         }
 
         /*
+         * Not in the spec! If prefixing a hostname with "." causes it to equal the domain pattern,
+         * then it should match. This is necessary so that the pattern ".google.com" will match the
+         * host "google.com".
+         */
+        if (b.length() == 1 + a.length()
+                && b.startsWith(".")
+                && b.endsWith(a)
+                && isFullyQualifiedDomainName(b, 1)) {
+            return true;
+        }
+
+        /*
          * From the spec: "A is a HDN string and has the form NB, where N is a
          * non-empty name string, B has the form .B', and B' is a HDN string.
          * (So, x.y.com domain-matches .Y.com but not Y.com.)
@@ -125,14 +163,34 @@ public final class HttpCookie implements Cloneable {
     }
 
     /**
-     * Returns true if {@code cookie} should be sent to or accepted from {@code uri}. Cookies match
-     * by directory prefix: URI "/foo" matches cookies "/foo", "/foo/" and "/foo/bar", but not "/"
-     * or "/foobar".
+     * Returns true if {@code cookie} should be sent to or accepted from {@code uri} with respect
+     * to the cookie's path. Cookies match by directory prefix: URI "/foo" matches cookies "/foo",
+     * "/foo/" and "/foo/bar", but not "/" or "/foobar".
      */
-    static boolean pathMatches(URI uri, HttpCookie cookie) {
+    static boolean pathMatches(HttpCookie cookie, URI uri) {
         String uriPath = matchablePath(uri.getPath());
         String cookiePath = matchablePath(cookie.getPath());
         return uriPath.startsWith(cookiePath);
+    }
+
+    /**
+     * Returns true if {@code cookie} should be sent to {@code uri} with respect to the cookie's
+     * secure attribute. Secure cookies should not be sent in insecure (ie. non-HTTPS) requests.
+     */
+    static boolean secureMatches(HttpCookie cookie, URI uri) {
+        return !cookie.getSecure() || "https".equalsIgnoreCase(uri.getScheme());
+    }
+
+    /**
+     * Returns true if {@code cookie} should be sent to {@code uri} with respect to the cookie's
+     * port list.
+     */
+    static boolean portMatches(HttpCookie cookie, URI uri) {
+        if (cookie.getPortlist() == null) {
+            return true;
+        }
+        return Arrays.asList(cookie.getPortlist().split(","))
+                .contains(Integer.toString(uri.getEffectivePort()));
     }
 
     /**
@@ -153,6 +211,9 @@ public final class HttpCookie implements Cloneable {
      * between its first and last characters, exclusive. This considers both
      * {@code android.com} and {@code co.uk} to be fully qualified domain names,
      * but not {@code android.com.}, {@code .com}. or {@code android}.
+     *
+     * <p>Although this implements the cookie spec's definition of FQDN, it is
+     * not general purpose. For example, this returns true for IPv4 addresses.
      */
     private static boolean isFullyQualifiedDomainName(String s, int firstCharacter) {
         int dotPosition = s.indexOf('.', firstCharacter + 1);
@@ -297,14 +358,11 @@ public final class HttpCookie implements Cloneable {
             } else if (name.equals("expires")) {
                 hasExpires = true;
                 if (cookie.maxAge == -1L) {
-                    cookie.maxAge = 0; // only in case parsing fails
-                    for (DateFormat dateFormat : DATE_FORMATS.get()) {
-                        try {
-                            Date date = dateFormat.parse(value);
-                            cookie.setExpires(date);
-                            return;
-                        } catch (ParseException ignore) {
-                        }
+                    Date date = parseHttpDate(value);
+                    if (date != null) {
+                        cookie.setExpires(date);
+                    } else {
+                        cookie.maxAge = 0;
                     }
                 }
             } else if (name.equals("max-age") && cookie.maxAge == -1L) {
@@ -313,12 +371,26 @@ public final class HttpCookie implements Cloneable {
             } else if (name.equals("path") && cookie.path == null) {
                 cookie.path = value;
             } else if (name.equals("port") && cookie.portList == null) {
-                cookie.portList = value;
+                cookie.portList = value != null ? value : "";
             } else if (name.equals("secure")) {
                 cookie.secure = true;
             } else if (name.equals("version") && !hasVersion) {
                 cookie.version = Integer.parseInt(value);
             }
+        }
+
+        private Date parseHttpDate(String value) {
+            try {
+                return STANDARD_DATE_FORMAT.get().parse(value);
+            } catch (ParseException ignore) {
+            }
+            for (String formatString : BROWSER_COMPATIBLE_DATE_FORMATS) {
+                try {
+                    return new SimpleDateFormat(formatString, Locale.US).parse(value);
+                } catch (ParseException ignore) {
+                }
+            }
+            return null;
         }
 
         /**
@@ -354,10 +426,13 @@ public final class HttpCookie implements Cloneable {
         private String readAttributeValue(String terminators) {
             skipWhitespace();
 
-            // quoted string: read 'til the close quote
-            if (pos < input.length() && input.charAt(pos) == '"') {
-                pos++;
-                int closeQuote = input.indexOf('"', pos);
+            /*
+             * Quoted string: read 'til the close quote. The spec mentions only "double quotes"
+             * but RI bug 6901170 claims that 'single quotes' are also used.
+             */
+            if (pos < input.length() && (input.charAt(pos) == '"' || input.charAt(pos) == '\'')) {
+                char quoteCharacter = input.charAt(pos++);
+                int closeQuote = input.indexOf(quoteCharacter, pos);
                 if (closeQuote == -1) {
                     throw new IllegalArgumentException("Unterminated string literal in " + input);
                 }
@@ -500,7 +575,9 @@ public final class HttpCookie implements Cloneable {
 
     /**
      * Returns the {@code Port} attribute, usually containing comma-separated
-     * port numbers.
+     * port numbers. A null port indicates that the cookie may be sent to any
+     * port. The empty string indicates that the cookie should only be sent to
+     * the port of the originating request.
      */
     public String getPortlist() {
         return portList;

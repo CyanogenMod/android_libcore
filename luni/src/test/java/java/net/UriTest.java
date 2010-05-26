@@ -46,4 +46,8 @@ public class UriTest extends TestCase {
     public void testIPv6WithoutSquareBrackets() throws URISyntaxException {
         assertEquals(null, new URI("http://fe80::1234/").getHost());
     }
+
+    public void testEqualityWithNoPath() throws URISyntaxException {
+        assertFalse(new URI("http://android.com").equals(new URI("http://android.com/")));
+    }
 }
