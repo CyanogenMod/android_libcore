@@ -110,7 +110,9 @@ public class CookieManager extends CookieHandler {
 
         List<HttpCookie> result = new ArrayList<HttpCookie>();
         for (HttpCookie cookie : store.get(uri)) {
-            if (HttpCookie.pathMatches(uri, cookie)) {
+            if (HttpCookie.pathMatches(cookie, uri)
+                    && HttpCookie.secureMatches(cookie, uri)
+                    && HttpCookie.portMatches(cookie, uri)) {
                 result.add(cookie);
             }
         }
@@ -158,25 +160,26 @@ public class CookieManager extends CookieHandler {
             throw new IllegalArgumentException();
         }
 
-        String uriPath = uri.getPath();
-        if (uriPath == null) {
-            uriPath = "/";
-        }
-
         // parse and construct cookies according to the map
         List<HttpCookie> cookies = parseCookie(responseHeaders);
         for (HttpCookie cookie : cookies) {
 
-            // if the cookie doesn't have a domain, set one.
+            // if the cookie doesn't have a domain, set one. The policy will do validation.
             if (cookie.getDomain() == null) {
                 cookie.setDomain(uri.getHost());
             }
 
-            // If the cookie doesn't have a path, set one. If it does, validate it.
+            // if the cookie doesn't have a path, set one. If it does, validate it.
             if (cookie.getPath() == null) {
-                int lastSlash = uriPath.lastIndexOf('/'); // -1 yields the empty string
-                cookie.setPath(uriPath.substring(0, lastSlash + 1));
-            } else if (!HttpCookie.pathMatches(uri, cookie)) {
+                cookie.setPath(pathToCookiePath(uri.getPath()));
+            } else if (!HttpCookie.pathMatches(cookie, uri)) {
+                continue;
+            }
+
+            // if the cookie has the placeholder port list "", set the port. Otherwise validate it.
+            if ("".equals(cookie.getPortlist())) {
+                cookie.setPortlist(Integer.toString(uri.getEffectivePort()));
+            } else if (cookie.getPortlist() != null && !HttpCookie.portMatches(cookie, uri)) {
                 continue;
             }
 
@@ -185,6 +188,19 @@ public class CookieManager extends CookieHandler {
                 store.add(uri, cookie);
             }
         }
+    }
+
+    /**
+     * Returns a cookie-safe path by truncating everything after the last "/".
+     * When request path like "/foo/bar.html" yields a cookie, that cookie's
+     * default path is "/foo/".
+     */
+    static String pathToCookiePath(String path) {
+        if (path == null) {
+            return "/";
+        }
+        int lastSlash = path.lastIndexOf('/'); // -1 yields the empty string
+        return path.substring(0, lastSlash + 1);
     }
 
     private static List<HttpCookie> parseCookie(Map<String, List<String>> responseHeaders) {

@@ -981,6 +981,27 @@ public final class URI implements Comparable<URI>, Serializable {
     }
 
     /**
+     * Returns the port of {@code host} that requests to this URI shall use.
+     * Unlike {@code getPort}, this returns the default port (80 or 443) for
+     * built-in protocols when known.
+     *
+     * @hide
+     */
+    public int getEffectivePort() {
+        if (port != -1) {
+            return port;
+        }
+
+        if ("http".equalsIgnoreCase(scheme)) {
+            return 80;
+        } else if ("https".equalsIgnoreCase(scheme)) {
+            return 443;
+        } else {
+            return -1;
+        }
+    }
+
+    /**
      * Gets the decoded query part of this URI.
      *
      * @return the decoded query part or {@code null} if undefined.
