@@ -25,7 +25,7 @@ import java.util.Enumeration;
 import org.apache.harmony.luni.util.Inet6Util;
 
 /**
- * This class represents a 128 bit long IPv6 address.
+ * An IPv6 address. See {@link InetAddress}.
  */
 public final class Inet6Address extends InetAddress {
 

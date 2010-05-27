@@ -38,18 +38,93 @@ import org.apache.harmony.luni.platform.Platform;
  * in practice you'll have an instance of either {@code Inet4Address} or {@code Inet6Address} (this
  * class cannot be instantiated directly). Most code does not need to distinguish between the two
  * families, and should use {@code InetAddress}.
- * <p>
- * An {@code InetAddress} may have a hostname (accessible via {@code getHostName}), but may not,
+ *
+ * <p>An {@code InetAddress} may have a hostname (accessible via {@code getHostName}), but may not,
  * depending on how the {@code InetAddress} was created.
- * <p>
- * On Android, addresses are cached for 600 seconds (10 minutes) by default. Failed lookups are
+ *
+ * <h4>IPv4 numeric address formats</h4>
+ * <p>The {@code getAllByName} method accepts IPv4 addresses in the following forms:
+ * <ul>
+ * <li>{@code "1.2.3.4"} - 1.2.3.4
+ * <li>{@code "1.2.3"} - 1.2.0.3
+ * <li>{@code "1.2"} - 1.0.0.2
+ * <li>{@code "16909060"} - 1.2.3.4
+ * </ul>
+ * <p>In the first three cases, each number is treated as an 8-bit value between 0 and 255.
+ * In the fourth case, the single number is treated as a 32-bit value representing the entire
+ * address.
+ * <p>Note that each numeric part can be expressed in decimal (as above) or hex. For example,
+ * {@code "0x01020304"} is equivalent to 1.2.3.4 and {@code "0xa.0xb.0xc.0xd"} is equivalent
+ * to 10.11.12.13.
+ *
+ * <p>Typically, only the four-dot decimal form ({@code "1.2.3.4"}) is ever used. Any method that
+ * <i>returns</i> a textual numeric address will use four-dot decimal form.
+ *
+ * <h4>IPv6 numeric address formats</h4>
+ * <p>The {@code getAllByName} method accepts IPv6 addresses in the following forms (this text
+ * comes from <a href="http://www.ietf.org/rfc/rfc2373.txt">RFC 2373</a>, which you should consult
+ * for full details of IPv6 addressing):
+ * <ul>
+ * <li><p>The preferred form is {@code x:x:x:x:x:x:x:x}, where the 'x's are the
+ * hexadecimal values of the eight 16-bit pieces of the address.
+ * Note that it is not necessary to write the leading zeros in an
+ * individual field, but there must be at least one numeral in every
+ * field (except for the case described in the next bullet).
+ * Examples:
+ * <pre>
+ *     FEDC:BA98:7654:3210:FEDC:BA98:7654:3210
+ *     1080:0:0:0:8:800:200C:417A</pre>
+ * </li>
+ * <li>Due to some methods of allocating certain styles of IPv6
+ * addresses, it will be common for addresses to contain long strings
+ * of zero bits.  In order to make writing addresses containing zero
+ * bits easier a special syntax is available to compress the zeros.
+ * The use of "::" indicates multiple groups of 16-bits of zeros.
+ * The "::" can only appear once in an address.  The "::" can also be
+ * used to compress the leading and/or trailing zeros in an address.
+ *
+ * For example the following addresses:
+ * <pre>
+ *     1080:0:0:0:8:800:200C:417A  a unicast address
+ *     FF01:0:0:0:0:0:0:101        a multicast address
+ *     0:0:0:0:0:0:0:1             the loopback address
+ *     0:0:0:0:0:0:0:0             the unspecified addresses</pre>
+ * may be represented as:
+ * <pre>
+ *     1080::8:800:200C:417A       a unicast address
+ *     FF01::101                   a multicast address
+ *     ::1                         the loopback address
+ *     ::                          the unspecified addresses</pre>
+ * </li>
+ * <li><p>An alternative form that is sometimes more convenient when dealing
+ * with a mixed environment of IPv4 and IPv6 nodes is
+ * {@code x:x:x:x:x:x:d.d.d.d}, where the 'x's are the hexadecimal values of
+ * the six high-order 16-bit pieces of the address, and the 'd's are
+ * the decimal values of the four low-order 8-bit pieces of the
+ * address (standard IPv4 representation).  Examples:
+ * <pre>
+ *     0:0:0:0:0:0:13.1.68.3
+ *     0:0:0:0:0:FFFF:129.144.52.38</pre>
+ * or in compressed form:
+ * <pre>
+ *     ::13.1.68.3
+ *     ::FFFF:129.144.52.38</pre>
+ * </li>
+ * </ul>
+ * <p>Scopes are given using a trailing {@code %} followed by the scope id, as in
+ * {@code 1080::8:800:200C:417A%2} or {@code 1080::8:800:200C:417A%en0}.
+ * See <a href="https://www.ietf.org/rfc/rfc4007.txt">RFC 4007</a> for more on IPv6's scoped
+ * address architecture.
+ *
+ * <h4>DNS caching</h4>
+ * <p>On Android, addresses are cached for 600 seconds (10 minutes) by default. Failed lookups are
  * cached for 10 seconds. The underlying C library or OS may cache for longer, but you can control
  * the Java-level caching with the usual {@code "networkaddress.cache.ttl"} and
  * {@code "networkaddress.cache.negative.ttl"} system properties. These are parsed as integer
  * numbers of seconds, where the special value 0 means "don't cache" and -1 means "cache forever".
- * <p>
- * Note also that on Android &ndash; unlike the RI &ndash; the cache is not unbounded. The current
- * implementation caches around 512 entries, removed on a least-recently-used basis.
+ *
+ * <p>Note also that on Android &ndash; unlike the RI &ndash; the cache is not unbounded. The
+ * current implementation caches around 512 entries, removed on a least-recently-used basis.
  * (Obviously, you should not rely on these details.)
  *
  * @see Inet4Address
@@ -139,8 +214,7 @@ public class InetAddress implements Serializable {
      * @param hostName the hostname corresponding to the IP address.
      * @return the corresponding InetAddresses, appropriately sorted.
      */
-    static InetAddress[] bytesToInetAddresses(byte[][] rawAddresses,
-            String hostName) {
+    static InetAddress[] bytesToInetAddresses(byte[][] rawAddresses, String hostName) {
         // If we prefer IPv4, ignore the RFC3484 ordering we get from getaddrinfo
         // and always put IPv4 addresses first. Arrays.sort() is stable, so the
         // internal ordering will not be changed.
