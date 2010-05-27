@@ -76,7 +76,7 @@ public class KeyStoreBuilderParametersTest extends TestCase {
 
         //Null parameter
         try {
-            KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters((List)null);
+            KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters((List) null);
             fail("NullPointerException should be thrown");
         } catch (NullPointerException npe) {
             //expected
