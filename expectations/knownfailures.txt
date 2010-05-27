@@ -875,7 +875,7 @@ result EXEC_FAILED
 test javax.net.ssl.SSLEngineTest#test_SSLEngine_beginHandshake_noKeyStore
 result EXEC_FAILED
 
-# NO SERVER CERTIFICATE FOUND - selectSuite should not pick a suite that needs a certificate if it is missing
+# No *_WITH_NULL_* ciphers work because of 'Invalid transformation: null'
 test javax.net.ssl.SSLEngineTest#test_SSLEngine_getSupportedCipherSuites_connect
 result EXEC_FAILED
 
@@ -893,10 +893,6 @@ result EXEC_FAILED
 
 # SSLHandshakeException instead of failure to handshake
 test javax.net.ssl.SSLEngineTest#test_SSLEngine_setUseClientMode
-result EXEC_FAILED
-
-# No *_WITH_NULL_* ciphers work because of 'Invalid transformation: null'
-test javax.net.ssl.SSLEngineTest#test_SSLEngine_getSupportedCipherSuites_connect
 result EXEC_FAILED
 
 # method test fails once in a while. Cannot be sure that exception is thrown in every test execution.
