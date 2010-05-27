@@ -26,7 +26,7 @@
 static jint getIterator(JNIEnv* env, jstring locale, UBreakIteratorType type) {
     UErrorCode status = U_ZERO_ERROR;
     ScopedUtfChars localeChars(env, locale);
-    if (!localeChars.c_str()) {
+    if (localeChars.c_str() == NULL) {
         return 0;
     }
     UBreakIterator* it = ubrk_open(type, localeChars.c_str(), NULL, 0, &status);

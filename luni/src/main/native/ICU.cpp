@@ -90,7 +90,7 @@ static jint getCurrencyFractionDigitsNative(JNIEnv* env, jclass, jstring currenc
     return fmt->getMinimumFractionDigits();
 }
 
-static jstring getCurrencyCodeNative(JNIEnv* env, jclass, jstring key) {
+static jstring getCurrencyCodeNative(JNIEnv* env, jclass, jstring javaKey) {
     UErrorCode status = U_ZERO_ERROR;
     ScopedResourceBundle supplData(ures_openDirect(NULL, "supplementalData", &status));
     if (U_FAILURE(status)) {
@@ -102,9 +102,8 @@ static jstring getCurrencyCodeNative(JNIEnv* env, jclass, jstring key) {
         return NULL;
     }
 
-    const char* keyChars = env->GetStringUTFChars(key, NULL);
-    ScopedResourceBundle currency(ures_getByKey(currencyMap.get(), keyChars, NULL, &status));
-    env->ReleaseStringUTFChars(key, keyChars);
+    ScopedUtfChars key(env, javaKey);
+    ScopedResourceBundle currency(ures_getByKey(currencyMap.get(), key.c_str(), NULL, &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
@@ -142,10 +141,9 @@ static jstring getCurrencyCodeNative(JNIEnv* env, jclass, jstring key) {
 static jstring getCurrencySymbolNative(JNIEnv* env, jclass, jstring locale, jstring currencyCode) {
     // LOGI("ENTER getCurrencySymbolNative");
 
-    const char* locName = env->GetStringUTFChars(locale, NULL);
+    ScopedUtfChars localeName(env, locale);
     UErrorCode status = U_ZERO_ERROR;
-    ScopedResourceBundle root(ures_open(NULL, locName, &status));
-    env->ReleaseStringUTFChars(locale, locName);
+    ScopedResourceBundle root(ures_open(NULL, localeName.c_str(), &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
@@ -155,9 +153,8 @@ static jstring getCurrencySymbolNative(JNIEnv* env, jclass, jstring locale, jstr
         return NULL;
     }
 
-    const char* currName = env->GetStringUTFChars(currencyCode, NULL);
-    ScopedResourceBundle currencyElems(ures_getByKey(currencies.get(), currName, NULL, &status));
-    env->ReleaseStringUTFChars(currencyCode, currName);
+    ScopedUtfChars currency(env, currencyCode);
+    ScopedResourceBundle currencyElems(ures_getByKey(currencies.get(), currency.c_str(), NULL, &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
@@ -577,10 +574,9 @@ static void setCharField(JNIEnv* env, jobject obj, const char* fieldName, UResou
 }
 
 static jboolean initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobject localeData) {
-    const char* loc = env->GetStringUTFChars(locale, NULL);
+    ScopedUtfChars localeName(env, locale);
     UErrorCode status = U_ZERO_ERROR;
-    ScopedResourceBundle root(ures_openU(NULL, loc, &status));
-    env->ReleaseStringUTFChars(locale, loc);
+    ScopedResourceBundle root(ures_openU(NULL, localeName.c_str(), &status));
     if (U_FAILURE(status)) {
         LOGE("Error getting ICU resource bundle: %s", u_errorName(status));
         status = U_ZERO_ERROR;

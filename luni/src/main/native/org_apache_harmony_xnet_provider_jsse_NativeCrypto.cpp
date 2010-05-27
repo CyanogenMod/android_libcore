@@ -596,6 +596,9 @@ static void NativeCrypto_EVP_DigestInit(JNIEnv* env, jclass, EVP_MD_CTX* ctx, js
     }
 
     ScopedUtfChars algorithmChars(env, algorithm);
+    if (algorithmChars.c_str() == NULL) {
+        return;
+    }
 
     const EVP_MD *digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
 
@@ -675,6 +678,9 @@ static void NativeCrypto_EVP_VerifyInit(JNIEnv* env, jclass, EVP_MD_CTX* ctx, js
     }
 
     ScopedUtfChars algorithmChars(env, algorithm);
+    if (algorithmChars.c_str() == NULL) {
+        return;
+    }
 
     const EVP_MD *digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
 
@@ -811,18 +817,20 @@ static int NativeCrypto_verifysignature(JNIEnv* env, jclass,
         return -1;
     }
 
-    int result = -1;
-
     ScopedByteArrayRO msgBytes(env, msg);
     ScopedByteArrayRO sigBytes(env, sig);
     ScopedByteArrayRO modBytes(env, mod);
     ScopedByteArrayRO expBytes(env, exp);
 
     ScopedUtfChars algorithmChars(env, algorithm);
+    if (algorithmChars.c_str() == NULL) {
+        return -1;
+    }
     JNI_TRACE("NativeCrypto_verifysignature algorithmChars=%s", algorithmChars.c_str());
 
     Unique_RSA rsa(rsaCreateKey((unsigned char*) modBytes.get(), modBytes.size(),
                                 (unsigned char*) expBytes.get(), expBytes.size()));
+    int result = -1;
     if (rsa.get() != NULL) {
         result = rsaVerify((unsigned char*) msgBytes.get(), msgBytes.size(),
                            (unsigned char*) sigBytes.get(), sigBytes.size(),
@@ -851,11 +859,10 @@ static void NativeCrypto_RAND_seed(JNIEnv* env, jclass, jbyteArray seed) {
 
 static int NativeCrypto_RAND_load_file(JNIEnv* env, jclass, jstring filename, jlong max_bytes) {
     JNI_TRACE("NativeCrypto_RAND_load_file filename=%p max_bytes=%lld", filename, max_bytes);
-    if (filename == NULL) {
-        jniThrowNullPointerException(env, "filename == null");
+    ScopedUtfChars file(env, filename);
+    if (file.c_str() == NULL) {
         return -1;
     }
-    ScopedUtfChars file(env, filename);
     int result = RAND_load_file(file.c_str(), max_bytes);
     JNI_TRACE("NativeCrypto_RAND_load_file file=%s => %d", file.c_str(), result);
     return result;
@@ -1896,6 +1903,9 @@ static void NativeCrypto_SSL_set_cipher_lists(JNIEnv* env, jclass,
         ScopedLocalRef<jstring> cipherSuite(env,
                 reinterpret_cast<jstring>(env->GetObjectArrayElement(cipherSuites, i)));
         ScopedUtfChars c(env, cipherSuite.get());
+        if (c.c_str() == NULL) {
+            return;
+        }
         JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists cipherSuite=%s", ssl, c.c_str());
         bool found = false;
         for (int j = 0; j < num_ciphers; j++) {

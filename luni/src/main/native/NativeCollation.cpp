@@ -117,6 +117,9 @@ static jint next(JNIEnv* env, jclass, jint address) {
 
 static jint openCollator(JNIEnv* env, jclass, jstring localeName) {
     ScopedUtfChars localeChars(env, localeName);
+    if (localeChars.c_str() == NULL) {
+        return 0;
+    }
     UErrorCode status = U_ZERO_ERROR;
     UCollator* c = ucol_open(localeChars.c_str(), &status);
     icu4jni_error(env, status);
@@ -193,7 +196,7 @@ static JNINativeMethod gMethods[] = {
     { "getOffset", "(I)I", (void*) getOffset },
     { "setOffset", "(II)V", (void*) setOffset }
 };
-int register_com_ibm_icu4jni_text_NativeCollator(JNIEnv* env) { 
+int register_com_ibm_icu4jni_text_NativeCollator(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativeCollation",
                 gMethods, NELEM(gMethods));
 }

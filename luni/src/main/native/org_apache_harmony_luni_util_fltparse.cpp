@@ -19,6 +19,7 @@
 #include <string.h>
 #include <math.h>
 #include "JNIHelp.h"
+#include "ScopedUtfChars.h"
 #include "commonDblParce.h"
 #include "cbigint.h"
 
@@ -542,25 +543,20 @@ Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv* env,
                                                         jclass,
                                                         jstring s, jint e)
 {
-  jfloat flt;
-  const char *str = env->GetStringUTFChars(s, 0);
-  flt = createFloat (env, str, e);
-  env->ReleaseStringUTFChars(s, str);
+    ScopedUtfChars str(env, s);
+    if (str.c_str() == NULL) {
+        return 0.0;
+    }
+    jfloat flt = createFloat(env, str.c_str(), e);
 
-  if (((I_32) FLOAT_TO_INTBITS (flt)) >= 0)
-    {
-      return flt;
+    if (((I_32) FLOAT_TO_INTBITS (flt)) >= 0) {
+        return flt;
+    } else if (((I_32) FLOAT_TO_INTBITS (flt)) == (I_32) - 1) {
+        jniThrowException(env, "java/lang/NumberFormatException", NULL);
+    } else {
+        jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
     }
-  else if (((I_32) FLOAT_TO_INTBITS (flt)) == (I_32) - 1)
-    {                           /* NumberFormatException */
-      jniThrowException(env, "java/lang/NumberFormatException", "");
-    }
-  else
-    {                           /* OutOfMemoryError */
-      jniThrowException(env, "java/lang/OutOfMemoryError", "");
-    }
-
-  return 0.0;
+    return 0.0;
 }
 
 JNIEXPORT jdouble JNICALL
@@ -568,25 +564,20 @@ Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv* env,
                                                         jclass,
                                                         jstring s, jint e)
 {
-  jdouble dbl;
-  const char *str = env->GetStringUTFChars(s, 0);
-  dbl = createDouble(env, str, e);
-  env->ReleaseStringUTFChars(s, str);
+    ScopedUtfChars str(env, s);
+    if (str.c_str() == NULL) {
+        return 0.0;
+    }
+    jdouble dbl = createDouble(env, str.c_str(), e);
 
-  if (!ERROR_OCCURED (dbl))
-    {
-      return dbl;
+    if (!ERROR_OCCURED (dbl)) {
+        return dbl;
+    } else if (LOW_I32_FROM_VAR (dbl) == (I_32) - 1) {
+        jniThrowException(env, "java/lang/NumberFormatException", NULL);
+    } else {
+        jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
     }
-  else if (LOW_I32_FROM_VAR (dbl) == (I_32) - 1)
-    {                           /* NumberFormatException */
-      jniThrowException(env, "java/lang/NumberFormatException", "");
-    }
-  else
-    {                           /* OutOfMemoryError */
-      jniThrowException(env, "java/lang/OutOfMemoryError", "");
-    }
-
-  return 0.0;
+    return 0.0;
 }
 
 static JNINativeMethod gMethods[] = {

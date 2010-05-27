@@ -20,12 +20,25 @@
 #include "JNIHelp.h"
 
 // A smart pointer that provides read-only access to a Java string's UTF chars.
+// Unlike GetStringUTFChars, we throw NullPointerException rather than abort if
+// passed a null jstring, and c_str will return NULL.
+// This makes the correct idiom very simple:
+//
+//   ScopedUtfChars name(env, javaName);
+//   if (name.c_str() == NULL) {
+//       return NULL;
+//   }
 class ScopedUtfChars {
 public:
     ScopedUtfChars(JNIEnv* env, jstring s)
-    : mEnv(env), mString(s), mUtfChars(NULL)
+    : mEnv(env), mString(s)
     {
-        mUtfChars = env->GetStringUTFChars(s, NULL);
+        if (s == NULL) {
+            mUtfChars = NULL;
+            jniThrowNullPointerException(env, NULL);
+        } else {
+            mUtfChars = env->GetStringUTFChars(s, NULL);
+        }
     }
 
     ~ScopedUtfChars() {

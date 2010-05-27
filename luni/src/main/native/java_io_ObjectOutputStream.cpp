@@ -16,223 +16,61 @@
  */
 
 #include "JNIHelp.h"
+#include "ScopedUtfChars.h"
 
-static jlong java_getFieldLong(JNIEnv * env, jclass,
-                                              jobject targetObject,
-                                              jclass declaringClass,
-                                              jstring fieldName) {
-    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "J");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid == 0) {
-    	// Field not found. I believe we must throw an exception here
-        return (jlong) 0L;
-    } else {
-        return env->GetLongField(targetObject, fid);
-    }
-}
-
-static jshort java_getFieldShort(JNIEnv* env, jclass,
-                                               jobject targetObject,
-                                               jclass declaringClass,
-                                               jstring fieldName) {
-    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "S");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid == 0) {
-        // Field not found. I believe we must throw an exception here
-        return (jshort) 0;
-    } else {
-        return env->GetShortField(targetObject, fid);
-    }
-}
-
-static jdouble java_getFieldDouble(JNIEnv* env, jclass,
-                                                jobject targetObject,
-                                                jclass declaringClass,
-                                                jstring fieldName) {
-    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "D");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid == 0) {
-        // Field not found. I believe we must throw an exception here
-        return (jdouble) 0.0;
-    } else {
-        return env->GetDoubleField(targetObject, fid);
-    }
-}
-
-static jboolean java_getFieldBool(JNIEnv* env, jclass,
-                                              jobject targetObject,
-                                              jclass declaringClass,
-                                              jstring fieldName) {
-    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "Z");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid == 0) {
-        // Field not found. I believe we must throw an exception here
-        return (jboolean) 0;
-    } else {
-        return env->GetBooleanField(targetObject, fid);
-    }
-}
-
-static jbyte java_getFieldByte(JNIEnv* env, jclass,
-                                              jobject targetObject,
-                                              jclass declaringClass,
-                                              jstring fieldName) {
-    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "B");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid == 0) {
-        // Field not found. I believe we must throw an exception here
-        return (jbyte) 0;
-    } else {
-        return env->GetByteField(targetObject, fid);
-    }
-}
-
-static jfloat java_getFieldFloat(JNIEnv* env, jclass,
-                                               jobject targetObject,
-                                               jclass declaringClass,
-                                               jstring fieldName) {
-    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "F");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid == 0) {
-        // Field not found. I believe we must throw an exception here
-        return (jfloat) 0.0f;
-    }
-    else {
-        return env->GetFloatField(targetObject, fid);
+#define GETTER(FUNCTION_NAME, JNI_C_TYPE, JNI_TYPE_STRING, JNI_GETTER_FUNCTION) \
+    static JNI_C_TYPE FUNCTION_NAME(JNIEnv* env, jclass, jobject instance, jclass declaringClass, \
+            jstring javaFieldName) { \
+        if (instance == NULL) { \
+            return JNI_C_TYPE(); \
+        } \
+        ScopedUtfChars fieldName(env, javaFieldName); \
+        if (fieldName.c_str() == NULL) { \
+            return JNI_C_TYPE(); \
+        } \
+        jfieldID fid = env->GetFieldID(declaringClass, fieldName.c_str(), JNI_TYPE_STRING); \
+        if (fid == 0) { \
+            return JNI_C_TYPE(); \
+        } \
+        return env->JNI_GETTER_FUNCTION(instance, fid); \
     }
 
-}
+GETTER(ObjectOutputStream_getFieldBool,   jboolean, "Z", GetBooleanField)
+GETTER(ObjectOutputStream_getFieldByte,   jbyte,    "B", GetByteField)
+GETTER(ObjectOutputStream_getFieldChar,   jchar,    "C", GetCharField)
+GETTER(ObjectOutputStream_getFieldDouble, jdouble,  "D", GetDoubleField)
+GETTER(ObjectOutputStream_getFieldFloat,  jfloat,   "F", GetFloatField)
+GETTER(ObjectOutputStream_getFieldInt,    jint,     "I", GetIntField)
+GETTER(ObjectOutputStream_getFieldLong,   jlong,    "J", GetLongField)
+GETTER(ObjectOutputStream_getFieldShort,  jshort,   "S", GetShortField)
 
-static jchar java_getFieldChar(JNIEnv* env, jclass,
-                                              jobject targetObject,
-                                              jclass declaringClass,
-                                              jstring fieldName) {
-    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "C");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value
-     */
-    if(fid == 0) {
-        // Field not found. I believe we must throw an exception here
-        return (jchar) 0;
-    } else  {
-        return env->GetCharField(targetObject, fid);
+static jobject ObjectOutputStream_getFieldObj(JNIEnv* env, jclass, jobject instance,
+        jclass declaringClass, jstring javaFieldName, jstring javaFieldTypeName) {
+    ScopedUtfChars fieldName(env, javaFieldName);
+    if (fieldName.c_str() == NULL) {
+        return NULL;
     }
-}
-
-static jobject java_getFieldObj(JNIEnv* env, jclass,
-                                             jobject targetObject,
-                                             jclass declaringClass,
-                                             jstring fieldName,
-                                             jstring fieldTypeName) {
-    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    const char *fieldTypeNameInC =
-    env->GetStringUTFChars(fieldTypeName, NULL);
-    jfieldID fid = env->GetFieldID(declaringClass, 
-            fieldNameInC, fieldTypeNameInC);
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-    env->ReleaseStringUTFChars(fieldTypeName, fieldTypeNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception,
-     * or maybe it returned the real value 
-     */
-    if(fid == 0) {
-        // Field not found. I believe we must throw an exception here
-        return (jobject) 0;
-    } else {
-        return env->GetObjectField(targetObject, fid);
+    ScopedUtfChars fieldTypeName(env, javaFieldTypeName);
+    if (fieldTypeName.c_str() == NULL) {
+        return NULL;
     }
-}
-
-static jint java_getFieldInt(JNIEnv* env, jclass,
-                                             jobject targetObject,
-                                             jclass declaringClass,
-                                             jstring fieldName) {
-    const char *fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    jfieldID fid = env->GetFieldID(declaringClass, fieldNameInC, "I");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused 
-     * an exception, or maybe it returned the real value 
-     */
-     if(fid == 0) {
-       // Field not found. I believe we must throw an exception here
-        return (jint) 0;
-    } else {
-        return env->GetIntField(targetObject, fid);
+    jfieldID fid = env->GetFieldID(declaringClass, fieldName.c_str(), fieldTypeName.c_str());
+    if (fid == 0) {
+        return NULL;
     }
+    return env->GetObjectField(instance, fid);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "getFieldLong",   
-    	"(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)J",
-    	(void*) java_getFieldLong },
-    { "getFieldShort",  
-    	"(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)S",
-    	(void*) java_getFieldShort },
-    { "getFieldDouble", 
-    	"(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)D",
-    	(void*) java_getFieldDouble },
-    { "getFieldBool",   
-    	"(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)Z",
-    	(void*) java_getFieldBool },
-    { "getFieldByte",   
-    	"(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)B",
-    	(void*) java_getFieldByte },
-    { "getFieldFloat",  
-    	"(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)F",
-    	(void*) java_getFieldFloat },
-    { "getFieldChar",   
-    	"(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)C",
-    	(void*) java_getFieldChar },
-    { "getFieldObj",    
-    	"(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;",
-    	(void*) java_getFieldObj },
-    { "getFieldInt",    
-    	"(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)I",
-    	(void*) java_getFieldInt },
-
+    { "getFieldBool",   "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)Z", (void*) ObjectOutputStream_getFieldBool },
+    { "getFieldByte",   "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)B", (void*) ObjectOutputStream_getFieldByte },
+    { "getFieldChar",   "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)C", (void*) ObjectOutputStream_getFieldChar },
+    { "getFieldDouble", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)D", (void*) ObjectOutputStream_getFieldDouble },
+    { "getFieldFloat",  "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)F", (void*) ObjectOutputStream_getFieldFloat },
+    { "getFieldInt",    "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)I", (void*) ObjectOutputStream_getFieldInt },
+    { "getFieldLong",   "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)J", (void*) ObjectOutputStream_getFieldLong },
+    { "getFieldObj",    "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;", (void*) ObjectOutputStream_getFieldObj },
+    { "getFieldShort",  "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)S", (void*) ObjectOutputStream_getFieldShort },
 };
 int register_java_io_ObjectOutputStream(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/ObjectOutputStream", gMethods, NELEM(gMethods));

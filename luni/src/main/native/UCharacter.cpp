@@ -156,15 +156,12 @@ static jboolean isLowerCaseImpl(JNIEnv*, jclass, jint codePoint) {
     return u_islower(codePoint);
 }
 
-static int forNameImpl(JNIEnv* env, jclass, jstring blockName) {
-    if (blockName == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return -1;
+static int forNameImpl(JNIEnv* env, jclass, jstring javaBlockName) {
+    ScopedUtfChars blockName(env, javaBlockName);
+    if (blockName.c_str() == NULL) {
+        return 0;
     }
-    const char* bName = env->GetStringUTFChars(blockName, NULL);
-    int result = u_getPropertyValueEnum(UCHAR_BLOCK, bName);
-    env->ReleaseStringUTFChars(blockName, bName);
-    return result;
+    return u_getPropertyValueEnum(UCHAR_BLOCK, blockName.c_str());
 }
 
 static int ofImpl(JNIEnv*, jclass, jint codePoint) {
