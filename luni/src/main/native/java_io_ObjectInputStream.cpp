@@ -16,265 +16,72 @@
  */
 
 #include "JNIHelp.h"
+#include "ScopedUtfChars.h"
 
-static void java_setFieldBool (JNIEnv* env, jclass, 
-                                         jobject targetObject, 
-                                         jclass declaringClass,
-                                         jstring fieldName, 
-                                         jboolean newValue) {
-    const char *fieldNameInC;
-    jfieldID fid;
-    if(targetObject == NULL) {
+#define SETTER(FUNCTION_NAME, JNI_C_TYPE, JNI_TYPE_STRING, JNI_SETTER_FUNCTION) \
+    static void FUNCTION_NAME(JNIEnv* env, jclass, jobject instance, \
+            jclass declaringClass, jstring javaFieldName, JNI_C_TYPE newValue) { \
+        if (instance == NULL) { \
+            return; \
+        } \
+        ScopedUtfChars fieldName(env, javaFieldName); \
+        if (fieldName.c_str() == NULL) { \
+            return; \
+        } \
+        jfieldID fid = env->GetFieldID(declaringClass, fieldName.c_str(), JNI_TYPE_STRING); \
+        if (fid != 0) { \
+            env->JNI_SETTER_FUNCTION(instance, fid, newValue); \
+        } \
+    }
+
+SETTER(ObjectInputStream_setFieldBool,   jboolean, "Z", SetBooleanField)
+SETTER(ObjectInputStream_setFieldByte,   jbyte,    "B", SetByteField)
+SETTER(ObjectInputStream_setFieldChar,   jchar,    "C", SetCharField)
+SETTER(ObjectInputStream_setFieldDouble, jdouble,  "D", SetDoubleField)
+SETTER(ObjectInputStream_setFieldFloat,  jfloat,   "F", SetFloatField)
+SETTER(ObjectInputStream_setFieldInt,    jint,     "I", SetIntField)
+SETTER(ObjectInputStream_setFieldLong,   jlong,    "J", SetLongField)
+SETTER(ObjectInputStream_setFieldShort,  jshort,   "S", SetShortField)
+
+static void ObjectInputStream_setFieldObj(JNIEnv* env, jclass, jobject instance,
+        jclass declaringClass, jstring javaFieldName, jstring javaFieldTypeName, jobject newValue) {
+    if (instance == NULL) {
         return;
     }
-    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    fid = env->GetFieldID(declaringClass, fieldNameInC, "Z");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid != 0) {
-        env->SetBooleanField(targetObject, fid, newValue);
+    ScopedUtfChars fieldName(env, javaFieldName);
+    if (fieldName.c_str() == NULL) {
+        return;
+    }
+    ScopedUtfChars fieldTypeName(env, javaFieldTypeName);
+    if (fieldTypeName.c_str() == NULL) {
+        return;
+    }
+    jfieldID fid = env->GetFieldID(declaringClass, fieldName.c_str(), fieldTypeName.c_str());
+    if (fid != 0) {
+        env->SetObjectField(instance, fid, newValue);
     }
 }
 
-static void java_setFieldChar (JNIEnv* env, jclass, 
-                                         jobject targetObject, 
-                                         jclass declaringClass,
-                                         jstring fieldName, 
-                                         jchar newValue) {
-    const char *fieldNameInC;
-    jfieldID fid;
-    if(targetObject == NULL) {
-        return;
+static jobject ObjectInputStream_newInstance(JNIEnv* env, jclass,
+        jclass instantiationClass, jclass constructorClass) {
+    jmethodID mid = env->GetMethodID(constructorClass, "<init>", "()V");
+    if (mid == 0) {
+        return NULL;
     }
-    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    fid = env->GetFieldID(declaringClass, fieldNameInC, "C");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid != 0) {
-        env->SetCharField(targetObject, fid, newValue);
-    }
-}
-
-static void java_setFieldInt (JNIEnv* env, jclass, 
-                                         jobject targetObject, 
-                                         jclass declaringClass,
-                                         jstring fieldName, 
-                                         jint newValue) {
-    const char *fieldNameInC;
-    jfieldID fid;
-    if(targetObject == NULL) {
-        return;
-    }
-    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    fid = env->GetFieldID(declaringClass, fieldNameInC, "I");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid != 0) {
-        env->SetIntField(targetObject, fid, newValue);
-    }
-}
-
-static void java_setFieldFloat (JNIEnv* env, jclass, 
-                                         jobject targetObject, 
-                                         jclass declaringClass,
-                                         jstring fieldName, 
-                                         jfloat newValue) {
-    const char *fieldNameInC;
-    jfieldID fid;
-    if(targetObject == NULL) {
-        return;
-    }
-    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    fid = env->GetFieldID(declaringClass, fieldNameInC, "F");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid != 0) {
-        env->SetFloatField(targetObject, fid, newValue);
-    }
-}
-
-static void java_setFieldDouble (JNIEnv* env, jclass, 
-                                         jobject targetObject, 
-                                         jclass declaringClass,
-                                         jstring fieldName, 
-                                         jdouble newValue) {
-    const char *fieldNameInC;
-    jfieldID fid;
-    if(targetObject == NULL) {
-        return;
-    }
-    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    fid = env->GetFieldID(declaringClass, fieldNameInC, "D");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid != 0) {
-        env->SetDoubleField(targetObject, fid, newValue);
-    }
-
-}
-
-static void java_setFieldShort (JNIEnv* env, jclass, 
-                                         jobject targetObject, 
-                                         jclass declaringClass,
-                                         jstring fieldName, 
-                                         jshort newValue) {
-    const char *fieldNameInC;
-    jfieldID fid;
-    if(targetObject == NULL) {
-        return;
-    }
-    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    fid = env->GetFieldID(declaringClass, fieldNameInC, "S");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid != 0) {
-        env->SetShortField(targetObject, fid, newValue);
-    }
-
-}
-
-static void java_setFieldLong (JNIEnv* env, jclass,  
-                                         jobject targetObject,  
-                                         jclass declaringClass, 
-                                         jstring fieldName,  
-                                         jlong newValue) {
-    const char *fieldNameInC;
-    jfieldID fid;
-    if(targetObject == NULL) {
-        return;
-    }
-    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    fid = env->GetFieldID(declaringClass, fieldNameInC, "J");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /*
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid != 0) {
-        env->SetLongField(targetObject, fid, newValue);
-    }
-}
-
-static jobject java_newInstance (JNIEnv* env, jclass, 
-                                         jclass instantiationClass, 
-                                         jclass constructorClass) {
-    jmethodID mid =
-    env->GetMethodID(constructorClass, "<init>", "()V");
-
-    if(mid == 0) {
-      /* Cant newInstance,No empty constructor... */
-      return (jobject) 0;
-    } else {
-        /* Instantiate an object of a given class */
-        return (jobject) env->NewObject(instantiationClass, mid);
-    }
-
-}
-
-static void java_setFieldByte (JNIEnv* env, jclass,  
-                                         jobject targetObject,  
-                                         jclass declaringClass, 
-                                         jstring fieldName,  
-                                         jbyte newValue){
-    const char *fieldNameInC;
-    jfieldID fid;
-    if(targetObject == NULL) {
-        return;
-    }
-    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    fid = env->GetFieldID(declaringClass, fieldNameInC, "B");
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-
-    /* Two options now. Maybe getFieldID caused an exception, or maybe it returned the real value */
-    if(fid != 0) {
-        env->SetByteField(targetObject, fid, newValue);
-    }
-}
-
-static void java_setFieldObj (JNIEnv* env, jclass,
-                                            jobject targetObject,
-                                            jclass declaringClass,
-                                            jstring fieldName,
-                                            jstring fieldTypeName,
-                                            jobject newValue) {
-    const char *fieldNameInC, *fieldTypeNameInC;
-    jfieldID fid;
-    if(targetObject == NULL) {
-        return;
-    }
-    fieldNameInC = env->GetStringUTFChars(fieldName, NULL);
-    fieldTypeNameInC = env->GetStringUTFChars(fieldTypeName, NULL);
-    fid = env->GetFieldID(declaringClass, 
-            fieldNameInC, fieldTypeNameInC);
-    env->ReleaseStringUTFChars(fieldName, fieldNameInC);
-    env->ReleaseStringUTFChars(fieldTypeName, fieldTypeNameInC);
-
-    /* 
-     * Two options now. Maybe getFieldID caused an exception, 
-     * or maybe it returned the real value 
-     */
-    if(fid != 0) {
-        env->SetObjectField(targetObject, fid, newValue);
-    }
+    return env->NewObject(instantiationClass, mid);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "setField",          
-        "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;J)V",
-        (void*) java_setFieldLong },
-    { "setField",          
-        "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;S)V",
-        (void*) java_setFieldShort },
-    { "setField",          
-        "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;D)V",
-        (void*) java_setFieldDouble },
-    { "setField",          
-        "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Z)V",
-        (void*) java_setFieldBool },
-    { "setField",          
-        "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;B)V",
-        (void*) java_setFieldByte },
-    { "setField",          
-        "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;F)V",
-        (void*) java_setFieldFloat },
-    { "setField",          
-        "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;C)V",
-        (void*) java_setFieldChar },
-    { "setField",          
-        "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;I)V", 
-        (void*) java_setFieldInt },
-    { "newInstance",       
-        "(Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;",
-        (void*) java_newInstance },
-    { "objSetField",       
-        "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V",
-        (void*) java_setFieldObj }
-
+    { "newInstance", "(Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;", (void*) ObjectInputStream_newInstance },
+    { "objSetField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", (void*) ObjectInputStream_setFieldObj },
+    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;B)V", (void*) ObjectInputStream_setFieldByte },
+    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;C)V", (void*) ObjectInputStream_setFieldChar },
+    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;D)V", (void*) ObjectInputStream_setFieldDouble },
+    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;F)V", (void*) ObjectInputStream_setFieldFloat },
+    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;I)V", (void*) ObjectInputStream_setFieldInt },
+    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;J)V", (void*) ObjectInputStream_setFieldLong },
+    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;S)V", (void*) ObjectInputStream_setFieldShort },
+    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Z)V", (void*) ObjectInputStream_setFieldBool },
 };
 int register_java_io_ObjectInputStream(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/ObjectInputStream", gMethods, NELEM(gMethods));

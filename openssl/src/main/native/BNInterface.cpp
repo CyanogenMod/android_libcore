@@ -20,6 +20,7 @@
 
 #include "JNIHelp.h"
 #include "ScopedPrimitiveArray.h"
+#include "ScopedUtfChars.h"
 #include "jni.h"
 #include <assert.h>
 #include <openssl/bn.h>
@@ -150,27 +151,23 @@ static jboolean NativeBN_putLongInt(JNIEnv* env, jclass cls, BIGNUM* a, long lon
  */
 static int NativeBN_BN_dec2bn(JNIEnv* env, jclass, BIGNUM* a, jstring str) {
     if (!oneValidHandle(env, a)) return -1;
-    char* tmpStr = (char*)env->GetStringUTFChars(str, NULL);
-    if (tmpStr != NULL) {
-        int len = BN_dec2bn(&a, tmpStr);
-        env->ReleaseStringUTFChars(str, tmpStr);
-        return len; // len == 0: Error
+    ScopedUtfChars chars(env, str);
+    if (chars.c_str() == NULL) {
+        return -1;
     }
-    else return -1; // Error outside BN.
+    return BN_dec2bn(&a, chars.c_str());
 }
 
 /**
  * public static native int BN_hex2bn(int, java.lang.String)
  */
 static int NativeBN_BN_hex2bn(JNIEnv* env, jclass, BIGNUM* a, jstring str) {
-   if (!oneValidHandle(env, a)) return -1;
-    char* tmpStr = (char*)env->GetStringUTFChars(str, NULL);
-    if (tmpStr != NULL) {
-        int len = BN_hex2bn(&a, tmpStr);
-        env->ReleaseStringUTFChars(str, tmpStr);
-        return len; // len == 0: Error
+    if (!oneValidHandle(env, a)) return -1;
+    ScopedUtfChars chars(env, str);
+    if (chars.c_str() == NULL) {
+        return -1;
     }
-    else return -1; // Error outside BN.
+    return BN_hex2bn(&a, chars.c_str());
 }
 
 /**

@@ -20,6 +20,7 @@
 #include "LocalArray.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
+#include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "jni.h"
 #include "utils/Log.h"
@@ -313,13 +314,7 @@ static void jniThrowExpatException(JNIEnv* env, XML_Error error) {
     jniThrowException(env, "org/apache/harmony/xml/ExpatException", message);
 }
 
-/**
- * Allocates a new parsing context.
- *
- * @param jobject the Java ExpatParser instance
- * @returns a newly-allocated ParsingContext
- */
-ParsingContext* newParsingContext(JNIEnv* env, jobject object) {
+static ParsingContext* newParsingContext(JNIEnv* env, jobject object) {
     ParsingContext* result = (ParsingContext*) malloc(sizeof(ParsingContext));
     if (result == NULL) {
         throw_OutOfMemoryError(env);
@@ -840,25 +835,14 @@ static void processingInstruction(void* data, const char* target, const char* in
  * @param javaContext that was provided to handleExternalEntity
  * @returns the pointer to the C Expat entity parser
  */
-static jint createEntityParser(JNIEnv* env, jobject, jint parentParser,
-        jstring javaEncoding, jstring javaContext) {
-    const char* encoding = env->GetStringUTFChars(javaEncoding, NULL);
-    if (encoding == NULL) {
-        return 0;
-    }
-
-    const char* context = env->GetStringUTFChars(javaContext, NULL);
-    if (context == NULL) {
-        env->ReleaseStringUTFChars(javaEncoding, encoding);
+static jint createEntityParser(JNIEnv* env, jobject, jint parentParser, jstring javaEncoding, jstring javaContext) {
+    ScopedUtfChars context(env, javaContext);
+    if (context.c_str() == NULL) {
         return 0;
     }
 
     XML_Parser parent = (XML_Parser) parentParser;
-    XML_Parser entityParser
-            = XML_ExternalEntityParserCreate(parent, context, NULL);
-    env->ReleaseStringUTFChars(javaEncoding, encoding);
-    env->ReleaseStringUTFChars(javaContext, context);
-
+    XML_Parser entityParser = XML_ExternalEntityParserCreate(parent, context.c_str(), NULL);
     if (entityParser == NULL) {
         throw_OutOfMemoryError(env);
     }
@@ -1002,14 +986,16 @@ static jint initialize(JNIEnv* env, jobject object, jstring javaEncoding,
 
     // Create a parser.
     XML_Parser parser;
-    const char* encoding = env->GetStringUTFChars(javaEncoding, NULL);
+    ScopedUtfChars encoding(env, javaEncoding);
+    if (encoding.c_str() == NULL) {
+        return 0;
+    }
     if (processNamespaces) {
         // Use '|' to separate URIs from local names.
-        parser = XML_ParserCreateNS(encoding, '|');
+        parser = XML_ParserCreateNS(encoding.c_str(), '|');
     } else {
-        parser = XML_ParserCreate(encoding);
+        parser = XML_ParserCreate(encoding.c_str());
     }
-    env->ReleaseStringUTFChars(javaEncoding, encoding);
 
     if (parser != NULL) {
         if (processNamespaces) {
@@ -1047,8 +1033,7 @@ static void append(JNIEnv* env, jobject object, jint pointer,
     ParsingContext* context = (ParsingContext*) XML_GetUserData(parser);
     context->env = env;
     context->object = object;
-    if (!XML_Parse(parser, bytes + byteOffset, byteCount, isFinal) &&
-            !env->ExceptionCheck()) {
+    if (!XML_Parse(parser, bytes + byteOffset, byteCount, isFinal) && !env->ExceptionCheck()) {
         jniThrowExpatException(env, XML_GetErrorCode(parser));
     }
     context->object = NULL;
@@ -1071,8 +1056,7 @@ static void appendCharacters(JNIEnv* env, jobject object, jint pointer,
     append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
 }
 
-static void appendString(JNIEnv* env, jobject object, jint pointer,
-        jstring xml, jboolean isFinal) {
+static void appendString(JNIEnv* env, jobject object, jint pointer, jstring xml, jboolean isFinal) {
     const jchar* chars = env->GetStringChars(xml, NULL);
     const char* bytes = reinterpret_cast<const char*>(chars);
     size_t byteCount = 2 * env->GetStringLength(xml);
@@ -1186,8 +1170,7 @@ static jstring getAttributeQName(JNIEnv* env, jobject, jint pointer,
  * @param index of the attribute
  * @returns Java string containing attribute's value
  */
-static jstring getAttributeValueByIndex(JNIEnv* env, jobject,
-        jint attributePointer, jint index) {
+static jstring getAttributeValueByIndex(JNIEnv* env, jobject, jint attributePointer, jint index) {
     const char** attributes = (const char**) attributePointer;
     const char* value = attributes[(index << 1) + 1];
     return env->NewStringUTF(value);
@@ -1201,24 +1184,22 @@ static jstring getAttributeValueByIndex(JNIEnv* env, jobject,
  * @returns index of attribute with the given uri and local name or -1 if not
  *  found
  */
-static jint getAttributeIndexForQName(JNIEnv* env, jobject,
-        jint attributePointer, jstring qName) {
+static jint getAttributeIndexForQName(JNIEnv* env, jobject, jint attributePointer, jstring qName) {
     const char** attributes = (const char**) attributePointer;
 
-    const char* qNameBytes = env->GetStringUTFChars(qName, NULL);
-    if (qNameBytes == NULL) {
+    ScopedUtfChars qNameBytes(env, qName);
+    if (qNameBytes.c_str() == NULL) {
         return -1;
     }
 
     int found = -1;
     for (int index = 0; attributes[index * 2]; ++index) {
-        if (ExpatElementName(NULL, NULL, attributePointer, index).matchesQName(qNameBytes)) {
+        if (ExpatElementName(NULL, NULL, attributePointer, index).matchesQName(qNameBytes.c_str())) {
             found = index;
             break;
         }
     }
 
-    env->ReleaseStringUTFChars(qName, qNameBytes);
     return found;
 }
 
@@ -1231,33 +1212,26 @@ static jint getAttributeIndexForQName(JNIEnv* env, jobject,
  * @returns index of attribute with the given uri and local name or -1 if not
  *  found
  */
-static jint getAttributeIndex(JNIEnv* env, jobject,
-        jint attributePointer, jstring uri, jstring localName) {
+static jint getAttributeIndex(JNIEnv* env, jobject, jint attributePointer,
+        jstring uri, jstring localName) {
+    ScopedUtfChars uriBytes(env, uri);
+    if (uriBytes.c_str() == NULL) {
+        return -1;
+    }
+
+    ScopedUtfChars localNameBytes(env, localName);
+    if (localNameBytes.c_str() == NULL) {
+        return -1;
+    }
+
     const char** attributes = (const char**) attributePointer;
-
-    const char* uriBytes = env->GetStringUTFChars(uri, NULL);
-    if (uriBytes == NULL) {
-        return -1;
-    }
-
-    const char* localNameBytes = env->GetStringUTFChars(localName, NULL);
-    if (localNameBytes == NULL) {
-        env->ReleaseStringUTFChars(uri, uriBytes);
-        return -1;
-    }
-
-    int found = -1;
     for (int index = 0; attributes[index * 2]; ++index) {
-        if (ExpatElementName(NULL, NULL, attributePointer, index)
-                .matches(uriBytes, localNameBytes)) {
-            found = index;
-            break;
+        if (ExpatElementName(NULL, NULL, attributePointer, index).matches(uriBytes.c_str(),
+                localNameBytes.c_str())) {
+            return index;
         }
     }
-
-    env->ReleaseStringUTFChars(uri, uriBytes);
-    env->ReleaseStringUTFChars(localName, localNameBytes);
-    return found;
+    return -1;
 }
 
 /**
@@ -1271,10 +1245,8 @@ static jint getAttributeIndex(JNIEnv* env, jobject,
  */
 static jstring getAttributeValueForQName(JNIEnv* env, jobject clazz,
         jint attributePointer, jstring qName) {
-    jint index = getAttributeIndexForQName(
-            env, clazz, attributePointer, qName);
-    return index == -1 ? NULL
-        : getAttributeValueByIndex(env, clazz, attributePointer, index);
+    jint index = getAttributeIndexForQName(env, clazz, attributePointer, qName);
+    return index == -1 ? NULL : getAttributeValueByIndex(env, clazz, attributePointer, index);
 }
 
 /**
@@ -1288,10 +1260,8 @@ static jstring getAttributeValueForQName(JNIEnv* env, jobject clazz,
  */
 static jstring getAttributeValue(JNIEnv* env, jobject clazz,
         jint attributePointer, jstring uri, jstring localName) {
-    jint index = getAttributeIndex(
-            env, clazz, attributePointer, uri, localName);
-    return index == -1 ? NULL
-        : getAttributeValueByIndex(env, clazz, attributePointer, index);
+    jint index = getAttributeIndex(env, clazz, attributePointer, uri, localName);
+    return index == -1 ? NULL : getAttributeValueByIndex(env, clazz, attributePointer, index);
 }
 
 /**
@@ -1428,10 +1398,8 @@ static JNINativeMethod parserMethods[] = {
     { "append", "(ILjava/lang/String;Z)V", (void*) appendString },
     { "append", "(I[CII)V", (void*) appendCharacters },
     { "append", "(I[BII)V", (void*) appendBytes },
-    { "initialize", "(Ljava/lang/String;Z)I",
-        (void*) initialize},
-    { "createEntityParser", "(ILjava/lang/String;Ljava/lang/String;)I",
-        (void*) createEntityParser},
+    { "initialize", "(Ljava/lang/String;Z)I", (void*) initialize},
+    { "createEntityParser", "(ILjava/lang/String;Ljava/lang/String;)I", (void*) createEntityParser},
     { "staticInitialize", "(Ljava/lang/String;)V", (void*) staticInitialize},
     { "cloneAttributes", "(II)I", (void*) cloneAttributes },
 };

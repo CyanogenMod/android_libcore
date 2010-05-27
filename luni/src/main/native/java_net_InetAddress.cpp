@@ -20,6 +20,7 @@
 
 #include "JNIHelp.h"
 #include "ScopedLocalRef.h"
+#include "ScopedUtfChars.h"
 #include "utils/Log.h"
 #include "jni.h"
 
@@ -47,7 +48,7 @@ static jstring InetAddress_gethostname(JNIEnv* env, jclass)
 }
 
 #if LOG_DNS
-static void logIpString(struct addrinfo* ai, const char* name)
+static void logIpString(addrinfo* ai, const char* name)
 {
     char ipString[INET6_ADDRSTRLEN];
     int result = getnameinfo(ai->ai_addr, ai->ai_addrlen, ipString,
@@ -60,15 +61,18 @@ static void logIpString(struct addrinfo* ai, const char* name)
     }
 }
 #else
-static inline void logIpString(struct addrinfo*, const char*)
+static inline void logIpString(addrinfo*, const char*)
 {
 }
 #endif
 
-static jobjectArray InetAddress_getaddrinfoImpl(JNIEnv* env, const char* name) {
-    struct addrinfo hints, *addressList = NULL, *addrInfo;
-    jobjectArray addressArray = NULL;
+static jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jclass, jstring javaName) {
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return NULL;
+    }
 
+    addrinfo hints;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_flags = AI_ADDRCONFIG;
@@ -79,12 +83,14 @@ static jobjectArray InetAddress_getaddrinfoImpl(JNIEnv* env, const char* name) {
      */
     hints.ai_socktype = SOCK_STREAM;
 
-    int result = getaddrinfo(name, NULL, &hints, &addressList);
+    addrinfo* addressList = NULL;
+    jobjectArray addressArray = NULL;
+    int result = getaddrinfo(name.c_str(), NULL, &hints, &addressList);
     if (result == 0 && addressList) {
         // Count results so we know how to size the output array.
         int addressCount = 0;
-        for (addrInfo = addressList; addrInfo; addrInfo = addrInfo->ai_next) {
-            if (addrInfo->ai_family == AF_INET || addrInfo->ai_family == AF_INET6) {
+        for (addrinfo* ai = addressList; ai != NULL; ai = ai->ai_next) {
+            if (ai->ai_family == AF_INET || ai->ai_family == AF_INET6) {
                 addressCount++;
             }
         }
@@ -100,26 +106,26 @@ static jobjectArray InetAddress_getaddrinfoImpl(JNIEnv* env, const char* name) {
 
         // Examine returned addresses one by one, save them in the output array.
         int index = 0;
-        for (addrInfo = addressList; addrInfo; addrInfo = addrInfo->ai_next) {
-            struct sockaddr* address = addrInfo->ai_addr;
+        for (addrinfo* ai = addressList; ai != NULL; ai = ai->ai_next) {
+            sockaddr* address = ai->ai_addr;
             size_t addressLength = 0;
             void* rawAddress;
 
-            switch (addrInfo->ai_family) {
+            switch (ai->ai_family) {
                 // Find the raw address length and start pointer.
                 case AF_INET6:
                     addressLength = 16;
-                    rawAddress = &((struct sockaddr_in6*) address)->sin6_addr.s6_addr;
-                    logIpString(addrInfo, name);
+                    rawAddress = &reinterpret_cast<sockaddr_in6*>(address)->sin6_addr.s6_addr;
+                    logIpString(ai, name.c_str());
                     break;
                 case AF_INET:
                     addressLength = 4;
-                    rawAddress = &((struct sockaddr_in*) address)->sin_addr.s_addr;
-                    logIpString(addrInfo, name);
+                    rawAddress = &reinterpret_cast<sockaddr_in*>(address)->sin_addr.s_addr;
+                    logIpString(ai, name.c_str());
                     break;
                 default:
                     // Unknown address family. Skip this address.
-                    LOGE("getaddrinfo: Unknown address family %d", addrInfo->ai_family);
+                    LOGE("getaddrinfo: Unknown address family %d", ai->ai_family);
                     continue;
             }
 
@@ -131,7 +137,8 @@ static jobjectArray InetAddress_getaddrinfoImpl(JNIEnv* env, const char* name) {
                 addressArray = NULL;
                 break;
             }
-            env->SetByteArrayRegion(byteArray.get(), 0, addressLength, (jbyte*) rawAddress);
+            env->SetByteArrayRegion(byteArray.get(),
+                    0, addressLength, reinterpret_cast<jbyte*>(rawAddress));
             env->SetObjectArrayElement(addressArray, index, byteArray.get());
             index++;
         }
@@ -150,18 +157,6 @@ static jobjectArray InetAddress_getaddrinfoImpl(JNIEnv* env, const char* name) {
     return addressArray;
 }
 
-jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jclass, jstring javaName) {
-    if (javaName == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return NULL;
-    }
-    const char* name = env->GetStringUTFChars(javaName, NULL);
-    jobjectArray out = InetAddress_getaddrinfoImpl(env, name);
-    env->ReleaseStringUTFChars(javaName, name);
-    return out;
-}
-
-
 /**
  * Looks up the name corresponding to an IP address.
  *
@@ -179,21 +174,21 @@ static jstring InetAddress_getnameinfo(JNIEnv* env, jclass,
     }
 
     // Convert the raw address bytes into a socket address structure.
-    struct sockaddr_storage ss;
+    sockaddr_storage ss;
     memset(&ss, 0, sizeof(ss));
 
     size_t socklen;
     const size_t addressLength = env->GetArrayLength(javaAddress);
     if (addressLength == 4) {
-        struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&ss);
+        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&ss);
         sin->sin_family = AF_INET;
-        socklen = sizeof(struct sockaddr_in);
+        socklen = sizeof(sockaddr_in);
         jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
         env->GetByteArrayRegion(javaAddress, 0, 4, dst);
     } else if (addressLength == 16) {
-        struct sockaddr_in6 *sin6 = reinterpret_cast<sockaddr_in6*>(&ss);
+        sockaddr_in6 *sin6 = reinterpret_cast<sockaddr_in6*>(&ss);
         sin6->sin6_family = AF_INET6;
-        socklen = sizeof(struct sockaddr_in6);
+        socklen = sizeof(sockaddr_in6);
         jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
         env->GetByteArrayRegion(javaAddress, 0, 16, dst);
     } else {

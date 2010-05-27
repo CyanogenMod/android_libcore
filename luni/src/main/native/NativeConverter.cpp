@@ -56,7 +56,7 @@ static UConverter* toUConverter(jlong address) {
 
 static jlong openConverter(JNIEnv* env, jclass, jstring converterName) {
     ScopedUtfChars converterNameChars(env, converterName);
-    if (!converterNameChars.c_str()) {
+    if (converterNameChars.c_str() == NULL) {
         return 0;
     }
     UErrorCode errorCode = U_ZERO_ERROR;
@@ -591,7 +591,7 @@ static jboolean contains(JNIEnv*, jclass, jlong handle1, jlong handle2) {
 
 static jobject charsetForName(JNIEnv* env, jclass, jstring charsetName) {
     ScopedUtfChars charsetNameChars(env, charsetName);
-    if (!charsetNameChars.c_str()) {
+    if (charsetNameChars.c_str() == NULL) {
         return NULL;
     }
     // Get ICU's canonical name for this charset.

@@ -15,78 +15,45 @@
  */
 
 #include "JNIHelp.h"
+#include "ScopedUtfChars.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-
-/*
- * public static native String getEnvByName(String name)
- *
- * (Calling it plain "getenv" might confuse GDB if you try to put a breakpoint
- * on the libc version.)
- */
-static jstring java_getEnvByName(JNIEnv* env, jclass, jstring nameStr) {
-    jstring valueStr = NULL;
-
-    if (nameStr != NULL) {
-        const char* name = env->GetStringUTFChars(nameStr, NULL);
-        const char* val = getenv(name);
-        if (val != NULL) {
-            valueStr = env->NewStringUTF(val);
-        }
-        env->ReleaseStringUTFChars(nameStr, name);
-    } else {
-        jniThrowNullPointerException(env, NULL);
+static jstring System_getEnvByName(JNIEnv* env, jclass, jstring javaName) {
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return NULL;
     }
-
-    return valueStr;
+    return env->NewStringUTF(getenv(name.c_str()));
 }
 
-/*
- * Pointer to complete environment, from Posix.
- */
+// Pointer to complete environment.
 extern char** environ;
 
-/*
- * public static native String getEnvByIndex()
- *
- * (Calling it plain "getenv" might confuse GDB if you try to put a breakpoint
- * on the libc version.)
- */
-static jstring java_getEnvByIndex(JNIEnv* env, jclass, jint index) {
-    jstring valueStr = NULL;
-
-    char* entry = environ[index];
-    if (entry != NULL) {
-        valueStr = env->NewStringUTF(entry);
-    }
-
-    return valueStr;
+static jstring System_getEnvByIndex(JNIEnv* env, jclass, jint index) {
+    return env->NewStringUTF(environ[index]);
 }
 
-/*
- * public static native String setFieldImpl()
- *
- * Sets a field via JNI. Used for the standard streams, which are r/o
- * otherwise.
- */
-static void java_setFieldImpl(JNIEnv* env, jclass clazz,
-        jstring name, jstring sig, jobject object) {
-    const char* fieldName = env->GetStringUTFChars(name, NULL);
-    const char* fieldSig = env->GetStringUTFChars(sig, NULL);
-
-    jfieldID fieldID = env->GetStaticFieldID(clazz, fieldName, fieldSig);
+// Sets a field via JNI. Used for the standard streams, which are read-only otherwise.
+static void System_setFieldImpl(JNIEnv* env, jclass clazz,
+        jstring javaName, jstring javaSignature, jobject object) {
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return;
+    }
+    ScopedUtfChars signature(env, javaSignature);
+    if (signature.c_str() == NULL) {
+        return;
+    }
+    jfieldID fieldID = env->GetStaticFieldID(clazz, name.c_str(), signature.c_str());
     env->SetStaticObjectField(clazz, fieldID, object);
-    
-    env->ReleaseStringUTFChars(name, fieldName);
-    env->ReleaseStringUTFChars(sig, fieldSig);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "getEnvByName",   "(Ljava/lang/String;)Ljava/lang/String;",                    (void*) java_getEnvByName  },
-    { "getEnvByIndex",  "(I)Ljava/lang/String;",                                     (void*) java_getEnvByIndex },
-    { "setFieldImpl",   "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", (void*) java_setFieldImpl },
+    { "getEnvByIndex", "(I)Ljava/lang/String;",                                     (void*) System_getEnvByIndex },
+    { "getEnvByName",  "(Ljava/lang/String;)Ljava/lang/String;",                    (void*) System_getEnvByName },
+    { "setFieldImpl",  "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", (void*) System_setFieldImpl },
 };
 int register_java_lang_System(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/System", gMethods, NELEM(gMethods));
