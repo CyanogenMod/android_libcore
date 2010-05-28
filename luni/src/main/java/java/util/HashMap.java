@@ -258,7 +258,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
      * prior to invoking constructorPut/constructorPutAll, which invoke the
      * overridden constructorNewEntry method. Normally it is a VERY bad idea to
      * invoke an overridden method from a pseudo-constructor (Effective Java
-     * Item 17). In this cases it is unavoidable, and the init method provides a
+     * Item 17). In this case it is unavoidable, and the init method provides a
      * workaround.
      */
     void init() { }
