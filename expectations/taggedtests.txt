@@ -9,3 +9,81 @@ tags large
 # Takes a long time because it tries connecting every supported cipher suite
 test javax.net.ssl.SSLSocketTest#test_SSLSocket_getSupportedCipherSuites_connect
 tags large
+
+test java.io.PipedInputStream.CloseAndAvailableRC
+tags large
+
+test java.io.PrintStream.OversynchronizedTest
+tags large
+
+test java.io.PrintWriter.OversynchronizedTest
+tags large
+
+test java.lang.String.Split
+tags large
+
+test java.lang.ref.SoftReference.Pin
+tags large
+
+test java.math.BigInteger.BigIntegerTest
+tags large
+
+test java.net.MulticastSocket.Test
+tags large
+
+test java.net.Socket.InheritTimeout
+tags large
+
+test java.net.Socket.reset.Test
+tags large
+
+test java.net.URLConnection.TimeoutTest
+tags large
+
+test java.nio.channels.DatagramChannel.ConnectedSend
+tags large
+
+test java.nio.channels.FileChannel.ExpandingMap
+tags large
+
+test java.nio.channels.FileChannel.Transfers
+tags large
+
+test java.nio.channels.SocketChannel.Open
+tags large
+
+test java.text.Bidi.Bug6665028
+tags large
+
+test java.util.Collections.FindSubList
+tags large
+
+test java.util.Locale.Bug4518797
+tags large
+
+test java.util.ResourceBundle.Control.StressTest
+tags large
+
+test java.util.WeakHashMap.GCDuringIteration
+tags large
+
+test java.util.concurrent.FutureTask.Throw
+tags large
+
+test java.util.concurrent.locks.ReentrantReadWriteLock.MapLoops
+tags large
+
+test java.util.zip.LargeZip
+tags large
+
+test java.util.zip.ZipFile.LargeZipFile
+tags large
+
+test java.util.zip.ZipFile.ManyEntries
+tags large
+
+test sun.nio.cs.FindOneCharEncoderBugs
+tags large
+
+test sun.nio.cs.SurrogateGB18030Test
+tags large
