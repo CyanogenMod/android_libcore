@@ -37,7 +37,7 @@ import java.lang.reflect.Array;
  * @since 1.2
  */
 public class LinkedList<E> extends AbstractSequentialList<E> implements
-        List<E>, Queue<E>, Cloneable, Serializable {
+        List<E>, Deque<E>, Queue<E>, Cloneable, Serializable {
 
     private static final long serialVersionUID = 876323262645176354L;
 

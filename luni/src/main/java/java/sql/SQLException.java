@@ -22,11 +22,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An {@code Exception} class that is used in conjunction with JDBC operations.
- * It provides information about problems encountered with database access and
- * other problems related to JDBC
- * <p>
- * The {@code SQLException} class provides the following information:
+ * An exception that indicates a failed JDBC operation.
+ * It provides the following information about problems encountered with
+ * database access:
  * <ul>
  *   <li>A message string.</li>
  *   <li>A {@code SQLState} error description string following either
@@ -34,12 +32,12 @@ import java.util.NoSuchElementException;
  * conventions. {@link DatabaseMetaData#getSQLStateType} exposes the specific convention in
  * use.</li>
  *   <li>A database-specific error code.</li>
- *   <li>The next {@code Exception} in the chain.</li>
+ *   <li>The next exception in the chain.</li>
  * </ul>
  *
  * @see DatabaseMetaData
  */
-public class SQLException extends Exception implements Serializable {
+public class SQLException extends Exception implements Serializable, Iterable<Throwable> {
 
     private static final long serialVersionUID = 2135244094396331484L;
 
