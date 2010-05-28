@@ -21,16 +21,16 @@ package java.util;
  * A kind of collection that can insert or remove element at both ends("double
  * ended queue"). Mostly a deque has no limit of its size.
  *
- * Extending from Queue, a deque can be used as a Queue which behavior is
+ * <p>Extending from Queue, a deque can be used as a Queue which behavior is
  * first-in-first-out. Furthermore, a deque can also be used as a Stack(legacy
  * class) which behavior is last-in-first-out.
  *
- * A typical deque does not allow null to be inserted as its element, while some
+ * <p>A typical deque does not allow null to be inserted as its element, while some
  * implementations allow it. But null should not be inserted even in these
  * implementations, since method poll return null to indicate that there is no
  * element left in the deque.
  *
- * A deque can also remove interior elements by removeFirstOccurrence and
+ * <p>A deque can also remove interior elements by removeFirstOccurrence and
  * removeLastOccurrence methods. A deque can not access elements by index.
  *
  * @param <E>
