@@ -326,6 +326,9 @@ result UNSUPPORTED
 test java.awt.FontClass
 result SUCCESS
 
+test java.awt.font
+result SUCCESS
+
 
 # Dalvik doesn't include java.beans except for property listeners
 test java.beans
