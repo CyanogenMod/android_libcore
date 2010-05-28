@@ -26,6 +26,7 @@ import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -590,10 +591,9 @@ public class StatementTest extends SQLTest {
                 try {
                     st.setFetchSize(i);
                     assertEquals(i, st.getFetchSize());
-                    fail("Revise: test implemenation for feature impl. has changed");
                 } catch (SQLException sqle) {
-    //                fail("SQLException is thrown: " + sqle.toString());
-                    assertEquals("not supported", sqle.getMessage());
+                    // getFetchSize() hardcoded to 1.
+                    assertEquals("fetch size not 1", sqle.getMessage());
                 }
             }
             /*
@@ -1126,7 +1126,7 @@ public class StatementTest extends SQLTest {
         method = "executeUpdate",
         args = {java.lang.String.class, int[].class}
     )
-    public void testExecuteUpdate_String_intArray() {
+    public void testExecuteUpdate_String_intArray() throws SQLException {
         Statement st = null;
         try {
             String[] queries1 = {
@@ -1153,9 +1153,8 @@ public class StatementTest extends SQLTest {
                 st.executeUpdate(queries1[i], (int[]) array.elementAt(i));
                 fail("Exception expected");
             }
-        } catch (SQLException e) {
-            assertEquals("not supported",e.getMessage());
-//            fail("SQLException is thrown: " + e.getMessage());
+        } catch (SQLFeatureNotSupportedException e) {
+            // expected
         } finally {
             try {
                 st.close();
@@ -1232,7 +1231,7 @@ public class StatementTest extends SQLTest {
         method = "executeUpdate",
         args = {java.lang.String.class, java.lang.String[].class}
     )
-    public void testExecuteUpdate_String_StringArray() {
+    public void testExecuteUpdate_String_StringArray() throws SQLException {
         Statement st = null;
         try {
             String[] queries = {
@@ -1262,9 +1261,8 @@ public class StatementTest extends SQLTest {
                 st.executeUpdate(queries[i], (String[]) array.elementAt(i));
                 fail("Revise test implemenation for feature impl. has changed");
             }
-        } catch (SQLException e) {
-            assertEquals("not supported", e.getMessage());
-//            fail("SQLException is thrown: " + e.getMessage());
+        } catch (SQLFeatureNotSupportedException e) {
+            // expected
         } finally {
             try {
                 st.close();
@@ -1321,15 +1319,15 @@ public class StatementTest extends SQLTest {
         method = "getGeneratedKeys",
         args = {}
     )
-    public void testGeneratedKeys() {
+    public void testGeneratedKeys() throws SQLException {
         Statement st = null;
         try {
             String insert = "insert into zoo (id, name, family) values (8, 'Tuzik', 'dog');";
             st = conn.createStatement();
             assertNull(st.getGeneratedKeys());
             fail("Fail: statement does not fail");
-        } catch (SQLException e) {
-          assertEquals("not supported", e.getMessage());
+        } catch (SQLFeatureNotSupportedException e) {
+            // expected
         }
     }
 
@@ -1344,15 +1342,15 @@ public class StatementTest extends SQLTest {
         method = "setCursorName",
         args = {java.lang.String.class}
     )
-    public void testSetCursorName() {
+    public void testSetCursorName() throws SQLException {
         Statement st = null;
         try {
             String select = "select * from zoo";
             st = conn.createStatement();
             st.setCursorName("test");
             fail("Fail: statement does not fail");
-        } catch (SQLException e) {
-          assertEquals("not supported", e.getMessage());
+        } catch (SQLFeatureNotSupportedException e) {
+            // expected
         }
     }
 
