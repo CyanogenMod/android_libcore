@@ -285,7 +285,7 @@ pattern .*package java.applet does not exist.*
 
 failure Dalvik doesn't include AWT (bug it has java.awt.font)
 result COMPILE_FAILED
-pattern .*package java.awt(\.image)? does not exist.* 
+pattern .*package java.awt(\.image)? does not exist.*
 
 failure Dalvik doesn't include NIO.2
 result COMPILE_FAILED
@@ -661,3 +661,27 @@ pattern .*java.nio.charset.UnsupportedCharsetException: mockCharset00.*
 test tests.api.java.nio.charset.UTFCharsetEncoderTest#testSpecificDefaultValue
 result EXEC_FAILED
 pattern .*junit.framework.AssertionFailedError: expected:<1.1> but was:<2.0>.*
+
+# this test needs external interaction
+test com.sun.tools.attach.Application
+result UNSUPPORTED
+
+test java.io.SystemInAvailable
+result UNSUPPORTED
+
+test sun.jvmstat.testlibrary.Sleeper
+result UNSUPPORTED
+
+
+# these benchmarks take a long time and don't demonstrate correctness
+test java.lang.Class.TypeCheckMicroBenchmark
+result UNSUPPORTED
+
+test java.nio.Buffer.SwapMicroBenchmark
+result UNSUPPORTED
+
+test java.util.ArrayList.RangeCheckMicroBenchmark
+result UNSUPPORTED
+
+test java.util.ArrayList.IteratorMicroBenchmark
+result UNSUPPORTED
