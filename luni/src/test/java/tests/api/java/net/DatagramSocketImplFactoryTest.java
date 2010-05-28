@@ -34,17 +34,17 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 
-@TestTargetClass(DatagramSocketImplFactory.class) 
+@TestTargetClass(DatagramSocketImplFactory.class)
 public class DatagramSocketImplFactoryTest extends TestCase {
-    
+
     DatagramSocketImplFactory oldFactory = null;
     Field factoryField = null;
-    
+
     boolean isTestable = false;
-    
+
     boolean isDatagramSocketImplCalled = false;
     boolean isCreateDatagramSocketImpl = false;
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -60,11 +60,11 @@ public class DatagramSocketImplFactoryTest extends TestCase {
             args = {java.net.DatagramSocketImplFactory.class}
         )
     })
-    public void test_createDatagramSocketImpl() throws IllegalArgumentException, 
+    public void test_createDatagramSocketImpl() throws IllegalArgumentException,
                                                                     IOException {
 
         if(isTestable) {
-            
+
             DatagramSocketImplFactory factory = new TestDatagramSocketImplFactory();
             assertFalse(isCreateDatagramSocketImpl);
             DatagramSocket.setDatagramSocketImplFactory(factory);
@@ -75,25 +75,25 @@ public class DatagramSocketImplFactoryTest extends TestCase {
                 assertTrue(isDatagramSocketImplCalled);
             } catch (Exception e) {
                 fail("Exception during test : " + e.getMessage());
-            
+
             }
-            
+
             try {
                 DatagramSocket.setDatagramSocketImplFactory(factory);
-                fail("SocketException was not thrown.");                
+                fail("SocketException was not thrown.");
             } catch(SocketException se) {
                 //expected
             }
-            
+
             try {
                 DatagramSocket.setDatagramSocketImplFactory(null);
-                fail("SocketException was not thrown.");                
+                fail("SocketException was not thrown.");
             } catch(SocketException se) {
                 //expected
             }
-            
+
         } else {
-            
+
             TestDatagramSocketImplFactory dsf = new TestDatagramSocketImplFactory();
             DatagramSocketImpl dsi = dsf.createDatagramSocketImpl();
             try {
@@ -101,10 +101,10 @@ public class DatagramSocketImplFactoryTest extends TestCase {
             } catch (SocketException e) {
                 fail("SocketException was thrown.");
             }
-            
+
         }
     }
-    
+
     public void setUp() {
         Field [] fields = DatagramSocket.class.getDeclaredFields();
         int counter = 0;
@@ -113,31 +113,31 @@ public class DatagramSocketImplFactoryTest extends TestCase {
                 counter++;
                 factoryField = field;
             }
-        } 
-        
+        }
+
         if(counter == 1) {
-            
+
             isTestable = true;
-    
+
             factoryField.setAccessible(true);
             try {
                 oldFactory = (DatagramSocketImplFactory) factoryField.get(null);
             } catch (IllegalArgumentException e) {
-                fail("IllegalArgumentException was thrown during setUp: " 
+                fail("IllegalArgumentException was thrown during setUp: "
                         + e.getMessage());
             } catch (IllegalAccessException e) {
                 fail("IllegalAccessException was thrown during setUp: "
                         + e.getMessage());
-            }        
+            }
         }
     }
-    
+
     public void tearDown() {
         if(isTestable) {
             try {
                 factoryField.set(null, oldFactory);
             } catch (IllegalArgumentException e) {
-                fail("IllegalArgumentException was thrown during tearDown: " 
+                fail("IllegalArgumentException was thrown during tearDown: "
                         + e.getMessage());
             } catch (IllegalAccessException e) {
                 fail("IllegalAccessException was thrown during tearDown: "
@@ -145,26 +145,26 @@ public class DatagramSocketImplFactoryTest extends TestCase {
             }
         }
     }
-    
+
     class TestDatagramSocketImplFactory implements DatagramSocketImplFactory {
         public DatagramSocketImpl createDatagramSocketImpl() {
             isCreateDatagramSocketImpl = true;
             return new TestDatagramSocketImpl();
         }
     }
-    
+
     class TestDatagramSocketImpl extends DatagramSocketImpl {
 
         @Override
         protected void bind(int arg0, InetAddress arg1) throws SocketException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void close() {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -187,25 +187,25 @@ public class DatagramSocketImplFactoryTest extends TestCase {
         @Override
         protected void join(InetAddress arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void joinGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void leave(InetAddress arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void leaveGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -223,25 +223,25 @@ public class DatagramSocketImplFactoryTest extends TestCase {
         @Override
         protected void receive(DatagramPacket arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void send(DatagramPacket arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void setTTL(byte arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void setTimeToLive(int arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         public Object getOption(int arg0) throws SocketException {
@@ -251,7 +251,7 @@ public class DatagramSocketImplFactoryTest extends TestCase {
 
         public void setOption(int arg0, Object arg1) throws SocketException {
             // TODO Auto-generated method stub
-            
+
         }
-    }    
+    }
 }

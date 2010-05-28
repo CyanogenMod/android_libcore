@@ -24,16 +24,16 @@ package java.util;
 /**
  * LinkedHashMap is an implementation of {@link Map} that guarantees iteration order.
  * All optional operations are supported.
- * 
+ *
  * <p>All elements are permitted as keys or values, including null.
- * 
+ *
  * <p>Entries are kept in a doubly-linked list. The iteration order is, by default, the
  * order in which keys were inserted. Reinserting an already-present key doesn't change the
  * order. If the three argument constructor is used, and {@code accessOrder} is specified as
  * {@code true}, the iteration will be in the order that entries were accessed.
  * The access order is affected by {@code put}, {@code get}, and {@code putAll} operations,
  * but not by operations on the collection views.
- * 
+ *
  * <p>Note: the implementation of {@code LinkedHashMap} is not synchronized.
  * If one thread of several threads accessing an instance modifies the map
  * structurally, access to the map needs to be synchronized. For
@@ -41,7 +41,7 @@ package java.util;
  * removes or adds an entry. Access-ordered instances also are structurally
  * modified by {@code put}, {@code get}, and {@code putAll} since these methods
  * change the order of the entries. Changes in the value of an entry are not structural changes.
- * 
+ *
  * <p>The {@code Iterator} created by calling the {@code iterator} method
  * may throw a {@code ConcurrentModificationException} if the map is structurally
  * changed while an iterator is used to iterate over the elements. Only the

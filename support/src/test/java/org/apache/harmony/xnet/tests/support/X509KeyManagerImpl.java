@@ -14,13 +14,13 @@ import java.net.Socket;
 import javax.net.ssl.X509KeyManager;
 
 public class X509KeyManagerImpl implements X509KeyManager {
-    
+
     private String keyType;
     private String client = "CLIENT";
     private String server = "SERVER";
     private KeyStore keyTest;
     private X509Certificate[] cert = null;
-    
+
  // creating a certificate
     String certificate = "-----BEGIN CERTIFICATE-----\n"
             + "MIICZTCCAdICBQL3AAC2MA0GCSqGSIb3DQEBAgUAMF8xCzAJBgNVBAYTAlVTMSAw\n"
@@ -83,8 +83,8 @@ public class X509KeyManagerImpl implements X509KeyManager {
 
     ByteArrayInputStream certArray3 = new ByteArrayInputStream(certificate3
             .getBytes());
-    
-    
+
+
     public X509KeyManagerImpl(String name) {
         keyType = name;
         try {
@@ -112,7 +112,7 @@ public class X509KeyManagerImpl implements X509KeyManager {
             throw new IllegalArgumentException(ex.getMessage());
         }
     }
-    
+
     public String[] getClientAliases(String s, Principal[] aprincipal) {
         if (s == null || s.equals("")) {
             return null;
@@ -136,7 +136,7 @@ public class X509KeyManagerImpl implements X509KeyManager {
             throw new IllegalArgumentException(ex.getMessage());
         }
     }
-    
+
     public String chooseClientAlias(String[] as, Principal[] aprincipal, Socket socket) {
         String alias = null;
         if (as == null || as.length == 0) {
@@ -156,7 +156,7 @@ public class X509KeyManagerImpl implements X509KeyManager {
         }
         return null;
     }
-    
+
     public String[] getServerAliases(String s, Principal aprincipal[]) {
         if (s == null || s.equals("")) {
             return null;
@@ -175,12 +175,12 @@ public class X509KeyManagerImpl implements X509KeyManager {
                     res[i] = vec.elementAt(i).toString();
                 }
                 return res;
-            } else return null; 
+            } else return null;
         } catch (Exception ex) {
             throw new IllegalArgumentException(ex.getMessage());
         }
     }
-    
+
     public String chooseServerAlias(String as, Principal[] aprincipal, Socket socket) {
         String alias = null;
         if (as == null || as.equals("")) {
@@ -194,7 +194,7 @@ public class X509KeyManagerImpl implements X509KeyManager {
             throw new IllegalArgumentException(ex.getMessage());
         }
     }
-    
+
     public X509Certificate[] getCertificateChain(String s) {
         /*try {
             if (s != null && !s.equals("")) {
@@ -206,7 +206,7 @@ public class X509KeyManagerImpl implements X509KeyManager {
         }*/
         return null;
     }
-    
+
     public PrivateKey getPrivateKey(String s) {
         /*try {
             if (s != null && !s.equals("")) {

@@ -26,7 +26,7 @@ import java.security.cert.CertStoreParameters;
 
 /**
  * Class for verification of CertStore and CertStoreSpi
- * 
+ *
  */
 
 public class MyCertStoreParameters implements CertStoreParameters {

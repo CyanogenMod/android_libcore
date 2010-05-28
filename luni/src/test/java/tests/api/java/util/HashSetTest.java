@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -35,13 +35,13 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.harmony.testframework.serialization.SerializationTest;
 
-@TestTargetClass(HashSet.class) 
+@TestTargetClass(HashSet.class)
 public class HashSetTest extends junit.framework.TestCase {
 
     HashSet hs;
 
     Object[] objArray;
-    
+
     /**
      * @tests java.util.HashSet#HashSet()
      */
@@ -118,7 +118,7 @@ public class HashSetTest extends junit.framework.TestCase {
                     .contains(objArray[counter]));
         assertTrue("HashSet created from collection incorrect size",
                 hs2.size() == objArray.length);
-        
+
         try {
             new HashSet(null);
             fail("NullPointerException expected");
@@ -279,7 +279,7 @@ public class HashSetTest extends junit.framework.TestCase {
         hs.clear();
         assertEquals("Cleared set returned non-zero size", 0, hs.size());
     }
-    
+
     /**
      * @tests java.util.HashSet#SerializationTest
      */
@@ -319,7 +319,7 @@ public class HashSetTest extends junit.framework.TestCase {
         for (int i = 0; i < objArray.length; i++) {
             hs.add(objArray[i]);
         }
-        
+
         hs.add(null);
     }
 
@@ -331,8 +331,8 @@ public class HashSetTest extends junit.framework.TestCase {
         hs = null;
         objArray = null;
     }
-    
-    private static final SerializationTest.SerializableAssert comparator = new 
+
+    private static final SerializationTest.SerializableAssert comparator = new
                                        SerializationTest.SerializableAssert() {
         public void assertDeserialized(Serializable initial, Serializable deserialized) {
             HashSet<String> initialHs = (HashSet<String>) initial;
@@ -340,6 +340,6 @@ public class HashSetTest extends junit.framework.TestCase {
             assertEquals("should be equal", initialHs.size(), deseriaHs.size());
             assertEquals("should be equal", initialHs, deseriaHs);
         }
-        
+
     };
 }

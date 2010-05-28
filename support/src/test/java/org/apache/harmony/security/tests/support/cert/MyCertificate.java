@@ -47,7 +47,7 @@ public class MyCertificate extends Certificate implements X509Extension {
 
     /**
      * Constructs new object of class <code>MyCertificate</code>
-     * 
+     *
      * @param type
      * @param encoding
      */
@@ -122,8 +122,8 @@ public class MyCertificate extends Certificate implements X509Extension {
         private static final long serialVersionUID = -3474284043994635553L;
 
         private String type;
-        private byte[] data; 
-        
+        private byte[] data;
+
         public MyCertificateRep(String type, byte[] data) {
             super(type, data);
             this.data = data;
@@ -133,11 +133,11 @@ public class MyCertificate extends Certificate implements X509Extension {
         public Object readResolve() throws ObjectStreamException {
             return super.readResolve();
         }
-        
+
         public String getType() {
             return type;
         }
-        
+
         public byte[] getData() {
             return data;
         }

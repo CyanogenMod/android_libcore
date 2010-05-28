@@ -19,7 +19,7 @@ package java.lang.reflect;
 
 /**
  * Common interface providing access to reflective information on class members.
- * 
+ *
  * @see Field
  * @see Constructor
  * @see Method
@@ -70,7 +70,7 @@ public interface Member {
     /**
      * Indicates whether or not this member is synthetic (artificially
      * introduced by the compiler).
-     * 
+     *
      * @return {@code true} if this member is synthetic, {@code false} otherwise
      */
     boolean isSynthetic();

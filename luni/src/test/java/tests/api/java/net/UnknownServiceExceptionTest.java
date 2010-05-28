@@ -17,7 +17,7 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -25,7 +25,7 @@ import dalvik.annotation.TestTargetNew;
 import java.net.URL;
 import java.net.UnknownServiceException;
 
-@TestTargetClass(UnknownServiceException.class) 
+@TestTargetClass(UnknownServiceException.class)
 public class UnknownServiceExceptionTest extends junit.framework.TestCase {
 
     /**

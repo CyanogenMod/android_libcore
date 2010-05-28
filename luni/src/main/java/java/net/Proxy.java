@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package java.net;
-
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * This class represents proxy server settings. A created instance of {@code
@@ -45,7 +43,7 @@ public class Proxy {
      * {@code Proxy.Type.SOCKS}. To create a {@code Proxy} instance representing
      * the proxy type {@code Proxy.Type.DIRECT}, use {@code Proxy.NO_PROXY}
      * instead of this constructor.
-     * 
+     *
      * @param type
      *            the proxy type of this instance.
      * @param sa
@@ -60,9 +58,8 @@ public class Proxy {
          * Don't use DIRECT type to construct a proxy instance directly.
          * SocketAddress must NOT be null.
          */
-        if (type == Type.DIRECT || null == sa) {
-            // KA022=Illegal Proxy.Type or SocketAddress argument
-            throw new IllegalArgumentException(Msg.getString("KA022")); //$NON-NLS-1$
+        if (type == Type.DIRECT || sa == null) {
+            throw new IllegalArgumentException("Illegal Proxy.Type or SocketAddress argument");
         }
         this.type = type;
         address = sa;
@@ -79,7 +76,7 @@ public class Proxy {
 
     /**
      * Gets the type of this {@code Proxy} instance.
-     * 
+     *
      * @return the stored proxy type.
      */
     public Proxy.Type type() {
@@ -88,7 +85,7 @@ public class Proxy {
 
     /**
      * Gets the address of this {@code Proxy} instance.
-     * 
+     *
      * @return the stored proxy address or {@code null} if the proxy type is
      *         {@code DIRECT}.
      */
@@ -107,7 +104,7 @@ public class Proxy {
     public String toString() {
         String proxyString = String.valueOf(type);
         if (null != address) {
-            proxyString += "/" + address.toString(); //$NON-NLS-1$
+            proxyString += "/" + address.toString();
         }
         return proxyString;
     }
@@ -117,7 +114,7 @@ public class Proxy {
      * returns whether they are equal or not. The given object must be an
      * instance of {@code Proxy} with the same address and the same type value
      * to be equal.
-     * 
+     *
      * @param obj
      *            the object to compare with this instance.
      * @return {@code true} if the given object represents the same {@code
@@ -139,7 +136,7 @@ public class Proxy {
 
     /**
      * Gets the hashcode for this {@code Proxy} instance.
-     * 
+     *
      * @return the hashcode value for this Proxy instance.
      */
     @Override

@@ -19,7 +19,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.AbstractSequentialList;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(AbstractSequentialList.class) 
+@TestTargetClass(AbstractSequentialList.class)
 public class AbstractSequentialListTest extends TestCase {
 
     @Override
@@ -43,7 +43,7 @@ public class AbstractSequentialListTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     class ASLT<E> extends AbstractSequentialList<E> {
 
         LinkedList<E> l = new LinkedList<E>();
@@ -58,7 +58,7 @@ public class AbstractSequentialListTest extends TestCase {
             return l.size();
         }
     }
-    
+
     /**
      * @tests {@link java.util.AbstractSequentialList#addAll(int, java.util.Collection)}
      */
@@ -70,15 +70,15 @@ public class AbstractSequentialListTest extends TestCase {
     )
     public void test_addAll_ILCollection() {
         AbstractSequentialList<String> al = new ASLT<String>();
-        String[] someList = { "Aardvark"  ,  //$NON-NLS-1$
-                              "Bear"      ,  //$NON-NLS-1$
-                              "Chimpanzee",  //$NON-NLS-1$
-                              "Duck"      }; //$NON-NLS-1$
+        String[] someList = { "Aardvark"  ,
+                              "Bear"      ,
+                              "Chimpanzee",
+                              "Duck"      };
         Collection<String> c = Arrays.asList(someList);
         al.addAll(c);
-        assertTrue("Should return true", al.addAll(2, c)); //$NON-NLS-1$
+        assertTrue("Should return true", al.addAll(2, c));
     }
-    
+
     class Mock_unsupportedListIterator implements ListIterator {
         public void add(Object o) {
             throw new UnsupportedOperationException();
@@ -115,7 +115,7 @@ public class AbstractSequentialListTest extends TestCase {
             throw new UnsupportedOperationException();
         }
     }
-    
+
     class Mock_ListIterator<E> implements ListIterator<E> {
         final String wrongElement = "String";
         public void add(E o) {
@@ -153,7 +153,7 @@ public class AbstractSequentialListTest extends TestCase {
         public void set(E o) {
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -174,7 +174,7 @@ public class AbstractSequentialListTest extends TestCase {
             }
         };
         Collection strV = new Vector<String>();
-        
+
         strV.add("String");
         strV.add("1");
         strV.add("3.14");
@@ -206,14 +206,14 @@ public class AbstractSequentialListTest extends TestCase {
                 return new Mock_ListIterator();
             }
         };
-        
+
         try {
             asl.addAll(0, strV);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         strV.remove("String");
         strV.add(null);
 
@@ -223,10 +223,10 @@ public class AbstractSequentialListTest extends TestCase {
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         strV.remove(null);
         asl.addAll(0, strV);
-        
+
         asl = new LinkedList();
 
         try {
@@ -243,7 +243,7 @@ public class AbstractSequentialListTest extends TestCase {
             //expected
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -263,7 +263,7 @@ public class AbstractSequentialListTest extends TestCase {
                 return new Mock_unsupportedListIterator();
             }
         };
-        
+
         try {
             asl.add(0, 1);
             fail("UnsupportedOperationException expected");
@@ -283,14 +283,14 @@ public class AbstractSequentialListTest extends TestCase {
                 return new Mock_ListIterator();
             }
         };
-        
+
         try {
             asl.add(0, "String");
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ee) {
             //expected
         }
-        
+
         try {
             asl.add(0, null);
             fail("NullPointerException expected");
@@ -301,9 +301,9 @@ public class AbstractSequentialListTest extends TestCase {
         //ClassCastException can not be checked for this method.
 
         asl.add(0, 1);
-        
+
         asl = new LinkedList();
-        
+
         try {
             asl.add(-1, 1);
             fail("IndexOutOfBoundsException expected");
@@ -312,7 +312,7 @@ public class AbstractSequentialListTest extends TestCase {
         }
 
         asl.add(0, 1);
-        
+
         try {
             asl.add(2, 1);
             fail("IndexOutOfBoundsException expected");
@@ -320,7 +320,7 @@ public class AbstractSequentialListTest extends TestCase {
             //expected
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -331,12 +331,12 @@ public class AbstractSequentialListTest extends TestCase {
         final String buff[] = {"0", "1", "2", "3", "4", "5"};
         AbstractSequentialList asl = new AbstractSequentialList() {
             int currPos = 0;
-    
+
             @Override
             public int size() {
                 return buff.length;
             }
-    
+
             @Override
             public ListIterator listIterator(int index) {
                 currPos = index;
@@ -376,18 +376,18 @@ public class AbstractSequentialListTest extends TestCase {
                 };
             }
         };
-        
+
         for (int i = 0; i < buff.length; i++) {
             assertEquals(buff[i], asl.get(i));
         }
-        
+
         try {
             asl.get(asl.size() + 1);
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             asl.get(-1);
             fail("IndexOutOfBoundsException expected");
@@ -395,7 +395,7 @@ public class AbstractSequentialListTest extends TestCase {
             //expected
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -423,7 +423,7 @@ public class AbstractSequentialListTest extends TestCase {
                 return new Mock_unsupportedListIterator();
             }
         };
-        
+
         assertTrue(asl.iterator().getClass().toString().contains("Mock_unsupportedListIterator"));
 
         asl = new AbstractSequentialList() {
@@ -438,7 +438,7 @@ public class AbstractSequentialListTest extends TestCase {
                 return new Mock_ListIterator();
             }
         };
-        
+
         assertTrue(asl.iterator().getClass().toString().contains("Mock_ListIterator"));
 
         asl = new AbstractSequentialList() {
@@ -455,7 +455,7 @@ public class AbstractSequentialListTest extends TestCase {
         };
         assertNull(asl.iterator());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -466,12 +466,12 @@ public class AbstractSequentialListTest extends TestCase {
         AbstractSequentialList asl = new AbstractSequentialList() {
             String buff[] = {"0", "1", "2", "3", "4", "5"};
             int currPos = 0;
-    
+
             @Override
             public int size() {
                 return buff.length;
             }
-    
+
             @Override
             public ListIterator listIterator(int index) {
                 currPos = index;
@@ -512,28 +512,28 @@ public class AbstractSequentialListTest extends TestCase {
                 };
             }
         };
-        
+
         try {
             asl.remove(asl.size() + 1);
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             asl.remove(-1);
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         for(int i = 0; i < asl.size(); i++) {
             assertFalse(asl.get(i).toString().contains("removed element"));
             asl.remove(i);
             assertTrue(asl.get(i).toString().contains("removed element"));
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -545,47 +545,47 @@ public class AbstractSequentialListTest extends TestCase {
             String buff[] = {"0", "1", "2", "3", "4", "5"};
             final String illegalStr = "Illegal element";
             int currPos = 0;
-    
+
             @Override
             public int size() {
                 return buff.length;
             }
-    
+
             @Override
             public ListIterator listIterator(int index) {
                 currPos = index;
                 return new ListIterator() {
                     public void add(Object o) {
                     }
-    
+
                     public boolean hasNext() {
                         return true;
                     }
-    
+
                     public boolean hasPrevious() {
                         return false;
                     }
-    
+
                     public Object next() {
                         return buff[currPos];
                     }
-    
+
                     public int nextIndex() {
                         return 0;
                     }
-    
+
                     public Object previous() {
                         return null;
                     }
-    
+
                     public int previousIndex() {
                         return 0;
                     }
-    
+
                     public void remove() {
                         buff[currPos] = "removed element";
                     }
-    
+
                     public void set(Object o) {
                         if (o == null) throw new NullPointerException();
                         if (o.equals(illegalStr)) throw new IllegalArgumentException();
@@ -594,41 +594,41 @@ public class AbstractSequentialListTest extends TestCase {
                 };
             }
         };
-        
+
         try {
             asl.set(asl.size() + 1, "new element");
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             asl.set(-1, "new element");
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         for(int i = 0; i < asl.size(); i++) {
             assertFalse(asl.get(i).toString().contains("new element"));
             asl.set(i, "new element");
             assertTrue(asl.get(i).toString().contains("new element"));
         }
-        
+
         try {
             asl.set(1, new Double(1));
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //
         }
-        
+
         try {
             asl.set(1, "Illegal element");
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ee) {
             //expected
         }
-        
+
         try {
             asl.set(1, null);
             fail("NullPointerException expected");
@@ -648,7 +648,7 @@ public class AbstractSequentialListTest extends TestCase {
                 return new Mock_unsupportedListIterator();
             }
         };
-        
+
         try {
             asl.set(0, "New element");
             fail("UnsupportedOperationException expected");

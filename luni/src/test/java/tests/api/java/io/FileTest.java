@@ -41,7 +41,7 @@ import static tests.support.Support_Exec.javaProcessBuilder;
 import static tests.support.Support_Exec.execAndGetOutput;
 import tests.util.TestEnvironment;
 
-@TestTargetClass(File.class) 
+@TestTargetClass(File.class)
 public class FileTest extends junit.framework.TestCase {
 
     /** Location to store tests in */
@@ -94,12 +94,12 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "File",
         args = {java.io.File.class, java.lang.String.class}
-    )    
+    )
     public void test_ConstructorLjava_io_FileLjava_lang_String() throws Exception {
         String error;
         String dirName = System.getProperty("java.io.tmpdir");
         System.setProperty("user.dir", dirName);
-        
+
         File d = new File(dirName);
         File f = new File(d, "input.tst");
         if (!dirName.regionMatches((dirName.length() - 1), slash, 0, 1))
@@ -117,7 +117,7 @@ public class FileTest extends junit.framework.TestCase {
 
         d = null;
         f = new File(d, "input.tst");
-        error = String.format("Test 3: Incorrect file created: %s; %s expected.", 
+        error = String.format("Test 3: Incorrect file created: %s; %s expected.",
                 f.getAbsolutePath(), dirName);
         assertTrue(error, f.getAbsolutePath().equals(dirName));
 
@@ -125,7 +125,7 @@ public class FileTest extends junit.framework.TestCase {
         File s = null;
         f = new File("/abc");
         d = new File(s, "/abc");
-        assertEquals("Test 4: Incorrect file created;", 
+        assertEquals("Test 4: Incorrect file created;",
                 f.getAbsolutePath(), d.getAbsolutePath());
     }
 
@@ -137,7 +137,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies File(java.lang.String) constructor.",
         method = "File",
         args = {java.lang.String.class}
-    )    
+    )
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.io.File(java.lang.String)
         String fileName = null;
@@ -164,7 +164,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "File",
         args = {java.lang.String.class, java.lang.String.class}
-    )    
+    )
     public void test_ConstructorLjava_lang_StringLjava_lang_String() {
         String error;
         String dirName = null;
@@ -172,12 +172,12 @@ public class FileTest extends junit.framework.TestCase {
 
         String userDir = System.getProperty("java.io.tmpdir");
         System.setProperty("user.dir", userDir);
-        
+
         File f = new File(dirName, fileName);
         if (!userDir.regionMatches((userDir.length() - 1), slash, 0, 1))
             userDir += slash;
         userDir += "input.tst";
-        error = String.format("Test 1: Incorrect file created: %s; %s expected.", 
+        error = String.format("Test 1: Incorrect file created: %s; %s expected.",
                 f.getAbsolutePath(), userDir);
         assertTrue(error, f.getAbsolutePath().equals(userDir));
 
@@ -243,7 +243,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "File",
         args = {java.io.File.class, java.lang.String.class}
-    )    
+    )
     public void test_ConstructorLjava_io_FileLjava_lang_String_112270() {
         File ref1 = new File("/dir1/file1");
 
@@ -275,7 +275,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies File(java.net.URI) constructor with incorrect parameter.",
         method = "File",
         args = {java.net.URI.class}
-    )    
+    )
     public void test_ConstructorLjava_net_URI() {
         // Test for method java.io.File(java.net.URI)
         URI uri = null;
@@ -330,7 +330,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "canRead",
         args = {}
-    )    
+    )
     public void test_canRead() {
         // Test for method boolean java.io.File.canRead()
         // canRead only returns if the file exists so cannot be fully tested.
@@ -355,7 +355,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "canWrite",
         args = {}
-    )    
+    )
     public void test_canWrite() {
         // Test for method boolean java.io.File.canWrite()
         // canWrite only returns if the file exists so cannot be fully tested.
@@ -380,7 +380,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies compareTo(java.io.File) method.",
         method = "compareTo",
         args = {java.io.File.class}
-    )     
+    )
     public void test_compareToLjava_io_File() {
         File f1 = new File("thisFile.file");
         File f2 = new File("thisFile.file");
@@ -392,7 +392,7 @@ public class FileTest extends junit.framework.TestCase {
         assertTrue("f1.compareTo(f3) did not result in vale > 0", f1
                 .compareTo(f3) > 0);
     }
-    
+
     /**
      * @tests java.io.File#createNewFile()
      */
@@ -401,7 +401,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "IOException checked.",
         method = "createNewFile",
         args = {}
-    )      
+    )
     public void test_createNewFile_EmptyString() {
         File f = new File("");
         try {
@@ -419,7 +419,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "createNewFile",
         args = {}
-    )     
+    )
     public void test_createNewFile() throws IOException {
         // Test for method java.io.File.createNewFile()
         String base = System.getProperty("java.io.tmpdir");
@@ -456,7 +456,7 @@ public class FileTest extends junit.framework.TestCase {
         File f2 = new File(dir, "tempfile.tst");
         f1.deleteOnExit();
         f2.deleteOnExit();
-        dir.deleteOnExit(); 
+        dir.deleteOnExit();
         assertFalse("Test 2: File should not exist.", f1.isFile());
         f1.createNewFile();
         assertTrue("Test 3: File should exist.", f1.isFile());
@@ -464,15 +464,15 @@ public class FileTest extends junit.framework.TestCase {
         String dirName = f1.getParent();
         if (!dirName.endsWith(slash))
             dirName += slash;
-        assertTrue("Test 5: File saved in the wrong directory.", 
+        assertTrue("Test 5: File saved in the wrong directory.",
                 dirName.equals(dir.getPath() + slash));
-        assertEquals("Test 6: File saved with incorrect name;", 
+        assertEquals("Test 6: File saved with incorrect name;",
                 "tempfile.tst", f1.getName());
 
         // Test for creating a file that already exists.
         assertFalse("Test 7: File already exists, createNewFile should " +
                 "return false.", f2.createNewFile());
-        
+
         // Trying to create an illegal file.
         String sep = File.separator;
         f1 = new File(sep+"a"+sep+".."+sep+".."+sep);
@@ -482,7 +482,7 @@ public class FileTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // Expected.
         }
-        
+
         f1 = new File(base);
         assertFalse("Test 9: False expected when trying to create an " +
                 "existing file", f1.createNewFile());
@@ -495,7 +495,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "createTempFile",
         args = {java.lang.String.class, java.lang.String.class}
-    )      
+    )
     @AndroidOnly("The RI does not throw an IOException when an illegal" +
             "file prefix is passed to createTempFile.")
     public void test_createTempFileLjava_lang_StringLjava_lang_String() {
@@ -583,7 +583,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "createTempFile",
         args = {java.lang.String.class, java.lang.String.class, java.io.File.class}
-    )    
+    )
     public void test_createTempFileLjava_lang_StringLjava_lang_StringLjava_io_File() {
         // Test for method java.io.File.createTempFile(String, String, File)
         File f1 = null;
@@ -716,7 +716,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies equals() method.",
         method = "equals",
         args = {java.lang.Object.class}
-    )    
+    )
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean java.io.File.equals(java.lang.Object)
         File f1 = new File("filechk.tst");
@@ -766,7 +766,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "exists",
         args = {}
-    ) 
+    )
     public void test_exists() {
         // Test for method boolean java.io.File.exists()
         try {
@@ -790,7 +790,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "getAbsoluteFile",
         args = {}
-    )     
+    )
     public void test_getAbsoluteFile() {
         // Test for method java.io.File getAbsoluteFile()
         String base = System.getProperty("java.io.tmpdir");
@@ -819,7 +819,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "getAbsolutePath",
         args = {}
-    )     
+    )
     public void test_getAbsolutePath() {
         // Test for method java.lang.String java.io.File.getAbsolutePath()
         String base = System.getProperty("java.io.tmpdir");
@@ -848,7 +848,7 @@ public class FileTest extends junit.framework.TestCase {
                 "the native access to the filesystem fails.",
         method = "getCanonicalFile",
         args = {}
-    )     
+    )
     public void test_getCanonicalFile() {
         // Test for method java.io.File.getCanonicalFile()
         try {
@@ -869,7 +869,7 @@ public class FileTest extends junit.framework.TestCase {
             assertEquals("Test 3: Incorrect file returned.", 0, f2
                     .getCanonicalFile().compareTo(f.getCanonicalFile()));
 
-            // Test for when long directory/file names in Windows    
+            // Test for when long directory/file names in Windows
             boolean onWindows = File.separatorChar == '\\';
             // String userDir = System.getProperty("java.io.tmpdir");
             if (onWindows) {
@@ -918,7 +918,7 @@ public class FileTest extends junit.framework.TestCase {
                 "the native access to the filesystem fails.",
         method = "getCanonicalPath",
         args = {}
-    )    
+    )
     public void test_getCanonicalPath() {
         // Test for method java.lang.String java.io.File.getCanonicalPath()
         // Should work for Unix/Windows.
@@ -983,11 +983,11 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies getName() method.",
         method = "getName",
         args = {}
-    )    
+    )
     public void test_getName() {
         // Test for method java.lang.String java.io.File.getName()
         File f = new File("name.tst");
-        assertEquals("Test 1: Returned incorrect name", 
+        assertEquals("Test 1: Returned incorrect name",
                 "name.tst", f.getName());
 
         f = new File("");
@@ -1004,7 +1004,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies getParent() method.",
         method = "getParent",
         args = {}
-    )     
+    )
     public void test_getParent() throws Exception {
         // Test for method java.lang.String java.io.File.getParent()
         String dir = System.getProperty("java.io.tmpdir");
@@ -1014,7 +1014,7 @@ public class FileTest extends junit.framework.TestCase {
         File f = new File("p.tst");
         assertNull("Test 1: Incorrect path returned", f.getParent());
         f = new File(dir, "p.tst");
-        assertTrue("Test 2: Incorrect path returned", 
+        assertTrue("Test 2: Incorrect path returned",
                    f.getParent().equals(dir));
         try {
             f.delete();
@@ -1042,7 +1042,7 @@ public class FileTest extends junit.framework.TestCase {
             assertTrue("Wrong parent test 2a", f1.getParent().equals(
                     "d:" + slash + "directory"));
             f1 = new File("d:directory/file");
-            assertEquals("Wrong parent test 3a", 
+            assertEquals("Wrong parent test 3a",
                     "d:directory", f1.getParent());
             f1 = new File("d:/");
             assertNull("Wrong parent test 4a", f1.getParent());
@@ -1059,7 +1059,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies getParentFile() method.",
         method = "getParentFile",
         args = {}
-    )       
+    )
     public void test_getParentFile() {
         // Test for method java.io.File.getParentFile()
         File f = new File("tempfile.tst");
@@ -1084,7 +1084,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies getPath() method.",
         method = "getPath",
         args = {}
-    )    
+    )
     public void test_getPath() {
         System.setProperty("user.dir", System.getProperty("java.io.tmpdir"));
         String base = System.getProperty("user.dir");
@@ -1121,7 +1121,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies isAbsolute() method.",
         method = "isAbsolute",
         args = {}
-    )      
+    )
     public void test_isAbsolute() {
         // Test for method boolean java.io.File.isAbsolute()
         if (File.separatorChar == '\\') {
@@ -1146,7 +1146,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "isDirectory",
         args = {}
-    )     
+    )
     public void test_isDirectory() {
         // Test for method boolean java.io.File.isDirectory()
 
@@ -1173,7 +1173,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "isFile",
         args = {}
-    )     
+    )
     public void test_isFile() {
         // Test for method boolean java.io.File.isFile()
         try {
@@ -1200,11 +1200,11 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "isHidden",
         args = {}
-    )      
+    )
     public void test_isHidden() {
         // Test for method boolean java.io.File.isHidden()
         boolean onUnix = File.separatorChar == '/';
-        
+
         try {
             File f = File.createTempFile("hyts_", ".tmp");
             // On Unix hidden files are marked with a "." at the beginning
@@ -1244,7 +1244,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "lastModified",
         args = {}
-    )      
+    )
     public void test_lastModified() {
         // Test for method long java.io.File.lastModified()
         try {
@@ -1261,7 +1261,7 @@ public class FileTest extends junit.framework.TestCase {
             assertTrue("LastModified Time Incorrect: " + lastModifiedTime,
                     lastModifiedTime == 315550800000L);
             f.delete();
-            
+
             // Regression for Harmony-2146
             f = new File("/../");
             assertTrue(f.lastModified() > 0);
@@ -1277,7 +1277,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "length",
         args = {}
-    )      
+    )
     public void test_length() throws Exception {
         // Test for method long java.io.File.length()
         try {
@@ -1293,7 +1293,7 @@ public class FileTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("Unexpected IOException during test : " + e.getMessage());
         }
-        
+
         // regression test for Harmony-1497
         File f = File.createTempFile("cts", ".tmp");
         f.deleteOnExit();
@@ -1309,7 +1309,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "list",
         args = {}
-    )         
+    )
     public void test_list() {
         // Test for method java.lang.String [] java.io.File.list()
 
@@ -1414,7 +1414,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "listFiles",
         args = {}
-    )         
+    )
     public void test_listFiles() {
         // Test for method java.io.File.listFiles()
 
@@ -1548,10 +1548,10 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "listFiles",
         args = {java.io.FileFilter.class}
-    )      
+    )
     public void test_listFilesLjava_io_FileFilter() {
         // Test for method java.io.File.listFiles(File Filter filter)
-        
+
         String base = System.getProperty("java.io.tmpdir");
         // Finding a non-existent directory to create.
         int dirNumber = 1;
@@ -1683,7 +1683,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "listFiles",
         args = {java.io.FilenameFilter.class}
-    )      
+    )
     public void test_listFilesLjava_io_FilenameFilter() {
         // Test for method java.io.File.listFiles(FilenameFilter filter)
 
@@ -1794,7 +1794,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "list",
         args = {java.io.FilenameFilter.class}
-    )      
+    )
     public void test_listLjava_io_FilenameFilter() {
         // Test for method java.lang.String []
         // java.io.File.list(java.io.FilenameFilter)
@@ -1907,7 +1907,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies listRoots() method.",
         method = "listRoots",
         args = {}
-    )     
+    )
     public void test_listRoots() {
         // Test for method java.io.File.listRoots()
 
@@ -1934,7 +1934,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "mkdir",
         args = {}
-    )     
+    )
     public void test_mkdir() throws IOException {
         // Test for method boolean java.io.File.mkdir()
 
@@ -1953,14 +1953,14 @@ public class FileTest extends junit.framework.TestCase {
                 dirExists = false;
             }
         }
-        
+
         assertTrue("mkdir failed", dir.mkdir() && dir.exists());
         dir.deleteOnExit();
 
         String longDirName = "abcdefghijklmnopqrstuvwx";// 24 chars
         StringBuilder sb = new StringBuilder(dir + File.separator);
         StringBuilder sb2 = new StringBuilder(dir + File.separator);
-        
+
         // Test make a long path
         while (dir.getCanonicalPath().length() < 256 - longDirName.length()) {
             sb.append(longDirName + File.separator);
@@ -1968,7 +1968,7 @@ public class FileTest extends junit.framework.TestCase {
             assertTrue("mkdir failed", dir.mkdir() && dir.exists());
             dir.deleteOnExit();
         }
-        
+
         while (dir.getCanonicalPath().length() < 256) {
             sb.append(0);
             dir = new File(sb.toString());
@@ -1976,7 +1976,7 @@ public class FileTest extends junit.framework.TestCase {
                     dir.mkdir() && dir.exists());
             dir.deleteOnExit();
         }
-        
+
         // Test make many paths
         while (dir.getCanonicalPath().length() < 256) {
             sb2.append(0);
@@ -1984,7 +1984,7 @@ public class FileTest extends junit.framework.TestCase {
             assertTrue("mkdir " + dir.getCanonicalPath().length() + " failed",
                     dir.mkdir() && dir.exists());
             dir.deleteOnExit();
-        }     
+        }
     }
 
     /**
@@ -1994,7 +1994,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "mkdirs",
         args = {}
-    )     
+    )
     public void test_mkdirs() {
         // Test for method boolean java.io.File.mkdirs()
 
@@ -2024,7 +2024,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "renameTo",
         args = {java.io.File.class}
-    )     
+    )
     public void test_renameToLjava_io_File() {
         // Test for method boolean java.io.File.renameTo(java.io.File)
         String base = System.getProperty("java.io.tmpdir");
@@ -2040,7 +2040,7 @@ public class FileTest extends junit.framework.TestCase {
             long lengthOfFile = f.length();
 
             rfile.delete(); // in case it already exists
-            
+
             try {
                 f.renameTo(null);
                 fail("Test 1: NullPointerException expected.");
@@ -2076,15 +2076,15 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "setLastModified",
         args = {long.class}
-    )      
+    )
     public void test_setLastModifiedJ() {
         // Test for method java.io.File.setLastModified()
         File f1 = null;
         try {
             // f1 = File.createTempFile("hyts_tf" , ".tmp");
             // jclRM does not include File.createTempFile
-            f1 = new File(System.getProperty("java.io.tmpdir"), 
-                          platformId + "hyts_tf_slm.tst");            
+            f1 = new File(System.getProperty("java.io.tmpdir"),
+                          platformId + "hyts_tf_slm.tst");
             f1.createNewFile();
             long orgTime = f1.lastModified();
             // Subtracting 100 000 milliseconds from the orgTime of File f1
@@ -2128,7 +2128,7 @@ public class FileTest extends junit.framework.TestCase {
                 fail("IllegalArgumentException not thrown.");
             } catch (IllegalArgumentException e) {
             }
-            
+
             File f2 = new File("/does not exist.txt");
             assertFalse(f2.setLastModified(42));
         } catch (IOException e) {
@@ -2154,9 +2154,6 @@ public class FileTest extends junit.framework.TestCase {
                 args = {}
         )
     })
-    @KnownFailure("canWrite() returns true even when a file is marked " +
-            "read-only (Test 2). It is also possible to open this file " +
-            "for writing (Test 3).")
     public void test_setReadOnly() {
         // Test for method java.io.File.setReadOnly()
 
@@ -2167,11 +2164,11 @@ public class FileTest extends junit.framework.TestCase {
         try {
             f1 = File.createTempFile("hyts_tf", ".tmp");
             f2 = File.createTempFile("hyts_tf", ".tmp");
-            
+
             assertTrue("Test 1: File is read-only." , f1.canWrite());
             f1.setReadOnly();
             assertTrue("Test 2: File is not read-only." , !f1.canWrite());
-            
+
             try {
                 // Attempt to write to a file that is read-only.
                 new FileOutputStream(f1);
@@ -2229,9 +2226,9 @@ public class FileTest extends junit.framework.TestCase {
             f2 = new File(System.getProperty("java.io.tmpdir"), "deltestdir");
             f2.mkdir();
             f2.setReadOnly();
-            assertTrue("Test 12: Directory has not been deleted.", 
+            assertTrue("Test 12: Directory has not been deleted.",
                     f2.delete());
-            assertTrue("Test 13: Directory has not been deleted.", 
+            assertTrue("Test 13: Directory has not been deleted.",
                     ! f2.exists());
 
         } catch (IOException e) {
@@ -2275,7 +2272,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "Verifies toURI() method.",
         method = "toURI",
         args = {}
-    )    
+    )
     public void test_toURI() {
         // Test for method java.io.File.toURI()
         try {
@@ -2381,7 +2378,7 @@ public class FileTest extends junit.framework.TestCase {
                 newURL = "file:" + newURL;
             else
                 newURL = "file:/" + newURL;
-            assertEquals("Test 2: Incorrect URL returned;", newURL, 
+            assertEquals("Test 2: Incorrect URL returned;", newURL,
                     f.toURL().toString());
         } catch (java.net.MalformedURLException e) {
             fail("Unexpected java.net.MalformedURLException during test.");
@@ -2395,7 +2392,7 @@ public class FileTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "toURL",
         args = {}
-    )    
+    )
     public void test_toURL2() {
 
         File f = new File(System.getProperty("java.io.tmpdir"), "a/b/c/../d/e/./f");
@@ -2441,6 +2438,7 @@ public class FileTest extends junit.framework.TestCase {
     )
     @AndroidOnly("This test only runs on Android because it instantiates " +
             "a second Dalvik VM.")
+    @KnownFailure("Fails in CTS but passes under run-core-tests")
     public void test_deleteOnExit() throws IOException, InterruptedException {
         String cts = System.getProperty("java.io.tmpdir");
         File dir = new File(cts + "/hello");
@@ -2452,7 +2450,7 @@ public class FileTest extends junit.framework.TestCase {
 
         URL url = getClass().getResource("/HelloWorld.txt");
         String classPath = url.toString();
-        int idx = classPath.indexOf("!"); 
+        int idx = classPath.indexOf("!");
         assertTrue("could not find the path of the test jar/apk", idx > 0);
         classPath = classPath.substring(9, idx); // cutting off jar:file:
 
@@ -2467,7 +2465,7 @@ public class FileTest extends junit.framework.TestCase {
         assertFalse(dir.exists());
         assertFalse(subDir.exists());
     }
-    
+
     /**
      * @tests serialization
      */
@@ -2476,7 +2474,7 @@ public class FileTest extends junit.framework.TestCase {
         notes = "regression test",
         method = "!Serialization",
         args = {}
-    )     
+    )
     public void test_objectStreamClass_getFields() throws Exception {
         //Regression for HARMONY-2674
         ObjectStreamClass objectStreamClass = ObjectStreamClass
@@ -2487,7 +2485,7 @@ public class FileTest extends junit.framework.TestCase {
         assertEquals("path", objectStreamField.getName());
         assertEquals(String.class, objectStreamField.getType());
     }
-    
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.

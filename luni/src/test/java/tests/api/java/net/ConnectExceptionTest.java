@@ -17,7 +17,7 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -28,7 +28,7 @@ import java.net.Socket;
 
 import tests.support.Support_PortManager;
 
-@TestTargetClass(ConnectException.class) 
+@TestTargetClass(ConnectException.class)
 public class ConnectExceptionTest extends junit.framework.TestCase {
 
     /**

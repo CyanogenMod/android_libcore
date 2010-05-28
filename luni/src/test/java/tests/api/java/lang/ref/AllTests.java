@@ -24,16 +24,11 @@ import junit.framework.TestSuite;
  * TODO Type description
  */
 public class AllTests {
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AllTests.suite());
-    }
-
     public static Test suite() {
-        TestSuite suite = tests.TestSuiteFactory.createTestSuite("Test for java.lang.ref");
+        TestSuite suite = new TestSuite("Test for java.lang.ref");
 
         // $JUnit-BEGIN$
-        
+
         suite.addTestSuite(PhantomReferenceTest.class);
         suite.addTestSuite(ReferenceQueueTest.class);
         suite.addTestSuite(ReferenceTest.class);

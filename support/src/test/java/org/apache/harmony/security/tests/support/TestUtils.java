@@ -51,7 +51,7 @@ public class TestUtils {
         for (int i=0; i<data.length; i++) {
             String tail = Integer.toHexString(0x000000ff & data[i]);
             if (tail.length() == 1) {
-                tail = "0" + tail; 
+                tail = "0" + tail;
             }
             System.out.print(prefix + "0x" + tail + delimiter);
 
@@ -61,7 +61,7 @@ public class TestUtils {
         }
         System.out.println("");
     }
-    
+
     /**
      * Sets system property
      *

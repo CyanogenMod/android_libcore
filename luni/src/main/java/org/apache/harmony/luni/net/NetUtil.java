@@ -28,7 +28,7 @@ public class NetUtil {
 
     /**
      * Returns whether to use a SOCKS proxy.
-     * 
+     *
      * @param proxy java.net.Proxy <code>proxy</code> is used to determine
      *        whether using SOCKS proxy.
      * @return true if only the type of <code>proxy</code> is
@@ -43,27 +43,27 @@ public class NetUtil {
 
     /**
      * Answer whether to prefer IPV6 address
-     * 
+     *
      * @return boolean
      */
     public static boolean preferIPv6Addresses() {
-        final Action a = new Action("java.net.preferIPv6Addresses");//$NON-NLS-1$
+        final Action a = new Action("java.net.preferIPv6Addresses");
         return AccessController.doPrivileged(a).booleanValue();
     }
 
     /**
      * Answer whether to prefer IPV4 stack
-     * 
+     *
      * @return boolean
      */
     public static boolean preferIPv4Stack() {
-        final Action a = new Action("java.net.preferIPv4Stack");//$NON-NLS-1$
+        final Action a = new Action("java.net.preferIPv4Stack");
         return AccessController.doPrivileged(a).booleanValue();
     }
 
     /**
      * Gets proxy list according to the URI by system ProxySelector.
-     * 
+     *
      * @param uri
      * @return a list of proxy for the URI. Returns null if no proxy is
      *         available.

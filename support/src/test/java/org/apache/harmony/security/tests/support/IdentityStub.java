@@ -29,7 +29,7 @@ import java.security.PublicKey;
 
 /**
  * Stub for abstract class Identity
- * 
+ *
  */
 @SuppressWarnings("deprecation")
 public class IdentityStub extends Identity {
@@ -39,22 +39,22 @@ public class IdentityStub extends Identity {
      */
     @SuppressWarnings("deprecation")
     public IdentityStub() {
-        super();        
+        super();
     }
 
     /**
      * TODO Put ctor description here
-     * 
+     *
      * @param name
      */
     @SuppressWarnings("deprecation")
     public IdentityStub(String name) {
-        super(name);        
+        super(name);
     }
 
     /**
      * TODO Put ctor description here
-     * 
+     *
      * @param name
      * @param scope
      * @throws KeyManagementException
@@ -66,7 +66,7 @@ public class IdentityStub extends Identity {
     }
 
     /**
-     * Auxiliary constructor 
+     * Auxiliary constructor
      * @param name
      * @param key
      * @throws KeyManagementException
@@ -76,7 +76,7 @@ public class IdentityStub extends Identity {
         this(name);
         setPublicKey(key);
     }
-    
+
     @SuppressWarnings("deprecation")
     public boolean identityEquals(Identity identity) {
         return super.identityEquals(identity);

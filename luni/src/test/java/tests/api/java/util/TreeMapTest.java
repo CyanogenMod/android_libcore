@@ -21,7 +21,7 @@ import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.AndroidOnly;
 
 import java.io.Serializable;
@@ -43,7 +43,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 import tests.support.Support_MapTest2;
 import tests.support.Support_UnmodifiableCollectionTest;
 
-@TestTargetClass(TreeMap.class) 
+@TestTargetClass(TreeMap.class)
 public class TreeMapTest extends junit.framework.TestCase {
 
     public static class ReversedComparator implements Comparator {
@@ -151,18 +151,18 @@ public class TreeMapTest extends junit.framework.TestCase {
             assertTrue("Map has incorrect mappings", myTreeMap.get(
                     element.toString()).equals(element));
         }
-        
+
         HashMap hm = new HashMap();
         hm.put(new Integer(1), "one");
         hm.put("one", new Integer(1));
-        
+
         try {
             new TreeMap(hm);
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             new TreeMap((Map)null);
             fail("NullPointerException expected");
@@ -193,7 +193,7 @@ public class TreeMapTest extends junit.framework.TestCase {
                 anotherTreeMap.firstKey().equals(new Integer(2).toString()));
         assertTrue("TreeMap does not use comparator (lastKey was incorrect)",
                 anotherTreeMap.lastKey().equals(new Integer(1).toString()));
-        
+
         try {
             new TreeMap((SortedMap)null);
             fail("NullPointerException expected");
@@ -297,14 +297,14 @@ public class TreeMapTest extends junit.framework.TestCase {
         // java.util.TreeMap.containsKey(java.lang.Object)
         assertTrue("Returned false for valid key", tm.containsKey("95"));
         assertTrue("Returned true for invalid key", !tm.containsKey("XXXXX"));
-        
+
         try {
             tm.containsKey(new Double(3.14));
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             tm.containsKey(null);
             fail("NullPointerException expected");
@@ -390,14 +390,14 @@ public class TreeMapTest extends junit.framework.TestCase {
         Object o = new Object();
         tm.put("Hello", o);
         assertTrue("Failed to get mapping", tm.get("Hello") == o);
-        
+
         try {
             tm.get(new Double(3.14));
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             tm.get(null);
             fail("NullPointerException expected");
@@ -430,14 +430,14 @@ public class TreeMapTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             tm.headMap(this);
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             tm.headMap(null);
             fail("NullPointerException expected");
@@ -551,7 +551,7 @@ public class TreeMapTest extends junit.framework.TestCase {
         Object o = new Object();
         tm.put("Hello", o);
         assertTrue("Failed to put mapping", tm.get("Hello") == o);
-        
+
         try {
             tm.put(null, "null");
             fail("NullPointerException expected");
@@ -598,14 +598,14 @@ public class TreeMapTest extends junit.framework.TestCase {
         x = new TreeMap();
         x.put(new Integer(1), "one");
         x.put(new Integer(2), "two");
-        
+
         try {
             tm.putAll(x);
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             tm.putAll(null);
             fail("NullPointerException expected");
@@ -628,14 +628,14 @@ public class TreeMapTest extends junit.framework.TestCase {
         // java.util.TreeMap.remove(java.lang.Object)
         tm.remove("990");
         assertTrue("Failed to remove mapping", !tm.containsKey("990"));
-        
+
         try {
             tm.remove(new Double(3.14));
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             tm.remove(null);
             fail("NullPointerException expected");
@@ -688,35 +688,35 @@ public class TreeMapTest extends junit.framework.TestCase {
         // Regression for Harmony-1161
         TreeMap<String, String> treeMapWithNull = new TreeMap<String, String>(
                 new MockComparatorNullTolerable());
-        treeMapWithNull.put("key1", "value1"); //$NON-NLS-1$ //$NON-NLS-2$
-        treeMapWithNull.put(null, "value2"); //$NON-NLS-1$
+        treeMapWithNull.put("key1", "value1");
+        treeMapWithNull.put(null, "value2");
         SortedMap<String, String> subMapWithNull = treeMapWithNull.subMap(null,
-                "key1"); //$NON-NLS-1$
-        assertEquals("Size of subMap should be 1:", 1, subMapWithNull.size()); //$NON-NLS-1$
+                "key1");
+        assertEquals("Size of subMap should be 1:", 1, subMapWithNull.size());
 
         // Regression test for typo in lastKey method
         SortedMap<String, String> map = new TreeMap<String, String>();
-        map.put("1", "one"); //$NON-NLS-1$ //$NON-NLS-2$
-        map.put("2", "two"); //$NON-NLS-1$ //$NON-NLS-2$
-        map.put("3", "three"); //$NON-NLS-1$ //$NON-NLS-2$
+        map.put("1", "one");
+        map.put("2", "two");
+        map.put("3", "three");
         assertEquals("3", map.lastKey());
-        SortedMap<String, String> sub = map.subMap("1", "3"); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("2", sub.lastKey()); //$NON-NLS-1$
-        
+        SortedMap<String, String> sub = map.subMap("1", "3");
+        assertEquals("2", sub.lastKey());
+
         try {
             tm.subMap(this, this);
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             tm.subMap(objArray[9].toString(), null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         try {
             tm.subMap(null, objArray[9].toString());
             fail("NullPointerException expected");
@@ -744,7 +744,7 @@ public class TreeMapTest extends junit.framework.TestCase {
             assertTrue("Map contains incorrect entries", tail
                     .containsValue(objArray[i]));
         }
-        
+
         SortedMap sort = tm.tailMap("99");
 
         try {
@@ -753,14 +753,14 @@ public class TreeMapTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             tm.tailMap(this);
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             tm.tailMap(null);
             fail("NullPointerException expected");

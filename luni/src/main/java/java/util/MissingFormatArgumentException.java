@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,11 @@
 
 package java.util;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A {@code MissingFormatArgumentException} will be thrown if there is no
  * corresponding argument with the specified conversion or an argument index
  * that refers to a missing argument.
- * 
+ *
  * @see java.lang.RuntimeException
  */
 public class MissingFormatArgumentException extends IllegalFormatException {
@@ -33,7 +31,7 @@ public class MissingFormatArgumentException extends IllegalFormatException {
     /**
      * Constructs a new {@code MissingFormatArgumentException} with the
      * specified conversion that lacks the argument.
-     * 
+     *
      * @param s
      *           the specified conversion that lacks the argument.
      */
@@ -46,7 +44,7 @@ public class MissingFormatArgumentException extends IllegalFormatException {
 
     /**
      * Returns the conversion associated with the exception.
-     * 
+     *
      * @return the conversion associated with the exception.
      */
     public String getFormatSpecifier() {
@@ -55,11 +53,11 @@ public class MissingFormatArgumentException extends IllegalFormatException {
 
     /**
      * Returns the message of the exception.
-     * 
+     *
      * @return the message of the exception.
      */
     @Override
     public String getMessage() {
-        return Msg.getString("K0348", s);
+        return "Format specifier: " + s;
     }
 }

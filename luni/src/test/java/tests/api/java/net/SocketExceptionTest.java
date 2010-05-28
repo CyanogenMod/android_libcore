@@ -17,14 +17,14 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
 import java.net.SocketException;
 
-@TestTargetClass(SocketException.class) 
+@TestTargetClass(SocketException.class)
 public class SocketExceptionTest extends junit.framework.TestCase {
 
     /**

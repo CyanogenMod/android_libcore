@@ -6,11 +6,11 @@ import java.security.SecurityPermission;
 import java.util.PropertyPermission;
 
 class MockSecurityManager extends SecurityManager {
-    
+
     String deletedFile = "/";
     String readedFile  = "/";
     String writedFile  = "/";
-    
+
     public void setInCheck(boolean inCheck) {
         super.inCheck = inCheck;
     }

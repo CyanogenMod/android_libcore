@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -40,7 +40,7 @@ import dalvik.annotation.TestTargetNew;
                             "garbage collector runs; add test later."
             )
         }
-) 
+)
 public class FileOutputStreamTest extends junit.framework.TestCase {
 
     public String fileName;
@@ -50,9 +50,9 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
     FileInputStream fis;
 
     File f;
-    
+
     String tmpDirName = System.getProperty("java.io.tmpdir");
-    
+
     File tmpDir = new File(tmpDirName);
 
     byte[] ibuf = new byte[4096];
@@ -66,7 +66,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "FileOutputStream",
         args = {java.io.File.class}
-    )    
+    )
     public void test_ConstructorLjava_io_File() throws Exception {
         try {
             fos = new FileOutputStream(tmpDir);
@@ -87,7 +87,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "FileOutputStream",
         args = {java.io.File.class, boolean.class}
-    )     
+    )
     public void test_ConstructorLjava_io_FileZ() throws Exception {
         try {
             fos = new FileOutputStream(tmpDir, false);
@@ -110,7 +110,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         assertTrue("Test 2: Failed to create appending stream.", new String(buf, 0,
                 buf.length).equals("FZ1" + fileString));
         fis.close();
-        
+
         // Check that the existing file is overwritten
         fos = new FileOutputStream(f, false);
         fos.write("FZ2".getBytes(), 0, 3);
@@ -128,7 +128,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "FileOutputStream",
         args = {java.io.FileDescriptor.class}
-    )      
+    )
     public void test_ConstructorLjava_io_FileDescriptor() throws Exception {
         // Test for method java.io.FileOutputStream(java.io.FileDescriptor)
         f = new File(tmpDirName, "fos.tst");
@@ -149,7 +149,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "FileOutputStream",
         args = {java.lang.String.class}
-    )    
+    )
     public void test_ConstructorLjava_lang_String() throws Exception {
         try {
             fos = new FileOutputStream(tmpDirName);
@@ -157,7 +157,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         } catch (FileNotFoundException e) {
             // Expected.
         }
-        
+
         f = new File(tmpDirName, "fos.tst");
         fileName = f.getAbsolutePath();
         fos = new FileOutputStream(fileName);
@@ -171,7 +171,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "FileOutputStream",
         args = {java.lang.String.class, boolean.class}
-    )     
+    )
     public void test_ConstructorLjava_lang_StringZ() throws Exception {
         try {
             fos = new FileOutputStream(tmpDirName, true);
@@ -194,7 +194,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         assertTrue("Failed to create appending stream", new String(buf, 0,
                 buf.length).equals("HI" + fileString));
         fis.close();
-        
+
         // Check that the existing file is overwritten
         fos = new FileOutputStream(f.getPath(), false);
         fos.write("HI".getBytes(), 0, 2);
@@ -214,7 +214,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
                 "by a native method.",
         method = "close",
         args = {}
-    )     
+    )
     public void test_close() throws Exception {
         f = new File(System.getProperty("java.io.tmpdir"), "output.tst");
         fos = new FileOutputStream(f.getPath());
@@ -236,7 +236,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         notes = "IOException not checked because it never gets thrown.",
         method = "getFD",
         args = {}
-    )       
+    )
     public void test_getFD() throws Exception {
         // Test for method java.io.FileDescriptor
         // java.io.FileOutputStream.getFD()
@@ -255,7 +255,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "write",
         args = {byte[].class}
-    )     
+    )
     public void test_write$B() throws Exception {
         // Test for method void java.io.FileOutputStream.write(byte [])
         f = new File(System.getProperty("java.io.tmpdir"), "output.tst");
@@ -272,7 +272,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         fis = new FileInputStream(f.getPath());
         byte rbytes[] = new byte[4000];
         fis.read(rbytes, 0, fileString.length());
-        assertTrue("Test 2: Incorrect string written or read.", 
+        assertTrue("Test 2: Incorrect string written or read.",
                 new String(rbytes, 0, fileString.length()).equals(fileString));
     }
 
@@ -283,7 +283,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "write",
         args = {byte[].class, int.class, int.class}
-    )        
+    )
     public void test_write$BII() throws Exception {
         // Test for method void java.io.FileOutputStream.write(byte [], int,
         // int)
@@ -304,7 +304,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "write",
         args = {int.class}
-    )        
+    )
     public void test_writeI() throws IOException {
         // Test for method void java.io.FileOutputStream.write(int)
         f = new File(System.getProperty("java.io.tmpdir"), "output.tst");
@@ -319,7 +319,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         }
 
         fis = new FileInputStream(f.getPath());
-        assertEquals("Test 1: Incorrect char written or read.", 
+        assertEquals("Test 1: Incorrect char written or read.",
                 't', fis.read());
     }
 
@@ -331,7 +331,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         notes = "Illegal argument and IOException checks.",
         method = "write",
         args = {byte[].class, int.class, int.class}
-    )       
+    )
     public void test_write$BII2() throws Exception {
         f = new File(tmpDirName, "output.tst");
         fos = new FileOutputStream(f.getPath());
@@ -393,7 +393,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "write",
         args = {byte[].class, int.class, int.class}
-    )     
+    )
     public void test_write$BII3() {
         try {
             new FileOutputStream(new FileDescriptor()).write(new byte[1], 0, 0);
@@ -430,7 +430,7 @@ public class FileOutputStreamTest extends junit.framework.TestCase {
         fos.flush();
         fos.close();
         FileOutputStream f = new FileOutputStream(tmpfile, true);
-        assertEquals(10, f.getChannel().position()); 
+        assertEquals(10, f.getChannel().position());
     }
 
     /**

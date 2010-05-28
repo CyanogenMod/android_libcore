@@ -23,7 +23,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(UnsupportedEncodingException.class) 
+@TestTargetClass(UnsupportedEncodingException.class)
 public class UnsupportedEncodingExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -33,7 +33,7 @@ public class UnsupportedEncodingExceptionTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "UnsupportedEncodingException",
             args = {}
-        )     
+        )
     public void test_Constructor() {
         try {
             if (true) // To avoid unreachable code compilation error.
@@ -52,7 +52,7 @@ public class UnsupportedEncodingExceptionTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "UnsupportedEncodingException",
             args = {java.lang.String.class}
-        )     
+        )
     public void test_ConstructorLjava_lang_String() {
         try {
             if (true) // To avoid unreachable code compilation error.

@@ -26,7 +26,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(PipedWriter.class) 
+@TestTargetClass(PipedWriter.class)
 public class PipedWriterTest extends junit.framework.TestCase {
 
     static final String testString = "Lorem ipsum...";
@@ -65,7 +65,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
                         + e.toString());
             }
         } */
-        
+
         public void run() {
             try {
                 while (true) {
@@ -125,25 +125,25 @@ public class PipedWriterTest extends junit.framework.TestCase {
     )
     public void test_ConstructorLjava_io_PipedReader() throws Exception {
         PipedReader rd = new PipedReader();
-        
+
         try {
             pw = new PipedWriter(rd);
         } catch (Exception e) {
             fail("Test 1: Construtor failed:" + e.getMessage());
         }
-        
+
         readerThread = new Thread(reader = new PReader(rd), "Constructor(Reader)");
         readerThread.start();
         try {
             pw.write(testBuf);
         } catch (Exception e) {
-            fail("Test 2: Could not write to the constructed writer: " 
+            fail("Test 2: Could not write to the constructed writer: "
                     + e.getMessage());
         }
         pw.close();
-        assertEquals("Test 3: Incorrect character string received.", testString, 
+        assertEquals("Test 3: Incorrect character string received.", testString,
                 reader.read(testLength));
-        
+
         rd = new PipedReader(new PipedWriter());
         try {
             pw = new PipedWriter(rd);
@@ -185,23 +185,23 @@ public class PipedWriterTest extends junit.framework.TestCase {
     public void test_connectLjava_io_PipedReader() throws Exception {
         PipedReader rd = new PipedReader();
         pw = new PipedWriter();
-        
+
         try {
             pw.connect(rd);
         } catch (Exception e) {
-            fail("Test 1: Unexpected exception when connecting: " + 
+            fail("Test 1: Unexpected exception when connecting: " +
                     e.getLocalizedMessage());
         }
 
         readerThread = new Thread(reader = new PReader(rd), "connect");
         readerThread.start();
-        
+
         try {
             pw.write(testBuf);
         } catch (IOException e) {
             fail("Test 2: Unexpected IOException when writing after connecting.");
         }
-        assertEquals("Test 3: Incorrect character string received.", testString, 
+        assertEquals("Test 3: Incorrect character string received.", testString,
                 reader.read(testLength));
 
         try {
@@ -228,7 +228,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
         readerThread.start();
         pw.write(testBuf);
         pw.flush();
-        assertEquals("Test 1: Flush failed. ", testString, 
+        assertEquals("Test 1: Flush failed. ", testString,
                 reader.read(testLength));
     }
 
@@ -243,37 +243,37 @@ public class PipedWriterTest extends junit.framework.TestCase {
     )
     public void test_write$CII() throws Exception {
         pw = new PipedWriter();
-        
+
         try {
             pw.write(testBuf, 0, 5);
             fail("Test 1: IOException expected.");
         } catch (IOException e) {
             // Expected.
         }
-        
+
         pw = new PipedWriter(new PipedReader());
-        
+
         try {
             pw.write(testBuf, -1, 1);
             fail("Test 2: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         try {
             pw.write(testBuf, 0, -1);
             fail("Test 3: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         try {
             pw.write(testBuf, 5, testString.length());
             fail("Test 4: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         pw.close();
         pw = new PipedWriter();
         try {
@@ -282,14 +282,14 @@ public class PipedWriterTest extends junit.framework.TestCase {
             pw.write(testBuf, 0, testLength);
             pw.close();
             reader.read(testLength);
-            assertTrue("Test 5: Characters read do not match the characters written.", 
+            assertTrue("Test 5: Characters read do not match the characters written.",
                     Arrays.equals( testBuf, reader.buf));
         } catch (IOException e) {
             fail("Test 5: Unexpected IOException: " + e.getMessage());
         }
-        
+
         readerThread.interrupt();
-        
+
         try {
             pw.write(testBuf, 0, 5);
             fail("Test 6: IOException expected.");
@@ -305,7 +305,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
             // Expected.
         }
     }
-    
+
     /**
      * @tests java.io.PipedWriter#write(char[],int,int)
      */
@@ -392,7 +392,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
         // Test for method void java.io.PipedWriter.write(int)
 
         pw = new PipedWriter();
-        
+
         try {
             pw.write(42);
             fail("Test 1: IOException expected.");
@@ -407,7 +407,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
         pw.write(3);
         pw.close();
         reader.read(3);
-        assertTrue("Test 2: The charaacters read do not match the characters written: " + 
+        assertTrue("Test 2: The charaacters read do not match the characters written: " +
                 (int) reader.buf[0] + " " + (int) reader.buf[1] + " " + (int) reader.buf[2],
                 reader.buf[0] == 1 && reader.buf[1] == 2 && reader.buf[2] == 3);
     }
@@ -479,13 +479,13 @@ public class PipedWriterTest extends junit.framework.TestCase {
         assertTrue("writer thread failed to recognize dead reader",
                 writeRunnable.pass);
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
         testBuf = new char[testLength];
         testString.getChars(0, testLength, testBuf, 0);
     }
-    
+
     protected void tearDown() throws Exception {
         try {
             if (readerThread != null) {

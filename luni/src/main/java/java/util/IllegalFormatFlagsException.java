@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import java.io.Serializable;
 /**
  * An {@code IllegalFormatFlagsException} will be thrown if the combination of
  * the format flags is illegal.
- * 
+ *
  * @see java.lang.RuntimeException
  */
 public class IllegalFormatFlagsException extends IllegalFormatException
@@ -33,7 +33,7 @@ public class IllegalFormatFlagsException extends IllegalFormatException
     /**
      * Constructs a new {@code IllegalFormatFlagsException} with the specified
      * flags.
-     * 
+     *
      * @param f
      *           the specified flags.
      */
@@ -46,7 +46,7 @@ public class IllegalFormatFlagsException extends IllegalFormatException
 
     /**
      * Returns the flags that are illegal.
-     * 
+     *
      * @return the flags that are illegal.
      */
     public String getFlags() {
@@ -55,7 +55,7 @@ public class IllegalFormatFlagsException extends IllegalFormatException
 
     /**
      * Returns the message string of the IllegalFormatFlagsException.
-     * 
+     *
      * @return the message string of the IllegalFormatFlagsException.
      */
     @Override

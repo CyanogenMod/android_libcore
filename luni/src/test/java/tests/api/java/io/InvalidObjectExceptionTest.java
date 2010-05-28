@@ -23,7 +23,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(java.io.InvalidObjectException.class) 
+@TestTargetClass(java.io.InvalidObjectException.class)
 public class InvalidObjectExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -34,7 +34,7 @@ public class InvalidObjectExceptionTest extends junit.framework.TestCase {
         notes = "Verifies the InvalidObjectException(java.lang.String) constructor.",
         method = "InvalidObjectException",
         args = {java.lang.String.class}
-    )     
+    )
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.io.InvalidObjectException(java.lang.String)
         try {

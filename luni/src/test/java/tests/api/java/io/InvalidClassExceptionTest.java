@@ -20,10 +20,10 @@ package tests.api.java.io;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import java.io.InvalidClassException;
 
-@TestTargetClass(InvalidClassException.class) 
+@TestTargetClass(InvalidClassException.class)
 public class InvalidClassExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -34,7 +34,7 @@ public class InvalidClassExceptionTest extends junit.framework.TestCase {
         notes = "",
         method = "InvalidClassException",
         args = {java.lang.String.class}
-    )    
+    )
     public void test_ConstructorLjava_lang_String() {
         final String message = "A message";
         try {
@@ -65,7 +65,7 @@ public class InvalidClassExceptionTest extends junit.framework.TestCase {
             method = "getMessage",
             args = {}
         )
-    })        
+    })
     public void test_ConstructorLjava_lang_StringLjava_lang_String() {
         // Test for method java.io.InvalidClassException(java.lang.String,
         // java.lang.String)

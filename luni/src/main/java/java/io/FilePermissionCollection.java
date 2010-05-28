@@ -42,7 +42,7 @@ final class FilePermissionCollection extends PermissionCollection implements
 
     /**
      * Add a permission object to the permission collection.
-     * 
+     *
      * @param permission
      *            the FilePermission object to add to the collection.
      * @throws IllegalArgumentException
@@ -66,7 +66,7 @@ final class FilePermissionCollection extends PermissionCollection implements
 
     /**
      * Returns an enumeration for the collection of permissions.
-     * 
+     *
      * @return a permission enumeration for this permission collection.
      * @see java.security.PermissionCollection#elements()
      */
@@ -78,7 +78,7 @@ final class FilePermissionCollection extends PermissionCollection implements
     /**
      * Indicates whether this permissions collection implies a specific
      * {@code permission}.
-     * 
+     *
      * @param permission
      *            the permission to check.
      * @see java.security.PermissionCollection#implies(java.security.Permission)

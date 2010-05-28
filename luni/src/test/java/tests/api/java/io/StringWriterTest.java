@@ -17,7 +17,7 @@
 
 package tests.api.java.io;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestLevel;
@@ -25,7 +25,7 @@ import dalvik.annotation.TestLevel;
 import java.io.IOException;
 import java.io.StringWriter;
 
-@TestTargetClass(StringWriter.class) 
+@TestTargetClass(StringWriter.class)
 public class StringWriterTest extends junit.framework.TestCase {
 
     StringWriter sw;
@@ -102,7 +102,7 @@ public class StringWriterTest extends junit.framework.TestCase {
 
         sw.write("This is a test string");
         StringBuffer sb = sw.getBuffer();
-        assertEquals("Incorrect buffer returned", 
+        assertEquals("Incorrect buffer returned",
                 "This is a test string", sb.toString());
     }
 
@@ -118,7 +118,7 @@ public class StringWriterTest extends junit.framework.TestCase {
     public void test_toString() {
         // Test for method java.lang.String java.io.StringWriter.toString()
         sw.write("This is a test string");
-        assertEquals("Incorrect string returned", 
+        assertEquals("Incorrect string returned",
                 "This is a test string", sw.toString());
     }
 
@@ -136,7 +136,7 @@ public class StringWriterTest extends junit.framework.TestCase {
         char[] c = new char[1000];
         "This is a test string".getChars(0, 21, c, 0);
         sw.write(c, 4, 14);
-        assertEquals("Chars not written properly", 
+        assertEquals("Chars not written properly",
                 " is a test str", sw.toString());
     }
 
@@ -201,7 +201,7 @@ public class StringWriterTest extends junit.framework.TestCase {
     public void test_writeLjava_lang_String() {
         // Test for method void java.io.StringWriter.write(java.lang.String)
         sw.write("This is a test string");
-        assertEquals("String not written properly", 
+        assertEquals("String not written properly",
                 "This is a test string", sw.toString());
     }
 
@@ -220,7 +220,7 @@ public class StringWriterTest extends junit.framework.TestCase {
         sw.write("This is a test string", 2, 2);
         assertEquals("String not written properly", "is", sw.toString());
     }
-    
+
     /**
      * @tests java.io.StringWriter#append(char)
      */
@@ -287,7 +287,7 @@ public class StringWriterTest extends junit.framework.TestCase {
             // expected
         }
     }
-    
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.

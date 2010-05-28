@@ -43,40 +43,40 @@ import dalvik.annotation.SideEffect;
 public class CoreTestSuite implements Test {
 
     /**
-     * Include all normal tests in the suite. 
+     * Include all normal tests in the suite.
      */
     public static final int RUN_NORMAL_TESTS = 1;
-    
+
     /**
-     * Include all broken tests in the suite. 
+     * Include all broken tests in the suite.
      */
     public static final int RUN_BROKEN_TESTS = 2;
 
     /**
-     * Include all known failures in the suite. 
+     * Include all known failures in the suite.
      */
     public static final int RUN_KNOWN_FAILURES = 4;
-    
+
     /**
-     * Include all Android-only tests in the suite. 
+     * Include all Android-only tests in the suite.
      */
     public static final int RUN_ANDROID_ONLY = 8;
 
     /**
-     * Include side-effective tests in the suite. 
+     * Include side-effective tests in the suite.
      */
     public static final int RUN_SIDE_EFFECTS = 16;
-    
+
     /**
-     * Include all tests in the suite. 
+     * Include all tests in the suite.
      */
-    public static final int RUN_ALL_TESTS = 
-            RUN_NORMAL_TESTS | RUN_BROKEN_TESTS | 
+    public static final int RUN_ALL_TESTS =
+            RUN_NORMAL_TESTS | RUN_BROKEN_TESTS |
             RUN_KNOWN_FAILURES | RUN_SIDE_EFFECTS | RUN_ANDROID_ONLY;
-    
+
     /**
      * Special treatment for known failures: they are expected to fail, so we
-     * throw an Exception if they succeed and accept them failing. 
+     * throw an Exception if they succeed and accept them failing.
      */
     public static final int INVERT_KNOWN_FAILURES = 32;
 
@@ -100,22 +100,22 @@ public class CoreTestSuite implements Test {
     public static final int DRY_RUN = 1024;
 
     private final String name;
-    
+
     /**
      * The total number of tests in the original suite.
      */
     protected int fTotalCount;
-    
+
     /**
      * The number of Android-only tests in the original suite.
      */
     protected int fAndroidOnlyCount;
-    
+
     /**
      * The number of broken tests in the original suite.
      */
     protected int fBrokenCount;
-    
+
     /**
      * The number of known failures in the original suite.
      */
@@ -125,7 +125,7 @@ public class CoreTestSuite implements Test {
      * The number of side-effective tests in the original suite.
      */
     protected int fSideEffectCount;
-    
+
     /**
      * The number of normal (non-annotated) tests in the original suite.
      */
@@ -136,7 +136,7 @@ public class CoreTestSuite implements Test {
      * excluded from this suite due to their annotations.
      */
     protected int fIgnoredCount;
-    
+
     /**
      * Contains the actual test cases in a reverse-ordered, flat list.
      */
@@ -145,14 +145,14 @@ public class CoreTestSuite implements Test {
     private TestCase fVictim;
 
     private int fStep;
-    
+
     private int fFlags;
-    
+
     /**
      * Creates a new CoreTestSuite for the given ordinary JUnit Test (which may
      * be a TestCase or TestSuite). The CoreTestSuite will be a flattened and
      * potentially filtered subset of the original JUnit Test. The flags
-     * determine the way we filter. 
+     * determine the way we filter.
      */
     public CoreTestSuite(Test suite, int flags, int step, TestCase victim) {
         super();
@@ -172,7 +172,7 @@ public class CoreTestSuite implements Test {
     private void addAndFlatten(Test test, int flags) {
         if (test instanceof TestSuite) {
             TestSuite suite = (TestSuite)test;
-            
+
             if ((flags & REVERSE) != 0) {
                 for (int i = suite.testCount() - 1; i >= 0; i--) {
                     addAndFlatten(suite.testAt(i), flags);
@@ -190,7 +190,7 @@ public class CoreTestSuite implements Test {
             boolean isBrokenTest = hasAnnotation(testCase, BrokenTest.class);
             boolean isKnownFailure = hasAnnotation(testCase, KnownFailure.class);
             boolean isSideEffect = hasAnnotation(testCase, SideEffect.class);
-            boolean isNormalTest = 
+            boolean isNormalTest =
                     !(isAndroidOnly || isBrokenTest || isKnownFailure ||
                       isSideEffect);
 
@@ -201,11 +201,11 @@ public class CoreTestSuite implements Test {
             if (isBrokenTest) {
                 fBrokenCount++;
             }
-            
+
             if (isKnownFailure) {
                 fKnownFailureCount++;
             }
-            
+
             if (isNormalTest) {
                 fNormalCount++;
             }
@@ -213,36 +213,36 @@ public class CoreTestSuite implements Test {
             if (isSideEffect) {
                 fSideEffectCount++;
             }
-            
-            if ((flags & RUN_ANDROID_ONLY) == 0 && isAndroidOnly) { 
+
+            if ((flags & RUN_ANDROID_ONLY) == 0 && isAndroidOnly) {
                 ignoreMe = true;
             }
-            
-            if ((flags & RUN_BROKEN_TESTS) == 0 && isBrokenTest) { 
+
+            if ((flags & RUN_BROKEN_TESTS) == 0 && isBrokenTest) {
                 ignoreMe = true;
             }
 
             if ((flags & RUN_KNOWN_FAILURES) == 0 && isKnownFailure) {
                 ignoreMe = true;
             }
-            
+
             if (((flags & RUN_NORMAL_TESTS) == 0) && isNormalTest) {
                 ignoreMe = true;
             }
-            
+
             if (((flags & RUN_SIDE_EFFECTS) == 0) && isSideEffect) {
                 ignoreMe = true;
             }
-                
+
             this.fTotalCount++;
-            
+
             if (!ignoreMe) {
                 fTests.add(test);
             } else {
                 this.fIgnoredCount++;
             }
         } else {
-            System.out.println("Warning: Don't know how to handle " + 
+            System.out.println("Warning: Don't know how to handle " +
                     test.getClass().getName() + " " + test.toString());
         }
     }
@@ -258,10 +258,10 @@ public class CoreTestSuite implements Test {
         } catch (Exception e) {
             // Ignore
         }
-        
+
         return false;
     }
-    
+
     /**
      * Runs the tests and collects their result in a TestResult.
      */
@@ -271,7 +271,7 @@ public class CoreTestSuite implements Test {
 
         while (fTests.size() != 0 && !result.shouldStop()) {
             TestCase test = (TestCase)fTests.elementAt(i);
-            
+
             Thread.currentThread().setContextClassLoader(
                     test.getClass().getClassLoader());
 
@@ -333,7 +333,7 @@ public class CoreTestSuite implements Test {
             }
         }
     }
-    
+
     /**
      * Returns the tests as an enumeration. Note this is empty once the tests
      * have been executed.

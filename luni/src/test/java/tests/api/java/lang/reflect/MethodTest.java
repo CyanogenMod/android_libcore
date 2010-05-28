@@ -34,9 +34,9 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(Method.class) 
+@TestTargetClass(Method.class)
 public class MethodTest extends junit.framework.TestCase {
-    
+
     static class TestMethod {
         public TestMethod() {
         }
@@ -111,18 +111,18 @@ public class MethodTest extends junit.framework.TestCase {
         }
 
         public static synchronized native void pustatsynchnat();
-        
+
         public void publicVoidVarargs(Object... param){}
         public void publicVoidArray(Object[] param){}
-        
+
         public void annotatedParameter(@TestAnno @Deprecated int a,
                 @Deprecated int b, int c) {
         }
-        
+
         @Deprecated
         @TestAnno
         public void annotatedMethod(){}
-        
+
         public void hashCodeTest(int i){}
         public void hashCodeTest(String s){}
 
@@ -150,7 +150,7 @@ public class MethodTest extends junit.framework.TestCase {
         public void invokeCastTest1(boolean param) {
         }
     }
-    
+
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     public static @interface TestAnno{
@@ -168,26 +168,26 @@ public class MethodTest extends junit.framework.TestCase {
             return 0;
         }
     }
-    
+
     static interface IBrigeTest<T>{
         T m();
     }
-    
+
     static class BrigeTest implements IBrigeTest<String> {
         public String m(){ return null; }
     }
-    
+
     static class ExceptionTest<T extends Exception>{
         @SuppressWarnings("unused")
         void exceptionTest() throws T{}
     }
-    
+
     static class GenericReturnType<T> {
         T returnGeneric(){return null;}
     }
-    
+
     static class GenericString<T> {
-      public static final String GENERIC = 
+      public static final String GENERIC =
       "T tests.api.java.lang.reflect.MethodTest$GenericString.genericString(T)";
         T genericString(T t) {
             return null;
@@ -226,7 +226,7 @@ public class MethodTest extends junit.framework.TestCase {
         }
         assertTrue("Inherited method returned not-equal", m1.equals(m2));
     }
-    
+
     /**
      * @tests java.lang.Class#getMethod(java.lang.String, java.lang.Class[])
      */
@@ -243,7 +243,7 @@ public class MethodTest extends junit.framework.TestCase {
         Method m2 = TestMethod.class.getMethod("invokeInstanceTest", (Class[]) null);
         assertEquals(m1, m2);
     }
-    
+
     /**
      * @tests java.lang.Class#getDeclaredMethod(java.lang.String, java.lang.Class[])
      */
@@ -260,7 +260,7 @@ public class MethodTest extends junit.framework.TestCase {
         Method m2 = TestMethod.class.getDeclaredMethod("invokeInstanceTest", (Class[]) null);
         assertEquals(m1, m2);
     }
-    
+
     /**
      * @tests java.lang.reflect.Method#getDeclaringClass()
      */
@@ -394,10 +394,10 @@ public class MethodTest extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("Exception during getMethodName(): " + e.toString());
         }
-        assertEquals("Returned incorrect method name", 
+        assertEquals("Returned incorrect method name",
                 "voidMethod", mth.getName());
     }
-    
+
     /**
      * @tests java.lang.reflect.Method#isVarArgs()
      */
@@ -416,7 +416,7 @@ public class MethodTest extends junit.framework.TestCase {
                 Object[].class);
         assertFalse("Non varargs method stated as vararg.", mth.isVarArgs());
     }
-    
+
     /**
      * @tests java.lang.reflect.Method#isBridge()
      */
@@ -439,7 +439,7 @@ public class MethodTest extends junit.framework.TestCase {
         }
         assertTrue("Bridge method not found.", foundBridgeMethod);
     }
-    
+
     /**
      * @tests java.lang.reflect.Method#isSynthetic()
      */
@@ -488,7 +488,7 @@ public class MethodTest extends junit.framework.TestCase {
                 .contains(TestAnno.class));
         assertTrue("Missing Deprecated annotation", annotationSet
                 .contains(Deprecated.class));
-        
+
         assertEquals(
                 "Wrong number of annotations returned for second parameter",
                 1, annotations[1].length);
@@ -500,7 +500,7 @@ public class MethodTest extends junit.framework.TestCase {
                 "Wrong number of annotations returned for third parameter", 0,
                 annotations[2].length);
     }
-    
+
     /**
      * @tests java.lang.reflect.Method#getDeclaredAnnotations()
      */
@@ -514,7 +514,7 @@ public class MethodTest extends junit.framework.TestCase {
         Method method = TestMethod.class.getDeclaredMethod("annotatedMethod");
         Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
         assertEquals(2, declaredAnnotations.length);
-        
+
         Set<Class<?>> annotationSet = new HashSet<Class<?>>();
         annotationSet.add(declaredAnnotations[0].annotationType());
         annotationSet.add(declaredAnnotations[1].annotationType());
@@ -523,7 +523,7 @@ public class MethodTest extends junit.framework.TestCase {
         assertTrue("Missing Deprecated annotation", annotationSet
                 .contains(Deprecated.class));
     }
-    
+
     /**
      * @tests java.lang.reflect.Method#getDefaultValue()
      */
@@ -538,7 +538,7 @@ public class MethodTest extends junit.framework.TestCase {
         assertEquals("Wrong default value returned", TestAnno.DEFAULT_VALUE,
                 method.getDefaultValue());
     }
-    
+
     /**
      * @tests java.lang.reflect.Method#getDefaultValue()
      */
@@ -554,11 +554,11 @@ public class MethodTest extends junit.framework.TestCase {
         assertEquals(1, genericExceptionTypes.length);
         assertTrue(genericExceptionTypes[0] instanceof TypeVariable<?>);
         @SuppressWarnings("unchecked")
-        TypeVariable<Class<ExceptionTest<?>>> tv = 
+        TypeVariable<Class<ExceptionTest<?>>> tv =
             (TypeVariable<Class<ExceptionTest<?>>>) genericExceptionTypes[0];
         assertEquals("T", tv.getName());
     }
-    
+
     /**
      * @tests java.lang.reflect.Method#getGenericReturnType()
      */
@@ -575,12 +575,12 @@ public class MethodTest extends junit.framework.TestCase {
         assertNotNull("getGenericReturnType returned null", returnType);
         assertTrue(returnType instanceof TypeVariable<?>);
         @SuppressWarnings("unchecked")
-        TypeVariable<Class<ExceptionTest<?>>> tv = 
+        TypeVariable<Class<ExceptionTest<?>>> tv =
             (TypeVariable<Class<ExceptionTest<?>>>) returnType;
         assertEquals("T", tv.getName());
     }
-    
-    
+
+
     /**
      * @tests java.lang.reflect.Method#toGenericString()
      */
@@ -596,12 +596,12 @@ public class MethodTest extends junit.framework.TestCase {
         assertEquals("Wrong generic String returned", GenericString.GENERIC,
                 method.toGenericString());
     }
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
     /**
      * @tests java.lang.reflect.Method#hashCode()
      */
@@ -799,7 +799,7 @@ public class MethodTest extends junit.framework.TestCase {
         }
         // Generate an IllegalArgumentException
         mth = cl.getDeclaredMethod("invokeInstanceTest", dcl);
-        
+
         try {
             Object[] args = { Object.class };
             ret = mth.invoke(new TestMethod(), args);
@@ -811,7 +811,7 @@ public class MethodTest extends junit.framework.TestCase {
 
         // Generate a NullPointerException
         mth = cl.getDeclaredMethod("invokeInstanceTest", dcl);
-        
+
         try {
             ret = mth.invoke(null, new Object[0]);
         } catch (NullPointerException e) {

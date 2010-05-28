@@ -21,10 +21,7 @@ package dalvik.system;
  * An application cannot create its own Runtime instance, and must obtain
  * one from the getRuntime method.
  *
- * @deprecated this is an internal Dalvik class that is not appropriate for
- *      general use. It will be removed from the public API in a future release.
- *
- * @since Android 1.0
+ * @hide
  */
 public final class VMRuntime {
 
@@ -162,6 +159,7 @@ public final class VMRuntime {
      * @return true if the VM thinks there's enough process memory
      *         to satisfy this request, or false if not.
      */
+    @Deprecated
     public native boolean trackExternalAllocation(long size);
 
     /**
@@ -177,6 +175,7 @@ public final class VMRuntime {
      *             should have been passed to trackExternalAlloc() when
      *             the underlying memory was originally allocated.
      */
+    @Deprecated
     public native void trackExternalFree(long size);
 
     /**
@@ -185,6 +184,7 @@ public final class VMRuntime {
      *
      * @return the number of bytes
      */
+    @Deprecated
     public native long getExternalBytesAllocated();
 
     /**

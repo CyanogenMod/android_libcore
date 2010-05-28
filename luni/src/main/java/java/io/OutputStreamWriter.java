@@ -24,9 +24,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.security.AccessController;
-
 import org.apache.harmony.luni.util.HistoricalNamesUtil;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -41,7 +39,7 @@ import org.apache.harmony.luni.util.PriviAction;
  */
 public class OutputStreamWriter extends Writer {
 
-    private OutputStream out;
+    private final OutputStream out;
 
     private CharsetEncoder encoder;
 
@@ -60,7 +58,7 @@ public class OutputStreamWriter extends Writer {
         this.out = out;
         String encoding = AccessController
                 .doPrivileged(new PriviAction<String>(
-                        "file.encoding", "ISO8859_1")); //$NON-NLS-1$ //$NON-NLS-2$
+                        "file.encoding", "ISO8859_1"));
         encoder = Charset.forName(encoding).newEncoder();
         encoder.onMalformedInput(CodingErrorAction.REPLACE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
@@ -181,8 +179,7 @@ public class OutputStreamWriter extends Writer {
 
     private void checkStatus() throws IOException {
         if (encoder == null) {
-            // K005d=Writer is closed.
-            throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
+            throw new IOException("OutputStreamWriter is closed");
         }
     }
 
@@ -206,7 +203,7 @@ public class OutputStreamWriter extends Writer {
      * character converter and stored in a local buffer. If the buffer gets full
      * as a result of the conversion, this writer is flushed.
      *
-     * @param buf
+     * @param buffer
      *            the array containing characters to write.
      * @param offset
      *            the index of the first character in {@code buf} to write.
@@ -221,7 +218,7 @@ public class OutputStreamWriter extends Writer {
      *             occurs.
      */
     @Override
-    public void write(char[] buf, int offset, int count) throws IOException {
+    public void write(char[] buffer, int offset, int count) throws IOException {
         synchronized (lock) {
             checkStatus();
             // BEGIN android-changed
@@ -230,14 +227,14 @@ public class OutputStreamWriter extends Writer {
             // made implicit null check explicit,
             // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
             // to safe one operation
-            if (buf == null) {
-                throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            if (buffer == null) {
+                throw new NullPointerException("buffer == null");
             }
-            if ((offset | count) < 0 || offset > buf.length - count) {
-                throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            if ((offset | count) < 0 || offset > buffer.length - count) {
+                throw new IndexOutOfBoundsException();
             }
             // END android-changed
-            CharBuffer chars = CharBuffer.wrap(buf, offset, count);
+            CharBuffer chars = CharBuffer.wrap(buffer, offset, count);
             convert(chars);
         }
     }
@@ -307,10 +304,10 @@ public class OutputStreamWriter extends Writer {
             // made implicit null check explicit, used (offset | count) < 0
             // instead of (offset < 0) || (count < 0) to safe one operation
             if (str == null) {
-                throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+                throw new NullPointerException("str == null");
             }
             if ((offset | count) < 0 || offset > str.length() - count) {
-                throw new StringIndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+                throw new StringIndexOutOfBoundsException();
             }
             // END android-changed
             checkStatus();

@@ -48,7 +48,7 @@ package java.io;
 public interface DataInput {
     /**
      * Reads a boolean.
-     * 
+     *
      * @return the next boolean value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -60,7 +60,7 @@ public interface DataInput {
 
     /**
      * Reads an 8-bit byte value.
-     * 
+     *
      * @return the next byte value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -72,7 +72,7 @@ public interface DataInput {
 
     /**
      * Reads a 16-bit character value.
-     * 
+     *
      * @return the next char value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -84,7 +84,7 @@ public interface DataInput {
 
     /**
      * Reads a 64-bit double value.
-     * 
+     *
      * @return the next double value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -96,7 +96,7 @@ public interface DataInput {
 
     /**
      * Reads a 32-bit float value.
-     * 
+     *
      * @return the next float value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -109,7 +109,7 @@ public interface DataInput {
     /**
      * Reads bytes into the byte array {@code buffer}. This method will block
      * until {@code buffer.length} number of bytes have been read.
-     * 
+     *
      * @param buffer
      *            the buffer to read bytes into.
      * @throws EOFException if the end of the input is reached before the read
@@ -125,7 +125,7 @@ public interface DataInput {
      * Reads bytes and stores them in the byte array {@code buffer} starting at
      * offset {@code offset}. This method blocks until {@code count} number of
      * bytes have been read.
-     * 
+     *
      * @param buffer
      *            the byte array in which to store the bytes read.
      * @param offset
@@ -145,7 +145,7 @@ public interface DataInput {
 
     /**
      * Reads a 32-bit integer value.
-     * 
+     *
      * @return the next int value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -160,7 +160,7 @@ public interface DataInput {
      * stream. A line is made of zero or more characters followed by {@code
      * '\n'}, {@code '\r'}, {@code "\r\n"} or the end of the stream. The string
      * does not include the newline sequence.
-     * 
+     *
      * @return the contents of the line or null if no characters have been read
      *         before the end of the stream.
      * @throws EOFException if the end of the input is reached before the read
@@ -172,7 +172,7 @@ public interface DataInput {
 
     /**
      * Reads a 64-bit long value.
-     * 
+     *
      * @return the next long value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -184,7 +184,7 @@ public interface DataInput {
 
     /**
      * Reads a 16-bit short value.
-     * 
+     *
      * @return the next short value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -196,7 +196,7 @@ public interface DataInput {
 
     /**
      * Reads an unsigned 8-bit byte value and returns it as an int.
-     * 
+     *
      * @return the next unsigned byte value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -208,7 +208,7 @@ public interface DataInput {
 
     /**
      * Reads a 16-bit unsigned short value and returns it as an int.
-     * 
+     *
      * @return the next unsigned short value.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -220,7 +220,7 @@ public interface DataInput {
 
     /**
      * Reads a string encoded with {@link DataInput modified UTF-8}.
-     * 
+     *
      * @return the next string encoded with {@link DataInput modified UTF-8}.
      * @throws EOFException if the end of the input is reached before the read
      *         request can be satisfied.
@@ -234,7 +234,7 @@ public interface DataInput {
      * Skips {@code count} number of bytes. This method will not throw an
      * {@link EOFException} if the end of the input is reached before
      * {@code count} bytes where skipped.
-     * 
+     *
      * @param count
      *            the number of bytes to skip.
      * @return the number of bytes actually skipped.

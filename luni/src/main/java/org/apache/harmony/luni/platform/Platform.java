@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,9 +16,7 @@
 
 package org.apache.harmony.luni.platform;
 
-// BEGIN android-changed
 import dalvik.system.VMStack;
-// END android-changed
 
 /**
  * The Platform class gives access to the low-level underlying capabilities of
@@ -37,50 +35,30 @@ import dalvik.system.VMStack;
  * @see IMemorySystem
  */
 public class Platform {
-
-    static final IFileSystem FILE_SYSTEM = OSFileSystem.getOSFileSystem();
-
-    static final IMemorySystem MEMORY_SYSTEM = OSMemory.getOSMemory();
-
-    static final INetworkSystem NETWORK_SYSTEM = OSNetworkSystem.getOSNetworkSystem();
+    private static final IFileSystem FILE_SYSTEM = OSFileSystem.getOSFileSystem();
+    private static final IMemorySystem MEMORY_SYSTEM = OSMemory.getOSMemory();
+    private static final INetworkSystem NETWORK_SYSTEM = OSNetworkSystem.getOSNetworkSystem();
 
     /**
      * Checks to ensure that whoever is asking for the OS component is running
      * on the system classpath.
      */
     private static final void accessCheck() {
-        // BEGIN android-changed
         if (VMStack.getCallingClassLoader() != null) {
             throw new SecurityException();
         }
-        // END android-changed
     }
 
-    /**
-     * Answers the instance that interacts directly with the OS file system.
-     *
-     * @return a low-level file system interface.
-     */
     public static IFileSystem getFileSystem() {
         accessCheck();
         return FILE_SYSTEM;
     }
 
-    /**
-     * Answers the instance that interacts directly with the OS memory system.
-     *
-     * @return a low-level memory system interface.
-     */
     public static IMemorySystem getMemorySystem() {
         accessCheck();
         return MEMORY_SYSTEM;
     }
 
-    /**
-     * Answers the instance that interacts directly with the OS network system.
-     *
-     * @return a low-level network system interface.
-     */
     public static INetworkSystem getNetworkSystem() {
         accessCheck();
         return NETWORK_SYSTEM;

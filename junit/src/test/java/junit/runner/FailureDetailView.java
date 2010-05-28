@@ -1,7 +1,7 @@
 package junit.runner;
 
 // The following line was removed for compatibility with Android libraries.
-//import java.awt.Component; 
+//import java.awt.Component;
 
 import junit.framework.*;
 

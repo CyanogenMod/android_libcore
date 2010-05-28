@@ -32,7 +32,7 @@ import java.security.cert.CertPathValidatorSpi;
 /**
  * Additional class for verification of CertPathValidatorSpi
  * and CertPathValidator
- * 
+ *
  */
 
 public class MyCertPathValidatorSpi extends CertPathValidatorSpi {
@@ -40,7 +40,7 @@ public class MyCertPathValidatorSpi extends CertPathValidatorSpi {
     public CertPathValidatorResult engineValidate(CertPath certPath,
             CertPathParameters params) throws CertPathValidatorException,
             InvalidAlgorithmParameterException {
-        ++sw; 
+        ++sw;
         if (certPath == null) {
             if ((sw % 2) == 0) {
                 throw new CertPathValidatorException("certPath null");

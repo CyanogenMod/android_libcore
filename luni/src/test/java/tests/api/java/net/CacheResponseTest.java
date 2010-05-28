@@ -31,7 +31,7 @@ import java.net.CacheResponse;
 import java.util.List;
 import java.util.Map;
 
-@TestTargetClass(CacheResponse.class) 
+@TestTargetClass(CacheResponse.class)
 public class CacheResponseTest extends TestCase {
 
     @TestTargetNew(
@@ -44,7 +44,7 @@ public class CacheResponseTest extends TestCase {
         MockCacheResponse mcr = new MockCacheResponse();
         assertNull(mcr.getBody());
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -63,13 +63,13 @@ public class CacheResponseTest extends TestCase {
         MockCacheResponse mcr = new MockCacheResponse();
         assertNull(mcr.getHeaders());
     }
-    
+
     class MockCacheResponse extends CacheResponse {
 
         MockCacheResponse() {
             super();
         }
-        
+
         @Override
         public Map<String,List<String>> getHeaders() throws IOException {
             return null;
@@ -79,5 +79,5 @@ public class CacheResponseTest extends TestCase {
         public InputStream getBody() throws IOException {
             return null;
         }
-    }    
+    }
 }

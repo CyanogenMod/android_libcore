@@ -17,8 +17,10 @@
 
 #if !defined(cbigint_h)
 #define cbigint_h
+
 #include "fltconst.h"
 #include "JNIHelp.h"
+
 #define LOW_U32_FROM_VAR(u64)     LOW_U32_FROM_LONG64(u64)
 #define LOW_U32_FROM_PTR(u64ptr)  LOW_U32_FROM_LONG64_PTR(u64ptr)
 #define HIGH_U32_FROM_VAR(u64)    HIGH_U32_FROM_LONG64(u64)

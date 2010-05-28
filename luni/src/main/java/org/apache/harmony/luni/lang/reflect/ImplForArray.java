@@ -27,10 +27,10 @@ public final class ImplForArray implements GenericArrayType {
     }
 
     public Type getGenericComponentType() {
-        try { 
-            return ((ImplForType)componentType).getResolvedType(); 
-        } catch (ClassCastException e) { 
-            return componentType; 
+        try {
+            return ((ImplForType)componentType).getResolvedType();
+        } catch (ClassCastException e) {
+            return componentType;
         }
     }
 

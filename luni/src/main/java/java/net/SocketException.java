@@ -38,7 +38,7 @@ public class SocketException extends IOException {
     /**
      * Constructs a new {@code SocketException} instance with its walkback and
      * message filled in.
-     * 
+     *
      * @param detailMessage
      *            the detail message of this exception.
      */

@@ -27,3 +27,10 @@ include $(LOCAL_PATH)/JavaLibrary.mk
 #
 
 include $(LOCAL_PATH)/NativeCode.mk
+
+
+#
+# Include the definitions to build sqlite-related code.
+#
+
+include $(LOCAL_PATH)/sqlite-jdbc/Android.mk

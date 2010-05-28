@@ -44,7 +44,7 @@ class PropertyPermissionCollection extends PermissionCollection {
              */
             if (prev != null && !prev.getActions().equals(perm.getActions())) {
                 Permission np = new PropertyPermission(perm.getName(),
-                        "read,write"); //$NON-NLS-1$
+                        "read,write");
                 permissions.put(perm.getName(), np);
             }
         } else {
@@ -70,19 +70,19 @@ class PropertyPermissionCollection extends PermissionCollection {
          * are set, and these are separately granted by two different
          * permissions with one representing a parent directory.
          */
-        return perm.getActions().equals("read,write") //$NON-NLS-1$
-                && implies(new PropertyPermission(perm.getName(), "read")) //$NON-NLS-1$
-                && implies(new PropertyPermission(perm.getName(), "write")); //$NON-NLS-1$
+        return perm.getActions().equals("read,write")
+                && implies(new PropertyPermission(perm.getName(), "read"))
+                && implies(new PropertyPermission(perm.getName(), "write"));
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("permissions", Hashtable.class), //$NON-NLS-1$
-            new ObjectStreamField("all_allowed", Boolean.TYPE) }; //$NON-NLS-1$
+            new ObjectStreamField("permissions", Hashtable.class),
+            new ObjectStreamField("all_allowed", Boolean.TYPE) };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();
-        fields.put("permissions", permissions); //$NON-NLS-1$
-        fields.put("all_allowed", false); //$NON-NLS-1$
+        fields.put("permissions", permissions);
+        fields.put("all_allowed", false);
         stream.writeFields();
     }
 
@@ -91,6 +91,6 @@ class PropertyPermissionCollection extends PermissionCollection {
             ClassNotFoundException {
         ObjectInputStream.GetField fields = stream.readFields();
         permissions = (Hashtable<String, Permission>) fields.get(
-                "permissions", null); //$NON-NLS-1$
+                "permissions", null);
     }
 }

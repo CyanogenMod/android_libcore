@@ -39,10 +39,8 @@ import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.harmony.luni.internal.net.www.MimeTable;
 import org.apache.harmony.luni.net.NetUtil;
-import org.apache.harmony.luni.util.Msg;
 
 public class FtpURLConnection extends URLConnection {
 
@@ -87,9 +85,9 @@ public class FtpURLConnection extends URLConnection {
 
     private int dataPort;
 
-    private String username = "anonymous"; //$NON-NLS-1$
+    private String username = "anonymous";
 
-    private String password = ""; //$NON-NLS-1$
+    private String password = "";
 
     private String replyCode;
 
@@ -103,7 +101,7 @@ public class FtpURLConnection extends URLConnection {
 
     /**
      * FtpURLConnection constructor comment.
-     * 
+     *
      * @param url
      */
     protected FtpURLConnection(URL url) {
@@ -129,7 +127,7 @@ public class FtpURLConnection extends URLConnection {
 
     /**
      * FtpURLConnection constructor.
-     * 
+     *
      * @param url
      * @param proxy
      */
@@ -146,14 +144,14 @@ public class FtpURLConnection extends URLConnection {
 
         if (idx > 0) {
             String dir = url.getFile().substring(0, idx);
-            write("CWD " + dir + "\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            write("CWD " + dir + "\r\n");
             int reply = getReply();
             if (reply != FTP_FILEOK && dir.length() > 0 && dir.charAt(0) == '/') {
-                write("CWD " + dir.substring(1) + "\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                write("CWD " + dir.substring(1) + "\r\n");
                 reply = getReply();
             }
             if (reply != FTP_FILEOK) {
-                throw new IOException(Msg.getString("K0094")); //$NON-NLS-1$
+                throw new IOException("Unable to change directories");
             }
         }
     }
@@ -161,7 +159,7 @@ public class FtpURLConnection extends URLConnection {
     /**
      * Establishes the connection to the resource specified by this
      * <code>URL</code>
-     * 
+     *
      * @see #connected
      * @see java.io.IOException
      * @see URLStreamHandler
@@ -184,7 +182,7 @@ public class FtpURLConnection extends URLConnection {
             ProxySelector selector = ProxySelector.getDefault();
             Iterator<Proxy> iter = proxyList.iterator();
             boolean connectOK = false;
-            String failureReason = ""; //$NON-NLS-1$
+            String failureReason = "";
             while (iter.hasNext() && !connectOK) {
                 currentProxy = iter.next();
                 try {
@@ -200,8 +198,7 @@ public class FtpURLConnection extends URLConnection {
                 }
             }
             if (!connectOK) {
-                // K0097=Unable to connect to server\: {0}
-                throw new IOException(Msg.getString("K0097", failureReason)); //$NON-NLS-1$
+                throw new IOException("Unable to connect to server: " + failureReason);
             }
         }
     }
@@ -247,16 +244,12 @@ public class FtpURLConnection extends URLConnection {
             dataSocket.setSoTimeout(getReadTimeout());
             acceptSocket.close();
         } catch (InterruptedIOException e) {
-            throw new IOException(Msg.getString("K0095")); //$NON-NLS-1$
+            throw new IOException("Could not establish data connection");
         }
         if (getDoInput()) {
-            // BEGIN android-modified
             inputStream = new FtpURLInputStream(
-                    new BufferedInputStream(dataSocket.getInputStream(), 8192),
-                    controlSocket);
-            // END android-modified
+                    new BufferedInputStream(dataSocket.getInputStream()), controlSocket);
         }
-
     }
 
     /**
@@ -275,29 +268,29 @@ public class FtpURLConnection extends URLConnection {
     private void getFile() throws IOException {
         int reply;
         String file = url.getFile();
-        write("RETR " + file + "\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
+        write("RETR " + file + "\r\n");
         reply = getReply();
         if (reply == FTP_NOTFOUND && file.length() > 0 && file.charAt(0) == '/') {
-            write("RETR " + file.substring(1) + "\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            write("RETR " + file.substring(1) + "\r\n");
             reply = getReply();
         }
         if (!(reply == FTP_OPENDATA || reply == FTP_TRANSFEROK)) {
-            throw new FileNotFoundException(Msg.getString("K0096", reply)); //$NON-NLS-1$
+            throw new FileNotFoundException("Unable to retrieve file: " + reply);
         }
     }
 
     /**
      * Creates a input stream for writing to this URL Connection.
-     * 
+     *
      * @return The input stream to write to
      * @throws IOException
      *             Cannot read from URL or error creating InputStream
-     * 
+     *
      * @see #getContent()
      * @see #getOutputStream()
      * @see java.io.InputStream
      * @see java.io.IOException
-     * 
+     *
      */
     @Override
     public InputStream getInputStream() throws IOException {
@@ -311,7 +304,7 @@ public class FtpURLConnection extends URLConnection {
      * Returns the permission object (in this case, SocketPermission) with the
      * host and the port number as the target name and "resolve, connect" as the
      * action list.
-     * 
+     *
      * @return the permission object required for this connection
      * @throws IOException
      *             thrown when an IO exception occurs during the creation of the
@@ -323,20 +316,20 @@ public class FtpURLConnection extends URLConnection {
         if (port <= 0) {
             port = FTP_PORT;
         }
-        return new SocketPermission(hostName + ":" + port, "connect, resolve"); //$NON-NLS-1$ //$NON-NLS-2$
+        return new SocketPermission(hostName + ":" + port, "connect, resolve");
     }
 
     /**
      * Creates a output stream for writing to this URL Connection.
-     * 
+     *
      * @return The output stream to write to
      * @throws IOException
      *             when the OutputStream could not be created
-     * 
+     *
      * @see #getContent()
      * @see #getInputStream()
      * @see java.io.IOException
-     * 
+     *
      */
     @Override
     public OutputStream getOutputStream() throws IOException {
@@ -355,8 +348,8 @@ public class FtpURLConnection extends URLConnection {
             }
             code[i] = (byte) tmp;
         }
-        replyCode = new String(code, "ISO8859_1"); //$NON-NLS-1$
-        
+        replyCode = new String(code, "ISO8859_1");
+
         boolean multiline = false;
         if (ctrlInput.read() == '-') {
             multiline = true;
@@ -366,7 +359,7 @@ public class FtpURLConnection extends URLConnection {
             while (readMultiLine()) {/* Read all of a multiline reply */
             }
         }
-        
+
         try {
             return Integer.parseInt(replyCode);
         } catch (NumberFormatException e) {
@@ -379,31 +372,31 @@ public class FtpURLConnection extends URLConnection {
         reply = getReply();
         if (reply == FTP_USERREADY) {
         } else {
-            throw new IOException(Msg.getString("K0097", url.getHost())); //$NON-NLS-1$
+            throw new IOException("Unable to connect to server: " + url.getHost());
         }
-        write("USER " + username + "\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
+        write("USER " + username + "\r\n");
         reply = getReply();
         if (reply == FTP_PASWD || reply == FTP_LOGGEDIN) {
         } else {
-            throw new IOException(Msg.getString("K0098", url.getHost())); //$NON-NLS-1$
+            throw new IOException("Unable to log in to server (USER): " + url.getHost());
         }
         if (reply == FTP_PASWD) {
-            write("PASS " + password + "\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            write("PASS " + password + "\r\n");
             reply = getReply();
             if (!(reply == FTP_OK || reply == FTP_USERREADY || reply == FTP_LOGGEDIN)) {
-                throw new IOException(Msg.getString("K0098", url.getHost())); //$NON-NLS-1$
+                throw new IOException("Unable to log in to server (PASS): " + url.getHost());
             }
         }
     }
 
     private void port() throws IOException {
-        write("PORT " //$NON-NLS-1$
+        write("PORT "
                 + controlSocket.getLocalAddress().getHostAddress().replace('.',
                         ',') + ',' + (dataPort >> 8) + ','
                 + (dataPort & 255)
-                + "\r\n"); //$NON-NLS-1$
+                + "\r\n");
         if (getReply() != FTP_OK) {
-            throw new IOException(Msg.getString("K0099")); //$NON-NLS-1$
+            throw new IOException("Unable to configure data port");
         }
     }
 
@@ -436,12 +429,12 @@ public class FtpURLConnection extends URLConnection {
      */
     private void sendFile() throws IOException {
         int reply;
-        write("STOR " //$NON-NLS-1$
+        write("STOR "
                 + url.getFile().substring(url.getFile().lastIndexOf('/') + 1,
-                        url.getFile().length()) + "\r\n"); //$NON-NLS-1$
+                        url.getFile().length()) + "\r\n");
         reply = getReply();
         if (!(reply == FTP_OPENDATA || reply == FTP_OK || reply == FTP_DATAOPEN)) {
-            throw new IOException(Msg.getString("K009a")); //$NON-NLS-1$
+            throw new IOException("Unable to store file");
         }
     }
 
@@ -449,11 +442,11 @@ public class FtpURLConnection extends URLConnection {
      * Set the flag if this <code>URLConnection</code> supports input (read).
      * It cannot be set after the connection is made. FtpURLConnections cannot
      * support both input and output
-     * 
+     *
      * @param newValue *
      * @throws IllegalAccessError
      *             when this method attempts to change the flag after connected
-     * 
+     *
      * @see #doInput
      * @see #getDoInput()
      * @see java.lang.IllegalAccessError
@@ -472,12 +465,12 @@ public class FtpURLConnection extends URLConnection {
      * Set the flag if this <code>URLConnection</code> supports output(read).
      * It cannot be set after the connection is made.\ FtpURLConnections cannot
      * support both input and output.
-     * 
+     *
      * @param newValue
-     * 
+     *
      * @throws IllegalAccessError
      *             when this method attempts to change the flag after connected
-     * 
+     *
      * @see #doOutput
      * @see java.lang.IllegalAccessError
      * @see #setDoOutput(boolean)
@@ -495,13 +488,13 @@ public class FtpURLConnection extends URLConnection {
      * Set the type of the file transfer. Only Image is supported
      */
     private void setType() throws IOException {
-        write("TYPE I\r\n"); //$NON-NLS-1$
+        write("TYPE I\r\n");
         if (getReply() != FTP_OK) {
-            throw new IOException(Msg.getString("K009b")); //$NON-NLS-1$
+            throw new IOException("Unable to set transfer type");
         }
     }
 
     private void write(String command) throws IOException {
-        ctrlOutput.write(command.getBytes("ISO8859_1")); //$NON-NLS-1$
+        ctrlOutput.write(command.getBytes("ISO8859_1"));
     }
 }

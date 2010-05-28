@@ -37,6 +37,29 @@ import java.util.Random;
  * <a href="http://www.netlib.org/fdlibm/">http://www.netlib.org/fdlibm/</a>
  */
 public final class StrictMath {
+    private static final int FLOAT_EXPONENT_BIAS = 127;
+
+    private static final int FLOAT_EXPONENT_MASK = 0x7F800000;
+
+    private static final int DOUBLE_EXPONENT_BITS = 12;
+
+    private static final int DOUBLE_MANTISSA_BITS = 52;
+
+    private static final int FLOAT_EXPONENT_BITS = 9;
+
+    private static final int FLOAT_MANTISSA_BITS = 23;
+
+    private static final int DOUBLE_EXPONENT_BIAS = 1023;
+
+    private static final long DOUBLE_EXPONENT_MASK = 0x7ff0000000000000L;
+
+    private static final int FLOAT_MANTISSA_MASK = 0x007fffff;
+
+    private static final int FLOAT_SIGN_MASK = 0x80000000;
+
+    private static final long DOUBLE_MANTISSA_MASK = 0x000fffffffffffffL;
+
+    private static final long DOUBLE_SIGN_MASK = 0x8000000000000000L;
 
     /**
      * The double value closest to e, the base of the natural logarithm.
@@ -73,9 +96,7 @@ public final class StrictMath {
      * @return the absolute value of the argument.
      */
     public static double abs(double d) {
-        long bits = Double.doubleToLongBits(d);
-        bits &= 0x7fffffffffffffffL;
-        return Double.longBitsToDouble(bits);
+        return Math.abs(d);
     }
 
     /**
@@ -95,9 +116,7 @@ public final class StrictMath {
      *         argument.
      */
     public static float abs(float f) {
-        int bits = Float.floatToIntBits(f);
-        bits &= 0x7fffffff;
-        return Float.intBitsToFloat(bits);
+        return Math.abs(f);
     }
 
     /**
@@ -112,7 +131,7 @@ public final class StrictMath {
      *         argument.
      */
     public static int abs(int i) {
-        return i >= 0 ? i : -i;
+        return Math.abs(i);
     }
 
     /**
@@ -127,7 +146,7 @@ public final class StrictMath {
      *         argument.
      */
     public static long abs(long l) {
-        return l >= 0 ? l : -l;
+        return Math.abs(l);
     }
 
     /**
@@ -221,7 +240,7 @@ public final class StrictMath {
      * @return the arc tangent of {@code y/x}.
      */
     public static native double atan2(double y, double x);
-    
+
     /**
      * Returns the closest double approximation of the cube root of the
      * argument.
@@ -260,8 +279,8 @@ public final class StrictMath {
      * @return the ceiling of the argument.
      */
     public static native double ceil(double d);
-    
-    
+
+
     /**
      * Returns the closest double approximation of the hyperbolic cosine of the
      * argument.
@@ -311,7 +330,7 @@ public final class StrictMath {
      * @return the exponential of the argument.
      */
     public static native double exp(double d);
-    
+
     /**
      * Returns the closest double approximation of <i>{@code e}</i><sup>
      * {@code d}</sup>{@code - 1}. If the argument is very close to 0, it is
@@ -352,7 +371,7 @@ public final class StrictMath {
      * @return the floor of the argument.
      */
     public static native double floor(double d);
-    
+
     /**
      * Returns {@code sqrt(}<i>{@code x}</i><sup>{@code 2}</sup>{@code +}
      * <i> {@code y}</i><sup>{@code 2}</sup>{@code )}. The final result is
@@ -423,7 +442,7 @@ public final class StrictMath {
      * @return the natural logarithm of the argument.
      */
     public static native double log(double d);
-    
+
     /**
      * Returns the closest double approximation of the base 10 logarithm of the
      * argument.
@@ -443,7 +462,7 @@ public final class StrictMath {
      * @return the natural logarithm of the argument.
      */
     public static native double log10(double d);
-    
+
     /**
      * Returns the closest double approximation of the natural logarithm of the
      * sum of the argument and 1. If the argument is very close to 0, it is much
@@ -544,7 +563,7 @@ public final class StrictMath {
      * @return the larger of {@code i1} and {@code i2}.
      */
     public static int max(int i1, int i2) {
-        return i1 > i2 ? i1 : i2;
+        return Math.max(i1, i2);
     }
 
     /**
@@ -558,7 +577,7 @@ public final class StrictMath {
      * @return the larger of {@code l1} and {@code l2}.
      */
     public static long max(long l1, long l2) {
-        return l1 > l2 ? l1 : l2;
+        return Math.max(l1, l2);
     }
 
     /**
@@ -638,7 +657,7 @@ public final class StrictMath {
      * @return the smaller of {@code i1} and {@code i2}.
      */
     public static int min(int i1, int i2) {
-        return i1 < i2 ? i1 : i2;
+        return Math.min(i1, i2);
     }
 
     /**
@@ -652,7 +671,7 @@ public final class StrictMath {
      * @return the smaller of {@code l1} and {@code l2}.
      */
     public static long min(long l1, long l2) {
-        return l1 < l2 ? l1 : l2;
+        return Math.min(l1, l2);
     }
 
     /**
@@ -702,9 +721,7 @@ public final class StrictMath {
      * @return a pseudo-random number.
      */
     public static double random() {
-        if (random == null)
-            random = new Random();
-        return random.nextDouble();
+        return Math.random();
     }
 
     /**
@@ -746,10 +763,7 @@ public final class StrictMath {
      * @return the closest integer to the argument.
      */
     public static long round(double d) {
-        // check for NaN
-        if (d != d)
-            return 0L;
-        return (long) Math.floor(d + 0.5d);
+        return Math.round(d);
     }
 
     /**
@@ -772,12 +786,9 @@ public final class StrictMath {
      * @return the closest integer to the argument.
      */
     public static int round(float f) {
-        // check for NaN
-        if (f != f)
-            return 0;
-        return (int) Math.floor(f + 0.5f);
+        return Math.round(f);
     }
-    
+
     /**
      * Returns the signum function of the argument. If the argument is less than
      * zero, it returns -1.0. If the argument is greater than zero, 1.0 is
@@ -798,18 +809,9 @@ public final class StrictMath {
      * @return the value of the signum function.
      */
     public static double signum(double d){
-        if(Double.isNaN(d)){
-            return Double.NaN;
-        }
-        double sig = d;
-        if(d > 0){
-            sig = 1.0;
-        }else if (d < 0){
-            sig = -1.0;
-        }
-        return sig;
+        return Math.signum(d);
     }
-    
+
     /**
      * Returns the signum function of the argument. If the argument is less than
      * zero, it returns -1.0. If the argument is greater than zero, 1.0 is
@@ -830,16 +832,7 @@ public final class StrictMath {
      * @return the value of the signum function.
      */
     public static float signum(float f){
-        if(Float.isNaN(f)){
-            return Float.NaN;
-        }
-        float sig = f;
-        if(f > 0){
-            sig = 1.0f;
-        }else if (f < 0){
-            sig = -1.0f;
-        }
-        return sig;
+        return Math.signum(f);
     }
 
     /**
@@ -860,7 +853,7 @@ public final class StrictMath {
      * @return the hyperbolic sine of the argument.
      */
     public static native double sinh(double d);
-    
+
     /**
      * Returns the closest double approximation of the sine of the argument.
      * <p>
@@ -911,7 +904,7 @@ public final class StrictMath {
      * </ul>
      *
      * @param d
-     *            the angle whose tangens has to be computed, in radians.
+     *            the angle whose tangent has to be computed, in radians.
      * @return the tangent of the argument.
      */
     public static native double tan(double d);
@@ -934,7 +927,7 @@ public final class StrictMath {
      * @return the hyperbolic tangent of the argument
      */
     public static native double tanh(double d);
-    
+
     /**
      * Returns the measure in degrees of the supplied radian angle. The result
      * is {@code angrad * 180 / pi}.
@@ -953,7 +946,7 @@ public final class StrictMath {
      * @return the degree measure of the angle.
      */
     public static double toDegrees(double angrad) {
-        return angrad * 180d / PI;
+        return Math.toDegrees(angrad);
     }
 
     /**
@@ -974,9 +967,9 @@ public final class StrictMath {
      * @return the radian measure of the angle.
      */
     public static double toRadians(double angdeg) {
-        return angdeg / 180d * PI;
+        return Math.toRadians(angdeg);
     }
-    
+
     /**
      * Returns the argument's ulp (unit in the last place). The size of a ulp of
      * a double value is the positive distance between this value and the double
@@ -987,8 +980,8 @@ public final class StrictMath {
      * <ul>
      * <li>{@code ulp(+0.0) = Double.MIN_VALUE}</li>
      * <li>{@code ulp(-0.0) = Double.MIN_VALUE}</li>
-     * <li>{@code ulp(+infintiy) = infinity}</li>
-     * <li>{@code ulp(-infintiy) = infinity}</li>
+     * <li>{@code ulp(+infinity) = infinity}</li>
+     * <li>{@code ulp(-infinity) = infinity}</li>
      * <li>{@code ulp(NaN) = NaN}</li>
      * </ul>
      *
@@ -1017,8 +1010,8 @@ public final class StrictMath {
      * <ul>
      * <li>{@code ulp(+0.0) = Float.MIN_VALUE}</li>
      * <li>{@code ulp(-0.0) = Float.MIN_VALUE}</li>
-     * <li>{@code ulp(+infintiy) = infinity}</li>
-     * <li>{@code ulp(-infintiy) = infinity}</li>
+     * <li>{@code ulp(+infinity) = infinity}</li>
+     * <li>{@code ulp(-infinity) = infinity}</li>
      * <li>{@code ulp(NaN) = NaN}</li>
      * </ul>
      *
@@ -1041,5 +1034,224 @@ public final class StrictMath {
 
     private native static double nextafter(double x, double y);
 
-    private native static float nextafterf(float x, float y); 
+    private native static float nextafterf(float x, float y);
+
+    /**
+     * Returns a double with the given magnitude and the sign of {@code sign}.
+     * If {@code sign} is NaN, the sign of the result is positive.
+     * @since 1.6
+     */
+    public static double copySign(double magnitude, double sign) {
+        return Math.copySign(magnitude, sign);
+    }
+
+    /**
+     * Returns a float with the given magnitude and the sign of {@code sign}.
+     * If {@code sign} is NaN, the sign of the result is positive.
+     * @since 1.6
+     */
+    public static float copySign(float magnitude, float sign) {
+        return Math.copySign(magnitude, sign);
+    }
+
+    /**
+     * Returns the exponent of float {@code f}.
+     * @since 1.6
+     */
+    public static int getExponent(float f) {
+        return Math.getExponent(f);
+    }
+
+    /**
+     * Returns the exponent of double {@code d}.
+     * @since 1.6
+     */
+    public static int getExponent(double d){
+        return Math.getExponent(d);
+    }
+
+    /**
+     * Returns the next double after {@code start} in the given {@code direction}.
+     * @since 1.6
+     */
+    public static double nextAfter(double start, double direction) {
+        if (start == 0 && direction == 0) {
+            return direction;
+        }
+        return nextafter(start, direction);
+    }
+
+    /**
+     * Returns the next float after {@code start} in the given {@code direction}.
+     * @since 1.6
+     */
+    public static float nextAfter(float start, double direction) {
+        return Math.nextAfter(start, direction);
+    }
+
+    /**
+     * Returns the next double larger than {@code d}.
+     * @since 1.6
+     */
+    public static double nextUp(double d) {
+        return Math.nextUp(d);
+    }
+
+    /**
+     * Returns the next float larger than {@code f}.
+     * @since 1.6
+     */
+    public static float nextUp(float f) {
+        return Math.nextUp(f);
+    }
+
+    /**
+     * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
+     * @since 1.6
+     */
+    public static double scalb(double d, int scaleFactor) {
+        if (Double.isNaN(d) || Double.isInfinite(d) || d == 0) {
+            return d;
+        }
+        // change double to long for calculation
+        long bits = Double.doubleToLongBits(d);
+        // the sign of the results must be the same of given d
+        long sign = bits & DOUBLE_SIGN_MASK;
+        // calculates the factor of the result
+        long factor = (int) ((bits & DOUBLE_EXPONENT_MASK) >> DOUBLE_MANTISSA_BITS)
+                - DOUBLE_EXPONENT_BIAS + scaleFactor;
+
+        // calculates the factor of sub-normal values
+        int subNormalFactor = Long.numberOfLeadingZeros(bits
+                & ~DOUBLE_SIGN_MASK)
+                - DOUBLE_EXPONENT_BITS;
+        if (subNormalFactor < 0) {
+            // not sub-normal values
+            subNormalFactor = 0;
+        }
+        if (Math.abs(d) < Double.MIN_NORMAL) {
+            factor = factor - subNormalFactor;
+        }
+        if (factor > Double.MAX_EXPONENT) {
+            return (d > 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY);
+        }
+
+        long result;
+        // if result is a sub-normal
+        if (factor < -DOUBLE_EXPONENT_BIAS) {
+            // the number of digits that shifts
+            long digits = factor + DOUBLE_EXPONENT_BIAS + subNormalFactor;
+            if (Math.abs(d) < Double.MIN_NORMAL) {
+                // origin d is already sub-normal
+                result = shiftLongBits(bits & DOUBLE_MANTISSA_MASK, digits);
+            } else {
+                // origin d is not sub-normal, change mantissa to sub-normal
+                result = shiftLongBits(bits & DOUBLE_MANTISSA_MASK
+                        | 0x0010000000000000L, digits - 1);
+            }
+        } else {
+            if (Math.abs(d) >= Double.MIN_NORMAL) {
+                // common situation
+                result = ((factor + DOUBLE_EXPONENT_BIAS) << DOUBLE_MANTISSA_BITS)
+                        | (bits & DOUBLE_MANTISSA_MASK);
+            } else {
+                // origin d is sub-normal, change mantissa to normal style
+                result = ((factor + DOUBLE_EXPONENT_BIAS) << DOUBLE_MANTISSA_BITS)
+                        | ((bits << (subNormalFactor + 1)) & DOUBLE_MANTISSA_MASK);
+            }
+        }
+        return Double.longBitsToDouble(result | sign);
+    }
+
+    /**
+     * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
+     * @since 1.6
+     */
+    public static float scalb(float d, int scaleFactor) {
+        if (Float.isNaN(d) || Float.isInfinite(d) || d == 0) {
+            return d;
+        }
+        int bits = Float.floatToIntBits(d);
+        int sign = bits & FLOAT_SIGN_MASK;
+        int factor = ((bits & FLOAT_EXPONENT_MASK) >> FLOAT_MANTISSA_BITS)
+                - FLOAT_EXPONENT_BIAS + scaleFactor;
+        // calculates the factor of sub-normal values
+        int subNormalFactor = Integer.numberOfLeadingZeros(bits
+                & ~FLOAT_SIGN_MASK)
+                - FLOAT_EXPONENT_BITS;
+        if (subNormalFactor < 0) {
+            // not sub-normal values
+            subNormalFactor = 0;
+        }
+        if (Math.abs(d) < Float.MIN_NORMAL) {
+            factor = factor - subNormalFactor;
+        }
+        if (factor > Float.MAX_EXPONENT) {
+            return (d > 0 ? Float.POSITIVE_INFINITY : Float.NEGATIVE_INFINITY);
+        }
+
+        int result;
+        // if result is a sub-normal
+        if (factor < -FLOAT_EXPONENT_BIAS) {
+            // the number of digits that shifts
+            int digits = factor + FLOAT_EXPONENT_BIAS + subNormalFactor;
+            if (Math.abs(d) < Float.MIN_NORMAL) {
+                // origin d is already sub-normal
+                result = shiftIntBits(bits & FLOAT_MANTISSA_MASK, digits);
+            } else {
+                // origin d is not sub-normal, change mantissa to sub-normal
+                result = shiftIntBits(bits & FLOAT_MANTISSA_MASK | 0x00800000,
+                        digits - 1);
+            }
+        } else {
+            if (Math.abs(d) >= Float.MIN_NORMAL) {
+                // common situation
+                result = ((factor + FLOAT_EXPONENT_BIAS) << FLOAT_MANTISSA_BITS)
+                        | (bits & FLOAT_MANTISSA_MASK);
+            } else {
+                // origin d is sub-normal, change mantissa to normal style
+                result = ((factor + FLOAT_EXPONENT_BIAS) << FLOAT_MANTISSA_BITS)
+                        | ((bits << (subNormalFactor + 1)) & FLOAT_MANTISSA_MASK);
+            }
+        }
+        return Float.intBitsToFloat(result | sign);
+    }
+
+    // Shifts integer bits as float, if the digits is positive, left-shift; if
+    // not, shift to right and calculate its carry.
+    private static int shiftIntBits(int bits, int digits) {
+        if (digits > 0) {
+            return bits << digits;
+        }
+        // change it to positive
+        int absdigits = -digits;
+        if (Integer.numberOfLeadingZeros(bits & ~FLOAT_SIGN_MASK) <= (32 - absdigits)) {
+            // some bits will remain after shifting, calculates its carry
+            if ((((bits >> (absdigits - 1)) & 0x1) == 0)
+                    || Integer.numberOfTrailingZeros(bits) == (absdigits - 1)) {
+                return bits >> absdigits;
+            }
+            return ((bits >> absdigits) + 1);
+        }
+        return 0;
+    }
+
+    // Shifts long bits as double, if the digits is positive, left-shift; if
+    // not, shift to right and calculate its carry.
+    private static long shiftLongBits(long bits, long digits) {
+        if (digits > 0) {
+            return bits << digits;
+        }
+        // change it to positive
+        long absdigits = -digits;
+        if (Long.numberOfLeadingZeros(bits & ~DOUBLE_SIGN_MASK) <= (64 - absdigits)) {
+            // some bits will remain after shifting, calculates its carry
+            if ((((bits >> (absdigits - 1)) & 0x1) == 0)
+                    || Long.numberOfTrailingZeros(bits) == (absdigits - 1)) {
+                return bits >> absdigits;
+            }
+            return ((bits >> absdigits) + 1);
+        }
+        return 0;
+    }
 }

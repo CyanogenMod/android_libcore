@@ -23,22 +23,22 @@ package dalvik.annotation;
  *
  */
 public enum TestStatus {
-    
+
     /**
      * Status is "to be reviewed", which is the initial state when a test method
      * has been annotated.
-     */    
+     */
     TBR,
-    
+
     /**
      * Status is "to do", meaning a reviewer has determined that additional work
      * is needed.
      */
-    TODO, 
-    
+    TODO,
+
     /**
      * Status is "looks good to me", meaning the test is okay.
      */
-    LGTM  
-    
+    LGTM
+
 }

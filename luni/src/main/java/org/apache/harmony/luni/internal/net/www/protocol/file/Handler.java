@@ -23,8 +23,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * This is the handler that is responsible for reading files from the file
  * system.
@@ -34,11 +32,11 @@ public class Handler extends URLStreamHandler {
     /**
      * Returns a connection to the a file pointed by this <code>URL</code> in
      * the file system
-     * 
+     *
      * @return A connection to the resource pointed by this url.
      * @param url
      *            URL The URL to which the connection is pointing to
-     * 
+     *
      */
     @Override
     public URLConnection openConnection(URL url) throws IOException {
@@ -48,13 +46,13 @@ public class Handler extends URLStreamHandler {
     /**
      * The behaviour of this method is the same as openConnection(URL).
      * <code>proxy</code> is not used in FileURLConnection.
-     * 
+     *
      * @param url
      *            the URL which the connection is pointing to
      * @param proxy
      *            Proxy
      * @return a connection to the resource pointed by this url.
-     * 
+     *
      * @throws IOException
      *             if this handler fails to establish a connection.
      * @throws IllegalArgumentException
@@ -63,30 +61,26 @@ public class Handler extends URLStreamHandler {
      *             if the protocol handler doesn't support this method.
      */
     @Override
-    public URLConnection openConnection(URL url, Proxy proxy)
-            throws IOException {
-        if (null == url) {
-            // K034b=url and proxy can not be null
-            throw new IllegalArgumentException(Msg.getString("K034b")); //$NON-NLS-1$
+    public URLConnection openConnection(URL url, Proxy proxy) throws IOException {
+        if (url == null) {
+            throw new IllegalArgumentException("url == null");
         }
 
         String host = url.getHost();
-        if (host == null || host.length() == 0
-                || host.equalsIgnoreCase("localhost")) { //$NON-NLS-1$
+        if (host == null || host.isEmpty() || host.equalsIgnoreCase("localhost")) {
             return new FileURLConnection(url);
         }
 
         // If a hostname is specified try to get the resource using FTP
-        URL ftpURL = new URL("ftp", host, url.getFile()); //$NON-NLS-1$
-        return (proxy == null) ? ftpURL.openConnection() : ftpURL
-                .openConnection(proxy);
+        URL ftpURL = new URL("ftp", host, url.getFile());
+        return (proxy == null) ? ftpURL.openConnection() : ftpURL.openConnection(proxy);
     }
 
     /**
      * Parse the <code>string</code>str into <code>URL</code> u which
      * already have the context properties. The string generally have the
      * following format: <code><center>/c:/windows/win.ini</center></code>.
-     * 
+     *
      * @param u
      *            The URL object that's parsed into
      * @param str
@@ -95,7 +89,7 @@ public class Handler extends URLStreamHandler {
      *            The index in the spec string from which to begin parsing
      * @param end
      *            The index to stop parsing
-     * 
+     *
      * @see java.net.URLStreamHandler#toExternalForm(URL)
      * @see java.net.URL
      */
@@ -104,7 +98,7 @@ public class Handler extends URLStreamHandler {
         if (end < start) {
             return;
         }
-        String parseString = ""; //$NON-NLS-1$
+        String parseString = "";
         if (start < end) {
             parseString = str.substring(start, end).replace('\\', '/');
         }

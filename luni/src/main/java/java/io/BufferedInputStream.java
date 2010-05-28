@@ -17,11 +17,7 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
-// BEGIN android-added
 import java.util.logging.Logger;
-// END android-added
 
 /**
  * Wraps an existing {@link InputStream} and <em>buffers</em> the input.
@@ -67,49 +63,27 @@ public class BufferedInputStream extends FilterInputStream {
     protected int pos;
 
     /**
-     * Constructs a new {@code BufferedInputStream} on the {@link InputStream}
-     * {@code in}. The default buffer size (8 KB) is allocated and all reads
-     * can now be filtered through this stream.
+     * Constructs a new {@code BufferedInputStream}, providing {@code in} with a buffer
+     * of 8192 bytes.
      *
-     * @param in
-     *            the InputStream the buffer reads from.
+     * @param in the {@code InputStream} the buffer reads from.
      */
     public BufferedInputStream(InputStream in) {
-        super(in);
-        buf = new byte[8192];
-
-        // BEGIN android-added
-        /*
-         * For Android, we want to discourage the use of this constructor (with
-         * its arguably too-large default), so we note its use in the log. We
-         * don't disable it, nor do we alter the default, however, because we
-         * still aim to behave compatibly, and the default value, though not
-         * documented, is established by convention.
-         */
-        Logger.global.info(
-                "Default buffer size used in BufferedInputStream " +
-                "constructor. It would be " +
-                "better to be explicit if an 8k buffer is required.");
-        // END android-added
+        this(in, 8192);
     }
 
     /**
-     * Constructs a new {@code BufferedInputStream} on the {@link InputStream}
-     * {@code in}. The buffer size is specified by the parameter {@code size}
-     * and all reads are now filtered through this stream.
+     * Constructs a new {@code BufferedInputStream}, providing {@code in} with {@code size} bytes
+     * of buffer.
      *
-     * @param in
-     *            the input stream the buffer reads from.
-     * @param size
-     *            the size of buffer to allocate.
-     * @throws IllegalArgumentException
-     *             if {@code size < 0}.
+     * @param in the {@code InputStream} the buffer reads from.
+     * @param size the size of buffer in bytes.
+     * @throws IllegalArgumentException if {@code size <= 0}.
      */
     public BufferedInputStream(InputStream in, int size) {
         super(in);
         if (size <= 0) {
-            // K0058=size must be > 0
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException("size <= 0");
         }
         buf = new byte[size];
     }
@@ -127,10 +101,13 @@ public class BufferedInputStream extends FilterInputStream {
     public synchronized int available() throws IOException {
         InputStream localIn = in; // 'in' could be invalidated by close()
         if (buf == null || localIn == null) {
-            // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw streamClosed();
         }
         return count - pos + localIn.available();
+    }
+
+    private IOException streamClosed() throws IOException {
+        throw new IOException("BufferedInputStream is closed");
     }
 
     /**
@@ -235,8 +212,7 @@ public class BufferedInputStream extends FilterInputStream {
         byte[] localBuf = buf;
         InputStream localIn = in;
         if (localBuf == null || localIn == null) {
-            // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw streamClosed();
         }
 
         /* Are there buffered bytes available? */
@@ -247,8 +223,7 @@ public class BufferedInputStream extends FilterInputStream {
         if (localBuf != buf) {
             localBuf = buf;
             if (localBuf == null) {
-                // K0059=Stream is closed
-                throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+                throw streamClosed();
             }
         }
 
@@ -285,14 +260,12 @@ public class BufferedInputStream extends FilterInputStream {
      *             occurs.
      */
     @Override
-    public synchronized int read(byte[] buffer, int offset, int length)
-            throws IOException {
+    public synchronized int read(byte[] buffer, int offset, int length) throws IOException {
         // Use local ref since buf may be invalidated by an unsynchronized
         // close()
         byte[] localBuf = buf;
         if (localBuf == null) {
-            // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw streamClosed();
         }
         // avoid int overflow
         // BEGIN android-changed
@@ -301,10 +274,10 @@ public class BufferedInputStream extends FilterInputStream {
         // made implicit null check explicit, used (offset | length) < 0
         // instead of (offset < 0) || (length < 0) to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         if ((offset | length) < 0 || offset > buffer.length - length) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         if (length == 0) {
@@ -312,8 +285,7 @@ public class BufferedInputStream extends FilterInputStream {
         }
         InputStream localIn = in;
         if (localIn == null) {
-            // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw streamClosed();
         }
 
         int required;
@@ -350,8 +322,7 @@ public class BufferedInputStream extends FilterInputStream {
                 if (localBuf != buf) {
                     localBuf = buf;
                     if (localBuf == null) {
-                        // K0059=Stream is closed
-                        throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+                        throw streamClosed();
                     }
                 }
 
@@ -416,15 +387,13 @@ public class BufferedInputStream extends FilterInputStream {
         byte[] localBuf = buf;
         InputStream localIn = in;
         if (localBuf == null) {
-            // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw streamClosed();
         }
         if (amount < 1) {
             return 0;
         }
         if (localIn == null) {
-            // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw streamClosed();
         }
 
         if (count - pos >= amount) {

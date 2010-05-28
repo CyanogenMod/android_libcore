@@ -44,13 +44,13 @@ public final class FloatingPointParser {
 	 * floating point number by taking the positive integer the String
 	 * represents and multiplying by 10 raised to the power of the of the
 	 * exponent. Returns the closest double value to the real number
-	 * 
+	 *
 	 * @param s
 	 *            the String that will be parsed to a floating point
 	 * @param e
 	 *            an int represent the 10 to part
 	 * @return the double closest to the real number
-	 * 
+	 *
 	 * @exception NumberFormatException
 	 *                if the String doesn't represent a positive integer value
 	 */
@@ -62,13 +62,13 @@ public final class FloatingPointParser {
 	 * floating point number by taking the positive integer the String
 	 * represents and multiplying by 10 raised to the power of the of the
 	 * exponent. Returns the closest float value to the real number
-	 * 
+	 *
 	 * @param s
 	 *            the String that will be parsed to a floating point
 	 * @param e
 	 *            an int represent the 10 to part
 	 * @return the float closest to the real number
-	 * 
+	 *
 	 * @exception NumberFormatException
 	 *                if the String doesn't represent a positive integer value
 	 */
@@ -81,13 +81,13 @@ public final class FloatingPointParser {
 	 * StringExponentPair will be used to calculate the floating point number by
 	 * taking the positive integer the String represents and multiplying by 10
 	 * raised to the power of the of the exponent.
-	 * 
+	 *
 	 * @param s
 	 *            the String that will be parsed to a floating point
 	 * @param length
 	 *            the length of s
 	 * @return a StringExponentPair with necessary values
-	 * 
+	 *
 	 * @exception NumberFormatException
 	 *                if the String doesn't pass basic tests
 	 */
@@ -128,8 +128,8 @@ public final class FloatingPointParser {
                                 // only so throw a new exception with
                                 // the correct string
 				throw new NumberFormatException(s);
-                        }                            
-                                    
+                        }
+
 		} else {
 			end = length;
 		}
@@ -251,11 +251,11 @@ public final class FloatingPointParser {
 
 	/**
 	 * Returns the closest double value to the real number in the string.
-	 * 
+	 *
 	 * @param s
 	 *            the String that will be parsed to a floating point
 	 * @return the double closest to the real number
-	 * 
+	 *
 	 * @exception NumberFormatException
 	 *                if the String doesn't represent a double
 	 */
@@ -272,12 +272,12 @@ public final class FloatingPointParser {
 		if ((last == 'y') || (last == 'N')) {
 			return parseDblName(s, length);
 		}
-        
+
         // See if it could be a hexadecimal representation
-        if (s.toLowerCase().indexOf("0x") != -1) { //$NON-NLS-1$
+        if (s.toLowerCase().indexOf("0x") != -1) {
             return HexStringParser.parseDouble(s);
         }
-        
+
 		StringExponentPair info = initialParse(s, length);
 
 		double result = parseDblImpl(info.s, info.e);
@@ -289,11 +289,11 @@ public final class FloatingPointParser {
 
 	/**
 	 * Returns the closest float value to the real number in the string.
-	 * 
+	 *
 	 * @param s
 	 *            the String that will be parsed to a floating point
 	 * @return the float closest to the real number
-	 * 
+	 *
 	 * @exception NumberFormatException
 	 *                if the String doesn't represent a float
 	 */
@@ -310,12 +310,12 @@ public final class FloatingPointParser {
 		if ((last == 'y') || (last == 'N')) {
 			return parseFltName(s, length);
 		}
-        
+
         // See if it could be a hexadecimal representation
-        if (s.toLowerCase().indexOf("0x") != -1) { //$NON-NLS-1$
+        if (s.toLowerCase().indexOf("0x") != -1) {
             return HexStringParser.parseFloat(s);
         }
-        
+
 		StringExponentPair info = initialParse(s, length);
 
 		float result = parseFltImpl(info.s, info.e);

@@ -40,19 +40,19 @@ public class CertificateStub implements Certificate {
     Principal guarantor;
     Principal principal;
     PublicKey key;
-    
+
     public CertificateStub(String format, Principal guarantor, Principal principal, PublicKey key){
         this.format = format;
         this.guarantor = guarantor;
         this.principal = principal;
         this.key = key;
     }
-    
+
     /**
      * Stub - does nothing
      * @see java.security.Certificate#decode(java.io.InputStream)
      */
-    public void decode(InputStream stream) throws KeyException, 
+    public void decode(InputStream stream) throws KeyException,
             IOException {
 
 

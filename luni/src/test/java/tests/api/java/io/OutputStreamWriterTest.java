@@ -20,7 +20,7 @@ package tests.api.java.io;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,9 +36,9 @@ import tests.support.Support_OutputStream;
 import junit.framework.TestCase;
 
 /**
- * 
+ *
  */
-@TestTargetClass(OutputStreamWriter.class) 
+@TestTargetClass(OutputStreamWriter.class)
 public class OutputStreamWriterTest extends TestCase {
 
     private static final int UPPER = 0xd800;
@@ -77,7 +77,7 @@ public class OutputStreamWriterTest extends TestCase {
 
         super.tearDown();
     }
-    
+
     /**
      * @tests java.io.OutputStreamWriter#OutputStreamWriter(java.io.OutputStream)
      */
@@ -89,20 +89,20 @@ public class OutputStreamWriterTest extends TestCase {
     )
     public void test_ConstructorLjava_io_OutputStream() throws IOException {
         OutputStreamWriter writer = null;
-        
+
         try {
             writer = new OutputStreamWriter(null);
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
         try {
             writer = new OutputStreamWriter(new Support_OutputStream());
         } catch (Exception e) {
             fail("Test 2: Unexpected exception: " + e.getMessage());
         }
-        
+
         // Test that the default encoding has been used.
         assertEquals("Test 3: Incorrect default encoding used.",
                      Charset.defaultCharset(),
@@ -121,7 +121,7 @@ public class OutputStreamWriterTest extends TestCase {
         method = "OutputStreamWriter",
         args = {java.io.OutputStream.class, java.lang.String.class}
     )
-    public void test_ConstructorLjava_io_OutputStreamLjava_lang_String() 
+    public void test_ConstructorLjava_io_OutputStreamLjava_lang_String()
             throws UnsupportedEncodingException {
 
         try {
@@ -158,11 +158,11 @@ public class OutputStreamWriterTest extends TestCase {
             fail("Test 5: Unexpected UnsupportedEncodingException.");
         }
 
-        assertEquals("Test 6: Encoding not set correctly. ", 
-                     Charset.forName("8859_1"), 
+        assertEquals("Test 6: Encoding not set correctly. ",
+                     Charset.forName("8859_1"),
                      Charset.forName(osw.getEncoding()));
     }
-    
+
     /**
      * @tests java.io.OutputStreamWriter#OutputStreamWriter(java.io.OutputStream,
      *        java.nio.charset.Charset)
@@ -173,26 +173,26 @@ public class OutputStreamWriterTest extends TestCase {
         method = "OutputStreamWriter",
         args = {java.io.OutputStream.class, java.nio.charset.Charset.class}
     )
-    public void test_ConstructorLjava_io_OutputStreamLjava_nio_charset_Charset() 
+    public void test_ConstructorLjava_io_OutputStreamLjava_nio_charset_Charset()
             throws IOException {
         OutputStreamWriter writer;
         Support_OutputStream out = new Support_OutputStream();
         Charset cs = Charset.forName("ascii");
-        
+
         try {
             writer = new OutputStreamWriter(null, cs);
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
         try {
             writer = new OutputStreamWriter(out, (Charset) null);
             fail("Test 2: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
         writer = new OutputStreamWriter(out, cs);
         assertEquals("Test 3: Encoding not set correctly. ",
                      cs, Charset.forName(writer.getEncoding()));
@@ -209,33 +209,33 @@ public class OutputStreamWriterTest extends TestCase {
         method = "OutputStreamWriter",
         args = {java.io.OutputStream.class, java.nio.charset.CharsetEncoder.class}
     )
-    public void test_ConstructorLjava_io_OutputStreamLjava_nio_charset_CharsetEncoder() 
+    public void test_ConstructorLjava_io_OutputStreamLjava_nio_charset_CharsetEncoder()
             throws IOException {
         OutputStreamWriter writer;
         Support_OutputStream out = new Support_OutputStream();
         Charset cs = Charset.forName("ascii");
         CharsetEncoder enc = cs.newEncoder();
-        
+
         try {
             writer = new OutputStreamWriter(null, enc);
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
         try {
             writer = new OutputStreamWriter(out, (CharsetEncoder) null);
             fail("Test 2: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
         writer = new OutputStreamWriter(out, cs);
         assertEquals("Test 3: CharacterEncoder not set correctly. ",
                      cs, Charset.forName(writer.getEncoding()));
         writer.close();
     }
-    
+
     /**
      * @tests java.io.OutputStreamWriter#close()
      */
@@ -246,7 +246,7 @@ public class OutputStreamWriterTest extends TestCase {
         args = {}
     )
     public void test_close() {
-        
+
         fos.setThrowsException(true);
         try {
             osw.close();
@@ -254,8 +254,8 @@ public class OutputStreamWriterTest extends TestCase {
         } catch (IOException e) {
             // Expected.
         }
-        
-/* Test 2 does not work and has therefore been disabled (see Ticket #87).        
+
+/* Test 2 does not work and has therefore been disabled (see Ticket #87).
         // Test 2: Write should not fail since the closing
         // in test 1 has not been successful.
         try {
@@ -263,7 +263,7 @@ public class OutputStreamWriterTest extends TestCase {
         } catch (IOException e) {
             fail("Test 2: Unexpected IOException.");
         }
-        
+
         // Test 3: Close should succeed.
         fos.setThrowsException(false);
         try {
@@ -271,8 +271,8 @@ public class OutputStreamWriterTest extends TestCase {
         } catch (IOException e) {
             fail("Test 3: Unexpected IOException.");
         }
-*/ 
-        
+*/
+
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         try {
             OutputStreamWriter writer = new OutputStreamWriter(bout,
@@ -281,7 +281,7 @@ public class OutputStreamWriterTest extends TestCase {
             writer.close();
             // The default is ASCII, there should not be any mode changes.
             String converted = new String(bout.toByteArray(), "ISO8859_1");
-            assertTrue("Test 4: Invalid conversion: " + converted, 
+            assertTrue("Test 4: Invalid conversion: " + converted,
                        converted.equals("a"));
 
             bout.reset();
@@ -291,11 +291,11 @@ public class OutputStreamWriterTest extends TestCase {
             // The byte sequence should not switch to ASCII mode until the
             // stream is closed.
             converted = new String(bout.toByteArray(), "ISO8859_1");
-            assertTrue("Test 5: Invalid conversion: " + converted, 
+            assertTrue("Test 5: Invalid conversion: " + converted,
                        converted.equals("\u001b$B$("));
             writer.close();
             converted = new String(bout.toByteArray(), "ISO8859_1");
-            assertTrue("Test 6: Invalid conversion: " + converted, 
+            assertTrue("Test 6: Invalid conversion: " + converted,
                        converted.equals("\u001b$B$(\u001b(B"));
 
             bout.reset();
@@ -304,8 +304,8 @@ public class OutputStreamWriterTest extends TestCase {
             writer.write(new char[] { '\u3048' });
             writer.close();
             // There should not be a mode switch between writes.
-            assertEquals("Test 7: Invalid conversion. ", 
-                         "\u001b$B$($(\u001b(B", 
+            assertEquals("Test 7: Invalid conversion. ",
+                         "\u001b$B$($(\u001b(B",
                          new String(bout.toByteArray(), "ISO8859_1"));
         } catch (UnsupportedEncodingException e) {
             // Can't test missing converter.
@@ -332,12 +332,12 @@ public class OutputStreamWriterTest extends TestCase {
             osw.flush();
             openInputStream();
             isr.read(buf, 0, buf.length);
-            assertTrue("Test 1: Characters have not been flushed.", 
+            assertTrue("Test 1: Characters have not been flushed.",
                        new String(buf, 0, buf.length).equals(testString));
         } catch (Exception e) {
             fail("Test 1: Unexpected exception: " + e.getMessage());
         }
-        
+
         fos.setThrowsException(true);
         try {
             osw.flush();
@@ -362,13 +362,13 @@ public class OutputStreamWriterTest extends TestCase {
             args = {},
             clazz = InputStreamReader.class
         )
-    }) 
+    })
     public void test_singleCharIO() throws Exception {
         int upper;
         OutputStreamWriter writer = null;
         ByteArrayOutputStream out;
         InputStreamReader isr = null;
-        
+
         for (int i = 0; i < MINIMAL_CHARSETS.length; ++i) {
             try {
                 out = new ByteArrayOutputStream();
@@ -429,7 +429,7 @@ public class OutputStreamWriterTest extends TestCase {
         InputStreamReader isr = null;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter writer = null;
-        
+
         char[] largeBuffer = new char[BUFFER_SIZE];
         for (int i = 0; i < MINIMAL_CHARSETS.length; ++i) {
             try {
@@ -588,15 +588,15 @@ public class OutputStreamWriterTest extends TestCase {
     public void test_getEncoding() throws IOException {
         OutputStreamWriter writer;
         writer = new OutputStreamWriter(new Support_OutputStream(), "utf-8");
-        assertEquals("Test 1: Incorrect encoding returned.", 
-                     Charset.forName("utf-8"), 
+        assertEquals("Test 1: Incorrect encoding returned.",
+                     Charset.forName("utf-8"),
                      Charset.forName(writer.getEncoding()));
-        
+
         writer.close();
         assertNull("Test 2: getEncoding() did not return null for a closed writer.",
                    writer.getEncoding());
     }
-    
+
     /**
      * @tests java.io.OutputStreamWriter#write(char[], int, int)
      */
@@ -613,21 +613,21 @@ public class OutputStreamWriterTest extends TestCase {
         OutputStreamWriter writer;
 
         writer = new OutputStreamWriter(out, "utf-8");
-         
+
         try {
             writer.write(chars, -1, 1);
             fail("Test 1: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             writer.write(chars, 0, -1);
             fail("Test 2: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             writer.write(new char[0], 0, 1);
             fail("Test 3: IndexOutOfBoundsException expected.");
@@ -666,7 +666,7 @@ public class OutputStreamWriterTest extends TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-    
+
         out.setThrowsException(true);
         try {
             for (int i = 0; i < 200; i++) {
@@ -682,16 +682,16 @@ public class OutputStreamWriterTest extends TestCase {
         writer = new OutputStreamWriter(baos, "utf-8");
         writer.write(chars, 1, 2);
         writer.flush();
-        assertEquals("Test 7: write(char[], int, int) has not produced the " + 
+        assertEquals("Test 7: write(char[], int, int) has not produced the " +
                      "expected content in the output stream.",
                      "hi", baos.toString("utf-8"));
 
         writer.write(chars, 0, chars.length);
         writer.flush();
-        assertEquals("Test 8: write(char[], int, int) has not produced the " + 
+        assertEquals("Test 8: write(char[], int, int) has not produced the " +
                 "expected content in the output stream.",
                 "hi" + testString, baos.toString("utf-8"));
-            
+
         writer.close();
         try {
             writer.write((char[]) null, -1, -1);
@@ -699,11 +699,11 @@ public class OutputStreamWriterTest extends TestCase {
         } catch (IOException e) {
             // Expected
         }
-    }    
-    
+    }
+
     /**
      * @tests java.io.OutputStreamWriter#write(int)
-     */    
+     */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -723,14 +723,14 @@ public class OutputStreamWriterTest extends TestCase {
                 for (int j = 0; j < testString.length(); j++) {
                     writer.write(testString.charAt(j));
                 }
-            }   
+            }
             fail("Test 1: IOException expected.");
         } catch (IOException e) {
             // Expected
         }
         out.setThrowsException(false);
         writer.close();
-        
+
         writer = new OutputStreamWriter(out, "utf-8");
         writer.write(1);
         writer.flush();
@@ -751,7 +751,7 @@ public class OutputStreamWriterTest extends TestCase {
         writer.flush();
         str = new String(out.toByteArray(), "utf-8");
         assertEquals("Test 5: ", "\u0001\u0002\uffff\uedcb", str);
-        
+
         writer.close();
         try {
             writer.write(1);
@@ -783,14 +783,14 @@ public class OutputStreamWriterTest extends TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             writer.write("Lorem", 0, -1);
             fail("Test 2: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             writer.write("", 0, 1);
             fail("Test 3: IndexOutOfBoundsException expected.");
@@ -832,7 +832,7 @@ public class OutputStreamWriterTest extends TestCase {
         } catch (NullPointerException e) {
             // Expected
         }
-    
+
         out.setThrowsException(true);
         try {
             for (int i = 0; i < 200; i++) {
@@ -843,22 +843,22 @@ public class OutputStreamWriterTest extends TestCase {
             // Expected
         }
         out.setThrowsException(false);
-        
+
         writer.close();
         writer = new OutputStreamWriter(baos, "utf-8");
-        
+
         writer.write("abc", 1, 2);
         writer.flush();
-        assertEquals("Test 7: write(String, int, int) has not produced the " + 
+        assertEquals("Test 7: write(String, int, int) has not produced the " +
                      "expected content in the output stream.",
                      "bc", baos.toString("utf-8"));
-        
+
         writer.write(testString, 0, testString.length());
         writer.flush();
-        assertEquals("Test 7: write(String, int, int) has not produced the " + 
+        assertEquals("Test 7: write(String, int, int) has not produced the " +
                      "expected content in the output stream.",
                      "bc" + testString, baos.toString("utf-8"));
-        
+
         writer.close();
         try {
             writer.write("abc", 0, 1);

@@ -22,7 +22,7 @@ package java.net;
  * Defines an interface for socket implementations to get and set socket
  * options. It is implemented by the classes {@code SocketImpl} and {@code
  * DatagramSocketImpl}.
- * 
+ *
  * @see SocketImpl
  * @see DatagramSocketImpl
  */
@@ -58,7 +58,7 @@ public interface SocketOptions {
     // For 5 and 6 see MulticastSocket
 
     // For 7 see PlainDatagramSocketImpl
-    
+
     /**
      * This option specifies the interface which is used to send multicast
      * packets. It's only available on a {@code MulticastSocket}.
@@ -80,7 +80,7 @@ public interface SocketOptions {
     public static final int SO_REUSEADDR = 4;
 
     // 10 not currently used
-    
+
     /**
      * Buffer size of the outgoing channel.
      */
@@ -92,37 +92,37 @@ public interface SocketOptions {
     public static final int SO_RCVBUF = 4098;
 
     // For 13, see DatagramSocket
-    
+
     /**
      * This option specifies whether socket implementations can send keepalive
      * messages if no data has been sent for a longer time.
      */
     public static final int SO_KEEPALIVE = 8;
-    
+
     /**
      * This option specifies the value for the Type-of-Service (TOS) field of
      * the IP header.
      */
     public static final int IP_TOS = 3;
-    
+
     /**
      * This option specifies whether the local loopback of multicast packets is
      * enabled or disabled. This option is enabled by default on multicast
      * sockets.
      */
     public static final int IP_MULTICAST_LOOP = 18;
-    
+
     /**
      * This option can be used to enable broadcasting on datagram sockets.
      */
     public static final int SO_BROADCAST = 32;
-    
+
     /**
      * This option specifies whether sending TCP urgent data is supported on
      * this socket or not.
      */
     public static final int SO_OOBINLINE = 4099;
-    
+
     /**
      * This option can be used to set one specific interface on a multihomed
      * host on which incoming connections are accepted. It's only available on
@@ -133,7 +133,7 @@ public interface SocketOptions {
 
     /**
      * Gets the value for the specified socket option.
-     * 
+     *
      * @return the option value.
      * @param optID
      *            the option identifier.
@@ -144,7 +144,7 @@ public interface SocketOptions {
 
     /**
      * Sets the value of the specified socket option.
-     * 
+     *
      * @param optID
      *            the option identifier.
      * @param val

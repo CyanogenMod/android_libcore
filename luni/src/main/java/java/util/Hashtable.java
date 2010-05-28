@@ -30,10 +30,10 @@ import java.io.Serializable;
 
 /**
  * Hashtable is a synchronized implementation of {@link Map}. All optional operations are supported.
- * 
+ *
  * <p>Neither keys nor values can be null. (Use {@code HashMap} or {@code LinkedHashMap} if you
  * need null keys or values.)
- * 
+ *
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  * @see HashMap

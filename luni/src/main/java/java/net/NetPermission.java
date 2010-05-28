@@ -31,7 +31,7 @@ package java.net;
  * <dd>Allows a stream (protocol) handler to be set when constructing an URL
  * object</dd>
  * </dl>
- * 
+ *
  * @see java.security.BasicPermission
  * @see SecurityManager
  */
@@ -41,7 +41,7 @@ public final class NetPermission extends java.security.BasicPermission {
 
     /**
      * Creates an instance of this class with the given name.
-     * 
+     *
      * @param name
      *            the name of the new NetPermission instance.
      */
@@ -52,7 +52,7 @@ public final class NetPermission extends java.security.BasicPermission {
     /**
      * Creates an instance of this class with the given name and an action list.
      * The action list is ignored and should be {@code null}.
-     * 
+     *
      * @param name
      *            the name of the new {@code NetPermission} instance.
      * @param actions

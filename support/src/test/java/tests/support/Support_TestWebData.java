@@ -30,7 +30,7 @@ import java.util.Date;
 public class Support_TestWebData {
   public final static byte[] test1 = utfBytes();
   public final static byte[] test2 = newBinaryFile(8192);
-  
+
   private static byte[] utfBytes() {
     try {
       return "<html>\n<body>\n<h1>Hello World!</h1>\n</body>\n</html>\n".getBytes("UTF-8");
@@ -38,7 +38,7 @@ public class Support_TestWebData {
       throw new AssertionError();
     }
   }
-  
+
   private static byte[] newBinaryFile(int byteCount) {
     byte[] result = new byte[byteCount];
     for (int i = 0; i < result.length; ++i) {
@@ -46,10 +46,10 @@ public class Support_TestWebData {
     }
     return result;
   }
-  
+
   // string for test request post body
   public final static String postContent = "user=111";
-  
+
   // Array of all test data
   public final static byte[][] tests = {
     test1,

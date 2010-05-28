@@ -28,7 +28,7 @@ import java.security.PublicKey;
 
 /**
  * Stub implements interface PublicKey
- * 
+ *
  */
 
 public class PublicKeyStub implements PublicKey {
@@ -38,9 +38,9 @@ public class PublicKeyStub implements PublicKey {
     String algorithm = null;
     String format = null;
     byte [] encoded = null;
-    
+
     /**
-     *  constructor 
+     *  constructor
      */
     public PublicKeyStub(String algorithm, String format, byte[] encoded) {
         this.algorithm = algorithm;
@@ -63,7 +63,7 @@ public class PublicKeyStub implements PublicKey {
         return format;
     }
 
-    /** 
+    /**
      * returns encoded
      * @see java.security.Key#getEncoded()
      */

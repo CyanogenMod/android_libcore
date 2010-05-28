@@ -30,16 +30,16 @@ import javax.net.ssl.ManagerFactoryParameters;
 /**
  * Class for verification KeyManagerFactorySpi and KeyManagerFactory
  * functionality
- * 
+ *
  */
 
 public class MyKeyManagerFactorySpi extends KeyManagerFactorySpi {
-    
+
     protected void engineInit(KeyStore ks, char[] password)
             throws KeyStoreException, NoSuchAlgorithmException,
             UnrecoverableKeyException {
         if (password == null) {
-            throw new KeyStoreException("Incorrect password");            
+            throw new KeyStoreException("Incorrect password");
         }
         if (ks == null) {
             throw new UnrecoverableKeyException("Incorrect keystore");
@@ -56,7 +56,7 @@ public class MyKeyManagerFactorySpi extends KeyManagerFactorySpi {
                 engineInit(((Parameters)spec).getKeyStore(),
                         ((Parameters)spec).getPassword());
             } catch (Exception e) {
-                throw new InvalidAlgorithmParameterException(e.toString()); 
+                throw new InvalidAlgorithmParameterException(e.toString());
             }
         } else {
             throw new InvalidAlgorithmParameterException("Invalid parameter");
@@ -71,7 +71,7 @@ public class MyKeyManagerFactorySpi extends KeyManagerFactorySpi {
         private char[] passWD;
         public Parameters (KeyStore ks, char[] pass) {
             this.keyStore = ks;
-            this.passWD = pass; 
+            this.passWD = pass;
         }
         public KeyStore getKeyStore() {
             return keyStore;

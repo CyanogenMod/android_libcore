@@ -24,7 +24,7 @@ package org.apache.harmony.testframework.serialization;
 
 import dalvik.annotation.BrokenTest;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
 import java.io.ByteArrayInputStream;
@@ -60,13 +60,13 @@ import junit.framework.TestCase;
  * To turn on the <b>reference generation mode </b>, the test.mode property
  * should be set to value &quot;serial.reference&quot;. In this mode, no testing
  * is performed but golden files are produced, which contain reference
- * serialized objects. This mode should be run on a pure 
+ * serialized objects. This mode should be run on a pure
  * Implementation classes, which are targeted for compartibility. <br>
  * The location of golden files (in both modes) is controlled via
  * <b>&quot;RESOURCE_DIR&quot; </b> system property.
- * 
+ *
  */
-@TestTargetClass(Serializable.class) 
+@TestTargetClass(Serializable.class)
 public abstract class SerializationTest extends TestCase {
 
     /**
@@ -123,7 +123,7 @@ public abstract class SerializationTest extends TestCase {
     /**
      * This is the main working method of this framework. Subclasses must
      * override it to provide actual objects for testing.
-     * 
+     *
      * @return array of objects to be de/serialized in tests.
      */
     protected abstract Object[] getData();
@@ -138,7 +138,7 @@ public abstract class SerializationTest extends TestCase {
         notes = "",
         method = "!Serialization",
         args = {}
-    )    
+    )
     public void testSelf() throws Throwable {
 
         if (this instanceof SerializableAssert) {
@@ -153,7 +153,7 @@ public abstract class SerializationTest extends TestCase {
      * Tests that data objects can be deserialized from golden files, to verify
      * compatibility with Reference Implementation.
      */
-    
+
     @TestTargetNew(
         level = TestLevel.ADDITIONAL,
         notes = "",
@@ -161,13 +161,13 @@ public abstract class SerializationTest extends TestCase {
         args = {}
     )
     public void testGolden() throws Throwable {
-        
+
         verifyGolden(this, getData());
     }
 
     /**
      * Returns golden file for an object being tested.
-     * 
+     *
      * @param index array index of tested data (as returned by
      *        {@link #getData() getData()})
      * @return corresponding golden file
@@ -187,7 +187,7 @@ public abstract class SerializationTest extends TestCase {
      * Working method for files generation mode. Serializes test objects
      * returned by {@link #getData() getData()}to golden files, each object to
      * a separate file.
-     * 
+     *
      * @throws IOException
      */
     protected void produceGoldenFiles() throws IOException {
@@ -228,10 +228,10 @@ public abstract class SerializationTest extends TestCase {
         ois.close();
         return (Serializable)result;
     }
-    
+
     /**
      * Interface to compare (de)serialized objects
-     * 
+     *
      * Should be implemented if a class under test does not provide specific
      * equals() method and it's instances should to be compared manually.
      */
@@ -239,7 +239,7 @@ public abstract class SerializationTest extends TestCase {
 
         /**
          * Compares deserialized and reference objects.
-         * 
+         *
          * @param initial -
          *            initial object used for creating serialized form
          * @param deserialized -
@@ -323,7 +323,7 @@ public abstract class SerializationTest extends TestCase {
     /**
      * Returns <code>comparator</code> for provided serializable
      * <code>object</code>.
-     * 
+     *
      * The <code>comparator</code> is searched in the following order: <br>-
      * if <code>test</code> implements SerializableAssert interface then it is
      * selected as </code>comparator</code>.<br>- if passed <code>object</code>
@@ -333,7 +333,7 @@ public abstract class SerializationTest extends TestCase {
      * class,for example, if passed <code>object</code> is instance of
      * java.lang.Throwable then <code>THROWABLE_COMPARATOR</code> is used.<br>-
      * otherwise RuntimeException is thrown
-     * 
+     *
      * @param test -
      *            test case
      * @param object -
@@ -366,13 +366,13 @@ public abstract class SerializationTest extends TestCase {
 
         throw new RuntimeException("Failed to detect comparator");
     }
-    
+
     /**
      * Verifies that object deserialized from golden file correctly.
-     * 
+     *
      * The method invokes <br>
      * verifyGolden(test, object, defineComparator(test, object));
-     * 
+     *
      * @param test -
      *            test case
      * @param object -
@@ -386,12 +386,12 @@ public abstract class SerializationTest extends TestCase {
 
     /**
      * Verifies that object deserialized from golden file correctly.
-     * 
+     *
      * The method loads "<code>testName</code>.golden.ser" resource file
      * from "<module root>/src/test/resources/serialization/<code>testPackage</code>"
      * folder, reads an object from the loaded file and compares it with
      * <code>object</code> using specified <code>comparator</code>.
-     * 
+     *
      * @param test-
      *            test case
      * @param object-
@@ -412,10 +412,10 @@ public abstract class SerializationTest extends TestCase {
     /**
      * Verifies that objects from array deserialized from golden files
      * correctly.
-     * 
+     *
      * The method invokes <br>
      * verifyGolden(test, objects, defineComparator(test, object[0]));
-     * 
+     *
      * @param test -
      *            test case
      * @param objects -
@@ -431,14 +431,14 @@ public abstract class SerializationTest extends TestCase {
     /**
      * Verifies that objects from array deserialized from golden files
      * correctly.
-     * 
+     *
      * The method loads "<code>testName</code>.golden.<code>N</code>.ser"
      * resource files from "<module root>/src/test/resources/serialization/<code>testPackage</code>"
      * folder, from each loaded file it reads an object from and compares it
      * with corresponding object in provided array (i.e. <code>objects[N]</code>)
      * using specified <code>comparator</code>. (<code>N</code> is index
      * in object's array.)
-     * 
+     *
      * @param test-
      *            test case
      * @param objects -
@@ -456,13 +456,13 @@ public abstract class SerializationTest extends TestCase {
                     deserialized);
         }
     }
-    
+
     /**
      * Verifies that object can be smoothly serialized/deserialized.
-     * 
+     *
      * The method invokes <br>
      * verifySelf(object, defineComparator(null, object));
-     * 
+     *
      * @param object -
      *            to be serialized/deserialized
      */
@@ -471,13 +471,13 @@ public abstract class SerializationTest extends TestCase {
 
         verifySelf(object, defineComparator(null, object));
     }
-    
+
     /**
      * Verifies that object can be smoothly serialized/deserialized.
-     * 
+     *
      * The method serialize/deserialize <code>object</code> and compare it
      * with initial <code>object</code>.
-     * 
+     *
      * @param object -
      *            object to be serialized/deserialized
      * @param comparator -
@@ -495,10 +495,10 @@ public abstract class SerializationTest extends TestCase {
     /**
      * Verifies that that objects from array can be smoothly
      * serialized/deserialized.
-     * 
+     *
      * The method invokes <br>
      * verifySelf(objects, defineComparator(null, object[0]));
-     * 
+     *
      * @param objects -
      *            array of objects to be serialized/deserialized
      */
@@ -508,14 +508,14 @@ public abstract class SerializationTest extends TestCase {
         Assert.assertFalse("Empty array", objects.length == 0);
         verifySelf(objects, defineComparator(null, objects[0]));
     }
-    
+
     /**
      * Verifies that that objects from array can be smoothly
      * serialized/deserialized.
-     * 
+     *
      * The method serialize/deserialize each object in <code>objects</code>
      * array and compare it with initial object.
-     * 
+     *
      * @param objects -
      *            array of objects to be serialized/deserialized
      * @param comparator -
@@ -548,13 +548,13 @@ public abstract class SerializationTest extends TestCase {
 
         return getObjectFromStream(in);
     }
-    
+
     /**
      * Creates golden file.
-     * 
+     *
      * The folder for created file is: <code>root + test's package name</code>.
      * The file name is: <code>test's name + "golden.ser"</code>
-     * 
+     *
      * @param root -
      *            root directory for serialization resource files
      * @param test -
@@ -586,10 +586,10 @@ public abstract class SerializationTest extends TestCase {
         Assert.fail("Generating golden file.\nGolden file name:"
                 + goldenFile.getAbsolutePath());
     }
-    
+
     /**
      * Copies an object by serializing/deserializing it.
-     * 
+     *
      * @param initial -
      *            an object to be copied
      * @return copy of provided object

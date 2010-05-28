@@ -17,14 +17,14 @@
 
 package tests.api.java.io;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
 import java.io.SerializablePermission;
 
-@TestTargetClass(SerializablePermission.class) 
+@TestTargetClass(SerializablePermission.class)
 public class SerializablePermissionTest extends junit.framework.TestCase {
 
     /**
@@ -38,7 +38,7 @@ public class SerializablePermissionTest extends junit.framework.TestCase {
     )
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.io.SerializablePermission(java.lang.String)
-        assertEquals("permission ill-formed", 
+        assertEquals("permission ill-formed",
                 "enableSubclassImplementation", new SerializablePermission(
                 "enableSubclassImplementation").getName());
     }
@@ -56,7 +56,7 @@ public class SerializablePermissionTest extends junit.framework.TestCase {
     public void test_ConstructorLjava_lang_StringLjava_lang_String() {
         // Test for method java.io.SerializablePermission(java.lang.String,
         // java.lang.String)
-        assertEquals("permission ill-formed", 
+        assertEquals("permission ill-formed",
                 "enableSubclassImplementation", new SerializablePermission(
                 "enableSubclassImplementation", "").getName());
     }

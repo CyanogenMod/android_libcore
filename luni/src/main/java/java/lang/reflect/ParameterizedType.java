@@ -55,7 +55,7 @@ public interface ParameterizedType extends Type {
     /**
      * Returns the parent / owner type, if this type is an inner type, otherwise
      * {@code null} is returned if this is a top-level type.
-     * 
+     *
      * @return the owner type or {@code null} if this is a top-level type
      *
      * @throws TypeNotPresentException

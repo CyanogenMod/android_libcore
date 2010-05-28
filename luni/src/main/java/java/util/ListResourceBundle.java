@@ -36,7 +36,7 @@ public abstract class ListResourceBundle extends ResourceBundle {
     }
 
     /**
-     * Returns an {@code Object} array which contains the resources of this
+     * Returns an {@code Object} array containing the resources of this
      * {@code ListResourceBundle}. Each element in the array is an array of two
      * elements, the first is the resource key string and the second is the
      * resource.
@@ -45,11 +45,6 @@ public abstract class ListResourceBundle extends ResourceBundle {
      */
     protected abstract Object[][] getContents();
 
-    /**
-     * Returns the names of the resources contained in this {@code ListResourceBundle}.
-     *
-     * @return an {@code Enumeration} of the resource names.
-     */
     @Override
     public Enumeration<String> getKeys() {
         initializeTable();
@@ -130,5 +125,16 @@ public abstract class ListResourceBundle extends ResourceBundle {
                 table.put((String) content[0], content[1]);
             }
         }
+    }
+
+    /**
+     * Returns a set of the keys in this ResourceBundle but not in its parents.
+     *
+     * @return a set of the keys in this ResourceBundle but not in its parents.
+     * @since 1.6
+     */
+    protected Set<String> handleKeySet() {
+        initializeTable();
+        return table.keySet();
     }
 }

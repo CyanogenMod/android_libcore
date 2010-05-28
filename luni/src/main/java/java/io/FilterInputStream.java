@@ -24,7 +24,7 @@ package java.io;
  * decompression of the underlying stream. Input streams that wrap another input
  * stream and provide some additional functionality on top of it usually inherit
  * from this class.
- * 
+ *
  * @see FilterOutputStream
  */
 public class FilterInputStream extends InputStream {
@@ -37,7 +37,7 @@ public class FilterInputStream extends InputStream {
     /**
      * Constructs a new {@code FilterInputStream} with the specified input
      * stream as source.
-     * 
+     *
      * @param in
      *            the non-null InputStream to filter reads on.
      */
@@ -53,7 +53,7 @@ public class FilterInputStream extends InputStream {
 
     /**
      * Closes this stream. This implementation closes the filtered stream.
-     * 
+     *
      * @throws IOException
      *             if an error occurs while closing this stream.
      */
@@ -85,7 +85,7 @@ public class FilterInputStream extends InputStream {
      * Indicates whether this stream supports {@code mark()} and {@code reset()}.
      * This implementation returns whether or not the filtered stream supports
      * marking.
-     * 
+     *
      * @return {@code true} if {@code mark()} and {@code reset()} are supported,
      *         {@code false} otherwise.
      * @see #mark(int)
@@ -101,7 +101,7 @@ public class FilterInputStream extends InputStream {
      * Reads a single byte from the filtered stream and returns it as an integer
      * in the range from 0 to 255. Returns -1 if the end of this stream has been
      * reached.
-     * 
+     *
      * @return the byte read or -1 if the end of the filtered stream has been
      *         reached.
      * @throws IOException
@@ -117,7 +117,7 @@ public class FilterInputStream extends InputStream {
      * {@code buffer}. Returns the number of bytes actually read or -1 if no
      * bytes were read and the end of this stream was encountered. This
      * implementation reads bytes from the filtered stream.
-     * 
+     *
      * @param buffer
      *            the byte array in which to store the read bytes.
      * @return the number of bytes actually read or -1 if the end of the
@@ -136,7 +136,7 @@ public class FilterInputStream extends InputStream {
      * of bytes actually read or -1 if no bytes have been read and the end of
      * this stream has been reached. This implementation reads bytes from the
      * filtered stream.
-     * 
+     *
      * @param buffer
      *            the byte array in which to store the bytes read.
      * @param offset
@@ -157,7 +157,7 @@ public class FilterInputStream extends InputStream {
     /**
      * Resets this stream to the last marked location. This implementation
      * resets the target stream.
-     * 
+     *
      * @throws IOException
      *             if this stream is already closed, no mark has been set or the
      *             mark is no longer valid because more than {@code readlimit}
@@ -175,7 +175,7 @@ public class FilterInputStream extends InputStream {
      * {@code read()}'s will not return these bytes unless {@code reset()} is
      * used. This implementation skips {@code count} number of bytes in the
      * filtered stream.
-     * 
+     *
      * @param count
      *            the number of bytes to skip.
      * @return the number of bytes actually skipped.

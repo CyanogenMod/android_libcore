@@ -30,39 +30,39 @@ import java.security.SignatureException;
 
 /**
  * Tests implementation of Signature
- * 
+ *
  */
 public class MySignature1 extends Signature {
 
     public boolean runEngineInitVerify = false;
     public boolean runEngineInitSign = false;
     public boolean runEngineUpdate1 = false;
-    public boolean runEngineUpdate2 = false;    
+    public boolean runEngineUpdate2 = false;
     public boolean runEngineSign = false;
     public boolean runEngineVerify = false;
-    public boolean runEngineSetParameter = false;    
+    public boolean runEngineSetParameter = false;
     public boolean runEngineGetParameter = false;
-    
+
     public static int SIGN = Signature.SIGN;
     public static int VERIFY = Signature.VERIFY;
     public static int UNINITIALIZED = Signature.UNINITIALIZED;
-    private final int BUFFER_LENGTH = 10; 
+    private final int BUFFER_LENGTH = 10;
     /**
-     * 
+     *
      *
      */
     public MySignature1() {
         super(null);
     }
-    
+
     /**
-     * 
+     *
      * @param algorithm
      */
     public MySignature1(String algorithm) {
         super(algorithm);
     }
-    
+
     protected void engineInitVerify(PublicKey publicKey)
             throws InvalidKeyException {
         runEngineInitVerify = true;
@@ -110,11 +110,11 @@ public class MySignature1 extends Signature {
         runEngineGetParameter = true;
         return null;
     }
-    
+
     public int getState() {
         return state;
     }
-    
+
     public int getBufferLength() {
         return BUFFER_LENGTH;
     }

@@ -21,7 +21,7 @@ package org.apache.harmony.luni.platform;
 /**
  * This is the interface that the memory watchers implement -- what they do with
  * this information is largely undefined.
- * 
+ *
  */
 public interface IMemorySpy {
 
@@ -38,7 +38,7 @@ public interface IMemorySpy {
      * garbage. If the address is alredy freed, or has not been notified as
      * allocated via this memory spy, then this call has no effect and completes
      * quietly.
-     * 
+     *
      * @param address
      *            the address to be freed.
      */

@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -49,7 +49,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 
 import tests.util.SerializationTester;
 
-@TestTargetClass(Collections.class) 
+@TestTargetClass(Collections.class)
 public class CollectionsTest extends TestCase {
 
     private static final SerializableAssert comparator = new SerializableAssert() {
@@ -57,7 +57,7 @@ public class CollectionsTest extends TestCase {
             assertSame(reference, test);
         }
     };
-    
+
     /**
      * @tests java.util.Collections#binarySearch(java.util.List,
      *        java.lang.Object, java.util.Comparator)
@@ -90,8 +90,8 @@ public class CollectionsTest extends TestCase {
         } catch (ClassCastException e) {
             //expected
         }
-    } 
-    
+    }
+
     /**
      * @tests java.util.Collections#binarySearch(java.util.List,
      *        java.lang.Object)
@@ -130,7 +130,7 @@ public class CollectionsTest extends TestCase {
             //expected
         }
     }
-       
+
     /**
      * @tests java.util.Collections#rotate(java.util.List, int)
      */
@@ -354,7 +354,7 @@ public class CollectionsTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests java.util.Collections#frequency(java.util.Collection,Object)
      */
@@ -563,7 +563,7 @@ public class CollectionsTest extends TestCase {
             return null;
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -579,7 +579,7 @@ public class CollectionsTest extends TestCase {
         assertFalse(l.isEmpty());
         assertTrue(l.equals(Arrays.asList(new Object[] { new Integer(1),
                 new Integer(2), new Integer(3) })));
-        
+
         try {
             Collections.addAll(null,new Object[] { new Integer(1),
                     new Integer(2), new Integer(3) });
@@ -587,7 +587,7 @@ public class CollectionsTest extends TestCase {
         } catch (NullPointerException e) {
             //fail
         }
-        
+
         Collection c = new Mock_Collection();
         try {
             Collections.addAll(c, new Object[] { new Integer(1),
@@ -596,9 +596,9 @@ public class CollectionsTest extends TestCase {
         } catch (UnsupportedOperationException e) {
             //expected
         }
-        
+
         c = new Mock_WrongCollection ();
-        
+
         try {
             Collections.addAll(c, new String[] { "String",
                     "Correct element", null });
@@ -606,7 +606,7 @@ public class CollectionsTest extends TestCase {
         } catch (NullPointerException e) {
             //fail
         }
-        
+
         try {
             Collections.addAll(c, new String[] { "String",
                     "Wrong element", "Correct element" });
@@ -614,7 +614,7 @@ public class CollectionsTest extends TestCase {
         } catch (IllegalArgumentException e) {
             //fail
         }
-        
+
         Collections.addAll(c, new String[] { "String",
                 "", "Correct element" });
     }
@@ -680,14 +680,14 @@ public class CollectionsTest extends TestCase {
         assertTrue(Collections.disjoint(c1, c2));
         c1.add(arr2[10]);
         assertFalse(Collections.disjoint(c1, c2));
-        
+
         try {
             Collections.disjoint(c1, null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         try {
             Collections.disjoint(null, c2);
             fail("NullPointerException expected");
@@ -695,7 +695,7 @@ public class CollectionsTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests java.util.Collections.EmptyList#readResolve()
      */
@@ -825,11 +825,11 @@ public class CollectionsTest extends TestCase {
     )
     public void test_checkedCollectionLjava_util_CollectionLjava_lang_Class() {
         ArrayList al = new ArrayList<Integer>();
-        
+
         Collection c = Collections.checkedCollection(al, Integer.class);
-        
+
         c.add(new Integer(1));
-        
+
         try {
             c.add(new Double(3.14));
             fail("ClassCastException expected");
@@ -846,11 +846,11 @@ public class CollectionsTest extends TestCase {
     )
     public void test_checkedListLjava_util_ListLjava_lang_Class() {
         ArrayList al = new ArrayList<Integer>();
-        
+
         List l = Collections.checkedList(al, Integer.class);
-        
+
         l.add(new Integer(1));
-        
+
         try {
             l.add(new Double(3.14));
             fail("ClassCastException expected");
@@ -867,12 +867,12 @@ public class CollectionsTest extends TestCase {
     )
     public void test_checkedMapLjava_util_MapLjava_lang_ClassLjava_lang_Class() {
         HashMap hm = new HashMap<Integer, String>();
-        
+
         Map m = Collections.checkedMap(hm, Integer.class, String.class);
-        
+
         m.put(1, "one");
         m.put(2, "two");
-        
+
         try {
             m.put("wron key", null);
             fail("ClassCastException expected");
@@ -896,11 +896,11 @@ public class CollectionsTest extends TestCase {
     )
     public void test_checkedSetLjava_util_SetLjava_lang_Class() {
         HashSet hs = new HashSet<Integer>();
-        
+
         Set s = Collections.checkedSet(hs, Integer.class);
-        
+
         s.add(new Integer(1));
-        
+
         try {
             s.add(new Double(3.14));
             fail("ClassCastException expected");
@@ -917,12 +917,12 @@ public class CollectionsTest extends TestCase {
     )
     public void test_checkedSortedMapLjava_util_SortedMapLjava_lang_ClassLjava_lang_Class() {
         TreeMap tm = new TreeMap<Integer, String>();
-        
+
         SortedMap sm = Collections.checkedSortedMap(tm, Integer.class, String.class);
-        
+
         sm.put(1, "one");
         sm.put(2, "two");
-        
+
         try {
             sm.put("wron key", null);
             fail("ClassCastException expected");
@@ -946,11 +946,11 @@ public class CollectionsTest extends TestCase {
     )
     public void test_checkedSortedSetLjava_util_SortedSetLjava_lang_Class() {
         TreeSet ts = new TreeSet<Integer>();
-        
+
         SortedSet ss = Collections.checkedSortedSet(ts, Integer.class);
-        
+
         ss.add(new Integer(1));
-        
+
         try {
             ss.add(new Double(3.14));
             fail("ClassCastException expected");
@@ -982,7 +982,7 @@ public class CollectionsTest extends TestCase {
     public void test_emptyMap() {
         Map<Integer, String> mis = Collections.emptyMap();
         Map<String, Integer> msi = Collections.emptyMap();
-        
+
         assertTrue(mis.equals(msi));
         assertTrue(msi.equals(Collections.EMPTY_MAP));
     }
@@ -996,7 +996,7 @@ public class CollectionsTest extends TestCase {
     public void test_emptySet() {
         Set<String> ss = Collections.emptySet();
         Set<Integer> si = Collections.emptySet();
-        
+
         assertTrue(ss.equals(si));
         assertTrue(si.equals(Collections.EMPTY_SET));
     }

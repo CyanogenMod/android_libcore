@@ -38,7 +38,7 @@ public class GenericMethodsTests extends GenericReflectionTestsBase{
         public <T> void noParamNoReturn() {}
 
         public <T> void paramNoReturn(T param) {}
-        
+
         @SuppressWarnings("unchecked")
         public <T> T noParamReturn() { return (T) new Object(); }
 
@@ -69,9 +69,9 @@ public class GenericMethodsTests extends GenericReflectionTestsBase{
         assertEquals("T", typeParameter.getName());
         assertEquals(method, typeParameter.getGenericDeclaration());
     }
-    
+
     /**
-     * Tests whether the specified method declares a parameter with the 
+     * Tests whether the specified method declares a parameter with the
      * type of the type parameter.
      * @param method the method
      */
@@ -83,7 +83,7 @@ public class GenericMethodsTests extends GenericReflectionTestsBase{
         assertInstanceOf(TypeVariable.class, genericParameterType);
         assertEquals(method, ((TypeVariable<?>) genericParameterType).getGenericDeclaration());
     }
-    
+
     /**
      * Tests whether the type of the return type is the declared type parameter.
      * @param method the declaring method
@@ -105,7 +105,7 @@ public class GenericMethodsTests extends GenericReflectionTestsBase{
         Method method = clazz.getMethod("noParamNoReturn");
         checkTypeParameter(method);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -131,7 +131,7 @@ public class GenericMethodsTests extends GenericReflectionTestsBase{
         checkTypeParameter(method);
         checkParameterType(method);
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
@@ -187,10 +187,10 @@ public class GenericMethodsTests extends GenericReflectionTestsBase{
     public void testIndependencyOfMethodTypeParameters() throws Exception {
         Method method0 = clazz.getMethod("paramNoReturn", Object.class);
         TypeVariable<Method> typeParameter0 = method0.getTypeParameters()[0];
-        
+
         Method method1 = clazz.getMethod("noParamNoReturn");
         TypeVariable<Method> typeParameter1 = method1.getTypeParameters()[0];
-        
+
         //Generic method type parameters NAMES are equal
         assertEquals(typeParameter0.getName(), typeParameter1.getName());
         //Generic method type PARAMETERS are not equal

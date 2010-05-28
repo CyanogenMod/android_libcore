@@ -32,7 +32,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-@TestTargetClass(String.class) 
+@TestTargetClass(String.class)
 public class String2Test extends junit.framework.TestCase {
 
     String hw1 = "HelloWorld";
@@ -288,7 +288,7 @@ public class String2Test extends junit.framework.TestCase {
         // Test for method char java.lang.String.charAt(int)
         assertTrue("Incorrect character returned", hw1.charAt(5) == 'W'
                 && (hw1.charAt(1) != 'Z'));
-        
+
         String testString = "Test String";
         try {
             testString.charAt(testString.length());
@@ -296,14 +296,14 @@ public class String2Test extends junit.framework.TestCase {
         } catch(IndexOutOfBoundsException iobe) {
             //expected
         }
-        
+
         try {
             testString.charAt(Integer.MAX_VALUE);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException iobe) {
             //expected
         }
-        
+
         try {
             testString.charAt(-1);
             fail("IndexOutOfBoundsException was not thrown.");
@@ -331,7 +331,7 @@ public class String2Test extends junit.framework.TestCase {
                 .compareTo("aaaaab") > 0);
         assertTrue("Considered case to not be of importance", !("A"
                 .compareTo("a") == 0));
-        
+
         try {
             "fixture".compareTo(null);
             fail("No NPE");
@@ -377,7 +377,7 @@ public class String2Test extends junit.framework.TestCase {
         } finally {
             Locale.setDefault(defLocale);
         }
-        
+
         try {
             "fixture".compareToIgnoreCase(null);
             fail("No NPE");
@@ -422,7 +422,7 @@ public class String2Test extends junit.framework.TestCase {
         String s2 = "s2";
         String s3 = s1.concat(s2);
         assertEquals(s2, s3);
-        
+
         s3 = s2.concat(s1);
         assertSame(s2, s3);
     }
@@ -512,10 +512,10 @@ public class String2Test extends junit.framework.TestCase {
         // java.lang.String.equalsIgnoreCase(java.lang.String)
         assertTrue("lc version returned unequal to uc", hwlc
                 .equalsIgnoreCase(hwuc));
-        
+
         assertTrue("Returned false for equals strings.", hwlc
-                .equalsIgnoreCase(hwlc));     
-        
+                .equalsIgnoreCase(hwlc));
+
         assertFalse("Returned true for different strings.", hwlc
                 .equalsIgnoreCase(hwuc + " "));
     }
@@ -627,20 +627,20 @@ public class String2Test extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             fail("Threw wrong exception");
         }
-        
+
         try {
             "Hello World".getBytes(6, 2, null, 0);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             "Hello World".getBytes(2, 10, new byte[10], 4);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch (IndexOutOfBoundsException e) {
             //expected
-        }        
+        }
     }
 
     /**
@@ -698,7 +698,7 @@ public class String2Test extends junit.framework.TestCase {
 
         for (int i = 0; i < rbuf.length; i++)
             assertTrue("getChars returned incorrect char(s)", rbuf[i] == buf[i]);
-        
+
         try {
             "Hello World".getChars(-1, 1, null, 0);
             fail("Expected IndexOutOfBoundsException");
@@ -707,20 +707,20 @@ public class String2Test extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             fail("Threw wrong exception");
         }
-        
+
         try {
             "Hello World".getChars(6, 2, null, 0);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             "Hello World".getChars(2, 10, new char[10], 4);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch (IndexOutOfBoundsException e) {
             //expected
-        }            
+        }
     }
 
     /**
@@ -777,7 +777,7 @@ public class String2Test extends junit.framework.TestCase {
     public void test_indexOfII() {
         // Test for method int java.lang.String.indexOf(int, int)
         assertEquals("Invalid character index returned", 5, hw1.indexOf('W', 2));
-        assertEquals("Doesn't return -1 if there is no such character.", -1, 
+        assertEquals("Doesn't return -1 if there is no such character.", -1,
                 hw1.indexOf('H', 2));
 
     }
@@ -795,7 +795,7 @@ public class String2Test extends junit.framework.TestCase {
         // Test for method int java.lang.String.indexOf(java.lang.String)
         assertTrue("Failed to find string", hw1.indexOf("World") > 0);
         assertTrue("Failed to find string", !(hw1.indexOf("ZZ") > 0));
-        assertEquals("Doesn't return -1 for unknown string.", 
+        assertEquals("Doesn't return -1 for unknown string.",
                 -1, hw1.indexOf("Heo"));
     }
 
@@ -943,10 +943,10 @@ public class String2Test extends junit.framework.TestCase {
                 hw2, 2, 5));
         assertFalse("Returned true for negative offset.", hw1.regionMatches(2,
                 hw2, -1, 5));
-        assertFalse("Returned true for toffset+len is greater than the length.", 
+        assertFalse("Returned true for toffset+len is greater than the length.",
                 hw1.regionMatches(5, hw2, 2, 6));
-        assertFalse("Returned true for ooffset+len is greater than the length.", 
-                hw1.regionMatches(2, hw2, 5, 6));        
+        assertFalse("Returned true for ooffset+len is greater than the length.",
+                hw1.regionMatches(2, hw2, 5, 6));
     }
 
     /**
@@ -973,16 +973,16 @@ public class String2Test extends junit.framework.TestCase {
                 2, bogusString, 2, 5));
         assertTrue("identical regions failed comparison with different cases",
                 hw1.regionMatches(false, 2, hw2, 2, 5));
-        
-        assertFalse("Returned true for negative offset.", hw1.regionMatches(true, 
+
+        assertFalse("Returned true for negative offset.", hw1.regionMatches(true,
                 -1, hw2, 2, 5));
-        assertFalse("Returned true for negative offset.", hw1.regionMatches(false, 
+        assertFalse("Returned true for negative offset.", hw1.regionMatches(false,
                 2, hw2, -1, 5));
-        assertFalse("Returned true for toffset+len is greater than the length.", 
+        assertFalse("Returned true for toffset+len is greater than the length.",
                 hw1.regionMatches(true, 5, hw2, 2, 6));
-        assertFalse("Returned true for ooffset+len is greater than the length.", 
-                hw1.regionMatches(false, 2, hw2, 5, 6));  
-        
+        assertFalse("Returned true for ooffset+len is greater than the length.",
+                hw1.regionMatches(false, 2, hw2, 5, 6));
+
         assertTrue("identical regions failed comparison", hwuc.regionMatches(
                 true, 0, hwlc, 0, hwuc.length()));
         assertFalse("non identical regions failed comparison", hwuc.regionMatches(
@@ -1003,7 +1003,7 @@ public class String2Test extends junit.framework.TestCase {
         assertEquals("Failed replace", "HezzoWorzd", hw1.replace('l', 'z'));
         assertEquals("Returned incorrect string.", hw1, hw1.replace("!", "."));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1014,16 +1014,16 @@ public class String2Test extends junit.framework.TestCase {
         String str = "!'123123.123HelloWorld!123123helloworld#";
         String [] patterns = {"[hw\\p{Upper}]", "(o|l){2,}", "([\'\"]?)(\\d+)",
                               "^!.*#$"};
-        
-        String [] results = {"!\'123123.123?ello?orld!123123?ello?orld#", 
+
+        String [] results = {"!\'123123.123?ello?orld!123123?ello?orld#",
                              "!\'123123.123He?World!123123he?world#",
                              "!?.?HelloWorld!?helloworld#", "?"};
-        
+
         for(int i = 0; i < patterns.length; i++) {
-            assertEquals("Returned incorrect string", 
+            assertEquals("Returned incorrect string",
                                   results[i], str.replaceAll(patterns[i], "?"));
         }
-        
+
         try {
             str.replaceAll("[abc*", "?");
             fail("PatternSyntaxException is not thrown.");
@@ -1031,7 +1031,7 @@ public class String2Test extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1042,16 +1042,16 @@ public class String2Test extends junit.framework.TestCase {
         String str = "!'123123.123HelloWorld!123123helloworld#";
         String [] patterns = {"[hw\\p{Upper}]", "(o|l){2,}", "([\'\"]?)(\\d+)",
                               "^!.*#$"};
-        
-        String [] results = {"!'123123.123?elloWorld!123123helloworld#", 
+
+        String [] results = {"!'123123.123?elloWorld!123123helloworld#",
                              "!'123123.123He?World!123123helloworld#",
                              "!?.123HelloWorld!123123helloworld#", "?"};
-        
+
         for(int i = 0; i < patterns.length; i++) {
-            assertEquals("Returned incorrect string", 
+            assertEquals("Returned incorrect string",
                                   results[i], str.replaceFirst(patterns[i], "?"));
         }
-        
+
         try {
             str.replaceFirst("[abc*", "?");
             fail("PatternSyntaxException is not thrown.");
@@ -1059,7 +1059,7 @@ public class String2Test extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1069,15 +1069,15 @@ public class String2Test extends junit.framework.TestCase {
     public void test_splitLString() {
         String str = "!'123123.123HelloWorld!123123helloworld#";
         String [] patterns = {"[!.1]", "(\\d+).*e(l+)o.*orld"};
-        String [][] results = {{"", "'","23", "23", "", "23HelloWorld", "", "23", 
-                               "23helloworld#"}, 
+        String [][] results = {{"", "'","23", "23", "", "23HelloWorld", "", "23",
+                               "23helloworld#"},
                                {"!'", "#"}};
 
         for(int i = 0; i < patterns.length; i++) {
             assertTrue("Returned incorrect string array for pattern: " +
                 patterns[i], Arrays.equals(results[i], str.split(patterns[i])));
         }
-        
+
         try {
             str.split("[a}");
             fail("PatternSyntaxException is not thrown.");
@@ -1085,7 +1085,7 @@ public class String2Test extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1095,23 +1095,23 @@ public class String2Test extends junit.framework.TestCase {
     public void test_splitLStringLint() {
         String str = "!'123123.123HelloWorld!123123helloworld#";
         String pattern = "[!.1]";
-        String [][] results = {{"", "'","23", "23.123HelloWorld!123123helloworld#"}, 
-                               {"", "'","23", "23", "", "23HelloWorld", "", "23", 
+        String [][] results = {{"", "'","23", "23.123HelloWorld!123123helloworld#"},
+                               {"", "'","23", "23", "", "23HelloWorld", "", "23",
                                "23helloworld#"}};
 
-        assertTrue("Returned incorrect string array for limit 4", 
+        assertTrue("Returned incorrect string array for limit 4",
                 Arrays.equals(results[0], str.split(pattern, 4)));
-        assertTrue("Returned incorrect string array for limit 9", 
-                Arrays.equals(results[1], str.split(pattern, 9)));   
-        assertTrue("Returned incorrect string array for limit 0", 
-                Arrays.equals(results[1], str.split(pattern, 0))); 
-        assertTrue("Returned incorrect string array for limit -1", 
-                Arrays.equals(results[1], str.split(pattern, -1)));   
-        assertTrue("Returned incorrect string array for limit 10", 
-                Arrays.equals(results[1], str.split(pattern, 10)));          
-        assertTrue("Returned incorrect string array for limit Integer.MAX_VALUE", 
-                Arrays.equals(results[1], str.split(pattern, Integer.MAX_VALUE))); 
-        
+        assertTrue("Returned incorrect string array for limit 9",
+                Arrays.equals(results[1], str.split(pattern, 9)));
+        assertTrue("Returned incorrect string array for limit 0",
+                Arrays.equals(results[1], str.split(pattern, 0)));
+        assertTrue("Returned incorrect string array for limit -1",
+                Arrays.equals(results[1], str.split(pattern, -1)));
+        assertTrue("Returned incorrect string array for limit 10",
+                Arrays.equals(results[1], str.split(pattern, 10)));
+        assertTrue("Returned incorrect string array for limit Integer.MAX_VALUE",
+                Arrays.equals(results[1], str.split(pattern, Integer.MAX_VALUE)));
+
         try {
             str.split("[a}", 0);
             fail("PatternSyntaxException is not thrown.");
@@ -1119,9 +1119,9 @@ public class String2Test extends junit.framework.TestCase {
             //expected
         }
     }
-    
-    
-    
+
+
+
     /**
      * @tests java.lang.String#replace(CharSequence, CharSequence)
      */
@@ -1131,27 +1131,27 @@ public class String2Test extends junit.framework.TestCase {
         method = "replace",
         args = {java.lang.CharSequence.class, java.lang.CharSequence.class}
     )
-    public void test_replaceLjava_langCharSequenceLjava_langCharSequence() {            
+    public void test_replaceLjava_langCharSequenceLjava_langCharSequence() {
         assertEquals("Failed replace", "aaccdd", "aabbdd".replace(
             new StringBuffer("bb"), "cc"));
         assertEquals("Failed replace by bigger seq", "cccbccc", "aba".replace(
             "a", "ccc"));
-        assertEquals("Failed replace by smaller seq", "$bba^", 
+        assertEquals("Failed replace by smaller seq", "$bba^",
             "$aaaaa^".replace(new StringBuilder("aa"), "b"));
-        
+
         try {
             "".replace((CharSequence) null, "123".subSequence(0, 1));
             fail("NullPointerException is not thrown.");
         } catch(NullPointerException npe) {
             //expected
         }
-        
+
         try {
             "".replace("123".subSequence(0, 1), (CharSequence) null);
             fail("NullPointerException is not thrown.");
         } catch(NullPointerException npe) {
             //expected
-        }        
+        }
     }
 
     /**
@@ -1196,30 +1196,30 @@ public class String2Test extends junit.framework.TestCase {
     )
     public void test_substringI() {
         // Test for method java.lang.String java.lang.String.substring(int)
-        assertEquals("Incorrect substring returned", 
+        assertEquals("Incorrect substring returned",
                 "World", hw1.substring(5));
         assertTrue("not identical", hw1.substring(0) == hw1);
-        
+
         try {
             hw1.substring(-1);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
             //expected
         }
-        
+
         try {
             hw1.substring(hw1.length() + 1);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
             //expected
-        }    
-        
+        }
+
         try {
             hw1.substring(Integer.MAX_VALUE);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
             //expected
-        } 
+        }
     }
 
     /**
@@ -1237,21 +1237,21 @@ public class String2Test extends junit.framework.TestCase {
                 "Hello")
                 && (hw1.substring(5, 10).equals("World")));
         assertTrue("not identical", hw1.substring(0, hw1.length()) == hw1);
-        
+
         try {
             hw1.substring(-1, hw1.length());
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
             //expected
         }
-        
+
         try {
             hw1.substring(Integer.MAX_VALUE, hw1.length());
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
             //expected
         }
-        
+
         try {
             hw1.substring(0, Integer.MAX_VALUE);
             fail("IndexOutOfBoundsException was not thrown.");
@@ -1260,7 +1260,7 @@ public class String2Test extends junit.framework.TestCase {
         }
     }
 
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1272,29 +1272,29 @@ public class String2Test extends junit.framework.TestCase {
         assertTrue("Incorrect substring returned", hw1.subSequence(0, 5).equals(
                       "Hello") && (hw1.subSequence(5, 10).equals("World")));
         assertTrue("not identical", hw1.subSequence(0, hw1.length()) == hw1);
-        
+
         try {
             hw1.subSequence(0, Integer.MAX_VALUE);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
-            //expected            
-        }   
-        
+            //expected
+        }
+
         try {
             hw1.subSequence(Integer.MAX_VALUE, hw1.length());
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
-            //expected            
-        }  
-        
+            //expected
+        }
+
         try {
             hw1.subSequence(-1, hw1.length());
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
-            //expected            
+            //expected
         }
     }
-    
+
     /**
      * @tests java.lang.String#toCharArray()
      */
@@ -1421,8 +1421,8 @@ public class String2Test extends junit.framework.TestCase {
         // Test for method java.lang.String java.lang.String.trim()
         assertTrue("Incorrect string returned", " HelloWorld ".trim().equals(
                 hw1));
-        assertEquals("Incorrect string returned", hw1, "  HelloWorld  ".trim());       
-        assertTrue("Incorrect string returned", "   ".trim().equals(""));  
+        assertEquals("Incorrect string returned", hw1, "  HelloWorld  ".trim());
+        assertTrue("Incorrect string returned", "   ".trim().equals(""));
     }
 
     /**
@@ -1436,9 +1436,9 @@ public class String2Test extends junit.framework.TestCase {
     )
     public void test_valueOf$C() {
         // Test for method java.lang.String java.lang.String.valueOf(char [])
-        assertEquals("Returned incorrect String", 
+        assertEquals("Returned incorrect String",
                 "World", String.valueOf(buf));
-        assertEquals("Returned incorrect String", 
+        assertEquals("Returned incorrect String",
                 "", String.valueOf(new char[]{}));
         try {
             String.valueOf(null);
@@ -1463,27 +1463,27 @@ public class String2Test extends junit.framework.TestCase {
         char[] t = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd' };
         assertEquals("copyValueOf returned incorrect String", "World", String.valueOf(t,
                 5, 5));
-        
+
         try {
             String.valueOf(t, 0, t.length + 1);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
             //expected
         }
-        
+
         try {
             String.valueOf(t, 0, -1);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
             //expected
         }
-        
+
         try {
             String.valueOf(t, 0, Integer.MAX_VALUE);
             fail("IndexOutOfBoundsException was not thrown.");
         } catch(IndexOutOfBoundsException ioobe) {
             //expected
-        }        
+        }
     }
 
     /**
@@ -1615,10 +1615,10 @@ public class String2Test extends junit.framework.TestCase {
         // Test for method java.lang.String java.lang.String.contentEquals(CharSequence cs)
         assertFalse("Incorrect result of compare", "qwerty".contentEquals(""));
     }
-    
+
     /**
      * @tests java.lang.String#format(Locale, String, Object[])
-     */    
+     */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1627,34 +1627,34 @@ public class String2Test extends junit.framework.TestCase {
     )
     @SuppressWarnings("boxing")
     public void test_format() {
-        assertEquals("13% of sum is 0x11", 
+        assertEquals("13% of sum is 0x11",
             String.format("%d%% of %s is 0x%x", 13, "sum", 17));
-        
+
         assertEquals("3 2 1 4 3 2 1", String.format(
                 "%3$d %2$d %1$d %4$d %3$d %2$d %1$d", 1, 2, 3, 4));
-        
+
         assertEquals("empty format", "", String.format("", 123, this));
         try {
             String.format(null);
             fail("NPE is expected on null format");
         } catch (NullPointerException ok){}
-        
+
         try {
             String.format("%d%% of %s is 0x%x", "123");
             fail("IllegalFormatException was not thrown.");
         } catch(IllegalFormatException ife) {
             //expected
         }
-        
+
         try {
             String.format("%tu", "123");
             fail("IllegalFormatException was not thrown.");
         } catch(IllegalFormatException ife) {
             //expected
         }
-  
+
     }
-    
+
     /**
      * @tests java.lang.String#format(Locale, String, Object...)
      */
@@ -1674,7 +1674,7 @@ public class String2Test extends junit.framework.TestCase {
             String.format(l, null, "");
             fail("NPE is expected on null format");
         } catch (NullPointerException ok){}
-        
+
         try {
             String.format(l, "%d", "test");
             fail("IllegalFormatException wasn't thrown.");
@@ -1682,7 +1682,7 @@ public class String2Test extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1699,7 +1699,7 @@ public class String2Test extends junit.framework.TestCase {
                 "(a|b)*(a|b)*A(a|b)*lice.*",
                 "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)(a|b|c|d|e|f|g|h|"
                         + "i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)*(1|2|3|4|5|6|7|8|9|0)*|while|for|struct|if|do",
-        
+
        };
 
         String[] patternsInc = {
@@ -1710,9 +1710,9 @@ public class String2Test extends junit.framework.TestCase {
                 "(z)",
                 "(a)*A(b)*lice.",
                 "(a|b|c|d|e)",
-        
-       };        
-        
+
+       };
+
         String[][] strings = {
                 { "abb", "ababb", "abababbababb", "abababbababbabababbbbbabb" },
                 { "213567", "12324567", "1234567", "213213567",
@@ -1730,14 +1730,14 @@ public class String2Test extends junit.framework.TestCase {
                 { "xy" }, { "xy" }, { "xcy" }
 
         };
-        
+
         for (int i = 0; i < patterns.length; i++) {
             for (int j = 0; j < strings[i].length; j++) {
                 assertTrue("Incorrect match: " + patterns[i] + " vs "
                         + strings[i][j], strings[i][j].matches(patterns[i]));
-                assertFalse("" + i, strings[i][j].matches(patternsInc[i]));               
+                assertFalse("" + i, strings[i][j].matches(patternsInc[i]));
             }
         }
     }
-        
+
 }

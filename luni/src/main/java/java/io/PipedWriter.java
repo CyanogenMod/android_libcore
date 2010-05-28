@@ -25,8 +25,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Places information on a communications pipe. When two threads want to pass
  * data back and forth, one creates a piped writer and the other creates a piped
@@ -99,10 +97,10 @@ public class PipedWriter extends Writer {
         }
         synchronized (reader) {
             if (this.dest != null) {
-                throw new IOException(Msg.getString("K0079")); //$NON-NLS-1$
+                throw new IOException("Already connected");
             }
             if (reader.isConnected) {
-                throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+                throw new IOException("Pipe is closed");
             }
             reader.establishConnection();
             this.lock = reader;
@@ -164,8 +162,7 @@ public class PipedWriter extends Writer {
     public void write(char[] buffer, int offset, int count) throws IOException {
         PipedReader reader = dest;
         if (reader == null) {
-            // K007b=Pipe Not Connected
-            throw new IOException(Msg.getString("K007b")); //$NON-NLS-1$
+            throw new IOException("Pipe not connected");
         }
         reader.receive(buffer, offset, count);
     }
@@ -194,8 +191,7 @@ public class PipedWriter extends Writer {
     public void write(int c) throws IOException {
         PipedReader reader = dest;
         if (reader == null) {
-            // K007b=Pipe Not Connected
-            throw new IOException(Msg.getString("K007b")); //$NON-NLS-1$
+            throw new IOException("Pipe not connected");
         }
         reader.receive((char) c);
     }

@@ -17,7 +17,7 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -25,7 +25,7 @@ import dalvik.annotation.TestTargetNew;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-@TestTargetClass(MalformedURLException.class) 
+@TestTargetClass(MalformedURLException.class)
 public class MalformedURLExceptionTest extends junit.framework.TestCase {
 
     /**

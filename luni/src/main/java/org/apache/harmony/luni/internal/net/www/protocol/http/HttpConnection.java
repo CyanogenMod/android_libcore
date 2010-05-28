@@ -24,12 +24,9 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.SocketException;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-
-import org.apache.harmony.luni.internal.nls.Messages;
 
 /**
  * An <code>HttpConnection</code> represents a persistent http or https connection and contains
@@ -156,18 +153,15 @@ public class HttpConnection {
     public HttpConfiguration getHttpConfiguration() {
         return config;
     }
-    
+
     public SSLSocket getSecureSocket(SSLSocketFactory sslSocketFactory, HostnameVerifier hostnameVerifier) throws IOException {
-        if(!usingSecureSocket) {
+        if (!usingSecureSocket) {
             String hostName = config.getHostName();
             int port = config.getHostPort();
             // create the wrapper over connected socket
-            sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
-                    hostName, port, true);
-            sslSocket.setUseClientMode(true);
-            sslSocket.startHandshake();
+            sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket, hostName, port, true);
             if (!hostnameVerifier.verify(hostName, sslSocket.getSession())) {
-                throw new IOException(Messages.getString("luni.02", hostName)); //$NON-NLS-1$
+                throw new IOException("Hostname '" + hostName + "' was not verified");
             }
             usingSecureSocket = true;
         }
@@ -177,7 +171,7 @@ public class HttpConnection {
     Socket getSocket() {
         return socket;
     }
-    
+
     /*
      * This method has been copied from the Apache Jakarta Commons HttpClient project
      * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424
@@ -237,13 +231,13 @@ public class HttpConnection {
                 || socket.isOutputShutdown());
     }
     // END android-added
-   
+
     /*
      * This field has been copied from the Apache Jakarta Commons HttpClient project
      * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424
      */
     static private final Class SOCKET_TIMEOUT_CLASS = SocketTimeoutExceptionClass();
-    
+
     /*
      * This method has been copied from the Apache Jakarta Commons HttpClient project
      * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424

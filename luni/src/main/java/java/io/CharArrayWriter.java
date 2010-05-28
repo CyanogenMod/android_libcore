@@ -17,8 +17,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A specialized {@link Writer} for class for writing content to an (internal)
  * char array. As bytes are written to this writer, the char array may be
@@ -63,7 +61,7 @@ public class CharArrayWriter extends Writer {
     public CharArrayWriter(int initialSize) {
         super();
         if (initialSize < 0) {
-            throw new IllegalArgumentException(Msg.getString("K005e")); //$NON-NLS-1$
+            throw new IllegalArgumentException("size < 0");
         }
         buf = new char[initialSize];
         lock = buf;
@@ -154,7 +152,7 @@ public class CharArrayWriter extends Writer {
      * Writes {@code count} characters starting at {@code offset} in {@code c}
      * to this writer.
      *
-     * @param c
+     * @param buffer
      *            the non-null array containing characters to write.
      * @param offset
      *            the index of the first character in {@code buf} to write.
@@ -165,7 +163,7 @@ public class CharArrayWriter extends Writer {
      *             {@code offset + len} is bigger than the size of {@code c}.
      */
     @Override
-    public void write(char[] c, int offset, int len) {
+    public void write(char[] buffer, int offset, int len) {
         // avoid int overflow
         // BEGIN android-changed
         // Exception priorities (in case of multiple errors) differ from
@@ -174,16 +172,16 @@ public class CharArrayWriter extends Writer {
         // removed redundant check,
         // added null check, used (offset | len) < 0 instead of
         // (offset < 0) || (len < 0) to safe one operation
-        if (c == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+        if (buffer == null) {
+            throw new NullPointerException("buffer == null");
         }
-        if ((offset | len) < 0 || len > c.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+        if ((offset | len) < 0 || len > buffer.length - offset) {
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         synchronized (lock) {
             expand(len);
-            System.arraycopy(c, offset, this.buf, this.count, len);
+            System.arraycopy(buffer, offset, this.buf, this.count, len);
             this.count += len;
         }
     }
@@ -224,7 +222,7 @@ public class CharArrayWriter extends Writer {
     @Override
     public void write(String str, int offset, int len) {
         if (str == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("str == null");
         }
         // avoid int overflow
         // BEGIN android-changed
@@ -233,7 +231,7 @@ public class CharArrayWriter extends Writer {
         // removed redundant check, used (offset | len) < 0
         // instead of (offset < 0) || (len < 0) to safe one operation
         if ((offset | len) < 0 || len > str.length() - offset) {
-            throw new StringIndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new StringIndexOutOfBoundsException();
         }
         // END android-changed
         synchronized (lock) {

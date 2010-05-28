@@ -23,10 +23,9 @@ package java.lang;
  * support cloning. The implementation of {@code clone()} in {@code Object}
  * checks if the object being cloned implements this interface and throws
  * {@code CloneNotSupportedException} if it does not.
- * 
+ *
  * @see Object#clone
  * @see CloneNotSupportedException
- * @since Android 1.0
  */
 public interface Cloneable {
     // Marker interface

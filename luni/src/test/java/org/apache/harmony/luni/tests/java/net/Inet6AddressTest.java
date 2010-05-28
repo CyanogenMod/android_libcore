@@ -17,7 +17,7 @@
 
 package org.apache.harmony.luni.tests.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
@@ -33,7 +33,7 @@ import org.apache.harmony.luni.tests.java.net.InetAddressTest.MockSecurityManage
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
-@TestTargetClass(Inet6Address.class) 
+@TestTargetClass(Inet6Address.class)
 public class Inet6AddressTest extends junit.framework.TestCase {
 
     /**
@@ -195,7 +195,7 @@ public class Inet6AddressTest extends junit.framework.TestCase {
             // We expect these to be false, as they are not IPv4 addresses
 
             // a loopback address should be 127.d.d.d
-            addrName = "::127.0.0.0"; 
+            addrName = "::127.0.0.0";
             addr = Inet6Address.getByName(addrName);
             assertTrue("IPv4-compatible IPv6 address " + addrName
                     + " detected incorrectly as a loopback.", !addr
@@ -886,7 +886,7 @@ public class Inet6AddressTest extends junit.framework.TestCase {
                         + invalidIPAddresses[i]);
             } catch (Exception e) {
             }
-            
+
             //exercise negative cache
             try {
                 InetAddress.getByName(invalidIPAddresses[i]);
@@ -895,8 +895,8 @@ public class Inet6AddressTest extends junit.framework.TestCase {
             } catch (Exception e) {
             }
         }
-        
-        class MockSecurityManager extends SecurityManager {        
+
+        class MockSecurityManager extends SecurityManager {
             public void checkPermission(Permission permission) {
                 if (permission.getName().equals("setSecurityManager")){
                     return;
@@ -907,14 +907,14 @@ public class Inet6AddressTest extends junit.framework.TestCase {
                 super.checkPermission(permission);
             }
         }
-        
+
         SecurityManager oldman = System.getSecurityManager();
         System.setSecurityManager(new MockSecurityManager());
         try {
             boolean exception = false;
             try {
                 Inet6Address.getByName("3d.com");
-                fail("SecurityException was not thrown.");                
+                fail("SecurityException was not thrown.");
             } catch (SecurityException ex) {
                 //expected
             } catch (Exception ex) {
@@ -924,7 +924,7 @@ public class Inet6AddressTest extends junit.framework.TestCase {
             System.setSecurityManager(oldman);
         }
     }
-    
+
     /**
      * @tests java.net.Inet6Address#getByAddress(String, byte[], int)
      */
@@ -939,20 +939,20 @@ public class Inet6AddressTest extends junit.framework.TestCase {
             Inet6Address.getByAddress("123", null, 0);
             fail("should throw UnknownHostException");
         } catch (UnknownHostException uhe) {
-            // expected 
+            // expected
         }
         byte[] addr1 = { (byte) 127, 0, 0, 1 };
         try {
             Inet6Address.getByAddress("123", addr1, 0);
             fail("should throw UnknownHostException");
         } catch (UnknownHostException uhe) {
-            // expected 
+            // expected
         }
 
         byte[] addr2 = { (byte) 0xFE, (byte) 0x80, 0, 0, 0, 0, 0, 0, 0x02,
                 0x11, 0x25, (byte) 0xFF, (byte) 0xFE, (byte) 0xF8, (byte) 0x7C,
                 (byte) 0xB2 };
-        
+
         // should not throw any exception
         Inet6Address.getByAddress("123", addr2, 3);
         Inet6Address.getByAddress("123", addr2, 0);
@@ -1037,7 +1037,7 @@ public class Inet6AddressTest extends junit.framework.TestCase {
         assertNull(v6Addr.getScopedInterface());
     }
 
-    
+
     int bytesToInt(byte bytes[], int start) {
 
         int byteMask = 255;
@@ -1145,7 +1145,7 @@ public class Inet6AddressTest extends junit.framework.TestCase {
 
         SerializationTest.verifyGolden(this, addresses, COMPARATOR);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1159,11 +1159,11 @@ public class Inet6AddressTest extends junit.framework.TestCase {
         InetAddress addr2 = Inet6Address.getByName("localhost");
         assertTrue(addr1.equals(addr2));
         assertFalse(addr.equals(addr1));
-        
+
         InetAddress addr3 = Inet6Address.getByName("127.0.0");
         assertFalse(addr1.equals(addr3));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1227,7 +1227,7 @@ public class Inet6AddressTest extends junit.framework.TestCase {
         aAddr = Inet6Address.getByAddress(fAddr);
         assertEquals("10:2030:4050:6070:8090:a0b0:c0d0:e0f0", aAddr.getHostAddress());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1238,15 +1238,15 @@ public class Inet6AddressTest extends junit.framework.TestCase {
         InetAddress addr1 = Inet6Address.getByName("1.1");
         InetAddress addr2 = Inet6Address.getByName("1.1.1");
         assertFalse(addr1.hashCode() == addr2.hashCode());
-        
+
         addr2 = Inet6Address.getByName("1.0.0.1");
         assertTrue(addr1.hashCode() == addr2.hashCode());
-        
+
         addr1 = Inet6Address.getByName("127.0.0.1");
         addr2 = Inet6Address.getByName("localhost");
         assertTrue(addr1.hashCode() == addr2.hashCode());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1259,14 +1259,14 @@ public class Inet6AddressTest extends junit.framework.TestCase {
                 "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF",
                 "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:255.255.255.255",
                 "0:0:0:0:0:0:0:0", "0:0:0:0:0:0:0.0.0.0" };
-        
-        String [] resultStrings = {"/0:0:0:0:0:0:102:304", "/0:0:0:0:0:0:0:0", 
-                "/0:0:0:0:0:0:0:0", "/1:0:0:0:0:0:0:0", "/1:0:0:0:0:0:0:0", 
+
+        String [] resultStrings = {"/0:0:0:0:0:0:102:304", "/0:0:0:0:0:0:0:0",
+                "/0:0:0:0:0:0:0:0", "/1:0:0:0:0:0:0:0", "/1:0:0:0:0:0:0:0",
                 "/0:0:0:0:0:0:0:1",
-                "/0.0.0.0", "/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 
-                "/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", "/0:0:0:0:0:0:0:0", 
+                "/0.0.0.0", "/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+                "/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", "/0:0:0:0:0:0:0:0",
                 "/0:0:0:0:0:0:0:0"};
-        
+
         for(int i = 0; i < validIPAddresses.length; i++) {
             InetAddress ia = Inet6Address.getByName(validIPAddresses[i]);
             String result = ia.toString();

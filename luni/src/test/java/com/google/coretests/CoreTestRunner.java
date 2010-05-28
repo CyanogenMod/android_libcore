@@ -39,17 +39,17 @@ public class CoreTestRunner extends TestRunner {
      */
     private static boolean IS_DALVIK = "Dalvik".equals(
             System.getProperty("java.vm.name"));
-    
+
     /**
      * Defines the default flags for running on Dalvik.
      */
     private static final int DEFAULT_FLAGS_DALVIK =
-            CoreTestSuite.RUN_ANDROID_ONLY | 
+            CoreTestSuite.RUN_ANDROID_ONLY |
             CoreTestSuite.RUN_NORMAL_TESTS |
             CoreTestSuite.RUN_KNOWN_FAILURES |
             CoreTestSuite.RUN_SIDE_EFFECTS |
             CoreTestSuite.INVERT_KNOWN_FAILURES;
-    
+
     /**
      * Defines the default flags for running on an RI.
      */
@@ -57,16 +57,16 @@ public class CoreTestRunner extends TestRunner {
             CoreTestSuite.RUN_NORMAL_TESTS |
             CoreTestSuite.RUN_KNOWN_FAILURES |
             CoreTestSuite.RUN_SIDE_EFFECTS;
-       
+
     /**
      * Holds the flags specified by the user on the command line.
      */
     private int fFlags;
-    
+
     /**
      * Holds the timeout value specified by the user on the command line.
      */
-    private int fTimeout; 
+    private int fTimeout;
 
     private int fStep = 1;
 
@@ -74,7 +74,7 @@ public class CoreTestRunner extends TestRunner {
      * The path to write XML reports to, or {@code null} for no reports.
      */
     private String xmlReportsDirectory;
-    
+
     /**
      * Creates a new instance of our CoreTestRunner.
      */
@@ -90,13 +90,13 @@ public class CoreTestRunner extends TestRunner {
     protected ResultPrinter createPrinter() {
         return new CoreTestPrinter(System.out, fFlags);
     }
-    
+
     /**
      * Provides our main entry point.
      */
     public static void main(String args[]) {
         Logger.global.setLevel(Level.OFF);
-        
+
         System.out.println(
                 "--------------------------------------------------");
         System.out.println("Android Core Libraries Test Suite");
@@ -104,14 +104,14 @@ public class CoreTestRunner extends TestRunner {
         System.out.println(
                 "Copyright (c) 2009 The Android Open Source Project");
         System.out.println("");
-        
+
         CoreTestRunner testRunner = new CoreTestRunner();
         try {
             TestResult r = testRunner.start(args);
-            
+
             System.out.println(
             "--------------------------------------------------");
-            
+
             if (!r.wasSuccessful()) {
                 System.exit(FAILURE_EXIT);
             } else {
@@ -121,13 +121,13 @@ public class CoreTestRunner extends TestRunner {
             System.err.println(e.getMessage());
             System.exit(EXCEPTION_EXIT);
         }
-        
+
     }
 
     @Override
     public TestResult doRun(Test suite, boolean wait) {
         setPrinter(createPrinter());
-        
+
         /*
          * Make sure the original suite is unreachable after we have
          * created the new one, so GC can dispose terminated tests.
@@ -185,7 +185,7 @@ public class CoreTestRunner extends TestRunner {
         System.out.println();
         System.out.println("Default parameters are:");
         System.out.println();
-        
+
         if (IS_DALVIK) {
             System.out.println("    --include-android-only");
             System.out.println("    --exclude-broken-tests");
@@ -201,7 +201,7 @@ public class CoreTestRunner extends TestRunner {
             System.out.println("    --include-side-effects");
             System.out.println("    --known-failures-must-pass");
         }
-        
+
         System.out.println();
     }
 
@@ -217,7 +217,7 @@ public class CoreTestRunner extends TestRunner {
             if (p != -1) {
                 String testName = testCase.substring(p + 1);
                 testCase = testCase.substring(0, p);
-                
+
                 result.addTest(TestSuite.createTest(Class.forName(testCase), testName));
             } else {
                 result.addTest(getTest(testCase));
@@ -225,20 +225,20 @@ public class CoreTestRunner extends TestRunner {
         }
         return result;
     }
-    
+
     @Override
     protected TestResult start(String args[]) throws Exception {
         List<String> testNames = new ArrayList<String>();
         // String victimName = null;
-        
+
         boolean wait = false;
-        
+
         if (IS_DALVIK) {
             fFlags = DEFAULT_FLAGS_DALVIK;
         } else {
             fFlags = DEFAULT_FLAGS_NON_DALVIK;
         }
-        
+
         for (int i= 0; i < args.length; i++) {
             if (args[i].startsWith("--")) {
                 if (args[i].equals("--wait")) {
@@ -278,10 +278,10 @@ public class CoreTestRunner extends TestRunner {
                 } else if (args[i].equals("--step")) {
                     fStep = Integer.parseInt(args[++i]);
                 } else if (args[i].equals("--isolate-all")) {
-                    fFlags = (fFlags | CoreTestSuite.ISOLATE_ALL) & 
+                    fFlags = (fFlags | CoreTestSuite.ISOLATE_ALL) &
                                    ~CoreTestSuite.ISOLATE_NONE;
                 } else if (args[i].equals("--isolate-none")) {
-                    fFlags = (fFlags | CoreTestSuite.ISOLATE_NONE) & 
+                    fFlags = (fFlags | CoreTestSuite.ISOLATE_NONE) &
                                    ~CoreTestSuite.ISOLATE_ALL;
                 } else if (args[i].equals("--verbose")) {
                     fFlags = fFlags | CoreTestSuite.VERBOSE;
@@ -303,12 +303,12 @@ public class CoreTestRunner extends TestRunner {
                 testNames.add(args[i]);
             }
         }
-        
+
         if (IS_DALVIK) {
-            System.out.println("Using Dalvik VM version " + 
+            System.out.println("Using Dalvik VM version " +
                     System.getProperty("java.vm.version"));
         } else {
-            System.out.println("Using Java VM version " + 
+            System.out.println("Using Java VM version " +
                     System.getProperty("java.version"));
         }
         System.out.println();
@@ -321,7 +321,7 @@ public class CoreTestRunner extends TestRunner {
             throw new Exception("Could not create and run test suite: " + e);
         }
     }
-    
+
     private static void unknownArgument(String arg) {
         System.err.println("Unknown argument " + arg + ", try --help");
         System.exit(1);

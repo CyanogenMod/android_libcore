@@ -20,13 +20,13 @@ package tests.api.java.io;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-@TestTargetClass(PipedOutputStream.class) 
+@TestTargetClass(PipedOutputStream.class)
 public class PipedOutputStreamTest extends junit.framework.TestCase {
 
     static class PReader implements Runnable {
@@ -126,7 +126,7 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
             fail("Test 1: Constructor failed: " + e.getMessage());
         }
         out.close();
-        
+
         PipedInputStream pis = new PipedInputStream(new PipedOutputStream());
         try {
             out = new PipedOutputStream(pis);
@@ -155,7 +155,7 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
             fail("Test 1: Unexpected IOException: " + e.getMessage());
         }
     }
-    
+
     /**
      * @tests java.io.PipedOutputStream#connect(java.io.PipedInputStream)
      */
@@ -167,11 +167,11 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
     )
     public void test_connectLjava_io_PipedInputStream() throws IOException {
         out = new PipedOutputStream();
-        
+
         try {
             out.connect(new PipedInputStream());
         } catch (Exception e) {
-            fail("Test 1: Unexpected exception when connecting: " + 
+            fail("Test 1: Unexpected exception when connecting: " +
                     e.getLocalizedMessage());
         }
 
@@ -180,7 +180,7 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("Test 2: Unexpected IOException when writing after connecting.");
         }
-        
+
         try {
             out.connect(new PipedInputStream());
             fail("Test 3: IOException expected when reconnecting the stream.");
@@ -212,7 +212,7 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
         out.write(testString.getBytes(), 0, 10);
         assertTrue("Test 1: Bytes have been written before flush.", reader.available() != 0);
         out.flush();
-        assertEquals("Test 2: Flush failed. ", 
+        assertEquals("Test 2: Flush failed. ",
                 testString.substring(0, 10), reader.read(10));
     }
 
@@ -227,37 +227,37 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
     )
     public void test_write$BII() throws IOException {
         out = new PipedOutputStream();
-        
+
         try {
             out.write(testString.getBytes(), 0, 5);
             fail("Test 1: IOException expected.");
         } catch (IOException e) {
             // Expected.
         }
-        
+
         out = new PipedOutputStream(new PipedInputStream());
-        
+
         try {
             out.write(testString.getBytes(), -1, 10);
             fail("Test 2: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         try {
             out.write(testString.getBytes(), 0, -1);
             fail("Test 3: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         try {
             out.write(testString.getBytes(), 5, testString.length());
             fail("Test 4: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         out.close();
         out = new PipedOutputStream();
         try {
@@ -265,7 +265,7 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
             rt.start();
             out.write(testString.getBytes(), 0, testString.length());
             out.flush();
-            assertEquals("Test 5: Bytes read do not match the bytes written. ", 
+            assertEquals("Test 5: Bytes read do not match the bytes written. ",
                          testString, reader.read(testString.length()));
         } catch (IOException e) {
             fail("Test 5: Unexpected IOException: " + e.getMessage());
@@ -280,7 +280,7 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
         }
     }
 
-        
+
     /**
      * @tests java.io.PipedOutputStream#write(int)
      */
@@ -292,7 +292,7 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
     )
     public void test_writeI() throws IOException {
         out = new PipedOutputStream();
-        
+
         try {
             out.write(42);
             fail("Test 1: IOException expected.");
@@ -304,12 +304,12 @@ public class PipedOutputStreamTest extends junit.framework.TestCase {
         rt.start();
         out.write('c');
         out.flush();
-        assertEquals("Test 2: The byte read does not match the byte written. ", 
+        assertEquals("Test 2: The byte read does not match the byte written. ",
                      "c", reader.read(1));
-        
-/* Test disabled due to incomplete implementation, see ticket #92.        
+
+/* Test disabled due to incomplete implementation, see ticket #92.
         rt.interrupt();
-        
+
         try {
             out.write(42);
             fail("Test 3: IOException expected.");

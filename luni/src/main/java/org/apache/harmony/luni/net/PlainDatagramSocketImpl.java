@@ -31,10 +31,8 @@ import java.net.SocketOptions;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.security.AccessController;
-
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -44,13 +42,7 @@ import org.apache.harmony.luni.util.PriviAction;
  */
 public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
-    static final int MULTICAST_IF = 1;
-
-    static final int MULTICAST_TTL = 2;
-
     static final int TCP_NODELAY = 4;
-
-    static final int FLAG_SHUTDOWN = 8;
 
     private final static int SO_BROADCAST = 32;
 
@@ -74,8 +66,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     private boolean bindToDevice = false;
 
     private byte[] ipaddress = { 0, 0, 0, 0 };
-
-    private int ttl = 1;
 
     private INetworkSystem netImpl = Platform.getNetworkSystem();
 
@@ -115,8 +105,8 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void bind(int port, InetAddress addr) throws SocketException {
-        String prop = AccessController.doPrivileged(new PriviAction<String>("bindToDevice")); //$NON-NLS-1$
-        boolean useBindToDevice = prop != null && prop.toLowerCase().equals("true"); //$NON-NLS-1$
+        String prop = AccessController.doPrivileged(new PriviAction<String>("bindToDevice"));
+        boolean useBindToDevice = prop != null && prop.toLowerCase().equals("true");
         netImpl.bind(fd, addr, port);
         if (0 != port) {
             localPort = port;
@@ -160,41 +150,18 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         } else if (optID == SocketOptions.IP_TOS) {
             return Integer.valueOf(trafficClass);
         } else {
-            // Call the native first so there will be
-            // an exception if the socket if closed.
-            Object result = netImpl.getSocketOption(fd, optID);
-            if (optID == SocketOptions.IP_MULTICAST_IF
-                    && (netImpl.getSocketFlags() & MULTICAST_IF) != 0) {
-                try {
-                    return InetAddress.getByAddress(ipaddress);
-                } catch (UnknownHostException e) {
-                    return null;
-                }
-            }
-            return result;
+            return netImpl.getSocketOption(fd, optID);
         }
     }
 
     @Override
     public int getTimeToLive() throws IOException {
-        // Call the native first so there will be an exception if the socket if
-        // closed.
-        int result = (((Byte) getOption(IP_MULTICAST_TTL)).byteValue()) & 0xFF;
-        if ((netImpl.getSocketFlags() & MULTICAST_TTL) != 0) {
-            return ttl;
-        }
-        return result;
+        return ((Integer) getOption(IP_MULTICAST_TTL)).intValue();
     }
 
     @Override
     public byte getTTL() throws IOException {
-        // Call the native first so there will be an exception if the socket if
-        // closed.
-        byte result = ((Byte) getOption(IP_MULTICAST_TTL)).byteValue();
-        if ((netImpl.getSocketFlags() & MULTICAST_TTL) != 0) {
-            return (byte) ttl;
-        }
-        return result;
+        return (byte) getTimeToLive();
     }
 
     @Override
@@ -280,7 +247,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     /**
      * Set the nominated socket option. As the timeouts are not set as options
      * in the IP stack, the value is stored in an instance field.
-     * 
+     *
      * @throws SocketException thrown if the option value is unsupported or
      *         invalid
      */
@@ -293,36 +260,16 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         if (optID == SocketOptions.SO_REUSEADDR) {
             optID = REUSEADDR_AND_REUSEPORT;
         }
-
         if (optID == SocketOptions.SO_TIMEOUT) {
             receiveTimeout = ((Integer) val).intValue();
         } else {
-            int flags = netImpl.getSocketFlags();
             try {
-                netImpl.setSocketOption(fd, optID | (flags << 16), val);
+                netImpl.setSocketOption(fd, optID, val);
             } catch (SocketException e) {
                 // we don't throw an exception for IP_TOS even if the platform
                 // won't let us set the requested value
                 if (optID != SocketOptions.IP_TOS) {
                     throw e;
-                }
-            }
-            if (optID == SocketOptions.IP_MULTICAST_IF && (flags & MULTICAST_IF) != 0) {
-                InetAddress inet = (InetAddress) val;
-                if (NetUtil.bytesToInt(inet.getAddress(), 0) == 0 || inet.isLoopbackAddress()) {
-                    ipaddress = ((InetAddress) val).getAddress();
-                } else {
-                    InetAddress local = null;
-                    try {
-                        local = InetAddress.getLocalHost();
-                    } catch (UnknownHostException e) {
-                        throw new SocketException("getLocalHost(): " + e.toString());
-                    }
-                    if (inet.equals(local)) {
-                        ipaddress = ((InetAddress) val).getAddress();
-                    } else {
-                        throw new SocketException(val + " != getLocalHost(): " + local);
-                    }
                 }
             }
             /*
@@ -341,20 +288,13 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     @Override
-    public void setTimeToLive(int ttl) throws java.io.IOException {
-        // BEGIN android-changed: native code wants an int anyway
+    public void setTimeToLive(int ttl) throws IOException {
         setOption(IP_MULTICAST_TTL, Integer.valueOf(ttl));
-        // END android-changed
-        if ((netImpl.getSocketFlags() & MULTICAST_TTL) != 0) {
-            this.ttl = ttl;
-        }
     }
 
     @Override
-    public void setTTL(byte ttl) throws java.io.IOException {
-        // BEGIN android-changed: remove duplication
-        setTimeToLive(ttl);
-        // END android-changed
+    public void setTTL(byte ttl) throws IOException {
+        setTimeToLive((int) ttl & 0xff); // Avoid sign extension.
     }
 
     @Override
@@ -369,7 +309,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         } catch (UnknownHostException e) {
             // this is never expected to happen as we should not have gotten
             // here if the address is not resolvable
-            throw new SocketException(Msg.getString("K0317", inetAddr.getHostName())); //$NON-NLS-1$
+            throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
         }
         connectedPort = port;
         isNativeConnected = true;
@@ -411,7 +351,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
      * Datagram socket is connected at the native level and the
      * recvConnnectedDatagramImpl does not update the packet with address from
      * which the packet was received
-     * 
+     *
      * @param packet
      *            the packet to be updated
      */

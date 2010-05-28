@@ -24,8 +24,6 @@ package java.io;
 //  - improved consistency with PipedInputStream
 // END android-note
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Receives information on a communications pipe. When two threads want to pass
  * data back and forth, one creates a piped writer and the other creates a piped
@@ -103,6 +101,38 @@ public class PipedReader extends Reader {
     }
 
     /**
+     * Constructs a new unconnected {@code PipedReader} with the given buffer size.
+     * The resulting reader must be connected to a {@code PipedWriter} before
+     * data may be read from it.
+     *
+     * @param pipeSize the size of the buffer in chars.
+     * @throws IllegalArgumentException if pipeSize is less than or equal to zero.
+     * @since 1.6
+     */
+    public PipedReader(int pipeSize) {
+        if (pipeSize <= 0) {
+            throw new IllegalArgumentException("pipe size " + pipeSize + " too small");
+        }
+        buffer = new char[pipeSize];
+    }
+
+    /**
+     * Constructs a new {@code PipedReader} connected to the given {@code PipedWriter},
+     * with the given buffer size. Any data written to the writer can be read from
+     * this reader.
+     *
+     * @param out the {@code PipedWriter} to connect to.
+     * @param pipeSize the size of the buffer in chars.
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if pipeSize is less than or equal to zero.
+     * @since 1.6
+     */
+    public PipedReader(PipedWriter out, int pipeSize) throws IOException {
+        this(pipeSize);
+        connect(out);
+    }
+
+    /**
      * Closes this reader. This implementation releases the buffer used for
      * the pipe and notifies all threads waiting to read or write.
      *
@@ -112,6 +142,7 @@ public class PipedReader extends Reader {
     @Override
     public synchronized void close() throws IOException {
         buffer = null;
+        isClosed = true;
         notifyAll();
     }
 
@@ -137,9 +168,11 @@ public class PipedReader extends Reader {
      */
     synchronized void establishConnection() throws IOException {
         if (isConnected) {
-            throw new IOException(Msg.getString("K007a")); //$NON-NLS-1$
+            throw new IOException("Pipe already connected");
         }
-        buffer = new char[PIPE_SIZE];
+        if (buffer == null) { // We may already have allocated the buffer.
+            buffer = new char[PIPE_SIZE];
+        }
         isConnected = true;
     }
 
@@ -199,10 +232,10 @@ public class PipedReader extends Reader {
     @Override
     public synchronized int read(char[] buffer, int offset, int count) throws IOException {
         if (!isConnected) {
-            throw new IOException(Msg.getString("K007b")); //$NON-NLS-1$
+            throw new IOException("Pipe not connected");
         }
         if (this.buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException("Pipe is closed");
         }
         // avoid int overflow
         // BEGIN android-changed
@@ -212,10 +245,10 @@ public class PipedReader extends Reader {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         if (count == 0) {
@@ -235,7 +268,7 @@ public class PipedReader extends Reader {
                     return -1;
                 }
                 if (!first && lastWriter != null && !lastWriter.isAlive()) {
-                    throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+                    throw new IOException("Pipe broken");
                 }
                 first = false;
                 // Notify callers of receive()
@@ -303,10 +336,10 @@ public class PipedReader extends Reader {
     @Override
     public synchronized boolean ready() throws IOException {
         if (!isConnected) {
-            throw new IOException(Msg.getString("K007b")); //$NON-NLS-1$
+            throw new IOException("Pipe not connected");
         }
         if (buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException("Pipe is closed");
         }
         return in != -1;
     }
@@ -327,10 +360,10 @@ public class PipedReader extends Reader {
      */
     synchronized void receive(char oneChar) throws IOException {
         if (buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException("Pipe is closed");
         }
         if (lastReader != null && !lastReader.isAlive()) {
-            throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+            throw new IOException("Pipe broken");
         }
         /*
         * Set the last thread to be writing on this PipedWriter. If
@@ -345,14 +378,14 @@ public class PipedReader extends Reader {
                 wait(1000);
                 // END android-changed
                 if (lastReader != null && !lastReader.isAlive()) {
-                    throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+                    throw new IOException("Pipe broken");
                 }
             }
         } catch (InterruptedException e) {
             throw new InterruptedIOException();
         }
         if (buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException("Pipe is closed");
         }
         if (in == -1) {
             in = 0;
@@ -383,16 +416,16 @@ public class PipedReader extends Reader {
      */
     synchronized void receive(char[] chars, int offset, int count) throws IOException {
         if (chars == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("chars == null");
         }
         if ((offset | count) < 0 || count > chars.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         if (buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException("Pipe is closed");
         }
         if (lastReader != null && !lastReader.isAlive()) {
-            throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+            throw new IOException("Pipe broken");
         }
         /**
          * Set the last thread to be writing on this PipedWriter. If
@@ -408,14 +441,14 @@ public class PipedReader extends Reader {
                     wait(1000);
                     // END android-changed
                     if (lastReader != null && !lastReader.isAlive()) {
-                        throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+                        throw new IOException("Pipe broken");
                     }
                 }
             } catch (InterruptedException e) {
                 throw new InterruptedIOException();
             }
             if (buffer == null) {
-                throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+                throw new IOException("Pipe is closed");
             }
             if (in == -1) {
                 in = 0;

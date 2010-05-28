@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import java.io.Serializable;
 /**
  * An {@code IllegalFormatConversionException} will be thrown when the parameter
  * is incompatible with the corresponding format specifier.
- * 
+ *
  * @see java.lang.RuntimeException
  *
  * @since 1.5
@@ -37,7 +37,7 @@ public class IllegalFormatConversionException extends IllegalFormatException
     /**
      * Constructs a new {@code IllegalFormatConversionException} with the class
      * of the mismatched conversion and corresponding parameter.
-     * 
+     *
      * @param c
      *           the class of the mismatched conversion.
      * @param arg
@@ -53,7 +53,7 @@ public class IllegalFormatConversionException extends IllegalFormatException
 
     /**
      * Returns the class of the mismatched parameter.
-     * 
+     *
      * @return the class of the mismatched parameter.
      */
     public Class<?> getArgumentClass() {
@@ -62,7 +62,7 @@ public class IllegalFormatConversionException extends IllegalFormatException
 
     /**
      * Returns the incompatible conversion.
-     * 
+     *
      * @return the incompatible conversion.
      */
     public char getConversion() {
@@ -71,7 +71,7 @@ public class IllegalFormatConversionException extends IllegalFormatException
 
     /**
      * Returns the message string of the IllegalFormatConversionException.
-     * 
+     *
      * @return the message string of the IllegalFormatConversionException.
      */
     @Override

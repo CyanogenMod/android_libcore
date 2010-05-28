@@ -26,8 +26,7 @@ import java.util.logging.Logger;
  * startup, as a reasonably easy way to get the standard property
  * <code>java.io.tmpdir</code> to point at something useful.
  *
- * @deprecated this is an internal Dalvik class that is not appropriate for
- *      general use. It will be removed from the public API in a future release.
+ * @hide
  */
 public class TemporaryDirectory {
     /** system property name for the temporary directory */
@@ -38,23 +37,23 @@ public class TemporaryDirectory {
 
     /** whether a temporary directory has been configured yet */
     private static boolean configured = false;
-    
+
     /**
      * Convenience method which is equivalent to
      * <code>setupDirectory(new File(baseDir))</code>.
-     * 
+     *
      * @param baseDir the base directory of the temporary directory
      */
     public static void setUpDirectory(String baseDir) {
         setUpDirectory(new File(baseDir));
     }
-    
+
     /**
      * Sets up the temporary directory, but only if one isn't already
      * defined for this process, and only if it is possible (e.g., the
      * directory already exists and is read-write, or the directory
      * can be created). This call will do one of three things:
-     * 
+     *
      * <ul>
      * <li>return without error and without doing anything, if a
      * previous call to this method succeeded</li>
@@ -64,7 +63,7 @@ public class TemporaryDirectory {
      * <li>throw <code>UnsupportedOperationException</code> if the
      * directory could not be created or accessed</li>
      * </ul>
-     * 
+     *
      * @param baseDir the base directory of the temporary directory
      */
     public static synchronized void setUpDirectory(File baseDir) {
@@ -93,7 +92,7 @@ public class TemporaryDirectory {
                         "Failed to create directory: " + absolute);
             }
         }
-                
+
         System.setProperty(PROPERTY, absolute);
         configured = true;
     }

@@ -37,7 +37,7 @@ import java.io.Serializable;
  * Like HashMap, IdentityHashMap is not thread safe, so access by multiple
  * threads must be synchronized by an external mechanism such as
  * Collections.synchronizedMap.
- * 
+ *
  * @since 1.4
  */
 public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
@@ -112,7 +112,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
         @Override
         public String toString() {
-            return key + "=" + value; //$NON-NLS-1$
+            return key + "=" + value;
         }
     }
 
@@ -245,7 +245,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Creates an IdentityHashMap with the specified maximum size parameter.
-     * 
+     *
      * @param maxSize
      *            The estimated maximum number of entries that will be put in
      *            this map.
@@ -275,7 +275,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Create a new element array
-     * 
+     *
      * @param s
      *            the number of elements
      * @return Reference to the element array
@@ -286,7 +286,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Creates an IdentityHashMap using the given map as initial values.
-     * 
+     *
      * @param map
      *            A map of (key,value) pairs to copy into the IdentityHashMap.
      */
@@ -302,7 +302,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Removes all elements from this map, leaving it empty.
-     * 
+     *
      * @see #isEmpty()
      * @see #size()
      */
@@ -317,7 +317,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Returns whether this map contains the specified key.
-     * 
+     *
      * @param key
      *            the key to search for.
      * @return {@code true} if this map contains the specified key,
@@ -335,7 +335,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Returns whether this map contains the specified value.
-     * 
+     *
      * @param value
      *            the value to search for.
      * @return {@code true} if this map contains the specified value,
@@ -357,7 +357,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Returns the value of the mapping with the specified key.
-     * 
+     *
      * @param key
      *            the key.
      * @return the value of the mapping with the specified key.
@@ -437,7 +437,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Maps the specified key to the specified value.
-     * 
+     *
      * @param key
      *            the key.
      * @param value
@@ -478,12 +478,12 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
         return massageValue(result);
     }
-    
+
     /**
      * Copies all the mappings in the specified map to this map. These mappings
      * will replace all mappings that this map had for any of the keys currently
      * in the given map.
-     * 
+     *
      * @param map
      *            the map to copy mappings from.
      * @throws NullPointerException
@@ -519,7 +519,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Removes the mapping with the specified key from this map.
-     * 
+     *
      * @param key
      *            the key of the mapping to remove.
      * @return the value of the removed mapping, or {@code null} if no mapping
@@ -581,7 +581,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
      * Returns a set containing all of the mappings in this map. Each mapping is
      * an instance of {@link Map.Entry}. As the set is backed by this map,
      * changes in one will be reflected in the other.
-     * 
+     *
      * @return a set of the mappings.
      */
     @Override
@@ -593,7 +593,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
      * Returns a set of the keys contained in this map. The set is backed by
      * this map so changes to one are reflected by the other. The set does not
      * support adding.
-     * 
+     *
      * @return a set of the keys.
      */
     @Override
@@ -654,7 +654,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
      * and returned in response to all subsequent calls. This method may return
      * different collections when multiple concurrent calls occur, since no
      * synchronization is performed.
-     * 
+     *
      * @return a collection of the values contained in this map.
      */
     @Override
@@ -709,7 +709,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
      * compared with a map that is not an IdentityHashMap, the equals method is
      * neither necessarily symmetric (a.equals(b) implies b.equals(a)) nor
      * transitive (a.equals(b) and b.equals(c) implies a.equals(c)).
-     * 
+     *
      * @param object
      *            the object to compare to.
      * @return whether the argument object is equal to this object.
@@ -744,7 +744,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
     /**
      * Returns a new IdentityHashMap with the same mappings and size as this
      * one.
-     * 
+     *
      * @return a shallow copy of this IdentityHashMap.
      * @see java.lang.Cloneable
      */
@@ -764,7 +764,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Returns whether this IdentityHashMap has no elements.
-     * 
+     *
      * @return {@code true} if this IdentityHashMap has no elements,
      *         {@code false} otherwise.
      * @see #size()
@@ -776,7 +776,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
 
     /**
      * Returns the number of mappings in this IdentityHashMap.
-     * 
+     *
      * @return the number of mappings in this IdentityHashMap.
      */
     @Override
@@ -808,7 +808,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
         }
         size = savedSize;
     }
-    
+
     private void putAllImpl(Map<? extends K, ? extends V> map) {
         if (map.entrySet() != null) {
             super.putAll(map);

@@ -17,14 +17,14 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
 import java.net.NoRouteToHostException;
 
-@TestTargetClass(NoRouteToHostException.class) 
+@TestTargetClass(NoRouteToHostException.class)
 public class NoRouteToHostExceptionTest extends junit.framework.TestCase {
 
     /**

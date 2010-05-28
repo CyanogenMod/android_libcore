@@ -26,7 +26,7 @@ import dalvik.annotation.TestTargetClass;
 import java.net.FileNameMap;
 import java.net.HttpRetryException;
 
-@TestTargetClass(HttpRetryException.class) 
+@TestTargetClass(HttpRetryException.class)
 public class HttpRetryExceptionTest extends TestCase {
 
     @TestTargets({
@@ -52,16 +52,16 @@ public class HttpRetryExceptionTest extends TestCase {
     public void test_ConstructorLStringI() {
         String [] message = {"Test message", "", "Message", "~!@#$% &*(", null};
         int [] codes = {400, 404, 200, 500, 0};
-        
+
         for(int i = 0; i < message.length; i++) {
-            HttpRetryException hre = new HttpRetryException(message[i], 
+            HttpRetryException hre = new HttpRetryException(message[i],
                     codes[i]);
             assertEquals(message[i], hre.getReason());
-            assertTrue("responseCode is incorrect: " + hre.responseCode(), 
+            assertTrue("responseCode is incorrect: " + hre.responseCode(),
                     hre.responseCode() == codes[i]);
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -91,14 +91,14 @@ public class HttpRetryExceptionTest extends TestCase {
     public void test_ConstructorLStringILString() {
         String [] message = {"Test message", "", "Message", "~!@#$% &*(", null};
         int [] codes = {400, -1, Integer.MAX_VALUE, Integer.MIN_VALUE, 0};
-        String [] locations = {"file:\\error.txt", "http:\\localhost", 
-                "", null, ""}; 
-        
+        String [] locations = {"file:\\error.txt", "http:\\localhost",
+                "", null, ""};
+
         for(int i = 0; i < message.length; i++) {
-            HttpRetryException hre = new HttpRetryException(message[i], 
+            HttpRetryException hre = new HttpRetryException(message[i],
                     codes[i], locations[i]);
             assertEquals(message[i], hre.getReason());
-            assertTrue("responseCode is incorrect: " + hre.responseCode(), 
+            assertTrue("responseCode is incorrect: " + hre.responseCode(),
                     hre.responseCode() == codes[i]);
             assertEquals(locations[i], hre.getLocation());
         }

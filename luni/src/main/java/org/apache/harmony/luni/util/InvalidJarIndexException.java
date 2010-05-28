@@ -35,7 +35,7 @@ public class InvalidJarIndexException extends RuntimeException {
 
     /**
      * Constructs a new instance of this class with its message filled in.
-     * 
+     *
      * @param message
      *            String The message for the exception.
      */

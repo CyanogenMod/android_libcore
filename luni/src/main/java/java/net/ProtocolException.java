@@ -36,7 +36,7 @@ public class ProtocolException extends java.io.IOException {
     /**
      * Constructs a new instance of this class with its walkback and message
      * filled in.
-     * 
+     *
      * @param detailMessage
      *            the detail message for this exception.
      */

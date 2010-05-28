@@ -616,7 +616,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * depending on the radix. If {@code radix} is not in the interval defined
      * by {@code Character.MIN_RADIX} and {@code Character.MAX_RADIX} then 10 is
      * used as the base for the conversion.
-     * 
+     *
      * <p>This method treats its argument as signed. If you want to convert an
      * unsigned value to one of the common non-decimal bases, you may find
      * {@link #toBinaryString}, {@code #toHexString}, or {@link #toOctalString}

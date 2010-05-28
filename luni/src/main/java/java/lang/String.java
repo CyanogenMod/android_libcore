@@ -17,25 +17,20 @@
 
 package java.lang;
 
+import com.ibm.icu4jni.regex.NativeRegEx;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.Comparator;
-import java.util.Formatter;
-import java.util.Locale;
-
-import java.util.regex.Pattern;
-
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.security.AccessController;
+import java.util.Comparator;
+import java.util.Formatter;
+import java.util.Locale;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-// BEGIN android-removed
-// import org.apache.harmony.kernel.vm.VM;
-// END android-removed
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -49,18 +44,11 @@ import org.apache.harmony.luni.util.PriviAction;
  * @see Charset
  * @since 1.0
  */
-public final class String implements Serializable, Comparable<String>,
-        CharSequence {
+public final class String implements Serializable, Comparable<String>, CharSequence {
 
     private static final long serialVersionUID = -6849794470754667710L;
 
-    // BEGIN android-added
     private static final char REPLACEMENT_CHAR = (char) 0xfffd;
-    // END android-added
-
-    // BEGIN android-removed
-    // static class ConsolePrintStream extends java.io.PrintStream ...
-    // END android-removed
 
     /**
      * CaseInsensitiveComparator compares Strings ignoring the case of the
@@ -140,7 +128,7 @@ public final class String implements Serializable, Comparable<String>,
      * specified by the file.encoding system property. If the system property is
      * not defined, the default encoding is ISO8859_1 (ISO-Latin-1). If 8859-1
      * is not available, an ASCII encoding is used.
-     * 
+     *
      * @param data
      *            the byte array to convert to a string.
      */
@@ -151,7 +139,7 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Converts the byte array to a string, setting the high byte of every
      * character to the specified value.
-     * 
+     *
      * @param data
      *            the byte array to convert to a string.
      * @param high
@@ -171,7 +159,7 @@ public final class String implements Serializable, Comparable<String>,
      * specified by the file.encoding system property. If the system property is
      * not defined, the default encoding is ISO8859_1 (ISO-Latin-1). If 8859-1
      * is not available, an ASCII encoding is used.
-     * 
+     *
      * @param data
      *            the byte array to convert to a string.
      * @param start
@@ -246,7 +234,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Converts the byte array to a string using the specified encoding.
-     * 
+     *
      * @param data
      *            the byte array to convert to a string.
      * @param start
@@ -399,7 +387,7 @@ public final class String implements Serializable, Comparable<String>,
             } catch (Exception e) {
                 // do nothing. according to spec:
                 // behavior is unspecified for invalid array
-                cb = CharBuffer.wrap("\u003f".toCharArray()); //$NON-NLS-1$
+                cb = CharBuffer.wrap("\u003f".toCharArray());
             }
             if ((result = cb.length()) > 0) {
                 value = cb.array();
@@ -415,7 +403,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Converts the byte array to a string using the specified encoding.
-     * 
+     *
      * @param data
      *            the byte array to convert to a string.
      * @param encoding
@@ -430,10 +418,86 @@ public final class String implements Serializable, Comparable<String>,
     }
 
     /**
+     * Converts the byte array to a String using the specified encoding.
+     *
+     * @param data
+     *            the byte array to convert to a String
+     * @param start
+     *            the starting offset in the byte array
+     * @param length
+     *            the number of bytes to convert
+     * @param encoding
+     *            the encoding
+     *
+     * @throws IndexOutOfBoundsException
+     *             when <code>length &lt; 0, start &lt; 0</code> or
+     *             <code>start + length &gt; data.length</code>
+     * @throws NullPointerException
+     *             when data is null
+     *
+     * @see #getBytes()
+     * @see #getBytes(int, int, byte[], int)
+     * @see #getBytes(String)
+     * @see #valueOf(boolean)
+     * @see #valueOf(char)
+     * @see #valueOf(char[])
+     * @see #valueOf(char[], int, int)
+     * @see #valueOf(double)
+     * @see #valueOf(float)
+     * @see #valueOf(int)
+     * @see #valueOf(long)
+     * @see #valueOf(Object)
+     * @since 1.6
+     */
+    public String(byte[] data, int start, int length, final Charset encoding) {
+        if (encoding == null) {
+            throw new NullPointerException();
+        }
+        if (start < 0 || length < 0 || length > data.length - start) {
+            throw new StringIndexOutOfBoundsException();
+        }
+        CharBuffer cb = encoding.decode(ByteBuffer.wrap(data, start, length));
+        this.lastCharset = encoding;
+        this.offset = 0;
+        this.count = cb.length();
+        this.value = new char[count];
+        System.arraycopy(cb.array(), 0, value, 0, count);
+    }
+
+    /**
+     * Converts the byte array to a String using the specified encoding.
+     *
+     * @param data
+     *            the byte array to convert to a String
+     * @param encoding
+     *            the encoding
+     *
+     * @throws NullPointerException
+     *             when data is null
+     *
+     * @see #getBytes()
+     * @see #getBytes(int, int, byte[], int)
+     * @see #getBytes(String)
+     * @see #valueOf(boolean)
+     * @see #valueOf(char)
+     * @see #valueOf(char[])
+     * @see #valueOf(char[], int, int)
+     * @see #valueOf(double)
+     * @see #valueOf(float)
+     * @see #valueOf(int)
+     * @see #valueOf(long)
+     * @see #valueOf(Object)
+     * @since 1.6
+     */
+    public String(byte[] data, Charset encoding) {
+        this(data, 0, data.length, encoding);
+    }
+
+    /**
      * Initializes this string to contain the characters in the specified
      * character array. Modifying the character array after creating the string
      * has no effect on the string.
-     * 
+     *
      * @param data
      *            the array of characters.
      * @throws NullPointerException
@@ -447,7 +511,7 @@ public final class String implements Serializable, Comparable<String>,
      * Initializes this string to contain the specified characters in the
      * character array. Modifying the character array after creating the string
      * has no effect on the string.
-     * 
+     *
      * @param data
      *            the array of characters.
      * @param start
@@ -485,7 +549,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Creates a {@code String} that is a copy of the specified string.
-     * 
+     *
      * @param string
      *            the string to copy.
      */
@@ -539,7 +603,7 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Creates a {@code String} from the contents of the specified
      * {@code StringBuffer}.
-     * 
+     *
      * @param stringbuffer
      *            the buffer to get the contents from.
      */
@@ -576,9 +640,8 @@ public final class String implements Serializable, Comparable<String>,
         if (codePoints == null) {
             throw new NullPointerException();
         }
-        if (offset < 0 || count < 0
-                || (long) offset + (long) count > codePoints.length) {
-            throw new IndexOutOfBoundsException();
+        if (offset < 0 || count < 0 || (long) offset + (long) count > codePoints.length) {
+            throw new StringIndexOutOfBoundsException();
         }
         this.offset = 0;
         this.value = new char[count * 2];
@@ -593,7 +656,7 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Creates a {@code String} from the contents of the specified {@code
      * StringBuilder}.
-     * 
+     *
      * @param sb
      *            the {@code StringBuilder} to copy the contents from.
      * @throws NullPointerException
@@ -616,7 +679,7 @@ public final class String implements Serializable, Comparable<String>,
     @SuppressWarnings("unused")
     private String(String s1, int v1) {
         if (s1 == null) {
-            s1 = "null"; //$NON-NLS-1$
+            s1 = "null";
         }
         String s2 = String.valueOf(v1);
         int len = s1.count + s2.count;
@@ -629,7 +692,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Returns the character at the specified offset in this string.
-     * 
+     *
      * @param index
      *            the zero-based index in this string.
      * @return the character at the index.
@@ -665,7 +728,7 @@ public final class String implements Serializable, Comparable<String>,
      * Unicode value which is greater than the Unicode value of the character at
      * the same position in the specified string, or if the specified string is
      * a prefix of this string.
-     * 
+     *
      * @param string
      *            the string to compare.
      * @return 0 if the strings are equal, a negative integer if this string is
@@ -698,7 +761,7 @@ public final class String implements Serializable, Comparable<String>,
      * this string has a Unicode value which is greater than the Unicode value
      * of the character at the same position in the specified string, or if the
      * specified string is a prefix of this string.
-     * 
+     *
      * @param string
      *            the string to compare.
      * @return 0 if the strings are equal, a negative integer if this string is
@@ -727,7 +790,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Concatenates this string and the specified string.
-     * 
+     *
      * @param string
      *            the string to concatenate
      * @return a new string which is the concatenation of this string and the
@@ -748,7 +811,7 @@ public final class String implements Serializable, Comparable<String>,
      * Creates a new string containing the characters in the specified character
      * array. Modifying the character array after creating the string has no
      * effect on the string.
-     * 
+     *
      * @param data
      *            the array of characters.
      * @return the new string.
@@ -763,7 +826,7 @@ public final class String implements Serializable, Comparable<String>,
      * Creates a new string containing the specified characters in the character
      * array. Modifying the character array after creating the string has no
      * effect on the string.
-     * 
+     *
      * @param data
      *            the array of characters.
      * @param start
@@ -784,8 +847,7 @@ public final class String implements Serializable, Comparable<String>,
     private Charset defaultCharset() {
         if (DefaultCharset == null) {
             String encoding = AccessController
-                    .doPrivileged(new PriviAction<String>(
-                            "file.encoding", "ISO8859_1")); //$NON-NLS-1$ //$NON-NLS-2$
+                    .doPrivileged(new PriviAction<String>("file.encoding", "ISO8859_1"));
             // calling System.getProperty() may cause DefaultCharset to be
             // initialized
             try {
@@ -797,7 +859,7 @@ public final class String implements Serializable, Comparable<String>,
             }
 
             if (DefaultCharset == null) {
-                DefaultCharset = Charset.forName("ISO-8859-1"); //$NON-NLS-1$
+                DefaultCharset = Charset.forName("ISO-8859-1");
             }
         }
         return DefaultCharset;
@@ -806,7 +868,7 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Compares the specified string to this string to determine if the
      * specified string is a suffix.
-     * 
+     *
      * @param suffix
      *            the suffix to look for.
      * @return {@code true} if the specified string is a suffix of this string,
@@ -822,7 +884,7 @@ public final class String implements Serializable, Comparable<String>,
      * Compares the specified object to this string and returns true if they are
      * equal. The object must be an instance of string with the same characters
      * in the same order.
-     * 
+     *
      * @param object
      *            the object to compare.
      * @return {@code true} if the specified object is equal to this string,
@@ -862,7 +924,7 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Compares the specified string to this string ignoring the case of the
      * characters and returns true if they are equal.
-     * 
+     *
      * @param string
      *            the string to compare.
      * @return {@code true} if the specified string is equal to this string,
@@ -896,21 +958,17 @@ public final class String implements Serializable, Comparable<String>,
      * specified by the file.encoding system property. If the system property is
      * not defined, the default encoding is ISO8859_1 (ISO-Latin-1). If 8859-1
      * is not available, an ASCII encoding is used.
-     * 
+     *
      * @return the byte array encoding of this string.
      */
     public byte[] getBytes() {
-        ByteBuffer buffer = defaultCharset().encode(
-                CharBuffer.wrap(this.value, this.offset, this.count));
-        byte[] bytes = new byte[buffer.limit()];
-        buffer.get(bytes);
-        return bytes;
+        return getBytes(defaultCharset());
     }
 
     /**
      * Converts this string to a byte array, ignoring the high order bits of
      * each character.
-     * 
+     *
      * @param start
      *            the starting offset of characters to copy.
      * @param end
@@ -944,7 +1002,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Converts this string to a byte array using the specified encoding.
-     * 
+     *
      * @param encoding
      *            the encoding to use.
      * @return the encoded byte array of this string.
@@ -952,11 +1010,7 @@ public final class String implements Serializable, Comparable<String>,
      *             if the encoding is not supported.
      */
     public byte[] getBytes(String encoding) throws UnsupportedEncodingException {
-        ByteBuffer buffer = getCharset(encoding).encode(
-                CharBuffer.wrap(this.value, this.offset, this.count));
-        byte[] bytes = new byte[buffer.limit()];
-        buffer.get(bytes);
-        return bytes;
+        return getBytes(getCharset(encoding));
     }
 
     private Charset getCharset(final String encoding)
@@ -978,9 +1032,25 @@ public final class String implements Serializable, Comparable<String>,
     }
 
     /**
+     * Returns a new byte array containing the characters of this string encoded in the
+     * given charset.
+     *
+     * @param encoding the encoding
+     *
+     * @since 1.6
+     */
+    public byte[] getBytes(Charset encoding) {
+        CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
+        ByteBuffer buffer = encoding.encode(chars.asReadOnlyBuffer());
+        byte[] bytes = new byte[buffer.limit()];
+        buffer.get(bytes);
+        return bytes;
+    }
+
+    /**
      * Copies the specified characters in this string to the character array
      * starting at the specified offset in the character array.
-     * 
+     *
      * @param start
      *            the starting offset of characters to copy.
      * @param end
@@ -1042,34 +1112,25 @@ public final class String implements Serializable, Comparable<String>,
      * Searches in this string for the first index of the specified character.
      * The search for the character starts at the beginning and moves towards
      * the end of this string.
-     * 
+     *
      * @param c
      *            the character to find.
      * @return the index in this string of the specified character, -1 if the
      *         character isn't found.
      */
     public int indexOf(int c) {
-        // BEGIN android-changed
-        int _count = count;
-        if (0 < _count) {
-            int _offset = offset;
-            int last = _offset + _count;
-            char[] _value = value;
-            for (int i = _offset; i < last; i++) {
-                if (_value[i] == c) {
-                    return i - _offset;
-                }
-            }
+        // TODO: just "return indexOf(c, 0);" when the JIT can inline that deep.
+        if (c > 0xffff) {
+            return indexOfSupplementary(c, 0);
         }
-        return -1;
-        // END android-changed
+        return fastIndexOf(c, 0);
     }
 
     /**
      * Searches in this string for the index of the specified character. The
      * search for the character starts at the specified offset and moves towards
      * the end of this string.
-     * 
+     *
      * @param c
      *            the character to find.
      * @param start
@@ -1078,6 +1139,13 @@ public final class String implements Serializable, Comparable<String>,
      *         character isn't found.
      */
     public int indexOf(int c, int start) {
+        if (c > 0xffff) {
+            return indexOfSupplementary(c, start);
+        }
+        return fastIndexOf(c, start);
+    }
+
+    private int fastIndexOf(int c, int start) {
         // BEGIN android-changed
         int _count = count;
         if (start < _count) {
@@ -1097,11 +1165,20 @@ public final class String implements Serializable, Comparable<String>,
         // END android-changed
     }
 
+    private int indexOfSupplementary(int c, int start) {
+        if (!Character.isSupplementaryCodePoint(c)) {
+            return -1;
+        }
+        char[] chars = Character.toChars(c);
+        String needle = new String(0, chars.length, chars);
+        return indexOf(needle, start);
+    }
+
     /**
      * Searches in this string for the first index of the specified string. The
      * search for the string starts at the beginning and moves towards the end
      * of this string.
-     * 
+     *
      * @param string
      *            the string to find.
      * @return the index of the first character of the specified string in this
@@ -1146,7 +1223,7 @@ public final class String implements Serializable, Comparable<String>,
      * Searches in this string for the index of the specified string. The search
      * for the string starts at the specified offset and moves towards the end
      * of this string.
-     * 
+     *
      * @param subString
      *            the string to find.
      * @param start
@@ -1196,22 +1273,34 @@ public final class String implements Serializable, Comparable<String>,
      * If the string is not in the table, it is added. Returns the string
      * contained in the table which is equal to this string. The same string
      * object is always returned for strings which are equal.
-     * 
+     *
      * @return the interned string equal to this string.
      */
     native public String intern();
 
     /**
+     * Returns true if the length of this string is 0.
+     *
+     * @since 1.6
+     */
+    public boolean isEmpty() {
+        return count == 0;
+    }
+
+    /**
      * Searches in this string for the last index of the specified character.
      * The search for the character starts at the end and moves towards the
      * beginning of this string.
-     * 
+     *
      * @param c
      *            the character to find.
      * @return the index in this string of the specified character, -1 if the
      *         character isn't found.
      */
     public int lastIndexOf(int c) {
+        if (c > 0xffff) {
+            return lastIndexOfSupplementary(c, Integer.MAX_VALUE);
+        }
         // BEGIN android-changed
         int _count = count;
         int _offset = offset;
@@ -1229,7 +1318,7 @@ public final class String implements Serializable, Comparable<String>,
      * Searches in this string for the index of the specified character. The
      * search for the character starts at the specified offset and moves towards
      * the beginning of this string.
-     * 
+     *
      * @param c
      *            the character to find.
      * @param start
@@ -1238,6 +1327,9 @@ public final class String implements Serializable, Comparable<String>,
      *         character isn't found.
      */
     public int lastIndexOf(int c, int start) {
+        if (c > 0xffff) {
+            return lastIndexOfSupplementary(c, start);
+        }
         // BEGIN android-changed
         int _count = count;
         int _offset = offset;
@@ -1256,11 +1348,20 @@ public final class String implements Serializable, Comparable<String>,
         // END android-changed
     }
 
+    private int lastIndexOfSupplementary(int c, int start) {
+        if (!Character.isSupplementaryCodePoint(c)) {
+            return -1;
+        }
+        char[] chars = Character.toChars(c);
+        String needle = new String(0, chars.length, chars);
+        return lastIndexOf(needle, start);
+    }
+
     /**
      * Searches in this string for the last index of the specified string. The
      * search for the string starts at the end and moves towards the beginning
      * of this string.
-     * 
+     *
      * @param string
      *            the string to find.
      * @return the index of the first character of the specified string in this
@@ -1277,7 +1378,7 @@ public final class String implements Serializable, Comparable<String>,
      * Searches in this string for the index of the specified string. The search
      * for the string starts at the specified offset and moves towards the
      * beginning of this string.
-     * 
+     *
      * @param subString
      *            the string to find.
      * @param start
@@ -1321,7 +1422,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Returns the size of this string.
-     * 
+     *
      * @return the number of characters in this string.
      */
     public int length() {
@@ -1331,7 +1432,7 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Compares the specified string to this string and compares the specified
      * range of characters to determine if they are the same.
-     * 
+     *
      * @param thisStart
      *            the starting offset in this string.
      * @param string
@@ -1376,7 +1477,7 @@ public final class String implements Serializable, Comparable<String>,
      * Compares the specified string to this string and compares the specified
      * range of characters to determine if they are the same. When ignoreCase is
      * true, the case of the characters is ignored during the comparison.
-     * 
+     *
      * @param ignoreCase
      *            specifies if case should be ignored.
      * @param thisStart
@@ -1427,7 +1528,7 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Copies this string replacing occurrences of the specified character with
      * another character.
-     * 
+     *
      * @param oldChar
      *            the character to replace.
      * @param newChar
@@ -1461,12 +1562,12 @@ public final class String implements Serializable, Comparable<String>,
         return copied ? new String(0, count, buffer) : this;
         // END android-changed
     }
-    
+
     /**
      * Copies this string replacing occurrences of the specified target sequence
      * with another sequence. The string is processed from the beginning to the
      * end.
-     * 
+     *
      * @param target
      *            the sequence to replace.
      * @param replacement
@@ -1506,7 +1607,7 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Compares the specified string to this string to determine if the
      * specified string is a prefix.
-     * 
+     *
      * @param prefix
      *            the string to look for.
      * @return {@code true} if the specified string is a prefix of this string,
@@ -1521,7 +1622,7 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Compares the specified string to this string, starting at the specified
      * offset, to determine if the specified string is a prefix.
-     * 
+     *
      * @param prefix
      *            the string to look for.
      * @param start
@@ -1537,7 +1638,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Copies a range of characters into a new string.
-     * 
+     *
      * @param start
      *            the offset of the first character.
      * @return a new string containing the characters from start to the end of
@@ -1557,7 +1658,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Copies a range of characters into a new string.
-     * 
+     *
      * @param start
      *            the offset of the first character.
      * @param end
@@ -1581,7 +1682,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Copies the characters in this string to a character array.
-     * 
+     *
      * @return a character array containing the characters of this string.
      */
     public char[] toCharArray() {
@@ -1591,8 +1692,9 @@ public final class String implements Serializable, Comparable<String>,
     }
 
     /**
-     * Converts this string to lowercase, using the rules of the default locale.
-     * 
+     * Converts this string to lowercase, using the rules of the user's default locale.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
+     *
      * @return a new lowercase string, or {@code this} if it's already all-lowercase.
      */
     public String toLowerCase() {
@@ -1600,18 +1702,16 @@ public final class String implements Serializable, Comparable<String>,
     }
 
     /**
-     * Converts this string to lowercase, using the rules of the specified locale.
-     * <p>
-     * Most case mappings are unaffected by the language of a {@code Locale}. Exceptions include
+     * Converts this string to lowercase, using the rules of {@code locale}.
+     *
+     * <p>Most case mappings are unaffected by the language of a {@code Locale}. Exceptions include
      * dotted and dotless I in Azeri and Turkish locales, and dotted and dotless I and J in
-     * Lithuanian locales. On the other hand, it isn't necessary to provide, a Greek locale to get
+     * Lithuanian locales. On the other hand, it isn't necessary to provide a Greek locale to get
      * correct case mapping of Greek characters: any locale will do.
-     * <p>
-     * See <a href="http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt">http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt</a>
+     *
+     * <p>See <a href="http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt">http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt</a>
      * for full details of context- and language-specific special cases.
-     * 
-     * @param locale
-     *            the Locale to use.
+     *
      * @return a new lowercase string, or {@code this} if it's already all-lowercase.
      */
     public String toLowerCase(Locale locale) {
@@ -1629,151 +1729,36 @@ public final class String implements Serializable, Comparable<String>,
     }
 
     /**
-     * Converts the characters in this string to uppercase, using the default
-     * Locale.
-     * 
-     * @return a new string containing the uppercase characters equivalent to
-     *         the characters in this string.
+     * Converts this this string to uppercase, using the rules of the user's default locale.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
+     *
+     * @return a new uppercase string, or {@code this} if it's already all-uppercase.
      */
     public String toUpperCase() {
-        return toUpperCase(Locale.getDefault());
-    }
-
-    // BEGIN android-note
-    // put this in a helper class so that it's only initialized on demand?
-    // END android-note
-    private static final char[] upperValues = "SS\u0000\u02bcN\u0000J\u030c\u0000\u0399\u0308\u0301\u03a5\u0308\u0301\u0535\u0552\u0000H\u0331\u0000T\u0308\u0000W\u030a\u0000Y\u030a\u0000A\u02be\u0000\u03a5\u0313\u0000\u03a5\u0313\u0300\u03a5\u0313\u0301\u03a5\u0313\u0342\u1f08\u0399\u0000\u1f09\u0399\u0000\u1f0a\u0399\u0000\u1f0b\u0399\u0000\u1f0c\u0399\u0000\u1f0d\u0399\u0000\u1f0e\u0399\u0000\u1f0f\u0399\u0000\u1f08\u0399\u0000\u1f09\u0399\u0000\u1f0a\u0399\u0000\u1f0b\u0399\u0000\u1f0c\u0399\u0000\u1f0d\u0399\u0000\u1f0e\u0399\u0000\u1f0f\u0399\u0000\u1f28\u0399\u0000\u1f29\u0399\u0000\u1f2a\u0399\u0000\u1f2b\u0399\u0000\u1f2c\u0399\u0000\u1f2d\u0399\u0000\u1f2e\u0399\u0000\u1f2f\u0399\u0000\u1f28\u0399\u0000\u1f29\u0399\u0000\u1f2a\u0399\u0000\u1f2b\u0399\u0000\u1f2c\u0399\u0000\u1f2d\u0399\u0000\u1f2e\u0399\u0000\u1f2f\u0399\u0000\u1f68\u0399\u0000\u1f69\u0399\u0000\u1f6a\u0399\u0000\u1f6b\u0399\u0000\u1f6c\u0399\u0000\u1f6d\u0399\u0000\u1f6e\u0399\u0000\u1f6f\u0399\u0000\u1f68\u0399\u0000\u1f69\u0399\u0000\u1f6a\u0399\u0000\u1f6b\u0399\u0000\u1f6c\u0399\u0000\u1f6d\u0399\u0000\u1f6e\u0399\u0000\u1f6f\u0399\u0000\u1fba\u0399\u0000\u0391\u0399\u0000\u0386\u0399\u0000\u0391\u0342\u0000\u0391\u0342\u0399\u0391\u0399\u0000\u1fca\u0399\u0000\u0397\u0399\u0000\u0389\u0399\u0000\u0397\u0342\u0000\u0397\u0342\u0399\u0397\u0399\u0000\u0399\u0308\u0300\u0399\u0308\u0301\u0399\u0342\u0000\u0399\u0308\u0342\u03a5\u0308\u0300\u03a5\u0308\u0301\u03a1\u0313\u0000\u03a5\u0342\u0000\u03a5\u0308\u0342\u1ffa\u0399\u0000\u03a9\u0399\u0000\u038f\u0399\u0000\u03a9\u0342\u0000\u03a9\u0342\u0399\u03a9\u0399\u0000FF\u0000FI\u0000FL\u0000FFIFFLST\u0000ST\u0000\u0544\u0546\u0000\u0544\u0535\u0000\u0544\u053b\u0000\u054e\u0546\u0000\u0544\u053d\u0000".value; //$NON-NLS-1$
-
-    /**
-     * Return the index of the specified character into the upperValues table.
-     * The upperValues table contains three entries at each position. These
-     * three characters are the upper case conversion. If only two characters
-     * are used, the third character in the table is \u0000.
-     *
-     * @param ch
-     *            the char being converted to upper case
-     *
-     * @return the index into the upperValues table, or -1
-     */
-    private int upperIndex(int ch) {
-        int index = -1;
-        if (ch >= 0xdf) {
-            if (ch <= 0x587) {
-                if (ch == 0xdf) {
-                    index = 0;
-                } else if (ch <= 0x149) {
-                    if (ch == 0x149) {
-                        index = 1;
-                    }
-                } else if (ch <= 0x1f0) {
-                    if (ch == 0x1f0) {
-                        index = 2;
-                    }
-                } else if (ch <= 0x390) {
-                    if (ch == 0x390) {
-                        index = 3;
-                    }
-                } else if (ch <= 0x3b0) {
-                    if (ch == 0x3b0) {
-                        index = 4;
-                    }
-                } else if (ch <= 0x587) {
-                    if (ch == 0x587) {
-                        index = 5;
-                    }
-                }
-            } else if (ch >= 0x1e96) {
-                if (ch <= 0x1e9a) {
-                    index = 6 + ch - 0x1e96;
-                } else if (ch >= 0x1f50 && ch <= 0x1ffc) {
-                    index = "\u000b\u0000\f\u0000\r\u0000\u000e\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>\u0000\u0000?@A\u0000BC\u0000\u0000\u0000\u0000D\u0000\u0000\u0000\u0000\u0000EFG\u0000HI\u0000\u0000\u0000\u0000J\u0000\u0000\u0000\u0000\u0000KL\u0000\u0000MN\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000OPQ\u0000RS\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000TUV\u0000WX\u0000\u0000\u0000\u0000Y".value[ch - 0x1f50]; //$NON-NLS-1$
-                    if (index == 0) {
-                        index = -1;
-                    }
-                } else if (ch >= 0xfb00) {
-                    if (ch <= 0xfb06) {
-                        index = 90 + ch - 0xfb00;
-                    } else if (ch >= 0xfb13 && ch <= 0xfb17) {
-                        index = 97 + ch - 0xfb13;
-                    }
-                }
-            }
-        }
-        return index;
+        return CaseMapper.toUpperCase(Locale.getDefault(), this, value, offset, count);
     }
 
     /**
-     * Converts the characters in this string to uppercase, using the specified
-     * Locale.
-     * 
-     * @param locale
-     *            the Locale to use.
-     * @return a new string containing the uppercase characters equivalent to
-     *         the characters in this string.
+     * Converts this this string to uppercase, using the rules of {@code locale}.
+     *
+     * <p>Most case mappings are unaffected by the language of a {@code Locale}. Exceptions include
+     * dotted and dotless I in Azeri and Turkish locales, and dotted and dotless I and J in
+     * Lithuanian locales. On the other hand, it isn't necessary to provide a Greek locale to get
+     * correct case mapping of Greek characters: any locale will do.
+     *
+     * <p>See <a href="http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt">http://www.unicode.org/Public/UNIDATA/SpecialCasing.txt</a>
+     * for full details of context- and language-specific special cases.
+     *
+     * @return a new uppercase string, or {@code this} if it's already all-uppercase.
      */
     public String toUpperCase(Locale locale) {
-        // BEGIN android-changed: support Azeri.
-        String languageCode = locale.getLanguage();
-        boolean turkishOrAzeri = languageCode.equals("tr") || languageCode.equals("az");
-
-        char[] output = null;
-        int i = 0;
-        for (int o = offset, end = offset + count; o < end; o++) {
-            char ch = value[o];
-            int index = upperIndex(ch);
-            if (index == -1) {
-                if (output != null && i >= output.length) {
-                    char[] newoutput = new char[output.length + (count / 6) + 2];
-                    System.arraycopy(output, 0, newoutput, 0, output.length);
-                    output = newoutput;
-                }
-                char upch = !turkishOrAzeri ? Character.toUpperCase(ch)
-                        : (ch != 0x69 ? Character.toUpperCase(ch)
-                                : (char) 0x130);
-                if (ch != upch) {
-                    if (output == null) {
-                        output = new char[count];
-                        i = o - offset;
-                        System.arraycopy(value, offset, output, 0, i);
-                    }
-                    output[i++] = upch;
-                } else if (output != null) {
-                    output[i++] = ch;
-                }
-            } else {
-                int target = index * 3;
-                char val3 = upperValues[target + 2];
-                if (output == null) {
-                    output = new char[count + (count / 6) + 2];
-                    i = o - offset;
-                    System.arraycopy(value, offset, output, 0, i);
-                } else if (i + (val3 == 0 ? 1 : 2) >= output.length) {
-                    char[] newoutput = new char[output.length + (count / 6) + 3];
-                    System.arraycopy(output, 0, newoutput, 0, output.length);
-                    output = newoutput;
-                }
-
-                char val = upperValues[target];
-                output[i++] = val;
-                val = upperValues[target + 1];
-                output[i++] = val;
-                if (val3 != 0) {
-                    output[i++] = val3;
-                }
-            }
-        }
-        if (output == null) {
-            return this;
-        }
-        return output.length == i || output.length - i < 8 ? new String(0, i,
-                output) : new String(output, 0, i);
-        // END android-changed
+        return CaseMapper.toUpperCase(locale, this, value, offset, count);
     }
 
     /**
      * Copies this string removing white space characters from the beginning and
      * end of the string.
-     * 
+     *
      * @return a new string with characters <code><= \\u0020</code> removed from
      *         the beginning and the end.
      */
@@ -1796,7 +1781,7 @@ public final class String implements Serializable, Comparable<String>,
      * Creates a new string containing the characters in the specified character
      * array. Modifying the character array after creating the string has no
      * effect on the string.
-     * 
+     *
      * @param data
      *            the array of characters.
      * @return the new string.
@@ -1811,7 +1796,7 @@ public final class String implements Serializable, Comparable<String>,
      * Creates a new string containing the specified characters in the character
      * array. Modifying the character array after creating the string has no
      * effect on the string.
-     * 
+     *
      * @param data
      *            the array of characters.
      * @param start
@@ -1831,7 +1816,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Converts the specified character to its string representation.
-     * 
+     *
      * @param value
      *            the character.
      * @return the character converted to a string.
@@ -1849,7 +1834,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Converts the specified double to its string representation.
-     * 
+     *
      * @param value
      *            the double.
      * @return the double converted to a string.
@@ -1860,7 +1845,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Converts the specified float to its string representation.
-     * 
+     *
      * @param value
      *            the float.
      * @return the float converted to a string.
@@ -1871,7 +1856,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Converts the specified integer to its string representation.
-     * 
+     *
      * @param value
      *            the integer.
      * @return the integer converted to a string.
@@ -1882,7 +1867,7 @@ public final class String implements Serializable, Comparable<String>,
 
     /**
      * Converts the specified long to its string representation.
-     * 
+     *
      * @param value
      *            the long.
      * @return the long converted to a string.
@@ -1895,32 +1880,32 @@ public final class String implements Serializable, Comparable<String>,
      * Converts the specified object to its string representation. If the object
      * is null return the string {@code "null"}, otherwise use {@code
      * toString()} to get the string representation.
-     * 
+     *
      * @param value
      *            the object.
      * @return the object converted to a string, or the string {@code "null"}.
      */
     public static String valueOf(Object value) {
-        return value != null ? value.toString() : "null"; //$NON-NLS-1$
+        return value != null ? value.toString() : "null";
     }
 
     /**
      * Converts the specified boolean to its string representation. When the
      * boolean is {@code true} return {@code "true"}, otherwise return {@code
      * "false"}.
-     * 
+     *
      * @param value
      *            the boolean.
      * @return the boolean converted to a string.
      */
     public static String valueOf(boolean value) {
-        return value ? "true" : "false"; //$NON-NLS-1$ //$NON-NLS-2$
+        return value ? "true" : "false";
     }
 
     /**
      * Returns whether the characters in the StringBuffer {@code strbuf} are the
      * same as those in this string.
-     * 
+     *
      * @param strbuf
      *            the StringBuffer to compare this string to.
      * @return {@code true} if the characters in {@code strbuf} are identical to
@@ -1969,108 +1954,106 @@ public final class String implements Serializable, Comparable<String>,
     }
 
     /**
-     * Determines whether this string matches a given regular expression.
-     * 
-     * @param expr
-     *            the regular expression to be matched.
-     * @return {@code true} if the expression matches, otherwise {@code false}.
+     * Tests whether this string matches the given {@code regularExpression}. This method returns
+     * true only if the regular expression matches the <i>entire</i> input string. A common mistake is
+     * to assume that this method behaves like {@link #contains}; if you want to match anywhere
+     * within the input string, you need to add {@code .*} to the beginning and end of your
+     * regular expression. See {@link Pattern#matches}.
+     *
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     *
      * @throws PatternSyntaxException
      *             if the syntax of the supplied regular expression is not
      *             valid.
-     * @throws NullPointerException
-     *             if {@code expr} is {@code null}.
+     * @throws NullPointerException if {@code regularExpression == null}
      * @since 1.4
      */
-    public boolean matches(String expr) {
-        return Pattern.matches(expr, this);
+    public boolean matches(String regularExpression) {
+        return Pattern.matches(regularExpression, this);
     }
 
     /**
-     * Replace any substrings within this string that match the supplied regular
-     * expression {@code expr}, with the string {@code substitute}.
-     * 
-     * @param expr
-     *            the regular expression to match.
-     * @param substitute
-     *            the string to replace the matching substring with.
-     * @return the new string.
+     * Replaces all matches for {@code regularExpression} within this string with the given
+     * {@code replacement}.
+     * See {@link Pattern} for regular expression syntax.
+     *
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     *
+     * @throws PatternSyntaxException
+     *             if the syntax of the supplied regular expression is not
+     *             valid.
+     * @throws NullPointerException if {@code regularExpression == null}
+     * @see Pattern
+     * @since 1.4
+     */
+    public String replaceAll(String regularExpression, String replacement) {
+        return Pattern.compile(regularExpression).matcher(this).replaceAll(replacement);
+    }
+
+    /**
+     * Replaces the first match for {@code regularExpression} within this string with the given
+     * {@code replacement}.
+     * See {@link Pattern} for regular expression syntax.
+     *
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     *
+     * @throws PatternSyntaxException
+     *             if the syntax of the supplied regular expression is not
+     *             valid.
+     * @throws NullPointerException if {@code regularExpression == null}
+     * @see Pattern
+     * @since 1.4
+     */
+    public String replaceFirst(String regularExpression, String replacement) {
+        return Pattern.compile(regularExpression).matcher(this).replaceFirst(replacement);
+    }
+
+    /**
+     * Splits this string using the supplied {@code regularExpression}.
+     * Equivalent to {@code split(regularExpression, 0)}.
+     * See {@link Pattern#split(CharSequence, int)} for an explanation of {@code limit}.
+     * See {@link Pattern} for regular expression syntax.
+     *
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     *
+     * @throws NullPointerException if {@code regularExpression ==  null}
      * @throws PatternSyntaxException
      *             if the syntax of the supplied regular expression is not
      *             valid.
      * @see Pattern
      * @since 1.4
      */
-    public String replaceAll(String expr, String substitute) {
-        return Pattern.compile(expr).matcher(this).replaceAll(substitute);
+    public String[] split(String regularExpression) {
+        return split(regularExpression, 0);
     }
 
     /**
-     * Replace the first substring within this string that matches the supplied
-     * regular expression {@code expr}, with the string {@code substitute}.
-     * 
-     * @param expr
-     *            the regular expression to match.
-     * @param substitute
-     *            the string to replace the matching substring with.
-     * @return the new string.
+     * Splits this string using the supplied {@code regularExpression}.
+     * See {@link Pattern#split(CharSequence, int)} for an explanation of {@code limit}.
+     * See {@link Pattern} for regular expression syntax.
+     *
+     * <p>If the same regular expression is to be used for multiple operations, it may be more
+     * efficient to reuse a compiled {@code Pattern}.
+     *
+     * @throws NullPointerException if {@code regularExpression ==  null}
      * @throws PatternSyntaxException
      *             if the syntax of the supplied regular expression is not
      *             valid.
-     * @throws NullPointerException
-     *             if {@code strbuf} is {@code null}.
-     * @see Pattern
      * @since 1.4
      */
-    public String replaceFirst(String expr, String substitute) {
-        return Pattern.compile(expr).matcher(this).replaceFirst(substitute);
-    }
-
-    /**
-     * Splits this string using the supplied regular expression {@code expr}.
-     * 
-     * @param expr
-     *            the regular expression used to divide the string.
-     * @return an array of Strings created by separating the string along
-     *         matches of the regular expression.
-     * @throws NullPointerException
-     *             if {@code expr} is {@code null}.
-     * @throws PatternSyntaxException
-     *             if the syntax of the supplied regular expression is not
-     *             valid.
-     * @see Pattern
-     * @since 1.4
-     */
-    public String[] split(String expr) {
-        return Pattern.compile(expr).split(this);
-    }
-
-    /**
-     * Splits this string using the supplied regular expression {@code expr}.
-     * The parameter {@code max} controls the behavior how many times the
-     * pattern is applied to the string.
-     * 
-     * @param expr
-     *            the regular expression used to divide the string.
-     * @param max
-     *            the number of entries in the resulting array.
-     * @return an array of Strings created by separating the string along
-     *         matches of the regular expression.
-     * @throws NullPointerException
-     *             if {@code expr} is {@code null}.
-     * @throws PatternSyntaxException
-     *             if the syntax of the supplied regular expression is not
-     *             valid.
-     * @see Pattern#split(CharSequence, int)
-     * @since 1.4
-     */
-    public String[] split(String expr, int max) {
-        return Pattern.compile(expr).split(this, max);
+    public String[] split(String regularExpression, int limit) {
+        String[] result = java.util.regex.Splitter.fastSplit(regularExpression, this, limit);
+        return result != null ? result : Pattern.compile(regularExpression).split(this, limit);
     }
 
     /**
      * Has the same result as the substring function, but is present so that
      * string may implement the CharSequence interface.
-     * 
+     *
      * @param start
      *            the offset the first character.
      * @param end
@@ -2087,69 +2070,52 @@ public final class String implements Serializable, Comparable<String>,
     }
 
     /**
-     * Retrieves the Unicode code point (character) value at the specified
-     * {@code index}.
-     * 
-     * @param index
-     *            the index to the {@code char} code unit within this string.
-     * @return the Unicode code point value.
-     * @throws IndexOutOfBoundsException
-     *             if {@code index} is negative or greater than or equal to
-     *             {@code length()}.
+     * Returns the Unicode code point at the given {@code index}.
+     *
+     * @throws IndexOutOfBoundsException if {@code index < 0 || index >= length()}
      * @see Character#codePointAt(char[], int, int)
      * @since 1.5
      */
     public int codePointAt(int index) {
         if (index < 0 || index >= count) {
-            throw new IndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException();
         }
-        int s = index + offset;
-        return Character.codePointAt(value, s, offset + count);
+        return Character.codePointAt(value, offset + index, offset + count);
     }
 
     /**
-     * Retrieves the Unicode code point value that precedes the specified
-     * {@code index}.
-     * 
-     * @param index
-     *            the index to the {@code char} code unit within this string.
-     * @return the Unicode code point value.
-     * @throws IndexOutOfBoundsException
-     *             if {@code index} is less than 1 or greater than
-     *             {@code length()}.
+     * Returns the Unicode code point that precedes the given {@code index}.
+     *
+     * @throws IndexOutOfBoundsException if {@code index < 1 || index > length()}
      * @see Character#codePointBefore(char[], int, int)
      * @since 1.5
      */
     public int codePointBefore(int index) {
         if (index < 1 || index > count) {
-            throw new IndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException();
         }
-        int s = index + offset;
-        return Character.codePointBefore(value, s);
+        return Character.codePointBefore(value, offset + index, offset);
     }
 
     /**
      * Calculates the number of Unicode code points between {@code beginIndex}
      * and {@code endIndex}.
-     * 
+     *
      * @param beginIndex
      *            the inclusive beginning index of the subsequence.
      * @param endIndex
      *            the exclusive end index of the subsequence.
      * @return the number of Unicode code points in the subsequence.
      * @throws IndexOutOfBoundsException
-     *             if {@code beginIndex} is negative or greater than {@code
-     *             endIndex} or {@code endIndex} is greater than {@code
-     *             length()}.
+     *         if {@code beginIndex < 0 || endIndex > length() || beginIndex > endIndex}
      * @see Character#codePointCount(CharSequence, int, int)
      * @since 1.5
      */
     public int codePointCount(int beginIndex, int endIndex) {
         if (beginIndex < 0 || endIndex > count || beginIndex > endIndex) {
-            throw new IndexOutOfBoundsException();
+            throw new StringIndexOutOfBoundsException();
         }
-        int s = beginIndex + offset;
-        return Character.codePointCount(value, s, endIndex - beginIndex);
+        return Character.codePointCount(value, offset + beginIndex, endIndex - beginIndex);
     }
 
     /**
@@ -2186,33 +2152,28 @@ public final class String implements Serializable, Comparable<String>,
      */
     public int offsetByCodePoints(int index, int codePointOffset) {
         int s = index + offset;
-        int r = Character.offsetByCodePoints(value, offset, count, s,
-                codePointOffset);
+        int r = Character.offsetByCodePoints(value, offset, count, s, codePointOffset);
         return r - offset;
     }
 
     /**
      * Returns a localized formatted string, using the supplied format and arguments,
      * using the user's default locale.
-     * 
-     * <p>Note that this method can be dangerous: the user's default locale may
-     * not be the locale you tested in, and this may have unexpected effects on
-     * the output. In particular, floating point numbers may be output with
-     * ',' instead of '.' as the decimal separator if that's what the user's
-     * locale dictates. If you're formatting a string other than for human
+     *
+     * <p>If you're formatting a string other than for human
      * consumption, you should use the {@code format(Locale, String, Object...)}
-     * overload and supply {@code Locale.US}.
-     * 
-     * @param format
-     *            a format string.
+     * overload and supply {@code Locale.US}. See
+     * "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
+     *
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
-     *            arguments to replace format specifiers (may be none).
+     *            the list of arguments passed to the formatter. If there are
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return the formatted string.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}
      * @throws java.util.IllegalFormatException
      *             if the format is invalid.
-     * @see java.util.Formatter
      * @since 1.5
      */
     public static String format(String format, Object... args) {
@@ -2222,35 +2183,26 @@ public final class String implements Serializable, Comparable<String>,
     /**
      * Returns a formatted string, using the supplied format and arguments,
      * localized to the given locale.
-     * <p>
-     * Note that this is a convenience method. Using it involves creating an
-     * internal {@link java.util.Formatter} instance on-the-fly, which is
-     * somewhat costly in terms of memory and time. This is probably acceptable
-     * if you use the method only rarely, but if you rely on it for formatting a
-     * large number of strings, consider creating and reusing your own
-     * {@link java.util.Formatter} instance instead.
      *
-     * @param loc
+     * @param locale
      *            the locale to apply; {@code null} value means no localization.
-     * @param format
-     *            a format string.
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
-     *            arguments to replace format specifiers (may be none).
+     *            the list of arguments passed to the formatter. If there are
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return the formatted string.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}
      * @throws java.util.IllegalFormatException
      *             if the format is invalid.
-     * @see java.util.Formatter
      * @since 1.5
      */
-    public static String format(Locale loc, String format, Object... args) {
+    public static String format(Locale locale, String format, Object... args) {
         if (format == null) {
             throw new NullPointerException("null format argument");
         }
-        int bufferSize = format.length()
-                + (args == null ? 0 : args.length * 10);
-        Formatter f = new Formatter(new StringBuilder(bufferSize), loc);
+        int bufferSize = format.length() + (args == null ? 0 : args.length * 10);
+        Formatter f = new Formatter(new StringBuilder(bufferSize), locale);
         return f.format(format, args).toString();
     }
 

@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * Defines an annotation to be used for specifying a test timeout. A test
  * harness that supports timeouts should allow a test to be run for at least
  * this time before killing it. Time is measured in seconds.
- * 
+ *
  * @hide
  */
 @Retention(RetentionPolicy.RUNTIME)

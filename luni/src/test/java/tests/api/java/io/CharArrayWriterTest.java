@@ -27,7 +27,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(CharArrayWriter.class) 
+@TestTargetClass(CharArrayWriter.class)
 public class CharArrayWriterTest extends junit.framework.TestCase {
 
     char[] hw = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd' };
@@ -43,12 +43,12 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "CharArrayWriter",
         args = {int.class}
-    )    
+    )
     public void test_ConstructorI() {
         // Test for method java.io.CharArrayWriter(int)
         cw = new CharArrayWriter(90);
         assertEquals("Test 1: Incorrect writer created.", 0, cw.size());
-        
+
         try {
             cw = new CharArrayWriter(-1);
             fail("IllegalArgumentException expected.");
@@ -65,7 +65,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies CharArrayWriter() method.",
         method = "CharArrayWriter",
         args = {}
-    )       
+    )
     public void test_Constructor() {
         // Test for method java.io.CharArrayWriter()
         cw = new CharArrayWriter();
@@ -80,7 +80,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies close() method.",
         method = "close",
         args = {}
-    )        
+    )
     public void test_close() {
         // Test for method void java.io.CharArrayWriter.close()
         cw.close();
@@ -94,7 +94,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies flush() method.",
         method = "flush",
         args = {}
-    )    
+    )
     public void test_flush() {
         // Test for method void java.io.CharArrayWriter.flush()
         cw.flush();
@@ -108,7 +108,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies reset() method.",
         method = "reset",
         args = {}
-    )      
+    )
     public void test_reset() {
         // Test for method void java.io.CharArrayWriter.reset()
         cw.write("HelloWorld", 5, 5);
@@ -133,7 +133,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies size() method.",
         method = "size",
         args = {}
-    )    
+    )
     public void test_size() {
         // Test for method int java.io.CharArrayWriter.size()
         assertEquals("Returned incorrect size", 0, cw.size());
@@ -149,7 +149,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies toCharArray() method.",
         method = "toCharArray",
         args = {}
-    )     
+    )
     public void test_toCharArray() {
         // Test for method char [] java.io.CharArrayWriter.toCharArray()
         cw.write("HelloWorld", 0, 10);
@@ -172,7 +172,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies toString() method.",
         method = "toString",
         args = {}
-    )       
+    )
     public void test_toString() {
         // Test for method java.lang.String java.io.CharArrayWriter.toString()
         cw.write("HelloWorld", 5, 5);
@@ -188,7 +188,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "write",
         args = {char[].class, int.class, int.class}
-    )     
+    )
     public void test_write$CII() {
         // Test for method void java.io.CharArrayWriter.write(char [], int, int)
         cw.write(hw, 5, 5);
@@ -212,7 +212,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Illegal argument checks.",
         method = "write",
         args = {char[].class, int.class, int.class}
-    )         
+    )
     public void test_write$CII_Exception() {
         char[] target = new char[10];
         cw = new CharArrayWriter();
@@ -250,7 +250,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies write(int) method.",
         method = "write",
         args = {int.class}
-    )    
+    )
     public void test_writeI() {
         // Test for method void java.io.CharArrayWriter.write(int)
         cw.write('T');
@@ -270,7 +270,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies write(java.lang.String, int, int) method. [Need to check different strings?]",
         method = "write",
         args = {java.lang.String.class, int.class, int.class}
-    )     
+    )
     public void test_writeLjava_lang_StringII() {
         // Test for method void java.io.CharArrayWriter.write(java.lang.String,
         // int, int)
@@ -295,7 +295,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Regression for write(java.lang.String, int, int) method.",
         method = "write",
         args = {java.lang.String.class, int.class, int.class}
-    )         
+    )
     public void test_writeLjava_lang_StringII_2() throws StringIndexOutOfBoundsException {
         CharArrayWriter obj = new CharArrayWriter();
         try {
@@ -312,7 +312,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "writeTo",
         args = {java.io.Writer.class}
-    )         
+    )
     public void test_writeToLjava_io_Writer() {
         Support_ASimpleWriter ssw = new Support_ASimpleWriter(true);
         cw.write("HelloWorld", 0, 10);
@@ -324,7 +324,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("Exception during writeTo test : " + e.getMessage());
         }
-        
+
         try {
             cw.writeTo(ssw);
             fail("Test 2: IOException expected.");
@@ -359,7 +359,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies append(char c) method.",
         method = "append",
         args = {char.class}
-    )      
+    )
     public void test_appendChar() throws IOException {
         char testChar = ' ';
         CharArrayWriter writer = new CharArrayWriter(10);
@@ -377,7 +377,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         notes = "Verifies append(CharSequence csq) method.",
         method = "append",
         args = {java.lang.CharSequence.class}
-    )      
+    )
     public void test_appendCharSequence() {
 
         String testString = "My Test String";
@@ -395,11 +395,11 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "append",
         args = {java.lang.CharSequence.class, int.class, int.class}
-    )    
+    )
     public void test_appendLjava_langCharSequenceII() {
         String testString = "My Test String";
         CharArrayWriter writer = new CharArrayWriter(10);
-        
+
         // Illegal argument checks.
         try {
             writer.append(testString, -1, 0);
@@ -428,7 +428,7 @@ public class CharArrayWriterTest extends junit.framework.TestCase {
 
         writer.append(testString, 1, 3);
         writer.flush();
-        assertEquals("Test 5: Appending failed;", 
+        assertEquals("Test 5: Appending failed;",
                 testString.substring(1, 3), writer.toString());
         writer.close();
     }

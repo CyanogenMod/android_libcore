@@ -27,13 +27,10 @@ import java.security.Principal;
 import java.security.cert.Certificate;
 import java.util.List;
 import java.util.Map;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSocket;
-
 import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionImpl;
-import org.apache.harmony.luni.internal.nls.Messages;
 
 /**
  * HttpsURLConnection implementation.
@@ -56,44 +53,39 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         httpsEngine = new HttpsEngine(url, port, proxy);
     }
 
+    private void checkConnected() {
+        if (sslSocket == null) {
+            throw new IllegalStateException("Connection has not yet been established");
+        }
+    }
+
     @Override
     public String getCipherSuite() {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+        checkConnected();
         return sslSocket.getSession().getCipherSuite();
     }
 
     @Override
     public Certificate[] getLocalCertificates() {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+        checkConnected();
         return sslSocket.getSession().getLocalCertificates();
     }
 
     @Override
-    public Certificate[] getServerCertificates()
-            throws SSLPeerUnverifiedException {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+    public Certificate[] getServerCertificates() throws SSLPeerUnverifiedException {
+        checkConnected();
         return sslSocket.getSession().getPeerCertificates();
     }
 
     @Override
     public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+        checkConnected();
         return sslSocket.getSession().getPeerPrincipal();
     }
 
     @Override
     public Principal getLocalPrincipal() {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+        checkConnected();
         return sslSocket.getSession().getLocalPrincipal();
     }
 
@@ -373,7 +365,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 // keep request method
                 String save_meth = method;
                 // make SSL Tunnel
-                method = "CONNECT"; //$NON-NLS-1$
+                method = "CONNECT";
                 try {
                     doRequest();
                     endRequest();
@@ -382,8 +374,8 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                     method = save_meth;
                 }
                 if (!connected) {
-                    throw new IOException(Messages.getString("luni.01", //$NON-NLS-1$
-                            responseMessage, responseCode));
+                    throw new IOException("Could not make SSL tunnel. " +
+                            responseMessage + " (" + responseCode + ")");
                 }
                 // if there are some remaining data in the stream - read it out
                 InputStream is = connection.getInputStream();
@@ -407,13 +399,13 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 if (makingSSLTunnel) {
                     // we are making the SSL Tunneling, return remotehost:port
                     int port = url.getPort();
-                    return (port > 0) ? url.getHost() + ":" + port //$NON-NLS-1$
+                    return (port > 0) ? url.getHost() + ":" + port
                     : url.getHost();
                 }
                 // we has made SSL Tunneling, return /requested.data
                 String file = url.getFile();
                 if (file == null || file.length() == 0) {
-                    file = "/"; //$NON-NLS-1$
+                    file = "/";
                 }
                 return file;
             }

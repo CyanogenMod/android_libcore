@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.Serializable;
 import java.util.Enumeration;
@@ -29,7 +29,7 @@ import java.util.PropertyPermission;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
-@TestTargetClass(PropertyPermission.class) 
+@TestTargetClass(PropertyPermission.class)
 public class PropertyPermissionTest extends junit.framework.TestCase {
 
     static PropertyPermission javaPP = new PropertyPermission("java.*", "read");
@@ -165,7 +165,7 @@ public class PropertyPermissionTest extends junit.framework.TestCase {
         assertTrue("Invalid PermissionCollection returned", elementEnum
                 .nextElement().equals(javaPP));
     }
-    
+
     /**
      * @tests java.util.PropertyPermission#readObject(ObjectInputStream)
      * @tests java.util.PropertyPermission#writeObject(ObjectOutputStream)
@@ -203,7 +203,7 @@ public class PropertyPermissionTest extends junit.framework.TestCase {
      */
     protected void tearDown() {
     }
-    
+
     private static final SerializableAssert comparator = new SerializableAssert() {
 
         public void assertDeserialized(Serializable initial, Serializable deserialized) {
@@ -211,6 +211,6 @@ public class PropertyPermissionTest extends junit.framework.TestCase {
             PropertyPermission deseriaPP = (PropertyPermission) deserialized;
             assertEquals("should be equal", initialPP, deseriaPP);
         }
-        
+
     };
 }

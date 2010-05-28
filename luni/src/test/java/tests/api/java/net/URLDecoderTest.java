@@ -17,7 +17,7 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -29,7 +29,7 @@ import java.net.URLEncoder;
 
 import tests.support.Support_Configuration;
 
-@TestTargetClass(URLDecoder.class) 
+@TestTargetClass(URLDecoder.class)
 public class URLDecoderTest extends junit.framework.TestCase {
 
     /**
@@ -82,15 +82,15 @@ public class URLDecoderTest extends junit.framework.TestCase {
         // Regression for HARMONY-467
 
         String enc = "UTF-8";
-        
-        String [] urls = { "http://" + Support_Configuration.HomeAddress + 
-                           "/test?hl=en&q=te+st", 
+
+        String [] urls = { "http://" + Support_Configuration.HomeAddress +
+                           "/test?hl=en&q=te+st",
                            "file://a+b/c/d.e-f*g_+l",
                            "jar:file://a.jar+!/b.c/",
                            "ftp://test:pwd@localhost:2121/%D0%9C",
-                           "%D0%A2%D0%B5%D1%81%D1%82+URL+for+test"}; 
-        
-        String [] expected = {"http://" + Support_Configuration.HomeAddress + 
+                           "%D0%A2%D0%B5%D1%81%D1%82+URL+for+test"};
+
+        String [] expected = {"http://" + Support_Configuration.HomeAddress +
                               "/test?hl=en&q=te st",
                               "file://a b/c/d.e-f*g_ l",
                               "jar:file://a.jar !/b.c/"};
@@ -102,14 +102,14 @@ public class URLDecoderTest extends junit.framework.TestCase {
                 fail("UnsupportedEncodingException: " + e.getMessage());
             }
         }
-        
+
         try {
             URLDecoder.decode(urls[urls.length - 2], enc);
             URLDecoder.decode(urls[urls.length - 1], enc);
         } catch (UnsupportedEncodingException e) {
             fail("UnsupportedEncodingException: " + e.getMessage());
         }
-        
+
         try {
             URLDecoder.decode("", "");
             fail("UnsupportedEncodingException expected");

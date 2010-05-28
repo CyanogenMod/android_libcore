@@ -30,12 +30,12 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(FilterWriter.class) 
+@TestTargetClass(FilterWriter.class)
 public class FilterWriterTest extends junit.framework.TestCase {
 
     private boolean called;
     private FilterWriter fw;
-   
+
     static class MyFilterWriter extends java.io.FilterWriter {
         public MyFilterWriter(java.io.Writer writer) {
             super(writer);
@@ -45,15 +45,15 @@ public class FilterWriterTest extends junit.framework.TestCase {
     class MockWriter extends java.io.Writer {
         public MockWriter() {
         }
-        
+
         public void close() throws IOException {
             called = true;
         }
-        
+
         public void flush() throws IOException {
             called = true;
         }
-        
+
         public void write(char[] buffer, int offset, int count) throws IOException {
             called = true;
         }
@@ -61,17 +61,17 @@ public class FilterWriterTest extends junit.framework.TestCase {
         public void write(int oneChar) throws IOException {
             called = true;
         }
-        
+
         public void write(String str, int offset, int count) throws IOException {
             called = true;
         }
-        
+
         public long skip(long count) throws IOException {
             called = true;
             return 0;
         }
     }
-    
+
     /**
      * @tests java.io.FilterWriter#FilterReader(java.io.Reader)
      */
@@ -80,13 +80,13 @@ public class FilterWriterTest extends junit.framework.TestCase {
         notes = "Verifies constructor FilterWriter(java.io.Writer).",
         method = "FilterWriter",
         args = {java.io.Writer.class}
-    )     
+    )
     public void test_ConstructorLjava_io_Writer() {
-        
+
         FilterWriter myWriter = null;
 
         called = true;
-        
+
         try {
             myWriter = new MyFilterWriter(null);
             fail("NullPointerException expected.");
@@ -94,7 +94,7 @@ public class FilterWriterTest extends junit.framework.TestCase {
             // expected
         }
     }
-    
+
     /**
      * @tests java.io.FilterWriter#close()
      */
@@ -103,12 +103,12 @@ public class FilterWriterTest extends junit.framework.TestCase {
         notes = "Verifies close().",
         method = "close",
         args = {}
-    )     
+    )
     public void test_close() throws IOException {
         fw.close();
         assertTrue("close() has not been called.", called);
     }
-    
+
     /**
      * @tests java.io.FilterWriter#flush()
      */
@@ -117,12 +117,12 @@ public class FilterWriterTest extends junit.framework.TestCase {
         notes = "Verifies flush().",
         method = "flush",
         args = {}
-    )     
+    )
     public void test_flush() throws IOException {
         fw.flush();
         assertTrue("flush() has not been called.", called);
     }
-    
+
     /**
      * @tests java.io.FilterWriter#write(int)
      */
@@ -131,12 +131,12 @@ public class FilterWriterTest extends junit.framework.TestCase {
         notes = "Verifies write(int).",
         method = "write",
         args = {int.class}
-    )     
+    )
     public void test_writeI() throws IOException {
         fw.write(0);
         assertTrue("write(int) has not been called.", called);
     }
-    
+
     /**
      * @tests java.io.FilterWriter#write(char[], int, int)
      */
@@ -145,13 +145,13 @@ public class FilterWriterTest extends junit.framework.TestCase {
         notes = "Verifies write(char[], int, int).",
         method = "write",
         args = {char[].class, int.class, int.class}
-    )     
+    )
     public void test_write$CII() throws IOException {
-        char[] buffer = new char[5];       
+        char[] buffer = new char[5];
         fw.write(buffer, 0, 5);
         assertTrue("write(char[], int, int) has not been called.", called);
     }
-    
+
     /**
      * @tests java.io.FilterReader#read(char[], int, int)
      */
@@ -160,10 +160,10 @@ public class FilterWriterTest extends junit.framework.TestCase {
         notes = "Verifies write(char[], int, int).",
         method = "write",
         args = {char[].class, int.class, int.class}
-    )     
+    )
     public void test_write$CII_Exception() throws IOException {
         char[] buffer = new char[10];
-        
+
         fw = new MyFilterWriter(new OutputStreamWriter(
             new ByteArrayOutputStream()));
 
@@ -188,7 +188,7 @@ public class FilterWriterTest extends junit.framework.TestCase {
             // Expected.
         }
     }
-    
+
     /**
      * @tests java.io.FilterWriter#write(char[], int, int)
      */
@@ -197,12 +197,12 @@ public class FilterWriterTest extends junit.framework.TestCase {
         notes = "Verifies write(String, int, int).",
         method = "write",
         args = {java.lang.String.class, int.class, int.class}
-    )     
+    )
     public void test_writeLjava_lang_StringII() throws IOException {
         fw.write("Hello world", 0, 5);
         assertTrue("write(String, int, int) has not been called.", called);
     }
-        
+
     /**
      * This method is called before a test is executed. It creates a
      * FilterWriter instance.

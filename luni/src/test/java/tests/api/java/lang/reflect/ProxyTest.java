@@ -51,13 +51,13 @@ public class ProxyTest extends junit.framework.TestCase {
      * When multiple interfaces define the same method, the list of thrown
      * exceptions are those which can be mapped to another exception in the
      * other method:
-     * 
+     *
      * String foo(String s) throws SubException, LinkageError;
-     * 
+     *
      * UndeclaredThrowableException wrappers any checked exception which is not
      * in the merged list. So ParentException would be wrapped, BUT LinkageError
      * would not be since its not an Error/RuntimeException.
-     * 
+     *
      * interface I1 { String foo(String s) throws ParentException, LinkageError; }
      * interface I2 { String foo(String s) throws SubException, Error; }
      */
@@ -72,7 +72,7 @@ public class ProxyTest extends junit.framework.TestCase {
             return args[1];
         }
     }
-    
+
     class ProxyCoonstructorTest extends Proxy {
         protected ProxyCoonstructorTest(InvocationHandler h) {
             super(h);
@@ -106,7 +106,7 @@ public class ProxyTest extends junit.framework.TestCase {
 // TODO: We load the test classes in the bootclasspath, so they are visible
 // to the default loader. We can re-enable this test once we move the CTS
 // tests to the system classpath.
-//        
+//
 //        try {
 //            Proxy.getProxyClass(null, new Class[] { Support_Proxy_I1.class,
 //                    Support_Proxy_I2.class });
@@ -114,7 +114,7 @@ public class ProxyTest extends junit.framework.TestCase {
 //            aborted = true;
 //        }
 //        assertTrue("Default classLoader should not see app class ", aborted);
-        
+
         aborted = false;
         try {
             Proxy.getProxyClass(Support_Proxy_I1.class.getClassLoader(),
@@ -124,7 +124,7 @@ public class ProxyTest extends junit.framework.TestCase {
             aborted = true;
         }
         assertTrue("NPE not thrown", aborted);
-        
+
         aborted = false;
         try {
             Proxy.getProxyClass(Support_Proxy_I1.class.getClassLoader(),
@@ -135,7 +135,7 @@ public class ProxyTest extends junit.framework.TestCase {
         }
         assertTrue("NPE not thrown", aborted);
     }
-    
+
     /**
      * @tests java.lang.reflect.Proxy#Proxy(java.lang.reflect.InvocationHandler)
      */
@@ -153,8 +153,8 @@ public class ProxyTest extends junit.framework.TestCase {
             }
         }));
     }
-    
-    
+
+
 
     /**
      * @tests java.lang.reflect.Proxy#newProxyInstance(java.lang.ClassLoader,
@@ -319,7 +319,7 @@ public class ProxyTest extends junit.framework.TestCase {
         }
         assertTrue("Did not detect non proxy object ", aborted);
     }
-        
+
     //Regression Test for HARMONY-2355
     @TestTargetNew(
         level = TestLevel.PARTIAL,
@@ -335,7 +335,7 @@ public class ProxyTest extends junit.framework.TestCase {
                         new TestProxyHandler(new TestProxyImpl()));
         assertNotNull(o);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL,
         notes = "IllegalArgumentException is verified.",

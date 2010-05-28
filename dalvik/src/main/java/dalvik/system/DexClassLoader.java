@@ -235,7 +235,6 @@ public class DexClassLoader extends ClassLoader {
             System.out.println("DexClassLoader " + this
                 + ": findClass '" + name + "'");
 
-        byte[] data = null;
         int length = mFiles.length;
 
         for (int i = 0; i < length; i++) {
@@ -351,7 +350,7 @@ public class DexClassLoader extends ClassLoader {
      */
     @Override
     protected Package getPackage(String name) {
-        if (name != null && !"".equals(name)) {
+        if (name != null && !name.isEmpty()) {
             synchronized(this) {
                 Package pack = super.getPackage(name);
 
@@ -367,4 +366,3 @@ public class DexClassLoader extends ClassLoader {
         return null;
     }
 }
-

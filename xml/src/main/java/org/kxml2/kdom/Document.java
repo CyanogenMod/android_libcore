@@ -17,7 +17,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE. */
- 
+
 
 package org.kxml2.kdom;
 
@@ -39,15 +39,15 @@ public class Document extends Node {
     public String getEncoding () {
         return encoding;
     }
-    
+
     public void setEncoding(String enc) {
         this.encoding = enc;
     }
-    
+
     public void setStandalone (Boolean standalone) {
         this.standalone = standalone;
     }
-    
+
     public Boolean getStandalone() {
         return standalone;
     }
@@ -82,11 +82,11 @@ public class Document extends Node {
         throws IOException, XmlPullParserException {
 
         parser.require(XmlPullParser.START_DOCUMENT, null, null);
-        parser.nextToken ();            
+        parser.nextToken ();
 
         encoding = parser.getInputEncoding();
         standalone = (Boolean)parser.getProperty ("http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone");
-        
+
         super.parse(parser);
 
         if (parser.getEventType() != XmlPullParser.END_DOCUMENT)
@@ -111,19 +111,19 @@ public class Document extends Node {
 
         return (Element) getChild(rootIndex);
     }
-    
-    
+
+
     /** Writes this node to the given XmlWriter. For node and document,
         this method is identical to writeChildren, except that the
         stream is flushed automatically. */
 
     public void write(XmlSerializer writer)
         throws IOException {
-        
+
         writer.startDocument(encoding, standalone);
         writeChildren(writer);
         writer.endDocument();
     }
-    
-    
+
+
 }

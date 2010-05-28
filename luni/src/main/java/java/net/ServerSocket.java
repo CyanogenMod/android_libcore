@@ -19,10 +19,8 @@ package java.net;
 
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
-
 import org.apache.harmony.luni.net.PlainServerSocketImpl;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * This class represents a server-side socket that waits for incoming client
@@ -42,12 +40,6 @@ public class ServerSocket {
 
     private boolean isClosed;
 
-    // BEGIN android-removed: we do this statically, when we start the VM.
-    // static {
-    //    Platform.getNetworkSystem().oneTimeInitialization(true);
-    // }
-    // END android-removed
-
     /**
      * Constructs a new {@code ServerSocket} instance which is not bound to any
      * port. The default number of pending connections may be backlogged.
@@ -61,13 +53,7 @@ public class ServerSocket {
     }
 
     /**
-     * Unspecified constructor.
-     *
-     * Warning: this function is technically part of API#1.
-     * Hiding it for API#2 broke source compatibility.
-     * Removing it entirely would theoretically break binary compatibility,
-     *     and would be better done with some visibility over the extent
-     *     of the compatibility breakage (expected to be non-existent).
+     * Unspecified constructor needed by ServerSocketChannelImpl.ServerSocketAdapter.
      *
      * @hide
      */
@@ -157,7 +143,7 @@ public class ServerSocket {
     public Socket accept() throws IOException {
         checkClosedAndCreate(false);
         if (!isBound()) {
-            throw new SocketException(Msg.getString("K031f")); //$NON-NLS-1$
+            throw new SocketException("Socket is not bound");
         }
 
         Socket aSocket = new Socket();
@@ -183,7 +169,7 @@ public class ServerSocket {
      */
     void checkListen(int aPort) {
         if (aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0325", aPort)); //$NON-NLS-1$
+            throw new IllegalArgumentException("Port out of range: " + aPort);
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -306,7 +292,7 @@ public class ServerSocket {
             security.checkSetFactory();
         }
         if (factory != null) {
-            throw new SocketException(Msg.getString("K0042")); //$NON-NLS-1$
+            throw new SocketException("Factory already set");
         }
         factory = aFactory;
     }
@@ -324,7 +310,7 @@ public class ServerSocket {
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         checkClosedAndCreate(true);
         if (timeout < 0) {
-            throw new IllegalArgumentException(Msg.getString("K0036")); //$NON-NLS-1$
+            throw new IllegalArgumentException("timeout < 0");
         }
         impl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(timeout));
     }
@@ -339,15 +325,15 @@ public class ServerSocket {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder(64);
-        result.append("ServerSocket["); //$NON-NLS-1$
+        result.append("ServerSocket[");
         if (!isBound()) {
-            return result.append("unbound]").toString(); //$NON-NLS-1$
+            return result.append("unbound]").toString();
         }
-        return result.append("addr=") //$NON-NLS-1$
-                .append(getInetAddress().getHostName()).append("/") //$NON-NLS-1$
+        return result.append("addr=")
+                .append(getInetAddress().getHostName()).append("/")
                 .append(getInetAddress().getHostAddress()).append(
-                        ",port=0,localport=") //$NON-NLS-1$
-                .append(getLocalPort()).append("]") //$NON-NLS-1$
+                        ",port=0,localport=")
+                .append(getLocalPort()).append("]")
                 .toString();
     }
 
@@ -390,19 +376,18 @@ public class ServerSocket {
     public void bind(SocketAddress localAddr, int backlog) throws IOException {
         checkClosedAndCreate(true);
         if (isBound()) {
-            throw new BindException(Msg.getString("K0315")); //$NON-NLS-1$
+            throw new BindException("Socket is already bound");
         }
         int port = 0;
         InetAddress addr = Inet4Address.ANY;
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
-                throw new IllegalArgumentException(Msg.getString(
-                        "K0316", localAddr.getClass())); //$NON-NLS-1$
+                throw new IllegalArgumentException("Local address not an InetSocketAddress: " +
+                        localAddr.getClass());
             }
             InetSocketAddress inetAddr = (InetSocketAddress) localAddr;
             if ((addr = inetAddr.getAddress()) == null) {
-                throw new SocketException(Msg.getString(
-                        "K0317", inetAddr.getHostName())); //$NON-NLS-1$
+                throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
             }
             port = inetAddr.getPort();
         }
@@ -460,7 +445,7 @@ public class ServerSocket {
      */
     private void checkClosedAndCreate(boolean create) throws SocketException {
         if (isClosed()) {
-            throw new SocketException(Msg.getString("K003d")); //$NON-NLS-1$
+            throw new SocketException("Socket is closed");
         }
 
         if (!create || isCreated) {
@@ -522,7 +507,7 @@ public class ServerSocket {
     public void setReceiveBufferSize(int size) throws SocketException {
         checkClosedAndCreate(true);
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035")); //$NON-NLS-1$
+            throw new IllegalArgumentException("size < 1");
         }
         impl.setOption(SocketOptions.SO_RCVBUF, Integer.valueOf(size));
     }

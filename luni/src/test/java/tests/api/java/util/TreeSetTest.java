@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-@TestTargetClass(TreeSet.class) 
+@TestTargetClass(TreeSet.class)
 public class TreeSetTest extends junit.framework.TestCase {
 
     public static class ReversedIntegerComparator implements Comparator {
@@ -81,19 +81,19 @@ public class TreeSetTest extends junit.framework.TestCase {
         for (int counter = 0; counter < objArray.length; counter++)
             assertTrue("TreeSet does not contain correct elements", myTreeSet
                     .contains(objArray[counter]));
-        
+
         HashMap hm = new HashMap();
         hm.put("First", new Integer(1));
         hm.put(new Integer(2), "two");
-        
+
         try {
             new TreeSet(hm.values());
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
-        try {   
+
+        try {
             new TreeSet((Collection)null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
@@ -150,7 +150,7 @@ public class TreeSetTest extends junit.framework.TestCase {
         assertTrue("TreeSet does not use comparator",
                 anotherTreeSet.first() == objArray[objArray.length - 1]);
 
-        try {   
+        try {
             new TreeSet((SortedSet)null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
@@ -177,7 +177,7 @@ public class TreeSetTest extends junit.framework.TestCase {
         HashMap hm = new HashMap();
         hm.put("First", new Integer(1));
         hm.put(new Integer(2), "two");
-        
+
         try {
             ts.add("Wrong element");
             fail("ClassCastException expected");
@@ -208,14 +208,14 @@ public class TreeSetTest extends junit.framework.TestCase {
         HashMap hm = new HashMap();
         hm.put("First", new Integer(1));
         hm.put(new Integer(2), "two");
-        
+
         try {
             s.addAll(hm.values());
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             s.addAll(null);
             fail("NullPointerException expected");
@@ -313,7 +313,7 @@ public class TreeSetTest extends junit.framework.TestCase {
         // Test for method java.lang.Object java.util.TreeSet.first()
         assertTrue("Returned incorrect first element",
                 ts.first() == objArray[0]);
-        
+
         ts = new TreeSet();
         try {
             ts.first();
@@ -347,14 +347,14 @@ public class TreeSetTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             ts.headSet(this);
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             ts.headSet(null);
             fail("NullPointerException expected");
@@ -412,7 +412,7 @@ public class TreeSetTest extends junit.framework.TestCase {
         // Test for method java.lang.Object java.util.TreeSet.last()
         assertTrue("Returned incorrect last element",
                 ts.last() == objArray[objArray.length - 1]);
-        
+
         ts = new TreeSet();
         try {
             ts.last();
@@ -487,21 +487,21 @@ public class TreeSetTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             ts.subSet(null, objArray[3]);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         try {
             ts.subSet(objArray[3], null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         try {
             ts.subSet(objArray[3], this);
             fail("ClassCastException expected");
@@ -528,21 +528,21 @@ public class TreeSetTest extends junit.framework.TestCase {
             assertTrue("Returned incorrect set", s.contains(objArray[i]));
 
         SortedSet sort = ts.tailSet(new Integer(101));
-        
+
         try {
             sort.tailSet(new Integer(100));
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             ts.tailSet(this);
             fail("ClassCastException expected");
         } catch (ClassCastException e) {
             //expected
         }
-        
+
         try {
             ts.tailSet(null);
             fail("NullPointerException expected");

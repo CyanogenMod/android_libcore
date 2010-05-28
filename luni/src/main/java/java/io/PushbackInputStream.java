@@ -17,8 +17,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Wraps an existing {@link InputStream} and adds functionality to "push back"
  * bytes that have been read, so that they can be read again. Parsers may find
@@ -67,7 +65,7 @@ public class PushbackInputStream extends FilterInputStream {
     public PushbackInputStream(InputStream in, int size) {
         super(in);
         if (size <= 0) {
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException("size <= 0");
         }
         buf = (in == null) ? null : new byte[size];
         pos = size;
@@ -167,17 +165,14 @@ public class PushbackInputStream extends FilterInputStream {
     @Override
     public int read(byte[] buffer, int offset, int length) throws IOException {
         if (buf == null) {
-            // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw streamClosed();
         }
         // Force buffer null check first!
         if (offset > buffer.length || offset < 0) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
         if (length < 0 || length > buffer.length - offset) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
 
         int copiedBytes = 0, copyLength = 0, newOffset = offset;
@@ -205,6 +200,10 @@ public class PushbackInputStream extends FilterInputStream {
         return copiedBytes;
     }
 
+    private IOException streamClosed() throws IOException  {
+        throw new IOException("PushbackInputStream is closed");
+    }
+
     /**
      * Skips {@code count} bytes in this stream. This implementation skips bytes
      * in the pushback buffer first and then in the source stream if necessary.
@@ -218,7 +217,7 @@ public class PushbackInputStream extends FilterInputStream {
     @Override
     public long skip(long count) throws IOException {
         if (in == null) {
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw streamClosed();
         }
         if (count <= 0) {
             return 0;
@@ -280,23 +279,18 @@ public class PushbackInputStream extends FilterInputStream {
      *             if the free space in the internal pushback buffer is not
      *             sufficient to store the selected contents of {@code buffer}.
      */
-    public void unread(byte[] buffer, int offset, int length)
-            throws IOException {
+    public void unread(byte[] buffer, int offset, int length) throws IOException {
         if (length > pos) {
-            // K007e=Pushback buffer full
-            throw new IOException(Msg.getString("K007e")); //$NON-NLS-1$
+            throw new IOException("Pushback buffer full");
         }
         if (offset > buffer.length || offset < 0) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
         if (length < 0 || length > buffer.length - offset) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
         if (buf == null) {
-            // K0059=Stream is closed
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
+            throw streamClosed();
         }
 
         System.arraycopy(buffer, offset, buf, pos - length, length);
@@ -323,7 +317,7 @@ public class PushbackInputStream extends FilterInputStream {
             throw new IOException();
         }
         if (pos == 0) {
-            throw new IOException(Msg.getString("K007e")); //$NON-NLS-1$
+            throw new IOException("Pushback buffer full");
         }
         buf[--pos] = (byte) oneByte;
     }

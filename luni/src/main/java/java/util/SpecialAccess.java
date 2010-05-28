@@ -39,7 +39,7 @@ import org.apache.harmony.kernel.vm.LangAccess;
 
         // This can only be assigned after the above bootstrap.
         LANG = EnumSet.LANG_BOOTSTRAP;
-        
+
         if (LANG == null) {
             throw new AssertionError();
         }

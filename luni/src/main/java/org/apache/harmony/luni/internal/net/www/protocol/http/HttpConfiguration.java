@@ -21,16 +21,14 @@ import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URI;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * An <code>HttpConfiguration</code> contains all the details needed to create an http connection
  * and to compare whether or not two connections are the same.  An HttpConfiguration
  * will either consist of a <code>Proxy<code> or a port number (<code>int</code>)
- * and host name (<code>String</code>) or all three,  depending on whether or not a 
+ * and host name (<code>String</code>) or all three,  depending on whether or not a
  * <code>Proxy</code> is used and the type of <code>Proxy</code> it is.
- * 
- * <code>HttpConfiguration</code> is used as a key by <code>HttpConnectionManager</code>
+ *
+ * <code>HttpConfiguration</code> is used as a key by <code>HttpConnectionPool</code>
  * to retrieve <code>HttpConnection</code>s from its connection pool.
  */
 public class HttpConfiguration {
@@ -45,7 +43,7 @@ public class HttpConfiguration {
         this.hostName = uri.getHost();
         this.hostPort = uri.getPort();
         if(hostPort == -1) {
-            if(uri.getScheme().equals("https")) { //$NON-NLS-1$
+            if(uri.getScheme().equals("https")) {
                 hostPort = 443;
             } else {
                 hostPort = 80;
@@ -59,8 +57,8 @@ public class HttpConfiguration {
         if (proxy.type() == Proxy.Type.HTTP) {
             SocketAddress proxyAddr = proxy.address();
             if (!(proxyAddr instanceof InetSocketAddress)) {
-               throw new IllegalArgumentException(Msg.getString(
-                   "K0316", proxyAddr.getClass())); //$NON-NLS-1$
+                throw new IllegalArgumentException("Proxy address not an InetSocketAddress: " +
+                        proxyAddr.getClass());
             }
             InetSocketAddress iProxyAddr = (InetSocketAddress) proxyAddr;
             this.hostName = iProxyAddr.getHostName();
@@ -70,7 +68,7 @@ public class HttpConfiguration {
             this.hostName = uri.getHost();
             this.hostPort = uri.getPort();
             if(hostPort == -1) {
-                if(uri.getScheme().equals("https")) { //$NON-NLS-1$
+                if(uri.getScheme().equals("https")) {
                     hostPort = 443;
                 } else {
                     hostPort = 80;
@@ -80,8 +78,8 @@ public class HttpConfiguration {
         this.uri = uri;
         SocketAddress proxyAddr = proxy.address();
         if (!(proxyAddr instanceof InetSocketAddress)) {
-           throw new IllegalArgumentException(Msg.getString(
-               "K0316", proxyAddr.getClass())); //$NON-NLS-1$
+            throw new IllegalArgumentException("Proxy address not an InetSocketAddress: " +
+                    proxyAddr.getClass());
         }
         InetSocketAddress iProxyAddr = (InetSocketAddress) proxyAddr;
         this.hostName = iProxyAddr.getHostName();

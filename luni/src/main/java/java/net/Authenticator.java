@@ -24,7 +24,7 @@ package java.net;
  * setDefault(Authenticator a)}. Then it should override {@code
  * getPasswordAuthentication()} which dictates how the authentication info is
  * obtained. Usually, it prompts the user for the required input.
- * 
+ *
  * @see #setDefault
  * @see #getPasswordAuthentication
  */
@@ -34,10 +34,10 @@ public abstract class Authenticator {
     private static Authenticator thisAuthenticator;
 
     private static final NetPermission requestPasswordAuthenticationPermission = new NetPermission(
-            "requestPasswordAuthentication"); //$NON-NLS-1$
+            "requestPasswordAuthentication");
 
     private static final NetPermission setDefaultAuthenticatorPermission = new NetPermission(
-            "setDefaultAuthenticator"); //$NON-NLS-1$
+            "setDefaultAuthenticator");
 
     // the requester connection info
     private String host;
@@ -71,7 +71,7 @@ public abstract class Authenticator {
 
     /**
      * Returns the port of the connection that requests authorization.
-     * 
+     *
      * @return port of the connection.
      */
     protected final int getRequestingPort() {
@@ -81,7 +81,7 @@ public abstract class Authenticator {
     /**
      * Returns the address of the connection that requests authorization or
      * {@code null} if unknown.
-     * 
+     *
      * @return address of the connection.
      */
     protected final InetAddress getRequestingSite() {
@@ -91,7 +91,7 @@ public abstract class Authenticator {
     /**
      * Returns the realm (prompt string) of the connection that requests
      * authorization.
-     * 
+     *
      * @return prompt string of the connection.
      */
     protected final String getRequestingPrompt() {
@@ -100,7 +100,7 @@ public abstract class Authenticator {
 
     /**
      * Returns the protocol of the connection that requests authorization.
-     * 
+     *
      * @return protocol of the connection.
      */
     protected final String getRequestingProtocol() {
@@ -110,7 +110,7 @@ public abstract class Authenticator {
     /**
      * Returns the scheme of the connection that requests authorization, for
      * example HTTP Basic Authentication.
-     * 
+     *
      * @return scheme of the connection.
      */
     protected final String getRequestingScheme() {
@@ -121,7 +121,7 @@ public abstract class Authenticator {
      * If the permission check of the security manager does not result in a
      * security exception, this method invokes the methods of the registered
      * authenticator to get the authentication info.
-     * 
+     *
      * @return password authentication info or {@code null} if no authenticator
      *         exists.
      * @param rAddr
@@ -167,7 +167,7 @@ public abstract class Authenticator {
      * the realm that the URL is pointing to requires authorization. If there is
      * a security manager set then the caller must have the appropriate {@code
      * NetPermission}.
-     * 
+     *
      * @param a
      *            authenticator which has to be set as default.
      * @throws SecurityException
@@ -186,7 +186,7 @@ public abstract class Authenticator {
      * If the permission check of the security manager does not result in a
      * security exception, this method invokes the methods of the registered
      * authenticator to get the authentication info.
-     * 
+     *
      * @return password authentication info or {@code null} if no authenticator
      *         exists.
      * @param rHost
@@ -244,7 +244,7 @@ public abstract class Authenticator {
      * If the permission check of the security manager does not result in a
      * security exception, this method invokes the methods of the registered
      * authenticator to get the authentication info.
-     * 
+     *
      * @return password authentication info or {@code null} if no authenticator
      *         exists.
      * @param rHost
@@ -297,7 +297,7 @@ public abstract class Authenticator {
 
     /**
      * Returns the URL of the authentication request.
-     * 
+     *
      * @return authentication request url.
      */
     protected URL getRequestingURL() {
@@ -306,7 +306,7 @@ public abstract class Authenticator {
 
     /**
      * Returns the type of this request, it can be {@code PROXY} or {@code SERVER}.
-     * 
+     *
      * @return RequestorType of the authentication request.
      */
     protected Authenticator.RequestorType getRequestorType() {

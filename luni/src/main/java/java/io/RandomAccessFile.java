@@ -21,7 +21,6 @@ import java.nio.channels.FileChannel;
 
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.Util;
 
 import org.apache.harmony.nio.FileChannelFactory;
@@ -53,11 +52,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     // BEGIN android-added
     private int options;
     // END android-added
-
-    private static class RepositionLock {
-    }
-
-    private Object repositionLock = new RepositionLock();
 
     /**
      * Constructs a new {@code RandomAccessFile} based on {@code file} and opens
@@ -105,33 +99,27 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @see java.lang.SecurityManager#checkRead(FileDescriptor)
      * @see java.lang.SecurityManager#checkWrite(FileDescriptor)
      */
-    public RandomAccessFile(File file, String mode)
-            throws FileNotFoundException {
-        super();
-
-        // BEGIN android-changed
+    public RandomAccessFile(File file, String mode) throws FileNotFoundException {
         options = 0;
-        // END android-changed
-
         fd = new FileDescriptor();
 
-        if (mode.equals("r")) { //$NON-NLS-1$
+        if (mode.equals("r")) {
             isReadOnly = true;
             fd.readOnly = true;
             options = IFileSystem.O_RDONLY;
-        } else if (mode.equals("rw") || mode.equals("rws") || mode.equals("rwd")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        } else if (mode.equals("rw") || mode.equals("rws") || mode.equals("rwd")) {
             isReadOnly = false;
             options = IFileSystem.O_RDWR;
 
-            if (mode.equals("rws")) { //$NON-NLS-1$
+            if (mode.equals("rws")) {
                 // Sync file and metadata with every write
                 syncMetadata = true;
-            } else if (mode.equals("rwd")) { //$NON-NLS-1$
+            } else if (mode.equals("rwd")) {
                 // Sync file, but not necessarily metadata
                 options = IFileSystem.O_RDWRSYNC;
             }
         } else {
-            throw new IllegalArgumentException(Msg.getString("K0081")); //$NON-NLS-1$
+            throw new IllegalArgumentException("Invalid mode: " + mode);
         }
 
         SecurityManager security = System.getSecurityManager();
@@ -277,15 +265,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public long length() throws IOException {
         openCheck();
-        synchronized (repositionLock) {
-            long currentPosition = fileSystem.seek(fd.descriptor, 0L,
-                    IFileSystem.SEEK_CUR);
-            long endOfFilePosition = fileSystem.seek(fd.descriptor, 0L,
-                    IFileSystem.SEEK_END);
-            fileSystem.seek(fd.descriptor, currentPosition,
-                    IFileSystem.SEEK_SET);
-            return endOfFilePosition;
-        }
+        return fileSystem.length(fd.descriptor);
     }
 
     /**
@@ -301,10 +281,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public int read() throws IOException {
         openCheck();
         byte[] bytes = new byte[1];
-        synchronized (repositionLock) {
-            long readed = fileSystem.read(fd.descriptor, bytes, 0, 1);
-            return readed == -1 ? -1 : bytes[0] & 0xff;
-        }
+        long byteCount = fileSystem.read(fd.descriptor, bytes, 0, 1);
+        return byteCount == -1 ? -1 : bytes[0] & 0xff;
     }
 
     /**
@@ -346,26 +324,24 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if this file is closed or another I/O error occurs.
      */
     public int read(byte[] buffer, int offset, int count) throws IOException {
-        // have to have four comparisions to not miss integer overflow cases
+        // have to have four comparisons to not miss integer overflow cases
         // BEGIN android-changed
         // Exception priorities (in case of multiple errors) differ from
         // RI, but are spec-compliant.
         // made implicit null check explicit, used (offset | count) < 0
         // instead of (offset < 0) || (count < 0) to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         if (0 == count) {
             return 0;
         }
         openCheck();
-        synchronized (repositionLock) {
-            return (int) fileSystem.read(fd.descriptor, buffer, offset, count);
-        }
+        return (int) fileSystem.read(fd.descriptor, buffer, offset, count);
     }
 
     /**
@@ -500,10 +476,9 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * @throws NullPointerException
      *             if {@code buffer} is {@code null}.
      */
-    public final void readFully(byte[] buffer, int offset, int count)
-            throws IOException {
+    public final void readFully(byte[] buffer, int offset, int count) throws IOException {
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         // avoid int overflow
         // BEGIN android-changed
@@ -512,7 +487,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         // removed redundant check, used (offset | count) < 0
         // instead of (offset < 0) || (count < 0) to safe one operation
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         while (count > 0) {
@@ -695,7 +670,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
     public final String readUTF() throws IOException {
         int utfSize = readUnsignedShort();
         if (utfSize == 0) {
-            return ""; //$NON-NLS-1$
+            return "";
         }
         byte[] buf = new byte[utfSize];
         if (read(buf, 0, buf.length) != buf.length) {
@@ -711,21 +686,19 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * file's length will only change if the moving of the pointer is followed
      * by a {@code write} operation.
      *
-     * @param pos
+     * @param offset
      *            the new file pointer position.
      * @throws IOException
      *             if this file is closed, {@code pos < 0} or another I/O error
      *             occurs.
      */
-    public void seek(long pos) throws IOException {
-        if (pos < 0) {
+    public void seek(long offset) throws IOException {
+        if (offset < 0) {
             // seek position is negative
-            throw new IOException(Msg.getString("K0347")); //$NON-NLS-1$
+            throw new IOException("offset < 0");
         }
         openCheck();
-        synchronized (repositionLock) {
-            fileSystem.seek(fd.descriptor, pos, IFileSystem.SEEK_SET);
-        }
+        fileSystem.seek(fd.descriptor, offset, IFileSystem.SEEK_SET);
     }
 
     /**
@@ -747,12 +720,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (newLength < 0) {
             throw new IllegalArgumentException();
         }
-        synchronized (repositionLock) {
-            long position = fileSystem.seek(fd.descriptor, 0,
-                    IFileSystem.SEEK_CUR);
-            fileSystem.truncate(fd.descriptor, newLength);
-            seek(position > newLength ? newLength : position);
-        }
+        fileSystem.truncate(fd.descriptor, newLength);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -825,23 +793,19 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         // RI, but are spec-compliant.
         // made implicit null check explicit,
         // removed redundant check, used (offset | count) < 0
-        // instead of (offset < 0) || (count < 0) to safe one operation
+        // instead of (offset < 0) || (count < 0) to save one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         if (count == 0) {
             return;
         }
-        // BEGIN android-added
         openCheck();
-        // END android-added
-        synchronized (repositionLock) {
-            fileSystem.write(fd.descriptor, buffer, offset, count);
-        }
+        fileSystem.write(fd.descriptor, buffer, offset, count);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -863,9 +827,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         openCheck();
         byte[] bytes = new byte[1];
         bytes[0] = (byte) (oneByte & 0xff);
-        synchronized (repositionLock) {
-            fileSystem.write(fd.descriptor, bytes, 0, 1);
-        }
+        fileSystem.write(fd.descriptor, bytes, 0, 1);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -1078,7 +1040,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             }
         }
         if (utfCount > 65535) {
-            throw new UTFDataFormatException(Msg.getString("K0068")); //$NON-NLS-1$
+            throw new UTFDataFormatException("String more than 65535 UTF bytes long");
         }
         byte utfBytes[] = new byte[utfCount + 2];
         int utfIndex = 2;

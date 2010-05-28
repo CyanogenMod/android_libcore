@@ -21,7 +21,6 @@ import java.nio.channels.FileChannel;
 
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.nio.FileChannelFactory;
 
 /**
@@ -74,8 +73,7 @@ public class FileInputStream extends InputStream implements Closeable {
             security.checkRead(filePath);
         }
         if (file == null) {
-            // KA001=Argument must not be null
-            throw new NullPointerException(Msg.getString("KA001")); //$NON-NLS-1$
+            throw new NullPointerException("file == null");
         }
         fd = new FileDescriptor();
         fd.readOnly = true;
@@ -103,7 +101,7 @@ public class FileInputStream extends InputStream implements Closeable {
     public FileInputStream(FileDescriptor fd) {
         super();
         if (fd == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("fd == null");
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -137,33 +135,7 @@ public class FileInputStream extends InputStream implements Closeable {
     @Override
     public int available() throws IOException {
         openCheck();
-
-        // BEGIN android-added
-
-        // Android always uses the ioctl() method of determining bytes
-        // available. See the long discussion in
-        // org_apache_harmony_luni_platform_OSFileSystem.cpp about its
-        // use.
-
-        return fileSystem.ioctlAvailable(fd.descriptor);
-        // END android-added
-
-        // BEGIN android-deleted
-        // synchronized (repositioningLock) {
-        //     // stdin requires special handling
-        //     if (fd == FileDescriptor.in) {
-        //         return (int) fileSystem.ttyAvailable();
-        //     }
-        //
-        //     long currentPosition = fileSystem.seek(fd.descriptor, 0L,
-        //             IFileSystem.SEEK_CUR);
-        //     long endOfFilePosition = fileSystem.seek(fd.descriptor, 0L,
-        //             IFileSystem.SEEK_END);
-        //     fileSystem.seek(fd.descriptor, currentPosition,
-        //             IFileSystem.SEEK_SET);
-        //     return (int) (endOfFilePosition - currentPosition);
-        // }
-        // END android-deleted
+        return fileSystem.ioctlAvailable(fd);
     }
 
     /**
@@ -296,10 +268,10 @@ public class FileInputStream extends InputStream implements Closeable {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         if ((count | offset) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         if (0 == count) {
@@ -334,11 +306,9 @@ public class FileInputStream extends InputStream implements Closeable {
             return 0;
         }
         if (count < 0) {
-            // KA013=Number of bytes to skip cannot be negative
-            throw new IOException(Msg.getString("KA013")); //$NON-NLS-1$
+            throw new IOException("count < 0");
         }
 
-        // BEGIN android-changed
         // The RI doesn't treat stdin as special. It throws IOException for
         // all non-seekable streams, so we do too. If you did want to support
         // non-seekable streams, the best way to do it would be to recognize
@@ -349,7 +319,6 @@ public class FileInputStream extends InputStream implements Closeable {
             fileSystem.seek(fd.descriptor, count, IFileSystem.SEEK_CUR);
             return count;
         }
-        // END android-changed
     }
 
     private synchronized void openCheck() throws IOException {

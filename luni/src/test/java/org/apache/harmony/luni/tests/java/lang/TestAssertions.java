@@ -17,12 +17,12 @@
 package org.apache.harmony.luni.tests.java.lang;
 
 public class TestAssertions {
-    boolean isTrue = false;   
-    
+    boolean isTrue = false;
+
     TestAssertions() {
-       
+
     }
-    
+
     public void test() throws AssertionError {
         assert (isTrue == true);
     }

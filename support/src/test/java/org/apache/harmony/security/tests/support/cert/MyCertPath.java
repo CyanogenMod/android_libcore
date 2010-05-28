@@ -33,7 +33,7 @@ import java.util.Vector;
 
 /**
  * Stub class for <code>java.security.cert.CertPath</code> tests
- * 
+ *
  */
 public class MyCertPath extends CertPath {
     private static final long serialVersionUID = 7444835599161870893L;
@@ -53,7 +53,7 @@ public class MyCertPath extends CertPath {
 
     /**
      * Constructs new instance of <code>MyCertPath</code>
-     * 
+     *
      */
     public MyCertPath(byte[] encoding) {
         super("MyEncoding");
@@ -74,7 +74,7 @@ public class MyCertPath extends CertPath {
 
     /**
      * @return default encoded form of this cert path
-     * @throws CertificateEncodingException 
+     * @throws CertificateEncodingException
      * @see java.security.cert.CertPath#getEncoded()
      */
     public byte[] getEncoded() throws CertificateEncodingException {
@@ -118,8 +118,8 @@ public class MyCertPath extends CertPath {
         private static final long serialVersionUID = 1609000085450479173L;
 
         private String type;
-        private byte[] data; 
-        
+        private byte[] data;
+
         public MyCertPathRep(String type, byte[] data) {
             super(type, data);
             this.data = data;
@@ -133,7 +133,7 @@ public class MyCertPath extends CertPath {
         public String getType() {
             return type;
         }
-        
+
         public byte[] getData() {
             return data;
         }

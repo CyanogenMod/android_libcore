@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.AbstractQueue;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(AbstractQueue.class) 
+@TestTargetClass(AbstractQueue.class)
 public class AbstractQueueTest extends TestCase {
 
     private MockAbstractQueue<Object> queue;
@@ -266,7 +266,7 @@ public class AbstractQueueTest extends TestCase {
             // expected
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Checks functionality",
@@ -275,14 +275,14 @@ public class AbstractQueueTest extends TestCase {
     )
     public void test_addAllLjava_lang_Object() {
         Collection c = new Vector();
-        
+
         c.add(0);
         c.add(1);
         c.add(2);
         c.add(3);
         c.add(4);
         c.add(5);
-        
+
         assertTrue(queue.addAll(c));
         assertEquals(6, queue.size());
     }

@@ -165,7 +165,7 @@ public class SystemTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         notes = "",
         method = "arraycopy",
-        args = {java.lang.Object.class, int.class, java.lang.Object.class, 
+        args = {java.lang.Object.class, int.class, java.lang.Object.class,
                 int.class, int.class}
     )
     public void test_arraycopyLjava_lang_ObjectILjava_lang_ObjectII() {

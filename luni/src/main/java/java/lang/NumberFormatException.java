@@ -36,7 +36,7 @@ public class NumberFormatException extends java.lang.IllegalArgumentException {
     /**
      * Constructs a new {@code NumberFormatException} with the current stack
      * trace and the specified detail message.
-     * 
+     *
      * @param detailMessage
      *            the detail message for this exception.
      */

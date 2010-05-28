@@ -17,7 +17,7 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -34,7 +34,7 @@ import java.net.UnknownHostException;
 import tests.support.Support_Configuration;
 import tests.support.Support_PortManager;
 
-@TestTargetClass(DatagramPacket.class) 
+@TestTargetClass(DatagramPacket.class)
 public class DatagramPacketTest extends junit.framework.TestCase {
 
     DatagramPacket dp;
@@ -65,7 +65,7 @@ public class DatagramPacketTest extends junit.framework.TestCase {
         assertEquals(-1, dp.getPort());
         try{
             dp.getSocketAddress();
-            fail("Should throw IllegalArgumentException");            
+            fail("Should throw IllegalArgumentException");
         }catch(IllegalArgumentException e){
             //expected
         }
@@ -353,7 +353,7 @@ public class DatagramPacketTest extends junit.framework.TestCase {
         dp.setData("Ralph".getBytes());
         assertEquals("Incorrect data set", "Ralph", new String(dp.getData(), 0, dp
                 .getData().length));
-        
+
         try {
             dp.setData(null);
             fail("NullPointerException was not thrown.");
@@ -376,20 +376,20 @@ public class DatagramPacketTest extends junit.framework.TestCase {
         dp = new DatagramPacket("Hello".getBytes(), 5);
         dp.setLength(1);
         assertEquals("Failed to set packet length", 1, dp.getLength());
-        
+
         try {
             new DatagramPacket("Hello".getBytes(), 6);
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
             new DatagramPacket("Hello".getBytes(), -1);
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
-        }        
+        }
     }
 
     /**

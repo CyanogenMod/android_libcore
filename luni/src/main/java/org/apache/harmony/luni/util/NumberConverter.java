@@ -102,7 +102,7 @@ public final class NumberConverter {
         if (inputNumber >= 1e7D || inputNumber <= -1e7D
                 || (inputNumber > -1e-3D && inputNumber < 1e-3D))
             return signString + freeFormatExponential();
-        
+
         return signString + freeFormat();
     }
 
@@ -152,7 +152,7 @@ public final class NumberConverter {
         if (inputNumber >= 1e7f || inputNumber <= -1e7f
                 || (inputNumber > -1e-3f && inputNumber < 1e-3f))
             return signString + freeFormatExponential();
-        
+
         return signString + freeFormat();
     }
 

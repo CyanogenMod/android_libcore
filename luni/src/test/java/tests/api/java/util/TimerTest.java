@@ -20,14 +20,14 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
-@TestTargetClass(Timer.class) 
+@TestTargetClass(Timer.class)
 public class TimerTest extends junit.framework.TestCase {
 
     int timerCounter = 0;

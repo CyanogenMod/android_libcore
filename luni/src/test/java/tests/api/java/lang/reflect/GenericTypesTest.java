@@ -34,38 +34,38 @@ import java.lang.reflect.TypeVariable;
  */
 @TestTargetClass(Constructor.class)
 public class GenericTypesTest extends GenericReflectionTestsBase {
-    
+
     static class GenericType<T>{
         T methodGenericType(T t){ return t;}
         @SuppressWarnings("hiding")
         <T> T hidingMethodGenericType(T t){ return t;}
         static <T> T staticMethodGenericType(T t){ return t;}
     }
-    
+
     static class MultipleBoundedGenericTypes<T,S extends T>{
         void multipleBoundedGenericTypesTS(T t, S s){}
     }
-    
+
     static class SimpleInheritance <T> extends GenericType<T>{}
-    
+
     static class ConstructorGenericType<T>{
         ConstructorGenericType(T t){}
     }
-    
+
     static class InnerClassTest<T>{
         class InnerClass {
             InnerClass(T t) {}
             void innerMethod(T t){}
         }
     }
-    
+
     static class ExceptionTest<T extends Exception>{
         void exceptionTest() throws T{}
         class InnerClass{
             void innerExceptionTest() throws T{}
         }
     }
-    
+
     static interface InterfaceTest<T>{}
     @TestTargetNew(
         level = TestLevel.PARTIAL,
@@ -81,7 +81,7 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
         Type[] genericParameterTypes = constructor.getGenericParameterTypes();
         assertLenghtOne(genericParameterTypes);
         Type parameterType = genericParameterTypes[0];
-        
+
         assertEquals(typeVariable, parameterType);
     }
     @TestTargetNew(
@@ -94,7 +94,7 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
     public void testStaticMethodGenericType() throws Exception {
         Class<? extends GenericType> clazz = GenericType.class;
         TypeVariable<Class> typeVariable = getTypeParameter(clazz);
-        
+
         Method method = clazz.getDeclaredMethod("staticMethodGenericType", Object.class);
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         assertLenghtOne(genericParameterTypes);
@@ -113,7 +113,7 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
     public void testHidingMethodGenericType() throws Exception {
         Class<? extends GenericType> clazz = GenericType.class;
         TypeVariable<Class> typeVariable = getTypeParameter(clazz);
-        
+
         Method method = clazz.getDeclaredMethod("hidingMethodGenericType",  Object.class);
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         assertLenghtOne(genericParameterTypes);
@@ -122,7 +122,7 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
         assertInstanceOf(TypeVariable.class, parameterType);
         assertEquals(method, ((TypeVariable)parameterType).getGenericDeclaration());
     }
-    
+
     static class MultipleGenericTypes<T,S>{
         void multipleGenericTypesT(T t){}
         void multipleGenericTypesS(S s){}
@@ -146,21 +146,21 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
         TypeVariable<?> typeVariableS = typeParameters[1];
         assertEquals("S", typeVariableS.getName());
         assertEquals(clazz, typeVariableS.getGenericDeclaration());
-        
+
         // multipleGenericTypesT
         Method multipleGenericTypesT = clazz.getDeclaredMethod("multipleGenericTypesT", new Class[]{Object.class});
         Type[] multipleGenericTypesTTypes = multipleGenericTypesT.getGenericParameterTypes();
         assertLenghtOne(multipleGenericTypesTTypes);
         Type multipleGenericTypesTType = multipleGenericTypesTTypes[0];
         assertEquals(typeVariableT, multipleGenericTypesTType);
-        
+
         // multipleGenericTypesS
         Method multipleGenericTypesS = clazz.getDeclaredMethod("multipleGenericTypesS", new Class[]{Object.class});
         Type[] multipleGenericTypesSTypes = multipleGenericTypesS.getGenericParameterTypes();
         assertLenghtOne(multipleGenericTypesSTypes);
         Type multipleGenericTypesSType = multipleGenericTypesSTypes[0];
         assertEquals(typeVariableS, multipleGenericTypesSType);
-        
+
         // multipleGenericTypesS
         Method multipleGenericTypesTS = clazz.getDeclaredMethod("multipleGenericTypesTS", new Class[]{Object.class, Object.class});
         Type[] multipleGenericTypesTSTypes = multipleGenericTypesTS.getGenericParameterTypes();
@@ -170,7 +170,7 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
         Type multipleGenericTypesTSTypeS = multipleGenericTypesTSTypes[1];
         assertEquals(typeVariableS, multipleGenericTypesTSTypeS);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -201,20 +201,21 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
         args = {}
     )
     @SuppressWarnings("unchecked")
+    @KnownFailure("Fails in CTS but passes under run-core-tests")
     public void testSimpleInheritance() throws Exception {
         Class<? extends SimpleInheritance> clazz = SimpleInheritance.class;
         TypeVariable<Class> subTypeVariable = getTypeParameter(clazz);
-        
+
         assertInstanceOf(ParameterizedType.class, clazz.getGenericSuperclass());
         ParameterizedType parameterizedSuperType = (ParameterizedType) clazz.getGenericSuperclass();
         assertInstanceOf(Class.class, parameterizedSuperType.getRawType());
-        
+
         TypeVariable<Class> superTypeParameter = getTypeParameter((Class<?>)parameterizedSuperType.getRawType());
         TypeVariable<Class> typeParameter = getTypeParameter(GenericType.class);
         assertEquals(superTypeParameter, typeParameter);
-        
+
         assertNotEquals(subTypeVariable, superTypeParameter);
-        
+
         Type[] actualTypeArguments = parameterizedSuperType.getActualTypeArguments();
         assertLenghtOne(actualTypeArguments);
         assertInstanceOf(TypeVariable.class, actualTypeArguments[0]);
@@ -231,13 +232,13 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
     public void testInnerClassTest() throws Exception {
         Class<? extends InnerClassTest> clazz =InnerClassTest.class;
         TypeVariable<Class> typeVariable = getTypeParameter(clazz);
-        
+
         Class<?>[] declaredClasses = clazz.getDeclaredClasses();
         assertLenghtOne(declaredClasses);
         Class<?> innerClazz = declaredClasses[0];
         assertEquals(InnerClassTest.InnerClass.class, innerClazz);
-        
-        //constructor 
+
+        //constructor
         Constructor<?>[] declaredConstructors = innerClazz.getDeclaredConstructors();
         assertLenghtOne(declaredConstructors);
         Constructor<?> declaredConstructor = declaredConstructors[0];
@@ -247,7 +248,7 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
         assertInstanceOf(TypeVariable.class, genericParameterTypes[0]);
         TypeVariable<?> constructorTypeVariable = (TypeVariable<?>) genericParameterTypes[0];
         assertEquals(clazz ,constructorTypeVariable.getGenericDeclaration());
-        
+
         //method
         Method declaredMethods = innerClazz.getDeclaredMethod("innerMethod", Object.class);
         Type[] methodParameterTypes = declaredMethods.getGenericParameterTypes();
@@ -271,12 +272,12 @@ public class GenericTypesTest extends GenericReflectionTestsBase {
         Type[] genericExceptionTypes = method.getGenericExceptionTypes();
         assertLenghtOne(genericExceptionTypes);
         assertEquals(typeVariable, genericExceptionTypes[0]);
-        
+
         Class<?>[] declaredClasses = clazz.getDeclaredClasses();
         assertLenghtOne(declaredClasses);
         Class<?> innerClazz = declaredClasses[0];
         assertEquals(ExceptionTest.InnerClass.class, innerClazz);
-        
+
         //method
         Method declaredMethods = innerClazz.getDeclaredMethod("innerExceptionTest");
         Type[] exceptionTypes = declaredMethods.getGenericExceptionTypes();

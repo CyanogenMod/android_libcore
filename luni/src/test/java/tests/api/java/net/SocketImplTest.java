@@ -17,7 +17,7 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
@@ -30,11 +30,11 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
 /*
-* SocketImpl functionality is untestable because of 
+* SocketImpl functionality is untestable because of
 * Socket.setSocketImplFactory method can be specified only once.
 */
 
-@TestTargetClass(value = SocketImpl.class, 
+@TestTargetClass(value = SocketImpl.class,
                  untestedMethods = {
                     @TestTargetNew(
                         level = TestLevel.NOT_FEASIBLE,
@@ -59,13 +59,13 @@ import java.net.SocketImpl;
                         notes = "",
                         method = "close",
                         args = {}
-                    ),   
+                    ),
                     @TestTargetNew(
                         level = TestLevel.NOT_FEASIBLE,
                         notes = "",
                         method = "connect",
                         args = {String.class, int.class}
-                    ),       
+                    ),
                     @TestTargetNew(
                         level = TestLevel.NOT_FEASIBLE,
                         notes = "",
@@ -95,7 +95,7 @@ import java.net.SocketImpl;
                         notes = "",
                         method = "getInetAddress",
                         args = {}
-                    ),     
+                    ),
                     @TestTargetNew(
                         level = TestLevel.NOT_FEASIBLE,
                         notes = "",
@@ -149,7 +149,7 @@ import java.net.SocketImpl;
                         notes = "",
                         method = "setPerformancePreferences",
                         args = {int.class, int.class, int.class}
-                    ),     
+                    ),
                     @TestTargetNew(
                         level = TestLevel.NOT_FEASIBLE,
                         notes = "",
@@ -167,17 +167,17 @@ import java.net.SocketImpl;
                         notes = "",
                         method = "supportsUrgentData",
                         args = {}
-                    ),                    
+                    ),
                     @TestTargetNew(
                         level = TestLevel.NOT_FEASIBLE,
                         notes = "",
                         method = "toString",
                         args = {}
-                    )                    
-                }) 
+                    )
+                })
 public class SocketImplTest extends junit.framework.TestCase {
 
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Regression test.",
@@ -189,10 +189,10 @@ public class SocketImplTest extends junit.framework.TestCase {
         MockSocketImpl mockSocketImpl = new MockSocketImpl();
         assertNull(mockSocketImpl.getFileDescriptor());
     }
-    
+
     // the mock class for test, leave all method empty
     class MockSocketImpl extends SocketImpl{
-        
+
         protected void accept(SocketImpl newSocket) throws IOException {
         }
 
@@ -238,7 +238,7 @@ public class SocketImplTest extends junit.framework.TestCase {
 
         protected void sendUrgentData(int value) throws IOException {
         }
-        
+
         public void setPerformancePreference(int connectionTime,
                 int latency,
                 int bandwidth){
@@ -248,7 +248,7 @@ public class SocketImplTest extends junit.framework.TestCase {
         public FileDescriptor getFileDescriptor() {
             return super.getFileDescriptor();
         }
-        
+
         public void shutdownOutput() throws IOException {
             super.shutdownOutput();
         }

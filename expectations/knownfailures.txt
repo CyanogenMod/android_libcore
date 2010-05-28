@@ -1,0 +1,944 @@
+# This file contains expectations for tests that were annotated with @KnownFailure at the time
+# this file was created.
+
+# Fails in CTS but passes under run-core-tests
+test tests.api.java.io.FileTest#test_deleteOnExit
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test tests.api.java.io.SerializationStressTest4#test_writeObject_Proxy
+result EXEC_FAILED
+
+# Defining classes from byte[] not supported in Android
+test org.apache.harmony.luni.tests.java.lang.ClassTest#test_getClasses_subtest0
+result EXEC_FAILED
+
+# There is no protection domain set in Android.
+test org.apache.harmony.luni.tests.java.lang.ClassTest#test_getProtectionDomain
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test org.apache.harmony.luni.tests.java.lang.RuntimeTest#test_traceMethodCalls
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test tests.api.java.lang.reflect.GenericTypesTest#testSimpleInheritance
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test tests.api.java.lang.reflect.GenericReflectionCornerCases#testMultipleBoundedWildcard
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test tests.api.java.lang.reflect.GenericReflectionCornerCases#testMultipleBoundedWildcardUnEquality
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test tests.api.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_DateTimeConversion
+result EXEC_FAILED
+
+# It's not allowed to pass null as parent class loader to a new ClassLoader anymore. Maybe we need
+# to change URLClassLoader to allow this? It's not specified.
+test tests.api.java.util.ResourceBundleTest#test_getBundleLjava_lang_StringLjava_util_LocaleLjava_lang_ClassLoader
+result EXEC_FAILED
+
+# http://b/1952042 - issues with sockets forgetting their local and remote addresses
+test org.apache.harmony.nio.tests.java.nio.channels.ServerSocketChannelTest#test_accept_Security
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test tests.api.java.nio.charset.CharsetProviderTest#testForName_InsufficientPrivilege
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test tests.api.java.nio.charset.CharsetProviderTest#testIsSupported_And_ForName_NormalProvider
+result EXEC_FAILED
+
+# Fails (probably) because no protection domain is set.
+test org.apache.harmony.security.tests.java.security.AccessController2Test#test_checkPermission_InvalidPermission
+result EXEC_FAILED
+
+# Fails (probably) because no protection domain is set.
+test org.apache.harmony.security.tests.java.security.AccessController2Test#test_doPrivilegedLjava_security_PrivilegedAction
+result EXEC_FAILED
+
+# Fails (probably) because no protection domain is set.
+test org.apache.harmony.security.tests.java.security.AccessController2Test#test_doPrivilegedLjava_security_PrivilegedActionLjava_security_AccessControlContext
+result EXEC_FAILED
+
+# Fails (probably) because no protection domain is set.
+test org.apache.harmony.security.tests.java.security.AccessController2Test#test_doPrivilegedLjava_security_PrivilegedExceptionAction
+result EXEC_FAILED
+
+# Fails (probably) because no protection domain is set.
+test org.apache.harmony.security.tests.java.security.AccessController2Test#test_doPrivilegedLjava_security_PrivilegedExceptionActionLjava_security_AccessControlContext
+result EXEC_FAILED
+
+# Android throws IllegalArgumentException, RI throws NullpointerException
+test org.apache.harmony.security.tests.java.security.SignatureTest#testUpdatebyteArrayintint2
+result EXEC_FAILED
+
+# Android doesn't support protection domains.
+test tests.api.java.security.PermissionCollectionTest#test_impliesLjava_security_Permission
+result EXEC_FAILED
+
+# Android doesn't allow null parent.
+test tests.java.security.SecureClassLoaderTest#testSecureClassLoaderClassLoader
+result EXEC_FAILED
+
+# expired certificate bug 2322662
+test tests.security.cert.CertPathBuilder1Test#testBuild
+result EXEC_FAILED
+
+# expired certificate bug 2322662
+test tests.security.cert.CertPathTest#testSerializationCompatibility
+result EXEC_FAILED
+
+# expired certificate bug 2322662
+test tests.security.cert.CertPathTest#testSerializationSelf
+result EXEC_FAILED
+
+# Assertion does not evaluate to true... Works in javax.Certificate
+test tests.security.cert.CertificateTest#testGetEncoded
+result EXEC_FAILED
+
+# throws SocketException with message: the socket level is invalid. Works on the RI
+test tests.security.permissions.JavaNetSocketTest#test_ctor2
+result EXEC_FAILED
+
+# Not all Drivers are loaded in testsetup. Classloader issue in DriverManager.
+test org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testDeregisterDriver
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.SelectFunctionalityTest#test_SelectRightOuterJoin
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.UpdateFunctionalityTest2#testUpdate2
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.UpdateFunctionalityTest2#testUpdate4
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.UpdateFunctionalityTest2#testUpdate6
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.UpdateFunctionalityTest2#testUpdate7
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DeleteFunctionalityTest#testDelete6
+result EXEC_FAILED
+
+# Not supported : pattern with %
+test tests.java.sql.DatabaseMetaDataTest#test_getColumnsArbitrary
+result EXEC_FAILED
+
+# Wildcard operator does not seem wo work correctly.
+test tests.java.sql.DatabaseMetaDataTest#test_getColumnsSpecific
+result EXEC_FAILED
+
+# Not supported ops applied: test fails on arguments: '', '', '%', '%' 
+test tests.java.sql.DatabaseMetaDataTest#test_getColumnsTableWithNoCatalogSchema
+result EXEC_FAILED
+
+# (Ticket 91) Tables apply foreign key constraint. Catalogs not supported
+test tests.java.sql.DatabaseMetaDataTest#test_getCrossReferenceLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_String
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getDatabaseMajorVersion
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getDatabaseMinorVersion
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getDatabaseProductName
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getDatabaseProductVersion
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getDefaultTransactionIsolation
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getDriverName
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getDriverVersion
+result EXEC_FAILED
+
+# Keys are not supported: Ticket 91
+test tests.java.sql.DatabaseMetaDataTest#test_getImportedKeysLjava_lang_StringLjava_lang_StringLjava_lang_String
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getJDBCMajorVersion
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getJDBCMinorVersion
+result EXEC_FAILED
+
+# Not supported feature, Ticket 98. Broken because NUMERIC_FUNCTIONS not complete. When fixed
+# change to @KnownFailure
+test tests.java.sql.DatabaseMetaDataTest#test_getNumericFunctions
+result EXEC_FAILED
+
+#  Ticket 91 : relies on not supported features: getCatalog, keys
+test tests.java.sql.DatabaseMetaDataTest#test_getPrimaryKeysLjava_lang_StringLjava_lang_StringLjava_lang_String
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getResultSetHoldability
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getSQLKeywords
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getSQLStateType
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getSchemas
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getSearchStringEscape
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataTest#test_getStringFunctions
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataTest#test_getSystemFunctions
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getTableTypes
+result EXEC_FAILED
+
+# If no schema is associated: returns empty string where actually null be returned?. Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getTablesLjava_lang_StringLjava_lang_StringLjava_lang_String$Ljava_lang_String
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataTest#test_getTimeDateFunctions
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataTest#test_getTypeInfo
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_getURL
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_insertsAreDetectedI
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_isReadOnly
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_othersDeletesAreVisibleI
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_othersInsertsAreVisibleI
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_othersUpdatesAreVisibleI
+result EXEC_FAILED
+
+# not supported. SQLException checking test fails
+test tests.java.sql.DatabaseMetaDataTest#test_supportsColumnAliasing
+result EXEC_FAILED
+
+# exception test fails
+test tests.java.sql.DatabaseMetaDataTest#test_supportsExpressionsInOrderBy
+result EXEC_FAILED
+
+# exception test fails
+test tests.java.sql.DatabaseMetaDataTest#test_supportsGroupBy
+result EXEC_FAILED
+
+# exception test fails
+test tests.java.sql.DatabaseMetaDataTest#test_supportsGroupByUnrelated
+result EXEC_FAILED
+
+# Ticket 98
+test tests.java.sql.DatabaseMetaDataTest#test_supportsNonNullableColumns
+result EXEC_FAILED
+
+# exception test fails
+test tests.java.sql.DatabaseMetaDataTest#test_supportsOrderByUnrelated
+result EXEC_FAILED
+
+# exception test fails
+test tests.java.sql.DatabaseMetaDataTest#test_supportsSelectForUpdate
+result EXEC_FAILED
+
+# exception test fails
+test tests.java.sql.DatabaseMetaDataTest#test_supportsSubqueriesInExists
+result EXEC_FAILED
+
+# exception test fails
+test tests.java.sql.DatabaseMetaDataTest#test_supportsTableCorrelationNames
+result EXEC_FAILED
+
+# Not supported ops applied
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_allTablesAreSelectable
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_doesMaxRowSizeIncludeBlobs
+result EXEC_FAILED
+
+# not supported. Privileges are not supported.
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getColumnPrivilegesLjava_lang_StringLjava_lang_StringLjava_lang_StringLjava_lang_String
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getExportedKeysLjava_lang_StringLjava_lang_StringLjava_lang_String
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getIndexInfoLjava_lang_StringLjava_lang_StringLjava_lang_StringZZ
+result EXEC_FAILED
+
+# Exception test fails
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getMaxTableNameLength
+result EXEC_FAILED
+
+# Exception test fails
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getMaxTablesInSelect
+result EXEC_FAILED
+
+# Exception test fails
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getMaxUserNameLength
+result EXEC_FAILED
+
+# Exception test fails
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getProcedureTerm
+result EXEC_FAILED
+
+# Exception test fails
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getSchemaTerm
+result EXEC_FAILED
+
+# not supported. Privileges are not supported.
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getTablePrivilegesLjava_lang_StringLjava_lang_StringLjava_lang_String
+result EXEC_FAILED
+
+# Not supported ops applied
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_getVersionColumnsLjava_lang_StringLjava_lang_StringLjava_lang_String
+result EXEC_FAILED
+
+# Exception test fails
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_isCatalogAtStart
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_locatorsUpdateCopy
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsANSI92EntryLevelSQL
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsDataDefinitionAndDataManipulationTransactions
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsMinimumSQLGrammar
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsResultSetTypeI
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsSubqueriesInComparisons
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsSubqueriesInIns
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_supportsTransactions
+result EXEC_FAILED
+
+# not supported
+test tests.java.sql.DatabaseMetaDataNotSupportedTest#test_usesLocalFiles
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testClearWarnings
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testCreateStatementIntIntIntNotSupported
+result EXEC_FAILED
+
+# Scrolling on a forward only RS not allowed. conn.close() does not wrap up
+test tests.sql.ConnectionTest#testCreateStatement_int_int
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testGetCatalog
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testGetHoldability
+result EXEC_FAILED
+
+# conn.close() does not wrap up
+test tests.sql.ConnectionTest#testGetMetaData
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testGetTransactionIsolation
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testGetWarnings
+result EXEC_FAILED
+
+# conn.close() does not wrap up
+test tests.sql.ConnectionTest#testIsReadOnly
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testPrepareStatementNotSupported
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testPrepareStatement_String_int
+result EXEC_FAILED
+
+# conn.close() does not wrap up
+test tests.sql.ConnectionTest#testSetAutoCommit
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testSetHoldability
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ConnectionTest#testSetReadOnly
+result EXEC_FAILED
+
+# First Exception test fails: parameters not cleared.
+test tests.sql.PreparedStatementTest#testClearParameters
+result EXEC_FAILED
+
+# preparedStatement.execute() does not return false on update.
+test tests.sql.PreparedStatementTest#testExecute
+result EXEC_FAILED
+
+# it is not possible to invoke the method getMetaData on a PreparedStatement object before it is
+# executed: got NullPointerException.Test passes on RI.
+test tests.sql.PreparedStatementTest#testGetMetaData
+result EXEC_FAILED
+
+# preparedStatement.execute() does not return false on update.
+test tests.sql.PreparedStatementTest#testSetBigDecimal
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetBoolean
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetByte
+result EXEC_FAILED
+
+# preparedStatement.execute() does not return false on update.
+test tests.sql.PreparedStatementTest#testSetBytes
+result EXEC_FAILED
+
+# preparedStatement.execute() does not return false on update. Setting a data for a declared
+# INTEGER should throw Exception
+test tests.sql.PreparedStatementTest#testSetDate_int_Date
+result EXEC_FAILED
+
+# preparedStatement.execute() does not return false on update.
+test tests.sql.PreparedStatementTest#testSetDate_int_Date_Calendar
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetDouble
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetFloat
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetInt
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetLong
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetObject_int_Object
+result EXEC_FAILED
+
+# Fails for Types.DATE
+test tests.sql.PreparedStatementTest#testSetObject_int_Object_int
+result EXEC_FAILED
+
+# Fails for Types.DATE
+test tests.sql.PreparedStatementTest#testSetObject_int_Object_int_int
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetShort
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetString_charField
+result EXEC_FAILED
+
+# exception test fails
+test tests.sql.PreparedStatementTest#testSetString_longTextField
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.PreparedStatementTest#testSetString_tinyTextField
+result EXEC_FAILED
+
+# preparedStatement.execute() does not return False on update.
+test tests.sql.PreparedStatementTest#testSetTime_int_Time_Calendar
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.PreparedStatementTest#testSetTimeint_Time
+result EXEC_FAILED
+
+# preparedStatement.execute() does not return false on update.
+test tests.sql.PreparedStatementTest#testSetTimestampIntTimestampCalendar
+result EXEC_FAILED
+
+# preparedStatement.execute() does not return false on update.
+test tests.sql.PreparedStatementTest#testSetTimestamp_int_Timestamp
+result EXEC_FAILED
+
+# last assertion fails: invalid conversion. Test passes on RI
+test tests.sql.ResultSetGetterTests#testGetBytesStringBinary
+result EXEC_FAILED
+
+# last assertion fails: invalid conversion. Test passes on RI
+test tests.sql.ResultSetGetterTests#testGetBytesStringVarbinary
+result EXEC_FAILED
+
+# Wrong value returned for Long: java.lang.String (VARCHAR)
+test tests.sql.ResultSetGetterTests#testGetMetaData
+result EXEC_FAILED
+
+# Wrong value returned for Long: java.lang.String
+test tests.sql.ResultSetGetterTests#testGetObjectInt
+result EXEC_FAILED
+
+# Wrong value returned for Long: java.lang.String
+test tests.sql.ResultSetGetterTests#testGetObjectString
+result EXEC_FAILED
+
+# If there is no current row 0 must be returned. res.close() does not wrap up
+test tests.sql.ResultSetGetterTests#testGetRow
+result EXEC_FAILED
+
+# According to spec info.getStatement should return null but an exception is thrown: stale result
+# set.
+test tests.sql.ResultSetGetterTests#testGetStatement
+result EXEC_FAILED
+
+# getTime should return Time value for a TIMESTAMP type but returns null
+test tests.sql.ResultSetGetterTests#testGetTimeInt
+result EXEC_FAILED
+
+# getTime on TIMESTAMP value fails: returns null
+test tests.sql.ResultSetGetterTests#testGetTimeIntCalendar
+result EXEC_FAILED
+
+# getTime should return a Time value for a TIMESTAMP type but returns null
+test tests.sql.ResultSetGetterTests#testGetTimeString
+result EXEC_FAILED
+
+# getTime on TIMESTAMP value fails: returns null
+test tests.sql.ResultSetGetterTests#testGetTimeStringCalendar
+result EXEC_FAILED
+
+# res.close() does not wrap up
+test tests.sql.ResultSetGetterTests#testGetType
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testGetCatalogName
+result EXEC_FAILED
+
+# SQLException checking test fails
+test tests.sql.ResultSetMetaDataTest#testGetColumnCount
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testGetColumnDisplaySize
+result EXEC_FAILED
+
+# Column label has format TABLE.COLUMN expected: COLUMN
+test tests.sql.ResultSetMetaDataTest#testGetColumnLabel
+result EXEC_FAILED
+
+# Column label has format TABLE.COLUMN expected: COLUMN
+test tests.sql.ResultSetMetaDataTest#testGetColumnName
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testGetPrecision
+result EXEC_FAILED
+
+# Not supported
+test tests.sql.ResultSetMetaDataTest#testGetScale
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testGetSchema
+result EXEC_FAILED
+
+# For int = 0, exception expected
+test tests.sql.ResultSetMetaDataTest#testGetTableName
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testIsCaseSensitive
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testIsCurrency
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testIsDefinitlyWritable
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testIsNullable
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testIsReadOnly
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testIsSearchable
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testIsSigned
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testIsWritable
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetMetaDataTest#testisAutoIncrement
+result EXEC_FAILED
+
+# res.close() does not wrap up
+test tests.sql.ResultSetTest#testAfterLast
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.ResultSetTest#testBeforeFirst
+result EXEC_FAILED
+
+# Not supported
+test tests.sql.ResultSetTest#testClearWarnings
+result EXEC_FAILED
+
+# Resultset.close() does not wrap up
+test tests.sql.ResultSetTest#testClose1
+result EXEC_FAILED
+
+# Resultset.close() does not wrap up
+test tests.sql.ResultSetTest#testNext
+result EXEC_FAILED
+
+# no exception is thrown when moving cursor backwards on forward only statement
+test tests.sql.ResultSetTest#testRelative
+result EXEC_FAILED
+
+# Scrollable resultSet. Not supported
+test tests.sql.ResultSetTest#testRelativeScrollableResultSet
+result EXEC_FAILED
+
+# not supported
+test tests.sql.ResultSetTest#testUpdateObjectStringObject
+result EXEC_FAILED
+
+# Feature not supported
+test tests.sql.ResultSetTest#testUpdateStringStringString
+result EXEC_FAILED
+
+# the default tests, and exception tests fail.
+test tests.sql.ResultSetTest#testWasNull
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.ResultSetTest#testtestFirst
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.ResultSetTest#testtestIsAfterLast
+result EXEC_FAILED
+
+# In Second code block assertion fails. statment. close() does not wrap up
+test tests.sql.ResultSetTest#testtestIsBeforeFirst
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.ResultSetTest#testtestIsFirst
+result EXEC_FAILED
+
+# Second block first assertion fails. Is Last should evaluate true if the row on which the cursor
+# is actually provides a result.statment.close() does not wrap up
+test tests.sql.ResultSetTest#testtestIsLast
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.ResultSetTest#testtestLast
+result EXEC_FAILED
+
+# Bug in implementation of cancel: Does not fulfill spec.
+test tests.sql.StatementTest#testCancel
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.StatementTest#testClose
+result EXEC_FAILED
+
+# Return value wrong for queries below.
+test tests.sql.StatementTest#testExecute
+result EXEC_FAILED
+
+# always returns 1 for no. of updates
+test tests.sql.StatementTest#testExecuteBatch
+result EXEC_FAILED
+
+# Does throw an exception on non select statment.
+test tests.sql.StatementTest#testExecuteQuery_String
+result EXEC_FAILED
+
+# Spec is not precise enough: should be: number of rows affected. eg. to be consistent for deletes:
+# 'delete from s1;' should be different from 'delete from s1 where c1 = 1;' 
+test tests.sql.StatementTest#testExecuteUpdate_String
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.StatementTest#testGetConnection
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.StatementTest#testGetFetchDirection
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.StatementTest#testGetFetchSize
+result EXEC_FAILED
+
+# not supported
+test tests.sql.StatementTest#testGetMoreResults
+result EXEC_FAILED
+
+# An other value is returned than was set (X * 1000)
+test tests.sql.StatementTest#testGetQueryTimeout
+result EXEC_FAILED
+
+# Does not return null on update count > 0 (not a select statement) 
+test tests.sql.StatementTest#testGetResultSet
+result EXEC_FAILED
+
+# Not supported
+test tests.sql.StatementTest#testGetResultSetConcurrency
+result EXEC_FAILED
+
+# Test for default value fails
+test tests.sql.StatementTest#testGetResultSetHoldability
+result EXEC_FAILED
+
+# not fully supported
+test tests.sql.StatementTest#testGetResultSetType
+result EXEC_FAILED
+
+# statment.close() does not wrap up
+test tests.sql.StatementTest#testGetUpdateCount
+result EXEC_FAILED
+
+# Error in implementation either setter or getter fails. Getter spec is not explicit about unit.
+test tests.sql.StatementTest#testSetQueryTimeout
+result EXEC_FAILED
+
+# Fails in CTS but passes under run-core-tests
+test org.apache.harmony.text.tests.java.text.DecimalFormatTest#test_formatToCharacterIteratorLjava_lang_Object
+result EXEC_FAILED
+
+# Handshake Status is never finished. NPE in ClientSessionContext$HostAndPort.hashCode() when host
+# is null
+test tests.api.javax.net.ssl.SSLEngineTest#testHandshake
+result EXEC_FAILED
+
+# org.apache.harmony.xnet.provider.jsse.SSLEngineImpl#getDelegatedTask() throws NPE instead of
+# returning null
+test tests.api.javax.net.ssl.SSLEngineTest#test_getDelegatedTask
+result EXEC_FAILED
+
+# Fixed in DonutBurger, boundary checks missing
+test tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_02
+result EXEC_FAILED
+
+# Fixed on DonutBurger, Wrong Exception thrown
+test tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_03
+result EXEC_FAILED
+
+# Fixed on DonutBurger, Wrong Exception thrown
+test tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_04
+result EXEC_FAILED
+
+# Fixed on DonutBurger, Wrong Exception thrown
+test tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_ByteBuffer$ByteBuffer_02
+result EXEC_FAILED
+
+# Fixed on DonutBurger, Wrong Exception thrown
+test tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_ByteBuffer$ByteBuffer_03
+result EXEC_FAILED
+
+# Fixed on DonutBurger, Wrong Exception thrown
+test tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_ByteBuffer_ByteBuffer_02
+result EXEC_FAILED
+
+# Fixed on DonutBurger, Wrong Exception thrown
+test tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_ByteBuffer_ByteBuffer_03
+result EXEC_FAILED
+
+# Fixed in DonutBurger, boundary checks missing
+test tests.api.javax.net.ssl.SSLEngineTest#test_wrap_02
+result EXEC_FAILED
+
+# Fixed on DonutBurger, Wrong Exception thrown
+test tests.api.javax.net.ssl.SSLEngineTest#test_wrap_04
+result EXEC_FAILED
+
+# Fixed on DonutBurger, Wrong Exception thrown
+test tests.api.javax.net.ssl.SSLEngineTest#test_wrap_ByteBuffer$ByteBuffer_03
+result EXEC_FAILED
+
+# Fixed on DonutBurger, Wrong Exception thrown
+test tests.api.javax.net.ssl.SSLEngineTest#test_wrap_ByteBuffer_ByteBuffer_03
+result EXEC_FAILED
+
+# ManagerFactoryParameters object is not supported and InvalidAlgorithmParameterException was
+# thrown.
+test tests.api.javax.net.ssl.TrustManagerFactory1Test#test_initLjavax_net_ssl_ManagerFactoryParameters
+result EXEC_FAILED
+
+# DefaultHostnameVerifier is broken on Android, fixed in donutburger
+test tests.api.javax.net.ssl.HostnameVerifierTest#testSubjectAlt
+result EXEC_FAILED
+
+# NO SERVER CERTIFICATE FOUND - selectSuite should not pick a suite that needs a certificate if it is missing
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_beginHandshake_noKeyStore
+result EXEC_FAILED
+
+# NO SERVER CERTIFICATE FOUND - selectSuite should not pick a suite that needs a certificate if it is missing
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_getSupportedCipherSuites_connect
+result EXEC_FAILED
+
+# init - invalid private key
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_clientAuth
+result EXEC_FAILED
+
+# AlertException instead of SSLException
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_client
+result EXEC_FAILED
+
+# SSLException instead of failure to handshake
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_server
+result EXEC_FAILED
+
+# SSLHandshakeException instead of failure to handshake
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_setUseClientMode
+result EXEC_FAILED
+
+# No *_WITH_NULL_* ciphers work because of 'Invalid transformation: null'
+test javax.net.ssl.SSLEngineTest#test_SSLEngine_getSupportedCipherSuites_connect
+result EXEC_FAILED
+
+# method test fails once in a while. Cannot be sure that exception is thrown in every test execution.
+test tests.SQLite.DatabaseTest#testBusy_handler
+result EXEC_FAILED
+
+# Database does not lock values
+test tests.SQLite.DatabaseTest#testBusy_timeout
+result EXEC_FAILED
+
+# Returns wrong number for updates: returns value > 1 for select.
+test tests.SQLite.DatabaseTest#testChanges
+result EXEC_FAILED
+
+# Aggregation function not called
+test tests.SQLite.DatabaseTest#testCreate_aggregate
+result EXEC_FAILED
+
+# Reason for failure unknown: Database should be locked. Specification of interrupt is scarce.
+test tests.SQLite.DatabaseTest#testInterrupt
+result EXEC_FAILED
+
+# not supported
+test tests.SQLite.DatabaseTest#testOpen_blob
+result EXEC_FAILED
+
+# Callback never made for authorization. Results of private table are returned withouth furhter checks.
+test tests.SQLite.DatabaseTest#testSet_authorizer
+result EXEC_FAILED
+
+# ASCII encoding does not work: a UTF encoded val is returned. Spec is not sufficient. Might be that test impl is wrong or String constructor for the ASCII encoding.
+test tests.SQLite.DatabaseTest#testSet_encoding
+result EXEC_FAILED
+
+# db.open_blob is not supported.
+test tests.SQLite.BlobTest#testBlob
+result EXEC_FAILED
+
+# Wrong value is returned in case of a prepared statment to which a '*' bound
+test tests.SQLite.StmtTest#testColumn_count
+result EXEC_FAILED
+
+# ZeroBlob not supported
+test tests.SQLite.FunctionContextTest#testSet_result_zeroblob
+result EXEC_FAILED

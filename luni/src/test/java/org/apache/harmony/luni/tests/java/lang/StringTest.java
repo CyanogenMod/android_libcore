@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -17,31 +17,40 @@
 
 package org.apache.harmony.luni.tests.java.lang;
 
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargetNew;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
+import java.nio.charset.Charset;
+import java.util.SortedMap;
 
 import junit.framework.TestCase;
 
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-
-@TestTargetClass(String.class) 
 public class StringTest extends TestCase {
 
-    private static String newString(int start, int len, char[] data) {
-        return new String(data, start,len);
+    private static final Constructor<String> UNSAFE_CONSTRUCTOR;
+    static {
+        Constructor<String> uc;
+        try {
+            uc = String.class.getDeclaredConstructor(new Class[] { int.class,
+                    int.class, char[].class });
+            uc.setAccessible(true);
+        } catch (Exception e) {
+            uc = null;
+        }
+        UNSAFE_CONSTRUCTOR = uc;
     }
-    
+
+    private static String newString(int start, int len, char[] data) throws Exception {
+        if (UNSAFE_CONSTRUCTOR == null) {
+            return new String(data, start, len);
+        }
+
+        return UNSAFE_CONSTRUCTOR.newInstance(Integer.valueOf(start), Integer.valueOf(len),
+                    data);
+    }
+
     /**
      * @tests java.lang.String#String()
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {}
-    )
     public void test_Constructor() {
         assertEquals("Created incorrect string", "", new String());
     }
@@ -49,12 +58,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(byte[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {byte[].class}
-    )
     public void test_Constructor$B() {
         assertEquals("Failed to create string", "HelloWorld", new String(
                 "HelloWorld".getBytes()));
@@ -63,12 +66,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(byte[], int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {byte[].class, int.class}
-    )
     @SuppressWarnings("deprecation")
     public void test_Constructor$BI() {
         String s = new String(new byte[] { 65, 66, 67, 68, 69 }, 0);
@@ -80,12 +77,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(byte[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {byte[].class, int.class, int.class}
-    )
     public void test_Constructor$BII() {
         byte[] hwba = "HelloWorld".getBytes();
         assertEquals("Failed to create string", "HelloWorld", new String(hwba,
@@ -101,12 +92,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(byte[], int, int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "IndexOutOfBoundsException is not verified.",
-        method = "String",
-        args = {byte[].class, int.class, int.class, int.class}
-    )
     @SuppressWarnings("deprecation")
     public void test_Constructor$BIII() {
         String s = new String(new byte[] { 65, 66, 67, 68, 69 }, 0, 1, 3);
@@ -118,33 +103,21 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(byte[], int, int, java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {byte[].class, int.class, int.class, java.lang.String.class}
-    )
     public void test_Constructor$BIILjava_lang_String() throws Exception {
         String s = new String(new byte[] { 65, 66, 67, 68, 69 }, 0, 5, "8859_1");
         assertEquals("Incorrect string returned: " + s, "ABCDE", s);
-        
+
         try {
-            new String(new byte[] { 65, 66, 67, 68, 69 }, 0, 5, "");
-            fail("Should throw UnsupportedEncodingException");
+        	new String(new byte[] { 65, 66, 67, 68, 69 }, 0, 5, "");
+        	fail("Should throw UnsupportedEncodingException");
         } catch (UnsupportedEncodingException e) {
-            //expected
+        	//expected
         }
     }
 
     /**
      * @tests java.lang.String#String(byte[], java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL,
-        notes = "UnsupportedEncodingException is not verified.",
-        method = "String",
-        args = {byte[].class, java.lang.String.class}
-    )
     public void test_Constructor$BLjava_lang_String() throws Exception {
         String s = new String(new byte[] { 65, 66, 67, 68, 69 }, "8859_1");
         assertEquals("Incorrect string returned: " + s, "ABCDE", s);
@@ -153,12 +126,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(char[])
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {char[].class}
-    )
     public void test_Constructor$C() {
         assertEquals("Failed Constructor test", "World", new String(new char[] {
                 'W', 'o', 'r', 'l', 'd' }));
@@ -167,12 +134,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(char[], int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {char[].class, int.class, int.class}
-    )
     public void test_Constructor$CII() throws Exception {
         char[] buf = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd' };
         String s = new String(buf, 0, buf.length);
@@ -188,12 +149,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(java.lang.String)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {java.lang.String.class}
-    )
     public void test_ConstructorLjava_lang_String() {
         String s = new String("Hello World");
         assertEquals("Failed to construct correct string", "Hello World", s);
@@ -202,12 +157,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(java.lang.StringBuffer)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {java.lang.StringBuffer.class}
-    )
     public void test_ConstructorLjava_lang_StringBuffer() {
         StringBuffer sb = new StringBuffer();
         sb.append("HelloWorld");
@@ -217,12 +166,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(java.lang.StringBuilder)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {java.lang.StringBuilder.class}
-    )
     public void test_ConstructorLjava_lang_StringBuilder() {
         StringBuilder sb = new StringBuilder(32);
         sb.append("HelloWorld");
@@ -238,12 +181,6 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#String(int[],int,int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "String",
-        args = {int[].class, int.class, int.class}
-    )
     public void test_Constructor$III() {
         assertEquals("HelloWorld", new String(new int[] { 'H', 'e', 'l', 'l',
                 'o', 'W', 'o', 'r', 'l', 'd' }, 0, 10));
@@ -292,13 +229,7 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#contentEquals(CharSequence)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "contentEquals",
-        args = {java.lang.CharSequence.class}
-    )
-    public void test_contentEqualsLjava_lang_CharSequence() {
+    public void test_contentEqualsLjava_lang_CharSequence() throws Exception {
         String s = "abc";
         assertTrue(s.contentEquals((CharSequence) new StringBuffer("abc")));
         assertFalse(s.contentEquals((CharSequence) new StringBuffer("def")));
@@ -315,18 +246,12 @@ public class StringTest extends TestCase {
         } catch (NullPointerException e) {
         }
     }
-    
+
     /**
      * @tests java.lang.String#contentEquals(StringBuffer)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "contentEquals",
-        args = {java.lang.StringBuffer.class}
-    )
     @SuppressWarnings("nls")
-    public void test_boolean_contentEquals_StringBuffer() {
+    public void test_boolean_contentEquals_StringBuffer() throws Exception {
         String s = "abc";
         assertTrue(s.contentEquals(new StringBuffer("abc")));
         assertFalse(s.contentEquals(new StringBuffer("def")));
@@ -348,14 +273,8 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String#contains(CharSequence)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "contains",
-        args = {java.lang.CharSequence.class}
-    )
     @SuppressWarnings("cast")
-    public void test_containsLjava_lang_CharSequence() {
+    public void test_containsLjava_lang_CharSequence() throws Exception {
         String s = "abcdefghijklmnopqrstuvwxyz";
         assertTrue(s.contains((CharSequence) new StringBuffer("abc")));
         assertTrue(s.contains((CharSequence) new StringBuffer("def")));
@@ -376,13 +295,7 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.String.offsetByCodePoints(int, int)'
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "offsetByCodePoints",
-        args = {int.class, int.class}
-    )
-    public void test_offsetByCodePointsII() {
+    public void test_offsetByCodePoints_II() throws Exception {
         int result = new String("a\uD800\uDC00b").offsetByCodePoints(0, 2);
         assertEquals(3, result);
 
@@ -469,7 +382,7 @@ public class StringTest extends TestCase {
             fail("No IOOBE for index that's too large.");
         } catch (IndexOutOfBoundsException e) {
         }
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         try {
             s.offsetByCodePoints(-1, 1);
@@ -505,18 +418,12 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.StringBuilder.codePointAt(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "codePointAt",
-        args = {int.class}
-    )
-    public void test_codePointAtI() {
+    public void test_codePointAtI() throws Exception {
         String s = "abc";
         assertEquals('a', s.codePointAt(0));
         assertEquals('b', s.codePointAt(1));
         assertEquals('c', s.codePointAt(2));
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         assertEquals('a', s.codePointAt(0));
         assertEquals('b', s.codePointAt(1));
@@ -525,7 +432,7 @@ public class StringTest extends TestCase {
         s = "\uD800\uDC00";
         assertEquals(0x10000, s.codePointAt(0));
         assertEquals('\uDC00', s.codePointAt(1));
-        
+
         s = newString(2,2,"__\uD800\uDC00__".toCharArray());
         assertEquals(0x10000, s.codePointAt(0));
         assertEquals('\uDC00', s.codePointAt(1));
@@ -548,7 +455,7 @@ public class StringTest extends TestCase {
             fail("No IOOBE on index greater than length.");
         } catch (IndexOutOfBoundsException e) {
         }
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         try {
             s.codePointAt(-1);
@@ -572,18 +479,12 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.StringBuilder.codePointBefore(int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "codePointBefore",
-        args = {int.class}
-    )
-    public void test_codePointBeforeI() {
+    public void test_codePointBeforeI() throws Exception {
         String s = "abc";
         assertEquals('a', s.codePointBefore(1));
         assertEquals('b', s.codePointBefore(2));
         assertEquals('c', s.codePointBefore(3));
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         assertEquals('a', s.codePointBefore(1));
         assertEquals('b', s.codePointBefore(2));
@@ -592,7 +493,7 @@ public class StringTest extends TestCase {
         s = "\uD800\uDC00";
         assertEquals(0x10000, s.codePointBefore(2));
         assertEquals('\uD800', s.codePointBefore(1));
-        
+
         s = newString(2,2,"__\uD800\uDC00__".toCharArray());
         assertEquals(0x10000, s.codePointBefore(2));
         assertEquals('\uD800', s.codePointBefore(1));
@@ -615,7 +516,7 @@ public class StringTest extends TestCase {
             fail("No IOOBE on index greater than length.");
         } catch (IndexOutOfBoundsException e) {
         }
-        
+
         s = newString(2,3,"__abc__".toCharArray());
         try {
             s.codePointBefore(0);
@@ -639,13 +540,7 @@ public class StringTest extends TestCase {
     /**
      * @tests java.lang.StringBuilder.codePointCount(int, int)
      */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "codePointCount",
-        args = {int.class, int.class}
-    )
-    public void test_codePointCountII() {
+    public void test_codePointCountII() throws Exception {
         assertEquals(1, "\uD800\uDC00".codePointCount(0, 2));
         assertEquals(1, "\uD800\uDC01".codePointCount(0, 2));
         assertEquals(1, "\uD801\uDC01".codePointCount(0, 2));
@@ -653,7 +548,7 @@ public class StringTest extends TestCase {
 
         assertEquals(3, "a\uD800\uDC00b".codePointCount(0, 4));
         assertEquals(4, "a\uD800\uDC00b\uD800".codePointCount(0, 5));
-        
+
         assertEquals(1, newString(2,2,"__\uD800\uDC00__".toCharArray()).codePointCount(0, 2));
         assertEquals(1, newString(2,2,"__\uD800\uDC01__".toCharArray()).codePointCount(0, 2));
         assertEquals(1, newString(2,2,"__\uD801\uDC01__".toCharArray()).codePointCount(0, 2));
@@ -680,7 +575,7 @@ public class StringTest extends TestCase {
             fail("No IOOBE for begin index larger than end index.");
         } catch (IndexOutOfBoundsException e) {
         }
-        
+
         s = newString(2, 3, "__abc__".toCharArray());
         try {
             s.codePointCount(-1, 2);
@@ -701,39 +596,164 @@ public class StringTest extends TestCase {
         }
     }
 
-    @TestTargetNew(
-        level = TestLevel.ADDITIONAL,
-        notes = "Regression test for some existing bugs and crashes",
-        method = "format",
-        args = { String.class, Object[].class }
-    )
-    public void testProblemCases() {
-        BigDecimal[] input = new BigDecimal[] {
-            new BigDecimal("20.00000"),
-            new BigDecimal("20.000000"),
-            new BigDecimal(".2"),
-            new BigDecimal("2"),
-            new BigDecimal("-2"),
-            new BigDecimal("200000000000000000000000"),
-            new BigDecimal("20000000000000000000000000000000000000000000000000")
-        };
-
-        String[] output = new String[] {
-                "20.00",
-                "20.00",
-                "0.20",
-                "2.00",
-                "-2.00",
-                "200000000000000000000000.00",
-                "20000000000000000000000000000000000000000000000000.00"
-        };
-        
-        for (int i = 0; i < input.length; i++) {
-            String result = String.format("%.2f", input[i]);
-            assertEquals("Format test for \"" + input[i] + "\" failed, " +
-                    "expected=" + output[i] + ", " +
-                    "actual=" + result, output[i], result);
+    /**
+     * @tests {@link java.lang.String#String(byte[], int, int, Charset)}
+     *
+     * @since 1.6
+     */
+    public void test_ConstructorBIIL() throws Exception {
+        // can construct normally
+        new String(new byte[8], 0, 4, Charset.defaultCharset());
+        new String(new byte[8], 8, 0, Charset.defaultCharset());
+        new String(new byte[0], 0, 0, Charset.defaultCharset());
+        // throws exceptions
+        try {
+            new String(new byte[8], 0, 9, Charset.defaultCharset());
+            fail("should throw StringIndexOutOfBoundsException");
+        } catch (StringIndexOutOfBoundsException e) {
+            // expected
+        }
+        try {
+            new String(new byte[8], 9, 0, Charset.defaultCharset());
+            fail("should throw StringIndexOutOfBoundsException");
+        } catch (StringIndexOutOfBoundsException e) {
+            // expected
+        }
+        try {
+            new String(new byte[8], -1, 0, Charset.defaultCharset());
+            fail("should throw StringIndexOutOfBoundsException");
+        } catch (StringIndexOutOfBoundsException e) {
+            // expected
+        }
+        try {
+            new String(new byte[8], 9, -1, Charset.defaultCharset());
+            fail("should throw StringIndexOutOfBoundsException");
+        } catch (StringIndexOutOfBoundsException e) {
+            // expected
+        }
+        try {
+            new String(null, -1, 0, Charset.defaultCharset());
+            fail("should throw StringIndexOutOfBoundsException");
+        } catch (StringIndexOutOfBoundsException e) {
+            // expected
+        }
+        try {
+            new String(null, 0, -1, Charset.defaultCharset());
+            fail("should throw StringIndexOutOfBoundsException");
+        } catch (StringIndexOutOfBoundsException e) {
+            // expected
+        }
+        try {
+            new String(null, 0, 9, Charset.defaultCharset());
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
+        try {
+            new String(null, 0, 0, Charset.defaultCharset());
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
+        try {
+            new String(null, -1, 0, (Charset)null);
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
+        try {
+            new String(new byte[8], -1, 0, (Charset)null);
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
+        try {
+            new String(new byte[8], 0, 9, (Charset)null);
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
+        try {
+            new String(new byte[8], 0, 4, (Charset)null);
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
         }
     }
-    
+
+    /**
+     * @tests {@link java.lang.String#String(byte[], Charset)}
+     *
+     *  @since 1.6
+     */
+    public void test_ConstructorBL() throws Exception {
+        new String(new byte[8], Charset.defaultCharset());
+        try {
+            new String(new byte[8],(Charset)null);
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
+        try {
+            new String(new byte[0],(Charset)null);
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
+        try {
+            new String(null,Charset.defaultCharset());
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
+        new String(new byte[0], Charset.defaultCharset());
+    }
+
+    /**
+     * @tests {@link java.lang.String#isEmpty()}
+     *
+     * @since 1.6
+     */
+    public void test_isEmpty() throws Exception {
+        assertTrue(new String(new byte[0], Charset.defaultCharset()).isEmpty());
+        assertTrue(new String(new byte[8], Charset.defaultCharset()).substring(0, 0).isEmpty());
+    }
+
+    /**
+     * @tests {@link java.lang.String#getBytes(Charset)}
+     *
+     * @since 1.6
+     */
+    public void test_getBytesLCharset() throws Exception {
+        byte[] emptyBytes = new byte[0];
+        byte[] someBytes = new byte[]{'T','h','i','s',' ',' ','i','s',' ','t','e','s','t',' ','b','y','t','e','s'};
+        assertEquals(0, new String(emptyBytes, Charset.defaultCharset()).getBytes(Charset.defaultCharset()).length);
+        try{
+            new String(emptyBytes, Charset.defaultCharset()).getBytes((Charset)null);
+            fail("should throw NPE");
+        } catch (NullPointerException e){
+            // correct
+        }
+        assertTrue(bytesEquals(someBytes,new String(someBytes, Charset.defaultCharset()).getBytes(Charset.defaultCharset())));
+        SortedMap<String, Charset> charsets = Charset.availableCharsets();
+
+        Charset ascii = charsets.get("US-ASCII");
+        Charset utf8 = charsets.get("UTF-8");
+        if (charsets.size() >= 2){
+            // assertTrue(bytesEquals(someBytes,new String(someBytes, charsets.get(charsets.firstKey())).getBytes(charsets.get(charsets.lastKey()))));  android-changed: invalid test
+            assertFalse(bytesEquals("\u4f60\u597d".getBytes(ascii), "\u4f60\u597d".getBytes(utf8)));
+        }
+    }
+
+    boolean bytesEquals(byte[] bytes1, byte[] bytes2){
+        if (bytes1.length == bytes2.length){
+            for (int i = 0; i < bytes1.length; i++){
+                if (bytes1[i] != bytes2[i]){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 }

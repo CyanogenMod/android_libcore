@@ -30,7 +30,7 @@ import java.util.EventListenerProxy;
 public class EventListenerProxyTest extends TestCase {
 
     class Mock_EventListener implements EventListener {
-        
+
     }
 
     class Mock_EventListenerProxy extends EventListenerProxy {
@@ -38,9 +38,9 @@ public class EventListenerProxyTest extends TestCase {
         public Mock_EventListenerProxy(EventListener listener) {
             super(listener);
         }
-        
+
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -61,7 +61,7 @@ public class EventListenerProxyTest extends TestCase {
     public void testGetListener() {
         EventListener el = new Mock_EventListener();
         EventListenerProxy elp = new Mock_EventListenerProxy(el);
-        
+
         assertSame(el, elp.getListener());
     }
 

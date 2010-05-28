@@ -23,9 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Permission;
 import java.security.PermissionCollection;
-
 import org.apache.harmony.luni.util.Inet6Util;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * Regulates the access to network operations available through sockets through
@@ -123,12 +121,12 @@ public final class SocketPermission extends Permission implements Serializable {
      *            the action string of this permission.
      */
     public SocketPermission(String host, String action) {
-        super(host.equals("") ? "localhost" : host); //$NON-NLS-1$ //$NON-NLS-2$
+        super(host.isEmpty() ? "localhost" : host);
         hostName = getHostString(host);
         if (action == null) {
             throw new NullPointerException();
         }
-        if (action.equals("")) { //$NON-NLS-1$
+        if (action.isEmpty()) {
             throw new IllegalArgumentException();
         }
 
@@ -206,7 +204,7 @@ public final class SocketPermission extends Permission implements Serializable {
      *            java.lang.String the action list
      */
     private void setActions(String actions) throws IllegalArgumentException {
-        if (actions.equals("")) { //$NON-NLS-1$
+        if (actions.isEmpty()) {
             return;
         }
         boolean parsing = true;
@@ -232,8 +230,7 @@ public final class SocketPermission extends Permission implements Serializable {
             } else if (action.equals(actionNames[SP_RESOLVE])) {
                 // do nothing
             } else {
-                throw new IllegalArgumentException(Msg.getString("K0048", //$NON-NLS-1$
-                        action));
+                throw new IllegalArgumentException("Invalid action: " + action);
             }
         }
     }
@@ -268,7 +265,7 @@ public final class SocketPermission extends Permission implements Serializable {
 
         // only check the port range if the action string of the current object
         // is not "resolve"
-        if (!p.getActions().equals("resolve")) { //$NON-NLS-1$
+        if (!p.getActions().equals("resolve")) {
             if ((sp.portMin < this.portMin) || (sp.portMax > this.portMax)) {
                 return false;
             }
@@ -298,7 +295,7 @@ public final class SocketPermission extends Permission implements Serializable {
      */
     private void parsePort(String hostPort, String host) throws IllegalArgumentException {
        String port = hostPort.substring(host.length());
-       String emptyString = ""; //$NON-NLS-1$
+       String emptyString = "";
 
        if (emptyString.equals(port)) {
            // Not specified
@@ -338,12 +335,10 @@ public final class SocketPermission extends Permission implements Serializable {
            portMax = Integer.valueOf(strPortMax).intValue();
 
            if (portMin > portMax) {
-               // K0049=MinPort is greater than MaxPort\: {0}
-               throw new IllegalArgumentException(Msg.getString("K0049", port)); //$NON-NLS-1$
+               throw new IllegalArgumentException("MinPort is greater than MaxPort: " + port);
            }
        } catch (NumberFormatException e) {
-           // K004a=Invalid port number specified\: {0}
-           throw new IllegalArgumentException(Msg.getString("K004a", port)); //$NON-NLS-1$
+           throw new IllegalArgumentException("Invalid port number: " + port);
        }
     }
 
@@ -356,7 +351,7 @@ public final class SocketPermission extends Permission implements Serializable {
      * @return java.lang.String
      */
     private String toCanonicalActionString(String action) {
-        if (action == null || action.equals("") || actionsMask == SP_RESOLVE) { //$NON-NLS-1$
+        if (action == null || action.isEmpty() || actionsMask == SP_RESOLVE) {
             return actionNames[SP_RESOLVE]; // If none specified return the
         }
         // implied action resolve
@@ -450,22 +445,19 @@ public final class SocketPermission extends Permission implements Serializable {
             if (Inet6Util.isIP6AddressInFullForm(host)) {
                 return host.toLowerCase();
             }
-            // K004a=Invalid port number specified\: {0}
-            throw new IllegalArgumentException(Msg.getString("K004a", host));
+            throw new IllegalArgumentException("Invalid port number: " + host);
         }
         // forward bracket found
         int bbracketIdx = host.indexOf(']');
         if (-1 == bbracketIdx) {
             // no back bracket found, wrong
-            // K004a=Invalid port number specified\: {0}
-            throw new IllegalArgumentException(Msg.getString("K004a", host));
+            throw new IllegalArgumentException("Invalid port number: " + host);
         }
         host = host.substring(0, bbracketIdx + 1);
         if (Inet6Util.isValidIP6Address(host)) {
             return host.toLowerCase();
         }
-        // K004a=Invalid port number specified\: {0}
-        throw new IllegalArgumentException(Msg.getString("K004a", host));
+        throw new IllegalArgumentException("Invalid port number: " + host);
     }
 
     /**

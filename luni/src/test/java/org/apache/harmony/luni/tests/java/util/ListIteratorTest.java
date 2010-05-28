@@ -63,7 +63,7 @@ public class ListIteratorTest extends TestCase {
         for (int i = 0; i < objArray.length; i++) {
             assertTrue(objArray[i].equals(l.next()));
         }
-        
+
         try {
             l.next();
             fail("NoSuchElementException expected");
@@ -236,7 +236,7 @@ public class ListIteratorTest extends TestCase {
             l.next();
             l.set((Integer)objArray[objArray.length - i - 1]);
         }
-        
+
         l.remove();
         try {
             l.set(new Integer(1));
@@ -244,7 +244,7 @@ public class ListIteratorTest extends TestCase {
         } catch (IllegalStateException e) {
             //expected
         }
-        
+
         Mock_ListIterator ml = new Mock_ListIterator();
         ml.next();
         try {
@@ -277,7 +277,7 @@ public class ListIteratorTest extends TestCase {
     )
     public void testAdd() {
         l.add(new Integer(33));
-        
+
         Mock_ListIterator ml = new Mock_ListIterator();
         ml.next();
         try {

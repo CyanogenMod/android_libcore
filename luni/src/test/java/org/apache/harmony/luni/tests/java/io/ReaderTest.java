@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,7 @@ public class ReaderTest extends TestCase {
         MockReader r = new MockReader();
         assertTrue("Test 1: Lock has not been set correctly.", r.lockSet(r));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -74,7 +74,7 @@ public class ReaderTest extends TestCase {
     })
     public void test_Reader_CharBuffer_ZeroChar() throws IOException {
         // If the charBuffer has a capacity of 0, then the number of char read
-        // to the CharBuffer is 0. Furthermore, the MockReader is intact in 
+        // to the CharBuffer is 0. Furthermore, the MockReader is intact in
         // its content.
         String s = "MY TEST STRING";
         char[] srcBuffer = s.toCharArray();
@@ -260,7 +260,7 @@ public class ReaderTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.io.Reader#reset()}
      */
     @TestTargetNew(
@@ -335,7 +335,7 @@ public class ReaderTest extends TestCase {
         private int current_offset = 0;
 
         private int length = 0;
-        
+
         public MockReader() {
             super();
         }

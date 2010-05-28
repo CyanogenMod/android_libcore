@@ -41,7 +41,7 @@ import dalvik.annotation.TestTargetNew;
                             "garbage collector runs; add test later."
             )
         }
-) 
+)
 public class FileInputStreamTest extends junit.framework.TestCase {
 
     public String fileName;
@@ -59,7 +59,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "FileInputStream",
         args = {File.class}
-    )     
+    )
     public void test_ConstructorLjava_io_File() {
         // Test for method FileInputStream(File)
         try {
@@ -89,7 +89,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "FileInputStream",
         args = {FileDescriptor.class}
-    )         
+    )
     public void test_ConstructorLjava_io_FileDescriptor() {
         // Test for method FileInputStream(FileDescriptor)
         try {
@@ -105,7 +105,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
             fis.close();
             fail("NullPointerException expected.");
         } catch (NullPointerException e) {
-            // Expected.   
+            // Expected.
         } catch (IOException e) {
             fail("Unexpected IOException: " + e.getMessage());
         }
@@ -118,7 +118,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "FileInputStream",
         args = {java.lang.String.class}
-    )    
+    )
     public void test_ConstructorLjava_lang_String() {
         // Test for method FileInputStream(java.lang.String)
         try {
@@ -146,10 +146,10 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "available",
         args = {}
-    )         
+    )
     public void test_available() throws IOException {
         is = new FileInputStream(fileName);
-        assertEquals("Test 1: Returned incorrect number of available bytes;", 
+        assertEquals("Test 1: Returned incorrect number of available bytes;",
                 fileString.length(), is.available());
         is.close();
         try {
@@ -169,7 +169,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
                 "by a native method.",
         method = "close",
         args = {}
-    )         
+    )
     public void test_close() throws IOException {
         is = new FileInputStream(fileName);
         is.close();
@@ -190,7 +190,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         notes = "",
         method = "getChannel",
         args = {}
-    )     
+    )
     public void test_getChannel() {
         // Test for method FileChannel FileInputStream.getChannel()
         FileChannel channel;
@@ -198,13 +198,13 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         byte[] stringBytes;
         final int offset = 5;
         boolean equal = true;
-        
+
         try {
             FileInputStream fis = new FileInputStream(fileName);
             channel = fis.getChannel();
             assertNotNull(channel);
             assertTrue("Channel is closed.", channel.isOpen());
-            
+
             // Check that the channel is associated with the input stream.
             channel.position(offset);
             fis.read(buffer, 0, 10);
@@ -213,7 +213,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
                 equal &= (buffer[i] == stringBytes[i + offset]);
             }
             assertTrue("Channel is not associated with this stream.", equal);
-            
+
             fis.close();
             assertFalse("Channel has not been closed.", channel.isOpen());
         } catch (FileNotFoundException e) {
@@ -224,7 +224,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
             fail("Exception during test : " + e.getMessage());
         }
     }
-    
+
     /**
      * @tests FileInputStream#getFD()
      */
@@ -233,7 +233,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         notes = "No IOException check since it is never thrown.",
         method = "getFD",
         args = {}
-    )     
+    )
     public void test_getFD() {
         // Test for method FileDescriptor
         // FileInputStream.getFD()
@@ -258,13 +258,13 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "read",
         args = {}
-    )     
+    )
     public void test_read() throws IOException {
         is = new FileInputStream(fileName);
         int c = is.read();
-        assertEquals("Test 1: Read returned incorrect char;", 
+        assertEquals("Test 1: Read returned incorrect char;",
                 fileString.charAt(0), c);
-        
+
         is.close();
         try {
             is.read();
@@ -281,14 +281,14 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "read",
         args = {byte[].class}
-    )        
+    )
     public void test_read$B() throws IOException {
         byte[] buf1 = new byte[100];
         is = new FileInputStream(fileName);
         is.skip(3000);
         is.read(buf1);
         is.close();
-        assertTrue("Test 1: Failed to read correct data.", 
+        assertTrue("Test 1: Failed to read correct data.",
                 new String(buf1, 0, buf1.length).equals(
                         fileString.substring(3000, 3100)));
 
@@ -308,7 +308,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )      
+    )
     public void test_read$BII() {
         // Test for method int FileInputStream.read(byte [], int, int)
         byte[] buf1 = new byte[100];
@@ -324,7 +324,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
             fail("Exception during read test : " + e.getMessage());
         }
     }
-    
+
     /**
      * @tests FileInputStream#read(byte[], int, int)
      */
@@ -333,7 +333,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         notes = "Illegal argument checks.",
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )      
+    )
     public void test_read$BII_Exception() throws IOException {
         byte[] buf = null;
         try {
@@ -346,7 +346,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
             is.close();
         }
 
-        buf = new byte[1000];        
+        buf = new byte[1000];
         try {
             is = new FileInputStream(fileName);
             is.read(buf, -1, 0);
@@ -406,7 +406,7 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         } finally {
             is.close();
         }
-        
+
         try {
             is = new FileInputStream(fileName);
             is.close();
@@ -426,13 +426,13 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "skip",
         args = {long.class}
-    )       
+    )
     public void test_skipJ() throws IOException {
         byte[] buf1 = new byte[10];
         is = new FileInputStream(fileName);
         is.skip(1000);
         is.read(buf1, 0, buf1.length);
-        assertTrue("Test 1: Failed to skip to correct position.", 
+        assertTrue("Test 1: Failed to skip to correct position.",
                 new String(buf1, 0, buf1.length).equals(
                         fileString.substring(1000, 1010)));
 
@@ -454,9 +454,9 @@ public class FileInputStreamTest extends junit.framework.TestCase {
                 "this method is called with negative argument.",
         method = "skip",
         args = {long.class}
-    )     
+    )
     public void test_skipNegativeArgumentJ() throws IOException{
-        
+
         FileInputStream fis = new FileInputStream(fileName);
 
         try {
@@ -467,10 +467,10 @@ public class FileInputStreamTest extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("Test 2: IOException expected but found: " + e.getMessage());
         }
-        
+
         fis.close();
-    } 
-    
+    }
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.

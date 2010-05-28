@@ -20,11 +20,11 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.TooManyListenersException;
 
-@TestTargetClass(TooManyListenersException.class) 
+@TestTargetClass(TooManyListenersException.class)
 public class TooManyListenersExceptionTest extends junit.framework.TestCase {
 
     /**

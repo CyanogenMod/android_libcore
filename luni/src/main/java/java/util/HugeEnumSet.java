@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,19 +22,19 @@ package java.util;
  */
 @SuppressWarnings("serial")
 final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
-    
+
     private static final int BIT_IN_LONG = 64;
 
     final private E[] enums;
-    
+
     private long[] bits;
-    
+
     private int size;
-    
+
     // BEGIN android-changed
     /**
      * Constructs an instance.
-     * 
+     *
      * @param elementType non-null; type of the elements
      * @param enums non-null; prepopulated array of constants in ordinal
      * order
@@ -45,7 +45,7 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         bits = new long[(enums.length + BIT_IN_LONG - 1) / BIT_IN_LONG];
     }
     // END android-changed
-    
+
     private class HugeEnumSetIterator implements Iterator<E> {
 
         /**
@@ -118,7 +118,7 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
             last = null;
         }
     }
-    
+
     @Override
     public boolean add(E element) {
         if (!isValidType(element.getDeclaringClass())) {
@@ -137,7 +137,7 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         }
         return false;
     }
-    
+
     @Override
     public boolean addAll(Collection<? extends E> collection) {
         if (collection.isEmpty() || collection == this) {
@@ -165,18 +165,18 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         }
         return super.addAll(collection);
     }
-    
+
     @Override
     public int size() {
         return size;
     }
-    
+
     @Override
     public void clear() {
         Arrays.fill(bits, 0);
         size = 0;
     }
-    
+
     @Override
     protected void complement() {
         size = 0;
@@ -192,7 +192,7 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
             bits[i] = b;
         }
     }
-    
+
     @Override
     public boolean contains(Object object) {
         if (object == null || !isValidType(object.getClass())) {
@@ -205,14 +205,14 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         int inBits = ordinal % BIT_IN_LONG;
         return (bits[index] & (1L << inBits)) != 0;
     }
-    
+
     @Override
     public HugeEnumSet<E> clone() {
         HugeEnumSet<E> set = (HugeEnumSet<E>) super.clone();
         set.bits = bits.clone();
         return set;
     }
-    
+
     @Override
     public boolean containsAll(Collection<?> collection) {
         if (collection.isEmpty()) {
@@ -232,7 +232,7 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         }
         return !(collection instanceof EnumSet) && super.containsAll(collection);
     }
-    
+
     @Override
     public boolean equals(Object object) {
         if (object == null) {
@@ -243,12 +243,12 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         }
         return Arrays.equals(bits, ((HugeEnumSet<?>) object).bits);
     }
-    
+
     @Override
     public Iterator<E> iterator() {
         return new HugeEnumSetIterator();
     }
-    
+
     @Override
     public boolean remove(Object object) {
         if (object == null || !isValidType(object.getClass())) {
@@ -268,13 +268,13 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         }
         return false;
     }
-    
+
     @Override
     public boolean removeAll(Collection<?> collection) {
         if (collection.isEmpty()) {
             return false;
         }
-        
+
         if (collection instanceof EnumSet) {
             EnumSet<?> set = (EnumSet<?>) collection;
             if (!isValidType(set.elementClass)) {
@@ -296,7 +296,7 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         }
         return super.removeAll(collection);
     }
-    
+
     @Override
     public boolean retainAll(Collection<?> collection) {
         if (collection instanceof EnumSet) {
@@ -325,7 +325,7 @@ final class HugeEnumSet<E extends Enum<E>> extends EnumSet<E> {
         }
         return super.retainAll(collection);
     }
-    
+
     @Override
     void setRange(E start, E end) {
         int startOrdinal = start.ordinal();

@@ -1,0 +1,11 @@
+# This file contains expectations for tests that require support from the test runner to complete successfully
+
+test java.util.EnumSet.EnumSetBash
+tags large
+
+test org.apache.harmony.tests.java.util.regex.MatcherTest.testAllCodePoints
+tags large
+
+# Takes a long time because it tries connecting every supported cipher suite
+test javax.net.ssl.SSLSocketTest#test_SSLSocket_getSupportedCipherSuites_connect
+tags large

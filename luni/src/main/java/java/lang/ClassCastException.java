@@ -17,8 +17,6 @@
 
 package java.lang;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Thrown when a program attempts to cast a an object to a type with which it is
  * not compatible.
@@ -55,7 +53,7 @@ public class ClassCastException extends RuntimeException {
      *            the class being cast to.
      */
     ClassCastException(Class<?> instanceClass, Class<?> castClass) {
-        super(Msg.getString("K0340", instanceClass.getName(), castClass //$NON-NLS-1$
-                .getName()));
+        super(String.format("%s incompatible with %s", instanceClass.getName(),
+                castClass.getName()));
     }
 }

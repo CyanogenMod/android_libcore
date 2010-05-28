@@ -19,8 +19,7 @@ package dalvik.system;
 /**
  * Is thrown when an allocation limit is exceeded.
  *
- * @deprecated this is an internal Dalvik class that is not appropriate for
- *      general use. It will be removed from the public API in a future release.
+ * @hide
  */
 public class AllocationLimitError extends VirtualMachineError {
     /**
@@ -32,7 +31,7 @@ public class AllocationLimitError extends VirtualMachineError {
 
     /**
      * Creates a new exception instance and initializes it with a given message.
-     * 
+     *
      * @param detailMessage the error message
      */
     public AllocationLimitError(String detailMessage) {

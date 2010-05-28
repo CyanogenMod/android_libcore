@@ -19,7 +19,8 @@ package org.apache.harmony.luni.internal.net.www.protocol.http;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +31,9 @@ import java.util.Map.Entry;
  * constructed by hashtable with key indexed in a vector for position lookup.
  */
 public class Header implements Cloneable {
-    /*
-     * we use the non-synchronized ArrayList and HashMap instead of the
-     * synchronized Vector and Hashtable
-     */
     private ArrayList<String> props;
 
-    private HashMap<String, LinkedList<String>> keyTable;
+    private SortedMap<String, LinkedList<String>> keyTable;
 
     private String statusLine;
 
@@ -48,13 +45,14 @@ public class Header implements Cloneable {
     public Header() {
         super();
         this.props = new ArrayList<String>(20);
-        this.keyTable = new HashMap<String, LinkedList<String>>(20);
+        this.keyTable = new TreeMap<String, LinkedList<String>>(
+                String.CASE_INSENSITIVE_ORDER);
     }
 
     /**
      * The alternative constructor which sets the input map as its initial
      * keyTable.
-     * 
+     *
      * @param map
      *            the initial keyTable as a map
      */
@@ -62,11 +60,11 @@ public class Header implements Cloneable {
         this(); // initialize fields
         for (Entry<String, List<String>> next : map.entrySet()) {
             String key = next.getKey();
-            props.add(key);
             List<String> value = next.getValue();
             LinkedList<String> linkedList = new LinkedList<String>();
             for (String element : value) {
                 linkedList.add(element);
+                props.add(key);
                 props.add(element);
             }
             keyTable.put(key, linkedList);
@@ -79,7 +77,8 @@ public class Header implements Cloneable {
         try {
             Header clone = (Header) super.clone();
             clone.props = (ArrayList<String>) props.clone();
-            clone.keyTable = new HashMap<String, LinkedList<String>>(20);
+            clone.keyTable = new TreeMap<String, LinkedList<String>>(
+                    String.CASE_INSENSITIVE_ORDER);
             for (Map.Entry<String, LinkedList<String>> next : this.keyTable
                     .entrySet()) {
                 LinkedList<String> v = (LinkedList<String>) next.getValue()
@@ -94,7 +93,7 @@ public class Header implements Cloneable {
 
     /**
      * Add a field with the specified value.
-     * 
+     *
      * @param key
      * @param value
      */
@@ -102,17 +101,26 @@ public class Header implements Cloneable {
         if (key == null) {
             throw new NullPointerException();
         }
-        // BEGIN android-changed
-        key = key.toLowerCase();
         LinkedList<String> list = keyTable.get(key);
         if (list == null) {
             list = new LinkedList<String>();
             keyTable.put(key, list);
         }
-        // END android-changed
         list.add(value);
         props.add(key);
         props.add(value);
+    }
+
+    public void addAll(String key, List<String> headers) {
+        for (String header : headers) {
+            add(key, header);
+        }
+    }
+
+    public void addIfAbsent(String key, String value) {
+        if (get(key) == null) {
+            add(key, value);
+        }
     }
 
     /**
@@ -126,9 +134,6 @@ public class Header implements Cloneable {
         if (key == null) {
             throw new NullPointerException();
         }
-        // BEGIN android-added
-        key = key.toLowerCase();
-        // END android-added
         LinkedList<String> list = keyTable.get(key);
         if (list == null) {
             add(key, value);
@@ -154,8 +159,7 @@ public class Header implements Cloneable {
      * @since 1.4
      */
     public Map<String, List<String>> getFieldMap() {
-        Map<String, List<String>> result = new HashMap<String, List<String>>(
-                keyTable.size());
+        Map<String, List<String>> result = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER); // android-changed
         for (Map.Entry<String, LinkedList<String>> next : keyTable.entrySet()) {
             List<String> v = next.getValue();
             result.put(next.getKey(), Collections.unmodifiableList(v));
@@ -195,15 +199,10 @@ public class Header implements Cloneable {
     }
 
     /**
-     * Returns the value corresponding to the specified key.
-     *
-     * @param key
-     *            the key to look up.
-     * @return Answers the value for the given key, or <code>null</code> if no
-     *         such key exists.
+     * Returns the value corresponding to the specified key, or null.
      */
     public String get(String key) {
-        LinkedList<String> result = keyTable.get(key.toLowerCase());
+        LinkedList<String> result = keyTable.get(key);
         if (result == null) {
             return null;
         }
@@ -222,7 +221,7 @@ public class Header implements Cloneable {
     /**
      * Sets the status line in the header request example: GET / HTTP/1.1
      * response example: HTTP/1.1 200 OK
-     * 
+     *
      * @param statusLine
      */
     public void setStatusLine(String statusLine) {
@@ -241,7 +240,7 @@ public class Header implements Cloneable {
     /**
      * Gets the status line in the header request example: GET / HTTP/1.1
      * response example: HTTP/1.1 200 OK
-     * 
+     *
      * @return the status line
      */
     public String getStatusLine() {

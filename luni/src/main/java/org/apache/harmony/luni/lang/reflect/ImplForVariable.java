@@ -23,27 +23,27 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 
-public final class ImplForVariable<D extends GenericDeclaration> 
+public final class ImplForVariable<D extends GenericDeclaration>
         implements TypeVariable<D> {
     private ImplForVariable<D> formalVar;
     private final GenericDeclaration declOfVarUser;
     private final String name;
     private D genericDeclaration;
     private ListOfTypes bounds;
-    
-    
+
+
     @Override
     public boolean equals(Object o) {
         if(!(o instanceof TypeVariable)) {
             return false;
         }
         TypeVariable<?> that = (TypeVariable<?>) o;
-        return getName().equals(that.getName()) && 
-                getGenericDeclaration().equals(that.getGenericDeclaration()); 
+        return getName().equals(that.getName()) &&
+                getGenericDeclaration().equals(that.getGenericDeclaration());
     }
-    
-   
-    @Override 
+
+
+    @Override
     public int hashCode() {
         return 31 * getName().hashCode() + getGenericDeclaration().hashCode();
     }
@@ -87,11 +87,11 @@ public final class ImplForVariable<D extends GenericDeclaration>
             if (decl instanceof Class) {
                 // FIXME: Is the following hierarchy correct?:
                 Class cl = (Class)decl;
-                decl = cl.getEnclosingMethod(); 
+                decl = cl.getEnclosingMethod();
                 if (decl != null) {
                     return decl;
                 }
-                decl = cl.getEnclosingConstructor(); 
+                decl = cl.getEnclosingConstructor();
                 if (decl != null) {
                     return decl;
                 }
@@ -101,7 +101,7 @@ public final class ImplForVariable<D extends GenericDeclaration>
             } else if (decl instanceof Constructor) {
                 return ((Constructor)decl).getDeclaringClass();
             }
-            throw new RuntimeException("unknown GenericDeclaration2: " 
+            throw new RuntimeException("unknown GenericDeclaration2: "
                     + decl.toString());
     }
 
@@ -114,8 +114,8 @@ public final class ImplForVariable<D extends GenericDeclaration>
                 if (var != null) break;
                 else {
                     curLayer = nextLayer(curLayer);
-                    if (curLayer == null) break; // FIXME: SHOULD NEVER HAPPEN! 
-                                                 // throw exception: illegal 
+                    if (curLayer == null) break; // FIXME: SHOULD NEVER HAPPEN!
+                                                 // throw exception: illegal
                                                  // type variable reference.
                 }
             } while (true);

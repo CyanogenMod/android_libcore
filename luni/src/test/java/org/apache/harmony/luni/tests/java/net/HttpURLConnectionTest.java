@@ -46,7 +46,7 @@ import tests.support.Support_Configuration;
 
 @TestTargetClass(HttpURLConnection.class)
 public class HttpURLConnectionTest extends junit.framework.TestCase {
-    
+
     final String unknownURL = "http://unknown.host";
 
     URL url;
@@ -64,7 +64,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
     private Map<String, List<String>> mockHeaderMap;
 
     private InputStream mockIs = new MockInputStream();
-    
+
     /**
      * @tests java.net.HttpURLConnection#getResponseCode()
      */
@@ -82,7 +82,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
             fail("Unexpected exception : " + e.getMessage());
         }
         try {
-            URL url = new URL(unknownURL);   
+            URL url = new URL(unknownURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.getResponseCode();
             fail("IOException was not thrown.");
@@ -108,9 +108,9 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("Unexpected exception : " + e.getMessage());
         }
-        
+
         try {
-            URL url = new URL(unknownURL);   
+            URL url = new URL(unknownURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.connect();
             conn.getResponseMessage();
@@ -179,7 +179,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
         ),
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
-            notes = "",                
+            notes = "",
             method = "setRequestProperty",
             args = {String.class, String.class}
         )
@@ -213,27 +213,27 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
         ),
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Exception test verification.",                
+            notes = "Exception test verification.",
             method = "setRequestProperty",
             args = {String.class, String.class}
         )
     })
     public void test_getRequestPropertyLjava_lang_String_BeforeConnected()
             throws MalformedURLException, IOException {
-        uc.setRequestProperty("whatever", "you like"); //$NON-NLS-1$//$NON-NLS-2$
-        String res = uc.getRequestProperty("whatever"); //$NON-NLS-1$
-        assertEquals("you like", res); //$NON-NLS-1$
+        uc.setRequestProperty("whatever", "you like");
+        String res = uc.getRequestProperty("whatever");
+        assertEquals("you like", res);
 
-        uc.setRequestProperty("", "you like"); //$NON-NLS-1$//$NON-NLS-2$
-        res = uc.getRequestProperty(""); //$NON-NLS-1$
-        assertEquals("you like", res); //$NON-NLS-1$
+        uc.setRequestProperty("", "you like");
+        res = uc.getRequestProperty("");
+        assertEquals("you like", res);
 
-        uc.setRequestProperty("", null); //$NON-NLS-1$
-        res = uc.getRequestProperty(""); //$NON-NLS-1$
+        uc.setRequestProperty("", null);
+        res = uc.getRequestProperty("");
         assertEquals(null, res);
         try {
-            uc.setRequestProperty(null, "you like"); //$NON-NLS-1$
-            fail("Should throw NullPointerException"); //$NON-NLS-1$
+            uc.setRequestProperty(null, "you like");
+            fail("Should throw NullPointerException");
         } catch (NullPointerException e) {
             // expected
         }
@@ -251,7 +251,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
         ),
         @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies IllegalStateException and null as a parameter.",                
+            notes = "Verifies IllegalStateException and null as a parameter.",
             method = "getRequestProperty",
             args = {String.class}
         )
@@ -260,24 +260,24 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
             throws IOException {
         uc.connect();
         try {
-            uc.setRequestProperty("whatever", "you like"); //$NON-NLS-1$//$NON-NLS-2$
-            fail("Should throw IllegalStateException"); //$NON-NLS-1$
+            uc.setRequestProperty("whatever", "you like");
+            fail("Should throw IllegalStateException");
         } catch (IllegalStateException e) {
             // expected
         }
         try {
-            uc.setRequestProperty(null, "you like"); //$NON-NLS-1$
-            fail("Should throw IllegalStateException"); //$NON-NLS-1$
+            uc.setRequestProperty(null, "you like");
+            fail("Should throw IllegalStateException");
         } catch (IllegalStateException e) {
             // expected
         }
-        String res = uc.getRequestProperty("whatever"); //$NON-NLS-1$
+        String res = uc.getRequestProperty("whatever");
         assertEquals(null, res);
         res = uc.getRequestProperty(null);
         assertEquals(null, res);
         try {
             uc.getRequestProperties();
-            fail("Should throw IllegalStateException"); //$NON-NLS-1$
+            fail("Should throw IllegalStateException");
         } catch (IllegalStateException e) {
             // expected
         }
@@ -729,7 +729,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
         assertFalse(isAbortCalled);
         uc.disconnect();
     }
-    
+
     /**
      * @tests java.net.URLConnection#getErrorStream()
      */
@@ -741,21 +741,21 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
     )
     public void test_getErrorStream() throws Exception {
         uc.connect();
-        assertEquals(200, uc.getResponseCode());        
+        assertEquals(200, uc.getResponseCode());
         // no error stream
-        assertNull(uc.getErrorStream());        
+        assertNull(uc.getErrorStream());
         uc.disconnect();
         assertNull(uc.getErrorStream());
-        
+
         try {
-            URL url = new URL(unknownURL);   
+            URL url = new URL(unknownURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             assertNull(conn.getErrorStream());
         } catch(IOException e) {
             fail("IOException was thrown.");
         }
     }
-    
+
     /**
      * @tests {@link java.net.HttpURLConnection#setFollowRedirects(boolean)}
      * @tests {@link java.net.HttpURLConnection#getFollowRedirects()}
@@ -783,12 +783,12 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
 
         HttpURLConnection.setFollowRedirects(true);
         assertTrue(HttpURLConnection.getFollowRedirects());
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkSetFactory() {
                 throw new SecurityException();
             }
@@ -805,7 +805,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
             System.setSecurityManager(oldSm);
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -822,19 +822,19 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
     })
     public void test_instanceFollowRedirect() {
         assertTrue(uc.getInstanceFollowRedirects());
-        
+
         uc.setInstanceFollowRedirects(false);
         assertFalse(uc.getInstanceFollowRedirects());
-        
+
         uc.setInstanceFollowRedirects(true);
         assertTrue(uc.getInstanceFollowRedirects());
-        
+
         uc.setFollowRedirects(false);
         assertTrue(uc.getInstanceFollowRedirects());
     }
 
     /**
-     * @throws ProtocolException 
+     * @throws ProtocolException
      * @tests {@link java.net.HttpURLConnection#setRequestMethod(String)}
      * @tests {@link java.net.HttpURLConnection#getRequestMethod()}
      */
@@ -854,7 +854,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
     })
     public void test_requestMethod() throws MalformedURLException, ProtocolException{
         URL url = new URL("http://" + Support_Configuration.SpecialInetTestAddress);
-        
+
         HttpURLConnection con = new MyHttpURLConnection(url);
         assertEquals("The default value of requestMethod is not \"GET\"", "GET",
                 con.getRequestMethod());
@@ -867,20 +867,20 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
             assertEquals("The value of requestMethod is not " + method, method,
                     con.getRequestMethod());
         }
-            
+
         try {
             con.setRequestMethod("Wrong method");
             fail("Should throw ProtocolException");
         } catch (ProtocolException e) {
             // Expected
         }
-        
+
         try {
             con.setRequestMethod("get");
             fail("Should throw ProtocolException");
         } catch (ProtocolException e) {
             // Expected
-        }        
+        }
     }
 
     private static class MyHttpURLConnection extends HttpURLConnection {
@@ -904,7 +904,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
             // do nothing
         }
     }
-    
+
     /**
      * @tests java.net.URLConnection#getPermission()
      */
@@ -919,16 +919,16 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
         Permission permission = uc.getPermission();
         assertNotNull(permission);
         permission.implies(new SocketPermission("localhost","connect"));
-        
+
         try {
-            URL url = new URL(unknownURL);   
+            URL url = new URL(unknownURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.getPermission();
         } catch(IOException e) {
             fail("IOException was thrown.");
         }
     }
-    
+
     @TestTargetNew(
       level = TestLevel.COMPLETE,
       notes = "",
@@ -939,17 +939,17 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
         MockHttpConnection conn1 = new MockHttpConnection(url);
         conn1.connect();
         conn1.disconnect();
-        
+
         MockHttpConnection conn2 = new MockHttpConnection(null);
         conn2.connect();
         conn2.disconnect();
-        
+
         URL url = new URL("file://newFile.txt");
         MockHttpConnection conn3 = new MockHttpConnection(url);
         conn3.connect();
         conn3.disconnect();
     }
-    
+
     @TestTargetNew(
       level = TestLevel.COMPLETE,
       notes = "",
@@ -957,7 +957,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
       args = {}
     )
     public void test_disconnect() {
-        
+
         try {
             URL url1 = new URL("http://" + Support_Configuration.testURL);
             HttpURLConnection uc1 = (HttpURLConnection) url1.openConnection();
@@ -976,7 +976,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
             fail("Exception during setup : " + e.getMessage());
         }
     }
-    
+
     @TestTargetNew(
       level = TestLevel.COMPLETE,
       notes = "",
@@ -997,7 +997,7 @@ public class HttpURLConnectionTest extends junit.framework.TestCase {
     public void test_usingProxy() {
         assertFalse(uc.usingProxy());
     }
-    
+
     class MockNonCachedResponseCache extends ResponseCache {
 
         public CacheResponse get(URI arg0, String arg1, Map arg2)

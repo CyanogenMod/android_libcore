@@ -18,8 +18,8 @@
 package tests.api.java.net;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.KnownFailure; 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.KnownFailure;
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
@@ -49,7 +49,7 @@ import java.util.Vector;
 import tests.support.Support_Configuration;
 import tests.support.Support_PortManager;
 
-@TestTargetClass(DatagramSocket.class) 
+@TestTargetClass(DatagramSocket.class)
 public class DatagramSocketTest extends SocketTestCase {
 
     java.net.DatagramSocket ds;
@@ -129,7 +129,7 @@ public class DatagramSocketTest extends SocketTestCase {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkListen(int port) {
                 throw new SecurityException();
             }
@@ -168,12 +168,12 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch (Exception e) {
             fail("Could not create DatagramSocket : " + e.getMessage());
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkListen(int port) {
                 throw new SecurityException();
             }
@@ -190,8 +190,8 @@ public class DatagramSocketTest extends SocketTestCase {
             fail("SocketException was thrown.");
         } finally {
             System.setSecurityManager(oldSm);
-        }        
-        
+        }
+
         try {
             DatagramSocket ds = new java.net.DatagramSocket(1);
             if (!("root".equals(System.getProperty("user.name")))) {
@@ -200,7 +200,7 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch (SocketException e) {
             //expected
         }
-        
+
     }
 
     /**
@@ -225,12 +225,12 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch (Exception e) {
             fail("Could not create DatagramSocket : " + e.getMessage());
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkListen(int port) {
                 throw new SecurityException();
             }
@@ -250,8 +250,8 @@ public class DatagramSocketTest extends SocketTestCase {
             fail("UnknownHostException was thrown.");
         } finally {
             System.setSecurityManager(oldSm);
-        }   
-        
+        }
+
         try {
             new java.net.DatagramSocket(1, InetAddress
                     .getLocalHost());
@@ -376,9 +376,9 @@ public class DatagramSocketTest extends SocketTestCase {
                         } catch (java.io.InterruptedIOException e) {
                             Thread.yield();
                         }
-                        
+
                     }
-                    
+
                 } catch (java.io.IOException e) {
                     System.out.println("Multicast server failed: " + e);
                 } finally {
@@ -706,9 +706,9 @@ public class DatagramSocketTest extends SocketTestCase {
         ds = new java.net.DatagramSocket();
         int portNumber = Support_PortManager.getNextPortForUDP();
 
-        final InetAddress inetAddress = InetAddress   
+        final InetAddress inetAddress = InetAddress
             .getByAddress(addressBytes);
-    
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
@@ -716,7 +716,7 @@ public class DatagramSocketTest extends SocketTestCase {
                     throw new SecurityException();
                 }
             }
-      
+
             public void checkListen(int port) {
                 throw new SecurityException();
             }
@@ -800,7 +800,7 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch(Exception e) {
             fail("Unexpected exception was thrown: " + e.toString());
         }
-        
+
         for(InetAddress ia:ias) {
             int portNumber = Support_PortManager.getNextPortForUDP();
             DatagramSocket ds = null;
@@ -816,7 +816,7 @@ public class DatagramSocketTest extends SocketTestCase {
                 ds.close();
             }
         }
-        
+
         try {
             assertNull(new DatagramSocket().getInetAddress());
          } catch (SocketException e) {
@@ -1003,7 +1003,7 @@ public class DatagramSocketTest extends SocketTestCase {
                 fail("SocketException was not thrown.");
             } catch(SocketException se) {
                 //expected
-            }            
+            }
             ensureExceptionThrownIfOptionIsUnsupportedOnOS(SO_TIMEOUT);
         } catch (Exception e) {
             handleException(e, SO_TIMEOUT);
@@ -1075,14 +1075,14 @@ public class DatagramSocketTest extends SocketTestCase {
             socket = channel.socket();
             socket.receive(rdp);
             fail("IllegalBlockingModeException was not thrown.");
-        } catch(IllegalBlockingModeException ibme) {    
+        } catch(IllegalBlockingModeException ibme) {
             //expected
         } catch(IOException ioe) {
             fail("IOException was thrown: " + ioe.getMessage());
         } finally {
             socket.close();
         }
-        
+
         try {
             ds = new java.net.DatagramSocket(portNumber);
             ds.setSoTimeout(1000);
@@ -1100,8 +1100,8 @@ public class DatagramSocketTest extends SocketTestCase {
         } finally {
             ds.close();
         }
-        
-        
+
+
 
         try {
             interrupted = false;
@@ -1195,8 +1195,8 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch (IOException e) {
             fail("Unexpected IOException : " + e.getMessage());
         }
-        
-        
+
+
     }
 
     /**
@@ -1263,27 +1263,27 @@ public class DatagramSocketTest extends SocketTestCase {
         } finally {
             ds.close();
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkMulticast(InetAddress maddr) {
                 throw new SecurityException();
             }
-            
+
             public void checkConnect(String host,
                     int port) {
                 throw new SecurityException();
             }
         };
         try {
-            
+
             ds = new java.net.DatagramSocket(ports[1]);
             dp = new DatagramPacket(testString.getBytes(), testString.length(),
                     InetAddress.getLocalHost(), portNumber);
-            
+
             SecurityManager oldSm = System.getSecurityManager();
             System.setSecurityManager(sm);
             try {
@@ -1299,7 +1299,7 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch(Exception e) {
             fail("Unexpected exception was thrown: " + e.getMessage());
         }
-        
+
         DatagramSocket socket = null;
         try {
             byte rbuf[] = new byte[1000];
@@ -1310,53 +1310,53 @@ public class DatagramSocketTest extends SocketTestCase {
             socket = channel.socket();
             socket.send(rdp);
             fail("IllegalBlockingModeException was not thrown.");
-        } catch(IllegalBlockingModeException ibme) {    
+        } catch(IllegalBlockingModeException ibme) {
             //expected
         } catch(IOException ioe) {
             fail("IOException was thrown: " + ioe.getMessage());
         } finally {
             socket.close();
         }
-        
+
         //Regression for HARMONY-1118
         class testDatagramSocket extends DatagramSocket {
             public testDatagramSocket(DatagramSocketImpl impl){
                super(impl);
             }
         }
-        class testDatagramSocketImpl extends DatagramSocketImpl { 
-            protected void create() throws SocketException {} 
-            protected void bind(int arg0, InetAddress arg1) throws SocketException {} 
-            protected void send(DatagramPacket arg0) throws IOException {} 
-            protected int peek(InetAddress arg0) throws IOException { 
-                return 0; 
-            } 
-            protected int peekData(DatagramPacket arg0) throws IOException { 
-                return 0; 
-            } 
-            protected void receive(DatagramPacket arg0) throws IOException {} 
-            protected void setTTL(byte arg0) throws IOException {} 
-            protected byte getTTL() throws IOException { 
-                return 0; 
-            } 
-            protected void setTimeToLive(int arg0) throws IOException {} 
-            protected int getTimeToLive() throws IOException { 
-                return 0; 
-            } 
-            protected void join(InetAddress arg0) throws IOException {} 
-            protected void leave(InetAddress arg0) throws IOException {} 
-            protected void joinGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {} 
-            protected void leaveGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {} 
-            protected void close() {} 
-            public void setOption(int arg0, Object arg1) throws SocketException {} 
-            public Object getOption(int arg0) throws SocketException { 
-                return null; 
-            } 
-        } 
-        InetSocketAddress sa = InetSocketAddress.createUnresolved("localhost", 0); 
+        class testDatagramSocketImpl extends DatagramSocketImpl {
+            protected void create() throws SocketException {}
+            protected void bind(int arg0, InetAddress arg1) throws SocketException {}
+            protected void send(DatagramPacket arg0) throws IOException {}
+            protected int peek(InetAddress arg0) throws IOException {
+                return 0;
+            }
+            protected int peekData(DatagramPacket arg0) throws IOException {
+                return 0;
+            }
+            protected void receive(DatagramPacket arg0) throws IOException {}
+            protected void setTTL(byte arg0) throws IOException {}
+            protected byte getTTL() throws IOException {
+                return 0;
+            }
+            protected void setTimeToLive(int arg0) throws IOException {}
+            protected int getTimeToLive() throws IOException {
+                return 0;
+            }
+            protected void join(InetAddress arg0) throws IOException {}
+            protected void leave(InetAddress arg0) throws IOException {}
+            protected void joinGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {}
+            protected void leaveGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {}
+            protected void close() {}
+            public void setOption(int arg0, Object arg1) throws SocketException {}
+            public Object getOption(int arg0) throws SocketException {
+                return null;
+            }
+        }
+        InetSocketAddress sa = InetSocketAddress.createUnresolved("localhost", 0);
         //no exception expected for next line
-        new testDatagramSocket(new testDatagramSocketImpl()).send(new DatagramPacket(new byte[272], 3, sa)); 
-        
+        new testDatagramSocket(new testDatagramSocketImpl()).send(new DatagramPacket(new byte[272], 3, sa));
+
         // Regression test for Harmony-2938
         InetAddress i = InetAddress.getByName("127.0.0.1");
         DatagramSocket d = new DatagramSocket(0, i);
@@ -1392,7 +1392,7 @@ public class DatagramSocketTest extends SocketTestCase {
             } catch(SocketException se) {
                 //expected
             }
-            
+
             ensureExceptionThrownIfOptionIsUnsupportedOnOS(SO_SNDBUF);
         } catch (Exception e) {
             handleException(e, SO_SNDBUF);
@@ -1419,7 +1419,7 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_RCVBUF);
         }
-        
+
         try {
             ds.setReceiveBufferSize(0);
             fail("IllegalArgumentException was not thrown.");
@@ -1428,7 +1428,7 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch (SocketException e) {
             fail("SocketException was thrown.");
         }
-        
+
         try {
             ds.setReceiveBufferSize(-1);
             fail("IllegalArgumentException was not thrown.");
@@ -1437,9 +1437,9 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch (SocketException e) {
             fail("SocketException was thrown.");
         }
-        
+
         ds.close();
-        
+
         try {
             ds.setReceiveBufferSize(1);
             fail("SocketException was not thrown.");
@@ -1547,12 +1547,12 @@ public class DatagramSocketTest extends SocketTestCase {
             fail(
                     "unexpected exception when datagramSocket SocketAddress constructor test");
         }
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkListen(int port) {
                 throw new SecurityException();
             }
@@ -1573,7 +1573,7 @@ public class DatagramSocketTest extends SocketTestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         InetSocketAddress isa = null;
         try {
             isa = new InetSocketAddress(
@@ -1581,7 +1581,7 @@ public class DatagramSocketTest extends SocketTestCase {
         } catch (UnknownHostException e) {
             fail("UnknownHostException was thrown.");
         }
-        
+
         try {
             new java.net.DatagramSocket(isa);
             fail("SocketException was not thrown.");
@@ -1702,7 +1702,7 @@ public class DatagramSocketTest extends SocketTestCase {
 
                 public void checkPermission(Permission perm) {
                 }
-                
+
                 public void checkListen(int port) {
                     throw new SecurityException();
                 }
@@ -1723,7 +1723,7 @@ public class DatagramSocketTest extends SocketTestCase {
             } finally {
                 System.setSecurityManager(oldSm);
             }
-            
+
             // unsupported SocketAddress subclass
             theSocket = new DatagramSocket(null);
             try {
@@ -1774,12 +1774,12 @@ public class DatagramSocketTest extends SocketTestCase {
                             + e.toString(),
                     (e instanceof PortUnreachableException));
         }
-        
+
         try {
             ds = new java.net.DatagramSocket();
             InetAddress inetAddress = InetAddress.getLocalHost();
             int portNumber = Support_PortManager.getNextPortForUDP();
-            
+
             ds.connect(new InetSocketAddress("asdfasdf", 1));
             ds.close();
             fail("SocketException was not thrown.");
@@ -1788,7 +1788,7 @@ public class DatagramSocketTest extends SocketTestCase {
                     "Wrong exception when trying to connect to unknown host: "
                             + e.toString(),
                     (e instanceof SocketException));
-        }        
+        }
 
         // validate that we can send/receive with datagram sockets connected at
         // the native level
@@ -2356,7 +2356,7 @@ public class DatagramSocketTest extends SocketTestCase {
                 theSocket1.close();
             if (theSocket2 != null)
                 theSocket2.close();
-            
+
             try {
                 theSocket1.setReuseAddress(true);
                 fail("SocketException was not thrown.");
@@ -2435,14 +2435,14 @@ public class DatagramSocketTest extends SocketTestCase {
             theSocket
                     .connect(new InetSocketAddress(InetAddress
                             .getByAddress(theBytes), ports[2]));
-            
+
             theSocket.close();
             try {
                 theSocket.setBroadcast(false);
                 fail("SocketException was not thrown.");
             } catch(SocketException se) {
                 //expected
-            } 
+            }
             ensureExceptionThrownIfOptionIsUnsupportedOnOS(SO_BROADCAST);
         } catch (Exception e) {
             handleException(e, SO_BROADCAST);
@@ -2517,7 +2517,7 @@ public class DatagramSocketTest extends SocketTestCase {
             // now validate that we can set it to some good values
             theSocket.setTrafficClass(IPTOS_LOWCOST);
             theSocket.setTrafficClass(IPTOS_THROUGHPUT);
-            
+
             theSocket.close();
             try {
                 theSocket.setTrafficClass(1);
@@ -2525,7 +2525,7 @@ public class DatagramSocketTest extends SocketTestCase {
             } catch(SocketException se) {
                 //expected
             }
-           
+
             ensureExceptionThrownIfOptionIsUnsupportedOnOS(IP_TOS);
         } catch (Exception e) {
             handleException(e, IP_TOS);
@@ -2559,14 +2559,14 @@ public class DatagramSocketTest extends SocketTestCase {
              * though we set it so just get the value to make sure we can get it
              */
             int trafficClass = theSocket.getTrafficClass();
-            
+
             theSocket.close();
             try {
                 theSocket.getTrafficClass();
                 fail("SocketException was not thrown.");
             } catch(SocketException se) {
                 //expected
-            } 
+            }
         } catch (Exception e) {
             handleException(e, IP_TOS);
         }
@@ -2604,7 +2604,7 @@ public class DatagramSocketTest extends SocketTestCase {
             fail("Got exception during isClosed tests" + e.toString());
         }
     }
-    
+
     /**
      * @tests java.net.DatagramSocket#getChannel()
      */
@@ -2616,7 +2616,7 @@ public class DatagramSocketTest extends SocketTestCase {
     )
     public void test_getChannel() throws Exception {
         assertNull(new DatagramSocket().getChannel());
-        
+
         int portNumber = Support_PortManager.getNextPortForUDP();
         DatagramSocket ds = null;
         try {
@@ -2638,7 +2638,7 @@ public class DatagramSocketTest extends SocketTestCase {
         DatagramSocket socket = channel.socket();
         assertEquals(channel, socket.getChannel());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "Verifies SecurityException.",
@@ -2647,12 +2647,12 @@ public class DatagramSocketTest extends SocketTestCase {
     )
     public void test_setDatagramSocketImplFactory() {
         TestDatagramSocketImplFactory dsf = new TestDatagramSocketImplFactory();
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkSetFactory() {
                 throw new SecurityException();
             }
@@ -2672,33 +2672,33 @@ public class DatagramSocketTest extends SocketTestCase {
             e.printStackTrace();
         } finally {
             System.setSecurityManager(oldSm);
-        }     
+        }
     }
-    
+
     class TestDatagramSocketImplFactory implements DatagramSocketImplFactory {
         public DatagramSocketImpl createDatagramSocketImpl() {
             return new TestDatagramSocketImpl();
         }
     }
-    
+
     class TestDatagramSocketImpl extends DatagramSocketImpl {
 
         @Override
         protected void bind(int arg0, InetAddress arg1) throws SocketException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void close() {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void create() throws SocketException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -2716,25 +2716,25 @@ public class DatagramSocketTest extends SocketTestCase {
         @Override
         protected void join(InetAddress arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void joinGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void leave(InetAddress arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void leaveGroup(SocketAddress arg0, NetworkInterface arg1) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -2752,25 +2752,25 @@ public class DatagramSocketTest extends SocketTestCase {
         @Override
         protected void receive(DatagramPacket arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void send(DatagramPacket arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void setTTL(byte arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         protected void setTimeToLive(int arg0) throws IOException {
             // TODO Auto-generated method stub
-            
+
         }
 
         public Object getOption(int arg0) throws SocketException {
@@ -2780,9 +2780,9 @@ public class DatagramSocketTest extends SocketTestCase {
 
         public void setOption(int arg0, Object arg1) throws SocketException {
             // TODO Auto-generated method stub
-            
+
         }
-        
+
     }
 
     /**

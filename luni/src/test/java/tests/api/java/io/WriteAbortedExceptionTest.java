@@ -17,7 +17,7 @@
 
 package tests.api.java.io;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestLevel;
@@ -25,7 +25,7 @@ import dalvik.annotation.TestLevel;
 import java.io.IOException;
 import java.io.WriteAbortedException;
 
-@TestTargetClass(WriteAbortedException.class) 
+@TestTargetClass(WriteAbortedException.class)
 public class WriteAbortedExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -70,7 +70,7 @@ public class WriteAbortedExceptionTest extends junit.framework.TestCase {
         } catch (WriteAbortedException e) {
             Throwable cause = e.getCause();
             assertTrue("Test 2: Incorrect exception cause: " + cause,
-                    cause.getClass().equals(IOException.class) && 
+                    cause.getClass().equals(IOException.class) &&
                     cause.getMessage().equals("Something went wrong."));
         }
     }

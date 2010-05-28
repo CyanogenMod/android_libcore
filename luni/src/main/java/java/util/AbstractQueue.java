@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ public abstract class AbstractQueue<E> extends AbstractCollection<E> implements
 
     /**
      * Adds an element to the queue.
-     * 
+     *
      * @param o
      *            the element to be added to the queue.
      * @return {@code true} if the operation succeeds, otherwise {@code false}.
@@ -63,7 +63,7 @@ public abstract class AbstractQueue<E> extends AbstractCollection<E> implements
      * in the collection which have already successfully been added will remain
      * in the queue. The result of the method is undefined if the collection is
      * modified during the process of the method.
-     * 
+     *
      * @param c
      *            the collection to be added to the queue.
      * @return {@code true} if the operation succeeds, otherwise {@code false}.
@@ -86,7 +86,7 @@ public abstract class AbstractQueue<E> extends AbstractCollection<E> implements
 
     /**
      * Removes the element at the head of the queue and returns it.
-     * 
+     *
      * @return the element at the head of the queue.
      * @throws NoSuchElementException
      *             if the queue is empty.
@@ -101,7 +101,7 @@ public abstract class AbstractQueue<E> extends AbstractCollection<E> implements
 
     /**
      * Returns but does not remove the element at the head of the queue.
-     * 
+     *
      * @return the element at the head of the queue.
      * @throws NoSuchElementException
      *             if the queue is empty.

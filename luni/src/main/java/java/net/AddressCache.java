@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,39 +32,39 @@ class AddressCache {
      * This should be a power of two to avoid wasted space in our custom map.
      */
     private static final int MAX_ENTRIES = 512;
-    
+
     // This isn't used by our HashMap implementation, but the API demands it.
     private static final float DEFAULT_LOAD_FACTOR = .75F;
-    
+
     // Default time-to-live for positive cache entries. 600 seconds (10 minutes).
     private static final long DEFAULT_POSITIVE_TTL_NANOS = 600 * 1000000000L;
     // Default time-to-live for negative cache entries. 10 seconds.
     private static final long DEFAULT_NEGATIVE_TTL_NANOS = 10 * 1000000000L;
-    
+
     // Failed lookups are represented in the cache my mappings to this empty array.
     private static final InetAddress[] NO_ADDRESSES = new InetAddress[0];
-    
+
     // The actual cache.
     private final Map<String, AddressCacheEntry> map;
-    
+
     static class AddressCacheEntry {
         // The addresses. May be the empty array for a negative cache entry.
         InetAddress[] addresses;
-        
+
         /**
          * The absolute expiry time in nanoseconds. Nanoseconds from System.nanoTime is ideal
          * because -- unlike System.currentTimeMillis -- it can never go backwards.
-         * 
+         *
          * Unless we need to cope with DNS TTLs of 292 years, we don't need to worry about overflow.
          */
         long expiryNanos;
-        
+
         AddressCacheEntry(InetAddress[] addresses, long expiryNanos) {
             this.addresses = addresses;
             this.expiryNanos = expiryNanos;
         }
     }
-    
+
     public AddressCache() {
         // We pass 'true' so removeEldestEntry removes the least-recently accessed entry, rather
         // than the least-recently inserted.
@@ -76,7 +76,7 @@ class AddressCache {
             }
         };
     }
-    
+
     /**
      * Returns the cached addresses associated with 'hostname'. Returns null if nothing is known
      * about 'hostname'. Returns an empty array if 'hostname' is known not to exist.
@@ -94,7 +94,7 @@ class AddressCache {
         // No need to remove expired entries: the caller will provide a replacement shortly.
         return null;
     }
-    
+
     /**
      * Associates the given 'addresses' with 'hostname'. The association will expire after a
      * certain length of time.
@@ -118,7 +118,7 @@ class AddressCache {
             map.put(hostname, new AddressCacheEntry(addresses, expiryNanos));
         }
     }
-    
+
     /**
      * Records that 'hostname' is known not to have any associated addresses. (I.e. insert a
      * negative cache entry.)
@@ -126,7 +126,7 @@ class AddressCache {
     public void putUnknownHost(String hostname) {
         put(hostname, NO_ADDRESSES);
     }
-    
+
     private long customTtl(String propertyName, long defaultTtlNanos) {
         String ttlString = AccessController.doPrivileged(new PriviAction<String>(propertyName, null));
         if (ttlString == null) {

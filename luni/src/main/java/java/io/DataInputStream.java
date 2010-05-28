@@ -17,7 +17,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.Util;
 
 /**
@@ -235,8 +234,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
      *             if {@code buffer} or the source stream are null.
      * @see java.io.DataInput#readFully(byte[], int, int)
      */
-    public final void readFully(byte[] buffer, int offset, int length)
-            throws IOException {
+    public final void readFully(byte[] buffer, int offset, int length) throws IOException {
         // BEGIN android-removed
         // if (length < 0) {
         //     throw new IndexOutOfBoundsException();
@@ -246,10 +244,10 @@ public class DataInputStream extends FilterInputStream implements DataInput {
             return;
         }
         if (in == null) {
-            throw new NullPointerException(Msg.getString("KA00b")); //$NON-NLS-1$
+            throw new NullPointerException("in == null");
         }
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         // BEGIN android-changed
         // Exception priorities (in case of multiple errors) differ from
@@ -257,7 +255,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
         // used (offset | length) < 0 instead of separate (offset < 0) and
         // (length < 0) check to safe one operation
         if ((offset | length) < 0 || offset > buffer.length - length) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         while (length > 0) {

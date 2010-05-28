@@ -22,9 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.util.Enumeration;
-
 import org.apache.harmony.luni.util.Inet6Util;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * This class represents a 128 bit long IPv6 address.
@@ -36,7 +34,7 @@ public final class Inet6Address extends InetAddress {
     static final InetAddress ANY = new Inet6Address(new byte[]
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
     static final InetAddress LOOPBACK = new Inet6Address(new byte[]
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, "localhost"); //$NON-NLS-1$
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, "localhost");
 
     int scope_id;
 
@@ -67,7 +65,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Constructs an {@code InetAddress} representing the {@code address} and
      * {@code name} and {@code scope_id}.
-     * 
+     *
      * @param address
      *            the network address.
      * @param name
@@ -88,7 +86,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Constructs an IPv6 address according to the given {@code host}, {@code
      * addr} and {@code scope_id}.
-     * 
+     *
      * @param host
      *            the host name associated with the address.
      * @param addr
@@ -101,9 +99,8 @@ public final class Inet6Address extends InetAddress {
      */
     public static Inet6Address getByAddress(String host, byte[] addr,
             int scope_id) throws UnknownHostException {
-        if (null == addr || 16 != addr.length) {
-            // KA020=Illegal IPv6 address
-            throw new UnknownHostException(Msg.getString("KA020")); //$NON-NLS-1$
+        if (addr == null || addr.length != 16) {
+            throw new UnknownHostException("Illegal IPv6 address");
         }
         if (scope_id < 0) {
             scope_id = 0;
@@ -116,7 +113,7 @@ public final class Inet6Address extends InetAddress {
      * {@code addr} and {@code nif}. {@code scope_id} is set according to the
      * given {@code nif} and the {@code addr} type (for example site-local or
      * link-local).
-     * 
+     *
      * @param host
      *            the hostname associated with the address.
      * @param addr
@@ -160,8 +157,7 @@ public final class Inet6Address extends InetAddress {
         // if no address matches the type of addr, throws an
         // UnknownHostException.
         if (!address.scope_id_set) {
-            // KA021=Scope id is not found for the given address
-            throw new UnknownHostException(Msg.getString("KA021")); //$NON-NLS-1$
+            throw new UnknownHostException("Scope id not found for the given address");
         }
         return address;
     }
@@ -191,7 +187,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Constructs an {@code InetAddress} representing the {@code address} and
      * {@code scope_id}.
-     * 
+     *
      * @param address
      *            the network address.
      * @param scope_id
@@ -208,7 +204,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Returns whether this address is an IP multicast address or not. Valid
      * IPv6 multicast addresses are binary prefixed with 11111111 or FF (hex).
-     * 
+     *
      * @return {@code true} if this address is in the multicast group, {@code
      *         false} otherwise.
      */
@@ -221,7 +217,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Returns whether this address is a unspecified wildcard address "::" or
      * not.
-     * 
+     *
      * @return {@code true} if this instance represents a wildcard address,
      *         {@code false} otherwise.
      */
@@ -238,7 +234,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Returns whether this address is the loopback address or not. The only
      * valid IPv6 loopback address is "::1".
-     * 
+     *
      * @return {@code true} if this instance represents the loopback address,
      *         {@code false} otherwise.
      */
@@ -263,7 +259,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Returns whether this address is a link-local address or not. A valid IPv6
      * link-local address is prefixed with 1111111010.
-     * 
+     *
      * @return {@code true} if this instance represents a link-local address,
      *         {@code false} otherwise.
      */
@@ -277,7 +273,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Returns whether this address is a site-local address or not. A valid IPv6
      * site-local address is prefixed with 1111111011.
-     * 
+     *
      * @return {@code true} if this instance represents a site-local address,
      *         {@code false} otherwise.
      */
@@ -291,7 +287,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Returns whether this address is a global multicast address or not. A
      * valid IPv6 global multicast address is 11111111xxxx1110 or FF0E hex.
-     * 
+     *
      * @return {@code true} if this instance represents a global multicast
      *         address, {@code false} otherwise.
      */
@@ -306,7 +302,7 @@ public final class Inet6Address extends InetAddress {
      * Returns whether this address is a node-local multicast address or not. A
      * valid IPv6 node-local multicast address is prefixed with
      * 11111111xxxx0001.
-     * 
+     *
      * @return {@code true} if this instance represents a node-local multicast
      *         address, {@code false} otherwise.
      */
@@ -321,7 +317,7 @@ public final class Inet6Address extends InetAddress {
      * Returns whether this address is a link-local multicast address or not. A
      * valid IPv6 link-local multicast address is prefixed with
      * 11111111xxxx0010.
-     * 
+     *
      * @return {@code true} if this instance represents a link-local multicast
      *         address, {@code false} otherwise.
      */
@@ -336,7 +332,7 @@ public final class Inet6Address extends InetAddress {
      * Returns whether this address is a site-local multicast address or not. A
      * valid IPv6 site-local multicast address is prefixed with
      * 11111111xxxx0101.
-     * 
+     *
      * @return {@code true} if this instance represents a site-local multicast
      *         address, {@code false} otherwise.
      */
@@ -351,7 +347,7 @@ public final class Inet6Address extends InetAddress {
      * Returns whether this address is a organization-local multicast address or
      * not. A valid IPv6 org-local multicast address is prefixed with
      * 11111111xxxx1000.
-     * 
+     *
      * @return {@code true} if this instance represents a org-local multicast
      *         address, {@code false} otherwise.
      */
@@ -370,7 +366,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Gets the scope id as a number if this address is linked to an interface.
      * Otherwise returns {@code 0}.
-     * 
+     *
      * @return the scope_id of this address or 0 when not linked with an
      *         interface.
      */
@@ -384,7 +380,7 @@ public final class Inet6Address extends InetAddress {
     /**
      * Gets the network interface if this address is instanced with a scoped
      * network interface. Otherwise returns {@code null}.
-     * 
+     *
      * @return the scoped network interface of this address.
      */
     public NetworkInterface getScopedInterface() {
@@ -406,7 +402,7 @@ public final class Inet6Address extends InetAddress {
      * Returns whether this address is IPv4 compatible or not. An IPv4
      * compatible address is prefixed with 96 bits of 0's. The last 32-bits are
      * varied corresponding with the 32-bit IPv4 address space.
-     * 
+     *
      * @return {@code true} if this instance represents an IPv4 compatible
      *         address, {@code false} otherwise.
      */
@@ -420,35 +416,35 @@ public final class Inet6Address extends InetAddress {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("ipaddress", new byte[0].getClass()), //$NON-NLS-1$
-            new ObjectStreamField("scope_id", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("scope_id_set", Boolean.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("scope_ifname_set", Boolean.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("ifname", String.class), }; //$NON-NLS-1$
+            new ObjectStreamField("ipaddress", new byte[0].getClass()),
+            new ObjectStreamField("scope_id", Integer.TYPE),
+            new ObjectStreamField("scope_id_set", Boolean.TYPE),
+            new ObjectStreamField("scope_ifname_set", Boolean.TYPE),
+            new ObjectStreamField("ifname", String.class), };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();
         if (ipaddress == null) {
-            fields.put("ipaddress", null); //$NON-NLS-1$
+            fields.put("ipaddress", null);
         } else {
-            fields.put("ipaddress", ipaddress); //$NON-NLS-1$
+            fields.put("ipaddress", ipaddress);
         }
 
-        fields.put("scope_id", scope_id); //$NON-NLS-1$
-        fields.put("scope_id_set", scope_id_set); //$NON-NLS-1$
-        fields.put("scope_ifname_set", scope_ifname_set); //$NON-NLS-1$
-        fields.put("ifname", ifname); //$NON-NLS-1$
+        fields.put("scope_id", scope_id);
+        fields.put("scope_id_set", scope_id_set);
+        fields.put("scope_ifname_set", scope_ifname_set);
+        fields.put("ifname", ifname);
         stream.writeFields();
     }
 
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
         ObjectInputStream.GetField fields = stream.readFields();
-        ipaddress = (byte[]) fields.get("ipaddress", null); //$NON-NLS-1$
-        scope_id = fields.get("scope_id", 0); //$NON-NLS-1$
-        scope_id_set = fields.get("scope_id_set", false); //$NON-NLS-1$
-        ifname = (String) fields.get("ifname", null); //$NON-NLS-1$
-        scope_ifname_set = fields.get("scope_ifname_set", false); //$NON-NLS-1$
+        ipaddress = (byte[]) fields.get("ipaddress", null);
+        scope_id = fields.get("scope_id", 0);
+        scope_id_set = fields.get("scope_id_set", false);
+        ifname = (String) fields.get("ifname", null);
+        scope_ifname_set = fields.get("scope_ifname_set", false);
         if (scope_ifname_set && null != ifname) {
             scopedIf = NetworkInterface.getByName(ifname);
         }
@@ -457,16 +453,16 @@ public final class Inet6Address extends InetAddress {
     /**
      * Returns a string containing a concise, human-readable description of this
      * IP address.
-     * 
+     *
      * @return the description, as host/address.
      */
     @Override
     public String toString() {
         if (ifname != null) {
-            return super.toString() + "%" + ifname; //$NON-NLS-1$
+            return super.toString() + "%" + ifname;
         }
         if (scope_id != 0) {
-            return super.toString() + "%" + scope_id; //$NON-NLS-1$
+            return super.toString() + "%" + scope_id;
         }
         return super.toString();
     }

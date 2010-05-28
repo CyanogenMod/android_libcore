@@ -22,8 +22,6 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.PrivilegedAction;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A permission for accessing a file or directory. The FilePermission is made up
  * of a pathname and a set of actions which are valid for the pathname.
@@ -47,15 +45,15 @@ import org.apache.harmony.luni.util.Msg;
  * </ul>
  */
 public final class FilePermission extends Permission implements Serializable {
-    
+
     private static final long serialVersionUID = 7930732926638008763L;
 
     // canonical path of this permission
     private transient String canonPath;
 
     // list of actions permitted for socket permission in order
-    private static final String[] actionList = { "read", "write", "execute", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            "delete" }; //$NON-NLS-1$
+    private static final String[] actionList = { "read", "write", "execute",
+            "delete" };
 
     // "canonicalized" action list
     private String actions;
@@ -73,7 +71,7 @@ public final class FilePermission extends Permission implements Serializable {
 
     /**
      * Constructs a new FilePermission with the path and actions specified.
-     * 
+     *
      * @param path
      *            the pathname of the file or directory to apply the actions to.
      * @param actions
@@ -92,15 +90,15 @@ public final class FilePermission extends Permission implements Serializable {
     }
 
     private void init(final String path, String pathActions) {
-        if (pathActions == null || pathActions.equals("")) { //$NON-NLS-1$
-            throw new IllegalArgumentException(Msg.getString("K006d")); //$NON-NLS-1$
+        if (pathActions == null || pathActions.isEmpty()) {
+            throw new IllegalArgumentException("pathActions == null || pathActions.isEmpty()");
         }
         this.actions = toCanonicalActionString(pathActions);
 
         if (path == null) {
-            throw new NullPointerException(Msg.getString("K006e")); //$NON-NLS-1$
+            throw new NullPointerException("path == null");
         }
-        if (path.equals("<<ALL FILES>>")) { //$NON-NLS-1$
+        if (path.equals("<<ALL FILES>>")) {
             includeAll = true;
         } else {
             canonPath = AccessController
@@ -113,10 +111,10 @@ public final class FilePermission extends Permission implements Serializable {
                             }
                         }
                     });
-            if (path.equals("*") || path.endsWith(File.separator + "*")) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (path.equals("*") || path.endsWith(File.separator + "*")) {
                 allDir = true;
             }
-            if (path.equals("-") || path.endsWith(File.separator + "-")) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (path.equals("-") || path.endsWith(File.separator + "-")) {
                 allSubdir = true;
             }
         }
@@ -126,7 +124,7 @@ public final class FilePermission extends Permission implements Serializable {
      * Returns the string representing this permission's actions. It must be of
      * the form "read,write,execute,delete", all lower case and in the correct
      * order if there is more than one action.
-     * 
+     *
      * @param action
      *            the action name
      * @return the string representing this permission's actions
@@ -149,7 +147,7 @@ public final class FilePermission extends Permission implements Serializable {
         for (int i = 0; i < len; i++) {
             if ((highestBitMask & mask) != 0) {
                 if (addedItem) {
-                    result.append(","); //$NON-NLS-1$
+                    result.append(",");
                 }
                 result.append(actionList[i]);
                 addedItem = true;
@@ -161,7 +159,7 @@ public final class FilePermission extends Permission implements Serializable {
 
     /**
      * Returns the numerical representation of the argument.
-     * 
+     *
      * @param actionNames
      *            the action names
      * @return the action mask
@@ -169,20 +167,19 @@ public final class FilePermission extends Permission implements Serializable {
     private int getMask(String actionNames) {
         int actionInt = 0, head = 0, tail = 0;
         do {
-            tail = actionNames.indexOf(",", head); //$NON-NLS-1$
+            tail = actionNames.indexOf(",", head);
             String action = tail > 0 ? actionNames.substring(head, tail).trim()
                     : actionNames.substring(head).trim();
-            if (action.equals("read")) { //$NON-NLS-1$
+            if (action.equals("read")) {
                 actionInt |= 8;
-            } else if (action.equals("write")) { //$NON-NLS-1$
+            } else if (action.equals("write")) {
                 actionInt |= 4;
-            } else if (action.equals("execute")) { //$NON-NLS-1$
+            } else if (action.equals("execute")) {
                 actionInt |= 2;
-            } else if (action.equals("delete")) { //$NON-NLS-1$
+            } else if (action.equals("delete")) {
                 actionInt |= 1;
             } else {
-                throw new IllegalArgumentException(Msg.getString(
-                        "K006f", action)); //$NON-NLS-1$
+                throw new IllegalArgumentException("Invalid action: " + action);
             }
             head = tail + 1;
         } while (tail > 0);
@@ -191,7 +188,7 @@ public final class FilePermission extends Permission implements Serializable {
 
     /**
      * Returns the actions associated with this file permission.
-     * 
+     *
      * @return the actions associated with this file permission.
      */
     @Override
@@ -203,7 +200,7 @@ public final class FilePermission extends Permission implements Serializable {
      * Indicates if this file permission is equal to another. The two are equal
      * if {@code obj} is a FilePermission, they have the same path, and they
      * have the same actions.
-     * 
+     *
      * @param obj
      *            the object to check equality with.
      * @return {@code true} if this file permission is equal to {@code obj},
@@ -234,7 +231,7 @@ public final class FilePermission extends Permission implements Serializable {
      * {@code FilePermission}, if {@code p}'s actions are a subset of this
      * file permission's actions and if {@code p}'s path is implied by this
      * file permission's path.
-     * 
+     *
      * @param p
      *            the permission to check.
      * @return {@code true} if the argument permission is implied by the
@@ -249,7 +246,7 @@ public final class FilePermission extends Permission implements Serializable {
     /**
      * Returns an int describing what masks are implied by a specific
      * permission.
-     * 
+     *
      * @param p
      *            the permission
      * @return the mask applied to the given permission
@@ -351,7 +348,7 @@ public final class FilePermission extends Permission implements Serializable {
     /**
      * Returns a new PermissionCollection in which to place FilePermission
      * objects.
-     * 
+     *
      * @return A new PermissionCollection object suitable for storing
      *         FilePermission objects.
      */
@@ -362,7 +359,7 @@ public final class FilePermission extends Permission implements Serializable {
 
     /**
      * Calculates the hash code value for this file permission.
-     * 
+     *
      * @return the hash code value for this file permission.
      */
     @Override

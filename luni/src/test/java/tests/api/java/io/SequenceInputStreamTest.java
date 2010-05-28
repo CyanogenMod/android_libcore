@@ -29,7 +29,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(SequenceInputStream.class) 
+@TestTargetClass(SequenceInputStream.class)
 public class SequenceInputStreamTest extends junit.framework.TestCase {
 
     Support_ASimpleInputStream simple1, simple2;
@@ -49,16 +49,16 @@ public class SequenceInputStreamTest extends junit.framework.TestCase {
         method = "SequenceInputStream",
         args = {java.io.InputStream.class, java.io.InputStream.class}
     )
-    public void test_Constructor_LInputStreamLInputStream_Null() {        
+    public void test_Constructor_LInputStreamLInputStream_Null() {
         try {
             si = new SequenceInputStream(null , null);
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected.
         }
-        
+
         //will not throw NullPointerException if the first InputStream is not null
-        InputStream is = new ByteArrayInputStream(s1.getBytes()); 
+        InputStream is = new ByteArrayInputStream(s1.getBytes());
         si = new SequenceInputStream(is , null);
     }
 
@@ -106,7 +106,7 @@ public class SequenceInputStreamTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.SequenceInputStream#available()
      */
     @TestTargetNew(
@@ -179,13 +179,13 @@ public class SequenceInputStreamTest extends junit.framework.TestCase {
     )
     public void test_read() throws IOException {
         si.read();
-        assertEquals("Test 1: Incorrect char read;", 
+        assertEquals("Test 1: Incorrect char read;",
                 s1.charAt(1), (char) si.read());
-        
+
         // We are still reading from the first input stream, should be ok.
         simple2.throwExceptionOnNextUse = true;
         try {
-            assertEquals("Test 2: Incorrect char read;", 
+            assertEquals("Test 2: Incorrect char read;",
                     s1.charAt(2), (char) si.read());
         } catch (IOException e) {
             fail("Test 3: Unexpected IOException.");
@@ -199,7 +199,7 @@ public class SequenceInputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
         simple1.throwExceptionOnNextUse = false;
-        
+
         // Reading bytes 4 and 5 of the first input stream should be ok again.
         si.read();
         si.read();
@@ -211,19 +211,19 @@ public class SequenceInputStreamTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // Expected.
         }
-        
+
         // Reading from the second input stream should be ok now.
         simple2.throwExceptionOnNextUse = false;
         try {
-            assertEquals("Test 6: Incorrect char read;", 
+            assertEquals("Test 6: Incorrect char read;",
                     s2.charAt(0), (char) si.read());
         } catch (IOException e) {
             fail("Test 7: Unexpected IOException.");
         }
 
         si.close();
-        assertTrue("Test 8: -1 expected when reading from a closed " + 
-                   "sequence input stream.", si.read() == -1);        
+        assertTrue("Test 8: -1 expected when reading from a closed " +
+                   "sequence input stream.", si.read() == -1);
     }
 
     @TestTargetNew(
@@ -265,7 +265,7 @@ public class SequenceInputStreamTest extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("IOException during read test : " + e.getMessage());
         }
-        
+
         ByteArrayInputStream bis1 = new ByteArrayInputStream(
                 new byte[] { 1, 2, 3, 4 });
         ByteArrayInputStream bis2 = new ByteArrayInputStream(
@@ -278,19 +278,19 @@ public class SequenceInputStreamTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         assertEquals(4, sis.read(new byte[10], 0, 8));
         // The call to read will return after the end of the first substream is
         // reached. So the next call to read will close the first substream
         // because the read call to that substream will return -1, and
         // it will continue reading from the second substream.
         assertEquals(5, sis.read());
-        
+
         //returns -1 if the stream is closed , do not throw IOException
         byte[] array = new byte[] { 1 , 2 , 3 ,4 };
         sis.close();
         int result = sis.read(array , 0 , 5);
-        assertEquals(-1 , result);    
+        assertEquals(-1 , result);
     }
 
     @TestTargetNew(

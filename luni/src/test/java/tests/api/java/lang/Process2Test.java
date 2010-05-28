@@ -32,10 +32,10 @@ import java.io.OutputStream;
 import tests.support.Support_Exec;
 import static tests.support.Support_Exec.javaProcessBuilder;
 
-@TestTargetClass(Process.class) 
+@TestTargetClass(Process.class)
 public class Process2Test extends junit.framework.TestCase {
     /**
-     * @tests java.lang.Process#getInputStream(), 
+     * @tests java.lang.Process#getInputStream(),
      *        java.lang.Process#getErrorStream()
      *        java.lang.Process#getOutputStream()
      * Tests if these methods return buffered streams.
@@ -68,7 +68,7 @@ public class Process2Test extends junit.framework.TestCase {
         assertNotNull(p.getErrorStream());
         assertNotNull(p.getOutputStream());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -76,7 +76,7 @@ public class Process2Test extends junit.framework.TestCase {
         args = {}
     )
     public void test_getErrorStream() {
-        String[] commands = {"ls"};      
+        String[] commands = {"ls"};
         Process process = null;
         try {
             process = Runtime.getRuntime().exec(commands, null, null);
@@ -94,8 +94,8 @@ public class Process2Test extends junit.framework.TestCase {
         } finally {
             process.destroy();
         }
-        
-        String[] unknownCommands = {"mkdir", "-u", "test"};      
+
+        String[] unknownCommands = {"mkdir", "-u", "test"};
         Process erProcess = null;
         try {
             erProcess = Runtime.getRuntime().exec(unknownCommands, null, null);
@@ -107,7 +107,7 @@ public class Process2Test extends junit.framework.TestCase {
                     break;
                 msg.append((char) c);
             }
-            assertTrue("Error stream should not be empty", 
+            assertTrue("Error stream should not be empty",
                                                 !"".equals(msg.toString()));
         } catch (IOException e) {
             fail("IOException was thrown.");

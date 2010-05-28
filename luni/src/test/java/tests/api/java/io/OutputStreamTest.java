@@ -20,7 +20,7 @@ package tests.api.java.io;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
 import java.io.OutputStream;
@@ -50,20 +50,20 @@ import java.io.IOException;
                             "does nothing."
             )
         }
-) 
+)
 public class OutputStreamTest extends junit.framework.TestCase {
 
     class BasicOutputStream extends OutputStream {
-        
+
         private static final int BUFFER_SIZE = 20;
         private byte[] buffer;
         private int position;
-        
+
         public BasicOutputStream() {
             buffer = new byte[BUFFER_SIZE];
             position = 0;
         }
-        
+
         public void write(int oneByte) throws IOException {
             if (position < BUFFER_SIZE) {
                 buffer[position] = (byte) (oneByte & 255);
@@ -72,7 +72,7 @@ public class OutputStreamTest extends junit.framework.TestCase {
                 throw new IOException("Internal buffer overflow.");
             }
         }
-        
+
         public byte[] getBuffer() {
             return buffer;
         }
@@ -80,7 +80,7 @@ public class OutputStreamTest extends junit.framework.TestCase {
 
     private final byte[] shortByteArray = "Lorem ipsum...".getBytes();
     private final byte[] longByteArray = "Lorem ipsum dolor sit amet...".getBytes();
-        
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Verifies write(byte[]).",
@@ -91,13 +91,13 @@ public class OutputStreamTest extends junit.framework.TestCase {
         BasicOutputStream bos = new BasicOutputStream();
         boolean expected;
         byte[] buffer;
-        
+
         try {
             bos.write(shortByteArray);
         } catch (IOException e) {
             fail("Test 1: Unexpected IOException encountered.");
         }
-        
+
         expected = true;
         buffer = bos.getBuffer();
         for (int i = 0; i < (shortByteArray.length) && expected; i++) {
@@ -105,7 +105,7 @@ public class OutputStreamTest extends junit.framework.TestCase {
         }
         assertTrue("Test 1: Test byte array has not been written correctly.",
                    expected);
-        
+
         try {
             bos.write(longByteArray);
             fail("Test 2: IOException expected.");
@@ -122,13 +122,13 @@ public class OutputStreamTest extends junit.framework.TestCase {
         BasicOutputStream bos = new BasicOutputStream();
         boolean expected;
         byte[] buffer;
-        
+
         try {
             bos.write(shortByteArray, 6, 5);
         } catch (IOException e) {
             fail("Test 1: Unexpected IOException encountered.");
         }
-        
+
         expected = true;
         buffer = bos.getBuffer();
         for (int i = 6, j = 0; j < 5 && expected; i++, j++) {
@@ -136,12 +136,12 @@ public class OutputStreamTest extends junit.framework.TestCase {
         }
         assertTrue("Test 1: Test byte array has not been written correctly.",
                    expected);
-        
+
         try {
             bos.write(longByteArray, 5, 20);
             fail("Test 2: IOException expected.");
         } catch (IOException e) {}
-        
+
         try {
             bos.write(longByteArray, -1, 10);
             fail("Test 3: IndexOutOfBoundsException expected.");

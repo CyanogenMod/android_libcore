@@ -27,10 +27,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.CacheRequest;
 
-@TestTargetClass(CacheRequest.class) 
+@TestTargetClass(CacheRequest.class)
 public class CacheRequestTest extends TestCase {
-    
-       
+
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -49,7 +49,7 @@ public class CacheRequestTest extends TestCase {
         MockCacheRequest mcr = new MockCacheRequest();
         mcr.abort();
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.COMPLETE,
@@ -68,9 +68,9 @@ public class CacheRequestTest extends TestCase {
         MockCacheRequest mcr = new MockCacheRequest();
         assertNull(mcr.getBody());
     }
-    
+
     class MockCacheRequest extends CacheRequest {
-        
+
         MockCacheRequest() {
             super();
         }

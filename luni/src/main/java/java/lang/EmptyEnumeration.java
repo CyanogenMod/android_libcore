@@ -48,7 +48,7 @@ import java.util.NoSuchElementException;
     public boolean hasMoreElements() {
         return false;
     }
-    
+
     public URL nextElement() {
         throw new NoSuchElementException();
     }

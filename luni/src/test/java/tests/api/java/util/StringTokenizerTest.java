@@ -20,12 +20,12 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-@TestTargetClass(StringTokenizer.class) 
+@TestTargetClass(StringTokenizer.class)
 public class StringTokenizerTest extends junit.framework.TestCase {
 
     /**
@@ -64,7 +64,7 @@ public class StringTokenizerTest extends junit.framework.TestCase {
         assertTrue("Created incorrect tokenizer", st.countTokens() == 5
                 && (st.nextElement().equals("This")));
         st = new StringTokenizer("This:is:a:test:String", null);
-        
+
         try {
             new StringTokenizer(null, ":");
             fail("NullPointerException expected");
@@ -93,7 +93,7 @@ public class StringTokenizerTest extends junit.framework.TestCase {
                 && (st.nextElement().equals(":")));
         st = new StringTokenizer("This:is:a:test:String", null, true);
         st = new StringTokenizer("This:is:a:test:String", null, false);
-        
+
         try {
             new StringTokenizer(null, ":", true);
             fail("NullPointerException expected");
@@ -209,15 +209,15 @@ public class StringTokenizerTest extends junit.framework.TestCase {
         // Test for method java.lang.String
         // java.util.StringTokenizer.nextToken()
         StringTokenizer st = new StringTokenizer("This is a test String");
-        assertEquals("nextToken returned incorrect value", 
+        assertEquals("nextToken returned incorrect value",
                 "This", st.nextToken());
-        assertEquals("nextToken returned incorrect value", 
+        assertEquals("nextToken returned incorrect value",
                 "is", st.nextToken());
-        assertEquals("nextToken returned incorrect value", 
+        assertEquals("nextToken returned incorrect value",
                 "a", st.nextToken());
-        assertEquals("nextToken returned incorrect value", 
+        assertEquals("nextToken returned incorrect value",
                 "test", st.nextToken());
-        assertEquals("nextToken returned incorrect value", 
+        assertEquals("nextToken returned incorrect value",
                 "String", st.nextToken());
         try {
             st.nextToken();

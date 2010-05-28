@@ -31,8 +31,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.WeakHashMap;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.ThreadLocalCache;
 
@@ -53,7 +51,7 @@ public class ObjectStreamClass implements Serializable {
     private static final long serialVersionUID = -6120832682080437368L;
 
     // Name of the field that contains the SUID value (if present)
-    private static final String UID_FIELD_NAME = "serialVersionUID"; //$NON-NLS-1$
+    private static final String UID_FIELD_NAME = "serialVersionUID";
 
     static final long CONSTRUCTOR_IS_NOT_RESOLVED = -1;
 
@@ -73,11 +71,7 @@ public class ObjectStreamClass implements Serializable {
 
     static final Class<?>[] UNSHARED_PARAM_TYPES;
 
-    private static native void oneTimeInitialization();
-
     static {
-        oneTimeInitialization();
-
         CLASS_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.FINAL
                 | Modifier.INTERFACE | Modifier.ABSTRACT;
         FIELD_MODIFIERS_MASK = Modifier.PUBLIC | Modifier.PRIVATE
@@ -110,18 +104,18 @@ public class ObjectStreamClass implements Serializable {
 
     static {
         try {
-            ARRAY_OF_FIELDS = Class.forName("[Ljava.io.ObjectStreamField;"); //$NON-NLS-1$
+            ARRAY_OF_FIELDS = Class.forName("[Ljava.io.ObjectStreamField;");
         } catch (ClassNotFoundException e) {
             // This should not happen
             throw new AssertionError(e);
         }
     }
 
-    private static final String CLINIT_NAME = "<clinit>"; //$NON-NLS-1$
+    private static final String CLINIT_NAME = "<clinit>";
 
     private static final int CLINIT_MODIFIERS = Modifier.STATIC;
 
-    private static final String CLINIT_SIGNATURE = "()V"; //$NON-NLS-1$
+    private static final String CLINIT_SIGNATURE = "()V";
 
     // Used to determine if an object is Serializable or Externalizable
     private static final Class<Serializable> SERIALIZABLE = Serializable.class;
@@ -296,14 +290,14 @@ public class ObjectStreamClass implements Serializable {
         } else if (serializable) {
             flags |= ObjectStreamConstants.SC_SERIALIZABLE;
         }
-        result.methodWriteReplace = findMethod(cl, "writeReplace"); //$NON-NLS-1$
-        result.methodReadResolve = findMethod(cl, "readResolve"); //$NON-NLS-1$
-        result.methodWriteObject = findPrivateMethod(cl, "writeObject", //$NON-NLS-1$
+        result.methodWriteReplace = findMethod(cl, "writeReplace");
+        result.methodReadResolve = findMethod(cl, "readResolve");
+        result.methodWriteObject = findPrivateMethod(cl, "writeObject",
                 WRITE_PARAM_TYPES);
-        result.methodReadObject = findPrivateMethod(cl, "readObject", //$NON-NLS-1$
+        result.methodReadObject = findPrivateMethod(cl, "readObject",
                 READ_PARAM_TYPES);
         result.methodReadObjectNoData = findPrivateMethod(cl,
-                "readObjectNoData", EMPTY_CONSTRUCTOR_PARAM_TYPES); //$NON-NLS-1$
+                "readObjectNoData", EMPTY_CONSTRUCTOR_PARAM_TYPES);
         if (result.hasMethodWriteObject()) {
             flags |= ObjectStreamConstants.SC_WRITE_METHOD;
         }
@@ -418,8 +412,7 @@ public class ObjectStreamClass implements Serializable {
                             // Static field, parameter is ignored
                             return field.getLong(null);
                         } catch (IllegalAccessException iae) {
-                            throw new RuntimeException(Msg.getString(
-                                    "K0071", iae)); //$NON-NLS-1$
+                            throw new RuntimeException("Error fetching SUID: " + iae);
                         }
                     }
                 }
@@ -428,7 +421,7 @@ public class ObjectStreamClass implements Serializable {
 
         MessageDigest digest;
         try {
-            digest = MessageDigest.getInstance("SHA"); //$NON-NLS-1$
+            digest = MessageDigest.getInstance("SHA");
         } catch (NoSuchAlgorithmException e) {
             throw new Error(e);
         }
@@ -549,7 +542,7 @@ public class ObjectStreamClass implements Serializable {
                      * constructor.getName() returns the constructor name as
                      * typed, not the VM name
                      */
-                    output.writeUTF("<init>"); //$NON-NLS-1$
+                    output.writeUTF("<init>");
                     output.writeInt(modifiers);
                     output.writeUTF(descriptorForSignature(
                             getConstructorSignature(constructor)).replace('/',
@@ -590,7 +583,7 @@ public class ObjectStreamClass implements Serializable {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(Msg.getString("K0072", e));//$NON-NLS-1$
+            throw new RuntimeException(e + " computing SHA-1/SUID");
         }
 
         // now compute the UID based on the SHA
@@ -620,7 +613,7 @@ public class ObjectStreamClass implements Serializable {
      * @return containing the descriptor
      */
     private static String descriptorForSignature(String signature) {
-        return signature.substring(signature.indexOf("(")); //$NON-NLS-1$
+        return signature.substring(signature.indexOf("("));
     }
 
     /**
@@ -635,7 +628,7 @@ public class ObjectStreamClass implements Serializable {
      */
     static Field fieldSerialPersistentFields(Class<?> cl) {
         try {
-            Field f = cl.getDeclaredField("serialPersistentFields"); //$NON-NLS-1$
+            Field f = cl.getDeclaredField("serialPersistentFields");
             int modifiers = f.getModifiers();
             if (Modifier.isStatic(modifiers) && Modifier.isPrivate(modifiers)
                     && Modifier.isFinal(modifiers)) {
@@ -899,41 +892,21 @@ public class ObjectStreamClass implements Serializable {
         arePropertiesResolved = true;
     }
 
-    /**
-     * Answers whether the class for this descriptor is serializable
-     *
-     * @return true if class implements Serializable
-     */
     boolean isSerializable() {
         resolveProperties();
         return isSerializable;
     }
 
-    /**
-     * Answers whether the class for this descriptor is serializable
-     *
-     * @return true if class implements Serializable
-     */
     boolean isExternalizable() {
         resolveProperties();
         return isExternalizable;
     }
 
-    /**
-     * Answers whether the class for this descriptor is proxied class
-     *
-     * @return true if class is proxied
-     */
     boolean isProxy() {
         resolveProperties();
         return isProxy;
     }
 
-    /**
-     * Answers whether the class for this descriptor is subclass of Enum
-     *
-     * @return true if class is subclass of Enum
-     */
     boolean isEnum() {
         resolveProperties();
         return isEnum;
@@ -957,15 +930,14 @@ public class ObjectStreamClass implements Serializable {
     }
 
     /**
-     * Returns the descriptor corresponding to the class {@code cl}. If the
-     * class is not serializable or externalizable then {@code null} is
-     * returned.
+     * Returns the descriptor for a serializable class.
+     * Returns null if the class doesn't implement {@code Serializable} or {@code Externalizable}.
      *
      * @param cl
-     *            a java.langClass for which to obtain the corresponding
+     *            a java.lang.Class for which to obtain the corresponding
      *            descriptor
-     * @return the corresponding descriptor if the {@code cl} is serializable or
-     *         externalizable; {@code null} otherwise.
+     * @return the corresponding descriptor if the class is serializable or
+     *         externalizable; null otherwise.
      */
     public static ObjectStreamClass lookup(Class<?> cl) {
         ObjectStreamClass osc = lookupStreamClass(cl);
@@ -975,6 +947,20 @@ public class ObjectStreamClass implements Serializable {
         }
 
         return null;
+    }
+
+    /**
+     * Returns the descriptor for any class, whether or not the class
+     * implements Serializable or Externalizable.
+     *
+     * @param cl
+     *            a java.lang.Class for which to obtain the corresponding
+     *            descriptor
+     * @return the descriptor
+     * @since 1.6
+     */
+    public static ObjectStreamClass lookupAny(Class<?> cl) {
+        return  lookupStreamClass(cl);
     }
 
     /**
@@ -1206,8 +1192,8 @@ public class ObjectStreamClass implements Serializable {
      */
     @Override
     public String toString() {
-        return getName() + ": static final long serialVersionUID =" //$NON-NLS-1$
-                + getSerialVersionUID() + "L;"; //$NON-NLS-1$
+        return getName() + ": static final long serialVersionUID ="
+                + getSerialVersionUID() + "L;";
     }
 
     static class OSCThreadLocalCache extends ThreadLocalCache {

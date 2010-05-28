@@ -40,7 +40,7 @@ public class UnknownServiceException extends IOException {
     /**
      * Constructs a new {@code UnknownServiceException} instance with its
      * walkback and message filled in.
-     * 
+     *
      * @param detailMessage
      *            the detail message for this exception.
      */

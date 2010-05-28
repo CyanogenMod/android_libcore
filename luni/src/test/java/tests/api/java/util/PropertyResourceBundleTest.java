@@ -20,14 +20,14 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Enumeration;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.Vector;
 
-@TestTargetClass(PropertyResourceBundle.class) 
+@TestTargetClass(PropertyResourceBundle.class)
 public class PropertyResourceBundleTest extends junit.framework.TestCase {
 
     static PropertyResourceBundle prb;

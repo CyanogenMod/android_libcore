@@ -192,7 +192,7 @@ public class JSONStringerTest extends TestCase {
         stringer.object();
         stringer.key("").value(false);
         stringer.endObject();
-        assertEquals("{\"\":false}", stringer.toString()); // legit behaviour! 
+        assertEquals("{\"\":false}", stringer.toString()); // legit behaviour!
     }
 
     public void testEscaping() throws JSONException {

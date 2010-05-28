@@ -20,11 +20,11 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.BitSet;
 
-@TestTargetClass(BitSet.class) 
+@TestTargetClass(BitSet.class)
 public class BitSetTest extends junit.framework.TestCase {
 
     BitSet eightbs;
@@ -495,21 +495,21 @@ public class BitSetTest extends junit.framework.TestCase {
         bs2.flip(0, 128);
         resultbs = bs2.get(0, bs.size());
         assertTrue("equality principle", bs2.equals(resultbs));
-        
+
         try {
             bs2.get(-1, 0);
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             bs2.get(bs2.size()/2, 0);
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             bs2.get(bs2.size()/2, -1);
             fail("IndexOutOfBoundsException expected");
@@ -581,7 +581,7 @@ public class BitSetTest extends junit.framework.TestCase {
 
         eightbs.set(5, true);
         assertTrue("Should have set bit 5 to false", eightbs.get(5));
-        
+
         try {
             eightbs.set(-5, false);
             fail("IndexOutOfBoundsException expected");
@@ -1141,7 +1141,7 @@ public class BitSetTest extends junit.framework.TestCase {
         bs2.set(2);
         bs2.set(3);
         bs.andNot(bs2);
-        assertEquals("Incorrect bitset after andNot", 
+        assertEquals("Incorrect bitset after andNot",
                 "{0, 1, 4, 6, 7}", bs.toString());
 
         bs = new BitSet(0);
@@ -1369,7 +1369,7 @@ public class BitSetTest extends junit.framework.TestCase {
         // Test for method int java.util.BitSet.nextSetBit()
         BitSet bs = new BitSet(500);
         // ensure all the bits from 0 to bs.size() - 1 are set to true
-        bs.set(0, bs.size() - 1); 
+        bs.set(0, bs.size() - 1);
         bs.set(bs.size() - 1);
         bs.clear(5);
         bs.clear(32);
@@ -1531,7 +1531,7 @@ public class BitSetTest extends junit.framework.TestCase {
 
     /**
      * helper method to display the contents of a bitset
-     * 
+     *
      */
     private static void printBitset(BitSet bs) {
         System.out.println();

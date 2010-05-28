@@ -85,6 +85,13 @@ core_static_libraries := $(sort $(LOCAL_STATIC_LIBRARIES))
 
 include $(CLEAR_VARS)
 
+LOCAL_CFLAGS += -Wall -Wextra
+
+ifeq ($(TARGET_ARCH),arm)
+# Ignore "note: the mangling of 'va_list' has changed in GCC 4.4"
+LOCAL_CFLAGS += -Wno-psabi
+endif
+
 # Define the rules.
 LOCAL_SRC_FILES := $(core_src_files)
 LOCAL_C_INCLUDES := $(core_c_includes)
@@ -96,7 +103,7 @@ include $(BUILD_STATIC_LIBRARY)
 # Deal with keystores required for security. Note: The path to this file
 # is hardcoded in TrustManagerFactoryImpl.java.
 ALL_PREBUILT += $(TARGET_OUT)/etc/security/cacerts.bks
-$(TARGET_OUT)/etc/security/cacerts.bks : $(LOCAL_PATH)/security/src/main/files/cacerts.bks | $(ACP)
+$(TARGET_OUT)/etc/security/cacerts.bks : $(LOCAL_PATH)/luni/src/main/files/cacerts.bks | $(ACP)
 	$(transform-prebuilt-to-target)
 
 

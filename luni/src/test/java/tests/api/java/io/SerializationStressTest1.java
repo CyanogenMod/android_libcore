@@ -20,7 +20,7 @@ import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
@@ -30,7 +30,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 @SuppressWarnings("serial")
-@TestTargetClass(Serializable.class) 
+@TestTargetClass(Serializable.class)
 public class SerializationStressTest1 extends SerializationStressTest {
 
     // The purpose of these two classes is to test if serialization, when
@@ -69,7 +69,7 @@ public class SerializationStressTest1 extends SerializationStressTest {
 
         public void run() {
         }
-        
+
         SpecTestSuperClass() {
         }
     }
@@ -837,7 +837,7 @@ public class SerializationStressTest1 extends SerializationStressTest {
             // non-serializable inst var has to be initialized from top
             // constructor
             assertNull(MSG_TEST_FAILED + objToSave,
-                    ((SpecTest) objLoaded).instVar); 
+                    ((SpecTest) objLoaded).instVar);
             // instVar from non-serialized class, cant  be  saved/restored
             // by serialization but serialized ivar has to be restored as it
             // was in the object when dumped
@@ -848,7 +848,7 @@ public class SerializationStressTest1 extends SerializationStressTest {
             e.printStackTrace();
             fail("Exception serializing " + objToSave + "\t->"
                     + e.toString());
-            
+
         } catch (ClassNotFoundException e) {
             fail("ClassNotFoundException reading Object type : "
                     + e.getMessage());
@@ -884,7 +884,7 @@ public class SerializationStressTest1 extends SerializationStressTest {
             // from top constructor in this case
             assertNull(MSG_TEST_FAILED + objToSave,
                     ((SpecTestSubclass) objLoaded).transientInstVar);
-            // transient slot, cant be saved/restored by serialization 
+            // transient slot, cant be saved/restored by serialization
         } catch (IOException e) {
             fail("Exception serializing " + objToSave + "\t->"
                     + e.toString());
@@ -1354,7 +1354,6 @@ public class SerializationStressTest1 extends SerializationStressTest {
         method = "!Serialization",
         args = {}
     )
-    @KnownFailure("nested writeReplace is not handled")
     public void test_18_28_writeObject() {
         // Test for method void
         // java.io.ObjectOutputStream.writeObject(java.lang.Object)

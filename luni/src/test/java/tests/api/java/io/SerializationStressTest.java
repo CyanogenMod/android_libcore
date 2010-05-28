@@ -54,10 +54,10 @@ import dalvik.annotation.TestTargetClass;
 
 /**
  * Automated Test Suite for class java.io.ObjectOutputStream
- * 
+ *
  */
 @SuppressWarnings({"serial", "unchecked"})
-@TestTargetClass(Serializable.class) 
+@TestTargetClass(Serializable.class)
 public class SerializationStressTest extends junit.framework.TestCase implements
         Serializable {
 
@@ -166,7 +166,7 @@ public class SerializationStressTest extends junit.framework.TestCase implements
             "S-TEST");
 
     static final Calendar CALENDAR = new GregorianCalendar(TIME_ZONE);
-    
+
     static Exception INITIALIZE_EXCEPTION = null;
 
     static {

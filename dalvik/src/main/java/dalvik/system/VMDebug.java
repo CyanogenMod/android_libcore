@@ -25,11 +25,10 @@ import java.io.IOException;
  * friendly way for use by application developers. On the Android platform, the
  * recommended way to access this functionality is through the class
  * <code>android.os.Debug</code>.
- * 
+ *
  * @cts Please complete the spec.
  *
- * @deprecated this is an internal Dalvik class that is not appropriate for
- *      general use. It will be removed from the public API in a future release.
+ * @hide
  */
 public final class VMDebug {
     /**
@@ -111,7 +110,7 @@ public final class VMDebug {
 
     /**
      * Returns the time since the last known debugger activity.
-     * 
+     *
      * @return the time in milliseconds, or -1 if the debugger is not connected
      */
     public static native long lastDebuggerActivity();
@@ -126,7 +125,7 @@ public final class VMDebug {
 
     /**
      * Determines if a debugger is currently attached.
-     * 
+     *
      * @return true if (and only if) a debugger is connected
      */
     public static native boolean isDebuggerConnected();
@@ -156,12 +155,12 @@ public final class VMDebug {
      * href="{@docRoot}guide/developing/tools/traceview.html"> Running the
      * Traceview Debugging Program</a> for information about reading
      * trace files.
-     * 
+     *
      * <p>You can use either a fully qualified path and
      * name, or just a name. If only a name is specified, the file will
      * be created under the /sdcard/ directory. If a name is not given,
      * the default is /sdcard/dmtrace.trace.</p>
-     * 
+     *
      * @param traceFileName name to give the trace file
      * @param bufferSize the maximum size of both files combined. If passed
      * as <code>0</code>, it defaults to 8MB.
@@ -182,7 +181,7 @@ public final class VMDebug {
      * Like startMethodTracing(String, int, int), but taking an already-opened
      * FileDescriptor in which the trace is written.  The file name is also
      * supplied simply for logging.  Makes a dup of the file descriptor.
-     * 
+     *
      * Not exposed in the SDK unless we are really comfortable with supporting
      * this and find it would be useful.
      * @hide
@@ -245,7 +244,7 @@ public final class VMDebug {
      * The time is expressed in nanoseconds, and is only meaningful when
      * compared to the result from an earlier call. Note that nanosecond
      * resolution does not imply nanosecond accuracy.
-     * 
+     *
      * @return the CPU usage. A value of -1 means the system does not support
      *         this feature.
      */
@@ -265,13 +264,13 @@ public final class VMDebug {
      * catching regressions in code that is expected to operate without causing
      * any allocations. The limit is valid from the return of this method until
      * it is either changed or the thread terminates.
-     * 
+     *
      * @param limit
      *            the new limit. A value of 0 means not a single new object may
      *            be allocated. A value of -1 disables the limit.
-     * 
+     *
      * @return the previous limit, or -1 if no limit was set
-     * 
+     *
      * @see #setGlobalAllocationLimit(int)
      */
     public static native int setAllocationLimit(int limit);
@@ -281,13 +280,13 @@ public final class VMDebug {
      * catching regressions in code that is expected to operate without causing
      * any allocations. The limit is valid from the return of this method until
      * it is either changed or the thread terminates.
-     * 
+     *
      * @param limit
      *            the new limit. A value of 0 means not a single new object may
      *            be allocated. A value of -1 disables the limit.
-     * 
+     *
      * @return the previous limit, or -1 if no limit was set
-     * 
+     *
      * @see #setAllocationLimit(int)
      */
     public static native int setGlobalAllocationLimit(int limit);
@@ -307,7 +306,7 @@ public final class VMDebug {
 
     /**
      * Gets the number of loaded classes.
-     * 
+     *
      * @return the number of loaded classes
      */
     public static native int getLoadedClassCount();

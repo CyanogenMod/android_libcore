@@ -9,12 +9,12 @@ import java.net.UnknownHostException;
 
 
 public class SSLSocketFactoryImpl extends SSLSocketFactory {
-    
+
     public SSLSocketFactoryImpl() {
         super();
     }
-    
-    public Socket createSocket(Socket socket, String s, int i, boolean flag) 
+
+    public Socket createSocket(Socket socket, String s, int i, boolean flag)
                                throws IOException {
         if (socket == null) {
             throw new IOException("incorrect socket");
@@ -25,7 +25,7 @@ public class SSLSocketFactoryImpl extends SSLSocketFactory {
         if (s == null || s.equals("")) {
             throw new UnknownHostException("incorrect host");
         }
-        
+
         if (!flag) {
             socket = new Socket(s, i);
         } else {
@@ -34,15 +34,15 @@ public class SSLSocketFactoryImpl extends SSLSocketFactory {
         }
         return socket;
     }
-    
+
     public String[] getDefaultCipherSuites() {
         return null;
     }
-    
+
     public String[] getSupportedCipherSuites() {
         return null;
     }
-    
+
     /**
      * @see javax.net.SocketFactory#createSocket(java.lang.String, int)
      */

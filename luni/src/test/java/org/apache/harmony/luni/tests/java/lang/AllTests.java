@@ -30,7 +30,7 @@ public class AllTests {
     }
 
     public static final Test suite() {
-        TestSuite suite = tests.TestSuiteFactory.createTestSuite("Tests for java.lang");
+        TestSuite suite = new TestSuite("Tests for java.lang");
 
         suite.addTestSuite(AbstractMethodErrorTest.class);
         suite.addTestSuite(ArithmeticExceptionTest.class);
@@ -45,10 +45,10 @@ public class AllTests {
         suite.addTestSuite(Character_UnicodeBlockTest.class);
         suite.addTestSuite(ClassCastExceptionTest.class);
         suite.addTestSuite(ClassCircularityErrorTest.class);
-        suite.addTestSuite(ClassFormatErrorTest.class); 
+        suite.addTestSuite(ClassFormatErrorTest.class);
         suite.addTestSuite(ClassLoaderTest.class);
         suite.addTestSuite(ClassNotFoundExceptionTest.class);
-        suite.addTestSuite(ClassTest.class); 
+        suite.addTestSuite(ClassTest.class);
         suite.addTestSuite(ClassTest2.class);
         suite.addTestSuite(CloneNotSupportedExceptionTest.class);
         suite.addTestSuite(CompilerTest.class);
@@ -115,7 +115,7 @@ public class AllTests {
         suite.addTestSuite(UnknownErrorTest.class);
         suite.addTestSuite(UnsatisfiedLinkErrorTest.class);
         suite.addTestSuite(UnsupportedOperationExceptionTest.class);
-        suite.addTestSuite(UnsupportedClassVersionErrorTest.class); 
+        suite.addTestSuite(UnsupportedClassVersionErrorTest.class);
         suite.addTestSuite(VerifyErrorTest.class);
         suite.addTestSuite(VirtualMachineErrorTest.class);
 

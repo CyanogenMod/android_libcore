@@ -17,10 +17,6 @@
 
 package java.io;
 
-// BEGIN android-added
-import org.apache.harmony.luni.util.Msg;
-// ENd android-added
-
 /**
  * A specialized {@link Writer} that writes characters to a {@code StringBuffer}
  * in a sequential manner, appending them in the process. The result can later
@@ -107,10 +103,10 @@ public class StringWriter extends Writer {
      * Writes {@code count} characters starting at {@code offset} in {@code buf}
      * to this writer's {@code StringBuffer}.
      *
-     * @param cbuf
+     * @param chars
      *            the non-null character array to write.
      * @param offset
-     *            the index of the first character in {@code cbuf} to write.
+     *            the index of the first character in {@code chars} to write.
      * @param count
      *            the maximum number of characters to write.
      * @throws IndexOutOfBoundsException
@@ -118,24 +114,24 @@ public class StringWriter extends Writer {
      *             offset + count} is greater than the size of {@code buf}.
      */
     @Override
-    public void write(char[] cbuf, int offset, int count) {
+    public void write(char[] chars, int offset, int count) {
         // avoid int overflow
         // BEGIN android-changed
         // Exception priorities (in case of multiple errors) differ from
         // RI, but are spec-compliant.
         // removed redundant check, added null check, used (offset | count) < 0
         // instead of (offset < 0) || (count < 0) to safe one operation
-        if (cbuf == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+        if (chars == null) {
+            throw new NullPointerException("chars == null");
         }
-        if ((offset | count) < 0 || count > cbuf.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+        if ((offset | count) < 0 || count > chars.length - offset) {
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         if (count == 0) {
             return;
         }
-        buf.append(cbuf, offset, count);
+        buf.append(chars, offset, count);
     }
 
     /**

@@ -57,11 +57,11 @@ import org.apache.harmony.luni.util.PriviAction;
 public class SecurityManager {
 
     private static final PropertyPermission READ_WRITE_ALL_PROPERTIES_PERMISSION = new PropertyPermission(
-            "*", "read,write"); //$NON-NLS-1$ //$NON-NLS-2$
+            "*", "read,write");
 
-    private static final String PKG_ACC_KEY = "package.access"; //$NON-NLS-1$
+    private static final String PKG_ACC_KEY = "package.access";
 
-    private static final String PKG_DEF_KEY = "package.definition"; //$NON-NLS-1$
+    private static final String PKG_DEF_KEY = "package.definition";
 
     /**
      * Flag to indicate whether a security check is in progress.
@@ -107,7 +107,7 @@ public class SecurityManager {
         if (host == null) {
             throw new NullPointerException();
         }
-        checkPermission(new SocketPermission(host + ':' + port, "accept")); //$NON-NLS-1$
+        checkPermission(new SocketPermission(host + ':' + port, "accept"));
     }
 
     /**
@@ -168,9 +168,9 @@ public class SecurityManager {
             throw new NullPointerException();
         }
         if (port > 0) {
-            checkPermission(new SocketPermission(host + ':' + port, "connect")); //$NON-NLS-1$
+            checkPermission(new SocketPermission(host + ':' + port, "connect"));
         } else {
-            checkPermission(new SocketPermission(host, "resolve")); //$NON-NLS-1$
+            checkPermission(new SocketPermission(host, "resolve"));
         }
     }
 
@@ -198,10 +198,10 @@ public class SecurityManager {
         }
         // END android-added
         if (port > 0) {
-            checkPermission(new SocketPermission(host + ':' + port, "connect"), //$NON-NLS-1$
+            checkPermission(new SocketPermission(host + ':' + port, "connect"),
                     context);
         } else {
-            checkPermission(new SocketPermission(host, "resolve"), context); //$NON-NLS-1$
+            checkPermission(new SocketPermission(host, "resolve"), context);
         }
     }
 
@@ -226,7 +226,7 @@ public class SecurityManager {
      *             if the calling thread is not allowed to delete {@code file}.
      */
     public void checkDelete(String file) {
-        checkPermission(new FilePermission(file, "delete")); //$NON-NLS-1$
+        checkPermission(new FilePermission(file, "delete"));
     }
 
     /**
@@ -240,7 +240,7 @@ public class SecurityManager {
      */
     public void checkExec(String cmd) {
         checkPermission(new FilePermission(new File(cmd).isAbsolute() ? cmd
-                : "<<ALL FILES>>", "execute")); //$NON-NLS-1$ //$NON-NLS-2$
+                : "<<ALL FILES>>", "execute"));
     }
 
     /**
@@ -271,7 +271,7 @@ public class SecurityManager {
         if (libName == null) {
             throw new NullPointerException();
         }
-        checkPermission(new RuntimePermission("loadLibrary." + libName)); //$NON-NLS-1$
+        checkPermission(new RuntimePermission("loadLibrary." + libName));
     }
 
     /**
@@ -285,9 +285,9 @@ public class SecurityManager {
      */
     public void checkListen(int port) {
         if (port == 0) {
-            checkPermission(new SocketPermission("localhost:1024-", "listen")); //$NON-NLS-1$ //$NON-NLS-2$
+            checkPermission(new SocketPermission("localhost:1024-", "listen"));
         } else {
-            checkPermission(new SocketPermission("localhost:" + port, "listen")); //$NON-NLS-1$//$NON-NLS-2$
+            checkPermission(new SocketPermission("localhost:" + port, "listen"));
         }
     }
 
@@ -332,7 +332,7 @@ public class SecurityManager {
         }
 
         // Forward off to the permission mechanism.
-        checkPermission(new RuntimePermission("accessDeclaredMembers")); //$NON-NLS-1$
+        checkPermission(new RuntimePermission("accessDeclaredMembers"));
     }
 
     /**
@@ -346,7 +346,7 @@ public class SecurityManager {
      */
     public void checkMulticast(InetAddress maddr) {
         checkPermission(new SocketPermission(maddr.getHostAddress(),
-                "accept,connect")); //$NON-NLS-1$
+                "accept,connect"));
     }
 
     /**
@@ -365,7 +365,7 @@ public class SecurityManager {
     @Deprecated
     public void checkMulticast(InetAddress maddr, byte ttl) {
         checkPermission(new SocketPermission(maddr.getHostAddress(),
-                "accept,connect")); //$NON-NLS-1$
+                "accept,connect"));
     }
 
     /**
@@ -383,7 +383,7 @@ public class SecurityManager {
             throw new NullPointerException();
         }
         if (checkPackageProperty(PKG_ACC_KEY, packageName)) {
-            checkPermission(new RuntimePermission("accessClassInPackage." //$NON-NLS-1$
+            checkPermission(new RuntimePermission("accessClassInPackage."
                     + packageName));
         }
     }
@@ -403,7 +403,7 @@ public class SecurityManager {
             throw new NullPointerException();
         }
         if (checkPackageProperty(PKG_DEF_KEY, packageName)) {
-            checkPermission(new RuntimePermission("defineClassInPackage." //$NON-NLS-1$
+            checkPermission(new RuntimePermission("defineClassInPackage."
                     + packageName));
         }
     }
@@ -418,7 +418,7 @@ public class SecurityManager {
                 .getSecurityProperty(property));
         if (list != null) {
             int plen = pkg.length();
-            String[] tokens = list.split(", *"); //$NON-NLS-1$
+            String[] tokens = list.split(", *");
             for (String token : tokens) {
                 int tlen = token.length();
                 if (plen > tlen
@@ -460,7 +460,7 @@ public class SecurityManager {
      *             key} system property.
      */
     public void checkPropertyAccess(String key) {
-        checkPermission(new PropertyPermission(key, "read")); //$NON-NLS-1$
+        checkPermission(new PropertyPermission(key, "read"));
     }
 
     /**
@@ -490,7 +490,7 @@ public class SecurityManager {
      *             file}.
      */
     public void checkRead(String file) {
-        checkPermission(new FilePermission(file, "read")); //$NON-NLS-1$
+        checkPermission(new FilePermission(file, "read"));
     }
 
     /**
@@ -505,7 +505,7 @@ public class SecurityManager {
      *             if {@code context} is not allowed to read from {@code file}.
      */
     public void checkRead(String file, Object context) {
-        checkPermission(new FilePermission(file, "read"), context); //$NON-NLS-1$
+        checkPermission(new FilePermission(file, "read"), context);
     }
 
     /**
@@ -550,11 +550,11 @@ public class SecurityManager {
             throw new NullPointerException();
         }
         try {
-            Class<?> awtPermission = Class.forName("java.awt.AWTPermission"); //$NON-NLS-1$
+            Class<?> awtPermission = Class.forName("java.awt.AWTPermission");
             Constructor<?> constructor = awtPermission
                     .getConstructor(String.class);
             Object perm = constructor
-                    .newInstance("showWindowWithoutWarningBanner"); //$NON-NLS-1$
+                    .newInstance("showWindowWithoutWarningBanner");
             checkPermission((Permission) perm);
         } catch (ClassNotFoundException e) {
         } catch (NoSuchMethodException e) {
@@ -577,10 +577,10 @@ public class SecurityManager {
      */
     public void checkSystemClipboardAccess() {
         try {
-            Class<?> awtPermission = Class.forName("java.awt.AWTPermission"); //$NON-NLS-1$
+            Class<?> awtPermission = Class.forName("java.awt.AWTPermission");
             Constructor<?> constructor = awtPermission
                     .getConstructor(String.class);
-            Object perm = constructor.newInstance("accessClipboard"); //$NON-NLS-1$
+            Object perm = constructor.newInstance("accessClipboard");
             checkPermission((Permission) perm);
             return;
         } catch (ClassNotFoundException e) {
@@ -602,10 +602,10 @@ public class SecurityManager {
      */
     public void checkAwtEventQueueAccess() {
         try {
-            Class<?> awtPermission = Class.forName("java.awt.AWTPermission"); //$NON-NLS-1$
+            Class<?> awtPermission = Class.forName("java.awt.AWTPermission");
             Constructor<?> constructor = awtPermission
                     .getConstructor(String.class);
-            Object perm = constructor.newInstance("accessEventQueue"); //$NON-NLS-1$
+            Object perm = constructor.newInstance("accessEventQueue");
             checkPermission((Permission) perm);
             return;
         } catch (ClassNotFoundException e) {
@@ -655,7 +655,7 @@ public class SecurityManager {
      *             {@code file}.
      */
     public void checkWrite(String file) {
-        checkPermission(new FilePermission(file, "write")); //$NON-NLS-1$
+        checkPermission(new FilePermission(file, "write"));
     }
 
     /**

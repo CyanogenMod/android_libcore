@@ -20,7 +20,7 @@ package org.apache.harmony.luni.tests.internal.net.www.protocol.http;
 import dalvik.annotation.SideEffect;
 import dalvik.annotation.BrokenTest;
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -47,7 +47,7 @@ import junit.framework.TestCase;
  * Tests for <code>HTTPURLConnection</code> class constructors and methods.
  *
  */
-@TestTargetClass(HttpURLConnection.class) 
+@TestTargetClass(HttpURLConnection.class)
 public class HttpURLConnectionTest extends TestCase {
 
     private final static Object bound = new Object();
@@ -89,7 +89,7 @@ public class HttpURLConnectionTest extends TestCase {
     static class MockProxyServer extends MockServer {
 
         boolean acceptedAuthorizedRequest;
-        
+
         public MockProxyServer(String name) throws Exception {
             super(name);
         }
@@ -102,7 +102,7 @@ public class HttpURLConnectionTest extends TestCase {
                 byte[] buff = new byte[1024];
                 int num = socket.getInputStream().read(buff);
                 socket.getOutputStream().write((
-                    "HTTP/1.0 407 Proxy authentication required\n" 
+                    "HTTP/1.0 407 Proxy authentication required\n"
                   + "Proxy-authenticate: Basic realm=\"remotehost\"\n\n")
                         .getBytes());
                 num = socket.getInputStream().read(buff);
@@ -113,7 +113,7 @@ public class HttpURLConnectionTest extends TestCase {
                     num = socket.getInputStream().read(buff);
                 }
                 String request = new String(buff, 0, num);
-                acceptedAuthorizedRequest = 
+                acceptedAuthorizedRequest =
                     request.toLowerCase().indexOf("proxy-authorization:") > 0;
                 if (acceptedAuthorizedRequest) {
                     socket.getOutputStream().write((
@@ -123,7 +123,7 @@ public class HttpURLConnectionTest extends TestCase {
             }
         }
     }
-    
+
     /**
      * ProxySelector implementation used in the test.
      */
@@ -235,7 +235,7 @@ public class HttpURLConnectionTest extends TestCase {
 
         assertTrue("Connection does not use proxy", connection.usingProxy());
         assertTrue("Proxy server was not used", proxy.accepted);
-        
+
         HttpURLConnection huc = (HttpURLConnection)url.openConnection(Proxy.NO_PROXY);
         assertFalse(huc.usingProxy());
     }
@@ -283,7 +283,7 @@ public class HttpURLConnectionTest extends TestCase {
             server.join();
             proxy.join();
 
-            assertTrue("Connection does not use proxy", 
+            assertTrue("Connection does not use proxy",
                                             connection.usingProxy());
             assertTrue("Proxy server was not used", proxy.accepted);
         } finally {
@@ -315,14 +315,14 @@ public class HttpURLConnectionTest extends TestCase {
                     "user", "password".toCharArray());
             }
         });
-        
+
         try {
             MockProxyServer proxy = new MockProxyServer("ProxyServer");
 
             URL url = new URL("http://remotehost:55555/requested.data");
-            HttpURLConnection connection = 
+            HttpURLConnection connection =
                 (HttpURLConnection) url.openConnection(
-                        new Proxy(Proxy.Type.HTTP, 
+                        new Proxy(Proxy.Type.HTTP,
                             new InetSocketAddress("localhost", proxy.port())));
             connection.setConnectTimeout(1000);
             connection.setReadTimeout(1000);
@@ -330,7 +330,7 @@ public class HttpURLConnectionTest extends TestCase {
             proxy.start();
 
             connection.connect();
-            assertEquals("unexpected response code", 
+            assertEquals("unexpected response code",
                     200, connection.getResponseCode());
             proxy.join();
             assertTrue("Connection did not send proxy authorization request",
@@ -340,5 +340,5 @@ public class HttpURLConnectionTest extends TestCase {
             Authenticator.setDefault(null);
         }
     }
-    
+
 }

@@ -20,7 +20,7 @@ package tests.api.java.io;
 import dalvik.annotation.KnownFailure;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,7 +41,7 @@ import java.util.Date;
 import java.util.Locale;
 
 @SuppressWarnings("serial")
-@TestTargetClass(Serializable.class) 
+@TestTargetClass(Serializable.class)
 public class SerializationStressTest2 extends SerializationStressTest {
 
     private static class ReadWriteObjectAndPrimitiveData implements
@@ -61,7 +61,7 @@ public class SerializationStressTest2 extends SerializationStressTest {
             in.defaultReadObject();
             // This *has* to come after the call to defaultReadObject or the
             // value from the stream will override
-            calledReadObject = true; 
+            calledReadObject = true;
             milliseconds = in.readLong();
         }
 
@@ -1419,7 +1419,6 @@ public class SerializationStressTest2 extends SerializationStressTest {
         method = "!Serialization",
         args = {}
     )
-    @KnownFailure("Executed replacement when it should not: class java.lang.String")
     public void test_18_57_writeObject() {
         // Test for method void
         // java.io.ObjectOutputStream.writeObject(java.lang.Object)
@@ -1457,7 +1456,6 @@ public class SerializationStressTest2 extends SerializationStressTest {
         method = "!Serialization",
         args = {}
     )
-    @KnownFailure("Executed replacement when it should not: class java.lang.String")
     public void test_18_58_writeObject() {
         // Test for method void
         // java.io.ObjectOutputStream.writeObject(java.lang.Object)

@@ -60,7 +60,7 @@ public class FileURLConnection extends URLConnection {
         super(url);
         fileName = url.getFile();
         if (fileName == null) {
-            fileName = ""; //$NON-NLS-1$
+            fileName = "";
         }
         fileName = Util.decode(fileName, false);
     }
@@ -69,7 +69,7 @@ public class FileURLConnection extends URLConnection {
      * This methods will attempt to obtain the input stream of the file pointed
      * by this <code>URL</code>. If the file is a directory, it will return
      * that directory listing as an input stream.
-     * 
+     *
      * @throws IOException
      *             if an IO error occurs while connecting
      */
@@ -81,9 +81,7 @@ public class FileURLConnection extends URLConnection {
             is = getDirectoryListing(f);
             // use -1 for the contentLength
         } else {
-            // BEGIN android-modified
-            is = new BufferedInputStream(new FileInputStream(f), 8192);
-            // END android-modified
+            is = new BufferedInputStream(new FileInputStream(f));
             length = is.available();
         }
         connected = true;
@@ -91,9 +89,9 @@ public class FileURLConnection extends URLConnection {
 
     /**
      * Returns the length of the file in bytes.
-     * 
+     *
      * @return the length of the file
-     * 
+     *
      * @see #getContentType()
      */
     @Override
@@ -111,7 +109,7 @@ public class FileURLConnection extends URLConnection {
     /**
      * Returns the content type of the resource. Just takes a guess based on the
      * name.
-     * 
+     *
      * @return the content type
      */
     @Override
@@ -124,7 +122,7 @@ public class FileURLConnection extends URLConnection {
             return MimeTable.UNKNOWN;
         }
         if (isDir) {
-            return "text/plain"; //$NON-NLS-1$
+            return "text/plain";
         }
         String result = guessContentTypeFromName(url.getFile());
         if (result != null) {
@@ -145,20 +143,20 @@ public class FileURLConnection extends URLConnection {
 
     /**
      * Returns the directory listing of the file component as an input stream.
-     * 
+     *
      * @return the input stream of the directory listing
      */
     private InputStream getDirectoryListing(File f) {
         String fileList[] = f.list();
         ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
         PrintStream out = new PrintStream(bytes);
-        out.print("<title>Directory Listing</title>\n"); //$NON-NLS-1$
-        out.print("<base href=\"file:"); //$NON-NLS-1$
-        out.print(f.getPath().replace('\\', '/') + "/\"><h1>" + f.getPath() //$NON-NLS-1$
-                + "</h1>\n<hr>\n"); //$NON-NLS-1$
+        out.print("<title>Directory Listing</title>\n");
+        out.print("<base href=\"file:");
+        out.print(f.getPath().replace('\\', '/') + "/\"><h1>" + f.getPath()
+                + "</h1>\n<hr>\n");
         int i;
         for (i = 0; i < fileList.length; i++) {
-            out.print(fileList[i] + "<br>\n"); //$NON-NLS-1$
+            out.print(fileList[i] + "<br>\n");
         }
         out.close();
         return new ByteArrayInputStream(bytes.toByteArray());
@@ -167,14 +165,14 @@ public class FileURLConnection extends URLConnection {
     /**
      * Returns the input stream of the object referred to by this
      * <code>URLConnection</code>
-     * 
+     *
      * File Sample : "/ZIP211/+/harmony/tools/javac/resources/javac.properties"
      * Invalid File Sample:
      * "/ZIP/+/harmony/tools/javac/resources/javac.properties"
      * "ZIP211/+/harmony/tools/javac/resources/javac.properties"
-     * 
+     *
      * @return input stream of the object
-     * 
+     *
      * @throws IOException
      *             if an IO error occurs
      */
@@ -190,9 +188,9 @@ public class FileURLConnection extends URLConnection {
      * Returns the permission, in this case the subclass, FilePermission object
      * which represents the permission necessary for this URLConnection to
      * establish the connection.
-     * 
+     *
      * @return the permission required for this URLConnection.
-     * 
+     *
      * @throws IOException
      *             if an IO exception occurs while creating the permission.
      */
@@ -203,7 +201,7 @@ public class FileURLConnection extends URLConnection {
             if (File.separatorChar != '/') {
                 path = path.replace('/', File.separatorChar);
             }
-            permission = new FilePermission(path, "read"); //$NON-NLS-1$
+            permission = new FilePermission(path, "read");
         }
         return permission;
     }

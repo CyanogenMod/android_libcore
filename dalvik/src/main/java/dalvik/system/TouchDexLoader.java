@@ -36,9 +36,9 @@ import dalvik.system.DexFile;
 class TouchDexLoader extends ClassLoader {
 
     private String path;
-    
+
     private boolean initialized;
-    
+
     /**
      * Create a ClassLoader that finds files in the specified path.
      */
@@ -50,21 +50,21 @@ class TouchDexLoader extends ClassLoader {
 
         this.path = path;
     }
-    
+
     private void ensureInit() {
         if (initialized) {
             return;
         }
-        
+
         initialized = true;
-        
+
         mPaths = path.split(":");
         //System.out.println("TouchDexLoader: " + mPaths);
         mFiles = new File[mPaths.length];
         mZips = new ZipFile[mPaths.length];
         mDexs = new DexFile[mPaths.length];
 
-        boolean wantDex = 
+        boolean wantDex =
             System.getProperty("android.vm.dexfile", "").equals("true");
 
         /* open all Zip and DEX files up front */
@@ -131,7 +131,7 @@ class TouchDexLoader extends ClassLoader {
     protected Class<?> findClass(String name) throws ClassNotFoundException
     {
         ensureInit();
-        
+
         byte[] data = null;
         int i;
 
@@ -174,7 +174,7 @@ class TouchDexLoader extends ClassLoader {
                         }
                     }
                 }
-                
+
                 return defineClass(name, data, 0, data.length);
             }
         }
@@ -188,7 +188,7 @@ class TouchDexLoader extends ClassLoader {
      */
     protected URL findResource(String name) {
         ensureInit();
-        
+
         byte[] data = null;
         int i;
 
@@ -310,7 +310,7 @@ class TouchDexLoader extends ClassLoader {
         return zip.getEntry(name) != null;
     }
 
-    /**         
+    /**
      * Find a native library.
      *
      * Return the full pathname of the first appropriate-looking file

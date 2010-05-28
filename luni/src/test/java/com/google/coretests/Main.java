@@ -32,7 +32,7 @@ public class Main
             // Delegate to new stats test runner
             String[] args2 = new String[args.length - 1];
             System.arraycopy(args, 1, args2, 0, args2.length);
-            
+
             if (args2.length == 0) {
                 System.out.println("Running all tests with stats...");
                 StatTestRunner.run(AllTests.suite());
@@ -44,7 +44,7 @@ public class Main
             System.out.println("Running selected tests...");
             CoreTestRunner.main(args);
         }
-        
+
         Runtime.getRuntime().halt(0);
     }
 }

@@ -25,8 +25,7 @@ import java.io.FilenameFilter;
 /**
  * Induces optimization/verification of a set of DEX files.
  *
- * @deprecated this is an internal Dalvik class that is not appropriate for
- *      general use. It will be removed from the public API in a future release.
+ * @hide
  */
 public class TouchDex {
 
@@ -40,7 +39,7 @@ public class TouchDex {
      *
      * @param dexFiles a colon-separated list of DEX files.
      * @return zero on success
-     * 
+     *
      * @cts What about error cases?
      */
     public static int start(String dexFiles) {

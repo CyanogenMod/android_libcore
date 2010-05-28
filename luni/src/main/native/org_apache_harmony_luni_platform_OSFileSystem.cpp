@@ -15,16 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// This file corresponds to harmony's OSFileSystem.c and OSFileSystemLinux32.c.
-// It has been greatly simplified by the assumption that the underlying
-// platform is always Linux.
-// END android-note
-
-/*
- * Common natives supporting the file system interface.
- */
-
 /* Values for HyFileOpen */
 #define HyOpenRead    1
 #define HyOpenWrite   2
@@ -38,10 +28,10 @@
 #define HyOpenSync      128
 #define SHARED_LOCK_TYPE 1L
 
-#include "AndroidSystemNatives.h"
 #include "JNIHelp.h"
 #include "LocalArray.h"
-#include "ScopedByteArray.h"
+#include "ScopedPrimitiveArray.h"
+#include "UniquePtr.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -51,7 +41,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/uio.h>
+#include <unistd.h>
 
 #if HAVE_SYS_SENDFILE_H
 #include <sys/sendfile.h>
@@ -192,7 +185,7 @@ static void harmony_io_unlockImpl(JNIEnv* env, jobject, jint handle,
  * Returns the granularity of the starting address for virtual memory allocation.
  * (It's the same as the page size.)
  */
-static jint harmony_io_getAllocGranularity(JNIEnv* env, jobject) {
+static jint harmony_io_getAllocGranularity(JNIEnv*, jobject) {
     static int allocGranularity = getpagesize();
     return allocGranularity;
 }
@@ -205,44 +198,42 @@ static iovec* initIoVec(JNIEnv* env,
         jniThrowException(env, "java/lang/OutOfMemoryError", "native heap");
         return NULL;
     }
-    jint *buffers = env->GetIntArrayElements(jBuffers, NULL);
-    jint *offsets = env->GetIntArrayElements(jOffsets, NULL);
-    jint *lengths = env->GetIntArrayElements(jLengths, NULL);
+    ScopedIntArrayRO buffers(env, jBuffers);
+    ScopedIntArrayRO offsets(env, jOffsets);
+    ScopedIntArrayRO lengths(env, jLengths);
     for (int i = 0; i < size; ++i) {
         vectors[i].iov_base = reinterpret_cast<void*>(buffers[i] + offsets[i]);
         vectors[i].iov_len = lengths[i];
     }
-    env->ReleaseIntArrayElements(jBuffers, buffers, JNI_ABORT);
-    env->ReleaseIntArrayElements(jOffsets, offsets, JNI_ABORT);
-    env->ReleaseIntArrayElements(jLengths, lengths, JNI_ABORT);
     return vectors;
 }
 
 static jlong harmony_io_readv(JNIEnv* env, jobject, jint fd,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    iovec* vectors = initIoVec(env, jBuffers, jOffsets, jLengths, size);
-    if (vectors == NULL) {
+    UniquePtr<iovec> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
+    if (vectors.get() == NULL) {
         return -1;
     }
-    long result = readv(fd, vectors, size);
+    long result = readv(fd, vectors.get(), size);
+    if (result == 0) {
+        return -1;
+    }
     if (result == -1) {
         jniThrowIOException(env, errno);
     }
-    delete[] vectors;
     return result;
 }
 
 static jlong harmony_io_writev(JNIEnv* env, jobject, jint fd,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    iovec* vectors = initIoVec(env, jBuffers, jOffsets, jLengths, size);
-    if (vectors == NULL) {
+    UniquePtr<iovec> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
+    if (vectors.get() == NULL) {
         return -1;
     }
-    long result = writev(fd, vectors, size);
+    long result = writev(fd, vectors.get(), size);
     if (result == -1) {
         jniThrowIOException(env, errno);
     }
-    delete[] vectors;
     return result;
 }
 
@@ -300,17 +291,14 @@ static jlong harmony_io_readImpl(JNIEnv* env, jobject, jint fd,
         return 0;
     }
 
-    jbyte* bytes = env->GetByteArrayElements(byteArray, NULL);
-    jlong rc = TEMP_FAILURE_RETRY(read(fd, bytes + offset, nbytes));
-    env->ReleaseByteArrayElements(byteArray, bytes, 0);
-
+    ScopedByteArrayRW bytes(env, byteArray);
+    jlong rc = TEMP_FAILURE_RETRY(read(fd, bytes.get() + offset, nbytes));
     if (rc == 0) {
         return -1;
     }
     if (rc == -1) {
         if (errno == EAGAIN) {
-            jniThrowException(env, "java/io/InterruptedIOException",
-                    "Read timed out");
+            jniThrowException(env, "java/io/InterruptedIOException", "Read timed out");
         } else {
             jniThrowIOException(env, errno);
         }
@@ -321,10 +309,8 @@ static jlong harmony_io_readImpl(JNIEnv* env, jobject, jint fd,
 static jlong harmony_io_writeImpl(JNIEnv* env, jobject, jint fd,
         jbyteArray byteArray, jint offset, jint nbytes) {
 
-    jbyte* bytes = env->GetByteArrayElements(byteArray, NULL);
-    jlong result = TEMP_FAILURE_RETRY(write(fd, bytes + offset, nbytes));
-    env->ReleaseByteArrayElements(byteArray, bytes, JNI_ABORT);
-
+    ScopedByteArrayRO bytes(env, byteArray);
+    jlong result = TEMP_FAILURE_RETRY(write(fd, bytes.get() + offset, nbytes));
     if (result == -1) {
         if (errno == EAGAIN) {
             jniThrowException(env, "java/io/InterruptedIOException",
@@ -368,10 +354,10 @@ static jlong harmony_io_seek(JNIEnv* env, jobject, jint fd, jlong offset,
     return result;
 }
 
-// TODO: are we supposed to support the 'metadata' flag? (false => fdatasync.)
-static void harmony_io_fflush(JNIEnv* env, jobject, jint fd,
-        jboolean metadata) {
+static void harmony_io_fflush(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
+    LOGW("fdatasync unimplemented on Android"); // http://b/2667481
     int rc = fsync(fd);
+    // int rc = metadataToo ? fsync(fd) : fdatasync(fd);
     if (rc == -1) {
         jniThrowIOException(env, errno);
     }
@@ -430,17 +416,16 @@ static jint harmony_io_openImpl(JNIEnv* env, jobject, jbyteArray pathByteArray,
 
     flags = EsTranslateOpenFlags(flags);
 
-    ScopedByteArray path(env, pathByteArray);
-    jint rc = TEMP_FAILURE_RETRY(open(&path[0], flags, mode));
+    ScopedByteArrayRO path(env, pathByteArray);
+    jint rc = TEMP_FAILURE_RETRY(open(reinterpret_cast<const char*>(&path[0]), flags, mode));
     if (rc == -1) {
         // Get the human-readable form of errno.
         char buffer[80];
         const char* reason = jniStrError(errno, &buffer[0], sizeof(buffer));
 
         // Construct a message that includes the path and the reason.
-        // (pathByteCount already includes space for our trailing NUL.)
-        size_t pathByteCount = env->GetArrayLength(pathByteArray);
-        LocalArray<128> message(pathByteCount + 2 + strlen(reason) + 1);
+        // (path.size() already includes space for our trailing NUL.)
+        LocalArray<128> message(path.size() + 2 + strlen(reason) + 1);
         snprintf(&message[0], message.size(), "%s (%s)", &path[0], reason);
 
         // We always throw FileNotFoundException, regardless of the specific
@@ -450,7 +435,7 @@ static jint harmony_io_openImpl(JNIEnv* env, jobject, jbyteArray pathByteArray,
     return rc;
 }
 
-static jint harmony_io_ioctlAvailable(JNIEnv*env, jobject, jint fd) {
+static jint harmony_io_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescriptor) {
     /*
      * On underlying platforms Android cares about (read "Linux"),
      * ioctl(fd, FIONREAD, &avail) is supposed to do the following:
@@ -476,6 +461,10 @@ static jint harmony_io_ioctlAvailable(JNIEnv*env, jobject, jint fd) {
      * actually read some amount of data and caused the cursor to be
      * advanced.
      */
+    int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
+    if (fd == -1) {
+        return -1;
+    }
     int avail = 0;
     int rc = ioctl(fd, FIONREAD, &avail);
     if (rc >= 0) {
@@ -497,31 +486,35 @@ static jint harmony_io_ioctlAvailable(JNIEnv*env, jobject, jint fd) {
     return (jint) avail;
 }
 
-/*
- * JNI registration
- */
+static jlong lengthImpl(JNIEnv* env, jobject, jint fd) {
+    struct stat sb;
+    jint rc = TEMP_FAILURE_RETRY(fstat(fd, &sb));
+    if (rc == -1) {
+        jniThrowIOException(env, errno);
+    }
+    return sb.st_size;
+}
+
 static JNINativeMethod gMethods[] = {
-    /* name, signature, funcPtr */
     { "close",              "(I)V",       (void*) harmony_io_close },
     { "fflush",             "(IZ)V",      (void*) harmony_io_fflush },
     { "getAllocGranularity","()I",        (void*) harmony_io_getAllocGranularity },
-    { "ioctlAvailable",     "(I)I",       (void*) harmony_io_ioctlAvailable },
+    { "ioctlAvailable", "(Ljava/io/FileDescriptor;)I", (void*) harmony_io_ioctlAvailable },
+    { "length", "(I)J", (void*) lengthImpl },
     { "lockImpl",           "(IJJIZ)I",   (void*) harmony_io_lockImpl },
     { "openImpl",           "([BI)I",     (void*) harmony_io_openImpl },
     { "readDirect",         "(IIII)J",    (void*) harmony_io_readDirect },
     { "readImpl",           "(I[BII)J",   (void*) harmony_io_readImpl },
     { "readv",              "(I[I[I[II)J",(void*) harmony_io_readv },
     { "seek",               "(IJI)J",     (void*) harmony_io_seek },
-    { "transfer",           "(ILjava/io/FileDescriptor;JJ)J",
-                                          (void*) harmony_io_transfer },
+    { "transfer",           "(ILjava/io/FileDescriptor;JJ)J", (void*) harmony_io_transfer },
     { "truncate",           "(IJ)V",      (void*) harmony_io_truncate },
     { "unlockImpl",         "(IJJ)V",     (void*) harmony_io_unlockImpl },
     { "writeDirect",        "(IIII)J",    (void*) harmony_io_writeDirect },
     { "writeImpl",          "(I[BII)J",   (void*) harmony_io_writeImpl },
     { "writev",             "(I[I[I[II)J",(void*) harmony_io_writev },
 };
-int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* _env) {
-    return jniRegisterNativeMethods(_env,
-            "org/apache/harmony/luni/platform/OSFileSystem", gMethods,
+int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "org/apache/harmony/luni/platform/OSFileSystem", gMethods,
             NELEM(gMethods));
 }

@@ -125,7 +125,7 @@ public class ParsingTest extends TestCase {
     }
 
     public void test64BitHexValues() throws JSONException {
-        assertParsed("Large hex longs shouldn't be yield ints or strings", 
+        assertParsed("Large hex longs shouldn't be yield ints or strings",
                 -1L, "0xFFFFFFFFFFFFFFFF");
     }
 

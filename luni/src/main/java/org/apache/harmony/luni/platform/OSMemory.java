@@ -76,7 +76,7 @@ final class OSMemory implements IMemorySystem {
     /*
      * Native method to determine whether the underlying platform is little
      * endian.
-     * 
+     *
      * @return <code>true</code> if the platform is little endian or
      * <code>false</code> if it is big endian.
      */
@@ -84,7 +84,7 @@ final class OSMemory implements IMemorySystem {
 
 	/**
 	 * This class is not designed to be publicly instantiated.
-	 * 
+	 *
 	 * @see #getOSMemory()
 	 */
 	private OSMemory() {
@@ -93,7 +93,7 @@ final class OSMemory implements IMemorySystem {
 
     /**
      * Returns whether the byte order of this machine is little endian or not.
-     * 
+     *
      * @return <code>false</code> for Big Endian, and
      *         <code>true</code> for Little Endian.
      */

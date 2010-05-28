@@ -62,9 +62,9 @@ final class GenericIPMreq {
 
     /**
      * This constructor is used to create an instance of the object
-     * 
+     *
      * @param addr multicast address to join/leave
-     * 
+     *
      */
     GenericIPMreq(InetAddress addr) {
         multiaddr = addr;
@@ -75,7 +75,7 @@ final class GenericIPMreq {
 
     /**
      * This constructor is used to create an instance of the object
-     * 
+     *
      * @param addr multicast address to join/leave
      * @param netInterface the NetworkInterface object identifying the interface
      *        on which to join/leave

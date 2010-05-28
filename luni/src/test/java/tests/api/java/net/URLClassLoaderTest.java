@@ -84,13 +84,13 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
             return super.findClass(cl);
         }
     }
-    
+
     URLClassLoader ucl;
     SecurityManager sm = new SecurityManager() {
 
         public void checkPermission(Permission perm) {
         }
-        
+
         public void checkCreateClassLoader() {
             throw new SecurityException();
         }
@@ -111,21 +111,21 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         assertTrue("Failed to set parent", ucl != null
                 && ucl.getParent() == URLClassLoader.getSystemClassLoader());
 
-        
-        URL [] urls = {new URL("http://foo.com/foo"), 
-                       new URL("jar:file://foo.jar!/foo.c"), 
+
+        URL [] urls = {new URL("http://foo.com/foo"),
+                       new URL("jar:file://foo.jar!/foo.c"),
                        new URL("ftp://foo1/foo2/foo.c")};
-        
+
         URLClassLoader ucl1 = new URLClassLoader(urls);
         assertTrue(urls.length == ucl1.getURLs().length);
-        
+
         try {
             Class.forName("test", false, ucl);
             fail("Should throw ClassNotFoundException");
         } catch (ClassNotFoundException e) {
             // expected
         }
-       
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -136,7 +136,7 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         try {
             new URLClassLoader(new URL[] { null });
         } catch(Exception e) {
@@ -161,7 +161,7 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         URL res = ucl.getResource("J");
         assertNotNull(res);
         assertEquals("Failed to set parent", "/BogusClassLoader", res.getFile());
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -310,7 +310,7 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         notes = "",
         method = "URLClassLoader",
-        args = {java.net.URL[].class, java.lang.ClassLoader.class, 
+        args = {java.net.URL[].class, java.lang.ClassLoader.class,
                 java.net.URLStreamHandlerFactory.class}
     )
     public void test_Constructor$Ljava_net_URLLjava_lang_ClassLoaderLjava_net_URLStreamHandlerFactory() {
@@ -325,7 +325,7 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         URL res = ucl.getResource("J");
         assertNotNull(res);
         assertEquals("Failed to set parent", "/BogusClassLoader", res.getFile());
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -346,32 +346,32 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
     )
     public void test_addURLLjava_net_URL() throws MalformedURLException {
         URL[] u = new URL[0];
-        
-        URL [] urls = {new URL("http://foo.com/foo"), 
-                       new URL("jar:file://foo.jar!/foo.c"), 
+
+        URL [] urls = {new URL("http://foo.com/foo"),
+                       new URL("jar:file://foo.jar!/foo.c"),
                        new URL("ftp://foo1/foo2/foo.c"), null};
-        
+
         TestURLClassLoader tucl = new TestURLClassLoader(u);
-        
+
         for(int i = 0; i < urls.length;) {
             tucl.addURL(urls[i]);
             i++;
             URL [] result = tucl.getURLs();
-            assertEquals("Result array length is incorrect: " + i, 
+            assertEquals("Result array length is incorrect: " + i,
                                                             i, result.length);
             for(int j = 0; j < result.length; j++) {
-                assertEquals("Result array item is incorrect: " + j, 
+                assertEquals("Result array item is incorrect: " + j,
                                                             urls[j], result[j]);
             }
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "",
         method = "getPermissions",
         args = { CodeSource.class }
-    )    
+    )
     public void test_getPermissions() throws MalformedURLException {
         URL url = new URL("http://" + Support_Configuration.SpecialInetTestAddress);
         Certificate[] chain = TestCertUtils.getCertChain();
@@ -379,45 +379,45 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         TestURLClassLoader cl = new TestURLClassLoader(new URL[] {url});
         PermissionCollection permCol = cl.getPermissions(cs);
         assertNotNull(permCol);
-        
+
         URL url1 = new URL("file://foo/foo.c");
         TestURLClassLoader cl1 = new TestURLClassLoader(new URL[] {url});
         CodeSource cs1 = new CodeSource(url1, chain);
         PermissionCollection permCol1 = cl1.getPermissions(cs1);
         assertNotNull(permCol1);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
         method = "definePackage",
-        args = { java.lang.String.class, java.util.jar.Manifest.class, 
+        args = { java.lang.String.class, java.util.jar.Manifest.class,
                  java.net.URL.class }
     )
     public void test_definePackage() throws MalformedURLException {
         Manifest manifest = new Manifest();
         URL[] u = new URL[0];
         TestURLClassLoader tucl = new TestURLClassLoader(u);
-        
-        URL [] urls = {new URL("http://foo.com/foo"), 
-                new URL("jar:file://foo.jar!/foo.c"), 
+
+        URL [] urls = {new URL("http://foo.com/foo"),
+                new URL("jar:file://foo.jar!/foo.c"),
                 new URL("ftp://foo1/foo2/foo.c"),
                 new URL("file://new/package/name/"),
                 null};
-        
+
         String packageName = "new.package.name";
-        
+
         for(int i = 0; i < urls.length; i++) {
             Package pack = tucl.definePackage(packageName + i, manifest, urls[i]);
             assertEquals(packageName + i, pack.getName());
-            assertNull("Implementation Title is not null", 
+            assertNull("Implementation Title is not null",
                     pack.getImplementationTitle());
-            assertNull("Implementation Vendor is not null", 
+            assertNull("Implementation Vendor is not null",
                     pack.getImplementationVendor());
-            assertNull("Implementation Version is not null.", 
+            assertNull("Implementation Version is not null.",
                     pack.getImplementationVersion());
         }
-        
+
         try {
             tucl.definePackage(packageName + "0", manifest, null);
             fail("IllegalArgumentException was not thrown.");
@@ -425,28 +425,28 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     class TestURLClassLoader extends URLClassLoader {
         public TestURLClassLoader(URL[] urls) {
             super(urls);
         }
-        
+
         public void addURL(URL url) {
             super.addURL(url);
         }
-        
+
         public Package definePackage(String name,
                                      Manifest man,
                                      URL url)
                                      throws IllegalArgumentException {
             return super.definePackage(name, man, url);
         }
-        
+
         public Class<?> findClass(String name)
                                         throws ClassNotFoundException {
             return super.findClass(name);
         }
-        
+
         protected PermissionCollection getPermissions(CodeSource codesource) {
             return super.getPermissions(codesource);
         }
@@ -467,15 +467,15 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         File tmp = File.createTempFile("test", ".txt");
 
         Support_TestWebServer server = new Support_TestWebServer();
-        try {    
+        try {
 
             server.initServer(port, tmp.getAbsolutePath(), "text/html");
-    
+
             URL[] urls = { new URL("http://localhost:" + port + "/") };
             ucl = new URLClassLoader(urls);
             URL res = ucl.findResource("test1");
             assertNotNull("Failed to locate resource", res);
-    
+
             StringBuffer sb = getResContent(res);
             assertEquals("Returned incorrect resource", new String(Support_TestWebData.test1),
                     sb.toString());
@@ -483,7 +483,7 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
             server.close();
         }
     }
-    
+
     @TestTargets({
         @TestTargetNew(
             level = TestLevel.PARTIAL,
@@ -505,7 +505,7 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         File f, f2;
         URLClassLoader loader;
         URL dirUrl;
-        
+
         if (!dir.exists()) {
             dir.mkdir();
         }
@@ -517,11 +517,11 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         f.deleteOnExit();
         f2 = File.createTempFile("bad#name#", ".dat", dir);
         f2.deleteOnExit();
-                
+
         assertNotNull("Unable to load resource from path with problematic name",
             loader.getResource(f.getName()));
         assertEquals("URL was not correctly encoded",
-            f2.toURI().toURL(),    
+            f2.toURI().toURL(),
             loader.getResource(f2.getName()));
     }
 
@@ -533,7 +533,7 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         notes = "",
         method = "getResource",
         args = {java.lang.String.class}
-    )    
+    )
     public void test_getResourceLjava_lang_String()
             throws MalformedURLException {
         URL url1 = new URL("file:///");
@@ -555,9 +555,9 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         assertTrue("too long. UNC path formed? UNC time: " + uncTime
                 + " regular time: " + time, uncTime <= (time * 4));
     }
-    
+
     /**
-     * Regression for Harmony-2237 
+     * Regression for Harmony-2237
      */
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -578,7 +578,7 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
         int port = Support_PortManager.getNextPort();
         try {
             server.initServer(port, false);
-    
+
             String tempPath1 = tempFile1.getParentFile().getAbsolutePath() + "/";
             InputStream is = getClass().getResourceAsStream(
                     "/tests/resources/hyts_patch.jar");
@@ -587,16 +587,16 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
             String tempPath3 = "http://localhost:" + port + "/";
             URLClassLoader urlLoader = getURLClassLoader(tempPath1, tempPath2);
             assertNull("Found inexistant resource",
-                    urlLoader.findResource("XXX")); //$NON-NLS-1$
+                    urlLoader.findResource("XXX"));
             assertNotNull("Couldn't find resource from directory",
-                    urlLoader.findResource(tempFile1.getName())); //$NON-NLS-1$
+                    urlLoader.findResource(tempFile1.getName()));
             assertNotNull("Couldn't find resource from jar",
-                    urlLoader.findResource("Blah.txt")); //$NON-NLS-1$
+                    urlLoader.findResource("Blah.txt"));
             urlLoader = getURLClassLoader(tempPath1, tempPath2, tempPath3);
             assertNotNull("Couldn't find resource from web",
-                    urlLoader.findResource("test1")); //$NON-NLS-1$
+                    urlLoader.findResource("test1"));
             assertNull("Found inexistant resource from web",
-                    urlLoader.findResource("test3")); //$NON-NLS-1$
+                    urlLoader.findResource("test3"));
         } finally {
             server.close();
         }
@@ -623,7 +623,7 @@ public class URLClassLoaderTest extends junit.framework.TestCase {
     private StringBuffer getResContent(URL res) throws IOException {
         StringBuffer sb = new StringBuffer();
         InputStream is = res.openStream();
-   
+
         int c;
         while ((c = is.read()) != -1) {
             sb.append((char) c);

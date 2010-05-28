@@ -38,7 +38,7 @@ public class AssertionError extends Error {
      * {@link String#valueOf(Object)} with the specified object. If the object
      * is an instance of {@link Throwable}, then it also becomes the cause of
      * this error.
-     * 
+     *
      * @param detailMessage
      *            the object to be converted into the detail message and
      *            optionally the cause.
@@ -52,7 +52,7 @@ public class AssertionError extends Error {
     /**
      * Constructs a new {@code AssertionError} with a message based on calling
      * {@link String#valueOf(boolean)} with the specified boolean value.
-     * 
+     *
      * @param detailMessage
      *            the value to be converted into the message.
      */
@@ -63,7 +63,7 @@ public class AssertionError extends Error {
     /**
      * Constructs a new {@code AssertionError} with a message based on calling
      * {@link String#valueOf(char)} with the specified character value.
-     * 
+     *
      * @param detailMessage
      *            the value to be converted into the message.
      */
@@ -74,7 +74,7 @@ public class AssertionError extends Error {
     /**
      * Constructs a new {@code AssertionError} with a message based on calling
      * {@link String#valueOf(int)} with the specified integer value.
-     * 
+     *
      * @param detailMessage
      *            the value to be converted into the message.
      */
@@ -85,7 +85,7 @@ public class AssertionError extends Error {
     /**
      * Constructs a new {@code AssertionError} with a message based on calling
      * {@link String#valueOf(long)} with the specified long value.
-     * 
+     *
      * @param detailMessage
      *            the value to be converted into the message.
      */
@@ -96,7 +96,7 @@ public class AssertionError extends Error {
     /**
      * Constructs a new {@code AssertionError} with a message based on calling
      * {@link String#valueOf(float)} with the specified float value.
-     * 
+     *
      * @param detailMessage
      *            the value to be converted into the message.
      */
@@ -107,7 +107,7 @@ public class AssertionError extends Error {
     /**
      * Constructs a new {@code AssertionError} with a message based on calling
      * {@link String#valueOf(double)} with the specified double value.
-     * 
+     *
      * @param detailMessage
      *            the value to be converted into the message.
      */

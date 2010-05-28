@@ -20,12 +20,12 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-@TestTargetClass(TimerTask.class) 
+@TestTargetClass(TimerTask.class)
 public class TimerTaskTest extends junit.framework.TestCase {
     Object sync = new Object(), start = new Object();
 
@@ -48,7 +48,7 @@ public class TimerTaskTest extends junit.framework.TestCase {
                 start.notify();
             }
             if (sleepInRun) {
-                
+
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
@@ -62,7 +62,7 @@ public class TimerTaskTest extends junit.framework.TestCase {
         public synchronized int wasRun() {
             return wasRun;
         }
-        
+
         public void sleepInRun(boolean value) {
             sleepInRun = value;
         }
@@ -103,7 +103,7 @@ public class TimerTaskTest extends junit.framework.TestCase {
             t = new Timer();
             testTask = new TimerTestTask();
             t.schedule(testTask, 500);
-            assertTrue("TimerTask should not have run yet", testTask.cancel());            
+            assertTrue("TimerTask should not have run yet", testTask.cancel());
             t.cancel();
 
             // Ensure cancelling a task which has already run returns true
@@ -128,7 +128,7 @@ public class TimerTaskTest extends junit.framework.TestCase {
             // returns true
             t = new Timer();
             testTask = new TimerTestTask();
-            t.schedule(testTask, 500, 500); // should never run            
+            t.schedule(testTask, 500, 500); // should never run
             assertTrue(
                     "TimerTask.cancel() should return true if sheduled for repeated execution even if not run",
                     testTask.cancel());
@@ -138,22 +138,22 @@ public class TimerTaskTest extends junit.framework.TestCase {
             // true
             t = new Timer();
             testTask = new TimerTestTask();
-            t.schedule(testTask, 50, 50); 
+            t.schedule(testTask, 50, 50);
             while (testTask.wasRun() == 0) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                }                
-            }            
+                }
+            }
             assertTrue(
                     "TimerTask.cancel() should return true if sheduled for repeated execution and run",
-                    testTask.cancel());            
+                    testTask.cancel());
             t.cancel();
 
             // Ensure calling cancel a second returns false
             t = new Timer();
             testTask = new TimerTestTask();
-            t.schedule(testTask, 5000); // Should never run            
+            t.schedule(testTask, 5000); // Should never run
             assertTrue(
                     "TimerTask.cancel() should return true if task has never run",
                     testTask.cancel());

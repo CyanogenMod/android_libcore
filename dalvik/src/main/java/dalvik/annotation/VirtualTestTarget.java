@@ -42,16 +42,14 @@ import java.lang.annotation.Target;
  * is not known, we need to be able to indicate that such a class exists and
  * that it must be tested. This is done by defining corresponding classes and
  * annotating them with {@code @VirtualTestTarget}. This class can then be
- * used in the {@code @TestTargetClass} annotation with which we annotate 
+ * used in the {@code @TestTargetClass} annotation with which we annotate
  * {@code TestCase} subclasses.
- * 
- * @since Android 1.0
  * @hide
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface VirtualTestTarget {
-    
+
     /**
      * Field for comments.
      */

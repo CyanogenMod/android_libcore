@@ -22,10 +22,10 @@ import java.lang.reflect.TypeVariable;
 import junit.framework.TestCase;
 
 public class GenericReflectionTestsBase extends TestCase{
-    
+
     /**
      * Returns the type parameter of the declaring method.
-     * 
+     *
      * @param method
      *            the declaring method
      * @return the type parameter of the method
@@ -36,10 +36,10 @@ public class GenericReflectionTestsBase extends TestCase{
         TypeVariable<Method> typeParameter = typeParameters[0];
         return typeParameter;
     }
-    
+
     /**
      * Returns the type parameter of the declaring class.
-     * 
+     *
      * @param method
      *            the declaring method.
      * @return the type parameter of the method.
@@ -50,7 +50,7 @@ public class GenericReflectionTestsBase extends TestCase{
         assertLenghtOne(typeParameters);
         TypeVariable<Class> typeVariable = typeParameters[0];
         assertEquals(clazz, typeVariable.getGenericDeclaration());
-        assertEquals("T", typeVariable.getName()); 
+        assertEquals("T", typeVariable.getName());
         return typeVariable;
     }
 

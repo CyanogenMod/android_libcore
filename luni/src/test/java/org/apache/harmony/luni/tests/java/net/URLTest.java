@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,7 @@
 package org.apache.harmony.luni.tests.java.net;
 
 import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -57,9 +57,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@TestTargetClass(URL.class) 
+@TestTargetClass(URL.class)
 public class URLTest extends TestCase {
-   
+
     private static final String helloWorldString = "Hello World";
 
     @Override protected void setUp() throws Exception {
@@ -127,7 +127,7 @@ public class URLTest extends TestCase {
         assertEquals("Assert 2: wrong port", -1, testURL.getPort());
         assertEquals("Assert 3: wrong file", "test.html", testURL.getFile());
         assertEquals("Assert 4: wrong anchor", "anch", testURL.getRef());
-        
+
         try {
             new URL("hftp", "apache.org:8082", "test.html#anch");
             fail("Assert 0: Invalid protocol");
@@ -157,7 +157,7 @@ public class URLTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * Test method for {@link java.net.URL#hashCode()}.
      */
@@ -192,7 +192,7 @@ public class URLTest extends TestCase {
         Field streamHandlerFactoryField = null;
         int counter = 0;
         File sampleFile = createTempHelloWorldFile();
-        
+
         URL fileURL = sampleFile.toURL();
 
 
@@ -221,14 +221,14 @@ public class URLTest extends TestCase {
             while ((nextline = buf.readLine()) != null) {
                 assertEquals(helloWorldString, nextline);
             }
-            
+
             buf.close();
-            
+
         } finally {
 
             streamHandlerFactoryField.set(null, old);
         }
-        
+
     }
 
     /**
@@ -278,12 +278,12 @@ public class URLTest extends TestCase {
                 .getRef());
         assertEquals("Assert 1: wrong protocol", "http", gamelanNetworkBottom
                 .getProtocol());
-        
+
         // same protocol
         URL gamelanNetworBottom2 = new URL(gamelanNetwork,
                 "http://www.gamelan.com/pages/Gamelan.net.html#BOTTOM");
         assertEquals(gamelanNetwork.getProtocol(), gamelanNetworBottom2.getProtocol());
-        
+
         // changed protocol
         URL gamelanNetworkBottom3 = new URL(gamelanNetwork,
                 "ftp://www.gamelan2.com/pages/Gamelan.net.html#BOTTOM");
@@ -293,7 +293,7 @@ public class URLTest extends TestCase {
                 gamelanNetworkBottom3.getProtocol());
         assertTrue("URL is context URL instead of new URL",
                 gamelanNetworkBottom3.sameFile(absoluteNew));
-        
+
         // exception testing
         try {
             u = null;
@@ -302,7 +302,7 @@ public class URLTest extends TestCase {
         } catch (MalformedURLException e) {
             // ok
         }
-        
+
         // Non existing protocol
      // exception testing
         try {
@@ -324,7 +324,7 @@ public class URLTest extends TestCase {
         args = {java.lang.String.class, java.lang.String.class, int.class, java.lang.String.class, java.lang.String.class}
     )
     public void testSetStringStringIntStringString() {
-        
+
     }
 
     /**
@@ -344,8 +344,8 @@ public class URLTest extends TestCase {
         URL wrongRef = new URL("http", "www.apache.org:8080",
                 "test2.html#BOTTOM");
         URL testURL2 = new URL("http://www.apache.org:8080/test.html");
-        
-        
+
+
         assertFalse("Assert 0: error in equals: not same", testURL1
                 .equals(wrongProto));
         assertFalse("Assert 1: error in equals: not same", testURL1
@@ -354,10 +354,10 @@ public class URLTest extends TestCase {
                 .equals(wrongHost));
         assertFalse("Assert 3: error in equals: not same", testURL1
                 .equals(wrongRef));
-        
+
         assertFalse("Assert 4: error in equals: not same", testURL1
                 .equals(testURL2));
-        
+
         URL testURL3 = new URL("http", "www.apache.org", "/test.html");
         URL testURL4 = new URL("http://www.apache.org/test.html");
         assertTrue("Assert 4: error in equals: same", testURL3
@@ -379,9 +379,9 @@ public class URLTest extends TestCase {
 
         URL gamelanNetwork = new URL(gamelan, "#BOTTOM");
         assertTrue(gamelanNetwork.sameFile(gamelan));
-        
+
         assertFalse(gamelanNetwork.sameFile(gamelanFalse));
-        
+
         // non trivial test
         URL url = new URL("http://web2.javasoft.com/some+file.html");
         URL url1 = new URL("http://web2.javasoft.com/some%20file.html");
@@ -399,12 +399,12 @@ public class URLTest extends TestCase {
         args = {}
     )
     public void testGetContent() throws MalformedURLException {
-        
+
         File sampleFile = createTempHelloWorldFile();
 
         // read content from file
         URL fileURL = sampleFile.toURL();
-        
+
         try {
             InputStream output = (InputStream) fileURL.getContent();
             assertTrue(output.available() > 0);
@@ -412,17 +412,17 @@ public class URLTest extends TestCase {
         } catch (Exception e) {
             fail("Did not get output type from File URL");
         }
-        
+
         //Exception test
         URL invalidFile = new URL("file:///nonexistenttestdir/tstfile");
-        
+
         try {
             invalidFile.getContent();
             fail("Access to invalid file worked");
         } catch (IOException e) {
             //ok
         }
-        
+
     }
 
     /**
@@ -435,7 +435,7 @@ public class URLTest extends TestCase {
         args = {}
     )
     public void testOpenStream() throws MalformedURLException, IOException {
-      
+
         File sampleFile = createTempHelloWorldFile();
 
         // read content from file
@@ -457,11 +457,11 @@ public class URLTest extends TestCase {
         assertTrue("Assert 0: Nothing was read from file ", buf.length() > 0);
         assertEquals("Assert 1: Wrong stream content", "Hello World", buf
                 .toString());
-        
+
         // exception test
-        
+
         URL invalidFile = new URL("file:///nonexistenttestdir/tstfile");
-        
+
         try {
             dis = new BufferedReader(
                     new InputStreamReader(invalidFile.openStream()), 32);
@@ -486,9 +486,9 @@ public class URLTest extends TestCase {
         args = {}
     )
     public void testOpenConnection() throws MalformedURLException, IOException {
-        
+
         File sampleFile = createTempHelloWorldFile();
-        
+
         byte[] ba;
         InputStream is;
         String s;
@@ -501,7 +501,7 @@ public class URLTest extends TestCase {
         assertTrue("Incorrect content " + u
                 + " does not contain: \"Hello World\"",
                 s.indexOf("Hello World") >= 0);
-        
+
         try {
             URL u = new URL("https://a.xy.com/index.html");
             URLConnection conn = u.openConnection();
@@ -509,8 +509,8 @@ public class URLTest extends TestCase {
             fail("Should not be able to read from this site.");
         } catch (IOException e) {
             //ok
-        } 
-        
+        }
+
         System.setSecurityManager(new MockSecurityManager());
         try {
             URL u = new URL("http://127.0.0.1");
@@ -522,7 +522,7 @@ public class URLTest extends TestCase {
         } finally {
             System.setSecurityManager(null);
         }
-          
+
     }
 
     /**
@@ -539,12 +539,12 @@ public class URLTest extends TestCase {
         String testFTPURLString = "ftp://myname@host.dom/etc/motd";
         URL testHTTPURL = new URL(testHTTPURLString);
         URL testFTPURL = new URL(testFTPURLString);
-        
+
         URI testHTTPURI = testHTTPURL.toURI();
         URI testFTPURI = testFTPURL.toURI();
         assertEquals(testHTTPURI.toString(),testHTTPURLString);
         assertEquals(testFTPURI.toString(),testFTPURLString);
-        
+
         //Exception test
         String[] constructorTestsInvalid = new String[] {
                 "http:///a path#frag", // space char in path, not in escaped
@@ -572,7 +572,7 @@ public class URLTest extends TestCase {
 
                 "mailto:user^name@fklkf.com" // invalid char in scheme
         };
-       
+
         for (String malformedURI : Arrays.asList(constructorTestsInvalid)) {
             try {
                 URL urlQuery = new URL("http://host/a%path#frag");
@@ -595,9 +595,9 @@ public class URLTest extends TestCase {
     )
     @BrokenTest("the host address isn't working anymore")
     public void testOpenConnectionProxy() throws IOException {
-        
+
         // create Proxy
-        
+
         System.setProperty("http.proxyHost",
                 Support_Configuration.ProxyServerTestHost);
         System.setProperty("http.proxyPort", "80");
@@ -608,22 +608,22 @@ public class URLTest extends TestCase {
 
         SocketAddress addr1 = new InetSocketAddress(Support_Configuration.ProxyServerTestHost, 80);
         Proxy proxy1 = new Proxy(Proxy.Type.HTTP, addr1);
-        
-        // create test input   
+
+        // create test input
         String posted = "just a test";
-        
+
         // perform test
         java.net.HttpURLConnection conn = (java.net.HttpURLConnection) u2
                 .openConnection(proxy1);
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
         conn.setConnectTimeout(3000);
-      
+
         OutputStream out = conn.getOutputStream();
         out.write(posted.getBytes());
         out.close();
-        
-        
+
+
         /*
         InputStream in = conn.getErrorStream();
         if (in != null ){
@@ -634,7 +634,7 @@ public class URLTest extends TestCase {
         }
         }
         */
-        
+
         conn.getResponseCode();
         InputStream is = conn.getInputStream();
         String response = "";
@@ -645,7 +645,7 @@ public class URLTest extends TestCase {
         }
         assertTrue("Response to POST method invalid", response
                 .equals(posted));
-        
+
         // Exception test
         URL httpUrl = new URL("http://abc.com");
         URL jarUrl = new URL("jar:"
@@ -678,10 +678,10 @@ public class URLTest extends TestCase {
     public void testToString() throws MalformedURLException {
         URL testHTTPURL = new URL("http://www.gamelan.com/pages/");
         URL testFTPURL = new URL("ftp://myname@host.dom/etc/motd");
-        
+
         assertEquals(testHTTPURL.toString(),testHTTPURL.toExternalForm());
         assertEquals(testFTPURL.toString(),testFTPURL.toExternalForm());
-        
+
         assertEquals("http://www.gamelan.com/pages/", testHTTPURL.toString());
     }
 
@@ -697,10 +697,10 @@ public class URLTest extends TestCase {
     public void testToExternalForm() throws MalformedURLException {
         URL testHTTPURL = new URL("http://www.gamelan.com/pages/");
         URL testFTPURL = new URL("ftp://myname@host.dom/etc/motd");
-        
+
         assertEquals(testHTTPURL.toString(),testHTTPURL.toExternalForm());
         assertEquals(testFTPURL.toString(),testFTPURL.toExternalForm());
-        
+
         assertEquals("http://www.gamelan.com/pages/", testHTTPURL.toExternalForm());
     }
 
@@ -714,9 +714,9 @@ public class URLTest extends TestCase {
         args = {}
     )
     public void testGetFile() throws MalformedURLException {
-       
+
         File sampleFile = createTempHelloWorldFile();
-        
+
         // read content from file
         URL fileURL = sampleFile.toURL();
         assertNotNull(fileURL);
@@ -735,13 +735,13 @@ public class URLTest extends TestCase {
     public void testGetPort() throws MalformedURLException {
         URL testHTTPURL = new URL("http://www.gamelan.com/pages/");
         URL testFTPURL = new URL("ftp://myname@host.dom/etc/motd");
-        
+
         assertEquals(-1,testFTPURL.getPort());
         assertEquals(-1,testHTTPURL.getPort());
-        
+
         URL testHTTPURL8082 = new URL("http://www.gamelan.com:8082/pages/");
         assertEquals(8082, testHTTPURL8082.getPort());
-        
+
     }
 
     /**
@@ -759,13 +759,13 @@ public class URLTest extends TestCase {
         URL testFTPURL = new URL("ftp://myname@host.dom/etc/motd");
         URL testFile = new URL("file:///pages/index.html");
         URL testJarURL = new URL("jar:file:///bar.jar!/foo.jar!/Bugs/HelloWorld.class");
-        
+
         assertTrue("http".equalsIgnoreCase(testHTTPURL.getProtocol()));
         assertTrue("https".equalsIgnoreCase(testHTTPSURL.getProtocol()));
         assertTrue("ftp".equalsIgnoreCase(testFTPURL.getProtocol()));
         assertTrue("file".equalsIgnoreCase(testFile.getProtocol()));
         assertTrue("jar".equalsIgnoreCase(testJarURL.getProtocol()));
-         
+
     }
 
     /**
@@ -779,7 +779,7 @@ public class URLTest extends TestCase {
     )
     public void testGetRef() throws MalformedURLException {
         URL gamelan = new URL("http://www.gamelan.com/pages/");
-        
+
         String output = gamelan.getRef();
         assertTrue(output == null || output.equals(""));
 
@@ -807,9 +807,9 @@ public class URLTest extends TestCase {
                 "http://www.example.com/index.html?attrib1=value1&attrib2=value&attrib3#anchor");
         URL urlNoQuery = new URL(
         "http://www.example.com/index.html#anchor");
-        
+
         assertEquals("attrib1=value1&attrib2=value&attrib3", urlQuery.getQuery());
-        
+
         String output = urlNoQuery.getQuery();
         assertTrue(output == null || "".equals(output));
     }
@@ -826,9 +826,9 @@ public class URLTest extends TestCase {
     public void testGetPath() throws MalformedURLException {
         URL url = new URL("http://www.example.com");
         String output = url.getPath();
-        
+
         assertTrue("".equals(output) || output == null);
-        
+
         URL url2 = new URL(url,"/foo/index.html");
         assertEquals("/foo/index.html",url2.getPath());
     }
@@ -845,7 +845,7 @@ public class URLTest extends TestCase {
     public void testGetUserInfo() throws MalformedURLException {
         URL urlNoUserInfo = new URL("http://www.java2s.com:8080");
         URL url = new URL("ftp://myUser:password@host.dom/etc/motd");
-        
+
         assertEquals("Assert 0: Wrong user","myUser:password",url.getUserInfo());
         String userInfo = urlNoUserInfo.getUserInfo();
         assertTrue("".equals(userInfo) || null == userInfo);
@@ -866,11 +866,11 @@ public class URLTest extends TestCase {
         URL url = new URL("http://www.java2s.com:8080");
         assertEquals("Assert 0: Wrong authority ", "www.java2s.com:8080", url
                 .getAuthority());
-        
+
         URL ftpURL = new URL("ftp://myname@host.dom/etc/motd");
         assertEquals("Assert 1: Wrong authority ", "myname@host.dom", ftpURL
                 .getAuthority());
-        
+
         URI testURI = new URI("/relative/URI/with/absolute/path/to/resource.txt");
         String output = testURI.getAuthority();
         assertTrue("".equals(output) || null == output);
@@ -886,7 +886,7 @@ public class URLTest extends TestCase {
         args = {java.lang.String.class, java.lang.String.class, int.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class}
     )
     public void testSetStringStringIntStringStringStringStringString() {
-        
+
     }
 
     /**
@@ -901,11 +901,11 @@ public class URLTest extends TestCase {
     public void testGetDefaultPort() throws MalformedURLException {
         URL testHTTPURL = new URL("http://www.gamelan.com/pages/");
         URL testFTPURL = new URL("ftp://myname@host.dom/etc/motd");
-        
+
         assertEquals(21,testFTPURL.getDefaultPort());
         assertEquals(80,testHTTPURL.getDefaultPort());
     }
-    
+
     private File createTempHelloWorldFile() {
         // create content to read
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
@@ -927,12 +927,12 @@ public class URLTest extends TestCase {
         } catch (Exception e) {// Catch exception if any
             fail("Error: in test setup" + e.getMessage());
         }
-        
+
         return sampleFile;
     }
-    
+
     // start HARMONY branch
-    
+
     public static class MyHandler extends URLStreamHandler {
         protected URLConnection openConnection(URL u)
                 throws IOException {
@@ -951,7 +951,7 @@ public class URLTest extends TestCase {
     static boolean isSelectCalled;
 
 
-    
+
     static class MockProxySelector extends ProxySelector {
 
         public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
@@ -983,7 +983,7 @@ public class URLTest extends TestCase {
 
     }
 
-    
+
     static class MyURLStreamHandler extends URLStreamHandler {
 
         @Override
@@ -1013,7 +1013,7 @@ public class URLTest extends TestCase {
         }
 
     }
-    
+
     /**
      * URLStreamHandler implementation class necessary for tests.
      */
@@ -1034,7 +1034,7 @@ public class URLTest extends TestCase {
             return super.openConnection(u, proxy);
         }
     }
-    
+
     /**
      * Test method for {@link java.net.URL#URL(java.lang.String, java.lang.String, int, java.lang.String, java.net.URLStreamHandler)}.
      */
@@ -1068,7 +1068,7 @@ public class URLTest extends TestCase {
         byte[] ba;
         InputStream is;
         String s;
-        
+
         // Cannot make this test fail if no exception is thrown: Debatable
         /*
         try {
@@ -1083,10 +1083,10 @@ public class URLTest extends TestCase {
         */
 
         TestURLStreamHandler lh = new TestURLStreamHandler();
-        
+
         u = new URL("http", "www.yahoo.com", 8080, "test.html#foo",
                 lh);
-        
+
 
         try {
             new URL(null, "1", 0, "file", lh);
@@ -1098,7 +1098,7 @@ public class URLTest extends TestCase {
         }
 
     }
-    
+
     /**
      * Test method for {@link java.net.URL#getContent(java.lang.Class[])}.
      */
@@ -1145,7 +1145,7 @@ public class URLTest extends TestCase {
         assertNull(s);
 
     }
-    
+
     /**
      * Test method for {@link java.net.URL#URL(java.net.URL, java.lang.String, java.net.URLStreamHandler)}.
      */
@@ -1210,7 +1210,7 @@ public class URLTest extends TestCase {
         }
 
     }
-    
+
     /**
      * Test method for {@link java.net.URL#toExternalForm()}.
      */
@@ -1226,7 +1226,7 @@ public class URLTest extends TestCase {
         URL url = new URL(new URL(strURL), ref);
         assertEquals("http://a/b/c/?y", url.toExternalForm());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "From harmony branch",
@@ -1242,7 +1242,7 @@ public class URLTest extends TestCase {
         url = new URL(strURL);
         assertEquals(strURL, url.toExternalForm());
     }
-    
+
 
     ServerSocket ss;
 
@@ -1250,8 +1250,8 @@ public class URLTest extends TestCase {
 
     Thread t;
 
-    
-    
+
+
     protected void startServer(String name, int port) {
         try {
             ss = new ServerSocket(port, 5);
@@ -1259,7 +1259,7 @@ public class URLTest extends TestCase {
             fail(name + ": " + e);
         }
     }
-    
+
     class SServer extends Thread implements Runnable {
         Socket s1 = null;
 
@@ -1285,6 +1285,6 @@ public class URLTest extends TestCase {
         }
     }
 
-   
+
 
 }

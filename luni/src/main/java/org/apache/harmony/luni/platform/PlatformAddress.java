@@ -53,7 +53,7 @@ public class PlatformAddress implements ICommonDataTypes, Comparable {
     static final IMemorySystem osMemory = Platform.getMemorySystem();
 
     final int osaddr;
-    
+
     final long size;
 
     PlatformAddress(int address, long size) {
@@ -67,12 +67,12 @@ public class PlatformAddress implements ICommonDataTypes, Comparable {
      * allocated the memory, it will automatically be freed when this object is
      * collected by the garbage collector if the memory has not already been
      * freed explicitly.
-     * 
+     *
      */
     public final void autoFree() {
         memorySpy.autoFree(this);
     }
-    
+
     public PlatformAddress duplicate() {
         return PlatformAddressFactory.on(osaddr, size);
     }
@@ -131,7 +131,7 @@ public class PlatformAddress implements ICommonDataTypes, Comparable {
         memorySpy.rangeCheck(this, offset, length * SIZEOF_JBYTE);
         osMemory.setByteArray(osaddr + offset, bytes, bytesOffset, length);
     }
-    
+
     // BEGIN android-added
     public final void setShortArray(int offset, short[] shorts,
             int shortsOffset, int length, boolean swap) {
@@ -269,9 +269,9 @@ public class PlatformAddress implements ICommonDataTypes, Comparable {
     }
 
     public final String toString() {
-        return "PlatformAddress[" + osaddr + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+        return "PlatformAddress[" + osaddr + "]";
     }
-    
+
     public final long getSize() {
         return size;
     }

@@ -21,8 +21,6 @@ import java.security.AccessController;
 import java.util.Formatter;
 import java.util.IllegalFormatException;
 import java.util.Locale;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -50,7 +48,7 @@ public class PrintWriter extends Writer {
     private boolean autoflush;
 
     private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator")); //$NON-NLS-1$
+            .doPrivileged(new PriviAction<String>("line.separator"));
 
     /**
      * Constructs a new {@code PrintWriter} with {@code out} as its target
@@ -134,12 +132,7 @@ public class PrintWriter extends Writer {
      *             target file.
      */
     public PrintWriter(File file) throws FileNotFoundException {
-        // BEGIN android-modified
-        this(new OutputStreamWriter(
-                     new BufferedOutputStream(
-                             new FileOutputStream(file), 8192)),
-                false);
-        // END android-modified
+        this(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file))), false);
     }
 
     /**
@@ -165,12 +158,8 @@ public class PrintWriter extends Writer {
      */
     public PrintWriter(File file, String csn) throws FileNotFoundException,
             UnsupportedEncodingException {
-        // BEGIN android-modified
-        this(new OutputStreamWriter(
-                     new BufferedOutputStream(
-                             new FileOutputStream(file), 8192), csn),
+        this(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file)), csn),
                 false);
-        // END android-modified
     }
 
     /**
@@ -190,12 +179,8 @@ public class PrintWriter extends Writer {
      *             target file.
      */
     public PrintWriter(String fileName) throws FileNotFoundException {
-        // BEGIN android-modified
-        this(new OutputStreamWriter(
-                     new BufferedOutputStream(
-                             new FileOutputStream(fileName), 8192)),
+        this(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(fileName))),
                 false);
-        // END android-modified
     }
 
      /**
@@ -222,12 +207,8 @@ public class PrintWriter extends Writer {
      */
     public PrintWriter(String fileName, String csn)
             throws FileNotFoundException, UnsupportedEncodingException {
-        // BEGIN android-modified
-        this(new OutputStreamWriter(
-                     new BufferedOutputStream(
-                             new FileOutputStream(fileName), 8192), csn),
+        this(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(fileName)), csn),
                 false);
-        // END android-modified
     }
 
     /**
@@ -246,6 +227,16 @@ public class PrintWriter extends Writer {
 
         flush();
         return ioError || delegate.checkError();
+    }
+
+    /**
+     * Sets the error state of the stream to false.
+     * @since 1.6
+     */
+    protected void clearError() {
+        synchronized (lock) {
+            ioError = false;
+        }
     }
 
     /**
@@ -287,24 +278,22 @@ public class PrintWriter extends Writer {
     }
 
     /**
-     * Writes a string formatted by an intermediate {@code Formatter} to the
-     * target using the specified format string and arguments. For the locale,
-     * the default value of the current virtual machine instance is used. If
-     * automatic flushing is enabled then the buffer is flushed as well.
+     * Formats {@code args} according to the format string {@code format}, and writes the result
+     * to this stream. This method uses the user's default locale.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
+     * If automatic flushing is enabled then the buffer is flushed as well.
      *
-     * @param format
-     *            the format string used for {@link java.util.Formatter#format}.
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
      *            the list of arguments passed to the formatter. If there are
-     *            more arguments than required by the {@code format} string,
-     *            then the additional arguments are ignored.
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return this writer.
      * @throws IllegalFormatException
      *             if the format string is illegal or incompatible with the
      *             arguments, if there are not enough arguments or if any other
      *             error regarding the format string or arguments is detected.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}
      */
     public PrintWriter format(String format, Object... args) {
         return format(Locale.getDefault(), format, args);
@@ -318,23 +307,21 @@ public class PrintWriter extends Writer {
      * @param l
      *            the locale used in the method. No localization will be applied
      *            if {@code l} is {@code null}.
-     * @param format
-     *            the format string used for {@link java.util.Formatter#format}.
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
      *            the list of arguments passed to the formatter. If there are
-     *            more arguments than required by the {@code format} string,
-     *            then the additional arguments are ignored.
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return this writer.
      * @throws IllegalFormatException
      *             if the format string is illegal or incompatible with the
      *             arguments, if there are not enough arguments or if any other
      *             error regarding the format string or arguments is detected.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}
      */
     public PrintWriter format(Locale l, String format, Object... args) {
         if (format == null) {
-            throw new NullPointerException(Msg.getString("K0351")); //$NON-NLS-1$
+            throw new NullPointerException("format == null");
         }
         new Formatter(this, l).format(format, args);
         if (autoflush) {
@@ -348,19 +335,17 @@ public class PrintWriter extends Writer {
      * this writer's {@code #format(String, Object...)} method. For the locale,
      * the default value of the current virtual machine instance is used.
      *
-     * @param format
-     *            the format string used for {@link java.util.Formatter#format}.
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
      *            the list of arguments passed to the formatter. If there are
-     *            more arguments than required by the {@code format} string,
-     *            then the additional arguments are ignored.
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return this writer.
      * @throws IllegalFormatException
      *             if the format string is illegal or incompatible with the
      *             arguments, if there are not enough arguments or if any other
      *             error regarding the format string or arguments is detected.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}
      */
     public PrintWriter printf(String format, Object... args) {
         return format(format, args);
@@ -373,19 +358,17 @@ public class PrintWriter extends Writer {
      * @param l
      *            the locale used in the method. No localization will be applied
      *            if {@code l} is {@code null}.
-     * @param format
-     *            the format string used for {@link java.util.Formatter#format}.
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
      *            the list of arguments passed to the formatter. If there are
-     *            more arguments than required by the {@code format} string,
-     *            then the additional arguments are ignored.
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return this writer.
      * @throws IllegalFormatException
      *             if the format string is illegal or incompatible with the
      *             arguments, if there are not enough arguments or if any other
      *             error regarding the format string or arguments is detected.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}
      */
     public PrintWriter printf(Locale l, String format, Object... args) {
         return format(l, format, args);
@@ -635,7 +618,7 @@ public class PrintWriter extends Writer {
     }
 
     /**
-     * Sets the error flag of this writer to {@code true}.
+     * Sets the error flag of this writer to true.
      */
     protected void setError() {
         synchronized (lock) {

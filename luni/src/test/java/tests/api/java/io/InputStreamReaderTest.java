@@ -40,9 +40,9 @@ import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 
 /**
- * 
+ *
  */
-@TestTargetClass(InputStreamReader.class) 
+@TestTargetClass(InputStreamReader.class)
 public class InputStreamReaderTest extends TestCase {
 
     private final String source = "This is a test message with Unicode character. \u4e2d\u56fd is China's name in Chinese";
@@ -58,7 +58,7 @@ public class InputStreamReaderTest extends TestCase {
     public String fileString = "Test_All_Tests\nTest_java_io_BufferedInputStream\nTest_java_io_BufferedOutputStream\nTest_java_io_ByteArrayInputStream\nTest_java_io_ByteArrayOutputStream\nTest_java_io_DataInputStream\n";
 
     static class LimitedByteArrayInputStream extends ByteArrayInputStream {
-        
+
         // A ByteArrayInputStream that only returns a single byte per read
         byte[] bytes;
 
@@ -148,7 +148,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "IOException checking missed.",
         method = "read",
         args = {}
-    )    
+    )
     public void testRead() throws IOException {
         assertEquals('T', (char) reader.read());
         assertEquals('h', (char) reader.read());
@@ -168,19 +168,19 @@ public class InputStreamReaderTest extends TestCase {
         notes = "IOException checking missed.",
         method = "read",
         args = {}
-    )    
-    
+    )
+
     public void testRead1() throws IOException {
-        // if the decoder is constructed by InputStreamReader itself, the decoder's 
+        // if the decoder is constructed by InputStreamReader itself, the decoder's
         // default error action is REPLACE
         InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(
                 new byte[] { -32, -96 }), "UTF-8");
         assertEquals("read() return incorrect value", 65533, isr.read());
-        
+
         InputStreamReader isr2 = new InputStreamReader(new ByteArrayInputStream(
                 new byte[] { -32, -96 }), Charset.forName("UTF-8"));
         assertEquals("read() return incorrect value", 65533, isr2.read());
-        
+
         // if the decoder is passed in, keep its status intacted
         CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPORT);
@@ -192,13 +192,13 @@ public class InputStreamReaderTest extends TestCase {
         }catch(MalformedInputException e){
             //expected
         }
-        
+
         CharsetDecoder decoder2 = Charset.forName("UTF-8").newDecoder();
         decoder2.onMalformedInput(CodingErrorAction.IGNORE);
         InputStreamReader isr4 = new InputStreamReader(new ByteArrayInputStream(
                 new byte[] { -32, -96 }), decoder2);
         assertEquals("read() return incorrect value", -1, isr4.read());
-        
+
         CharsetDecoder decoder3 = Charset.forName("UTF-8").newDecoder();
         decoder3.onMalformedInput(CodingErrorAction.REPLACE);
         InputStreamReader isr5 = new InputStreamReader(new ByteArrayInputStream(
@@ -214,7 +214,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "IOException checking missed.",
         method = "read",
         args = {char[].class, int.class, int.class}
-    )     
+    )
     public void testReadcharArrayintint() throws IOException {
         try {
             reader.read(new char[3], -1, 0);
@@ -252,14 +252,14 @@ public class InputStreamReaderTest extends TestCase {
         } catch (IndexOutOfBoundsException e) {
             //expected
         }
-        
+
         try {
             reader.read(null, 0, 0);
             fail("Should throw NullPointerException");
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         assertEquals(0, reader.read(new char[3], 3, 0));
         char[] chars = new char[source.length()];
         assertEquals(0, reader.read(chars, 0, 0));
@@ -319,7 +319,7 @@ public class InputStreamReaderTest extends TestCase {
         in = this.getClass().getClassLoader().getResourceAsStream(
                 "tests/api/java/io/testfile.txt");
         reader = new InputStreamReader(in, "GB2312");
-        
+
         while ((c = reader.read()) != -1) {
             sb.append((char) c);
         }
@@ -339,7 +339,7 @@ public class InputStreamReaderTest extends TestCase {
             method = "ready",
             args = {}
         )
-    })      
+    })
     public void testAfterClose() throws IOException {
         reader.close();
         in = new BufferedInputStream(this.getClass().getClassLoader()
@@ -390,7 +390,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "",
         method = "InputStreamReader",
         args = {java.io.InputStream.class, java.lang.String.class}
-    )        
+    )
     public void testInputStreamReaderInputStreamString() throws IOException {
         try {
             reader = new InputStreamReader(null, "utf-8");
@@ -430,7 +430,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "",
         method = "InputStreamReader",
         args = {java.io.InputStream.class, java.nio.charset.CharsetDecoder.class}
-    )        
+    )
     public void testInputStreamReaderInputStreamCharsetDecoder()
             throws Exception {
         CharsetDecoder decoder = Charset.forName("utf-8").newDecoder();
@@ -457,7 +457,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "",
         method = "InputStreamReader",
         args = {java.io.InputStream.class, java.nio.charset.Charset.class}
-    )    
+    )
     public void testInputStreamReaderInputStreamCharset() throws IOException {
         Charset cs = Charset.forName("utf-8");
         try {
@@ -506,7 +506,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "See setUp.",
         method = "InputStreamReader",
         args = {java.io.InputStream.class}
-    )    
+    )
     public void test_ConstructorLjava_io_InputStream() {
         // Test for method java.io.InputStreamReader(java.io.InputStream)
         assertTrue("Used to test other methods", true);
@@ -521,7 +521,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "Verifies InputStreamReader(java.io.InputStream) constructor.",
         method = "InputStreamReader",
         args = {java.io.InputStream.class}
-    )    
+    )
     public void test_ConstructorLjava_io_InputStreamLjava_lang_String() {
         // Test for method java.io.InputStreamReader(java.io.InputStream,
         // java.lang.String)
@@ -546,7 +546,7 @@ public class InputStreamReaderTest extends TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "close",
         args = {}
-    )    
+    )
     public void test_close() {
         // Test for method void java.io.InputStreamReader.close()
         try {
@@ -559,7 +559,7 @@ public class InputStreamReaderTest extends TestCase {
             fail("Test 1: IOException expected.");
         } catch (IOException e) {
             // Exception means read failed due to close
-        } 
+        }
 
         is = new InputStreamReader(new Support_ASimpleInputStream(true));
         try {
@@ -567,15 +567,15 @@ public class InputStreamReaderTest extends TestCase {
             fail("Test 2: IOException expected.");
         } catch (IOException e) {
             // Expected.
-        } 
-        
+        }
+
     }
 
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
             method = "close",
             args = {}
-    )    
+    )
     public void testClose() throws IOException {
         reader.close();
         try {
@@ -594,14 +594,14 @@ public class InputStreamReaderTest extends TestCase {
         notes = "Verifies getEncoding() method.",
         method = "getEncoding",
         args = {}
-    )       
+    )
     public void test_getEncoding() {
         // Test for method java.lang.String
         // java.io.InputStreamReader.getEncoding()
         try {
             is = new InputStreamReader(fis, "8859_1");
         } catch (UnsupportedEncodingException e) {
-            assertEquals("Returned incorrect encoding", 
+            assertEquals("Returned incorrect encoding",
                     "8859_1", is.getEncoding());
         }
     }
@@ -614,7 +614,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "",
         method = "read",
         args = {}
-    )      
+    )
     public void test_read() throws IOException{
         // Test for method int java.io.InputStreamReader.read()
         try {
@@ -628,7 +628,7 @@ public class InputStreamReaderTest extends TestCase {
         } catch (IOException e) {
             fail("Exception during read test : " + e.getMessage());
         }
-        
+
         // Regression for HARMONY-166
         InputStream in;
         InputStreamReader reader;
@@ -659,7 +659,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "",
         method = "read",
         args = {char[].class, int.class, int.class}
-    )      
+    )
      public void test_read$CII() {
         // Test for method int java.io.InputStreamReader.read(char [], int, int)
         try {
@@ -682,7 +682,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "[No verification for empty buffer]",
         method = "ready",
         args = {}
-    )      
+    )
     public void test_ready() {
         // Test for method boolean java.io.InputStreamReader.ready()
         try {
@@ -693,7 +693,7 @@ public class InputStreamReaderTest extends TestCase {
             fail("Exception during ready test : " + e.getMessage());
         }
     }
-    
+
     /**
      * Test for regression of a bug that dropped characters when
      * multibyte encodings spanned buffer boundaries.
@@ -703,7 +703,7 @@ public class InputStreamReaderTest extends TestCase {
         notes = "",
         method = "read",
         args = {}
-    )      
+    )
     public void test_readWhenCharacterSpansBuffer() {
         final byte[] suffix = {
             (byte) 0x93, (byte) 0xa1, (byte) 0x8c, (byte) 0xb4,
@@ -715,7 +715,7 @@ public class InputStreamReaderTest extends TestCase {
             (char) 0x90ce
         };
         final int prefixLength = 8189;
-    
+
         byte[] bytes = new byte[prefixLength + 10];
         Arrays.fill(bytes, (byte) ' ');
         System.arraycopy(suffix, 0, bytes, prefixLength, suffix.length);
@@ -752,5 +752,5 @@ public class InputStreamReaderTest extends TestCase {
         } catch (IOException ex) {
             throw new RuntimeException("unexpected exception", ex);
         }
-    }    
+    }
 }

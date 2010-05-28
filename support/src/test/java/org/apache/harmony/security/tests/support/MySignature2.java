@@ -30,19 +30,19 @@ import java.security.SignatureSpi;
 
 /**
  * Tests implementation of Signature
- * 
+ *
  */
 public class MySignature2 extends SignatureSpi {
 
     public static boolean runEngineInitVerify = false;
     public static boolean runEngineInitSign = false;
     public static boolean runEngineUpdate1 = false;
-    public static boolean runEngineUpdate2 = false;    
+    public static boolean runEngineUpdate2 = false;
     public static boolean runEngineSign = false;
     public static boolean runEngineVerify = false;
-    public static boolean runEngineSetParameter = false;    
+    public static boolean runEngineSetParameter = false;
     public static boolean runEngineGetParameter = false;
-    
+
     protected void engineInitVerify(PublicKey publicKey)
             throws InvalidKeyException {
         runEngineInitVerify = true;

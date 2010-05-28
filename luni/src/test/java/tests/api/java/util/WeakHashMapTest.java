@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ import java.util.WeakHashMap;
 
 import tests.support.Support_MapTest2;
 
-@TestTargetClass(WeakHashMap.class) 
+@TestTargetClass(WeakHashMap.class)
 public class WeakHashMapTest extends junit.framework.TestCase {
     class MockMap extends AbstractMap {
         public Set entrySet() {
@@ -110,7 +110,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         assertNull("Empty weakhashmap access", empty.get("nothing"));
         empty.put("something", "here");
         assertTrue("cannot get element", empty.get("something") == "here");
-        
+
         try {
             new WeakHashMap(-50);
             fail("IllegalArgumentException expected");
@@ -149,14 +149,14 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         assertNull("Empty hashtable access", empty.get("nothing"));
         empty.put("something", "here");
         assertTrue("cannot get element", empty.get("something") == "here");
-        
+
         try {
             new WeakHashMap(50, -0.5f);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new WeakHashMap(-50, 0.5f);
             fail("IllegalArgumentException expected");
@@ -164,7 +164,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests java.util.WeakHashMap#WeakHashMap(java.util.Map)
      */
@@ -178,7 +178,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         Map mockMap = new MockMap();
         WeakHashMap map = new WeakHashMap(mockMap);
         assertEquals("Size should be 0", 0, map.size());
-        
+
         try {
             new WeakHashMap(null);
             fail("NullPointerException expected");
@@ -342,7 +342,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         map.remove("nothing"); // Cause objects in queue to be removed
         assertEquals("null key was removed", 1, map.size());
     }
-    
+
     /**
      * @tests java.util.WeakHashMap#putAll(java.util.Map)
      */
@@ -357,7 +357,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         WeakHashMap map = new WeakHashMap();
         map.putAll(mockMap);
         assertEquals("Size should be 0", 0, map.size());
-        
+
         try {
             map.putAll(null);
             fail("NullPointerException exected");
