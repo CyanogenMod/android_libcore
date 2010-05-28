@@ -588,11 +588,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 				String tableNamePattern,
 				String columnNamePattern)
 	throws SQLException {
-    // BEGIN android-changed: add missing error check.
-    if (conn.db == null) {
-        throw new SQLException("connection closed");
-    }
-    // END android-changed
+	if (conn.db == null) {
+	    throw new SQLException("connection closed.");
+	}
 	JDBCStatement s = new JDBCStatement(conn);
 	JDBCResultSet rs0 = null;
 	try {
@@ -929,7 +927,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 		    col = ((Integer) h1.get("name")).intValue();
 		    row[3] = r1[col];
 		    col = ((Integer) h1.get("seqno")).intValue();
-		    row[4]  = Integer.toString(Integer.parseInt(r1[col]) + 1); // android-changed: performance
+		    row[4]  = Integer.toString(Integer.parseInt(r1[col]) + 1);
 		    row[5]  = iname;
 		    tr.newrow(row);
 		}
@@ -972,7 +970,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 		col = ((Integer) h0.get("name")).intValue();
 		row[3] = r0[col];
 		col = ((Integer) h0.get("cid")).intValue();
-		row[4] = Integer.toString(Integer.parseInt(r0[col]) + 1); // android-changed: performance
+		row[4] = Integer.toString(Integer.parseInt(r0[col]) + 1);
 		row[5] = "";
 		tr.newrow(row);
 	    }
@@ -1008,7 +1006,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 	    row[5]  = "";
 	    row[6]  = table;
 	    row[7]  = fkcol == null ? pkcol : fkcol;
-	    row[8]  = Integer.toString(Integer.parseInt(seq) + 1); // android-changed: performance
+	    row[8]  = Integer.toString(Integer.parseInt(seq) + 1);
 	    row[9]  =
 		"" + java.sql.DatabaseMetaData.importedKeyNoAction;
 	    row[10] =
@@ -1353,7 +1351,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 		    row[5]  = iname;
 		    row[6]  = "" + tableIndexOther;
 		    col = ((Integer) h1.get("seqno")).intValue();
-		    row[7]  = Integer.toString(Integer.parseInt(r1[col]) + 1); // android-changed: performance
+		    row[7]  = Integer.toString(Integer.parseInt(r1[col]) + 1);
 		    col = ((Integer) h1.get("name")).intValue();
 		    row[8]  = r1[col];
 		    row[9]  = "A";
