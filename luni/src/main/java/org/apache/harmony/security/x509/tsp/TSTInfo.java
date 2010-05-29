@@ -32,7 +32,6 @@ import org.apache.harmony.security.asn1.ASN1Sequence;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.ObjectIdentifier;
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.x509.Extensions;
 import org.apache.harmony.security.x509.GeneralName;
 
@@ -227,9 +226,7 @@ public class TSTInfo {
                 if (values[i] != null) {
                     accuracy[i] = ASN1Integer.toIntValue(values[i]);
                     if (i > 0 && (accuracy[i] < 0 || accuracy[i] > 999)) {
-                        throw new RuntimeException(
-                        // Msg: "Time-stamp accuracy value is incorrect: {}"
-                                Messages.getString("security.1A3", accuracy[i]));
+                        throw new RuntimeException("Time-stamp accuracy value is incorrect: " + accuracy[i]);
                     }
                 }
             }
@@ -240,9 +237,7 @@ public class TSTInfo {
             int [] accuracy = (int []) object;
             for (int i = 0; i < 3; i++) {
                 if (i > 0 && (accuracy[i] < 0 || accuracy[i] > 999)) {
-                    throw new RuntimeException(
-                    // Msg: "Time-stamp accuracy value is incorrect: {0}"
-                            Messages.getString("security.1A3", accuracy[i]));
+                    throw new RuntimeException("Time-stamp accuracy value is incorrect: " + accuracy[i]);
                 }
                 values[i] = BigInteger.valueOf(accuracy[i]).toByteArray();
             }
@@ -303,4 +298,3 @@ public class TSTInfo {
         }
     };
 }
-

@@ -24,8 +24,6 @@ package org.apache.harmony.security;
 
 import java.security.Principal;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Descriptive implementation of Principal, which holds a name and a classname
  * of unresolved principal. It is used to define an arbitrary Principal which
@@ -61,8 +59,8 @@ public final class UnresolvedPrincipal implements Principal {
      * is <code>null </code> or is empty string
      */
     public UnresolvedPrincipal(String klass, String name) {
-        if (klass == null || klass.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("security.91"));
+        if (klass == null || klass.isEmpty()) {
+            throw new IllegalArgumentException();
         }
 
         this.klass = klass;

@@ -25,8 +25,6 @@ package org.apache.harmony.security.asn1;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Decodes ASN.1 types encoded with DER (X.690)
  *
@@ -56,7 +54,7 @@ public final class DerInputStream extends BerInputStream {
         int tag = super.next();
 
         if (length == INDEFINIT_LENGTH) {
-            throw new ASN1Exception(Messages.getString("security.105"));
+            throw new ASN1Exception("DER: only definite length encoding MUST be used");
         }
 
         // FIXME add check: length encoding uses minimum number of octets
@@ -75,7 +73,7 @@ public final class DerInputStream extends BerInputStream {
     public void readBitString() throws IOException {
 
         if (tag == ASN1Constants.TAG_C_BITSTRING) {
-            throw new ASN1Exception(Messages.getString("security.106", tagOffset));
+            throw new ASN1Exception("ASN.1 bitstring: constructed identifier at [" + tagOffset + "]. Not valid for DER.");
         }
 
         super.readBitString();
@@ -84,7 +82,7 @@ public final class DerInputStream extends BerInputStream {
         if (length > 1
                 && buffer[contentOffset] != 0
                 && (buffer[offset - 1] & UNUSED_BITS_MASK[buffer[contentOffset] - 1]) != 0) {
-            throw new ASN1Exception(Messages.getString("security.107", contentOffset));
+            throw new ASN1Exception("ASN.1 bitstring: wrong content at [" + contentOffset + "]. DER requires zero unused bits in final octet.");
         }
     }
 
@@ -97,7 +95,7 @@ public final class DerInputStream extends BerInputStream {
 
         // check encoded content
         if (buffer[contentOffset] != 0 && buffer[contentOffset] != (byte) 0xFF) {
-            throw new ASN1Exception(Messages.getString("security.108", contentOffset));
+            throw new ASN1Exception("ASN.1 boolean: wrong content at [" + contentOffset + "]. DER allows only 0x00 or 0xFF values");
         }
     }
 
@@ -107,8 +105,7 @@ public final class DerInputStream extends BerInputStream {
     public void readOctetString() throws IOException {
 
         if (tag == ASN1Constants.TAG_C_OCTETSTRING) {
-            throw new ASN1Exception(
-                    Messages.getString("security.109", tagOffset));
+            throw new ASN1Exception("ASN.1 octetstring: constructed identifier at [" + tagOffset + "]. Not valid for DER.");
         }
         super.readOctetString();
     }
@@ -145,7 +142,7 @@ public final class DerInputStream extends BerInputStream {
     public void readString(ASN1StringType type) throws IOException {
 
         if (tag == type.constrId) {
-            throw new ASN1Exception(Messages.getString("security.10A", tagOffset));
+            throw new ASN1Exception("ASN.1 string: constructed identifier at [" + tagOffset + "]. Not valid for DER.");
         }
         super.readString(type);
     }
@@ -157,12 +154,12 @@ public final class DerInputStream extends BerInputStream {
 
         if (tag == ASN1Constants.TAG_C_UTCTIME) {
             // It is a string type and it can be encoded as primitive or constructed.
-            throw new ASN1Exception(Messages.getString("security.10B", tagOffset));
+            throw new ASN1Exception("ASN.1 UTCTime: constructed identifier at [" + tagOffset + "]. Not valid for DER.");
         }
 
         // check format: DER uses YYMMDDHHMMSS'Z' only
         if (length != ASN1UTCTime.UTC_HMS) {
-            throw new ASN1Exception(Messages.getString("security.10C", tagOffset));
+            throw new ASN1Exception("ASN.1 UTCTime: wrong format for DER, identifier at [" + tagOffset + "]");
         }
 
         super.readUTCTime();
@@ -175,7 +172,7 @@ public final class DerInputStream extends BerInputStream {
 
         if (tag == ASN1Constants.TAG_C_GENERALIZEDTIME) {
             // It is a string type and it can be encoded as primitive or constructed.
-            throw new ASN1Exception(Messages.getString("security.10D", tagOffset));
+            throw new ASN1Exception("ASN.1 GeneralizedTime: constructed identifier at [" + tagOffset + "]. Not valid for DER.");
         }
 
         super.readGeneralizedTime();

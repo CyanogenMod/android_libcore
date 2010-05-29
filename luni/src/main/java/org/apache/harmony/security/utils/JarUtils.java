@@ -40,7 +40,6 @@ import java.util.List;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.harmony.security.asn1.BerInputStream;
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.pkcs7.ContentInfo;
 import org.apache.harmony.security.pkcs7.SignedData;
 import org.apache.harmony.security.pkcs7.SignerInfo;
@@ -77,7 +76,7 @@ public class JarUtils {
         ContentInfo info = (ContentInfo)ContentInfo.ASN1.decode(bis);
         SignedData signedData = info.getSignedData();
         if (signedData == null) {
-            throw new IOException(Messages.getString("security.173"));
+            throw new IOException("No SignedData found");
         }
         Collection encCerts = signedData.getCertificates();
         if (encCerts.isEmpty()) {
@@ -117,7 +116,7 @@ public class JarUtils {
         }
 
         if (certs[issuerSertIndex].hasUnsupportedCriticalExtension()) {
-            throw new SecurityException(Messages.getString("security.174"));
+            throw new SecurityException("Can not recognize a critical extension");
         }
 
         // Get Signature instance
@@ -185,13 +184,13 @@ public class JarUtils {
                 // END android-added
                 byte[] computedDigest = md.digest(sfBytes);
                 if (!Arrays.equals(existingDigest, computedDigest)) {
-                    throw new SecurityException(Messages.getString("security.175"));
+                    throw new SecurityException("Incorrect MD");
                 }
             }
         }
 
         if (!sig.verify(sigInfo.getEncryptedDigest())) {
-            throw new SecurityException(Messages.getString("security.176"));
+            throw new SecurityException("Incorrect signature");
         }
 
         return createChain(certs[issuerSertIndex], certs);

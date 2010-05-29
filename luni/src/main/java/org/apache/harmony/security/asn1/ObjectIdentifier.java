@@ -24,8 +24,6 @@ package org.apache.harmony.security.asn1;
 
 import java.util.Arrays;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Instance of this class represents ObjectIdentifier (OID).
  *
@@ -127,26 +125,22 @@ public final class ObjectIdentifier {
     public static void validate(int[] oid) {
 
         if (oid == null) {
-            throw new IllegalArgumentException(Messages.getString("security.98"));
+            throw new IllegalArgumentException("oid == null");
         }
 
         if (oid.length < 2) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.99"));
+            throw new IllegalArgumentException("OID MUST have at least 2 subidentifiers");
         }
 
         if (oid[0] > 2) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.9A"));
+            throw new IllegalArgumentException("Valid values for first subidentifier are 0, 1 and 2");
         } else if (oid[0] != 2 && oid[1] > 39) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.9B"));
+            throw new IllegalArgumentException("If the first subidentifier has 0 or 1 value the second subidentifier value MUST be less than 40");
         }
 
         for (int i = 0; i < oid.length; i++) {
             if (oid[i] < 0) {
-                throw new IllegalArgumentException(
-                        Messages.getString("security.9C"));
+                throw new IllegalArgumentException("Subidentifier MUST have positive value");
             }
         }
     }
@@ -300,8 +294,7 @@ public final class ObjectIdentifier {
             if (! shouldThrow) {
                 return null;
             }
-            throw new IllegalArgumentException(
-                    Messages.getString("security.9D"));
+            throw new IllegalArgumentException();
         }
 
         int length = str.length();
@@ -309,7 +302,7 @@ public final class ObjectIdentifier {
             if (! shouldThrow) {
                 return null;
             }
-            throw new IllegalArgumentException(Messages.getString("security.9E"));
+            throw new IllegalArgumentException("Incorrect syntax");
         }
 
         int count = 1; // number of subidentifiers
@@ -322,7 +315,7 @@ public final class ObjectIdentifier {
                     if (! shouldThrow) {
                         return null;
                     }
-                    throw new IllegalArgumentException(Messages.getString("security.9E"));
+                    throw new IllegalArgumentException("Incorrect syntax");
                 }
                 wasDot = true;
                 count++;
@@ -332,7 +325,7 @@ public final class ObjectIdentifier {
                 if (! shouldThrow) {
                     return null;
                 }
-                throw new IllegalArgumentException(Messages.getString("security.9E"));
+                throw new IllegalArgumentException("Incorrect syntax");
             }
         }
 
@@ -341,15 +334,14 @@ public final class ObjectIdentifier {
             if (! shouldThrow) {
                 return null;
             }
-            throw new IllegalArgumentException(Messages.getString("security.9E"));
+            throw new IllegalArgumentException("Incorrect syntax");
         }
 
         if (count < 2) {
             if (! shouldThrow) {
                 return null;
             }
-            throw new IllegalArgumentException(
-                    Messages.getString("security.99"));
+            throw new IllegalArgumentException("Incorrect syntax");
         }
 
         int[] oid = new int[count];
@@ -366,14 +358,12 @@ public final class ObjectIdentifier {
             if (! shouldThrow) {
                 return null;
             }
-            throw new IllegalArgumentException(
-                    Messages.getString("security.9A"));
+            throw new IllegalArgumentException("Incorrect syntax");
         } else if (oid[0] != 2 && oid[1] > 39) {
             if (! shouldThrow) {
                 return null;
             }
-            throw new IllegalArgumentException(
-                    Messages.getString("security.9B"));
+            throw new IllegalArgumentException("Incorrect syntax");
         }
 
         return oid;

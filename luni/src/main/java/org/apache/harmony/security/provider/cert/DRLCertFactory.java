@@ -25,8 +25,6 @@ package org.apache.harmony.security.provider.cert;
 import java.security.AccessController;
 import java.security.Provider;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 
 /**
  * Master class (provider) for X509 Certificate Factory
@@ -44,7 +42,6 @@ public final class DRLCertFactory extends Provider {
      */
     public DRLCertFactory() {
         // specification of the provider name, version, and description.
-        // security.151=Certificate Factory supports CRLs and Certificates in (PEM) ASN.1 DER encoded form, and Certification Paths in PkiPath and PKCS7 formats.
 
         // BEGIN android-changed
         // Avoid using a message resource string here, since it forces loading
@@ -64,4 +61,3 @@ public final class DRLCertFactory extends Provider {
         });
     }
 }
-

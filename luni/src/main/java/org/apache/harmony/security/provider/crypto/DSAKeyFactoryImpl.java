@@ -33,8 +33,6 @@ import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 public class DSAKeyFactoryImpl extends KeyFactorySpi {
 
     /**
@@ -62,7 +60,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 return new DSAPrivateKeyImpl((PKCS8EncodedKeySpec) keySpec);
             }
         }
-        throw new InvalidKeySpecException(Messages.getString("security.19C"));
+        throw new InvalidKeySpecException("'keySpec' is neither DSAPrivateKeySpec nor PKCS8EncodedKeySpec");
     }
 
     /**
@@ -90,7 +88,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                 return new DSAPublicKeyImpl((X509EncodedKeySpec) keySpec);
             }
         }
-        throw new InvalidKeySpecException(Messages.getString("security.19D"));
+        throw new InvalidKeySpecException("'keySpec' is neither DSAPublicKeySpec nor X509EncodedKeySpec");
     }
 
     /**
@@ -117,8 +115,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
 
         if (key != null) {
             if (keySpec == null) {
-                throw new NullPointerException(Messages
-                        .getString("security.19E"));
+                throw new NullPointerException("keySpec == null");
             }
             if (key instanceof DSAPrivateKey) {
                 DSAPrivateKey privateKey = (DSAPrivateKey) key;
@@ -140,8 +137,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                     return (T) (new PKCS8EncodedKeySpec(key.getEncoded()));
                 }
 
-                throw new InvalidKeySpecException(Messages
-                        .getString("security.19C"));
+                throw new InvalidKeySpecException("'keySpec' is neither DSAPrivateKeySpec nor PKCS8EncodedKeySpec");
             }
 
             if (key instanceof DSAPublicKey) {
@@ -164,11 +160,10 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                     return (T) (new X509EncodedKeySpec(key.getEncoded()));
                 }
 
-                throw new InvalidKeySpecException(Messages
-                        .getString("security.19D"));
+                throw new InvalidKeySpecException("'keySpec' is neither DSAPublicKeySpec nor X509EncodedKeySpec");
             }
         }
-        throw new InvalidKeySpecException(Messages.getString("security.19F"));
+        throw new InvalidKeySpecException("'key' is neither DSAPublicKey nor DSAPrivateKey");
     }
 
     /**
@@ -197,8 +192,7 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                             params.getG()));
                 } catch (InvalidKeySpecException e) {
                     // Actually this exception shouldn't be thrown
-                    throw new InvalidKeyException(Messages.getString(
-                            "security.1A0", e));
+                    throw new InvalidKeyException("ATTENTION: InvalidKeySpecException: " + e);
                 }
             }
 
@@ -213,12 +207,11 @@ public class DSAKeyFactoryImpl extends KeyFactorySpi {
                             .getG()));
                 } catch (InvalidKeySpecException e) {
                     // Actually this exception shouldn't be thrown
-                    throw new InvalidKeyException(Messages.getString(
-                            "security.1A1", e));
+                    throw new InvalidKeyException("ATTENTION: InvalidKeySpecException: " + e);
                 }
             }
         }
-        throw new InvalidKeyException(Messages.getString("security.19F"));
+        throw new InvalidKeyException("'key' is neither DSAPublicKey nor DSAPrivateKey");
     }
 
 }

@@ -19,8 +19,6 @@ package java.security.spec;
 
 import java.math.BigInteger;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The parameters specifying a <i>prime finite field</i> of an
  * elliptic curve.
@@ -42,10 +40,10 @@ public class ECFieldFp implements ECField {
         this.p = p;
 
         if (this.p == null) {
-            throw new NullPointerException(Messages.getString("security.83", "p"));
+            throw new NullPointerException("p == null");
         }
         if (this.p.signum() != 1) {
-            throw new IllegalArgumentException(Messages.getString("security.86", "p"));
+            throw new IllegalArgumentException("p <= 0");
         }
     }
 

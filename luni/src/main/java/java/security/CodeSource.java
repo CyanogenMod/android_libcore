@@ -37,7 +37,6 @@ import java.util.List;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.harmony.security.fortress.PolicyUtils;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * {@code CodeSource} encapsulates the location from where code is loaded and
@@ -582,8 +581,7 @@ public class CodeSource implements Serializable {
                     oos.writeInt(data.length);
                     oos.write(data);
                 } catch (CertificateEncodingException ex) {
-                    throw (IOException) new IOException(
-                            Messages.getString("security.18")).initCause(ex);
+                    throw (IOException) new IOException("Could not store certificate").initCause(ex);
                 }
             }
         }
@@ -607,9 +605,8 @@ public class CodeSource implements Serializable {
                 try {
                     factory = CertificateFactory.getInstance(type);
                 } catch (CertificateException ex) {
-                    throw new ClassNotFoundException(
-                            Messages.getString("security.19", type),
-                            ex);
+                    throw new ClassNotFoundException("Could not find CertificateFactory of type " +
+                            type, ex);
                 }
                 int dataLen = ois.readInt();
                 byte[] data = new byte[dataLen];
@@ -618,8 +615,7 @@ public class CodeSource implements Serializable {
                 try {
                     certs[i] = factory.generateCertificate(bais);
                 } catch (CertificateException ex) {
-                    throw (IOException) new IOException(
-                            Messages.getString("security.1A")).initCause(ex);
+                    throw (IOException) new IOException("Could not generate certificate").initCause(ex);
                 }
             }
         }

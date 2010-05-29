@@ -17,8 +17,6 @@
 
 package java.security.spec;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The parameter specification for the RSA-PSS Signature scheme.
  * <p>
@@ -62,7 +60,7 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
      */
     public PSSParameterSpec(int saltLen) {
         if (saltLen < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.7F"));
+            throw new IllegalArgumentException("saltLen < 0");
         }
         this.saltLen = saltLen;
         this.mdName = "SHA-1";
@@ -93,16 +91,16 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
             AlgorithmParameterSpec mgfSpec, int saltLen, int trailerField) {
 
         if (mdName == null) {
-            throw new NullPointerException(Messages.getString("security.80"));
+            throw new NullPointerException("mdName == null");
         }
         if (mgfName == null) {
-            throw new NullPointerException(Messages.getString("security.81"));
+            throw new NullPointerException("mgfName == null");
         }
         if (saltLen < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.7F"));
+            throw new IllegalArgumentException("saltLen < 0");
         }
         if (trailerField < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.82"));
+            throw new IllegalArgumentException("trailerField < 0");
         }
         this.mdName = mdName;
         this.mgfName = mgfName;

@@ -22,8 +22,6 @@
 
 package org.apache.harmony.security.asn1;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Represents ASN.1 bit string value
  *
@@ -60,13 +58,11 @@ public final class BitString {
 
         // constraints are set according X.690
         if (unusedBits < 0 || unusedBits > 7) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.13D"));
+            throw new IllegalArgumentException("Number of unused bits MUST be in range 0-7");
         }
 
         if (bytes.length == 0 && unusedBits != 0) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.13E"));
+            throw new IllegalArgumentException("For empty bit string unused bits MUST be 0");
         }
 
         this.bytes = bytes;

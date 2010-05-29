@@ -25,8 +25,6 @@ package org.apache.harmony.security.asn1;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 
 /**
  * This abstract class is the super class for all ASN.1 types
@@ -66,15 +64,14 @@ public abstract class ASN1Type implements ASN1Constants {
      * @throws IllegalArgumentException - if tagClass or tagNumber is invalid
      */
     public ASN1Type(int tagClass, int tagNumber) {
-
         if (tagNumber < 0) {
-            throw new IllegalArgumentException(Messages.getString("security.102"));
+            throw new IllegalArgumentException("tagNumber < 0");
         }
 
         if (tagClass != CLASS_UNIVERSAL && tagClass != CLASS_APPLICATION
                 && tagClass != CLASS_CONTEXTSPECIFIC
                 && tagClass != CLASS_PRIVATE) {
-            throw new IllegalArgumentException(Messages.getString("security.103"));
+            throw new IllegalArgumentException("invalid tagClass");
         }
 
         if (tagNumber < 31) {
@@ -82,8 +79,7 @@ public abstract class ASN1Type implements ASN1Constants {
             this.id = tagClass + tagNumber;
         } else {
             // long form
-            throw new IllegalArgumentException(
-                    Messages.getString("security.104"));
+            throw new IllegalArgumentException("tag long form not implemented");
         }
         this.constrId = this.id + PC_CONSTRUCTED;
     }

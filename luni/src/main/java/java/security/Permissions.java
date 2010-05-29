@@ -30,8 +30,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code Permissions} represents a {@code PermissionCollection} where the
  * contained permissions can be of different types. The permissions are
@@ -69,11 +67,11 @@ public final class Permissions extends PermissionCollection implements
      */
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15"));
+            throw new SecurityException("collection is read-only");
         }
 
         if (permission == null) {
-            throw new NullPointerException(Messages.getString("security.20"));
+            throw new NullPointerException("permission == null");
         }
 
         Class klass = permission.getClass();
@@ -157,14 +155,14 @@ public final class Permissions extends PermissionCollection implements
 
                 return next;
             }
-            throw new NoSuchElementException(Messages.getString("security.17"));
+            throw new NoSuchElementException();
         }
     }
 
     public boolean implies(Permission permission) {
         if (permission == null) {
             // RI compatible
-            throw new NullPointerException(Messages.getString("security.21"));
+            throw new NullPointerException("permission == null");
         }
         if (allEnabled) {
             return true;
@@ -220,14 +218,14 @@ public final class Permissions extends PermissionCollection implements
                 Class key = (Class) entry.getKey();
                 PermissionCollection pc = (PermissionCollection) entry.getValue();
                 if (key != pc.elements().nextElement().getClass()) {
-                    throw new InvalidObjectException(Messages.getString("security.22"));
+                    throw new InvalidObjectException("collection is corrupted");
                 }
                 klasses.put(key, pc);
             }
         }
         allEnabled = fields.get("allPermission", null) != null;
         if (allEnabled && !klasses.containsKey(AllPermission.class)) {
-            throw new InvalidObjectException(Messages.getString("security.23"));
+            throw new InvalidObjectException("all-enabled flag is corrupted");
         }
     }
 

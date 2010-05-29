@@ -22,7 +22,6 @@ import java.security.PublicKey;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.utils.Array;
 import org.apache.harmony.security.x509.NameConstraints;
 
@@ -66,7 +65,7 @@ public class TrustAnchor {
      */
     public TrustAnchor(X509Certificate trustedCert, byte[] nameConstraints) {
         if (trustedCert == null) {
-            throw new NullPointerException(Messages.getString("security.5C"));
+            throw new NullPointerException("trustedCert == null");
         }
         this.trustedCert = trustedCert;
         // copy nameConstraints if not null
@@ -105,11 +104,11 @@ public class TrustAnchor {
     public TrustAnchor(String caName, PublicKey caPublicKey,
             byte[] nameConstraints) {
         if (caName == null) {
-            throw new NullPointerException(Messages.getString("security.5D"));
+            throw new NullPointerException("caName == null");
         }
         this.caName = caName;
         if (caPublicKey == null) {
-            throw new NullPointerException(Messages.getString("security.5E"));
+            throw new NullPointerException("caPublicKey == null");
         }
         this.caPublicKey = caPublicKey;
         // copy nameConstraints if not null
@@ -125,9 +124,8 @@ public class TrustAnchor {
         this.trustedCert = null;
 
         // X500Principal checks caName validity
-        if (caName.length() == 0) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.5F"));
+        if (caName.isEmpty()) {
+            throw new IllegalArgumentException("caName.isEmpty()");
         }
         this.caPrincipal = new X500Principal(this.caName);
     }
@@ -153,11 +151,11 @@ public class TrustAnchor {
     public TrustAnchor(X500Principal caPrincipal,
             PublicKey caPublicKey, byte[] nameConstraints) {
         if (caPrincipal == null) {
-            throw new NullPointerException(Messages.getString("security.60"));
+            throw new NullPointerException("caPrincipal == null");
         }
         this.caPrincipal = caPrincipal;
         if (caPublicKey == null) {
-            throw new NullPointerException(Messages.getString("security.5E"));
+            throw new NullPointerException("caPublicKey == null");
         }
         this.caPublicKey = caPublicKey;
         // copy nameConstraints if not null

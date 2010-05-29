@@ -20,7 +20,6 @@ package java.security;
 import java.security.spec.AlgorithmParameterSpec;
 
 import org.apache.harmony.security.fortress.Engine;
-import org.apache.harmony.security.internal.nls.Messages;
 
 
 /**
@@ -82,7 +81,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     public static KeyPairGenerator getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         KeyPairGenerator result;
         synchronized (engine) {
@@ -113,12 +112,12 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
      * @throws NoSuchProviderException if the specified provider is not available
      * @throws NullPointerException
      *             if {@code algorithm} is {@code null}
+     * @throws IllegalArgumentException if {@code provider == null || provider.isEmpty()}
      */
     public static KeyPairGenerator getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
-        if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.02"));
+        if (provider == null || provider.isEmpty()) {
+            throw new IllegalArgumentException();
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -140,14 +139,15 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
      * @throws NoSuchAlgorithmException if the specified algorithm is not available
      * @throws NullPointerException
      *             if {@code algorithm} is {@code null}
+     * @throws IllegalArgumentException if {@code provider == null}
      */
     public static KeyPairGenerator getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04"));
+            throw new IllegalArgumentException();
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         KeyPairGenerator result;
         synchronized (engine) {

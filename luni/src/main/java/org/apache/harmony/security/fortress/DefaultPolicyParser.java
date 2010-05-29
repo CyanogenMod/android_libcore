@@ -53,8 +53,6 @@ import org.apache.harmony.security.DefaultPolicyScanner.GrantEntry;
 import org.apache.harmony.security.DefaultPolicyScanner.KeystoreEntry;
 import org.apache.harmony.security.DefaultPolicyScanner.PermissionEntry;
 import org.apache.harmony.security.DefaultPolicyScanner.PrincipalEntry;
-import org.apache.harmony.security.internal.nls.Messages;
-
 
 /**
  * This is a basic loader of policy files. It delegates lexical analysis to
@@ -341,8 +339,7 @@ public class DefaultPolicyParser {
                                         pr.name)));
                             }
                             catch (Exception e) {
-                                throw new PolicyUtils.ExpansionFailedException(
-                                        Messages.getString("security.143", pr.name), e);
+                                throw new PolicyUtils.ExpansionFailedException("Error expanding alias: " + pr.name, e);
                             }
                         } else {
                             sb.append(pr.klass).append(" \"").append(pr.name)
@@ -351,21 +348,17 @@ public class DefaultPolicyParser {
                     }
                     return sb.toString();
                 } else {
-                    throw new PolicyUtils.ExpansionFailedException(
-                            Messages.getString("security.144"));
+                    throw new PolicyUtils.ExpansionFailedException("Self protocol is valid only in context of Principal-based grant entries");
                 }
             }
             if ("alias".equals(protocol)) {
                 try {
                     return pc2str(getPrincipalByAlias(ks, data));
-                }
-                catch (Exception e) {
-                    throw new PolicyUtils.ExpansionFailedException(
-                            Messages.getString("security.143", data), e);
+                } catch (Exception e) {
+                    throw new PolicyUtils.ExpansionFailedException("Error expanding alias: " + data, e);
                 }
             }
-            throw new PolicyUtils.ExpansionFailedException(
-                    Messages.getString("security.145", protocol));
+            throw new PolicyUtils.ExpansionFailedException("Unknown expansion protocol: " + protocol);
         }
 
         // Formats a string describing the passed Principal.
@@ -392,8 +385,7 @@ public class DefaultPolicyParser {
     protected Certificate[] resolveSigners(KeyStore ks, String signers)
             throws Exception {
         if (ks == null) {
-            throw new KeyStoreException(Messages.getString("security.146",
-                    signers));
+            throw new KeyStoreException("No KeyStore to resolve signers: " + signers);
         }
 
         Collection<Certificate> certs = new HashSet<Certificate>();
@@ -420,16 +412,15 @@ public class DefaultPolicyParser {
             throws KeyStoreException, CertificateException {
 
         if (ks == null) {
-            throw new KeyStoreException(
-                    Messages.getString("security.147", alias));
+            throw new KeyStoreException("No KeyStore to resolve principal by alias: " + alias);
         }
         //XXX cache found certs ??
         Certificate x509 = ks.getCertificate(alias);
         if (x509 instanceof X509Certificate) {
             return ((X509Certificate) x509).getSubjectX500Principal();
         } else {
-            throw new CertificateException(Messages.getString("security.148",
-                    alias, x509));
+            throw new CertificateException("Invalid certificate for alias '" + alias + "': " +
+                    x509 + ". Only X509Certificate should be aliased to principals.");
         }
     }
 

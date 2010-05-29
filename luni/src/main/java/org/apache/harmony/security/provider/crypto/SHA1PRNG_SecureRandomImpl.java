@@ -21,7 +21,6 @@ package org.apache.harmony.security.provider.crypto;
 import java.security.InvalidParameterException;
 import java.security.SecureRandomSpi;
 
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.provider.crypto.RandomBitsSupplier;
 import org.apache.harmony.security.provider.crypto.SHA1Impl;
 
@@ -206,8 +205,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
     protected void engineSetSeed(byte[] seed) {
 
         if (seed == null) {
-            throw new NullPointerException(
-                    Messages.getString("security.83", "seed"));
+            throw new NullPointerException("seed == null");
         }
 
         if (state == NEXT_BYTES) { // first setSeed after NextBytes; restoring hash
@@ -238,7 +236,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
         byte[] myBytes; // byte[] for bytes returned by "nextBytes()"
 
         if (numBytes < 0) {
-            throw new NegativeArraySizeException(Messages.getString("security.171", numBytes));
+            throw new NegativeArraySizeException(Integer.toString(numBytes));
         }
         if (numBytes == 0) {
             return new byte[0];
@@ -282,8 +280,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements
         final int extrabytes = 7;// # of bytes to add in order to computer # of 8 byte words
 
         if (bytes == null) {
-            throw new NullPointerException(
-                    Messages.getString("security.83", "bytes"));
+            throw new NullPointerException("bytes == null");
         }
 
         lastWord = seed[BYTES_OFFSET] == 0 ? 0

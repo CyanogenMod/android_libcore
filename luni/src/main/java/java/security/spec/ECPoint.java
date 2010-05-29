@@ -19,8 +19,6 @@ package java.security.spec;
 
 import java.math.BigInteger;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * A Point on an Elliptic Curve in barycentric (or affine) coordinates.
  */
@@ -52,11 +50,11 @@ public class ECPoint {
     public ECPoint(BigInteger affineX, BigInteger affineY) {
         this.affineX = affineX;
         if (this.affineX == null) {
-            throw new NullPointerException(Messages.getString("security.83", "X"));
+            throw new NullPointerException("affineX == null");
         }
         this.affineY = affineY;
         if (this.affineY == null) {
-            throw new NullPointerException(Messages.getString("security.83", "Y"));
+            throw new NullPointerException("affineY == null");
         }
     }
 

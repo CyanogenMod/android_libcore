@@ -17,8 +17,6 @@
 
 package java.security.spec;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The parameters specifying an Elliptic Curve (EC) public key.
  */
@@ -44,15 +42,14 @@ public class ECPublicKeySpec implements KeySpec {
         this.params = params;
         // throw NullPointerException if w or params is null
         if (this.w == null) {
-            throw new NullPointerException(Messages.getString("security.83", "w"));
+            throw new NullPointerException("w == null");
         }
         if (this.params == null) {
-            throw new NullPointerException(Messages.getString("security.83", "params"));
+            throw new NullPointerException("params == null");
         }
         // throw IllegalArgumentException if w is point at infinity
         if (this.w.equals(ECPoint.POINT_INFINITY)) {
-            throw new IllegalArgumentException(
-                Messages.getString("security.84"));
+            throw new IllegalArgumentException("the w parameter is point at infinity");
         }
     }
 

@@ -29,8 +29,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Specific {@code PermissionCollection} for storing {@code BasicPermissions} of
  * arbitrary type.
@@ -65,27 +63,24 @@ final class BasicPermissionCollection extends PermissionCollection {
     @Override
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15"));
+            throw new SecurityException("collection is read-only");
         }
         if (permission == null) {
-            throw new IllegalArgumentException(Messages.getString("security.20"));
+            throw new IllegalArgumentException("permission == null");
         }
 
         Class<? extends Permission> inClass = permission.getClass();
         if (permClass != null) {
             if (permClass != inClass) {
-                throw new IllegalArgumentException(Messages.getString("security.16",
-                    permission));
+                throw new IllegalArgumentException("Invalid permission: " + permission);
             }
         } else if( !(permission instanceof BasicPermission)) {
-            throw new IllegalArgumentException(Messages.getString("security.16",
-                permission));
+            throw new IllegalArgumentException("Invalid permission: " + permission);
         } else {
             // this is the first element provided that another thread did not add
             synchronized (this) {
                 if (permClass != null && inClass != permClass) {
-                    throw new IllegalArgumentException(Messages.getString("security.16",
-                        permission));
+                    throw new IllegalArgumentException("Invalid permission: " + permission);
                 }
                 permClass = inClass;
             }
@@ -190,12 +185,12 @@ final class BasicPermissionCollection extends PermissionCollection {
                     "permissions", new Hashtable<String, Permission>()));
             for (Iterator<Permission> iter = items.values().iterator(); iter.hasNext();) {
                 if (iter.next().getClass() != permClass) {
-                    throw new InvalidObjectException(Messages.getString("security.24"));
+                    throw new InvalidObjectException("Inconsistent types of contained permissions");
                 }
             }
             allEnabled = fields.get("all_allowed", false);
             if (allEnabled && !items.containsKey("*")) {
-                throw new InvalidObjectException(Messages.getString("security.25"));
+                throw new InvalidObjectException("Invalid state of wildcard flag");
             }
         }
     }

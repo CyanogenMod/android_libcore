@@ -20,8 +20,6 @@ package java.security.cert;
 
 import java.security.PublicKey;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The result of the PKIX certification path builder, returned by
  * {@link CertPathBuilder#build(CertPathParameters)}.
@@ -53,7 +51,7 @@ public class PKIXCertPathBuilderResult extends PKIXCertPathValidatorResult
         super(trustAnchor, policyTree, subjectPublicKey);
         this.certPath = certPath;
         if (this.certPath == null) {
-            throw new NullPointerException(Messages.getString("security.55"));
+            throw new NullPointerException("certPath == null");
         }
     }
 

@@ -20,7 +20,6 @@ package java.security;
 import java.nio.ByteBuffer;
 
 import org.apache.harmony.security.fortress.Engine;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * {@code MessageDigest} is an engine class which is capable of generating one
@@ -70,7 +69,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     public static MessageDigest getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         MessageDigest result;
         synchronized (engine) {
@@ -102,17 +101,16 @@ public abstract class MessageDigest extends MessageDigestSpi {
      *             if the specified provider is not available
      * @throws NullPointerException
      *             if {@code algorithm} is {@code null}
+     * @throws IllegalArgumentException if {@code provider == null || provider.isEmpty()}
      */
     public static MessageDigest getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
-        if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages
-                    .getString("security.02"));
+        if (provider == null || provider.isEmpty()) {
+            throw new IllegalArgumentException();
         }
         Provider p = Security.getProvider(provider);
         if (p == null) {
-            throw new NoSuchProviderException(Messages.getString(
-                    "security.03", provider));
+            throw new NoSuchProviderException(provider);
         }
         return getInstance(algorithm, p);
     }
@@ -131,15 +129,15 @@ public abstract class MessageDigest extends MessageDigestSpi {
      *             if the specified algorithm is not available
      * @throws NullPointerException
      *             if {@code algorithm} is {@code null}
+     * @throws IllegalArgumentException if {@code provider == null}
      */
     public static MessageDigest getInstance(String algorithm, Provider provider)
             throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages
-                    .getString("security.04"));
+            throw new IllegalArgumentException();
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         MessageDigest result;
         synchronized (engine) {
@@ -194,8 +192,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
                 // checks for negative values are commented out intentionally
                 // see HARMONY-1120 for details
                 (long) offset + (long) len > input.length) {
-            throw new IllegalArgumentException(Messages
-                    .getString("security.05"));
+            throw new IllegalArgumentException();
         }
         engineUpdate(input, offset, len);
     }
@@ -210,7 +207,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      */
     public void update(byte[] input) {
         if (input == null) {
-            throw new NullPointerException(Messages.getString("security.06"));
+            throw new NullPointerException();
         }
         engineUpdate(input, 0, input.length);
     }
@@ -250,8 +247,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
                 // checks for negative values are commented out intentionally
                 // see HARMONY-1148 for details
                 (long) offset + (long) len > buf.length) {
-            throw new IllegalArgumentException(Messages
-                    .getString("security.05"));
+            throw new IllegalArgumentException();
         }
         return engineDigest(buf, offset, len);
     }

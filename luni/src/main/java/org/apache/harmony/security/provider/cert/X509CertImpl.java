@@ -45,7 +45,6 @@ import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.utils.AlgNameMapper;
 import org.apache.harmony.security.x509.Certificate;
 import org.apache.harmony.security.x509.Extension;
@@ -525,7 +524,7 @@ public class X509CertImpl extends X509Certificate {
         // compute and verify the signature
         signature.update(tbsCertificate, 0, tbsCertificate.length);
         if (!signature.verify(certificate.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C"));
+            throw new SignatureException("Signature was not verified");
         }
     }
 
@@ -556,7 +555,7 @@ public class X509CertImpl extends X509Certificate {
         // compute and verify the signature
         signature.update(tbsCertificate, 0, tbsCertificate.length);
         if (!signature.verify(certificate.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C"));
+            throw new SignatureException("Signature was not verified");
         }
     }
 
@@ -574,7 +573,7 @@ public class X509CertImpl extends X509Certificate {
     private void fastVerify(PublicKey key) throws SignatureException,
             InvalidKeyException, NoSuchAlgorithmException {
         if (!(key instanceof RSAPublicKey)) {
-            throw new InvalidKeyException(Messages.getString("security.15C1"));
+            throw new InvalidKeyException("key is not an instance of RSAPublicKey");
         }
         RSAPublicKey rsaKey = (RSAPublicKey) key;
 
@@ -598,7 +597,7 @@ public class X509CertImpl extends X509Certificate {
 
         byte[] sig = certificate.getSignatureValue();
         if (!NativeCrypto.verifySignature(tbsCertificate, sig, algorithm, rsaKey)) {
-            throw new SignatureException(Messages.getString("security.15C"));
+            throw new SignatureException("Signature was not verified");
         }
     }
     // END android-added
@@ -657,4 +656,3 @@ public class X509CertImpl extends X509Certificate {
     }
 
 }
-

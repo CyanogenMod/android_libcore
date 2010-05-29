@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.harmony.security.asn1.ASN1SequenceOf;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * The class encapsulates the ASN.1 DER encoding/decoding work
@@ -59,8 +58,7 @@ public class InfoAccessSyntax extends ExtensionValue {
     private InfoAccessSyntax(List accessDescriptions, byte[] encoding)
             throws IOException {
         if (accessDescriptions == null || accessDescriptions.isEmpty()) {
-            // "AccessDescriptions list is null or empty"
-            throw new IOException(Messages.getString("security.1A3"));
+            throw new IOException("AccessDescriptions list is null or empty");
         }
         this.accessDescriptions = accessDescriptions;
         this.encoding = encoding;
@@ -132,4 +130,3 @@ public class InfoAccessSyntax extends ExtensionValue {
     };
 
 }
-

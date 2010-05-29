@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.x501.AttributeTypeAndValue;
 import org.apache.harmony.security.x501.AttributeValue;
 
@@ -97,8 +96,7 @@ public class DNParser {
         }
         if (pos >= length) {
             // unexpected end of DN
-            throw new IOException(
-                    Messages.getString("security.192"));
+            throw new IOException("Invalid distinguished name string");
         }
 
         // mark the end of attribute type
@@ -112,8 +110,7 @@ public class DNParser {
 
             if (chars[pos] != '=' || pos == length) {
                 // unexpected end of DN
-                throw new IOException(
-                        Messages.getString("security.192"));
+                throw new IOException("Invalid distinguished name string");
             }
         }
 
@@ -146,8 +143,7 @@ public class DNParser {
 
             if (pos == length) {
                 // unexpected end of DN
-                throw new IOException(
-                        Messages.getString("security.192"));
+                throw new IOException("Invalid distinguished name string");
             }
 
             if (chars[pos] == '"') {
@@ -177,8 +173,7 @@ public class DNParser {
 
         if (pos + 4 >= length) {
             // encoded byte array  must be not less then 4 c
-            throw new IOException(
-                    Messages.getString("security.192"));
+            throw new IOException("Invalid distinguished name string");
         }
 
         beg = pos; // store '#' position
@@ -212,8 +207,7 @@ public class DNParser {
         // encoded byte array  must be not less then 4 and must be even number
         int hexLen = end - beg; // skip first '#' char
         if (hexLen < 5 || (hexLen & 1) == 0) {
-            throw new IOException(
-                    Messages.getString("security.192"));
+            throw new IOException("Invalid distinguished name string");
         }
 
         // get byte encoding from string representation
@@ -277,8 +271,7 @@ public class DNParser {
 
         pos++;
         if (pos == length) {
-            throw new IOException(
-                    Messages.getString("security.192"));
+            throw new IOException("Invalid distinguished name string");
         }
 
         switch (chars[pos]) {
@@ -360,8 +353,7 @@ public class DNParser {
 
         if ((position + 1) >= length) {
             // to avoid ArrayIndexOutOfBoundsException
-            throw new IOException(
-                    Messages.getString("security.192"));
+            throw new IOException("Invalid distinguished name string");
         }
 
         int b1, b2;
@@ -374,8 +366,7 @@ public class DNParser {
         } else if (b1 >= 'A' && b1 <= 'F') {
             b1 = b1 - 55; // 55 = 'A' - 10
         } else {
-            throw new IOException(
-                    Messages.getString("security.192"));
+            throw new IOException("Invalid distinguished name string");
         }
 
         b2 = chars[position + 1];
@@ -386,8 +377,7 @@ public class DNParser {
         } else if (b2 >= 'A' && b2 <= 'F') {
             b2 = b2 - 55; // 55 = 'A' - 10
         } else {
-            throw new IOException(
-                    Messages.getString("security.192"));
+            throw new IOException("Invalid distinguished name string");
         }
 
         return (b1 << 4) + b2;
@@ -456,15 +446,13 @@ public class DNParser {
                 list.add(0, atav);
                 atav = new ArrayList();
             } else if (chars[pos] != '+') {
-                throw new IOException(
-                        Messages.getString("security.192"));
+                throw new IOException("Invalid distinguished name string");
             }
 
             pos++;
             attType = nextAT();
             if (attType == null) {
-                throw new IOException(
-                        Messages.getString("security.192"));
+                throw new IOException("Invalid distinguished name string");
             }
         }
     }

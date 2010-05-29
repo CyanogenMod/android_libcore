@@ -28,8 +28,6 @@ import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code KeyRep} is a standardized representation for serialized {@link Key}
  * objects.
@@ -64,23 +62,22 @@ public class KeyRep implements Serializable {
      *             if {@code type, algorithm, format or encoded} is {@code null}
      *             .
      */
-    public KeyRep(Type type,
-            String algorithm, String format, byte[] encoded) {
+    public KeyRep(Type type, String algorithm, String format, byte[] encoded) {
         this.type = type;
         this.algorithm = algorithm;
         this.format = format;
         this.encoded = encoded;
         if(this.type == null) {
-            throw new NullPointerException(Messages.getString("security.07"));
+            throw new NullPointerException("type == null");
         }
         if(this.algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.08"));
+            throw new NullPointerException("algorithm == null");
         }
         if(this.format == null) {
-            throw new NullPointerException(Messages.getString("security.09"));
+            throw new NullPointerException("format == null");
         }
         if(this.encoded == null) {
-            throw new NullPointerException(Messages.getString("security.0A"));
+            throw new NullPointerException("encoded == null");
         }
     }
 
@@ -112,46 +109,38 @@ public class KeyRep implements Serializable {
                 try {
                     return new SecretKeySpec(encoded, algorithm);
                 } catch (IllegalArgumentException e) {
-                    throw new NotSerializableException(
-                            Messages.getString("security.0B", e));
+                    throw new NotSerializableException("Could not create SecretKeySpec: " + e);
                 }
             }
-            throw new NotSerializableException(
-                Messages.getString("security.0C", type, format));
+            throw new NotSerializableException("unrecognized type/format combination: " + type + "/" + format);
         case PUBLIC:
             if ("X.509".equals(format)) {
                 try {
                     KeyFactory kf = KeyFactory.getInstance(algorithm);
                     return kf.generatePublic(new X509EncodedKeySpec(encoded));
                 } catch (NoSuchAlgorithmException e) {
-                    throw new NotSerializableException(
-                            Messages.getString("security.0D", e));
+                    throw new NotSerializableException("Could not resolve key: " + e);
                 }
                 catch (InvalidKeySpecException e) {
-                    throw new NotSerializableException(
-                            Messages.getString("security.0D", e));
+                    throw new NotSerializableException("Could not resolve key: " + e);
                 }
             }
-            throw new NotSerializableException(
-                Messages.getString("security.0C", type, format));
+            throw new NotSerializableException("unrecognized type/format combination: " + type + "/" + format);
         case PRIVATE:
             if ("PKCS#8".equals(format)) {
                 try {
                     KeyFactory kf = KeyFactory.getInstance(algorithm);
                     return kf.generatePrivate(new PKCS8EncodedKeySpec(encoded));
                 } catch (NoSuchAlgorithmException e) {
-                    throw new NotSerializableException(
-                            Messages.getString("security.0D", e));
+                    throw new NotSerializableException("Could not resolve key: " + e);
                 }
                 catch (InvalidKeySpecException e) {
-                    throw new NotSerializableException(
-                            Messages.getString("security.0D", e));
+                    throw new NotSerializableException("Could not resolve key: " + e);
                 }
             }
-            throw new NotSerializableException(
-                Messages.getString("security.0C", type, format));
+            throw new NotSerializableException("unrecognized type/format combination: " + type + "/" + format);
         }
-        throw new NotSerializableException(Messages.getString("security.0E", type));
+        throw new NotSerializableException("unrecognized key type: " + type);
     }
 
     // Makes defensive copy of key encoding

@@ -19,8 +19,6 @@ package java.security.spec;
 
 import java.math.BigInteger;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The additional prime information specified as triplet of primes, a prime
  * exponent, and a Chinese Remainder Theorem (CRT) coefficient.
@@ -51,13 +49,13 @@ public class RSAOtherPrimeInfo {
     public RSAOtherPrimeInfo(BigInteger prime,
             BigInteger primeExponent, BigInteger crtCoefficient) {
         if (prime == null) {
-            throw new NullPointerException(Messages.getString("security.83", "prime"));
+            throw new NullPointerException("prime == null");
         }
         if (primeExponent == null) {
-            throw new NullPointerException(Messages.getString("security.83", "primeExponent"));
+            throw new NullPointerException("primeExponent == null");
         }
         if (crtCoefficient == null) {
-            throw new NullPointerException(Messages.getString("security.83", "crtCoefficient"));
+            throw new NullPointerException("crtCoefficient == null");
         }
         this.prime = prime;
         this.primeExponent = primeExponent;

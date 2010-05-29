@@ -34,8 +34,6 @@ import java.util.Date;
 import java.util.Set;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Abstract base class for X.509 certificate revocation lists (CRL).
  * <p>
@@ -185,7 +183,7 @@ public abstract class X509CRL extends CRL implements X509Extension {
             return crl.getIssuerX500Principal();
 
         } catch (Exception e) {
-            throw new RuntimeException(Messages.getString("security.59"), e);
+            throw new RuntimeException("Failed to get X500Principal issuer", e);
         }
     }
 
@@ -276,4 +274,3 @@ public abstract class X509CRL extends CRL implements X509Extension {
      */
     public abstract byte[] getSigAlgParams();
 }
-

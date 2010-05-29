@@ -23,8 +23,6 @@ package org.apache.harmony.security.utils;
 
 import java.util.Arrays;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Instance of this class represents ObjectIdentifier (OID).
  *
@@ -88,7 +86,7 @@ public final class ObjectIdentifier {
         this(oid);
 
         if (oidGroup == null) {
-            throw new NullPointerException(Messages.getString("security.172"));
+            throw new NullPointerException("oidGroup == null");
         }
         this.group = oidGroup;
 
@@ -190,20 +188,17 @@ public final class ObjectIdentifier {
     public static void validateOid(int[] oid) {
 
         if (oid == null) {
-            throw new NullPointerException(Messages.getString("security.98"));
+            throw new NullPointerException("oid == null");
         }
 
         if (oid.length < 2) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.99"));
+            throw new IllegalArgumentException("OID MUST have at least 2 subidentifiers");
         }
 
         if (oid[0] > 2) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.9A"));
+            throw new IllegalArgumentException("Valid values for first subidentifier are 0, 1 and 2");
         } else if (oid[0] != 2 && oid[1] > 39) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.9B"));
+            throw new IllegalArgumentException("If the first subidentifier has 0 or 1 value the second subidentifier value MUST be less than 40");
         }
     }
 

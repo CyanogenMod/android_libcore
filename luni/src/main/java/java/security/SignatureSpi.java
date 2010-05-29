@@ -20,8 +20,6 @@ package java.security;
 import java.nio.ByteBuffer;
 import java.security.spec.AlgorithmParameterSpec;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code SignatureSpi} is the <i>Service Provider Interface</i> (<b>SPI</b>)
  * definition for {@link Signature}.
@@ -189,13 +187,13 @@ public abstract class SignatureSpi {
             return 0;
         }
         if (len < tmp.length) {
-            throw new SignatureException(Messages.getString("security.2D"));
+            throw new SignatureException("The value of len parameter is less than the actual signature length");
         }
         if (offset < 0) {
-            throw new SignatureException(Messages.getString("security.1C"));
+            throw new SignatureException("offset < 0");
         }
         if (offset + len > outbuf.length) {
-            throw new SignatureException(Messages.getString("security.05"));
+            throw new SignatureException("offset + len > outbuf.length");
         }
         System.arraycopy(tmp, 0, outbuf, offset, tmp.length);
         return tmp.length;

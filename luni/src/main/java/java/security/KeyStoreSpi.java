@@ -28,8 +28,6 @@ import javax.crypto.SecretKey;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.PasswordCallback;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code KeyStoreSpi} is the Service Provider Interface (SPI) definition for
  * {@link KeyStore}.
@@ -255,7 +253,7 @@ public abstract class KeyStoreSpi {
      */
     public void engineStore(KeyStore.LoadStoreParameter param)
             throws IOException, NoSuchAlgorithmException, CertificateException {
-        throw new UnsupportedOperationException(Messages.getString("security.33"));
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -322,8 +320,7 @@ public abstract class KeyStoreSpi {
                 throw new IllegalArgumentException(e);
             }
         }
-        throw new UnsupportedOperationException(
-                Messages.getString("security.35"));
+        throw new UnsupportedOperationException("protectionParameter is neither PasswordProtection nor CallbackHandlerProtection instance");
     }
 
     /**
@@ -361,14 +358,13 @@ public abstract class KeyStoreSpi {
                     passW = ((KeyStore.PasswordProtection) protParam)
                             .getPassword();
                 } catch (IllegalStateException ee) {
-                    throw new KeyStoreException(Messages.getString("security.36"), ee);
+                    throw new KeyStoreException("Password was destroyed", ee);
                 }
             } else if (protParam instanceof KeyStore.CallbackHandlerProtection) {
                 passW = getPasswordFromCallBack(protParam);
             } else {
-                throw new UnrecoverableEntryException(
-                        Messages.getString("security.37",
-                                protParam.toString()));
+                throw new UnrecoverableEntryException("ProtectionParameter object is not " +
+                        "PasswordProtection: " + protParam);
             }
         }
         if (engineIsKeyEntry(alias)) {
@@ -385,7 +381,7 @@ public abstract class KeyStoreSpi {
                 throw new KeyStoreException(e);
             }
         }
-        throw new NoSuchAlgorithmException(Messages.getString("security.38"));
+        throw new NoSuchAlgorithmException("Unknown KeyStore.Entry object");
     }
 
     /**
@@ -407,7 +403,7 @@ public abstract class KeyStoreSpi {
     public void engineSetEntry(String alias, KeyStore.Entry entry,
             KeyStore.ProtectionParameter protParam) throws KeyStoreException {
         if (entry == null) {
-            throw new KeyStoreException(Messages.getString("security.39"));
+            throw new KeyStoreException("entry == null");
         }
 
         if (engineContainsAlias(alias)) {
@@ -425,7 +421,7 @@ public abstract class KeyStoreSpi {
             try {
                 passW = ((KeyStore.PasswordProtection) protParam).getPassword();
             } catch (IllegalStateException ee) {
-                throw new KeyStoreException(Messages.getString("security.36"), ee);
+                throw new KeyStoreException("Password was destroyed", ee);
             }
         } else {
             if (protParam instanceof KeyStore.CallbackHandlerProtection) {
@@ -435,8 +431,7 @@ public abstract class KeyStoreSpi {
                     throw new KeyStoreException(e);
                 }
             } else {
-                throw new KeyStoreException(
-                        Messages.getString("security.3A"));
+                throw new KeyStoreException("protParam should be PasswordProtection or CallbackHandlerProtection");
             }
         }
 
@@ -454,8 +449,8 @@ public abstract class KeyStoreSpi {
             return;
         }
 
-        throw new KeyStoreException(
-                Messages.getString("security.3B", entry.toString()));
+        throw new KeyStoreException("Entry object is neither PrivateKeyObject nor SecretKeyEntry " +
+                "nor TrustedCertificateEntry: " + entry);
     }
 
     /**
@@ -511,15 +506,12 @@ public abstract class KeyStoreSpi {
         }
 
         if (!(protParam instanceof KeyStore.CallbackHandlerProtection)) {
-            throw new UnrecoverableEntryException(
-                    Messages.getString("security.3C"));
+            throw new UnrecoverableEntryException("Incorrect ProtectionParameter");
         }
 
-        String clName = Security
-                .getProperty("auth.login.defaultCallbackHandler");
+        String clName = Security.getProperty("auth.login.defaultCallbackHandler");
         if (clName == null) {
-            throw new UnrecoverableEntryException(
-                    Messages.getString("security.3D"));
+            throw new UnrecoverableEntryException("Default CallbackHandler was not defined");
 
         }
 

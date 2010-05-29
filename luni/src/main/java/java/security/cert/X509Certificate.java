@@ -26,8 +26,6 @@ import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Abstract base class for X.509 certificates.
  * <p>
@@ -194,7 +192,7 @@ public abstract class X509Certificate
             return cert.getIssuerX500Principal();
 
         } catch (Exception e) {
-            throw new RuntimeException(Messages.getString("security.59"), e);
+            throw new RuntimeException("Failed to get X500Principal issuer", e);
         }
     }
 
@@ -248,9 +246,8 @@ public abstract class X509Certificate
                     .generateCertificate(new ByteArrayInputStream(getEncoded()));
 
             return cert.getSubjectX500Principal();
-
         } catch (Exception e) {
-            throw new RuntimeException(Messages.getString("security.5A"), e);
+            throw new RuntimeException("Failed to get X500Principal subject", e);
         }
     }
 
@@ -442,4 +439,3 @@ public abstract class X509Certificate
         return null;
     }
 }
-

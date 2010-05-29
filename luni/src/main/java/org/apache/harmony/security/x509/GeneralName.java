@@ -40,7 +40,6 @@ import org.apache.harmony.security.asn1.ASN1StringType;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.ObjectIdentifier;
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.x501.Name;
 
 /**
@@ -147,14 +146,14 @@ public class GeneralName {
      */
     public GeneralName(int tag, String name) throws IOException {
         if (name == null) {
-            throw new IOException(Messages.getString("security.28"));
+            throw new IOException("name == null");
         }
         this.tag = tag;
         switch (tag) {
             case OTHER_NAME :
             case X400_ADDR :
             case EDIP_NAME :
-                throw new IOException( Messages.getString("security.180", tag ));
+                throw new IOException("Unknown string representation for type [" + tag + "]");
             case DNS_NAME :
                 // according to RFC 3280 p.34 the DNS name should be
                 // checked against the
@@ -181,7 +180,7 @@ public class GeneralName {
                 this.name = ipStrToBytes(name);
                 break;
             default:
-                throw new IOException(Messages.getString("security.181", tag));
+                throw new IOException("Unknown type: [" + tag + "]");
         }
     }
 
@@ -233,8 +232,7 @@ public class GeneralName {
     public GeneralName(byte[] name) throws IllegalArgumentException {
         int length = name.length;
         if (length != 4 && length != 8 && length != 16 && length != 32) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.182"));
+            throw new IllegalArgumentException("name.length invalid");
         }
         this.tag = IP_ADDR;
         this.name = new byte[name.length];
@@ -247,13 +245,12 @@ public class GeneralName {
      * to the name type (0-8),
      * @param name is a DER encoded for of the name value
      */
-    public GeneralName(int tag, byte[] name)
-                                    throws IOException {
+    public GeneralName(int tag, byte[] name) throws IOException {
         if (name == null) {
-            throw new NullPointerException(Messages.getString("security.28"));
+            throw new NullPointerException("name == null");
         }
         if ((tag < 0) || (tag > 8)) {
-            throw new IOException(Messages.getString("security.183", tag));
+            throw new IOException("GeneralName: unknown tag: " + tag);
         }
         this.tag = tag;
         this.name_encoding = new byte[name.length];
@@ -595,22 +592,20 @@ public class GeneralName {
                     continue;
                 }
                 if ((ch > 'z' || ch < 'a') && (ch < '0' || ch > '9')) {
-                    throw new IOException(Messages.getString("security.184",
-                            (char)ch, dns));
+                    throw new IOException("DNS name must start with a letter: " + dns);
                 }
                 first_letter = false;
                 continue;
             }
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')
                     || (ch == '-') || (ch == '.'))) {
-                throw new IOException(Messages.getString("security.185", dns));
+                throw new IOException("Incorrect DNS name: " + dns);
             }
             if (ch == '.') {
                 // check the end of the previous label, it should not
                 // be '-' sign
                 if (bytes[i-1] == '-') {
-                    throw new IOException(
-                            Messages.getString("security.186", dns));
+                    throw new IOException("Incorrect DNS name: label ends with '-': " + dns);
                 }
                 first_letter = true;
             }
@@ -624,16 +619,14 @@ public class GeneralName {
     public static void checkURI(String uri) throws IOException {
         try {
             URI ur = new URI(uri);
-            if ((ur.getScheme() == null)
-                    || (ur.getRawSchemeSpecificPart().length() == 0)) {
-                throw new IOException(Messages.getString("security.187", uri));
+            if (ur.getScheme() == null || ur.getRawSchemeSpecificPart().isEmpty()) {
+                throw new IOException("No scheme or scheme-specific-part in uniformResourceIdentifier: " + uri);
             }
             if (!ur.isAbsolute()) {
-                throw new IOException(Messages.getString("security.188", uri));
+                throw new IOException("Relative uniformResourceIdentifier: " + uri);
             }
         } catch (URISyntaxException e) {
-            throw (IOException) new IOException(
-                    Messages.getString("security.189", uri)).initCause(e);
+            throw (IOException) new IOException("Bad representation of uniformResourceIdentifier: " + uri).initCause(e);
 
         }
     }
@@ -644,7 +637,7 @@ public class GeneralName {
     public static int[] oidStrToInts(String oid) throws IOException {
         byte[] bytes = oid.getBytes("UTF-8");
         if (bytes[bytes.length-1] == '.') {
-            throw new IOException(Messages.getString("security.56", oid));
+            throw new IOException("Bad OID: " + oid);
         }
         int[] result = new int[bytes.length/2+1]; // best case: a.b.c.d.e
         int number = 0; // the number of OID's components
@@ -657,18 +650,18 @@ public class GeneralName {
             }
             if (i == pos) {
                 // the number was not read
-                throw new IOException(Messages.getString("security.56", oid));
+                throw new IOException("Bad OID: " + oid);
             }
             result[number++] = value;
             if (i >= bytes.length) {
                 break;
             }
             if (bytes[i] != '.') {
-                throw new IOException(Messages.getString("security.56", oid));
+                throw new IOException("Bad OID: " + oid);
             }
         }
         if (number < 2) {
-            throw new IOException(Messages.getString("security.18A", oid));
+            throw new IOException("OID should consist of no less than 2 components: " + oid);
         }
         int[] res = new int[number];
         for (int i=0; i<number; i++) {
@@ -711,18 +704,17 @@ public class GeneralName {
                 int digits = 0;
                 // the value of the address component
                 int value = 0;
-                while ((i < ip_bytes.length) && (ip_bytes[i] >= '0')
-                        && (ip_bytes[i] <= '9')) {
+                while ((i < ip_bytes.length) && (ip_bytes[i] >= '0') && (ip_bytes[i] <= '9')) {
                     digits++;
                     if (digits > 3) {
-                        throw new IOException(Messages.getString("security.18B", ip));
+                        throw new IOException("Component of IPv4 address should consist of no more than 3 decimal digits: " + ip);
                     }
                     value = 10 * value + (ip_bytes[i] - 48);
                     i++;
                 }
                 if (digits == 0) {
                     // ip_bytes[i] is not a number
-                    throw new IOException(Messages.getString("security.18C", ip));
+                    throw badIp(4, ip);
                 }
                 result[component] = (byte) value;
                 component++;
@@ -732,28 +724,28 @@ public class GeneralName {
                 }
                 // check the reached delimiter
                 if ((ip_bytes[i] != '.' && ip_bytes[i] != '/')) {
-                    throw new IOException(Messages.getString("security.18C", ip));
+                    throw badIp(4, ip);
                 }
                 // check the correctness of the range
                 if (ip_bytes[i] == '/') {
                     if (reading_second_bound) {
                         // more than 2 bounds in the range
-                        throw new IOException(Messages.getString("security.18C", ip));
+                        throw badIp(4, ip);
                     }
                     if (component != 4) {
-                        throw new IOException(Messages.getString("security.18D", ip));
+                        throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
                     }
                     reading_second_bound = true;
                 }
                 // check the number of the components
                 if (component > ((reading_second_bound) ? 7 : 3)) {
-                    throw new IOException(Messages.getString("security.18D", ip));
+                    throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
                 }
                 i++;
             }
             // check the number of read components
             if (component != num_components) {
-                throw new IOException(Messages.getString("security.18D", ip));
+                throw new IOException("IPv4 address should consist of 4 decimal numbers: " + ip);
             }
         } else {
             // IPv6 address is expected in the form of
@@ -763,7 +755,7 @@ public class GeneralName {
             // 010a:020b:3337:1000:FFFA:ABCD:9999:0000/010a:020b:3337:1000:FFFA:ABCD:9999:1111
             if (ip_bytes.length != 39 && ip_bytes.length != 79) {
                 // incorrect length of the string representation
-                throw new IOException(Messages.getString("security.18E", ip));
+                throw badIp(6, ip);
             }
             int value = 0;
             // indicates the reading of the second half of byte
@@ -781,32 +773,31 @@ public class GeneralName {
                 } else if (second_hex) {
                     // second hex value of a byte is expected but was not read
                     // (it is the situation like: ...ABCD:A:ABCD...)
-                    throw new IOException(Messages.getString("security.18E", ip));
+                    throw badIp(6, ip);
                 } else if ((bytik == ':') || (bytik == '/')) {
                     if (component % 2 == 1) {
                         // second byte of the component is omitted
                         // (it is the situation like: ... ABDC:AB:ABCD ...)
-                        throw new IOException(Messages.getString("security.18E", ip));
+                        throw badIp(6, ip);
                     }
                     if (bytik == '/') {
                         if (reading_second_bound) {
                             // more than 2 bounds in the range
-                            throw new IOException(
-                                    Messages.getString("security.18E", ip));
+                            throw badIp(6, ip);
                         }
                         if (component != 16) {
                             // check the number of read components
-                            throw new IOException(Messages.getString("security.18F", ip));
+                            throw new IOException("IPv6 address should consist of 8 hexadecimal numbers: " + ip);
                         }
                         reading_second_bound = true;
                     }
                     expect_delimiter = false;
                     continue;
                 } else {
-                    throw new IOException(Messages.getString("security.18E", ip));
+                    throw badIp(6, ip);
                 }
                 if (expect_delimiter) { // delimiter is expected but was not read
-                    throw new IOException(Messages.getString("security.18E", ip));
+                    throw badIp(6, ip);
                 }
                 if (!second_hex) {
                     // first half of byte has been read
@@ -824,12 +815,15 @@ public class GeneralName {
             }
             // check the correctness of the read address:
             if (second_hex || (component % 2 == 1)) {
-                throw new IOException(Messages.getString("security.18E", ip));
+                throw badIp(6, ip);
             }
         }
         return result;
     }
 
+    private static IOException badIp(int v, String ip) throws IOException {
+        throw new IOException("Incorrect IPv" + v + " representation: " + ip);
+    }
 
     /**
      * Helper method. Converts the byte array representation of ip address
@@ -906,8 +900,7 @@ public class GeneralName {
                 case UR_ID: // uniformResourceIdentifier
                     String uri = (String) in.content;
                     if (uri.indexOf(":") == -1) {
-                        throw new IOException(
-                            Messages.getString("security.190", uri));
+                        throw new IOException("GeneralName: scheme is missing in URI: " + uri);
                     }
                     result = new GeneralName(in.choiceIndex, uri);
                     break;
@@ -919,7 +912,7 @@ public class GeneralName {
                             ObjectIdentifier.toString((int[]) in.content));
                     break;
                 default:
-                    throw new IOException(Messages.getString("security.191", in.choiceIndex));
+                    throw new IOException("GeneralName: unknown tag: " + in.choiceIndex);
             }
             result.encoding = in.getEncoded();
             return result;
