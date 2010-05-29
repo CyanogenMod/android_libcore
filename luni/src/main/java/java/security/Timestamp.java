@@ -21,8 +21,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.security.cert.CertPath;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code Timestamp} represents a signed time stamp. {@code Timestamp} is
  * immutable.
@@ -52,10 +50,10 @@ public final class Timestamp implements Serializable {
      */
     public Timestamp(Date timestamp, CertPath signerCertPath) {
         if (timestamp == null) {
-            throw new NullPointerException(Messages.getString("security.0F"));
+            throw new NullPointerException("timestamp == null");
         }
         if (signerCertPath == null) {
-            throw new NullPointerException(Messages.getString("security.10"));
+            throw new NullPointerException("signerCertPath == null");
         }
         // Clone timestamp to prevent modifications
         this.timestamp = new Date(timestamp.getTime());

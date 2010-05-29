@@ -29,7 +29,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 
 import org.apache.harmony.security.fortress.PolicyUtils;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * An {@code UnresolvedPermission} represents a {@code Permission} whose type
@@ -92,7 +91,7 @@ public final class UnresolvedPermission extends Permission
     // Check type parameter
     private final void checkType(String type) {
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.2F"));
+            throw new NullPointerException("type == null");
         }
 
         // type is the class name of the Permission class.
@@ -382,9 +381,7 @@ public final class UnresolvedPermission extends Permission
                     out.writeInt(enc.length);
                     out.write(enc);
                 } catch (CertificateEncodingException cee) {
-                    throw ((IOException)new NotSerializableException(
-                        Messages.getString("security.30",
-                        targetCerts[i])).initCause(cee));
+                    throw (IOException) new NotSerializableException("Cannot encode certificate: " + targetCerts[i]).initCause(cee);
                 }
             }
         }
@@ -409,8 +406,7 @@ public final class UnresolvedPermission extends Permission
                     targetCerts[i] = CertificateFactory.getInstance(type)
                         .generateCertificate(new ByteArrayInputStream(enc));
                 } catch (CertificateException cee) {
-                    throw ((IOException)new IOException(
-                        Messages.getString("security.32")).initCause(cee));
+                    throw (IOException) new IOException("Error decoding certificate").initCause(cee);
                 }
             }
         }

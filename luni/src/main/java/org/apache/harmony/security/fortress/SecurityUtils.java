@@ -25,8 +25,6 @@ package org.apache.harmony.security.fortress;
 import java.security.AccessControlContext;
 import java.util.WeakHashMap;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 //FIXME: move this class under umbrella of protected packages -
 // see lib/java.security: property 'package.access',
 // so only trusted classes like Thread and AccessController will
@@ -73,16 +71,16 @@ public final class SecurityUtils {
     public static void putContext(Thread thread, AccessControlContext context)
             throws SecurityException {
         if (thread == null) {
-            throw new NullPointerException(Messages.getString("security.140"));
+            throw new NullPointerException();
         }
         synchronized (ACC_CACHE) {
             if (ACC_CACHE.containsKey(thread)) {
-                throw new SecurityException(Messages.getString("security.141"));
+                throw new SecurityException("You can not modify this map");
             }
             if (context == null) {
                 // this only allowed once - for the very first thread.
                 if (ACC_CACHE.containsValue(null)) {
-                    throw new Error(Messages.getString("security.142"));
+                    throw new Error("null context may be stored only once");
                 }
             }
             ACC_CACHE.put(thread, context);

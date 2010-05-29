@@ -29,7 +29,6 @@ import org.apache.harmony.security.asn1.ASN1Implicit;
 import org.apache.harmony.security.asn1.ASN1Sequence;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * The class encapsulates the ASN.1 DER encoding/decoding work
@@ -80,10 +79,8 @@ public class DistributionPoint {
 
     public DistributionPoint(DistributionPointName distributionPoint,
             ReasonFlags reasons, GeneralNames cRLIssuer) {
-        if ((reasons != null) && (distributionPoint == null)
-                && (cRLIssuer == null)) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.17F"));
+        if ((reasons != null) && (distributionPoint == null) && (cRLIssuer == null)) {
+            throw new IllegalArgumentException("DistributionPoint MUST NOT consist of only the reasons field");
         }
         this.distributionPoint = distributionPoint;
         this.reasons = reasons;
@@ -142,4 +139,3 @@ public class DistributionPoint {
         }
     };
 }
-

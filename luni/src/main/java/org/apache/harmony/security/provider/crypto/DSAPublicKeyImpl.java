@@ -47,8 +47,6 @@ import org.apache.harmony.security.x509.SubjectPublicKeyInfo;
 
 import org.apache.harmony.security.asn1.ASN1Integer;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 import org.apache.harmony.security.PublicKeyImpl;
 
 /**
@@ -122,16 +120,14 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
             subjectPublicKeyInfo = (SubjectPublicKeyInfo) SubjectPublicKeyInfo.ASN1
                     .decode(encoding);
         } catch (IOException e) {
-            throw new InvalidKeySpecException(Messages.getString(
-                    "security.19A", e));
+            throw new InvalidKeySpecException("Failed to decode keySpec encoding: " + e);
         }
 
         try {
             y = new BigInteger((byte[]) ASN1Integer.getInstance().decode(
                     subjectPublicKeyInfo.getSubjectPublicKey()));
         } catch (IOException e) {
-            throw new InvalidKeySpecException(Messages.getString(
-                    "security.19B", e));
+            throw new InvalidKeySpecException("Failed to decode parameters: " + e);
         }
 
         ai = subjectPublicKeyInfo.getAlgorithmIdentifier();
@@ -140,8 +136,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
             threeInts = (ThreeIntegerSequence) ThreeIntegerSequence.ASN1
                     .decode(ai.getParameters());
         } catch (IOException e) {
-            throw new InvalidKeySpecException(Messages.getString(
-                    "security.19B", e));
+            throw new InvalidKeySpecException("Failed to decode parameters: " + e);
         }
         p = new BigInteger(threeInts.p);
         q = new BigInteger(threeInts.q);
@@ -176,7 +171,7 @@ public class DSAPublicKeyImpl extends PublicKeyImpl implements DSAPublicKey {
 
     private void readObject(java.io.ObjectInputStream in) throws NotActiveException, IOException, ClassNotFoundException {
     	in.defaultReadObject();
-    	params = new DSAParameterSpec(p, q, g);    	
+    	params = new DSAParameterSpec(p, q, g);
     }
 
 }

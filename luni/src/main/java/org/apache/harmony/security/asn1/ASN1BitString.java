@@ -24,8 +24,6 @@ package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * This class represents ASN.1 Bitstring type.
  *
@@ -163,8 +161,7 @@ public class ASN1BitString extends ASN1StringType {
                 }
             } else {
                 if (bitsNumber > maxBits) {
-                    throw new ASN1Exception(
-                            Messages.getString("security.97")); //FIXME message
+                    throw new ASN1Exception("ASN.1 Named Bitstring: size constraints");
                 }
                 value = new boolean[maxBits];
             }

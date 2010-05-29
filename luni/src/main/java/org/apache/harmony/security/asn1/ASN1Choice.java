@@ -28,8 +28,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 
 /**
  * This abstract class represents ASN.1 Choice type.
@@ -231,8 +229,7 @@ public abstract class ASN1Choice extends ASN1Type {
         super(TAG_CHOICE); // has not tag number
 
         if (type.length == 0) {
-            throw new IllegalArgumentException(Messages.getString("security.10E",
-                    getClass().getName()));
+            throw new IllegalArgumentException("ASN.1 choice type MUST have at least one alternative: " + getClass().getName());
         }
 
         // create map of all identifiers
@@ -244,8 +241,7 @@ public abstract class ASN1Choice extends ASN1Type {
             if (t instanceof ASN1Any) {
                 // ASN.1 ANY is not allowed,
                 // even it is a single component (not good for nested choices)
-                throw new IllegalArgumentException(Messages.getString("security.10F",
-                        getClass().getName())); // FIXME name
+                throw new IllegalArgumentException("ASN.1 choice type MUST have alternatives with distinct tags: " + getClass().getName()); // FIXME name
             } else if (t instanceof ASN1Choice) {
 
                 // add all choice's identifiers
@@ -285,8 +281,7 @@ public abstract class ASN1Choice extends ASN1Type {
 
     private void addIdentifier(TreeMap map, int identifier, int index){
         if (map.put(BigInteger.valueOf(identifier), BigInteger.valueOf(index)) != null) {
-            throw new IllegalArgumentException(Messages.getString("security.10F",
-                    getClass().getName())); // FIXME name
+            throw new IllegalArgumentException("ASN.1 choice type MUST have alternatives with distinct tags: " + getClass().getName()); // FIXME name
         }
     }
 
@@ -312,8 +307,7 @@ public abstract class ASN1Choice extends ASN1Type {
 
         int index = Arrays.binarySearch(identifiers[0], in.tag);
         if (index < 0) {
-            throw new ASN1Exception(Messages.getString("security.110",
-                    getClass().getName()));// FIXME message
+            throw new ASN1Exception("Failed to decode ASN.1 choice type.  No alternatives were found for " + getClass().getName());// FIXME message
         }
 
         index = identifiers[1][index];

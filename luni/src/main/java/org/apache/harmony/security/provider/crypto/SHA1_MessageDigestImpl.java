@@ -24,7 +24,6 @@ import java.security.DigestException;
 
 import java.util.Arrays;
 
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.provider.crypto.SHA1_Data;
 import org.apache.harmony.security.provider.crypto.SHA1Impl;
 
@@ -211,19 +210,17 @@ public class SHA1_MessageDigestImpl extends MessageDigestSpi
      *               if offset < 0
      */
     protected int engineDigest(byte[] buf, int offset, int len) throws DigestException {
-
-        if ( buf == null ) {
-            throw new IllegalArgumentException(Messages.getString("security.162"));
+        if (buf == null) {
+            throw new IllegalArgumentException("buf == null");
         }
-        if ( offset > buf.length || len > buf.length || (len + offset) > buf.length ) {
-            throw new IllegalArgumentException(
-               Messages.getString("security.163"));
+        if (offset > buf.length || len > buf.length || (len + offset) > buf.length) {
+            throw new IllegalArgumentException();
         }
-        if ( len < DIGEST_LENGTH ) {
-            throw new DigestException(Messages.getString("security.164"));
+        if (len < DIGEST_LENGTH) {
+            throw new DigestException("len < DIGEST_LENGTH");
         }
-        if ( offset < 0 ) {
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("security.165", offset));
+        if (offset < 0) {
+            throw new ArrayIndexOutOfBoundsException(Integer.toString(offset));
         }
 
         processDigest(buf, offset);
@@ -303,19 +300,17 @@ public class SHA1_MessageDigestImpl extends MessageDigestSpi
      *                offset < 0
      */
     protected void engineUpdate(byte[] input, int offset, int len) {
-
-        if ( input == null ) {
-            throw new IllegalArgumentException(Messages.getString("security.166"));
+        if (input == null) {
+            throw new IllegalArgumentException("input == null");
         }
-        if ( len <= 0 ) {
+        if (len <= 0) {
             return;
         }
-        if ( offset < 0 ) {
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("security.165", offset));
+        if (offset < 0) {
+            throw new ArrayIndexOutOfBoundsException(Integer.toString(offset));
         }
-        if ( offset > input.length || len > input.length || (len + offset) > input.length ) {
-            throw new IllegalArgumentException(
-               Messages.getString("security.167"));
+        if (offset > input.length || len > input.length || (len + offset) > input.length) {
+            throw new IllegalArgumentException();
         }
 
         SHA1Impl.updateHash(buffer, input, offset, offset + len -1 );

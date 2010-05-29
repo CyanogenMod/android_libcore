@@ -37,7 +37,6 @@ import org.apache.harmony.security.asn1.ASN1StringType;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.BerOutputStream;
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.utils.ObjectIdentifier;
 import org.apache.harmony.security.Util;
 
@@ -288,7 +287,7 @@ public class AttributeTypeAndValue {
         } else {
             this.oid = (ObjectIdentifier) KNOWN_NAMES.get(Util.toUpperCase(sOid));
             if (this.oid == null) {
-                throw new IOException(Messages.getString("security.178", sOid));
+                throw new IOException("Unrecognizable attribute name: " + sOid);
             }
         }
         this.value = value;
@@ -417,7 +416,7 @@ public class AttributeTypeAndValue {
 
         public Object getDecodedObject(BerInputStream in) throws IOException {
             // stub to avoid wrong decoder usage
-            throw new RuntimeException(Messages.getString("security.179"));
+            throw new RuntimeException("AttributeValue getDecodedObject MUST NOT be invoked");
         }
 
         //
@@ -466,7 +465,7 @@ public class AttributeTypeAndValue {
 
         public void encodeContent(BerOutputStream out) {
             // stub to avoid wrong encoder usage
-            throw new RuntimeException(Messages.getString("security.17A"));
+            throw new RuntimeException("AttributeValue encodeContent MUST NOT be invoked");
         }
 
         public int getEncodedLength(BerOutputStream out) { //FIXME name
@@ -527,14 +526,15 @@ public class AttributeTypeAndValue {
 
             // check wrong static initialization: no duplicate OIDs
             if (Arrays.equals(newOid, list[i].getOid())) {
-                throw new Error(Messages.getString("security.17B",
-                                oid.getName(), list[i].getName()));
+                throw new Error("ObjectIdentifier: invalid static initialization; " +
+                        "duplicate OIDs: " + oid.getName() + " " + list[i].getName());
             }
         }
 
         // check : to avoid NPE
         if (i == (CAPACITY - 1)) {
-            throw new Error(Messages.getString("security.17C"));
+            throw new Error("ObjectIdentifier: invalid static initialization; " +
+                    "small OID pool capacity");
         }
         list[i] = oid;
     }

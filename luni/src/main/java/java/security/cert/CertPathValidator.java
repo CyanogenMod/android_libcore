@@ -25,8 +25,6 @@ import java.security.Provider;
 import java.security.Security;
 
 import org.apache.harmony.security.fortress.Engine;
-import org.apache.harmony.security.internal.nls.Messages;
-
 
 /**
  * This class provides the functionality for validating certification paths
@@ -105,7 +103,7 @@ public class CertPathValidator {
     public static CertPathValidator getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -130,14 +128,13 @@ public class CertPathValidator {
      *             if no provider with the specified name can be found.
      * @throws NullPointerException
      *             if algorithm is {@code null}.
-     * @throws IllegalArgumentException
-     *             if provider is {@code null} or empty.
+     * @throws IllegalArgumentException if {@code provider == null || provider.isEmpty()}
      */
     public static CertPathValidator getInstance(String algorithm,
             String provider) throws NoSuchAlgorithmException,
             NoSuchProviderException {
-        if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02"));
+        if (provider == null || provider.isEmpty()) {
+            throw new IllegalArgumentException();
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -158,18 +155,17 @@ public class CertPathValidator {
      * @throws NoSuchAlgorithmException
      *             if the specified provider cannot provide the requested
      *             algorithm.
-     * @throws IllegalArgumentException
-     *             if provider is {@code null}.
+     * @throws IllegalArgumentException if {@code provider == null}
      * @throws NullPointerException
      *             if algorithm is {@code null}.
      */
     public static CertPathValidator getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04"));
+            throw new IllegalArgumentException();
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);

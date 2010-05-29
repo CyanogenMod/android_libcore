@@ -29,8 +29,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * This is a basic high-level tokenizer of policy files. It takes in a stream,
  * analyzes data read from it and returns a set of structured tokens. <br>
@@ -132,7 +130,7 @@ public class DefaultPolicyScanner {
                 } else if (Util.equalsIgnoreCase("grant", st.sval)) {
                     grantEntries.add(readGrantEntry(st));
                 } else {
-                    handleUnexpectedToken(st, Messages.getString("security.89"));
+                    handleUnexpectedToken(st, "Expected entries are \"grant\" or \"keystore\"");
                 }
                 break;
 
@@ -173,7 +171,7 @@ public class DefaultPolicyScanner {
                 st.pushBack();
             }
         } else {
-            handleUnexpectedToken(st, Messages.getString("security.8A"));
+            handleUnexpectedToken(st, "Expected syntax is : keystore \"url\"[, \"type\"]");
         }
         return ke;
     }
@@ -212,13 +210,13 @@ public class DefaultPolicyScanner {
                     if (st.nextToken() == '"') {
                         ge.signers = st.sval;
                     } else {
-                        handleUnexpectedToken(st, Messages.getString("security.8B"));
+                        handleUnexpectedToken(st, "Expected syntax is signedby \"name1,...,nameN\"");
                     }
                 } else if (Util.equalsIgnoreCase("codebase", st.sval)) {
                     if (st.nextToken() == '"') {
                         ge.codebase = st.sval;
                     } else {
-                        handleUnexpectedToken(st, Messages.getString("security.8C"));
+                        handleUnexpectedToken(st, "Expected syntax is codebase \"url\"");
                     }
                 } else if (Util.equalsIgnoreCase("principal", st.sval)) {
                     ge.addPrincipal(readPrincipalEntry(st));
@@ -276,7 +274,7 @@ public class DefaultPolicyScanner {
         } else if (st.ttype == '*') {
             pe.name = PrincipalEntry.WILDCARD;
         } else {
-            handleUnexpectedToken(st, Messages.getString("security.8D"));
+            handleUnexpectedToken(st, "Expected syntax is principal [class_name] \"principal_name\"");
         }
         return pe;
     }
@@ -339,7 +337,7 @@ public class DefaultPolicyScanner {
                         continue parsing;
                     }
                 }
-                handleUnexpectedToken(st, Messages.getString("security.8E"));
+                handleUnexpectedToken(st, "Expected syntax is permission permission_class_name [\"target_name\"] [, \"action_list\"] [, signedby \"name1,...,nameN\"]");
                 break;
 
             case ';': //just delimiter of entries
@@ -375,10 +373,10 @@ public class DefaultPolicyScanner {
      *            Should not be <code>null</code>- use the overloaded
      *            single-parameter method instead.
      */
-    protected final void handleUnexpectedToken(StreamTokenizer st,
-            String message) throws InvalidFormatException {
-        throw new InvalidFormatException(Messages.getString("security.8F",
-                composeStatus(st), message));
+    protected final void handleUnexpectedToken(StreamTokenizer st, String message)
+            throws InvalidFormatException {
+        throw new InvalidFormatException("Unexpected token encountered: " +
+                composeStatus(st) + ". " + message);
     }
 
     /**
@@ -388,10 +386,8 @@ public class DefaultPolicyScanner {
      * @param st
      *            a tokenizer holding the erroneous token
      */
-    protected final void handleUnexpectedToken(StreamTokenizer st)
-            throws InvalidFormatException {
-        throw new InvalidFormatException(Messages.getString("security.90",
-                composeStatus(st)));
+    protected final void handleUnexpectedToken(StreamTokenizer st) throws InvalidFormatException {
+        throw new InvalidFormatException("Unexpected token encountered: " + composeStatus(st));
     }
 
     /**

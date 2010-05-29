@@ -33,8 +33,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code UnresolvedPermissionCollection} represents a specific {@code
  * PermissionCollection} for storing {@link UnresolvedPermission} instances.
@@ -64,12 +62,10 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
      */
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15"));
+            throw new SecurityException("collection is read-only");
         }
-        if (permission == null
-            || permission.getClass() != UnresolvedPermission.class) {
-            throw new IllegalArgumentException(Messages.getString("security.16",
-                permission));
+        if (permission == null || permission.getClass() != UnresolvedPermission.class) {
+            throw new IllegalArgumentException("Invalid permission: " + permission);
         }
         synchronized (klasses) {
             String klass = permission.getName();
@@ -186,8 +182,7 @@ final class UnresolvedPermissionCollection extends PermissionCollection {
                             (UnresolvedPermission) iterator.next();
 
                     if (!element.getName().equals(key)) {
-                        throw new InvalidObjectException(
-                            Messages.getString("security.22"));
+                        throw new InvalidObjectException("collection is corrupted");
                     }
                 }
                 klasses.put(key, new HashSet(values));

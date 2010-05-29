@@ -20,8 +20,6 @@ package java.security;
 import java.io.Serializable;
 import java.security.cert.CertPath;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code CodeSigner} represents a signer of code. Instances are immutable.
  */
@@ -49,7 +47,7 @@ public final class CodeSigner implements Serializable {
      */
     public CodeSigner(CertPath signerCertPath, Timestamp timestamp) {
         if (signerCertPath == null) {
-            throw new NullPointerException(Messages.getString("security.10"));
+            throw new NullPointerException("signerCertPath == null");
         }
         this.signerCertPath = signerCertPath;
         this.timestamp = timestamp;

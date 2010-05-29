@@ -22,8 +22,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * This class defines the <i>Service Provider Interface</i> (<b>SPI</b>) for the
  * {@code CertificateFactory} class. This SPI must be implemented for each
@@ -103,8 +101,7 @@ public abstract class CertificateFactorySpi {
      */
     public CertPath engineGenerateCertPath(InputStream inStream)
             throws CertificateException {
-        throw new UnsupportedOperationException(
-                Messages.getString("security.70"));
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -124,8 +121,7 @@ public abstract class CertificateFactorySpi {
      */
     public CertPath engineGenerateCertPath(InputStream inStream, String encoding)
             throws CertificateException {
-        throw new UnsupportedOperationException(
-                Messages.getString("security.71"));
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -143,8 +139,7 @@ public abstract class CertificateFactorySpi {
      */
     public CertPath engineGenerateCertPath(List<? extends Certificate>  certificates)
             throws CertificateException {
-        throw new UnsupportedOperationException(
-                Messages.getString("security.72"));
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -155,7 +150,6 @@ public abstract class CertificateFactorySpi {
      *         Strings).
      */
     public Iterator<String> engineGetCertPathEncodings() {
-        throw new UnsupportedOperationException(
-                Messages.getString("security.73"));
+        throw new UnsupportedOperationException();
     }
 }

@@ -23,8 +23,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.Set;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The parameter specification for a PKIX {@code CertPathBuilder}
  * algorithm used to {@link CertPathBuilder#build(CertPathParameters) build}
@@ -109,8 +107,7 @@ public class PKIXBuilderParameters extends PKIXParameters {
      */
     public void setMaxPathLength(int maxPathLength) {
         if (maxPathLength < -1) {
-            throw new InvalidParameterException(
-                    Messages.getString("security.5B"));
+            throw new InvalidParameterException("maxPathLength < -1");
         }
         this.maxPathLength = maxPathLength;
     }

@@ -20,8 +20,6 @@ package java.security;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code BasicPermission} is the common base class of all permissions which
  * have a name but no action lists. A {@code BasicPermission} is granted or it
@@ -83,10 +81,10 @@ public abstract class BasicPermission extends Permission implements
      */
     private final void checkName(String name) {
         if (name == null) {
-            throw new NullPointerException(Messages.getString("security.28"));
+            throw new NullPointerException("name == null");
         }
-        if (name.length() == 0) {
-            throw new IllegalArgumentException(Messages.getString("security.29"));
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("name.isEmpty()");
         }
     }
 

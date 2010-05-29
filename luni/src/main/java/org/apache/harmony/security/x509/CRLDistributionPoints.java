@@ -30,7 +30,6 @@ import java.util.List;
 import org.apache.harmony.security.asn1.ASN1SequenceOf;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * The class encapsulates the ASN.1 DER encoding/decoding work
@@ -73,17 +72,15 @@ public class CRLDistributionPoints extends ExtensionValue {
     private byte[] encoding;
 
     public CRLDistributionPoints(List distributionPoints) {
-        if ((distributionPoints == null)
-                || (distributionPoints.size() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.17D"));
+        if ((distributionPoints == null) || (distributionPoints.size() == 0)) {
+            throw new IllegalArgumentException("distributionPoints are empty");
         }
         this.distributionPoints = distributionPoints;
     }
 
     public CRLDistributionPoints(List distributionPoints, byte[] encoding) {
-        if ((distributionPoints == null)
-                || (distributionPoints.size() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.17D"));
+        if ((distributionPoints == null) || (distributionPoints.size() == 0)) {
+            throw new IllegalArgumentException("distributionPoints are empty");
         }
         this.distributionPoints = distributionPoints;
         this.encoding = encoding;
@@ -134,4 +131,3 @@ public class CRLDistributionPoints extends ExtensionValue {
         }
     };
 }
-

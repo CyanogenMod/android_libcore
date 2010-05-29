@@ -25,8 +25,6 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * An immutable certificate path that can be validated. All certificates in the
  * path are of the same type (i.e., X509).
@@ -180,8 +178,7 @@ public abstract class CertPath implements Serializable {
         try {
             return new CertPathRep(getType(), getEncoded());
         } catch (CertificateEncodingException e) {
-            throw new NotSerializableException (
-                    Messages.getString("security.66", e));
+            throw new NotSerializableException("Could not create serialization object: " + e);
         }
     }
 
@@ -231,8 +228,7 @@ public abstract class CertPath implements Serializable {
                 CertificateFactory cf = CertificateFactory.getInstance(type);
                 return cf.generateCertPath(new ByteArrayInputStream(data));
             } catch (Throwable t) {
-                throw new NotSerializableException(
-                        Messages.getString("security.67", t));
+                throw new NotSerializableException("Could not resolve cert path: " + t);
             }
         }
     }

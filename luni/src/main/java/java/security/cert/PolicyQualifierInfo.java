@@ -20,7 +20,6 @@ package java.security.cert;
 import java.io.IOException;
 
 import org.apache.harmony.security.asn1.ObjectIdentifier;
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.utils.Array;
 
 
@@ -49,10 +48,10 @@ public class PolicyQualifierInfo {
      */
     public PolicyQualifierInfo(byte[] encoded) throws IOException {
         if (encoded == null) {
-            throw new NullPointerException(Messages.getString("security.0A"));
+            throw new NullPointerException("encoded == null");
         }
         if (encoded.length == 0) {
-            throw new IOException(Messages.getString("security.69"));
+            throw new IOException("encoded.length == 0");
         }
         this.encoded = new byte[encoded.length];
         System.arraycopy(encoded, 0, this.encoded, 0, this.encoded.length);

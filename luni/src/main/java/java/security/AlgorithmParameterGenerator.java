@@ -20,7 +20,6 @@ package java.security;
 import java.security.spec.AlgorithmParameterSpec;
 
 import org.apache.harmony.security.fortress.Engine;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * {@code AlgorithmParameterGenerator} is an engine class which is capable of
@@ -90,7 +89,7 @@ public class AlgorithmParameterGenerator {
     public static AlgorithmParameterGenerator getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -115,15 +114,15 @@ public class AlgorithmParameterGenerator {
      *             if the specified algorithm is not available.
      * @throws NoSuchProviderException
      *             if the specified provider is not available.
+     * @throws IllegalArgumentException if {@code provider == null || provider.isEmpty()}
      * @throws NullPointerException
      *             if {@code algorithm} is {@code null}.
      */
     public static AlgorithmParameterGenerator getInstance(String algorithm,
             String provider) throws NoSuchAlgorithmException,
             NoSuchProviderException {
-        if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.02"));
+        if (provider == null || provider.isEmpty()) {
+            throw new IllegalArgumentException();
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -146,14 +145,15 @@ public class AlgorithmParameterGenerator {
      *             if the specified algorithm is not available.
      * @throws NullPointerException
      *             if {@code algorithm} is {@code null}.
+     * @throws IllegalArgumentException if {@code provider == null}
      */
     public static AlgorithmParameterGenerator getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04"));
+            throw new IllegalArgumentException();
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);
