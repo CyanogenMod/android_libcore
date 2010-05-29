@@ -160,7 +160,7 @@ LOCAL_JAVA_LIBRARIES := \
         sqlite-jdbc
 LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := tests
-LOCAL_MODULE := core-tests-luni
+LOCAL_MODULE := core-tests
 include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
