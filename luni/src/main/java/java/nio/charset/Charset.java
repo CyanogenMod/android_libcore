@@ -115,7 +115,7 @@ import java.util.TreeMap;
  * <tr> <th>Charset</th>  <th>BE BOM</th>           <th>LE BOM</th>           <th>No BOM</th> </tr>
  * <tr> <td>UTF-16BE</td> <td>BE, includes BOM</td> <td>BE, failure</td>      <td>BE</td>     </tr>
  * <tr> <td>UTF-16LE</td> <td>LE, failure</td>      <td>LE, includes BOM</td> <td>LE</td>     </tr>
- * <tr> <td>UTF-16</td>   <td>BE, includes BOM</td> <td>LE, includes BOM</td> <td>BE</td>     </tr>
+ * <tr> <td>UTF-16</td>   <td>BE</td>               <td>LE</td>               <td>BE</td>     </tr>
  * </table>
  *
  * <h4>Charset names</h4>
