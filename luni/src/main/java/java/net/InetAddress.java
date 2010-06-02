@@ -277,7 +277,7 @@ public class InetAddress implements Serializable {
         }
 
         try {
-            byte[] hBytes = NETIMPL.ipStringToByteArray(host);
+            byte[] hBytes = ipStringToByteArray(host);
             if (hBytes.length == 4) {
                 return (new InetAddress[] { new Inet4Address(hBytes) });
             } else if (hBytes.length == 16) {
@@ -295,6 +295,10 @@ public class InetAddress implements Serializable {
 
         return lookupHostByName(host);
     }
+
+    private static native String byteArrayToIpString(byte[] address);
+
+    static native byte[] ipStringToByteArray(String address) throws UnknownHostException;
 
     private static String wrongAddressLength() {
         return "Invalid IP Address is neither 4 or 16 bytes";
@@ -318,28 +322,12 @@ public class InetAddress implements Serializable {
     }
 
     /**
-     * Returns the numeric string form of the given IP address.
-     *
-     * @param ipAddress
-     *         the byte array to convert; length 4 for IPv4, 16 for IPv6.
-     * @throws IllegalArgumentException
-     *         if ipAddress is of length other than 4 or 16.
-     */
-    private static String ipAddressToString(byte[] ipAddress) {
-        try {
-            return NETIMPL.byteArrayToIpString(ipAddress);
-        } catch (IOException ex) {
-            throw new IllegalArgumentException("byte[] neither 4 nor 16 bytes", ex);
-        }
-    }
-
-    /**
      * Gets the textual representation of this IP address.
      *
      * @return the textual representation of host's IP address.
      */
     public String getHostAddress() {
-        return ipAddressToString(ipaddress);
+        return byteArrayToIpString(ipaddress);
     }
 
     /**
@@ -356,17 +344,17 @@ public class InetAddress implements Serializable {
                 if (ipaddress.length == 4) {
                     address = bytesToInt(ipaddress, 0);
                     if (address == 0) {
-                        return hostName = ipAddressToString(ipaddress);
+                        return hostName = byteArrayToIpString(ipaddress);
                     }
                 }
                 hostName = getHostByAddrImpl(ipaddress).hostName;
                 if (hostName.equals("localhost") && ipaddress.length == 4
                         && address != 0x7f000001) {
-                    return hostName = ipAddressToString(ipaddress);
+                    return hostName = byteArrayToIpString(ipaddress);
                 }
             }
         } catch (UnknownHostException e) {
-            return hostName = ipAddressToString(ipaddress);
+            return hostName = byteArrayToIpString(ipaddress);
         }
         SecurityManager security = System.getSecurityManager();
         try {
@@ -375,7 +363,7 @@ public class InetAddress implements Serializable {
                 security.checkConnect(hostName, -1);
             }
         } catch (SecurityException e) {
-            return ipAddressToString(ipaddress);
+            return byteArrayToIpString(ipaddress);
         }
         return hostName;
     }
@@ -395,12 +383,12 @@ public class InetAddress implements Serializable {
             if (ipaddress.length == 4) {
                 address = bytesToInt(ipaddress, 0);
                 if (address == 0) {
-                    return ipAddressToString(ipaddress);
+                    return byteArrayToIpString(ipaddress);
                 }
             }
             canonicalName = getHostByAddrImpl(ipaddress).hostName;
         } catch (UnknownHostException e) {
-            return ipAddressToString(ipaddress);
+            return byteArrayToIpString(ipaddress);
         }
         SecurityManager security = System.getSecurityManager();
         try {
@@ -409,7 +397,7 @@ public class InetAddress implements Serializable {
                 security.checkConnect(canonicalName, -1);
             }
         } catch (SecurityException e) {
-            return ipAddressToString(ipaddress);
+            return byteArrayToIpString(ipaddress);
         }
         return canonicalName;
     }
@@ -571,7 +559,7 @@ public class InetAddress implements Serializable {
      */
     static boolean isHostName(String value) {
         try {
-            NETIMPL.ipStringToByteArray(value);
+            ipStringToByteArray(value);
             return false;
         } catch (UnknownHostException e) {
             return true;

@@ -17,6 +17,7 @@
 
 #include "JNIHelp.h"
 #include "jni.h"
+#include "NetworkUtilities.h"
 #include "ScopedFd.h"
 
 #include <errno.h>
@@ -41,16 +42,16 @@ class ScopedInterfaceAddresses {
 public:
     ScopedInterfaceAddresses() : list(NULL) {
     }
-    
+
     bool init() {
         int rc = getifaddrs(&list);
         return (rc != -1);
     }
-    
+
     ~ScopedInterfaceAddresses() {
         freeifaddrs(list);
     }
-    
+
     ifaddrs* list;
 
 private:
@@ -59,14 +60,10 @@ private:
     void operator=(const ScopedInterfaceAddresses&);
 };
 
-// TODO: add a header file for shared utilities like this.
-extern jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* sockAddress);
-
 // TODO(enh): move to JNIHelp.h
 static void jniThrowSocketException(JNIEnv* env) {
     char buf[BUFSIZ];
-    jniThrowException(env, "java/net/SocketException",
-            jniStrError(errno, buf, sizeof(buf)));
+    jniThrowException(env, "java/net/SocketException", jniStrError(errno, buf, sizeof(buf)));
 }
 
 static jobject makeInterfaceAddress(JNIEnv* env, jint interfaceIndex, ifaddrs* ifa) {
@@ -103,13 +100,13 @@ static jobjectArray getAllInterfaceAddressesImpl(JNIEnv* env, jclass) {
         jniThrowSocketException(env);
         return NULL;
     }
-    
+
     // Count how many there are.
     int interfaceAddressCount = 0;
     for (ifaddrs* ifa = addresses.list; ifa != NULL; ifa = ifa->ifa_next) {
         ++interfaceAddressCount;
     }
-    
+
     // Build the InterfaceAddress[]...
     jclass interfaceAddressClass = env->FindClass("java/net/InterfaceAddress");
     if (interfaceAddressClass == NULL) {
@@ -119,7 +116,7 @@ static jobjectArray getAllInterfaceAddressesImpl(JNIEnv* env, jclass) {
     if (result == NULL) {
         return NULL;
     }
-    
+
     // And fill it in...
     int arrayIndex = 0;
     for (ifaddrs* ifa = addresses.list; ifa != NULL; ifa = ifa->ifa_next) {

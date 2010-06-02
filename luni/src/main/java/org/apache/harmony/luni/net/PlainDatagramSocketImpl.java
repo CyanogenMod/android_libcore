@@ -193,24 +193,12 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     protected int peek(InetAddress sender) throws IOException {
-        if (isNativeConnected) {
-            /*
-             * in this case we know the port and address from which the data
-             * must have be been received as the socket is connected. However,
-             * we still need to do the receive in order to know that there was
-             * data received. We use a short buffer as we don't actually need
-             * the packet, only the knowledge that it is there
-             */
-            byte[] storageArray = new byte[10];
-            DatagramPacket pack = new DatagramPacket(storageArray, storageArray.length);
-            netImpl.recvConnectedDatagram(fd, pack, pack.getData(), pack.getOffset(), pack
-                    .getLength(), receiveTimeout, true); // peek
-            // to set the sender ,we now use a native function
-            // sender.ipaddress = connectedAddress.getAddress();
-            netImpl.setInetAddress(sender, connectedAddress.getAddress());
-            return connectedPort;
-        }
-        return netImpl.peekDatagram(fd, sender, receiveTimeout);
+        // We don't actually want the data: we just want the DatagramPacket's filled-in address.
+        byte[] bytes = new byte[0];
+        DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
+        int result = peekData(packet);
+        netImpl.setInetAddress(sender, packet.getAddress().getAddress());
+        return result;
     }
 
     @Override

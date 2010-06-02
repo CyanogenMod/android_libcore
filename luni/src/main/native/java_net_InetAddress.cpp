@@ -19,6 +19,8 @@
 #define LOG_DNS 0
 
 #include "JNIHelp.h"
+#include "LocalArray.h"
+#include "NetworkUtilities.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
 #include "utils/Log.h"
@@ -209,10 +211,128 @@ static jstring InetAddress_getnameinfo(JNIEnv* env, jclass,
     return env->NewStringUTF(name);
 }
 
+/**
+ * Convert a Java string representing an IP address to a Java byte array.
+ * The formats accepted are:
+ * - IPv4:
+ *   - 1.2.3.4
+ *   - 1.2.4
+ *   - 1.4
+ *   - 4
+ * - IPv6
+ *   - Compressed form (2001:db8::1)
+ *   - Uncompressed form (2001:db8:0:0:0:0:0:1)
+ *   - IPv4-compatible (::192.0.2.0)
+ *   - With an embedded IPv4 address (2001:db8::192.0.2.0).
+ * IPv6 addresses may appear in square brackets.
+ *
+ * @param addressByteArray the byte array to convert.
+ * @return a string with the textual representation of the address.
+ * @throws UnknownHostException the IP address was invalid.
+ */
+static jbyteArray InetAddress_ipStringToByteArray(JNIEnv* env, jobject, jstring javaString) {
+    // Convert the String to UTF-8 bytes.
+    ScopedUtfChars chars(env, javaString);
+    if (chars.c_str() == NULL) {
+        return NULL;
+    }
+    size_t byteCount = chars.size();
+    LocalArray<INET6_ADDRSTRLEN> bytes(byteCount + 1);
+    char* ipString = &bytes[0];
+    strcpy(ipString, chars.c_str());
+
+    // Accept IPv6 addresses (only) in square brackets for compatibility.
+    if (ipString[0] == '[' && ipString[byteCount - 1] == ']' && strchr(ipString, ':') != NULL) {
+        memmove(ipString, ipString + 1, byteCount - 2);
+        ipString[byteCount - 2] = '\0';
+    }
+
+    jbyteArray result = NULL;
+    addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_flags = AI_NUMERICHOST;
+
+    sockaddr_storage ss;
+    memset(&ss, 0, sizeof(ss));
+
+    addrinfo* res = NULL;
+    int ret = getaddrinfo(ipString, NULL, &hints, &res);
+    if (ret == 0 && res) {
+        // Convert IPv4-mapped addresses to IPv4 addresses.
+        // The RI states "Java will never return an IPv4-mapped address".
+        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(res->ai_addr);
+        if (res->ai_family == AF_INET6 && IN6_IS_ADDR_V4MAPPED(&sin6->sin6_addr)) {
+            sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&ss);
+            sin->sin_family = AF_INET;
+            sin->sin_port = sin6->sin6_port;
+            memcpy(&sin->sin_addr.s_addr, &sin6->sin6_addr.s6_addr[12], 4);
+            result = socketAddressToByteArray(env, &ss);
+        } else {
+            result = socketAddressToByteArray(env, reinterpret_cast<sockaddr_storage*>(res->ai_addr));
+        }
+    } else {
+        // For backwards compatibility, deal with address formats that
+        // getaddrinfo does not support. For example, 1.2.3, 1.3, and even 3 are
+        // valid IPv4 addresses according to the Java API. If getaddrinfo fails,
+        // try to use inet_aton.
+        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&ss);
+        if (inet_aton(ipString, &sin->sin_addr)) {
+            sin->sin_family = AF_INET;
+            sin->sin_port = 0;
+            result = socketAddressToByteArray(env, &ss);
+        }
+    }
+
+    if (res) {
+        freeaddrinfo(res);
+    }
+
+    if (!result) {
+        env->ExceptionClear();
+        jniThrowException(env, "java/net/UnknownHostException", gai_strerror(ret));
+    }
+
+    return result;
+}
+
+static jstring InetAddress_byteArrayToIpString(JNIEnv* env, jobject, jbyteArray byteArray) {
+    if (byteArray == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return NULL;
+    }
+    sockaddr_storage ss;
+    if (!byteArrayToSocketAddress(env, NULL, byteArray, 0, &ss)) {
+        return NULL;
+    }
+    // TODO: getnameinfo seems to want its length parameter to be exactly
+    // sizeof(sockaddr_in) for an IPv4 address and sizeof (sockaddr_in6) for an
+    // IPv6 address. Fix getnameinfo so it accepts sizeof(sockaddr_storage), and
+    // then remove this hack.
+    int sa_size;
+    if (ss.ss_family == AF_INET) {
+        sa_size = sizeof(sockaddr_in);
+    } else if (ss.ss_family == AF_INET6) {
+        sa_size = sizeof(sockaddr_in6);
+    } else {
+        // byteArrayToSocketAddress already threw.
+        return NULL;
+    }
+    char ipString[INET6_ADDRSTRLEN];
+    int rc = getnameinfo(reinterpret_cast<sockaddr*>(&ss), sa_size,
+            ipString, sizeof(ipString), NULL, 0, NI_NUMERICHOST);
+    if (rc != 0) {
+        jniThrowException(env, "java/net/UnknownHostException", gai_strerror(rc));
+        return NULL;
+    }
+    return env->NewStringUTF(ipString);
+}
+
 static JNINativeMethod gMethods[] = {
+    { "byteArrayToIpString", "([B)Ljava/lang/String;", (void*) InetAddress_byteArrayToIpString },
     { "getaddrinfo", "(Ljava/lang/String;)[[B", (void*) InetAddress_getaddrinfo },
     { "gethostname", "()Ljava/lang/String;", (void*) InetAddress_gethostname  },
     { "getnameinfo", "([B)Ljava/lang/String;", (void*) InetAddress_getnameinfo },
+    { "ipStringToByteArray", "(Ljava/lang/String;)[B", (void*) InetAddress_ipStringToByteArray },
 };
 int register_java_net_InetAddress(JNIEnv* env) {
     jclass tempClass = env->FindClass("[B");

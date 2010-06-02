@@ -26,7 +26,6 @@ import java.nio.channels.SocketChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ServiceLoader;
-import org.apache.harmony.luni.platform.Platform;
 import org.apache.harmony.nio.internal.SelectorProviderImpl;
 
 /**
@@ -41,8 +40,6 @@ import org.apache.harmony.nio.internal.SelectorProviderImpl;
  */
 public abstract class SelectorProvider {
     private static SelectorProvider provider = null;
-
-    private static Channel inheritedChannel;
 
     /**
      * Constructs a new {@code SelectorProvider}.
@@ -157,16 +154,11 @@ public abstract class SelectorProvider {
      *             the runtime permission labeled "selectorProvider".
      */
     public Channel inheritedChannel() throws IOException {
-        // BEGIN android-added
-        SecurityManager smngr = System.getSecurityManager();
-        if (smngr != null) {
-            smngr.checkPermission(
-                    new RuntimePermission("inheritedChannel"));
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new RuntimePermission("inheritedChannel"));
         }
-        // END android-added
-        if (null == inheritedChannel) {
-            inheritedChannel = Platform.getNetworkSystem().inheritedChannel();
-        }
-        return inheritedChannel;
+        // Android never has stdin/stdout connected to a socket.
+        return null;
     }
 }

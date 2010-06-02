@@ -51,6 +51,10 @@ public:
         return mUtfChars;
     }
 
+    size_t size() const {
+        return strlen(mUtfChars);
+    }
+
     // Element access.
     const char& operator[](size_t n) const {
         return mUtfChars[n];

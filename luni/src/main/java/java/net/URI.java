@@ -546,7 +546,7 @@ public final class URI implements Comparable<URI>, Serializable {
                         "Expected a closing square bracket for IPv6 address", 0);
             }
             try {
-                byte[] bytes = NETWORK_SYSTEM.ipStringToByteArray(host);
+                byte[] bytes = InetAddress.ipStringToByteArray(host);
                 /*
                  * The native IP parser may return 4 bytes for addresses like
                  * "[::FFFF:127.0.0.1]". This is allowed, but we must not accept
@@ -581,7 +581,7 @@ public final class URI implements Comparable<URI>, Serializable {
 
         // IPv4 address
         try {
-            if (NETWORK_SYSTEM.ipStringToByteArray(host).length == 4) {
+            if (InetAddress.ipStringToByteArray(host).length == 4) {
                 return true;
             }
         } catch (UnknownHostException e) {

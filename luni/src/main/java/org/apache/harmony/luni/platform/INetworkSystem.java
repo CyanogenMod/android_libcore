@@ -96,9 +96,6 @@ public interface INetworkSystem {
             DatagramPacket packet, int address, int offset, int length,
             int receiveTimeout, boolean peek) throws IOException;
 
-    public int peekDatagram(FileDescriptor aFD, InetAddress sender,
-            int receiveTimeout) throws IOException;
-
     public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
             int offset, int length, boolean bindToDevice) throws IOException;
 
@@ -208,10 +205,4 @@ public interface INetworkSystem {
     // TODO: change the single caller so that recvConnectedDatagram
     // can mutate the InetAddress as a side-effect.
     public void setInetAddress(InetAddress sender, byte[] address);
-
-    public String byteArrayToIpString(byte[] address) throws UnknownHostException;
-
-    public byte[] ipStringToByteArray(String address) throws UnknownHostException;
-
-    public Channel inheritedChannel();
 }
