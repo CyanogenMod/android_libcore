@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package java.nio.channels;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.io.IOException;
+import junit.framework.TestCase;
 
-public class AllTests {
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(java.nio.channels.DatagramChannelTest.class);
-        suite.addTestSuite(java.nio.channels.FileChannelTest.class);
-        suite.addTestSuite(java.nio.channels.SelectorTest.class);
-        suite.addTestSuite(java.nio.channels.SocketChannelTest.class);
-        return suite;
+public class SelectorTest extends TestCase {
+
+    /**
+     * We previously leaked a file descriptor for each selector instance created.
+     *
+     * http://code.google.com/p/android/issues/detail?id=5993
+     * http://code.google.com/p/android/issues/detail?id=4825
+     */
+    public void testLeakingPipes() throws IOException {
+        for (int i = 0; i < 2000; i++) {
+            Selector selector = Selector.open();
+            selector.close();
+        }
     }
 }

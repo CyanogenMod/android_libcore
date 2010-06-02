@@ -106,4 +106,8 @@ public final class FileDescriptor {
     public boolean valid() {
         return descriptor != -1;
     }
+
+    @Override public String toString() {
+        return "FileDescriptor[" + descriptor + "]";
+    }
 }

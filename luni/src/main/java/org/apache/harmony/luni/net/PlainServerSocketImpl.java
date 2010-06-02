@@ -29,13 +29,10 @@ import org.apache.harmony.luni.net.PlainSocketImpl;
  */
 public class PlainServerSocketImpl extends PlainSocketImpl {
 
-    public PlainServerSocketImpl() {
-        super();
-    }
+    public PlainServerSocketImpl() {}
 
     public PlainServerSocketImpl(FileDescriptor fd) {
-        super();
-        this.fd = fd;
+        super(fd);
     }
 
     @Override
