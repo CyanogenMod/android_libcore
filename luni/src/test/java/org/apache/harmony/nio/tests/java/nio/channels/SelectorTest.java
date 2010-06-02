@@ -16,29 +16,24 @@
 
 package org.apache.harmony.nio.tests.java.nio.channels;
 
-import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
-
+import dalvik.annotation.TestTargetNew;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ClosedSelectorException;
+import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.channels.Pipe;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Set;
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
-
+import java.util.concurrent.atomic.AtomicReference;
 import junit.framework.TestCase;
 import tests.support.Support_PortManager;
 

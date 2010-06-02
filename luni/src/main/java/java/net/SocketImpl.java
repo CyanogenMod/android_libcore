@@ -55,24 +55,13 @@ public abstract class SocketImpl implements SocketOptions {
      */
     protected int localport;
 
-    INetworkSystem netImpl;
+    INetworkSystem netImpl = Platform.getNetworkSystem();
 
     // BEGIN android-removed
     // int receiveTimeout;
     // END android-removed
 
     boolean streaming = true;
-
-    boolean shutdownInput;
-
-    /**
-     * Creates a new connection-oriented socket implementation.
-     *
-     * @see SocketImplFactory
-     */
-    public SocketImpl() {
-        this.netImpl = Platform.getNetworkSystem();
-    }
 
     /**
      * Waits for an incoming request and blocks until the connection is opened
