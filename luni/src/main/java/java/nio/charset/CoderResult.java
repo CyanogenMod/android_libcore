@@ -275,7 +275,5 @@ public class CoderResult {
                 break;
         }
         return "CoderResult[" + dsc + "]";
-
     }
-
 }
