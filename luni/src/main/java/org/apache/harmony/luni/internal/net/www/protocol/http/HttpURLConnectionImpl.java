@@ -1396,7 +1396,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
-        cookieHandler.put(uri, resHeader.getFieldMap());
+        if (cookieHandler != null) {
+            cookieHandler.put(uri, resHeader.getFieldMap());
+        }
     }
 
     private void writeRequest(OutputStream out) throws IOException {
