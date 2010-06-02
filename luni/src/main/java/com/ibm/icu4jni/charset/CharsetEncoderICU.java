@@ -24,19 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.ibm.icu4jni.common.ErrorCode;
-// BEGIN android-removed
-// import com.ibm.icu4jni.converters.NativeConverter;
-// END android-removed
 
 public final class CharsetEncoderICU extends CharsetEncoder {
     private static final Map<String, byte[]> DEFAULT_REPLACEMENTS = new HashMap<String, byte[]>();
     static {
-        // ICU has different default replacements to the RI in these cases. There are probably
+        // ICU has different default replacements to the RI in some cases. There are probably
         // more cases too, but this covers all the charsets that Java guarantees will be available.
-        // These use U+FFFD REPLACEMENT CHARACTER...
-        DEFAULT_REPLACEMENTS.put("UTF-32",   new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xff, (byte) 0xfd });
-        // These use '?'. It's odd that UTF-8 doesn't use U+FFFD, given that (unlike ISO-8859-1
-        // and US-ASCII) it can represent it, but this is what the RI does...
+        // It's odd that UTF-8 doesn't use U+FFFD, given that (unlike ISO-8859-1 and US-ASCII) it
+        // can represent it, but this is what the RI does...
         byte[] questionMark = new byte[] { (byte) '?' };
         DEFAULT_REPLACEMENTS.put("UTF-8",      questionMark);
         DEFAULT_REPLACEMENTS.put("ISO-8859-1", questionMark);
