@@ -28,8 +28,11 @@ import com.ibm.icu4jni.common.ErrorCode;
 public final class CharsetEncoderICU extends CharsetEncoder {
     private static final Map<String, byte[]> DEFAULT_REPLACEMENTS = new HashMap<String, byte[]>();
     static {
-        // ICU has different default replacements to the RI in some cases. There are probably
-        // more cases too, but this covers all the charsets that Java guarantees will be available.
+        // ICU has different default replacements to the RI in some cases. There are many
+        // additional cases, but this covers all the charsets that Java guarantees will be
+        // available, which is where compatibility seems most important. (The RI even uses
+        // the byte corresponding to '?' in ASCII as the replacement byte for charsets where that
+        // byte corresponds to an entirely different character.)
         // It's odd that UTF-8 doesn't use U+FFFD, given that (unlike ISO-8859-1 and US-ASCII) it
         // can represent it, but this is what the RI does...
         byte[] questionMark = new byte[] { (byte) '?' };

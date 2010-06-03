@@ -19,10 +19,9 @@ package java.nio.charset;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Arrays;
-import java.util.TreeSet;
 
 public class CharsetTest extends junit.framework.TestCase {
-    public void test_charsetsAvailable() throws Exception {
+    public void test_guaranteedCharsetsAvailable() throws Exception {
         // All Java implementations must support these charsets.
         assertNotNull(Charset.forName("ISO-8859-1"));
         assertNotNull(Charset.forName("US-ASCII"));
@@ -30,6 +29,37 @@ public class CharsetTest extends junit.framework.TestCase {
         assertNotNull(Charset.forName("UTF-16BE"));
         assertNotNull(Charset.forName("UTF-16LE"));
         assertNotNull(Charset.forName("UTF-8"));
+    }
+
+    public void test_allAvailableCharsets() throws Exception {
+        // Check that we can instantiate every Charset, CharsetDecoder, and CharsetEncoder.
+        for (String charsetName : Charset.availableCharsets().keySet()) {
+            if (charsetName.equals("UTF-32")) {
+                // Our UTF-32 is broken. http://b/2702411
+                // TODO: remove this hack when UTF-32 is fixed.
+                continue;
+            }
+
+            Charset cs = Charset.forName(charsetName);
+            assertNotNull(cs.newDecoder());
+            if (cs.canEncode()) {
+                CharsetEncoder enc = cs.newEncoder();
+                assertNotNull(enc);
+                assertNotNull(enc.replacement());
+            }
+        }
+    }
+
+    public void test_EUC_JP() throws Exception {
+        assertEncodes(Charset.forName("EUC-JP"), "\ufffd", 0xf4, 0xfe);
+    }
+
+    public void test_SCSU() throws Exception {
+        assertEncodes(Charset.forName("SCSU"), "\ufffd", 14, 0xff, 0xfd);
+    }
+
+    public void test_Shift_JIS() throws Exception {
+        assertEncodes(Charset.forName("Shift_JIS"), "\ufffd", 0xfc, 0xfc);
     }
 
     public void test_UTF_32BE() throws Exception {
@@ -62,7 +92,7 @@ public class CharsetTest extends junit.framework.TestCase {
         // Reads whatever the BOM tells it to read...
         assertDecodes(Charset.forName("UTF-32"), "a\u0666", 0, 0, 0xfe, 0xff, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
         assertDecodes(Charset.forName("UTF-32"), "a\u0666", 0xff, 0xfe, 0, 0, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
-        // ...but defaults to reading big-endian if there's no BOM.
+        // ...and defaults to reading big-endian if there's no BOM.
         assertDecodes(Charset.forName("UTF-32"), "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
     }
 
@@ -96,7 +126,7 @@ public class CharsetTest extends junit.framework.TestCase {
         // Reads whatever the BOM tells it to read...
         assertDecodes(Charset.forName("UTF-16"), "a\u0666", 0xfe, 0xff, 0, 'a', 0x06, 0x66);
         assertDecodes(Charset.forName("UTF-16"), "a\u0666", 0xff, 0xfe, 'a', 0, 0x66, 0x06);
-        // ...but defaults to reading big-endian if there's no BOM.
+        // ...and defaults to reading big-endian if there's no BOM.
         assertDecodes(Charset.forName("UTF-16"), "a\u0666", 0, 'a', 0x06, 0x66);
     }
 
