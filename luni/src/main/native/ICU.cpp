@@ -39,6 +39,7 @@
 #include "unicode/strenum.h"
 #include "unicode/ustring.h"
 #include "unicode/timezone.h"
+#include "ureslocs.h"
 #include "ErrorCode.h"
 #include <stdlib.h>
 #include <string.h>
@@ -92,7 +93,7 @@ static jint getCurrencyFractionDigitsNative(JNIEnv* env, jclass, jstring currenc
 
 static jstring getCurrencyCodeNative(JNIEnv* env, jclass, jstring javaKey) {
     UErrorCode status = U_ZERO_ERROR;
-    ScopedResourceBundle supplData(ures_openDirect(NULL, "supplementalData", &status));
+    ScopedResourceBundle supplData(ures_openDirect(U_ICUDATA_CURR, "supplementalData", &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
@@ -143,12 +144,12 @@ static jstring getCurrencySymbolNative(JNIEnv* env, jclass, jstring locale, jstr
 
     ScopedUtfChars localeName(env, locale);
     UErrorCode status = U_ZERO_ERROR;
-    ScopedResourceBundle root(ures_open(NULL, localeName.c_str(), &status));
+    ScopedResourceBundle currLoc(ures_open(U_ICUDATA_CURR, localeName.c_str(), &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
 
-    ScopedResourceBundle currencies(ures_getByKey(root.get(), "Currencies", NULL, &status));
+    ScopedResourceBundle currencies(ures_getByKey(currLoc.get(), "Currencies", NULL, &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
