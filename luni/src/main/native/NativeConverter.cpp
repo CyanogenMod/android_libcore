@@ -73,23 +73,7 @@ static jlong NativeConverter_openConverter(JNIEnv* env, jclass, jstring converte
 }
 
 static void NativeConverter_closeConverter(JNIEnv*, jclass, jlong address) {
-    UConverter* cnv = toUConverter(address);
-    if (!cnv) {
-        return;
-    }
-    // Free up contexts created in setCallback[Encode|Decode].
-    UConverterToUCallback toAction;
-    UConverterFromUCallback fromAction;
-    void* context1 = NULL;
-    void* context2 = NULL;
-    // TODO: ICU API bug?
-    // The documentation clearly states that the caller owns the returned
-    // pointers: http://icu-project.org/apiref/icu4c/ucnv_8h.html
-    ucnv_getToUCallBack(cnv, &toAction, const_cast<const void**>(&context1));
-    ucnv_getFromUCallBack(cnv, &fromAction, const_cast<const void**>(&context2));
-    ucnv_close(cnv);
-    delete reinterpret_cast<DecoderCallbackContext*>(context1);
-    delete reinterpret_cast<EncoderCallbackContext*>(context2);
+    ucnv_close(toUConverter(address));
 }
 
 static jint NativeConverter_encode(JNIEnv* env, jclass, jlong address,
@@ -399,6 +383,9 @@ static void CHARSET_ENCODER_CALLBACK(const void* rawContext, UConverterFromUnico
     case UCNV_IRREGULAR:
         ctx->onMalformedInput(ctx, args, codeUnits, length, codePoint, reason, status);
         return;
+    case UCNV_CLOSE:
+        delete ctx;
+        return;
     default:
         *status = U_ILLEGAL_ARGUMENT_ERROR;
         return;
@@ -506,6 +493,9 @@ static void CHARSET_DECODER_CALLBACK(const void* rawContext, UConverterToUnicode
     case UCNV_ILLEGAL:
     case UCNV_IRREGULAR:
         ctx->onMalformedInput(ctx, args, codeUnits, length, reason, status);
+        return;
+    case UCNV_CLOSE:
+        delete ctx;
         return;
     default:
         *status = U_ILLEGAL_ARGUMENT_ERROR;
