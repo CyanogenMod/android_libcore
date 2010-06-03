@@ -18,6 +18,7 @@ package org.apache.harmony.luni.platform;
 
 // BEGIN android-changed
 import dalvik.system.VMStack;
+import dalvik.system.BlockGuard;
 // END android-changed
 
 /**
@@ -38,11 +39,23 @@ import dalvik.system.VMStack;
  */
 public class Platform {
 
-    static final IFileSystem FILE_SYSTEM = OSFileSystem.getOSFileSystem();
+    // Note: for now, we're always wrapping the filesystem with
+    // BlockGuard.  In the future we intend to measure this and, with
+    // the arriving of upcoming method call Dalvik improvements,
+    // remove a lot of the static caching in RandomAccessFile, etc.,
+    // at which point we can make getFileSystem() return an unwrapped
+    // filesystem in some cases so RandomAccessFiles created on
+    // BlockGuard-policy-free threads have no extra overhead.  But for
+    // now they do: ThreadLocal lookups will be done on most VFS
+    // operations, which should be relatively less than the speed of
+    // the flash.
+    // TODO: measure & fix if needed.
+    private static final IFileSystem FILE_SYSTEM =
+            new BlockGuard.WrappedFileSystem(OSFileSystem.getOSFileSystem());
 
-    static final IMemorySystem MEMORY_SYSTEM = OSMemory.getOSMemory();
+    private static final IMemorySystem MEMORY_SYSTEM = OSMemory.getOSMemory();
 
-    static final INetworkSystem NETWORK_SYSTEM = OSNetworkSystem.getOSNetworkSystem();
+    private static final INetworkSystem NETWORK_SYSTEM = OSNetworkSystem.getOSNetworkSystem();
 
     /**
      * Checks to ensure that whoever is asking for the OS component is running
@@ -83,6 +96,7 @@ public class Platform {
      */
     public static INetworkSystem getNetworkSystem() {
         accessCheck();
+        // TODO: use BlockGuard here too, like in getFileSystem() above.
         return NETWORK_SYSTEM;
     }
 }
