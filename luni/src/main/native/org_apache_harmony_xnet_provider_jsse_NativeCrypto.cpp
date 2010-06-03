@@ -1709,7 +1709,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
     Unique_BIO privatekeybio(jbyteArrayToMemBuf(env, privatekey));
     Unique_EVP_PKEY privatekeyevp(PEM_read_bio_PrivateKey(privatekeybio.get(), NULL, 0, NULL));
     if (privatekeyevp.get() == NULL) {
-        LOGE(ERR_error_string(ERR_peek_error(), NULL));
+        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing the private key");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => privatekeyevp error", ssl);
@@ -1720,7 +1720,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
     if (ret == 1) {
         privatekeyevp.release();
     } else {
-        LOGE(ERR_error_string(ERR_peek_error(), NULL));
+        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting the private key");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => error", ssl);
@@ -1749,7 +1749,7 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
     Unique_X509 certificatesx509(PEM_read_bio_X509(certificatesbio.get(), NULL, 0, NULL));
 
     if (certificatesx509.get() == NULL) {
-        LOGE(ERR_error_string(ERR_peek_error(), NULL));
+        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing the certificates");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificatesx509 error", ssl);
@@ -1760,7 +1760,7 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
     if (ret == 1) {
         certificatesx509.release();
     } else {
-        LOGE(ERR_error_string(ERR_peek_error(), NULL));
+        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting the certificates");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => error", ssl);

@@ -55,8 +55,8 @@ import java.util.Arrays;
  * cannot represent the character, for example).
  *
  * <p>Errors can be handled in three ways. The default is to
- * {@link CodingErrorAction.REPORT report} the error to the caller. The alternatives are to
- * {@link CodingErrorAction.IGNORE ignore} the error or {@link CodingErrorAction.IGNORE replace}
+ * {@link CodingErrorAction#REPORT report} the error to the caller. The alternatives are to
+ * {@link CodingErrorAction#IGNORE ignore} the error or {@link CodingErrorAction#REPLACE replace}
  * the problematic input with the byte sequence returned by {@link #replacement}. The disposition
  * for each of the two kinds of error can be set independently using the {@link #onMalformedInput}
  * and {@link #onUnmappableCharacter} methods.

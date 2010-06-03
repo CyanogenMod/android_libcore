@@ -671,21 +671,21 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
 
     /**
      * Requests both {@code SHORT} and {@code LONG} styles in the map returned by
-     * {@link getDisplayNames}.
+     * {@link #getDisplayNames}.
      * @since 1.6
      */
     public static final int ALL_STYLES = 0;
 
     /**
      * Requests short names (such as "Jan") from
-     * {@link getDisplayName} or {@link getDisplayNames}.
+     * {@link #getDisplayName} or {@link #getDisplayNames}.
      * @since 1.6
      */
     public static final int SHORT = 1;
 
     /**
      * Requests long names (such as "January") from
-     * {@link getDisplayName} or {@link getDisplayNames}.
+     * {@link #getDisplayName} or {@link #getDisplayNames}.
      * @since 1.6
      */
     public static final int LONG = 2;
@@ -1467,7 +1467,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      * Returns null if no strings are available.
      *
      * <p>For example, {@code getDisplayNames(MONTH, ALL_STYLES, Locale.US)} would
-     * contain mappings from "Jan" and "January" to {@link JANUARY}, and so on.
+     * contain mappings from "Jan" and "January" to {@link #JANUARY}, and so on.
      *
      * @param field the field
      * @param style {@code SHORT}, {@code LONG}, or {@code ALL_STYLES}

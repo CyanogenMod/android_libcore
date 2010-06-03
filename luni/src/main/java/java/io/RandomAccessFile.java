@@ -686,7 +686,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * file's length will only change if the moving of the pointer is followed
      * by a {@code write} operation.
      *
-     * @param pos
+     * @param offset
      *            the new file pointer position.
      * @throws IOException
      *             if this file is closed, {@code pos < 0} or another I/O error

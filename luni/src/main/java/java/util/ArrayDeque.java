@@ -779,8 +779,6 @@ public class ArrayDeque<E> extends AbstractCollection<E> implements Deque<E>,
      * will return a new array with the size of the argument array and size of
      * the deque.
      *
-     * @param <T>
-     *            the type of elements in the array
      * @param array
      *            the array stores all the elements from the deque, if it has
      *            enough space; otherwise, a new array of the same type and the

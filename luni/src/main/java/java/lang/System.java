@@ -576,7 +576,7 @@ public final class System {
     }
 
     /**
-     * Throws {@code UnsupportedOperationException}.
+     * Throws {@code SecurityException}.
      *
      * <p>Security managers do <i>not</i> provide a secure environment for
      * executing untrusted code and are unsupported on Android. Untrusted code
@@ -591,7 +591,7 @@ public final class System {
      */
     public static void setSecurityManager(SecurityManager sm) {
         if (sm != null) {
-            throw new UnsupportedOperationException();
+            throw new SecurityException("setSecurityManager() is not permitted.");
         }
     }
 

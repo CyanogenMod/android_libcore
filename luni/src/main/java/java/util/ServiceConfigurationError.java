@@ -26,7 +26,7 @@ public class ServiceConfigurationError extends Error {
 
     /**
      * Constructs a new error with the given detail message.
-     * @param msg the detail message, or null
+     * @param message the detail message, or null
      */
     public ServiceConfigurationError(String message) {
         super(message);
@@ -34,7 +34,7 @@ public class ServiceConfigurationError extends Error {
 
     /**
      * Constructs a new error with the given detail message and cause.
-     * @param msg the detail message, or null
+     * @param message the detail message, or null
      * @param cause the cause, null
      */
     public ServiceConfigurationError(String message, Throwable cause) {

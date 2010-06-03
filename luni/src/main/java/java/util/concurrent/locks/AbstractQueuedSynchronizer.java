@@ -125,7 +125,7 @@ import sun.misc.Unsafe;
  * disable barging by internally invoking one or more of the inspection
  * methods, thereby providing a <em>fair</em> FIFO acquisition order.
  * In particular, most fair synchronizers can define <tt>tryAcquire</tt>
- * to return <tt>false</tt> if {@link #hasQueuedPredecessors} (a method
+ * to return <tt>false</tt> if {@code hasQueuedPredecessors} (a method
  * specifically designed to be used by fair synchronizers) returns
  * <tt>true</tt>.  Other variations are possible.
  *

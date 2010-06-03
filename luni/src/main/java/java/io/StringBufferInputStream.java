@@ -80,7 +80,7 @@ public class StringBufferInputStream extends InputStream {
      * Reads at most {@code length} bytes from the source string and stores them
      * in the byte array {@code b} starting at {@code offset}.
      *
-     * @param b
+     * @param buffer
      *            the byte array in which to store the bytes read.
      * @param offset
      *            the initial position in {@code b} to store the bytes read from

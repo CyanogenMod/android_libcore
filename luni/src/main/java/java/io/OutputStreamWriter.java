@@ -203,7 +203,7 @@ public class OutputStreamWriter extends Writer {
      * character converter and stored in a local buffer. If the buffer gets full
      * as a result of the conversion, this writer is flushed.
      *
-     * @param buf
+     * @param buffer
      *            the array containing characters to write.
      * @param offset
      *            the index of the first character in {@code buf} to write.

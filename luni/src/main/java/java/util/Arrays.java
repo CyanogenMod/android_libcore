@@ -2655,7 +2655,6 @@ public class Arrays {
      * If {@code newLength} is greater than {@code original.length}, the result is padded
      * with the value {@code null}.
      *
-     * @param <T> array element type
      * @param original the original array
      * @param newLength the length of the new array
      * @return the new array
@@ -2678,8 +2677,6 @@ public class Arrays {
      * If {@code newLength} is greater than {@code original.length}, the result is padded
      * with the value {@code null}.
      *
-     * @param <T> result array element type
-     * @param <U> original array element type
      * @param original the original array
      * @param newLength the length of the new array
      * @param newType the class of the new array
@@ -2943,7 +2940,6 @@ public class Arrays {
      * If {@code end} is greater than {@code original.length}, the result is padded
      * with the value {@code null}.
      *
-     * @param <T> the element type
      * @param original the original array
      * @param start the start index, inclusive
      * @param end the end index, exclusive
@@ -2975,8 +2971,6 @@ public class Arrays {
      * If {@code end} is greater than {@code original.length}, the result is padded
      * with the value {@code null}.
      *
-     * @param <T> result array element type
-     * @param <U> original array element type
      * @param original the original array
      * @param start the start index, inclusive
      * @param end the end index, exclusive

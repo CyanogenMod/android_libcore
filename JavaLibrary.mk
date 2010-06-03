@@ -160,7 +160,7 @@ LOCAL_JAVA_LIBRARIES := \
         sqlite-jdbc
 LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := tests
-LOCAL_MODULE := core-tests-luni
+LOCAL_MODULE := core-tests
 include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -182,9 +182,6 @@ LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-xml
 include $(BUILD_JAVA_LIBRARY)
-
-
-
 
 # This one's tricky. One of our tests needs to have a
 # resource with a "#" in its name, but Perforce doesn't

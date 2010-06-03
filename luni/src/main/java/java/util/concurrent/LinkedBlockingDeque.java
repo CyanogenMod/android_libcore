@@ -586,7 +586,7 @@ public class LinkedBlockingDeque<E>
     /**
      * Inserts the specified element at the end of this deque unless it would
      * violate capacity restrictions.  When using a capacity-restricted deque,
-     * it is generally preferable to use method {@link #offer(Object) offer}.
+     * it is generally preferable to use method {@link #offer(E) offer}.
      *
      * <p>This method is equivalent to {@link #addLast}.
      *

@@ -206,7 +206,7 @@ public class InputStreamReader extends Reader {
      * reader's buffer or by first filling the buffer from the source
      * InputStream and then reading from the buffer.
      *
-     * @param buf
+     * @param buffer
      *            the array to store the characters read.
      * @param offset
      *            the initial position in {@code buf} to store the characters

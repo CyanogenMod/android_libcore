@@ -417,7 +417,7 @@ public class PathClassLoader extends ClassLoader {
      * @return the complete path of the library, or {@code null} if the library
      *         is not found.
      */
-    protected String findLibrary(String libname) {
+    public String findLibrary(String libname) {
         ensureInit();
 
         String fileName = System.mapLibraryName(libname);

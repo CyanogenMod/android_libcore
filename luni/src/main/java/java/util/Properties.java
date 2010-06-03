@@ -555,7 +555,7 @@ public class Properties extends Hashtable<Object, Object> {
      * Stores the mappings in this {@code Properties} object to {@code out},
      * putting the specified comment at the beginning.
      *
-     * @param out the {@code Writer}
+     * @param writer the {@code Writer}
      * @param comment an optional comment to be written, or null
      * @throws IOException
      * @throws ClassCastException if a key or value is not a string
