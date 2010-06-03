@@ -334,16 +334,26 @@ trans2iso(JNIEnv *env, int haveutf, jstring enc, jstring src,
     dest->result = 0;
     dest->tofree = 0;
     if (haveutf) {
-        // BEGIN android-changed: leak/error reporting/simplification/performance.
-        const jsize utfLength = (*env)->GetStringUTFLength(env, src);
-        dest->result = dest->tofree = malloc(utfLength + 1);
-        if (!dest->tofree) {
-            throwoom(env, "string translation failed");
-            return dest->result;
-        }
-        (*env)->GetStringUTFRegion(env, src, 0, utfLength, dest->result);
-        return dest->result;
-        // END android-changed
+#ifndef JNI_VERSION_1_2
+	const char *utf = (*env)->GetStringUTFChars(env, src, 0);
+
+	dest->result = dest->tofree = malloc(strlen(utf) + 1);
+#else
+	jsize utflen = (*env)->GetStringUTFLength(env, src);
+
+	dest->result = dest->tofree = malloc(utflen + 1);
+#endif
+	if (!dest->tofree) {
+	    throwoom(env, "string translation failed");
+	    return dest->result;
+	}
+#ifndef JNI_VERSION_1_2
+	strcpy(dest->result, utf);
+	(*env)->ReleaseStringUTFChars(env, src, utf);
+#else
+	(*env)->GetStringUTFRegion(env, src, 0, utflen, dest->result);
+#endif
+	return dest->result;
     }
     if (enc) {
 	bytes = (*env)->CallObjectMethod(env, src,
@@ -421,7 +431,7 @@ busyhandler(void *udata, const char *table, int count)
 					    "(Ljava/lang/String;I)Z");
 
 	if (mid == 0) {
-	    (*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	    (*env)->DeleteLocalRef(env, cls);
 	    return ret;
 	}
 	trans2utf(env, h->haveutf, h->enc, table, &tabstr);
@@ -429,7 +439,7 @@ busyhandler(void *udata, const char *table, int count)
 					(jint) count)
 	      != JNI_FALSE;
 	(*env)->DeleteLocalRef(env, tabstr.jstr);
-	(*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	(*env)->DeleteLocalRef(env, cls);
     }
     return ret;
 }
@@ -449,12 +459,12 @@ busyhandler3(void *udata, int count)
 					    "(Ljava/lang/String;I)Z");
 
 	if (mid == 0) {
-	    (*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	    (*env)->DeleteLocalRef(env, cls);
 	    return ret;
 	}
 	ret = (*env)->CallBooleanMethod(env, h->bh, mid, 0, (jint) count)
 	    != JNI_FALSE;
-	(*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	(*env)->DeleteLocalRef(env, cls);
     }
     return ret;
 }
@@ -472,11 +482,11 @@ progresshandler(void *udata)
 	jmethodID mid = (*env)->GetMethodID(env, cls, "progress", "()Z");
 
 	if (mid == 0) {
-	    (*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	    (*env)->DeleteLocalRef(env, cls);
 	    return ret;
 	}
 	ret = (*env)->CallBooleanMethod(env, h->ph, mid) != JNI_TRUE;
-	(*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	(*env)->DeleteLocalRef(env, cls);
     }
     return ret;
 }
@@ -1107,7 +1117,7 @@ Java_SQLite_Database__1open4(JNIEnv *env, jobject obj, jstring file, jint mode,
 	    if (rc == SQLITE_OK) {
 		h->is3 = 1;
 	    } else if (h->sqlite) {
-	        sqlite3_close((sqlite3 *) h->sqlite);
+		sqlite3_close((sqlite3 *) h->sqlite);
 		h->sqlite = 0;
 	    }
 	} else {
@@ -1127,7 +1137,7 @@ Java_SQLite_Database__1open4(JNIEnv *env, jobject obj, jstring file, jint mode,
     if (sqlite3_open(filename.result, (sqlite3 **) &h->sqlite) != SQLITE_OK)
 #endif
     {
-        if (h->sqlite) {
+	if (h->sqlite) {
 	    sqlite3_close((sqlite3 *) h->sqlite);
 	    h->sqlite = 0;
 	}
@@ -1219,7 +1229,6 @@ Java_SQLite_Database__1open_1aux_1file(JNIEnv *env, jobject obj, jstring file)
 {
     handle *h = gethandle(env, obj);
 #if HAVE_SQLITE_OPEN_AUX_FILE
-    jboolean b;
     jthrowable exc;
     char *err = 0;
     transstr filename;
@@ -1386,7 +1395,7 @@ Java_SQLite_Database__1exec__Ljava_lang_String_2LSQLite_Callback_2_3Ljava_lang_S
 	    jthrowable exc;
 	    int rc = SQLITE_ERROR, nargs, i;
 	    char *err = 0, *p;
-	    const char *str = (*env)->GetStringUTFChars(env, sql, NULL); // android-changed: unused variable
+	    const char *str = (*env)->GetStringUTFChars(env, sql, 0);
 	    transstr sqlstr;
 	    struct args {
 		char *arg;
@@ -1662,7 +1671,7 @@ call_common(sqlite_func *sf, int isstep, int nargs, const char **args)
 	int i;
 
 	if (mid == 0) {
-	    (*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	    (*env)->DeleteLocalRef(env, cls);
 	    return;
 	}
 	arr = (*env)->NewObjectArray(env, nargs, C_java_lang_String, 0);
@@ -1711,7 +1720,7 @@ call_final(sqlite_func *sf)
 	jmethodID mid = (*env)->GetMethodID(env, cls, "last_step",
 					    "(LSQLite/FunctionContext;)V");
 	if (mid == 0) {
-	    (*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	    (*env)->DeleteLocalRef(env, cls);
 	    return;
 	}
 	f->sf = sf;
@@ -1738,7 +1747,7 @@ call3_common(sqlite3_context *sf, int isstep, int nargs, sqlite3_value **args)
 	int i;
 
 	if (mid == 0) {
-	    (*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	    (*env)->DeleteLocalRef(env, cls);
 	    return;
 	}
 	arr = (*env)->NewObjectArray(env, nargs, C_java_lang_String, 0);
@@ -1788,7 +1797,7 @@ call3_final(sqlite3_context *sf)
 	jmethodID mid = (*env)->GetMethodID(env, cls, "last_step",
 					    "(LSQLite/FunctionContext;)V");
 	if (mid == 0) {
-	    (*env)->DeleteLocalRef(env, cls); // android-changed: plug leak
+	    (*env)->DeleteLocalRef(env, cls);
 	    return;
 	}
 	f->sf = sf;
@@ -1986,7 +1995,7 @@ Java_SQLite_FunctionContext_set_1error(JNIEnv *env, jobject obj, jstring err)
 	    trans2iso(env, f->h->haveutf, f->h->enc, err, &errstr);
 	    exc = (*env)->ExceptionOccurred(env);
 	    if (exc) {
-	        (*env)->DeleteLocalRef(env, exc);
+		(*env)->DeleteLocalRef(env, exc);
 		return;
 	    }
 	    sqlite_set_result_error((sqlite_func *) f->sf,
@@ -2094,7 +2103,7 @@ Java_SQLite_FunctionContext_set_1result__Ljava_lang_String_2(JNIEnv *env,
 	    trans2iso(env, f->h->haveutf, f->h->enc, ret, &retstr);
 	    exc = (*env)->ExceptionOccurred(env);
 	    if (exc) {
-	        (*env)->DeleteLocalRef(env, exc);
+		(*env)->DeleteLocalRef(env, exc);
 		return;
 	    }
 	    sqlite_set_result_string((sqlite_func *) f->sf,
@@ -3152,7 +3161,7 @@ Java_SQLite_Database_vm_1compile_1args(JNIEnv *env,
 	jthrowable exc;
 	int rc = SQLITE_ERROR, nargs, i;
 	char *p;
-	const char *str = (*env)->GetStringUTFChars(env, sql, NULL); // android-changed: unused variable
+	const char *str = (*env)->GetStringUTFChars(env, sql, 0);
 	const char *tail;
 	transstr sqlstr;
 	struct args {
@@ -3511,7 +3520,7 @@ Java_SQLite_Database_stmt_1prepare(JNIEnv *env, jobject obj, jstring sql,
 #endif
     len16 = (*env)->GetStringLength(env, sql) * sizeof (jchar);
     if (len16 < 1) {
-        return;
+	return;
     }
     h->env = env;
     sql16 = (*env)->GetStringChars(env, sql, 0);
@@ -3531,22 +3540,22 @@ Java_SQLite_Database_stmt_1prepare(JNIEnv *env, jobject obj, jstring sql,
     if (ret != SQLITE_OK) {
 	const char *err = sqlite3_errmsg(h->sqlite);
 
-        (*env)->ReleaseStringChars(env, sql, sql16);
+	(*env)->ReleaseStringChars(env, sql, sql16);
 	setstmterr(env, stmt, ret);
 	throwex(env, err ? err : "error in prepare");
 	return;
     }
     if (!svm) {
-        (*env)->ReleaseStringChars(env, sql, sql16);
+	(*env)->ReleaseStringChars(env, sql, sql16);
 	return;
     }
     len16 = len16 + sizeof (jchar) - ((char *) tail - (char *) sql16);
-    if (len16 < (jsize) sizeof (jchar)) { // android-changed: signed/unsigned comparison
-        len16 = sizeof (jchar);
+    if (len16 < (jsize) sizeof (jchar)) {
+	len16 = sizeof (jchar);
     }
     v = malloc(sizeof (hvm) + len16);
     if (!v) {
-        (*env)->ReleaseStringChars(env, sql, sql16);
+	(*env)->ReleaseStringChars(env, sql, sql16);
 	sqlite3_finalize((sqlite3_stmt *) svm);
 	throwoom(env, "unable to get SQLite handle");
 	return;
@@ -3686,7 +3695,7 @@ Java_SQLite_Stmt_bind__II(JNIEnv *env, jobject obj, jint pos, jint val)
 	    throwex(env, "bind failed");
 	}
     } else {
-        throwex(env, "stmt already closed");
+	throwex(env, "stmt already closed");
     }
 #else
     throwex(env, "unsupported");
@@ -3713,7 +3722,7 @@ Java_SQLite_Stmt_bind__IJ(JNIEnv *env, jobject obj, jint pos, jlong val)
 	    throwex(env, "bind failed");
 	}
     } else {
-        throwex(env, "stmt already closed");
+	throwex(env, "stmt already closed");
     }
 #else
     throwex(env, "unsupported");
@@ -3740,7 +3749,7 @@ Java_SQLite_Stmt_bind__ID(JNIEnv *env, jobject obj, jint pos, jdouble val)
 	    throwex(env, "bind failed");
 	}
     } else {
-        throwex(env, "stmt already closed");
+	throwex(env, "stmt already closed");
     }
 #else
     throwex(env, "unsupported");
@@ -3766,7 +3775,7 @@ Java_SQLite_Stmt_bind__I_3B(JNIEnv *env, jobject obj, jint pos, jbyteArray val)
 	if (val) {
 	    len = (*env)->GetArrayLength(env, val);
 	    if (len > 0) {
-	        data = sqlite3_malloc(len);
+		data = sqlite3_malloc(len);
 		if (!data) {
 		    throwoom(env, "unable to get blob parameter");
 		    return;
@@ -3783,13 +3792,13 @@ Java_SQLite_Stmt_bind__I_3B(JNIEnv *env, jobject obj, jint pos, jbyteArray val)
 	}
 	if (ret != SQLITE_OK) {
 	    if (data) {
-	        sqlite3_free(data);
+		sqlite3_free(data);
 	    }
 	    setstmterr(env, obj, ret);
 	    throwex(env, "bind failed");
 	}
     } else {
-        throwex(env, "stmt already closed");
+	throwex(env, "stmt already closed");
     }
 #else
     throwex(env, "unsupported");
@@ -3806,7 +3815,7 @@ Java_SQLite_Stmt_bind__ILjava_lang_String_2(JNIEnv *env, jobject obj,
     if (v && v->vm && v->h) {
 	int npar = sqlite3_bind_parameter_count((sqlite3_stmt *) v->vm);
 	int ret;
-	jsize len;
+	jsize len, count;
 	char *data = 0;
 
 	if (pos < 1 || pos > npar) {
@@ -3814,36 +3823,42 @@ Java_SQLite_Stmt_bind__ILjava_lang_String_2(JNIEnv *env, jobject obj,
 	    return;
 	}
 	if (val) {
-	    // BEGIN android-changed: simplification/performance.
-	    const jsize charCount = (*env)->GetStringLength(env, val);
-	    len = charCount * sizeof(jchar);
+	    count = (*env)->GetStringLength(env, val);
+	    len = count * sizeof (jchar);
 	    if (len > 0) {
+#ifndef JNI_VERSION_1_2
+		const jchar *ch;
+#endif
 		data = sqlite3_malloc(len);
 		if (!data) {
 		    throwoom(env, "unable to get blob parameter");
 		    return;
 		}
-		
-		(*env)->GetStringRegion(env, val, 0, charCount, (jchar*) data);
+#ifndef JNI_VERSION_1_2
+		ch = (*env)->GetStringChars(env, val, 0);
+		memcpy(data, ch, len);
+		(*env)->ReleaseStringChars(env, val, ch);
+#else
+		(*env)->GetStringRegion(env, val, 0, count, (jchar *) data);
+#endif
 		ret = sqlite3_bind_text16((sqlite3_stmt *) v->vm,
 					  pos, data, len, sqlite3_free);
 	    } else {
-	        ret = sqlite3_bind_text16((sqlite3_stmt *) v->vm, pos, "", 0,
+		ret = sqlite3_bind_text16((sqlite3_stmt *) v->vm, pos, "", 0,
 					  SQLITE_STATIC);
 	    }
-	    // END android-changed
 	} else {
 	    ret = sqlite3_bind_null((sqlite3_stmt *) v->vm, pos);
 	}
 	if (ret != SQLITE_OK) {
 	    if (data) {
-	        sqlite3_free(data);
+		sqlite3_free(data);
 	    }
 	    setstmterr(env, obj, ret);
 	    throwex(env, "bind failed");
 	}
     } else {
-        throwex(env, "stmt already closed");
+	throwex(env, "stmt already closed");
     }
 #else
     throwex(env, "unsupported");
@@ -3870,7 +3885,7 @@ Java_SQLite_Stmt_bind__I(JNIEnv *env, jobject obj, jint pos)
 	    throwex(env, "bind failed");
 	}
     } else {
-        throwex(env, "stmt already closed");
+	throwex(env, "stmt already closed");
     }
 #else
     throwex(env, "unsupported");
@@ -3897,7 +3912,7 @@ Java_SQLite_Stmt_bind_1zeroblob(JNIEnv *env, jobject obj, jint pos, jint len)
 	    throwex(env, "bind failed");
 	}
     } else {
-        throwex(env, "stmt already closed");
+	throwex(env, "stmt already closed");
     }
 #else
     throwex(env, "unsupported");
@@ -3939,7 +3954,7 @@ Java_SQLite_Stmt_bind_1parameter_1name(JNIEnv *env, jobject obj, jint pos)
 	    return (*env)->NewStringUTF(env, name);
 	}
     } else {
-        throwex(env, "stmt already closed");
+	throwex(env, "stmt already closed");
     }
 #else
     throwex(env, "unsupported");
@@ -3955,7 +3970,7 @@ Java_SQLite_Stmt_bind_1parameter_1index(JNIEnv *env, jobject obj,
     hvm *v = gethstmt(env, obj);
 
     if (v && v->vm && v->h) {
-        int pos;
+	int pos;
 	const char *n;
 	transstr namestr;
 	jthrowable exc;
@@ -3966,11 +3981,11 @@ Java_SQLite_Stmt_bind_1parameter_1index(JNIEnv *env, jobject obj,
 	    (*env)->DeleteLocalRef(env, exc);
 	    return -1;
 	}
-        pos = sqlite3_bind_parameter_index((sqlite3_stmt *) v->vm, n);
+	pos = sqlite3_bind_parameter_index((sqlite3_stmt *) v->vm, n);
 	transfree(&namestr);
 	return pos;
     } else {
-        throwex(env, "stmt already closed");
+	throwex(env, "stmt already closed");
     }
 #else
     throwex(env, "unsupported");
@@ -4164,7 +4179,7 @@ Java_SQLite_Stmt_column_1table_1name(JNIEnv *env, jobject obj, jint col)
 
     if (v && v->vm && v->h) {
 	int ncol = sqlite3_column_count((sqlite3_stmt *) v->vm);
-        const jchar *str;
+	const jchar *str;
 
 	if (col < 0 || col >= ncol) {
 	    throwex(env, "column out of bounds");
@@ -4191,7 +4206,7 @@ Java_SQLite_Stmt_column_1database_1name(JNIEnv *env, jobject obj, jint col)
 
     if (v && v->vm && v->h) {
 	int ncol = sqlite3_column_count((sqlite3_stmt *) v->vm);
-        const jchar *str;
+	const jchar *str;
 
 	if (col < 0 || col >= ncol) {
 	    throwex(env, "column out of bounds");
@@ -4218,7 +4233,7 @@ Java_SQLite_Stmt_column_1decltype(JNIEnv *env, jobject obj, jint col)
 
     if (v && v->vm && v->h) {
 	int ncol = sqlite3_column_count((sqlite3_stmt *) v->vm);
-        const jchar *str;
+	const jchar *str;
 
 	if (col < 0 || col >= ncol) {
 	    throwex(env, "column out of bounds");
@@ -4245,7 +4260,7 @@ Java_SQLite_Stmt_column_1origin_1name(JNIEnv *env, jobject obj, jint col)
 
     if (v && v->vm && v->h) {
 	int ncol = sqlite3_column_count((sqlite3_stmt *) v->vm);
-        const jchar *str;
+	const jchar *str;
 
 	if (col < 0 || col >= ncol) {
 	    throwex(env, "column out of bounds");
@@ -4292,20 +4307,20 @@ Java_SQLite_Database__1open_1blob(JNIEnv *env, jobject obj,
 	return;
     }
     if (h && h->sqlite) {
-        trans2iso(env, h->haveutf, h->enc, dbname, &dbn);
+	trans2iso(env, h->haveutf, h->enc, dbname, &dbn);
 	exc = (*env)->ExceptionOccurred(env);
 	if (exc) {
 	    (*env)->DeleteLocalRef(env, exc);
 	    return;
 	}
-        trans2iso(env, h->haveutf, h->enc, table, &tbl);
+	trans2iso(env, h->haveutf, h->enc, table, &tbl);
 	exc = (*env)->ExceptionOccurred(env);
 	if (exc) {
 	    transfree(&dbn);
 	    (*env)->DeleteLocalRef(env, exc);
 	    return;
 	}
-        trans2iso(env, h->haveutf, h->enc, column, &col);
+	trans2iso(env, h->haveutf, h->enc, column, &col);
 	exc = (*env)->ExceptionOccurred(env);
 	if (exc) {
 	    transfree(&tbl);
@@ -4357,7 +4372,7 @@ Java_SQLite_Blob_write(JNIEnv *env , jobject obj, jbyteArray b, jint off,
     hbl *bl = gethbl(env, obj);
 
     if (bl && bl->h && bl->blob) {
-        jbyte *buf;
+	jbyte *buf;
 	jthrowable exc;
 	int ret;
 
@@ -4398,7 +4413,7 @@ Java_SQLite_Blob_read(JNIEnv *env , jobject obj, jbyteArray b, jint off,
     hbl *bl = gethbl(env, obj);
 
     if (bl && bl->h && bl->blob) {
-        jbyte *buf;
+	jbyte *buf;
 	jthrowable exc;
 	int ret;
 
@@ -4623,7 +4638,7 @@ JNI_OnLoad(JavaVM *vm, void *reserved)
     if (!cls) {
 	return JNI_ERR;
     }
-    C_java_lang_String = (*env)->NewGlobalRef(env, cls); // android-changed: bug
+    C_java_lang_String = (*env)->NewGlobalRef(env, cls);
     return JNI_VERSION_1_2;
 }
 
@@ -4636,7 +4651,7 @@ JNI_OnUnload(JavaVM *vm, void *reserved)
 	return;
     }
     if (C_java_lang_String) {
-	(*env)->DeleteGlobalRef(env, C_java_lang_String); // android-changed: bug
+	(*env)->DeleteGlobalRef(env, C_java_lang_String);
 	C_java_lang_String = 0;
     }
 }

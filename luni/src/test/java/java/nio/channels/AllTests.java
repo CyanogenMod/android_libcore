@@ -20,10 +20,11 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public class AllTests {
-    public static final Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(java.nio.channels.DatagramChannelTest.class);
         suite.addTestSuite(java.nio.channels.FileChannelTest.class);
+        suite.addTestSuite(java.nio.channels.SelectorTest.class);
         suite.addTestSuite(java.nio.channels.SocketChannelTest.class);
         return suite;
     }

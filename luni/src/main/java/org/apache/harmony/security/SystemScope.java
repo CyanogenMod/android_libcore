@@ -29,8 +29,6 @@ import java.security.PublicKey;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * @see java.security.IdentityScope
  */
@@ -100,20 +98,19 @@ public class SystemScope extends IdentityScope {
     /**
      * @see java.security.IdentityScope#addIdentity(java.security.Identity)
      */
-    public synchronized void addIdentity(Identity identity)
-            throws KeyManagementException {
+    public synchronized void addIdentity(Identity identity) throws KeyManagementException {
         if (identity == null) {
-            throw new NullPointerException(Messages.getString("security.92"));
+            throw new NullPointerException("identity == null");
         }
 
         String name = identity.getName();
         if (names.containsKey(name)) {
-            throw new KeyManagementException(Messages.getString("security.93", name));
+            throw new KeyManagementException("name '" + name + "' is already used");
         }
 
         PublicKey key = identity.getPublicKey();
         if (key != null && keys.containsKey(key)) {
-            throw new KeyManagementException(Messages.getString("security.94", key));
+            throw new KeyManagementException("key '" + key + "' is already used");
         }
 
         names.put(name, identity);
@@ -130,12 +127,12 @@ public class SystemScope extends IdentityScope {
 
         //Exception caught = null;
         if (identity == null) {
-            throw new NullPointerException(Messages.getString("security.92"));
+            throw new NullPointerException("identity == null");
         }
 
         String name = identity.getName();
         if (name == null) {
-            throw new NullPointerException(Messages.getString("security.95"));
+            throw new NullPointerException("name == null");
         }
 
         boolean contains = names.containsKey(name);
@@ -149,7 +146,7 @@ public class SystemScope extends IdentityScope {
         }
 
         if (!contains) {
-            throw new KeyManagementException(Messages.getString("security.96"));
+            throw new KeyManagementException("identity not found");
         }
     }
 

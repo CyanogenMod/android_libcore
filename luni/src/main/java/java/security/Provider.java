@@ -35,7 +35,6 @@ import java.util.Set;
 import org.apache.harmony.luni.util.TwoKeyHashMap;
 import org.apache.harmony.security.Util;
 import org.apache.harmony.security.fortress.Services;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * {@code Provider} is the abstract superclass for all security providers in the
@@ -1081,9 +1080,7 @@ public abstract class Provider extends Properties {
                                     implementation = Class.forName(className,
                                             true, cl);
                                 } catch (Exception e) {
-                                    return new NoSuchAlgorithmException(
-                                            Messages.getString("security.11",
-                                                    new Object[]{type, algorithm, e}));
+                                    return new NoSuchAlgorithmException(type + " " + algorithm + " implementation not found: " + e);
                                 }
                                 lastClassName = className;
                                 return null;
@@ -1097,13 +1094,11 @@ public abstract class Provider extends Properties {
                 try {
                     return implementation.newInstance();
                 } catch (Exception e) {
-                    throw new NoSuchAlgorithmException(Messages.getString("security.199",
-                            type, algorithm), e);
+                    throw new NoSuchAlgorithmException(type + " " + algorithm + " implementation not found", e);
                 }
             }
             if (!supportsParameter(constructorParameter)) {
-                throw new InvalidParameterException(
-                        Messages.getString("security.12", type));
+                throw new InvalidParameterException(type + ": service cannot use the parameter");
             }
 
             Class[] parameterTypes = new Class[1];
@@ -1118,8 +1113,7 @@ public abstract class Provider extends Properties {
                 return implementation.getConstructor(parameterTypes)
                         .newInstance(initargs);
             } catch (Exception e) {
-                throw new NoSuchAlgorithmException(Messages.getString("security.199",
-                        type, algorithm), e);
+                throw new NoSuchAlgorithmException(type + " " + algorithm + " implementation not found", e);
             }
         }
 

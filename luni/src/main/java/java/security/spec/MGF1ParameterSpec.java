@@ -17,8 +17,6 @@
 
 package java.security.spec;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The parameter specification for the Mask Generation Function (MGF1) in
  * the RSA-PSS Signature and OAEP Padding scheme.
@@ -70,7 +68,7 @@ public class MGF1ParameterSpec implements AlgorithmParameterSpec {
     public MGF1ParameterSpec(String mdName) {
         this.mdName = mdName;
         if (this.mdName == null) {
-            throw new NullPointerException(Messages.getString("security.80"));
+            throw new NullPointerException("mdName == null");
         }
     }
 

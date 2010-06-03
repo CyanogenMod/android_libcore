@@ -46,11 +46,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * serialize a snapshot of the elements obtained by method
  * {@code toArray}.
  *
+ * @hide
+ *
  * @author  Doug Lea
  * @author  Martin Buchholz
  * @param <E> the type of elements held in this collection
  */
-
 public class ConcurrentLinkedDeque<E>
     extends AbstractCollection<E>
     implements Deque<E>, java.io.Serializable {

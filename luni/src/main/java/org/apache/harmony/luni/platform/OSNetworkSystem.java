@@ -75,25 +75,13 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void disconnectDatagram(FileDescriptor fd) throws SocketException;
 
-    public native String byteArrayToIpString(byte[] address) throws UnknownHostException;
-
-    public native byte[] ipStringToByteArray(String address) throws UnknownHostException;
-
     public native InetAddress getSocketLocalAddress(FileDescriptor fd);
 
     public native int getSocketLocalPort(FileDescriptor fd);
 
     public native Object getSocketOption(FileDescriptor fd, int opt) throws SocketException;
 
-    public Channel inheritedChannel() {
-        // Android never has stdin/stdout connected to a socket.
-        return null;
-    }
-
     public native void listen(FileDescriptor fd, int backlog) throws SocketException;
-
-    public native int peekDatagram(FileDescriptor fd, InetAddress sender, int receiveTimeout)
-            throws IOException;
 
     public int read(FileDescriptor fd, byte[] data, int offset, int count,
             int timeout) throws IOException {

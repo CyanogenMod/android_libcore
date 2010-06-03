@@ -37,8 +37,6 @@ import javax.security.cert.CertificateException;
 import javax.security.cert.CertificateExpiredException;
 import javax.security.cert.CertificateNotYetValidException;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Abstract base class for X.509 certificates.
  * <p>
@@ -91,7 +89,7 @@ public abstract class X509Certificate extends Certificate {
     public static final X509Certificate getInstance(InputStream inStream)
                                              throws CertificateException {
         if (inStream == null) {
-            throw new CertificateException(Messages.getString("security.87"));
+            throw new CertificateException("inStream == null");
         }
         if (constructor != null) {
             try {
@@ -224,7 +222,7 @@ public abstract class X509Certificate extends Certificate {
     public static final X509Certificate getInstance(byte[] certData)
                                              throws CertificateException {
         if (certData == null) {
-            throw new CertificateException(Messages.getString("security.88"));
+            throw new CertificateException("certData == null");
         }
         ByteArrayInputStream bais = new ByteArrayInputStream(certData);
         return getInstance(bais);
@@ -393,4 +391,3 @@ public abstract class X509Certificate extends Certificate {
      */
     public abstract byte[] getSigAlgParams();
 }
-

@@ -30,7 +30,7 @@ import java.io.OutputStream;
 public class InflaterOutputStream extends FilterOutputStream {
     private static final int DEFAULT_BUFFER_SIZE = 1024;
 
-    protected final Inflater inflater;
+    protected final Inflater inf;
     protected final byte[] buf;
 
     private boolean closed = false;
@@ -52,10 +52,10 @@ public class InflaterOutputStream extends FilterOutputStream {
      * for uncompressed data, and compressed data will be written to this stream.
      *
      * @param out the destination {@code OutputStream}
-     * @param inflater the {@code Inflater} to be used for decompression
+     * @param inf the {@code Inflater} to be used for decompression
      */
-    public InflaterOutputStream(OutputStream out, Inflater inflater) {
-        this(out, inflater, DEFAULT_BUFFER_SIZE);
+    public InflaterOutputStream(OutputStream out, Inflater inf) {
+        this(out, inf, DEFAULT_BUFFER_SIZE);
     }
 
     /**
@@ -64,18 +64,18 @@ public class InflaterOutputStream extends FilterOutputStream {
      * for uncompressed data, and compressed data will be written to this stream.
      *
      * @param out the destination {@code OutputStream}
-     * @param inflater the {@code Inflater} to be used for decompression
+     * @param inf the {@code Inflater} to be used for decompression
      * @param bufferSize the length in bytes of the internal buffer
      */
-    public InflaterOutputStream(OutputStream out, Inflater inflater, int bufferSize) {
+    public InflaterOutputStream(OutputStream out, Inflater inf, int bufferSize) {
         super(out);
-        if (out == null || inflater == null) {
+        if (out == null || inf == null) {
             throw new NullPointerException();
         }
         if (bufferSize <= 0) {
             throw new IllegalArgumentException();
         }
-        this.inflater = inflater;
+        this.inf = inf;
         this.buf = new byte[bufferSize];
     }
 
@@ -87,7 +87,7 @@ public class InflaterOutputStream extends FilterOutputStream {
     public void close() throws IOException {
         if (!closed) {
             finish();
-            inflater.end();
+            inf.end();
             out.close();
             closed = true;
         }
@@ -147,14 +147,14 @@ public class InflaterOutputStream extends FilterOutputStream {
             throw new IndexOutOfBoundsException();
         }
 
-        inflater.setInput(b, off, len);
+        inf.setInput(b, off, len);
         write();
     }
 
     private void write() throws IOException, ZipException {
         try {
             int inflated;
-            while ((inflated = inflater.inflate(buf)) > 0) {
+            while ((inflated = inf.inflate(buf)) > 0) {
                 out.write(buf, 0, inflated);
             }
         } catch (DataFormatException e) {

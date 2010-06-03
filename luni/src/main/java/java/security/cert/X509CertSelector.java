@@ -34,7 +34,6 @@ import java.util.Set;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.harmony.security.asn1.ASN1OctetString;
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.x509.AlgorithmIdentifier;
 import org.apache.harmony.security.x509.CertificatePolicies;
 import org.apache.harmony.security.x509.GeneralName;
@@ -461,17 +460,17 @@ public class X509CertSelector implements CertSelector {
             int comp = Integer.parseInt(oid.substring(beg, end));
             beg = end + 1;
             if ((comp < 0) || (comp > 2)) {
-                throw new IOException(Messages.getString("security.56", oid));
+                throw new IOException("Bad OID: " + oid);
             }
             end = oid.indexOf('.', beg);
             comp = Integer.parseInt(oid.substring(beg, end));
             if ((comp < 0) || (comp > 39)) {
-                throw new IOException(Messages.getString("security.56", oid));
+                throw new IOException("Bad OID: " + oid);
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new IOException(Messages.getString("security.56", oid));
+            throw new IOException("Bad OID: " + oid);
         } catch (NumberFormatException e) {
-            throw new IOException(Messages.getString("security.56", oid));
+            throw new IOException("Bad OID: " + oid);
         }
     }
 
@@ -679,7 +678,7 @@ public class X509CertSelector implements CertSelector {
             } else if (value instanceof byte[]) {
                 addSubjectAlternativeName(tag, (byte[]) value);
             } else {
-                throw new IOException(Messages.getString("security.57"));
+                throw new IOException("name neither a String nor a byte[]");
             }
         }
     }
@@ -842,7 +841,7 @@ public class X509CertSelector implements CertSelector {
      */
     public void setBasicConstraints(int pathLen) {
         if (pathLen < -2) {
-            throw new IllegalArgumentException(Messages.getString("security.58"));
+            throw new IllegalArgumentException("pathLen < -2");
         }
         this.pathLen = pathLen;
     }
@@ -937,7 +936,7 @@ public class X509CertSelector implements CertSelector {
             } else if (value instanceof byte[]) {
                 addPathToName(tag, (byte[]) value);
             } else {
-                throw new IOException(Messages.getString("security.57"));
+                throw new IOException("name neither a String nor a byte[]");
             }
         }
     }

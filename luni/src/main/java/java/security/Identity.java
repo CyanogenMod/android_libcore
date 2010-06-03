@@ -21,8 +21,6 @@ import java.io.Serializable;
 import java.util.Vector;
 import java.util.Arrays;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code Identity} represents an identity like a person or a company.
  *
@@ -105,7 +103,7 @@ public abstract class Identity implements Principal, Serializable {
         PublicKey certPK = certificate.getPublicKey();
         if (publicKey != null) {
             if (!checkKeysEqual(publicKey, certPK)) {
-                throw new KeyManagementException(Messages.getString("security.13"));
+                throw new KeyManagementException("Cert's public key does not match Identity's public key");
             }
         } else {
             publicKey = certPK;
@@ -279,7 +277,7 @@ public abstract class Identity implements Principal, Serializable {
             Identity i = scope.getIdentity(key);
             //System.out.println("###DEBUG## Identity: "+i);
             if ((i != null) && (i != this)) {
-                throw new KeyManagementException(Messages.getString("security.14"));
+                throw new KeyManagementException("key already used in scope");
             }
         }
         this.publicKey = key;

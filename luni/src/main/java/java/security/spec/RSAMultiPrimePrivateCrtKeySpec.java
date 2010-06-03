@@ -19,8 +19,6 @@ package java.security.spec;
 
 import java.math.BigInteger;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The key specification of a RSA multi-prime private key with the Chinese
  * Remainder Theorem (CRT) information values used.
@@ -87,34 +85,33 @@ public class RSAMultiPrimePrivateCrtKeySpec extends RSAPrivateKeySpec {
 
         // Perform checks specified
         if (modulus == null) {
-            throw new NullPointerException(Messages.getString("security.83", "modulus"));
+            throw new NullPointerException("modulus == null");
         }
         if (privateExponent == null) {
-            throw new NullPointerException(Messages.getString("security.83", "privateExponent"));
+            throw new NullPointerException("privateExponent == null");
         }
         if (publicExponent == null) {
-            throw new NullPointerException(Messages.getString("security.83", "publicExponent"));
+            throw new NullPointerException("publicExponent == null");
         }
         if (primeP == null) {
-            throw new NullPointerException(Messages.getString("security.83", "primeP"));
+            throw new NullPointerException("primeP == null");
         }
         if (primeQ == null) {
-            throw new NullPointerException(Messages.getString("security.83", "primeQ"));
+            throw new NullPointerException("primeQ == null");
         }
         if (primeExponentP == null) {
-            throw new NullPointerException(Messages.getString("security.83", "primeExponentP"));
+            throw new NullPointerException("primeExponentP == null");
         }
         if (primeExponentQ == null) {
-            throw new NullPointerException(Messages.getString("security.83", "primeExponentQ"));
+            throw new NullPointerException("primeExponentQ == null");
         }
         if (crtCoefficient == null) {
-            throw new NullPointerException(Messages.getString("security.83", "crtCoefficient"));
+            throw new NullPointerException("crtCoefficient == null");
         }
 
         if (otherPrimeInfo != null) {
             if (otherPrimeInfo.length == 0) {
-                throw new IllegalArgumentException(
-                Messages.getString("security.85"));
+                throw new IllegalArgumentException("otherPrimeInfo.length == 0");
             }
             // Clone array to prevent subsequent modification
             this.otherPrimeInfo = new RSAOtherPrimeInfo[otherPrimeInfo.length];

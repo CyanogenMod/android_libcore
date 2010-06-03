@@ -20,14 +20,7 @@ package java.net;
 import java.io.ObjectStreamException;
 
 /**
- * This class represents a 32 bit long IPv4 address. The most common textual
- * representation of an IPv4 address follows the pattern {@code b.b.b.b} where
- * each {@code b} represents one of the four bytes. If only three parts are
- * specified ({@code b.b.bb} ), the last part is then 16 bit long, the address
- * represents a class B network address as <i>128.net.host</i>. A two part
- * address ({@code b.bbb} ) allows to represent a class A network address as
- * <i>net.host</i>. If there is only one part ({@code bbbb} ) the address is
- * represented without any byte rearrangement.
+ * An IPv4 address. See {@link InetAddress}.
  */
 public final class Inet4Address extends InetAddress {
 
@@ -216,21 +209,6 @@ public final class Inet4Address extends InetAddress {
         int prefix = InetAddress.bytesToInt(ipaddress, 0) >>> 16;
         return prefix >= 0xEFC0 && prefix <= 0xEFC3;
     }
-
-    // BEGIN android-removed
-    // public String getHostAddress() {
-    // }
-    // END android-removed
-
-    // BEGIN android-removed
-    // public int hashCode() {
-    // }
-    // END android-removed
-
-    // BEGIN android-removed
-    // public boolean equals(Object obj) {
-    // }
-    // END android-removed
 
     private Object writeReplace() throws ObjectStreamException {
         return new Inet4Address(ipaddress, hostName);

@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.harmony.security.fortress.Engine;
-import org.apache.harmony.security.internal.nls.Messages;
 
 
 /**
@@ -81,13 +80,12 @@ public class CertificateFactory {
      * @throws CertificateException
      *             if the specified certificate type is not available at any
      *             installed provider.
-     * @throws NullPointerException
-     *             if {@code type} is {@code null}.
+     * @throws NullPointerException if {@code type == null}
      */
     public static final CertificateFactory getInstance(String type)
             throws CertificateException {
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07"));
+            throw new NullPointerException();
         }
         try {
             synchronized (engine) {
@@ -115,16 +113,15 @@ public class CertificateFactory {
      *             specified provider.
      * @throws NoSuchProviderException
      *             if no provider with the specified name can be found.
-     * @throws IllegalArgumentException
-     *             if the specified provider name is {@code null} or empty.
+     * @throws IllegalArgumentException if {@code provider == null || provider.isEmpty()}
      * @throws NullPointerException
      *             it {@code type} is {@code null}.
      */
     public static final CertificateFactory getInstance(String type,
             String provider) throws CertificateException,
             NoSuchProviderException {
-        if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02"));
+        if (provider == null || provider.isEmpty()) {
+            throw new IllegalArgumentException();
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -148,16 +145,16 @@ public class CertificateFactory {
      *             specified provider.
      * @throws IllegalArgumentException
      *             if the specified provider is {@code null}.
-     * @throws NullPointerException
-     *             is {@code type} is {@code null}.
+     * @throws NullPointerException if {@code type == null}
+     * @throws IllegalArgumentException if {@code provider == null}
      */
     public static final CertificateFactory getInstance(String type,
             Provider provider) throws CertificateException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04"));
+            throw new IllegalArgumentException();
         }
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07"));
+            throw new NullPointerException();
         }
         try {
             synchronized (engine) {
@@ -226,11 +223,10 @@ public class CertificateFactory {
      * @throws CertificateException
      *             if parsing problems are detected.
      */
-    public final CertPath generateCertPath(InputStream inStream)
-            throws CertificateException {
+    public final CertPath generateCertPath(InputStream inStream) throws CertificateException {
         Iterator<String> it = getCertPathEncodings();
         if (!it.hasNext()) {
-            throw new CertificateException(Messages.getString("security.74"));
+            throw new CertificateException("There are no CertPath encodings");
         }
         return spiImpl.engineGenerateCertPath(inStream, it.next());
     }

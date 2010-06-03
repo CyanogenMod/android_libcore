@@ -30,7 +30,7 @@ import java.io.InputStream;
 public class DeflaterInputStream extends FilterInputStream {
     private static final int DEFAULT_BUFFER_SIZE = 1024;
 
-    protected final Deflater deflater;
+    protected final Deflater def;
     protected final byte[] buf;
 
     private boolean closed = false;
@@ -76,7 +76,7 @@ public class DeflaterInputStream extends FilterInputStream {
         if (bufferSize <= 0) {
             throw new IllegalArgumentException();
         }
-        this.deflater = deflater;
+        this.def = deflater;
         this.buf = new byte[bufferSize];
     }
 
@@ -87,7 +87,7 @@ public class DeflaterInputStream extends FilterInputStream {
     @Override
     public void close() throws IOException {
         closed = true;
-        deflater.end();
+        def.end();
         in.close();
     }
 
@@ -138,17 +138,17 @@ public class DeflaterInputStream extends FilterInputStream {
         }
 
         int count = 0;
-        while (count < len && !deflater.finished()) {
-            if (deflater.needsInput()) {
+        while (count < len && !def.finished()) {
+            if (def.needsInput()) {
                 // read data from input stream
                 int byteCount = in.read(buf);
                 if (byteCount == -1) {
-                    deflater.finish();
+                    def.finish();
                 } else {
-                    deflater.setInput(buf, 0, byteCount);
+                    def.setInput(buf, 0, byteCount);
                 }
             }
-            int byteCount = deflater.deflate(buf, 0, Math.min(buf.length, len - count));
+            int byteCount = def.deflate(buf, 0, Math.min(buf.length, len - count));
             if (byteCount == -1) {
                 break;
             }

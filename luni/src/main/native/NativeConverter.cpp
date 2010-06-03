@@ -26,7 +26,7 @@
 #include "cutils/log.h"
 #include "unicode/ucnv.h"
 #include "unicode/ucnv_cb.h"
-#include "unicode/uset.h"
+#include "unicode/uniset.h"
 #include "unicode/ustring.h"
 #include "unicode/utypes.h"
 #include <stdlib.h>
@@ -50,11 +50,18 @@ struct EncoderCallbackContext {
     UConverterFromUCallback onMalformedInput;
 };
 
+struct UConverterDeleter {
+    void operator()(UConverter* p) const {
+        ucnv_close(p);
+    }
+};
+typedef UniquePtr<UConverter, UConverterDeleter> UniqueUConverter;
+
 static UConverter* toUConverter(jlong address) {
     return reinterpret_cast<UConverter*>(static_cast<uintptr_t>(address));
 }
 
-static jlong openConverter(JNIEnv* env, jclass, jstring converterName) {
+static jlong NativeConverter_openConverter(JNIEnv* env, jclass, jstring converterName) {
     ScopedUtfChars converterNameChars(env, converterName);
     if (converterNameChars.c_str() == NULL) {
         return 0;
@@ -65,7 +72,7 @@ static jlong openConverter(JNIEnv* env, jclass, jstring converterName) {
     return reinterpret_cast<uintptr_t>(cnv);
 }
 
-static void closeConverter(JNIEnv*, jclass, jlong address) {
+static void NativeConverter_closeConverter(JNIEnv*, jclass, jlong address) {
     UConverter* cnv = toUConverter(address);
     if (!cnv) {
         return;
@@ -85,7 +92,10 @@ static void closeConverter(JNIEnv*, jclass, jlong address) {
     delete reinterpret_cast<EncoderCallbackContext*>(context2);
 }
 
-static jint encode(JNIEnv* env, jclass, jlong address, jcharArray source, jint sourceEnd, jbyteArray target, jint targetEnd, jintArray data, jboolean flush) {
+static jint NativeConverter_encode(JNIEnv* env, jclass, jlong address,
+        jcharArray source, jint sourceEnd, jbyteArray target, jint targetEnd,
+        jintArray data, jboolean flush) {
+
     UConverter* cnv = toUConverter(address);
     ScopedCharArrayRO uSource(env, source);
     ScopedByteArrayRW uTarget(env, target);
@@ -125,7 +135,10 @@ static jint encode(JNIEnv* env, jclass, jlong address, jcharArray source, jint s
     return errorCode;
 }
 
-static jint decode(JNIEnv* env, jclass, jlong address, jbyteArray source, jint sourceEnd, jcharArray target, jint targetEnd, jintArray data, jboolean flush) {
+static jint NativeConverter_decode(JNIEnv* env, jclass, jlong address,
+        jbyteArray source, jint sourceEnd, jcharArray target, jint targetEnd,
+        jintArray data, jboolean flush) {
+
     UConverter* cnv = toUConverter(address);
     ScopedByteArrayRO uSource(env, source);
     ScopedCharArrayRW uTarget(env, target);
@@ -164,36 +177,37 @@ static jint decode(JNIEnv* env, jclass, jlong address, jbyteArray source, jint s
     return errorCode;
 }
 
-static void resetByteToChar(JNIEnv*, jclass, jlong address) {
+static void NativeConverter_resetByteToChar(JNIEnv*, jclass, jlong address) {
     UConverter* cnv = toUConverter(address);
     if (cnv) {
         ucnv_resetToUnicode(cnv);
     }
 }
 
-static void resetCharToByte(JNIEnv*, jclass, jlong address) {
+static void NativeConverter_resetCharToByte(JNIEnv*, jclass, jlong address) {
     UConverter* cnv = toUConverter(address);
     if (cnv) {
         ucnv_resetFromUnicode(cnv);
     }
 }
 
-static jint getMaxBytesPerChar(JNIEnv*, jclass, jlong address) {
+static jint NativeConverter_getMaxBytesPerChar(JNIEnv*, jclass, jlong address) {
     UConverter* cnv = toUConverter(address);
     return (cnv != NULL) ? ucnv_getMaxCharSize(cnv) : -1;
 }
 
-static jint getMinBytesPerChar(JNIEnv*, jclass, jlong address) {
+static jint NativeConverter_getMinBytesPerChar(JNIEnv*, jclass, jlong address) {
     UConverter* cnv = toUConverter(address);
     return (cnv != NULL) ? ucnv_getMinCharSize(cnv) : -1;
 }
 
-static jfloat getAveBytesPerChar(JNIEnv*, jclass, jlong address) {
+static jfloat NativeConverter_getAveBytesPerChar(JNIEnv*, jclass, jlong address) {
     UConverter* cnv = toUConverter(address);
     return (cnv != NULL) ? ((ucnv_getMaxCharSize(cnv) + ucnv_getMinCharSize(cnv)) / 2.0) : -1;
 }
 
-static jint flushByteToChar(JNIEnv* env, jclass, jlong address, jcharArray target, jint targetEnd, jintArray data) {
+static jint NativeConverter_flushByteToChar(JNIEnv* env, jclass, jlong address,
+        jcharArray target, jint targetEnd, jintArray data) {
     UConverter* cnv = toUConverter(address);
     ScopedCharArrayRW uTarget(env, target);
     ScopedIntArrayRW myData(env, data);
@@ -212,7 +226,8 @@ static jint flushByteToChar(JNIEnv* env, jclass, jlong address, jcharArray targe
     return errorCode;
 }
 
-static jint flushCharToByte(JNIEnv* env, jclass, jlong address, jbyteArray target, jint targetEnd, jintArray data) {
+static jint NativeConverter_flushCharToByte(JNIEnv* env, jclass, jlong address,
+        jbyteArray target, jint targetEnd, jintArray data) {
     UConverter* cnv = toUConverter(address);
     ScopedByteArrayRW uTarget(env, target);
     ScopedIntArrayRW myData(env, data);
@@ -231,7 +246,7 @@ static jint flushCharToByte(JNIEnv* env, jclass, jlong address, jbyteArray targe
     return errorCode;
 }
 
-static jboolean canEncode(JNIEnv*, jclass, jlong address, jint codeUnit) {
+static jboolean NativeConverter_canEncode(JNIEnv*, jclass, jlong address, jint codeUnit) {
     UErrorCode errorCode =U_ZERO_ERROR;
     UConverter* cnv = toUConverter(address);
     if(cnv) {
@@ -299,7 +314,7 @@ static jstring getJavaCanonicalName(JNIEnv* env, const char* icuCanonicalName) {
     return env->NewStringUTF(&result[0]);
 }
 
-static jobjectArray getAvailableCharsetNames(JNIEnv* env, jclass) {
+static jobjectArray NativeConverter_getAvailableCharsetNames(JNIEnv* env, jclass) {
     int32_t num = ucnv_countAvailable();
     jobjectArray result = env->NewObjectArray(num, env->FindClass("java/lang/String"), NULL);
     for (int i = 0; i < num; ++i) {
@@ -361,9 +376,8 @@ static const char* getICUCanonicalName(const char* name) {
     } else if (strstr(name, "x-") == name) {
         /* check if the converter can be opened with the name given */
         error = U_ZERO_ERROR;
-        UConverter* cnv = ucnv_open(name + 2, &error);
-        if (cnv != NULL) {
-            ucnv_close(cnv);
+        UniqueUConverter cnv(ucnv_open(name + 2, &error));
+        if (cnv.get() != NULL) {
             return name + 2;
         }
     }
@@ -414,7 +428,8 @@ static UConverterFromUCallback getFromUCallback(int32_t mode) {
     abort();
 }
 
-static jint setCallbackEncode(JNIEnv* env, jclass, jlong address, jint onMalformedInput, jint onUnmappableInput, jbyteArray subBytes) {
+static jint NativeConverter_setCallbackEncode(JNIEnv* env, jclass, jlong address,
+        jint onMalformedInput, jint onUnmappableInput, jbyteArray subBytes) {
     UConverter* cnv = toUConverter(address);
     if (!cnv) {
         return U_ILLEGAL_ARGUMENT_ERROR;
@@ -498,7 +513,8 @@ static void CHARSET_DECODER_CALLBACK(const void* rawContext, UConverterToUnicode
     }
 }
 
-static jint setCallbackDecode(JNIEnv* env, jclass, jlong address, jint onMalformedInput, jint onUnmappableInput, jcharArray subChars) {
+static jint NativeConverter_setCallbackDecode(JNIEnv* env, jclass, jlong address,
+        jint onMalformedInput, jint onUnmappableInput, jcharArray subChars) {
     UConverter* cnv = toUConverter(address);
     if (cnv == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
@@ -537,11 +553,11 @@ static jint setCallbackDecode(JNIEnv* env, jclass, jlong address, jint onMalform
     return errorCode;
 }
 
-static jfloat getAveCharsPerByte(JNIEnv* env, jclass, jlong handle) {
-    return (1 / (jfloat) getMaxBytesPerChar(env, NULL, handle));
+static jfloat NativeConverter_getAveCharsPerByte(JNIEnv* env, jclass, jlong handle) {
+    return (1 / (jfloat) NativeConverter_getMaxBytesPerChar(env, NULL, handle));
 }
 
-static jbyteArray getSubstitutionBytes(JNIEnv* env, jclass, jlong address) {
+static jbyteArray NativeConverter_getSubstitutionBytes(JNIEnv* env, jclass, jlong address) {
     UConverter* cnv = toUConverter(address);
     if (cnv == NULL) {
         return NULL;
@@ -561,35 +577,29 @@ static jbyteArray getSubstitutionBytes(JNIEnv* env, jclass, jlong address) {
     return result;
 }
 
-static jboolean contains(JNIEnv*, jclass, jlong handle1, jlong handle2) {
-    UErrorCode status = U_ZERO_ERROR;
-    const UConverter * cnv1 = (const UConverter *) handle1;
-    const UConverter * cnv2 = (const UConverter *) handle2;
-    UBool bRet = 0;
-
-    if(cnv1 != NULL && cnv2 != NULL) {
-        /* open charset 1 */
-        USet* set1 = uset_open(1, 2);
-        ucnv_getUnicodeSet(cnv1, set1, UCNV_ROUNDTRIP_SET, &status);
-
-        if(U_SUCCESS(status)) {
-            /* open charset 2 */
-            status = U_ZERO_ERROR;
-            USet* set2 = uset_open(1, 2);
-            ucnv_getUnicodeSet(cnv2, set2, UCNV_ROUNDTRIP_SET, &status);
-
-            /* contains?      */
-            if(U_SUCCESS(status)) {
-                bRet = uset_containsAll(set1, set2);
-                uset_close(set2);
-            }
-            uset_close(set1);
-        }
+static jboolean NativeConverter_contains(JNIEnv* env, jclass, jstring name1, jstring name2) {
+    ScopedUtfChars name1Chars(env, name1);
+    if (name1Chars.c_str() == NULL) {
+        return JNI_FALSE;
     }
-    return bRet;
+    ScopedUtfChars name2Chars(env, name2);
+    if (name2Chars.c_str() == NULL) {
+        return JNI_FALSE;
+    }
+
+    UErrorCode errorCode = U_ZERO_ERROR;
+    UniqueUConverter converter1(ucnv_open(name1Chars.c_str(), &errorCode));
+    UnicodeSet set1;
+    ucnv_getUnicodeSet(converter1.get(), set1.toUSet(), UCNV_ROUNDTRIP_SET, &errorCode);
+
+    UniqueUConverter converter2(ucnv_open(name2Chars.c_str(), &errorCode));
+    UnicodeSet set2;
+    ucnv_getUnicodeSet(converter2.get(), set2.toUSet(), UCNV_ROUNDTRIP_SET, &errorCode);
+
+    return U_SUCCESS(errorCode) && set1.containsAll(set2);
 }
 
-static jobject charsetForName(JNIEnv* env, jclass, jstring charsetName) {
+static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring charsetName) {
     ScopedUtfChars charsetNameChars(env, charsetName);
     if (charsetNameChars.c_str() == NULL) {
         return NULL;
@@ -609,11 +619,11 @@ static jobject charsetForName(JNIEnv* env, jclass, jstring charsetName) {
     // ICU doesn't offer any "isSupported", so we just open and immediately close.
     // We ignore the UErrorCode because ucnv_open returning NULL is all the information we need.
     UErrorCode dummy = U_ZERO_ERROR;
-    UConverter* cnv = ucnv_open(icuCanonicalName, &dummy);
-    if (cnv == NULL) {
+    UniqueUConverter cnv(ucnv_open(icuCanonicalName, &dummy));
+    if (cnv.get() == NULL) {
         return NULL;
     }
-    ucnv_close(cnv);
+    cnv.reset();
 
     // Get the aliases for this charset.
     jobjectArray aliases = getAliases(env, icuCanonicalName);
@@ -636,25 +646,25 @@ static jobject charsetForName(JNIEnv* env, jclass, jstring charsetName) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "canEncode", "(JI)Z", (void*) canEncode },
-    { "charsetForName", "(Ljava/lang/String;)Ljava/nio/charset/Charset;", (void*) charsetForName },
-    { "closeConverter", "(J)V", (void*) closeConverter },
-    { "contains", "(JJ)Z", (void*) contains },
-    { "decode", "(J[BI[CI[IZ)I", (void*) decode },
-    { "encode", "(J[CI[BI[IZ)I", (void*) encode },
-    { "flushByteToChar", "(J[CI[I)I", (void*) flushByteToChar },
-    { "flushCharToByte", "(J[BI[I)I", (void*) flushCharToByte },
-    { "getAvailableCharsetNames", "()[Ljava/lang/String;", (void*) getAvailableCharsetNames },
-    { "getAveBytesPerChar", "(J)F", (void*) getAveBytesPerChar },
-    { "getAveCharsPerByte", "(J)F", (void*) getAveCharsPerByte },
-    { "getMaxBytesPerChar", "(J)I", (void*) getMaxBytesPerChar },
-    { "getMinBytesPerChar", "(J)I", (void*) getMinBytesPerChar },
-    { "getSubstitutionBytes", "(J)[B", (void*) getSubstitutionBytes },
-    { "openConverter", "(Ljava/lang/String;)J", (void*) openConverter },
-    { "resetByteToChar", "(J)V", (void*) resetByteToChar },
-    { "resetCharToByte", "(J)V", (void*) resetCharToByte },
-    { "setCallbackDecode", "(JII[C)I", (void*) setCallbackDecode },
-    { "setCallbackEncode", "(JII[B)I", (void*) setCallbackEncode },
+    { "canEncode", "(JI)Z", (void*) NativeConverter_canEncode },
+    { "charsetForName", "(Ljava/lang/String;)Ljava/nio/charset/Charset;", (void*) NativeConverter_charsetForName },
+    { "closeConverter", "(J)V", (void*) NativeConverter_closeConverter },
+    { "contains", "(Ljava/lang/String;Ljava/lang/String;)Z", (void*) NativeConverter_contains },
+    { "decode", "(J[BI[CI[IZ)I", (void*) NativeConverter_decode },
+    { "encode", "(J[CI[BI[IZ)I", (void*) NativeConverter_encode },
+    { "flushByteToChar", "(J[CI[I)I", (void*) NativeConverter_flushByteToChar },
+    { "flushCharToByte", "(J[BI[I)I", (void*) NativeConverter_flushCharToByte },
+    { "getAvailableCharsetNames", "()[Ljava/lang/String;", (void*) NativeConverter_getAvailableCharsetNames },
+    { "getAveBytesPerChar", "(J)F", (void*) NativeConverter_getAveBytesPerChar },
+    { "getAveCharsPerByte", "(J)F", (void*) NativeConverter_getAveCharsPerByte },
+    { "getMaxBytesPerChar", "(J)I", (void*) NativeConverter_getMaxBytesPerChar },
+    { "getMinBytesPerChar", "(J)I", (void*) NativeConverter_getMinBytesPerChar },
+    { "getSubstitutionBytes", "(J)[B", (void*) NativeConverter_getSubstitutionBytes },
+    { "openConverter", "(Ljava/lang/String;)J", (void*) NativeConverter_openConverter },
+    { "resetByteToChar", "(J)V", (void*) NativeConverter_resetByteToChar },
+    { "resetCharToByte", "(J)V", (void*) NativeConverter_resetCharToByte },
+    { "setCallbackDecode", "(JII[C)I", (void*) NativeConverter_setCallbackDecode },
+    { "setCallbackEncode", "(JII[B)I", (void*) NativeConverter_setCallbackEncode },
 };
 int register_com_ibm_icu4jni_converters_NativeConverter(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "com/ibm/icu4jni/charset/NativeConverter",

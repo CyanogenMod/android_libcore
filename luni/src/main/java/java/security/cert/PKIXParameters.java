@@ -29,8 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * This class implements the parameters for the {@code PKIX CertPathValidator}.
  * <p>
@@ -81,7 +79,7 @@ public class PKIXParameters implements CertPathParameters {
     public PKIXParameters(Set<TrustAnchor> trustAnchors)
         throws InvalidAlgorithmParameterException {
         if (trustAnchors == null) {
-            throw new NullPointerException(Messages.getString("security.6F"));
+            throw new NullPointerException("trustAnchors == null");
         }
         checkTrustAnchors(trustAnchors);
         this.trustAnchors = new HashSet<TrustAnchor>(trustAnchors);
@@ -103,13 +101,12 @@ public class PKIXParameters implements CertPathParameters {
         throws KeyStoreException,
                InvalidAlgorithmParameterException {
         if (keyStore == null) {
-            throw new NullPointerException(Messages.getString("security.41"));
+            throw new NullPointerException("keyStore == null");
         }
         // Will throw KeyStoreException if
         // keyStore has not been initialized (loaded)
         if (keyStore.size() == 0) {
-            throw new InvalidAlgorithmParameterException(
-                    Messages.getString("security.6A"));
+            throw new InvalidAlgorithmParameterException("keyStore.size() == 0");
         }
         // keyStore is not null and loaded
         trustAnchors = new HashSet<TrustAnchor>();
@@ -149,8 +146,7 @@ public class PKIXParameters implements CertPathParameters {
     public void setTrustAnchors(Set<TrustAnchor> trustAnchors)
         throws InvalidAlgorithmParameterException {
         if (trustAnchors == null) {
-            throw new NullPointerException(
-                    Messages.getString("security.6F"));
+            throw new NullPointerException("trustAnchors == null");
         }
         checkTrustAnchors(trustAnchors);
         // make shallow copy
@@ -299,7 +295,7 @@ public class PKIXParameters implements CertPathParameters {
         // check that all elements are CertStore
         for (Iterator i = this.certStores.iterator(); i.hasNext();) {
             if (!(i.next() instanceof CertStore)) {
-                throw new ClassCastException(Messages.getString("security.6B"));
+                throw new ClassCastException("all list elements must be of type java.security.cert.CertStore");
             }
         }
     }
@@ -416,7 +412,7 @@ public class PKIXParameters implements CertPathParameters {
         // check that all elements are String
         for (Iterator i = this.initialPolicies.iterator(); i.hasNext();) {
             if (!(i.next() instanceof String)) {
-                throw new ClassCastException(Messages.getString("security.6C"));
+                throw new ClassCastException("all set elements must be of type java.lang.String");
             }
         }
     }
@@ -608,13 +604,11 @@ public class PKIXParameters implements CertPathParameters {
     private void checkTrustAnchors(Set trustAnchors)
         throws InvalidAlgorithmParameterException {
         if (trustAnchors.isEmpty()) {
-            throw new InvalidAlgorithmParameterException(
-                    Messages.getString("security.6D"));
+            throw new InvalidAlgorithmParameterException("trustAnchors.isEmpty()");
         }
         for (Iterator i = trustAnchors.iterator(); i.hasNext();) {
             if (!(i.next() instanceof TrustAnchor)) {
-                throw new ClassCastException(
-             Messages.getString("security.6E"));
+                throw new ClassCastException("all set elements must be of type java.security.cert.TrustAnchor");
             }
         }
     }

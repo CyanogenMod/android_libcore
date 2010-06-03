@@ -81,11 +81,11 @@ public class InflaterInputStream extends FilterInputStream {
      *
      * @param is
      *            the {@code InputStream} to read data from.
-     * @param inf
+     * @param inflater
      *            the specific {@code Inflater} for uncompressing data.
      */
-    public InflaterInputStream(InputStream is, Inflater inf) {
-        this(is, inf, BUF_SIZE);
+    public InflaterInputStream(InputStream is, Inflater inflater) {
+        this(is, inflater, BUF_SIZE);
     }
 
     /**
@@ -94,20 +94,20 @@ public class InflaterInputStream extends FilterInputStream {
      *
      * @param is
      *            the {@code InputStream} to read data from.
-     * @param inf
+     * @param inflater
      *            the specific {@code Inflater} for uncompressing data.
      * @param bsize
      *            the size to be used for the internal buffer.
      */
-    public InflaterInputStream(InputStream is, Inflater inf, int bsize) {
+    public InflaterInputStream(InputStream is, Inflater inflater, int bsize) {
         super(is);
-        if (is == null || inf == null) {
+        if (is == null || inflater == null) {
             throw new NullPointerException();
         }
         if (bsize <= 0) {
             throw new IllegalArgumentException();
         }
-        this.inf = inf;
+        this.inf = inflater;
         // BEGIN android-only
         if (is instanceof ZipFile.RAFStream) {
             nativeEndBufSize = bsize;

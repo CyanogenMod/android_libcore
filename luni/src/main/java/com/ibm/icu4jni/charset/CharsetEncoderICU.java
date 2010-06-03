@@ -20,13 +20,26 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.ibm.icu4jni.common.ErrorCode;
-// BEGIN android-removed
-// import com.ibm.icu4jni.converters.NativeConverter;
-// END android-removed
 
 public final class CharsetEncoderICU extends CharsetEncoder {
+    private static final Map<String, byte[]> DEFAULT_REPLACEMENTS = new HashMap<String, byte[]>();
+    static {
+        // ICU has different default replacements to the RI in some cases. There are many
+        // additional cases, but this covers all the charsets that Java guarantees will be
+        // available, which is where compatibility seems most important. (The RI even uses
+        // the byte corresponding to '?' in ASCII as the replacement byte for charsets where that
+        // byte corresponds to an entirely different character.)
+        // It's odd that UTF-8 doesn't use U+FFFD, given that (unlike ISO-8859-1 and US-ASCII) it
+        // can represent it, but this is what the RI does...
+        byte[] questionMark = new byte[] { (byte) '?' };
+        DEFAULT_REPLACEMENTS.put("UTF-8",      questionMark);
+        DEFAULT_REPLACEMENTS.put("ISO-8859-1", questionMark);
+        DEFAULT_REPLACEMENTS.put("US-ASCII",   questionMark);
+    }
 
     private static final int INPUT_OFFSET = 0;
     private static final int OUTPUT_OFFSET = 1;
@@ -61,18 +74,39 @@ public final class CharsetEncoderICU extends CharsetEncoder {
     private int ec;
     private int savedInputHeldLen;
 
-    /**
-     * Constructs a new encoder for the given charset
-     * @param cs for which the decoder is created
-     * @param cHandle the address of ICU converter
-     * @param replacement the substitution bytes
-     * @stable ICU 2.4
-     */
-    public CharsetEncoderICU(Charset cs, long cHandle, byte[] replacement) {
-        super(cs, (float) NativeConverter.getAveBytesPerChar(cHandle),
-                (float) NativeConverter.getMaxBytesPerChar(cHandle), replacement);
-        converterHandle = cHandle;
-        updateCallback();
+    public static CharsetEncoderICU newInstance(Charset cs, String icuCanonicalName) {
+        // This complexity is necessary to ensure that even if the constructor, superclass
+        // constructor, or call to updateCallback throw, we still free the native peer.
+        long address = 0;
+        try {
+            address = NativeConverter.openConverter(icuCanonicalName);
+            float averageBytesPerChar = NativeConverter.getAveBytesPerChar(address);
+            float maxBytesPerChar = NativeConverter.getMaxBytesPerChar(address);
+            byte[] replacement = makeReplacement(icuCanonicalName, address);
+            CharsetEncoderICU result = new CharsetEncoderICU(cs, averageBytesPerChar, maxBytesPerChar, replacement, address);
+            address = 0; // CharsetEncoderICU has taken ownership; its finalizer will do the free.
+            result.updateCallback();
+            return result;
+        } finally {
+            if (address != 0) {
+                NativeConverter.closeConverter(address);
+            }
+        }
+    }
+
+    private static byte[] makeReplacement(String icuCanonicalName, long address) {
+        // We have our own map of RI-compatible default replacements (where ICU disagrees)...
+        byte[] replacement = DEFAULT_REPLACEMENTS.get(icuCanonicalName);
+        if (replacement != null) {
+            return replacement.clone();
+        }
+        // ...but fall back to asking ICU.
+        return NativeConverter.getSubstitutionBytes(address);
+    }
+
+    private CharsetEncoderICU(Charset cs, float averageBytesPerChar, float maxBytesPerChar, byte[] replacement, long address) {
+        super(cs, averageBytesPerChar, maxBytesPerChar, replacement);
+        this.converterHandle = address;
     }
 
     /**

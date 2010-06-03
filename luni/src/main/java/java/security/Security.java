@@ -41,7 +41,6 @@ import org.apache.harmony.security.fortress.Engine;
 import org.apache.harmony.security.fortress.PolicyUtils;
 import org.apache.harmony.security.fortress.SecurityAccess;
 import org.apache.harmony.security.fortress.Services;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * {@code Security} is the central class in the Java Security API. It manages
@@ -322,17 +321,15 @@ public final class Security {
      */
     public static Provider[] getProviders(String filter) {
         if (filter == null) {
-            throw new NullPointerException(Messages.getString("security.2A"));
+            throw new NullPointerException();
         }
         if (filter.length() == 0) {
-            throw new InvalidParameterException(
-                    Messages.getString("security.2B"));
+            throw new InvalidParameterException();
         }
         HashMap<String, String> hm = new HashMap<String, String>();
         int i = filter.indexOf(':');
         if ((i == filter.length() - 1) || (i == 0)) {
-            throw new InvalidParameterException(
-                    Messages.getString("security.2B"));
+            throw new InvalidParameterException();
         }
         if (i < 1) {
             hm.put(filter, "");
@@ -368,7 +365,7 @@ public final class Security {
      */
     public static synchronized Provider[] getProviders(Map<String,String> filter) {
         if (filter == null) {
-            throw new NullPointerException(Messages.getString("security.2A"));
+            throw new NullPointerException();
         }
         if (filter.isEmpty()) {
             return null;
@@ -384,31 +381,26 @@ public final class Security {
             int i = key.indexOf(' ');
             int j = key.indexOf('.');
             if (j == -1) {
-                throw new InvalidParameterException(
-                        Messages.getString("security.2B"));
+                throw new InvalidParameterException();
             }
             if (i == -1) { // <crypto_service>.<algorithm_or_type>
                 if (val.length() != 0) {
-                    throw new InvalidParameterException(
-                            Messages.getString("security.2B"));
+                    throw new InvalidParameterException();
                 }
             } else { // <crypto_service>.<algorithm_or_type> <attribute_name>
                 if (val.length() == 0) {
-                    throw new InvalidParameterException(
-                            Messages.getString("security.2B"));
+                    throw new InvalidParameterException();
                 }
                 attribute = key.substring(i + 1);
                 if (attribute.trim().length() == 0) {
-                    throw new InvalidParameterException(
-                            Messages.getString("security.2B"));
+                    throw new InvalidParameterException();
                 }
                 key = key.substring(0, i);
             }
             String serv = key.substring(0, j);
             String alg = key.substring(j + 1);
             if (serv.length() == 0 || alg.length() == 0) {
-                throw new InvalidParameterException(
-                        Messages.getString("security.2B"));
+                throw new InvalidParameterException();
             }
             Provider p;
             for (int k = 0; k < result.size(); k++) {
@@ -446,7 +438,7 @@ public final class Security {
      */
     public static String getProperty(String key) {
         if (key == null) {
-            throw new NullPointerException(Messages.getString("security.2C"));
+            throw new NullPointerException("key == null");
         }
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {

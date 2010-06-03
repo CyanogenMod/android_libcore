@@ -19,8 +19,6 @@ package java.security.spec;
 
 import java.math.BigInteger;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The parameter specification used with Elliptic Curve Cryptography (ECC).
  */
@@ -58,22 +56,20 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
         this.cofactor = cofactor;
         // throw NullPointerException if curve, generator or order is null
         if (this.curve == null) {
-            throw new NullPointerException(Messages.getString("security.83", "curve"));
+            throw new NullPointerException("curve == null");
         }
         if (this.generator == null) {
-            throw new NullPointerException(Messages.getString("security.83", "generator"));
+            throw new NullPointerException("generator == null");
         }
         if (this.order == null) {
-            throw new NullPointerException(Messages.getString("security.83", "order"));
+            throw new NullPointerException("order == null");
         }
         // throw IllegalArgumentException if order or cofactor is not positive
         if (!(this.order.compareTo(BigInteger.ZERO) > 0)) {
-            throw new
-            IllegalArgumentException(Messages.getString("security.86", "order"));
+            throw new IllegalArgumentException("order <= 0");
         }
         if (!(this.cofactor > 0)) {
-            throw new
-            IllegalArgumentException(Messages.getString("security.86", "cofactor"));
+            throw new IllegalArgumentException("cofactor <= 0");
         }
     }
 

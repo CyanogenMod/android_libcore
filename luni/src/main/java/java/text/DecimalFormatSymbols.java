@@ -39,7 +39,7 @@ import java.util.Locale;
  * @see java.util.Locale
  * @see DecimalFormat
  */
-public final class DecimalFormatSymbols implements Cloneable, Serializable {
+public class DecimalFormatSymbols implements Cloneable, Serializable {
 
     private static final long serialVersionUID = 5772796243397350300L;
 
@@ -114,7 +114,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
      * @return an instance of {@code DecimalFormatSymbols}
      * @since 1.6
      */
-    public static final DecimalFormatSymbols getInstance() {
+    public static DecimalFormatSymbols getInstance() {
         return getInstance(Locale.getDefault());
     }
 
@@ -126,7 +126,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
      * @throws NullPointerException if {@code locale == null}
      * @since 1.6
      */
-    public static final DecimalFormatSymbols getInstance(Locale locale) {
+    public static DecimalFormatSymbols getInstance(Locale locale) {
         if (locale == null) {
             throw new NullPointerException();
         }
@@ -563,7 +563,7 @@ public final class DecimalFormatSymbols implements Cloneable, Serializable {
         this.exponentSeparator = value;
     }
 
-    private static final ObjectStreamField[] serialPersistentFields = {
+    private static ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("currencySymbol", String.class),
         new ObjectStreamField("decimalSeparator", Character.TYPE),
         new ObjectStreamField("digit", Character.TYPE),

@@ -16,6 +16,7 @@
 
 package java.nio.charset;
 
+import com.ibm.icu4jni.charset.CharsetEncoderICU;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -23,61 +24,54 @@ import java.nio.CharBuffer;
 import java.util.Arrays;
 
 /**
- * A converter that can converts a 16-bit Unicode character sequence to a byte
- * sequence in some charset.
- * <p>
- * The input character sequence is wrapped by a
- * {@link java.nio.CharBuffer CharBuffer} and the output character sequence is a
- * {@link java.nio.ByteBuffer ByteBuffer}. An encoder instance should be used
- * in the following sequence, which is referred to as a encoding operation:
+ * Transforms a sequence of 16-bit Java characters to a byte sequence in some encoding.
+ *
+ * <p>The input character sequence is a {@link java.nio.CharBuffer CharBuffer} and the
+ * output byte sequence is a {@link java.nio.ByteBuffer ByteBuffer}.
+ *
+ * <p>Use {@link #encode(CharBuffer)} to encode an entire {@code CharBuffer} to a
+ * new {@code ByteBuffer}, or {@link #encode(CharBuffer, ByteBuffer, boolean)} for more
+ * control. When using the latter method, the entire operation proceeds as follows:
  * <ol>
- * <li>invoking the {@link #reset() reset} method to reset the encoder if the
- * encoder has been used;</li>
- * <li>invoking the {@link #encode(CharBuffer, ByteBuffer, boolean) encode}
- * method until the additional input is not needed, the <code>endOfInput</code>
- * parameter must be set to false, the input buffer must be filled and the
- * output buffer must be flushed between invocations;</li>
- * <li>invoking the {@link #encode(CharBuffer, ByteBuffer, boolean) encode}
- * method for the last time and the <code>endOfInput</code> parameter must be
- * set to {@code true}</li>
- * <li>invoking the {@link #flush(ByteBuffer) flush} method to flush the
- * output.</li>
- * </ol>
- * <p>
- * The {@link #encode(CharBuffer, ByteBuffer, boolean) encode} method will
+ * <li>Invoke {@link #reset()} to reset the encoder if this instance has been used before.</li>
+ * <li>Invoke {@link #encode(CharBuffer, ByteBuffer, boolean) encode} with the {@code endOfInput}
+ * parameter set to false until additional input is not needed (as signaled by the return value).
+ * The input buffer must be filled and the output buffer must be flushed between invocations.
+ * <p>The {@link #encode(CharBuffer, ByteBuffer, boolean) encode} method will
  * convert as many characters as possible, and the process won't stop until the
- * input characters have run out, the output buffer has been filled or some
- * error has happened. A {@link CoderResult CoderResult} instance will be
- * returned to indicate the stop reason, and the invoker can identify the result
- * and choose further action, which includes filling the input buffer, flushing
- * the output buffer or recovering from an error and trying again.
- * <p>
- * There are two common encoding errors. One is named malformed and it is
- * returned when the input content is an illegal 16-bit Unicode character
- * sequence, the other is named unmappable character and occurs when there is a
- * problem mapping the input to a valid byte sequence in the specified charset.
- * <p>
- * Both errors can be handled in three ways, the default one is to report the
- * error to the invoker by a {@link CoderResult CoderResult} instance, and the
- * alternatives are to ignore it or to replace the erroneous input with the
- * replacement byte array. The replacement byte array is '{@code ?}' by
- * default and can be changed by invoking the
- * {@link #replaceWith(byte[]) replaceWith} method. The invoker of this encoder
- * can choose one way by specifying a
- * {@link CodingErrorAction CodingErrorAction} instance for each error type via
- * the {@link #onMalformedInput(CodingErrorAction) onMalformedInput} method and
- * the {@link #onUnmappableCharacter(CodingErrorAction) onUnmappableCharacter}
- * method.
- * <p>
- * This class is abstract and encapsulates many common operations of the
+ * input buffer has been exhausted, the output buffer has been filled, or an
+ * error has occurred. A {@link CoderResult CoderResult} instance will be
+ * returned to indicate the current state. The caller should fill the input buffer, flush
+ * the output buffer, or recovering from an error and try again, accordingly.
+ * </li>
+ * <li>Invoke {@link #encode(CharBuffer, ByteBuffer, boolean) encode} for the last time with
+ * {@code endOfInput} set to true.</li>
+ * <li>Invoke {@link #flush(ByteBuffer)} to flush remaining output.</li>
+ * </ol>
+ *
+ * <p>There are two classes of encoding error: <i>malformed input</i>
+ * signifies that the input character sequence is not legal, while <i>unmappable character</i>
+ * signifies that the input is legal but cannot be mapped to a byte sequence (because the charset
+ * cannot represent the character, for example).
+ *
+ * <p>Errors can be handled in three ways. The default is to
+ * {@link CodingErrorAction.REPORT report} the error to the caller. The alternatives are to
+ * {@link CodingErrorAction.IGNORE ignore} the error or {@link CodingErrorAction.IGNORE replace}
+ * the problematic input with the byte sequence returned by {@link #replacement}. The disposition
+ * for each of the two kinds of error can be set independently using the {@link #onMalformedInput}
+ * and {@link #onUnmappableCharacter} methods.
+ *
+ * <p>The default replacement bytes depend on the charset but can be overridden using the
+ * {@link #replaceWith} method.
+ *
+ * <p>This class is abstract and encapsulates many common operations of the
  * encoding process for all charsets. Encoders for a specific charset should
  * extend this class and need only to implement the
  * {@link #encodeLoop(CharBuffer, ByteBuffer) encodeLoop} method for basic
- * encoding. If a subclass maintains an internal state, it should override the
- * {@link #implFlush(ByteBuffer) implFlush} method and the
- * {@link #implReset() implReset} method in addition.
- * <p>
- * This class is not thread-safe.
+ * encoding. If a subclass maintains internal state, it should also override the
+ * {@link #implFlush(ByteBuffer) implFlush} and {@link #implReset() implReset} methods.
+ *
+ * <p>This class is not thread-safe.
  *
  * @see java.nio.charset.Charset
  * @see java.nio.charset.CharsetDecoder
@@ -163,7 +157,13 @@ public abstract class CharsetEncoder {
         status = INIT;
         malformAction = CodingErrorAction.REPORT;
         unmapAction = CodingErrorAction.REPORT;
-        replaceWith(replacement);
+        if (this instanceof CharsetEncoderICU) {
+            // The RI enforces unnecessary restrictions on the replacement bytes. We trust ICU to
+            // know what it's doing. This lets us support EUC-JP, SCSU, and Shift_JIS.
+            uncheckedReplaceWith(replacement);
+        } else {
+            replaceWith(replacement);
+        }
     }
 
     /**
@@ -288,8 +288,7 @@ public abstract class CharsetEncoder {
      * @throws CharacterCodingException
      *             if other exception happened during the encode operation.
      */
-    public final ByteBuffer encode(CharBuffer in)
-            throws CharacterCodingException {
+    public final ByteBuffer encode(CharBuffer in) throws CharacterCodingException {
         if (in.remaining() == 0) {
             return ByteBuffer.allocate(0);
         }
@@ -335,8 +334,7 @@ public abstract class CharsetEncoder {
     /*
      * checks the result whether it needs to throw CharacterCodingException.
      */
-    private void checkCoderResult(CoderResult result)
-            throws CharacterCodingException {
+    private void checkCoderResult(CoderResult result) throws CharacterCodingException {
         if (malformAction == CodingErrorAction.REPORT && result.isMalformed() ) {
             throw new MalformedInputException(result.length());
         } else if (unmapAction == CodingErrorAction.REPORT && result.isUnmappable()) {
@@ -609,26 +607,20 @@ public abstract class CharsetEncoder {
      *
      * This method can be overridden for performance improvement.
      *
-     * @param repl
+     * @param replacement
      *            the given byte array to be checked.
      * @return true if the the given argument is legal as this encoder's
      *         replacement byte array.
      */
-    public boolean isLegalReplacement(byte[] repl) {
+    public boolean isLegalReplacement(byte[] replacement) {
         if (decoder == null) {
             decoder = cs.newDecoder();
+            decoder.onMalformedInput(CodingErrorAction.REPORT);
+            decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
         }
-
-        CodingErrorAction malform = decoder.malformedInputAction();
-        CodingErrorAction unmap = decoder.unmappableCharacterAction();
-        decoder.onMalformedInput(CodingErrorAction.REPORT);
-        decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
-        ByteBuffer in = ByteBuffer.wrap(repl);
-        CharBuffer out = CharBuffer.allocate((int) (repl.length * decoder
-                .maxCharsPerByte()));
+        ByteBuffer in = ByteBuffer.wrap(replacement);
+        CharBuffer out = CharBuffer.allocate((int) (replacement.length * decoder.maxCharsPerByte()));
         CoderResult result = decoder.decode(in, out, true);
-        decoder.onMalformedInput(malform);
-        decoder.onUnmappableCharacter(unmap);
         return !result.isError();
     }
 
@@ -726,14 +718,23 @@ public abstract class CharsetEncoder {
      *             mentioned above.
      */
     public final CharsetEncoder replaceWith(byte[] replacement) {
-        if (replacement == null || replacement.length == 0 || maxBytes < replacement.length
-                || !isLegalReplacement(replacement)) {
+        if (replacement == null) {
+            throw new IllegalArgumentException("replacement == null");
+        }
+        if (replacement.length == 0 || maxBytes < replacement.length) {
+            throw new IllegalArgumentException("bad replacement length: " + replacement.length);
+        }
+        if (!isLegalReplacement(replacement)) {
             throw new IllegalArgumentException("bad replacement: " + Arrays.toString(replacement));
         }
+        uncheckedReplaceWith(replacement);
+        return this;
+    }
+
+    private final void uncheckedReplaceWith(byte[] replacement) {
         // It seems like a bug, but the RI doesn't clone, and we have tests that check we don't.
         replace = replacement;
         implReplaceWith(replace);
-        return this;
     }
 
     /**

@@ -24,8 +24,6 @@ import java.io.ObjectStreamField;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * Specific {@code PermissionCollection} for storing {@code AllPermission}s. All
  * instances of {@code AllPermission} are equivalent, so it is enough to store a
@@ -49,11 +47,10 @@ final class AllPermissionCollection extends PermissionCollection {
     @Override
     public void add(Permission permission) {
         if (isReadOnly()) {
-            throw new SecurityException(Messages.getString("security.15"));
+            throw new SecurityException("collection is read-only");
         }
         if (!(permission instanceof AllPermission)) {
-            throw new IllegalArgumentException(Messages.getString("security.16",
-                permission));
+            throw new IllegalArgumentException("Invalid permission: " + permission);
         }
         all = permission;
     }
@@ -94,7 +91,7 @@ final class AllPermissionCollection extends PermissionCollection {
          */
         public E nextElement() {
             if (element == null) {
-                throw new NoSuchElementException(Messages.getString("security.17"));
+                throw new NoSuchElementException();
             }
             E last = element;
             element = null;

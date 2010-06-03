@@ -19,8 +19,6 @@ package java.security.cert;
 
 import java.security.PublicKey;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The implementation of the result of the PKIX certification path validation.
  *
@@ -54,11 +52,10 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
         this.policyTree = policyTree;
         this.subjectPublicKey = subjectPublicKey;
         if (this.trustAnchor == null) {
-            throw new NullPointerException(Messages.getString("security.64"));
+            throw new NullPointerException("trustAnchor == null");
         }
         if (this.subjectPublicKey == null) {
-            throw new NullPointerException(
-                    Messages.getString("security.65"));
+            throw new NullPointerException("subjectPublicKey == null");
         }
     }
 

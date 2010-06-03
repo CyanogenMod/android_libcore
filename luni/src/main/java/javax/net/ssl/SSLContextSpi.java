@@ -17,6 +17,7 @@
 
 package javax.net.ssl;
 
+import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.SecureRandom;
 
@@ -112,21 +113,53 @@ public abstract class SSLContextSpi {
      * SSL handshake parameters values including cipher suites,
      * protocols, and client authentication.
      *
-     * The default implementation returns an SSLParameters with values
+     * <p>The default implementation returns an SSLParameters with values
      * based an SSLSocket created from this instances SocketFactory.
      *
      * @since 1.6
      */
-    protected abstract SSLParameters engineGetDefaultSSLParameters();
+    protected javax.net.ssl.SSLParameters engineGetDefaultSSLParameters() {
+        return createSSLParameters(false);
+    }
 
     /**
      * Returns a new SSLParameters instance that includes all
      * supported cipher suites and protocols.
      *
-     * The default implementation returns an SSLParameters with values
+     * <p>The default implementation returns an SSLParameters with values
      * based an SSLSocket created from this instances SocketFactory.
      *
      * @since 1.6
      */
-    protected abstract SSLParameters engineGetSupportedSSLParameters();
+    protected javax.net.ssl.SSLParameters engineGetSupportedSSLParameters() {
+        return createSSLParameters(true);
+    }
+
+    private javax.net.ssl.SSLParameters createSSLParameters(boolean supported) {
+        try {
+            SSLSocket s = (SSLSocket) engineGetSocketFactory().createSocket();
+            javax.net.ssl.SSLParameters p = new javax.net.ssl.SSLParameters();
+            String[] cipherSuites;
+            String[] protocols;
+            if (supported) {
+                cipherSuites = s.getSupportedCipherSuites();
+                protocols = s.getSupportedProtocols();
+            } else {
+                cipherSuites = s.getEnabledCipherSuites();
+                protocols = s.getEnabledProtocols();
+            }
+            p.setCipherSuites(cipherSuites);
+            p.setProtocols(protocols);
+            p.setNeedClientAuth(s.getNeedClientAuth());
+            p.setWantClientAuth(s.getWantClientAuth());
+            return p;
+        } catch (IOException e) {
+            /*
+             * SSLContext.getDefaultSSLParameters specifies to throw
+             * UnsupportedOperationException if there is a problem getting the
+             * parameters
+             */
+            throw new UnsupportedOperationException("Could not access supported SSL parameters");
+        }
+    }
 }

@@ -162,9 +162,7 @@ public class JDBCResultSet implements java.sql.ResultSet {
 
     public boolean previous() throws SQLException {
 	if (tr == null) {
-	    // BEGIN android-changed: throw rather than return false.
-	    throw new SQLException("ResultSet already closed");
-	    // END android-changed
+	    throw new SQLException("result set already closed.");
 	}
 	if (row >= 0) {
 	    row--;
@@ -261,7 +259,7 @@ public class JDBCResultSet implements java.sql.ResultSet {
 
     public boolean getBoolean(int columnIndex) throws SQLException {
 	return getInt(columnIndex) == 1 ||
-	    Boolean.parseBoolean(getString(columnIndex)); // android-changed: performance
+	    Boolean.parseBoolean(getString(columnIndex));
     }
 
     public boolean getBoolean(String columnName) throws SQLException {

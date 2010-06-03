@@ -28,7 +28,6 @@ import javax.security.auth.x500.X500Principal;
 
 import org.apache.harmony.security.asn1.ASN1Integer;
 import org.apache.harmony.security.asn1.ASN1OctetString;
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.x501.Name;
 
 /**
@@ -122,8 +121,7 @@ public class X509CRLSelector implements CRLSelector {
                         new Name((byte[]) name).getName(
                             X500Principal.CANONICAL));
             } else {
-                throw new IOException(
-                        Messages.getString("security.62"));
+                throw new IOException("name neither a String nor a byte[]");
             }
         }
     }
@@ -139,7 +137,7 @@ public class X509CRLSelector implements CRLSelector {
      */
     public void addIssuer(X500Principal issuer) {
         if (issuer == null) {
-            throw new NullPointerException(Messages.getString("security.61"));
+            throw new NullPointerException("issuer == null");
         }
         if (issuerNames == null) {
             issuerNames = new ArrayList<String>();
@@ -200,7 +198,7 @@ public class X509CRLSelector implements CRLSelector {
      */
     public void addIssuerName(byte[] iss_name) throws IOException {
         if (iss_name == null) {
-            throw new NullPointerException(Messages.getString("security.63"));
+            throw new NullPointerException("iss_name == null");
         }
         if (issuerNames == null) {
             issuerNames = new ArrayList<String>();
@@ -463,4 +461,3 @@ public class X509CRLSelector implements CRLSelector {
         return result;
     }
 }
-

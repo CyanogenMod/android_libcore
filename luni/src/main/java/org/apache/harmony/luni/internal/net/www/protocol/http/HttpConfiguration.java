@@ -41,14 +41,7 @@ public class HttpConfiguration {
     public HttpConfiguration(URI uri) {
         this.uri = uri;
         this.hostName = uri.getHost();
-        this.hostPort = uri.getPort();
-        if(hostPort == -1) {
-            if(uri.getScheme().equals("https")) {
-                hostPort = 443;
-            } else {
-                hostPort = 80;
-            }
-        }
+        this.hostPort = uri.getEffectivePort();
     }
 
     public HttpConfiguration(URI uri, Proxy proxy) {
@@ -66,14 +59,7 @@ public class HttpConfiguration {
         } else {
             // using SOCKS proxy
             this.hostName = uri.getHost();
-            this.hostPort = uri.getPort();
-            if(hostPort == -1) {
-                if(uri.getScheme().equals("https")) {
-                    hostPort = 443;
-                } else {
-                    hostPort = 80;
-                }
-            }
+            this.hostPort = uri.getEffectivePort();
         }
         this.uri = uri;
         SocketAddress proxyAddr = proxy.address();

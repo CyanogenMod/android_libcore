@@ -13,6 +13,7 @@ LOCAL_SRC_FILES := \
 	NativeIDN.cpp \
 	NativeNormalizer.cpp \
 	NativeRegEx.cpp \
+	NetworkUtilities.cpp \
 	Register.cpp \
 	UCharacter.cpp \
 	cbigint.cpp \

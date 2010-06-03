@@ -21,7 +21,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
 import org.apache.harmony.security.fortress.Engine;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * {@code KeyFactory} is an engine class that can be used to translate between
@@ -79,7 +78,7 @@ public class KeyFactory {
     public static KeyFactory getInstance(String algorithm)
                                 throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         synchronized (engine) {
             engine.getInstance(algorithm, null);
@@ -101,18 +100,17 @@ public class KeyFactory {
      *             if the provider does not provide the requested algorithm.
      * @throws NoSuchProviderException
      *             if the requested provider is not available.
-     * @throws IllegalArgumentException
-     *             if {@code provider} is {@code null} or empty.
+     * @throws IllegalArgumentException if {@code provider == null || provider.isEmpty()}
      */
     @SuppressWarnings("nls")
     public static KeyFactory getInstance(String algorithm, String provider)
                                 throws NoSuchAlgorithmException, NoSuchProviderException {
-        if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02"));
+        if (provider == null || provider.isEmpty()) {
+            throw new IllegalArgumentException();
         }
         Provider p = Security.getProvider(provider);
         if (p == null) {
-            throw new NoSuchProviderException(Messages.getString("security.03", provider));
+            throw new NoSuchProviderException(provider);
         }
         return getInstance(algorithm, p);
     }
@@ -129,14 +127,15 @@ public class KeyFactory {
      *         algorithm from the specified provider.
      * @throws NoSuchAlgorithmException
      *             if the provider does not provide the requested algorithm.
+     * @throws IllegalArgumentException if {@code provider == null}
      */
     public static KeyFactory getInstance(String algorithm, Provider provider)
                                  throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04"));
+            throw new IllegalArgumentException();
         }
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         synchronized (engine) {
             engine.getInstance(algorithm, provider, null);

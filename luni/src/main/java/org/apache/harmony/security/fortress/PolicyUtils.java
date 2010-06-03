@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.harmony.security.Util;
-import org.apache.harmony.security.internal.nls.Messages;
 
 /**
  * This class consist of a number of static methods, which provide a common functionality
@@ -188,16 +187,16 @@ public class PolicyUtils {
         public T run() {
             String klassName = Security.getProperty(key);
             if (klassName == null || klassName.length() == 0) {
-                throw new SecurityException(Messages.getString("security.14C",
-                                            key));
+                throw new SecurityException("Provider implementation should be specified via '" +
+                        key + "' security property");
             }
             // TODO accurate classloading
             try {
                 Class<?> klass = Class.forName(klassName, true,
                         Thread.currentThread().getContextClassLoader());
                 if (expectedType != null && klass.isAssignableFrom(expectedType)){
-                    throw new SecurityException(Messages.getString("security.14D",
-                                              klassName, expectedType.getName()));
+                    throw new SecurityException("Provided class " + klassName +
+                            " does not implement " + expectedType.getName());
                 }
                 //FIXME expectedType.cast(klass.newInstance());
                 return (T)klass.newInstance();
@@ -207,8 +206,7 @@ public class PolicyUtils {
             }
             catch (Exception e) {
                 // TODO log error ??
-                SecurityException se = new SecurityException(
-                        Messages.getString("security.14E", klassName));
+                SecurityException se = new SecurityException("Unable to instantiate provider: " + klassName);
                 se.initCause(e);
                 throw se;
             }
@@ -268,7 +266,7 @@ public class PolicyUtils {
                     result.replace(start, end + END_OFFSET, value);
                     start += value.length();
                 } else {
-                    throw new ExpansionFailedException(Messages.getString("security.14F", key));
+                    throw new ExpansionFailedException("Unknown key: " + key);
                 }
             }
             start = result.indexOf(START_MARK, start);
@@ -600,8 +598,8 @@ public class PolicyUtils {
             }
             catch (NoSuchMethodException ignore) {}
         }
-        throw new IllegalArgumentException(
-                Messages.getString("security.150", targetType));
+        throw new IllegalArgumentException("No suitable constructors found in permission class " +
+                targetType + ". Zero, one or two-argument constructor is expected");
     }
 
     /**

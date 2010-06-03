@@ -19,8 +19,6 @@ package java.security.cert;
 
 import java.security.GeneralSecurityException;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The exception that is thrown when a certification path (or certificate chain)
  * cannot be validated.
@@ -68,12 +66,10 @@ public class CertPathValidatorException extends GeneralSecurityException {
         super(msg, cause);
         // check certPath and index parameters
         if ((certPath == null) && (index != -1)) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.53"));
+            throw new IllegalArgumentException("Index should be -1 when CertPath is null");
         }
-        if ((certPath != null)
-                && ((index < -1) || (index >= certPath.getCertificates().size()))) {
-            throw new IndexOutOfBoundsException(Messages.getString("security.54"));
+        if ((certPath != null) && ((index < -1) || (index >= certPath.getCertificates().size()))) {
+            throw new IndexOutOfBoundsException();
         }
         this.certPath = certPath;
         this.index = index;

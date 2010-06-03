@@ -33,11 +33,9 @@ public class JDBCStatement implements java.sql.Statement {
     }
 
     public void setMaxRows(int max) throws SQLException {
-    // BEGIN android-added: missing error checking.
-    if (max < 0) {
-        throw new SQLException("max must be >= 0 (was " + max + ")");
-    }
-    // END android-added
+	if (max < 0) {
+	    throw new SQLException("max must be >= 0 (was " + max + ")");
+	}
 	maxrows = max;
     }
 

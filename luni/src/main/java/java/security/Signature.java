@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.harmony.security.fortress.Engine;
-import org.apache.harmony.security.internal.nls.Messages;
 
 
 /**
@@ -101,7 +100,7 @@ public abstract class Signature extends SignatureSpi {
     public static Signature getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         Signature result;
         synchronized (engine) {
@@ -134,19 +133,19 @@ public abstract class Signature extends SignatureSpi {
      *             if the specified provider is not available.
      * @throws NullPointerException
      *             if {@code algorithm} is {@code null}.
+     * @throws IllegalArgumentException if {@code provider == null || provider.isEmpty()}
      */
     public static Signature getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
-        if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.02"));
+        if (provider == null || provider.isEmpty()) {
+            throw new IllegalArgumentException();
         }
         Provider p = Security.getProvider(provider);
         if (p == null) {
-            throw new NoSuchProviderException(Messages.getString("security.03", provider));
+            throw new NoSuchProviderException(provider);
         }
         return getSignatureInstance(algorithm, p);
     }
@@ -165,14 +164,15 @@ public abstract class Signature extends SignatureSpi {
      *             if the specified algorithm is not available.
      * @throws NullPointerException
      *             if {@code algorithm} is {@code null}.
+     * @throws IllegalArgumentException if {@code provider == null}
      */
     public static Signature getInstance(String algorithm, Provider provider)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException(Messages.getString("security.01"));
+            throw new NullPointerException();
         }
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04"));
+            throw new IllegalArgumentException();
         }
         return getSignatureInstance(algorithm, provider);
     }
@@ -266,8 +266,7 @@ public abstract class Signature extends SignatureSpi {
                     //
                     // KeyUsage ::= BIT STRING { digitalSignature (0), <skipped> }
                     if ((keyUsage != null) && (!keyUsage[0])) { // digitalSignature
-                        throw new InvalidKeyException(
-                                Messages.getString("security.26"));
+                        throw new InvalidKeyException("The public key in the certificate cannot be used for digital signature purposes");
                     }
                 }
             }
@@ -323,8 +322,7 @@ public abstract class Signature extends SignatureSpi {
      */
     public final byte[] sign() throws SignatureException {
         if (state != SIGN) {
-            throw new SignatureException(
-                    Messages.getString("security.27"));
+            throw new SignatureException("Signature object is not initialized properly");
         }
         return engineSign();
     }
@@ -355,12 +353,10 @@ public abstract class Signature extends SignatureSpi {
             throws SignatureException {
         if (outbuf == null || offset < 0 || len < 0 ||
                 offset + len > outbuf.length) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.05"));
+            throw new IllegalArgumentException();
         }
         if (state != SIGN) {
-            throw new SignatureException(
-                    Messages.getString("security.27"));
+            throw new SignatureException("Signature object is not initialized properly");
         }
         return engineSign(outbuf, offset, len);
     }
@@ -383,8 +379,7 @@ public abstract class Signature extends SignatureSpi {
      */
     public final boolean verify(byte[] signature) throws SignatureException {
         if (state != VERIFY) {
-            throw new SignatureException(
-                    Messages.getString("security.27"));
+            throw new SignatureException("Signature object is not initialized properly");
         }
         return engineVerify(signature);
     }
@@ -416,13 +411,11 @@ public abstract class Signature extends SignatureSpi {
     public final boolean verify(byte[] signature, int offset, int length)
             throws SignatureException {
         if (state != VERIFY) {
-            throw new SignatureException(
-                    Messages.getString("security.27"));
+            throw new SignatureException("Signature object is not initialized properly");
         }
         if (signature == null || offset < 0 || length < 0 ||
                 offset + length > signature.length) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.05"));
+            throw new IllegalArgumentException();
         }
         return engineVerify(signature, offset, length);
     }
@@ -439,8 +432,7 @@ public abstract class Signature extends SignatureSpi {
      */
     public final void update(byte b) throws SignatureException {
         if (state == UNINITIALIZED) {
-            throw new SignatureException(
-                    Messages.getString("security.27"));
+            throw new SignatureException("Signature object is not initialized properly");
         }
         engineUpdate(b);
     }
@@ -457,8 +449,7 @@ public abstract class Signature extends SignatureSpi {
      */
     public final void update(byte[] data) throws SignatureException {
         if (state == UNINITIALIZED) {
-            throw new SignatureException(
-                    Messages.getString("security.27"));
+            throw new SignatureException("Signature object is not initialized properly");
         }
         engineUpdate(data, 0, data.length);
     }
@@ -480,13 +471,11 @@ public abstract class Signature extends SignatureSpi {
     public final void update(byte[] data, int off, int len)
             throws SignatureException {
         if (state == UNINITIALIZED) {
-            throw new SignatureException(
-                    Messages.getString("security.27"));
+            throw new SignatureException("Signature object is not initialized properly");
         }
         if (data == null || off < 0 || len < 0 ||
                 off + len > data.length) {
-            throw new IllegalArgumentException(
-                    Messages.getString("security.05"));
+            throw new IllegalArgumentException();
         }
         engineUpdate(data, off, len);
     }
@@ -503,8 +492,7 @@ public abstract class Signature extends SignatureSpi {
      */
     public final void update(ByteBuffer data) throws SignatureException {
         if (state == UNINITIALIZED) {
-            throw new SignatureException(
-                    Messages.getString("security.27"));
+            throw new SignatureException("Signature object is not initialized properly");
         }
         engineUpdate(data);
     }

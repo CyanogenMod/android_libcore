@@ -68,22 +68,17 @@ public class PlainSocketImpl extends SocketImpl {
 
     Proxy proxy;
 
-    public PlainSocketImpl() {
-        super();
-        fd = new FileDescriptor();
-    }
-
     public PlainSocketImpl(FileDescriptor fd) {
-        super();
         this.fd = fd;
     }
 
-    /**
-     * creates an instance with specified proxy.
-     */
     public PlainSocketImpl(Proxy proxy) {
-        this();
+        this(new FileDescriptor());
         this.proxy = proxy;
+    }
+
+    public PlainSocketImpl() {
+        this(new FileDescriptor());
     }
 
     public PlainSocketImpl(FileDescriptor fd, int localport, InetAddress addr, int port) {

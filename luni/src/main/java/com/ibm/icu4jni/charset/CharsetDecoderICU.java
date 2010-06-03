@@ -64,17 +64,27 @@ public final class CharsetDecoderICU extends CharsetDecoder {
     private int ec;
     private int savedInputHeldLen;
 
-    /**
-     * Constructs a new decoder for the given charset
-     * @param cs for which the decoder is created
-     * @param cHandle the address of ICU converter
-     * @exception RuntimeException
-     * @stable ICU 2.4
-     */
-    public CharsetDecoderICU(Charset cs,long cHandle){
-        super(cs, NativeConverter.getAveCharsPerByte(cHandle), MAX_CHARS_PER_BYTE);
-        converterHandle = cHandle;
-        updateCallback();
+    public static CharsetDecoderICU newInstance(Charset cs, String icuCanonicalName) {
+        // This complexity is necessary to ensure that even if the constructor, superclass
+        // constructor, or call to updateCallback throw, we still free the native peer.
+        long address = 0;
+        try {
+            address = NativeConverter.openConverter(icuCanonicalName);
+            float averageCharsPerByte = NativeConverter.getAveCharsPerByte(address);
+            CharsetDecoderICU result = new CharsetDecoderICU(cs, averageCharsPerByte, address);
+            address = 0; // CharsetDecoderICU has taken ownership; its finalizer will do the free.
+            result.updateCallback();
+            return result;
+        } finally {
+            if (address != 0) {
+                NativeConverter.closeConverter(address);
+            }
+        }
+    }
+
+    private CharsetDecoderICU(Charset cs, float averageCharsPerByte, long address) {
+        super(cs, averageCharsPerByte, MAX_CHARS_PER_BYTE);
+        this.converterHandle = address;
     }
 
     /**

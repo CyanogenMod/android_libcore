@@ -34,7 +34,6 @@ import org.apache.harmony.security.asn1.ASN1Sequence;
 import org.apache.harmony.security.asn1.ASN1SetOf;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.x501.AttributeTypeAndValue;
 import org.apache.harmony.security.x501.Name;
 import org.apache.harmony.security.x509.AlgorithmIdentifier;
@@ -195,9 +194,7 @@ public class SignerInfo {
                 // The exception is never thrown, because si.issuer
                 // is created using Name.getX500Principal().
                 // Throw a RuntimeException just to be safe.
-                throw new RuntimeException(
-                        // Msg: "Failed to encode issuer name
-                        Messages.getString("security.1A2"), e);
+                throw new RuntimeException("Failed to encode issuer name", e);
             }
             values[2] = si.digestAlgorithm;
             values[3] = si.authenticatedAttributes;

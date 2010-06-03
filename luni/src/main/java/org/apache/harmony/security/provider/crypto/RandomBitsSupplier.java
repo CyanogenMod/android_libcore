@@ -28,8 +28,6 @@ import java.security.ProviderException;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 
 /**
  *  The static class providing access on Linux platform
@@ -139,8 +137,7 @@ public class RandomBitsSupplier implements SHA1_Data {
                 // the below case should not occur because /dev/random or /dev/urandom is a special file
                 // hence, if it is happened there is some internal problem
                 if ( bytesRead == -1 ) {
-                    throw new ProviderException(
-                        Messages.getString("security.193") );
+                    throw new ProviderException("bytesRead == -1");
                 }
 
                 total  += bytesRead;
@@ -155,8 +152,7 @@ public class RandomBitsSupplier implements SHA1_Data {
             // actually there should be no IOException because device is a special file;
             // hence, there is either some internal problem or, for instance,
             // device was removed in runtime, or something else
-            throw new ProviderException(
-                Messages.getString("security.194"), e );
+            throw new ProviderException("ATTENTION: IOException in RandomBitsSupplier.getLinuxRandomBits(): " + e);
         }
         return bytes;
     }
@@ -186,15 +182,14 @@ public class RandomBitsSupplier implements SHA1_Data {
      */
     public static byte[] getRandomBits(int numBytes) {
 
-        if ( numBytes <= 0 ) {
-            throw new IllegalArgumentException(Messages.getString("security.195", numBytes));
+        if (numBytes <= 0) {
+            throw new IllegalArgumentException(Integer.toString(numBytes));
         }
 
         // We have been unable to get a random device or fall back to the
         // native security module code - throw an exception.
         if ( !serviceAvailable ) {
-            throw new ProviderException(
-                Messages.getString("security.196"));
+            throw new ProviderException("ATTENTION: service is not available : no random devices");
         }
 
         // BEGIN android-changed

@@ -112,6 +112,26 @@ public final class TextAttribute extends Attribute {
      */
     public static final Float JUSTIFICATION_NONE = new Float(0.0f);
 
+    /**
+     * The KERNING text attribute key.
+     *
+     * @since 1.6
+     */
+    public static final TextAttribute KERNING = new TextAttribute("kerning");
+
+    /** @since 1.6 */
+    public static final Integer KERNING_ON = 1;
+
+    /**
+     * The LIGATURES text attribute key.
+     *
+     * @since 1.6
+     */
+    public static final TextAttribute LIGATURES = new TextAttribute("ligatures");
+
+    /** @since 1.6 */
+    public static final Integer LIGATURES_ON = 1;
+
     /** The NUMERIC_SHAPING text attribute. */
     public static final TextAttribute NUMERIC_SHAPING = new TextAttribute("numeric_shaping");
 
@@ -165,6 +185,18 @@ public final class TextAttribute extends Attribute {
      * and background.
      */
     public static final Boolean SWAP_COLORS_ON = true;
+
+    /**
+     * The TRACKING text attribute key.
+     *
+     * @since 1.6
+     */
+    public static final TextAttribute TRACKING = new TextAttribute("tracking");
+
+    /** @since 1.6 */
+    public static final Float TRACKING_LOOSE = -1f;
+    /** @since 1.6 */
+    public static final Float TRACKING_TIGHT = -1f;
 
     /** The TRANSFORM text attribute. */
     public static final TextAttribute TRANSFORM = new TextAttribute("transform");

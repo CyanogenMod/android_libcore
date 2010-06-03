@@ -16,19 +16,17 @@
 
 package java.lang;
 
-import org.apache.harmony.kernel.vm.LangAccess;
-import org.apache.harmony.kernel.vm.ReflectionAccess;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
+import org.apache.harmony.kernel.vm.LangAccess;
+import org.apache.harmony.kernel.vm.ReflectionAccess;
 
 /**
  * Cache of per-class data, meant to help the performance of reflection
@@ -194,8 +192,9 @@ import java.util.HashSet;
     }
 
     /**
-     * Gets the list of all public methods, both directly
-     * declared and inherited.
+     * Gets the list of all public methods, both directly declared and
+     * inherited. Methods declared by this type appear earlier in this list than
+     * methods declared by the superclass.
      *
      * @return non-null; the list of all public methods
      */
@@ -244,41 +243,41 @@ import java.util.HashSet;
         StringBuilder builder = new StringBuilder();
         Class<?> origClass = clazz;
 
-        // Traverse class and superclasses, get rid of dupes by signature
-        while (clazz != null) {
-            Method[] declaredMethods =
-                clazz.getClassCache().getDeclaredMethods(publicOnly);
-            int length = declaredMethods.length;
-            if (length != 0) {
-                for (Method method : declaredMethods) {
-                    builder.setLength(0);
-                    builder.append(method.getName());
-                    builder.append('(');
-                    Class<?>[] types = method.getParameterTypes();
-                    if (types.length != 0) {
-                        builder.append(types[0].getName());
-                        for (int j = 1; j < types.length; j++) {
-                            builder.append(',');
-                            builder.append(types[j].getName());
-                        }
+        /*
+         * Traverse class and superclasses, get rid of dupes by signature.
+         * If two signatures differ only by return type, covariant return types
+         * are in play. For consistency with the RI we return both methods.
+         */
+        do {
+            for (Method method : clazz.getClassCache().getDeclaredMethods(publicOnly)) {
+                builder.setLength(0);
+                builder.append(method.getReturnType().getName());
+                builder.append(" ");
+                builder.append(method.getName());
+                builder.append('(');
+                Class<?>[] types = method.getParameterTypes();
+                if (types.length != 0) {
+                    builder.append(types[0].getName());
+                    for (int j = 1; j < types.length; j++) {
+                        builder.append(',');
+                        builder.append(types[j].getName());
                     }
-                    builder.append(')');
+                }
+                builder.append(')');
 
-                    String signature = builder.toString();
-                    if (!seen.contains(signature)) {
-                        methods.add(method);
-                        seen.add(signature);
-                    }
+                String signature = builder.toString();
+                if (!seen.contains(signature)) {
+                    methods.add(method);
+                    seen.add(signature);
                 }
             }
 
             clazz = clazz.getSuperclass();
-        }
+        } while (clazz != null);
 
         // Traverse all interfaces, and do the same recursively.
-        Class<?>[] interfaces = origClass.getInterfaces();
-        for (Class<?> intf : interfaces) {
-            findAllMethods(intf, methods, seen, publicOnly);
+        for (Class<?> ifc : origClass.getInterfaces()) {
+            findAllMethods(ifc, methods, seen, publicOnly);
         }
     }
 
@@ -296,11 +295,10 @@ import java.util.HashSet;
         if (name == null) {
             throw new NullPointerException("Method name must not be null.");
         }
-        for (int i = list.length - 1; i >= 0; i--) {
-            Method method = list[i];
-            if (method.getName().equals(name)
-                    && compareClassLists(
-                            method.getParameterTypes(), parameterTypes)) {
+        for (Method method : list) {
+            if (!method.isSynthetic()
+                    && method.getName().equals(name)
+                    && compareClassLists(method.getParameterTypes(), parameterTypes)) {
                 return method;
             }
         }
@@ -467,9 +465,7 @@ import java.util.HashSet;
 
         // Traverse class and superclasses, get rid of dupes by signature
         while (clazz != null) {
-            Field[] declaredFields =
-                    clazz.getClassCache().getDeclaredFields(publicOnly);
-            for (Field field : declaredFields) {
+            for (Field field : clazz.getClassCache().getDeclaredFields(publicOnly)) {
                 String signature = field.toString();
                 if (!seen.contains(signature)) {
                     fields.add(field);
@@ -500,8 +496,7 @@ import java.util.HashSet;
         if (name == null) {
             throw new NullPointerException("Field name must not be null.");
         }
-        for (int i = 0; i < list.length; i++) {
-            Field field = list[i];
+        for (Field field : list) {
             if (field.getName().equals(name)) {
                 return field;
             }

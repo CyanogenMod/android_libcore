@@ -26,8 +26,6 @@ import java.security.Security;
 import java.util.Collection;
 
 import org.apache.harmony.security.fortress.Engine;
-import org.apache.harmony.security.internal.nls.Messages;
-
 
 /**
  * This class provides the functionality to retrieve {@code Certificate}s and
@@ -96,13 +94,12 @@ public class CertStore {
      * @throws InvalidAlgorithmParameterException
      *             if the specified parameters cannot be used to initialize this
      *             certificate store instance.
-     * @throws NullPointerException
-     *             if the {@code type} is {@code null}.
+     * @throws NullPointerException if {@code type == null}
      */
     public static CertStore getInstance(String type, CertStoreParameters params)
             throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07"));
+            throw new NullPointerException();
         }
         try {
             synchronized (engine) {
@@ -139,8 +136,7 @@ public class CertStore {
      * @throws InvalidAlgorithmParameterException
      *             if the specified parameters cannot be used to initialize this
      *             certificate store instance.
-     * @throws IllegalArgumentException
-     *             if provider is null of empty.
+     * @throws IllegalArgumentException if {@code provider == null || provider.isEmpty()}
      * @throws NullPointerException
      *             if {@code type} is {@code null}.
      */
@@ -148,8 +144,8 @@ public class CertStore {
             CertStoreParameters params, String provider)
             throws InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, NoSuchProviderException {
-        if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException(Messages.getString("security.02"));
+        if (provider == null || provider.isEmpty()) {
+            throw new IllegalArgumentException();
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -174,19 +170,17 @@ public class CertStore {
      * @throws InvalidAlgorithmParameterException
      *             if the specified parameters cannot be used to initialize this
      *             certificate store instance.
-     * @throws IllegalArgumentException
-     *             if provider is {@code null}.
-     * @throws NullPointerException
-     *             if {@code type} is {@code null}.
+     * @throws IllegalArgumentException if {@code provider == null}
+     * @throws NullPointerException if {@code type == null}
      */
     public static CertStore getInstance(String type,
             CertStoreParameters params, Provider provider)
             throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         if (provider == null) {
-            throw new IllegalArgumentException(Messages.getString("security.04"));
+            throw new IllegalArgumentException();
         }
         if (type == null) {
-            throw new NullPointerException(Messages.getString("security.07"));
+            throw new NullPointerException();
         }
         try {
             synchronized (engine) {

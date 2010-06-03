@@ -25,6 +25,7 @@
 
 #include "JNIHelp.h"
 #include "LocalArray.h"
+#include "NetworkUtilities.h"
 #include "ScopedPrimitiveArray.h"
 #include "jni.h"
 
@@ -95,7 +96,6 @@
 static struct CachedFields {
     jfieldID fd_descriptor;
     jclass iaddr_class;
-    jmethodID iaddr_getbyaddress;
     jclass i4addr_class;
     jmethodID i4addr_class_init;
     jfieldID iaddr_ipaddress;
@@ -153,14 +153,6 @@ static void jniThrowSocketTimeoutException(JNIEnv* env, int error) {
     jniThrowExceptionWithErrno(env, "java/net/SocketTimeoutException", error);
 }
 
-// Used by functions that shouldn't throw SocketException. (These functions
-// aren't meant to see bad addresses, so seeing one really does imply an
-// internal error.)
-// TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
-static void jniThrowBadAddressFamily(JNIEnv* env) {
-    jniThrowException(env, "java/lang/IllegalArgumentException", "Bad address family");
-}
-
 static bool jniGetFd(JNIEnv* env, jobject fileDescriptor, int& fd) {
     fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
     if (fd == -1) {
@@ -168,34 +160,6 @@ static bool jniGetFd(JNIEnv* env, jobject fileDescriptor, int& fd) {
         return false;
     }
     return true;
-}
-
-/**
- * Converts a native address structure to a Java byte array.
- */
-static jbyteArray socketAddressToByteArray(JNIEnv *env, struct sockaddr_storage *address) {
-    void *rawAddress;
-    size_t addressLength;
-    if (address->ss_family == AF_INET) {
-        struct sockaddr_in *sin = (struct sockaddr_in *) address;
-        rawAddress = &sin->sin_addr.s_addr;
-        addressLength = 4;
-    } else if (address->ss_family == AF_INET6) {
-        struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) address;
-        rawAddress = &sin6->sin6_addr.s6_addr;
-        addressLength = 16;
-    } else {
-        jniThrowBadAddressFamily(env);
-        return NULL;
-    }
-
-    jbyteArray byteArray = env->NewByteArray(addressLength);
-    if (byteArray == NULL) {
-        return NULL;
-    }
-    env->SetByteArrayRegion(byteArray, 0, addressLength, (jbyte *) rawAddress);
-
-    return byteArray;
 }
 
 /**
@@ -231,28 +195,6 @@ static int getSocketAddressFamily(int socket) {
     } else {
         return ss.ss_family;
     }
-}
-
-static jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray) {
-    if (byteArray == NULL) {
-        return NULL;
-    }
-    return env->CallStaticObjectMethod(gCachedFields.iaddr_class,
-            gCachedFields.iaddr_getbyaddress, byteArray);
-}
-
-/**
- * Converts a native address structure to an InetAddress object.
- * Throws a NullPointerException or an IOException in case of
- * error.
- *
- * @param sockAddress the sockaddr_storage structure to convert
- *
- * @return a jobject representing an InetAddress
- */
-jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* sockAddress) {
-    jbyteArray byteArray = socketAddressToByteArray(env, sockAddress);
-    return byteArrayToInetAddress(env, byteArray);
 }
 
 // Handles translating between IPv4 and IPv6 addresses so -- where possible --
@@ -322,42 +264,6 @@ private:
 
 /**
  * Converts an InetAddress object and port number to a native address structure.
- * Throws a NullPointerException or a SocketException in case of
- * error.
- */
-static bool byteArrayToSocketAddress(JNIEnv *env,
-        jbyteArray addressBytes, int port, sockaddr_storage *sockaddress) {
-    if (addressBytes == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return false;
-    }
-
-    // Convert the IP address bytes to the proper IP address type.
-    size_t addressLength = env->GetArrayLength(addressBytes);
-    memset(sockaddress, 0, sizeof(*sockaddress));
-    if (addressLength == 4) {
-        // IPv4 address.
-        sockaddr_in *sin = reinterpret_cast<sockaddr_in*>(sockaddress);
-        sin->sin_family = AF_INET;
-        sin->sin_port = htons(port);
-        jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
-        env->GetByteArrayRegion(addressBytes, 0, 4, dst);
-    } else if (addressLength == 16) {
-        // IPv6 address.
-        sockaddr_in6 *sin6 = reinterpret_cast<sockaddr_in6*>(sockaddress);
-        sin6->sin6_family = AF_INET6;
-        sin6->sin6_port = htons(port);
-        jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
-        env->GetByteArrayRegion(addressBytes, 0, 16, dst);
-    } else {
-        jniThrowBadAddressFamily(env);
-        return false;
-    }
-    return true;
-}
-
-/**
- * Converts an InetAddress object and port number to a native address structure.
  */
 static bool inetAddressToSocketAddress(JNIEnv *env, jobject inetaddress,
         int port, sockaddr_storage *sockaddress) {
@@ -370,136 +276,7 @@ static bool inetAddressToSocketAddress(JNIEnv *env, jobject inetaddress,
         reinterpret_cast<jbyteArray>(env->GetObjectField(inetaddress,
             gCachedFields.iaddr_ipaddress));
 
-    return byteArrayToSocketAddress(env, addressBytes, port, sockaddress);
-}
-
-/**
- * Convert a Java byte array representing an IP address to a Java string.
- *
- * @param addressByteArray the byte array to convert.
- *
- * @return a string with the textual representation of the address.
- */
-static jstring osNetworkSystem_byteArrayToIpString(JNIEnv* env, jobject,
-        jbyteArray byteArray) {
-    if (byteArray == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return NULL;
-    }
-    sockaddr_storage ss;
-    if (!byteArrayToSocketAddress(env, byteArray, 0, &ss)) {
-        return NULL;
-    }
-    // TODO: getnameinfo seems to want its length parameter to be exactly
-    // sizeof(sockaddr_in) for an IPv4 address and sizeof (sockaddr_in6) for an
-    // IPv6 address. Fix getnameinfo so it accepts sizeof(sockaddr_storage), and
-    // then remove this hack.
-    int sa_size;
-    if (ss.ss_family == AF_INET) {
-        sa_size = sizeof(sockaddr_in);
-    } else if (ss.ss_family == AF_INET6) {
-        sa_size = sizeof(sockaddr_in6);
-    } else {
-        jniThrowBadAddressFamily(env);
-        return NULL;
-    }
-    char ipString[INET6_ADDRSTRLEN];
-    int rc = getnameinfo(reinterpret_cast<sockaddr*>(&ss), sa_size,
-            ipString, sizeof(ipString), NULL, 0, NI_NUMERICHOST);
-    if (rc != 0) {
-        jniThrowException(env, "java/net/UnknownHostException", gai_strerror(rc));
-        return NULL;
-    }
-    return env->NewStringUTF(ipString);
-}
-
-/**
- * Convert a Java string representing an IP address to a Java byte array.
- * The formats accepted are:
- * - IPv4:
- *   - 1.2.3.4
- *   - 1.2.4
- *   - 1.4
- *   - 4
- * - IPv6
- *   - Compressed form (2001:db8::1)
- *   - Uncompressed form (2001:db8:0:0:0:0:0:1)
- *   - IPv4-compatible (::192.0.2.0)
- *   - With an embedded IPv4 address (2001:db8::192.0.2.0).
- * IPv6 addresses may appear in square brackets.
- *
- * @param addressByteArray the byte array to convert.
- *
- * @return a string with the textual representation of the address.
- *
- * @throws UnknownHostException the IP address was invalid.
- */
-static jbyteArray osNetworkSystem_ipStringToByteArray(JNIEnv* env, jobject,
-        jstring javaString) {
-    if (javaString == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return NULL;
-    }
-
-    // Convert the String to UTF bytes.
-    size_t byteCount = env->GetStringUTFLength(javaString);
-    LocalArray<INET6_ADDRSTRLEN> bytes(byteCount + 1);
-    char* ipString = &bytes[0];
-    env->GetStringUTFRegion(javaString, 0, env->GetStringLength(javaString), ipString);
-
-    // Accept IPv6 addresses (only) in square brackets for compatibility.
-    if (ipString[0] == '[' && ipString[byteCount - 1] == ']' &&
-            strchr(ipString, ':') != NULL) {
-        memmove(ipString, ipString + 1, byteCount - 2);
-        ipString[byteCount - 2] = '\0';
-    }
-
-    jbyteArray result = NULL;
-    addrinfo hints;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_flags = AI_NUMERICHOST;
-
-    sockaddr_storage ss;
-    memset(&ss, 0, sizeof(ss));
-
-    addrinfo* res = NULL;
-    int ret = getaddrinfo(ipString, NULL, &hints, &res);
-    if (ret == 0 && res) {
-        // Convert IPv4-mapped addresses to IPv4 addresses.
-        // The RI states "Java will never return an IPv4-mapped address".
-        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(res->ai_addr);
-        if (res->ai_family == AF_INET6 && IN6_IS_ADDR_V4MAPPED(&sin6->sin6_addr)) {
-            sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&ss);
-            sin->sin_family = AF_INET;
-            sin->sin_port = sin6->sin6_port;
-            memcpy(&sin->sin_addr.s_addr, &sin6->sin6_addr.s6_addr[12], 4);
-            result = socketAddressToByteArray(env, &ss);
-        } else {
-            result = socketAddressToByteArray(env, reinterpret_cast<sockaddr_storage*>(res->ai_addr));
-        }
-    } else {
-        // For backwards compatibility, deal with address formats that
-        // getaddrinfo does not support. For example, 1.2.3, 1.3, and even 3 are
-        // valid IPv4 addresses according to the Java API. If getaddrinfo fails,
-        // try to use inet_aton.
-        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&ss);
-        if (inet_aton(ipString, &sin->sin_addr)) {
-            sin->sin_family = AF_INET;
-            sin->sin_port = 0;
-            result = socketAddressToByteArray(env, &ss);
-        }
-    }
-
-    if (res) {
-        freeaddrinfo(res);
-    }
-
-    if (!result) {
-        env->ExceptionClear();
-        jniThrowException(env, "java/net/UnknownHostException", gai_strerror(ret));
-    }
-
-    return result;
+    return byteArrayToSocketAddress(env, NULL, addressBytes, port, sockaddress);
 }
 
 /**
@@ -996,8 +773,6 @@ static bool initCachedFields(JNIEnv* env) {
         {&c->i4addr_class_init, c->i4addr_class, "<init>", "([B)V", false},
         {&c->integer_class_init, c->integer_class, "<init>", "(I)V", false},
         {&c->boolean_class_init, c->boolean_class, "<init>", "(Z)V", false},
-        {&c->iaddr_getbyaddress, c->iaddr_class, "getByAddress",
-                    "([B)Ljava/net/InetAddress;", true}
     };
     for (unsigned i = 0; i < sizeof(methods) / sizeof(methods[0]); i++) {
         methodInfo m = methods[i];
@@ -1486,8 +1261,11 @@ static void osNetworkSystem_setInetAddress(JNIEnv* env, jobject,
     env->SetObjectField(sender, gCachedFields.iaddr_ipaddress, address);
 }
 
-static jint osNetworkSystem_peekDatagram(JNIEnv* env, jobject,
-        jobject fileDescriptor, jobject sender, jint receiveTimeout) {
+static jint osNetworkSystem_receiveDatagramDirect(JNIEnv* env,
+        jobject, jobject fileDescriptor, jobject packet,
+        jint address, jint offset, jint length,
+        jint receiveTimeout, jboolean peek) {
+
     int result = pollSelectWait(env, fileDescriptor, receiveTimeout);
     if (result < 0) {
         return 0;
@@ -1498,41 +1276,7 @@ static jint osNetworkSystem_peekDatagram(JNIEnv* env, jobject,
         return 0;
     }
 
-    sockaddr_storage sockAddr;
-    socklen_t sockAddrLen = sizeof(sockAddr);
-    ssize_t length = TEMP_FAILURE_RETRY(recvfrom(fd, NULL, 0, MSG_PEEK,
-            reinterpret_cast<sockaddr*>(&sockAddr), &sockAddrLen));
-    if (length == -1) {
-        jniThrowSocketException(env, errno);
-        return 0;
-    }
-
-    // We update the byte[] in the 'sender' InetAddress, and return the port.
-    // This awful API is public in the RI, so there's no point returning
-    // InetSocketAddress here instead.
-    jbyteArray senderAddressArray = socketAddressToByteArray(env, &sockAddr);
-    if (sender == NULL) {
-        return -1;
-    }
-    osNetworkSystem_setInetAddress(env, NULL, sender, senderAddressArray);
-    return getSocketAddressPort(&sockAddr);
-}
-
-static jint osNetworkSystem_receiveDatagramDirect(JNIEnv* env, jobject,
-        jobject fileDescriptor, jobject packet, jint address, jint offset,
-        jint length, jint receiveTimeout, jboolean peek) {
-    int result = pollSelectWait(env, fileDescriptor, receiveTimeout);
-    if (result < 0) {
-        return 0;
-    }
-
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
-        return 0;
-    }
-
-    char* buf =
-            reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
+    char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
     const int mode = peek ? MSG_PEEK : 0;
     sockaddr_storage sockAddr;
     socklen_t sockAddrLen = sizeof(sockAddr);
@@ -1549,13 +1293,13 @@ static jint osNetworkSystem_receiveDatagramDirect(JNIEnv* env, jobject,
             return 0;
         }
         int port = getSocketAddressPort(&sockAddr);
-        jobject sender = env->CallStaticObjectMethod(
-                gCachedFields.iaddr_class, gCachedFields.iaddr_getbyaddress,
-                addr);
+        jobject sender = byteArrayToInetAddress(env, addr);
+        if (sender == NULL) {
+            return 0;
+        }
         env->SetObjectField(packet, gCachedFields.dpack_address, sender);
         env->SetIntField(packet, gCachedFields.dpack_port, port);
-        env->SetIntField(packet, gCachedFields.dpack_length,
-                (jint) actualLength);
+        env->SetIntField(packet, gCachedFields.dpack_length, (jint) actualLength);
     }
     return (jint) actualLength;
 }
@@ -1681,8 +1425,7 @@ static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env,
         return 0;
     }
 
-    char* buf =
-            reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
+    char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
     ssize_t bytesSent = TEMP_FAILURE_RETRY(send(fd, buf, length, 0));
     if (bytesSent == -1) {
         if (errno == ECONNRESET || errno == ECONNREFUSED) {
@@ -2207,7 +1950,6 @@ static void osNetworkSystem_socketClose(JNIEnv* env, jobject, jobject fileDescri
 static JNINativeMethod gMethods[] = {
     { "accept",                            "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;I)V",(void*) osNetworkSystem_accept },
     { "bind",                              "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V",                       (void*) osNetworkSystem_bind },
-    { "byteArrayToIpString",               "([B)Ljava/lang/String;",                                                   (void*) osNetworkSystem_byteArrayToIpString },
     { "connectDatagram",                   "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;)V",                      (void*) osNetworkSystem_connectDatagram },
     { "connectStreamWithTimeoutSocket",    "(Ljava/io/FileDescriptor;IIILjava/net/InetAddress;)V",                     (void*) osNetworkSystem_connectStreamWithTimeoutSocket },
     { "connectWithTimeout",                "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;II[B)Z",                  (void*) osNetworkSystem_connectWithTimeout },
@@ -2218,9 +1960,7 @@ static JNINativeMethod gMethods[] = {
     { "getSocketLocalAddress",             "(Ljava/io/FileDescriptor;)Ljava/net/InetAddress;",                         (void*) osNetworkSystem_getSocketLocalAddress },
     { "getSocketLocalPort",                "(Ljava/io/FileDescriptor;)I",                                              (void*) osNetworkSystem_getSocketLocalPort },
     { "getSocketOption",                   "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;",                            (void*) osNetworkSystem_getSocketOption },
-    { "ipStringToByteArray",               "(Ljava/lang/String;)[B",                                                   (void*) osNetworkSystem_ipStringToByteArray },
     { "listen",                            "(Ljava/io/FileDescriptor;I)V",                                             (void*) osNetworkSystem_listen },
-    { "peekDatagram",                      "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)I",                       (void*) osNetworkSystem_peekDatagram },
     { "readDirect",                        "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_readDirect },
     { "readSocketImpl",                    "(Ljava/io/FileDescriptor;[BIII)I",                                         (void*) osNetworkSystem_readSocketImpl },
     { "receiveDatagramDirect",             "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIIZ)I",                (void*) osNetworkSystem_receiveDatagramDirect },

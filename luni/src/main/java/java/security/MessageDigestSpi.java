@@ -19,8 +19,6 @@ package java.security;
 
 import java.nio.ByteBuffer;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * {@code MessageDigestSpi} is the Service Provider Interface (SPI) definition
  * for {@link MessageDigest}. Examples of digest algorithms are MD5 and SHA. A
@@ -119,23 +117,22 @@ public abstract class MessageDigestSpi {
      *             {@code buf}.
      * @see #engineReset()
      */
-    protected int engineDigest(byte[] buf, int offset, int len)
-                    throws DigestException {
+    protected int engineDigest(byte[] buf, int offset, int len) throws DigestException {
         if (len < engineGetDigestLength()) {
             engineReset();
-            throw new DigestException(Messages.getString("security.1B"));
+            throw new DigestException("The value of len parameter is less than the actual digest length");
         }
         if (offset < 0) {
             engineReset();
-            throw new DigestException(Messages.getString("security.1C"));
+            throw new DigestException("offset < 0");
         }
         if (offset + len > buf.length) {
             engineReset();
-            throw new DigestException(Messages.getString("security.1D"));
+            throw new DigestException("offset + len > buf.length");
         }
         byte tmp[] = engineDigest();
         if (len < tmp.length) {
-            throw new DigestException(Messages.getString("security.1B"));
+            throw new DigestException("The value of len parameter is less than the actual digest length");
         }
         System.arraycopy(tmp, 0, buf, offset, tmp.length);
         return tmp.length;

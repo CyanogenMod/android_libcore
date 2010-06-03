@@ -45,7 +45,6 @@ import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.utils.AlgNameMapper;
 import org.apache.harmony.security.x509.CertificateList;
 import org.apache.harmony.security.x509.Extension;
@@ -411,7 +410,7 @@ public class X509CRLImpl extends X509CRL {
         byte[] tbsEncoding = tbsCertList.getEncoded();
         signature.update(tbsEncoding, 0, tbsEncoding.length);
         if (!signature.verify(crl.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C"));
+            throw new SignatureException("Signature was not verified");
         }
     }
 
@@ -429,7 +428,7 @@ public class X509CRLImpl extends X509CRL {
         byte[] tbsEncoding = tbsCertList.getEncoded();
         signature.update(tbsEncoding, 0, tbsEncoding.length);
         if (!signature.verify(crl.getSignatureValue())) {
-            throw new SignatureException(Messages.getString("security.15C"));
+            throw new SignatureException("Signature was not verified");
         }
     }
 
@@ -505,4 +504,3 @@ public class X509CRLImpl extends X509CRL {
         return extensions.hasUnsupportedCritical();
     }
 }
-

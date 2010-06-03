@@ -24,6 +24,7 @@ public class AllTests {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(java.nio.charset.CharsetDecoderTest.class);
         suite.addTestSuite(java.nio.charset.CharsetEncoderTest.class);
+        suite.addTestSuite(java.nio.charset.CharsetTest.class);
         return suite;
     }
 }

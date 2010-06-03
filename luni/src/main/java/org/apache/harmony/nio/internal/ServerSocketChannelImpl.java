@@ -17,10 +17,6 @@
 
 package org.apache.harmony.nio.internal;
 
-// BEGIN android-note
-// Copied from a newer version of Harmony.
-// END android-note
-
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -34,53 +30,36 @@ import java.nio.channels.NotYetBoundException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-
-import org.apache.harmony.luni.net.NetUtil;
 import org.apache.harmony.luni.net.PlainServerSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.Platform;
 
-/*
- * The default implementation class of java.nio.channels.ServerSocketChannel.
+/**
+ * The default ServerSocketChannel.
  */
-public class ServerSocketChannelImpl extends ServerSocketChannel implements FileDescriptorHandler {
-    // The fd to interact with native code
-    private final FileDescriptor fd;
+public final class ServerSocketChannelImpl
+        extends ServerSocketChannel implements FileDescriptorHandler {
 
-    // The internal ServerSocket
-    private final ServerSocket socket;
+    private final FileDescriptor fd = new FileDescriptor();
+    private final SocketImpl impl = new PlainServerSocketImpl(fd);
+    private final ServerSocketAdapter socket = new ServerSocketAdapter(impl, this);
 
-    private final SocketImpl impl;
+    private boolean isBound = false;
 
-    // whether the socket is bound
-    boolean isBound = false;
-
-    // lock for accept
     private static class AcceptLock {}
     private final Object acceptLock = new AcceptLock();
 
-    /*
-     * Constructor
-     */
     public ServerSocketChannelImpl(SelectorProvider sp) throws IOException {
         super(sp);
-        fd = new FileDescriptor();
-        Platform.getNetworkSystem().createStreamSocket(fd, NetUtil.preferIPv4Stack());
-        impl = new PlainServerSocketImpl(fd);
-        socket = new ServerSocketAdapter(impl, this);
     }
 
     // for native call
     @SuppressWarnings("unused")
     private ServerSocketChannelImpl() throws IOException {
-        super(SelectorProvider.provider());
-        fd = new FileDescriptor();
-        impl = new PlainServerSocketImpl(fd);
-        socket = new ServerSocketAdapter(impl, this);
-        isBound = false;
+        this(SelectorProvider.provider());
     }
 
-    public ServerSocket socket() {
+    @Override public ServerSocket socket() {
         return socket;
     }
 
@@ -92,19 +71,20 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements File
             throw new NotYetBoundException();
         }
 
-        SocketChannelImpl sockChannel = new SocketChannelImpl(SelectorProvider.provider(), false);
-        Socket socketGot = sockChannel.socket();
+        // TODO: pass in the SelectorProvider used to create this ServerSocketChannelImpl?
+        // Create an empty socket channel. This will be populated by ServerSocketAdapter.accept.
+        SocketChannelImpl result = new SocketChannelImpl(SelectorProvider.provider(), false);
+        Socket resultSocket = result.socket();
 
         try {
             begin();
-
             synchronized (acceptLock) {
                 synchronized (blockingLock()) {
                     boolean isBlocking = isBlocking();
                     if (!isBlocking) {
                         int[] tryResult = new int[1];
                         boolean success = Platform.getNetworkSystem().select(
-                                new FileDescriptor[] { this.fd },
+                                new FileDescriptor[] { fd },
                                 new FileDescriptor[0], 1, 0, 0, tryResult);
                         if (!success || 0 == tryResult[0]) {
                             // no pending connections, returns immediately.
@@ -114,85 +94,52 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements File
                     // do accept.
                     do {
                         try {
-                            ((ServerSocketAdapter) socket).accept(socketGot, sockChannel);
+                            socket.accept(resultSocket, result);
                             // select successfully, break out immediately.
                             break;
                         } catch (SocketTimeoutException e) {
-                            // continue to accept if the channel is in blocking
-                            // mode.
+                            // continue to accept if the channel is in blocking mode.
                         }
                     } while (isBlocking);
                 }
             }
         } finally {
-            end(socketGot.isConnected());
+            end(resultSocket.isConnected());
         }
-        return sockChannel;
+        return result;
     }
 
-    /*
-     * @see java.nio.channels.spi.AbstractSelectableChannel#implConfigureBlocking
-     *
-     * (boolean)
-     */
     protected void implConfigureBlocking(boolean blockingMode) throws IOException {
-        // Do nothing here. For real accept() operation in nonblocking mode,
+        // Do nothing here. For real accept() operation in non-blocking mode,
         // it uses INetworkSystem.select. Whether a channel is blocking can be
         // decided by isBlocking() method.
     }
 
-    /*
-     *
-     * @see java.nio.channels.spi.AbstractSelectableChannel#implCloseSelectableChannel()
-     */
     synchronized protected void implCloseSelectableChannel() throws IOException {
         if (!socket.isClosed()) {
             socket.close();
         }
     }
 
-    /*
-     * Gets the FileDescriptor
-     */
     public FileDescriptor getFD() {
         return fd;
     }
 
-    /*
-     * The adapter class of ServerSocket.
-     */
-    private class ServerSocketAdapter extends ServerSocket {
-        /*
-         * The related ServerSocketChannel.
-         */
-        ServerSocketChannelImpl channelImpl;
+    private static class ServerSocketAdapter extends ServerSocket {
+        private final ServerSocketChannelImpl channelImpl;
 
-        /*
-         * The Constructor.
-         */
         ServerSocketAdapter(SocketImpl impl, ServerSocketChannelImpl aChannelImpl) {
             super(impl);
             this.channelImpl = aChannelImpl;
         }
 
-        /*
-         *
-         * @see java.net.ServerSocket#bind(java.net.SocketAddress, int)
-         */
-        public void bind(SocketAddress localAddr, int backlog) throws IOException {
-            super.bind(localAddr, backlog);
+        @Override public void bind(SocketAddress localAddress, int backlog) throws IOException {
+            super.bind(localAddress, backlog);
             channelImpl.isBound = true;
         }
 
-        /*
-         * @see java.net.ServerSocket#accept()
-         *
-         * If the channel is in non-blocking mode and there is no connection
-         * ready to be accepted, invoking this method will cause an
-         * IllegalBlockingModeException.
-         */
-        public Socket accept() throws IOException {
-            if (!isBound) {
+        @Override public Socket accept() throws IOException {
+            if (!channelImpl.isBound) {
                 throw new IllegalBlockingModeException();
             }
             SocketChannel sc = channelImpl.accept();
@@ -202,61 +149,42 @@ public class ServerSocketChannelImpl extends ServerSocketChannel implements File
             return sc.socket();
         }
 
-        /*
-         * do the accept.
-         */
-        private Socket accept(Socket aSocket, SocketChannelImpl sockChannel) throws IOException {
-            // a new socket is pass in so we do not need to "Socket aSocket =
-            // new Socket();"
+        private Socket accept(Socket socket, SocketChannelImpl sockChannel) throws IOException {
             boolean connectOK = false;
             try {
                 synchronized (this) {
-                    super.implAccept(aSocket);
+                    super.implAccept(socket);
                     sockChannel.setConnected();
                     sockChannel.setBound(true);
                     sockChannel.finishAccept();
                 }
                 SecurityManager sm = System.getSecurityManager();
                 if (sm != null) {
-                    sm.checkAccept(aSocket.getInetAddress().getHostAddress(), aSocket.getPort());
+                    sm.checkAccept(socket.getInetAddress().getHostAddress(), socket.getPort());
                 }
                 connectOK = true;
             } finally {
                 if (!connectOK) {
-                    aSocket.close();
+                    socket.close();
                 }
             }
-            return aSocket;
+            return socket;
         }
 
-        /*
-         * getting internal channel.
-         */
-        public ServerSocketChannel getChannel() {
+        @Override public ServerSocketChannel getChannel() {
             return channelImpl;
         }
 
-        /*
-         *
-         * @see java.net.ServerSocket#isBound()
-         */
-        public boolean isBound() {
+        @Override public boolean isBound() {
             return channelImpl.isBound;
         }
 
-        /*
-         *
-         * @see java.net.ServerSocket#bind(java.net.SocketAddress)
-         */
-        public void bind(SocketAddress localAddr) throws IOException {
-            super.bind(localAddr);
+        @Override public void bind(SocketAddress localAddress) throws IOException {
+            super.bind(localAddress);
             channelImpl.isBound = true;
         }
 
-        /*
-         * @see java.net.ServerSocket#close()
-         */
-        public void close() throws IOException {
+        @Override public void close() throws IOException {
             synchronized (channelImpl) {
                 if (channelImpl.isOpen()) {
                     channelImpl.close();

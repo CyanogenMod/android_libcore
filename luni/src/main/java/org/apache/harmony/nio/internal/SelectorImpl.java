@@ -15,15 +15,6 @@
  */
 package org.apache.harmony.nio.internal;
 
-// BEGIN android-note
-// This class differs significantly from Harmony. They have adopted indices to
-// track selection keys as-they-change; we avoid that cost by tracking keys on
-// calls to select().
-// END android-note
-
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
-import org.apache.harmony.luni.platform.Platform;
-
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -43,6 +34,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import org.apache.harmony.luni.platform.FileDescriptorHandler;
+import org.apache.harmony.luni.platform.Platform;
 
 /*
  * Default implementation of java.nio.channels.Selector
@@ -86,7 +79,7 @@ final class SelectorImpl extends AbstractSelector {
      * The unmodifiable set of keys as exposed to the user. This object is used
      * for synchronization.
      */
-    private Set<SelectionKey> unmodifiableKeys = Collections
+    private final Set<SelectionKey> unmodifiableKeys = Collections
             .<SelectionKey>unmodifiableSet(mutableKeys);
 
     private final Set<SelectionKey> mutableSelectedKeys = new HashSet<SelectionKey>();
@@ -127,7 +120,7 @@ final class SelectorImpl extends AbstractSelector {
     private int[] flags = EMPTY_INT_ARRAY;
 
     /**
-     * A mock channel is used to signal wakeups. Whenever the selector should
+     * A mock channel is used to signal wake ups. Whenever the selector should
      * stop blocking on a select(), a byte is written to the sink and will be
      * picked up in source by the selecting thread.
      */
@@ -135,29 +128,22 @@ final class SelectorImpl extends AbstractSelector {
     private Pipe.SourceChannel source;
     private FileDescriptor sourcefd;
 
-    public SelectorImpl(SelectorProvider selectorProvider) {
+    public SelectorImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
-        try {
-            Pipe mockSelector = selectorProvider.openPipe();
-            sink = mockSelector.sink();
-            source = mockSelector.source();
-            sourcefd = ((FileDescriptorHandler) source).getFD();
-            source.configureBlocking(false);
-        } catch (IOException e) {
-            // TODO: throw assertion error once IPv6+loopback is fixed
-            e.printStackTrace();
-        }
+        Pipe mockSelector = selectorProvider.openPipe();
+        sink = mockSelector.sink();
+        source = mockSelector.source();
+        sourcefd = ((FileDescriptorHandler) source).getFD();
+        source.configureBlocking(false);
     }
 
-    /**
-     * @see java.nio.channels.spi.AbstractSelector#implCloseSelector()
-     */
-    @Override
-    protected void implCloseSelector() throws IOException {
+    @Override protected void implCloseSelector() throws IOException {
         wakeup();
         synchronized (this) {
             synchronized (unmodifiableKeys) {
                 synchronized (selectedKeys) {
+                    sink.close();
+                    source.close();
                     doCancel();
                     for (SelectionKey sk : mutableKeys) {
                         deregister((AbstractSelectionKey) sk);
@@ -167,12 +153,7 @@ final class SelectorImpl extends AbstractSelector {
         }
     }
 
-    /**
-     * @see java.nio.channels.spi.AbstractSelector#register(java.nio.channels.spi.AbstractSelectableChannel,
-     *      int, java.lang.Object)
-     */
-    @Override
-    protected SelectionKey register(AbstractSelectableChannel channel,
+    @Override protected SelectionKey register(AbstractSelectableChannel channel,
             int operations, Object attachment) {
         if (!provider().equals(channel.provider())) {
             throw new IllegalSelectorException();
@@ -187,11 +168,7 @@ final class SelectorImpl extends AbstractSelector {
         }
     }
 
-    /**
-     * @see java.nio.channels.Selector#keys()
-     */
-    @Override
-    public synchronized Set<SelectionKey> keys() {
+    @Override public synchronized Set<SelectionKey> keys() {
         closeCheck();
         return unmodifiableKeys;
     }
@@ -205,30 +182,18 @@ final class SelectorImpl extends AbstractSelector {
         }
     }
 
-    /**
-     * @see java.nio.channels.Selector#select()
-     */
-    @Override
-    public int select() throws IOException {
+    @Override public int select() throws IOException {
         return selectInternal(SELECT_BLOCK);
     }
 
-    /**
-     * @see java.nio.channels.Selector#select(long)
-     */
-    @Override
-    public int select(long timeout) throws IOException {
+    @Override public int select(long timeout) throws IOException {
         if (timeout < 0) {
             throw new IllegalArgumentException();
         }
         return selectInternal((0 == timeout) ? SELECT_BLOCK : timeout);
     }
 
-    /**
-     * @see java.nio.channels.Selector#selectNow()
-     */
-    @Override
-    public int selectNow() throws IOException {
+    @Override public int selectNow() throws IOException {
         return selectInternal(SELECT_NOW);
     }
 
@@ -375,11 +340,7 @@ final class SelectorImpl extends AbstractSelector {
         return selected;
     }
 
-    /**
-     * @see java.nio.channels.Selector#selectedKeys()
-     */
-    @Override
-    public synchronized Set<SelectionKey> selectedKeys() {
+    @Override public synchronized Set<SelectionKey> selectedKeys() {
         closeCheck();
         return selectedKeys;
     }
@@ -409,11 +370,7 @@ final class SelectorImpl extends AbstractSelector {
         return deselected;
     }
 
-    /**
-     * @see java.nio.channels.Selector#wakeup()
-     */
-    @Override
-    public Selector wakeup() {
+    @Override public Selector wakeup() {
         try {
             sink.write(ByteBuffer.allocate(MOCK_WRITEBUF_SIZE));
         } catch (IOException e) {

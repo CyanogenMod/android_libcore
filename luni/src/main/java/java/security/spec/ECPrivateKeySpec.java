@@ -19,8 +19,6 @@ package java.security.spec;
 
 import java.math.BigInteger;
 
-import org.apache.harmony.security.internal.nls.Messages;
-
 /**
  * The parameters specifying an Elliptic Curve (EC) private key.
  */
@@ -44,10 +42,10 @@ public class ECPrivateKeySpec implements KeySpec {
         this.params = params;
         // throw NullPointerException if s or params is null
         if (this.s == null) {
-            throw new NullPointerException(Messages.getString("security.83", "s"));
+            throw new NullPointerException("s == null");
         }
         if (this.params == null) {
-            throw new NullPointerException(Messages.getString("security.83", "params"));
+            throw new NullPointerException("params == null");
         }
     }
 

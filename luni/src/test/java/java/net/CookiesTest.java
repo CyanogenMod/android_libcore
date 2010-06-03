@@ -209,14 +209,13 @@ public class CookiesTest extends TestCase {
         assertEquals("/foo/", cookieStore.getCookie("c").getPath());
     }
 
-    /** The RI fails this. */
     public void testNonMatchingPathsRejected() throws Exception {
         TestCookieStore cookieStore = new TestCookieStore();
         CookieManager cookieManager = new CookieManager(cookieStore, ACCEPT_ORIGINAL_SERVER);
         cookieManager.put(new URI("http://android.com/foo/bar"),
                 cookieHeaders("a=android;path=/baz/bar"));
         assertEquals("Expected to reject cookies whose path is not a prefix of the request path",
-                Collections.<HttpCookie>emptyList(), cookieStore.cookies);
+                Collections.<HttpCookie>emptyList(), cookieStore.cookies); // RI6 fails this
     }
 
     public void testMatchingPathsAccepted() throws Exception {
@@ -364,6 +363,113 @@ public class CookiesTest extends TestCase {
         HttpCookie cookie = new HttpCookie("Foo", "foo");
         cookie.setDomain("localhost");
         assertEquals("localhost", cookie.getDomain());
+    }
+
+    public void testCookieStoreNullUris() {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        HttpCookie cookieA = new HttpCookie("a", "android");
+        cookieA.setDomain(".android.com");
+        cookieA.setPath("/source");
+        HttpCookie cookieB = new HttpCookie("b", "banana");
+        cookieA.setDomain("code.google.com");
+        cookieA.setPath("/p/android");
+
+        try {
+            cookieStore.add(null, cookieA);
+        } catch (NullPointerException expected) {
+            // the RI crashes even though the cookie does get added to the store; sigh
+            expected.printStackTrace();
+        }
+        assertEquals(Arrays.asList(cookieA), cookieStore.getCookies());
+        try {
+            cookieStore.add(null, cookieB);
+        } catch (NullPointerException expected) {
+        }
+        assertEquals(Arrays.asList(cookieA, cookieB), cookieStore.getCookies());
+
+        try {
+            cookieStore.get(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        assertEquals(Collections.<URI>emptyList(), cookieStore.getURIs());
+        assertTrue(cookieStore.remove(null, cookieA));
+        assertEquals(Arrays.asList(cookieB), cookieStore.getCookies());
+
+        assertTrue(cookieStore.removeAll());
+        assertEquals(Collections.<URI>emptyList(), cookieStore.getURIs());
+        assertEquals(Collections.<HttpCookie>emptyList(), cookieStore.getCookies());
+    }
+
+    public void testCookieStoreRemoveAll() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        cookieStore.add(new URI("http://code.google.com/"), new HttpCookie("a", "android"));
+        assertTrue(cookieStore.removeAll());
+        assertEquals(Collections.<URI>emptyList(), cookieStore.getURIs());
+        assertEquals(Collections.<HttpCookie>emptyList(), cookieStore.getCookies());
+        assertFalse("Expected removeAll() to return false when the call doesn't mutate the store",
+                cookieStore.removeAll());  // RI6 fails this
+    }
+
+    public void testCookieStoreAddAcceptsConflictingUri() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        HttpCookie cookieA = new HttpCookie("a", "android");
+        cookieA.setDomain(".android.com");
+        cookieA.setPath("/source/");
+        cookieStore.add(new URI("http://google.com/source/"), cookieA);
+        assertEquals(Arrays.asList(cookieA), cookieStore.getCookies());
+    }
+
+    public void testCookieStoreRemoveRequiresUri() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        HttpCookie cookieA = new HttpCookie("a", "android");
+        cookieStore.add(new URI("http://android.com/source/"), cookieA);
+        assertFalse("Expected remove() to take the cookie URI into account.", // RI6 fails this
+                cookieStore.remove(new URI("http://code.google.com/"), cookieA));
+        assertEquals(Arrays.asList(cookieA), cookieStore.getCookies());
+    }
+
+    public void testCookieStoreUriUsesHttpSchemeAlways() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        cookieStore.add(new URI("https://a.com/"), new HttpCookie("a", "android"));
+        assertEquals(Arrays.asList(new URI("http://a.com")), cookieStore.getURIs());
+    }
+
+    public void testCookieStoreUriDropsUserInfo() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        cookieStore.add(new URI("http://jesse:secret@a.com/"), new HttpCookie("a", "android"));
+        assertEquals(Arrays.asList(new URI("http://a.com")), cookieStore.getURIs());
+    }
+
+    public void testCookieStoreUriKeepsHost() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        cookieStore.add(new URI("http://b.com/"), new HttpCookie("a", "android"));
+        assertEquals(Arrays.asList(new URI("http://b.com")), cookieStore.getURIs());
+    }
+
+    public void testCookieStoreUriDropsPort() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        cookieStore.add(new URI("http://a.com:443/"), new HttpCookie("a", "android"));
+        assertEquals(Arrays.asList(new URI("http://a.com")), cookieStore.getURIs());
+    }
+
+    public void testCookieStoreUriDropsPath() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        cookieStore.add(new URI("http://a.com/a/"), new HttpCookie("a", "android"));
+        assertEquals(Arrays.asList(new URI("http://a.com")), cookieStore.getURIs());
+    }
+
+    public void testCookieStoreUriDropsFragment() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        cookieStore.add(new URI("http://a.com/a/foo#fragment"), new HttpCookie("a", "android"));
+        assertEquals(Arrays.asList(new URI("http://a.com")), cookieStore.getURIs());
+    }
+
+    public void testCookieStoreUriDropsQuery() throws URISyntaxException {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        cookieStore.add(new URI("http://a.com/a/foo?query=value"), new HttpCookie("a", "android"));
+        assertEquals(Arrays.asList(new URI("http://a.com")), cookieStore.getURIs());
     }
 
     private void assertContains(Collection<String> collection, String element) {

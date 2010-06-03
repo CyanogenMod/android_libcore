@@ -105,7 +105,7 @@ public final class NativeConverter {
     public static native float getAveBytesPerChar(long converterHandle);
     public static native float getAveCharsPerByte(long converterHandle);
 
-    public static native boolean contains(long converterHandle1, long converterHandle2);
+    public static native boolean contains(String converterName1, String converterName2);
 
     public static native boolean canEncode(long converterHandle, int codeUnit);
 

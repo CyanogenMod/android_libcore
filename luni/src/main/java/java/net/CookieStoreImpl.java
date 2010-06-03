@@ -17,113 +17,127 @@
 package java.net;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Provides an in-memory implementation of CookieStore as the default value of
- * HttpCookie.getCookieStore().
+ * An in-memory cookie store.
  */
-class CookieStoreImpl implements CookieStore {
-    private Map<URI, ArrayList<HttpCookie>> storeMap = new HashMap<URI, ArrayList<HttpCookie>>();
+final class CookieStoreImpl implements CookieStore {
 
-    public void add(URI uri, HttpCookie cookie) {
-        if (uri == null || cookie == null) {
-            throw new NullPointerException();
-        }
-        ArrayList<HttpCookie> cookies;
-        if (storeMap.containsKey(uri)) {
-            cookies = storeMap.get(uri);
-            cookies.remove(cookie);
-            cookies.add(cookie);
-        } else {
-            cookies = new ArrayList<HttpCookie>();
-            cookies.add(cookie);
-            storeMap.put(uri, cookies);
-        }
-    }
+    /** this map may have null keys! */
+    private final Map<URI, List<HttpCookie>> map = new HashMap<URI, List<HttpCookie>>();
 
-    public List<HttpCookie> get(URI uri) {
-        if (uri == null) {
-            throw new NullPointerException("uri == null");
-        }
-        // get cookies associated with given URI. If none, returns an empty list
-        List<HttpCookie> cookies = storeMap.get(uri);
-        if (cookies == null) {
-            cookies = new ArrayList<HttpCookie>();
-        } else {
-            // eliminate expired cookies
-            for (HttpCookie cookie : cookies) {
-                if (cookie.hasExpired()) {
-                    cookies.remove(cookie);
-                }
-            }
-        }
-
-        // get cookies whose domain matches the given URI
-        Set<URI> uris = storeMap.keySet();
-        for (URI u : uris) {
-            // exclude the given URI
-            if (!u.equals(uri)) {
-                List<HttpCookie> listCookie = storeMap.get(u);
-                for (HttpCookie cookie : listCookie) {
-                    if (HttpCookie.domainMatches(cookie.getDomain(), uri
-                            .getHost())) {
-                        if (cookie.hasExpired()) {
-                            listCookie.remove(cookie);
-                        } else if (!(cookie.hasExpired() || cookies
-                                .contains(cookie))) {
-                            cookies.add(cookie);
-                        }
-                    }
-                }
-            }
-        }
-
-        return cookies;
-    }
-
-    public List<HttpCookie> getCookies() {
-        List<HttpCookie> cookies = new ArrayList<HttpCookie>();
-        Collection<ArrayList<HttpCookie>> values = storeMap.values();
-        for (ArrayList<HttpCookie> list : values) {
-            for (HttpCookie cookie : list) {
-                if (cookie.hasExpired()) {
-                    list.remove(cookie); // eliminate expired cookies
-                } else if (!cookies.contains(cookie)) {
-                    cookies.add(cookie);
-                }
-            }
-        }
-        return Collections.unmodifiableList(cookies);
-    }
-
-    public List<URI> getURIs() {
-        return new ArrayList<URI>(storeMap.keySet());
-    }
-
-    public boolean remove(URI uri, HttpCookie cookie) {
+    public synchronized void add(URI uri, HttpCookie cookie) {
         if (cookie == null) {
             throw new NullPointerException("cookie == null");
         }
-        boolean success = false;
-        Collection<ArrayList<HttpCookie>> values = storeMap.values();
-        for (ArrayList<HttpCookie> list : values) {
-            if (list.remove(cookie)) {
-                success = true;
-            }
+
+        uri = cookiesUri(uri);
+        List<HttpCookie> cookies = map.get(uri);
+        if (cookies == null) {
+            cookies = new ArrayList<HttpCookie>();
+            map.put(uri, cookies);
+        } else {
+            cookies.remove(cookie);
         }
-        return success;
+        cookies.add(cookie);
     }
 
-    public boolean removeAll() {
-        if (!storeMap.isEmpty()) {
-            storeMap.clear();
+    private URI cookiesUri(URI uri) {
+        if (uri == null) {
+            return null;
         }
-        return true;
+        try {
+            return new URI("http", uri.getHost(), null, null);
+        } catch (URISyntaxException e) {
+            return uri; // probably a URI with no host
+        }
+    }
+
+    public synchronized List<HttpCookie> get(URI uri) {
+        if (uri == null) {
+            throw new NullPointerException("uri == null");
+        }
+
+        List<HttpCookie> result = new ArrayList<HttpCookie>();
+
+        // get cookies associated with given URI. If none, returns an empty list
+        List<HttpCookie> cookiesForUri = map.get(uri);
+        if (cookiesForUri != null) {
+            for (Iterator<HttpCookie> i = cookiesForUri.iterator(); i.hasNext(); ) {
+                HttpCookie cookie = i.next();
+                if (cookie.hasExpired()) {
+                    i.remove(); // remove expired cookies
+                } else {
+                    result.add(cookie);
+                }
+            }
+        }
+
+        // get all cookies that domain matches the URI
+        for (Map.Entry<URI, List<HttpCookie>> entry : map.entrySet()) {
+            if (uri.equals(entry.getKey())) {
+                continue; // skip the given URI; we've already handled it
+            }
+
+            List<HttpCookie> entryCookies = entry.getValue();
+            for (Iterator<HttpCookie> i = entryCookies.iterator(); i.hasNext(); ) {
+                HttpCookie cookie = i.next();
+                if (!HttpCookie.domainMatches(cookie.getDomain(), uri.getHost())) {
+                    continue;
+                }
+                if (cookie.hasExpired()) {
+                    i.remove(); // remove expired cookies
+                } else if (!result.contains(cookie)) {
+                    result.add(cookie);
+                }
+            }
+        }
+
+        return Collections.unmodifiableList(result);
+    }
+
+    public synchronized List<HttpCookie> getCookies() {
+        List<HttpCookie> result = new ArrayList<HttpCookie>();
+        for (List<HttpCookie> list : map.values()) {
+            for (Iterator<HttpCookie> i = list.iterator(); i.hasNext(); ) {
+                HttpCookie cookie = i.next();
+                if (cookie.hasExpired()) {
+                    i.remove(); // remove expired cookies
+                } else if (!result.contains(cookie)) {
+                    result.add(cookie);
+                }
+            }
+        }
+        return Collections.unmodifiableList(result);
+    }
+
+    public synchronized List<URI> getURIs() {
+        List<URI> result = new ArrayList<URI>(map.keySet());
+        result.remove(null); // sigh
+        return Collections.unmodifiableList(result);
+    }
+
+    public synchronized boolean remove(URI uri, HttpCookie cookie) {
+        if (cookie == null) {
+            throw new NullPointerException("cookie == null");
+        }
+
+        List<HttpCookie> cookies = map.get(cookiesUri(uri));
+        if (cookies != null) {
+            return cookies.remove(cookie);
+        } else {
+            return false;
+        }
+    }
+
+    public synchronized boolean removeAll() {
+        boolean result = !map.isEmpty();
+        map.clear();
+        return result;
     }
 }

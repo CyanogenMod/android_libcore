@@ -38,7 +38,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 
 import org.apache.harmony.security.PrivateKeyImpl;
 import org.apache.harmony.security.asn1.ASN1Integer;
-import org.apache.harmony.security.internal.nls.Messages;
 import org.apache.harmony.security.pkcs8.PrivateKeyInfo;
 import org.apache.harmony.security.utils.AlgNameMapper;
 import org.apache.harmony.security.x509.AlgorithmIdentifier;
@@ -114,16 +113,14 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
             privateKeyInfo = (PrivateKeyInfo) PrivateKeyInfo.ASN1
                     .decode(encoding);
         } catch (IOException e) {
-            throw new InvalidKeySpecException(Messages.getString(
-                    "security.19A", e));
+            throw new InvalidKeySpecException("Failed to decode keySpec encoding: " + e);
         }
 
         try {
             x = new BigInteger((byte[]) ASN1Integer.getInstance().decode(
                     privateKeyInfo.getPrivateKey()));
         } catch (IOException e) {
-            throw new InvalidKeySpecException(Messages.getString(
-                    "security.19B", e));
+            throw new InvalidKeySpecException("Failed to decode parameters: " + e);
         }
 
         ai = privateKeyInfo.getAlgorithmIdentifier();
@@ -131,8 +128,7 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
             threeInts = (ThreeIntegerSequence) ThreeIntegerSequence.ASN1
                     .decode(ai.getParameters());
         } catch (IOException e) {
-            throw new InvalidKeySpecException(Messages.getString(
-                    "security.19B", e));
+            throw new InvalidKeySpecException("Failed to decode parameters: " + e);
         }
         p = new BigInteger(threeInts.p);
         q = new BigInteger(threeInts.q);
@@ -158,7 +154,7 @@ public class DSAPrivateKeyImpl extends PrivateKeyImpl implements DSAPrivateKey {
 
     private void readObject(java.io.ObjectInputStream in) throws NotActiveException, IOException, ClassNotFoundException {
     	in.defaultReadObject();
-    	params = new DSAParameterSpec(p, q, g);    	
+    	params = new DSAParameterSpec(p, q, g);
     }
 
 }
