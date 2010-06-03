@@ -58,7 +58,11 @@ static jint Inflater_setFileInputImpl(JNIEnv* env, jobject, jobject javaFileDesc
     NativeZipStream* stream = toNativeZipStream(handle);
     if (stream->inCap < len) {
         stream->setInput(env, NULL, 0, len);
+    } else {
+        stream->stream.next_in = (Bytef *) &stream->input[0];
+        stream->stream.avail_in = len;
     }
+
     // TODO: is it okay to be this sloppy about errors?
     int fd = jniGetFDFromFileDescriptor(env, javaFileDescriptor);
     lseek(fd, off, SEEK_SET);
