@@ -103,31 +103,34 @@ public abstract class DatatypeFactory {
         }
     }
 
-    // BEGIN android-only
-    //     omit this method which wasn't included in Java 5
-    // /**
-    //  * @return New instance of a <code>DocumentBuilderFactory</code>
-    //  *
-    //  * @throws DatatypeConfigurationException If the implementation is not
-    //  *   available or cannot be instantiated.
-    //  * @since 1.6
-    //  */
-    // public static DatatypeFactory newInstance(String factoryClassName,
-    //         ClassLoader classLoader) throws DatatypeConfigurationException {
-    //     if (factoryClassName == null) {
-    //         throw new DatatypeConfigurationException("factoryClassName cannot be null.");
-    //     }
-    //     if (classLoader == null) {
-    //         classLoader = SecuritySupport.getContextClassLoader();
-    //     }
-    //     try {
-    //         return (DatatypeFactory) FactoryFinder.newInstance(factoryClassName, classLoader);
-    //     }
-    //     catch (FactoryFinder.ConfigurationError e) {
-    //         throw new DatatypeConfigurationException(e.getMessage(), e.getException());
-    //     }
-    // }
-    // END android-only
+    /**
+     * Returns an instance of the named implementation of {@code DatatypeFactory}.
+     *
+     * @throws DatatypeConfigurationException if {@code factoryClassName} is not available or cannot
+     *     be instantiated.
+     * @since 1.6
+     */
+    public static DatatypeFactory newInstance(String factoryClassName, ClassLoader classLoader)
+            throws DatatypeConfigurationException {
+        if (factoryClassName == null) {
+            throw new DatatypeConfigurationException("factoryClassName == null");
+        }
+        if (classLoader == null) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+        try {
+            Class<?> type = classLoader != null
+                    ? classLoader.loadClass(factoryClassName)
+                    : Class.forName(factoryClassName);
+            return (DatatypeFactory) type.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new DatatypeConfigurationException(e);
+        } catch (InstantiationException e) {
+            throw new DatatypeConfigurationException(e);
+        } catch (IllegalAccessException e) {
+            throw new DatatypeConfigurationException(e);
+        }
+    }
 
     /**
      * <p>Obtain a new instance of a <code>Duration</code>

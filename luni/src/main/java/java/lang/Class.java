@@ -269,11 +269,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             if a security manager exists and it does not allow member
      *             access.
      */
-    public Class[] getClasses() {
-        // BEGIN android-note
-        // trying to get closer to the RI which returns a raw class array.
-        // copied from newer version of harmony
-        // END android-note
+    public Class<?>[] getClasses() {
         checkPublicMemberAccess();
         return getFullListOfClasses(true);
     }
@@ -471,7 +467,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredConstructor(Class...)
      */
     @SuppressWarnings("unchecked")
-    public Constructor<T> getConstructor(Class... parameterTypes) throws NoSuchMethodException,
+    public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException,
             SecurityException {
         checkPublicMemberAccess();
         return getMatchingConstructor(getDeclaredConstructors(this, true), parameterTypes);
@@ -490,11 +486,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             access.
      * @see #getDeclaredConstructors()
      */
-    public Constructor[] getConstructors() throws SecurityException {
-        // BEGIN android-note
-        // trying to get closer to the RI which returns a raw constructor array.
-        // copied from newer version of harmony
-        // END android-note
+    public Constructor<?>[] getConstructors() throws SecurityException {
         checkPublicMemberAccess();
         return getDeclaredConstructors(this, true);
     }
@@ -524,11 +516,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             if a security manager exists and it does not allow member
      *             access.
      */
-    public Class[] getDeclaredClasses() throws SecurityException {
-        // BEGIN android-note
-        // trying to get closer to the RI which returns a raw class array.
-        // copied from newer version of harmony
-        // END android-note
+    public Class<?>[] getDeclaredClasses() throws SecurityException {
         checkDeclaredMemberAccess();
         return getDeclaredClasses(this, false);
     }
@@ -586,7 +574,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getConstructor(Class...)
      */
     @SuppressWarnings("unchecked")
-    public Constructor<T> getDeclaredConstructor(Class... parameterTypes)
+    public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
             throws NoSuchMethodException, SecurityException {
         checkDeclaredMemberAccess();
         return getMatchingConstructor(getDeclaredConstructors(this, false), parameterTypes);
@@ -606,11 +594,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             access.
      * @see #getConstructors()
      */
-    public Constructor[] getDeclaredConstructors() throws SecurityException {
-        // BEGIN android-note
-        // trying to get closer to the RI which returns a raw constructor array.
-        // copied from newer version of harmony
-        // END android-note
+    public Constructor<?>[] getDeclaredConstructors() throws SecurityException {
         checkDeclaredMemberAccess();
         return getDeclaredConstructors(this, false);
     }
@@ -740,7 +724,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             access.
      * @see #getMethod(String, Class...)
      */
-    public Method getDeclaredMethod(String name, Class... parameterTypes)
+    public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
             throws NoSuchMethodException, SecurityException {
         checkDeclaredMemberAccess();
 
@@ -950,11 +934,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return an array with the interfaces of the class represented by this
      *         class.
      */
-    public native Class[] getInterfaces();
-    // BEGIN android-note
-    // trying to get closer to the RI which returns a raw class array.
-    // copied from newer version of harmony
-    // END android-note
+    public native Class<?>[] getInterfaces();
 
     // Changed to raw type to be closer to the RI
     /**
@@ -977,7 +957,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *             access.
      * @see #getDeclaredMethod(String, Class...)
      */
-    public Method getMethod(String name, Class... parameterTypes) throws NoSuchMethodException,
+    public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException,
             SecurityException {
         checkPublicMemberAccess();
 
