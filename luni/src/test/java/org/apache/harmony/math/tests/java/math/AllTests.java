@@ -30,20 +30,14 @@ public class AllTests {
 
         suite.addTestSuite(BigDecimalArithmeticTest.class);
         suite.addTestSuite(BigDecimalCompareTest.class);
-        suite.addTestSuite(BigDecimalConstructorsTest.class);
         suite.addTestSuite(BigDecimalConvertTest.class);
         suite.addTestSuite(BigDecimalScaleOperationsTest.class);
         suite.addTestSuite(BigIntegerAddTest.class);
         suite.addTestSuite(BigIntegerAndTest.class);
         suite.addTestSuite(BigIntegerCompareTest.class);
-        suite.addTestSuite(BigIntegerConstructorsTest.class);
         suite.addTestSuite(BigIntegerConvertTest.class);
-        suite.addTestSuite(BigIntegerDivideTest.class);
         suite.addTestSuite(BigIntegerHashCodeTest.class);
-        suite.addTestSuite(BigIntegerModPowTest.class);
-        suite.addTestSuite(BigIntegerMultiplyTest.class);
         suite.addTestSuite(BigIntegerNotTest.class);
-        suite.addTestSuite(BigIntegerOperateBitsTest.class);
         suite.addTestSuite(BigIntegerOrTest.class);
         suite.addTestSuite(BigIntegerSubtractTest.class);
         suite.addTestSuite(BigIntegerToStringTest.class);

@@ -15,36 +15,18 @@
  *  limitations under the License.
  */
 
-package tests.api.java.util;
+package java.util;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.AndroidOnly;
-
+import dalvik.annotation.TestTargetNew;
 import java.io.Serializable;
 import java.text.CollationKey;
 import java.text.Collator;
-import java.util.AbstractMap;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import org.apache.harmony.testframework.serialization.SerializationTest;
-
 import tests.support.Support_MapTest2;
-import tests.support.Support_UnmodifiableCollectionTest;
 
 @TestTargetClass(TreeMap.class)
-public class TreeMapTest extends junit.framework.TestCase {
+public class OldTreeMapTest extends junit.framework.TestCase {
 
     public static class ReversedComparator implements Comparator {
         public int compare(Object o1, Object o2) {
@@ -203,87 +185,6 @@ public class TreeMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.TreeMap#clear()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
-    public void test_clear() {
-        // Test for method void java.util.TreeMap.clear()
-        tm.clear();
-        assertEquals("Cleared map returned non-zero size", 0, tm.size());
-    }
-
-    /**
-     * @tests java.util.TreeMap#clone()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
-    public void test_clone() {
-        // Test for method java.lang.Object java.util.TreeMap.clone()
-        TreeMap clonedMap = (TreeMap) tm.clone();
-        assertTrue("Cloned map does not equal the original map", clonedMap
-                .equals(tm));
-        assertTrue("Cloned map is the same reference as the original map",
-                clonedMap != tm);
-        for (Object element : objArray) {
-            assertTrue("Cloned map contains incorrect elements", clonedMap
-                    .get(element.toString()) == tm.get(element.toString()));
-        }
-
-        TreeMap map = new TreeMap();
-        map.put("key", "value");
-        // get the keySet() and values() on the original Map
-        Set keys = map.keySet();
-        Collection values = map.values();
-        assertEquals("values() does not work", "value", values.iterator()
-                .next());
-        assertEquals("keySet() does not work", "key", keys.iterator().next());
-        AbstractMap map2 = (AbstractMap) map.clone();
-        map2.put("key", "value2");
-        Collection values2 = map2.values();
-        assertTrue("values() is identical", values2 != values);
-        // values() and keySet() on the cloned() map should be different
-        assertEquals("values() was not cloned", "value2", values2.iterator()
-                .next());
-        map2.clear();
-        map2.put("key2", "value3");
-        Set key2 = map2.keySet();
-        assertTrue("keySet() is identical", key2 != keys);
-        assertEquals("keySet() was not cloned", "key2", key2.iterator().next());
-    }
-
-    /**
-     * @tests java.util.TreeMap#comparator()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "comparator",
-        args = {}
-    )
-    public void test_comparator() {
-        // Test for method java.util.Comparator java.util.TreeMap.comparator()\
-        Comparator comp = new ReversedComparator();
-        TreeMap reversedTreeMap = new TreeMap(comp);
-        assertTrue("TreeMap answered incorrect comparator", reversedTreeMap
-                .comparator() == comp);
-        reversedTreeMap.put(new Integer(1).toString(), new Integer(1));
-        reversedTreeMap.put(new Integer(2).toString(), new Integer(2));
-        assertTrue("TreeMap does not use comparator (firstKey was incorrect)",
-                reversedTreeMap.firstKey().equals(new Integer(2).toString()));
-        assertTrue("TreeMap does not use comparator (lastKey was incorrect)",
-                reversedTreeMap.lastKey().equals(new Integer(1).toString()));
-    }
-
-    /**
      * @tests java.util.TreeMap#containsKey(java.lang.Object)
      */
     @TestTargetNew(
@@ -310,47 +211,6 @@ public class TreeMapTest extends junit.framework.TestCase {
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             //expected
-        }
-    }
-
-    /**
-     * @tests java.util.TreeMap#containsValue(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "containsValue",
-        args = {java.lang.Object.class}
-    )
-    public void test_containsValueLjava_lang_Object() {
-        // Test for method boolean
-        // java.util.TreeMap.containsValue(java.lang.Object)
-        assertTrue("Returned false for valid value", tm
-                .containsValue(objArray[986]));
-        assertTrue("Returned true for invalid value", !tm
-                .containsValue(new Object()));
-    }
-
-    /**
-     * @tests java.util.TreeMap#entrySet()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "entrySet",
-        args = {}
-    )
-    public void test_entrySet() {
-        // Test for method java.util.Set java.util.TreeMap.entrySet()
-        Set anEntrySet = tm.entrySet();
-        Iterator entrySetIterator = anEntrySet.iterator();
-        assertTrue("EntrySet is incorrect size",
-                anEntrySet.size() == objArray.length);
-        Map.Entry entry;
-        while (entrySetIterator.hasNext()) {
-            entry = (Map.Entry) entrySetIterator.next();
-            assertTrue("EntrySet does not contain correct mappings", tm
-                    .get(entry.getKey()) == entry.getValue());
         }
     }
 
@@ -495,26 +355,6 @@ public class TreeMapTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.TreeMap#keySet()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "keySet",
-        args = {}
-    )
-    public void test_keySet() {
-        // Test for method java.util.Set java.util.TreeMap.keySet()
-        Set ks = tm.keySet();
-        assertTrue("Returned set of incorrect size",
-                ks.size() == objArray.length);
-        for (int i = 0; i < tm.size(); i++) {
-            assertTrue("Returned set is missing keys", ks.contains(new Integer(
-                    i).toString()));
-        }
-    }
-
-    /**
      * @tests java.util.TreeMap#lastKey()
      */
     @TestTargetNew(
@@ -561,8 +401,8 @@ public class TreeMapTest extends junit.framework.TestCase {
 
         // regression for Harmony-780
         tm = new TreeMap();
-        assertNull(tm.put(new Object(), new Object()));
         try {
+            assertNull(tm.put(new Object(), new Object()));
             tm.put(new Integer(1), new Object());
             fail("should throw ClassCastException");
         } catch (ClassCastException e) {
@@ -642,20 +482,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             //expected
         }
-    }
-
-    /**
-     * @tests java.util.TreeMap#size()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
-    public void test_size() {
-        // Test for method int java.util.TreeMap.size()
-        assertEquals("Returned incorrect size", 1000, tm.size());
     }
 
     /**
@@ -771,110 +597,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         // Regression for Harmony-1066
         assertTrue(tail instanceof Serializable);
     }
-
-    /**
-     * @tests java.util.TreeMap#values()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "values",
-        args = {}
-    )
-    public void test_values() {
-        // Test for method java.util.Collection java.util.TreeMap.values()
-        Collection vals = tm.values();
-        vals.iterator();
-        assertTrue("Returned collection of incorrect size",
-                vals.size() == objArray.length);
-        for (Object element : objArray) {
-            assertTrue("Collection contains incorrect elements", vals
-                    .contains(element));
-        }
-
-        TreeMap myTreeMap = new TreeMap();
-        for (int i = 0; i < 100; i++) {
-            myTreeMap.put(objArray[i], objArray[i]);
-        }
-        Collection values = myTreeMap.values();
-        new Support_UnmodifiableCollectionTest(
-                "Test Returned Collection From TreeMap.values()", values)
-                .runTest();
-        values.remove(new Integer(0));
-        assertTrue(
-                "Removing from the values collection should remove from the original map",
-                !myTreeMap.containsValue(new Integer(0)));
-    }
-
-    /**
-     * @tests java.util.TreeMap#SerializationTest()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies serialization/deserialization.",
-        method = "!SerializationSelf",
-        args = {}
-    )
-    @AndroidOnly("fail on RI. See comment below")
-    // Regression for Harmony-1066
-    public void test_SubMap_Serializable() throws Exception {
-        TreeMap<Integer, Double> map = new TreeMap<Integer, Double>();
-        map.put(1, 2.1);
-        map.put(2, 3.1);
-        map.put(3, 4.5);
-        map.put(7, 21.3);
-        SortedMap<Integer, Double> headMap = map.headMap(3);
-        assertTrue(headMap instanceof Serializable);
-        assertFalse(headMap instanceof TreeMap);
-        assertTrue(headMap instanceof SortedMap);
-
-        assertFalse(headMap.entrySet() instanceof Serializable);
-        assertFalse(headMap.keySet() instanceof Serializable);
-        assertFalse(headMap.values() instanceof Serializable);
-
-        // This assertion will fail on RI. This is a bug of RI.
-        SerializationTest.verifySelf(headMap);
-    }
-
-    /**
-     * Tests equals() method.
-     * Tests that no ClassCastException will be thrown in all cases.
-     * Regression test for HARMONY-1639.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
-    public void test_equals() throws Exception {
-        // comparing TreeMaps with different object types
-        Map m1 = new TreeMap();
-        Map m2 = new TreeMap();
-        m1.put("key1", "val1");
-        m1.put("key2", "val2");
-        m2.put(new Integer(1), "val1");
-        m2.put(new Integer(2), "val2");
-        assertFalse("Maps should not be equal 1", m1.equals(m2));
-        assertFalse("Maps should not be equal 2", m2.equals(m1));
-
-        // comparing TreeMap with HashMap
-        m1 = new TreeMap();
-        m2 = new HashMap();
-        m1.put("key", "val");
-        m2.put(new Object(), "val");
-        assertFalse("Maps should not be equal 3", m1.equals(m2));
-        assertFalse("Maps should not be equal 4", m2.equals(m1));
-
-        // comparing TreeMaps with not-comparable objects inside
-        m1 = new TreeMap();
-        m2 = new TreeMap();
-        m1.put(new Object(), "val1");
-        m2.put(new Object(), "val1");
-        assertFalse("Maps should not be equal 5", m1.equals(m2));
-        assertFalse("Maps should not be equal 6", m2.equals(m1));
-    }
-
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.
