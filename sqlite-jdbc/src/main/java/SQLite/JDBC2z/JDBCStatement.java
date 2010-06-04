@@ -56,16 +56,26 @@ public class JDBCStatement implements java.sql.Statement {
     }
 
     public void setQueryTimeout(int seconds) throws SQLException {
-	conn.timeout = seconds * 1000;
-	if (conn.timeout < 0) {
-	    conn.timeout = 120000;
-	} else if (conn.timeout < 1000) {
+	// BEGIN android-changed: more closely follow specification:
+	// "[throws SQLException if] this method is called on a closed Statement or the condition
+	// seconds >= 0 is not satisfied"
+	// (http://java.sun.com/javase/6/docs/api/java/sql/Statement.html#setQueryTimeout(int))
+	if (isClosed()) {
+	    throw new SQLException("can't set a query timeout on a closed statement");
+	} else if (seconds < 0) {
+	    throw new SQLException("can't set a query timeout of less than 0 seconds");
+	} else if (seconds == 0) {
+	    // An argument of 0 seconds should set an unlimited timeout. However, since this was not
+	    // done previously, I assume it isn't implemented and use the same implementation.
 	    conn.timeout = 5000;
+	} else {
+	    conn.timeout = seconds * 1000;
 	}
+	// END android-changed
     }
 
     public int getQueryTimeout() throws SQLException {
-	return conn.timeout;
+	return conn.timeout / 1000; // android-changed: should return seconds
     }
 
     public ResultSet getResultSet() throws SQLException {
@@ -291,7 +301,7 @@ public class JDBCStatement implements java.sql.Statement {
     }
 
     public boolean isClosed() throws SQLException {
-	return rs == null;
+	return conn == null; // android-changed: pretty sure this is correct, since it matches what's done in close()
     }
 
     public void setPoolable(boolean yes) throws SQLException {

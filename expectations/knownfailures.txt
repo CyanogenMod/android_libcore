@@ -796,12 +796,8 @@ result EXEC_FAILED
 test tests.sql.StatementTest#testGetResultSetType
 result EXEC_FAILED
 
-# statment.close() does not wrap up
+# statement.close() does not wrap up
 test tests.sql.StatementTest#testGetUpdateCount
-result EXEC_FAILED
-
-# Error in implementation either setter or getter fails. Getter spec is not explicit about unit.
-test tests.sql.StatementTest#testSetQueryTimeout
 result EXEC_FAILED
 
 # Fails in CTS but passes under run-core-tests
