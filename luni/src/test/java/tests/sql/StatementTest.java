@@ -1396,27 +1396,31 @@ public class StatementTest extends SQLTest {
             args = {}
         )
     })
-    @KnownFailure("Error in implementation either setter or getter fails. "+
-            "Getter spec is not explicit about unit.")
     public void testSetQueryTimeout() {
-        Statement st = null;
         try {
-            st = conn.createStatement();
-            st.setQueryTimeout(2000);
-            assertEquals(2000, st.getQueryTimeout());
-        } catch (SQLException e) {
-            fail("SQLException is thrown: " + e.getMessage());
-        }
+            Statement st = conn.createStatement();
+            st.setQueryTimeout(2);
+            assertEquals(2, st.getQueryTimeout());
 
-        st = null;
-        try {
-            st = conn.createStatement();
-            st.setQueryTimeout(-1);
-           fail("SQLException is not thrown");
-        } catch (SQLException e) {
-            // expected
-        }
+            try {
+                st = conn.createStatement();
+                st.setQueryTimeout(-1);
+                fail("SQLException not thrown");
+            } catch (SQLException expected) {
+                // expected
+            }
 
+            try {
+                st = conn.createStatement();
+                st.close();
+                st.setQueryTimeout(3);
+                fail("SQLException not thrown");
+            } catch (SQLException expected) {
+                // expected
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
