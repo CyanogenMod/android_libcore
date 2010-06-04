@@ -83,7 +83,7 @@ public:
         if (buf != NULL) {
             env->GetByteArrayRegion(buf, off, len, &input[0]);
         }
-        stream.next_in = (Bytef *) &input[0];
+        stream.next_in = reinterpret_cast<Bytef*>(&input[0]);
         stream.avail_in = len;
     }
 

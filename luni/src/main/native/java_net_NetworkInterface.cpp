@@ -15,6 +15,8 @@
  *  limitations under the License.
  */
 
+#define LOG_TAG "NetworkInterface"
+
 #include "JNIHelp.h"
 #include "jni.h"
 #include "NetworkUtilities.h"

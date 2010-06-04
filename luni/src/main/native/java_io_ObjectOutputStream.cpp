@@ -15,6 +15,8 @@
  *  limitations under the License.
  */
 
+#define LOG_TAG "ObjectOutputStream"
+
 #include "JNIHelp.h"
 #include "ScopedUtfChars.h"
 

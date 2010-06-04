@@ -15,6 +15,8 @@
  *  limitations under the License.
  */
 
+#define LOG_TAG "Console"
+
 #include "JNIHelp.h"
 
 #include <errno.h>

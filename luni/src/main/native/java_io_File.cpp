@@ -15,6 +15,8 @@
  *  limitations under the License.
  */
 
+#define LOG_TAG "File"
+
 #include "JNIHelp.h"
 #include "LocalArray.h"
 #include "ScopedFd.h"

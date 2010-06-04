@@ -15,6 +15,8 @@
  *  limitations under the License.
  */
 
+#define LOG_TAG "ObjectStreamClass"
+
 #include "JNIHelp.h"
 
 static jobject java_io_osc_getFieldSignature(JNIEnv* env, jclass,
@@ -35,8 +37,8 @@ static jobject java_io_osc_getFieldSignature(JNIEnv* env, jclass,
     }
 
     jclass fieldClass = env->GetObjectClass(reflectField);
-    
-    return env->CallNonvirtualObjectMethod(reflectField, 
+
+    return env->CallNonvirtualObjectMethod(reflectField,
             fieldClass, mid);
 }
 
@@ -56,9 +58,9 @@ static jobject java_io_osc_getMethodSignature(JNIEnv* env, jclass,
     if(!mid) {
         return NULL;
     }
-  
+
     jclass methodClass = env->GetObjectClass(reflectMethod);
-    return env->CallNonvirtualObjectMethod(reflectMethod, 
+    return env->CallNonvirtualObjectMethod(reflectMethod,
             methodClass, mid);
 }
 

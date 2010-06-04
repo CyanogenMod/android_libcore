@@ -18,6 +18,8 @@
  * Native glue for Java class org.openssl.NativeBN
  */
 
+#define LOG_TAG "NativeBN"
+
 #include "JNIHelp.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"

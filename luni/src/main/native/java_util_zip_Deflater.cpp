@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "Deflater"
+
 #include "ScopedPrimitiveArray.h"
 #include "zip.h"
 
