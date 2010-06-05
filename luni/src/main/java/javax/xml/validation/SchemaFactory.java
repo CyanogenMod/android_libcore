@@ -73,7 +73,7 @@ import org.xml.sax.SAXNotSupportedException;
  * and has a significant effect on the parsing process, it is impossible
  * to define the DTD validation as a process independent from parsing.
  * For this reason, this specification does not define the semantics for
- * the XML DTD. This doesn't prohibit implementors from implementing it
+ * the XML DTD. This doesn't prohibit implementers from implementing it
  * in a way they see fit, but <em>users are warned that any DTD
  * validation implemented on this interface necessarily deviate from
  * the XML DTD semantics as defined in the XML 1.0</em>.
@@ -177,9 +177,9 @@ public abstract class SchemaFactory {
      *      If no implementation of the schema language is available.
      *
      * @throws NullPointerException
-     *      If the <tt>schemLanguage</tt> parameter is null.
+     *      If the <tt>schemaLanguage</tt> parameter is null.
      */
-    public static final SchemaFactory newInstance(String schemaLanguage) {
+    public static SchemaFactory newInstance(String schemaLanguage) {
         ClassLoader cl;
         cl = SecuritySupport.getContextClassLoader();
 
@@ -196,36 +196,38 @@ public abstract class SchemaFactory {
         return f;
     }
 
-    // BEGIN android-only
-    //     omit this method which wasn't included in Java 5
-    // /**
-    //  * @return New instance of a <code>SchemaFactory</code>
-    //  *
-    //  * @throws IllegalArgumentException
-    //  *      If no implementation of the schema language is available.
-    //  *
-    //  * @throws NullPointerException
-    //  *      If the <tt>schemLanguage</tt> parameter is null.
-    //  * @since 1.6
-    //  */
-    // public static SchemaFactory newInstance(String schemaLanguage,
-    //         String factoryClassName, ClassLoader classLoader) {
-    //     if (schemaLanguage == null) {
-    //         throw new NullPointerException();
-    //     }
-    //     if (factoryClassName == null) {
-    //         throw new IllegalArgumentException("factoryClassName cannot be null.");
-    //     }
-    //     if (classLoader == null) {
-    //         classLoader = SecuritySupport.getContextClassLoader();
-    //     }
-    //     SchemaFactory f = new SchemaFactoryFinder(classLoader).createInstance(factoryClassName);
-    //     if (f == null || !f.isSchemaLanguageSupported(schemaLanguage)) {
-    //         throw new IllegalArgumentException(schemaLanguage);
-    //     }
-    //     return f;
-    // }
-    // END android-only
+    /**
+     * Returns an instance of the named implementation of {@code SchemaFactory}.
+     *
+     * @throws IllegalArgumentException if {@code factoryClassName} is not available, cannot be
+     *     instantiated, or doesn't support {@code schemaLanguage}.
+     * @since 1.6
+     */
+    public static SchemaFactory newInstance(String schemaLanguage, String factoryClassName,
+            ClassLoader classLoader) {
+        if (schemaLanguage == null || factoryClassName == null) {
+            throw new NullPointerException("schemaLanguage == null || factoryClassName == null");
+        }
+        if (classLoader == null) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+        try {
+            Class<?> type = classLoader != null
+                    ? classLoader.loadClass(factoryClassName)
+                    : Class.forName(factoryClassName);
+            SchemaFactory result = (SchemaFactory) type.newInstance();
+            if (result == null || !result.isSchemaLanguageSupported(schemaLanguage)) {
+                throw new IllegalArgumentException(schemaLanguage);
+            }
+            return result;
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        } catch (InstantiationException e) {
+            throw new IllegalArgumentException(e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 
     /**
      * <p>Is specified schema supported by this <code>SchemaFactory</code>?</p>
@@ -248,7 +250,7 @@ public abstract class SchemaFactory {
      * possible for a {@link SchemaFactory} to recognize a feature name but
      * temporarily be unable to return its value.
      *
-     * <p>Implementors are free (and encouraged) to invent their own features,
+     * <p>Implementers are free (and encouraged) to invent their own features,
      * using names built on their own URIs.</p>
      *
      * @param name The feature name, which is a non-null fully-qualified URI.
@@ -289,7 +291,7 @@ public abstract class SchemaFactory {
      *     <code>true</code>: the implementation will limit XML processing to conform to implementation limits.
      *     Examples include entity expansion limits and XML Schema constructs that would consume large amounts of resources.
      *     If XML processing is limited for security reasons, it will be reported via a call to the registered
-     *     {@link ErrorHandler#fatalError(SAXParseException exception)}.
+     *     {@link ErrorHandler#fatalError(org.xml.sax.SAXParseException)}.
      *     See {@link  #setErrorHandler(ErrorHandler errorHandler)}.
      *   </li>
      *   <li>
@@ -357,7 +359,7 @@ public abstract class SchemaFactory {
      * <p>{@link SchemaFactory}s are not required to recognize any specific
      * property names.</p>
      *
-     * <p>Implementors are free (and encouraged) to invent their own properties,
+     * <p>Implementers are free (and encouraged) to invent their own properties,
      * using names built on their own URIs.</p>
      *
      * @param name The property name, which is a non-null fully-qualified URI.

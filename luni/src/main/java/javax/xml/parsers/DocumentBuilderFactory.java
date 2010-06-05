@@ -51,37 +51,38 @@ public abstract class DocumentBuilderFactory {
      * @return a new DocumentBuilderFactory.
      */
     public static DocumentBuilderFactory newInstance() {
-        // BEGIN android-changed
-        //     instantiate the class directly rather than using reflection
+        // instantiate the class directly rather than using reflection
         return new DocumentBuilderFactoryImpl();
-        // END android-changed
     }
 
-    // BEGIN android-only
-    //     omit this method which wasn't included in Java 5
-    // /**
-    //  * @return New instance of a <code>DocumentBuilderFactory</code>
-    //  *
-    //  * @exception FactoryConfigurationError if the implementation is not
-    //  * available or cannot be instantiated.
-    //  * @since 1.6
-    //  */
-    // public static DocumentBuilderFactory newInstance(String factoryClassName,
-    //         ClassLoader classLoader) {
-    //     if (factoryClassName == null) {
-    //         throw new FactoryConfigurationError("factoryClassName cannot be null.");
-    //     }
-    //     if (classLoader == null) {
-    //         classLoader = SecuritySupport.getContextClassLoader();
-    //     }
-    //     try {
-    //         return (DocumentBuilderFactory) FactoryFinder.newInstance(factoryClassName, classLoader, false);
-    //     }
-    //     catch (FactoryFinder.ConfigurationError e) {
-    //         throw new FactoryConfigurationError(e.getException(), e.getMessage());
-    //     }
-    // }
-    // END android-only
+    /**
+     * Returns an instance of the named implementation of {@code DocumentBuilderFactory}.
+     *
+     * @throws FactoryConfigurationError if {@code factoryClassName} is not available or cannot be
+     *     instantiated.
+     * @since 1.6
+     */
+    public static DocumentBuilderFactory newInstance(String factoryClassName,
+            ClassLoader classLoader) {
+        if (factoryClassName == null) {
+            throw new FactoryConfigurationError("factoryClassName == null");
+        }
+        if (classLoader == null) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+        try {
+            Class<?> type = classLoader != null
+                    ? classLoader.loadClass(factoryClassName)
+                    : Class.forName(factoryClassName);
+            return (DocumentBuilderFactory) type.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new FactoryConfigurationError(e);
+        } catch (InstantiationException e) {
+            throw new FactoryConfigurationError(e);
+        } catch (IllegalAccessException e) {
+            throw new FactoryConfigurationError(e);
+        }
+    }
 
     /**
      * Creates a new instance of a {@link javax.xml.parsers.DocumentBuilder}

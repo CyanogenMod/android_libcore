@@ -139,7 +139,7 @@ public final class Subject implements Serializable {
      * @return the {@code Object} returned when running the {@code action}.
      */
     @SuppressWarnings("unchecked")
-    public static Object doAs(Subject subject, PrivilegedAction action) {
+    public static <T> T doAs(Subject subject, PrivilegedAction<T> action) {
 
         checkPermission(_AS);
 
@@ -162,7 +162,7 @@ public final class Subject implements Serializable {
      * @return the {@code Object} returned when running the {@code action}.
      */
     @SuppressWarnings("unchecked")
-    public static Object doAsPrivileged(Subject subject, PrivilegedAction action,
+    public static <T> T doAsPrivileged(Subject subject, PrivilegedAction<T> action,
             AccessControlContext context) {
 
         checkPermission(_AS_PRIVILEGED);
@@ -176,7 +176,7 @@ public final class Subject implements Serializable {
 
     // instantiates a new context and passes it to AccessController
     @SuppressWarnings("unchecked")
-    private static Object doAs_PrivilegedAction(Subject subject, PrivilegedAction action,
+    private static <T> T doAs_PrivilegedAction(Subject subject, PrivilegedAction<T> action,
             final AccessControlContext context) {
 
         AccessControlContext newContext;
@@ -215,7 +215,7 @@ public final class Subject implements Serializable {
      *             if running the {@code action} throws an exception.
      */
     @SuppressWarnings("unchecked")
-    public static Object doAs(Subject subject, PrivilegedExceptionAction action)
+    public static <T> T doAs(Subject subject, PrivilegedExceptionAction<T> action)
             throws PrivilegedActionException {
 
         checkPermission(_AS);
@@ -241,8 +241,8 @@ public final class Subject implements Serializable {
      *             if running the {@code action} throws an exception.
      */
     @SuppressWarnings("unchecked")
-    public static Object doAsPrivileged(Subject subject,
-            PrivilegedExceptionAction action, AccessControlContext context)
+    public static <T> T doAsPrivileged(Subject subject,
+            PrivilegedExceptionAction<T> action, AccessControlContext context)
             throws PrivilegedActionException {
 
         checkPermission(_AS_PRIVILEGED);
@@ -256,8 +256,8 @@ public final class Subject implements Serializable {
 
     // instantiates a new context and passes it to AccessController
     @SuppressWarnings("unchecked")
-    private static Object doAs_PrivilegedExceptionAction(Subject subject,
-            PrivilegedExceptionAction action, final AccessControlContext context)
+    private static <T> T doAs_PrivilegedExceptionAction(Subject subject,
+            PrivilegedExceptionAction<T> action, final AccessControlContext context)
             throws PrivilegedActionException {
 
         AccessControlContext newContext;
@@ -508,7 +508,6 @@ public final class Subject implements Serializable {
         }
     }
 
-    // FIXME is used only in two places. remove?
     private void checkState() {
         if (readOnly) {
             throw new IllegalStateException("Set is read-only");
@@ -569,9 +568,7 @@ public final class Subject implements Serializable {
             // and not to check whether it contains duplicates or not
             boolean trust = s.getClass().getClassLoader() == null;
 
-            Iterator<? extends SST> it = s.iterator();
-            while (it.hasNext()) {
-                SST o = it.next();
+            for (SST o : s) {
                 verifyElement(o);
                 if (trust || !elements.contains(o)) {
                     elements.add(o);
@@ -696,8 +693,7 @@ public final class Subject implements Serializable {
             };
 
             // FIXME must have permissions for requested priv. credentials
-            for (Iterator<SST> it = iterator(); it.hasNext();) {
-                SST o = it.next();
+            for (SST o : this) {
                 if (c.isAssignableFrom(o.getClass())) {
                     s.add(c.cast(o));
                 }
@@ -723,19 +719,17 @@ public final class Subject implements Serializable {
                 throw new IllegalArgumentException();
             }
 
-            Iterator<SST> it = elements.iterator();
-            while (it.hasNext()) {
-                verifyElement(it.next());
+            for (SST element : elements) {
+                verifyElement(element);
             }
         }
 
+        @SuppressWarnings("UnusedDeclaration")
         private void writeObject(ObjectOutputStream out) throws IOException {
 
             if (permission == _PRIVATE_CREDENTIALS) {
-                // does security check for each private credential
-                for (Iterator<SST> it = iterator(); it.hasNext();) {
-                    it.next();
-                }
+                // iteration causes checkPermission to be called for each element
+                for (SST unused : this) {}
                 setType = SET_PrivCred;
             } else if (permission == _PRINCIPALS) {
                 setType = SET_Principal;
