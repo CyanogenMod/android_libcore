@@ -406,7 +406,7 @@ public final class Array {
      *             if the array of dimensions is of size zero, or exceeds the
      *             limit of the number of dimension for an array (currently 255)
      */
-    public static Object newInstance(Class<?> componentType, int[] dimensions)
+    public static Object newInstance(Class<?> componentType, int... dimensions)
             throws NegativeArraySizeException, IllegalArgumentException {
         if (dimensions.length <= 0 || dimensions.length > 255)
             throw new IllegalArgumentException("Bad number of dimensions");
