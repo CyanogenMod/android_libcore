@@ -14,30 +14,31 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.apache.harmony.regex.tests.java.util.regex;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 /**
- * Provides a test suite for java.util.regex package.
+ * @author Elena Semukhina
+ * @version $Revision$
  */
-public class AllTests {
-    public static Test suite() {
-        TestSuite suite = new TestSuite("Tests for java.util.regex");
-        //$JUnit-BEGIN$
 
-        suite.addTestSuite(Matcher2Test.class);
-        suite.addTestSuite(ModeTest.class);
-        suite.addTestSuite(Pattern2Test.class);
-        suite.addTestSuite(PatternErrorTest.class);
-        suite.addTestSuite(PatternSyntaxExceptionTest.class);
-        suite.addTestSuite(PatternTest.class);
-        suite.addTestSuite(ReplaceTest.class);
-        suite.addTestSuite(SplitTest.class);
+package java.math;
 
-        //$JUnit-END$
-        return suite;
+import junit.framework.TestCase;
+
+public class OldBigIntegerDivideTest extends TestCase {
+
+    /**
+     * divideAndRemainder of division by zero
+     */
+    public void testCase21byZero() {
+        byte aBytes[] = {1, 2, 3, 4, 5, 6, 7};
+        byte bBytes[] = {0};
+        int aSign = 1;
+        int bSign = 0;
+        BigInteger aNumber = new BigInteger(aSign, aBytes);
+        BigInteger bNumber = new BigInteger(bSign, bBytes);
+        try {
+            aNumber.divideAndRemainder(bNumber);
+            fail("ArithmeticException has not been caught");
+        } catch (ArithmeticException e) {
+        }
     }
 }

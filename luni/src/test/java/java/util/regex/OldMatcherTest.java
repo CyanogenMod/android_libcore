@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.regex.tests.java.util.regex;
+package java.util.regex;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,17 +38,7 @@ import dalvik.annotation.TestTargets;
         }
 
 )
-public class MatcherTest extends TestCase {
-    String[] testPatterns = {
-            "(a|b)*abb",
-            "(1*2*3*4*)*567",
-            "(a|b|c|d)*aab",
-            "(1|2|3|4|5|6|7|8|9|0)(1|2|3|4|5|6|7|8|9|0)*",
-            "(abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ)*",
-            "(a|b)*(a|b)*A(a|b)*lice.*",
-            "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)(a|b|c|d|e|f|g|h|"
-                    + "i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)*(1|2|3|4|5|6|7|8|9|0)*|while|for|struct|if|do" };
-
+public class OldMatcherTest extends TestCase {
     String[] groupPatterns = { "(a|b)*aabb", "((a)|b)*aabb", "((a|b)*)a(abb)",
             "(((a)|(b))*)aabb", "(((a)|(b))*)aa(b)b", "(((a)|(b))*)a(a(b)b)" };
 
@@ -90,39 +80,6 @@ public class MatcherTest extends TestCase {
         assertNotNull(t);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "appendReplacement",
-        args = {java.lang.StringBuffer.class, java.lang.String.class}
-    )
-    public void testAppendReplacementRef() {
-        Pattern p = Pattern.compile("xx (rur|\\$)");
-        Matcher m = p.matcher("xx $ equals to xx rur.");
-        StringBuffer sb = new StringBuffer();
-        for (int i = 1; m.find(); i *= 30) {
-            String rep = new Integer(i).toString() + " $1";
-            m.appendReplacement(sb, rep);
-        }
-        m.appendTail(sb);
-        assertEquals("1 $ equals to 30 rur.", sb.toString());
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "replaceAll",
-        args = {java.lang.String.class}
-    )
-    public void testReplaceAll() {
-        String input = "aabfooaabfooabfoob";
-        String pattern = "a*b";
-        Pattern pat = Pattern.compile(pattern);
-        Matcher mat = pat.matcher(input);
-
-        assertEquals("-foo-foo-foo-", mat.replaceAll("-"));
-    }
-
     /**
      * @test java.util.regex.Matcher#reset(String)
      * test reset(String) method.
@@ -145,24 +102,6 @@ public class MatcherTest extends TestCase {
         assertFalse("After reset matcher should not find pattern in given input", mat.find());
         assertEquals("Reset should return itself 2", mat, mat.reset(testString1));
         assertTrue("After reset matcher should find pattern in given input", mat.find());
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "",
-        method = "appendReplacement",
-        args = {java.lang.StringBuffer.class, java.lang.String.class}
-    )
-    public void testAppendSlashes() {
-        Pattern p = Pattern.compile("\\\\");
-        Matcher m = p.matcher("one\\cat\\two\\cats\\in\\the\\yard");
-        StringBuffer sb = new StringBuffer();
-        while (m.find()) {
-            m.appendReplacement(sb, "\\\\");
-        }
-        m.appendTail(sb);
-        assertEquals("one\\cat\\two\\cats\\in\\the\\yard", sb.toString());
-
     }
 
     @TestTargetNew(
@@ -206,38 +145,6 @@ public class MatcherTest extends TestCase {
         assertNotNull(t);
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies replaceFirst(String replacement) method. ",
-        method = "replaceFirst",
-        args = {java.lang.String.class}
-    )
-    public void testReplaceFirst() {
-        String input = "zzzdogzzzdogzzz";
-        String pattern = "dog";
-        Pattern pat = Pattern.compile(pattern);
-        Matcher mat = pat.matcher(input);
-
-        assertEquals("zzzcatzzzdogzzz", mat.replaceFirst("cat"));
-    }
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "Verifies pattern() method.",
-        method = "pattern",
-        args = {}
-    )
-    public void testPattern() {
-        for (String element : testPatterns) {
-            Pattern test = Pattern.compile(element);
-            assertEquals(test, test.matcher("aaa").pattern());
-        }
-
-        for (String element : testPatterns) {
-            assertEquals(element, Pattern.compile(element).matcher("aaa")
-                    .pattern().toString());
-        }
-    }
-
     /**
      * @test java.util.regex.Matcher#reset()
      * test reset() method.
@@ -257,112 +164,6 @@ public class MatcherTest extends TestCase {
         while (mat.find());
         assertEquals("Reset should return itself", mat, mat.reset());
         assertTrue("After reset matcher should find pattern in given input", mat.find());
-    }
-
-    /*
-     * Class under test for String group(int)
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies group(int group) method.",
-        method = "group",
-        args = {int.class}
-    )
-    public void testGroupint() {
-        String positiveTestString = "ababababbaaabb";
-        String negativeTestString = "gjhfgdsjfhgcbv";
-
-        // test IndexOutOfBoundsException
-        // //
-        for (int i = 0; i < groupPatterns.length; i++) {
-            Pattern test = Pattern.compile(groupPatterns[i]);
-            Matcher mat = test.matcher(positiveTestString);
-            mat.matches();
-            try {
-                // groupPattern <index + 1> equals to number of groups
-                // of the specified pattern
-                // //
-                mat.group(i + 2);
-                fail("IndexOutBoundsException expected");
-                mat.group(i + 100);
-                fail("IndexOutBoundsException expected");
-                mat.group(-1);
-                fail("IndexOutBoundsException expected");
-                mat.group(-100);
-                fail("IndexOutBoundsException expected");
-            } catch (IndexOutOfBoundsException iobe) {
-            }
-        }
-
-        String[][] groupResults = { { "a" }, { "a", "a" },
-                { "ababababba", "a", "abb" }, { "ababababba", "a", "a", "b" },
-                { "ababababba", "a", "a", "b", "b" },
-                { "ababababba", "a", "a", "b", "abb", "b" }, };
-
-        for (int i = 0; i < groupPatterns.length; i++) {
-            Pattern test = Pattern.compile(groupPatterns[i]);
-            Matcher mat = test.matcher(positiveTestString);
-            mat.matches();
-            for (int j = 0; j < groupResults[i].length; j++) {
-                assertEquals("i: " + i + " j: " + j, groupResults[i][j], mat
-                        .group(j + 1));
-            }
-
-        }
-
-    }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies group() and group(int group) methods.",
-            method = "group",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies group() and group(int group) methods.",
-            method = "group",
-            args = {int.class}
-        )
-    })
-    public void testGroup() {
-        String positiveTestString = "ababababbaaabb";
-        String negativeTestString = "gjhfgdsjfhgcbv";
-        for (String element : groupPatterns) {
-            Pattern test = Pattern.compile(element);
-            Matcher mat = test.matcher(positiveTestString);
-            mat.matches();
-            // test result
-            assertEquals(positiveTestString, mat.group());
-
-            // test equal to group(0) result
-            assertEquals(mat.group(0), mat.group());
-        }
-
-        for (String element : groupPatterns) {
-            Pattern test = Pattern.compile(element);
-            Matcher mat = test.matcher(negativeTestString);
-            mat.matches();
-            try {
-                mat.group();
-                fail("IllegalStateException expected for <false> matches result");
-            } catch (IllegalStateException ise) {
-            }
-        }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies group(int group) method.",
-        method = "group",
-        args = {int.class}
-    )
-    public void testGroupPossessive() {
-        Pattern pat = Pattern.compile("((a)|(b))++c");
-        Matcher mat = pat.matcher("aac");
-
-        mat.matches();
-        assertEquals("a", mat.group(1));
     }
 
     /**
@@ -484,114 +285,7 @@ public class MatcherTest extends TestCase {
             }
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies matches() method in miscellaneous cases.",
-        method = "matches",
-        args = {}
-    )
-    public void testMatchesMisc() {
-        String[][] posSeq = {
-                { "abb", "ababb", "abababbababb", "abababbababbabababbbbbabb" },
-                { "213567", "12324567", "1234567", "213213567",
-                        "21312312312567", "444444567" },
-                { "abcdaab", "aab", "abaab", "cdaab", "acbdadcbaab" },
-                { "213234567", "3458", "0987654", "7689546432", "0398576",
-                        "98432", "5" },
-                {
-                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                + "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" },
-                { "ababbaAabababblice", "ababbaAliceababab", "ababbAabliceaaa",
-                        "abbbAbbbliceaaa", "Alice" },
-                { "a123", "bnxnvgds156", "for", "while", "if", "struct" }
 
-        };
-
-        for (int i = 0; i < testPatterns.length; i++) {
-            Pattern pat = Pattern.compile(testPatterns[i]);
-            for (int j = 0; j < posSeq[i].length; j++) {
-                Matcher mat = pat.matcher(posSeq[i][j]);
-                assertTrue("Incorrect match: " + testPatterns[i] + " vs "
-                        + posSeq[i][j], mat.matches());
-            }
-        }
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Stress test for matches() method.",
-        method = "matches",
-        args = {}
-    )
-    public void testMatchesQuantifiers() {
-        String[] testPatternsSingles = { "a{5}", "a{2,4}", "a{3,}" };
-        String[] testPatternsMultiple = { "((a)|(b)){1,2}abb",
-                "((a)|(b)){2,4}", "((a)|(b)){3,}" };
-
-        String[][] stringSingles = { { "aaaaa", "aaa" },
-                { "aa", "a", "aaa", "aaaaaa", "aaaa", "aaaaa" },
-                { "aaa", "a", "aaaa", "aa" }, };
-
-        String[][] stringMultiples = { { "ababb", "aba" },
-                { "ab", "b", "bab", "ababa", "abba", "abababbb" },
-                { "aba", "b", "abaa", "ba" }, };
-
-        for (int i = 0; i < testPatternsSingles.length; i++) {
-            Pattern pat = Pattern.compile(testPatternsSingles[i]);
-            for (int j = 0; j < stringSingles.length / 2; j++) {
-                assertTrue("Match expected, but failed: " + pat.pattern()
-                        + " : " + stringSingles[i][j], pat.matcher(
-                        stringSingles[i][j * 2]).matches());
-                assertFalse("Match failure expected, but match succeed: "
-                        + pat.pattern() + " : " + stringSingles[i][j * 2 + 1],
-                        pat.matcher(stringSingles[i][j * 2 + 1]).matches());
-            }
-        }
-
-        for (int i = 0; i < testPatternsMultiple.length; i++) {
-            Pattern pat = Pattern.compile(testPatternsMultiple[i]);
-            for (int j = 0; j < stringMultiples.length / 2; j++) {
-                assertTrue("Match expected, but failed: " + pat.pattern()
-                        + " : " + stringMultiples[i][j], pat.matcher(
-                        stringMultiples[i][j * 2]).matches());
-                assertFalse(
-                        "Match failure expected, but match succeed: "
-                                + pat.pattern() + " : "
-                                + stringMultiples[i][j * 2 + 1], pat.matcher(
-                                stringMultiples[i][j * 2 + 1]).matches());
-            }
-        }
-    }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods for specific pattern.",
-            method = "matches",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods for specific pattern.",
-            method = "group",
-            args = {int.class}
-        )
-    })
-    public void testQuantVsGroup() {
-        String patternString = "(d{1,3})((a|c)*)(d{1,3})((a|c)*)(d{1,3})";
-        String testString = "dacaacaacaaddaaacaacaaddd";
-
-        Pattern pat = Pattern.compile(patternString);
-        Matcher mat = pat.matcher(testString);
-
-        mat.matches();
-        assertEquals("dacaacaacaaddaaacaacaaddd", mat.group());
-        assertEquals("d", mat.group(1));
-        assertEquals("acaacaacaa", mat.group(2));
-        assertEquals("dd", mat.group(4));
-        assertEquals("aaacaacaa", mat.group(5));
-        assertEquals("ddd", mat.group(7));
-    }
 
     /**
      * @test java.util.regex.Matcher#lookingAt()
@@ -615,44 +309,6 @@ public class MatcherTest extends TestCase {
         mat1.region(1, 10);
         assertTrue("Should find given pattern in region of string", mat1.lookingAt());
         assertTrue("Should find given pattern in 2 string", mat2.lookingAt());
-    }
-
-    /*
-     * Class under test for boolean find()
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that find() method returns correct value.",
-        method = "find",
-        args = {}
-    )
-    public void testFind() {
-        String testPattern = "(abb)";
-        String testString = "cccabbabbabbabbabb";
-        Pattern pat = Pattern.compile(testPattern);
-        Matcher mat = pat.matcher(testString);
-        int start = 3;
-        int end = 6;
-        while (mat.find()) {
-            assertEquals(start, mat.start(1));
-            assertEquals(end, mat.end(1));
-
-            start = end;
-            end += 3;
-        }
-
-        testPattern = "(\\d{1,3})";
-        testString = "aaaa123456789045";
-
-        Pattern pat2 = Pattern.compile(testPattern);
-        Matcher mat2 = pat2.matcher(testString);
-        start = 4;
-        int length = 3;
-        while (mat2.find()) {
-            assertEquals(testString.substring(start, start + length), mat2
-                    .group(1));
-            start += length;
-        }
     }
 
     /**
@@ -826,7 +482,7 @@ public class MatcherTest extends TestCase {
 
         try {
             m.region(-1, 15);
-        } catch (IllegalArgumentException e) {
+        } catch (IndexOutOfBoundsException e) {
             t = e;
         }
         assertNotNull(t);
@@ -834,51 +490,12 @@ public class MatcherTest extends TestCase {
         t = null;
         try {
             m.region(0, 16);
-        } catch (IllegalArgumentException e) {
+        } catch (IndexOutOfBoundsException e) {
             t = e;
         }
         assertNotNull(t);
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods for specific pattern.",
-            method = "matches",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods for specific pattern.",
-            method = "group",
-            args = {int.class}
-        )
-    })
-    public void testRelactantQuantifiers() {
-        Pattern pat = Pattern.compile("(ab*)*b");
-        Matcher mat = pat.matcher("abbbb");
-
-        if (mat.matches()) {
-            assertEquals("abbb", mat.group(1));
-        } else {
-            fail("Match expected: (ab*)*b vs abbbb");
-        }
-    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies find() method.",
-        method = "find",
-        args = {}
-    )
-    public void testEnhancedFind() {
-        String input = "foob";
-        String pattern = "a*b";
-        Pattern pat = Pattern.compile(pattern);
-        Matcher mat = pat.matcher(input);
-
-        mat.find();
-        assertEquals("b", mat.group());
-    }
 
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
@@ -895,135 +512,7 @@ public class MatcherTest extends TestCase {
         assertTrue(mat.matches());
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies matches() method for composite pattern groups.",
-        method = "matches",
-        args = {}
-    )
-    public void testPosCompositeGroup() {
-        String[] posExamples = { "aabbcc", "aacc", "bbaabbcc" };
-        String[] negExamples = { "aabb", "bb", "bbaabb" };
-        Pattern posPat = Pattern.compile("(aa|bb){1,3}+cc");
-        Pattern negPat = Pattern.compile("(aa|bb){1,3}+bb");
 
-        Matcher mat;
-        for (String element : posExamples) {
-            mat = posPat.matcher(element);
-            assertTrue(mat.matches());
-        }
-
-        for (String element : negExamples) {
-            mat = negPat.matcher(element);
-            assertFalse(mat.matches());
-        }
-
-        assertTrue(Pattern.matches("(aa|bb){1,3}+bb", "aabbaabb"));
-
-    }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies  matches() method for specific patterns.",
-        method = "matches",
-        args = {}
-    )
-    public void testPosAltGroup() {
-        String[] posExamples = { "aacc", "bbcc", "cc" };
-        String[] negExamples = { "bb", "aa" };
-        Pattern posPat = Pattern.compile("(aa|bb)?+cc");
-        Pattern negPat = Pattern.compile("(aa|bb)?+bb");
-
-        Matcher mat;
-        for (String element : posExamples) {
-            mat = posPat.matcher(element);
-            assertTrue(posPat.toString() + " vs: " + element, mat.matches());
-        }
-
-        for (String element : negExamples) {
-            mat = negPat.matcher(element);
-            assertFalse(mat.matches());
-        }
-
-        assertTrue(Pattern.matches("(aa|bb)?+bb", "aabb"));
-    }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods for specific pattern.",
-            method = "matches",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods for specific pattern.",
-            method = "group",
-            args = {int.class}
-        )
-    })
-    public void testRelCompGroup() {
-
-        Matcher mat;
-        Pattern pat;
-        String res = "";
-        for (int i = 0; i < 4; i++) {
-            pat = Pattern.compile("((aa|bb){" + i + ",3}?).*cc");
-            mat = pat.matcher("aaaaaacc");
-            assertTrue(pat.toString() + " vs: " + "aaaaaacc", mat.matches());
-            assertEquals(res, mat.group(1));
-            res += "aa";
-        }
-    }
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods for specific pattern.",
-            method = "matches",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods for specific pattern.",
-            method = "group",
-            args = {int.class}
-        )
-    })
-    public void testRelAltGroup() {
-
-        Matcher mat;
-        Pattern pat;
-
-        pat = Pattern.compile("((aa|bb)??).*cc");
-        mat = pat.matcher("aacc");
-        assertTrue(pat.toString() + " vs: " + "aacc", mat.matches());
-        assertEquals("", mat.group(1));
-
-        pat = Pattern.compile("((aa|bb)??)cc");
-        mat = pat.matcher("aacc");
-        assertTrue(pat.toString() + " vs: " + "aacc", mat.matches());
-        assertEquals("aa", mat.group(1));
-    }
-
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies matches() method for case insensitive pattern.",
-        method = "matches",
-        args = {}
-    )
-    public void testIgnoreCase() {
-        Pattern pat = Pattern.compile("(aa|bb)*", Pattern.CASE_INSENSITIVE);
-        Matcher mat = pat.matcher("aAbb");
-
-        assertTrue(mat.matches());
-
-        pat = Pattern.compile("(a|b|c|d|e)*", Pattern.CASE_INSENSITIVE);
-        mat = pat.matcher("aAebbAEaEdebbedEccEdebbedEaedaebEbdCCdbBDcdcdADa");
-        assertTrue(mat.matches());
-
-        pat = Pattern.compile("[a-e]*", Pattern.CASE_INSENSITIVE);
-        mat = pat.matcher("aAebbAEaEdebbedEccEdebbedEaedaebEbdCCdbBDcdcdADa");
-        assertTrue(mat.matches());
-
-    }
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1034,45 +523,6 @@ public class MatcherTest extends TestCase {
         assertEquals("\\$dollar and slash\\\\", Matcher.quoteReplacement("$dollar and slash\\"));
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods.",
-            method = "matches",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.PARTIAL_COMPLETE,
-            notes = "Verifies matches() and group(int group) methods.",
-            method = "group",
-            args = {int.class}
-        )
-    })
-    public void testOverFlow() {
-        Pattern tp = Pattern.compile("(a*)*");
-        Matcher tm = tp.matcher("aaa");
-        assertTrue(tm.matches());
-        assertEquals("", tm.group(1));
-
-        assertTrue(Pattern.matches("(1+)\\1+", "11"));
-        assertTrue(Pattern.matches("(1+)(2*)\\2+", "11"));
-
-        Pattern pat = Pattern.compile("(1+)\\1*");
-        Matcher mat = pat.matcher("11");
-
-        assertTrue(mat.matches());
-        assertEquals("11", mat.group(1));
-
-        pat = Pattern.compile("((1+)|(2+))(\\2+)");
-        mat = pat.matcher("11");
-
-        assertTrue(mat.matches());
-        assertEquals("1", mat.group(2));
-        assertEquals("1", mat.group(1));
-        assertEquals("1", mat.group(4));
-        assertNull(mat.group(3));
-
-    }
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -1121,36 +571,6 @@ public class MatcherTest extends TestCase {
 
     }
 
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies that find() method works correctly with $ pattern.",
-        method = "find",
-        args = {}
-    )
-    public void testFindDollar() {
-        Matcher mat = Pattern.compile("a$").matcher("a\n");
-        assertTrue(mat.find());
-        assertEquals("a", mat.group());
-    }
-
-    /*
-     * Verify if the Matcher can match the input when region is changed
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies matches() method for the specified region.",
-        method = "matches",
-        args = {}
-    )
-    public void testMatchesRegionChanged() {
-        // Regression for HARMONY-610
-        String input = " word ";
-        Pattern pattern = Pattern.compile("\\w+");
-        Matcher matcher = pattern.matcher(input);
-        matcher.region(1, 5);
-        assertTrue(matcher.matches());
-    }
-
     // BEGIN android-note
     // Test took ages, now going in steps of 16 code points to speed things up.
     // END android-note
@@ -1194,50 +614,6 @@ public class MatcherTest extends TestCase {
 
         assertFalse(res);
         assertEquals(0x110000 / 0x10, cnt);
-    }
-
-    /*
-     * Verify if the Matcher behaves correct when region is changed
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies find() method for specified region in positive case.",
-        method = "find",
-        args = {}
-    )
-    public void testFindRegionChanged() {
-        // Regression for HARMONY-625
-        Pattern pattern = Pattern.compile("(?s).*");
-        Matcher matcher = pattern.matcher("abcde");
-        matcher.find();
-        assertEquals("abcde", matcher.group());
-
-        matcher = pattern.matcher("abcde");
-        matcher.region(0, 2);
-        matcher.find();
-        assertEquals("ab", matcher.group());
-
-    }
-
-    /*
-     * Verify if the Matcher behaves correct with pattern "c" when region is
-     * changed
-     */
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Verifies find() method for specified region in negative case.",
-        method = "find",
-        args = {}
-    )
-    public void testFindRegionChanged2() {
-        // Regression for HARMONY-713
-        Pattern pattern = Pattern.compile("c");
-
-        String inputStr = "aabb.c";
-        Matcher matcher = pattern.matcher(inputStr);
-        matcher.region(0, 3);
-
-        assertFalse(matcher.find());
     }
 
     /**

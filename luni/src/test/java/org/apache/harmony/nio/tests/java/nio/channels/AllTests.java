@@ -32,7 +32,6 @@ public class AllTests {
         suite.addTestSuite(ClosedSelectorExceptionTest.class);
         suite.addTestSuite(ConnectionPendingExceptionTest.class);
         suite.addTestSuite(DatagramChannelTest.class);
-        suite.addTestSuite(FileChannelTest.class);
         suite.addTestSuite(FileLockInterruptionExceptionTest.class);
         suite.addTestSuite(FileLockTest.class);
         suite.addTestSuite(IllegalBlockingModeExceptionTest.class);

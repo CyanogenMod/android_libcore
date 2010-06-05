@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package tests.api.java.util;
+package java.util;
 
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
@@ -34,35 +34,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 @TestTargetClass(TreeSet.class)
-public class TreeSetTest extends junit.framework.TestCase {
-
-    public static class ReversedIntegerComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            return -(((Integer) o1).compareTo((Integer) o2));
-        }
-
-        public boolean equals(Object o1, Object o2) {
-            return ((Integer) o1).compareTo((Integer) o2) == 0;
-        }
-    }
+public class OldTreeSetTest extends junit.framework.TestCase {
 
     TreeSet ts;
 
     Object objArray[] = new Object[1000];
-
-    /**
-     * @tests java.util.TreeSet#TreeSet()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TreeSet",
-        args = {}
-    )
-    public void test_Constructor() {
-        // Test for method java.util.TreeSet()
-        assertTrue("Did not construct correct TreeSet", new TreeSet().isEmpty());
-    }
 
     /**
      * @tests java.util.TreeSet#TreeSet(java.util.Collection)
@@ -102,29 +78,6 @@ public class TreeSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.TreeSet#TreeSet(java.util.Comparator)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "TreeSet",
-        args = {java.util.Comparator.class}
-    )
-    public void test_ConstructorLjava_util_Comparator() {
-        // Test for method java.util.TreeSet(java.util.Comparator)
-        TreeSet myTreeSet = new TreeSet(new ReversedIntegerComparator());
-        assertTrue("Did not construct correct TreeSet", myTreeSet.isEmpty());
-        myTreeSet.add(new Integer(1));
-        myTreeSet.add(new Integer(2));
-        assertTrue(
-                "Answered incorrect first element--did not use custom comparator ",
-                myTreeSet.first().equals(new Integer(2)));
-        assertTrue(
-                "Answered incorrect last element--did not use custom comparator ",
-                myTreeSet.last().equals(new Integer(1)));
-    }
-
-    /**
      * @tests java.util.TreeSet#TreeSet(java.util.SortedSet)
      */
     @TestTargetNew(
@@ -134,22 +87,6 @@ public class TreeSetTest extends junit.framework.TestCase {
         args = {java.util.SortedSet.class}
     )
     public void test_ConstructorLjava_util_SortedSet() {
-        // Test for method java.util.TreeSet(java.util.SortedSet)
-        ReversedIntegerComparator comp = new ReversedIntegerComparator();
-        TreeSet myTreeSet = new TreeSet(comp);
-        for (int i = 0; i < objArray.length; i++)
-            myTreeSet.add(objArray[i]);
-        TreeSet anotherTreeSet = new TreeSet(myTreeSet);
-        assertTrue("TreeSet is not correct size",
-                anotherTreeSet.size() == objArray.length);
-        for (int counter = 0; counter < objArray.length; counter++)
-            assertTrue("TreeSet does not contain correct elements",
-                    anotherTreeSet.contains(objArray[counter]));
-        assertTrue("TreeSet does not answer correct comparator", anotherTreeSet
-                .comparator() == comp);
-        assertTrue("TreeSet does not use comparator",
-                anotherTreeSet.first() == objArray[objArray.length - 1]);
-
         try {
             new TreeSet((SortedSet)null);
             fail("NullPointerException expected");
@@ -225,82 +162,6 @@ public class TreeSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.TreeSet#clear()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clear",
-        args = {}
-    )
-    public void test_clear() {
-        // Test for method void java.util.TreeSet.clear()
-        ts.clear();
-        assertEquals("Returned non-zero size after clear", 0, ts.size());
-        assertTrue("Found element in cleared set", !ts.contains(objArray[0]));
-    }
-
-    /**
-     * @tests java.util.TreeSet#clone()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "clone",
-        args = {}
-    )
-    public void test_clone() {
-        // Test for method java.lang.Object java.util.TreeSet.clone()
-        TreeSet s = (TreeSet) ts.clone();
-        Iterator i = ts.iterator();
-        while (i.hasNext())
-            assertTrue("Clone failed to copy all elements", s
-                    .contains(i.next()));
-    }
-
-    /**
-     * @tests java.util.TreeSet#comparator()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "comparator",
-        args = {}
-    )
-    public void test_comparator() {
-        // Test for method java.util.Comparator java.util.TreeSet.comparator()
-        ReversedIntegerComparator comp = new ReversedIntegerComparator();
-        TreeSet myTreeSet = new TreeSet(comp);
-        assertTrue("Answered incorrect comparator",
-                myTreeSet.comparator() == comp);
-    }
-
-    /**
-     * @tests java.util.TreeSet#contains(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "contains",
-        args = {java.lang.Object.class}
-    )
-    public void test_containsLjava_lang_Object() {
-        // Test for method boolean java.util.TreeSet.contains(java.lang.Object)
-        assertTrue("Returned false for valid Object", ts
-                .contains(objArray[objArray.length / 2]));
-        assertTrue("Returned true for invalid Object", !ts
-                .contains(new Integer(-9)));
-        try {
-            ts.contains(new Object());
-        } catch (ClassCastException e) {
-            // Correct
-            return;
-        }
-        fail("Failed to throw exception when passed invalid element");
-
-    }
-
-    /**
      * @tests java.util.TreeSet#first()
      */
     @TestTargetNew(
@@ -364,42 +225,6 @@ public class TreeSetTest extends junit.framework.TestCase {
     }
 
     /**
-     * @tests java.util.TreeSet#isEmpty()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "isEmpty",
-        args = {}
-    )
-    public void test_isEmpty() {
-        // Test for method boolean java.util.TreeSet.isEmpty()
-        assertTrue("Empty set returned false", new TreeSet().isEmpty());
-        assertTrue("Non-Empty returned true", !ts.isEmpty());
-    }
-
-    /**
-     * @tests java.util.TreeSet#iterator()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "iterator",
-        args = {}
-    )
-    public void test_iterator() {
-        // Test for method java.util.Iterator java.util.TreeSet.iterator()
-        TreeSet s = new TreeSet();
-        s.addAll(ts);
-        Iterator i = ts.iterator();
-        Set as = new HashSet(Arrays.asList(objArray));
-        while (i.hasNext())
-            as.remove(i.next());
-        assertEquals("Returned incorrect iterator", 0, as.size());
-
-    }
-
-    /**
      * @tests java.util.TreeSet#last()
      */
     @TestTargetNew(
@@ -420,44 +245,6 @@ public class TreeSetTest extends junit.framework.TestCase {
         } catch (NoSuchElementException e) {
             //expected
         }
-    }
-
-    /**
-     * @tests java.util.TreeSet#remove(java.lang.Object)
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "remove",
-        args = {java.lang.Object.class}
-    )
-    public void test_removeLjava_lang_Object() {
-        // Test for method boolean java.util.TreeSet.remove(java.lang.Object)
-        ts.remove(objArray[0]);
-        assertTrue("Failed to remove object", !ts.contains(objArray[0]));
-        assertTrue("Failed to change size after remove",
-                ts.size() == objArray.length - 1);
-        try {
-            ts.remove(new Object());
-        } catch (ClassCastException e) {
-            // Correct
-            return;
-        }
-        fail("Failed to throw exception when past uncomparable value");
-    }
-
-    /**
-     * @tests java.util.TreeSet#size()
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "size",
-        args = {}
-    )
-    public void test_size() {
-        // Test for method int java.util.TreeSet.size()
-        assertTrue("Returned incorrect size", ts.size() == objArray.length);
     }
 
     /**
@@ -549,45 +336,6 @@ public class TreeSetTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             //expected
         }
-    }
-
-    /**
-     * Tests equals() method.
-     * Tests that no ClassCastException will be thrown in all cases.
-     * Regression test for HARMONY-1639.
-     */
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "equals",
-        args = {java.lang.Object.class}
-    )
-    public void test_equals() throws Exception {
-        // comparing TreeSets with different object types
-        Set s1 = new TreeSet();
-        Set s2 = new TreeSet();
-        s1.add("key1");
-        s1.add("key2");
-        s2.add(new Integer(1));
-        s2.add(new Integer(2));
-        assertFalse("Sets should not be equal 1", s1.equals(s2));
-        assertFalse("Sets should not be equal 2", s2.equals(s1));
-
-        // comparing TreeSet with HashSet
-        s1 = new TreeSet();
-        s2 = new HashSet();
-        s1.add("key");
-        s2.add(new Object());
-        assertFalse("Sets should not be equal 3", s1.equals(s2));
-        assertFalse("Sets should not be equal 4", s2.equals(s1));
-
-        // comparing TreeSets with not-comparable objects inside
-        s1 = new TreeSet();
-        s2 = new TreeSet();
-        s1.add(new Object());
-        s2.add(new Object());
-        assertFalse("Sets should not be equal 5", s1.equals(s2));
-        assertFalse("Sets should not be equal 6", s2.equals(s1));
     }
 
     /**

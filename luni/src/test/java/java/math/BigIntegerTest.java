@@ -16,12 +16,6 @@
 
 package java.math;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import java.math.BigInteger;
-import java.util.Locale;
-
 public class BigIntegerTest extends junit.framework.TestCase {
     // http://code.google.com/p/android/issues/detail?id=7036
     public void test_invalidBigIntegerStringConversions() {
