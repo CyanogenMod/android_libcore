@@ -543,8 +543,6 @@ public class DecimalFormat extends NumberFormat {
 
     private static final long serialVersionUID = 864413376551465018L;
 
-    private transient boolean parseBigDecimal = false;
-
     private transient DecimalFormatSymbols symbols;
 
     private transient NativeDecimalFormat dform;
@@ -839,7 +837,7 @@ public class DecimalFormat extends NumberFormat {
      *         {@code Double}.
      */
     public boolean isParseBigDecimal() {
-        return this.parseBigDecimal;
+        return dform.isParseBigDecimal();
     }
 
     /**
@@ -1147,7 +1145,7 @@ public class DecimalFormat extends NumberFormat {
      *            {@code BigDecimal}; {@code false} otherwise.
      */
     public void setParseBigDecimal(boolean newValue) {
-        this.parseBigDecimal = newValue;
+        dform.setParseBigDecimal(newValue);
     }
 
     /**
@@ -1224,7 +1222,7 @@ public class DecimalFormat extends NumberFormat {
         // END android-added
         fields.put("decimalSeparatorAlwaysShown", dform
                 .isDecimalSeparatorAlwaysShown());
-        fields.put("parseBigDecimal", parseBigDecimal);
+        fields.put("parseBigDecimal", dform.isParseBigDecimal());
         fields.put("roundingMode", roundingMode);
         fields.put("symbols", symbols);
         fields.put("useExponentialNotation", false);

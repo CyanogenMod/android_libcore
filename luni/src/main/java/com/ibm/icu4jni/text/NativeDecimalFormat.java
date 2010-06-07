@@ -16,8 +16,6 @@
 
 package com.ibm.icu4jni.text;
 
-import com.ibm.icu4jni.util.LocaleData;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -29,7 +27,7 @@ import java.text.Format;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Currency;
-import java.util.Locale;
+import java.util.NoSuchElementException;
 
 public final class NativeDecimalFormat {
     /**
@@ -110,6 +108,8 @@ public final class NativeDecimalFormat {
     private boolean negSuffNull;
     private boolean posPrefNull;
     private boolean posSuffNull;
+
+    private transient boolean parseBigDecimal;
 
     /**
      * Cache the BigDecimal form of the multiplier. This is null until we've
@@ -207,45 +207,34 @@ public final class NativeDecimalFormat {
                 dfs.getPercent(), dfs.getPerMill(), dfs.getZeroDigit());
     }
 
-    private BigDecimal applyMultiplier(BigDecimal valBigDecimal) {
-       if (multiplierBigDecimal == null) {
-           multiplierBigDecimal = BigDecimal.valueOf(getMultiplier());
-       }
-       // Get new value by multiplying multiplier.
-       return valBigDecimal.multiply(multiplierBigDecimal);
-    }
-
     public StringBuffer formatBigDecimal(BigDecimal value, StringBuffer buffer, FieldPosition field) {
         if (buffer == null || field == null) {
             throw new NullPointerException();
         }
-        if (getMultiplier() != 1) {
-            value = applyMultiplier(value);
-        }
-        StringBuilder val = new StringBuilder();
-        val.append(value.unscaledValue().toString(10));
-        int scale = value.scale();
-        scale = makeScalePositive(scale, val);
-        String fieldType = getFieldType(field.getFieldAttribute());
-        String result = format(this.addr, val.toString(), field, fieldType, null, scale);
-        return buffer.append(result);
+
+        FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
+        buffer.append(format(this.addr, value.toString(), fpi));
+        FieldPositionIterator.setFieldPosition(fpi, field);
+        return buffer;
     }
 
     public StringBuffer formatBigInteger(BigInteger value, StringBuffer buffer, FieldPosition field) {
         if (buffer == null || field == null) {
             throw new NullPointerException();
         }
-        String fieldType = getFieldType(field.getFieldAttribute());
-        String result = format(this.addr, value.toString(10), field, fieldType, null, 0);
-        return buffer.append(result);
+        FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
+        buffer.append(format(this.addr, value.toString(10), fpi));
+        FieldPositionIterator.setFieldPosition(fpi, field);
+        return buffer;
     }
 
     public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
         if (buffer == null || field == null) {
             throw new NullPointerException();
         }
-        String fieldType = getFieldType(field.getFieldAttribute());
-        buffer.append(format(this.addr, value, field, fieldType, null));
+        FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
+        buffer.append(format(this.addr, value, fpi));
+        FieldPositionIterator.setFieldPosition(fpi, field);
         return buffer;
     }
 
@@ -253,8 +242,9 @@ public final class NativeDecimalFormat {
         if (buffer == null || field == null) {
             throw new NullPointerException();
         }
-        String fieldType = getFieldType(field.getFieldAttribute());
-        buffer.append(format(this.addr, value, field, fieldType, null));
+        FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
+        buffer.append(format(this.addr, value, fpi));
+        FieldPositionIterator.setFieldPosition(fpi, field);
         return buffer;
     }
 
@@ -277,41 +267,28 @@ public final class NativeDecimalFormat {
         }
         Number number = (Number) object;
         String text = null;
-        StringBuffer attributes = new StringBuffer();
 
-        if(number instanceof BigInteger) {
+        FieldPositionIterator fpIter = new FieldPositionIterator();
+
+        if (number instanceof BigInteger) {
             BigInteger valBigInteger = (BigInteger) number;
-            text = format(this.addr, valBigInteger.toString(10), null, null, attributes, 0);
-        } else if(number instanceof BigDecimal) {
+            text = format(this.addr, valBigInteger.toString(10), fpIter);
+        } else if (number instanceof BigDecimal) {
             BigDecimal valBigDecimal = (BigDecimal) number;
-            if (getMultiplier() != 1) {
-                valBigDecimal = applyMultiplier(valBigDecimal);
-            }
-            StringBuilder val = new StringBuilder();
-            val.append(valBigDecimal.unscaledValue().toString(10));
-            int scale = valBigDecimal.scale();
-            scale = makeScalePositive(scale, val);
-            text = format(this.addr, val.toString(), null, null, attributes, scale);
+            text = format(this.addr, valBigDecimal.toString(), fpIter);
         } else if (number instanceof Double || number instanceof Float) {
             double dv = number.doubleValue();
-            text = format(this.addr, dv, null, null, attributes);
+            text = format(this.addr, dv, fpIter);
         } else {
             long lv = number.longValue();
-            text = format(this.addr, lv, null, null, attributes);
+            text = format(this.addr, lv, fpIter);
         }
 
         AttributedString as = new AttributedString(text);
 
-        String[] attrs = attributes.toString().split(";");
-        // add NumberFormat field attributes to the AttributedString
-        int size = attrs.length / 3;
-        if(size * 3 != attrs.length) {
-            return as.getIterator();
-        }
-        for (int i = 0; i < size; i++) {
-            Format.Field attribute = getField(attrs[3*i]);
-            as.addAttribute(attribute, attribute, Integer.parseInt(attrs[3*i+1]),
-                    Integer.parseInt(attrs[3*i+2]));
+        while (fpIter.next()) {
+            Format.Field field = fpIter.field();
+            as.addAttribute(field, field, fpIter.start(), fpIter.limit());
         }
 
         // return the CharacterIterator from AttributedString
@@ -338,7 +315,7 @@ public final class NativeDecimalFormat {
     }
 
     public Number parse(String string, ParsePosition position) {
-        return parse(addr, string, position);
+        return parse(addr, string, position, parseBigDecimal);
     }
 
     // start getter and setter
@@ -397,6 +374,10 @@ public final class NativeDecimalFormat {
 
     public boolean isDecimalSeparatorAlwaysShown() {
         return getAttribute(this.addr, UNUM_DECIMAL_ALWAYS_SHOWN) != 0;
+    }
+
+    public boolean isParseBigDecimal() {
+        return parseBigDecimal;
     }
 
     public boolean isParseIntegerOnly() {
@@ -476,89 +457,13 @@ public final class NativeDecimalFormat {
         }
     }
 
+    public void setParseBigDecimal(boolean value) {
+        parseBigDecimal = value;
+    }
+
     public void setParseIntegerOnly(boolean value) {
         int i = value ? -1 : 0;
         setAttribute(this.addr, UNUM_PARSE_INT_ONLY, i);
-    }
-
-    static protected String getFieldType(Format.Field field) {
-        if(field == null) {
-            return null;
-        }
-        if(field.equals(NumberFormat.Field.SIGN)) {
-            return "sign";
-        }
-        if(field.equals(NumberFormat.Field.INTEGER)) {
-            return "integer";
-        }
-        if(field.equals(NumberFormat.Field.FRACTION)) {
-            return "fraction";
-        }
-        if(field.equals(NumberFormat.Field.EXPONENT)) {
-            return "exponent";
-        }
-        if(field.equals(NumberFormat.Field.EXPONENT_SIGN)) {
-            return "exponent_sign";
-        }
-        if(field.equals(NumberFormat.Field.EXPONENT_SYMBOL)) {
-            return "exponent_symbol";
-        }
-        if(field.equals(NumberFormat.Field.CURRENCY)) {
-            return "currency";
-        }
-        if(field.equals(NumberFormat.Field.GROUPING_SEPARATOR)) {
-            return "grouping_separator";
-        }
-        if(field.equals(NumberFormat.Field.DECIMAL_SEPARATOR)) {
-            return "decimal_separator";
-        }
-        if(field.equals(NumberFormat.Field.PERCENT)) {
-            return "percent";
-        }
-        if(field.equals(NumberFormat.Field.PERMILLE)) {
-            return "permille";
-        }
-        return null;
-    }
-
-    protected Format.Field getField(String type) {
-        if (type.isEmpty()) {
-            return null;
-        }
-        if(type.equals("sign")) {
-            return NumberFormat.Field.SIGN;
-        }
-        if(type.equals("integer")) {
-            return NumberFormat.Field.INTEGER;
-        }
-        if(type.equals("fraction")) {
-            return NumberFormat.Field.FRACTION;
-        }
-        if(type.equals("exponent")) {
-            return NumberFormat.Field.EXPONENT;
-        }
-        if(type.equals("exponent_sign")) {
-            return NumberFormat.Field.EXPONENT_SIGN;
-        }
-        if(type.equals("exponent_symbol")) {
-            return NumberFormat.Field.EXPONENT_SYMBOL;
-        }
-        if(type.equals("currency")) {
-            return NumberFormat.Field.CURRENCY;
-        }
-        if(type.equals("grouping_separator")) {
-            return NumberFormat.Field.GROUPING_SEPARATOR;
-        }
-        if(type.equals("decimal_separator")) {
-            return NumberFormat.Field.DECIMAL_SEPARATOR;
-        }
-        if(type.equals("percent")) {
-            return NumberFormat.Field.PERCENT;
-        }
-        if(type.equals("permille")) {
-            return NumberFormat.Field.PERMILLE;
-        }
-        return null;
     }
 
     private static void applyPattern(int addr, boolean localized, String pattern) {
@@ -586,19 +491,133 @@ public final class NativeDecimalFormat {
         setRoundingMode(addr, nativeRoundingMode, roundingIncrement);
     }
 
+    // Utility to get information about field positions from native (ICU) code.
+    private static class FieldPositionIterator {
+        private int[] data;
+        private int pos = -3; // so first call to next() leaves pos at 0
+
+        private FieldPositionIterator() {
+        }
+
+        private static FieldPositionIterator forFieldPosition(FieldPosition fp) {
+            if (fp != null && fp.getField() != -1) {
+                return new FieldPositionIterator();
+            }
+            return null;
+        }
+
+        private static int getNativeFieldPositionId(FieldPosition fp) {
+            // NOTE: -1, 0, and 1 were the only valid original java field values
+            // for NumberFormat.  They take precedence.  This assumes any other
+            // value is a mistake and the actual value is in the attribute.
+            // Clients can construct FieldPosition combining any attribute with any field
+            // value, which is just wrong, but there you go.
+
+            int id = fp.getField();
+            if (id < -1 || id > 1) {
+                id = -1;
+            }
+            if (id == -1) {
+                Format.Field attr = fp.getFieldAttribute();
+                if (attr != null) {
+                    for (int i = 0; i < fields.length; ++i) {
+                        if (fields[i].equals(attr)) {
+                            id = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            return id;
+        }
+
+        private static void setFieldPosition(FieldPositionIterator fpi, FieldPosition fp) {
+            if (fpi != null && fp != null) {
+                int field = getNativeFieldPositionId(fp);
+                if (field != -1) {
+                    while (fpi.next()) {
+                        if (fpi.fieldId() == field) {
+                            fp.setBeginIndex(fpi.start());
+                            fp.setEndIndex(fpi.limit());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public boolean next() {
+            // if pos == data.length, we've already returned false once
+            if (data == null || pos == data.length) {
+                throw new NoSuchElementException();
+            }
+            pos += 3;
+            return pos < data.length;
+        }
+
+        private void checkValid() {
+            if (data == null || pos < 0 || pos == data.length) {
+                throw new NoSuchElementException();
+            }
+        }
+
+        public int fieldId() {
+            return data[pos];
+        }
+
+        public Format.Field field() {
+            checkValid();
+            return fields[data[pos]];
+        }
+
+        public int start() {
+            checkValid();
+            return data[pos + 1];
+        }
+
+        public int limit() {
+            checkValid();
+            return data[pos + 2];
+        }
+
+        private static Format.Field fields[] = {
+            // The old java field values were 0 for integer and 1 for fraction.
+            // The new java field attributes are all objects.  ICU assigns the values
+            // starting from 0 in the following order; note that integer and
+            // fraction positions match the old field values.
+            NumberFormat.Field.INTEGER,
+            NumberFormat.Field.FRACTION,
+            NumberFormat.Field.DECIMAL_SEPARATOR,
+            NumberFormat.Field.EXPONENT_SYMBOL,
+            NumberFormat.Field.EXPONENT_SIGN,
+            NumberFormat.Field.EXPONENT,
+            NumberFormat.Field.GROUPING_SEPARATOR,
+            NumberFormat.Field.CURRENCY,
+            NumberFormat.Field.PERCENT,
+            NumberFormat.Field.PERMILLE,
+            NumberFormat.Field.SIGN,
+        };
+
+        // called by native
+        private void setData(int[] data) {
+            this.data = data;
+            this.pos = -3;
+        }
+    }
+
     private static native void applyPatternImpl(int addr, boolean localized, String pattern);
     private static native int cloneDecimalFormatImpl(int addr);
     private static native void closeDecimalFormatImpl(int addr);
-    private static native String format(int addr, long value, FieldPosition position, String fieldType, StringBuffer attributes);
-    private static native String format(int addr, double value, FieldPosition position, String fieldType, StringBuffer attributes);
-    private static native String format(int addr, String value, FieldPosition position, String fieldType, StringBuffer attributes, int scale);
+    private static native String format(int addr, long value, FieldPositionIterator iter);
+    private static native String format(int addr, double value, FieldPositionIterator iter);
+    private static native String format(int addr, String value, FieldPositionIterator iter);
     private static native int getAttribute(int addr, int symbol);
     private static native String getTextAttribute(int addr, int symbol);
     private static native int openDecimalFormatImpl(String pattern, String currencySymbol,
             char decimalSeparator, char digit, char groupingSeparator, String infinity,
             String internationalCurrencySymbol, char minusSign, char monetaryDecimalSeparator,
             String nan, char patternSeparator, char percent, char perMill, char zeroDigit);
-    private static native Number parse(int addr, String string, ParsePosition position);
+    private static native Number parse(int addr, String string, ParsePosition position, boolean parseBigDecimal);
     private static native void setDecimalFormatSymbols(int addr, String currencySymbol,
             char decimalSeparator, char digit, char groupingSeparator, String infinity,
             String internationalCurrencySymbol, char minusSign, char monetaryDecimalSeparator,
