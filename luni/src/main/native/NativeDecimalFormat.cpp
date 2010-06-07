@@ -15,7 +15,6 @@
  */
 
 #define LOG_TAG "NativeDecimalFormat"
-
 #include "JNIHelp.h"
 #include "cutils/log.h"
 #include "unicode/unum.h"
@@ -26,6 +25,8 @@
 #include "digitlst.h"
 #include "ErrorCode.h"
 #include "ScopedJavaUnicodeString.h"
+#include "ScopedPrimitiveArray.h"
+#include "ScopedUtfChars.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -225,353 +226,151 @@ static jstring toPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized)
     return env->NewString(pattern.getBuffer(), pattern.length());
 }
 
-template <typename T>
-static jstring format(JNIEnv* env, jint addr, jobject field, jstring fieldType, jobject attributes, T val) {
-    DecimalFormat::AttributeBuffer attrBuffer;
-    attrBuffer.buffer = NULL;
-    DecimalFormat::AttributeBuffer* attrBufferPtr = NULL;
-    if (attributes != NULL || (fieldType != NULL && field != NULL)) {
-        attrBufferPtr = &attrBuffer;
-        // ICU requires that this is dynamically allocated and non-zero size.
-        // ICU grows it in chunks of 128 bytes, so that's a reasonable initial size.
-        attrBuffer.bufferSize = 128;
-        attrBuffer.buffer = new char[attrBuffer.bufferSize];
-        attrBuffer.buffer[0] = '\0';
+static jstring formatResult(JNIEnv* env, const UnicodeString &str, FieldPositionIterator *fpi, jobject fpIter) {
+    static jclass gFPIClass = env->FindClass("com/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator");
+    static jmethodID gFPI_setData = env->GetMethodID(gFPIClass, "setData", "([I)V");
+
+    if (fpi != NULL) {
+        int len = fpi->getData(NULL, 0);
+        jintArray iary;
+        if (len) {
+            iary = env->NewIntArray(len);
+            ScopedIntArrayRW ints(env, iary);
+            fpi->getData(ints.get(), len);
+        } else {
+            iary = NULL;
+        }
+        env->CallVoidMethod(fpIter, gFPI_setData, iary);
     }
 
-    FieldPosition fp;
-    fp.setField(FieldPosition::DONT_CARE);
+    return env->NewString(str.getBuffer(), str.length());
+}
 
+template <typename T>
+static jstring format(JNIEnv* env, jint addr, jobject fpIter, T val) {
+    UErrorCode status = U_ZERO_ERROR;
     UnicodeString str;
     DecimalFormat* fmt = toDecimalFormat(addr);
-    fmt->format(val, str, fp, attrBufferPtr);
-
-    if (attrBufferPtr && strlen(attrBuffer.buffer) > 0) {
-        // check if we want to get all attributes
-        if (attributes != NULL) {
-            jstring attrString = env->NewStringUTF(attrBuffer.buffer + 1);  // cut off the leading ';'
-            jclass stringBufferClass = env->FindClass("java/lang/StringBuffer");
-            jmethodID appendMethodID = env->GetMethodID(stringBufferClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;");
-            env->CallObjectMethod(attributes, appendMethodID, attrString);
-        }
-
-        // check if we want one special attribute returned in the given FieldPos
-        if (fieldType != NULL && field != NULL) {
-            const char* fieldName = env->GetStringUTFChars(fieldType, NULL);
-
-            const char* delimiter = ";";
-            char* context = NULL;
-            char* resattr = strtok_r(attrBuffer.buffer, delimiter, &context);
-
-            while (resattr != NULL && strcmp(resattr, fieldName) != 0) {
-                resattr = strtok_r(NULL, delimiter, &context);
-            }
-
-            if (resattr != NULL && strcmp(resattr, fieldName) == 0) {
-                resattr = strtok_r(NULL, delimiter, &context);
-                int begin = (int) strtol(resattr, NULL, 10);
-                resattr = strtok_r(NULL, delimiter, &context);
-                int end = (int) strtol(resattr, NULL, 10);
-
-                jclass fieldPositionClass = env->FindClass("java/text/FieldPosition");
-                jmethodID setBeginIndexMethodID = env->GetMethodID(fieldPositionClass, "setBeginIndex", "(I)V");
-                jmethodID setEndIndexMethodID = env->GetMethodID(fieldPositionClass, "setEndIndex", "(I)V");
-                env->CallVoidMethod(field, setBeginIndexMethodID, (jint) begin);
-                env->CallVoidMethod(field, setEndIndexMethodID, (jint) end);
-            }
-            env->ReleaseStringUTFChars(fieldType, fieldName);
-        }
-    }
-
-    jstring result = env->NewString(str.getBuffer(), str.length());
-    delete[] attrBuffer.buffer;
-    return result;
+    FieldPositionIterator fpi;
+    FieldPositionIterator *pfpi = fpIter ? &fpi : NULL;
+    fmt->format(val, str, pfpi, status);
+    return formatResult(env, str, pfpi, fpIter);
 }
 
-static jstring formatLong(JNIEnv* env, jclass, jint addr, jlong value,
-        jobject field, jstring fieldType, jobject attributes) {
+static jstring formatLong(JNIEnv* env, jclass, jint addr, jlong value, jobject fpIter) {
     int64_t longValue = value;
-    return format(env, addr, field, fieldType, attributes, longValue);
+    return format(env, addr, fpIter, (jlong) longValue);
 }
 
-static jstring formatDouble(JNIEnv* env, jclass, jint addr, jdouble value,
-        jobject field, jstring fieldType, jobject attributes) {
+static jstring formatDouble(JNIEnv* env, jclass, jint addr, jdouble value, jobject fpIter) {
     double doubleValue = value;
-    return format(env, addr, field, fieldType, attributes, doubleValue);
+    return format(env, addr, fpIter, (jdouble) doubleValue);
 }
 
-static jstring formatDigitList(JNIEnv* env, jclass, jint addr, jstring value,
-        jobject field, jstring fieldType, jobject attributes, jint scale) {
-
-    // const char * valueUTF = env->GetStringUTFChars(value, NULL);
-    // LOGI("ENTER formatDigitList: %s, scale: %d", valueUTF, scale);
-    // env->ReleaseStringUTFChars(value, valueUTF);
-
-    if (scale < 0) {
-        icu4jni_error(env, U_ILLEGAL_ARGUMENT_ERROR);
+static jstring formatDigitList(JNIEnv* env, jclass, jint addr, jstring value, jobject fpIter) {
+    ScopedUtfChars chars(env, value);
+    if (chars.c_str() == NULL) {
         return NULL;
     }
-
-    const char * fieldName = NULL;
-    if(fieldType != NULL) {
-        fieldName = env->GetStringUTFChars(fieldType, NULL);
-    }
-
-    uint32_t reslenneeded;
-
-    // prepare digit list
-
-    const char *valueChars = env->GetStringUTFChars(value, NULL);
-
-    bool isInteger = (scale == 0);
-    bool isPositive = (*valueChars != '-');
-
-    // skip the '-' if the number is negative
-    const char *digits = (isPositive ? valueChars : valueChars + 1);
-    int length = strlen(digits);
-
-    DecimalFormat* fmt = toDecimalFormat(addr);
-
-    // The length of our digit list buffer must be the actual string length + 3,
-    // because ICU will append some additional characters at the head and at the
-    // tail of the string, in order to keep strtod() happy:
-    //
-    // - The sign "+" or "-" is appended at the head
-    // - The exponent "e" and the "\0" terminator is appended at the tail
-    //
-    // In retrospect, the changes to ICU's DigitList that were necessary for
-    // big numbers look a bit hacky. It would make sense to rework all this
-    // once ICU 4.x has been integrated into Android. Ideally, big number
-    // support would make it into ICU itself, so we don't need our private
-    // fix anymore.
-    DigitList digitList(length + 3);
-    digitList.fCount = length;
-    strcpy(digitList.fDigits, digits);
-    env->ReleaseStringUTFChars(value, valueChars);
-
-    digitList.fDecimalAt = digitList.fCount - scale;
-    digitList.fIsPositive = isPositive;
-    digitList.fRoundingMode = fmt->getRoundingMode();
-    digitList.round(fmt->getMaximumFractionDigits() + digitList.fDecimalAt);
-
-    UChar *result = NULL;
-
-    FieldPosition fp;
-    fp.setField(FieldPosition::DONT_CARE);
-    fp.setBeginIndex(0);
-    fp.setEndIndex(0);
-
-    UErrorCode status = U_ZERO_ERROR;
-
-    DecimalFormat::AttributeBuffer *attrBuffer = NULL;
-    attrBuffer = (DecimalFormat::AttributeBuffer *) calloc(sizeof(DecimalFormat::AttributeBuffer), 1);
-    attrBuffer->bufferSize = 128;
-    attrBuffer->buffer = (char *) calloc(129 * sizeof(char), 1);
-
-    UnicodeString res;
-
-    fmt->subformat(res, fp, attrBuffer, digitList, isInteger);
-
-    reslenneeded = res.extract(NULL, 0, status);
-
-    if(status==U_BUFFER_OVERFLOW_ERROR) {
-        status=U_ZERO_ERROR;
-
-        result = (UChar*)malloc(sizeof(UChar) * (reslenneeded + 1));
-
-        res.extract(result, reslenneeded + 1, status);
-
-        if (icu4jni_error(env, status) != FALSE) {
-            if(fieldType != NULL) {
-                env->ReleaseStringUTFChars(fieldType, fieldName);
-            }
-            free(result);
-            free(attrBuffer->buffer);
-            free(attrBuffer);
-            return NULL;
-        }
-
-    } else {
-        if(fieldType != NULL) {
-            env->ReleaseStringUTFChars(fieldType, fieldName);
-        }
-        free(attrBuffer->buffer);
-        free(attrBuffer);
-        return NULL;
-    }
-
-    int attrLength = (strlen(attrBuffer->buffer) + 1 );
-
-    if(attrLength > 1) {
-
-        // check if we want to get all attributes
-        if(attributes != NULL) {
-            // prepare the classes and method ids
-            const char * stringBufferClassName = "java/lang/StringBuffer";
-            jclass stringBufferClass = env->FindClass(stringBufferClassName);
-            jmethodID appendMethodID = env->GetMethodID(stringBufferClass,
-                    "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;");
-
-            jstring attrString = env->NewStringUTF(attrBuffer->buffer + 1);  // cut off the leading ';'
-            env->CallObjectMethod(attributes, appendMethodID, attrString);
-        }
-
-        // check if we want one special attribute returned in the given FieldPos
-        if(fieldName != NULL && field != NULL) {
-            const char *delimiter = ";";
-            int begin;
-            int end;
-            char * resattr;
-            resattr = strtok(attrBuffer->buffer, delimiter);
-
-            while(resattr != NULL && strcmp(resattr, fieldName) != 0) {
-                resattr = strtok(NULL, delimiter);
-            }
-
-            if(resattr != NULL && strcmp(resattr, fieldName) == 0) {
-
-                // prepare the classes and method ids
-                const char * fieldPositionClassName =
-                        "java/text/FieldPosition";
-                jclass fieldPositionClass = env->FindClass(
-                        fieldPositionClassName);
-                jmethodID setBeginIndexMethodID = env->GetMethodID(
-                        fieldPositionClass, "setBeginIndex", "(I)V");
-                jmethodID setEndIndexMethodID = env->GetMethodID(
-                       fieldPositionClass, "setEndIndex", "(I)V");
-
-
-                resattr = strtok(NULL, delimiter);
-                begin = (int) strtol(resattr, NULL, 10);
-                resattr = strtok(NULL, delimiter);
-                end = (int) strtol(resattr, NULL, 10);
-
-                env->CallVoidMethod(field, setBeginIndexMethodID, (jint) begin);
-                env->CallVoidMethod(field, setEndIndexMethodID, (jint) end);
-            }
-        }
-    }
-
-    if(fieldType != NULL) {
-        env->ReleaseStringUTFChars(fieldType, fieldName);
-    }
-
-    jstring resulting = env->NewString(result, reslenneeded);
-
-    free(attrBuffer->buffer);
-    free(attrBuffer);
-    free(result);
-    // const char * resultUTF = env->GetStringUTFChars(resulting, NULL);
-    // LOGI("RETURN formatDigitList: %s", resultUTF);
-    // env->ReleaseStringUTFChars(resulting, resultUTF);
-
-    return resulting;
+    StringPiece sp(chars.c_str());
+    return format(env, addr, fpIter, sp);
 }
+
+static jobject newLong(JNIEnv* env, jlong value) {
+    static jclass gLongClass = (jclass) env->NewGlobalRef(env->FindClass("java/lang/Long"));
+    static jmethodID gLong_init = env->GetMethodID(gLongClass, "<init>", "(J)V");
+    return env->NewObject(gLongClass, gLong_init, value);
+}
+
+static jobject newDouble(JNIEnv* env, jdouble value) {
+    static jclass gDoubleClass = (jclass) env->NewGlobalRef(env->FindClass("java/lang/Double"));
+    static jmethodID gDouble_init = env->GetMethodID(gDoubleClass, "<init>", "(D)V");
+    return env->NewObject(gDoubleClass, gDouble_init, value);
+}
+
+static jobject newBigDecimal(JNIEnv* env, const char* value, jsize len) {
+    static jclass gBigDecimalClass = (jclass) env->NewGlobalRef(env->FindClass("java/math/BigDecimal"));
+    static jmethodID gBigDecimal_init = env->GetMethodID(gBigDecimalClass, "<init>", "(Ljava/lang/String;)V");
+
+    // this is painful...
+    // value is a UTF-8 string of invariant characters, but isn't guaranteed to be
+    // null-terminated.  NewStringUTF requires a terminated UTF-8 string.  So we copy the
+    // data to jchars using UnicodeString, and call NewString instead.
+    UnicodeString tmp(value, len, UnicodeString::kInvariant);
+    jobject str = env->NewString(tmp.getBuffer(), tmp.length());
+    return env->NewObject(gBigDecimalClass, gBigDecimal_init, str);
+}
+
+static jmethodID gPP_getIndex = NULL;
+static jmethodID gPP_setIndex = NULL;
+static jmethodID gPP_setErrorIndex = NULL;
 
 static jobject parse(JNIEnv* env, jclass, jint addr, jstring text,
-        jobject position) {
-    // TODO: cache these?
-    jclass parsePositionClass = env->FindClass("java/text/ParsePosition");
-    jclass longClass =  env->FindClass("java/lang/Long");
-    jclass doubleClass =  env->FindClass("java/lang/Double");
-    jclass bigDecimalClass = env->FindClass("java/math/BigDecimal");
-    jclass bigIntegerClass = env->FindClass("java/math/BigInteger");
+                     jobject position, jboolean parseBigDecimal) {
 
-    jmethodID getIndexMethodID = env->GetMethodID(parsePositionClass,
-            "getIndex", "()I");
-    jmethodID setIndexMethodID = env->GetMethodID(parsePositionClass,
-            "setIndex", "(I)V");
-    jmethodID setErrorIndexMethodID = env->GetMethodID(parsePositionClass,
-            "setErrorIndex", "(I)V");
-
-    jmethodID longInitMethodID = env->GetMethodID(longClass, "<init>", "(J)V");
-    jmethodID dblInitMethodID = env->GetMethodID(doubleClass, "<init>", "(D)V");
-    jmethodID bigDecimalInitMethodID = env->GetMethodID(bigDecimalClass, "<init>", "(Ljava/math/BigInteger;I)V");
-    jmethodID bigIntegerInitMethodID = env->GetMethodID(bigIntegerClass, "<init>", "(Ljava/lang/String;)V");
+    if (gPP_getIndex == NULL) {
+        jclass ppClass = env->FindClass("java/text/ParsePosition");
+        gPP_getIndex = env->GetMethodID(ppClass, "getIndex", "()I");
+        gPP_setIndex = env->GetMethodID(ppClass, "setIndex", "(I)V");
+        gPP_setErrorIndex = env->GetMethodID(ppClass, "setErrorIndex", "(I)V");
+    }
 
     // make sure the ParsePosition is valid. Actually icu4c would parse a number
     // correctly even if the parsePosition is set to -1, but since the RI fails
     // for that case we have to fail too
-    int parsePos = env->CallIntMethod(position, getIndexMethodID, NULL);
+    int parsePos = env->CallIntMethod(position, gPP_getIndex, NULL);
     const int strlength = env->GetStringLength(text);
-    if(parsePos < 0 || parsePos > strlength) {
+    if (parsePos < 0 || parsePos > strlength) {
         return NULL;
     }
-    
-    ParsePosition pp;
-    pp.setIndex(parsePos);
 
-    DigitList digits;
-    
-    UNumberFormat *fmt = (UNumberFormat *)(int)addr;
     Formattable res;
-    bool resultAssigned;
-    jchar *str = (UChar *)env->GetStringChars(text, NULL);
-    const UnicodeString src((UChar*)str, strlength, strlength);
-    ((const DecimalFormat*)fmt)->parse(src, resultAssigned, res, pp, FALSE, digits);
-    env->ReleaseStringChars(text, str);
+    ParsePosition pp(parsePos);
+    ScopedJavaUnicodeString src(env, text);
+    DecimalFormat *fmt = toDecimalFormat(addr);
+    fmt->parse(src.unicodeString(), res, pp);
 
-    if(pp.getErrorIndex() == -1) {
-        parsePos = pp.getIndex();
+    if (pp.getErrorIndex() == -1) {
+        env->CallVoidMethod(position, gPP_setIndex, (jint) pp.getIndex());
     } else {
-        env->CallVoidMethod(position, setErrorIndexMethodID,
-                (jint) pp.getErrorIndex());
+        env->CallVoidMethod(position, gPP_setErrorIndex, (jint) pp.getErrorIndex());
+        return NULL;
+    }
+
+    if (parseBigDecimal) {
+        UErrorCode status = U_ZERO_ERROR;
+        StringPiece str = res.getDecimalNumber(status);
+        if (U_SUCCESS(status)) {
+            int len = str.length();
+            const char* data = str.data();
+            if (strncmp(data, "NaN", 3) == 0 ||
+                strncmp(data, "Inf", 3) == 0 ||
+                strncmp(data, "-Inf", 4) == 0) {
+                double resultDouble = res.getDouble(status);
+                return newDouble(env, (jdouble) resultDouble);
+            }
+            return newBigDecimal(env, data, len);
+        }
         return NULL;
     }
 
     Formattable::Type numType = res.getType();
-
-    double resultDouble;
-    long resultLong;
-    int64_t resultInt64;
-    jstring resultStr;
-    jobject resultObject1, resultObject2;
-
-    if (resultAssigned)
-    {
         switch(numType) {
-        case Formattable::kDouble:
-            resultDouble = res.getDouble();
-            env->CallVoidMethod(position, setIndexMethodID, (jint) parsePos);
-            return env->NewObject(doubleClass, dblInitMethodID,
-                    (jdouble) resultDouble);
-        case Formattable::kLong:
-            resultLong = res.getLong();
-            env->CallVoidMethod(position, setIndexMethodID, (jint) parsePos);
-            return env->NewObject(longClass, longInitMethodID,
-                    (jlong) resultLong);
-        case Formattable::kInt64:
-            resultInt64 = res.getInt64();
-            env->CallVoidMethod(position, setIndexMethodID, (jint) parsePos);
-            return env->NewObject(longClass, longInitMethodID,
-                    (jlong) resultInt64);
-        default:
+        case Formattable::kDouble: {
+            double resultDouble = res.getDouble();
+            return newDouble(env, (jdouble) resultDouble);
+        }
+        case Formattable::kLong: {
+            long resultLong = res.getLong();
+            return newLong(env, (jlong) resultLong);
+        }
+        case Formattable::kInt64: {
+            int64_t resultInt64 = res.getInt64();
+            return newLong(env, (jlong) resultInt64);
+        }
+        default: {
             return NULL;
         }
-    }
-    else
-    {
-        int scale = digits.fCount - digits.fDecimalAt;
-        // ATTENTION: Abuse of Implementation Knowlegde!
-        digits.fDigits[digits.fCount] = 0;
-        if (digits.fIsPositive) {
-            resultStr = env->NewStringUTF(digits.fDigits);
-        } else {
-            if (digits.fCount == 0) {
-                env->CallVoidMethod(position, setIndexMethodID, (jint) parsePos);
-                return env->NewObject(doubleClass, dblInitMethodID, (jdouble)-0);
-            } else {
-                // ATTENTION: Abuse of Implementation Knowlegde!
-                *(digits.fDigits - 1) = '-';
-                resultStr = env->NewStringUTF(digits.fDigits - 1);
-            }
-        }
-
-        env->CallVoidMethod(position, setIndexMethodID, (jint) parsePos);
-
-        resultObject1 = env->NewObject(bigIntegerClass, bigIntegerInitMethodID, resultStr);
-        resultObject2 = env->NewObject(bigDecimalClass, bigDecimalInitMethodID, resultObject1, scale);
-        return resultObject2;
     }
 }
 
@@ -581,24 +380,26 @@ static jint cloneDecimalFormatImpl(JNIEnv*, jclass, jint addr) {
 }
 
 static JNINativeMethod gMethods[] = {
-    {"applyPatternImpl", "(IZLjava/lang/String;)V", (void*) applyPatternImpl},
-    {"cloneDecimalFormatImpl", "(I)I", (void*) cloneDecimalFormatImpl},
-    {"closeDecimalFormatImpl", "(I)V", (void*) closeDecimalFormatImpl},
-    {"format", "(IDLjava/text/FieldPosition;Ljava/lang/String;Ljava/lang/StringBuffer;)Ljava/lang/String;", (void*) formatDouble},
-    {"format", "(IJLjava/text/FieldPosition;Ljava/lang/String;Ljava/lang/StringBuffer;)Ljava/lang/String;", (void*) formatLong},
-    {"format", "(ILjava/lang/String;Ljava/text/FieldPosition;Ljava/lang/String;Ljava/lang/StringBuffer;I)Ljava/lang/String;", (void*) formatDigitList},
-    {"getAttribute", "(II)I", (void*) getAttribute},
-    {"getTextAttribute", "(II)Ljava/lang/String;", (void*) getTextAttribute},
-    {"openDecimalFormatImpl", "(Ljava/lang/String;Ljava/lang/String;CCCLjava/lang/String;Ljava/lang/String;CCLjava/lang/String;CCCC)I", (void*) openDecimalFormatImpl},
-    {"parse", "(ILjava/lang/String;Ljava/text/ParsePosition;)Ljava/lang/Number;", (void*) parse},
-    {"setAttribute", "(III)V", (void*) setAttribute},
-    {"setDecimalFormatSymbols", "(ILjava/lang/String;CCCLjava/lang/String;Ljava/lang/String;CCLjava/lang/String;CCCC)V", (void*) setDecimalFormatSymbols},
-    {"setSymbol", "(IILjava/lang/String;)V", (void*) setSymbol},
-    {"setRoundingMode", "(IID)V", (void*) setRoundingMode},
-    {"setTextAttribute", "(IILjava/lang/String;)V", (void*) setTextAttribute},
-    {"toPatternImpl", "(IZ)Ljava/lang/String;", (void*) toPatternImpl},
+      {"applyPatternImpl", "(IZLjava/lang/String;)V", (void*) applyPatternImpl},
+      {"cloneDecimalFormatImpl", "(I)I", (void*) cloneDecimalFormatImpl},
+      {"closeDecimalFormatImpl", "(I)V", (void*) closeDecimalFormatImpl},
+      {"format", "(IDLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;", (void*) formatDouble},
+      {"format", "(IJLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;", (void*) formatLong},
+      {"format", "(ILjava/lang/String;Lcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;", (void*) formatDigitList},
+      {"getAttribute", "(II)I", (void*) getAttribute},
+      {"getTextAttribute", "(II)Ljava/lang/String;", (void*) getTextAttribute},
+      {"openDecimalFormatImpl", "(Ljava/lang/String;Ljava/lang/String;CCCLjava/lang/String;Ljava/lang/String;CCLjava/lang/String;CCCC)I", (void*) openDecimalFormatImpl},
+      {"parse", "(ILjava/lang/String;Ljava/text/ParsePosition;Z)Ljava/lang/Number;", (void*) parse},
+      {"setAttribute", "(III)V", (void*) setAttribute},
+      {"setDecimalFormatSymbols", "(ILjava/lang/String;CCCLjava/lang/String;Ljava/lang/String;CCLjava/lang/String;CCCC)V", (void*) setDecimalFormatSymbols},
+      {"setSymbol", "(IILjava/lang/String;)V", (void*) setSymbol},
+      {"setRoundingMode", "(IID)V", (void*) setRoundingMode},
+      {"setTextAttribute", "(IILjava/lang/String;)V", (void*) setTextAttribute},
+      {"toPatternImpl", "(IZ)Ljava/lang/String;", (void*) toPatternImpl},
 };
+
 int register_com_ibm_icu4jni_text_NativeDecimalFormat(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativeDecimalFormat", gMethods,
+    return jniRegisterNativeMethods(env,
+            "com/ibm/icu4jni/text/NativeDecimalFormat", gMethods,
             NELEM(gMethods));
 }

@@ -896,13 +896,13 @@ public class NumberFormatTest extends TestCase {
 
         assertEquals(
                 "Test1: NumberFormat.getPercentInstance().format(1234567890.0987654321) returned wrong value",
-                "123\u00a0456\u00a0789\u00a0010%", format.format(1234567890.0987654321));
+                "123\u00a0456\u00a0789\u00a0010\u00a0%", format.format(1234567890.0987654321));
         assertEquals(
                 "Test2: ((DecimalFormat) NumberFormat.getPercentInstance()).toPattern returned wrong value",
-                "#,##0%", ((DecimalFormat) format).toPattern());
+                "#,##0\u00a0%", ((DecimalFormat) format).toPattern());
         assertEquals(
                 "Test3: NumberFormat.getPercentInstance().format(123456789) returned wrong value",
-                "12\u00a0345\u00a0678\u00a0900%", format.format(123456789));
+                "12\u00a0345\u00a0678\u00a0900\u00a0%", format.format(123456789));
         try {
             NumberFormat.getInstance(null);
             fail("java.lang.NullPointerException is not thrown");
@@ -1130,33 +1130,34 @@ public class NumberFormatTest extends TestCase {
 
         NumberFormat nf2 = NumberFormat.getPercentInstance(csLocale);
         nf2.setGroupingUsed(false);
+
         assertEquals(
                 "Locale(\"cs\", \"CZ\"): grouping is used for 1234567890.1",
-                "123456789010%", nf2.format(1234567890.1));
+                "123456789010\u00a0%", nf2.format(1234567890.1));
 
         assertEquals(
                 "Locale(\"cs\", \"CZ\"): grouping is used for -1234567890.1",
-                "-123456789010%", nf2.format(-1234567890.1));
+                "-123456789010\u00a0%", nf2.format(-1234567890.1));
         assertEquals("grouping is not used for 1234567890.1",
                 "1,234,567,890.1", nf1.format(1234567890.1));
 
         nf2.setGroupingUsed(true);
         assertEquals(
                 "Locale(\"cs\", \"CZ\"): grouping is not used for 1234567890.1",
-                "123\u00a0456\u00a0789\u00a0010%", nf2.format(1234567890.1));
+                "123\u00a0456\u00a0789\u00a0010\u00a0%", nf2.format(1234567890.1));
 
         assertEquals(
                 "Locale(\"cs\", \"CZ\"): grouping is not used for -1234567890.1",
-                "-123\u00a0456\u00a0789\u00a0010%", nf2.format(-1234567890.1));
+                "-123\u00a0456\u00a0789\u00a0010\u00a0%", nf2.format(-1234567890.1));
 
         nf2.setGroupingUsed(true);
         assertEquals(
                 "Locale(\"cs\", \"CZ\"): grouping is not used for 1234567890.1",
-                "123\u00a0456\u00a0789\u00a0010%", nf2.format(1234567890.1));
+                "123\u00a0456\u00a0789\u00a0010\u00a0%", nf2.format(1234567890.1));
 
         assertEquals(
                 "Locale(\"cs\", \"CZ\"): grouping is not used for -1234567890.1",
-                "-123\u00a0456\u00a0789\u00a0010%", nf2.format(-1234567890.1));
+                "-123\u00a0456\u00a0789\u00a0010\u00a0%", nf2.format(-1234567890.1));
     }
 
     /**
