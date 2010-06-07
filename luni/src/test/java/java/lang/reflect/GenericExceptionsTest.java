@@ -36,21 +36,73 @@ public final class GenericExceptionsTest extends TestCase {
     }
 
     public void testGenericExceptionsOfConstructorsWithTypeParameters() throws Exception {
-        Method method = Thrower.class.getMethod("parameterizedMethod");
+        Constructor constructor = Thrower.class.getConstructor();
         assertEquals(Arrays.<Type>asList(IOException.class),
-                Arrays.asList(method.getGenericExceptionTypes()));
+                Arrays.asList(constructor.getGenericExceptionTypes()));
     }
 
     public void testGenericExceptionsOfConstructorsWithGenericParameters() throws Exception {
-        Method method = Thrower.class.getMethod("genericParameters", List.class);
+        Constructor constructor = Thrower.class.getConstructor(List.class);
         assertEquals(Arrays.<Type>asList(IOException.class),
-                Arrays.asList(method.getGenericExceptionTypes()));
+                Arrays.asList(constructor.getGenericExceptionTypes()));
+    }
+
+    public void testConstructorThrowingTypeVariable() throws Exception {
+        Constructor constructor = ThrowerT.class.getConstructor();
+        TypeVariable typeVariable = getOnlyValue(constructor.getGenericExceptionTypes(),
+                TypeVariable.class);
+        assertEquals("T", typeVariable.getName());
+        assertEquals(Arrays.<Type>asList(Throwable.class), Arrays.asList(typeVariable.getBounds()));
+    }
+
+    public void testMethodThrowingTypeVariable() throws Exception {
+        Method method = ThrowerT.class.getMethod("throwsTypeVariable");
+        TypeVariable typeVariable = getOnlyValue(method.getGenericExceptionTypes(),
+                TypeVariable.class);
+        assertEquals("T", typeVariable.getName());
+        assertEquals(Arrays.<Type>asList(Throwable.class), Arrays.asList(typeVariable.getBounds()));
+    }
+
+    public void testThrowingMethodTypeParameter() throws Exception {
+        Method method = ThrowerT.class.getMethod("throwsMethodTypeParameter");
+        TypeVariable typeVariable = getOnlyValue(method.getGenericExceptionTypes(),
+                TypeVariable.class);
+        assertEquals("X", typeVariable.getName());
+        assertEquals(Arrays.<Type>asList(Exception.class), Arrays.asList(typeVariable.getBounds()));
+    }
+
+    public void testThrowingMethodThrowsEverything() throws Exception {
+        Method method = ThrowerT.class.getMethod("throwsEverything");
+        Type[] exceptions = method.getGenericExceptionTypes();
+        TypeVariable t = (TypeVariable) exceptions[0];
+        assertEquals(3, exceptions.length);
+        assertEquals("T", t.getName());
+        assertEquals(Arrays.<Type>asList(Throwable.class), Arrays.asList(t.getBounds()));
+        assertEquals(Exception.class, exceptions[1]);
+        TypeVariable x = (TypeVariable) exceptions[2];
+        assertEquals("X", x.getName());
+        assertEquals(Arrays.<Type>asList(Exception.class), Arrays.asList(x.getBounds()));
+    }
+
+    private <T> T getOnlyValue(Object[] array, Class<T> expectedType) {
+        assertEquals("Expected a " + expectedType.getName() + " but was " + Arrays.toString(array),
+                1, array.length);
+        assertTrue("Expected a " + expectedType.getName() + " but was " + array[0],
+                expectedType.isInstance(array[0]));
+        return expectedType.cast(array[0]);
     }
 
     static class Thrower {
-        <T> Thrower() throws IOException {}
-        Thrower(List<?> unused) throws IOException {}
+        public <T> Thrower() throws IOException {}
+        public Thrower(List<?> unused) throws IOException {}
         public <T> void parameterizedMethod() throws IOException {}
         public void genericParameters(List<?> unused) throws IOException {}
+    }
+
+    static class ThrowerT<T extends Throwable> {
+        public ThrowerT() throws T {}
+        public void throwsTypeVariable() throws T {}
+        public <X extends Exception> void throwsMethodTypeParameter() throws X {}
+        public <X extends Exception> void throwsEverything() throws T, Exception, X{}
     }
 }
