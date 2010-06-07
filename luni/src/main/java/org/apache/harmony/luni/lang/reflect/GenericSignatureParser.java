@@ -144,10 +144,10 @@ public class GenericSignatureParser {
      * @param signature the generic signature of the class
      */
     public void parseForMethod(GenericDeclaration genericDecl,
-            String signature) {
+            String signature, Class<?>[] rawExceptionTypes) {
         setInput(genericDecl, signature);
         if (!eof) {
-            parseMethodTypeSignature();
+            parseMethodTypeSignature(rawExceptionTypes);
         } else {
             if(genericDecl instanceof Method) {
                 Method m = (Method) genericDecl;
@@ -172,10 +172,10 @@ public class GenericSignatureParser {
      * @param signature the generic signature of the class
      */
     public void parseForConstructor(GenericDeclaration genericDecl,
-            String signature) {
+            String signature, Class<?>[] rawExceptionTypes) {
         setInput(genericDecl, signature);
         if (!eof) {
-            parseMethodTypeSignature();
+            parseMethodTypeSignature(rawExceptionTypes);
         } else {
             if(genericDecl instanceof Constructor) {
                 Constructor c = (Constructor) genericDecl;
@@ -387,7 +387,12 @@ public class GenericSignatureParser {
         }
     }
 
-    void parseMethodTypeSignature() {
+    /**
+     * @param rawExceptionTypes the non-generic exceptions. This is necessary
+     *     because the signature may omit the exceptions when none are generic.
+     *     May be null for methods that declare no exceptions.
+     */
+    void parseMethodTypeSignature(Class<?>[] rawExceptionTypes) {
         // MethodTypeSignature ::= [FormalTypeParameters]
         //         "(" {TypeSignature} ")" ReturnType {ThrowsSignature}.
 
@@ -402,17 +407,23 @@ public class GenericSignatureParser {
 
         returnType = parseReturnType();
 
-        exceptionTypes = new ListOfTypes(8);
-        while (symbol == '^') {
-            scanSymbol();
+        if (symbol == '^') {
+            exceptionTypes = new ListOfTypes(8);
+            do {
+                scanSymbol();
 
-            // ThrowsSignature ::= ("^" ClassTypeSignature) |
-            //     ("^" TypeVariableSignature).
-            if (symbol == 'T') {
-                exceptionTypes.add(parseTypeVariableSignature());
-            } else {
-                exceptionTypes.add(parseClassTypeSignature());
-            }
+                // ThrowsSignature ::= ("^" ClassTypeSignature) |
+                //     ("^" TypeVariableSignature).
+                if (symbol == 'T') {
+                    exceptionTypes.add(parseTypeVariableSignature());
+                } else {
+                    exceptionTypes.add(parseClassTypeSignature());
+                }
+            } while (symbol == '^');
+        } else if (rawExceptionTypes != null) {
+            exceptionTypes = new ListOfTypes(rawExceptionTypes);
+        } else {
+            exceptionTypes = new ListOfTypes(0);
         }
     }
 
