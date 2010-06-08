@@ -182,6 +182,8 @@ public abstract class Charset implements Comparable<Charset> {
      */
     private static final HashMap<String, Charset> cachedCharsetTable = new HashMap<String, Charset>();
 
+    private static final Charset DEFAULT_CHARSET = getDefaultCharset();
+
     private static ClassLoader systemClassLoader;
 
     private static SortedMap<String, Charset> cachedBuiltInCharsets;
@@ -837,6 +839,10 @@ public abstract class Charset implements Comparable<Charset> {
      * change thereafter. On Android, the default charset is UTF-8.
      */
     public static Charset defaultCharset() {
+        return DEFAULT_CHARSET;
+    }
+
+    private static Charset getDefaultCharset() {
         String encoding = AccessController.doPrivileged(new PrivilegedAction<String>() {
             public String run() {
                 return System.getProperty("file.encoding", "UTF-8");

@@ -81,8 +81,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      */
     public static final Comparator<String> CASE_INSENSITIVE_ORDER = new CaseInsensitiveComparator();
 
-    private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
-
     private static final char[] EMPTY_CHAR_ARRAY = new char[0];
 
     private static final char[] ASCII;
@@ -167,7 +165,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     public String(byte[] data, int start, int length) {
         // start + length could overflow, start/length maybe MaxInt
         if (start >= 0 && 0 <= length && length <= data.length - start) {
-            CharBuffer cb = DEFAULT_CHARSET.decode(ByteBuffer.wrap(data, start, length));
+            CharBuffer cb = Charset.defaultCharset().decode(ByteBuffer.wrap(data, start, length));
             count = cb.length();
             offset = 0;
             if (count > 0) {
@@ -943,7 +941,7 @@ outer:
      * all strings can be encoded.
      */
     public byte[] getBytes() {
-        return getBytes(DEFAULT_CHARSET);
+        return getBytes(Charset.defaultCharset());
     }
 
     /**
