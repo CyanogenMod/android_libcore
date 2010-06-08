@@ -20,63 +20,11 @@ package org.apache.harmony.luni.util;
 import java.io.ByteArrayOutputStream;
 import java.io.UTFDataFormatException;
 import java.io.UnsupportedEncodingException;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 public final class Util {
-
-    private static final String defaultEncoding;
-
-    static {
-        // BEGIN android-changed
-        String encoding = System.getProperty("file.encoding");
-        // END android-changed
-        if (encoding != null) {
-            try {
-                "".getBytes(encoding);
-            } catch (Throwable t) {
-                encoding = null;
-            }
-        }
-        defaultEncoding = encoding;
-    }
-
-    public static String toString(byte[] bytes) {
-        if (defaultEncoding != null) {
-            try {
-                return new String(bytes, 0, bytes.length, defaultEncoding);
-            } catch (java.io.UnsupportedEncodingException e) {
-            }
-        }
-        return new String(bytes, 0, bytes.length);
-    }
-
-    public static String toUTF8String(byte[] bytes) {
-        return toUTF8String(bytes, 0, bytes.length);
-    }
-
-    public static String toString(byte[] bytes, int offset, int length) {
-        if (defaultEncoding != null) {
-            try {
-                return new String(bytes, offset, length, defaultEncoding);
-            } catch (java.io.UnsupportedEncodingException e) {
-            }
-        }
-        return new String(bytes, offset, length);
-    }
-
-    public static String toUTF8String(byte[] bytes, int offset, int length) {
-        try {
-            return new String(bytes, offset, length, "UTF-8");
-        } catch (java.io.UnsupportedEncodingException e) {
-            return toString(bytes, offset, length);
-        }
-    }
-
-    public static String convertFromUTF8(byte[] buf, int offset, int utfSize) throws UTFDataFormatException {
-        return convertUTF8WithBuf(buf, new char[utfSize], offset, utfSize);
-    }
-
+    /**
+     * Converts bytes encoded with Java's <i>modified</i> UTF-8 to a string.
+     */
     public static String convertUTF8WithBuf(byte[] buf, char[] out, int offset, int utfSize) throws UTFDataFormatException {
         int count = 0, s = 0, a;
         while (count < utfSize) {

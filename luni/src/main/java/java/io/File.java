@@ -67,10 +67,7 @@ public class File implements Serializable, Comparable<File> {
 
     private static final long serialVersionUID = 301077366599181567L;
 
-    private static final String EMPTY_STRING = "";
-
-    // Caches the UTF-8 Charset for newCString.
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     /**
      * The system dependent file separator character.
@@ -210,7 +207,7 @@ public class File implements Serializable, Comparable<File> {
     }
 
     private byte[] newCString(String s) {
-        ByteBuffer buffer = UTF8.encode(s);
+        ByteBuffer buffer = UTF_8.encode(s);
         // Add a trailing NUL, because this byte[] is going to be used as a char*.
         int byteCount = buffer.limit() + 1;
         byte[] bytes = new byte[byteCount];
@@ -471,7 +468,7 @@ public class File implements Serializable, Comparable<File> {
      * @return the absolute file path.
      */
     public String getAbsolutePath() {
-        return Util.toUTF8String(pathBytes, 0, pathBytes.length - 1);
+        return new String(pathBytes, 0, pathBytes.length - 1, UTF_8);
     }
 
     /**
@@ -583,13 +580,7 @@ public class File implements Serializable, Comparable<File> {
         newResult[newLength] = 0;
         newResult = getCanonImpl(newResult);
         newLength = newResult.length;
-
-        // BEGIN android-changed
-        //     caching the canonical path is completely bogus
-        return Util.toUTF8String(newResult, 0, newLength);
-        // FileCanonPathCache.put(absPath, canonPath);
-        // return canonPath;
-        // END android-changed
+        return new String(newResult, 0, newLength, UTF_8);
     }
 
     /*
@@ -1477,13 +1468,12 @@ public class File implements Serializable, Comparable<File> {
         String name = getAbsoluteName();
         if (!name.startsWith("/")) {
             // start with sep.
-            return new URL(
-                    "file", EMPTY_STRING, -1, new StringBuilder(name.length() + 1)
-                            .append('/').append(name).toString(), null);
+            return new URL("file", "", -1,
+                    new StringBuilder(name.length() + 1).append('/').append(name).toString(), null);
         } else if (name.startsWith("//")) {
             return new URL("file:" + name); // UNC path
         }
-        return new URL("file", EMPTY_STRING, -1, name, null);
+        return new URL("file", "", -1, name, null);
     }
 
     private String getAbsoluteName() {

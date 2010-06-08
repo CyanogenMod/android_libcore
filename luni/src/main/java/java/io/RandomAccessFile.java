@@ -676,7 +676,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (read(buf, 0, buf.length) != buf.length) {
             throw new EOFException();
         }
-        return Util.convertFromUTF8(buf, 0, utfSize);
+        return Util.convertUTF8WithBuf(buf, new char[utfSize], 0, utfSize);
     }
 
     /**

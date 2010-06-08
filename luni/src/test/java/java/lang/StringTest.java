@@ -110,4 +110,14 @@ public class StringTest extends TestCase {
         EvilCharsetDecoder.corrupt();
         assertEquals("YY", result);
     }
+
+    public void test_getBytes_bad() throws Exception {
+        assertEquals("[97, 63, 98]", Arrays.toString("a\u0666b".getBytes("US-ASCII")));
+        assertEquals("[97, 63, 98]", Arrays.toString("a\u0666b".getBytes(Charset.forName("US-ASCII"))));
+    }
+
+    public void test_new_String_bad() throws Exception {
+        assertEquals("a\ufffdb", new String(new byte[] { 97, -2, 98 }, "US-ASCII"));
+        assertEquals("a\ufffdb", new String(new byte[] { 97, -2, 98 }, Charset.forName("US-ASCII")));
+    }
 }

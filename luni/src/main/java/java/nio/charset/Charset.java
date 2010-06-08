@@ -177,6 +177,11 @@ public abstract class Charset implements Comparable<Charset> {
      */
     private static final String PROVIDER_CONFIGURATION_FILE_COMMENT = "#";
 
+    /**
+     * The cache of charsets.
+     */
+    private static final HashMap<String, Charset> cachedCharsetTable = new HashMap<String, Charset>();
+
     private static ClassLoader systemClassLoader;
 
     private static SortedMap<String, Charset> cachedBuiltInCharsets;
@@ -185,9 +190,6 @@ public abstract class Charset implements Comparable<Charset> {
 
     // the aliases set
     private final HashSet<String> aliasesSet;
-
-    // cached Charset table
-    private final static HashMap<String, Charset> cachedCharsetTable = new HashMap<String, Charset>();
 
     private static boolean inForNameInternal = false;
 
@@ -205,7 +207,7 @@ public abstract class Charset implements Comparable<Charset> {
      *             <code>aliases</code>.
      */
     protected Charset(String canonicalName, String[] aliases) {
-        if (null == canonicalName) {
+        if (canonicalName == null) {
             throw new NullPointerException();
         }
         // check whether the given canonical name is legal
@@ -250,8 +252,7 @@ public abstract class Charset implements Comparable<Charset> {
      * should not be null.
      */
     private static void checkCharsetName(String name) {
-        // An empty string is illegal charset name
-        if (name.length() == 0) {
+        if (name.isEmpty()) {
             throw new IllegalCharsetNameException(name);
         }
         // The first character must be a letter or a digit
@@ -497,7 +498,6 @@ public abstract class Charset implements Comparable<Charset> {
      */
     private synchronized static Charset forNameInternal(String charsetName)
             throws IllegalCharsetNameException {
-
         Charset cs = lookupCachedOrBuiltInCharset(charsetName);
         if (cs != null || inForNameInternal) {
             return cs;
@@ -525,7 +525,7 @@ public abstract class Charset implements Comparable<Charset> {
                 cs = searchConfiguredCharsets(charsetName, contextClassLoader, e.nextElement());
                 inForNameInternal = false;
                 if (cs != null) {
-                    cacheCharset(cs);
+                    cacheCharset(charsetName, cs);
                     return cs;
                 }
             }
@@ -548,25 +548,31 @@ public abstract class Charset implements Comparable<Charset> {
         checkCharsetName(charsetName);
         cs = NativeConverter.charsetForName(charsetName);
         if (cs != null) {
-            cacheCharset(cs);
+            cacheCharset(charsetName, cs);
         }
         return cs;
     }
 
-    /*
-     * save charset into cachedCharsetTable
-     */
-    private synchronized static void cacheCharset(Charset cs) {
-        // Cache the Charset by its canonical name...
+    private synchronized static void cacheCharset(String charsetName, Charset cs) {
+        // Get the canonical name for this charset, and the canonical instance from the table.
         String canonicalName = cs.name();
-        if (!cachedCharsetTable.containsKey(canonicalName)) {
-            cachedCharsetTable.put(canonicalName, cs);
+        Charset canonicalCharset = cachedCharsetTable.get(canonicalName);
+        if (canonicalCharset == null) {
+            canonicalCharset = cs;
         }
+
+        // Cache the charset by its canonical name...
+        cachedCharsetTable.put(canonicalName, canonicalCharset);
+
+        // And the name the user used... (Section 1.4 of http://unicode.org/reports/tr22/ means
+        // that many non-alias, non-canonical names are valid. For example, "utf8" isn't an alias
+        // of the canonical name "UTF-8", but we shouldn't penalize consistent users of such
+        // names unduly.)
+        cachedCharsetTable.put(charsetName, canonicalCharset);
+
         // And all its aliases...
         for (String alias : cs.aliasesSet) {
-            if (!cachedCharsetTable.containsKey(alias)) {
-                cachedCharsetTable.put(alias, cs);
-            }
+            cachedCharsetTable.put(alias, canonicalCharset);
         }
     }
 
@@ -582,11 +588,11 @@ public abstract class Charset implements Comparable<Charset> {
      *             if the desired charset is not supported by this runtime.
      */
     public static Charset forName(String charsetName) {
-        Charset c = forNameInternal(charsetName);
-        if (c == null) {
-            throw new UnsupportedCharsetException(charsetName);
+        Charset cs = forNameInternal(charsetName);
+        if (cs != null) {
+            return cs;
         }
-        return c;
+        throw new UnsupportedCharsetException(charsetName);
     }
 
     /**
@@ -598,8 +604,13 @@ public abstract class Charset implements Comparable<Charset> {
      * @throws IllegalCharsetNameException
      *             if the specified charset name is illegal.
      */
-    public static synchronized boolean isSupported(String charsetName) {
-        return forNameInternal(charsetName) != null;
+    public static boolean isSupported(String charsetName) {
+        try {
+            Charset cs = forName(charsetName);
+            return true;
+        } catch (UnsupportedCharsetException ex) {
+            return false;
+        }
     }
 
     /**
@@ -822,23 +833,19 @@ public abstract class Charset implements Comparable<Charset> {
     }
 
     /**
-     * Gets the system default charset from the virtual machine.
-     *
-     * @return the default charset.
+     * Returns the system's default charset. This is determined during VM startup, and will not
+     * change thereafter. On Android, the default charset is UTF-8.
      */
     public static Charset defaultCharset() {
-        Charset defaultCharset = null;
-        String encoding = AccessController
-                .doPrivileged(new PrivilegedAction<String>() {
-                    public String run() {
-                        return System.getProperty("file.encoding");
-                    }
-                });
+        String encoding = AccessController.doPrivileged(new PrivilegedAction<String>() {
+            public String run() {
+                return System.getProperty("file.encoding", "UTF-8");
+            }
+        });
         try {
-            defaultCharset = Charset.forName(encoding);
+            return Charset.forName(encoding);
         } catch (UnsupportedCharsetException e) {
-            defaultCharset = Charset.forName("UTF-8");
+            return Charset.forName("UTF-8");
         }
-        return defaultCharset;
     }
 }

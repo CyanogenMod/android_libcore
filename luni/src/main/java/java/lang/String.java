@@ -81,7 +81,17 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      */
     public static final Comparator<String> CASE_INSENSITIVE_ORDER = new CaseInsensitiveComparator();
 
-    private static final char[] ascii;
+    private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
+
+    private static final char[] EMPTY_CHAR_ARRAY = new char[0];
+
+    private static final char[] ASCII;
+    static {
+        ASCII = new char[128];
+        for (int i = 0; i < ASCII.length; ++i) {
+            ASCII[i] = (char) i;
+        }
+    }
 
     private final char[] value;
 
@@ -91,22 +101,11 @@ public final class String implements Serializable, Comparable<String>, CharSeque
 
     private int hashCode;
 
-    private static Charset DefaultCharset;
-
-    private static Charset lastCharset;
-
-    static {
-        ascii = new char[128];
-        for (int i = 0; i < ascii.length; i++) {
-            ascii[i] = (char) i;
-        }
-    }
-
     /**
      * Creates an empty string.
      */
     public String() {
-        value = new char[0];
+        value = EMPTY_CHAR_ARRAY;
         offset = 0;
         count = 0;
     }
@@ -124,13 +123,8 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     }
 
     /**
-     * Converts the byte array to a string using the default encoding as
-     * specified by the file.encoding system property. If the system property is
-     * not defined, the default encoding is ISO8859_1 (ISO-Latin-1). If 8859-1
-     * is not available, an ASCII encoding is used.
-     *
-     * @param data
-     *            the byte array to convert to a string.
+     * Converts the byte array to a string using the system's
+     * {@link java.nio.charset.Charset#defaultCharset default charset}.
      */
     public String(byte[] data) {
         this(data, 0, data.length);
@@ -155,10 +149,8 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     }
 
     /**
-     * Converts the byte array to a string using the default encoding as
-     * specified by the file.encoding system property. If the system property is
-     * not defined, the default encoding is ISO8859_1 (ISO-Latin-1). If 8859-1
-     * is not available, an ASCII encoding is used.
+     * Converts a subsequence of the byte array to a string using the system's
+     * {@link java.nio.charset.Charset#defaultCharset default charset}.
      *
      * @param data
      *            the byte array to convert to a string.
@@ -175,17 +167,13 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     public String(byte[] data, int start, int length) {
         // start + length could overflow, start/length maybe MaxInt
         if (start >= 0 && 0 <= length && length <= data.length - start) {
+            CharBuffer cb = DEFAULT_CHARSET.decode(ByteBuffer.wrap(data, start, length));
+            count = cb.length();
             offset = 0;
-            Charset charset = defaultCharset();
-            int result;
-            CharBuffer cb = charset
-                    .decode(ByteBuffer.wrap(data, start, length));
-            if ((result = cb.length()) > 0) {
+            if (count > 0) {
                 value = cb.array();
-                count = result;
             } else {
-                count = 0;
-                value = new char[0];
+                value = EMPTY_CHAR_ARRAY;
             }
         } else {
             throw new StringIndexOutOfBoundsException();
@@ -233,7 +221,10 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     }
 
     /**
-     * Converts the byte array to a string using the specified encoding.
+     * Converts the byte array to a string using the named charset.
+     *
+     * <p>The behavior when the bytes cannot be decoded by the named charset
+     * is unspecified. Use {@link java.nio.charset.CharsetDecoder} for more control.
      *
      * @param data
      *            the byte array to convert to a string.
@@ -241,184 +232,45 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *            the starting offset in the byte array.
      * @param length
      *            the number of bytes to convert.
-     * @param encoding
-     *            the encoding.
+     * @param charsetName
+     *            the charset name.
      * @throws NullPointerException
      *             when {@code data} is {@code null}.
      * @throws IndexOutOfBoundsException
      *             if {@code length < 0, start < 0} or {@code start + length >
      *             data.length}.
      * @throws UnsupportedEncodingException
-     *             if {@code encoding} is not supported.
+     *             if the named charset is not supported.
      */
-    public String(byte[] data, int start, int length, final String encoding)
-            throws UnsupportedEncodingException {
-        if (encoding == null) {
-            throw new NullPointerException();
-        }
-        // start + length could overflow, start/length maybe MaxInt
-        if (start >= 0 && 0 <= length && length <= data.length - start) {
-            offset = 0;
-            // BEGIN android-added
-            // Special-case ISO-88589-1 and UTF 8 decoding
-            if (encoding.equalsIgnoreCase("ISO-8859-1") ||
-                encoding.equalsIgnoreCase("ISO8859_1")) {
-                value = new char[length];
-                count = length;
-                for (int i = 0; i < count; i++) {
-                    value[i] = (char) (data[start++] & 0xff);
-                }
-                return;
-            } else if ("utf8".equals(encoding) ||
-                       "utf-8".equals(encoding) ||
-                       "UTF8".equals(encoding) ||
-                       "UTF-8".equals(encoding)) {
-                // We inline UTF8 decoding for speed and because a
-                // non-constructor can't write directly to the final
-                // members 'value' or 'count'.
-                byte[] d = data;
-                char[] v = new char[length];
-
-                int idx = start, last = start + length, s = 0;
-                outer:
-                while (idx < last) {
-                    byte b0 = d[idx++];
-                    if ((b0 & 0x80) == 0) {
-                        // 0xxxxxxx
-                        // Range:  U-00000000 - U-0000007F
-                        int val = b0 & 0xff;
-                        v[s++] = (char) val;
-                    } else if (((b0 & 0xe0) == 0xc0) ||
-                               ((b0 & 0xf0) == 0xe0) ||
-                               ((b0 & 0xf8) == 0xf0) ||
-                               ((b0 & 0xfc) == 0xf8) ||
-                               ((b0 & 0xfe) == 0xfc)) {
-                        int utfCount = 1;
-                        if ((b0 & 0xf0) == 0xe0) utfCount = 2;
-                        else if ((b0 & 0xf8) == 0xf0) utfCount = 3;
-                        else if ((b0 & 0xfc) == 0xf8) utfCount = 4;
-                        else if ((b0 & 0xfe) == 0xfc) utfCount = 5;
-
-                        // 110xxxxx (10xxxxxx)+
-                        // Range:  U-00000080 - U-000007FF (count == 1)
-                        // Range:  U-00000800 - U-0000FFFF (count == 2)
-                        // Range:  U-00010000 - U-001FFFFF (count == 3)
-                        // Range:  U-00200000 - U-03FFFFFF (count == 4)
-                        // Range:  U-04000000 - U-7FFFFFFF (count == 5)
-
-                        if (idx + utfCount > last) {
-                            v[s++] = REPLACEMENT_CHAR;
-                            break;
-                        }
-
-                        // Extract usable bits from b0
-                        int val = b0 & (0x1f >> (utfCount - 1));
-                        for (int i = 0; i < utfCount; i++) {
-                            byte b = d[idx++];
-                            if ((b & 0xC0) != 0x80) {
-                                v[s++] = REPLACEMENT_CHAR;
-                                idx--; // Put the input char back
-                                continue outer;
-                            }
-                            // Push new bits in from the right side
-                            val <<= 6;
-                            val |= b & 0x3f;
-                        }
-
-                        // Note: Java allows overlong char
-                        // specifications To disallow, check that val
-                        // is greater than or equal to the minimum
-                        // value for each count:
-                        //
-                        // count    min value
-                        // -----   ----------
-                        //   1           0x80
-                        //   2          0x800
-                        //   3        0x10000
-                        //   4       0x200000
-                        //   5      0x4000000
-
-                        // Allow surrogate values (0xD800 - 0xDFFF) to
-                        // be specified using 3-byte UTF values only
-                        if ((utfCount != 2) &&
-                            (val >= 0xD800) && (val <= 0xDFFF)) {
-                            v[s++] = REPLACEMENT_CHAR;
-                            continue;
-                        }
-
-                        // Reject chars greater than the Unicode
-                        // maximum of U+10FFFF
-                        if (val > 0x10FFFF) {
-                            v[s++] = REPLACEMENT_CHAR;
-                            continue;
-                        }
-
-                        // Encode chars from U+10000 up as surrogate pairs
-                        if (val < 0x10000) {
-                            v[s++] = (char) val;
-                        } else {
-                            int x = val & 0xffff;
-                            int u = (val >> 16) & 0x1f;
-                            int w = (u - 1) & 0xffff;
-                            int hi = 0xd800 | (w << 6) | (x >> 10);
-                            int lo = 0xdc00 | (x & 0x3ff);
-                            v[s++] = (char) hi;
-                            v[s++] = (char) lo;
-                        }
-                    } else {
-                        // Illegal values 0x8*, 0x9*, 0xa*, 0xb*, 0xfd-0xff
-                        v[s++] = REPLACEMENT_CHAR;
-                    }
-                }
-
-                // Reallocate the array to fit the contents
-                count = s;
-                value = new char[s];
-                System.arraycopy(v, 0, value, 0, s);
-                return;
-            }
-            // END android-added
-            Charset charset = getCharset(encoding);
-
-            int result;
-            CharBuffer cb;
-            try {
-                cb = charset.decode(ByteBuffer.wrap(data, start, length));
-            } catch (Exception e) {
-                // do nothing. according to spec:
-                // behavior is unspecified for invalid array
-                cb = CharBuffer.wrap("\u003f".toCharArray());
-            }
-            if ((result = cb.length()) > 0) {
-                value = cb.array();
-                count = result;
-            } else {
-                count = 0;
-                value = new char[0];
-            }
-        } else {
-            throw new StringIndexOutOfBoundsException();
-        }
+    public String(byte[] data, int start, int length, String charsetName) throws UnsupportedEncodingException {
+        this(data, start, length, Charset.forName(charsetName));
     }
 
     /**
-     * Converts the byte array to a string using the specified encoding.
+     * Converts the byte array to a string using the named charset.
+     *
+     * <p>The behavior when the bytes cannot be decoded by the named charset
+     * is unspecified. Use {@link java.nio.charset.CharsetDecoder} for more control.
      *
      * @param data
      *            the byte array to convert to a string.
-     * @param encoding
-     *            the encoding.
+     * @param charsetName
+     *            the charset name.
      * @throws NullPointerException
      *             when {@code data} is {@code null}.
      * @throws UnsupportedEncodingException
-     *             if {@code encoding} is not supported.
+     *             if {@code charsetName} is not supported.
      */
-    public String(byte[] data, String encoding) throws UnsupportedEncodingException {
-        this(data, 0, data.length, encoding);
+    public String(byte[] data, String charsetName) throws UnsupportedEncodingException {
+        this(data, 0, data.length, Charset.forName(charsetName));
     }
 
     /**
-     * Converts the byte array to a String using the specified encoding.
+     * Converts the byte array to a string using the given charset.
+     *
+     * <p>The behavior when the bytes cannot be decoded by the given charset
+     * is to replace malformed input and unmappable characters with the charset's default
+     * replacement string. Use {@link java.nio.charset.CharsetDecoder} for more control.
      *
      * @param data
      *            the byte array to convert to a String
@@ -426,8 +278,8 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *            the starting offset in the byte array
      * @param length
      *            the number of bytes to convert
-     * @param encoding
-     *            the encoding
+     * @param charset
+     *            the charset
      *
      * @throws IndexOutOfBoundsException
      *             when <code>length &lt; 0, start &lt; 0</code> or
@@ -449,31 +301,147 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * @see #valueOf(Object)
      * @since 1.6
      */
-    public String(byte[] data, int start, int length, final Charset encoding) {
-        if (encoding == null) {
-            throw new NullPointerException();
-        }
+    public String(byte[] data, int start, int length, Charset charset) {
         if (start < 0 || length < 0 || length > data.length - start) {
             throw new StringIndexOutOfBoundsException();
         }
-        CharBuffer cb = encoding.decode(ByteBuffer.wrap(data, start, length));
-        this.lastCharset = encoding;
-        this.offset = 0;
-        this.count = cb.length();
-        this.value = new char[count];
-        System.arraycopy(cb.array(), 0, value, 0, count);
+
+        // We inline UTF-8, ISO-8859-1, and US-ASCII decoders for speed and because 'count' and
+        // 'value' are final.
+        String canonicalCharsetName = charset.name();
+        if (canonicalCharsetName.equals("UTF-8")) {
+            byte[] d = data;
+            char[] v = new char[length];
+
+            int idx = start, last = start + length, s = 0;
+outer:
+            while (idx < last) {
+                byte b0 = d[idx++];
+                if ((b0 & 0x80) == 0) {
+                    // 0xxxxxxx
+                    // Range:  U-00000000 - U-0000007F
+                    int val = b0 & 0xff;
+                    v[s++] = (char) val;
+                } else if (((b0 & 0xe0) == 0xc0) || ((b0 & 0xf0) == 0xe0) ||
+                        ((b0 & 0xf8) == 0xf0) || ((b0 & 0xfc) == 0xf8) || ((b0 & 0xfe) == 0xfc)) {
+                    int utfCount = 1;
+                    if ((b0 & 0xf0) == 0xe0) utfCount = 2;
+                    else if ((b0 & 0xf8) == 0xf0) utfCount = 3;
+                    else if ((b0 & 0xfc) == 0xf8) utfCount = 4;
+                    else if ((b0 & 0xfe) == 0xfc) utfCount = 5;
+
+                    // 110xxxxx (10xxxxxx)+
+                    // Range:  U-00000080 - U-000007FF (count == 1)
+                    // Range:  U-00000800 - U-0000FFFF (count == 2)
+                    // Range:  U-00010000 - U-001FFFFF (count == 3)
+                    // Range:  U-00200000 - U-03FFFFFF (count == 4)
+                    // Range:  U-04000000 - U-7FFFFFFF (count == 5)
+
+                    if (idx + utfCount > last) {
+                        v[s++] = REPLACEMENT_CHAR;
+                        break;
+                    }
+
+                    // Extract usable bits from b0
+                    int val = b0 & (0x1f >> (utfCount - 1));
+                    for (int i = 0; i < utfCount; i++) {
+                        byte b = d[idx++];
+                        if ((b & 0xC0) != 0x80) {
+                            v[s++] = REPLACEMENT_CHAR;
+                            idx--; // Put the input char back
+                            continue outer;
+                        }
+                        // Push new bits in from the right side
+                        val <<= 6;
+                        val |= b & 0x3f;
+                    }
+
+                    // Note: Java allows overlong char
+                    // specifications To disallow, check that val
+                    // is greater than or equal to the minimum
+                    // value for each count:
+                    //
+                    // count    min value
+                    // -----   ----------
+                    //   1           0x80
+                    //   2          0x800
+                    //   3        0x10000
+                    //   4       0x200000
+                    //   5      0x4000000
+
+                    // Allow surrogate values (0xD800 - 0xDFFF) to
+                    // be specified using 3-byte UTF values only
+                    if ((utfCount != 2) && (val >= 0xD800) && (val <= 0xDFFF)) {
+                        v[s++] = REPLACEMENT_CHAR;
+                        continue;
+                    }
+
+                    // Reject chars greater than the Unicode maximum of U+10FFFF.
+                    if (val > 0x10FFFF) {
+                        v[s++] = REPLACEMENT_CHAR;
+                        continue;
+                    }
+
+                    // Encode chars from U+10000 up as surrogate pairs
+                    if (val < 0x10000) {
+                        v[s++] = (char) val;
+                    } else {
+                        int x = val & 0xffff;
+                        int u = (val >> 16) & 0x1f;
+                        int w = (u - 1) & 0xffff;
+                        int hi = 0xd800 | (w << 6) | (x >> 10);
+                        int lo = 0xdc00 | (x & 0x3ff);
+                        v[s++] = (char) hi;
+                        v[s++] = (char) lo;
+                    }
+                } else {
+                    // Illegal values 0x8*, 0x9*, 0xa*, 0xb*, 0xfd-0xff
+                    v[s++] = REPLACEMENT_CHAR;
+                }
+            }
+
+            // Reallocate the array to fit the contents
+            this.offset = 0;
+            this.value = new char[s];
+            this.count = s;
+            System.arraycopy(v, 0, value, 0, s);
+        } else if (canonicalCharsetName.equals("ISO-8859-1")) {
+            this.offset = 0;
+            this.value = new char[length];
+            this.count = length;
+            for (int i = 0; i < count; ++i) {
+                value[i] = (char) (data[start++] & 0xff);
+            }
+        } else if (canonicalCharsetName.equals("US-ASCII")) {
+            this.offset = 0;
+            this.value = new char[length];
+            this.count = length;
+            for (int i = 0; i < count; ++i) {
+                char ch = (char) (data[start++] & 0xff);
+                value[i] = (ch <= 0x7f) ? ch : REPLACEMENT_CHAR;
+            }
+        } else {
+            CharBuffer cb = charset.decode(ByteBuffer.wrap(data, start, length));
+            this.offset = 0;
+            this.count = cb.length();
+            if (count > 0) {
+                // We could use cb.array() directly, but that would mean we'd have to trust
+                // the CharsetDecoder doesn't hang on to the CharBuffer and mutate it later,
+                // which would break String's immutability guarantee. It would also tend to
+                // mean that we'd be wasting memory because CharsetDecoder doesn't trim the
+                // array. So we copy.
+                this.value = new char[count];
+                System.arraycopy(cb.array(), 0, value, 0, count);
+            } else {
+                value = EMPTY_CHAR_ARRAY;
+            }
+        }
     }
 
     /**
-     * Converts the byte array to a String using the specified encoding.
+     * Converts the byte array to a String using the given charset.
      *
-     * @param data
-     *            the byte array to convert to a String
-     * @param encoding
-     *            the encoding
-     *
-     * @throws NullPointerException
-     *             when data is null
+     * @throws NullPointerException if {@code data == null}
      *
      * @see #getBytes()
      * @see #getBytes(int, int, byte[], int)
@@ -489,8 +457,8 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * @see #valueOf(Object)
      * @since 1.6
      */
-    public String(byte[] data, Charset encoding) {
-        this(data, 0, data.length, encoding);
+    public String(byte[] data, Charset charset) {
+        this(data, 0, data.length, charset);
     }
 
     /**
@@ -800,8 +768,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
         if (string.count > 0 && count > 0) {
             char[] buffer = new char[count + string.count];
             System.arraycopy(value, offset, buffer, 0, count);
-            System.arraycopy(string.value, string.offset, buffer, count,
-                    string.count);
+            System.arraycopy(string.value, string.offset, buffer, count, string.count);
             return new String(0, buffer.length, buffer);
         }
         return count == 0 ? string : this;
@@ -842,27 +809,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      */
     public static String copyValueOf(char[] data, int start, int length) {
         return new String(data, start, length);
-    }
-
-    private Charset defaultCharset() {
-        if (DefaultCharset == null) {
-            String encoding = AccessController
-                    .doPrivileged(new PriviAction<String>("file.encoding", "ISO8859_1"));
-            // calling System.getProperty() may cause DefaultCharset to be
-            // initialized
-            try {
-                DefaultCharset = Charset.forName(encoding);
-            } catch (IllegalCharsetNameException e) {
-                // Ignored
-            } catch (UnsupportedCharsetException e) {
-                // Ignored
-            }
-
-            if (DefaultCharset == null) {
-                DefaultCharset = Charset.forName("ISO-8859-1");
-            }
-        }
-        return DefaultCharset;
     }
 
     /**
@@ -954,18 +900,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     }
 
     /**
-     * Converts this string to a byte array using the default encoding as
-     * specified by the file.encoding system property. If the system property is
-     * not defined, the default encoding is ISO8859_1 (ISO-Latin-1). If 8859-1
-     * is not available, an ASCII encoding is used.
-     *
-     * @return the byte array encoding of this string.
-     */
-    public byte[] getBytes() {
-        return getBytes(defaultCharset());
-    }
-
-    /**
      * Converts this string to a byte array, ignoring the high order bits of
      * each character.
      *
@@ -1001,47 +935,43 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     }
 
     /**
-     * Converts this string to a byte array using the specified encoding.
+     * Returns a new byte array containing the characters of this string encoded using the
+     * system's {@link java.nio.charset.Charset#defaultCharset default charset}.
      *
-     * @param encoding
-     *            the encoding to use.
-     * @return the encoded byte array of this string.
-     * @throws UnsupportedEncodingException
-     *             if the encoding is not supported.
+     * <p>The behavior when this string cannot be represented in the system's default charset
+     * is unspecified. In practice, when the default charset is UTF-8 (as it is on Android),
+     * all strings can be encoded.
      */
-    public byte[] getBytes(String encoding) throws UnsupportedEncodingException {
-        return getBytes(getCharset(encoding));
-    }
-
-    private Charset getCharset(final String encoding)
-            throws UnsupportedEncodingException {
-        Charset charset = lastCharset;
-        if (charset == null || !encoding.equalsIgnoreCase(charset.name())) {
-            try {
-                charset = Charset.forName(encoding);
-            } catch (IllegalCharsetNameException e) {
-                throw (UnsupportedEncodingException) (new UnsupportedEncodingException(
-                        encoding).initCause(e));
-            } catch (UnsupportedCharsetException e) {
-                throw (UnsupportedEncodingException) (new UnsupportedEncodingException(
-                        encoding).initCause(e));
-            }
-            lastCharset = charset;
-        }
-        return charset;
+    public byte[] getBytes() {
+        return getBytes(DEFAULT_CHARSET);
     }
 
     /**
-     * Returns a new byte array containing the characters of this string encoded in the
+     * Returns a new byte array containing the characters of this string encoded using the
+     * named charset.
+     *
+     * <p>The behavior when this string cannot be represented in the named charset
+     * is unspecified. Use {@link java.nio.charset.CharsetEncoder} for more control.
+     *
+     * @throws UnsupportedEncodingException if the charset is not supported
+     */
+    public byte[] getBytes(String charsetName) throws UnsupportedEncodingException {
+        return getBytes(Charset.forName(charsetName));
+    }
+
+    /**
+     * Returns a new byte array containing the characters of this string encoded using the
      * given charset.
      *
-     * @param encoding the encoding
+     * <p>The behavior when this string cannot be represented in the given charset
+     * is to replace malformed input and unmappable characters with the charset's default
+     * replacement byte array. Use {@link java.nio.charset.CharsetEncoder} for more control.
      *
      * @since 1.6
      */
-    public byte[] getBytes(Charset encoding) {
+    public byte[] getBytes(Charset charset) {
         CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
-        ByteBuffer buffer = encoding.encode(chars.asReadOnlyBuffer());
+        ByteBuffer buffer = charset.encode(chars.asReadOnlyBuffer());
         byte[] bytes = new byte[buffer.limit()];
         buffer.get(bytes);
         return bytes;
@@ -1824,7 +1754,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     public static String valueOf(char value) {
         String s;
         if (value < 128) {
-            s = new String(value, 1, ascii);
+            s = new String(value, 1, ASCII);
         } else {
             s = new String(0, 1, new char[] { value });
         }
