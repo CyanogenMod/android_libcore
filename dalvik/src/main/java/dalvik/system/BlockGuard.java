@@ -70,7 +70,7 @@ public final class BlockGuard {
         int getPolicyMask();
     }
 
-    public final class BlockGuardPolicyException extends RuntimeException {
+    public static final class BlockGuardPolicyException extends RuntimeException {
         // bitmask of DISALLOW_*, PENALTY_*, etc flags
         public final int mPolicyState;
         public final int mPolicyViolated;
