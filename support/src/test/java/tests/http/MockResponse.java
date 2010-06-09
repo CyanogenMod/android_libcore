@@ -52,6 +52,11 @@ public class MockResponse {
         return this;
     }
 
+    public MockResponse setStatus(String status) {
+        this.status = status;
+        return this;
+    }
+
     /**
      * Returns the HTTP headers, such as "Content-Length: 0".
      */
