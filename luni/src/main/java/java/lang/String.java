@@ -17,21 +17,16 @@
 
 package java.lang;
 
-import com.ibm.icu4jni.regex.NativeRegEx;
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.security.AccessController;
 import java.util.Comparator;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * An immutable sequence of characters/code units ({@code char}s). A
@@ -968,11 +963,73 @@ outer:
      * @since 1.6
      */
     public byte[] getBytes(Charset charset) {
-        CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
-        ByteBuffer buffer = charset.encode(chars.asReadOnlyBuffer());
-        byte[] bytes = new byte[buffer.limit()];
-        buffer.get(bytes);
-        return bytes;
+        String canonicalCharsetName = charset.name();
+        if (canonicalCharsetName.equals("UTF-8")) {
+            return getUtf8Bytes();
+        } else if (canonicalCharsetName.equals("ISO-8859-1")) {
+            return getDirectMappedBytes(0xff);
+        } else if (canonicalCharsetName.equals("US-ASCII")) {
+            return getDirectMappedBytes(0x7f);
+        } else {
+            CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
+            ByteBuffer buffer = charset.encode(chars.asReadOnlyBuffer());
+            byte[] bytes = new byte[buffer.limit()];
+            buffer.get(bytes);
+            return bytes;
+        }
+    }
+
+    /**
+     * Translates this string's characters to US-ASCII or ISO-8859-1 bytes, using the fact that
+     * Unicode code points between U+0000 and U+007f inclusive are identical to US-ASCII, while
+     * U+0000 to U+00ff inclusive are identical to ISO-8859-1.
+     */
+    private byte[] getDirectMappedBytes(int maxValidChar) {
+        byte[] result = new byte[count];
+        int o = offset;
+        for (int i = 0; i < count; ++i) {
+            int ch = value[o++];
+            result[i] = (byte) ((ch <= maxValidChar) ? ch : '?');
+        }
+        return result;
+    }
+
+    private byte[] getUtf8Bytes() {
+        UnsafeByteSequence result = new UnsafeByteSequence(count);
+        final int end = offset + count;
+        for (int i = offset; i < end; ++i) {
+            int ch = value[i];
+            if (ch < 0x80) {
+                // One byte.
+                result.write(ch);
+            } else if (ch < 0x800) {
+                // Two bytes.
+                result.write((ch >> 6) | 0xc0);
+                result.write((ch & 0x3f) | 0x80);
+            } else if (ch >= Character.MIN_SURROGATE && ch <= Character.MAX_SURROGATE) {
+                // A supplementary character.
+                char high = (char) ch;
+                char low = (i + 1 != end) ? value[i + 1] : '\u0000';
+                if (!Character.isSurrogatePair(high, low)) {
+                    result.write('?');
+                    continue;
+                }
+                // Now we know we have a *valid* surrogate pair, we can consume the low surrogate.
+                ++i;
+                ch = Character.toCodePoint(high, low);
+                // Four bytes.
+                result.write((ch >> 18) | 0xf0);
+                result.write(((ch >> 12) & 0x3f) | 0x80);
+                result.write(((ch >> 6) & 0x3f) | 0x80);
+                result.write((ch & 0x3f) | 0x80);
+            } else {
+                // Three bytes.
+                result.write((ch >> 12) | 0xe0);
+                result.write(((ch >> 6) & 0x3f) | 0x80);
+                result.write((ch & 0x3f) | 0x80);
+            }
+        }
+        return result.toByteArray();
     }
 
     /**
