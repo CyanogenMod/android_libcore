@@ -80,6 +80,14 @@ public final class BlockGuard {
             mPolicyViolated = policyViolated;
         }
 
+        public int getPolicy() {
+            return mPolicyState;
+        }
+
+        public int getPolicyViolation() {
+            return mPolicyViolated;
+        }
+
         // TODO: toString() and stringify the bitmasks above
     }
 
