@@ -34,6 +34,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * A scriptable web server. Callers supply canned responses and the server
@@ -48,6 +50,8 @@ public final class MockWebServer {
     private final BlockingQueue<MockResponse> responseQueue
             = new LinkedBlockingDeque<MockResponse>();
     private int bodyLimit = Integer.MAX_VALUE;
+    private SSLSocketFactory sslSocketFactory;
+    private boolean tunnelProxy;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private int port = -1;
@@ -76,8 +80,15 @@ public final class MockWebServer {
         this.bodyLimit = maxBodyLength;
     }
 
-    public void enqueue(MockResponse response) {
-        responseQueue.add(response);
+    /**
+     * Serve requests with HTTPS rather than otherwise.
+     *
+     * @param tunnelProxy whether to expect the HTTP CONNECT method before
+     *     negotiating TLS.
+     */
+    public void useHttps(SSLSocketFactory sslSocketFactory, boolean tunnelProxy) {
+        this.sslSocketFactory = sslSocketFactory;
+        this.tunnelProxy = tunnelProxy;
     }
 
     /**
@@ -88,13 +99,19 @@ public final class MockWebServer {
         return requestQueue.take();
     }
 
+    public void enqueue(MockResponse response) {
+        responseQueue.add(response);
+    }
+
     /**
      * Starts the server, serves all enqueued requests, and shuts the server
      * down.
      */
     public void play() throws IOException {
-        final ServerSocket ss = new ServerSocket(0);
+        final ServerSocket ss;
+        ss = new ServerSocket(0);
         ss.setReuseAddress(true);
+
         port = ss.getLocalPort();
         executor.submit(new Callable<Void>() {
             public Void call() throws Exception {
@@ -113,30 +130,52 @@ public final class MockWebServer {
         });
     }
 
-    private void serveConnection(final Socket s) {
+    private void serveConnection(final Socket raw) {
         executor.submit(new Callable<Void>() {
-            public Void call() throws Exception {
-                InputStream in = new BufferedInputStream(s.getInputStream());
-                OutputStream out = new BufferedOutputStream(s.getOutputStream());
+            int sequenceNumber = 0;
 
-                int sequenceNumber = 0;
-                while (true) {
-                    RecordedRequest request = readRequest(in, sequenceNumber);
-                    if (request == null) {
-                        if (sequenceNumber == 0) {
-                            throw new IllegalStateException("Connection without any request!");
-                        } else {
-                            break;
+            public Void call() throws Exception {
+                Socket socket;
+                if (sslSocketFactory != null) {
+                    if (tunnelProxy) {
+                        if (!processOneRequest(raw.getInputStream(), raw.getOutputStream())) {
+                            throw new IllegalStateException("Tunnel without any CONNECT!");
                         }
                     }
-                    requestQueue.add(request);
-                    writeResponse(out, computeResponse(request));
-                    sequenceNumber++;
+                    socket = sslSocketFactory.createSocket(
+                            raw, raw.getInetAddress().getHostAddress(), raw.getPort(), true);
+                    ((SSLSocket) socket).setUseClientMode(false);
+                } else {
+                    socket = raw;
                 }
+
+                InputStream in = new BufferedInputStream(socket.getInputStream());
+                OutputStream out = new BufferedOutputStream(socket.getOutputStream());
+
+                if (!processOneRequest(in, out)) {
+                    throw new IllegalStateException("Connection without any request!");
+                }
+                while (processOneRequest(in, out)) {}
 
                 in.close();
                 out.close();
                 return null;
+            }
+
+            /**
+             * Reads a request and writes its response. Returns true if a request
+             * was processed.
+             */
+            private boolean processOneRequest(InputStream in, OutputStream out)
+                    throws IOException, InterruptedException {
+                RecordedRequest request = readRequest(in, sequenceNumber);
+                if (request == null) {
+                    return false;
+                }
+                requestQueue.add(request);
+                writeResponse(out, computeResponse(request));
+                sequenceNumber++;
+                return true;
             }
         });
     }
@@ -186,7 +225,7 @@ public final class MockWebServer {
             }
         }
 
-        if (request.startsWith("GET ")) {
+        if (request.startsWith("GET ") || request.startsWith("CONNECT ")) {
             if (hasBody) {
                 throw new IllegalArgumentException("GET requests should not have a body!");
             }

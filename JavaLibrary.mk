@@ -183,6 +183,17 @@ LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests-xml
 include $(BUILD_JAVA_LIBRARY)
 
+# also build support as a static library for use by frameworks/base HTTPS tests
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := core core-junit core-junitrunner
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE := core-tests-supportlib
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
 # This one's tricky. One of our tests needs to have a
 # resource with a "#" in its name, but Perforce doesn't
 # allow us to submit such a file. So we create it here
