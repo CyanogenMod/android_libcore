@@ -22,19 +22,37 @@ import java.nio.ByteBuffer;
 import org.apache.harmony.security.fortress.Engine;
 
 /**
- * {@code MessageDigest} is an engine class which is capable of generating one
- * way hash values for arbitrary input, utilizing the algorithm it was
- * initialized with.
+ * Uses a one-way hash function to turn an arbitrary number of bytes into a
+ * fixed-length byte sequence. The original arbitrary-length sequence is the
+ * <i>message</i>, and the fixed-length byte sequence is the <i>digest</i> or
+ * <i>message digest</i>.
+ *
+ * <h4>Sample Code</h4>
+ * <p>The basic pattern to digest an {@link java.io.InputStream} looks like this:
+ * <pre>
+ *  MessageDigest digester = MessageDigest.getInstance("MD5");
+ *  byte[] bytes = new byte[8192];
+ *  int byteCount;
+ *  while ((byteCount = in.read(bytes)) > 0) {
+ *    digester.update(bytes, 0, byteCount);
+ *  }
+ *  byte[] digest = digester.digest();
+ * </pre>
+ *
+ * <p>That is, after creating or resetting a {@code MessageDigest} you should
+ * call {@link #update(byte[],int,int)} for each block of input data, and then call {@link #digest}
+ * to get the final digest. Note that calling {@code digest} resets the {@code MessageDigest}.
+ * Advanced users who want partial digests should clone their {@code MessageDigest} before
+ * calling {@code digest}.
+ *
+ * <p>This class is not thread-safe.
  *
  * @see MessageDigestSpi
  */
 public abstract class MessageDigest extends MessageDigestSpi {
 
-    // The service name
-    private static final String SERVICE = "MessageDigest";
-
     // Used to access common engine functionality
-    private static Engine engine = new Engine(SERVICE);
+    private static final Engine engine = new Engine("MessageDigest");
 
     // The provider
     private Provider provider;
@@ -235,7 +253,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      *            the number of bytes allocated for the digest
      * @return the number of bytes written to {@code buf}
      * @throws DigestException
-     *             if an error occures
+     *             if an error occurs
      * @throws IllegalArgumentException
      *             if {@code offset} or {@code len} are not valid in respect to
      *             {@code buf}
