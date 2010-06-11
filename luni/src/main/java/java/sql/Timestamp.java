@@ -48,7 +48,7 @@ public class Timestamp extends Date {
     // The nanoseconds time value of the Timestamp
     private int nanos;
 
-    // The regex pattern of yyyy-mm-dd hh:mm:ss
+    // The regex pattern of yyyy-MM-dd HH:mm:ss
     private static final String TIME_FORMAT_REGEX = "[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*";
 
     /**
@@ -342,7 +342,7 @@ public class Timestamp extends Date {
 
     /**
      * Returns the timestamp formatted as a String in the JDBC Timestamp Escape
-     * format, which is {@code "yyyy-mm-dd hh:mm:ss.nnnnnnnnn"}.
+     * format, which is {@code "yyyy-MM-dd HH:mm:ss.nnnnnnnnn"}.
      *
      * @return A string representing the instant defined by the {@code
      *         Timestamp}, in JDBC Timestamp escape format.
@@ -392,7 +392,7 @@ public class Timestamp extends Date {
     /**
      * Creates a {@code Timestamp} object with a time value equal to the time
      * specified by a supplied String holding the time in JDBC timestamp escape
-     * format, which is {@code "yyyy-mm-dd hh:mm:ss.nnnnnnnnn}"
+     * format, which is {@code "yyyy-MM-dd HH:mm:ss.nnnnnnnnn}"
      *
      * @param s
      *            the {@code String} containing a time in JDBC timestamp escape
@@ -504,6 +504,6 @@ public class Timestamp extends Date {
 
     private static IllegalArgumentException badTimestampString(String s) {
         throw new IllegalArgumentException("Timestamp format must be " +
-                "yyyy-mm-dd hh:mm:ss.fffffffff; was '" + s + "'");
+                "yyyy-MM-dd HH:mm:ss.fffffffff; was '" + s + "'");
     }
 }

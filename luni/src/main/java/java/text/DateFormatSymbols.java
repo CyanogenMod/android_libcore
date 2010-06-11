@@ -55,6 +55,12 @@ public class DateFormatSymbols implements Serializable, Cloneable {
 
     String[] ampms, eras, months, shortMonths, shortWeekdays, weekdays;
 
+    // These are used to implement ICU/Android extensions.
+    String[] longStandAloneMonths;
+    String[] shortStandAloneMonths;
+    String[] longStandAloneWeekdays;
+    String[] shortStandAloneWeekdays;
+
     // Localized display names.
     String[][] zoneStrings;
     // Has the user called setZoneStrings?
@@ -97,7 +103,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      */
     public DateFormatSymbols(Locale locale) {
         this.locale = locale;
-        this.localPatternChars = SimpleDateFormat.patternChars;
+        this.localPatternChars = SimpleDateFormat.PATTERN_CHARS;
         LocaleData localeData = LocaleData.get(locale);
         this.ampms = localeData.amPm;
         this.eras = localeData.eras;
@@ -105,6 +111,12 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         this.shortMonths = localeData.shortMonthNames;
         this.weekdays = localeData.longWeekdayNames;
         this.shortWeekdays = localeData.shortWeekdayNames;
+
+        // ICU/Android extensions.
+        this.longStandAloneMonths = localeData.longStandAloneMonthNames;
+        this.shortStandAloneMonths = localeData.shortStandAloneMonthNames;
+        this.longStandAloneWeekdays = localeData.longStandAloneWeekdayNames;
+        this.shortStandAloneWeekdays = localeData.shortStandAloneWeekdayNames;
     }
 
     /**
