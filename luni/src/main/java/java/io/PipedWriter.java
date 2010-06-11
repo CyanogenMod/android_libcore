@@ -33,10 +33,9 @@ package java.io;
  * @see PipedReader
  */
 public class PipedWriter extends Writer {
-    /**
-     * The destination PipedReader
-     */
-    private PipedReader dest;
+
+    private PipedReader destination;
+    private boolean isClosed;
 
     /**
      * Constructs a new unconnected {@code PipedWriter}. The resulting writer
@@ -50,18 +49,17 @@ public class PipedWriter extends Writer {
     }
 
     /**
-     * Constructs a new {@code PipedWriter} connected to the {@link PipedReader}
-     * {@code dest}. Any data written to this writer can be read from {@code
-     * dest}.
+     * Constructs a new {@code PipedWriter} connected to {@code destination}.
+     * Any data written to this writer can be read from {@code destination}.
      *
-     * @param dest
+     * @param destination
      *            the {@code PipedReader} to connect to.
      * @throws IOException
-     *             if {@code dest} is already connected.
+     *             if {@code destination} is already connected.
      */
-    public PipedWriter(PipedReader dest) throws IOException {
-        super(dest);
-        connect(dest);
+    public PipedWriter(PipedReader destination) throws IOException {
+        super(destination);
+        connect(destination);
     }
 
     /**
@@ -74,10 +72,11 @@ public class PipedWriter extends Writer {
      */
     @Override
     public void close() throws IOException {
-        PipedReader reader = dest;
+        PipedReader reader = destination;
         if (reader != null) {
             reader.done();
-            dest = null;
+            isClosed = true;
+            destination = null;
         }
     }
 
@@ -96,15 +95,12 @@ public class PipedWriter extends Writer {
             throw new NullPointerException();
         }
         synchronized (reader) {
-            if (this.dest != null) {
-                throw new IOException("Already connected");
-            }
-            if (reader.isConnected) {
-                throw new IOException("Pipe is closed");
+            if (this.destination != null) {
+                throw new IOException("Pipe already connected");
             }
             reader.establishConnection();
             this.lock = reader;
-            this.dest = reader;
+            this.destination = reader;
         }
     }
 
@@ -117,7 +113,10 @@ public class PipedWriter extends Writer {
      */
     @Override
     public void flush() throws IOException {
-        PipedReader reader = dest;
+        PipedReader reader = destination;
+        if (isClosed) {
+            throw new IOException("Pipe is closed");
+        }
         if (reader == null) {
             return;
         }
@@ -160,7 +159,7 @@ public class PipedWriter extends Writer {
      */
     @Override
     public void write(char[] buffer, int offset, int count) throws IOException {
-        PipedReader reader = dest;
+        PipedReader reader = destination;
         if (reader == null) {
             throw new IOException("Pipe not connected");
         }
@@ -189,7 +188,7 @@ public class PipedWriter extends Writer {
      */
     @Override
     public void write(int c) throws IOException {
-        PipedReader reader = dest;
+        PipedReader reader = destination;
         if (reader == null) {
             throw new IOException("Pipe not connected");
         }
