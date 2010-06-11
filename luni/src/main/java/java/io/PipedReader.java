@@ -17,13 +17,6 @@
 
 package java.io;
 
-// BEGIN android-note
-// We've made several changes including:
-//  - throw an IOException when a pipe is closed during a write
-//  - fix shallow concurrency problems, always lock on 'this'
-//  - improved consistency with PipedInputStream
-// END android-note
-
 /**
  * Receives information on a communications pipe. When two threads want to pass
  * data back and forth, one creates a piped writer and the other creates a piped
@@ -170,6 +163,9 @@ public class PipedReader extends Reader {
         if (isConnected) {
             throw new IOException("Pipe already connected");
         }
+        if (isClosed) {
+            throw new IOException("Pipe is closed");
+        }
         if (buffer == null) { // We may already have allocated the buffer.
             buffer = new char[PIPE_SIZE];
         }
@@ -194,9 +190,9 @@ public class PipedReader extends Reader {
      */
     @Override
     public int read() throws IOException {
-        char[] carray = new char[1];
-        int result = read(carray, 0, 1);
-        return result != -1 ? carray[0] : result;
+        char[] chars = new char[1];
+        int result = read(chars, 0, 1);
+        return result != -1 ? chars[0] : result;
     }
 
     /**
@@ -237,20 +233,12 @@ public class PipedReader extends Reader {
         if (this.buffer == null) {
             throw new IOException("Pipe is closed");
         }
-        // avoid int overflow
-        // BEGIN android-changed
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // made implicit null check explicit,
-        // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
-        // to safe one operation
         if (buffer == null) {
             throw new NullPointerException("buffer == null");
         }
         if ((offset | count) < 0 || count > buffer.length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        // END android-changed
         if (count == 0) {
             return 0;
         }
@@ -374,9 +362,7 @@ public class PipedReader extends Reader {
         try {
             while (buffer != null && out == in) {
                 notifyAll();
-                // BEGIN android-changed
                 wait(1000);
-                // END android-changed
                 if (lastReader != null && !lastReader.isAlive()) {
                     throw new IOException("Pipe broken");
                 }
@@ -437,9 +423,7 @@ public class PipedReader extends Reader {
             try {
                 while (buffer != null && out == in) {
                     notifyAll();
-                    // BEGIN android-changed
                     wait(1000);
-                    // END android-changed
                     if (lastReader != null && !lastReader.isAlive()) {
                         throw new IOException("Pipe broken");
                     }
