@@ -22,7 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -61,6 +63,10 @@ public final class MockWebServer {
             throw new IllegalStateException("Cannot retrieve port before calling play()");
         }
         return port;
+    }
+
+    public Proxy toProxyAddress() {
+        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", getPort()));
     }
 
     /**
