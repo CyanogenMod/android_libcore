@@ -32,18 +32,23 @@ public final class LocaleData {
     // A cache for the locale-specific data.
     private static final HashMap<String, LocaleData> localeDataCache = new HashMap<String, LocaleData>();
 
+    // Used by Calendar.
     public Integer firstDayOfWeek;
     public Integer minimalDaysInFirstWeek;
 
+    // Used by DateFormatSymbols.
     public String[] amPm;
-
     public String[] eras;
 
     public String[] longMonthNames;
     public String[] shortMonthNames;
+    public String[] longStandAloneMonthNames;
+    public String[] shortStandAloneMonthNames;
 
     public String[] longWeekdayNames;
     public String[] shortWeekdayNames;
+    public String[] longStandAloneWeekdayNames;
+    public String[] shortStandAloneWeekdayNames;
 
     public String fullTimeFormat;
     public String longTimeFormat;
@@ -55,7 +60,7 @@ public final class LocaleData {
     public String mediumDateFormat;
     public String shortDateFormat;
 
-    // DecimalFormatSymbols.
+    // Used by DecimalFormatSymbols.
     public char zeroDigit;
     public char digit;
     public char decimalSeparator;
@@ -68,10 +73,11 @@ public final class LocaleData {
     public String exponentSeparator;
     public String infinity;
     public String NaN;
-
+    // Also used by Currency.
     public String currencySymbol;
     public String internationalCurrencySymbol;
 
+    // Used by DecimalFormat and NumberFormat.
     public String numberPattern;
     public String integerPattern;
     public String currencyPattern;
@@ -131,8 +137,12 @@ public final class LocaleData {
                 "eras=" + Arrays.toString(eras) + "," +
                 "longMonthNames=" + Arrays.toString(longMonthNames) + "," +
                 "shortMonthNames=" + Arrays.toString(shortMonthNames) + "," +
+                "longStandAloneMonthNames=" + Arrays.toString(longStandAloneMonthNames) + "," +
+                "shortStandAloneMonthNames=" + Arrays.toString(shortStandAloneMonthNames) + "," +
                 "longWeekdayNames=" + Arrays.toString(longWeekdayNames) + "," +
                 "shortWeekdayNames=" + Arrays.toString(shortWeekdayNames) + "," +
+                "longStandAloneWeekdayNames=" + Arrays.toString(longStandAloneWeekdayNames) + "," +
+                "shortStandAloneWeekdayNames=" + Arrays.toString(shortStandAloneWeekdayNames) + "," +
                 "fullTimeFormat=" + fullTimeFormat + "," +
                 "longTimeFormat=" + longTimeFormat + "," +
                 "mediumTimeFormat=" + mediumTimeFormat + "," +
@@ -180,11 +190,23 @@ public final class LocaleData {
         if (overrides.shortMonthNames != null) {
             shortMonthNames = overrides.shortMonthNames;
         }
+        if (overrides.longStandAloneMonthNames != null) {
+            longStandAloneMonthNames = overrides.longStandAloneMonthNames;
+        }
+        if (overrides.shortStandAloneMonthNames != null) {
+            shortStandAloneMonthNames = overrides.shortStandAloneMonthNames;
+        }
         if (overrides.longWeekdayNames != null) {
             longWeekdayNames = overrides.longWeekdayNames;
         }
         if (overrides.shortWeekdayNames != null) {
             shortWeekdayNames = overrides.shortWeekdayNames;
+        }
+        if (overrides.longStandAloneWeekdayNames != null) {
+            longStandAloneWeekdayNames = overrides.longStandAloneWeekdayNames;
+        }
+        if (overrides.shortStandAloneWeekdayNames != null) {
+            shortStandAloneWeekdayNames = overrides.shortStandAloneWeekdayNames;
         }
         if (overrides.fullTimeFormat != null) {
             fullTimeFormat = overrides.fullTimeFormat;

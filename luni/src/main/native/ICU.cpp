@@ -377,8 +377,6 @@ static jobjectArray getAmPmMarkers(JNIEnv* env, UResourceBundle* gregorian) {
         return NULL;
     }
 
-    ures_resetIterator(gregorianElems.get());
-
     int lengthAm, lengthPm;
     const jchar* am = ures_getStringByIndex(gregorianElems.get(), 0, &lengthAm, &status);
     const jchar* pm = ures_getStringByIndex(gregorianElems.get(), 1, &lengthPm, &status);
@@ -410,8 +408,6 @@ static jobjectArray getEras(JNIEnv* env, UResourceBundle* gregorian) {
 
     int eraCount = ures_getSize(eraElems.get());
     jobjectArray eras = env->NewObjectArray(eraCount, string_class, NULL);
-
-    ures_resetIterator(eraElems.get());
     for (int i = 0; i < eraCount; ++i) {
         int eraLength;
         const jchar* era = ures_getStringByIndex(eraElems.get(), i, &eraLength, &status);
@@ -424,91 +420,33 @@ static jobjectArray getEras(JNIEnv* env, UResourceBundle* gregorian) {
     return eras;
 }
 
-static jobjectArray getMonthNames(JNIEnv* env, UResourceBundle* gregorian, bool longNames) {
+enum NameType { REGULAR, STAND_ALONE };
+enum NameWidth { LONG, SHORT };
+static jobjectArray getNames(JNIEnv* env, UResourceBundle* namesBundle, bool months, NameType type, NameWidth width) {
+    const char* typeKey = (type == REGULAR) ? "format" : "stand-alone";
+    const char* widthKey = (width == LONG) ? "wide" : "abbreviated";
     UErrorCode status = U_ZERO_ERROR;
-    ScopedResourceBundle gregorianElems(ures_getByKey(gregorian, "monthNames", NULL, &status));
+    ScopedResourceBundle formatBundle(ures_getByKey(namesBundle, typeKey, NULL, &status));
+    ScopedResourceBundle valuesBundle(ures_getByKey(formatBundle.get(), widthKey, NULL, &status));
     if (U_FAILURE(status)) {
         return NULL;
     }
 
-    ScopedResourceBundle monthNameElems(ures_getByKey(gregorianElems.get(), "format", NULL, &status));
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
-
-    ScopedResourceBundle monthNameElemsFormat(ures_getByKey(monthNameElems.get(), longNames ? "wide" : "abbreviated", NULL, &status));
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
-
-    ures_resetIterator(monthNameElemsFormat.get());
-    int monthCount = ures_getSize(monthNameElemsFormat.get());
-    // the array length is +1 because the harmony locales had an empty string at the end of their month name array
-    jobjectArray months = env->NewObjectArray(monthCount + 1, string_class, NULL);
-    for (int i = 0; i < monthCount; ++i) {
-        int monthNameLength;
-        const jchar* month = ures_getStringByIndex(monthNameElemsFormat.get(), i, &monthNameLength, &status);
+    // The months array has a trailing empty string. The days array has a leading empty string.
+    int count = ures_getSize(valuesBundle.get());
+    jobjectArray result = env->NewObjectArray(count + 1, string_class, NULL);
+    env->SetObjectArrayElement(result, months ? count : 0, env->NewStringUTF(""));
+    int arrayOffset = months ? 0 : 1;
+    for (int i = 0; i < count; ++i) {
+        int nameLength;
+        const jchar* name = ures_getStringByIndex(valuesBundle.get(), i, &nameLength, &status);
         if (U_FAILURE(status)) {
             return NULL;
         }
-        ScopedLocalRef<jstring> monthU(env, env->NewString(month, monthNameLength));
-        env->SetObjectArrayElement(months, i, monthU.get());
+        ScopedLocalRef<jstring> nameString(env, env->NewString(name, nameLength));
+        env->SetObjectArrayElement(result, arrayOffset++, nameString.get());
     }
-
-    ScopedLocalRef<jstring> monthU(env, env->NewStringUTF(""));
-    env->SetObjectArrayElement(months, monthCount, monthU.get());
-
-    return months;
-}
-
-static jobjectArray getLongMonthNames(JNIEnv* env, UResourceBundle* gregorian) {
-    return getMonthNames(env, gregorian, true);
-}
-
-static jobjectArray getShortMonthNames(JNIEnv* env, UResourceBundle* gregorian) {
-    return getMonthNames(env, gregorian, false);
-}
-
-static jobjectArray getWeekdayNames(JNIEnv* env, UResourceBundle* gregorian, bool longNames) {
-    UErrorCode status = U_ZERO_ERROR;
-    ScopedResourceBundle gregorianElems(ures_getByKey(gregorian, "dayNames", NULL, &status));
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
-
-    ScopedResourceBundle dayNameElems(ures_getByKey(gregorianElems.get(), "format", NULL, &status));
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
-
-    ScopedResourceBundle dayNameElemsFormat(ures_getByKey(dayNameElems.get(), longNames ? "wide" : "abbreviated", NULL, &status));
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
-
-    ures_resetIterator(dayNameElemsFormat.get());
-    int dayCount = ures_getSize(dayNameElemsFormat.get());
-    jobjectArray weekdays = env->NewObjectArray(dayCount + 1, string_class, NULL);
-    // first entry in the weekdays array is an empty string
-    env->SetObjectArrayElement(weekdays, 0, env->NewStringUTF(""));
-    for(int i = 0; i < dayCount; i++) {
-        int dayNameLength;
-        const jchar* day = ures_getStringByIndex(dayNameElemsFormat.get(), i, &dayNameLength, &status);
-        if(U_FAILURE(status)) {
-            return NULL;
-        }
-        ScopedLocalRef<jstring> dayU(env, env->NewString(day, dayNameLength));
-        env->SetObjectArrayElement(weekdays, i + 1, dayU.get());
-    }
-    return weekdays;
-}
-
-static jobjectArray getLongWeekdayNames(JNIEnv* env, UResourceBundle* gregorian) {
-    return getWeekdayNames(env, gregorian, true);
-}
-
-static jobjectArray getShortWeekdayNames(JNIEnv* env, UResourceBundle* gregorian) {
-    return getWeekdayNames(env, gregorian, false);
+    return result;
 }
 
 static jstring getIntCurrencyCode(JNIEnv* env, jstring locale) {
@@ -605,21 +543,54 @@ static jboolean initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobject 
     setStringArrayField(env, localeData, "amPm", getAmPmMarkers(env, gregorian.get()));
     setStringArrayField(env, localeData, "eras", getEras(env, gregorian.get()));
 
-    setStringArrayField(env, localeData, "longMonthNames", getLongMonthNames(env, gregorian.get()));
-    setStringArrayField(env, localeData, "shortMonthNames", getShortMonthNames(env, gregorian.get()));
-    setStringArrayField(env, localeData, "longWeekdayNames", getLongWeekdayNames(env, gregorian.get()));
-    setStringArrayField(env, localeData, "shortWeekdayNames", getShortWeekdayNames(env, gregorian.get()));
+    ScopedResourceBundle dayNames(ures_getByKey(gregorian.get(), "dayNames", NULL, &status));
+    ScopedResourceBundle monthNames(ures_getByKey(gregorian.get(), "monthNames", NULL, &status));
 
-    ScopedResourceBundle gregorianElems(ures_getByKey(gregorian.get(), "DateTimePatterns", NULL, &status));
+    // Get the regular month and weekday names.
+    jobjectArray longMonthNames = getNames(env, monthNames.get(), true, REGULAR, LONG);
+    jobjectArray shortMonthNames = getNames(env, monthNames.get(), true, REGULAR, SHORT);
+    jobjectArray longWeekdayNames = getNames(env, dayNames.get(), false, REGULAR, LONG);
+    jobjectArray shortWeekdayNames = getNames(env, dayNames.get(), false, REGULAR, SHORT);
+    setStringArrayField(env, localeData, "longMonthNames", longMonthNames);
+    setStringArrayField(env, localeData, "shortMonthNames", shortMonthNames);
+    setStringArrayField(env, localeData, "longWeekdayNames", longWeekdayNames);
+    setStringArrayField(env, localeData, "shortWeekdayNames", shortWeekdayNames);
+
+    // Get the stand-alone month and weekday names. If they're not available (as they aren't for
+    // English), we reuse the regular names. If we returned null to Java, the usual fallback
+    // mechanisms would come into play and we'd end up with the bogus stand-alone names from the
+    // root locale ("1" for January, and so on).
+    jobjectArray longStandAloneMonthNames = getNames(env, monthNames.get(), true, STAND_ALONE, LONG);
+    if (longStandAloneMonthNames == NULL) {
+        longStandAloneMonthNames = longMonthNames;
+    }
+    jobjectArray shortStandAloneMonthNames = getNames(env, monthNames.get(), true, STAND_ALONE, SHORT);
+    if (shortStandAloneMonthNames == NULL) {
+        shortStandAloneMonthNames = shortMonthNames;
+    }
+    jobjectArray longStandAloneWeekdayNames = getNames(env, dayNames.get(), false, STAND_ALONE, LONG);
+    if (longStandAloneWeekdayNames == NULL) {
+        longStandAloneWeekdayNames = longWeekdayNames;
+    }
+    jobjectArray shortStandAloneWeekdayNames = getNames(env, dayNames.get(), false, STAND_ALONE, SHORT);
+    if (shortStandAloneWeekdayNames == NULL) {
+        shortStandAloneWeekdayNames = shortWeekdayNames;
+    }
+    setStringArrayField(env, localeData, "longStandAloneMonthNames", longStandAloneMonthNames);
+    setStringArrayField(env, localeData, "shortStandAloneMonthNames", shortStandAloneMonthNames);
+    setStringArrayField(env, localeData, "longStandAloneWeekdayNames", longStandAloneWeekdayNames);
+    setStringArrayField(env, localeData, "shortStandAloneWeekdayNames", shortStandAloneWeekdayNames);
+
+    ScopedResourceBundle dateTimePatterns(ures_getByKey(gregorian.get(), "DateTimePatterns", NULL, &status));
     if (U_SUCCESS(status)) {
-        setStringField(env, localeData, "fullTimeFormat", gregorianElems.get(), 0);
-        setStringField(env, localeData, "longTimeFormat", gregorianElems.get(), 1);
-        setStringField(env, localeData, "mediumTimeFormat", gregorianElems.get(), 2);
-        setStringField(env, localeData, "shortTimeFormat", gregorianElems.get(), 3);
-        setStringField(env, localeData, "fullDateFormat", gregorianElems.get(), 4);
-        setStringField(env, localeData, "longDateFormat", gregorianElems.get(), 5);
-        setStringField(env, localeData, "mediumDateFormat", gregorianElems.get(), 6);
-        setStringField(env, localeData, "shortDateFormat", gregorianElems.get(), 7);
+        setStringField(env, localeData, "fullTimeFormat", dateTimePatterns.get(), 0);
+        setStringField(env, localeData, "longTimeFormat", dateTimePatterns.get(), 1);
+        setStringField(env, localeData, "mediumTimeFormat", dateTimePatterns.get(), 2);
+        setStringField(env, localeData, "shortTimeFormat", dateTimePatterns.get(), 3);
+        setStringField(env, localeData, "fullDateFormat", dateTimePatterns.get(), 4);
+        setStringField(env, localeData, "longDateFormat", dateTimePatterns.get(), 5);
+        setStringField(env, localeData, "mediumDateFormat", dateTimePatterns.get(), 6);
+        setStringField(env, localeData, "shortDateFormat", dateTimePatterns.get(), 7);
     }
     status = U_ZERO_ERROR;
 

@@ -261,16 +261,13 @@ public abstract class DateFormat extends Format {
 
     /**
      * FieldPosition selector for 'h' field alignment, corresponding to the
-     * {@link Calendar#HOUR} field. {@code HOUR1_FIELD} is used for the
-     * one-based 12-hour clock. For example, 11:30 PM + 1 hour results in 12:30
-     * AM.
+     * {@link Calendar#HOUR} field.
      */
     public final static int HOUR1_FIELD = 15;
 
     /**
-     * The {@code FieldPosition} selector for 'z' field alignment, corresponds
-     * to the {@link Calendar#ZONE_OFFSET} and {@link Calendar#DST_OFFSET}
-     * fields.
+     * The {@code FieldPosition} selector for 'K' field alignment, corresponding to the
+     * {@link Calendar#HOUR} field.
      */
     public final static int HOUR0_FIELD = 16;
 
