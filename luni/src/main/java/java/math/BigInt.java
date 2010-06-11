@@ -24,37 +24,12 @@ import org.openssl.NativeBN;
  * Any Bit-Operations, including Shifting, solely regard the unsigned magnitude.
  * Moreover BigInt objects are mutable and offer efficient in-place-operations.
  */
-
-class BigInt
-// extends Number
-// implements Comparable<BigInt>,
-//        Serializable
-{
-
-    class Context {
-        int bnctx;
-        Context() {
-            bnctx = NativeBN.BN_CTX_new();
-        }
-    }
-    static BigInt dummy;
-    static Context defaultContext;
-
-    static {
-        dummy = new BigInt();
-        defaultContext = dummy.new Context();
-    }
-
-    static int getCtx (Context t) {
-        return (t != null) ? t.bnctx : defaultContext.bnctx;
-    }
-
+class BigInt {
     /** This is the serialVersionUID used by the sun implementation */
     private static final long serialVersionUID = -8287574255936472291L;
 
     /* Fields used for the internal representation. */
     transient int bignum = 0;
-
 
     public void dispose() {
         if (this.bignum != 0) {
@@ -348,40 +323,40 @@ class BigInt
     }
 
 
-    public static BigInt gcd(BigInt a, BigInt b, Context t) {
+    public static BigInt gcd(BigInt a, BigInt b) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_gcd(r.bignum, a.bignum, b.bignum, getCtx(t)));
+        Check(NativeBN.BN_gcd(r.bignum, a.bignum, b.bignum));
         return r;
     }
 
-    public static BigInt product(BigInt a, BigInt b, Context t) {
+    public static BigInt product(BigInt a, BigInt b) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_mul(r.bignum, a.bignum, b.bignum, getCtx(t)));
+        Check(NativeBN.BN_mul(r.bignum, a.bignum, b.bignum));
         return r;
     }
 
-    public void multiplyBy(BigInt a, Context t) {
-        Check(NativeBN.BN_mul(this.bignum, this.bignum, a.bignum, getCtx(t)));
+    public void multiplyBy(BigInt a) {
+        Check(NativeBN.BN_mul(this.bignum, this.bignum, a.bignum));
     }
 
-    public static BigInt bigExp(BigInt a, BigInt p, Context t) {
+    public static BigInt bigExp(BigInt a, BigInt p) {
         // Sign of p is ignored!
         BigInt r = newBigInt();
-        Check(NativeBN.BN_exp(r.bignum, a.bignum, p.bignum, getCtx(t)));
+        Check(NativeBN.BN_exp(r.bignum, a.bignum, p.bignum));
         return r;
     }
 
-    public static BigInt exp(BigInt a, int p, Context t) {
+    public static BigInt exp(BigInt a, int p) {
         // Sign of p is ignored!
         BigInt power = new BigInt();
         power.putLongInt(p);
-        return bigExp(a, power, t);
+        return bigExp(a, power);
         // OPTIONAL:
 //      public int BN_sqr(BigInteger r, BigInteger a, BN_CTX ctx);
       // int BN_sqr(BIGNUM *r, const BIGNUM *a,BN_CTX *ctx);
     }
 
-    public static void division(BigInt dividend, BigInt divisor, Context t,
+    public static void division(BigInt dividend, BigInt divisor,
             BigInt quotient, BigInt remainder) {
         int quot, rem;
         if (quotient != null) {
@@ -394,20 +369,20 @@ class BigInt
             rem = remainder.bignum;
         }
         else rem = 0;
-        Check(NativeBN.BN_div(quot, rem, dividend.bignum, divisor.bignum, getCtx(t)));
+        Check(NativeBN.BN_div(quot, rem, dividend.bignum, divisor.bignum));
     }
 
-    public static BigInt modulus(BigInt a, BigInt m, Context t) {
+    public static BigInt modulus(BigInt a, BigInt m) {
         // Sign of p is ignored! ?
         BigInt r = newBigInt();
-        Check(NativeBN.BN_nnmod(r.bignum, a.bignum, m.bignum, getCtx(t)));
+        Check(NativeBN.BN_nnmod(r.bignum, a.bignum, m.bignum));
         return r;
     }
 
-    public static BigInt modExp(BigInt a, BigInt p, BigInt m, Context t) {
+    public static BigInt modExp(BigInt a, BigInt p, BigInt m) {
         // Sign of p is ignored!
         BigInt r = newBigInt();
-        Check(NativeBN.BN_mod_exp(r.bignum, a.bignum, p.bignum, m.bignum, getCtx(t)));
+        Check(NativeBN.BN_mod_exp(r.bignum, a.bignum, p.bignum, m.bignum));
 
         // OPTIONAL:
         // int BN_mod_sqr(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx);
@@ -415,26 +390,26 @@ class BigInt
     }
 
 
-    public static BigInt modInverse(BigInt a, BigInt m, Context t) {
+    public static BigInt modInverse(BigInt a, BigInt m) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_mod_inverse(r.bignum, a.bignum, m.bignum, getCtx(t)));
+        Check(NativeBN.BN_mod_inverse(r.bignum, a.bignum, m.bignum));
         return r;
     }
 
 
-    public static BigInt generatePrimeDefault(int bitLength, Random rnd, Context t) {
+    public static BigInt generatePrimeDefault(int bitLength, Random rnd) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_generate_prime_ex(r.bignum, bitLength, false, 0, 0, 0));
         return r;
     }
 
-    public static BigInt generatePrimeSafe(int bitLength, Random rnd, Context t) {
+    public static BigInt generatePrimeSafe(int bitLength, Random rnd) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_generate_prime_ex(r.bignum, bitLength, true, 0, 0, 0));
         return r;
     }
 
-    public boolean isPrime(int certainty, Random rnd, Context t) {
-        return NativeBN.BN_is_prime_ex(bignum, certainty, getCtx(t), 0);
+    public boolean isPrime(int certainty, Random rnd) {
+        return NativeBN.BN_is_prime_ex(bignum, certainty, 0);
     }
 }

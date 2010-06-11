@@ -24,9 +24,6 @@ public class NativeBN {
     public static native String ERR_error_string(int e);
     // char *ERR_error_string(unsigned long e, char *buf);
 
-    public static native int BN_CTX_new();
-    // BN_CTX *BN_CTX_new(void);
-
     public static native int BN_new();
     // BIGNUM *BN_new(void);
 
@@ -125,27 +122,26 @@ public class NativeBN {
     public static native boolean BN_sub(int r, int a, int b);
     // int BN_sub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
 
-
-    public static native boolean BN_gcd(int r, int a, int b, int ctx);
+    public static native boolean BN_gcd(int r, int a, int b);
     // int BN_gcd(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
 
-    public static native boolean BN_mul(int r, int a, int b, int ctx);
+    public static native boolean BN_mul(int r, int a, int b);
     // int BN_mul(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
 
-    public static native boolean BN_exp(int r, int a, int p, int ctx);
+    public static native boolean BN_exp(int r, int a, int p);
     // int BN_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx);
 
     // OPTIONAL:
 //    public static native int BN_sqr(BigInteger r, BigInteger a, BN_CTX ctx);
     // int BN_sqr(BIGNUM *r, const BIGNUM *a,BN_CTX *ctx);
 
-    public static native boolean BN_div(int dv, int rem, int m, int d, int ctx);
+    public static native boolean BN_div(int dv, int rem, int m, int d);
     // int BN_div(BIGNUM *dv, BIGNUM *rem, const BIGNUM *m, const BIGNUM *d, BN_CTX *ctx);
 
-    public static native boolean BN_nnmod(int r, int a, int m, int ctx);
+    public static native boolean BN_nnmod(int r, int a, int m);
     // int BN_nnmod(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx);
 
-    public static native boolean BN_mod_exp(int r, int a, int p, int m, int ctx);
+    public static native boolean BN_mod_exp(int r, int a, int p, int m);
     // int BN_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx);
 
     // OPTIONAL:
@@ -153,7 +149,7 @@ public class NativeBN {
     // int BN_mod_sqr(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx);
 
 
-    public static native boolean BN_mod_inverse(int ret, int a, int n, int ctx);
+    public static native boolean BN_mod_inverse(int ret, int a, int n);
     // Returns boolean success AND NOT result BIGNUM handle!
     // BIGNUM * BN_mod_inverse(BIGNUM *ret, const BIGNUM *a, const BIGNUM *n, BN_CTX *ctx);
 
@@ -163,7 +159,7 @@ public class NativeBN {
     // int BN_generate_prime_ex(BIGNUM *ret, int bits, int safe,
     //         const BIGNUM *add, const BIGNUM *rem, BN_GENCB *cb);
 
-    public static native boolean BN_is_prime_ex(int p, int nchecks, int ctx, int cb);
+    public static native boolean BN_is_prime_ex(int p, int nchecks, int cb);
     // int BN_is_prime_ex(const BIGNUM *p, int nchecks, BN_CTX *ctx, BN_GENCB *cb);
 
     // OPTIONAL:
