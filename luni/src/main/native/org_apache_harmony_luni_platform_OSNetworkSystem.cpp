@@ -848,7 +848,7 @@ static void osNetworkSystem_createStreamSocket(JNIEnv* env, jobject, jobject fil
 static void osNetworkSystem_createDatagramSocket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean) {
     int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_DGRAM);
 #ifdef __linux__
-    // The RFC (http://tools.ietf.org/rfc/rfc3493.txt) says that IPV6_MULTICAST_HOPS defaults to 1.
+    // The RFC (http://www.ietf.org/rfc/rfc3493.txt) says that IPV6_MULTICAST_HOPS defaults to 1.
     // The Linux kernel (at least up to 2.6.32) accidentally defaults to 64 (which would be correct
     // for the *unicast* hop limit). See http://www.spinics.net/lists/netdev/msg129022.html.
     // When that's fixed, we can remove this code. Until then, we manually set the hop limit on

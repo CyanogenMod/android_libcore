@@ -1698,7 +1698,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int toCodePoint(char high, char low) {
         // See RFC 2781, Section 2.2
-        // http://www.faqs.org/rfcs/rfc2781.html
+        // http://www.ietf.org/rfc/rfc2781.txt
         int h = (high & 0x3FF) << 10;
         int l = low & 0x3FF;
         return (h | l) + 0x10000;
@@ -1999,7 +1999,7 @@ public final class Character implements Serializable, Comparable<Character> {
                 throw new IndexOutOfBoundsException();
             }
             // See RFC 2781, Section 2.1
-            // http://www.faqs.org/rfcs/rfc2781.html
+            // http://www.ietf.org/rfc/rfc2781.txt
             int cpPrime = codePoint - 0x10000;
             int high = 0xD800 | ((cpPrime >> 10) & 0x3FF);
             int low = 0xDC00 | (cpPrime & 0x3FF);
