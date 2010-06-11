@@ -1341,6 +1341,50 @@ public class DomTest extends TestCase {
         }
     }
 
+    public void testIterateForwardsThroughInnerNodeSiblings() throws Exception {
+        document = builder.parse(new InputSource(new StringReader(
+                "<root><child/><child/></root>")));
+        Node root = document.getDocumentElement();
+        Node current = root.getChildNodes().item(0);
+        while (current.getNextSibling() != null) {
+            current = current.getNextSibling();
+        }
+        assertEquals(root.getChildNodes().item(root.getChildNodes().getLength() - 1), current);
+    }
+
+    public void testIterateBackwardsThroughInnerNodeSiblings() throws Exception {
+        document = builder.parse(new InputSource(new StringReader(
+                "<root><child/><child/></root>")));
+        Node root = document.getDocumentElement();
+        Node current = root.getChildNodes().item(root.getChildNodes().getLength() - 1);
+        while (current.getPreviousSibling() != null) {
+            current = current.getPreviousSibling();
+        }
+        assertEquals(root.getChildNodes().item(0), current);
+    }
+
+    public void testIterateForwardsThroughLeafNodeSiblings() throws Exception {
+        document = builder.parse(new InputSource(new StringReader(
+                "<root> <!-- --> </root>")));
+        Node root = document.getDocumentElement();
+        Node current = root.getChildNodes().item(0);
+        while (current.getNextSibling() != null) {
+            current = current.getNextSibling();
+        }
+        assertEquals(root.getChildNodes().item(root.getChildNodes().getLength() - 1), current);
+    }
+
+    public void testIterateBackwardsThroughLeafNodeSiblings() throws Exception {
+        document = builder.parse(new InputSource(new StringReader(
+                "<root> <!-- --> </root>")));
+        Node root = document.getDocumentElement();
+        Node current = root.getChildNodes().item(root.getChildNodes().getLength() - 1);
+        while (current.getPreviousSibling() != null) {
+            current = current.getPreviousSibling();
+        }
+        assertEquals(root.getChildNodes().item(0), current);
+    }
+
     private class RecordingHandler implements UserDataHandler {
         final Set<String> calls = new HashSet<String>();
         public void handle(short operation, String key, Object data, Node src, Node dst) {
