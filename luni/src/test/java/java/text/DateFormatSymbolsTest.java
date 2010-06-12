@@ -16,23 +16,61 @@
 
 package java.text;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.Locale;
+import java.util.SerializableTester;
 
 public class DateFormatSymbolsTest extends junit.framework.TestCase {
     private void assertLocaleIsEquivalentToRoot(Locale locale) {
         DateFormatSymbols dfs = DateFormatSymbols.getInstance(locale);
         assertEquals(DateFormatSymbols.getInstance(Locale.ROOT), dfs);
     }
+
     public void test_getInstance_unknown_locale() throws Exception {
         // TODO: we fail this test. on Android, the root locale uses GMT offsets as names.
         // see the invalid locale test below. on the RI, the root locale uses English names.
         assertLocaleIsEquivalentToRoot(new Locale("xx", "XX"));
     }
+
     public void test_getInstance_invalid_locale() throws Exception {
         assertLocaleIsEquivalentToRoot(new Locale("not exist language", "not exist country"));
+    }
+
+    public void testSerialization() throws Exception {
+        // The Polish language needs stand-alone month and weekday names.
+        Locale pl = new Locale("pl");
+        DateFormatSymbols originalDfs = new DateFormatSymbols(pl);
+
+        // Serialize...
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new ObjectOutputStream(out).writeObject(originalDfs);
+        byte[] bytes = out.toByteArray();
+
+        // Deserialize...
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes));
+        DateFormatSymbols deserializedDfs = (DateFormatSymbols) in.readObject();
+        assertEquals(-1, in.read());
+
+        // The two objects should claim to be equal, even though they aren't really.
+        assertEquals(originalDfs, deserializedDfs);
+
+        // The original differentiates between regular month names and stand-alone month names...
+        assertEquals("stycznia", formatDate(pl, "MMMM", originalDfs));
+        assertEquals("stycze\u0144", formatDate(pl, "LLLL", originalDfs));
+
+        // Whereas the deserialized object can't, because it lost the strings...
+        assertEquals("stycznia", formatDate(pl, "MMMM", deserializedDfs));
+        assertEquals("stycznia", formatDate(pl, "LLLL", deserializedDfs));
+    }
+
+    private String formatDate(Locale l, String fmt, DateFormatSymbols dfs) {
+        SimpleDateFormat sdf = new SimpleDateFormat(fmt, l);
+        sdf.setDateFormatSymbols(dfs);
+        return sdf.format(new Date(0));
     }
 }
