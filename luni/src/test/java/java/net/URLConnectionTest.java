@@ -16,10 +16,6 @@
 
 package java.net;
 
-import tests.http.MockResponse;
-import tests.http.MockWebServer;
-import tests.http.RecordedRequest;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -27,6 +23,13 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TestSSLContext;
+import tests.http.MockResponse;
+import tests.http.MockWebServer;
+import tests.http.RecordedRequest;
 
 public class URLConnectionTest extends junit.framework.TestCase {
 
@@ -202,5 +205,86 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(responseCode, conn.getResponseCode());
         assertEquals(Integer.toString(responseCode), shouldPut, cache.didPut);
 
+    }
+
+    public void testConnectViaHttps() throws IOException, InterruptedException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+
+        MockWebServer server = new MockWebServer();
+        server.useHttps(testSSLContext.sslContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("this response comes via HTTPS"));
+        server.play();
+
+        URL url = new URL("https://localhost:" + server.getPort() + "/foo");
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+        connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        assertEquals("this response comes via HTTPS", in.readLine());
+        in.close();
+
+        RecordedRequest request = server.takeRequest();
+        assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
+    }
+
+    public void testConnectViaProxy() throws IOException, InterruptedException {
+        MockWebServer proxy = new MockWebServer();
+        MockResponse mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody("this response comes via a proxy");
+        proxy.enqueue(mockResponse);
+        proxy.play();
+
+        URLConnection connection = new URL("http://android.com/foo").openConnection(
+                proxy.toProxyAddress());
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        assertEquals("this response comes via a proxy", in.readLine());
+
+        RecordedRequest request = proxy.takeRequest();
+        assertEquals("GET http://android.com/foo HTTP/1.1", request.getRequestLine());
+        assertContains(request.getHeaders(), "Host: android.com");
+    }
+
+    public void testConnectViaHttpProxyToHttps() throws IOException, InterruptedException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+
+        MockWebServer proxy = new MockWebServer();
+        proxy.useHttps(testSSLContext.sslContext.getSocketFactory(), true);
+        MockResponse connectResponse = new MockResponse()
+                .setResponseCode(200);
+        connectResponse.getHeaders().clear();
+        proxy.enqueue(connectResponse);
+        proxy.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("this response comes via a secure proxy"));
+        proxy.play();
+
+        URL url = new URL("https://android.com/foo");
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(
+                proxy.toProxyAddress());
+        connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
+        connection.setHostnameVerifier(new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        assertEquals("this response comes via a secure proxy", in.readLine());
+
+        RecordedRequest connect = proxy.takeRequest();
+        assertEquals("Connect line failure on proxy",
+                "CONNECT android.com:443 HTTP/1.1", connect.getRequestLine());
+        assertContains(connect.getHeaders(), "Host: android.com");
+
+        RecordedRequest get = proxy.takeRequest();
+        assertEquals("GET /foo HTTP/1.1", get.getRequestLine());
+        assertContains(get.getHeaders(), "Host: android.com");
+    }
+
+    private void assertContains(List<String> headers, String header) {
+        assertTrue(headers.toString(), headers.contains(header));
     }
 }
