@@ -22,6 +22,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.Charsets;
 
 /**
  * The class extends the functionality of {@link java.lang.ThreadLocal} with
@@ -77,13 +78,13 @@ public class ThreadLocalCache<T> {
 
     public static ThreadLocalCache<CharsetDecoder> utf8Decoder = new ThreadLocalCache<CharsetDecoder>() {
         protected CharsetDecoder initialValue() {
-            return Charset.forName("UTF-8").newDecoder();
+            return Charsets.UTF_8.newDecoder();
         }
     };
 
     public static ThreadLocalCache<CharsetEncoder> utf8Encoder = new ThreadLocalCache<CharsetEncoder>() {
         protected CharsetEncoder initialValue() {
-            return Charset.forName("UTF-8").newEncoder();
+            return Charsets.UTF_8.newEncoder();
         }
     };
 

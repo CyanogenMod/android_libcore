@@ -701,7 +701,7 @@ public abstract class URLConnection {
         }
 
         // Check for Unicode BOM encoding indicators
-        String encoding = "ASCII";
+        String encoding = "US-ASCII";
         int start = 0;
         if (length > 1) {
             if ((bytes[0] == (byte) 0xFF) && (bytes[1] == (byte) 0xFE)) {

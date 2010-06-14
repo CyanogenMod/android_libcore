@@ -19,6 +19,7 @@ package java.net;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 
 /**
  * This class is used to encode a string using the format required by {@code
@@ -29,8 +30,6 @@ import java.io.UnsupportedEncodingException;
 class URIEncoderDecoder {
 
     static final String digits = "0123456789ABCDEF";
-
-    static final String encoding = "UTF8";
 
     /**
      * Validate a string by checking if it contains any characters other than:
@@ -120,7 +119,7 @@ class URIEncoderDecoder {
                             .isISOControl(ch))) {
                 buf.append(ch);
             } else {
-                byte[] bytes = new String(new char[] { ch }).getBytes(encoding);
+                byte[] bytes = new String(new char[] { ch }).getBytes(Charsets.UTF_8);
                 for (int j = 0; j < bytes.length; j++) {
                     buf.append('%');
                     buf.append(digits.charAt((bytes[j] & 0xf0) >> 4));
@@ -151,7 +150,7 @@ class URIEncoderDecoder {
             if (ch <= 127) {
                 buf.append(ch);
             } else {
-                byte[] bytes = new String(new char[] { ch }).getBytes(encoding);
+                byte[] bytes = new String(new char[] { ch }).getBytes(Charsets.UTF_8);
                 for (int j = 0; j < bytes.length; j++) {
                     buf.append('%');
                     buf.append(digits.charAt((bytes[j] & 0xf0) >> 4));
@@ -199,7 +198,7 @@ class URIEncoderDecoder {
                     out.write((byte) ((d1 << 4) + d2));
                     i += 3;
                 } while (i < s.length() && s.charAt(i) == '%');
-                result.append(out.toString(encoding));
+                result.append(out.toString("UTF-8"));
                 continue;
             }
             result.append(c);
