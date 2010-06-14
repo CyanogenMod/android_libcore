@@ -40,6 +40,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.nio.charset.Charsets;
 import java.security.AccessController;
 import java.security.Permission;
 import java.security.PrivilegedAction;
@@ -1414,7 +1415,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             }
         }
         result.append("\r\n");
-        out.write(result.toString().getBytes("ISO-8859-1"));
+        out.write(result.toString().getBytes(Charsets.ISO_8859_1));
     }
 
     /**
@@ -1742,8 +1743,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return null;
         }
         // base64 encode the username and password
-        byte[] bytes = (pa.getUserName() + ":" + new String(pa.getPassword()))
-                .getBytes("ISO8859_1");
+        String usernameAndPassword = pa.getUserName() + ":" + new String(pa.getPassword());
+        byte[] bytes = usernameAndPassword.getBytes(Charsets.ISO_8859_1);
         String encoded = Base64.encode(bytes, "ISO8859_1");
         return scheme + " " + encoded;
     }

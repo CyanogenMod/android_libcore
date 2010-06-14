@@ -393,11 +393,18 @@ outer:
                 }
             }
 
-            // Reallocate the array to fit the contents
-            this.offset = 0;
-            this.value = new char[s];
-            this.count = s;
-            System.arraycopy(v, 0, value, 0, s);
+            if (s == length) {
+                // We guessed right, so we can use our temporary array as-is.
+                this.offset = 0;
+                this.value = v;
+                this.count = s;
+            } else {
+                // Our temporary array was too big, so reallocate and copy.
+                this.offset = 0;
+                this.value = new char[s];
+                this.count = s;
+                System.arraycopy(v, 0, value, 0, s);
+            }
         } else if (canonicalCharsetName.equals("ISO-8859-1")) {
             this.offset = 0;
             this.value = new char[length];

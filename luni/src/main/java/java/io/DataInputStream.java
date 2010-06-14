@@ -17,7 +17,7 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Util;
+import java.nio.charset.ModifiedUtf8;
 
 /**
  * Wraps an existing {@link InputStream} and reads typed data from it.
@@ -437,10 +437,8 @@ public class DataInputStream extends FilterInputStream implements DataInput {
 
     private static String decodeUTF(int utfSize, DataInput in) throws IOException {
         byte[] buf = new byte[utfSize];
-        char[] out = new char[utfSize];
         in.readFully(buf, 0, utfSize);
-
-        return Util.convertUTF8WithBuf(buf, out, 0, utfSize);
+        return ModifiedUtf8.decode(buf, new char[utfSize], 0, utfSize);
     }
 
     /**

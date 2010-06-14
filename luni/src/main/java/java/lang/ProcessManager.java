@@ -33,9 +33,6 @@ import java.util.logging.Level;
 
 /**
  * Manages child processes.
- *
- * <p>Harmony's native implementation (for comparison purposes):
- * http://tinyurl.com/3ytwuq
  */
 final class ProcessManager {
 

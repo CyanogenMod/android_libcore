@@ -25,6 +25,7 @@ package org.apache.harmony.security.x509;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -581,7 +582,7 @@ public class GeneralName {
      * by RFC 1123 (section 2.1).
      */
     public static void checkDNS(String dns) throws IOException {
-        byte[] bytes = dns.toLowerCase().getBytes("UTF-8");
+        byte[] bytes = dns.toLowerCase().getBytes(Charsets.UTF_8);
         // indicates if it is a first letter of the label
         boolean first_letter = true;
         for (int i=0; i<bytes.length; i++) {
@@ -635,7 +636,7 @@ public class GeneralName {
      * Converts OID into array of bytes.
      */
     public static int[] oidStrToInts(String oid) throws IOException {
-        byte[] bytes = oid.getBytes("UTF-8");
+        byte[] bytes = oid.getBytes(Charsets.UTF_8);
         if (bytes[bytes.length-1] == '.') {
             throw new IOException("Bad OID: " + oid);
         }
@@ -689,7 +690,7 @@ public class GeneralName {
         }
         // the resulting array
         byte[] result = new byte[num_components];
-        byte[] ip_bytes = ip.getBytes("UTF-8");
+        byte[] ip_bytes = ip.getBytes(Charsets.UTF_8);
         // number of address component to be read
         int component = 0;
         // if it is reading the second bound of a range

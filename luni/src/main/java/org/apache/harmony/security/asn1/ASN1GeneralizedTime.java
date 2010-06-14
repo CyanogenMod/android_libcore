@@ -23,10 +23,9 @@
 package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
-
 
 /**
  * This class represents ASN.1 GeneralizedTime type.
@@ -113,12 +112,7 @@ public class ASN1GeneralizedTime extends ASN1Time {
             temp = temp.substring(0, currLength);
         }
 
-        try {
-            out.content = (temp + "Z").getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
+        out.content = (temp + "Z").getBytes(Charsets.UTF_8);
         out.length = ((byte[]) out.content).length;
     }
 }

@@ -18,10 +18,10 @@
 package java.io;
 
 import java.nio.channels.FileChannel;
+import java.nio.charset.ModifiedUtf8;
 
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Util;
 
 import org.apache.harmony.nio.FileChannelFactory;
 
@@ -676,7 +676,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         if (read(buf, 0, buf.length) != buf.length) {
             throw new EOFException();
         }
-        return Util.convertUTF8WithBuf(buf, new char[utfSize], 0, utfSize);
+        return ModifiedUtf8.decode(buf, new char[utfSize], 0, utfSize);
     }
 
     /**

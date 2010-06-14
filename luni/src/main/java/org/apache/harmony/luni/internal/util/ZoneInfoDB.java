@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.Charsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -87,7 +88,7 @@ public final class ZoneInfoDB {
         int len = (int) versionFile.length();
         byte[] vbuf = new byte[len];
         versionFile.readFully(vbuf);
-        version = new String(vbuf, 0, len, "ISO-8859-1").trim();
+        version = new String(vbuf, 0, len, Charsets.ISO_8859_1).trim();
         versionFile.close();
     }
 

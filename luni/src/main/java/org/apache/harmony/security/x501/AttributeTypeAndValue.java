@@ -23,12 +23,12 @@
 package org.apache.harmony.security.x501;
 
 import java.io.IOException;
+import java.nio.charset.Charsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.security.auth.x500.X500Principal;
-import java.io.UnsupportedEncodingException;
 
 import org.apache.harmony.security.asn1.ASN1Constants;
 import org.apache.harmony.security.asn1.ASN1Oid;
@@ -453,11 +453,7 @@ public class AttributeTypeAndValue {
                     av.bytes = (byte[]) out.content;
                     out.content = av;
                 } else {
-                    try {
-                        av.bytes = av.rawString.getBytes("UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e.getMessage());
-                    }
+                    av.bytes = av.rawString.getBytes(Charsets.UTF_8);
                     out.length = av.bytes.length;
                 }
             }

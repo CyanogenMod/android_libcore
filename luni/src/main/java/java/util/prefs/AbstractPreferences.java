@@ -20,6 +20,7 @@ package java.util.prefs;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
@@ -446,7 +447,7 @@ public abstract class AbstractPreferences extends Preferences {
             return new byte[0];
         }
         try {
-            byte[] bavalue = svalue.getBytes("US-ASCII");
+            byte[] bavalue = svalue.getBytes(Charsets.US_ASCII);
             if (bavalue.length % 4 != 0) {
                 return deflt;
             }

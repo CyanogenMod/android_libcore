@@ -20,7 +20,7 @@ package java.util.jar;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -214,12 +214,7 @@ class JarVerifier {
             if (hash == null) {
                 continue;
             }
-            byte[] hashBytes;
-            try {
-                hashBytes = hash.getBytes("ISO-8859-1");
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e.toString());
-            }
+            byte[] hashBytes = hash.getBytes(Charsets.ISO_8859_1);
 
             try {
                 // BEGIN android-changed
@@ -425,12 +420,7 @@ class JarVerifier {
                 md.update(data, start, end - start);
             }
             byte[] b = md.digest();
-            byte[] hashBytes;
-            try {
-                hashBytes = hash.getBytes("ISO-8859-1");
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e.toString());
-            }
+            byte[] hashBytes = hash.getBytes(Charsets.ISO_8859_1);
             return MessageDigest.isEqual(b, Base64.decode(hashBytes));
         }
         return ignorable;

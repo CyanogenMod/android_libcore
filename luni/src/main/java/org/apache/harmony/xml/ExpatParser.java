@@ -296,7 +296,8 @@ class ExpatParser {
              *
              * Downloading external entities by default would result in several
              * unwanted DTD downloads, not to mention pose a security risk
-             * when parsing untrusted XML (http://tinyurl.com/56ggrk),
+             * when parsing untrusted XML -- see for example
+             * http://archive.cert.uni-stuttgart.de/bugtraq/2002/10/msg00421.html --
              * so we just do nothing instead. This also enables the user to
              * opt out of entity parsing when using
              * {@link org.xml.sax.helpers.DefaultHandler}, something that
