@@ -20,6 +20,7 @@ package java.text;
 import com.ibm.icu4jni.util.LocaleData;
 import com.ibm.icu4jni.util.ICU;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -56,10 +57,10 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     String[] ampms, eras, months, shortMonths, shortWeekdays, weekdays;
 
     // These are used to implement ICU/Android extensions.
-    String[] longStandAloneMonths;
-    String[] shortStandAloneMonths;
-    String[] longStandAloneWeekdays;
-    String[] shortStandAloneWeekdays;
+    transient String[] longStandAloneMonths;
+    transient String[] shortStandAloneMonths;
+    transient String[] longStandAloneWeekdays;
+    transient String[] shortStandAloneWeekdays;
 
     // Localized display names.
     String[][] zoneStrings;
@@ -152,6 +153,16 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      */
     public static Locale[] getAvailableLocales() {
         return ICU.getAvailableDateFormatSymbolsLocales();
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+
+        // The RI doesn't have these fields, so we'll have to fall back and do the best we can.
+        longStandAloneMonths = months;
+        shortStandAloneMonths = shortMonths;
+        longStandAloneWeekdays = weekdays;
+        shortStandAloneWeekdays = shortWeekdays;
     }
 
     private void writeObject(ObjectOutputStream oos) throws IOException {
