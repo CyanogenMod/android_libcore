@@ -580,18 +580,14 @@ public final class System {
      *
      * <p>Security managers do <i>not</i> provide a secure environment for
      * executing untrusted code and are unsupported on Android. Untrusted code
-     * cannot be safely isolated within the Dalvik VM.
+     * cannot be safely isolated within a single VM on Android.
      *
-     * @param sm
-     *            the new security manager.
-     * @throws SecurityException
-     *             if the security manager has already been set and if its
-     *             checkPermission method does not allow to redefine the
-     *             security manager.
+     * @param sm a security manager
+     * @throws SecurityException always
      */
     public static void setSecurityManager(SecurityManager sm) {
         if (sm != null) {
-            throw new SecurityException("setSecurityManager() is not permitted.");
+            throw new SecurityException();
         }
     }
 
