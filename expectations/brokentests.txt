@@ -6,7 +6,7 @@
 # http://b/issue?id=2585285
 failure disable securityManager
 result EXEC_FAILED
-pattern .*java.lang.UnsupportedOperationException\s+at java.lang.System.setSecurityManager.*
+pattern .*java.lang.SecurityException\s+at java.lang.System.setSecurityManager.*
 
 
 # ignore compilation errors due to different available APIs
