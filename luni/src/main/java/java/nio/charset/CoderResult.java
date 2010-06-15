@@ -274,6 +274,6 @@ public class CoderResult {
                 dsc = "";
                 break;
         }
-        return "CoderResult[" + dsc + "]";
+        return getClass().getName() + "[" + dsc + "]";
     }
 }

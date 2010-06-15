@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -148,11 +149,11 @@ import java.util.TreeMap;
  * <p>Additional charsets can be made available by configuring one or more charset
  * providers through provider configuration files. Such files are always named
  * as "java.nio.charset.spi.CharsetProvider" and located in the
- * "META-INF/services" sub folder of one or more classpaths. The files should be
+ * "META-INF/services" directory of one or more classpaths. The files should be
  * encoded in "UTF-8". Each line of their content specifies the class name of a
  * charset provider which extends {@link java.nio.charset.spi.CharsetProvider}.
- * A line should end with '\r', '\n' or '\r\n'. Leading and trailing whitespaces
- * are trimmed. Blank lines, and lines (after trimming) starting with "#" which are
+ * A line should end with '\r', '\n' or '\r\n'. Leading and trailing whitespace
+ * is trimmed. Blank lines, and lines (after trimming) starting with "#" which are
  * regarded as comments, are both ignored. Duplicates of names already found are also
  * ignored. Both the configuration files and the provider classes will be loaded
  * using the thread context class loader.
@@ -161,39 +162,13 @@ import java.util.TreeMap;
  * it returns are inherently stateful.
  */
 public abstract class Charset implements Comparable<Charset> {
-    /*
-     * The name of configuration files where charset provider class names can be
-     * specified.
-     */
-    private static final String PROVIDER_CONFIGURATION_FILE_NAME = "META-INF/services/java.nio.charset.spi.CharsetProvider";
-
-    /*
-     * The encoding of configuration files
-     */
-    private static final String PROVIDER_CONFIGURATION_FILE_ENCODING = "UTF-8";
-
-    /*
-     * The comment string used in configuration files
-     */
-    private static final String PROVIDER_CONFIGURATION_FILE_COMMENT = "#";
-
-    /**
-     * The cache of charsets.
-     */
-    private static final HashMap<String, Charset> cachedCharsetTable = new HashMap<String, Charset>();
+    private static final HashMap<String, Charset> CACHED_CHARSETS = new HashMap<String, Charset>();
 
     private static final Charset DEFAULT_CHARSET = getDefaultCharset();
 
-    private static ClassLoader systemClassLoader;
-
-    private static SortedMap<String, Charset> cachedBuiltInCharsets;
-
     private final String canonicalName;
 
-    // the aliases set
     private final HashSet<String> aliasesSet;
-
-    private static boolean inForNameInternal = false;
 
     /**
      * Constructs a <code>Charset</code> object. Duplicated aliases are
@@ -209,187 +184,34 @@ public abstract class Charset implements Comparable<Charset> {
      *             <code>aliases</code>.
      */
     protected Charset(String canonicalName, String[] aliases) {
-        if (canonicalName == null) {
-            throw new NullPointerException();
-        }
         // check whether the given canonical name is legal
         checkCharsetName(canonicalName);
         this.canonicalName = canonicalName;
         // check each alias and put into a set
         this.aliasesSet = new HashSet<String>();
         if (aliases != null) {
-            for (int i = 0; i < aliases.length; i++) {
-                checkCharsetName(aliases[i]);
-                this.aliasesSet.add(aliases[i]);
+            for (String alias : aliases) {
+                checkCharsetName(alias);
+                this.aliasesSet.add(alias);
             }
         }
     }
 
-    /*
-     * Checks whether a character is a special character that can be used in
-     * charset names, other than letters and digits.
-     */
-    private static boolean isSpecial(char c) {
-        return ('-' == c || '.' == c || ':' == c || '_' == c);
-    }
-
-    /*
-     * Checks whether a character is a letter (ascii) which are defined in the
-     * spec.
-     */
-    private static boolean isLetter(char c) {
-        return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
-    }
-
-    /*
-     * Checks whether a character is a digit (ascii) which are defined in the
-     * spec.
-     */
-    private static boolean isDigit(char c) {
-        return ('0' <= c && c <= '9');
-    }
-
-    /*
-     * Checks whether a given string is a legal charset name. The argument name
-     * should not be null.
-     */
     private static void checkCharsetName(String name) {
         if (name.isEmpty()) {
             throw new IllegalCharsetNameException(name);
         }
-        // The first character must be a letter or a digit
-        // This is related to HARMONY-68 (won't fix)
-        // char first = name.charAt(0);
-        // if (!isLetter(first) && !isDigit(first)) {
-        // throw new IllegalCharsetNameException(name);
-        // }
-        // Check the remaining characters
         int length = name.length();
-        for (int i = 0; i < length; i++) {
-            char c = name.charAt(i);
-            if (!isLetter(c) && !isDigit(c) && !isSpecial(c)) {
+        for (int i = 0; i < length; ++i) {
+            if (!isValidCharsetNameCharacter(name.charAt(i))) {
                 throw new IllegalCharsetNameException(name);
             }
         }
     }
 
-    /*
-     * Use privileged code to get the context class loader.
-     */
-    private static ClassLoader getContextClassLoader() {
-        final Thread t = Thread.currentThread();
-        return AccessController
-                .doPrivileged(new PrivilegedAction<ClassLoader>() {
-                    public ClassLoader run() {
-                        return t.getContextClassLoader();
-                    }
-                });
-    }
-
-    /*
-     * Use privileged code to get the system class loader.
-     */
-    private static void getSystemClassLoader() {
-        if (null == systemClassLoader) {
-            systemClassLoader = AccessController
-                    .doPrivileged(new PrivilegedAction<ClassLoader>() {
-                        public ClassLoader run() {
-                            return ClassLoader.getSystemClassLoader();
-                        }
-                    });
-        }
-    }
-
-    /*
-     * Add the charsets supported by the given provider to the map.
-     */
-    private static void addCharsets(CharsetProvider cp, Map<String, Charset> charsets) {
-        Iterator<Charset> it = cp.charsets();
-        while (it.hasNext()) {
-            Charset cs = it.next();
-            // Only new charsets will be added
-            if (!charsets.containsKey(cs.name())) {
-                charsets.put(cs.name(), cs);
-            }
-        }
-    }
-
-    /*
-     * Trim comment string, and then trim white spaces.
-     */
-    private static String trimClassName(String name) {
-        String trimmedName = name;
-        int index = name.indexOf(PROVIDER_CONFIGURATION_FILE_COMMENT);
-        // Trim comments
-        if (index != -1) {
-            trimmedName = name.substring(0, index);
-        }
-        return trimmedName.trim();
-    }
-
-    /*
-     * Read a configuration file and add the charsets supported by the providers
-     * specified by this configuration file to the map.
-     */
-    private static void loadConfiguredCharsets(URL configFile,
-            ClassLoader contextClassLoader, Map<String, Charset> charsets) {
-        BufferedReader reader = null;
-        try {
-            InputStream is = configFile.openStream();
-            // Read each line for charset provider class names
-            reader = new BufferedReader(new InputStreamReader(is,
-                    PROVIDER_CONFIGURATION_FILE_ENCODING));
-            String providerClassName = reader.readLine();
-            while (null != providerClassName) {
-                providerClassName = trimClassName(providerClassName);
-                // Skip comments and blank lines
-                if (providerClassName.length() > 0) { // Non empty string
-                    // Load the charset provider
-                    Object cp = null;
-                    try {
-                        Class<?> c = Class.forName(providerClassName, true,
-                                contextClassLoader);
-                        cp = c.newInstance();
-                    } catch (Exception ex) {
-                        // try to use system classloader when context
-                        // classloader failed to load config file.
-                        try {
-                            getSystemClassLoader();
-                            Class<?> c = Class.forName(providerClassName, true,
-                                    systemClassLoader);
-                            cp = c.newInstance();
-                        } catch (Exception e) {
-                            throw new Error(e.getMessage(), e);
-                        }
-                    }
-                    // Put the charsets supported by this provider into the map
-                    addCharsets((CharsetProvider) cp, charsets);
-                }
-                // Read the next line of the config file
-                providerClassName = reader.readLine();
-            }
-        } catch (IOException ex) {
-            // Can't read this configuration file, ignore
-        } finally {
-            try {
-                if (null != reader) {
-                    reader.close();
-                }
-            } catch (IOException ex) {
-                // Ignore closing exception
-            }
-        }
-    }
-
-    private static synchronized SortedMap<String, Charset> getCachedBuiltInCharsets() {
-        if (cachedBuiltInCharsets == null) {
-            cachedBuiltInCharsets = new TreeMap<String, Charset>(String.CASE_INSENSITIVE_ORDER);
-            for (String charsetName : NativeConverter.getAvailableCharsetNames()) {
-                Charset charset = NativeConverter.charsetForName(charsetName);
-                cachedBuiltInCharsets.put(charset.name(), charset);
-            }
-        }
-        return cachedBuiltInCharsets;
+    private static boolean isValidCharsetNameCharacter(char c) {
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+                c == '-' || c == '.' || c == ':' || c == '_';
     }
 
     /**
@@ -399,201 +221,93 @@ public abstract class Charset implements Comparable<Charset> {
      * {@link #forName}.
      * @return an immutable case-insensitive map from canonical names to {@code Charset} instances
      */
-    @SuppressWarnings("unchecked")
     public static SortedMap<String, Charset> availableCharsets() {
         // Start with a copy of the built-in charsets...
         TreeMap<String, Charset> charsets = new TreeMap<String, Charset>(String.CASE_INSENSITIVE_ORDER);
-        charsets.putAll(getCachedBuiltInCharsets());
-
-        // Add all charsets provided by charset providers...
-        ClassLoader contextClassLoader = getContextClassLoader();
-        Enumeration<URL> e = null;
-        try {
-            if (contextClassLoader != null) {
-                e = contextClassLoader.getResources(PROVIDER_CONFIGURATION_FILE_NAME);
-            } else {
-                getSystemClassLoader();
-                e = systemClassLoader.getResources(PROVIDER_CONFIGURATION_FILE_NAME);
-            }
-            // Examine each configuration file
-            while (e.hasMoreElements()) {
-                loadConfiguredCharsets(e.nextElement(), contextClassLoader, charsets);
-            }
-        } catch (IOException ex) {
-            // Unexpected ClassLoader exception, ignore
+        for (String charsetName : NativeConverter.getAvailableCharsetNames()) {
+            Charset charset = NativeConverter.charsetForName(charsetName);
+            charsets.put(charset.name(), charset);
         }
+
+        // Add all charsets provided by all charset providers...
+        for (CharsetProvider charsetProvider : ServiceLoader.load(CharsetProvider.class, null)) {
+            Iterator<Charset> it = charsetProvider.charsets();
+            while (it.hasNext()) {
+                Charset cs = it.next();
+                // A CharsetProvider can't override a built-in Charset.
+                if (!charsets.containsKey(cs.name())) {
+                    charsets.put(cs.name(), cs);
+                }
+            }
+        }
+
         return Collections.unmodifiableSortedMap(charsets);
     }
 
-    /*
-     * Read a configuration file and try to find the desired charset among those
-     * which are supported by the providers specified in this configuration
-     * file.
-     */
-    private static Charset searchConfiguredCharsets(String charsetName,
-            ClassLoader contextClassLoader, URL configFile) {
-        BufferedReader reader = null;
-        try {
-            InputStream is = configFile.openStream();
-            // Read each line for charset provider class names
-            reader = new BufferedReader(new InputStreamReader(is,
-                    PROVIDER_CONFIGURATION_FILE_ENCODING));
-            String providerClassName = reader.readLine();
-            while (null != providerClassName) {
-                providerClassName = trimClassName(providerClassName);
-                if (providerClassName.length() > 0) { // Non empty string
-                    // Load the charset provider
-                    Object cp = null;
-                    try {
-                        Class<?> c = Class.forName(providerClassName, true,
-                                contextClassLoader);
-                        cp = c.newInstance();
-                    } catch (Exception ex) {
-                        // try to use system classloader when context
-                        // classloader failed to load config file.
-                        try {
-                            getSystemClassLoader();
-                            Class<?> c = Class.forName(providerClassName, true,
-                                    systemClassLoader);
-                            cp = c.newInstance();
-                        } catch (SecurityException e) {
-                            // BEGIN android-changed
-                            // ignore
-                            // END android-changed
-                        } catch (Exception e) {
-                            throw new Error(e.getMessage(), e);
-                        }
-                    }
-                    // BEGIN android-changed
-                    if (cp != null) {
-                        // Try to get the desired charset from this provider
-                        Charset cs = ((CharsetProvider) cp)
-                                .charsetForName(charsetName);
-                        if (null != cs) {
-                            return cs;
-                        }
-                    }
-                    // END android-changed
-                }
-                // Read the next line of the config file
-                providerClassName = reader.readLine();
-            }
-            return null;
-        } catch (IOException ex) {
-            // Can't read this configuration file
-            return null;
-        } finally {
-            try {
-                if (null != reader) {
-                    reader.close();
-                }
-            } catch (IOException ex) {
-                // Ignore closing exception
-            }
-        }
-    }
-
-    /*
-     * Gets a <code>Charset</code> instance for the specified charset name. If
-     * the charset is not supported, returns null instead of throwing an
-     * exception.
-     */
-    private synchronized static Charset forNameInternal(String charsetName)
-            throws IllegalCharsetNameException {
-        Charset cs = lookupCachedOrBuiltInCharset(charsetName);
-        if (cs != null || inForNameInternal) {
-            return cs;
-        }
-
-        // collect all charsets provided by charset providers
-        try {
-            Enumeration<URL> e = null;
-            ClassLoader contextClassLoader = getContextClassLoader();
-            if (contextClassLoader != null) {
-                e = contextClassLoader.getResources(PROVIDER_CONFIGURATION_FILE_NAME);
-            } else {
-                getSystemClassLoader();
-                if (systemClassLoader == null) {
-                    // Non available during class library start-up phase
-                    return null;
-                } else {
-                    e = systemClassLoader.getResources(PROVIDER_CONFIGURATION_FILE_NAME);
-                }
+    private static Charset cacheCharset(String charsetName, Charset cs) {
+        synchronized (CACHED_CHARSETS) {
+            // Get the canonical name for this charset, and the canonical instance from the table.
+            String canonicalName = cs.name();
+            Charset canonicalCharset = CACHED_CHARSETS.get(canonicalName);
+            if (canonicalCharset == null) {
+                canonicalCharset = cs;
             }
 
-            // examine each configuration file
-            while (e.hasMoreElements()) {
-                inForNameInternal = true;
-                cs = searchConfiguredCharsets(charsetName, contextClassLoader, e.nextElement());
-                inForNameInternal = false;
-                if (cs != null) {
-                    cacheCharset(charsetName, cs);
-                    return cs;
-                }
+            // Cache the charset by its canonical name...
+            CACHED_CHARSETS.put(canonicalName, canonicalCharset);
+
+            // And the name the user used... (Section 1.4 of http://unicode.org/reports/tr22/ means
+            // that many non-alias, non-canonical names are valid. For example, "utf8" isn't an
+            // alias of the canonical name "UTF-8", but we shouldn't penalize consistent users of
+            // such names unduly.)
+            CACHED_CHARSETS.put(charsetName, canonicalCharset);
+
+            // And all its aliases...
+            for (String alias : cs.aliasesSet) {
+                CACHED_CHARSETS.put(alias, canonicalCharset);
             }
-        } catch (IOException ex) {
-            // Unexpected ClassLoader exception, ignore
-        } finally {
-            inForNameInternal = false;
-        }
-        return null;
-    }
 
-    private synchronized static Charset lookupCachedOrBuiltInCharset(String charsetName) {
-        Charset cs = cachedCharsetTable.get(charsetName);
-        if (cs != null) {
-            return cs;
-        }
-        if (charsetName == null) {
-            throw new IllegalArgumentException();
-        }
-        checkCharsetName(charsetName);
-        cs = NativeConverter.charsetForName(charsetName);
-        if (cs != null) {
-            cacheCharset(charsetName, cs);
-        }
-        return cs;
-    }
-
-    private synchronized static void cacheCharset(String charsetName, Charset cs) {
-        // Get the canonical name for this charset, and the canonical instance from the table.
-        String canonicalName = cs.name();
-        Charset canonicalCharset = cachedCharsetTable.get(canonicalName);
-        if (canonicalCharset == null) {
-            canonicalCharset = cs;
-        }
-
-        // Cache the charset by its canonical name...
-        cachedCharsetTable.put(canonicalName, canonicalCharset);
-
-        // And the name the user used... (Section 1.4 of http://unicode.org/reports/tr22/ means
-        // that many non-alias, non-canonical names are valid. For example, "utf8" isn't an alias
-        // of the canonical name "UTF-8", but we shouldn't penalize consistent users of such
-        // names unduly.)
-        cachedCharsetTable.put(charsetName, canonicalCharset);
-
-        // And all its aliases...
-        for (String alias : cs.aliasesSet) {
-            cachedCharsetTable.put(alias, canonicalCharset);
+            return canonicalCharset;
         }
     }
 
     /**
-     * Gets a <code>Charset</code> instance for the specified charset name.
+     * Returns a {@code Charset} instance for the named charset.
      *
-     * @param charsetName
-     *            the canonical name of the charset or an alias.
-     * @return a <code>Charset</code> instance for the specified charset name.
+     * @param charsetName a charset name (either canonical or an alias)
      * @throws IllegalCharsetNameException
      *             if the specified charset name is illegal.
      * @throws UnsupportedCharsetException
      *             if the desired charset is not supported by this runtime.
      */
     public static Charset forName(String charsetName) {
-        Charset cs = forNameInternal(charsetName);
-        if (cs != null) {
-            return cs;
+        // Is this charset in our cache?
+        Charset cs;
+        synchronized (CACHED_CHARSETS) {
+            cs = CACHED_CHARSETS.get(charsetName);
+            if (cs != null) {
+                return cs;
+            }
         }
+
+        // Is this a built-in charset supported by ICU?
+        if (charsetName == null) {
+            throw new IllegalCharsetNameException(charsetName);
+        }
+        checkCharsetName(charsetName);
+        cs = NativeConverter.charsetForName(charsetName);
+        if (cs != null) {
+            return cacheCharset(charsetName, cs);
+        }
+
+        // Does a configured CharsetProvider have this charset?
+        for (CharsetProvider charsetProvider : ServiceLoader.load(CharsetProvider.class, null)) {
+            cs = charsetProvider.charsetForName(charsetName);
+            if (cs != null) {
+                return cacheCharset(charsetName, cs);
+            }
+        }
+
         throw new UnsupportedCharsetException(charsetName);
     }
 
@@ -700,8 +414,7 @@ public abstract class Charset implements Comparable<Charset> {
      *         false.
      */
     public final boolean isRegistered() {
-        return !canonicalName.startsWith("x-")
-                && !canonicalName.startsWith("X-");
+        return !canonicalName.startsWith("x-") && !canonicalName.startsWith("X-");
     }
 
     /**
@@ -831,7 +544,7 @@ public abstract class Charset implements Comparable<Charset> {
      */
     @Override
     public final String toString() {
-        return "Charset[" + this.canonicalName + "]";
+        return getClass().getName() + "[" + this.canonicalName + "]";
     }
 
     /**
