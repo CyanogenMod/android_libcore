@@ -634,10 +634,6 @@ test org.apache.harmony.nio.tests.java.nio.channels.DatagramChannelTest#testRead
 result EXEC_FAILED
 pattern .*java.lang.IllegalArgumentException: read-only buffer.*
 
-# we don't cache canonical paths.
-test org.apache.harmony.luni.tests.java.io.FileCanonPathCacheTest
-result EXEC_FAILED
-
 # ICU doesn't provide localized pattern characters, and these tests assume the locale they're using has them.
 test org.apache.harmony.text.tests.java.text.SimpleDateFormatTest#test_applyLocalizedPatternLjava_lang_String
 result EXEC_FAILED
@@ -684,4 +680,27 @@ test java.util.ArrayList.RangeCheckMicroBenchmark
 result UNSUPPORTED
 
 test java.util.ArrayList.IteratorMicroBenchmark
+result UNSUPPORTED
+
+
+# This test is obsoleted by our java.lang.CharacterTest#test_valueOfC.
+test org.apache.harmony.luni.tests.java.lang.CharacterImplTest#test_valueOfC
+result EXEC_FAILED
+
+# The RI is still on Unicode 4.0, we're on 5.2, and Harmony is inconsistent
+# between its test for isJavaIdentifierPart(char) and isJavaIdentifierPart(int).
+test org.apache.harmony.luni.tests.java.lang.CharacterTest.test_isJavaIdentifierPartC
+result EXEC_FAILED
+
+
+# We removed this: we don't support Pack200.
+test org.apache.harmony.archive.tests.java.util.jar.Pack200Test
+result UNSUPPORTED
+
+# We removed this: we don't cache canonical paths.
+test org.apache.harmony.luni.tests.java.io.FileCanonPathCacheTest
+result UNSUPPORTED
+
+# We removed this: we don't throw NotYetImplementedException.
+test org.apache.harmony.luni.tests.util.NYITest
 result UNSUPPORTED
