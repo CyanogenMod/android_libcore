@@ -17,10 +17,18 @@
 package dalvik.system;
 
 import org.apache.harmony.luni.platform.IFileSystem;
+import org.apache.harmony.luni.platform.INetworkSystem;
 
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.SocketImpl;
+import java.net.UnknownHostException;
+import java.nio.channels.Channel;
 
 /**
  * Mechanism to let threads set restrictions on what code is allowed
@@ -230,6 +238,262 @@ public final class BlockGuard {
 
         public int ioctlAvailable(int fileDescriptor) throws IOException {
             return mFileSystem.ioctlAvailable(fileDescriptor);
+        }
+    }
+
+    /**
+     * A network wrapper that calls the policy check functions.
+     */
+    public static class WrappedNetworkSystem implements INetworkSystem {
+        private final INetworkSystem mNetwork;
+
+        public WrappedNetworkSystem(INetworkSystem network) {
+            mNetwork = network;
+        }
+
+        public void accept(FileDescriptor fdServer, SocketImpl newSocket,
+                FileDescriptor fdnewSocket, int timeout) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            mNetwork.accept(fdServer, newSocket, fdnewSocket, timeout);
+        }
+
+
+        public void bind(FileDescriptor aFD, InetAddress inetAddress, int port)
+                throws SocketException {
+            mNetwork.bind(aFD, inetAddress, port);
+        }
+
+        public int read(FileDescriptor aFD, byte[] data, int offset, int count,
+                int timeout) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.read(aFD, data, offset, count, timeout);
+        }
+
+        public int readDirect(FileDescriptor aFD, int address, int count,
+                int timeout) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.readDirect(aFD, address, count, timeout);
+        }
+
+        public int write(FileDescriptor fd, byte[] data, int offset, int count)
+                throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.write(fd, data, offset, count);
+        }
+
+        public int writeDirect(FileDescriptor fd, int address, int offset, int count)
+                throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.writeDirect(fd, address, offset, count);
+        }
+
+        public void setNonBlocking(FileDescriptor aFD, boolean block)
+                throws IOException {
+            mNetwork.setNonBlocking(aFD, block);
+        }
+
+        public void connect(FileDescriptor aFD, int trafficClass,
+                            InetAddress inetAddress, int port) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            mNetwork.connect(aFD, trafficClass, inetAddress, port);
+        }
+
+        public int connectWithTimeout(FileDescriptor aFD, int timeout,
+                int trafficClass, InetAddress hostname, int port, int step,
+                byte[] context) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.connectWithTimeout(aFD, timeout, trafficClass,
+                    hostname, port, step, context);
+        }
+
+        public int sendDatagram(FileDescriptor fd, byte[] data, int offset,
+                int length, int port, boolean bindToDevice, int trafficClass,
+                InetAddress inetAddress) throws IOException {
+            // Note: no BlockGuard violation.  We permit datagrams
+            // without hostname lookups.  (short, bounded amount of time)
+            return mNetwork.sendDatagram(fd, data, offset, length, port, bindToDevice,
+                    trafficClass, inetAddress);
+        }
+
+        public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
+                int length, int port, boolean bindToDevice, int trafficClass,
+                InetAddress inetAddress) throws IOException {
+            // Note: no BlockGuard violation.  We permit datagrams
+            // without hostname lookups.  (short, bounded amount of time)
+            return mNetwork.sendDatagramDirect(fd, address, offset, length, port,
+                    bindToDevice, trafficClass, inetAddress);
+        }
+
+        public int receiveDatagram(FileDescriptor aFD, DatagramPacket packet,
+                byte[] data, int offset, int length, int receiveTimeout,
+                boolean peek) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.receiveDatagram(aFD, packet, data, offset,
+                    length, receiveTimeout, peek);
+        }
+
+        public int receiveDatagramDirect(FileDescriptor aFD, DatagramPacket packet,
+                int address, int offset, int length, int receiveTimeout,
+                boolean peek) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.receiveDatagramDirect(aFD, packet, address, offset, length,
+                    receiveTimeout, peek);
+        }
+
+        public int recvConnectedDatagram(FileDescriptor aFD, DatagramPacket packet,
+                byte[] data, int offset, int length, int receiveTimeout,
+                boolean peek) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.recvConnectedDatagram(aFD, packet, data, offset, length,
+                    receiveTimeout, peek);
+        }
+
+        public int recvConnectedDatagramDirect(FileDescriptor aFD,
+                DatagramPacket packet, int address, int offset, int length,
+                int receiveTimeout, boolean peek) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.recvConnectedDatagramDirect(aFD, packet, address, offset, length,
+                    receiveTimeout, peek);
+        }
+
+        public int peekDatagram(FileDescriptor aFD, InetAddress sender,
+                int receiveTimeout) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.peekDatagram(aFD, sender, receiveTimeout);
+        }
+
+        public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
+                int offset, int length, boolean bindToDevice) throws IOException {
+            return mNetwork.sendConnectedDatagram(fd, data, offset, length, bindToDevice);
+        }
+
+        public int sendConnectedDatagramDirect(FileDescriptor fd, int address,
+                int offset, int length, boolean bindToDevice) throws IOException {
+            return mNetwork.sendConnectedDatagramDirect(fd, address, offset, length, bindToDevice);
+        }
+
+        public void disconnectDatagram(FileDescriptor aFD) throws SocketException {
+            mNetwork.disconnectDatagram(aFD);
+        }
+
+        public void createDatagramSocket(FileDescriptor aFD, boolean preferIPv4Stack)
+                throws SocketException {
+            mNetwork.createDatagramSocket(aFD, preferIPv4Stack);
+        }
+
+        public void connectDatagram(FileDescriptor aFD, int port, int trafficClass,
+                InetAddress inetAddress) throws SocketException {
+            mNetwork.connectDatagram(aFD, port, trafficClass, inetAddress);
+        }
+
+        public void shutdownInput(FileDescriptor descriptor) throws IOException {
+            mNetwork.shutdownInput(descriptor);
+        }
+
+        public void shutdownOutput(FileDescriptor descriptor) throws IOException {
+            mNetwork.shutdownOutput(descriptor);
+        }
+
+        public boolean supportsUrgentData(FileDescriptor fd) {
+            return mNetwork.supportsUrgentData(fd);
+        }
+
+        public void sendUrgentData(FileDescriptor fd, byte value) {
+            mNetwork.sendUrgentData(fd, value);
+        }
+
+        public int availableStream(FileDescriptor aFD) throws SocketException {
+            return mNetwork.availableStream(aFD);
+        }
+
+        public void createServerStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
+                throws SocketException {
+            mNetwork.createServerStreamSocket(aFD, preferIPv4Stack);
+        }
+
+        public void createStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
+                throws SocketException {
+            mNetwork.createStreamSocket(aFD, preferIPv4Stack);
+        }
+
+        public void listenStreamSocket(FileDescriptor aFD, int backlog)
+                throws SocketException {
+            mNetwork.listenStreamSocket(aFD, backlog);
+        }
+
+        public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int aport,
+                int timeout, int trafficClass, InetAddress inetAddress)
+                throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            mNetwork.connectStreamWithTimeoutSocket(aFD, aport,
+                    timeout, trafficClass, inetAddress);
+        }
+
+        public int sendDatagram2(FileDescriptor fd, byte[] data, int offset,
+                int length, int port, InetAddress inetAddress) throws IOException {
+            return mNetwork.sendDatagram2(fd, data, offset, length, port, inetAddress);
+        }
+
+        public InetAddress getSocketLocalAddress(FileDescriptor aFD) {
+            return mNetwork.getSocketLocalAddress(aFD);
+        }
+
+        public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
+                int numReadable, int numWritable, long timeout, int[] flags)
+                throws SocketException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.select(readFDs, writeFDs, numReadable, numWritable, timeout, flags);
+        }
+
+        public int getSocketLocalPort(FileDescriptor aFD) {
+            return mNetwork.getSocketLocalPort(aFD);
+        }
+
+        public Object getSocketOption(FileDescriptor aFD, int opt)
+                throws SocketException {
+            return mNetwork.getSocketOption(aFD, opt);
+        }
+
+        public void setSocketOption(FileDescriptor aFD, int opt, Object optVal)
+                throws SocketException {
+            mNetwork.setSocketOption(aFD, opt, optVal);
+        }
+
+        public int getSocketFlags() {
+            return mNetwork.getSocketFlags();
+        }
+
+        public void socketClose(FileDescriptor aFD) throws IOException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            mNetwork.socketClose(aFD);
+        }
+
+        public InetAddress getHostByAddr(byte[] addr) throws UnknownHostException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.getHostByAddr(addr);
+        }
+
+        public InetAddress getHostByName(String addr) throws UnknownHostException {
+            BlockGuard.getThreadPolicy().onNetwork();
+            return mNetwork.getHostByName(addr);
+        }
+
+        public void setInetAddress(InetAddress sender, byte[] address) {
+            mNetwork.setInetAddress(sender, address);
+        }
+
+        public String byteArrayToIpString(byte[] address)
+                throws UnknownHostException {
+            return mNetwork.byteArrayToIpString(address);
+        }
+
+        public byte[] ipStringToByteArray(String address)
+                throws UnknownHostException {
+            return mNetwork.ipStringToByteArray(address);
+        }
+
+        public Channel inheritedChannel() {
+            return mNetwork.inheritedChannel();
         }
     }
 }
