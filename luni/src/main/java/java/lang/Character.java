@@ -17,27 +17,19 @@
 
 package java.lang;
 
-import java.io.Serializable;
-// BEGIN android-removed
-// import java.util.SortedMap;
-// import java.util.TreeMap;
-//
-// import org.apache.harmony.luni.util.BinarySearch;
-// END android-removed
-
-// BEGIN android-changed
 import com.ibm.icu4jni.lang.UCharacter;
-// END android-changed
+import java.io.Serializable;
 
 /**
  * The wrapper for the primitive type {@code char}. This class also provides a
  * number of utility methods for working with characters.
- * <p>
- * Character data is based upon the Unicode Standard, 4.0. The Unicode
+ *
+ * <p>Character data is kept up to date as Unicode evolves.
+ * This implementation is currently based on Unicode 5.2. The Unicode
  * specification, character tables and other information are available at <a
  * href="http://www.unicode.org/">http://www.unicode.org/</a>.
- * <p>
- * Unicode characters are referred to as <i>code points</i>. The range of valid
+ *
+ * <p>Unicode characters are referred to as <i>code points</i>. The range of valid
  * code points is U+0000 to U+10FFFF. The <i>Basic Multilingual Plane (BMP)</i>
  * is the code point range U+0000 to U+FFFF. Characters above the BMP are
  * referred to as <i>Supplementary Characters</i>. On the Java platform, UTF-16
