@@ -555,10 +555,6 @@ test org.apache.harmony.luni.tests.java.util.PropertiesTest#test_propertyNames_s
 result EXEC_FAILED
 pattern .*junit.framework.AssertionFailedError: expected:<current.b.key> but was:<current.a.key>.*
 
-test org.apache.harmony.luni.tests.java.util.PropertiesTest#test_propertyNames_sequence
-result EXEC_FAILED
-pattern .*junit.framework.AssertionFailedError: expected:<current.b.key> but was:<current.a.key>.*
-
 # tests that use secret type information to reason about behavior
 test org.apache.harmony.luni.tests.java.util.HashtableTest#test_keySet
 result EXEC_FAILED
