@@ -302,7 +302,7 @@ public final class BlockGuard {
             mNetwork.connect(aFD, trafficClass, inetAddress, port);
         }
 
-        public int connectWithTimeout(FileDescriptor aFD, int timeout,
+        public boolean connectWithTimeout(FileDescriptor aFD, int timeout,
                 int trafficClass, InetAddress hostname, int port, int step,
                 byte[] context) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
@@ -360,12 +360,6 @@ public final class BlockGuard {
                     receiveTimeout, peek);
         }
 
-        public int peekDatagram(FileDescriptor aFD, InetAddress sender,
-                int receiveTimeout) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.peekDatagram(aFD, sender, receiveTimeout);
-        }
-
         public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
                 int offset, int length, boolean bindToDevice) throws IOException {
             return mNetwork.sendConnectedDatagram(fd, data, offset, length, bindToDevice);
@@ -406,10 +400,6 @@ public final class BlockGuard {
             mNetwork.sendUrgentData(fd, value);
         }
 
-        public int availableStream(FileDescriptor aFD) throws SocketException {
-            return mNetwork.availableStream(aFD);
-        }
-
         public void createServerStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
                 throws SocketException {
             mNetwork.createServerStreamSocket(aFD, preferIPv4Stack);
@@ -420,9 +410,8 @@ public final class BlockGuard {
             mNetwork.createStreamSocket(aFD, preferIPv4Stack);
         }
 
-        public void listenStreamSocket(FileDescriptor aFD, int backlog)
-                throws SocketException {
-            mNetwork.listenStreamSocket(aFD, backlog);
+        public void listen(FileDescriptor aFD, int backlog) throws SocketException {
+            mNetwork.listen(aFD, backlog);
         }
 
         public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int aport,
@@ -463,41 +452,13 @@ public final class BlockGuard {
             mNetwork.setSocketOption(aFD, opt, optVal);
         }
 
-        public int getSocketFlags() {
-            return mNetwork.getSocketFlags();
-        }
-
         public void socketClose(FileDescriptor aFD) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
             mNetwork.socketClose(aFD);
         }
 
-        public InetAddress getHostByAddr(byte[] addr) throws UnknownHostException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.getHostByAddr(addr);
-        }
-
-        public InetAddress getHostByName(String addr) throws UnknownHostException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.getHostByName(addr);
-        }
-
         public void setInetAddress(InetAddress sender, byte[] address) {
             mNetwork.setInetAddress(sender, address);
-        }
-
-        public String byteArrayToIpString(byte[] address)
-                throws UnknownHostException {
-            return mNetwork.byteArrayToIpString(address);
-        }
-
-        public byte[] ipStringToByteArray(String address)
-                throws UnknownHostException {
-            return mNetwork.ipStringToByteArray(address);
-        }
-
-        public Channel inheritedChannel() {
-            return mNetwork.inheritedChannel();
         }
     }
 }
