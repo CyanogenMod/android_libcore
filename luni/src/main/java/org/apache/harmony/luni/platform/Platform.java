@@ -52,7 +52,8 @@ public class Platform {
 
     private static final IMemorySystem MEMORY_SYSTEM = OSMemory.getOSMemory();
 
-    private static final INetworkSystem NETWORK_SYSTEM = OSNetworkSystem.getOSNetworkSystem();
+    private static final INetworkSystem NETWORK_SYSTEM =
+            new BlockGuard.WrappedNetworkSystem(OSNetworkSystem.getOSNetworkSystem());
 
     /**
      * Checks to ensure that whoever is asking for the OS component is running
