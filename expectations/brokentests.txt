@@ -551,7 +551,7 @@ test org.apache.harmony.luni.tests.java.util.PropertiesTest#test_Sequentialstrin
 result EXEC_FAILED
 pattern .*junit.framework.ComparisonFailure.*
 
-test org.apache.harmony.luni.tests.java.util.PropertiesTest.test_propertyNames_sequence
+test org.apache.harmony.luni.tests.java.util.PropertiesTest#test_propertyNames_sequence
 result EXEC_FAILED
 pattern .*junit.framework.AssertionFailedError: expected:<current.b.key> but was:<current.a.key>.*
 
@@ -689,7 +689,7 @@ result EXEC_FAILED
 
 # The RI is still on Unicode 4.0, we're on 5.2, and Harmony is inconsistent
 # between its test for isJavaIdentifierPart(char) and isJavaIdentifierPart(int).
-test org.apache.harmony.luni.tests.java.lang.CharacterTest.test_isJavaIdentifierPartC
+test org.apache.harmony.luni.tests.java.lang.CharacterTest#test_isJavaIdentifierPartC
 result EXEC_FAILED
 
 
@@ -704,3 +704,12 @@ result UNSUPPORTED
 # We removed this: we don't throw NotYetImplementedException.
 test org.apache.harmony.luni.tests.util.NYITest
 result UNSUPPORTED
+
+
+# These test implementation details we don't share.
+test org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getInt
+result EXEC_FAILED
+test org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getLong
+result EXEC_FAILED
+test org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getShort
+result EXEC_FAILED

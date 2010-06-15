@@ -60,23 +60,23 @@ result EXEC_FAILED
 
 # we don't support CANON_EQ in regex
 # http://code.google.com/p/android/issues/detail?id=8592
-test org.apache.harmony.tests.java.util.regex.PatternTest.testCanonEqFlagWithSupplementaryCharacters
+test org.apache.harmony.tests.java.util.regex.PatternTest#testCanonEqFlagWithSupplementaryCharacters
 result EXEC_FAILED
 pattern .*UnsupportedOperationException: CANON_EQ flag not supported.*
 
-test org.apache.harmony.tests.java.util.regex.PatternTest.testCanonEqFlag
+test org.apache.harmony.tests.java.util.regex.PatternTest#testCanonEqFlag
 result EXEC_FAILED
 pattern .*UnsupportedOperationException: CANON_EQ flag not supported.*
 
-test org.apache.harmony.tests.java.util.regex.PatternErrorTest.testCompileErrors
+test org.apache.harmony.tests.java.util.regex.PatternErrorTest#testCompileErrors
 result EXEC_FAILED
 pattern .*UnsupportedOperationException: CANON_EQ flag not supported.*
 
-test org.apache.harmony.tests.java.util.regex.PatternTest.testCompileNonCaptGroup
+test org.apache.harmony.tests.java.util.regex.PatternTest#testCompileNonCaptGroup
 result EXEC_FAILED
 pattern .*UnsupportedOperationException: CANON_EQ flag not supported.*
 
-test org.apache.harmony.tests.java.util.regex.PatternTest.testIndexesCanonicalEq
+test org.apache.harmony.tests.java.util.regex.PatternTest#testIndexesCanonicalEq
 result EXEC_FAILED
 pattern .*UnsupportedOperationException: CANON_EQ flag not supported.*
 
