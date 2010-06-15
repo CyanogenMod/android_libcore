@@ -264,7 +264,6 @@ public final class MockWebServer {
         }
         out.write(("\r\n").getBytes(ASCII));
         out.write(response.getBody());
-        out.write(("\r\n").getBytes(ASCII));
         out.flush();
     }
 
