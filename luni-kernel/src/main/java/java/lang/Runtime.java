@@ -714,15 +714,13 @@ public class Runtime {
     }
 
     /**
-     * Returns the number of processors available to the virtual machine. The
-     * Android reference implementation (currently) always returns 1.
+     * Returns the number of processors available to the virtual machine.
      * 
      * @return the number of available processors, at least 1.
      * @since Android 1.0
      */
-    public int availableProcessors() {
-        return 1;
-    }
+    public native int availableProcessors();
+
 
     /**
      * Returns the maximum amount of memory that may be used by the virtual
