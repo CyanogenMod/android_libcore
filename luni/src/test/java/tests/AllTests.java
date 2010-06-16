@@ -54,7 +54,6 @@ public class AllTests
         suite.addTest(tests.suncompat.AllTests.suite());
         suite.addTest(tests.text.AllTests.suite());
         suite.addTest(tests.xml.AllTests.suite());
-        suite.addTest(tests.xnet.AllTests.suite());
         suite.addTest(tests.api.org.apache.harmony.kernel.dalvik.AllTests.suite());
 
         // Android-written test suites.

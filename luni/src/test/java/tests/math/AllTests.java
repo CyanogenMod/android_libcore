@@ -27,7 +27,6 @@ public class AllTests {
         TestSuite suite = new TestSuite("All Math test suites");
 
         suite.addTest(tests.api.java.math.AllTests.suite());
-        suite.addTest(org.apache.harmony.math.tests.java.math.AllTests.suite());
 
         return suite;
     }
