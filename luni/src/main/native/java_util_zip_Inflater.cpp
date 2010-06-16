@@ -17,6 +17,7 @@
 
 #define LOG_TAG "Inflater"
 
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "zip.h"
 #include <errno.h>
@@ -179,9 +180,8 @@ static JNINativeMethod gMethods[] = {
     { "setInputImpl", "([BIIJ)V", (void*) Inflater_setInputImpl },
 };
 int register_java_util_zip_Inflater(JNIEnv* env) {
-    jclass inflaterClass = env->FindClass("java/util/zip/Inflater");
-    gCachedFields.finished = env->GetFieldID(inflaterClass, "finished", "Z");
-    gCachedFields.inRead = env->GetFieldID(inflaterClass, "inRead", "I");
-    gCachedFields.needsDictionary = env->GetFieldID(inflaterClass, "needsDictionary", "Z");
+    gCachedFields.finished = env->GetFieldID(JniConstants::inflaterClass, "finished", "Z");
+    gCachedFields.inRead = env->GetFieldID(JniConstants::inflaterClass, "inRead", "I");
+    gCachedFields.needsDictionary = env->GetFieldID(JniConstants::inflaterClass, "needsDictionary", "Z");
     return jniRegisterNativeMethods(env, "java/util/zip/Inflater", gMethods, NELEM(gMethods));
 }

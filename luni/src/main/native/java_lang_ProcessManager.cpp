@@ -28,6 +28,7 @@
 
 #include "jni.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "utils/Log.h"
 
 /** Environment variables. */
@@ -353,7 +354,7 @@ static pid_t java_lang_ProcessManager_exec(
     char** environment = convertStrings(env, javaEnvironment);
 
     pid_t result = executeProcess(
-            env, commands, environment, workingDirectory, 
+            env, commands, environment, workingDirectory,
             inDescriptor, outDescriptor, errDescriptor, redirectErrorStream);
 
     // Temporarily clear exception so we can clean up.
@@ -396,11 +397,7 @@ static void java_lang_ProcessManager_staticInitialize(JNIEnv* env,
         return;
     }
 
-    jclass fileDescriptorClass = env->FindClass("java/io/FileDescriptor");
-    if (fileDescriptorClass == NULL) {
-        return;
-    }
-    descriptorField = env->GetFieldID(fileDescriptorClass, "descriptor", "I");
+    descriptorField = env->GetFieldID(JniConstants::fileDescriptorClass, "descriptor", "I");
     if (descriptorField == NULL) {
         return;
     }

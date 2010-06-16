@@ -19,6 +19,7 @@
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -300,7 +301,7 @@ static jstring getJavaCanonicalName(JNIEnv* env, const char* icuCanonicalName) {
 
 static jobjectArray NativeConverter_getAvailableCharsetNames(JNIEnv* env, jclass) {
     int32_t num = ucnv_countAvailable();
-    jobjectArray result = env->NewObjectArray(num, env->FindClass("java/lang/String"), NULL);
+    jobjectArray result = env->NewObjectArray(num, JniConstants::stringClass, NULL);
     for (int i = 0; i < num; ++i) {
         const char* name = ucnv_getAvailableName(i);
         ScopedLocalRef<jstring> javaCanonicalName(env, getJavaCanonicalName(env, name));
@@ -337,7 +338,7 @@ static jobjectArray getAliases(JNIEnv* env, const char* icuCanonicalName) {
     }
 
     // Convert our C++ char*[] into a Java String[]...
-    jobjectArray result = env->NewObjectArray(actualAliasCount, env->FindClass("java/lang/String"), NULL);
+    jobjectArray result = env->NewObjectArray(actualAliasCount, JniConstants::stringClass, NULL);
     for (int i = 0; i < actualAliasCount; ++i) {
         ScopedLocalRef<jstring> alias(env, env->NewStringUTF(aliasArray[i]));
         env->SetObjectArrayElement(result, i, alias.get());
@@ -622,16 +623,12 @@ static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring chars
     }
 
     // Construct the CharsetICU object.
-    jclass charsetClass = env->FindClass("com/ibm/icu4jni/charset/CharsetICU");
-    if (env->ExceptionOccurred()) {
-        return NULL;
-    }
-    jmethodID charsetConstructor = env->GetMethodID(charsetClass, "<init>",
+    jmethodID charsetConstructor = env->GetMethodID(JniConstants::charsetICUClass, "<init>",
             "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V");
     if (env->ExceptionOccurred()) {
         return NULL;
     }
-    return env->NewObject(charsetClass, charsetConstructor,
+    return env->NewObject(JniConstants::charsetICUClass, charsetConstructor,
             javaCanonicalName, env->NewStringUTF(icuCanonicalName), aliases);
 }
 

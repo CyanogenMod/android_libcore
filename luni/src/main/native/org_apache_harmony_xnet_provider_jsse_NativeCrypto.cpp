@@ -26,9 +26,6 @@
 
 #include <jni.h>
 
-#include <JNIHelp.h>
-#include <LocalArray.h>
-
 #include <openssl/dsa.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
@@ -36,6 +33,9 @@
 #include <openssl/rsa.h>
 #include <openssl/ssl.h>
 
+#include "JNIHelp.h"
+#include "JniConstants.h"
+#include "LocalArray.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -991,8 +991,7 @@ static void info_callback_LOG(const SSL* s __attribute__ ((unused)), int where, 
 /**
  * Returns an array containing all the X509 certificate's bytes.
  */
-static jobjectArray getCertificateBytes(JNIEnv* env,
-        const STACK_OF(X509)* chain)
+static jobjectArray getCertificateBytes(JNIEnv* env, const STACK_OF(X509)* chain)
 {
     if (chain == NULL) {
         // Chain can be NULL if the associated cipher doesn't do certs.
@@ -1004,7 +1003,7 @@ static jobjectArray getCertificateBytes(JNIEnv* env,
         return NULL;
     }
 
-    jobjectArray joa = env->NewObjectArray(count, env->FindClass("[B"), NULL);
+    jobjectArray joa = env->NewObjectArray(count, JniConstants::byteArrayClass, NULL);
     if (joa == NULL) {
         return NULL;
     }
@@ -2922,24 +2921,16 @@ int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env) {
     }
 
     // java.net.Socket
-    jclass socket = env->FindClass("java/net/Socket");
-    if (socket == NULL) {
-        LOGE("Can't find class java.net.Socket");
-        return -1;
-    }
-    field_Socket_mImpl = env->GetFieldID(socket, "impl", "Ljava/net/SocketImpl;");
+    field_Socket_mImpl =
+            env->GetFieldID(JniConstants::socketClass, "impl", "Ljava/net/SocketImpl;");
     if (field_Socket_mImpl == NULL) {
         LOGE("Can't find field impl in class java.net.Socket");
         return -1;
     }
 
     // java.net.SocketImpl
-    jclass socketImplClass = env->FindClass("java/net/SocketImpl");
-    if (socketImplClass == NULL) {
-        LOGE("Can't find class java.net.SocketImpl");
-        return -1;
-    }
-    field_Socket_mFD = env->GetFieldID(socketImplClass, "fd", "Ljava/io/FileDescriptor;");
+    field_Socket_mFD =
+            env->GetFieldID(JniConstants::socketImplClass, "fd", "Ljava/io/FileDescriptor;");
     if (field_Socket_mFD == NULL) {
         LOGE("Can't find field fd in java.net.SocketImpl");
         return -1;

@@ -17,6 +17,7 @@
 #define LOG_TAG "ExpatParser"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "LocalArray.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
@@ -108,7 +109,6 @@ static jmethodID startElementMethod;
 static jmethodID startNamespaceMethod;
 static jmethodID textMethod;
 static jmethodID unparsedEntityDeclMethod;
-static jclass stringClass;
 static jstring emptyString;
 
 /**
@@ -1379,11 +1379,7 @@ static void staticInitialize(JNIEnv* env, jobject classObject, jstring empty) {
             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     if (unparsedEntityDeclMethod == NULL) return;
 
-    // Look up String class.
-    stringClass = env->FindClass("java/lang/String");
-
-    internMethod = env->GetMethodID(stringClass, "intern",
-        "()Ljava/lang/String;");
+    internMethod = env->GetMethodID(JniConstants::stringClass, "intern", "()Ljava/lang/String;");
     if (internMethod == NULL) return;
 
     // Reference to "".
