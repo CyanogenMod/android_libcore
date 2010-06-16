@@ -17,6 +17,8 @@
 
 package java.net;
 
+import dalvik.system.BlockGuard;
+
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -493,6 +495,7 @@ public class InetAddress implements Serializable {
      */
     // BEGIN android-changed
     private static InetAddress[] lookupHostByName(String host) throws UnknownHostException {
+        BlockGuard.getThreadPolicy().onNetwork();
         // Do we have a result cached?
         InetAddress[] cachedResult = addressCache.get(host);
         if (cachedResult != null) {
@@ -534,6 +537,7 @@ public class InetAddress implements Serializable {
     //    throws UnknownHostException;
     static InetAddress getHostByAddrImpl(byte[] addr)
             throws UnknownHostException {
+        BlockGuard.getThreadPolicy().onNetwork();
         if (addr.length == 4) {
             return new Inet4Address(addr, getnameinfo(addr));
         } else if (addr.length == 16) {
