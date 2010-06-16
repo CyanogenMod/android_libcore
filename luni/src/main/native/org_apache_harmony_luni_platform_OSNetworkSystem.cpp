@@ -28,6 +28,7 @@
 #include "NetworkUtilities.h"
 #include "ScopedPrimitiveArray.h"
 #include "jni.h"
+#include "valueOf.h"
 
 #include <arpa/inet.h>
 #include <assert.h>
@@ -97,14 +98,11 @@ static struct CachedFields {
     jfieldID fd_descriptor;
     jclass iaddr_class;
     jclass i4addr_class;
-    jmethodID i4addr_class_init;
     jfieldID iaddr_ipaddress;
     jclass genericipmreq_class;
     jclass integer_class;
-    jmethodID integer_class_init;
     jfieldID integer_class_value;
     jclass boolean_class;
-    jmethodID boolean_class_init;
     jfieldID boolean_class_value;
     jclass byte_class;
     jfieldID byte_class_value;
@@ -277,35 +275,6 @@ static bool inetAddressToSocketAddress(JNIEnv *env, jobject inetaddress,
             gCachedFields.iaddr_ipaddress));
 
     return byteArrayToSocketAddress(env, NULL, addressBytes, port, sockaddress);
-}
-
-/**
- * Answer a new java.lang.Boolean object.
- *
- * @param env   pointer to the JNI library
- * @param anInt the Boolean constructor argument
- *
- * @return  the new Boolean
- */
-static jobject newJavaLangBoolean(JNIEnv * env, jint anInt) {
-    jclass tempClass;
-    jmethodID tempMethod;
-
-    tempClass = gCachedFields.boolean_class;
-    tempMethod = gCachedFields.boolean_class_init;
-    return env->NewObject(tempClass, tempMethod, (jboolean) (anInt != 0));
-}
-
-/**
- * Answer a new java.lang.Integer object.
- *
- * @param env   pointer to the JNI library
- * @param anInt the Integer constructor argument
- *
- * @return  the new Integer
- */
-static jobject newJavaLangInteger(JNIEnv* env, jint anInt) {
-    return env->NewObject(gCachedFields.integer_class, gCachedFields.integer_class_init, anInt);
 }
 
 // Converts a number of milliseconds to a timeval.
@@ -761,27 +730,6 @@ static bool initCachedFields(JNIEnv* env) {
         jclass tempClass = env->FindClass(c.name);
         if (tempClass == NULL) return false;
         *c.clazz = (jclass) env->NewGlobalRef(tempClass);
-    }
-
-    struct methodInfo {
-        jmethodID *method;
-        jclass clazz;
-        const char *name;
-        const char *signature;
-        bool isStatic;
-    } methods[] = {
-        {&c->i4addr_class_init, c->i4addr_class, "<init>", "([B)V", false},
-        {&c->integer_class_init, c->integer_class, "<init>", "(I)V", false},
-        {&c->boolean_class_init, c->boolean_class, "<init>", "(Z)V", false},
-    };
-    for (unsigned i = 0; i < sizeof(methods) / sizeof(methods[0]); i++) {
-        methodInfo m = methods[i];
-        if (m.isStatic) {
-            *m.method = env->GetStaticMethodID(m.clazz, m.name, m.signature);
-        } else {
-            *m.method = env->GetMethodID(m.clazz, m.name, m.signature);
-        }
-        if (*m.method == NULL) return false;
     }
 
     struct fieldInfo {
@@ -1672,12 +1620,12 @@ static bool getSocketOption(JNIEnv* env, int fd, int level, int option, T* value
 
 static jobject getSocketOption_Boolean(JNIEnv* env, int fd, int level, int option) {
     int value;
-    return getSocketOption(env, fd, level, option, &value) ? newJavaLangBoolean(env, value) : NULL;
+    return getSocketOption(env, fd, level, option, &value) ? booleanValueOf(env, value) : NULL;
 }
 
 static jobject getSocketOption_Integer(JNIEnv* env, int fd, int level, int option) {
     int value;
-    return getSocketOption(env, fd, level, option, &value) ? newJavaLangInteger(env, value) : NULL;
+    return getSocketOption(env, fd, level, option, &value) ? integerValueOf(env, value) : NULL;
 }
 
 static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fileDescriptor, jint option) {
@@ -1717,13 +1665,13 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
         {
             linger lingr;
             bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &lingr);
-            return ok ? newJavaLangInteger(env, !lingr.l_onoff ? -1 : lingr.l_linger) : NULL;
+            return ok ? integerValueOf(env, !lingr.l_onoff ? -1 : lingr.l_linger) : NULL;
         }
     case JAVASOCKOPT_SO_RCVTIMEOUT:
         {
             timeval timeout;
             bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_RCVTIMEO, &timeout);
-            return ok ? newJavaLangInteger(env, toMs(timeout)) : NULL;
+            return ok ? integerValueOf(env, toMs(timeout)) : NULL;
         }
 #ifdef ENABLE_MULTICAST
     case JAVASOCKOPT_IP_MULTICAST_IF:
@@ -1744,7 +1692,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
         if (family == AF_INET) {
             struct ip_mreqn multicastRequest;
             bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &multicastRequest);
-            return ok ? newJavaLangInteger(env, multicastRequest.imr_ifindex) : NULL;
+            return ok ? integerValueOf(env, multicastRequest.imr_ifindex) : NULL;
         } else {
             return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
         }
@@ -1753,7 +1701,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
             // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
             u_char loopback;
             bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_LOOP, &loopback);
-            return ok ? newJavaLangBoolean(env, loopback) : NULL;
+            return ok ? booleanValueOf(env, loopback) : NULL;
         } else {
             return getSocketOption_Boolean(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP);
         }
@@ -1763,7 +1711,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
             // IPv4 multicast TTL uses a byte.
             u_char ttl;
             bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl);
-            return ok ? newJavaLangInteger(env, ttl) : NULL;
+            return ok ? integerValueOf(env, ttl) : NULL;
         } else {
             return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
         }

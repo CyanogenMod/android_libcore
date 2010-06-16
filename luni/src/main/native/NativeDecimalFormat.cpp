@@ -15,18 +15,20 @@
  */
 
 #define LOG_TAG "NativeDecimalFormat"
-#include "JNIHelp.h"
-#include "cutils/log.h"
-#include "unicode/unum.h"
-#include "unicode/numfmt.h"
-#include "unicode/decimfmt.h"
-#include "unicode/fmtable.h"
-#include "unicode/ustring.h"
-#include "digitlst.h"
+
 #include "ErrorCode.h"
+#include "JNIHelp.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
+#include "cutils/log.h"
+#include "digitlst.h"
+#include "unicode/decimfmt.h"
+#include "unicode/fmtable.h"
+#include "unicode/numfmt.h"
+#include "unicode/unum.h"
+#include "unicode/ustring.h"
+#include "valueOf.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -276,18 +278,6 @@ static jstring formatDigitList(JNIEnv* env, jclass, jint addr, jstring value, jo
     return format(env, addr, fpIter, sp);
 }
 
-static jobject newLong(JNIEnv* env, jlong value) {
-    static jclass gLongClass = (jclass) env->NewGlobalRef(env->FindClass("java/lang/Long"));
-    static jmethodID gLong_init = env->GetMethodID(gLongClass, "<init>", "(J)V");
-    return env->NewObject(gLongClass, gLong_init, value);
-}
-
-static jobject newDouble(JNIEnv* env, jdouble value) {
-    static jclass gDoubleClass = (jclass) env->NewGlobalRef(env->FindClass("java/lang/Double"));
-    static jmethodID gDouble_init = env->GetMethodID(gDoubleClass, "<init>", "(D)V");
-    return env->NewObject(gDoubleClass, gDouble_init, value);
-}
-
 static jobject newBigDecimal(JNIEnv* env, const char* value, jsize len) {
     static jclass gBigDecimalClass = (jclass) env->NewGlobalRef(env->FindClass("java/math/BigDecimal"));
     static jmethodID gBigDecimal_init = env->GetMethodID(gBigDecimalClass, "<init>", "(Ljava/lang/String;)V");
@@ -347,7 +337,7 @@ static jobject parse(JNIEnv* env, jclass, jint addr, jstring text,
                 strncmp(data, "Inf", 3) == 0 ||
                 strncmp(data, "-Inf", 4) == 0) {
                 double resultDouble = res.getDouble(status);
-                return newDouble(env, (jdouble) resultDouble);
+                return doubleValueOf(env, (jdouble) resultDouble);
             }
             return newBigDecimal(env, data, len);
         }
@@ -358,15 +348,15 @@ static jobject parse(JNIEnv* env, jclass, jint addr, jstring text,
         switch(numType) {
         case Formattable::kDouble: {
             double resultDouble = res.getDouble();
-            return newDouble(env, (jdouble) resultDouble);
+            return doubleValueOf(env, (jdouble) resultDouble);
         }
         case Formattable::kLong: {
             long resultLong = res.getLong();
-            return newLong(env, (jlong) resultLong);
+            return longValueOf(env, (jlong) resultLong);
         }
         case Formattable::kInt64: {
             int64_t resultInt64 = res.getInt64();
-            return newLong(env, (jlong) resultInt64);
+            return longValueOf(env, (jlong) resultInt64);
         }
         default: {
             return NULL;

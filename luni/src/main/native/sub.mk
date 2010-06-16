@@ -42,7 +42,8 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_util_NumberConvert.cpp \
 	org_apache_harmony_luni_util_fltparse.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
-	org_apache_harmony_xnet_provider_jsse_NativeCrypto.cpp
+	org_apache_harmony_xnet_provider_jsse_NativeCrypto.cpp \
+	valueOf.cpp
 
 
 LOCAL_C_INCLUDES += \

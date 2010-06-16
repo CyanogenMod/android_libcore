@@ -16,31 +16,32 @@
 
 #define LOG_TAG "ICU"
 
+#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "cutils/log.h"
-#include "unicode/numfmt.h"
-#include "unicode/locid.h"
-#include "unicode/ubrk.h"
-#include "unicode/ucal.h"
-#include "unicode/ucol.h"
-#include "unicode/udat.h"
-#include "unicode/gregocal.h"
-#include "unicode/ucurr.h"
 #include "unicode/calendar.h"
 #include "unicode/datefmt.h"
-#include "unicode/dtfmtsym.h"
-#include "unicode/decimfmt.h"
 #include "unicode/dcfmtsym.h"
-#include "unicode/uclean.h"
+#include "unicode/decimfmt.h"
+#include "unicode/dtfmtsym.h"
+#include "unicode/gregocal.h"
+#include "unicode/locid.h"
+#include "unicode/numfmt.h"
 #include "unicode/smpdtfmt.h"
 #include "unicode/strenum.h"
-#include "unicode/ustring.h"
 #include "unicode/timezone.h"
+#include "unicode/ubrk.h"
+#include "unicode/ucal.h"
+#include "unicode/uclean.h"
+#include "unicode/ucol.h"
+#include "unicode/ucurr.h"
+#include "unicode/udat.h"
+#include "unicode/ustring.h"
 #include "ureslocs.h"
-#include "ErrorCode.h"
+#include "valueOf.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -465,15 +466,10 @@ static jstring getIntCurrencyCode(JNIEnv* env, jstring locale) {
 }
 
 static void setIntegerField(JNIEnv* env, jobject obj, const char* fieldName, int value) {
-    // Convert our int to a java.lang.Integer.
-    // TODO: switch to Integer.valueOf, add error checking.
-    jclass integerClass = env->FindClass("java/lang/Integer");
-    jmethodID constructor = env->GetMethodID(integerClass, "<init>", "(I)V");
-    jobject integerValue = env->NewObject(integerClass, constructor, value);
-    // Set the field.
+    ScopedLocalRef<jobject> integerValue(env, integerValueOf(env, value));
     jclass localeDataClass = env->FindClass("com/ibm/icu4jni/util/LocaleData");
     jfieldID fid = env->GetFieldID(localeDataClass, fieldName, "Ljava/lang/Integer;");
-    env->SetObjectField(obj, fid, integerValue);
+    env->SetObjectField(obj, fid, integerValue.get());
 }
 
 static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, jstring value) {
