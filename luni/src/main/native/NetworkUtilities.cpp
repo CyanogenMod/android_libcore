@@ -18,6 +18,7 @@
 
 #include "NetworkUtilities.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 
 #include <arpa/inet.h>
 #include <stdio.h>
@@ -89,16 +90,12 @@ jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray) {
     if (byteArray == NULL) {
         return NULL;
     }
-    jclass inetAddressClass = env->FindClass("java/net/InetAddress");
-    if (inetAddressClass == NULL) {
-        return NULL;
-    }
-    jmethodID getByAddressMethod = env->GetStaticMethodID(inetAddressClass,
+    jmethodID getByAddressMethod = env->GetStaticMethodID(JniConstants::inetAddressClass,
             "getByAddress", "([B)Ljava/net/InetAddress;");
     if (getByAddressMethod == NULL) {
         return NULL;
     }
-    return env->CallStaticObjectMethod(inetAddressClass, getByAddressMethod, byteArray);
+    return env->CallStaticObjectMethod(JniConstants::inetAddressClass, getByAddressMethod, byteArray);
 }
 
 jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* ss) {

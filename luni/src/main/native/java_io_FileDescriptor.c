@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
+
 #include "JNIHelp.h"
 
 #include <stdlib.h>
@@ -117,16 +117,16 @@ static int checkClassInit (JNIEnv *env) {
         jclass clazz;
         clazz = (*env)->FindClass(env, "java/io/FileDescriptor");
         if(clazz == NULL) {
-            jniThrowException(env, "java/lang/ClassNotFoundException", 
+            jniThrowException(env, "java/lang/ClassNotFoundException",
                                     "java.io.FileDescriptor");
             return -1;
         }
 
         jfieldID readWriteId;
-        readWriteId = (*env)->GetStaticFieldID(env, clazz, "in", 
+        readWriteId = (*env)->GetStaticFieldID(env, clazz, "in",
                 "Ljava/io/FileDescriptor;");
         if(readWriteId == NULL) {
-            jniThrowException(env, "java/lang/NoSuchFieldException", 
+            jniThrowException(env, "java/lang/NoSuchFieldException",
                                     "FileDescriptor.readOnly(Z)");
             return -1;
         }
@@ -153,13 +153,13 @@ jobject jniCreateFileDescriptor (JNIEnv *env, int fd) {
 
     ret = (*env)->NewObject(env, gCachedFields.clazz,
             gCachedFields.constructorInt);
-    
+
     (*env)->SetIntField(env, ret, gCachedFields.descriptor, fd);
 
     return ret;
 }
 
-/* 
+/*
  * For JNIHelp.c
  * Get an int file descriptor from a java.io.FileDescriptor
  */

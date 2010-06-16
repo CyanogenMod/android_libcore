@@ -16,11 +16,13 @@
  */
 #define LOG_TAG "BidiWrapper"
 
-#include <JNIHelp.h>
 #include "ErrorCode.h"
+#include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "UniquePtr.h"
 #include "unicode/ubidi.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -135,15 +137,14 @@ static jobjectArray BidiWrapper_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
     if (icu4jni_error(env, err)) {
         return NULL;
     }
-    jclass bidiRunClass = env->FindClass("org/apache/harmony/text/BidiRun");
-    jmethodID bidiRunConstructor = env->GetMethodID(bidiRunClass, "<init>", "(III)V");
-    jobjectArray runs = env->NewObjectArray(runCount, bidiRunClass, NULL);
+    jmethodID bidiRunConstructor = env->GetMethodID(JniConstants::bidiRunClass, "<init>", "(III)V");
+    jobjectArray runs = env->NewObjectArray(runCount, JniConstants::bidiRunClass, NULL);
     UBiDiLevel level = 0;
     int start = 0;
     int limit = 0;
     for (int i = 0; i < runCount; ++i) {
         ubidi_getLogicalRun(ubidi, start, &limit, &level);
-        jobject run = env->NewObject(bidiRunClass, bidiRunConstructor, start, limit, level);
+        jobject run = env->NewObject(JniConstants::bidiRunClass, bidiRunConstructor, start, limit, level);
         env->SetObjectArrayElement(runs, i, run);
         start = limit;
     }

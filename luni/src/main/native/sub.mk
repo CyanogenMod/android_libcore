@@ -6,6 +6,7 @@ LOCAL_SRC_FILES := \
 	BidiWrapper.cpp \
 	ErrorCode.cpp \
 	ICU.cpp \
+	JniConstants.cpp \
 	NativeBreakIterator.cpp \
 	NativeCollation.cpp \
 	NativeConverter.cpp \

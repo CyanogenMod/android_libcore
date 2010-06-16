@@ -18,6 +18,7 @@
 #define LOG_TAG "File"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "LocalArray.h"
 #include "ScopedFd.h"
 #include "ScopedLocalRef.h"
@@ -353,11 +354,7 @@ static jobjectArray java_io_File_listImpl(JNIEnv* env, jobject, jbyteArray pathB
         return NULL;
     }
     // Translate the intermediate form into a Java String[].
-    jclass stringClass = env->FindClass("java/lang/String");
-    if (stringClass == NULL) {
-        return NULL;
-    }
-    jobjectArray result = env->NewObjectArray(files.size(), stringClass, NULL);
+    jobjectArray result = env->NewObjectArray(files.size(), JniConstants::stringClass, NULL);
     for (int i = 0; files.size() != 0; files.pop_front(), ++i) {
         ScopedLocalRef<jstring> javaFilename(env, env->NewStringUTF(files.front()));
         if (env->ExceptionCheck()) {

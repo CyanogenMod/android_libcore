@@ -17,6 +17,7 @@
 
 #define LOG_TAG "Deflater"
 
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "zip.h"
 
@@ -143,8 +144,7 @@ static JNINativeMethod gMethods[] = {
     { "setLevelsImpl", "(IIJ)V", (void*) Deflater_setLevelsImpl },
 };
 int register_java_util_zip_Deflater(JNIEnv* env) {
-    jclass deflaterClass = env->FindClass("java/util/zip/Deflater");
-    gCachedFields.finished = env->GetFieldID(deflaterClass, "finished", "Z");
-    gCachedFields.inRead = env->GetFieldID(deflaterClass, "inRead", "I");
+    gCachedFields.finished = env->GetFieldID(JniConstants::deflaterClass, "finished", "Z");
+    gCachedFields.inRead = env->GetFieldID(JniConstants::deflaterClass, "inRead", "I");
     return jniRegisterNativeMethods(env, "java/util/zip/Deflater", gMethods, NELEM(gMethods));
 }

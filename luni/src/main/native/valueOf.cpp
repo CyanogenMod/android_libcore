@@ -18,27 +18,26 @@
 
 #include "valueOf.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 
-jobject booleanValueOf(JNIEnv * env, jboolean value) {
-    static jclass c = (jclass) env->NewGlobalRef(env->FindClass("java/lang/Boolean"));
-    static jmethodID valueOfMethod = env->GetStaticMethodID(c, "valueOf", "(Z)Ljava/lang/Boolean;");
+template <typename T>
+static jobject valueOf(JNIEnv* env, jclass c, const char* signature, const T& value) {
+    static jmethodID valueOfMethod = env->GetStaticMethodID(c, "valueOf", signature);
     return env->CallStaticObjectMethod(c, valueOfMethod, value);
+}
+
+jobject booleanValueOf(JNIEnv* env, jboolean value) {
+    return valueOf(env, JniConstants::booleanClass, "(Z)Ljava/lang/Boolean;", value);
 }
 
 jobject doubleValueOf(JNIEnv* env, jdouble value) {
-    static jclass c = (jclass) env->NewGlobalRef(env->FindClass("java/lang/Double"));
-    static jmethodID valueOfMethod = env->GetStaticMethodID(c, "valueOf", "(D)Ljava/lang/Double;");
-    return env->CallStaticObjectMethod(c, valueOfMethod, value);
+    return valueOf(env, JniConstants::doubleClass, "(D)Ljava/lang/Double;", value);
 }
 
 jobject integerValueOf(JNIEnv* env, jint value) {
-    static jclass c = (jclass) env->NewGlobalRef(env->FindClass("java/lang/Integer"));
-    static jmethodID valueOfMethod = env->GetStaticMethodID(c, "valueOf", "(I)Ljava/lang/Integer;");
-    return env->CallStaticObjectMethod(c, valueOfMethod, value);
+    return valueOf(env, JniConstants::integerClass, "(I)Ljava/lang/Integer;", value);
 }
 
 jobject longValueOf(JNIEnv* env, jlong value) {
-    static jclass c = (jclass) env->NewGlobalRef(env->FindClass("java/lang/Long"));
-    static jmethodID valueOfMethod = env->GetStaticMethodID(c, "valueOf", "(J)Ljava/lang/Long;");
-    return env->CallStaticObjectMethod(c, valueOfMethod, value);
+    return valueOf(env, JniConstants::longClass, "(J)Ljava/lang/Long;", value);
 }

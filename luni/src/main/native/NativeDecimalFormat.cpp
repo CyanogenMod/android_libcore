@@ -18,6 +18,7 @@
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -229,8 +230,7 @@ static jstring toPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized)
 }
 
 static jstring formatResult(JNIEnv* env, const UnicodeString &str, FieldPositionIterator *fpi, jobject fpIter) {
-    static jclass gFPIClass = env->FindClass("com/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator");
-    static jmethodID gFPI_setData = env->GetMethodID(gFPIClass, "setData", "([I)V");
+    static jmethodID gFPI_setData = env->GetMethodID(JniConstants::fieldPositionIteratorClass, "setData", "([I)V");
 
     if (fpi != NULL) {
         int len = fpi->getData(NULL, 0);
@@ -279,8 +279,7 @@ static jstring formatDigitList(JNIEnv* env, jclass, jint addr, jstring value, jo
 }
 
 static jobject newBigDecimal(JNIEnv* env, const char* value, jsize len) {
-    static jclass gBigDecimalClass = (jclass) env->NewGlobalRef(env->FindClass("java/math/BigDecimal"));
-    static jmethodID gBigDecimal_init = env->GetMethodID(gBigDecimalClass, "<init>", "(Ljava/lang/String;)V");
+    static jmethodID gBigDecimal_init = env->GetMethodID(JniConstants::bigDecimalClass, "<init>", "(Ljava/lang/String;)V");
 
     // this is painful...
     // value is a UTF-8 string of invariant characters, but isn't guaranteed to be
@@ -288,29 +287,21 @@ static jobject newBigDecimal(JNIEnv* env, const char* value, jsize len) {
     // data to jchars using UnicodeString, and call NewString instead.
     UnicodeString tmp(value, len, UnicodeString::kInvariant);
     jobject str = env->NewString(tmp.getBuffer(), tmp.length());
-    return env->NewObject(gBigDecimalClass, gBigDecimal_init, str);
+    return env->NewObject(JniConstants::bigDecimalClass, gBigDecimal_init, str);
 }
-
-static jmethodID gPP_getIndex = NULL;
-static jmethodID gPP_setIndex = NULL;
-static jmethodID gPP_setErrorIndex = NULL;
 
 static jobject parse(JNIEnv* env, jclass, jint addr, jstring text,
                      jobject position, jboolean parseBigDecimal) {
 
-    if (gPP_getIndex == NULL) {
-        jclass ppClass = env->FindClass("java/text/ParsePosition");
-        gPP_getIndex = env->GetMethodID(ppClass, "getIndex", "()I");
-        gPP_setIndex = env->GetMethodID(ppClass, "setIndex", "(I)V");
-        gPP_setErrorIndex = env->GetMethodID(ppClass, "setErrorIndex", "(I)V");
-    }
+    static jmethodID gPP_getIndex = env->GetMethodID(JniConstants::parsePositionClass, "getIndex", "()I");
+    static jmethodID gPP_setIndex = env->GetMethodID(JniConstants::parsePositionClass, "setIndex", "(I)V");
+    static jmethodID gPP_setErrorIndex = env->GetMethodID(JniConstants::parsePositionClass, "setErrorIndex", "(I)V");
 
     // make sure the ParsePosition is valid. Actually icu4c would parse a number
     // correctly even if the parsePosition is set to -1, but since the RI fails
     // for that case we have to fail too
     int parsePos = env->CallIntMethod(position, gPP_getIndex, NULL);
-    const int strlength = env->GetStringLength(text);
-    if (parsePos < 0 || parsePos > strlength) {
+    if (parsePos < 0 || parsePos > env->GetStringLength(text)) {
         return NULL;
     }
 

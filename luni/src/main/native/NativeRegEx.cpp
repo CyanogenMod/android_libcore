@@ -20,13 +20,13 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
+#include "jni.h"
+#include "unicode/parseerr.h"
 #include "unicode/uregex.h"
 #include "unicode/utypes.h"
-#include "unicode/parseerr.h"
-
-#include <jni.h>
-#include <JNIHelp.h>
 
 static jchar EMPTY_STRING = 0;
 
@@ -45,14 +45,12 @@ struct RegExData {
 static void throwPatternSyntaxException(JNIEnv* env, UErrorCode status,
                                         jstring pattern, UParseError error)
 {
-    jclass clazz = env->FindClass("java/util/regex/PatternSyntaxException");
-    jmethodID method = env->GetMethodID(clazz, "<init>",
-                                    "(Ljava/lang/String;Ljava/lang/String;I)V");
-
+    jmethodID method = env->GetMethodID(JniConstants::patternSyntaxExceptionClass,
+            "<init>", "(Ljava/lang/String;Ljava/lang/String;I)V");
     jstring message = env->NewStringUTF(u_errorName(status));
-    jthrowable except = (jthrowable)(env->NewObject(clazz, method, message,
-                                                    pattern, error.offset));
-    env->Throw(except);
+    jobject exception = env->NewObject(JniConstants::patternSyntaxExceptionClass, method,
+            message, pattern, error.offset);
+    env->Throw(reinterpret_cast<jthrowable>(exception));
 }
 
 static void throwRuntimeException(JNIEnv* env, UErrorCode status) {

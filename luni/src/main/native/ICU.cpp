@@ -18,6 +18,7 @@
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
@@ -46,8 +47,6 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
-
-static jclass string_class;
 
 class ScopedResourceBundle {
 public:
@@ -213,7 +212,7 @@ static jobjectArray toStringArray(JNIEnv* env, const char* const* strings) {
     while (strings[count] != NULL) {
         ++count;
     }
-    jobjectArray result = env->NewObjectArray(count, string_class, NULL);
+    jobjectArray result = env->NewObjectArray(count, JniConstants::stringClass, NULL);
     for (size_t i = 0; i < count; ++i) {
         ScopedLocalRef<jstring> s(env, env->NewStringUTF(strings[i]));
         env->SetObjectArrayElement(result, i, s.get());
@@ -232,7 +231,7 @@ static jobjectArray getISOLanguagesNative(JNIEnv* env, jclass) {
 template <typename Counter, typename Getter>
 static jobjectArray getAvailableLocales(JNIEnv* env, Counter* counter, Getter* getter) {
     size_t count = (*counter)();
-    jobjectArray result = env->NewObjectArray(count, string_class, NULL);
+    jobjectArray result = env->NewObjectArray(count, JniConstants::stringClass, NULL);
     for (size_t i = 0; i < count; ++i) {
         ScopedLocalRef<jstring> s(env, env->NewStringUTF((*getter)(i)));
         env->SetObjectArrayElement(result, i, s.get());
@@ -386,7 +385,7 @@ static jobjectArray getAmPmMarkers(JNIEnv* env, UResourceBundle* gregorian) {
         return NULL;
     }
 
-    jobjectArray amPmMarkers = env->NewObjectArray(2, string_class, NULL);
+    jobjectArray amPmMarkers = env->NewObjectArray(2, JniConstants::stringClass, NULL);
     ScopedLocalRef<jstring> amU(env, env->NewString(am, lengthAm));
     env->SetObjectArrayElement(amPmMarkers, 0, amU.get());
     ScopedLocalRef<jstring> pmU(env, env->NewString(pm, lengthPm));
@@ -408,7 +407,7 @@ static jobjectArray getEras(JNIEnv* env, UResourceBundle* gregorian) {
     }
 
     int eraCount = ures_getSize(eraElems.get());
-    jobjectArray eras = env->NewObjectArray(eraCount, string_class, NULL);
+    jobjectArray eras = env->NewObjectArray(eraCount, JniConstants::stringClass, NULL);
     for (int i = 0; i < eraCount; ++i) {
         int eraLength;
         const jchar* era = ures_getStringByIndex(eraElems.get(), i, &eraLength, &status);
@@ -435,7 +434,7 @@ static jobjectArray getNames(JNIEnv* env, UResourceBundle* namesBundle, bool mon
 
     // The months array has a trailing empty string. The days array has a leading empty string.
     int count = ures_getSize(valuesBundle.get());
-    jobjectArray result = env->NewObjectArray(count + 1, string_class, NULL);
+    jobjectArray result = env->NewObjectArray(count + 1, JniConstants::stringClass, NULL);
     env->SetObjectArrayElement(result, months ? count : 0, env->NewStringUTF(""));
     int arrayOffset = months ? 0 : 1;
     for (int i = 0; i < count; ++i) {
@@ -467,20 +466,17 @@ static jstring getIntCurrencyCode(JNIEnv* env, jstring locale) {
 
 static void setIntegerField(JNIEnv* env, jobject obj, const char* fieldName, int value) {
     ScopedLocalRef<jobject> integerValue(env, integerValueOf(env, value));
-    jclass localeDataClass = env->FindClass("com/ibm/icu4jni/util/LocaleData");
-    jfieldID fid = env->GetFieldID(localeDataClass, fieldName, "Ljava/lang/Integer;");
+    jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, fieldName, "Ljava/lang/Integer;");
     env->SetObjectField(obj, fid, integerValue.get());
 }
 
 static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, jstring value) {
-    jclass localeDataClass = env->FindClass("com/ibm/icu4jni/util/LocaleData");
-    jfieldID fid = env->GetFieldID(localeDataClass, fieldName, "Ljava/lang/String;");
+    jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, fieldName, "Ljava/lang/String;");
     env->SetObjectField(obj, fid, value);
 }
 
 static void setStringArrayField(JNIEnv* env, jobject obj, const char* fieldName, jobjectArray value) {
-    jclass localeDataClass = env->FindClass("com/ibm/icu4jni/util/LocaleData");
-    jfieldID fid = env->GetFieldID(localeDataClass, fieldName, "[Ljava/lang/String;");
+    jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, fieldName, "[Ljava/lang/String;");
     env->SetObjectField(obj, fid, value);
 }
 
@@ -500,8 +496,7 @@ static void setCharField(JNIEnv* env, jobject obj, const char* fieldName, UResou
     int charCount;
     const UChar* chars = ures_getStringByIndex(bundle, index, &charCount, &status);
     if (U_SUCCESS(status)) {
-        jclass localeDataClass = env->FindClass("com/ibm/icu4jni/util/LocaleData");
-        jfieldID fid = env->GetFieldID(localeDataClass, fieldName, "C");
+        jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, fieldName, "C");
         env->SetCharField(obj, fid, chars[0]);
     } else {
         LOGE("Error setting char field %s from ICU resource: %s", fieldName, u_errorName(status));
@@ -653,11 +648,5 @@ static JNINativeMethod gMethods[] = {
     {"initLocaleDataImpl", "(Ljava/lang/String;Lcom/ibm/icu4jni/util/LocaleData;)Z", (void*) initLocaleDataImpl},
 };
 int register_com_ibm_icu4jni_util_Resources(JNIEnv* env) {
-    jclass stringclass = env->FindClass("java/lang/String");
-    if (stringclass == NULL) {
-        return -1;
-    }
-    string_class = (jclass) env->NewGlobalRef(stringclass);
-
     return jniRegisterNativeMethods(env, "com/ibm/icu4jni/util/ICU", gMethods, NELEM(gMethods));
 }
