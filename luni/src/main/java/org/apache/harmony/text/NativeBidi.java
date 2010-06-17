@@ -22,7 +22,7 @@ package org.apache.harmony.text;
  * straight through to ICU4J.
  */
 
-public final class BidiWrapper {
+public final class NativeBidi {
 
     public static final int UBIDI_DEFAULT_LTR = 0xfe;
 
@@ -57,13 +57,12 @@ public final class BidiWrapper {
 
     // Perform the Unicode BiDi algorithm.
     public static native void ubidi_setPara(long pBiDi, char[] text,
-            int length, byte paraLevel, byte[] embeddingLevels);
+            int length, int paraLevel, byte[] embeddingLevels);
 
     // ubidi_setLine() sets a UBiDi to contain the reordering information,
     // especially the resolved levels, for all the characters in a line of
     // text.
-    public static native long ubidi_setLine(final long pParaBiDi, int start,
-            int limit);
+    public static native long ubidi_setLine(final long pParaBiDi, int start, int limit);
 
     // Get the directionality of the text.
     public static native int ubidi_getDirection(final long pBiDi);

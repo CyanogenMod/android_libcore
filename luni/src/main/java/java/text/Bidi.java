@@ -19,10 +19,10 @@ package java.text;
 
 import java.awt.font.NumericShaper;
 import java.awt.font.TextAttribute;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import org.apache.harmony.text.BidiRun;
-import org.apache.harmony.text.BidiWrapper;
+import org.apache.harmony.text.NativeBidi;
 
 /**
  * Provides the Unicode Bidirectional Algorithm. The algorithm is
@@ -62,27 +62,6 @@ public final class Bidi {
      */
     public static final int DIRECTION_RIGHT_TO_LEFT = 1;
 
-    // BEGIN android-removed
-    // /*
-    //  * Converts the constant from the value specified in the Java spec, to the
-    //  * value required by the ICU implementation.
-    //  */
-    // private final static int convertDirectionConstant(int javaConst) {
-    //     switch (javaConst) {
-    //     case DIRECTION_DEFAULT_LEFT_TO_RIGHT : return com.ibm.icu.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT;
-    //     case DIRECTION_DEFAULT_RIGHT_TO_LEFT : return com.ibm.icu.text.Bidi.DIRECTION_DEFAULT_RIGHT_TO_LEFT;
-    //     case DIRECTION_LEFT_TO_RIGHT         : return com.ibm.icu.text.Bidi.DIRECTION_LEFT_TO_RIGHT;
-    //     case DIRECTION_RIGHT_TO_LEFT         : return com.ibm.icu.text.Bidi.DIRECTION_RIGHT_TO_LEFT;
-    //     default                              : return com.ibm.icu.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT;
-    //     }
-    // }
-    //
-    // /*
-    //  * Use an embedded ICU4J Bidi object to do all the work
-    //  */
-    // private com.ibm.icu.text.Bidi icuBidi;
-    // END android-removed
-
     /**
      * Creates a {@code Bidi} object from the {@code
      * AttributedCharacterIterator} of a paragraph text. The RUN_DIRECTION
@@ -112,12 +91,10 @@ public final class Bidi {
             throw new IllegalArgumentException("paragraph is null");
         }
 
-        // BEGIN android-added
         int begin = paragraph.getBeginIndex();
         int end = paragraph.getEndIndex();
         int length = end - begin;
-        char text[] = new char[length + 1]; // One more char for
-        // AttributedCharacterIterator.DONE
+        char text[] = new char[length + 1]; // One more char for AttributedCharacterIterator.DONE
 
         if (length != 0) {
             text[0] = paragraph.first();
@@ -141,8 +118,7 @@ public final class Bidi {
         for (int textLimit = 1, i = 1; i < length; textLimit = paragraph
                 .getRunLimit(TextAttribute.BIDI_EMBEDDING)
                 - begin + 1) {
-            Object embedding = paragraph
-                    .getAttribute(TextAttribute.BIDI_EMBEDDING);
+            Object embedding = paragraph.getAttribute(TextAttribute.BIDI_EMBEDDING);
             if (embedding != null && embedding instanceof Integer) {
                 int embLevel = ((Integer) embedding).intValue();
 
@@ -162,16 +138,18 @@ public final class Bidi {
         }
 
         // Apply NumericShaper to the text
-        Object numericShaper = paragraph
-                .getAttribute(TextAttribute.NUMERIC_SHAPING);
+        Object numericShaper = paragraph.getAttribute(TextAttribute.NUMERIC_SHAPING);
         if (numericShaper != null && numericShaper instanceof NumericShaper) {
             ((NumericShaper) numericShaper).shape(text, 0, length);
         }
 
-        long pBidi = createUBiDi(text, 0, embeddings, 0, length, flags);
-        readBidiInfo(pBidi);
-        BidiWrapper.ubidi_close(pBidi);
-        // END android-added
+        long bidi = 0;
+        try {
+            bidi = createUBiDi(text, 0, embeddings, 0, length, flags);
+            readBidiInfo(bidi);
+        } finally {
+            NativeBidi.ubidi_close(bidi);
+        }
     }
 
     /**
@@ -230,12 +208,13 @@ public final class Bidi {
             throw new IllegalArgumentException("Negative paragraph length " + paragraphLength);
         }
 
-        // BEGIN android-changed
-        long pBidi = createUBiDi(text, textStart, embeddings, embStart,
-                paragraphLength, flags);
-        readBidiInfo(pBidi);
-        BidiWrapper.ubidi_close(pBidi);
-        // END android-changed
+        long bidi = 0;
+        try {
+            bidi = createUBiDi(text, textStart, embeddings, embStart, paragraphLength, flags);
+            readBidiInfo(bidi);
+        } finally {
+            NativeBidi.ubidi_close(bidi);
+        }
     }
 
     /**
@@ -259,7 +238,6 @@ public final class Bidi {
                 (paragraph == null ? 0 : paragraph.length()), flags);
     }
 
-    // BEGIN android-added
     // create the native UBiDi struct, need to be closed with ubidi_close().
     private static long createUBiDi(char[] text, int textStart,
             byte[] embeddings, int embStart, int paragraphLength, int flags) {
@@ -278,19 +256,17 @@ public final class Bidi {
                 throw new IllegalArgumentException();
             }
             if (paragraphLength > 0) {
-                Bidi temp = new Bidi(text, textStart, null, 0, paragraphLength,
-                        flags);
+                Bidi temp = new Bidi(text, textStart, null, 0, paragraphLength, flags);
                 realEmbeddings = new byte[paragraphLength];
-                System.arraycopy(temp.offsetLevel, 0, realEmbeddings, 0,
-                        paragraphLength);
+                System.arraycopy(temp.offsetLevel, 0, realEmbeddings, 0, paragraphLength);
                 for (int i = 0; i < paragraphLength; i++) {
                     byte e = embeddings[i];
                     if (e < 0) {
-                        realEmbeddings[i] = (byte) (BidiWrapper.UBIDI_LEVEL_OVERRIDE - e);
+                        realEmbeddings[i] = (byte) (NativeBidi.UBIDI_LEVEL_OVERRIDE - e);
                     } else if (e > 0) {
                         realEmbeddings[i] = e;
                     } else {
-                        realEmbeddings[i] |= (byte) BidiWrapper.UBIDI_LEVEL_OVERRIDE;
+                        realEmbeddings[i] |= (byte) NativeBidi.UBIDI_LEVEL_OVERRIDE;
                     }
                 }
             }
@@ -300,9 +276,17 @@ public final class Bidi {
             flags = 0;
         }
 
-        long bidi = BidiWrapper.ubidi_open();
-        BidiWrapper.ubidi_setPara(bidi, realText, paragraphLength,
-                (byte) flags, realEmbeddings);
+        long bidi = 0;
+        boolean needsDeletion = true;
+        try {
+            bidi = NativeBidi.ubidi_open();
+            NativeBidi.ubidi_setPara(bidi, realText, paragraphLength, flags, realEmbeddings);
+            needsDeletion = false;
+        } finally {
+            if (needsDeletion) {
+                NativeBidi.ubidi_close(bidi);
+            }
+        }
         return bidi;
     }
 
@@ -313,21 +297,20 @@ public final class Bidi {
 
     // read info from the native UBiDi struct
     private void readBidiInfo(long pBidi) {
+        length = NativeBidi.ubidi_getLength(pBidi);
 
-        length = BidiWrapper.ubidi_getLength(pBidi);
+        offsetLevel = (length == 0) ? null : NativeBidi.ubidi_getLevels(pBidi);
 
-        offsetLevel = (length == 0) ? null : BidiWrapper.ubidi_getLevels(pBidi);
+        baseLevel = NativeBidi.ubidi_getParaLevel(pBidi);
 
-        baseLevel = BidiWrapper.ubidi_getParaLevel(pBidi);
-
-        int runCount = BidiWrapper.ubidi_countRuns(pBidi);
+        int runCount = NativeBidi.ubidi_countRuns(pBidi);
         if (runCount == 0) {
             unidirectional = true;
             runs = null;
         } else if (runCount < 0) {
             runs = null;
         } else {
-            runs = BidiWrapper.ubidi_getRuns(pBidi);
+            runs = NativeBidi.ubidi_getRuns(pBidi);
 
             // Simplified case for one run which has the base level
             if (runCount == 1 && runs[0].getLevel() == baseLevel) {
@@ -336,7 +319,7 @@ public final class Bidi {
             }
         }
 
-        direction = BidiWrapper.ubidi_getDirection(pBidi);
+        direction = NativeBidi.ubidi_getDirection(pBidi);
     }
 
     private int baseLevel;
@@ -350,7 +333,6 @@ public final class Bidi {
     private int direction;
 
     private boolean unidirectional;
-    // END android-added
 
     /**
      * Returns whether the base level is from left to right.
@@ -358,9 +340,7 @@ public final class Bidi {
      * @return true if the base level is from left to right.
      */
     public boolean baseIsLeftToRight() {
-        // BEGIN android-changed
         return baseLevel % 2 == 0 ? true : false;
-        // END android-changed
     }
 
     /**
@@ -400,11 +380,9 @@ public final class Bidi {
             if (lineStart == lineLimit) {
                 return createEmptyLineBidi(parent);
             }
-            return new Bidi(BidiWrapper.ubidi_setLine(parent, lineStart, lineLimit));
+            return new Bidi(NativeBidi.ubidi_setLine(parent, lineStart, lineLimit));
         } finally {
-            if (parent != 0) {
-                BidiWrapper.ubidi_close(parent);
-            }
+            NativeBidi.ubidi_close(parent);
         }
     }
 
@@ -424,9 +402,7 @@ public final class Bidi {
      * @return the base level.
      */
     public int getBaseLevel() {
-        // BEGIN android-changed
         return baseLevel;
-        // END android-changed
     }
 
     /**
@@ -435,9 +411,7 @@ public final class Bidi {
      * @return the length.
      */
     public int getLength() {
-        // BEGIN android-changed
         return length;
-        // END android-changed
     }
 
     /**
@@ -448,13 +422,11 @@ public final class Bidi {
      * @return the level.
      */
     public int getLevelAt(int offset) {
-        // BEGIN android-changed
         try {
-            return offsetLevel[offset] & ~BidiWrapper.UBIDI_LEVEL_OVERRIDE;
+            return offsetLevel[offset] & ~NativeBidi.UBIDI_LEVEL_OVERRIDE;
         } catch (RuntimeException e) {
             return baseLevel;
         }
-        // END android-changed
     }
 
     /**
@@ -463,9 +435,7 @@ public final class Bidi {
      * @return the number of runs, at least 1.
      */
     public int getRunCount() {
-        // BEGIN android-changed
         return unidirectional ? 1 : runs.length;
-        // END android-changed
     }
 
     /**
@@ -476,9 +446,7 @@ public final class Bidi {
      * @return the level of the run.
      */
     public int getRunLevel(int run) {
-        // BEGIN android-changed
         return unidirectional ? baseLevel : runs[run].getLevel();
-        // END android-changed
     }
 
     /**
@@ -489,9 +457,7 @@ public final class Bidi {
      * @return the limit offset of the run.
      */
     public int getRunLimit(int run) {
-        // BEGIN android-changed
         return unidirectional ? length : runs[run].getLimit();
-        // END android-changed
     }
 
     /**
@@ -502,9 +468,7 @@ public final class Bidi {
      * @return the start offset of the run.
      */
     public int getRunStart(int run) {
-        // BEGIN android-changed
         return unidirectional ? 0 : runs[run].getStart();
-        // END android-changed
     }
 
     /**
@@ -515,9 +479,7 @@ public final class Bidi {
      *         otherwise.
      */
     public boolean isLeftToRight() {
-        // BEGIN android-changed
-        return direction == BidiWrapper.UBiDiDirection_UBIDI_LTR;
-        // END android-changed
+        return direction == NativeBidi.UBiDiDirection_UBIDI_LTR;
     }
 
     /**
@@ -527,9 +489,7 @@ public final class Bidi {
      *         otherwise.
      */
     public boolean isMixed() {
-        // BEGIN android-changed
-        return direction == BidiWrapper.UBiDiDirection_UBIDI_MIXED;
-        // END android-changed
+        return direction == NativeBidi.UBiDiDirection_UBIDI_MIXED;
     }
 
     /**
@@ -540,9 +500,7 @@ public final class Bidi {
      *         otherwise.
      */
     public boolean isRightToLeft() {
-        // BEGIN android-changed
-        return direction == BidiWrapper.UBiDiDirection_UBIDI_RTL;
-        // END android-changed
+        return direction == NativeBidi.UBiDiDirection_UBIDI_RTL;
     }
 
     /**
@@ -577,19 +535,17 @@ public final class Bidi {
                     ", objectStart=" + objectStart + ", count=" + count + ")");
         }
 
-        // BEGIN android-changed
         byte[] realLevels = new byte[count];
         System.arraycopy(levels, levelStart, realLevels, 0, count);
 
-        int[] indices = BidiWrapper.ubidi_reorderVisual(realLevels, count);
+        int[] indices = NativeBidi.ubidi_reorderVisual(realLevels, count);
 
-        LinkedList<Object> result = new LinkedList<Object>();
+        ArrayList<Object> result = new ArrayList<Object>(count);
         for (int i = 0; i < count; i++) {
-            result.addLast(objects[objectStart + indices[i]]);
+            result.add(objects[objectStart + indices[i]]);
         }
 
         System.arraycopy(result.toArray(), 0, objects, objectStart, count);
-        // END android-changed
     }
 
     /**
@@ -610,15 +566,12 @@ public final class Bidi {
      *             object's paragraph text.
      */
     public static boolean requiresBidi(char[] text, int start, int limit) {
-        //int length = text.length;
         if (limit < 0 || start < 0 || start > limit || limit > text.length) {
             throw new IllegalArgumentException();
         }
 
-        // BEGIN android-changed
         Bidi bidi = new Bidi(text, start, null, 0, limit - start, 0);
         return !bidi.isLeftToRight();
-        // END android-changed
     }
 
     /**
@@ -629,10 +582,8 @@ public final class Bidi {
      */
     @Override
     public String toString() {
-        // BEGIN android-changed
-        return super.toString()
+        return getClass().getName()
                 + "[direction: " + direction + " baseLevel: " + baseLevel
                 + " length: " + length + " runs: " + Arrays.toString(runs) + "]";
-        // END android-changed
     }
 }
