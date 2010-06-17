@@ -21,7 +21,7 @@ LOCAL_SRC_FILES := \
 	commonDblParce.cpp \
 	java_io_Console.cpp \
 	java_io_File.cpp \
-	java_io_FileDescriptor.c \
+	java_io_FileDescriptor.cpp \
 	java_io_ObjectInputStream.cpp \
 	java_io_ObjectOutputStream.cpp \
 	java_io_ObjectStreamClass.cpp \

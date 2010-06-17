@@ -30,7 +30,6 @@ jclass JniConstants::deflaterClass;
 jclass JniConstants::doubleClass;
 jclass JniConstants::fieldClass;
 jclass JniConstants::fieldPositionIteratorClass;
-jclass JniConstants::fileDescriptorClass;
 jclass JniConstants::genericIPMreqClass;
 jclass JniConstants::inetAddressClass;
 jclass JniConstants::inflaterClass;
@@ -68,7 +67,6 @@ void JniConstants::init(JNIEnv* env) {
     doubleClass = findClass(env, "java/lang/Double");
     fieldClass = findClass(env, "java/lang/reflect/Field");
     fieldPositionIteratorClass = findClass(env, "com/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator");
-    fileDescriptorClass = findClass(env, "java/io/FileDescriptor");
     genericIPMreqClass = findClass(env, "org/apache/harmony/luni/net/GenericIPMreq");
     inetAddressClass = findClass(env, "java/net/InetAddress");
     inflaterClass = findClass(env, "java/util/zip/Inflater");

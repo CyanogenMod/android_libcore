@@ -63,14 +63,10 @@ public final class FileDescriptor {
 
     boolean readOnly = false;
 
-    private static native void oneTimeInitialization();
-
     static {
         in.descriptor = 0;
         out.descriptor = 1;
         err.descriptor = 2;
-
-        oneTimeInitialization();
     }
 
     /**

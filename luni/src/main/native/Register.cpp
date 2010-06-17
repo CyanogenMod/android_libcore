@@ -32,7 +32,7 @@ extern int register_com_ibm_icu4jni_text_NativeNormalizer(JNIEnv* env);
 extern int register_com_ibm_icu4jni_util_Resources(JNIEnv* env);
 extern int register_java_io_Console(JNIEnv* env);
 extern int register_java_io_File(JNIEnv* env);
-extern "C" int register_java_io_FileDescriptor(JNIEnv* env);
+extern int register_java_io_FileDescriptor(JNIEnv* env);
 extern int register_java_io_ObjectInputStream(JNIEnv* env);
 extern int register_java_io_ObjectOutputStream(JNIEnv* env);
 extern int register_java_io_ObjectStreamClass(JNIEnv* env);
