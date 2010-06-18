@@ -18,8 +18,10 @@ package javax.net.ssl;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import junit.framework.Assert;
 
@@ -29,15 +31,395 @@ import junit.framework.Assert;
  *
  * Initially based on "Appendix A: Standard Names" of
  * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#AppA">
- * Java Secure Socket Extension (JSSE) Reference Guide for the JavaTM 2 Platform Standard Edition 5
- * </a>
+ * Java &trade; Secure Socket Extension (JSSE) Reference Guide
+ * for the Java &trade; 2 Platform Standard Edition 5
+ * </a>.
  *
- * Updated based on the "The SunJSSE Provider" section of
- * <a href="java.sun.com/javase/6/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider">
- * Java Cryptography Architecture Sun Providers Documentation for JavaTM Platform Standard Edition 6
- * </a>
+ * Updated based on the
+ * <a href="http://java.sun.com/javase/6/docs/technotes/guides/security/SunProviders.html">
+ * Java &trade; Cryptography Architecture Sun Providers Documentation
+ * for Java &trade; Platform Standard Edition 6
+ * </a>.
+ * See also the
+ * <a href="http://java.sun.com/javase/6/docs/technotes/guides/security/StandardNames.html">
+ * Java &trade; Cryptography Architecture Standard Algorithm Name Documentation
+ * </a>.
  */
 public final class StandardNames extends Assert {
+
+    /**
+     * A map from algorithm type (e.g. Cipher) to a set of algorithms (e.g. AES, DES, ...)
+     */
+    public static final Map<String,Set<String>> PROVIDER_ALGORITHMS
+            = new HashMap<String,Set<String>>();
+    private static void provide(String type, String algorithm) {
+        Set<String> algorithms = PROVIDER_ALGORITHMS.get(type);
+        if (algorithms == null) {
+            algorithms = new HashSet();
+            PROVIDER_ALGORITHMS.put(type, algorithms);
+        }
+        assertTrue("Duplicate " + type + " " + algorithm,
+                   algorithms.add(algorithm.toUpperCase()));
+    }
+    private static void unprovide(String type, String algorithm) {
+        Set<String> algorithms = PROVIDER_ALGORITHMS.get(type);
+        assertNotNull(algorithms);
+        assertTrue(algorithm, algorithms.remove(algorithm.toUpperCase()));
+        if (algorithms.isEmpty()) {
+            assertNotNull(PROVIDER_ALGORITHMS.remove(type));
+        }
+    }
+    static {
+        provide("AlgorithmParameterGenerator", "DSA");
+        provide("AlgorithmParameterGenerator", "DiffieHellman");
+        provide("AlgorithmParameters", "AES");
+        provide("AlgorithmParameters", "Blowfish");
+        provide("AlgorithmParameters", "DES");
+        provide("AlgorithmParameters", "DESede");
+        provide("AlgorithmParameters", "DSA");
+        provide("AlgorithmParameters", "DiffieHellman");
+        provide("AlgorithmParameters", "OAEP");
+        provide("AlgorithmParameters", "PBEWithMD5AndDES");
+        provide("AlgorithmParameters", "PBEWithMD5AndTripleDES");
+        provide("AlgorithmParameters", "PBEWithSHA1AndDESede");
+        provide("AlgorithmParameters", "PBEWithSHA1AndRC2_40");
+        provide("AlgorithmParameters", "RC2");
+        provide("CertPathBuilder", "PKIX");
+        provide("CertPathValidator", "PKIX");
+        provide("CertStore", "Collection");
+        provide("CertStore", "LDAP");
+        provide("CertificateFactory", "X.509");
+        provide("Cipher", "AES");
+        provide("Cipher", "AESWrap");
+        provide("Cipher", "ARCFOUR");
+        provide("Cipher", "Blowfish");
+        provide("Cipher", "DES");
+        provide("Cipher", "DESede");
+        provide("Cipher", "DESedeWrap");
+        provide("Cipher", "PBEWithMD5AndDES");
+        provide("Cipher", "PBEWithMD5AndTripleDES");
+        provide("Cipher", "PBEWithSHA1AndDESede");
+        provide("Cipher", "PBEWithSHA1AndRC2_40");
+        provide("Cipher", "RC2");
+        provide("Cipher", "RSA");
+        provide("Configuration", "JavaLoginConfig");
+        provide("KeyAgreement", "DiffieHellman");
+        provide("KeyFactory", "DSA");
+        provide("KeyFactory", "DiffieHellman");
+        provide("KeyFactory", "RSA");
+        provide("KeyGenerator", "AES");
+        provide("KeyGenerator", "ARCFOUR");
+        provide("KeyGenerator", "Blowfish");
+        provide("KeyGenerator", "DES");
+        provide("KeyGenerator", "DESede");
+        provide("KeyGenerator", "HmacMD5");
+        provide("KeyGenerator", "HmacSHA1");
+        provide("KeyGenerator", "HmacSHA256");
+        provide("KeyGenerator", "HmacSHA384");
+        provide("KeyGenerator", "HmacSHA512");
+        provide("KeyGenerator", "RC2");
+        provide("KeyInfoFactory", "DOM");
+        provide("KeyManagerFactory", "SunX509");
+        provide("KeyPairGenerator", "DSA");
+        provide("KeyPairGenerator", "DiffieHellman");
+        provide("KeyPairGenerator", "RSA");
+        provide("KeyStore", "JCEKS");
+        provide("KeyStore", "JKS");
+        provide("KeyStore", "PKCS12");
+        provide("Mac", "HmacMD5");
+        provide("Mac", "HmacSHA1");
+        provide("Mac", "HmacSHA256");
+        provide("Mac", "HmacSHA384");
+        provide("Mac", "HmacSHA512");
+        provide("MessageDigest", "MD2");
+        provide("MessageDigest", "MD5");
+        provide("MessageDigest", "SHA-256");
+        provide("MessageDigest", "SHA-384");
+        provide("MessageDigest", "SHA-512");
+        provide("Policy", "JavaPolicy");
+        provide("SSLContext", "SSLv3");
+        provide("SSLContext", "TLSv1");
+        provide("SecretKeyFactory", "DES");
+        provide("SecretKeyFactory", "DESede");
+        provide("SecretKeyFactory", "PBEWithMD5AndDES");
+        provide("SecretKeyFactory", "PBEWithMD5AndTripleDES");
+        provide("SecretKeyFactory", "PBEWithSHA1AndDESede");
+        provide("SecretKeyFactory", "PBEWithSHA1AndRC2_40");
+        provide("SecretKeyFactory", "PBKDF2WithHmacSHA1");
+        provide("SecureRandom", "SHA1PRNG");
+        provide("Signature", "MD2withRSA");
+        provide("Signature", "MD5withRSA");
+        provide("Signature", "NONEwithDSA");
+        provide("Signature", "SHA1withDSA");
+        provide("Signature", "SHA1withRSA");
+        provide("Signature", "SHA256withRSA");
+        provide("Signature", "SHA384withRSA");
+        provide("Signature", "SHA512withRSA");
+        provide("TerminalFactory", "PC/SC");
+        provide("TransformService", "http://www.w3.org/2000/09/xmldsig#base64");
+        provide("TransformService", "http://www.w3.org/2000/09/xmldsig#enveloped-signature");
+        provide("TransformService", "http://www.w3.org/2001/10/xml-exc-c14n#");
+        provide("TransformService", "http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
+        provide("TransformService", "http://www.w3.org/2002/06/xmldsig-filter2");
+        provide("TransformService", "http://www.w3.org/TR/1999/REC-xpath-19991116");
+        provide("TransformService", "http://www.w3.org/TR/1999/REC-xslt-19991116");
+        provide("TransformService", "http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
+        provide("TransformService", "http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments");
+        provide("TrustManagerFactory", "PKIX");
+        provide("XMLSignatureFactory", "DOM");
+
+        // Not clearly documented by RI
+        provide("GssApiMechanism", "1.2.840.113554.1.2.2");
+        provide("GssApiMechanism", "1.3.6.1.5.5.2");
+
+        // Not correctly documented by RI which left off the Factory suffix
+        provide("SaslClientFactory", "CRAM-MD5");
+        provide("SaslClientFactory", "DIGEST-MD5");
+        provide("SaslClientFactory", "EXTERNAL");
+        provide("SaslClientFactory", "GSSAPI");
+        provide("SaslClientFactory", "PLAIN");
+        provide("SaslServerFactory", "CRAM-MD5");
+        provide("SaslServerFactory", "DIGEST-MD5");
+        provide("SaslServerFactory", "GSSAPI");
+
+        // Documentation seems to list alias instead of actual name
+        // provide("MessageDigest", "SHA-1");
+        provide("MessageDigest", "SHA");
+
+        // Mentioned in javadoc, not documentation
+        provide("SSLContext", "Default");
+
+        // Not documented as in RI 6 but mentioned in Standard Names
+        provide("AlgorithmParameters", "PBE");
+        provide("SSLContext", "SSL");
+        provide("SSLContext", "TLS");
+
+        // Not documented as in RI 6 but that exist in RI 6
+        if (TestSSLContext.IS_RI) {
+            provide("CertStore", "com.sun.security.IndexedCollection");
+            provide("KeyGenerator", "SunTlsKeyMaterial");
+            provide("KeyGenerator", "SunTlsMasterSecret");
+            provide("KeyGenerator", "SunTlsPrf");
+            provide("KeyGenerator", "SunTlsRsaPremasterSecret");
+            provide("KeyManagerFactory", "NewSunX509");
+            provide("KeyStore", "CaseExactJKS");
+            provide("Mac", "HmacPBESHA1");
+            provide("Mac", "SslMacMD5");
+            provide("Mac", "SslMacSHA1");
+            provide("SecureRandom", "NativePRNG");
+            provide("Signature", "MD5andSHA1withRSA");
+            provide("TrustManagerFactory", "SunX509");
+        }
+
+        // Fixups for dalvik
+        if (!TestSSLContext.IS_RI) {
+
+            // whole types that we do not provide
+            PROVIDER_ALGORITHMS.remove("Configuration");
+            PROVIDER_ALGORITHMS.remove("GssApiMechanism");
+            PROVIDER_ALGORITHMS.remove("KeyInfoFactory");
+            PROVIDER_ALGORITHMS.remove("Policy");
+            PROVIDER_ALGORITHMS.remove("SaslClientFactory");
+            PROVIDER_ALGORITHMS.remove("SaslServerFactory");
+            PROVIDER_ALGORITHMS.remove("TerminalFactory");
+            PROVIDER_ALGORITHMS.remove("TransformService");
+            PROVIDER_ALGORITHMS.remove("XMLSignatureFactory");
+
+            // different names
+            unprovide("AlgorithmParameterGenerator", "DiffieHellman");
+            provide("AlgorithmParameterGenerator", "DH");
+
+            unprovide("AlgorithmParameters", "DiffieHellman");
+            provide("AlgorithmParameters", "DH");
+
+            unprovide("CertificateFactory", "X.509");
+            provide("CertificateFactory", "X509");
+
+            unprovide("Cipher", "PBEWithSHA1AndRC2_40");
+            provide("Cipher", "PBEWithSHAAnd40BitRC2-CBC");
+
+            unprovide("KeyAgreement", "DiffieHellman");
+            provide("KeyAgreement", "DH");
+
+            unprovide("KeyFactory", "DiffieHellman");
+            provide("KeyFactory", "DH");
+
+            unprovide("KeyManagerFactory", "SunX509");
+            provide("KeyManagerFactory", "X509");
+
+            unprovide("KeyPairGenerator", "DiffieHellman");
+            provide("KeyPairGenerator", "DH");
+
+            unprovide("MessageDigest", "SHA");
+            provide("MessageDigest", "SHA-1");
+
+            unprovide("SecretKeyFactory", "PBEWithSHA1AndRC2_40");
+            provide("SecretKeyFactory", "PBEWithSHAAnd40BitRC2-CBC");
+
+            unprovide("Signature", "MD5withRSA");
+            provide("Signature", "MD5WithRSAEncryption");
+            unprovide("Signature", "SHA1withRSA");
+            provide("Signature", "SHA1WithRSAEncryption");
+            unprovide("Signature", "SHA256WithRSA");
+            provide("Signature", "SHA256WithRSAEncryption");
+            unprovide("Signature", "SHA384WithRSA");
+            provide("Signature", "SHA384WithRSAEncryption");
+            unprovide("Signature", "SHA512WithRSA");
+            provide("Signature", "SHA512WithRSAEncryption");
+
+            // dropped the Sun prefix
+            provide("TrustManagerFactory", "X509");
+
+            // extra noise
+            provide("AlgorithmParameterGenerator", "1.2.840.113549.3.7");
+            provide("AlgorithmParameterGenerator", "1.3.14.3.2.7");
+            provide("AlgorithmParameterGenerator", "AES");
+            provide("AlgorithmParameterGenerator", "DES");
+            provide("AlgorithmParameterGenerator", "DESede");
+            provide("AlgorithmParameters", "1.2.840.113549.3.7");
+            provide("AlgorithmParameters", "IES");
+            provide("AlgorithmParameters", "PKCS12PBE");
+            provide("AlgorithmParameters", "PSS");
+            provide("CertificateFactory", "X.509");
+            provide("Cipher", "1.2.840.113549.1.1.1");
+            provide("Cipher", "1.2.840.113549.1.1.7");
+            provide("Cipher", "1.2.840.113549.1.9.16.3.6");
+            provide("Cipher", "1.2.840.113549.3.7");
+            provide("Cipher", "1.3.14.3.2.7");
+            provide("Cipher", "2.16.840.1.101.3.4.1.1");
+            provide("Cipher", "2.16.840.1.101.3.4.1.2");
+            provide("Cipher", "2.16.840.1.101.3.4.1.21");
+            provide("Cipher", "2.16.840.1.101.3.4.1.22");
+            provide("Cipher", "2.16.840.1.101.3.4.1.23");
+            provide("Cipher", "2.16.840.1.101.3.4.1.24");
+            provide("Cipher", "2.16.840.1.101.3.4.1.3");
+            provide("Cipher", "2.16.840.1.101.3.4.1.4");
+            provide("Cipher", "2.16.840.1.101.3.4.1.41");
+            provide("Cipher", "2.16.840.1.101.3.4.1.42");
+            provide("Cipher", "2.16.840.1.101.3.4.1.43");
+            provide("Cipher", "2.16.840.1.101.3.4.1.44");
+            provide("Cipher", "2.5.8.1.1");
+            provide("Cipher", "BrokenPBEWithMD5AndDES");
+            provide("Cipher", "BrokenPBEWithSHA1AndDES");
+            provide("Cipher", "BrokenPBEWithSHAAnd2-KEYTripleDES-CBC");
+            provide("Cipher", "BrokenPBEWithSHAAnd3-KEYTripleDES-CBC");
+            provide("Cipher", "BrokenIES");
+            provide("Cipher", "IES");
+            provide("Cipher", "OldPBEWithSHAAnd3-KEYTripleDES-CBC");
+            provide("Cipher", "PBEWithMD5And128BitAES-CBC-OpenSSL");
+            provide("Cipher", "PBEWithMD5And192BitAES-CBC-OpenSSL");
+            provide("Cipher", "PBEWithMD5And256BitAES-CBC-OpenSSL");
+            provide("Cipher", "PBEWithMD5AndRC2");
+            provide("Cipher", "PBEWithSHA1AndDES");
+            provide("Cipher", "PBEWithSHA256And128BitAES-CBC-BC");
+            provide("Cipher", "PBEWithSHA256And192BitAES-CBC-BC");
+            provide("Cipher", "PBEWithSHA256And256BitAES-CBC-BC");
+            provide("Cipher", "PBEWithSHAAnd128BitAES-CBC-BC");
+            provide("Cipher", "PBEWithSHAAnd192BitAES-CBC-BC");
+            provide("Cipher", "PBEWithSHAAnd2-KEYTripleDES-CBC");
+            provide("Cipher", "PBEWithSHAAnd256BitAES-CBC-BC");
+            provide("Cipher", "PBEWithSHAAnd3-KEYTripleDES-CBC");
+            provide("Cipher", "RSA/1");
+            provide("Cipher", "RSA/2");
+            provide("Cipher", "RSA/ISO9796-1");
+            provide("Cipher", "RSA/OAEP");
+            provide("Cipher", "RSA/PKCS1");
+            provide("Cipher", "RSA/RAW");
+            provide("KeyFactory", "X.509");
+            provide("KeyGenerator", "1.2.840.113549.3.7");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.1");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.2");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.21");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.22");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.23");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.24");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.25");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.3");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.4");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.41");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.42");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.43");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.44");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.45");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.1.5");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.2");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.22");
+            provide("KeyGenerator", "2.16.840.1.101.3.4.42");
+            provide("KeyGenerator", "AESWrap");
+            provide("KeyGenerator", "DESedeWrap");
+            provide("KeyGenerator", "HmacSHA224");
+            provide("KeyStore", "BCPKCS12");
+            provide("KeyStore", "BKS");
+            provide("KeyStore", "BouncyCastle");
+            provide("KeyStore", "PKCS12-DEF");
+            provide("Mac", "DESedeMAC");
+            provide("Mac", "DESedeMAC/CFB8");
+            provide("Mac", "DESedeMAC64");
+            provide("Mac", "DESMAC");
+            provide("Mac", "DESMAC/CFB8");
+            provide("Mac", "DESWithISO9797");
+            provide("Mac", "HmacSHA224");
+            provide("Mac", "ISO9797ALG3MAC");
+            provide("Mac", "PBEWithHmacSHA");
+            provide("Mac", "PBEWithHmacSHA1");
+            provide("MessageDigest", "SHA-224");
+            provide("SecretKeyFactory", "PBEWithHmacSHA1");
+            provide("SecretKeyFactory", "PBEWithMD5And128BitAES-CBC-OpenSSL");
+            provide("SecretKeyFactory", "PBEWithMD5And192BitAES-CBC-OpenSSL");
+            provide("SecretKeyFactory", "PBEWithMD5And256BitAES-CBC-OpenSSL");
+            provide("SecretKeyFactory", "PBEWithMD5AndRC2");
+            provide("SecretKeyFactory", "PBEWithSHA1AndDES");
+            provide("SecretKeyFactory", "PBEWithSHA1AndRC2");
+            provide("SecretKeyFactory", "PBEWithSHA256And128BitAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWithSHA256And192BitAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWithSHA256And256BitAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWithSHAAnd128BitAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWithSHAAnd192BitAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWithSHAAnd2-KEYTripleDES-CBC");
+            provide("SecretKeyFactory", "PBEWithSHAAnd256BitAES-CBC-BC");
+            provide("SecretKeyFactory", "PBEWithSHAAnd3-KEYTripleDES-CBC");
+            provide("Signature", "1.2.840.113549.1.1.10");
+            provide("Signature", "DSA");
+            provide("Signature", "MD4WithRSAEncryption");
+            provide("Signature", "MD5withRSA/ISO9796-2");
+            provide("Signature", "RSASSA-PSS");
+            provide("Signature", "SHA1withRSA/ISO9796-2");
+            provide("Signature", "SHA1withRSA/PSS");
+            provide("Signature", "SHA224WithRSAEncryption");
+            provide("Signature", "SHA224withRSA/PSS");
+            provide("Signature", "SHA256withRSA/PSS");
+            provide("Signature", "SHA384withRSA/PSS");
+            provide("Signature", "SHA512withRSA/PSS");
+
+            // missing
+            unprovide("AlgorithmParameters", "Blowfish");
+            unprovide("AlgorithmParameters", "PBE");
+            unprovide("AlgorithmParameters", "PBEWithMD5AndDES");
+            unprovide("AlgorithmParameters", "PBEWithMD5AndTripleDES");
+            unprovide("AlgorithmParameters", "PBEWithSHA1AndDESede");
+            unprovide("AlgorithmParameters", "PBEWithSHA1AndRC2_40");
+            unprovide("AlgorithmParameters", "RC2");
+            unprovide("CertStore", "LDAP");
+            unprovide("Cipher", "ARCFOUR");
+            unprovide("Cipher", "Blowfish");
+            unprovide("Cipher", "PBEWithMD5AndTripleDES");
+            unprovide("Cipher", "PBEWithSHA1AndDESede");
+            unprovide("Cipher", "RC2");
+            unprovide("KeyGenerator", "ARCFOUR");
+            unprovide("KeyGenerator", "Blowfish");
+            unprovide("KeyGenerator", "RC2");
+            unprovide("KeyStore", "JCEKS");
+            unprovide("KeyStore", "JKS");
+            unprovide("MessageDigest", "MD2");
+            unprovide("SecretKeyFactory", "PBEWithMD5AndTripleDES");
+            unprovide("SecretKeyFactory", "PBEWithSHA1AndDESede");
+            unprovide("SecretKeyFactory", "PBKDF2WithHmacSHA1");
+            unprovide("SSLContext", "SSLv3");
+            unprovide("SSLContext", "TLSv1");
+            unprovide("Signature", "MD2withRSA");
+            unprovide("TrustManagerFactory", "PKIX");
+        }
+    }
 
     public static final String SSL_CONTEXT_PROTOCOLS_DEFAULT = "Default";
     public static final Set<String> SSL_CONTEXT_PROTOCOLS = new HashSet<String>(Arrays.asList(
