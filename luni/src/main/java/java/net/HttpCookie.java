@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import libcore.base.Objects;
 
 /**
  * An opaque key-value value pair held by an HTTP client to permit a stateful
@@ -725,7 +726,7 @@ public final class HttpCookie implements Cloneable {
             HttpCookie that = (HttpCookie) object;
             return name.equalsIgnoreCase(that.getName())
                     && (domain != null ? domain.equalsIgnoreCase(that.domain) : that.domain == null)
-                    && (path != null ? path.equals(that.path) : that.path == null);
+                    && Objects.equal(path, that.path);
         }
         return false;
     }

@@ -21,6 +21,7 @@ import java.security.AccessController;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.PrivilegedAction;
+import libcore.base.Objects;
 
 /**
  * A permission for accessing a file or directory. The FilePermission is made up
@@ -210,10 +211,8 @@ public final class FilePermission extends Permission implements Serializable {
     public boolean equals(Object obj) {
         if (obj instanceof FilePermission) {
             FilePermission fp = (FilePermission) obj;
-            if (fp.actions != actions) {
-                if (fp.actions == null || !fp.actions.equals(actions)) {
-                    return false;
-                }
+            if (!Objects.equal(fp.actions, actions)) {
+                return false;
             }
 
             /* Matching actions and both are <<ALL FILES>> ? */

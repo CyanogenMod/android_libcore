@@ -277,7 +277,7 @@ public abstract class TimeZone implements Serializable, Cloneable {
      * Returns a time zone whose ID is {@code id}. Time zone IDs are typically
      * named by geographic identifiers like {@code America/Los_Angeles} or GMT
      * offsets like {@code GMT-8:00}. Three letter IDs like {@code PST} are
-     * supported but should not be used because they is often ambiguous.
+     * supported but should not be used because they are often ambiguous.
      *
      * @return a time zone with the specified ID, or {@code GMT} if the ID
      *     is not recognized and cannot be parsed.

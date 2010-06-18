@@ -27,6 +27,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
+import libcore.base.Objects;
 
 /**
  * HashMap is an implementation of {@link Map}. All optional operations are supported.
@@ -755,8 +756,8 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
                 return false;
             }
             Entry<?, ?> e = (Entry<?, ?>) o;
-            return HashMap.equals(e.getKey(), key)
-                    && HashMap.equals(e.getValue(), value);
+            return Objects.equal(e.getKey(), key)
+                    && Objects.equal(e.getValue(), value);
         }
 
         @Override public final int hashCode() {
@@ -838,7 +839,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
     private boolean containsMapping(Object key, Object value) {
         if (key == null) {
             HashMapEntry<K, V> e = entryForNullKey;
-            return e != null && equals(value, e.value);
+            return e != null && Objects.equal(value, e.value);
         }
 
         int hash = secondaryHash(key.hashCode());
@@ -846,7 +847,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
         int index = hash & (tab.length - 1);
         for (HashMapEntry<K, V> e = tab[index]; e != null; e = e.next) {
             if (e.hash == hash && key.equals(e.key)) {
-                return equals(value, e.value);
+                return Objects.equal(value, e.value);
             }
         }
         return false; // No entry for key
@@ -859,7 +860,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
     private boolean removeMapping(Object key, Object value) {
         if (key == null) {
             HashMapEntry<K, V> e = entryForNullKey;
-            if (e == null || !equals(value, e.value)) {
+            if (e == null || !Objects.equal(value, e.value)) {
                 return false;
             }
             entryForNullKey = null;
@@ -875,7 +876,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
         for (HashMapEntry<K, V> e = tab[index], prev = null;
                 e != null; prev = e, e = e.next) {
             if (e.hash == hash && key.equals(e.key)) {
-                if (!equals(value, e.value)) {
+                if (!Objects.equal(value, e.value)) {
                     return false;  // Map has wrong value for key
                 }
                 if (prev == null) {
@@ -890,10 +891,6 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
             }
         }
         return false; // No entry for key
-    }
-
-    private static boolean equals(Object o1, Object o2) {
-        return o1 == o2 || (o1 != null && o1.equals(o2));
     }
 
     // Subclass (LinkedHashMap) overrides these for correct iteration order

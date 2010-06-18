@@ -46,6 +46,7 @@ import java.util.HashSet;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import libcore.base.Objects;
 
 /**
  * Framework for serialization testing. Subclasses only need to override
@@ -113,7 +114,7 @@ public abstract class SerializationTest extends TestCase {
     @Override
     public void runBare() throws Throwable {
 
-        if (mode != null && mode.equals(SERIAL_REFERENCE_MODE)) {
+        if (Objects.equal(mode, SERIAL_REFERENCE_MODE)) {
             produceGoldenFiles();
         } else {
             super.runBare();

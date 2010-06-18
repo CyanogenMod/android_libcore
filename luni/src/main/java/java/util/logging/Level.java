@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import libcore.base.Objects;
 
 /**
  * {@code Level} objects are used to indicate the level of logging. There are a
@@ -262,10 +263,7 @@ public class Level implements Serializable {
                 if (!name.equals(level.name)) {
                     continue;
                 }
-                if (resourceBundleName == level.resourceBundleName) {
-                    return level;
-                } else if (resourceBundleName != null
-                        && resourceBundleName.equals(level.resourceBundleName)) {
+                if (Objects.equal(resourceBundleName, level.resourceBundleName)) {
                     return level;
                 }
             }
