@@ -71,7 +71,6 @@ public class AllTests {
         suite.addTestSuite(StringTokenizerTest.class);
         suite.addTestSuite(TimerTaskTest.class);
         suite.addTestSuite(TimerTest.class);
-        suite.addTestSuite(TimeZoneTest.class);
         suite.addTestSuite(TooManyListenersExceptionTest.class);
         suite.addTestSuite(VectorTest.class);
         suite.addTestSuite(WeakHashMapTest.class);

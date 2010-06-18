@@ -17,11 +17,9 @@
 
 package org.apache.harmony.security.tests.java.security;
 
+import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-
 import java.security.InvalidParameterException;
 import java.security.Provider;
 import java.security.Security;
@@ -29,7 +27,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import tests.support.Support_ProviderTrust;
 import tests.support.Support_TestProvider;
 

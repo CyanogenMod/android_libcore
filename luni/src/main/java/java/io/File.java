@@ -36,10 +36,8 @@ import java.security.AccessController;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.harmony.luni.util.DeleteOnExit;
 import org.apache.harmony.luni.util.PriviAction;
-import org.apache.harmony.luni.util.Util;
 
 /**
  * An "abstract" representation of a file system entity identified by a
@@ -260,19 +258,17 @@ public class File implements Serializable, Comparable<File> {
         return haveSlash ? (prefix + suffix) : (prefix + separatorChar + suffix);
     }
 
-    @SuppressWarnings("nls")
     private void checkURI(URI uri) {
         if (!uri.isAbsolute()) {
             throw new IllegalArgumentException("URI is not absolute: " + uri);
         } else if (!uri.getRawSchemeSpecificPart().startsWith("/")) {
             throw new IllegalArgumentException("URI is not hierarchical: " + uri);
         }
-        String temp = uri.getScheme();
-        if (temp == null || !temp.equals("file")) {
+        if (!"file".equals(uri.getScheme())) {
             throw new IllegalArgumentException("Expected file scheme in URI: " + uri);
         }
-        temp = uri.getRawPath();
-        if (temp == null || temp.isEmpty()) {
+        String rawPath = uri.getRawPath();
+        if (rawPath == null || rawPath.isEmpty()) {
             throw new IllegalArgumentException("Expected non-empty path in URI: " + uri);
         }
         if (uri.getRawAuthority() != null) {

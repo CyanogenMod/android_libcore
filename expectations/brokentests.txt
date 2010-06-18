@@ -654,6 +654,11 @@ test tests.api.java.nio.charset.UTFCharsetEncoderTest#testSpecificDefaultValue
 result EXEC_FAILED
 pattern .*junit.framework.AssertionFailedError: expected:<1.1> but was:<2.0>.*
 
+# We don't permit runtime switching of the default charset (and neither does the RI)
+test org.apache.harmony.nio_char.tests.java.nio.charset.CharsetTest#test_defaultCharset
+result EXEC_FAILED
+pattern .*expected:<ISO-8859-1> but was:<UTF-8>.*
+
 # this test needs external interaction
 test com.sun.tools.attach.Application
 result UNSUPPORTED
