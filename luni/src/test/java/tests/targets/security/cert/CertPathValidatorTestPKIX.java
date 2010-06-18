@@ -37,7 +37,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-@TestTargetClass(targets.CertPathValidators.PKIX.class)
 public class CertPathValidatorTestPKIX extends CertPathValidatorTest {
 
     private CertPath certPath;

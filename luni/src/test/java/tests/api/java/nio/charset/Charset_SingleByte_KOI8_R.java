@@ -29,8 +29,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.KOI8_R.class)
-
 public class Charset_SingleByte_KOI8_R extends Charset_SingleByteAbstractTest {
 
     protected void setUp() throws Exception {

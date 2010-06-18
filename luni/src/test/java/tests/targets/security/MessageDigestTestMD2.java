@@ -27,7 +27,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
 
-@TestTargetClass(targets.MessageDigests.MD2.class)
 public class MessageDigestTestMD2 extends TestCase {
 
     @TestTargetNew(

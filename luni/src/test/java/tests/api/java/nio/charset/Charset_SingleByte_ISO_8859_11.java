@@ -30,7 +30,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.ISO_8859_11.class)
 @AndroidOnly("charset x-iso-8859_11-2001 not supported ")
 public class Charset_SingleByte_ISO_8859_11 extends Charset_SingleByteAbstractTest {
 

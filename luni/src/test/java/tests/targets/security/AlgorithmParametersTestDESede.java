@@ -19,7 +19,6 @@ import javax.crypto.spec.IvParameterSpec;
 
 import dalvik.annotation.TestTargetClass;
 
-@TestTargetClass(targets.AlgorithmParameters.DESede.class)
 public class AlgorithmParametersTestDESede extends AlgorithmParametersTest {
 
     private static final byte[] parameterData = new byte[] {

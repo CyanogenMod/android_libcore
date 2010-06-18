@@ -29,8 +29,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.UTF_8.class)
-
 public class Charset_MultiByte_UTF_8 extends Charset_AbstractTest {
 
     @Override

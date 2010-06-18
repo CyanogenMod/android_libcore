@@ -18,7 +18,6 @@ package tests.api.java.nio.charset;
 import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.TestTargetClass;
 
-@TestTargetClass(targets.Charsets.ISO_8859_10.class)
 @AndroidOnly("icu")
 public class Charset_ISO_8859_10 extends Charset_AbstractTest {
 

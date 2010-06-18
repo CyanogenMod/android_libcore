@@ -21,7 +21,6 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 
-@TestTargetClass(targets.KeyPairGenerators.DH.class)
 public class KeyPairGeneratorTestDH extends KeyPairGeneratorTest {
 
     public KeyPairGeneratorTestDH() {
