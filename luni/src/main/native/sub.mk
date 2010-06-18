@@ -3,10 +3,10 @@
 # or BUILD_*_LIBRARY.
 
 LOCAL_SRC_FILES := \
-	BidiWrapper.cpp \
 	ErrorCode.cpp \
 	ICU.cpp \
 	JniConstants.cpp \
+	NativeBidi.cpp \
 	NativeBreakIterator.cpp \
 	NativeCollation.cpp \
 	NativeConverter.cpp \

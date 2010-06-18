@@ -54,7 +54,7 @@ extern int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env);
 extern int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv* env);
 extern int register_org_apache_harmony_luni_util_fltparse(JNIEnv* env);
-extern int register_org_apache_harmony_text_BidiWrapper(JNIEnv* env);
+extern int register_org_apache_harmony_text_NativeBidi(JNIEnv* env);
 extern int register_org_apache_harmony_xml_ExpatParser(JNIEnv* env);
 extern int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env);
 extern int register_org_openssl_NativeBN(JNIEnv* env);
@@ -98,7 +98,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_org_apache_harmony_luni_platform_OSNetworkSystem(env) != -1 &&
             register_org_apache_harmony_luni_util_NumberConvert(env) != -1 &&
             register_org_apache_harmony_luni_util_fltparse(env) != -1 &&
-            register_org_apache_harmony_text_BidiWrapper(env) != -1 &&
+            register_org_apache_harmony_text_NativeBidi(env) != -1 &&
             register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(env) != -1 &&
             register_org_openssl_NativeBN(env) != -1 &&
             // Initialize the Android classes last, as they have dependencies on the "corer" core classes.

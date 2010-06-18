@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define LOG_TAG "BidiWrapper"
+
+#define LOG_TAG "NativeBidi"
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
@@ -63,15 +64,15 @@ static UBiDi* uBiDi(jlong ptr) {
     return reinterpret_cast<BiDiData*>(static_cast<uintptr_t>(ptr))->uBiDi();
 }
 
-static jlong BidiWrapper_ubidi_open(JNIEnv*, jclass) {
+static jlong NativeBidi_ubidi_open(JNIEnv*, jclass) {
     return reinterpret_cast<uintptr_t>(new BiDiData(ubidi_open()));
 }
 
-static void BidiWrapper_ubidi_close(JNIEnv*, jclass, jlong ptr) {
+static void NativeBidi_ubidi_close(JNIEnv*, jclass, jlong ptr) {
     delete biDiData(ptr);
 }
 
-static void BidiWrapper_ubidi_setPara(JNIEnv* env, jclass, jlong ptr, jcharArray text, jint length, jbyte paraLevel, jbyteArray newEmbeddingLevels) {
+static void NativeBidi_ubidi_setPara(JNIEnv* env, jclass, jlong ptr, jcharArray text, jint length, jint paraLevel, jbyteArray newEmbeddingLevels) {
     BiDiData* data = biDiData(ptr);
     // Copy the new embedding levels from the Java heap to the native heap.
     if (newEmbeddingLevels != NULL) {
@@ -87,7 +88,7 @@ static void BidiWrapper_ubidi_setPara(JNIEnv* env, jclass, jlong ptr, jcharArray
     icu4jni_error(env, err);
 }
 
-static jlong BidiWrapper_ubidi_setLine(JNIEnv* env, jclass, jlong ptr, jint start, jint limit) {
+static jlong NativeBidi_ubidi_setLine(JNIEnv* env, jclass, jlong ptr, jint start, jint limit) {
     UErrorCode err = U_ZERO_ERROR;
     UBiDi* sized = ubidi_openSized(limit - start, 0, &err);
     if (icu4jni_error(env, err) != FALSE) {
@@ -99,19 +100,19 @@ static jlong BidiWrapper_ubidi_setLine(JNIEnv* env, jclass, jlong ptr, jint star
     return reinterpret_cast<uintptr_t>(lineData.release());
 }
 
-static jint BidiWrapper_ubidi_getDirection(JNIEnv*, jclass, jlong ptr) {
+static jint NativeBidi_ubidi_getDirection(JNIEnv*, jclass, jlong ptr) {
     return ubidi_getDirection(uBiDi(ptr));
 }
 
-static jint BidiWrapper_ubidi_getLength(JNIEnv*, jclass, jlong ptr) {
+static jint NativeBidi_ubidi_getLength(JNIEnv*, jclass, jlong ptr) {
     return ubidi_getLength(uBiDi(ptr));
 }
 
-static jbyte BidiWrapper_ubidi_getParaLevel(JNIEnv*, jclass, jlong ptr) {
+static jbyte NativeBidi_ubidi_getParaLevel(JNIEnv*, jclass, jlong ptr) {
     return ubidi_getParaLevel(uBiDi(ptr));
 }
 
-static jbyteArray BidiWrapper_ubidi_getLevels(JNIEnv* env, jclass, jlong ptr) {
+static jbyteArray NativeBidi_ubidi_getLevels(JNIEnv* env, jclass, jlong ptr) {
     UErrorCode err = U_ZERO_ERROR;
     const UBiDiLevel* levels = ubidi_getLevels(uBiDi(ptr), &err);
     if (icu4jni_error(env, err)) {
@@ -123,14 +124,14 @@ static jbyteArray BidiWrapper_ubidi_getLevels(JNIEnv* env, jclass, jlong ptr) {
     return result;
 }
 
-static jint BidiWrapper_ubidi_countRuns(JNIEnv* env, jclass, jlong ptr) {
+static jint NativeBidi_ubidi_countRuns(JNIEnv* env, jclass, jlong ptr) {
     UErrorCode err = U_ZERO_ERROR;
     int count = ubidi_countRuns(uBiDi(ptr), &err);
     icu4jni_error(env, err);
     return count;
 }
 
-static jobjectArray BidiWrapper_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
+static jobjectArray NativeBidi_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
     UBiDi* ubidi = uBiDi(ptr);
     UErrorCode err = U_ZERO_ERROR;
     int runCount = ubidi_countRuns(ubidi, &err);
@@ -151,7 +152,7 @@ static jobjectArray BidiWrapper_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
     return runs;
 }
 
-static jintArray BidiWrapper_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray javaLevels, jint length) {
+static jintArray NativeBidi_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray javaLevels, jint length) {
     ScopedByteArrayRO levelBytes(env, javaLevels);
     const UBiDiLevel* levels = reinterpret_cast<const UBiDiLevel*>(levelBytes.get());
 
@@ -164,19 +165,19 @@ static jintArray BidiWrapper_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray
 }
 
 static JNINativeMethod gMethods[] = {
-    { "ubidi_close", "(J)V", (void*) BidiWrapper_ubidi_close },
-    { "ubidi_countRuns", "(J)I", (void*) BidiWrapper_ubidi_countRuns },
-    { "ubidi_getDirection", "(J)I", (void*) BidiWrapper_ubidi_getDirection },
-    { "ubidi_getLength", "(J)I", (void*) BidiWrapper_ubidi_getLength },
-    { "ubidi_getLevels", "(J)[B", (void*) BidiWrapper_ubidi_getLevels },
-    { "ubidi_getParaLevel", "(J)B", (void*) BidiWrapper_ubidi_getParaLevel },
-    { "ubidi_getRuns", "(J)[Lorg/apache/harmony/text/BidiRun;", (void*) BidiWrapper_ubidi_getRuns },
-    { "ubidi_open", "()J", (void*) BidiWrapper_ubidi_open },
-    { "ubidi_reorderVisual", "([BI)[I", (void*) BidiWrapper_ubidi_reorderVisual },
-    { "ubidi_setLine", "(JII)J", (void*) BidiWrapper_ubidi_setLine },
-    { "ubidi_setPara", "(J[CIB[B)V", (void*) BidiWrapper_ubidi_setPara },
+    { "ubidi_close", "(J)V", (void*) NativeBidi_ubidi_close },
+    { "ubidi_countRuns", "(J)I", (void*) NativeBidi_ubidi_countRuns },
+    { "ubidi_getDirection", "(J)I", (void*) NativeBidi_ubidi_getDirection },
+    { "ubidi_getLength", "(J)I", (void*) NativeBidi_ubidi_getLength },
+    { "ubidi_getLevels", "(J)[B", (void*) NativeBidi_ubidi_getLevels },
+    { "ubidi_getParaLevel", "(J)B", (void*) NativeBidi_ubidi_getParaLevel },
+    { "ubidi_getRuns", "(J)[Lorg/apache/harmony/text/BidiRun;", (void*) NativeBidi_ubidi_getRuns },
+    { "ubidi_open", "()J", (void*) NativeBidi_ubidi_open },
+    { "ubidi_reorderVisual", "([BI)[I", (void*) NativeBidi_ubidi_reorderVisual },
+    { "ubidi_setLine", "(JII)J", (void*) NativeBidi_ubidi_setLine },
+    { "ubidi_setPara", "(J[CII[B)V", (void*) NativeBidi_ubidi_setPara },
 };
-int register_org_apache_harmony_text_BidiWrapper(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "org/apache/harmony/text/BidiWrapper",
+int register_org_apache_harmony_text_NativeBidi(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "org/apache/harmony/text/NativeBidi",
             gMethods, NELEM(gMethods));
 }
