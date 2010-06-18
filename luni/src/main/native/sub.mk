@@ -13,6 +13,7 @@ LOCAL_SRC_FILES := \
 	NativeDecimalFormat.cpp \
 	NativeIDN.cpp \
 	NativeNormalizer.cpp \
+	NativePluralRules.cpp \
 	NativeRegEx.cpp \
 	NetworkUtilities.cpp \
 	Register.cpp \
