@@ -32,7 +32,6 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 
-@TestTargetClass(targets.Signatures.MD2withRSA.class)
 public class SignatureTestMD2withRSA extends TestCase {
 
     @TestTargetNew(

@@ -17,7 +17,6 @@ package tests.targets.security.cert;
 
 import dalvik.annotation.TestTargetClass;
 
-@TestTargetClass(targets.CertificateFactories.X509.class)
 public class CertificateFactoryTestX509 extends CertificateFactoryTest {
 
     public CertificateFactoryTestX509() {

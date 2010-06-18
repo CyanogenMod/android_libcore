@@ -22,9 +22,6 @@ import dalvik.annotation.TestTargetNew;
 
 import junit.framework.TestCase;
 
-import targets.Cipher;
-
-@TestTargetClass(Cipher.PBE.class)
 public class CipherPBETest extends TestCase {
 
     @TestTargetNew(

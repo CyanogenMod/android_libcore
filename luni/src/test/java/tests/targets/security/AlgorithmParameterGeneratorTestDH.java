@@ -21,7 +21,6 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 
-@TestTargetClass(targets.AlgorithmParameterGenerators.DH.class)
 public class AlgorithmParameterGeneratorTestDH extends
         AlgorithmParameterGeneratorTest {
 

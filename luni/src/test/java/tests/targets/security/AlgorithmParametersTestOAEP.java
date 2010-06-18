@@ -22,7 +22,6 @@ import java.security.spec.MGF1ParameterSpec;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
-@TestTargetClass(targets.AlgorithmParameters.OAEP.class)
 public class AlgorithmParametersTestOAEP extends AlgorithmParametersTest {
 
     public AlgorithmParametersTestOAEP() {

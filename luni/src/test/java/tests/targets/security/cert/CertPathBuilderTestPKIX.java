@@ -34,7 +34,6 @@ import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
-@TestTargetClass(targets.CertPathBuilders.PKIX.class)
 public class CertPathBuilderTestPKIX extends CertPathBuilderTest {
 
     public CertPathBuilderTestPKIX() {

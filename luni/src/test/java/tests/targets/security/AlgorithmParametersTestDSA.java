@@ -20,7 +20,6 @@ import java.security.spec.DSAParameterSpec;
 
 import dalvik.annotation.TestTargetClass;
 
-@TestTargetClass(targets.AlgorithmParameters.DSA.class)
 public class AlgorithmParametersTestDSA extends AlgorithmParametersTest {
 
     private static final byte[] P = new byte[] {

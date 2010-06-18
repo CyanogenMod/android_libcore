@@ -20,7 +20,6 @@ import dalvik.annotation.TestTargetClass;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
 
-@TestTargetClass(targets.KeyFactories.DSA.class)
 public class KeyFactoryTestDSA extends
         KeyFactoryTest<DSAPublicKeySpec, DSAPrivateKeySpec> {
 

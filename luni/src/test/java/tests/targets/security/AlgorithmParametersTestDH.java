@@ -25,7 +25,6 @@ import java.math.BigInteger;
 
 import javax.crypto.spec.DHParameterSpec;
 
-@TestTargetClass(targets.AlgorithmParameters.DH.class)
 public class AlgorithmParametersTestDH extends AlgorithmParametersTest {
 
     private static final byte[] P = new byte[] {

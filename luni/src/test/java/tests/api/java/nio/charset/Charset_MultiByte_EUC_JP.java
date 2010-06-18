@@ -29,7 +29,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.EUC_JP.class)
 /** @hide
  * SEE correspondig_Android test class:
  */

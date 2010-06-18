@@ -29,8 +29,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.EUC_KR.class)
-
 public class Charset_MultiByte_EUC_KR extends Charset_AbstractTest {
 
     @Override

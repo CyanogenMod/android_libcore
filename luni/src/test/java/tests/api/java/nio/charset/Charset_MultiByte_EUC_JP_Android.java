@@ -25,7 +25,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.EUC_JP.class)
 @AndroidOnly("icu different from RI")
 
 public class Charset_MultiByte_EUC_JP_Android extends Charset_AbstractTest {

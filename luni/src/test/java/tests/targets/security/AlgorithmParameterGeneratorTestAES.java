@@ -17,7 +17,6 @@ package tests.targets.security;
 
 import dalvik.annotation.TestTargetClass;
 
-@TestTargetClass(targets.AlgorithmParameterGenerators.AES.class)
 public class AlgorithmParameterGeneratorTestAES extends
         AlgorithmParameterGeneratorTest {
 

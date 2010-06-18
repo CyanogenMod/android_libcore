@@ -19,7 +19,6 @@ import dalvik.annotation.TestTargetClass;
 
 import javax.crypto.spec.IvParameterSpec;
 
-@TestTargetClass(targets.AlgorithmParameters.DES.class)
 public class AlgorithmParametersTestDES extends AlgorithmParametersTest {
 
     private static final byte[] parameterData = new byte[] {

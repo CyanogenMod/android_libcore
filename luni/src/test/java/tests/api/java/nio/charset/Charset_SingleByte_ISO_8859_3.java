@@ -29,8 +29,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.ISO_8859_3.class)
-
 public class Charset_SingleByte_ISO_8859_3 extends Charset_SingleByteAbstractTest {
 
     protected void setUp() throws Exception {

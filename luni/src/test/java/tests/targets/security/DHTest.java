@@ -22,8 +22,6 @@ import dalvik.annotation.TestTargetNew;
 
 import junit.framework.TestCase;
 
-import targets.KeyPairGenerators;
-
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.KeyPair;
@@ -32,7 +30,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import javax.crypto.spec.DHParameterSpec;
-@TestTargetClass(KeyPairGenerators.DH.class)
+
 public class DHTest extends TestCase {
 
     @TestTargetNew(

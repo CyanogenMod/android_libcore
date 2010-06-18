@@ -19,7 +19,6 @@ import dalvik.annotation.TestTargetClass;
 
 import javax.crypto.spec.IvParameterSpec;
 
-@TestTargetClass(targets.AlgorithmParameters.AES.class)
 public class AlgorithmParametersTestAES extends AlgorithmParametersTest {
 
     private static final byte[] parameterData = new byte[] {
