@@ -72,6 +72,7 @@ LOCAL_JAVA_RESOURCE_DIRS += ../external/emma/core/res ../external/emma/pregenera
 endif
 
 LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := -encoding UTF-8
 LOCAL_DX_FLAGS := --core-library
 
 LOCAL_NO_EMMA_INSTRUMENT := true
