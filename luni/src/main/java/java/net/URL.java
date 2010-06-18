@@ -811,6 +811,11 @@ public final class URL implements java.io.Serializable {
         return port;
     }
 
+    /** @hide */
+    public int getEffectivePort() {
+        return URI.getEffectivePort(protocol, port);
+    }
+
     /**
      * Gets the protocol of this URL.
      *

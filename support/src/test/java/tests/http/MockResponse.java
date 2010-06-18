@@ -64,6 +64,11 @@ public class MockResponse {
         return headers;
     }
 
+    public MockResponse clearHeaders() {
+        headers.clear();
+        return this;
+    }
+
     public MockResponse addHeader(String header) {
         headers.add(header);
         return this;
@@ -107,7 +112,7 @@ public class MockResponse {
             bytesOut.write("\r\n".getBytes(ASCII));
             pos += chunkSize;
         }
-        bytesOut.write("0\r\n".getBytes(ASCII));
+        bytesOut.write("0\r\n\r\n".getBytes(ASCII)); // last chunk + empty trailer + crlf
         this.body = bytesOut.toByteArray();
         return this;
     }

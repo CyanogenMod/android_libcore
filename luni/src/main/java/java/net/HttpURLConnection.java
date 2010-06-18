@@ -18,6 +18,7 @@
 package java.net;
 
 import java.io.IOException;
+import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionImpl;
 
 /**
  * This abstract subclass of {@code URLConnection} defines methods for managing
@@ -29,15 +30,12 @@ import java.io.IOException;
  * @see URLStreamHandler
  */
 public abstract class HttpURLConnection extends URLConnection {
-    @SuppressWarnings("nls")
-    private String methodTokens[] = { "GET", "DELETE", "HEAD", "OPTIONS",
-            "POST", "PUT", "TRACE" };
 
-   /**
+    /**
      * The HTTP request method of this {@code HttpURLConnection}. The default
      * value is {@code "GET"}.
      */
-    protected String method = "GET";
+    protected String method = HttpURLConnectionImpl.GET;
 
     /**
      * The status code of the response obtained from the HTTP request. The
@@ -426,11 +424,11 @@ public abstract class HttpURLConnection extends URLConnection {
         if (connected) {
             throw new ProtocolException("Connection already established");
         }
-        for (int i = 0; i < methodTokens.length; i++) {
-            if (methodTokens[i].equals(method)) {
+        for (String permittedUserMethod : HttpURLConnectionImpl.PERMITTED_USER_METHODS) {
+            if (permittedUserMethod.equals(method)) {
                 // if there is a supported method that matches the desired
                 // method, then set the current method and return
-                this.method = methodTokens[i];
+                this.method = permittedUserMethod;
                 return;
             }
         }

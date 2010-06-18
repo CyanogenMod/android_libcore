@@ -60,10 +60,29 @@ import org.apache.harmony.luni.util.PriviAction;
  * server.
  */
 public class HttpURLConnectionImpl extends HttpURLConnection {
-    private static final String POST = "POST";
-    private static final String GET = "GET";
-    private static final String PUT = "PUT";
-    private static final String HEAD = "HEAD";
+    public static final String OPTIONS = "OPTIONS";
+    public static final String GET = "GET";
+    public static final String HEAD = "HEAD";
+    public static final String POST = "POST";
+    public static final String PUT = "PUT";
+    public static final String DELETE = "DELETE";
+    public static final String TRACE = "TRACE";
+    public static final String CONNECT = "CONNECT";
+
+    /**
+     * The subset of HTTP methods that the user may select via {@link #setRequestMethod}.
+     */
+    public static String PERMITTED_USER_METHODS[] = {
+            OPTIONS,
+            GET,
+            HEAD,
+            POST,
+            PUT,
+            DELETE,
+            TRACE
+            // Note: we don't allow users to specify "CONNECT"
+    };
+
     private static final byte[] CRLF = new byte[] { '\r', '\n' };
     private static final byte[] HEX_DIGITS = new byte[] {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
@@ -407,10 +426,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             bytesRemaining = Integer.parseInt(size.trim(), 16);
             if (bytesRemaining == 0) {
                 atEnd = true;
-                // BEGIN android-note
-                // What is the point of calling readHeaders() here?
-                // END android-note
-                readHeaders();
+                readHeaders(); // actually trailers!
             }
         }
 
@@ -1008,9 +1024,20 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
          * connection (which may get recycled).
          */
         is = null;
-        os = null;
+        os = null; // TODO: should this be socketOut instead?
     }
     // END android-changed
+
+    /**
+     * Discard all state initialized from the HTTP response including response
+     * code, message, headers and body.
+     */
+    protected void discardResponse() {
+        responseCode = -1;
+        responseMessage = null;
+        resHeader = null;
+        uis = null;
+    }
 
     protected void endRequest() throws IOException {
         if (os != null) {
@@ -1156,6 +1183,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     private InputStream getContentStream() throws IOException {
         if (uis != null) {
             return uis;
+        }
+
+        if (!hasResponseBody()) {
+            return uis = new LimitedInputStream(0);
         }
 
         String encoding = resHeader.get("Transfer-Encoding");
@@ -1341,13 +1372,21 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             }
         } while (getResponseCode() == 100);
 
-        if (method == HEAD || (responseCode >= 100 && responseCode < 200)
-                || responseCode == HTTP_NO_CONTENT
-                || responseCode == HTTP_NOT_MODIFIED) {
-            disconnect();
-            uis = new LimitedInputStream(0);
+        if (hasResponseBody()) {
+            maybeCache();
         }
-        maybeCache();
+    }
+
+    /**
+     * Returns true if the response must have a (possibly 0-length) body.
+     * See RFC 2616 section 4.3.
+     */
+    private boolean hasResponseBody() {
+        return method != HEAD
+                && method != CONNECT
+                && (responseCode < 100 || responseCode >= 200)
+                && responseCode != HTTP_NO_CONTENT
+                && responseCode != HTTP_NOT_MODIFIED;
     }
 
     @Override

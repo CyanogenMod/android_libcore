@@ -980,16 +980,20 @@ public final class URI implements Comparable<URI>, Serializable {
         return port;
     }
 
+    /** @hide */
+    public int getEffectivePort() {
+        return getEffectivePort(scheme, port);
+    }
+
     /**
-     * Returns the port of {@code host} that requests to this URI shall use.
-     * Unlike {@code getPort}, this returns the default port (80 or 443) for
-     * built-in protocols when known.
+     * Returns the port to use for {@code scheme} connections will use when
+     * {@link #getPort} returns {@code specifiedPort}.
      *
      * @hide
      */
-    public int getEffectivePort() {
-        if (port != -1) {
-            return port;
+    public static int getEffectivePort(String scheme, int specifiedPort) {
+        if (specifiedPort != -1) {
+            return specifiedPort;
         }
 
         if ("http".equalsIgnoreCase(scheme)) {

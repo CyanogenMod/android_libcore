@@ -16,10 +16,11 @@
 
 package java.net;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +34,6 @@ import tests.http.RecordedRequest;
 
 public class URLConnectionTest extends junit.framework.TestCase {
 
-    private String readFirstLine(MockWebServer server) throws Exception {
-        URLConnection connection = server.getUrl("/").openConnection();
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String result = in.readLine();
-        in.close();
-        return result;
-    }
-
     // Check that if we don't read to the end of a response, the next request on the
     // recycled connection doesn't get the unread tail of the first request's response.
     // http://code.google.com/p/android/issues/detail?id=2939
@@ -52,9 +45,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         server.enqueue(response);
         server.play();
 
-        assertTrue(readFirstLine(server).equals("ABCDE"));
+        assertContent("ABCDE", server.getUrl("/").openConnection(), 5);
         assertEquals(0, server.takeRequest().getSequenceNumber());
-        assertTrue(readFirstLine(server).equals("ABCDE"));
+        assertContent("ABCDE", server.getUrl("/").openConnection(), 5);
         assertEquals(1, server.takeRequest().getSequenceNumber());
     }
 
@@ -67,11 +60,28 @@ public class URLConnectionTest extends junit.framework.TestCase {
         server.enqueue(response);
         server.play();
 
-        readFirstLine(server);
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
         assertEquals(0, server.takeRequest().getSequenceNumber());
-        readFirstLine(server);
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
         assertEquals(1, server.takeRequest().getSequenceNumber());
-        readFirstLine(server);
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
+        assertEquals(2, server.takeRequest().getSequenceNumber());
+    }
+
+    public void testChunkedConnectionsArePooled() throws Exception {
+        MockResponse response = new MockResponse().setChunkedBody("ABCDEFGHIJKLMNOPQR", 5);
+
+        MockWebServer server = new MockWebServer();
+        server.enqueue(response);
+        server.enqueue(response);
+        server.enqueue(response);
+        server.play();
+
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
+        assertEquals(1, server.takeRequest().getSequenceNumber());
+        assertContent("ABCDEFGHIJKLMNOPQR", server.getUrl("/").openConnection());
         assertEquals(2, server.takeRequest().getSequenceNumber());
     }
 
@@ -221,9 +231,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        assertEquals("this response comes via HTTPS", in.readLine());
-        in.close();
+        assertContent("this response comes via HTTPS", connection);
 
         RecordedRequest request = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
@@ -239,12 +247,41 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
         URLConnection connection = new URL("http://android.com/foo").openConnection(
                 proxy.toProxyAddress());
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        assertEquals("this response comes via a proxy", in.readLine());
+        assertContent("this response comes via a proxy", connection);
 
         RecordedRequest request = proxy.takeRequest();
         assertEquals("GET http://android.com/foo HTTP/1.1", request.getRequestLine());
         assertContains(request.getHeaders(), "Host: android.com");
+    }
+
+    public void testContentDisagreesWithContentLengthHeader() throws IOException {
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("abc\r\nYOU SHOULD NOT SEE THIS")
+                .clearHeaders()
+                .addHeader("Content-Length: 3"));
+        server.play();
+
+        assertContent("abc", server.getUrl("/").openConnection());
+    }
+
+    public void testContentDisagreesWithChunkedHeader() throws IOException {
+        MockWebServer server = new MockWebServer();
+        MockResponse mockResponse = new MockResponse();
+        mockResponse.setResponseCode(200);
+        mockResponse.setChunkedBody("abc", 3);
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        bytesOut.write(mockResponse.getBody());
+        bytesOut.write("\r\nYOU SHOULD NOT SEE THIS".getBytes());
+        mockResponse.setBody(bytesOut.toByteArray());
+        mockResponse.clearHeaders();
+        mockResponse.addHeader("Transfer-encoding: chunked");
+
+        server.enqueue(mockResponse);
+        server.play();
+
+        assertContent("abc", server.getUrl("/").openConnection());
     }
 
     public void testConnectViaHttpProxyToHttps() throws IOException, InterruptedException {
@@ -252,10 +289,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
         MockWebServer proxy = new MockWebServer();
         proxy.useHttps(testSSLContext.sslContext.getSocketFactory(), true);
-        MockResponse connectResponse = new MockResponse()
-                .setResponseCode(200);
-        connectResponse.getHeaders().clear();
-        proxy.enqueue(connectResponse);
+        proxy.enqueue(new MockResponse().setResponseCode(200).clearHeaders()); // for CONNECT
         proxy.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("this response comes via a secure proxy"));
@@ -271,8 +305,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
             }
         });
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        assertEquals("this response comes via a secure proxy", in.readLine());
+        assertContent("this response comes via a secure proxy", connection);
 
         RecordedRequest connect = proxy.takeRequest();
         assertEquals("Connect line failure on proxy",
@@ -282,6 +315,30 @@ public class URLConnectionTest extends junit.framework.TestCase {
         RecordedRequest get = proxy.takeRequest();
         assertEquals("GET /foo HTTP/1.1", get.getRequestLine());
         assertContains(get.getHeaders(), "Host: android.com");
+    }
+
+    /**
+     * Reads at most {@code limit} characters from {@code in} and asserts that
+     * content equals {@code expected}.
+     */
+    private void assertContent(String expected, URLConnection connection, int limit)
+            throws IOException {
+        InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+        StringWriter writer = new StringWriter();
+        char[] buffer = new char[1024];
+        int count;
+        while (limit > 0
+                && (count = reader.read(buffer, 0, Math.min(limit, buffer.length))) != -1) {
+            writer.write(buffer, 0, count);
+            limit -= count;
+        }
+        assertEquals(expected, writer.toString());
+        reader.close();
+        ((HttpURLConnection) connection).disconnect();
+    }
+
+    private void assertContent(String expected, URLConnection connection) throws IOException {
+        assertContent(expected, connection, Integer.MAX_VALUE);
     }
 
     private void assertContains(List<String> headers, String header) {
