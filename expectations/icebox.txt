@@ -152,3 +152,8 @@ pattern .*java.lang.IllegalArgumentException: 5 not in range \(5....*
 test org.apache.harmony.luni.tests.java.util.TreeMapTest#test_descendingMap_subMap
 result EXEC_FAILED
 pattern .*java.lang.IllegalArgumentException: 5 not in range \(5....*
+
+# BouncyCastle allows unrecognized algorithms, but RI does not, not clear if this is a bug
+test org.apache.harmony.crypto.tests.javax.crypto.KeyAgreementTest#test_generateSecretLjava_lang_String
+pattern .*junit.framework.AssertionFailedError: NoSuchAlgorithmException expected.*
+result EXEC_FAILED
