@@ -29,6 +29,7 @@ extern int register_com_ibm_icu4jni_text_NativeCollator(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeDecimalFormat(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeIDN(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeNormalizer(JNIEnv* env);
+extern int register_com_ibm_icu4jni_text_NativePluralRules(JNIEnv* env);
 extern int register_com_ibm_icu4jni_util_Resources(JNIEnv* env);
 extern int register_java_io_Console(JNIEnv* env);
 extern int register_java_io_File(JNIEnv* env);
@@ -74,6 +75,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_com_ibm_icu4jni_text_NativeDecimalFormat(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeIDN(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeNormalizer(env) != -1 &&
+            register_com_ibm_icu4jni_text_NativePluralRules(env) != -1 &&
             register_com_ibm_icu4jni_util_Resources(env) != -1 &&
             register_java_io_Console(env) != -1 &&
             register_java_io_File(env) != -1 &&
