@@ -22,6 +22,7 @@ import java.security.KeyStore;
 import java.security.Principal;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.StandardNames;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
@@ -35,15 +36,12 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  */
 public final class TestSSLContext extends Assert {
 
-    public static final boolean IS_RI
-            = !"Dalvik Core Library".equals(System.getProperty("java.specification.name"));
-    public static final String PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "HarmonyJSSE";
-
     /*
      * The RI and Android have very different default SSLSession cache behaviors.
      * The RI keeps an unlimited number of SSLSesions around for 1 day.
      * Android keeps 10 SSLSessions forever.
      */
+    private static final boolean IS_RI = StandardNames.IS_RI;
     public static final int EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE = (IS_RI) ? 0 : 10;
     public static final int EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE = (IS_RI) ? 0 : 100;
     public static final int EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT = (IS_RI) ? 86400 : 0;
