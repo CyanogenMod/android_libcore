@@ -17,6 +17,7 @@
 package javax.net.ssl;
 
 import dalvik.annotation.KnownFailure;
+import java.security.StandardNames;
 import java.util.Arrays;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import junit.framework.TestCase;

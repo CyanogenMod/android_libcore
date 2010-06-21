@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Set;
-import javax.net.ssl.StandardNames;
 import javax.net.ssl.TestSSLContext;
 import junit.framework.TestCase;
 
@@ -47,7 +46,7 @@ public class ProviderTest extends TestCase {
         for (Provider provider : providers) {
             String providerName = provider.getName();
             // ignore BouncyCastle provider if it is installed on the RI
-            if (TestSSLContext.IS_RI && providerName.equals("BC")) {
+            if (StandardNames.IS_RI && providerName.equals("BC")) {
                 continue;
             }
             Set<Provider.Service> services = provider.getServices();

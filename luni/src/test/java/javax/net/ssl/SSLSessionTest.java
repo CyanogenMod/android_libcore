@@ -16,6 +16,7 @@
 
 package javax.net.ssl;
 
+import java.security.StandardNames;
 import java.util.Arrays;
 import junit.framework.TestCase;
 

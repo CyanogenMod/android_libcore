@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package javax.net.ssl;
+package java.security;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +46,10 @@ import junit.framework.Assert;
  * </a>.
  */
 public final class StandardNames extends Assert {
+
+    public static final boolean IS_RI
+            = !"Dalvik Core Library".equals(System.getProperty("java.specification.name"));
+    public static final String PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "HarmonyJSSE";
 
     /**
      * A map from algorithm type (e.g. Cipher) to a set of algorithms (e.g. AES, DES, ...)
@@ -195,7 +199,7 @@ public final class StandardNames extends Assert {
         provide("SSLContext", "TLS");
 
         // Not documented as in RI 6 but that exist in RI 6
-        if (TestSSLContext.IS_RI) {
+        if (IS_RI) {
             provide("CertStore", "com.sun.security.IndexedCollection");
             provide("KeyGenerator", "SunTlsKeyMaterial");
             provide("KeyGenerator", "SunTlsMasterSecret");
@@ -212,7 +216,7 @@ public final class StandardNames extends Assert {
         }
 
         // Fixups for dalvik
-        if (!TestSSLContext.IS_RI) {
+        if (!IS_RI) {
 
             // OpenSSL implementations with non-Standard algorithm names
             // TODO move our additions to a new provider and use standard names
@@ -363,7 +367,7 @@ public final class StandardNames extends Assert {
         "SSLv3",
         "TLSv1"));
     static {
-        if (TestSSLContext.IS_RI) {
+        if (IS_RI) {
             /* Even though we use OpenSSL's SSLv23_method which
              * supports sending SSLv2 client hello messages, the
              * OpenSSL implementation in s23_client_hello disables
@@ -499,12 +503,12 @@ public final class StandardNames extends Assert {
         addNeither("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA");
         addNeither("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
 
-        CIPHER_SUITES = (TestSSLContext.IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
+        CIPHER_SUITES = (IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
     }
 
     public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
     static {
-        if (!TestSSLContext.IS_RI) {
+        if (!IS_RI) {
             // Android does not include Java versions of RC4 and IDEA
             // Java crypto implementations so these fail to work for
             // the SSLEngine implementation.

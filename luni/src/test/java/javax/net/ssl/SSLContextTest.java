@@ -18,6 +18,7 @@ package javax.net.ssl;
 
 import java.security.KeyManagementException;
 import java.security.Provider;
+import java.security.StandardNames;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import junit.framework.TestCase;
@@ -82,7 +83,7 @@ public class SSLContextTest extends TestCase {
             }
         }
         try {
-            SSLContext.getInstance(null, TestSSLContext.PROVIDER_NAME);
+            SSLContext.getInstance(null, StandardNames.PROVIDER_NAME);
             fail();
         } catch (NullPointerException expected) {
         }
@@ -99,7 +100,7 @@ public class SSLContextTest extends TestCase {
     public void test_SSLContext_getProvider() throws Exception {
         Provider provider = SSLContext.getDefault().getProvider();
         assertNotNull(provider);
-        assertEquals(TestSSLContext.PROVIDER_NAME, provider.getName());
+        assertEquals(StandardNames.PROVIDER_NAME, provider.getName());
     }
 
     public void test_SSLContext_init() throws Exception {
