@@ -41,7 +41,7 @@ public class AllTests {
         suite.addTestSuite(DatagramSocketTest.class);
         suite.addTestSuite(ExcludedProxyTest.class);
         suite.addTestSuite(FileNameMapTest.class);
-	suite.addTestSuite(HttpRetryExceptionTest.class);
+        suite.addTestSuite(HttpRetryExceptionTest.class);
         suite.addTestSuite(IDNTest.class);
         suite.addTestSuite(JarURLConnectionTest.class);
         suite.addTestSuite(MalformedURLExceptionTest.class);
@@ -72,7 +72,6 @@ public class AllTests {
         suite.addTestSuite(URLEncoderTest.class);
         suite.addTestSuite(UnknownHostExceptionTest.class);
         suite.addTestSuite(UnknownServiceExceptionTest.class);
-        suite.addTestSuite(URLStreamHandlerFactoryTest.class);
         suite.addTestSuite(URLStreamHandlerTest.class);
 
         // $JUnit-END$
