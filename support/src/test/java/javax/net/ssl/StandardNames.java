@@ -214,6 +214,16 @@ public final class StandardNames extends Assert {
         // Fixups for dalvik
         if (!TestSSLContext.IS_RI) {
 
+            // OpenSSL implementations with non-Standard algorithm names
+            // TODO move our additions to a new provider and use standard names
+            // See also HarmonyJSSE provider additions for OpenSSL
+            provide("Cipher", "PBEWithMD5And128BitAES-CBC-OpenSSL");
+            provide("Cipher", "PBEWithMD5And192BitAES-CBC-OpenSSL");
+            provide("Cipher", "PBEWithMD5And256BitAES-CBC-OpenSSL");
+            provide("SecretKeyFactory", "PBEWithMD5And128BitAES-CBC-OpenSSL");
+            provide("SecretKeyFactory", "PBEWithMD5And192BitAES-CBC-OpenSSL");
+            provide("SecretKeyFactory", "PBEWithMD5And256BitAES-CBC-OpenSSL");
+
             // whole types that we do not provide
             PROVIDER_ALGORITHMS.remove("Configuration");
             PROVIDER_ALGORITHMS.remove("GssApiMechanism");
@@ -225,37 +235,35 @@ public final class StandardNames extends Assert {
             PROVIDER_ALGORITHMS.remove("TransformService");
             PROVIDER_ALGORITHMS.remove("XMLSignatureFactory");
 
-            // different names
+            // different names Diffie-Hellman vs DH
             unprovide("AlgorithmParameterGenerator", "DiffieHellman");
             provide("AlgorithmParameterGenerator", "DH");
-
             unprovide("AlgorithmParameters", "DiffieHellman");
             provide("AlgorithmParameters", "DH");
-
-            unprovide("CertificateFactory", "X.509");
-            provide("CertificateFactory", "X509");
-
-            unprovide("Cipher", "PBEWithSHA1AndRC2_40");
-            provide("Cipher", "PBEWithSHAAnd40BitRC2-CBC");
-
             unprovide("KeyAgreement", "DiffieHellman");
             provide("KeyAgreement", "DH");
-
             unprovide("KeyFactory", "DiffieHellman");
             provide("KeyFactory", "DH");
-
-            unprovide("KeyManagerFactory", "SunX509");
-            provide("KeyManagerFactory", "X509");
-
             unprovide("KeyPairGenerator", "DiffieHellman");
             provide("KeyPairGenerator", "DH");
 
+            // different names PBEWithSHA1AndDESede vs PBEWithSHAAnd3-KEYTripleDES-CBC
+            unprovide("AlgorithmParameters", "PBEWithSHA1AndDESede");
+            unprovide("Cipher", "PBEWithSHA1AndDESede");
+            unprovide("SecretKeyFactory", "PBEWithSHA1AndDESede");
+            provide("AlgorithmParameters", "PKCS12PBE");
+            provide("Cipher", "PBEWithSHAAnd3-KEYTripleDES-CBC");
+            provide("SecretKeyFactory", "PBEWithSHAAnd3-KEYTripleDES-CBC");
+
+            // different names: dropped Sun
+            unprovide("KeyManagerFactory", "SunX509");
+            provide("KeyManagerFactory", "X509");
+
+            // different names SHA vs SHA-1
             unprovide("MessageDigest", "SHA");
             provide("MessageDigest", "SHA-1");
 
-            unprovide("SecretKeyFactory", "PBEWithSHA1AndRC2_40");
-            provide("SecretKeyFactory", "PBEWithSHAAnd40BitRC2-CBC");
-
+            // different names: added "Encryption" suffix
             unprovide("Signature", "MD5withRSA");
             provide("Signature", "MD5WithRSAEncryption");
             unprovide("Signature", "SHA1withRSA");
@@ -267,157 +275,70 @@ public final class StandardNames extends Assert {
             unprovide("Signature", "SHA512WithRSA");
             provide("Signature", "SHA512WithRSAEncryption");
 
-            // dropped the Sun prefix
+            // different names: JSSE Reference Guide says PKIX aka X509
+            unprovide("TrustManagerFactory", "PKIX");
             provide("TrustManagerFactory", "X509");
 
-            // extra noise
-            provide("AlgorithmParameterGenerator", "1.2.840.113549.3.7");
-            provide("AlgorithmParameterGenerator", "1.3.14.3.2.7");
-            provide("AlgorithmParameterGenerator", "AES");
-            provide("AlgorithmParameterGenerator", "DES");
-            provide("AlgorithmParameterGenerator", "DESede");
-            provide("AlgorithmParameters", "1.2.840.113549.3.7");
-            provide("AlgorithmParameters", "IES");
-            provide("AlgorithmParameters", "PKCS12PBE");
-            provide("AlgorithmParameters", "PSS");
-            provide("CertificateFactory", "X.509");
-            provide("Cipher", "1.2.840.113549.1.1.1");
-            provide("Cipher", "1.2.840.113549.1.1.7");
-            provide("Cipher", "1.2.840.113549.1.9.16.3.6");
-            provide("Cipher", "1.2.840.113549.3.7");
-            provide("Cipher", "1.3.14.3.2.7");
-            provide("Cipher", "2.16.840.1.101.3.4.1.1");
-            provide("Cipher", "2.16.840.1.101.3.4.1.2");
-            provide("Cipher", "2.16.840.1.101.3.4.1.21");
-            provide("Cipher", "2.16.840.1.101.3.4.1.22");
-            provide("Cipher", "2.16.840.1.101.3.4.1.23");
-            provide("Cipher", "2.16.840.1.101.3.4.1.24");
-            provide("Cipher", "2.16.840.1.101.3.4.1.3");
-            provide("Cipher", "2.16.840.1.101.3.4.1.4");
-            provide("Cipher", "2.16.840.1.101.3.4.1.41");
-            provide("Cipher", "2.16.840.1.101.3.4.1.42");
-            provide("Cipher", "2.16.840.1.101.3.4.1.43");
-            provide("Cipher", "2.16.840.1.101.3.4.1.44");
-            provide("Cipher", "2.5.8.1.1");
-            provide("Cipher", "BrokenPBEWithMD5AndDES");
-            provide("Cipher", "BrokenPBEWithSHA1AndDES");
-            provide("Cipher", "BrokenPBEWithSHAAnd2-KEYTripleDES-CBC");
-            provide("Cipher", "BrokenPBEWithSHAAnd3-KEYTripleDES-CBC");
-            provide("Cipher", "BrokenIES");
-            provide("Cipher", "IES");
-            provide("Cipher", "OldPBEWithSHAAnd3-KEYTripleDES-CBC");
-            provide("Cipher", "PBEWithMD5And128BitAES-CBC-OpenSSL");
-            provide("Cipher", "PBEWithMD5And192BitAES-CBC-OpenSSL");
-            provide("Cipher", "PBEWithMD5And256BitAES-CBC-OpenSSL");
-            provide("Cipher", "PBEWithMD5AndRC2");
-            provide("Cipher", "PBEWithSHA1AndDES");
-            provide("Cipher", "PBEWithSHA256And128BitAES-CBC-BC");
-            provide("Cipher", "PBEWithSHA256And192BitAES-CBC-BC");
-            provide("Cipher", "PBEWithSHA256And256BitAES-CBC-BC");
-            provide("Cipher", "PBEWithSHAAnd128BitAES-CBC-BC");
-            provide("Cipher", "PBEWithSHAAnd192BitAES-CBC-BC");
-            provide("Cipher", "PBEWithSHAAnd2-KEYTripleDES-CBC");
-            provide("Cipher", "PBEWithSHAAnd256BitAES-CBC-BC");
-            provide("Cipher", "PBEWithSHAAnd3-KEYTripleDES-CBC");
-            provide("Cipher", "RSA/1");
-            provide("Cipher", "RSA/2");
-            provide("Cipher", "RSA/ISO9796-1");
-            provide("Cipher", "RSA/OAEP");
-            provide("Cipher", "RSA/PKCS1");
-            provide("Cipher", "RSA/RAW");
-            provide("KeyFactory", "X.509");
-            provide("KeyGenerator", "1.2.840.113549.3.7");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.1");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.2");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.21");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.22");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.23");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.24");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.25");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.3");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.4");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.41");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.42");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.43");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.44");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.45");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.1.5");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.2");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.22");
-            provide("KeyGenerator", "2.16.840.1.101.3.4.42");
-            provide("KeyGenerator", "AESWrap");
-            provide("KeyGenerator", "DESedeWrap");
-            provide("KeyGenerator", "HmacSHA224");
-            provide("KeyStore", "BCPKCS12");
-            provide("KeyStore", "BKS");
-            provide("KeyStore", "BouncyCastle");
-            provide("KeyStore", "PKCS12-DEF");
-            provide("Mac", "DESedeMAC");
-            provide("Mac", "DESedeMAC/CFB8");
-            provide("Mac", "DESedeMAC64");
-            provide("Mac", "DESMAC");
-            provide("Mac", "DESMAC/CFB8");
-            provide("Mac", "DESWithISO9797");
-            provide("Mac", "HmacSHA224");
-            provide("Mac", "ISO9797ALG3MAC");
-            provide("Mac", "PBEWithHmacSHA");
-            provide("Mac", "PBEWithHmacSHA1");
-            provide("MessageDigest", "SHA-224");
-            provide("SecretKeyFactory", "PBEWithHmacSHA1");
-            provide("SecretKeyFactory", "PBEWithMD5And128BitAES-CBC-OpenSSL");
-            provide("SecretKeyFactory", "PBEWithMD5And192BitAES-CBC-OpenSSL");
-            provide("SecretKeyFactory", "PBEWithMD5And256BitAES-CBC-OpenSSL");
-            provide("SecretKeyFactory", "PBEWithMD5AndRC2");
-            provide("SecretKeyFactory", "PBEWithSHA1AndDES");
-            provide("SecretKeyFactory", "PBEWithSHA1AndRC2");
-            provide("SecretKeyFactory", "PBEWithSHA256And128BitAES-CBC-BC");
-            provide("SecretKeyFactory", "PBEWithSHA256And192BitAES-CBC-BC");
-            provide("SecretKeyFactory", "PBEWithSHA256And256BitAES-CBC-BC");
-            provide("SecretKeyFactory", "PBEWithSHAAnd128BitAES-CBC-BC");
-            provide("SecretKeyFactory", "PBEWithSHAAnd192BitAES-CBC-BC");
-            provide("SecretKeyFactory", "PBEWithSHAAnd2-KEYTripleDES-CBC");
-            provide("SecretKeyFactory", "PBEWithSHAAnd256BitAES-CBC-BC");
-            provide("SecretKeyFactory", "PBEWithSHAAnd3-KEYTripleDES-CBC");
-            provide("Signature", "1.2.840.113549.1.1.10");
-            provide("Signature", "DSA");
-            provide("Signature", "MD4WithRSAEncryption");
-            provide("Signature", "MD5withRSA/ISO9796-2");
-            provide("Signature", "RSASSA-PSS");
-            provide("Signature", "SHA1withRSA/ISO9796-2");
-            provide("Signature", "SHA1withRSA/PSS");
-            provide("Signature", "SHA224WithRSAEncryption");
-            provide("Signature", "SHA224withRSA/PSS");
-            provide("Signature", "SHA256withRSA/PSS");
-            provide("Signature", "SHA384withRSA/PSS");
-            provide("Signature", "SHA512withRSA/PSS");
+            // Harmony has X.509, BouncyCastle X509
+            // TODO remove one, probably Harmony's
+            provide("CertificateFactory", "X509");
 
-            // missing
-            unprovide("AlgorithmParameters", "Blowfish");
-            unprovide("AlgorithmParameters", "PBE");
-            unprovide("AlgorithmParameters", "PBEWithMD5AndDES");
-            unprovide("AlgorithmParameters", "PBEWithMD5AndTripleDES");
-            unprovide("AlgorithmParameters", "PBEWithSHA1AndDESede");
-            unprovide("AlgorithmParameters", "PBEWithSHA1AndRC2_40");
-            unprovide("AlgorithmParameters", "RC2");
-            unprovide("CertStore", "LDAP");
-            unprovide("Cipher", "ARCFOUR");
-            unprovide("Cipher", "Blowfish");
-            unprovide("Cipher", "PBEWithMD5AndTripleDES");
-            unprovide("Cipher", "PBEWithSHA1AndDESede");
-            unprovide("Cipher", "RC2");
-            unprovide("KeyGenerator", "ARCFOUR");
-            unprovide("KeyGenerator", "Blowfish");
-            unprovide("KeyGenerator", "RC2");
-            unprovide("KeyStore", "JCEKS");
-            unprovide("KeyStore", "JKS");
-            unprovide("MessageDigest", "MD2");
-            unprovide("SecretKeyFactory", "PBEWithMD5AndTripleDES");
-            unprovide("SecretKeyFactory", "PBEWithSHA1AndDESede");
-            unprovide("SecretKeyFactory", "PBKDF2WithHmacSHA1");
+            // The Harmony JSSEProvider registers an OpenSSL based MessageDigest SHA-224
+            // TODO remove it since the RI does not provide this variant
+            provide("MessageDigest", "SHA-224");
+
+            // Harmony JSSEProvider is missing these
+            // TODO add them
             unprovide("SSLContext", "SSLv3");
             unprovide("SSLContext", "TLSv1");
+
+            // not just different names, but different binary formats
+            unprovide("KeyStore", "JKS");
+            provide("KeyStore", "BKS");
+            unprovide("KeyStore", "JCEKS");
+            provide("KeyStore", "BouncyCastle");
+
+            // removed Blowfish
+            unprovide("AlgorithmParameters", "Blowfish");
+            unprovide("Cipher", "Blowfish");
+            unprovide("KeyGenerator", "Blowfish");
+
+            // removed LDAP
+            unprovide("CertStore", "LDAP");
+
+            // removed MD2
+            unprovide("MessageDigest", "MD2");
             unprovide("Signature", "MD2withRSA");
-            unprovide("TrustManagerFactory", "PKIX");
+
+            // removed RC2
+            // NOTE the implementation remains to support PKCS12 keystores
+            unprovide("AlgorithmParameters", "PBEWithSHA1AndRC2_40");
+            unprovide("AlgorithmParameters", "RC2");
+            unprovide("Cipher", "PBEWithSHA1AndRC2_40");
+            unprovide("Cipher", "RC2");
+            unprovide("KeyGenerator", "RC2");
+            unprovide("SecretKeyFactory", "PBEWithSHA1AndRC2_40");
+
+            // removed ARCFOUR
+            unprovide("Cipher", "ARCFOUR");
+            unprovide("KeyGenerator", "ARCFOUR");
+
+            // PBEWithMD5AndTripleDES is Sun proprietary
+            unprovide("AlgorithmParameters", "PBEWithMD5AndTripleDES");
+            unprovide("Cipher", "PBEWithMD5AndTripleDES");
+            unprovide("SecretKeyFactory", "PBEWithMD5AndTripleDES");
+
+            // missing from Bouncy Castle
+            // Standard Names document says to use specific PBEWith*And*
+            unprovide("AlgorithmParameters", "PBE");
+
+            // missing from Bouncy Castle
+            // TODO add to JDKAlgorithmParameters perhaps as wrapper on PBES2Parameters
+            // For now, can use AlgorithmParametersSpec javax.crypto.spec.PBEParameterSpec instead
+            unprovide("AlgorithmParameters", "PBEWithMD5AndDES"); // 1.2.840.113549.1.5.3
+
+            // missing from Bouncy Castle
+            unprovide("SecretKeyFactory", "PBKDF2WithHmacSHA1");
         }
     }
 
