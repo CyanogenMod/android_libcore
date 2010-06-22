@@ -19,6 +19,7 @@ package java.lang;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -65,9 +66,9 @@ public final class ProcessBuilder {
             throw new NullPointerException();
         }
         this.command = command;
-        // BEGIN android-changed
-        this.environment = System.getenv();
-        // END android-changed
+
+        // use a hashtable to prevent nulls from sneaking in
+        this.environment = new Hashtable<String, String>(System.getenv());
     }
 
     /**
