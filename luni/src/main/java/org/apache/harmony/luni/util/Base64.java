@@ -22,12 +22,15 @@
 package org.apache.harmony.luni.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 /**
  * This class implements Base64 encoding/decoding functionality
  * as specified in RFC 2045 (http://www.ietf.org/rfc/rfc2045.txt).
  */
 public class Base64 {
+    private Base64() {
+    }
 
     public static byte[] decode(byte[] in) {
         return decode(in, in.length);
@@ -36,7 +39,7 @@ public class Base64 {
     public static byte[] decode(byte[] in, int len) {
         // approximate output length
         int length = len / 4 * 3;
-        // return an empty array on emtpy or short input without padding
+        // return an empty array on empty or short input without padding
         if (length == 0) {
             return new byte[0];
         }
@@ -129,7 +132,7 @@ public class Base64 {
          'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
          '4', '5', '6', '7', '8', '9', '+', '/'};
 
-    public static String encode(byte[] in, String charsetName) throws UnsupportedEncodingException {
+    public static String encode(byte[] in, Charset charset) {
         int length = in.length * 4 / 3;
         length += length / 76 + 3; // for crlr
         byte[] out = new byte[length];
@@ -163,7 +166,6 @@ public class Base64 {
                 out[index++] = '=';
                 break;
         }
-        return new String(out, 0, index, charsetName);
+        return new String(out, 0, index, charset);
     }
 }
-

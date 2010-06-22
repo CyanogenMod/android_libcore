@@ -666,7 +666,7 @@ public class HandshakeCompletedEventTest extends TestCase {
      * for the result.
      */
     private KeyManager[] getKeyManagers(String keys) throws Exception {
-        byte[] bytes = new Base64().decode(keys.getBytes());
+        byte[] bytes = Base64.decode(keys.getBytes());
         InputStream inputStream = new ByteArrayInputStream(bytes);
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -740,4 +740,3 @@ public class HandshakeCompletedEventTest extends TestCase {
         }
     }
 }
-

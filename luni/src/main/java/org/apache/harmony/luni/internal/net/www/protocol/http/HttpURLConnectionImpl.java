@@ -1784,7 +1784,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         // base64 encode the username and password
         String usernameAndPassword = pa.getUserName() + ":" + new String(pa.getPassword());
         byte[] bytes = usernameAndPassword.getBytes(Charsets.ISO_8859_1);
-        String encoded = Base64.encode(bytes, "ISO8859_1");
+        String encoded = Base64.encode(bytes, Charsets.ISO_8859_1);
         return scheme + " " + encoded;
     }
 

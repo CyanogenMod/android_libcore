@@ -670,11 +670,7 @@ public abstract class AbstractPreferences extends Preferences {
 
     @Override
     public void putByteArray(String key, byte[] value) {
-        try {
-            put(key, Base64.encode(value, "US-ASCII"));
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError(e);
-        }
+        put(key, Base64.encode(value, Charsets.US_ASCII));
     }
 
     @Override

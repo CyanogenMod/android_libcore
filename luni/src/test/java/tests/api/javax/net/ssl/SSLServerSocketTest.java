@@ -568,7 +568,7 @@ public class SSLServerSocketTest extends TestCase {
      */
     private KeyManager[] getKeyManagers() throws Exception {
         String keys = (useBKS ? SERVER_KEYS_BKS : SERVER_KEYS_JKS);
-        byte[] bytes = new Base64().decode(keys.getBytes());
+        byte[] bytes = Base64.decode(keys.getBytes());
         InputStream inputStream = new ByteArrayInputStream(bytes);
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
