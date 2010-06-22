@@ -61,8 +61,9 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * <tr> <td> \Q </td> <td>Quote all following metacharacters until {@code \E}.</td> </tr>
  * <tr> <td> \E </td> <td>Stop quoting metacharacters (started by {@code \Q}).</td> </tr>
  * <tr> <td> \\ </td> <td>A literal backslash.</td> </tr>
- * <tr> <td> &#x005c;<i>hhhh</i> </td> <td>The Unicode character U+hhhh (in hex).</td> </tr>
- * <tr> <td> \c<i>x</i> </td> <td>The ASCII control character <i>x</i> (so {@code \cI} would be U+0009).</td> </tr>
+ * <tr> <td> &#x005c;u<i>hhhh</i> </td> <td>The Unicode character U+hhhh (in hex).</td> </tr>
+ * <tr> <td> &#x005c;x<i>hh</i> </td> <td>The Unicode character U+00hh (in hex).</td> </tr>
+ * <tr> <td> \c<i>x</i> </td> <td>The ASCII control character ^x (so {@code \cH} would be ^H, U+0008).</td> </tr>
  *
  * <tr> <td> \a </td> <td>The ASCII bell character (U+0007).</td> </tr>
  * <tr> <td> \e </td> <td>The ASCII ESC character (U+001b).</td> </tr>
