@@ -36,8 +36,12 @@ public class Support_Resources {
     public static final String RESOURCE_PACKAGE_NAME = "tests.resources";
 
     public static InputStream getStream(String name) {
-        return Support_Resources.class.getResourceAsStream(RESOURCE_PACKAGE
-                + name);
+        String path = RESOURCE_PACKAGE + name;
+        InputStream result = Support_Resources.class.getResourceAsStream(path);
+        if (result == null) {
+            throw new IllegalArgumentException("No such resource: " + path);
+        }
+        return result;
     }
 
     public static String getURL(String name) {
