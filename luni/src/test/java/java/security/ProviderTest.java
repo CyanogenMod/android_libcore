@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Set;
-import javax.net.ssl.TestSSLContext;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import junit.framework.TestCase;
 
 public class ProviderTest extends TestCase {
@@ -102,5 +103,80 @@ public class ProviderTest extends TestCase {
         // assert that we don't have any missing classes
         Collections.sort(missing); // sort it for readability
         assertEquals(Collections.EMPTY_LIST, missing);
+    }
+
+    private static final Pattern alias = Pattern.compile("Alg\\.Alias\\.([^.]*)\\.(.*)");
+
+    public void test_Provider_Properties() throws Exception {
+        /*
+         * A useful reference on Provider properties
+         * <a href="http://java.sun.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html>
+         * How to Implement a Provider in the Java &trade; Cryptography Architecture
+         * </a>
+         */
+
+        Provider[] providers = Security.getProviders();
+        for (Provider provider : providers) {
+            // check Provider.id proprieties
+            assertEquals(provider.getName(),
+                         provider.get("Provider.id name"));
+            assertEquals(String.valueOf(provider.getVersion()),
+                         provider.get("Provider.id version"));
+            assertEquals(provider.getInfo(),
+                         provider.get("Provider.id info"));
+            assertEquals(provider.getClass().getName(),
+                         provider.get("Provider.id className"));
+
+            // build map of all known aliases and implementations
+            Map<String,String> aliases = new HashMap<String,String>();
+            Map<String,String> implementations = new HashMap<String,String>();
+            for (Entry<Object,Object> entry : provider.entrySet()) {
+                Object k = entry.getKey();
+                Object v = entry.getValue();
+                assertEquals(String.class, k.getClass());
+                assertEquals(String.class, v.getClass());
+                String key = (String)k;
+                String value = (String)v;
+
+                // skip Provider.id keys, we check well known ones values above
+                if (key.startsWith("Provider.id ")) {
+                    continue;
+                }
+
+                // skip property settings such as: "Signature.SHA1withDSA ImplementedIn" "Software"
+                if (key.indexOf(' ') != -1) {
+                    continue;
+                }
+
+                Matcher m = alias.matcher(key);
+                if (m.find()) {
+                    String type = m.group(1);
+                    aliases.put(key, type + "." + value);
+                } else {
+                    implementations.put(key, value);
+                }
+            }
+
+            // verify implementation classes are available
+            for (Entry<String,String> entry : implementations.entrySet()) {
+                String typeAndAlgorithm = entry.getKey();
+                String className = entry.getValue();
+                try {
+                    assertNotNull(Class.forName(className,
+                                                true,
+                                                provider.getClass().getClassLoader()));
+                } catch (ClassNotFoundException e) {
+                    fail("Could not find class " + className + " for " + typeAndAlgorithm);
+                }
+            }
+
+            // make sure all aliases point to some known implementation
+            for (Entry<String,String> entry : aliases.entrySet()) {
+                String alias  = entry.getKey();
+                String actual = entry.getValue();
+                assertTrue("Could not find implementation " + actual + " for alias " + alias,
+                           implementations.containsKey(actual));
+            }
+        }
     }
 }
