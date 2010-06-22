@@ -3067,10 +3067,11 @@ public class SocketTest extends SocketTestCase {
     )
     public void test_connect_unknownhost() throws Exception {
         Socket socket = new Socket();
+        InetSocketAddress socketAddress = new InetSocketAddress("unknownhost", 12345);
         try {
-            socket.connect(new InetSocketAddress("unknownhost", 12345));
-            fail("Should throw UnknownHostException");
-        } catch (UnknownHostException e) {
+            socket.connect(socketAddress);
+            fail("Should throw IOException");
+        } catch (IOException e) {
             // expected
         }
     }
@@ -3087,11 +3088,11 @@ public class SocketTest extends SocketTestCase {
     )
     public void test_connect_unresolved_unknown() throws Exception {
         Socket socket = new Socket();
+        InetSocketAddress unresolved = InetSocketAddress.createUnresolved("unknownhost", 12345);
         try {
-            socket.connect(InetSocketAddress.createUnresolved("unknownhost",
-                    12345));
-            fail("Should throw UnknownHostException");
-        } catch (UnknownHostException e) {
+            socket.connect(unresolved);
+            fail("Should throw IOException");
+        } catch (IOException e) {
             // expected
         }
     }
@@ -3108,12 +3109,13 @@ public class SocketTest extends SocketTestCase {
     )
     public void test_connect_unresolved() throws Exception {
         Socket socket = new Socket();
+        InetSocketAddress unresolvedSocketAddress = InetSocketAddress.createUnresolved(
+                Support_Configuration.SocksServerTestHost,
+                Support_Configuration.SocksServerTestPort);
         try {
-            socket.connect(InetSocketAddress.createUnresolved(
-                    Support_Configuration.SocksServerTestHost,
-                    Support_Configuration.SocksServerTestPort));
-            fail("Should throw UnknownHostException");
-        } catch (UnknownHostException e) {
+            socket.connect(unresolvedSocketAddress);
+            fail("Should throw IOException");
+        } catch (IOException e) {
             // expected
         }
     }

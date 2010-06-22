@@ -620,11 +620,6 @@ test org.apache.harmony.luni.tests.java.util.LinkedHashMapTest#test_getInterface
 result EXEC_FAILED
 pattern .*junit.framework.AssertionFailedError: expected:<3> but was:<2>.*
 
-# our behaviour is consistent with the JDK
-test tests.api.java.math.BigDecimalTest#test_stripTrailingZero
-result EXEC_FAILED
-pattern .*junit.framework.AssertionFailedError: stripTrailingZero failed for 0.0000.*
-
 # this is testing exception priorities
 test org.apache.harmony.nio.tests.java.nio.channels.DatagramChannelTest#testReadByteBuffer_readOnlyBuf
 result EXEC_FAILED

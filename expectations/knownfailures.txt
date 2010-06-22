@@ -22,18 +22,6 @@ test org.apache.harmony.luni.tests.java.lang.RuntimeTest#test_traceMethodCalls
 result EXEC_FAILED
 
 # Fails in CTS but passes under run-core-tests
-test tests.api.java.lang.reflect.GenericTypesTest#testSimpleInheritance
-result EXEC_FAILED
-
-# Fails in CTS but passes under run-core-tests
-test tests.api.java.lang.reflect.GenericReflectionCornerCases#testMultipleBoundedWildcard
-result EXEC_FAILED
-
-# Fails in CTS but passes under run-core-tests
-test tests.api.java.lang.reflect.GenericReflectionCornerCases#testMultipleBoundedWildcardUnEquality
-result EXEC_FAILED
-
-# Fails in CTS but passes under run-core-tests
 test tests.api.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface
 result EXEC_FAILED
 
@@ -146,7 +134,7 @@ result EXEC_FAILED
 test tests.java.sql.DatabaseMetaDataTest#test_getColumnsSpecific
 result EXEC_FAILED
 
-# Not supported ops applied: test fails on arguments: '', '', '%', '%' 
+# Not supported ops applied: test fails on arguments: '', '', '%', '%'
 test tests.java.sql.DatabaseMetaDataTest#test_getColumnsTableWithNoCatalogSchema
 result EXEC_FAILED
 
@@ -756,7 +744,7 @@ test tests.sql.StatementTest#testExecuteQuery_String
 result EXEC_FAILED
 
 # Spec is not precise enough: should be: number of rows affected. eg. to be consistent for deletes:
-# 'delete from s1;' should be different from 'delete from s1 where c1 = 1;' 
+# 'delete from s1;' should be different from 'delete from s1 where c1 = 1;'
 test tests.sql.StatementTest#testExecuteUpdate_String
 result EXEC_FAILED
 
@@ -780,7 +768,7 @@ result EXEC_FAILED
 test tests.sql.StatementTest#testGetQueryTimeout
 result EXEC_FAILED
 
-# Does not return null on update count > 0 (not a select statement) 
+# Does not return null on update count > 0 (not a select statement)
 test tests.sql.StatementTest#testGetResultSet
 result EXEC_FAILED
 

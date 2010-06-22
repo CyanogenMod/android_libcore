@@ -51,7 +51,6 @@ public class AllTests {
         suite.addTestSuite(ParseExceptionTest.class);
         suite.addTestSuite(ParsePositionTest.class);
         suite.addTestSuite(RuleBasedCollatorTest.class);
-        suite.addTestSuite(SimpleDateFormatTest.class);
         suite.addTestSuite(StringCharacterIteratorTest.class);
         //$JUnit-END$
         return suite;

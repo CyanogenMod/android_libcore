@@ -45,8 +45,6 @@ public class AllTests {
         suite.addTestSuite(BoundedGenericMethodsTests.class);
         suite.addTestSuite(GenericMethodsTests.class);
         suite.addTestSuite(WildcardTypeTest.class);
-        suite.addTestSuite(GenericTypesTest.class);
-        suite.addTestSuite(GenericReflectionCornerCases.class);
         suite.addTestSuite(GenericSignatureFormatErrorTest.class);
         // $JUnit-END$
 

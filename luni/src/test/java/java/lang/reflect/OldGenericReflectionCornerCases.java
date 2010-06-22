@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package tests.api.java.lang.reflect;
+package java.lang.reflect;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargetClass;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import dalvik.annotation.TestTargetNew;
+import dalvik.annotation.TestTargets;
+import tests.api.java.lang.reflect.GenericReflectionTestsBase;
 
 /**
  * Tests generic reflection in more complicated cases. In particular: Scoping of
@@ -34,7 +29,7 @@ import java.lang.reflect.WildcardType;
  * types and multiple bounds.
  */
 @TestTargetClass(Method.class)
-public class GenericReflectionCornerCases extends GenericReflectionTestsBase {
+public class OldGenericReflectionCornerCases extends GenericReflectionTestsBase {
 
     static class Pair<T, S> {}
 

@@ -14,26 +14,20 @@
  * limitations under the License.
  */
 
-package tests.api.java.lang.reflect;
+package java.lang.reflect;
 
 import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargetClass;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import dalvik.annotation.TestTargetNew;
+import tests.api.java.lang.reflect.GenericReflectionTestsBase;
 
 
 /**
  * Tests type parameters declared on classes.
  */
 @TestTargetClass(Constructor.class)
-public class GenericTypesTest extends GenericReflectionTestsBase {
+public class OldGenericTypesTest extends GenericReflectionTestsBase {
 
     static class GenericType<T>{
         T methodGenericType(T t){ return t;}
