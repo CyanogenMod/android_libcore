@@ -1220,8 +1220,14 @@ static jstring getAttributeValue(JNIEnv* env, jobject clazz,
 /**
  * Clones an array of strings. Uses one contiguous block of memory so as to
  * maximize performance.
+ *
+ * @param address char** to clone
+ * @param count number of attributes
  */
-static char* cloneStrings(const char** source, int count) {
+static jint cloneAttributes(JNIEnv* env, jobject, jint address, jint count) {
+    const char** source = reinterpret_cast<const char**>(static_cast<uintptr_t>(address));
+    count <<= 1;
+
     // Figure out how big the buffer needs to be.
     int arraySize = (count + 1) * sizeof(char*);
     int totalSize = arraySize;
@@ -1242,9 +1248,8 @@ static char* cloneStrings(const char** source, int count) {
     char** clonedArray = (char**) buffer;
     clonedArray[count] = NULL; // null terminate
 
-    // First string is immediately after.
+    // String data follows immediately after.
     char* destinationString = buffer + arraySize;
-
     for (int i = 0; i < count; i++) {
         const char* sourceString = source[i];
         int stringLength = stringLengths[i];
@@ -1253,17 +1258,7 @@ static char* cloneStrings(const char** source, int count) {
         destinationString += stringLength + 1;
     }
 
-    return buffer;
-}
-
-/**
- * Clones attributes.
- *
- * @param pointer to char** to clone
- * @param count number of attributes
- */
-static jint cloneAttributes(JNIEnv*, jobject, jint pointer, jint count) {
-    return (int) cloneStrings((const char**) pointer, count << 1);
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(buffer));
 }
 
 /**
