@@ -684,10 +684,6 @@ test java.util.ArrayList.IteratorMicroBenchmark
 result UNSUPPORTED
 
 
-# This test is obsoleted by our java.lang.CharacterTest#test_valueOfC.
-test org.apache.harmony.luni.tests.java.lang.CharacterImplTest#test_valueOfC
-result EXEC_FAILED
-
 # The RI is still on Unicode 4.0, we're on 5.2, and Harmony is inconsistent
 # between its test for isJavaIdentifierPart(char) and isJavaIdentifierPart(int).
 test org.apache.harmony.luni.tests.java.lang.CharacterTest#test_isJavaIdentifierPartC
