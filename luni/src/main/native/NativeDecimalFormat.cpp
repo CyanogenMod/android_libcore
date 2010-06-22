@@ -22,6 +22,7 @@
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
+#include "UniquePtr.h"
 #include "cutils/log.h"
 #include "digitlst.h"
 #include "unicode/decimfmt.h"
@@ -35,6 +36,10 @@
 
 static DecimalFormat* toDecimalFormat(jint addr) {
     return reinterpret_cast<DecimalFormat*>(static_cast<uintptr_t>(addr));
+}
+
+static UNumberFormat* toUNumberFormat(jint addr) {
+    return reinterpret_cast<UNumberFormat*>(static_cast<uintptr_t>(addr));
 }
 
 static DecimalFormatSymbols* makeDecimalFormatSymbols(JNIEnv* env,
@@ -117,89 +122,51 @@ static void setRoundingMode(JNIEnv*, jclass, jint addr, jint mode, jdouble incre
     fmt->setRoundingIncrement(increment);
 }
 
-static void setSymbol(JNIEnv* env, jclass, jint addr, jint symbol, jstring s) {
-    const UChar* chars = env->GetStringChars(s, NULL);
-    const int32_t charCount = env->GetStringLength(s);
+static void setSymbol(JNIEnv* env, jclass, jint addr, jint javaSymbol, jstring javaValue) {
+    ScopedJavaUnicodeString value(env, javaValue);
+    UnicodeString& s(value.unicodeString());
     UErrorCode status = U_ZERO_ERROR;
-    UNumberFormat* fmt = reinterpret_cast<UNumberFormat*>(static_cast<uintptr_t>(addr));
-    unum_setSymbol(fmt, static_cast<UNumberFormatSymbol>(symbol), chars, charCount, &status);
-    icu4jni_error(env, status);
-    env->ReleaseStringChars(s, chars);
-}
-
-static void setAttribute(JNIEnv*, jclass, jint addr, jint symbol,
-        jint value) {
-
-    UNumberFormat *fmt = (UNumberFormat *)(int)addr;
-
-    unum_setAttribute(fmt, (UNumberFormatAttribute) symbol, value);
-}
-
-static jint getAttribute(JNIEnv*, jclass, jint addr, jint symbol) {
-
-    UNumberFormat *fmt = (UNumberFormat *)(int)addr;
-
-    int res = unum_getAttribute(fmt, (UNumberFormatAttribute) symbol);
-
-    return res;
-}
-
-static void setTextAttribute(JNIEnv* env, jclass, jint addr, jint symbol,
-        jstring text) {
-
-    // the errorcode returned by unum_setTextAttribute
-    UErrorCode status = U_ZERO_ERROR;
-
-    // get the pointer to the number format
-    UNumberFormat *fmt = (UNumberFormat *)(int)addr;
-
-    const UChar *textChars = env->GetStringChars(text, NULL);
-    int textLen = env->GetStringLength(text);
-
-    unum_setTextAttribute(fmt, (UNumberFormatTextAttribute) symbol, textChars,
-            textLen, &status);
-
-    env->ReleaseStringChars(text, textChars);
-
+    UNumberFormatSymbol symbol = static_cast<UNumberFormatSymbol>(javaSymbol);
+    unum_setSymbol(toUNumberFormat(addr), symbol, s.getBuffer(), s.length(), &status);
     icu4jni_error(env, status);
 }
 
-static jstring getTextAttribute(JNIEnv* env, jclass, jint addr,
-        jint symbol) {
+static void setAttribute(JNIEnv*, jclass, jint addr, jint javaAttr, jint value) {
+    UNumberFormatAttribute attr = static_cast<UNumberFormatAttribute>(javaAttr);
+    unum_setAttribute(toUNumberFormat(addr), attr, value);
+}
 
-    uint32_t resultlength, reslenneeded;
+static jint getAttribute(JNIEnv*, jclass, jint addr, jint javaAttr) {
+    UNumberFormatAttribute attr = static_cast<UNumberFormatAttribute>(javaAttr);
+    return unum_getAttribute(toUNumberFormat(addr), attr);
+}
 
-    // the errorcode returned by unum_getTextAttribute
+static void setTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr, jstring javaValue) {
+    ScopedJavaUnicodeString value(env, javaValue);
+    UnicodeString& s(value.unicodeString());
     UErrorCode status = U_ZERO_ERROR;
+    UNumberFormatTextAttribute attr = static_cast<UNumberFormatTextAttribute>(javaAttr);
+    unum_setTextAttribute(toUNumberFormat(addr), attr, s.getBuffer(), s.length(), &status);
+    icu4jni_error(env, status);
+}
 
-    // get the pointer to the number format
-    UNumberFormat *fmt = (UNumberFormat *)(int)addr;
+static jstring getTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr) {
+    UErrorCode status = U_ZERO_ERROR;
+    UNumberFormat* fmt = toUNumberFormat(addr);
+    UNumberFormatTextAttribute attr = static_cast<UNumberFormatTextAttribute>(javaAttr);
 
-    UChar* result = NULL;
-    resultlength=0;
-
-    // find out how long the result will be
-    reslenneeded=unum_getTextAttribute(fmt, (UNumberFormatTextAttribute) symbol,
-            result, resultlength, &status);
-
-    result = NULL;
-    if(status==U_BUFFER_OVERFLOW_ERROR) {
-        status=U_ZERO_ERROR;
-        resultlength=reslenneeded+1;
-        result=(UChar*)malloc(sizeof(UChar) * resultlength);
-        reslenneeded=unum_getTextAttribute(fmt,
-                (UNumberFormatTextAttribute) symbol, result, resultlength,
-                &status);
+    // Find out how long the result will be...
+    UniquePtr<UChar[]> chars;
+    uint32_t charCount = 0;
+    uint32_t desiredCount = unum_getTextAttribute(fmt, attr, chars.get(), charCount, &status);
+    if (status == U_BUFFER_OVERFLOW_ERROR) {
+        // ...then get it.
+        status = U_ZERO_ERROR;
+        charCount = desiredCount + 1;
+        chars.reset(new UChar[charCount]);
+        charCount = unum_getTextAttribute(fmt, attr, chars.get(), charCount, &status);
     }
-    if (icu4jni_error(env, status) != FALSE) {
-        return NULL;
-    }
-
-    jstring res = env->NewString(result, reslenneeded);
-
-    free(result);
-
-    return res;
+    return icu4jni_error(env, status) ? NULL : env->NewString(chars.get(), charCount);
 }
 
 static void applyPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized, jstring pattern0) {

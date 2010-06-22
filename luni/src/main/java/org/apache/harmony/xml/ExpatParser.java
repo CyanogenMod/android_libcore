@@ -307,7 +307,7 @@ class ExpatParser {
         }
 
         String encoding = pickEncoding(inputSource);
-        int pointer = createEntityParser(this.pointer, context, encoding);
+        int pointer = createEntityParser(this.pointer, context);
         try {
             EntityParser entityParser = new EntityParser(encoding, xmlReader,
                     pointer, inputSource.getPublicId(),
@@ -397,11 +397,9 @@ class ExpatParser {
      *
      * @param parentPointer pointer to parent Expat parser
      * @param context passed to {@link #handleExternalEntity}
-     * @param encoding
      * @return pointer to native parser
      */
-    private static native int createEntityParser(int parentPointer,
-            String context, String encoding);
+    private static native int createEntityParser(int parentPointer, String context);
 
     /**
      * Appends part of an XML document. This parser will parse the given XML to
