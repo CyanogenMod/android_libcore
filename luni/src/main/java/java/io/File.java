@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.Charsets;
 import java.security.AccessController;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -64,8 +65,6 @@ import org.apache.harmony.luni.util.PriviAction;
 public class File implements Serializable, Comparable<File> {
 
     private static final long serialVersionUID = 301077366599181567L;
-
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     /**
      * The system dependent file separator character.
@@ -205,11 +204,7 @@ public class File implements Serializable, Comparable<File> {
     }
 
     private byte[] newCString(String s) {
-        ByteBuffer buffer = UTF_8.encode(s);
-        // Add a trailing NUL, because this byte[] is going to be used as a char*.
-        int byteCount = buffer.limit() + 1;
-        byte[] bytes = new byte[byteCount];
-        buffer.get(bytes, 0, byteCount - 1);
+        byte[] bytes = s.getBytes(Charsets.UTF_8);
         // This is an awful mistake, because '\' is a perfectly acceptable
         // character on Linux/Android. But we've shipped so many versions
         // that behaved like this, I'm too scared to change it.
@@ -218,7 +213,11 @@ public class File implements Serializable, Comparable<File> {
                 bytes[i] = '/';
             }
         }
-        return bytes;
+        // Add a trailing NUL, because this byte[] is going to be used as a char*.
+        int byteCount = bytes.length + 1;
+        byte[] result = new byte[byteCount];
+        System.arraycopy(bytes, 0, result, 0, bytes.length);
+        return result;
     }
 
     // Removes duplicate adjacent slashes and any trailing slash.
@@ -464,7 +463,7 @@ public class File implements Serializable, Comparable<File> {
      * @return the absolute file path.
      */
     public String getAbsolutePath() {
-        return new String(pathBytes, 0, pathBytes.length - 1, UTF_8);
+        return new String(pathBytes, 0, pathBytes.length - 1, Charsets.UTF_8);
     }
 
     /**
@@ -576,7 +575,7 @@ public class File implements Serializable, Comparable<File> {
         newResult[newLength] = 0;
         newResult = getCanonImpl(newResult);
         newLength = newResult.length;
-        return new String(newResult, 0, newLength, UTF_8);
+        return new String(newResult, 0, newLength, Charsets.UTF_8);
     }
 
     /*
