@@ -19,6 +19,7 @@
 #include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
@@ -75,15 +76,14 @@ static Locale getLocale(JNIEnv* env, jstring localeName) {
     return Locale::createFromName(ScopedUtfChars(env, localeName).c_str());
 }
 
-static jint getCurrencyFractionDigitsNative(JNIEnv* env, jclass, jstring currencyCode) {
+static jint getCurrencyFractionDigitsNative(JNIEnv* env, jclass, jstring javaCurrencyCode) {
     UErrorCode status = U_ZERO_ERROR;
     UniquePtr<NumberFormat> fmt(NumberFormat::createCurrencyInstance(status));
     if (U_FAILURE(status)) {
         return -1;
     }
-    const jchar* cCode = env->GetStringChars(currencyCode, NULL);
-    fmt->setCurrency(cCode, status);
-    env->ReleaseStringChars(currencyCode, cCode);
+    ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
+    fmt->setCurrency(currencyCode.unicodeString().getBuffer(), status);
     if (U_FAILURE(status)) {
         return -1;
     }
@@ -263,11 +263,9 @@ static jobjectArray getAvailableNumberFormatLocalesNative(JNIEnv* env, jclass) {
     return getAvailableLocales(env, unum_countAvailable, unum_getAvailable);
 }
 
-static TimeZone* timeZoneFromId(JNIEnv* env, jstring id) {
-    const jchar* chars = env->GetStringChars(id, NULL);
-    const UnicodeString zoneID(reinterpret_cast<const UChar*>(chars), env->GetStringLength(id));
-    env->ReleaseStringChars(id, chars);
-    return TimeZone::createTimeZone(zoneID);
+static TimeZone* timeZoneFromId(JNIEnv* env, jstring javaZoneId) {
+    ScopedJavaUnicodeString zoneID(env, javaZoneId);
+    return TimeZone::createTimeZone(zoneID.unicodeString());
 }
 
 static jstring formatDate(JNIEnv* env, const SimpleDateFormat& fmt, const UDate& when) {

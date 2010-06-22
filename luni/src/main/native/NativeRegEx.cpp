@@ -22,7 +22,9 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "ScopedJavaUnicodeString.h"
 #include "ScopedPrimitiveArray.h"
+#include "UniquePtr.h"
 #include "jni.h"
 #include "unicode/parseerr.h"
 #include "unicode/uregex.h"
@@ -36,6 +38,16 @@ static jchar EMPTY_STRING = 0;
  * manage memory properly.
  */
 struct RegExData {
+    RegExData() : regex(NULL), text(NULL) {
+    }
+
+    ~RegExData() {
+        uregex_close(regex);
+        if (text != &EMPTY_STRING) {
+            delete[] text;
+        }
+    }
+
     // A pointer to the ICU regular expression
     URegularExpression* regex;
     // A pointer to (a copy of) the input text that *we* manage
@@ -58,56 +70,38 @@ static void throwRuntimeException(JNIEnv* env, UErrorCode status) {
 }
 
 static void NativeRegEx_close(JNIEnv*, jclass, RegExData* data) {
-    if (data->regex != NULL) {
-        uregex_close(data->regex);
-    }
-
-    if (data->text != &EMPTY_STRING) {
-        delete[] data->text;
-    }
-
-    free(data);
+    delete data;
 }
 
-static RegExData* NativeRegEx_open(JNIEnv* env, jclass clazz, jstring pattern, jint flags) {
+static RegExData* NativeRegEx_open(JNIEnv* env, jclass clazz, jstring javaPattern, jint flags) {
     flags = flags | UREGEX_ERROR_ON_UNKNOWN_ESCAPES;
-
-    RegExData* data = (RegExData*)calloc(sizeof(RegExData), 1);
 
     UErrorCode status = U_ZERO_ERROR;
     UParseError error;
     error.offset = -1;
 
-    int patternLen = env->GetStringLength(pattern);
-    if (patternLen == 0) {
-        data->regex = uregex_open(&EMPTY_STRING, -1, flags, &error, &status);
-    } else {
-        jchar const * patternRaw = env->GetStringChars(pattern, NULL);
-        data->regex = uregex_open(patternRaw, patternLen, flags, &error,
-                                  &status);
-        env->ReleaseStringChars(pattern, patternRaw);
-    }
-
+    ScopedJavaUnicodeString pattern(env, javaPattern);
+    UnicodeString& patternString(pattern.unicodeString());
+    UniquePtr<RegExData> data(new RegExData);
+    data->regex = uregex_open(patternString.getBuffer(), patternString.length(), flags, &error, &status);
     if (!U_SUCCESS(status)) {
-        NativeRegEx_close(env, clazz, data);
-        throwPatternSyntaxException(env, status, pattern, error);
-        data = NULL;
+        throwPatternSyntaxException(env, status, javaPattern, error);
+        return NULL;
     }
 
-    return data;
+    return data.release();
 }
 
 static RegExData* NativeRegEx_clone(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
-
     URegularExpression* clonedRegex = uregex_clone(data->regex, &status);
     if (!U_SUCCESS(status)) {
         throwRuntimeException(env, status);
+        return NULL;
     }
 
-    RegExData* result = (RegExData*)calloc(sizeof(RegExData), 1);
+    RegExData* result = new RegExData;
     result->regex = clonedRegex;
-
     return result;
 }
 

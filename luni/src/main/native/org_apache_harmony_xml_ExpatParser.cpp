@@ -19,6 +19,7 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "LocalArray.h"
+#include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -237,8 +238,7 @@ static int hashString(const char* s) {
  * @param hash of bytes
  * @returns wrapper of interned Java string
  */
-static InternedString* newInternedString(JNIEnv* env,
-        ParsingContext* parsingContext, const char* bytes, int hash) {
+static InternedString* newInternedString(JNIEnv* env, const char* bytes, int hash) {
     // Allocate a new wrapper.
     UniquePtr<InternedString> wrapper(new InternedString);
     if (wrapper.get() == NULL) {
@@ -366,7 +366,7 @@ static jstring internString(JNIEnv* env, ParsingContext* parsingContext, const c
 
         // We didn't find it. :(
         // Create a new entry.
-        internedString = newInternedString(env, parsingContext, s, hash);
+        internedString = newInternedString(env, s, hash);
         if (internedString == NULL) return NULL;
 
         // Expand the bucket.
@@ -381,7 +381,7 @@ static jstring internString(JNIEnv* env, ParsingContext* parsingContext, const c
         return internedString->interned;
     } else {
         // We don't even have a bucket yet. Create an entry.
-        internedString = newInternedString(env, parsingContext, s, hash);
+        internedString = newInternedString(env, s, hash);
         if (internedString == NULL) return NULL;
 
         // Create a new bucket with one entry.
@@ -620,9 +620,10 @@ static void startElement(void* data, const char* elementName, const char** attri
  * on the Java parser.
  *
  * @param data parsing context
- * @param elementName "uri|localName" or "localName" for the current element
+ * @param elementName "uri|localName" or "localName" for the current element;
+ *         we assume that this matches the last data on our stack.
  */
-static void endElement(void* data, const char* elementName) {
+static void endElement(void* data, const char* /*elementName*/) {
     ParsingContext* parsingContext = (ParsingContext*) data;
     JNIEnv* env = parsingContext->env;
 
@@ -698,9 +699,10 @@ static void startNamespace(void* data, const char* prefix, const char* uri) {
  * Called by Expat at the end of a namespace mapping.
  *
  * @param data parsing context
- * @param prefix null-terminated namespace prefix used in the XML
+ * @param prefix null-terminated namespace prefix used in the XML;
+ *         we assume this is the same as the last prefix on the stack.
  */
-static void endNamespace(void* data, const char* prefix) {
+static void endNamespace(void* data, const char* /*prefix*/) {
     ParsingContext* parsingContext = (ParsingContext*) data;
     JNIEnv* env = parsingContext->env;
 
@@ -747,9 +749,10 @@ static void endCdata(void* data) {
 
 /**
  * Called by Expat at the beginning of a DOCTYPE section.
+ * Expat gives us 'hasInternalSubset', but the Java API doesn't expect it, so we don't need it.
  */
 static void startDtd(void* data, const char* name,
-        const char* systemId, const char* publicId, int hasInternalSubset) {
+        const char* systemId, const char* publicId, int /*hasInternalSubset*/) {
     ParsingContext* parsingContext = (ParsingContext*) data;
     JNIEnv* env = parsingContext->env;
 
@@ -819,7 +822,7 @@ static void processingInstruction(void* data, const char* target, const char* in
  * @param javaContext that was provided to handleExternalEntity
  * @returns the pointer to the C Expat entity parser
  */
-static jint createEntityParser(JNIEnv* env, jobject, jint parentParser, jstring javaEncoding, jstring javaContext) {
+static jint createEntityParser(JNIEnv* env, jobject, jint parentParser, jstring javaContext) {
     ScopedUtfChars context(env, javaContext);
     if (context.c_str() == NULL) {
         return 0;
@@ -880,7 +883,10 @@ static int handleExternalEntity(XML_Parser parser, const char* context,
     return env->ExceptionCheck() ? XML_STATUS_ERROR : XML_STATUS_OK;
 }
 
-static void unparsedEntityDecl(void* data, const char* name, const char* base, const char* systemId, const char* publicId, const char* notationName) {
+/**
+ * Expat gives us 'base', but the Java API doesn't expect it, so we don't need it.
+ */
+static void unparsedEntityDecl(void* data, const char* name, const char* /*base*/, const char* systemId, const char* publicId, const char* notationName) {
     ParsingContext* parsingContext = reinterpret_cast<ParsingContext*>(data);
     jobject javaParser = parsingContext->object;
     JNIEnv* env = parsingContext->env;
@@ -900,7 +906,10 @@ static void unparsedEntityDecl(void* data, const char* name, const char* base, c
     env->CallVoidMethod(javaParser, unparsedEntityDeclMethod, javaName.get(), javaPublicId.get(), javaSystemId.get(), javaNotationName.get());
 }
 
-static void notationDecl(void* data, const char* name, const char* base, const char* systemId, const char* publicId) {
+/**
+ * Expat gives us 'base', but the Java API doesn't expect it, so we don't need it.
+ */
+static void notationDecl(void* data, const char* name, const char* /*base*/, const char* systemId, const char* publicId) {
     ParsingContext* parsingContext = reinterpret_cast<ParsingContext*>(data);
     jobject javaParser = parsingContext->object;
     JNIEnv* env = parsingContext->env;
@@ -1008,12 +1017,12 @@ static void appendCharacters(JNIEnv* env, jobject object, jint pointer,
     append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
 }
 
-static void appendString(JNIEnv* env, jobject object, jint pointer, jstring xml, jboolean isFinal) {
-    const jchar* chars = env->GetStringChars(xml, NULL);
-    const char* bytes = reinterpret_cast<const char*>(chars);
-    size_t byteCount = 2 * env->GetStringLength(xml);
+static void appendString(JNIEnv* env, jobject object, jint pointer,
+        jstring javaXml, jboolean isFinal) {
+    ScopedJavaUnicodeString xml(env, javaXml);
+    const char* bytes = reinterpret_cast<const char*>(xml.unicodeString().getBuffer());
+    size_t byteCount = 2 * xml.unicodeString().length();
     append(env, object, pointer, bytes, 0, byteCount, isFinal);
-    env->ReleaseStringChars(xml, chars);
 }
 
 /**
@@ -1343,7 +1352,7 @@ static JNINativeMethod parserMethods[] = {
     { "append", "(I[CII)V", (void*) appendCharacters },
     { "append", "(I[BII)V", (void*) appendBytes },
     { "initialize", "(Ljava/lang/String;Z)I", (void*) initialize},
-    { "createEntityParser", "(ILjava/lang/String;Ljava/lang/String;)I", (void*) createEntityParser},
+    { "createEntityParser", "(ILjava/lang/String;)I", (void*) createEntityParser},
     { "staticInitialize", "(Ljava/lang/String;)V", (void*) staticInitialize},
     { "cloneAttributes", "(II)I", (void*) cloneAttributes },
 };
