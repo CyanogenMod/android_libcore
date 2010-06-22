@@ -236,7 +236,21 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if the named charset is not supported.
      */
     public String(byte[] data, int start, int length, String charsetName) throws UnsupportedEncodingException {
-        this(data, start, length, Charset.forName(charsetName));
+        this(data, start, length, charsetForName(charsetName));
+    }
+
+    /**
+     * Calls Charset.forName but only throws UnsupportedEncodingException, which is all String
+     * claims to throw.
+     */
+    private static Charset charsetForName(String charsetName) throws UnsupportedEncodingException {
+        try {
+            return Charset.forName(charsetName);
+        } catch (Exception cause) {
+            UnsupportedEncodingException ex = new UnsupportedEncodingException(charsetName);
+            ex.initCause(cause);
+            throw ex;
+        }
     }
 
     /**
@@ -255,7 +269,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if {@code charsetName} is not supported.
      */
     public String(byte[] data, String charsetName) throws UnsupportedEncodingException {
-        this(data, 0, data.length, Charset.forName(charsetName));
+        this(data, 0, data.length, charsetForName(charsetName));
     }
 
     /**
@@ -956,7 +970,7 @@ outer:
      * @throws UnsupportedEncodingException if the charset is not supported
      */
     public byte[] getBytes(String charsetName) throws UnsupportedEncodingException {
-        return getBytes(Charset.forName(charsetName));
+        return getBytes(charsetForName(charsetName));
     }
 
     /**
