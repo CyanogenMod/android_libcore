@@ -57,8 +57,7 @@ static void throwRuntimeException(JNIEnv* env, UErrorCode status) {
     jniThrowRuntimeException(env, u_errorName(status));
 }
 
-static void _close(JNIEnv*, jclass, RegExData* data)
-{
+static void NativeRegEx_close(JNIEnv*, jclass, RegExData* data) {
     if (data->regex != NULL) {
         uregex_close(data->regex);
     }
@@ -70,8 +69,7 @@ static void _close(JNIEnv*, jclass, RegExData* data)
     free(data);
 }
 
-static RegExData* open(JNIEnv* env, jclass clazz, jstring pattern, jint flags)
-{
+static RegExData* NativeRegEx_open(JNIEnv* env, jclass clazz, jstring pattern, jint flags) {
     flags = flags | UREGEX_ERROR_ON_UNKNOWN_ESCAPES;
 
     RegExData* data = (RegExData*)calloc(sizeof(RegExData), 1);
@@ -91,7 +89,7 @@ static RegExData* open(JNIEnv* env, jclass clazz, jstring pattern, jint flags)
     }
 
     if (!U_SUCCESS(status)) {
-        _close(env, clazz, data);
+        NativeRegEx_close(env, clazz, data);
         throwPatternSyntaxException(env, status, pattern, error);
         data = NULL;
     }
@@ -99,8 +97,7 @@ static RegExData* open(JNIEnv* env, jclass clazz, jstring pattern, jint flags)
     return data;
 }
 
-static RegExData* _clone(JNIEnv* env, jclass, RegExData* data)
-{
+static RegExData* NativeRegEx_clone(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
 
     URegularExpression* clonedRegex = uregex_clone(data->regex, &status);
@@ -114,8 +111,7 @@ static RegExData* _clone(JNIEnv* env, jclass, RegExData* data)
     return result;
 }
 
-static void setText(JNIEnv* env, jclass, RegExData* data, jstring text)
-{
+static void NativeRegEx_setText(JNIEnv* env, jclass, RegExData* data, jstring text) {
     UErrorCode status = U_ZERO_ERROR;
 
     uregex_setText(data->regex, &EMPTY_STRING, 0, &status);
@@ -144,70 +140,52 @@ static void setText(JNIEnv* env, jclass, RegExData* data, jstring text)
     }
 }
 
-static jboolean matches(JNIEnv* env, jclass, RegExData* data,
-                        jint startIndex)
-{
+static jboolean NativeRegEx_matches(JNIEnv* env, jclass, RegExData* data, jint startIndex) {
     UErrorCode status = U_ZERO_ERROR;
-
     jboolean result = uregex_matches(data->regex, startIndex, &status);
     if (!U_SUCCESS(status)) {
         throwRuntimeException(env, status);
     }
-
     return result;
 }
 
-static jboolean lookingAt(JNIEnv* env, jclass, RegExData* data,
-                          jint startIndex)
-{
+static jboolean NativeRegEx_lookingAt(JNIEnv* env, jclass, RegExData* data, jint startIndex) {
     UErrorCode status = U_ZERO_ERROR;
-
     jboolean result = uregex_lookingAt(data->regex, startIndex, &status);
     if (!U_SUCCESS(status)) {
         throwRuntimeException(env, status);
     }
-
     return result;
 }
 
-static jboolean find(JNIEnv* env, jclass, RegExData* data,
-                     jint startIndex)
-{
+static jboolean NativeRegEx_find(JNIEnv* env, jclass, RegExData* data, jint startIndex) {
     UErrorCode status = U_ZERO_ERROR;
-
     jboolean result = uregex_find(data->regex, startIndex, &status);
     if (!U_SUCCESS(status)) {
         throwRuntimeException(env, status);
     }
-
     return result;
 }
 
-static jboolean findNext(JNIEnv* env, jclass, RegExData* data)
-{
+static jboolean NativeRegEx_findNext(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
-
     jboolean result = uregex_findNext(data->regex, &status);
     if (!U_SUCCESS(status)) {
         throwRuntimeException(env, status);
     }
-
     return result;
 }
 
-static jint groupCount(JNIEnv* env, jclass, RegExData* data)
-{
+static jint NativeRegEx_groupCount(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
-
     jint result = uregex_groupCount(data->regex, &status);
     if (!U_SUCCESS(status)) {
         throwRuntimeException(env, status);
     }
-
     return result;
 }
 
-static void startEnd(JNIEnv* env, jclass, RegExData* data, jintArray javaOffsets) {
+static void NativeRegEx_startEnd(JNIEnv* env, jclass, RegExData* data, jintArray javaOffsets) {
     UErrorCode status = U_ZERO_ERROR;
     ScopedIntArrayRW offsets(env, javaOffsets);
     int groupCount = uregex_groupCount(data->regex, &status);
@@ -220,7 +198,7 @@ static void startEnd(JNIEnv* env, jclass, RegExData* data, jintArray javaOffsets
     }
 }
 
-static void setRegion(JNIEnv* env, jclass, RegExData* data, jint start, jint end) {
+static void NativeRegEx_setRegion(JNIEnv* env, jclass, RegExData* data, jint start, jint end) {
     UErrorCode status = U_ZERO_ERROR;
     uregex_setRegion(data->regex, start, end, &status);
     if (!U_SUCCESS(status)) {
@@ -228,8 +206,7 @@ static void setRegion(JNIEnv* env, jclass, RegExData* data, jint start, jint end
     }
 }
 
-static jint regionStart(JNIEnv* env, jclass, RegExData* data)
-{
+static jint NativeRegEx_regionStart(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
     int result = uregex_regionStart(data->regex, &status);
     if (!U_SUCCESS(status)) {
@@ -238,8 +215,7 @@ static jint regionStart(JNIEnv* env, jclass, RegExData* data)
     return result;
 }
 
-static jint regionEnd(JNIEnv* env, jclass, RegExData* data)
-{
+static jint NativeRegEx_regionEnd(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
     int result = uregex_regionEnd(data->regex, &status);
     if (!U_SUCCESS(status)) {
@@ -248,9 +224,7 @@ static jint regionEnd(JNIEnv* env, jclass, RegExData* data)
     return result;
 }
 
-static void useTransparentBounds(JNIEnv* env, jclass, RegExData* data,
-                                 jboolean value)
-{
+static void NativeRegEx_useTransparentBounds(JNIEnv* env, jclass, RegExData* data, jboolean value) {
     UErrorCode status = U_ZERO_ERROR;
     uregex_useTransparentBounds(data->regex, value, &status);
     if (!U_SUCCESS(status)) {
@@ -258,8 +232,7 @@ static void useTransparentBounds(JNIEnv* env, jclass, RegExData* data,
     }
 }
 
-static jboolean hasTransparentBounds(JNIEnv* env, jclass, RegExData* data)
-{
+static jboolean NativeRegEx_hasTransparentBounds(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
     jboolean result = uregex_hasTransparentBounds(data->regex, &status);
     if (!U_SUCCESS(status)) {
@@ -268,9 +241,7 @@ static jboolean hasTransparentBounds(JNIEnv* env, jclass, RegExData* data)
     return result;
 }
 
-static void useAnchoringBounds(JNIEnv* env, jclass, RegExData* data,
-                               jboolean value)
-{
+static void NativeRegEx_useAnchoringBounds(JNIEnv* env, jclass, RegExData* data, jboolean value) {
     UErrorCode status = U_ZERO_ERROR;
     uregex_useAnchoringBounds(data->regex, value, &status);
     if (!U_SUCCESS(status)) {
@@ -278,8 +249,7 @@ static void useAnchoringBounds(JNIEnv* env, jclass, RegExData* data,
     }
 }
 
-static jboolean hasAnchoringBounds(JNIEnv* env, jclass, RegExData* data)
-{
+static jboolean NativeRegEx_hasAnchoringBounds(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
     jboolean result = uregex_hasAnchoringBounds(data->regex, &status);
     if (!U_SUCCESS(status)) {
@@ -288,8 +258,7 @@ static jboolean hasAnchoringBounds(JNIEnv* env, jclass, RegExData* data)
     return result;
 }
 
-static jboolean hitEnd(JNIEnv* env, jclass, RegExData* data)
-{
+static jboolean NativeRegEx_hitEnd(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
     jboolean result = uregex_hitEnd(data->regex, &status);
     if (!U_SUCCESS(status)) {
@@ -298,8 +267,7 @@ static jboolean hitEnd(JNIEnv* env, jclass, RegExData* data)
     return result;
 }
 
-static jboolean requireEnd(JNIEnv* env, jclass, RegExData* data)
-{
+static jboolean NativeRegEx_requireEnd(JNIEnv* env, jclass, RegExData* data) {
     UErrorCode status = U_ZERO_ERROR;
     jboolean result = uregex_requireEnd(data->regex, &status);
     if (!U_SUCCESS(status)) {
@@ -308,8 +276,7 @@ static jboolean requireEnd(JNIEnv* env, jclass, RegExData* data)
     return result;
 }
 
-static void reset(JNIEnv* env, jclass, RegExData* data, jint position)
-{
+static void NativeRegEx_reset(JNIEnv* env, jclass, RegExData* data, jint position) {
     UErrorCode status = U_ZERO_ERROR;
     uregex_reset(data->regex, position, &status);
     if (!U_SUCCESS(status)) {
@@ -318,26 +285,26 @@ static void reset(JNIEnv* env, jclass, RegExData* data, jint position)
 }
 
 static JNINativeMethod gMethods[] = {
-    { "open",                 "(Ljava/lang/String;I)I", (void*)open       },
-    { "clone",                "(I)I",                   (void*)_clone     },
-    { "close",                "(I)V",                   (void*)_close     },
-    { "setText",              "(ILjava/lang/String;)V", (void*)setText    },
-    { "matches",              "(II)Z",                  (void*)matches    },
-    { "lookingAt",            "(II)Z",                  (void*)lookingAt  },
-    { "find",                 "(II)Z",                  (void*)find       },
-    { "findNext",             "(I)Z",                   (void*)findNext   },
-    { "groupCount",           "(I)I",                   (void*)groupCount },
-    { "startEnd",             "(I[I)V",                 (void*)startEnd   },
-    { "setRegion",            "(III)V",                 (void*)setRegion  },
-    { "regionStart",          "(I)I",                   (void*)regionStart },
-    { "regionEnd",            "(I)I",                   (void*)regionEnd  },
-    { "useTransparentBounds", "(IZ)V",            (void*)useTransparentBounds },
-    { "hasTransparentBounds", "(I)Z",             (void*)hasTransparentBounds },
-    { "useAnchoringBounds",   "(IZ)V",            (void*)useAnchoringBounds },
-    { "hasAnchoringBounds",   "(I)Z",             (void*)hasAnchoringBounds },
-    { "hitEnd",               "(I)Z",                   (void*)hitEnd },
-    { "requireEnd",           "(I)Z",                   (void*)requireEnd },
-    { "reset",                "(II)V",                  (void*)reset },
+    { "open",                 "(Ljava/lang/String;I)I", (void*) NativeRegEx_open },
+    { "clone",                "(I)I",                   (void*) NativeRegEx_clone },
+    { "close",                "(I)V",                   (void*) NativeRegEx_close },
+    { "setText",              "(ILjava/lang/String;)V", (void*) NativeRegEx_setText },
+    { "matches",              "(II)Z",                  (void*) NativeRegEx_matches },
+    { "lookingAt",            "(II)Z",                  (void*) NativeRegEx_lookingAt },
+    { "find",                 "(II)Z",                  (void*) NativeRegEx_find },
+    { "findNext",             "(I)Z",                   (void*) NativeRegEx_findNext },
+    { "groupCount",           "(I)I",                   (void*) NativeRegEx_groupCount },
+    { "startEnd",             "(I[I)V",                 (void*) NativeRegEx_startEnd },
+    { "setRegion",            "(III)V",                 (void*) NativeRegEx_setRegion },
+    { "regionStart",          "(I)I",                   (void*) NativeRegEx_regionStart },
+    { "regionEnd",            "(I)I",                   (void*) NativeRegEx_regionEnd },
+    { "useTransparentBounds", "(IZ)V",                  (void*) NativeRegEx_useTransparentBounds },
+    { "hasTransparentBounds", "(I)Z",                   (void*) NativeRegEx_hasTransparentBounds },
+    { "useAnchoringBounds",   "(IZ)V",                  (void*) NativeRegEx_useAnchoringBounds },
+    { "hasAnchoringBounds",   "(I)Z",                   (void*) NativeRegEx_hasAnchoringBounds },
+    { "hitEnd",               "(I)Z",                   (void*) NativeRegEx_hitEnd },
+    { "requireEnd",           "(I)Z",                   (void*) NativeRegEx_requireEnd },
+    { "reset",                "(II)V",                  (void*) NativeRegEx_reset },
 };
 int register_com_ibm_icu4jni_regex_NativeRegEx(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "com/ibm/icu4jni/regex/NativeRegEx",
