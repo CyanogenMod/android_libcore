@@ -36,7 +36,7 @@ public final class TimeZones {
         // If we already have the strings, linear search through them is 10x quicker than
         // calling ICU for just the one we want.
         if (CachedTimeZones.locale.equals(locale)) {
-            String result = lookupDisplayTimeZone(CachedTimeZones.names, id, daylight, style);
+            String result = lookupDisplayName(CachedTimeZones.names, id, daylight, style);
             if (result != null) {
                 return result;
             }
@@ -44,7 +44,7 @@ public final class TimeZones {
         return getDisplayNameImpl(id, daylight, style, locale.toString());
     }
 
-    public static String lookupDisplayTimeZone(String[][] zoneStrings, String id, boolean daylight, int style) {
+    public static String lookupDisplayName(String[][] zoneStrings, String id, boolean daylight, int style) {
         for (String[] row : zoneStrings) {
             if (row[0].equals(id)) {
                 if (daylight) {
