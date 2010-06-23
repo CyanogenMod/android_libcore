@@ -230,7 +230,7 @@ public final class Math {
      *            the denominator of the value whose atan has to be computed.
      * @return the arc tangent of {@code y/x}.
      */
-    public static native double atan2(double x, double y);
+    public static native double atan2(double y, double x);
 
     /**
      * Returns the closest double approximation of the cube root of the
