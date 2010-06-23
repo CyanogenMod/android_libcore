@@ -40,24 +40,6 @@ public class ICUTest extends junit.framework.TestCase {
         assertNotNull(ICU.getAvailableLocales()[0]);
     }
 
-    public void test_getKnownTimezones() throws Exception {
-        // Check that corrupting our array doesn't affect other callers.
-        assertNotNull(ICU.getKnownTimezones()[0]);
-        ICU.getKnownTimezones()[0] = null;
-        assertNotNull(ICU.getKnownTimezones()[0]);
-    }
-
-    public void test_getDisplayTimeZones() throws Exception {
-        // Check that corrupting our array doesn't affect other callers.
-        assertNotNull(ICU.getDisplayTimeZones(null)[0]);
-        ICU.getDisplayTimeZones(null)[0] = null;
-        assertNotNull(ICU.getDisplayTimeZones(null)[0]);
-        // getDisplayTimezones actually returns a String[][] rather than a String[].
-        assertNotNull(ICU.getDisplayTimeZones(null)[0][0]);
-        ICU.getDisplayTimeZones(null)[0][0] = null;
-        assertNotNull(ICU.getDisplayTimeZones(null)[0][0]);
-    }
-
     public void test_localeFromString() throws Exception {
         // localeFromString is pretty lenient. Some of these can't be round-tripped
         // through Locale.toString.
