@@ -38,23 +38,18 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
 import javax.security.auth.x500.X500Principal;
-
 import org.apache.harmony.security.utils.AlgNameMapper;
 import org.apache.harmony.security.x509.Certificate;
 import org.apache.harmony.security.x509.Extension;
 import org.apache.harmony.security.x509.Extensions;
 import org.apache.harmony.security.x509.TBSCertificate;
-
-// BEGIN android-added
-import java.security.interfaces.RSAPublicKey;
 import org.apache.harmony.xnet.provider.jsse.NativeCrypto;
-// END android-added
 
 /**
  * This class is an implementation of X509Certificate. It wraps

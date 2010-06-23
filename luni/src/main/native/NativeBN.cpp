@@ -546,6 +546,6 @@ static JNINativeMethod gMethods[] = {
    { "sign", "(I)I", (void*)NativeBN_sign },
    { "twosComp2bn", "([BII)Z", (void*)NativeBN_twosComp2bn },
 };
-int register_org_openssl_NativeBN(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "org/openssl/NativeBN", gMethods, NELEM(gMethods));
+int register_java_math_NativeBN(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "java/math/NativeBN", gMethods, NELEM(gMethods));
 }

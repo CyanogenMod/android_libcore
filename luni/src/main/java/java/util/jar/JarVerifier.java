@@ -37,10 +37,6 @@ import org.apache.harmony.security.utils.JarUtils;
 
 import org.apache.harmony.luni.util.Util;
 
-// BEGIN android-added
-import org.apache.harmony.xnet.provider.jsse.OpenSSLMessageDigestJDK;
-// END android-added
-
 /**
  * Non-public class used by {@link JarFile} and {@link JarInputStream} to manage
  * the verification of signed JARs. {@code JarFile} and {@code JarInputStream}
@@ -217,10 +213,8 @@ class JarVerifier {
             byte[] hashBytes = hash.getBytes(Charsets.ISO_8859_1);
 
             try {
-                // BEGIN android-changed
-                return new VerifierEntry(name, OpenSSLMessageDigestJDK.getInstance(algorithm),
-                        hashBytes, certificatesArray);
-                // END android-changed
+                return new VerifierEntry(name, MessageDigest
+                        .getInstance(algorithm), hashBytes, certificatesArray);
             } catch (NoSuchAlgorithmException e) {
                 // ignored
             }
@@ -407,9 +401,7 @@ class JarVerifier {
 
             MessageDigest md;
             try {
-                // BEGIN android-changed
-                md = OpenSSLMessageDigestJDK.getInstance(algorithm);
-                // END android-changed
+                md = MessageDigest.getInstance(algorithm);
             } catch (NoSuchAlgorithmException e) {
                 continue;
             }

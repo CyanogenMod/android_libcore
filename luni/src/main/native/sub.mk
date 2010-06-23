@@ -6,10 +6,12 @@ LOCAL_SRC_FILES := \
 	ErrorCode.cpp \
 	ICU.cpp \
 	JniConstants.cpp \
+	NativeBN.cpp \
 	NativeBidi.cpp \
 	NativeBreakIterator.cpp \
 	NativeCollation.cpp \
 	NativeConverter.cpp \
+	NativeCrypto.cpp \
 	NativeDecimalFormat.cpp \
 	NativeIDN.cpp \
 	NativeNormalizer.cpp \
@@ -46,7 +48,6 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_util_NumberConvert.cpp \
 	org_apache_harmony_luni_util_fltparse.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
-	org_apache_harmony_xnet_provider_jsse_NativeCrypto.cpp \
 	valueOf.cpp
 
 

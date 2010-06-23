@@ -36,20 +36,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 import javax.security.auth.x500.X500Principal;
-
 import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.pkcs7.ContentInfo;
 import org.apache.harmony.security.pkcs7.SignedData;
 import org.apache.harmony.security.pkcs7.SignerInfo;
 import org.apache.harmony.security.provider.cert.X509CertImpl;
 import org.apache.harmony.security.x501.AttributeTypeAndValue;
-
-// BEGIN android-added
-import org.apache.harmony.xnet.provider.jsse.OpenSSLMessageDigestJDK;
 import org.apache.harmony.xnet.provider.jsse.OpenSSLSignature;
-// END android-added
 
 public class JarUtils {
 
@@ -176,12 +170,7 @@ public class JarUtils {
                 }
             }
             if (existingDigest != null) {
-                // BEGIN android-removed
-                // MessageDigest md = MessageDigest.getInstance(sigInfo.getDigestAlgorithm());
-                // END android-removed
-                // BEGIN android-added
-                MessageDigest md = OpenSSLMessageDigestJDK.getInstance(sigInfo.getDigestAlgorithm());
-                // END android-added
+                MessageDigest md = MessageDigest.getInstance(sigInfo.getDigestAlgorithm());
                 byte[] computedDigest = md.digest(sfBytes);
                 if (!Arrays.equals(existingDigest, computedDigest)) {
                     throw new SecurityException("Incorrect MD");

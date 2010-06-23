@@ -89,6 +89,13 @@ struct EVP_PKEY_Delete {
 };
 typedef UniquePtr<EVP_PKEY, EVP_PKEY_Delete> Unique_EVP_PKEY;
 
+struct PKCS8_PRIV_KEY_INFO_Delete {
+    void operator()(PKCS8_PRIV_KEY_INFO* p) const {
+        PKCS8_PRIV_KEY_INFO_free(p);
+    }
+};
+typedef UniquePtr<PKCS8_PRIV_KEY_INFO, PKCS8_PRIV_KEY_INFO_Delete> Unique_PKCS8_PRIV_KEY_INFO;
+
 struct RSA_Delete {
     void operator()(RSA* p) const {
         RSA_free(p);
@@ -600,7 +607,7 @@ static void NativeCrypto_EVP_DigestInit(JNIEnv* env, jclass, EVP_MD_CTX* ctx, js
         return;
     }
 
-    const EVP_MD *digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
+    const EVP_MD* digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
 
     if (digest == NULL) {
         jniThrowRuntimeException(env, "Hash algorithm not found");
@@ -682,7 +689,7 @@ static void NativeCrypto_EVP_VerifyInit(JNIEnv* env, jclass, EVP_MD_CTX* ctx, js
         return;
     }
 
-    const EVP_MD *digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
+    const EVP_MD* digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
 
     if (digest == NULL) {
         jniThrowRuntimeException(env, "Hash algorithm not found");
@@ -785,7 +792,7 @@ static int rsaVerify(unsigned char* msg, unsigned int msgLen, unsigned char* sig
     }
     EVP_PKEY_set1_RSA(pkey.get(), rsa);
 
-    const EVP_MD *type = EVP_get_digestbyname(algorithm);
+    const EVP_MD* type = EVP_get_digestbyname(algorithm);
     if (type == NULL) {
         return -1;
     }
@@ -1676,20 +1683,6 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass, jint ssl_ctx_address)
     return (jint)ssl.release();
 }
 
-/**
- * Gets the bytes from a jbyteArray and stores them in a freshly-allocated BIO memory buffer.
- */
-static BIO* jbyteArrayToMemBuf(JNIEnv* env, jbyteArray byteArray) {
-    ScopedByteArrayRO buf(env, byteArray);
-    Unique_BIO bio(BIO_new(BIO_s_mem()));
-    if (bio.get() == NULL) {
-        jniThrowRuntimeException(env, "BIO_new failed");
-        return NULL;
-    }
-    BIO_write(bio.get(), buf.get(), buf.size());
-    return bio.release();
-}
-
 static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
                                             jint ssl_address, jbyteArray privatekey)
 {
@@ -1701,17 +1694,29 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
 
     if (privatekey == NULL) {
         jniThrowNullPointerException(env, "privatekey == null");
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => privatekey error", ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => privatekey == null", ssl);
         return;
     }
 
-    Unique_BIO privatekeybio(jbyteArrayToMemBuf(env, privatekey));
-    Unique_EVP_PKEY privatekeyevp(PEM_read_bio_PrivateKey(privatekeybio.get(), NULL, 0, NULL));
+    ScopedByteArrayRO buf(env, privatekey);
+    const unsigned char* tmp = (const unsigned char*) buf.get();
+    Unique_PKCS8_PRIV_KEY_INFO pkcs8(d2i_PKCS8_PRIV_KEY_INFO(NULL, &tmp, buf.size()));
+    if (pkcs8.get() == NULL) {
+        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
+                                       "Error parsing private key from DER to PKCS8");
+        SSL_clear(ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => error from DER to PKCS8", ssl);
+        return;
+    }
+
+    Unique_EVP_PKEY privatekeyevp(EVP_PKCS82PKEY(pkcs8.get()));
     if (privatekeyevp.get() == NULL) {
         LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
-        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing the private key");
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, 
+                                       "Error creating private key from PKCS8");
         SSL_clear(ssl);
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => privatekeyevp error", ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => error from PKCS8 to key", ssl);
         return;
     }
 
@@ -1720,7 +1725,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
         privatekeyevp.release();
     } else {
         LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
-        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting the private key");
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting private key");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => error", ssl);
         return;
@@ -1730,7 +1735,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
 }
 
 static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
-                                             jint ssl_address, jbyteArray certificates)
+                                             jint ssl_address, jobjectArray certificates)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate certificates=%p", ssl, certificates);
@@ -1739,30 +1744,49 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
     }
 
     if (certificates == NULL) {
-        jniThrowNullPointerException(env, "privatekey == null");
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificates error", ssl);
+        jniThrowNullPointerException(env, "certificates == null");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificates == null", ssl);
         return;
     }
 
-    Unique_BIO certificatesbio(jbyteArrayToMemBuf(env, certificates));
-    Unique_X509 certificatesx509(PEM_read_bio_X509(certificatesbio.get(), NULL, 0, NULL));
-
-    if (certificatesx509.get() == NULL) {
-        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
-        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing the certificates");
-        SSL_clear(ssl);
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificatesx509 error", ssl);
+    int length = env->GetArrayLength(certificates);
+    if (length == 0) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "certificates.length == 0");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificates.length == 0", ssl);
         return;
     }
 
-    int ret = SSL_use_certificate(ssl, certificatesx509.get());
+    Unique_X509 certificatesX509[length];
+    for (int i = 0; i < length; i++) {
+        ScopedLocalRef<jbyteArray> certificate(env,
+                reinterpret_cast<jbyteArray>(env->GetObjectArrayElement(certificates, i)));
+        if (certificate.get() == NULL) {
+            jniThrowNullPointerException(env, "certificates element == null");
+            JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificates element null", ssl);
+            return;
+        }
+
+        ScopedByteArrayRO buf(env, certificate.get());
+        const unsigned char* tmp = (const unsigned char*) buf.get();
+        certificatesX509[i].reset(d2i_X509(NULL, &tmp, buf.size()));
+
+        if (certificatesX509[i].get() == NULL) {
+            LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+            throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing certificate");
+            SSL_clear(ssl);
+            JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificates parsing error", ssl);
+            return;
+        }
+    }
+
+    int ret = SSL_use_certificate(ssl, certificatesX509[0].get());
     if (ret == 1) {
-        certificatesx509.release();
+        certificatesX509[0].release();
     } else {
         LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
-        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting the certificates");
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting certificate");
         SSL_clear(ssl);
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => error", ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => SSL_use_certificate error", ssl);
         return;
     }
 
@@ -1778,7 +1802,7 @@ static void NativeCrypto_SSL_check_private_key(JNIEnv* env, jclass, jint ssl_add
     }
     int ret = SSL_check_private_key(ssl);
     if (ret != 1) {
-        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error checking the private key");
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error checking private key");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_check_private_key => error", ssl);
         return;
@@ -2878,7 +2902,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     { "SSL_CTX_free",         "(I)V",          (void*)NativeCrypto_SSL_CTX_free },
     { "SSL_new",              "(I)I",          (void*)NativeCrypto_SSL_new},
     { "SSL_use_PrivateKey",   "(I[B)V",        (void*)NativeCrypto_SSL_use_PrivateKey},
-    { "SSL_use_certificate",  "(I[B)V",        (void*)NativeCrypto_SSL_use_certificate},
+    { "SSL_use_certificate",  "(I[[B)V",       (void*)NativeCrypto_SSL_use_certificate},
     { "SSL_check_private_key","(I)V",          (void*)NativeCrypto_SSL_check_private_key},
     { "SSL_get_mode",         "(I)J",          (void*)NativeCrypto_SSL_get_mode },
     { "SSL_set_mode",         "(IJ)J",         (void*)NativeCrypto_SSL_set_mode },

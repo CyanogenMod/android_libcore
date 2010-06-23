@@ -49,7 +49,8 @@ public class Services {
     // BEGIN android-changed
     // set the initial size to 600 so we don't grow to 1024 by default because
     // initialization adds a few entries more than the growth threshold.
-    private static final Map<String, Provider.Service> services = new HashMap<String, Provider.Service>(600);
+    private static final Map<String, Provider.Service> services
+            = new HashMap<String, Provider.Service>(600);
     // END android-changed
 
     // Need refresh flag
@@ -93,8 +94,8 @@ public class Services {
                 initServiceInfo(p);
             } catch (ClassNotFoundException e) { // ignore Exceptions
             } catch (IllegalAccessException e) {
-			} catch (InstantiationException e) {
-			}
+            } catch (InstantiationException e) {
+            }
         }
         Engine.door.renumProviders();
     }
@@ -166,23 +167,17 @@ public class Services {
      * @param p
      */
     public static void initServiceInfo(Provider p) {
-        Provider.Service serv;
-        String key;
-        String type;
-        String alias;
         StringBuilder sb = new StringBuilder(128);
 
-        for (Iterator<Provider.Service> it1 = p.getServices().iterator(); it1.hasNext();) {
-            serv = it1.next();
-            type = serv.getType();
+        for (Provider.Service serv : p.getServices()) {
+            String type = serv.getType();
             sb.delete(0, sb.length());
-            key = sb.append(type).append(".").append(
+            String key = sb.append(type).append(".").append(
                     Util.toUpperCase(serv.getAlgorithm())).toString();
             if (!services.containsKey(key)) {
                 services.put(key, serv);
             }
-            for (Iterator<String> it2 = Engine.door.getAliases(serv); it2.hasNext();) {
-                alias = it2.next();
+            for (String alias : Engine.door.getAliases(serv)) {
                 sb.delete(0, sb.length());
                 key = sb.append(type).append(".").append(Util.toUpperCase(alias))
                         .toString();
@@ -200,8 +195,8 @@ public class Services {
      */
     public static void updateServiceInfo() {
         services.clear();
-        for (Iterator<Provider> it = providers.iterator(); it.hasNext();) {
-            initServiceInfo(it.next());
+        for (Provider p : providers) {
+            initServiceInfo(p);
         }
         needRefresh = false;
     }
@@ -224,19 +219,6 @@ public class Services {
      */
     public static Provider.Service getService(String key) {
         return services.get(key);
-    }
-
-    /**
-     * Prints Services content
-     */
-    // FIXME remove debug function
-    public static void printServices() {
-        refresh();
-        Set<String> s = services.keySet();
-        for (Iterator<String> i = s.iterator(); i.hasNext();) {
-            String key = i.next();
-            System.out.println(key + "=" + services.get(key));
-        }
     }
 
     /**

@@ -17,25 +17,24 @@
 
 package java.security;
 
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-// BEGIN android-added
-import java.util.logging.Level;
-import java.util.logging.Logger;
-// END android-added
-import java.util.Enumeration;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.harmony.security.Util;
 import org.apache.harmony.security.fortress.Engine;
 import org.apache.harmony.security.fortress.PolicyUtils;
@@ -131,10 +130,11 @@ public final class Security {
 
     // Register default providers
     private static void registerDefaultProviders() {
-        secprops.put("security.provider.1", "org.apache.harmony.security.provider.cert.DRLCertFactory");
-        secprops.put("security.provider.2", "org.apache.harmony.security.provider.crypto.CryptoProvider");
-        secprops.put("security.provider.3", "org.apache.harmony.xnet.provider.jsse.JSSEProvider");
-        secprops.put("security.provider.4", "org.bouncycastle.jce.provider.BouncyCastleProvider");
+        secprops.put("security.provider.1", "org.apache.harmony.xnet.provider.jsse.OpenSSLProvider");
+        secprops.put("security.provider.2", "org.bouncycastle.jce.provider.BouncyCastleProvider");
+        secprops.put("security.provider.3", "org.apache.harmony.security.provider.cert.DRLCertFactory");
+        secprops.put("security.provider.4", "org.apache.harmony.security.provider.crypto.CryptoProvider");
+        secprops.put("security.provider.5", "org.apache.harmony.xnet.provider.jsse.JSSEProvider");
     }
 
     /**
@@ -526,7 +526,7 @@ public final class Security {
         }
 
         //  Access to Security.getAliases()
-        public Iterator<String> getAliases(Provider.Service s) {
+        public List<String> getAliases(Provider.Service s) {
             return s.getAliases();
         }
 

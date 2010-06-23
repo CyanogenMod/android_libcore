@@ -17,7 +17,6 @@
 package java.math;
 
 import java.util.Random;
-import org.openssl.NativeBN;
 
 /*
  * In contrast to BigIntegers this class doesn't fake two's complement representation.

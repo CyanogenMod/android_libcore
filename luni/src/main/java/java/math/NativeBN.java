@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.openssl;
+package java.math;
 
-public class NativeBN {
+final class NativeBN {
 
     public static native int ERR_get_error();
     // unsigned long ERR_get_error(void);

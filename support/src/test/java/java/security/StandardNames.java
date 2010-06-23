@@ -263,7 +263,7 @@ public final class StandardNames extends Assert {
             unprovide("KeyManagerFactory", "SunX509");
             provide("KeyManagerFactory", "X509");
 
-            // different names SHA vs SHA-1
+            // different names: BouncyCastle actually uses the Standard name of SHA-1 vs SHA
             unprovide("MessageDigest", "SHA");
             provide("MessageDigest", "SHA-1");
 
@@ -286,10 +286,6 @@ public final class StandardNames extends Assert {
             // Harmony has X.509, BouncyCastle X509
             // TODO remove one, probably Harmony's
             provide("CertificateFactory", "X509");
-
-            // The Harmony JSSEProvider registers an OpenSSL based MessageDigest SHA-224
-            // TODO remove it since the RI does not provide this variant
-            provide("MessageDigest", "SHA-224");
 
             // Harmony JSSEProvider is missing these
             // TODO add them

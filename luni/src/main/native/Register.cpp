@@ -39,6 +39,7 @@ extern int register_java_lang_Math(JNIEnv* env);
 extern int register_java_lang_ProcessManager(JNIEnv* env);
 extern int register_java_lang_StrictMath(JNIEnv* env);
 extern int register_java_lang_System(JNIEnv* env);
+extern int register_java_math_NativeBN(JNIEnv* env);
 extern int register_java_net_InetAddress(JNIEnv* env);
 extern int register_java_net_NetworkInterface(JNIEnv* env);
 extern int register_java_util_regex_Matcher(JNIEnv* env);
@@ -60,7 +61,6 @@ extern int register_org_apache_harmony_luni_util_fltparse(JNIEnv* env);
 extern int register_org_apache_harmony_text_NativeBidi(JNIEnv* env);
 extern int register_org_apache_harmony_xml_ExpatParser(JNIEnv* env);
 extern int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env);
-extern int register_org_openssl_NativeBN(JNIEnv* env);
 
 // DalvikVM calls this on startup, so we can statically register all our native methods.
 extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
@@ -87,6 +87,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_java_lang_ProcessManager(env) != -1 &&
             register_java_lang_StrictMath(env) != -1 &&
             register_java_lang_System(env) != -1 &&
+            register_java_math_NativeBN(env) != -1 &&
             register_java_net_InetAddress(env) != -1 &&
             register_java_net_NetworkInterface(env) != -1 &&
             register_java_util_regex_Matcher(env) != -1 &&
@@ -106,7 +107,6 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_org_apache_harmony_luni_util_fltparse(env) != -1 &&
             register_org_apache_harmony_text_NativeBidi(env) != -1 &&
             register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(env) != -1 &&
-            register_org_openssl_NativeBN(env) != -1 &&
             // Initialize the Android classes last, as they have dependencies on the "corer" core classes.
             android::register_dalvik_system_TouchDex(env) != -1 &&
             register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&

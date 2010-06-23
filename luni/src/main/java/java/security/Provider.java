@@ -549,8 +549,7 @@ public abstract class Provider extends Properties {
         if (sm != null) {
             sm.checkSecurityAccess("putProviderProperty." + name);
         }
-        if ("Provider".equals(s.getType())) { // Provider service type cannot be
-                                              // added
+        if ("Provider".equals(s.getType())) { // Provider service type cannot be added
             return;
         }
         servicesChanged();
@@ -562,8 +561,8 @@ public abstract class Provider extends Properties {
             if (aliasTable == null) {
                 aliasTable = new TwoKeyHashMap<String, String, Service>(256);
             }
-            for (Iterator<String> it = s.getAliases(); it.hasNext();) {
-                aliasTable.put(s.type, Util.toUpperCase(it.next()), s);
+            for (String alias : s.getAliases()) {
+                aliasTable.put(s.type, Util.toUpperCase(alias), s);
             }
         }
         serviceInfoToProperties(s);
@@ -599,14 +598,16 @@ public abstract class Provider extends Properties {
             serviceTable.remove(s.type, Util.toUpperCase(s.algorithm));
         }
         if (aliasTable != null && s.aliases != null) {
-            for (Iterator<String> it = s.getAliases(); it.hasNext();) {
-                aliasTable.remove(s.type, Util.toUpperCase(it.next()));
+            for (String alias: s.getAliases()) {
+                aliasTable.remove(s.type, Util.toUpperCase(alias));
             }
         }
         serviceInfoFromProperties(s);
     }
 
-    // Add Service information to the provider's properties.
+    /**
+     * Add Service information to the provider's properties.
+     */
     private void serviceInfoToProperties(Provider.Service s) {
         super.put(s.type + "." + s.algorithm, s.className);
         if (s.aliases != null) {
@@ -615,8 +616,7 @@ public abstract class Provider extends Properties {
             }
         }
         if (s.attributes != null) {
-            for (Iterator<Map.Entry<String, String>> i = s.attributes.entrySet().iterator(); i.hasNext();) {
-                Map.Entry<String, String> entry = i.next();
+            for (Map.Entry<String, String> entry : s.attributes.entrySet()) {
                 super.put(s.type + "." + s.algorithm + " " + entry.getKey(),
                         entry.getValue());
             }
@@ -627,7 +627,9 @@ public abstract class Provider extends Properties {
         }
     }
 
-    // Remove Service information from the provider's properties.
+    /**
+     * Remove Service information from the provider's properties.
+     */
     private void serviceInfoFromProperties(Provider.Service s) {
         super.remove(s.type + "." + s.algorithm);
         if (s.aliases != null) {
@@ -636,8 +638,7 @@ public abstract class Provider extends Properties {
             }
         }
         if (s.attributes != null) {
-            for (Iterator<Map.Entry<String, String>> i = s.attributes.entrySet().iterator(); i.hasNext();) {
-                Map.Entry<String, String> entry = i.next();
+            for (Map.Entry<String, String> entry : s.attributes.entrySet()) {
                 super.remove(s.type + "." + s.algorithm + " " + entry.getKey());
             }
         }
@@ -692,7 +693,8 @@ public abstract class Provider extends Properties {
             serviceName = k.substring(0, j);
             algorithm = k.substring(j + 1);
             if (propertyServiceTable != null) {
-                Provider.Service ser = propertyServiceTable.remove(serviceName, Util.toUpperCase(algorithm));
+                Provider.Service ser = propertyServiceTable.remove(serviceName,
+                                                                   Util.toUpperCase(algorithm));
                 if (ser != null && propertyAliasTable != null
                         && ser.aliases != null) {
                     for (Iterator<String> it = ser.aliases.iterator(); it.hasNext();) {
@@ -701,8 +703,9 @@ public abstract class Provider extends Properties {
                     }
                 }
             }
-        } else { // <crypto_service>.<algorithm_or_type>
-                 // <attribute_name>=<attrValue>
+        } else {
+            // <crypto_service>.<algorithm_or_type>
+            // <attribute_name>=<attrValue>
             attribute = k.substring(i + 1);
             serviceName = k.substring(0, j);
             algorithm = k.substring(j + 1, i);
@@ -737,11 +740,13 @@ public abstract class Provider extends Properties {
             }
             String key = (String) _key;
             String value = (String) _value;
-            if (key.startsWith("Provider")) { // Provider service type is reserved
+            if (key.startsWith("Provider")) {
+                // Provider service type is reserved
                 continue;
             }
             int i;
-            if (key.startsWith("Alg.Alias.")) { // Alg.Alias.<crypto_service>.<aliasName>=<standardName>
+            if (key.startsWith("Alg.Alias.")) {
+                // Alg.Alias.<crypto_service>.<aliasName>=<standardName>
                 String aliasName;
                 String service_alias = key.substring(10);
                 i = service_alias.indexOf('.');
@@ -811,8 +816,9 @@ public abstract class Provider extends Properties {
                     propertyServiceTable.put(serviceName, alg, s);
 
                 }
-            } else { // <crypto_service>.<algorithm_or_type>
-                     // <attribute_name>=<attrValue>
+            } else {
+                // <crypto_service>.<algorithm_or_type>
+                // <attribute_name>=<attrValue>
                 serviceName = key.substring(0, j);
                 algorithm = key.substring(j + 1, i);
                 String attribute = key.substring(i + 1);
@@ -854,9 +860,11 @@ public abstract class Provider extends Properties {
         lastServicesSet = null;
     }
 
-    // These attributes should be placed in each Provider object:
-    // Provider.id name, Provider.id version, Provider.id info,
-    // Provider.id className
+    /**
+     * These attributes should be placed in each Provider object:
+     * Provider.id name, Provider.id version, Provider.id info,
+     * Provider.id className
+     */
     @SuppressWarnings("nls")
     private void putProviderInfo() {
         super.put("Provider.id name", null != name ? name : "null");
@@ -865,11 +873,13 @@ public abstract class Provider extends Properties {
         super.put("Provider.id className", this.getClass().getName());
     }
 
-    // Searches for the property with the specified key in the provider
-    // properties. Key is not case-sensitive.
-    //
-    // @param prop
-    // @return the property value with the specified key value.
+    /**
+     * Searches for the property with the specified key in the
+     * provider properties. Key is not case-sensitive.
+     *
+     * @param prop
+     * @return the property value with the specified key value.
+     */
     private String getPropertyIgnoreCase(String key) {
         String res = getProperty(key);
         if (res != null) {
@@ -1042,11 +1052,11 @@ public abstract class Provider extends Properties {
             return attributes.get(name);
         }
 
-        Iterator<String> getAliases() {
-            if(aliases == null){
+        List<String> getAliases() {
+            if (aliases == null){
                 aliases = new ArrayList<String>(0);
             }
-            return aliases.iterator();
+            return aliases;
         }
 
         /**
@@ -1080,7 +1090,9 @@ public abstract class Provider extends Properties {
                                     implementation = Class.forName(className,
                                             true, cl);
                                 } catch (Exception e) {
-                                    return new NoSuchAlgorithmException(type + " " + algorithm + " implementation not found: " + e);
+                                    return new NoSuchAlgorithmException(
+                                            type + " " + algorithm
+                                            + " implementation not found: " + e);
                                 }
                                 lastClassName = className;
                                 return null;
@@ -1094,7 +1106,8 @@ public abstract class Provider extends Properties {
                 try {
                     return implementation.newInstance();
                 } catch (Exception e) {
-                    throw new NoSuchAlgorithmException(type + " " + algorithm + " implementation not found", e);
+                    throw new NoSuchAlgorithmException(
+                            type + " " + algorithm + " implementation not found", e);
                 }
             }
             if (!supportsParameter(constructorParameter)) {
@@ -1113,7 +1126,8 @@ public abstract class Provider extends Properties {
                 return implementation.getConstructor(parameterTypes)
                         .newInstance(initargs);
             } catch (Exception e) {
-                throw new NoSuchAlgorithmException(type + " " + algorithm + " implementation not found", e);
+                throw new NoSuchAlgorithmException(type + " " + algorithm
+                        + " implementation not found", e);
             }
         }
 
@@ -1150,7 +1164,8 @@ public abstract class Provider extends Properties {
         }
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws NotActiveException, IOException, ClassNotFoundException {
+    private void readObject(java.io.ObjectInputStream in)
+            throws NotActiveException, IOException, ClassNotFoundException {
         in.defaultReadObject();
         versionString = String.valueOf(version);
         providerNumber = -1;
