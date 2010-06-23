@@ -24,7 +24,7 @@ package java.util;
 public class UnknownFormatConversionException extends IllegalFormatException {
     private static final long serialVersionUID = 19060418L;
 
-    private String s;
+    private final String s;
 
     /**
      * Constructs an {@code UnknownFormatConversionException} with the unknown
@@ -49,11 +49,6 @@ public class UnknownFormatConversionException extends IllegalFormatException {
         return s;
     }
 
-    /**
-     * Returns the message of the exception.
-     *
-     * @return the message of the exception.
-     */
     @Override
     public String getMessage() {
         return "Conversion: " + s;

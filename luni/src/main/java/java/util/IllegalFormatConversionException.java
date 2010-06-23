@@ -30,9 +30,9 @@ public class IllegalFormatConversionException extends IllegalFormatException
         implements Serializable {
     private static final long serialVersionUID = 17000126L;
 
-    private char c;
+    private final char c;
 
-    private Class<?> arg;
+    private final Class<?> arg;
 
     /**
      * Constructs a new {@code IllegalFormatConversionException} with the class
@@ -69,18 +69,8 @@ public class IllegalFormatConversionException extends IllegalFormatException
         return c;
     }
 
-    /**
-     * Returns the message string of the IllegalFormatConversionException.
-     *
-     * @return the message string of the IllegalFormatConversionException.
-     */
     @Override
     public String getMessage() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(c);
-        buffer.append(" is incompatible with ");
-        buffer.append(arg.getName());
-        return buffer.toString();
+        return "%" + c + " can't format " + arg.getName() + " arguments";
     }
-
 }

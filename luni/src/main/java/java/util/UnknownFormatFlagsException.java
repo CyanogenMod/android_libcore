@@ -26,7 +26,7 @@ public class UnknownFormatFlagsException extends IllegalFormatException {
 
     private static final long serialVersionUID = 19370506L;
 
-    private String flags;
+    private final String flags;
 
     /**
      * Constructs a new {@code UnknownFormatFlagsException} with the specified
@@ -51,11 +51,6 @@ public class UnknownFormatFlagsException extends IllegalFormatException {
         return flags;
     }
 
-    /**
-     * Returns the message associated with the exception.
-     *
-     * @return the message associated with the exception.
-     */
     @Override
     public String getMessage() {
         return "Flags: " + flags;

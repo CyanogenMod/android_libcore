@@ -25,7 +25,7 @@ package java.util;
 public class MissingFormatWidthException extends IllegalFormatException {
     private static final long serialVersionUID = 15560123L;
 
-    private String s;
+    private final String s;
 
     /**
      * Constructs a new {@code MissingFormatWidthException} with the specified
@@ -50,14 +50,8 @@ public class MissingFormatWidthException extends IllegalFormatException {
         return s;
     }
 
-    /**
-     * Returns the message of the exception.
-     *
-     * @return the message of the exception.
-     */
     @Override
     public String getMessage() {
         return s;
     }
-
 }

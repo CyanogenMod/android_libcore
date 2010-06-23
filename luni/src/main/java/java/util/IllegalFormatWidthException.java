@@ -27,7 +27,7 @@ public class IllegalFormatWidthException extends IllegalFormatException {
 
     private static final long serialVersionUID = 16660902L;
 
-    private int w;
+    private final int w;
 
     /**
      * Constructs a new {@code IllegalFormatWidthException} with specified
@@ -49,13 +49,8 @@ public class IllegalFormatWidthException extends IllegalFormatException {
         return w;
     }
 
-    /**
-     * Returns the message of the exception.
-     *
-     * @return the message of the exception.
-     */
     @Override
     public String getMessage() {
-        return String.valueOf(w);
+        return Integer.toString(w);
     }
 }

@@ -705,3 +705,26 @@ test org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getLong
 result EXEC_FAILED
 test org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getShort
 result EXEC_FAILED
+
+
+
+
+# These test exception priority.
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_BigDecimalExceptionOrder
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_BigIntegerExceptionOrder
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_FloatDoubleBigDecimalExceptionOrder
+result EXEC_FAILED
+
+
+# These format specifiers are documented to not take flags, but the RI accepts and ignores them.
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_LineSeparator
+pattern .*java.util.IllegalFormatFlagsException: %n doesn't take an argument.*
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_Percent
+pattern .*java.util.IllegalFormatFlagsException: %% doesn't take an argument.*
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_Width
+pattern .*java.util.IllegalFormatFlagsException: %% doesn't take an argument.*
+result EXEC_FAILED

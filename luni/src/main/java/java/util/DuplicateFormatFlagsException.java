@@ -26,7 +26,7 @@ public class DuplicateFormatFlagsException extends IllegalFormatException {
 
     private static final long serialVersionUID = 18890531L;
 
-    private String flags;
+    private final String flags;
 
     /**
      * Constructs a new {@code DuplicateFormatFlagsException} with the flags
@@ -36,7 +36,7 @@ public class DuplicateFormatFlagsException extends IllegalFormatException {
      *           the format flags that contain a duplicate flag.
      */
     public DuplicateFormatFlagsException(String f) {
-        if (null == f) {
+        if (f == null) {
             throw new NullPointerException();
         }
         flags = f;
@@ -51,18 +51,8 @@ public class DuplicateFormatFlagsException extends IllegalFormatException {
         return flags;
     }
 
-    /**
-     * Returns the message string of the DuplicateFormatFlagsException.
-     *
-     * @return the message string of the DuplicateFormatFlagsException.
-     */
     @Override
     public String getMessage() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("Flags of the DuplicateFormatFlagsException is'");
-        buffer.append(flags);
-        buffer.append("'");
-        return buffer.toString();
+        return flags;
     }
-
 }
