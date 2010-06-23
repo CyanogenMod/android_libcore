@@ -148,7 +148,7 @@ public class ArrayList<E> extends AbstractList<E>
     @Override public void add(int index, E object) {
         Object[] a = array;
         int s = size;
-        if (index > s) {
+        if (index > s || index < 0) {
             throwIndexOutOfBoundsException(index, s);
         }
 
@@ -226,16 +226,16 @@ public class ArrayList<E> extends AbstractList<E>
      */
     @Override
     public boolean addAll(int index, Collection<? extends E> collection) {
+        int s = size;
+        if (index > s || index < 0) {
+            throwIndexOutOfBoundsException(index, s);
+        }
         Object[] newPart = collection.toArray();
         int newPartSize = newPart.length;
         if (newPartSize == 0) {
             return false;
         }
         Object[] a = array;
-        int s = size;
-        if (index > s) {
-            throwIndexOutOfBoundsException(index, s);
-        }
         int newSize = s + newPartSize; // If add overflows, arraycopy will fail
         if (newSize <= a.length) {
              System.arraycopy(a, index, a, index + newPartSize, s - index);
@@ -441,6 +441,9 @@ public class ArrayList<E> extends AbstractList<E>
     }
 
     @Override protected void removeRange(int fromIndex, int toIndex) {
+        if (fromIndex == toIndex) {
+            return;
+        }
         Object[] a = array;
         int s = size;
         if (fromIndex >= s) {
