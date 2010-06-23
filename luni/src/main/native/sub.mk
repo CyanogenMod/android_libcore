@@ -17,6 +17,7 @@ LOCAL_SRC_FILES := \
 	NativeRegEx.cpp \
 	NetworkUtilities.cpp \
 	Register.cpp \
+	TimeZones.cpp \
 	UCharacter.cpp \
 	cbigint.cpp \
 	commonDblParce.cpp \

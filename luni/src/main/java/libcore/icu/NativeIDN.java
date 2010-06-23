@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.ibm.icu4jni.text;
+package libcore.icu;
 
-public class NativeIDN {
+public final class NativeIDN {
     public static String toASCII(String s, int flags) {
         return convert(s, flags, true);
     }

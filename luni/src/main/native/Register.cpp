@@ -27,10 +27,7 @@ extern int register_com_ibm_icu4jni_regex_NativeRegEx(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeBreakIterator(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeCollator(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeDecimalFormat(JNIEnv* env);
-extern int register_com_ibm_icu4jni_text_NativeIDN(JNIEnv* env);
-extern int register_com_ibm_icu4jni_text_NativeNormalizer(JNIEnv* env);
-extern int register_com_ibm_icu4jni_text_NativePluralRules(JNIEnv* env);
-extern int register_com_ibm_icu4jni_util_Resources(JNIEnv* env);
+extern int register_com_ibm_icu4jni_util_ICU(JNIEnv* env);
 extern int register_java_io_Console(JNIEnv* env);
 extern int register_java_io_File(JNIEnv* env);
 extern int register_java_io_FileDescriptor(JNIEnv* env);
@@ -49,6 +46,10 @@ extern int register_java_util_zip_Adler32(JNIEnv* env);
 extern int register_java_util_zip_CRC32(JNIEnv* env);
 extern int register_java_util_zip_Deflater(JNIEnv* env);
 extern int register_java_util_zip_Inflater(JNIEnv* env);
+extern int register_libcore_icu_NativeIDN(JNIEnv* env);
+extern int register_libcore_icu_NativeNormalizer(JNIEnv* env);
+extern int register_libcore_icu_NativePluralRules(JNIEnv* env);
+extern int register_libcore_icu_TimeZones(JNIEnv* env);
 extern int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env);
 extern int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env);
@@ -73,10 +74,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_com_ibm_icu4jni_text_NativeBreakIterator(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeCollator(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeDecimalFormat(env) != -1 &&
-            register_com_ibm_icu4jni_text_NativeIDN(env) != -1 &&
-            register_com_ibm_icu4jni_text_NativeNormalizer(env) != -1 &&
-            register_com_ibm_icu4jni_text_NativePluralRules(env) != -1 &&
-            register_com_ibm_icu4jni_util_Resources(env) != -1 &&
+            register_com_ibm_icu4jni_util_ICU(env) != -1 &&
             register_java_io_Console(env) != -1 &&
             register_java_io_File(env) != -1 &&
             register_java_io_FileDescriptor(env) != -1 &&
@@ -95,6 +93,10 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_java_util_zip_CRC32(env) != -1 &&
             register_java_util_zip_Deflater(env) != -1 &&
             register_java_util_zip_Inflater(env) != -1 &&
+            register_libcore_icu_NativeIDN(env) != -1 &&
+            register_libcore_icu_NativeNormalizer(env) != -1 &&
+            register_libcore_icu_NativePluralRules(env) != -1 &&
+            register_libcore_icu_TimeZones(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSFileSystem(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSMemory(env) != -1 &&
             register_org_apache_harmony_luni_platform_OSNetworkSystem(env) != -1 &&

@@ -59,6 +59,6 @@ static JNINativeMethod gMethods[] = {
     {"forLocaleImpl", "(Ljava/lang/String;)I", (void*) NativePluralRules_forLocaleImpl},
     {"quantityForIntImpl", "(II)I", (void*) NativePluralRules_quantityForIntImpl},
 };
-int register_com_ibm_icu4jni_text_NativePluralRules(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativePluralRules", gMethods, NELEM(gMethods));
+int register_libcore_icu_NativePluralRules(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "libcore/icu/NativePluralRules", gMethods, NELEM(gMethods));
 }

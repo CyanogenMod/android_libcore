@@ -17,8 +17,8 @@
 
 package java.util;
 
-import com.ibm.icu4jni.util.ICU;
 import java.io.Serializable;
+import libcore.icu.TimeZones;
 import org.apache.harmony.luni.internal.util.ZoneInfo;
 import org.apache.harmony.luni.internal.util.ZoneInfoDB;
 
@@ -181,8 +181,7 @@ public abstract class TimeZone implements Serializable, Cloneable {
 
         boolean useDaylight = daylightTime && useDaylightTime();
 
-        String result = ICU.getDisplayTimeZone(getID(), daylightTime, style,
-                locale.toString());
+        String result = TimeZones.getDisplayName(getID(), daylightTime, style, locale);
         if (result != null) {
             return result;
         }

@@ -18,7 +18,6 @@
 package java.text;
 
 import com.ibm.icu4jni.util.LocaleData;
-import com.ibm.icu4jni.util.ICU;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,6 +29,7 @@ import java.util.Locale;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.Vector;
+import libcore.icu.TimeZones;
 
 /**
  * A concrete class for formatting and parsing dates in a locale-sensitive
@@ -744,7 +744,7 @@ public class SimpleDateFormat extends DateFormat {
             }
             // We can't call TimeZone.getDisplayName() because it would not use
             // the custom DateFormatSymbols of this SimpleDateFormat.
-            String custom = ICU.lookupDisplayTimeZone(formatData.zoneStrings, tz.getID(), daylight, style);
+            String custom = TimeZones.lookupDisplayTimeZone(formatData.zoneStrings, tz.getID(), daylight, style);
             if (custom != null) {
                 buffer.append(custom);
                 return;

@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Locale;
+import libcore.icu.TimeZones;
 
 /**
  * Encapsulates localized date-time formatting data, such as the names of the
@@ -81,7 +82,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      */
     synchronized String[][] internalZoneStrings() {
         if (zoneStrings == null) {
-            zoneStrings = ICU.getDisplayTimeZones(locale.toString());
+            zoneStrings = TimeZones.getZoneStrings(locale);
         }
         return zoneStrings;
     }
@@ -325,7 +326,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * </ul>
      */
     public String[][] getZoneStrings() {
-        return ICU.clone2dStringArray(internalZoneStrings());
+        return TimeZones.clone2dStringArray(internalZoneStrings());
     }
 
     @Override
@@ -464,7 +465,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
                 throw new IllegalArgumentException(Arrays.toString(row) + ".length < 5");
             }
         }
-        this.zoneStrings = ICU.clone2dStringArray(zoneStrings);
+        this.zoneStrings = TimeZones.clone2dStringArray(zoneStrings);
         this.customZoneStrings = true;
     }
 }
