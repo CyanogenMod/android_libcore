@@ -67,14 +67,6 @@ public abstract class Reference<T> {
     volatile Reference queueNext;
 
     /**
-     * Used internally by Dalvik.
-     * VM requirement: this field <em>must</em> be called "vmData"
-     * and be an int.
-     */
-    @SuppressWarnings("unused")
-    volatile private int vmData;
-
-    /**
      * Constructs a new instance of this class.
      */
     Reference() {
