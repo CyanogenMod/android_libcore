@@ -697,6 +697,10 @@ result UNSUPPORTED
 test org.apache.harmony.luni.tests.util.NYITest
 result UNSUPPORTED
 
+# We removed this: we don't support localized exceptions.
+test org.apache.harmony.luni.tests.internal.nls.MessagesTest
+result UNSUPPORTED
+
 
 # These test implementation details we don't share.
 test org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getInt
