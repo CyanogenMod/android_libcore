@@ -255,7 +255,7 @@ public class Properties extends Hashtable<Object, Object> {
 
     /**
      * Loads properties from the specified {@code InputStream}. The encoding is
-     * ISO8859-1.
+     * ISO-8859-1.
      * @param in the {@code InputStream}
      * @throws IOException
      */
@@ -263,7 +263,7 @@ public class Properties extends Hashtable<Object, Object> {
         if (in == null) {
             throw new NullPointerException();
         }
-        load(new InputStreamReader(in, "ISO8859_1"));
+        load(new InputStreamReader(in, "ISO-8859-1"));
     }
 
     /**
@@ -538,7 +538,7 @@ public class Properties extends Hashtable<Object, Object> {
     /**
      * Stores the mappings in this {@code Properties} object to {@code out},
      * putting the specified comment at the beginning. The encoding is
-     * ISO8859-1.
+     * ISO-8859-1.
      *
      * @param out the {@code OutputStream}
      * @param comment an optional comment to be written, or null
@@ -546,7 +546,7 @@ public class Properties extends Hashtable<Object, Object> {
      * @throws ClassCastException if a key or value is not a string
      */
     public synchronized void store(OutputStream out, String comment) throws IOException {
-        store(new OutputStreamWriter(out, "ISO8859_1"), comment);
+        store(new OutputStreamWriter(out, "ISO-8859-1"), comment);
     }
 
     private static String lineSeparator;

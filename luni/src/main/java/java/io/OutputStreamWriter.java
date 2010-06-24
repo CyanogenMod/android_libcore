@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.Charsets;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.security.AccessController;
@@ -54,14 +55,7 @@ public class OutputStreamWriter extends Writer {
      *            the non-null target stream to write converted bytes to.
      */
     public OutputStreamWriter(OutputStream out) {
-        super(out);
-        this.out = out;
-        String encoding = AccessController
-                .doPrivileged(new PriviAction<String>(
-                        "file.encoding", "ISO8859_1"));
-        encoder = Charset.forName(encoding).newEncoder();
-        encoder.onMalformedInput(CodingErrorAction.REPLACE);
-        encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
+        this(out, Charset.defaultCharset());
     }
 
     /**
@@ -221,19 +215,15 @@ public class OutputStreamWriter extends Writer {
     public void write(char[] buffer, int offset, int count) throws IOException {
         synchronized (lock) {
             checkStatus();
-            // BEGIN android-changed
-            // Exception priorities (in case of multiple errors) differ from
-            // RI, but are spec-compliant.
-            // made implicit null check explicit,
-            // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
-            // to safe one operation
+            if (offset < 0) {
+                throw new IndexOutOfBoundsException();
+            }
             if (buffer == null) {
                 throw new NullPointerException("buffer == null");
             }
-            if ((offset | count) < 0 || offset > buffer.length - count) {
+            if (count < 0 || offset > buffer.length - count) {
                 throw new IndexOutOfBoundsException();
             }
-            // END android-changed
             CharBuffer chars = CharBuffer.wrap(buffer, offset, count);
             convert(chars);
         }
@@ -297,19 +287,15 @@ public class OutputStreamWriter extends Writer {
     @Override
     public void write(String str, int offset, int count) throws IOException {
         synchronized (lock) {
-            // avoid int overflow
-            // BEGIN android-changed
-            // Exception priorities (in case of multiple errors) differ from RI,
-            // but are spec-compliant.
-            // made implicit null check explicit, used (offset | count) < 0
-            // instead of (offset < 0) || (count < 0) to safe one operation
+            if (count < 0) {
+                throw new StringIndexOutOfBoundsException();
+            }
             if (str == null) {
                 throw new NullPointerException("str == null");
             }
-            if ((offset | count) < 0 || offset > str.length() - count) {
+            if (offset < 0 || offset > str.length() - count) {
                 throw new StringIndexOutOfBoundsException();
             }
-            // END android-changed
             checkStatus();
             CharBuffer chars = CharBuffer.wrap(str, offset, count + offset);
             convert(chars);
