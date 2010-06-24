@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.Charsets;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
@@ -59,15 +60,7 @@ public class InputStreamReader extends Reader {
      *            the input stream from which to read characters.
      */
     public InputStreamReader(InputStream in) {
-        super(in);
-        this.in = in;
-        String encoding = AccessController
-                .doPrivileged(new PriviAction<String>(
-                        "file.encoding", "ISO8859_1"));
-        decoder = Charset.forName(encoding).newDecoder().onMalformedInput(
-                CodingErrorAction.REPLACE).onUnmappableCharacter(
-                CodingErrorAction.REPLACE);
-        bytes.limit(0);
+        this(in, Charset.defaultCharset());
     }
 
     /**
@@ -98,7 +91,7 @@ public class InputStreamReader extends Reader {
                     CodingErrorAction.REPLACE);
         } catch (IllegalArgumentException e) {
             throw (UnsupportedEncodingException)
-                    new UnsupportedEncodingException().initCause(e);
+                    new UnsupportedEncodingException(enc).initCause(e);
         }
         bytes.limit(0);
     }
@@ -228,18 +221,16 @@ public class InputStreamReader extends Reader {
             if (!isOpen()) {
                 throw new IOException("InputStreamReader is closed");
             }
-            // BEGIN android-changed
-            // Exception priorities (in case of multiple errors) differ from
-            // RI, but are spec-compliant.
-            // made implicit null check explicit, used (offset | length) < 0
-            // instead of (offset < 0) || (length < 0) to safe one operation
+            // RI exception compatibility so we can run more tests.
+            if (offset < 0) {
+                throw new IndexOutOfBoundsException();
+            }
             if (buffer == null) {
                 throw new NullPointerException("buffer == null");
             }
-            if ((offset | length) < 0 || offset > buffer.length - length) {
+            if (length < 0 || offset > buffer.length - length) {
                 throw new IndexOutOfBoundsException();
             }
-            // END android-changed
             if (length == 0) {
                 return 0;
             }
