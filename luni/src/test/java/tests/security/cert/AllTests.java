@@ -16,6 +16,7 @@
 
 package tests.security.cert;
 
+import java.security.cert.OldPKIXParametersTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -64,7 +65,6 @@ public class AllTests {
         suite.addTestSuite(PKIXCertPathBuilderResultTest.class);
         suite.addTestSuite(PKIXCertPathCheckerTest.class);
         suite.addTestSuite(PKIXCertPathValidatorResultTest.class);
-        suite.addTestSuite(PKIXParametersTest.class);
         suite.addTestSuite(PolicyQualifierInfoTest.class);
         suite.addTestSuite(TrustAnchorTest.class);
         suite.addTestSuite(X509CRL2Test.class);

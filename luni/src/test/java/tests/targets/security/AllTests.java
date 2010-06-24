@@ -32,14 +32,6 @@ public class AllTests {
         suite.addTestSuite(MessageDigestTestSHA384.class);
         suite.addTestSuite(MessageDigestTestSHA512.class);
 
-        suite.addTestSuite(KeyPairGeneratorTestRSA.class);
-        suite.addTestSuite(KeyPairGeneratorTestDSA.class);
-        suite.addTestSuite(KeyPairGeneratorTestDH.class);
-
-        suite.addTestSuite(KeyFactoryTestRSA.class);
-        suite.addTestSuite(KeyFactoryTestDSA.class);
-        suite.addTestSuite(KeyFactoryTestDH.class);
-
         suite.addTestSuite(SignatureTestMD2withRSA.class);
         suite.addTestSuite(SignatureTestMD5withRSA.class);
         suite.addTestSuite(SignatureTestNONEwithDSA.class);
@@ -50,22 +42,9 @@ public class AllTests {
         suite.addTestSuite(SignatureTestSHA384withRSA.class);
         suite.addTestSuite(SignatureTestSHA512withRSA.class);
 
-        suite.addTestSuite(AlgorithmParameterGeneratorTestAES.class);
-        suite.addTestSuite(AlgorithmParameterGeneratorTestDH.class);
-        suite.addTestSuite(AlgorithmParameterGeneratorTestDSA.class);
-
-        suite.addTestSuite(AlgorithmParametersTestDES.class);
-        suite.addTestSuite(AlgorithmParametersTestDESede.class);
-        suite.addTestSuite(AlgorithmParametersTestDSA.class);
-        suite.addTestSuite(AlgorithmParametersTestOAEP.class);
-        suite.addTestSuite(AlgorithmParametersTestAES.class);
-        suite.addTestSuite(AlgorithmParametersTestDH.class);
-
         suite.addTestSuite(KeyStoreTestPKCS12.class);
 
         suite.addTestSuite(SecureRandomTestSHA1PRNG.class);
-
-        suite.addTestSuite(DHTest.class);
 
         // $JUnit-END$
         return suite;
