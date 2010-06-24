@@ -1542,7 +1542,6 @@ outer:
      * @return a new string with occurrences of oldChar replaced by newChar.
      */
     public String replace(char oldChar, char newChar) {
-        // BEGIN endroid-changed
         char[] buffer = value;
         int _offset = offset;
         int _count = count;
@@ -1566,7 +1565,6 @@ outer:
         }
 
         return copied ? new String(0, count, buffer) : this;
-        // END android-changed
     }
 
     /**
@@ -1584,30 +1582,47 @@ outer:
      */
     public String replace(CharSequence target, CharSequence replacement) {
         if (target == null) {
-            throw new NullPointerException("target should not be null");
+            throw new NullPointerException("target == null");
         }
         if (replacement == null) {
-            throw new NullPointerException("replacement should not be null");
+            throw new NullPointerException("replacement == null");
         }
-        String ts = target.toString();
-        int index = indexOf(ts, 0);
 
-        if (index == -1)
+        String targetString = target.toString();
+        int matchStart = indexOf(targetString, 0);
+        if (matchStart == -1) {
+            // If there's nothing to replace, return the original string untouched.
             return this;
+        }
 
-        String rs = replacement.toString();
-        StringBuilder buffer = new StringBuilder(count);
-        int tl = target.length();
-        int tail = 0;
+        String replacementString = replacement.toString();
+
+        // The empty target matches at the start and end and between each character.
+        int targetLength = targetString.length();
+        if (targetLength == 0) {
+            int resultLength = (count + 2) * replacementString.length();
+            StringBuilder result = new StringBuilder(resultLength);
+            result.append(replacementString);
+            for (int i = offset; i < count; ++i) {
+                result.append(value[i]);
+                result.append(replacementString);
+            }
+            return result.toString();
+        }
+
+        StringBuilder result = new StringBuilder(count);
+        int searchStart = 0;
         do {
-            buffer.append(value, offset + tail, index - tail);
-            buffer.append(rs);
-            tail = index + tl;
-        } while ((index = indexOf(ts, tail)) != -1);
-        //append trailing chars
-        buffer.append(value, offset + tail, count - tail);
-
-        return buffer.toString();
+            // Copy characters before the match...
+            result.append(value, offset + searchStart, matchStart - searchStart);
+            // Insert the replacement...
+            result.append(replacementString);
+            // And skip over the match...
+            searchStart = matchStart + targetLength;
+        } while ((matchStart = indexOf(targetString, searchStart)) != -1);
+        // Copy any trailing chars...
+        result.append(value, offset + searchStart, count - searchStart);
+        return result.toString();
     }
 
     /**
