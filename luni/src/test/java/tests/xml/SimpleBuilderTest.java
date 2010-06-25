@@ -16,25 +16,19 @@
 
 package tests.xml;
 
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargetClass;
-
+import dalvik.annotation.TestTargetNew;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.TestCase;
-
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 @TestTargetClass(DocumentBuilder.class)
 public class SimpleBuilderTest extends TestCase {
@@ -122,41 +116,17 @@ public class SimpleBuilderTest extends TestCase {
         assertEquals("The quick brown fox jumps over the lazy dog.", proinst);
         assertEquals(" Fragile!  Handle me with care! ", comment);
     }
+
     @TestTargetNew(
         level = TestLevel.ADDITIONAL,
         method = "!todo parse",
         args = {java.io.InputStream.class}
     )
-    @BrokenTest("Doesn't verify anything.")
     public void testGoodFile2() throws Exception {
         Document document = builder.parse(getClass().getResourceAsStream(
                 "/staffNS.xml"));
 
         Element root = document.getDocumentElement();
         assertNotNull(root);
-
-        // dump("", root);
-    }
-
-    private void dump(String prefix, Element element) {
-        System.out.print(prefix + "<" + element.getTagName());
-
-        NamedNodeMap attrs = element.getAttributes();
-        for (int i = 0; i < attrs.getLength(); i++) {
-            Node item = attrs.item(i);
-            System.out.print(" " + item.getNodeName() + "=" + item.getNodeValue());
-        }
-
-        System.out.println(">");
-
-        NodeList children = element.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node item = children.item(i);
-            if (item instanceof Element) {
-                dump(prefix + "  ", (Element)item);
-            }
-        }
-
-        System.out.println(prefix + "</" + element.getTagName() + ">");
     }
 }

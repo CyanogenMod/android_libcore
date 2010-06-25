@@ -15,8 +15,6 @@
  */
 package tests.targets.security;
 
-import dalvik.annotation.TestTargetClass;
-
 public class KeyStoreTestPKCS12 extends KeyStoreTest {
 
     public KeyStoreTestPKCS12() {

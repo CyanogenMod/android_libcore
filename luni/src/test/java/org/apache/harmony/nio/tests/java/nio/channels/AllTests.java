@@ -47,9 +47,7 @@ public class AllTests {
         suite.addTestSuite(SelectableChannelTest.class);
         suite.addTestSuite(SelectionKeyTest.class);
         suite.addTestSuite(SelectorTest.class);
-        suite.addTestSuite(ServerSocketChannelTest.class);
         suite.addTestSuite(SinkChannelTest.class);
-        suite.addTestSuite(SocketChannelTest.class);
         suite.addTestSuite(SourceChannelTest.class);
         suite.addTestSuite(UnresolvedAddressExceptionTest.class);
         suite.addTestSuite(UnsupportedAddressTypeExceptionTest.class);

@@ -15,8 +15,6 @@
  */
 package tests.targets.security.cert;
 
-import dalvik.annotation.TestTargetClass;
-
 import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.cert.CertPath;
@@ -31,8 +29,8 @@ import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.security.auth.x500.X500Principal;
+import tests.security.CertPathBuilderTest;
 
 public class CertPathBuilderTestPKIX extends CertPathBuilderTest {
 
@@ -41,7 +39,7 @@ public class CertPathBuilderTestPKIX extends CertPathBuilderTest {
     }
 
     @Override
-    CertPathParameters getCertPathParameters() throws Exception {
+    public CertPathParameters getCertPathParameters() throws Exception {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 
         keyStore.load(null, null);
@@ -75,7 +73,7 @@ public class CertPathBuilderTestPKIX extends CertPathBuilderTest {
     }
 
     @Override
-    void validateCertPath(CertPath path) {
+    public void validateCertPath(CertPath path) {
         List<? extends Certificate> certificates = path.getCertificates();
         Certificate certificate = certificates.get(0);
 

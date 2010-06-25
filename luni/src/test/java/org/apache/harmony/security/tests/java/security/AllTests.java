@@ -33,7 +33,6 @@ public class AllTests {
         suite.addTestSuite(AccessController2Test.class);
         suite.addTestSuite(AlgorithmParameterGenerator1Test.class);
         suite.addTestSuite(AlgorithmParameterGenerator2Test.class);
-        suite.addTestSuite(AlgorithmParameterGenerator3Test.class);
         suite.addTestSuite(AlgorithmParametersSpiTest.class);
         suite.addTestSuite(AlgorithmParametersTest.class);
         suite.addTestSuite(AllPermission2Test.class);
