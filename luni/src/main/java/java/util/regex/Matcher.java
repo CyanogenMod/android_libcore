@@ -16,8 +16,6 @@
 
 package java.util.regex;
 
-import com.ibm.icu4jni.regex.NativeRegEx;
-
 /**
  * Provides a means of matching regular expressions against a given input,
  * finding occurrences of regular expressions in a given input, or replacing
@@ -55,12 +53,12 @@ public final class Matcher implements MatchResult {
     /**
      * Holds the handle for the native version of the pattern.
      */
-    private int nativePattern;
+    private int address;
 
     /**
      * Holds the input text.
      */
-    private String input = "";
+    private String input;
 
     /**
      * Holds the start of the region, or 0 if the matching should start at the
@@ -73,12 +71,6 @@ public final class Matcher implements MatchResult {
      * go until the end of the input.
      */
     private int regionEnd;
-
-    /**
-     * Reflects whether we just reset the matcher or whether we already
-     * started some find/replace operations.
-     */
-    private boolean searching;
 
     /**
      * Holds the position where the next find operation will take place.
@@ -186,6 +178,33 @@ public final class Matcher implements MatchResult {
     }
 
     /**
+     * Resets the {@code Matcher}. This results in the region being set to the
+     * whole input. Results of a previous find get lost. The next attempt to
+     * find an occurrence of the {@link Pattern} in the string will start at the
+     * beginning of the input.
+     *
+     * @return the {@code Matcher} itself.
+     */
+    public Matcher reset() {
+        return reset(input, 0, input.length());
+    }
+
+    /**
+     * Provides a new input and resets the {@code Matcher}. This results in the
+     * region being set to the whole input. Results of a previous find get lost.
+     * The next attempt to find an occurrence of the {@link Pattern} in the
+     * string will start at the beginning of the input.
+     *
+     * @param input
+     *            the new input sequence.
+     *
+     * @return the {@code Matcher} itself.
+     */
+    public Matcher reset(CharSequence input) {
+        return reset(input, 0, input.length());
+    }
+
+    /**
      * Resets the Matcher. A new input sequence and a new region can be
      * specified. Results of a previous find get lost. The next attempt to find
      * an occurrence of the Pattern in the string will start at the beginning of
@@ -210,26 +229,11 @@ public final class Matcher implements MatchResult {
             throw new IndexOutOfBoundsException();
         }
 
-        // Maybe should have a reset() here, but it makes thing worse...
-        // NativeRegEx.reset(nativePattern, 0);
+        this.input = input.toString();
+        this.regionStart = start;
+        this.regionEnd = end;
+        resetForInput();
 
-        if (!input.equals(this.input)) {
-            this.input = input.toString();
-
-            NativeRegEx.setText(nativePattern, this.input);
-
-            regionStart = 0;
-            regionEnd = input.length();
-        }
-
-        if (start != regionStart || end != regionEnd) {
-            regionStart = start;
-            regionEnd = end;
-
-            NativeRegEx.setRegion(nativePattern, regionStart, regionEnd);
-        }
-
-        searching = false;
         matchFound = false;
         findPos = regionStart;
         appendPos = 0;
@@ -238,30 +242,41 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Provides a new input and resets the {@code Matcher}. This results in the
-     * region being set to the whole input. Results of a previous find get lost.
-     * The next attempt to find an occurrence of the {@link Pattern} in the
-     * string will start at the beginning of the input.
+     * Sets a new pattern for the {@code Matcher}. Results of a previous find
+     * get lost. The next attempt to find an occurrence of the {@link Pattern}
+     * in the string will start at the beginning of the input.
      *
-     * @param input
-     *            the new input sequence.
+     * @param pattern
+     *            the new {@code Pattern}.
      *
      * @return the {@code Matcher} itself.
      */
-    public Matcher reset(CharSequence input) {
-        return reset(input, 0, input.length());
+    public Matcher usePattern(Pattern pattern) {
+        if (pattern == null) {
+            throw new IllegalArgumentException();
+        }
+
+        this.pattern = pattern;
+
+        if (address != 0) {
+            closeImpl(address);
+            address = 0;
+        }
+        address = openImpl(pattern.address);
+
+        if (input != null) {
+            resetForInput();
+        }
+
+        matchOffsets = new int[(groupCount() + 1) * 2];
+        matchFound = false;
+        return this;
     }
 
-    /**
-     * Resets the {@code Matcher}. This results in the region being set to the
-     * whole input. Results of a previous find get lost. The next attempt to
-     * find an occurrence of the {@link Pattern} in the string will start at the
-     * beginning of the input.
-     *
-     * @return the {@code Matcher} itself.
-     */
-    public Matcher reset() {
-        return reset(input, 0, input.length());
+    private void resetForInput() {
+        setInputImpl(address, input, regionStart, regionEnd);
+        useAnchoringBoundsImpl(address, anchoringBounds);
+        useTransparentBoundsImpl(address, transparentBounds);
     }
 
     /**
@@ -277,7 +292,6 @@ public final class Matcher implements MatchResult {
     public Matcher region(int start, int end) {
         return reset(input, start, end);
     }
-
 
     /**
      * Appends the (unmatched) remainder of the input to the given
@@ -296,7 +310,6 @@ public final class Matcher implements MatchResult {
         if (appendPos < regionEnd) {
             buffer.append(input.substring(appendPos, regionEnd));
         }
-
         return buffer;
     }
 
@@ -309,17 +322,11 @@ public final class Matcher implements MatchResult {
      * @return the modified input string.
      */
     public String replaceFirst(String replacement) {
+        reset();
         StringBuffer buffer = new StringBuffer(input.length());
-
-        findPos = 0;
-        appendPos = 0;
-        matchFound = false;
-        searching = false;
-
         if (find()) {
             appendReplacement(buffer, replacement);
         }
-
         return appendTail(buffer).toString();
     }
 
@@ -332,17 +339,11 @@ public final class Matcher implements MatchResult {
      * @return the modified input string.
      */
     public String replaceAll(String replacement) {
+        reset();
         StringBuffer buffer = new StringBuffer(input.length());
-
-        findPos = 0;
-        appendPos = 0;
-        matchFound = false;
-        searching = false;
-
         while (find()) {
             appendReplacement(buffer, replacement);
         }
-
         return appendTail(buffer).toString();
     }
 
@@ -408,12 +409,10 @@ public final class Matcher implements MatchResult {
             return false;
         }
 
-        matchFound = NativeRegEx.find(nativePattern, findPos);
+        matchFound = findImpl(address, findPos, matchOffsets);
         if (matchFound) {
-            NativeRegEx.startEnd(nativePattern, matchOffsets);
             findPos = matchOffsets[1];
         }
-
         return matchFound;
     }
 
@@ -426,18 +425,40 @@ public final class Matcher implements MatchResult {
      * @return true if (and only if) a match has been found.
      */
     public boolean find() {
-        if (!searching) {
-            searching = true;
-            matchFound = NativeRegEx.find(nativePattern, -1);
-        } else {
-            matchFound = NativeRegEx.findNext(nativePattern);
-        }
-
+        matchFound = findNextImpl(address, matchOffsets);
         if (matchFound) {
-            NativeRegEx.startEnd(nativePattern, matchOffsets);
             findPos = matchOffsets[1];
         }
+        return matchFound;
+    }
 
+    /**
+     * Tries to match the {@link Pattern}, starting from the beginning of the
+     * region (or the beginning of the input, if no region has been set).
+     * Doesn't require the {@code Pattern} to match against the whole region.
+     *
+     * @return true if (and only if) the {@code Pattern} matches.
+     */
+    public boolean lookingAt() {
+        matchFound = lookingAtImpl(address, matchOffsets);
+        if (matchFound) {
+            findPos = matchOffsets[1];
+        }
+        return matchFound;
+    }
+
+    /**
+     * Tries to match the {@link Pattern} against the entire region (or the
+     * entire input, if no region has been set).
+     *
+     * @return true if (and only if) the {@code Pattern} matches the entire
+     *         region.
+     */
+    public boolean matches() {
+        matchFound = matchesImpl(address, matchOffsets);
+        if (matchFound) {
+            findPos = matchOffsets[1];
+        }
         return matchFound;
     }
 
@@ -474,23 +495,6 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Tries to match the {@link Pattern} against the entire region (or the
-     * entire input, if no region has been set).
-     *
-     * @return true if (and only if) the {@code Pattern} matches the entire
-     *         region.
-     */
-    public boolean matches() {
-        matchFound = NativeRegEx.matches(nativePattern, -1);
-        if (matchFound) {
-            NativeRegEx.startEnd(nativePattern, matchOffsets);
-            findPos = matchOffsets[1];
-        }
-
-        return matchFound;
-    }
-
-    /**
      * Returns a replacement string for the given one that has all backslashes
      * and dollar signs escaped.
      *
@@ -514,23 +518,6 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Tries to match the {@link Pattern}, starting from the beginning of the
-     * region (or the beginning of the input, if no region has been set).
-     * Doesn't require the {@code Pattern} to match against the whole region.
-     *
-     * @return true if (and only if) the {@code Pattern} matches.
-     */
-    public boolean lookingAt() {
-        matchFound = NativeRegEx.lookingAt(nativePattern, -1);
-        if (matchFound) {
-            NativeRegEx.startEnd(nativePattern, matchOffsets);
-            findPos = matchOffsets[1];
-        }
-
-        return matchFound;
-    }
-
-    /**
      * Returns the index of the first character of the text that matched the
      * whole regular expression.
      *
@@ -549,7 +536,7 @@ public final class Matcher implements MatchResult {
      * @return the number of groups.
      */
     public int groupCount() {
-        return pattern.mGroupCount;
+        return groupCountImpl(address);
     }
 
     /**
@@ -590,7 +577,7 @@ public final class Matcher implements MatchResult {
      */
     public Matcher useAnchoringBounds(boolean value) {
         anchoringBounds = value;
-        NativeRegEx.useAnchoringBounds(nativePattern, value);
+        useAnchoringBoundsImpl(address, value);
         return this;
     }
 
@@ -618,7 +605,7 @@ public final class Matcher implements MatchResult {
      */
     public Matcher useTransparentBounds(boolean value) {
         transparentBounds = value;
-        NativeRegEx.useTransparentBounds(nativePattern, value);
+        useTransparentBoundsImpl(address, value);
         return this;
     }
 
@@ -675,7 +662,7 @@ public final class Matcher implements MatchResult {
      *         into an unsuccessful one.
      */
     public boolean requireEnd() {
-        return NativeRegEx.requireEnd(nativePattern);
+        return requireEndImpl(address);
     }
 
     /**
@@ -684,53 +671,28 @@ public final class Matcher implements MatchResult {
      * @return true if (and only if) the last match hit the end of the input.
      */
     public boolean hitEnd() {
-        return NativeRegEx.hitEnd(nativePattern);
-    }
-
-    /**
-     * Sets a new pattern for the {@code Matcher}. Results of a previous find
-     * get lost. The next attempt to find an occurrence of the {@link Pattern}
-     * in the string will start at the beginning of the input.
-     *
-     * @param pattern
-     *            the new {@code Pattern}.
-     *
-     * @return the {@code Matcher} itself.
-     */
-    public Matcher usePattern(Pattern pattern) {
-        if (pattern == null) {
-            throw new IllegalArgumentException();
-        }
-
-        this.pattern = pattern;
-
-        if (nativePattern != 0) {
-            NativeRegEx.close(nativePattern);
-        }
-        nativePattern = NativeRegEx.clone(pattern.mNativePattern);
-
-        if (input != null) {
-            NativeRegEx.setText(nativePattern, input);
-            NativeRegEx.setRegion(nativePattern, regionStart, regionEnd);
-            NativeRegEx.useAnchoringBounds(nativePattern, anchoringBounds);
-            NativeRegEx.useTransparentBounds(nativePattern, transparentBounds);
-        }
-
-        matchOffsets = new int[(this.pattern.mGroupCount + 1) * 2];
-        matchFound = false;
-        return this;
+        return hitEndImpl(address);
     }
 
     @Override
     protected void finalize() throws Throwable {
         try {
-            if (nativePattern != 0) {
-                NativeRegEx.close(nativePattern);
-            }
-        }
-        finally {
+            closeImpl(address);
+        } finally {
             super.finalize();
         }
     }
 
+    private static native void closeImpl(int addr);
+    private static native boolean findImpl(int addr, int startIndex, int[] offsets);
+    private static native boolean findNextImpl(int addr, int[] offsets);
+    private static native int groupCountImpl(int addr);
+    private static native boolean hitEndImpl(int addr);
+    private static native boolean lookingAtImpl(int addr, int[] offsets);
+    private static native boolean matchesImpl(int addr, int[] offsets);
+    private static native int openImpl(int patternAddr);
+    private static native boolean requireEndImpl(int addr);
+    private static native void setInputImpl(int addr, String text, int start, int end);
+    private static native void useAnchoringBoundsImpl(int addr, boolean value);
+    private static native void useTransparentBoundsImpl(int addr, boolean value);
 }
