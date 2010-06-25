@@ -66,7 +66,11 @@ public class FileTest extends junit.framework.TestCase {
         assertFalse(source.exists());
         assertTrue(target.exists());
         assertTrue(target.getCanonicalPath().length() > 1024);
-        Runtime.getRuntime().exec(new String[] { "ln", "-s", target.toString(), source.toString() }).waitFor();
+        int result = Runtime.getRuntime().exec(new String[] { "ln", "-s", target.toString(), source.toString() }).waitFor();
+        if (result != 0) {
+            fail("Couldn't create a symbollic link on " + source.toString()
+                    + ". Does that file system support symlinks?");
+        }
         assertTrue(source.exists());
         assertEquals(target.getCanonicalPath(), source.getCanonicalPath());
     }
