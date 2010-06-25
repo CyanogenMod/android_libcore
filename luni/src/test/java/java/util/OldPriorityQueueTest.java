@@ -90,12 +90,7 @@ public class OldPriorityQueueTest extends TestCase {
         PriorityQueue<Integer> integerQueue = new PriorityQueue<Integer>(list);
         assertFalse(integerQueue.remove(111));
         assertFalse(integerQueue.remove(null));
-        try {
-            integerQueue.remove("");
-            fail("should throw ClassCastException");
-        } catch (ClassCastException e) {
-            // expected
-        }
+        assertFalse(integerQueue.remove(""));
     }
 
     /**
