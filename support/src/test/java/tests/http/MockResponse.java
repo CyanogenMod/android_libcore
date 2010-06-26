@@ -35,6 +35,7 @@ public class MockResponse {
     private String status = "HTTP/1.1 200 OK";
     private List<String> headers = new ArrayList<String>();
     private byte[] body = EMPTY_BODY;
+    private boolean disconnectAtEnd;
 
     public MockResponse() {
         headers.add(EMPTY_BODY_HEADER);
@@ -119,6 +120,15 @@ public class MockResponse {
 
     public MockResponse setChunkedBody(String body, int maxChunkSize) throws IOException {
         return setChunkedBody(body.getBytes(ASCII), maxChunkSize);
+    }
+
+    public MockResponse setDisconnectAtEnd(boolean disconnectAtEnd) {
+        this.disconnectAtEnd = disconnectAtEnd;
+        return this;
+    }
+
+    public boolean getDisconnectAtEnd() {
+        return disconnectAtEnd;
     }
 
     @Override public String toString() {

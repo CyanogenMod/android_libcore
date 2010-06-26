@@ -139,370 +139,257 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     // response header received from the server
     private Header resHeader;
 
-    // BEGIN android-added
     /**
-     * An <code>InputStream</code> wrapper that does <i>not</i> pass
-     * <code>close()</code> calls to the wrapped stream but instead
-     * treats it as a local shutoff.
+     * An input stream for the payload of an HTTP response.
+     *
+     * <p>Since a single socket stream may carry multiple HTTP responses (in
+     * series), closing this stream doesn't necessarily close the underlying
+     * socket stream. Closing this stream before all data has been read
+     * means the socket will not be reused for subsequent HTTP requests.
+     *
+     * <p>A side effect of reading an HTTP response is that the response cache
+     * is populated. If the stream is closed early, that cache entry will be
+     * invalidated.
      */
-    private class LocalCloseInputStream extends InputStream {
-        private boolean closed;
+    private abstract class AbstractHttpInputStream extends InputStream {
+        protected boolean closed;
+        private byte[] skipBuffer;
 
-        public LocalCloseInputStream() {
-            closed = false;
+        /**
+         * read() is implemented using read(byte[], int, int) so subclasses only
+         * need to override the latter.
+         */
+        @Override public final int read() throws IOException {
+            byte[] buffer = new byte[1];
+            int count = read(buffer, 0, 1);
+            return count == -1 ? -1 : buffer[0];
         }
 
-        public int read() throws IOException {
-            if (closed) {
-                throwClosed();
+        /**
+         * skip(long) is implemented using read(byte[], int, int) so subclasses
+         * only need to override the latter.
+         */
+        @Override public final long skip(long n) throws IOException {
+            if (skipBuffer == null) {
+                skipBuffer = new byte[4096];
             }
+            long total = 0;
+            while (total < n) {
+                // Calling read() ensures the skipped bytes make it into the response cache.
+                int count = read(skipBuffer, 0, (int) Math.min(n - total, skipBuffer.length));
+                if (count == -1) {
+                    break;
+                }
+                total += count;
+            }
+            return total;
+        }
 
-            int result = is.read();
+        protected final void checkBounds(byte[] buffer, int offset, int length) {
+            // Force buf null check first, and avoid int overflow
+            if (offset < 0 || offset > buffer.length) {
+                throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
+            }
+            if (length < 0 || buffer.length - offset < length) {
+                throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
+            }
+        }
+
+        protected final void checkNotClosed() throws IOException {
+            if (closed) {
+                throw new IOException("stream closed");
+            }
+        }
+
+        protected final void cacheWrite(byte[] buffer, int offset, int count) throws IOException {
             if (useCaches && cacheOut != null) {
-                cacheOut.write(result);
+                cacheOut.write(buffer, offset, count);
             }
-            return result;
         }
 
-        public int read(byte[] b, int off, int len) throws IOException {
-            if (closed) {
-                throwClosed();
+        /**
+         * Closes the cache entry and makes the socket available for reuse. This
+         * should be invoked when the end of the payload has been reached.
+         */
+        protected final void endOfInput(boolean closeSocket) throws IOException {
+            if (useCaches && cacheRequest != null) {
+                cacheOut.close();
             }
-            int result = is.read(b, off, len);
-            if (result > 0) {
-                // if user has set useCache to true and cache exists, writes to
-                // it
-                if (useCaches && cacheOut != null) {
-                    cacheOut.write(b, off, result);
-                }
-            }
-            return result;
+            releaseSocket(closeSocket);
         }
 
-        public int read(byte[] b) throws IOException {
-            if (closed) {
-                throwClosed();
-            }
-            int result = is.read(b);
-            if (result > 0) {
-                // if user has set useCache to true and cache exists, writes to
-                // it
-                if (useCaches && cacheOut != null) {
-                    cacheOut.write(b, 0, result);
-                }
-            }
-            return result;
-        }
-
-        public long skip(long n) throws IOException {
-            if (closed) {
-                throwClosed();
-            }
-
-            return is.skip(n);
-        }
-
-        public int available() throws IOException {
-            if (closed) {
-                throwClosed();
-            }
-
-            return is.available();
-        }
-
-        public void close() {
-            closed = true;
+        /**
+         * Calls abort on the cache entry and disconnects the socket. This
+         * should be invoked when the connection is closed unexpectedly to
+         * invalidate the cache entry and to prevent the HTTP connection from
+         * being reused. HTTP messages are sent in serial so whenever a message
+         * cannot be read to completion, subsequent messages cannot be read
+         * either and the connection must be discarded.
+         *
+         * <p>An earlier implementation skipped the remaining bytes, but this
+         * requires that the entire transfer be completed. If the intention was
+         * to cancel the transfer, closing the connection is the only solution.
+         */
+        protected final void unexpectedEndOfInput() {
             if (useCaches && cacheRequest != null) {
                 cacheRequest.abort();
             }
+            releaseSocket(true);
         }
+    }
 
-        public void mark(int readLimit) {
-            if (! closed) {
-                is.mark(readLimit);
+    /**
+     * An HTTP payload terminated by the end of the socket stream.
+     */
+    private final class UnknownLengthHttpInputStream extends AbstractHttpInputStream {
+        private boolean inputExhausted;
+
+        @Override public int read(byte[] buffer, int offset, int length) throws IOException {
+            checkBounds(buffer, offset, length);
+            checkNotClosed();
+            if (is == null) {
+                return -1;
             }
+            int count = is.read(buffer, offset, length);
+            if (count == -1) {
+                inputExhausted = true;
+                endOfInput(true);
+                return -1;
+            }
+            cacheWrite(buffer, offset, count);
+            return count;
         }
 
-        public void reset() throws IOException {
+        @Override public int available() throws IOException {
+            checkNotClosed();
+            return is == null ? 0 : is.available();
+        }
+
+        @Override public void close() throws IOException {
             if (closed) {
-                throwClosed();
-            }
-
-            is.reset();
-        }
-
-        public boolean markSupported() {
-            return is.markSupported();
-        }
-
-        private void throwClosed() throws IOException {
-            throw new IOException("stream closed");
-        }
-    }
-    // END android-added
-
-    private class LimitedInputStream extends InputStream {
-        int bytesRemaining;
-
-        public LimitedInputStream(int length) {
-            bytesRemaining = length;
-        }
-
-        @Override
-        public void close() throws IOException {
-            if(bytesRemaining > 0) {
-                bytesRemaining = 0;
-                disconnect(true); // Should close the socket if client hasn't read all the data
-            } else {
-                disconnect(false);
-            }
-            /*
-             * if user has set useCache to true and cache exists, aborts it when
-             * closing
-             */
-            if (useCaches && null != cacheRequest) {
-                cacheRequest.abort();
-            }
-        }
-
-        @Override
-        public int available() throws IOException {
-            // BEGIN android-added
-            if (bytesRemaining <= 0) {
-                // There is nothing left to read, so don't bother asking "is".
-                return 0;
-            }
-            // END android-added
-            int result = is.available();
-            if (result > bytesRemaining) {
-                return bytesRemaining;
-            }
-            return result;
-        }
-
-        @Override
-        public int read() throws IOException {
-            if (bytesRemaining <= 0) {
-                disconnect(false);
-                return -1;
-            }
-            int result = is.read();
-            // if user has set useCache to true and cache exists, writes to
-            // cache
-            if (useCaches && null != cacheOut) {
-                cacheOut.write(result);
-            }
-            bytesRemaining--;
-            if (bytesRemaining <= 0) {
-                disconnect(false);
-            }
-            return result;
-        }
-
-        @Override
-        public int read(byte[] buf, int offset, int length) throws IOException {
-            // Force buf null check first, and avoid int overflow
-            if (offset < 0 || offset > buf.length) {
-                throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-            }
-            if (length < 0 || buf.length - offset < length) {
-                throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-            }
-            if (bytesRemaining <= 0) {
-                disconnect(false);
-                return -1;
-            }
-            if (length > bytesRemaining) {
-                length = bytesRemaining;
-            }
-            int result = is.read(buf, offset, length);
-            if (result > 0) {
-                bytesRemaining -= result;
-                // if user has set useCache to true and cache exists, writes to
-                // it
-                if (useCaches && null != cacheOut) {
-                    cacheOut.write(buf, offset, result);
-                }
-            }
-            if (bytesRemaining <= 0) {
-                disconnect(false);
-            }
-            return result;
-        }
-
-        public long skip(int amount) throws IOException {
-            if (bytesRemaining <= 0) {
-                disconnect(false);
-                return -1;
-            }
-            if (amount > bytesRemaining) {
-                amount = bytesRemaining;
-            }
-            long result = is.skip(amount);
-            if (result > 0) {
-                bytesRemaining -= result;
-            }
-            if (bytesRemaining <= 0) {
-                disconnect(false);
-            }
-            return result;
-        }
-    }
-
-    private class ChunkedInputStream extends InputStream {
-        private int bytesRemaining = -1;
-        private boolean atEnd;
-
-        public ChunkedInputStream() throws IOException {
-            readChunkSize();
-        }
-
-        @Override
-        public void close() throws IOException {
-            // BEGIN android-added
-            if (atEnd) {
                 return;
             }
-            skipOutstandingChunks();
-            // END android-added
-
-            // BEGIN android-note
-            // Removed "!atEnd" below because of the check added above.
-            // END android-note
-            if (available() > 0) {
-                disconnect(true);
-            } else {
-                disconnect(false);
+            closed = true;
+            if (!inputExhausted) {
+                unexpectedEndOfInput();
             }
-            atEnd = true;
-            // if user has set useCache to true and cache exists, abort
-            if (useCaches && null != cacheRequest) {
-                cacheRequest.abort();
+        }
+    }
+
+    /**
+     * An HTTP body with a fixed length specified in advance.
+     */
+    private final class FixedLengthInputStream extends AbstractHttpInputStream {
+        private int bytesRemaining;
+
+        public FixedLengthInputStream(int length) throws IOException {
+            bytesRemaining = length;
+            if (bytesRemaining == 0) {
+                endOfInput(false);
             }
         }
 
-        // BEGIN android-added
-        // If we're asked to close a stream with unread chunks, we need to skip them.
-        // Otherwise the next caller on this connection will receive that data.
-        // See: http://code.google.com/p/android/issues/detail?id=2939
-        private void skipOutstandingChunks() throws IOException {
-            while (!atEnd) {
-                while (bytesRemaining > 0) {
-                    long skipped = is.skip(bytesRemaining);
-                    bytesRemaining -= skipped;
-                }
+        @Override public int read(byte[] buffer, int offset, int length) throws IOException {
+            checkBounds(buffer, offset, length);
+            checkNotClosed();
+            if (bytesRemaining == 0) {
+                return -1;
+            }
+            int count = is.read(buffer, offset, Math.min(length, bytesRemaining));
+            if (count == -1) {
+                unexpectedEndOfInput(); // the server didn't supply the promised body
+                throw new IOException("unexpected end of stream");
+            }
+            bytesRemaining -= count;
+            cacheWrite(buffer, offset, count);
+            if (bytesRemaining == 0) {
+                endOfInput(false);
+            }
+            return count;
+        }
+
+        @Override public int available() throws IOException {
+            checkNotClosed();
+            return bytesRemaining == 0 ? 0 : Math.min(is.available(), bytesRemaining);
+        }
+
+        @Override public void close() throws IOException {
+            if (closed) {
+                return;
+            }
+            closed = true;
+            if (bytesRemaining != 0) {
+                unexpectedEndOfInput();
+            }
+        }
+    }
+
+    /**
+     * An HTTP body with alternating chunk sizes and chunk bodies.
+     */
+    private final class ChunkedInputStream extends AbstractHttpInputStream {
+        private static final int NO_CHUNK_YET = -1;
+        private int bytesRemainingInChunk = NO_CHUNK_YET;
+        private boolean noMoreChunks;
+
+        @Override public int read(byte[] buffer, int offset, int length) throws IOException {
+            checkBounds(buffer, offset, length);
+            checkNotClosed();
+
+            if (noMoreChunks) {
+                return -1;
+            }
+            if (bytesRemainingInChunk == 0 || bytesRemainingInChunk == NO_CHUNK_YET) {
                 readChunkSize();
+                if (noMoreChunks) {
+                    endOfInput(false);
+                    return -1;
+                }
             }
-        }
-        // END android-added
-
-        @Override
-        public int available() throws IOException {
-            // BEGIN android-added
-            if (atEnd) {
-                return 0;
+            int count = is.read(buffer, offset, Math.min(length, bytesRemainingInChunk));
+            if (count == -1) {
+                unexpectedEndOfInput(); // the server didn't supply the promised body
+                throw new IOException("unexpected end of stream");
             }
-            // END android-added
-
-            int result = is.available();
-            if (result > bytesRemaining) {
-                return bytesRemaining;
-            }
-            return result;
+            bytesRemainingInChunk -= count;
+            cacheWrite(buffer, offset, count);
+            return count;
         }
 
         private void readChunkSize() throws IOException {
-            if (atEnd) {
-                return;
-            }
-            if (bytesRemaining == 0) {
-                readln(); // read CR/LF
+            if (bytesRemainingInChunk == 0) {
+                /*
+                 * Read the suffix of the previous chunk. We defer reading this
+                 * at the end of that chunk to avoid unnecessary blocking.
+                 */
+                readln();
             }
             String size = readln();
             int index = size.indexOf(";");
-            if (index >= 0) {
+            if (index != -1) {
                 size = size.substring(0, index);
             }
-            bytesRemaining = Integer.parseInt(size.trim(), 16);
-            if (bytesRemaining == 0) {
-                atEnd = true;
+            bytesRemainingInChunk = Integer.parseInt(size.trim(), 16);
+            if (bytesRemainingInChunk == 0) {
+                noMoreChunks = true;
                 readHeaders(); // actually trailers!
             }
         }
 
-        @Override
-        public int read() throws IOException {
-            if (bytesRemaining <= 0) {
-                readChunkSize();
-            }
-            if (atEnd) {
-                disconnect(false);
-                return -1;
-            }
-            bytesRemaining--;
-            int result = is.read();
-            // if user has set useCache to true and cache exists, write to cache
-            if (useCaches && null != cacheOut) {
-                cacheOut.write(result);
-            }
-            return result;
+        @Override public int available() throws IOException {
+            checkNotClosed();
+            return noMoreChunks ? 0 : Math.min(is.available(), bytesRemainingInChunk);
         }
 
-        @Override
-        public int read(byte[] buf, int offset, int length) throws IOException {
-            // Force buf null check first, and avoid int overflow
-            if (offset > buf.length || offset < 0) {
-                throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
+        @Override public void close() throws IOException {
+            if (closed) {
+                return;
             }
-            if (length < 0 || buf.length - offset < length) {
-                throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-            }
-            if (bytesRemaining <= 0) {
-                readChunkSize();
-            }
-            if (atEnd) {
-                disconnect(false);
-                return -1;
-            }
-            if (length > bytesRemaining) {
-                length = bytesRemaining;
-            }
-            int result = is.read(buf, offset, length);
-            if (result > 0) {
-                bytesRemaining -= result;
-                // if user has set useCache to true and cache exists, write to
-                // it
-                if (useCaches && null != cacheOut) {
-                    cacheOut.write(buf, offset, result);
-                }
-            }
-            return result;
-        }
 
-        public long skip(int amount) throws IOException {
-            if (atEnd) {
-                // BEGIN android-deleted
-                // disconnect(false);
-                // END android-deleted
-                return -1;
+            closed = true;
+            if (!noMoreChunks) {
+                unexpectedEndOfInput();
             }
-            if (bytesRemaining <= 0) {
-                readChunkSize();
-            }
-            // BEGIN android-added
-            if (atEnd) {
-                disconnect(false);
-                return -1;
-            }
-            // END android-added
-            if (amount > bytesRemaining) {
-                amount = bytesRemaining;
-            }
-            long result = is.skip(amount);
-            if (result > 0) {
-                bytesRemaining -= result;
-            }
-            return result;
         }
     }
 
@@ -705,20 +592,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 }
                 sendCache(closed);
             }
-            // BEGIN android-added
-            /*
-             * Note: We don't disconnect here, since that will either
-             * cause the connection to be closed entirely or returned
-             * to the connection pool. In the former case, we simply
-             * won't be able to read the response at all. In the
-             * latter, we might end up trying to read the response
-             * while, meanwhile, the connection has been handed back
-             * out and is in use for another request.
-             */
-            // END android-added
-            // BEGIN android-deleted
-            // disconnect(false);
-            // END android-deleted
         }
 
         @Override
@@ -949,27 +822,29 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         is = connection.getInputStream();
     }
 
-    // Tries to get head and body from cache, return true if has got this time
-    // or already got before
+    /**
+     * Returns true if the input streams are prepared to return data from the
+     * cache.
+     */
     private boolean getFromCache() throws IOException {
-        if (useCaches && null != responseCache && !hasTriedCache) {
-            hasTriedCache = true;
-            if (resHeader == null) {
-                resHeader = new Header();
-            }
-            cacheResponse = responseCache.get(uri, method, resHeader.getFieldMap());
-            if (cacheResponse != null) {
-                Map<String, List<String>> headMap = cacheResponse.getHeaders();
-                if (headMap != null) {
-                    resHeader = new Header(headMap);
-                }
-                is = cacheResponse.getBody();
-                if (is != null) {
-                    return true;
-                }
-            }
+        if (!useCaches || responseCache == null || hasTriedCache) {
+            return (hasTriedCache && is != null);
         }
-        return (hasTriedCache && is != null);
+
+        hasTriedCache = true;
+        if (resHeader == null) {
+            resHeader = new Header();
+        }
+        cacheResponse = responseCache.get(uri, method, resHeader.getFieldMap());
+        if (cacheResponse == null) {
+            return is != null;
+        }
+        Map<String, List<String>> headersMap = cacheResponse.getHeaders();
+        if (headersMap != null) {
+            resHeader = new Header(headersMap);
+        }
+        is = uis = cacheResponse.getBody();
+        return is != null;
     }
 
     private void maybeCache() throws IOException {
@@ -978,6 +853,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return;
         }
         // Should we cache this particular response code?
+        // TODO: cache response code 300 HTTP_MULT_CHOICE ?
         if (responseCode != HTTP_OK && responseCode != HTTP_NOT_AUTHORITATIVE &&
                 responseCode != HTTP_PARTIAL && responseCode != HTTP_MOVED_PERM &&
                 responseCode != HTTP_GONE) {
@@ -998,11 +874,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     @Override
     public void disconnect() {
-        disconnect(true);
+        releaseSocket(true);
     }
 
-    // BEGIN android-changed
-    private synchronized void disconnect(boolean closeSocket) {
+    /**
+     * Releases this connection so that it may be either closed or reused.
+     *
+     * @param closeSocket true if the socket must not be recycled.
+     */
+    protected synchronized void releaseSocket(boolean closeSocket) {
         if (connection != null) {
             if (closeSocket || ((os != null) && !os.closed)) {
                 /*
@@ -1026,7 +906,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         is = null;
         os = null; // TODO: should this be socketOut instead?
     }
-    // END android-changed
 
     /**
      * Discard all state initialized from the HTTP response including response
@@ -1186,7 +1065,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         if (!hasResponseBody()) {
-            return uis = new LimitedInputStream(0);
+            return uis = new FixedLengthInputStream(0);
         }
 
         String encoding = resHeader.get("Transfer-Encoding");
@@ -1198,19 +1077,17 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (sLength != null) {
             try {
                 int length = Integer.parseInt(sLength);
-                return uis = new LimitedInputStream(length);
+                return uis = new FixedLengthInputStream(length);
             } catch (NumberFormatException e) {
             }
         }
 
-        // BEGIN android-changed
         /*
          * Wrap the input stream from the HttpConnection (rather than
          * just returning "is" directly here), so that we can control
          * its use after the reference escapes.
          */
-        return uis = new LocalCloseInputStream();
-        // END android-changed
+        return uis = new UnknownLengthHttpInputStream();
     }
 
     @Override

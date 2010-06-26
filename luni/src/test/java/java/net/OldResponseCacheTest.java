@@ -14,41 +14,25 @@
  * limitations under the License.
  */
 
-package tests.api.java.net;
+package java.net;
 
-import dalvik.annotation.KnownFailure;
-import dalvik.annotation.TestTargetClass;
-import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
-
-import java.io.File;
-import java.io.FileOutputStream;
+import dalvik.annotation.TestTargets;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.CacheRequest;
-import java.net.CacheResponse;
-import java.net.HttpURLConnection;
-import java.net.NetPermission;
-import java.net.ResponseCache;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.security.Permission;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-
 import junit.framework.TestCase;
-
 import tests.support.Support_PortManager;
 import tests.support.Support_TestWebData;
 import tests.support.Support_TestWebServer;
 
 @TestTargetClass(value = ResponseCache.class)
-public class ResponseCacheTest extends TestCase {
+public class OldResponseCacheTest extends TestCase {
 
 
 
@@ -271,7 +255,6 @@ public class ResponseCacheTest extends TestCase {
 
     class TestCacheResponse extends CacheResponse {
         InputStream is = null;
-        Map<String, List<String>> headers = null;
 
         public TestCacheResponse(String filename) {
             String path = getClass().getPackage().getName().replace(".", "/");

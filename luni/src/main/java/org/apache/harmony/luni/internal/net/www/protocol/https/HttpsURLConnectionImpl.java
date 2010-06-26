@@ -389,6 +389,15 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             }
         }
 
+        @Override protected void releaseSocket(boolean closeSocket) {
+            // when a CONNECT completes, don't release the socket!
+            if (method == CONNECT) {
+                return;
+            }
+
+            super.releaseSocket(closeSocket);
+        }
+
         @Override
         protected String requestString() {
             if (usingProxy()) {

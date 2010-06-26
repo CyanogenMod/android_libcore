@@ -55,7 +55,6 @@ public class AllTests {
         suite.addTestSuite(ProxySelectorTest.class);
         suite.addTestSuite(ProxyTest.class);
         suite.addTestSuite(ProxyTypeTest.class);
-        suite.addTestSuite(ResponseCacheTest.class);
         suite.addTestSuite(SecureCacheResponseTest.class);
         suite.addTestSuite(ServerSocketTest.class);
         suite.addTestSuite(SocketExceptionTest.class);

@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -51,10 +52,12 @@ public final class MockWebServer {
             = new LinkedBlockingQueue<RecordedRequest>();
     private final BlockingQueue<MockResponse> responseQueue
             = new LinkedBlockingDeque<MockResponse>();
+    private final AtomicInteger requestCount = new AtomicInteger();
     private int bodyLimit = Integer.MAX_VALUE;
+    private ServerSocket serverSocket;
     private SSLSocketFactory sslSocketFactory;
+    private ExecutorService executor;
     private boolean tunnelProxy;
-    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private int port = -1;
 
@@ -105,6 +108,15 @@ public final class MockWebServer {
         return requestQueue.take();
     }
 
+    /**
+     * Returns the number of HTTP requests received thus far by this server.
+     * This may exceed the number of HTTP connections when connection reuse is
+     * in practice.
+     */
+    public int getRequestCount() {
+        return requestCount.get();
+    }
+
     public void enqueue(MockResponse response) {
         responseQueue.add(response);
     }
@@ -114,26 +126,37 @@ public final class MockWebServer {
      * down.
      */
     public void play() throws IOException {
-        final ServerSocket ss;
-        ss = new ServerSocket(0);
-        ss.setReuseAddress(true);
+        executor = Executors.newCachedThreadPool();
+        serverSocket = new ServerSocket(0);
+        serverSocket.setReuseAddress(true);
 
-        port = ss.getLocalPort();
+        port = serverSocket.getLocalPort();
         executor.submit(new Callable<Void>() {
             public Void call() throws Exception {
                 int count = 0;
-                while (true) {
-                    if (count > 0 && responseQueue.isEmpty()) {
-                        ss.close();
-                        executor.shutdown();
-                        return null;
-                    }
+                try {
+                    while (true) {
+                        if (count > 0 && responseQueue.isEmpty()) {
+                            return null;
+                        }
 
-                    serveConnection(ss.accept());
-                    count++;
+                        serveConnection(serverSocket.accept());
+                        count++;
+                    }
+                } finally {
+                    shutdown();
                 }
             }
         });
+    }
+
+    public void shutdown() throws IOException {
+        if (executor != null) {
+            executor.shutdown();
+        }
+        if (serverSocket != null) {
+            serverSocket.close();
+        }
     }
 
     private void serveConnection(final Socket raw) {
@@ -178,8 +201,14 @@ public final class MockWebServer {
                 if (request == null) {
                     return false;
                 }
+                requestCount.incrementAndGet();
                 requestQueue.add(request);
-                writeResponse(out, computeResponse(request));
+                MockResponse response = computeResponse(request);
+                writeResponse(out, response);
+                if (response.getDisconnectAtEnd()) {
+                    in.close();
+                    out.close();
+                }
                 sequenceNumber++;
                 return true;
             }
