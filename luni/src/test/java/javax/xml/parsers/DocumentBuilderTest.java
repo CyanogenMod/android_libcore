@@ -26,6 +26,8 @@ public class DocumentBuilderTest extends junit.framework.TestCase {
     public void test_characterReferences() throws Exception {
         assertEquals("aAb", firstChildTextOf(domOf("<p>a&#65;b</p>")));
         assertEquals("aAb", firstChildTextOf(domOf("<p>a&#x41;b</p>")));
+        assertEquals("a\u00fcb", firstChildTextOf(domOf("<p>a&#252;b</p>")));
+        assertEquals("a\u00fcb", firstChildTextOf(domOf("<p>a&#xfc;b</p>")));
     }
 
     // http://code.google.com/p/android/issues/detail?id=2607
