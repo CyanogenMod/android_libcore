@@ -23,7 +23,6 @@ namespace android {
 
 extern int register_com_ibm_icu4jni_converters_NativeConverter(JNIEnv* env);
 extern int register_com_ibm_icu4jni_lang_UCharacter(JNIEnv* env);
-extern int register_com_ibm_icu4jni_regex_NativeRegEx(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeBreakIterator(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeCollator(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeDecimalFormat(JNIEnv* env);
@@ -42,6 +41,8 @@ extern int register_java_lang_StrictMath(JNIEnv* env);
 extern int register_java_lang_System(JNIEnv* env);
 extern int register_java_net_InetAddress(JNIEnv* env);
 extern int register_java_net_NetworkInterface(JNIEnv* env);
+extern int register_java_util_regex_Matcher(JNIEnv* env);
+extern int register_java_util_regex_Pattern(JNIEnv* env);
 extern int register_java_util_zip_Adler32(JNIEnv* env);
 extern int register_java_util_zip_CRC32(JNIEnv* env);
 extern int register_java_util_zip_Deflater(JNIEnv* env);
@@ -70,7 +71,6 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
     bool result =
             register_com_ibm_icu4jni_converters_NativeConverter(env) != -1 &&
             register_com_ibm_icu4jni_lang_UCharacter(env) != -1 &&
-            register_com_ibm_icu4jni_regex_NativeRegEx(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeBreakIterator(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeCollator(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeDecimalFormat(env) != -1 &&
@@ -89,6 +89,8 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_java_lang_System(env) != -1 &&
             register_java_net_InetAddress(env) != -1 &&
             register_java_net_NetworkInterface(env) != -1 &&
+            register_java_util_regex_Matcher(env) != -1 &&
+            register_java_util_regex_Pattern(env) != -1 &&
             register_java_util_zip_Adler32(env) != -1 &&
             register_java_util_zip_CRC32(env) != -1 &&
             register_java_util_zip_Deflater(env) != -1 &&

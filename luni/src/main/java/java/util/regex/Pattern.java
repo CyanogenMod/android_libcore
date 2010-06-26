@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import com.ibm.icu4jni.regex.NativeRegEx;
 
 /**
  * Patterns are compiled regular expressions. In many cases, convenience methods such as
@@ -281,15 +280,7 @@ public final class Pattern implements Serializable {
     private final String pattern;
     private final int flags;
 
-    /**
-     * Holds a handle (a pointer, actually) for the native ICU pattern.
-     */
-    transient int mNativePattern;
-
-    /**
-     * Holds the number of groups in the pattern.
-     */
-    transient int mGroupCount;
+    transient int address;
 
     /**
      * Returns a {@link Matcher} for this pattern applied to the given {@code input}.
@@ -391,24 +382,24 @@ public final class Pattern implements Serializable {
         }
         this.pattern = pattern;
         this.flags = flags;
-        compileImpl(pattern, flags);
+        compile();
     }
 
-    private void compileImpl(String pattern, int flags) throws PatternSyntaxException {
+    private void compile() throws PatternSyntaxException {
         if (pattern == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("pattern == null");
         }
 
+        String icuPattern = pattern;
         if ((flags & LITERAL) != 0) {
-            pattern = quote(pattern);
+            icuPattern = quote(pattern);
         }
 
         // These are the flags natively supported by ICU.
         // They even have the same value in native code.
-        flags = flags & (CASE_INSENSITIVE | COMMENTS | MULTILINE | DOTALL | UNIX_LINES);
+        int icuFlags = flags & (CASE_INSENSITIVE | COMMENTS | MULTILINE | DOTALL | UNIX_LINES);
 
-        mNativePattern = NativeRegEx.open(pattern, flags);
-        mGroupCount = NativeRegEx.groupCount(mNativePattern);
+        address = compileImpl(icuPattern, icuFlags);
     }
 
     /**
@@ -446,9 +437,7 @@ public final class Pattern implements Serializable {
     @Override
     protected void finalize() throws Throwable {
         try {
-            if (mNativePattern != 0) {
-                NativeRegEx.close(mNativePattern);
-            }
+            closeImpl(address);
         } finally {
             super.finalize();
         }
@@ -456,6 +445,9 @@ public final class Pattern implements Serializable {
 
     private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
         s.defaultReadObject();
-        compileImpl(pattern, flags);
+        compile();
     }
+
+    private static native void closeImpl(int addr);
+    private static native int compileImpl(String regex, int flags);
 }

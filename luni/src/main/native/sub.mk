@@ -14,7 +14,6 @@ LOCAL_SRC_FILES := \
 	NativeIDN.cpp \
 	NativeNormalizer.cpp \
 	NativePluralRules.cpp \
-	NativeRegEx.cpp \
 	NetworkUtilities.cpp \
 	Register.cpp \
 	TimeZones.cpp \
@@ -35,6 +34,8 @@ LOCAL_SRC_FILES := \
 	java_lang_System.cpp \
 	java_net_InetAddress.cpp \
 	java_net_NetworkInterface.cpp \
+	java_util_regex_Matcher.cpp \
+	java_util_regex_Pattern.cpp \
 	java_util_zip_Adler32.cpp \
 	java_util_zip_CRC32.cpp \
 	java_util_zip_Deflater.cpp \
