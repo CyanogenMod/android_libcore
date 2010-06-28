@@ -43,8 +43,7 @@ public class Manifest implements Cloneable {
 
     private static final byte[] VALUE_SEPARATOR = new byte[] { ':', ' ' };
 
-    private static final Attributes.Name NAME_ATTRIBUTE = new Attributes.Name(
-            "Name");
+    private static final Attributes.Name NAME_ATTRIBUTE = new Attributes.Name("Name");
 
     private Attributes mainAttributes = new Attributes();
 
@@ -61,11 +60,6 @@ public class Manifest implements Cloneable {
     }
 
     private HashMap<String, Chunk> chunks;
-
-    /**
-     * Manifest bytes are used for delayed entry parsing.
-     */
-    private InitManifest im;
 
     /**
      * The end of the main attributes section in the manifest is needed in
@@ -120,7 +114,6 @@ public class Manifest implements Cloneable {
      * associated with this {@code Manifest}.
      */
     public void clear() {
-        im = null;
         entries.clear();
         mainAttributes.clear();
     }
@@ -145,20 +138,7 @@ public class Manifest implements Cloneable {
      * @return the map of entry attributes.
      */
     public Map<String, Attributes> getEntries() {
-        initEntries();
         return entries;
-    }
-
-    private void initEntries() {
-        if (im == null) {
-            return;
-        }
-        // try {
-        // im.initEntries(entries, chunks);
-        // } catch (IOException ioe) {
-        // throw new RuntimeException(ioe);
-        // }
-        // im = null;
     }
 
     /**
@@ -196,13 +176,12 @@ public class Manifest implements Cloneable {
     }
 
     /**
-     * Constructs a new {@code Manifest} instance obtaining attribute
-     * information from the specified input stream.
+     * Merges name/attribute pairs read from the input stream {@code is} into this manifest.
      *
      * @param is
      *            The {@code InputStream} to read from.
      * @throws IOException
-     *             If an error occurs reading the {@code Manifest}.
+     *             If an error occurs reading the manifest.
      */
     public void read(InputStream is) throws IOException {
         byte[] buf;
@@ -227,11 +206,9 @@ public class Manifest implements Cloneable {
 
         // Attributes.Name.MANIFEST_VERSION is not used for
         // the second parameter for RI compatibility
-        im = new InitManifest(buf, mainAttributes, null);
+        InitManifest im = new InitManifest(buf, mainAttributes, null);
         mainEnd = im.getPos();
-        // FIXME
         im.initEntries(entries, chunks);
-        im = null;
     }
 
     /*
