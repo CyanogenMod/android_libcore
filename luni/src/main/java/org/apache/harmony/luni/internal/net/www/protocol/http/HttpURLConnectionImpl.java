@@ -100,8 +100,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private OutputStream socketOut;
 
-    private OutputStream cacheOut;
-
     private ResponseCache responseCache;
 
     private CacheResponse cacheResponse;
@@ -138,260 +136,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     // response header received from the server
     private Header resHeader;
-
-    /**
-     * An input stream for the payload of an HTTP response.
-     *
-     * <p>Since a single socket stream may carry multiple HTTP responses (in
-     * series), closing this stream doesn't necessarily close the underlying
-     * socket stream. Closing this stream before all data has been read
-     * means the socket will not be reused for subsequent HTTP requests.
-     *
-     * <p>A side effect of reading an HTTP response is that the response cache
-     * is populated. If the stream is closed early, that cache entry will be
-     * invalidated.
-     */
-    private abstract class AbstractHttpInputStream extends InputStream {
-        protected boolean closed;
-        private byte[] skipBuffer;
-
-        /**
-         * read() is implemented using read(byte[], int, int) so subclasses only
-         * need to override the latter.
-         */
-        @Override public final int read() throws IOException {
-            byte[] buffer = new byte[1];
-            int count = read(buffer, 0, 1);
-            return count == -1 ? -1 : buffer[0];
-        }
-
-        /**
-         * skip(long) is implemented using read(byte[], int, int) so subclasses
-         * only need to override the latter.
-         */
-        @Override public final long skip(long n) throws IOException {
-            if (skipBuffer == null) {
-                skipBuffer = new byte[4096];
-            }
-            long total = 0;
-            while (total < n) {
-                // Calling read() ensures the skipped bytes make it into the response cache.
-                int count = read(skipBuffer, 0, (int) Math.min(n - total, skipBuffer.length));
-                if (count == -1) {
-                    break;
-                }
-                total += count;
-            }
-            return total;
-        }
-
-        protected final void checkBounds(byte[] buffer, int offset, int length) {
-            // Force buf null check first, and avoid int overflow
-            if (offset < 0 || offset > buffer.length) {
-                throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-            }
-            if (length < 0 || buffer.length - offset < length) {
-                throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
-            }
-        }
-
-        protected final void checkNotClosed() throws IOException {
-            if (closed) {
-                throw new IOException("stream closed");
-            }
-        }
-
-        protected final void cacheWrite(byte[] buffer, int offset, int count) throws IOException {
-            if (useCaches && cacheOut != null) {
-                cacheOut.write(buffer, offset, count);
-            }
-        }
-
-        /**
-         * Closes the cache entry and makes the socket available for reuse. This
-         * should be invoked when the end of the payload has been reached.
-         */
-        protected final void endOfInput(boolean closeSocket) throws IOException {
-            if (useCaches && cacheRequest != null) {
-                cacheOut.close();
-            }
-            releaseSocket(closeSocket);
-        }
-
-        /**
-         * Calls abort on the cache entry and disconnects the socket. This
-         * should be invoked when the connection is closed unexpectedly to
-         * invalidate the cache entry and to prevent the HTTP connection from
-         * being reused. HTTP messages are sent in serial so whenever a message
-         * cannot be read to completion, subsequent messages cannot be read
-         * either and the connection must be discarded.
-         *
-         * <p>An earlier implementation skipped the remaining bytes, but this
-         * requires that the entire transfer be completed. If the intention was
-         * to cancel the transfer, closing the connection is the only solution.
-         */
-        protected final void unexpectedEndOfInput() {
-            if (useCaches && cacheRequest != null) {
-                cacheRequest.abort();
-            }
-            releaseSocket(true);
-        }
-    }
-
-    /**
-     * An HTTP payload terminated by the end of the socket stream.
-     */
-    private final class UnknownLengthHttpInputStream extends AbstractHttpInputStream {
-        private boolean inputExhausted;
-
-        @Override public int read(byte[] buffer, int offset, int length) throws IOException {
-            checkBounds(buffer, offset, length);
-            checkNotClosed();
-            if (is == null) {
-                return -1;
-            }
-            int count = is.read(buffer, offset, length);
-            if (count == -1) {
-                inputExhausted = true;
-                endOfInput(true);
-                return -1;
-            }
-            cacheWrite(buffer, offset, count);
-            return count;
-        }
-
-        @Override public int available() throws IOException {
-            checkNotClosed();
-            return is == null ? 0 : is.available();
-        }
-
-        @Override public void close() throws IOException {
-            if (closed) {
-                return;
-            }
-            closed = true;
-            if (!inputExhausted) {
-                unexpectedEndOfInput();
-            }
-        }
-    }
-
-    /**
-     * An HTTP body with a fixed length specified in advance.
-     */
-    private final class FixedLengthInputStream extends AbstractHttpInputStream {
-        private int bytesRemaining;
-
-        public FixedLengthInputStream(int length) throws IOException {
-            bytesRemaining = length;
-            if (bytesRemaining == 0) {
-                endOfInput(false);
-            }
-        }
-
-        @Override public int read(byte[] buffer, int offset, int length) throws IOException {
-            checkBounds(buffer, offset, length);
-            checkNotClosed();
-            if (bytesRemaining == 0) {
-                return -1;
-            }
-            int count = is.read(buffer, offset, Math.min(length, bytesRemaining));
-            if (count == -1) {
-                unexpectedEndOfInput(); // the server didn't supply the promised body
-                throw new IOException("unexpected end of stream");
-            }
-            bytesRemaining -= count;
-            cacheWrite(buffer, offset, count);
-            if (bytesRemaining == 0) {
-                endOfInput(false);
-            }
-            return count;
-        }
-
-        @Override public int available() throws IOException {
-            checkNotClosed();
-            return bytesRemaining == 0 ? 0 : Math.min(is.available(), bytesRemaining);
-        }
-
-        @Override public void close() throws IOException {
-            if (closed) {
-                return;
-            }
-            closed = true;
-            if (bytesRemaining != 0) {
-                unexpectedEndOfInput();
-            }
-        }
-    }
-
-    /**
-     * An HTTP body with alternating chunk sizes and chunk bodies.
-     */
-    private final class ChunkedInputStream extends AbstractHttpInputStream {
-        private static final int NO_CHUNK_YET = -1;
-        private int bytesRemainingInChunk = NO_CHUNK_YET;
-        private boolean noMoreChunks;
-
-        @Override public int read(byte[] buffer, int offset, int length) throws IOException {
-            checkBounds(buffer, offset, length);
-            checkNotClosed();
-
-            if (noMoreChunks) {
-                return -1;
-            }
-            if (bytesRemainingInChunk == 0 || bytesRemainingInChunk == NO_CHUNK_YET) {
-                readChunkSize();
-                if (noMoreChunks) {
-                    endOfInput(false);
-                    return -1;
-                }
-            }
-            int count = is.read(buffer, offset, Math.min(length, bytesRemainingInChunk));
-            if (count == -1) {
-                unexpectedEndOfInput(); // the server didn't supply the promised body
-                throw new IOException("unexpected end of stream");
-            }
-            bytesRemainingInChunk -= count;
-            cacheWrite(buffer, offset, count);
-            return count;
-        }
-
-        private void readChunkSize() throws IOException {
-            if (bytesRemainingInChunk == 0) {
-                /*
-                 * Read the suffix of the previous chunk. We defer reading this
-                 * at the end of that chunk to avoid unnecessary blocking.
-                 */
-                readln();
-            }
-            String size = readln();
-            int index = size.indexOf(";");
-            if (index != -1) {
-                size = size.substring(0, index);
-            }
-            bytesRemainingInChunk = Integer.parseInt(size.trim(), 16);
-            if (bytesRemainingInChunk == 0) {
-                noMoreChunks = true;
-                readHeaders(); // actually trailers!
-            }
-        }
-
-        @Override public int available() throws IOException {
-            checkNotClosed();
-            return noMoreChunks ? 0 : Math.min(is.available(), bytesRemainingInChunk);
-        }
-
-        @Override public void close() throws IOException {
-            if (closed) {
-                return;
-            }
-
-            closed = true;
-            if (!noMoreChunks) {
-                unexpectedEndOfInput();
-            }
-        }
-    }
 
     /**
      * An HttpOutputStream used to implement setFixedLengthStreamingMode.
@@ -861,9 +605,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
         // Offer this request to the cache.
         cacheRequest = responseCache.put(uri, this);
-        if (cacheRequest != null) {
-            cacheOut = cacheRequest.getBody();
-        }
     }
 
     /**
@@ -1065,19 +806,19 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         if (!hasResponseBody()) {
-            return uis = new FixedLengthInputStream(0);
+            return uis = new FixedLengthInputStream(is, cacheRequest, this, 0);
         }
 
         String encoding = resHeader.get("Transfer-Encoding");
         if (encoding != null && encoding.toLowerCase().equals("chunked")) {
-            return uis = new ChunkedInputStream();
+            return uis = new ChunkedInputStream(is, cacheRequest, this);
         }
 
         String sLength = resHeader.get("Content-Length");
         if (sLength != null) {
             try {
                 int length = Integer.parseInt(sLength);
-                return uis = new FixedLengthInputStream(length);
+                return uis = new FixedLengthInputStream(is, cacheRequest, this, length);
             } catch (NumberFormatException e) {
             }
         }
@@ -1087,7 +828,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
          * just returning "is" directly here), so that we can control
          * its use after the reference escapes.
          */
-        return uis = new UnknownLengthHttpInputStream();
+        return uis = new UnknownLengthHttpInputStream(is, cacheRequest, this);
     }
 
     @Override
@@ -1165,31 +906,22 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Returns a line read from the input stream. Does not include the \n
-     *
-     * @return The line that was read.
+     * Returns the characters up to but not including the next "\r\n", "\n", or
+     * the end of the stream, consuming the end of line delimiter.
      */
-    String readln() throws IOException {
-        boolean lastCr = false;
+    static String readLine(InputStream is) throws IOException {
         StringBuilder result = new StringBuilder(80);
-        int c = is.read();
-        if (c < 0) {
-            return null;
-        }
-        while (c != '\n') {
-            if (lastCr) {
-                result.append('\r');
-                lastCr = false;
-            }
-            if (c == '\r') {
-                lastCr = true;
-            } else {
-                result.append((char) c);
-            }
-            c = is.read();
-            if (c < 0) {
+        while (true) {
+            int c = is.read();
+            if (c == -1 || c == '\n') {
                 break;
             }
+
+            result.append((char) c);
+        }
+        int length = result.length();
+        if (length > 0 && result.charAt(length - 1) == '\r') {
+            result.setLength(length - 1);
         }
         return result.toString();
     }
@@ -1241,12 +973,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             responseCode = -1;
             responseMessage = null;
             resHeader = new Header();
-            String line = readln();
-            // Add the response, it may contain ':' which we ignore
-            if (line != null) {
-                resHeader.setStatusLine(line.trim());
-                readHeaders();
-            }
+            resHeader.setStatusLine(readLine(is).trim());
+            readHeaders();
         } while (getResponseCode() == 100);
 
         if (hasResponseBody()) {
@@ -1302,13 +1030,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     void readHeaders() throws IOException {
         // parse the result headers until the first blank line
         String line;
-        while (((line = readln()) != null) && (line.length() > 1)) {
+        while ((line = readLine(is)).length() > 1) {
             // Header parsing
-            int idx;
-            if ((idx = line.indexOf(":")) == -1) {
+            int index = line.indexOf(":");
+            if (index == -1) {
                 resHeader.add("", line.trim());
             } else {
-                resHeader.add(line.substring(0, idx), line.substring(idx + 1).trim());
+                resHeader.add(line.substring(0, index), line.substring(index + 1).trim());
             }
         }
 
