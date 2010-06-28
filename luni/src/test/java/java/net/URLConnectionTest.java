@@ -560,6 +560,37 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(1, server.getRequestCount());
     }
 
+    public void testNonHexChunkSize() throws IOException {
+        server.enqueue(new MockResponse()
+                .setBody("5\r\nABCDE\r\nG\r\nFGHIJKLMNOPQRSTU\r\n0\r\n\r\n")
+                .clearHeaders()
+                .addHeader("Transfer-encoding: chunked"));
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        try {
+            readAscii(connection.getInputStream(), Integer.MAX_VALUE);
+            fail();
+        } catch (IOException e) {
+        }
+    }
+
+    public void testMissingChunkBody() throws IOException {
+        server.enqueue(new MockResponse()
+                .setBody("5")
+                .clearHeaders()
+                .addHeader("Transfer-encoding: chunked")
+                .setDisconnectAtEnd(true));
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        try {
+            readAscii(connection.getInputStream(), Integer.MAX_VALUE);
+            fail();
+        } catch (IOException e) {
+        }
+    }
+
     /**
      * Reads at most {@code limit} characters from {@code in} and asserts that
      * content equals {@code expected}.
