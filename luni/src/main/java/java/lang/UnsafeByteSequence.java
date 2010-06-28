@@ -16,6 +16,8 @@
 
 package java.lang;
 
+import java.nio.charset.Charset;
+
 /**
  * A cheaper ByteArrayOutputStream for internal use. This class is unsynchronized,
  * and returns its internal array if it's the right size. This makes String.getBytes("UTF-8")
@@ -26,12 +28,34 @@ package java.lang;
  *
  * @hide
  */
-class UnsafeByteSequence {
+public class UnsafeByteSequence {
     private byte[] bytes;
     private int count;
 
     public UnsafeByteSequence(int initialCapacity) {
         this.bytes = new byte[initialCapacity];
+    }
+
+    public int size() {
+        return count;
+    }
+
+    /**
+     * Moves the write pointer back to the beginning of the sequence,
+     * but without resizing or reallocating the buffer.
+     */
+    public void rewind() {
+        count = 0;
+    }
+
+    public void write(byte[] buffer, int offset, int length) {
+        if (count + length >= bytes.length) {
+            byte[] newBytes = new byte[(count + length) * 2];
+            System.arraycopy(bytes, 0, newBytes, 0, count);
+            bytes = newBytes;
+        }
+        System.arraycopy(buffer, offset, bytes, count, length);
+        count += length;
     }
 
     public void write(int b) {
@@ -50,5 +74,9 @@ class UnsafeByteSequence {
         byte[] result = new byte[count];
         System.arraycopy(bytes, 0, result, 0, count);
         return result;
+    }
+
+    public String toString(Charset cs) {
+        return new String(bytes, 0, count, cs);
     }
 }
