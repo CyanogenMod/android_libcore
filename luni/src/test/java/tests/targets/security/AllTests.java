@@ -27,7 +27,6 @@ public class AllTests {
         suite.addTestSuite(MessageDigestTestMD2.class);
         suite.addTestSuite(MessageDigestTestMD5.class);
         suite.addTestSuite(MessageDigestTestSHA1.class);
-        suite.addTestSuite(MessageDigestTestSHA224.class);
         suite.addTestSuite(MessageDigestTestSHA256.class);
         suite.addTestSuite(MessageDigestTestSHA384.class);
         suite.addTestSuite(MessageDigestTestSHA512.class);
@@ -37,7 +36,6 @@ public class AllTests {
         suite.addTestSuite(SignatureTestNONEwithDSA.class);
         suite.addTestSuite(SignatureTestSHA1withDSA.class);
         suite.addTestSuite(SignatureTestSHA1withRSA.class);
-        suite.addTestSuite(SignatureTestSHA224withRSA.class);
         suite.addTestSuite(SignatureTestSHA256withRSA.class);
         suite.addTestSuite(SignatureTestSHA384withRSA.class);
         suite.addTestSuite(SignatureTestSHA512withRSA.class);
