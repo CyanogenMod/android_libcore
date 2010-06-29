@@ -24,9 +24,10 @@ import java.net.CacheRequest;
  * An HTTP body with alternating chunk sizes and chunk bodies.
  */
 final class ChunkedInputStream extends AbstractHttpInputStream {
+    private static final int MIN_LAST_CHUNK_LENGTH = "\r\n0\r\n\r\n".length();
     private static final int NO_CHUNK_YET = -1;
     private int bytesRemainingInChunk = NO_CHUNK_YET;
-    private boolean noMoreChunks;
+    private boolean hasMoreChunks = true;
 
     ChunkedInputStream(InputStream is, CacheRequest cacheRequest,
             HttpURLConnectionImpl httpURLConnection) throws IOException {
@@ -37,13 +38,12 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
         checkBounds(buffer, offset, length);
         checkNotClosed();
 
-        if (noMoreChunks) {
+        if (!hasMoreChunks) {
             return -1;
         }
         if (bytesRemainingInChunk == 0 || bytesRemainingInChunk == NO_CHUNK_YET) {
             readChunkSize();
-            if (noMoreChunks) {
-                endOfInput(false);
+            if (!hasMoreChunks) {
                 return -1;
             }
         }
@@ -54,15 +54,24 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
         }
         bytesRemainingInChunk -= count;
         cacheWrite(buffer, offset, count);
+
+        /*
+         * If we're at the end of a chunk and the next chunk size is readable,
+         * read it! Reading the last chunk causes the underlying connection to
+         * be recycled and we want to do that as early as possible. Otherwise
+         * self-delimiting streams like gzip will never be recycled.
+         * http://code.google.com/p/android/issues/detail?id=7059
+         */
+        if (bytesRemainingInChunk == 0 && in.available() >= MIN_LAST_CHUNK_LENGTH) {
+            readChunkSize();
+        }
+
         return count;
     }
 
     private void readChunkSize() throws IOException {
-        if (bytesRemainingInChunk == 0) {
-            /*
-             * Read the suffix of the previous chunk. We defer reading this
-             * at the end of that chunk to avoid unnecessary blocking.
-             */
+        // read the suffix of the previous chunk
+        if (bytesRemainingInChunk != NO_CHUNK_YET) {
             HttpURLConnectionImpl.readLine(in);
         }
         String chunkSizeString = HttpURLConnectionImpl.readLine(in);
@@ -76,14 +85,15 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
             throw new IOException("Expected a hex chunk size, but was " + chunkSizeString);
         }
         if (bytesRemainingInChunk == 0) {
-            noMoreChunks = true;
+            hasMoreChunks = false;
             httpURLConnection.readHeaders(); // actually trailers!
+            endOfInput(false);
         }
     }
 
     @Override public int available() throws IOException {
         checkNotClosed();
-        return noMoreChunks ? 0 : Math.min(in.available(), bytesRemainingInChunk);
+        return hasMoreChunks ? Math.min(in.available(), bytesRemainingInChunk) : 0;
     }
 
     @Override public void close() throws IOException {
@@ -92,7 +102,7 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
         }
 
         closed = true;
-        if (!noMoreChunks) {
+        if (hasMoreChunks) {
             unexpectedEndOfInput();
         }
     }

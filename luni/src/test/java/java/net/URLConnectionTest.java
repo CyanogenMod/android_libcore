@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
@@ -591,6 +593,67 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
     }
 
+    public void testClientConfiguredGzipContentEncoding() throws Exception {
+        server.enqueue(new MockResponse()
+                .setBody(gzip("ABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes("UTF-8")))
+                .addHeader("Content-Encoding: gzip"));
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Accept-Encoding", "gzip");
+        InputStream gunzippedIn = new GZIPInputStream(connection.getInputStream());
+        assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", readAscii(gunzippedIn, Integer.MAX_VALUE));
+
+        RecordedRequest request = server.takeRequest();
+        assertContains(request.getHeaders(), "Accept-Encoding: gzip");
+    }
+
+    public void testGzipAndConnectionReuseWithFixedLength() throws Exception {
+        testClientConfiguredGzipContentEncodingAndConnectionReuse(TransferKind.FIXED_LENGTH);
+    }
+
+    public void testGzipAndConnectionReuseWithChunkedEncoding() throws Exception {
+        testClientConfiguredGzipContentEncodingAndConnectionReuse(TransferKind.CHUNKED);
+    }
+
+    /**
+     * Test a bug where gzip input streams weren't exhausting the input stream,
+     * which corrupted the request that followed.
+     * http://code.google.com/p/android/issues/detail?id=7059
+     */
+    private void testClientConfiguredGzipContentEncodingAndConnectionReuse(
+            TransferKind transferKind) throws Exception {
+        MockResponse responseOne = new MockResponse();
+        responseOne.addHeader("Content-Encoding: gzip");
+        transferKind.setBody(responseOne, gzip("one (gzipped)".getBytes("UTF-8")), 5);
+        server.enqueue(responseOne);
+        MockResponse responseTwo = new MockResponse();
+        transferKind.setBody(responseTwo, "two (identity)", 5);
+        server.enqueue(responseTwo);
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Accept-Encoding", "gzip");
+        InputStream gunzippedIn = new GZIPInputStream(connection.getInputStream());
+        assertEquals("one (gzipped)", readAscii(gunzippedIn, Integer.MAX_VALUE));
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+
+        connection = server.getUrl("/").openConnection();
+        assertEquals("two (identity)", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        assertEquals(1, server.takeRequest().getSequenceNumber());
+    }
+
+    /**
+     * Encodes the response body using GZIP and adds the corresponding header.
+     */
+    public byte[] gzip(byte[] bytes) throws IOException {
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        OutputStream gzippedOut = new GZIPOutputStream(bytesOut);
+        gzippedOut.write(bytes);
+        gzippedOut.close();
+        return bytesOut.toByteArray();
+    }
+
     /**
      * Reads at most {@code limit} characters from {@code in} and asserts that
      * content equals {@code expected}.
@@ -611,18 +674,18 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
     enum TransferKind {
         CHUNKED() {
-            @Override void setBody(MockResponse response, String content, int chunkSize)
+            @Override void setBody(MockResponse response, byte[] content, int chunkSize)
                     throws IOException {
                 response.setChunkedBody(content, chunkSize);
             }
         },
         FIXED_LENGTH() {
-            @Override void setBody(MockResponse response, String content, int chunkSize) {
+            @Override void setBody(MockResponse response, byte[] content, int chunkSize) {
                 response.setBody(content);
             }
         },
         END_OF_STREAM() {
-            @Override void setBody(MockResponse response, String content, int chunkSize) {
+            @Override void setBody(MockResponse response, byte[] content, int chunkSize) {
                 response.setBody(content);
                 response.setDisconnectAtEnd(true);
                 for (Iterator<String> h = response.getHeaders().iterator(); h.hasNext(); ) {
@@ -634,7 +697,11 @@ public class URLConnectionTest extends junit.framework.TestCase {
             }
         };
 
-        abstract void setBody(MockResponse response, String content, int chunkSize)
+        abstract void setBody(MockResponse response, byte[] content, int chunkSize)
                 throws IOException;
+
+        void setBody(MockResponse response, String content, int chunkSize) throws IOException {
+            setBody(response, content.getBytes("UTF-8"), chunkSize);
+        }
     }
 }
