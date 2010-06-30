@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -309,6 +310,22 @@ public abstract class Charset implements Comparable<Charset> {
         }
 
         throw new UnsupportedCharsetException(charsetName);
+    }
+
+    /**
+     * Equivalent to {@code forName} but only throws {@code UnsupportedEncodingException},
+     * which is all pre-nio code claims to throw.
+     *
+     * @hide
+     */
+    public static Charset forNameUEE(String charsetName) throws UnsupportedEncodingException {
+        try {
+            return Charset.forName(charsetName);
+        } catch (Exception cause) {
+            UnsupportedEncodingException ex = new UnsupportedEncodingException(charsetName);
+            ex.initCause(cause);
+            throw ex;
+        }
     }
 
     /**
