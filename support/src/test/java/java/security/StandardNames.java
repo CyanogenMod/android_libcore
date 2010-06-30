@@ -218,16 +218,6 @@ public final class StandardNames extends Assert {
         // Fixups for dalvik
         if (!IS_RI) {
 
-            // OpenSSL implementations with non-Standard algorithm names
-            // TODO move our additions to a new provider and use standard names
-            // See also HarmonyJSSE provider additions for OpenSSL
-            provide("Cipher", "PBEWithMD5And128BitAES-CBC-OpenSSL");
-            provide("Cipher", "PBEWithMD5And192BitAES-CBC-OpenSSL");
-            provide("Cipher", "PBEWithMD5And256BitAES-CBC-OpenSSL");
-            provide("SecretKeyFactory", "PBEWithMD5And128BitAES-CBC-OpenSSL");
-            provide("SecretKeyFactory", "PBEWithMD5And192BitAES-CBC-OpenSSL");
-            provide("SecretKeyFactory", "PBEWithMD5And256BitAES-CBC-OpenSSL");
-
             // whole types that we do not provide
             PROVIDER_ALGORITHMS.remove("Configuration");
             PROVIDER_ALGORITHMS.remove("GssApiMechanism");
