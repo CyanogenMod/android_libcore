@@ -22,10 +22,9 @@
 
 package org.apache.harmony.security.provider.cert;
 
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 import java.security.cert.CRL;
 import java.security.cert.CRLException;
 import java.security.cert.CertPath;
@@ -57,13 +56,13 @@ import org.apache.harmony.security.x509.CertificateList;
 public class X509CertFactoryImpl extends CertificateFactorySpi {
 
     // number of leading/trailing bytes used for cert hash computation
-    private static int CERT_CACHE_SEED_LENGTH = 28;
+    private static final int CERT_CACHE_SEED_LENGTH = 28;
     // certificate cache
-    private static Cache CERT_CACHE = new Cache(CERT_CACHE_SEED_LENGTH);
+    private static final Cache CERT_CACHE = new Cache(CERT_CACHE_SEED_LENGTH);
     // number of leading/trailing bytes used for crl hash computation
-    private static int CRL_CACHE_SEED_LENGTH = 24;
+    private static final int CRL_CACHE_SEED_LENGTH = 24;
     // crl cache
-    private static Cache CRL_CACHE = new Cache(CRL_CACHE_SEED_LENGTH);
+    private static final Cache CRL_CACHE = new Cache(CRL_CACHE_SEED_LENGTH);
 
     /**
      * Default constructor.
@@ -435,31 +434,20 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
     // ------------------------ Staff methods ------------------------------
     // ---------------------------------------------------------------------
 
-    private static byte[] pemBegin;
-    private static byte[] pemClose;
+    private static final byte[] PEM_BEGIN = "-----BEGIN".getBytes(Charsets.UTF_8);
+    private static final byte[] PEM_END = "-----END".getBytes(Charsets.UTF_8);
     /**
      * Code describing free format for PEM boundary suffix:
      * "^-----BEGIN.*\n"         at the beginning, and<br>
      * "\n-----END.*(EOF|\n)$"   at the end.
      */
-    private static byte[] FREE_BOUND_SUFFIX = null;
+    private static final byte[] FREE_BOUND_SUFFIX = null;
     /**
      * Code describing PEM boundary suffix for X.509 certificate:
      * "^-----BEGIN CERTIFICATE-----\n"   at the beginning, and<br>
      * "\n-----END CERTIFICATE-----"   at the end.
      */
-    private static byte[] CERT_BOUND_SUFFIX;
-
-    static {
-        // Initialise statics
-        try {
-            pemBegin = "-----BEGIN".getBytes("UTF-8");
-            pemClose = "-----END".getBytes("UTF-8");
-            CERT_BOUND_SUFFIX = " CERTIFICATE-----".getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
+    private static final byte[] CERT_BOUND_SUFFIX = " CERTIFICATE-----".getBytes(Charsets.UTF_8);
 
     /**
      * Method retrieves the PEM encoded data from the stream
@@ -491,8 +479,8 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
         int ch; // the char to be read
         // check and skip opening boundary delimiter
         // (first '-' is supposed as already read)
-        for (int i=1; i<pemBegin.length; i++) {
-            if (pemBegin[i] != (ch = inStream.read())) {
+        for (int i = 1; i < PEM_BEGIN.length; ++i) {
+            if (PEM_BEGIN[i] != (ch = inStream.read())) {
                 throw new IOException(
                     "Incorrect PEM encoding: '-----BEGIN"
                     + ((boundary_suffix == null)
@@ -548,8 +536,8 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
         }
         // check and skip closing boundary delimiter prefix
         // (first '-' was read)
-        for (int i=1; i<pemClose.length; i++) {
-            if (pemClose[i] != inStream.read()) {
+        for (int i = 1; i < PEM_END.length; ++i) {
+            if (PEM_END[i] != inStream.read()) {
                 throw badEnd(boundary_suffix);
             }
         }

@@ -26,7 +26,7 @@ package java.util;
 public class MissingFormatArgumentException extends IllegalFormatException {
     private static final long serialVersionUID = 19190115L;
 
-    private String s;
+    private final String s;
 
     /**
      * Constructs a new {@code MissingFormatArgumentException} with the
@@ -51,11 +51,6 @@ public class MissingFormatArgumentException extends IllegalFormatException {
         return s;
     }
 
-    /**
-     * Returns the message of the exception.
-     *
-     * @return the message of the exception.
-     */
     @Override
     public String getMessage() {
         return "Format specifier: " + s;

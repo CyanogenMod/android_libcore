@@ -16,7 +16,7 @@
 
 package java.net;
 
-import com.ibm.icu4jni.text.NativeIDN;
+import libcore.icu.NativeIDN;
 
 /**
  * Converts internationalized domain names between Unicode and the ASCII Compatible Encoding

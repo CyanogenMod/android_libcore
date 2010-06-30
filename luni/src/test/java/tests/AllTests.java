@@ -36,7 +36,6 @@ public class AllTests
         suite.addTest(tests.annotation.AllTests.suite());
         suite.addTest(tests.archive.AllTests.suite());
         suite.addTest(tests.concurrent.AllTests.suite());
-        suite.addTest(tests.crypto.AllTests.suite());
         suite.addTest(tests.dom.AllTests.suite());
         suite.addTest(tests.logging.AllTests.suite());
         suite.addTest(tests.luni.AllTestsIo.suite());
@@ -54,23 +53,9 @@ public class AllTests
         suite.addTest(tests.suncompat.AllTests.suite());
         suite.addTest(tests.text.AllTests.suite());
         suite.addTest(tests.xml.AllTests.suite());
-        suite.addTest(tests.xnet.AllTests.suite());
+        suite.addTest(tests.api.org.apache.harmony.kernel.dalvik.AllTests.suite());
 
         // Android-written test suites.
-        suite.addTest(com.ibm.icu4jni.util.AllTests.suite());
-        suite.addTest(java.io.AllTests.suite());
-        suite.addTest(java.lang.AllTests.suite());
-        suite.addTest(java.lang.reflect.AllTests.suite());
-        suite.addTest(java.net.AllTests.suite());
-        suite.addTest(java.nio.channels.AllTests.suite());
-        suite.addTest(java.nio.charset.AllTests.suite());
-        suite.addTest(java.text.AllTests.suite());
-        suite.addTest(java.util.AllTests.suite());
-        suite.addTest(javax.xml.parsers.AllTests.suite());
-        suite.addTest(javax.net.ssl.AllTests.suite());
-        suite.addTest(org.apache.harmony.luni.platform.AllTests.suite());
-        suite.addTest(org.json.AllTests.suite());
-        suite.addTest(tests.api.org.apache.harmony.kernel.dalvik.AllTests.suite());
 
         return suite;
     }

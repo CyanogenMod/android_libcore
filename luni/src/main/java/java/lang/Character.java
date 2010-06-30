@@ -17,27 +17,19 @@
 
 package java.lang;
 
-import java.io.Serializable;
-// BEGIN android-removed
-// import java.util.SortedMap;
-// import java.util.TreeMap;
-//
-// import org.apache.harmony.luni.util.BinarySearch;
-// END android-removed
-
-// BEGIN android-changed
 import com.ibm.icu4jni.lang.UCharacter;
-// END android-changed
+import java.io.Serializable;
 
 /**
  * The wrapper for the primitive type {@code char}. This class also provides a
  * number of utility methods for working with characters.
- * <p>
- * Character data is based upon the Unicode Standard, 4.0. The Unicode
+ *
+ * <p>Character data is kept up to date as Unicode evolves.
+ * This implementation is currently based on Unicode 5.2. The Unicode
  * specification, character tables and other information are available at <a
  * href="http://www.unicode.org/">http://www.unicode.org/</a>.
- * <p>
- * Unicode characters are referred to as <i>code points</i>. The range of valid
+ *
+ * <p>Unicode characters are referred to as <i>code points</i>. The range of valid
  * code points is U+0000 to U+10FFFF. The <i>Basic Multilingual Plane (BMP)</i>
  * is the code point range U+0000 to U+FFFF. Characters above the BMP are
  * referred to as <i>Supplementary Characters</i>. On the Java platform, UTF-16
@@ -1698,7 +1690,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int toCodePoint(char high, char low) {
         // See RFC 2781, Section 2.2
-        // http://www.faqs.org/rfcs/rfc2781.html
+        // http://www.ietf.org/rfc/rfc2781.txt
         int h = (high & 0x3FF) << 10;
         int l = low & 0x3FF;
         return (h | l) + 0x10000;
@@ -1999,7 +1991,7 @@ public final class Character implements Serializable, Comparable<Character> {
                 throw new IndexOutOfBoundsException();
             }
             // See RFC 2781, Section 2.1
-            // http://www.faqs.org/rfcs/rfc2781.html
+            // http://www.ietf.org/rfc/rfc2781.txt
             int cpPrime = codePoint - 0x10000;
             int high = 0xD800 | ((cpPrime >> 10) & 0x3FF);
             int low = 0xDC00 | (cpPrime & 0x3FF);

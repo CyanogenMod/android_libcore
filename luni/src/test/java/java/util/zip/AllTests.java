@@ -24,6 +24,8 @@ public class AllTests {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(DeflaterOutputStreamTest.class);
         suite.addTestSuite(DeflaterTest.class);
+        suite.addTestSuite(ZipEntryTest.class);
+        suite.addTestSuite(ZipFileTest.class);
         return suite;
     }
 }

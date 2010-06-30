@@ -17,7 +17,7 @@
 
 package java.util.jar;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -217,11 +217,7 @@ public class Attributes implements Cloneable, Map<Object, Object> {
          */
         @Override
         public String toString() {
-            try {
-                return new String(name, "ISO-8859-1");
-            } catch (UnsupportedEncodingException iee) {
-                throw new InternalError(iee.getLocalizedMessage());
-            }
+            return new String(name, Charsets.ISO_8859_1);
         }
 
         /**

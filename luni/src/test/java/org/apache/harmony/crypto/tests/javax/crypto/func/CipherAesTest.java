@@ -21,9 +21,6 @@ import dalvik.annotation.TestTargetNew;
 
 import junit.framework.TestCase;
 
-import targets.Cipher;
-
-@TestTargetClass(Cipher.AES.class)
 public class CipherAesTest extends TestCase {
 // 216 cases checked
     @TestTargetNew(

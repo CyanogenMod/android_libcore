@@ -20,7 +20,7 @@ package java.util.jar;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -36,10 +36,6 @@ import org.apache.harmony.luni.util.Base64;
 import org.apache.harmony.security.utils.JarUtils;
 
 import org.apache.harmony.luni.util.Util;
-
-// BEGIN android-added
-import org.apache.harmony.xnet.provider.jsse.OpenSSLMessageDigestJDK;
-// END android-added
 
 /**
  * Non-public class used by {@link JarFile} and {@link JarInputStream} to manage
@@ -214,18 +210,11 @@ class JarVerifier {
             if (hash == null) {
                 continue;
             }
-            byte[] hashBytes;
-            try {
-                hashBytes = hash.getBytes("ISO-8859-1");
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e.toString());
-            }
+            byte[] hashBytes = hash.getBytes(Charsets.ISO_8859_1);
 
             try {
-                // BEGIN android-changed
-                return new VerifierEntry(name, OpenSSLMessageDigestJDK.getInstance(algorithm),
-                        hashBytes, certificatesArray);
-                // END android-changed
+                return new VerifierEntry(name, MessageDigest
+                        .getInstance(algorithm), hashBytes, certificatesArray);
             } catch (NoSuchAlgorithmException e) {
                 // ignored
             }
@@ -412,9 +401,7 @@ class JarVerifier {
 
             MessageDigest md;
             try {
-                // BEGIN android-changed
-                md = OpenSSLMessageDigestJDK.getInstance(algorithm);
-                // END android-changed
+                md = MessageDigest.getInstance(algorithm);
             } catch (NoSuchAlgorithmException e) {
                 continue;
             }
@@ -425,12 +412,7 @@ class JarVerifier {
                 md.update(data, start, end - start);
             }
             byte[] b = md.digest();
-            byte[] hashBytes;
-            try {
-                hashBytes = hash.getBytes("ISO-8859-1");
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e.toString());
-            }
+            byte[] hashBytes = hash.getBytes(Charsets.ISO_8859_1);
             return MessageDigest.isEqual(b, Base64.decode(hashBytes));
         }
         return ignorable;

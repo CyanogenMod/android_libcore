@@ -140,7 +140,7 @@ class Primality {
                 if (!isDivisible[j]) {
                     probPrime.putCopy(startPoint);
                     probPrime.addPositiveInt(j);
-                    if (probPrime.isPrime(100, null, null)) {
+                    if (probPrime.isPrime(100, null)) {
                         return new BigInteger(probPrime);
                     }
                 }

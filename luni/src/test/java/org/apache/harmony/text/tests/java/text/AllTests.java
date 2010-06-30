@@ -17,6 +17,7 @@
 
 package org.apache.harmony.text.tests.java.text;
 
+import java.text.OldNumberFormatTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -38,7 +39,6 @@ public class AllTests {
         suite.addTestSuite(DateFormatSymbolsTest.class);
         suite.addTestSuite(DateFormatTest.class);
         suite.addTestSuite(DecimalFormatSymbolsTest.class);
-        suite.addTestSuite(DecimalFormatTest.class);
         suite.addTestSuite(DecimalFormatTestICU.class);
         suite.addTestSuite(FieldPositionTest.class);
         suite.addTestSuite(FormatFieldTest.class);
@@ -47,11 +47,10 @@ public class AllTests {
         suite.addTestSuite(MessageFormatTest.class);
         suite.addTestSuite(NormalizerTest.class);
         suite.addTestSuite(NumberFormatFieldTest.class);
-        suite.addTestSuite(NumberFormatTest.class);
+        suite.addTestSuite(OldNumberFormatTest.class);
         suite.addTestSuite(ParseExceptionTest.class);
         suite.addTestSuite(ParsePositionTest.class);
         suite.addTestSuite(RuleBasedCollatorTest.class);
-        suite.addTestSuite(SimpleDateFormatTest.class);
         suite.addTestSuite(StringCharacterIteratorTest.class);
         //$JUnit-END$
         return suite;

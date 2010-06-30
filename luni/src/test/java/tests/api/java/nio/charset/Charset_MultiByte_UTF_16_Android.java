@@ -18,7 +18,6 @@ package tests.api.java.nio.charset;
 import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.TestTargetClass;
 
-@TestTargetClass(targets.Charsets.UTF_16.class)
 @AndroidOnly("icu different from RI")
 
 public class Charset_MultiByte_UTF_16_Android extends Charset_AbstractTest {

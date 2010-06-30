@@ -21,67 +21,7 @@ import dalvik.annotation.TestTargets;
 
 import junit.framework.TestCase;
 
-import targets.KeyGenerator;
-
 public class KeyGeneratorFunctionalTest extends TestCase {
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGenerator.AES.class,
-            method = "method",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGenerator.DES.class,
-            method = "method",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGenerator.DESede.class,
-            method = "method",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGenerator.HMACMD5.class,
-            method = "method",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGenerator.HMACSHA1.class,
-            method = "method",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGenerator.HMACSHA256.class,
-            method = "method",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGenerator.HMACSHA384.class,
-            method = "method",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            notes = "",
-            clazz = KeyGenerator.HMACSHA512.class,
-            method = "method",
-            args = {}
-        )
-    })
     public void test_() throws Exception {
         String[] algArray = {"AES", "DES", "DESEDE", "DESede",
                 "HMACMD5", "HmacMD5", "HMACSHA1", "HmacSHA1", "HMACSHA256",

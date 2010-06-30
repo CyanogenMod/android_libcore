@@ -15,10 +15,8 @@
  */
 package tests.targets.security;
 
-import dalvik.annotation.TestTargetClass;
+import tests.security.MessageDigestTest;
 
-
-@TestTargetClass(value=targets.MessageDigests.SHA_512.class)
 public class MessageDigestTestSHA512 extends MessageDigestTest {
 
     public MessageDigestTestSHA512() {

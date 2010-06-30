@@ -15,8 +15,12 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "Inflater"
+
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "zip.h"
+#include <errno.h>
 
 static struct {
     jfieldID inRead;
@@ -56,17 +60,38 @@ static void Inflater_setInputImpl(JNIEnv* env, jobject, jbyteArray buf, jint off
 
 static jint Inflater_setFileInputImpl(JNIEnv* env, jobject, jobject javaFileDescriptor, jlong off, jint len, jlong handle) {
     NativeZipStream* stream = toNativeZipStream(handle);
+
+    // We reuse the existing native buffer if it's large enough.
+    // TODO: benchmark.
     if (stream->inCap < len) {
         stream->setInput(env, NULL, 0, len);
     } else {
-        stream->stream.next_in = (Bytef *) &stream->input[0];
+        stream->stream.next_in = reinterpret_cast<Bytef*>(&stream->input[0]);
         stream->stream.avail_in = len;
     }
 
-    // TODO: is it okay to be this sloppy about errors?
+    // As an Android-specific optimization, we read directly onto the native heap.
+    // The original code used Java to read onto the Java heap and then called setInput(byte[]).
+    // TODO: benchmark.
     int fd = jniGetFDFromFileDescriptor(env, javaFileDescriptor);
-    lseek(fd, off, SEEK_SET);
-    return read(fd, &stream->input[0], len);
+    int rc = TEMP_FAILURE_RETRY(lseek(fd, off, SEEK_SET));
+    if (rc == -1) {
+        jniThrowIOException(env, errno);
+        return 0;
+    }
+    jint totalByteCount = 0;
+    Bytef* dst = reinterpret_cast<Bytef*>(&stream->input[0]);
+    ssize_t byteCount;
+    while ((byteCount = TEMP_FAILURE_RETRY(read(fd, dst, len))) > 0) {
+        dst += byteCount;
+        len -= byteCount;
+        totalByteCount += byteCount;
+    }
+    if (byteCount == -1) {
+        jniThrowIOException(env, errno);
+        return 0;
+    }
+    return totalByteCount;
 }
 
 static jint Inflater_inflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int off, int len, jlong handle) {
@@ -155,9 +180,8 @@ static JNINativeMethod gMethods[] = {
     { "setInputImpl", "([BIIJ)V", (void*) Inflater_setInputImpl },
 };
 int register_java_util_zip_Inflater(JNIEnv* env) {
-    jclass inflaterClass = env->FindClass("java/util/zip/Inflater");
-    gCachedFields.finished = env->GetFieldID(inflaterClass, "finished", "Z");
-    gCachedFields.inRead = env->GetFieldID(inflaterClass, "inRead", "I");
-    gCachedFields.needsDictionary = env->GetFieldID(inflaterClass, "needsDictionary", "Z");
+    gCachedFields.finished = env->GetFieldID(JniConstants::inflaterClass, "finished", "Z");
+    gCachedFields.inRead = env->GetFieldID(JniConstants::inflaterClass, "inRead", "I");
+    gCachedFields.needsDictionary = env->GetFieldID(JniConstants::inflaterClass, "needsDictionary", "Z");
     return jniRegisterNativeMethods(env, "java/util/zip/Inflater", gMethods, NELEM(gMethods));
 }

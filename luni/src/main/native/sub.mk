@@ -3,24 +3,28 @@
 # or BUILD_*_LIBRARY.
 
 LOCAL_SRC_FILES := \
-	BidiWrapper.cpp \
 	ErrorCode.cpp \
 	ICU.cpp \
+	JniConstants.cpp \
+	NativeBN.cpp \
+	NativeBidi.cpp \
 	NativeBreakIterator.cpp \
 	NativeCollation.cpp \
 	NativeConverter.cpp \
+	NativeCrypto.cpp \
 	NativeDecimalFormat.cpp \
 	NativeIDN.cpp \
 	NativeNormalizer.cpp \
-	NativeRegEx.cpp \
+	NativePluralRules.cpp \
 	NetworkUtilities.cpp \
 	Register.cpp \
+	TimeZones.cpp \
 	UCharacter.cpp \
 	cbigint.cpp \
 	commonDblParce.cpp \
 	java_io_Console.cpp \
 	java_io_File.cpp \
-	java_io_FileDescriptor.c \
+	java_io_FileDescriptor.cpp \
 	java_io_ObjectInputStream.cpp \
 	java_io_ObjectOutputStream.cpp \
 	java_io_ObjectStreamClass.cpp \
@@ -32,6 +36,8 @@ LOCAL_SRC_FILES := \
 	java_lang_System.cpp \
 	java_net_InetAddress.cpp \
 	java_net_NetworkInterface.cpp \
+	java_util_regex_Matcher.cpp \
+	java_util_regex_Pattern.cpp \
 	java_util_zip_Adler32.cpp \
 	java_util_zip_CRC32.cpp \
 	java_util_zip_Deflater.cpp \
@@ -42,7 +48,7 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_util_NumberConvert.cpp \
 	org_apache_harmony_luni_util_fltparse.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
-	org_apache_harmony_xnet_provider_jsse_NativeCrypto.cpp
+	valueOf.cpp
 
 
 LOCAL_C_INCLUDES += \

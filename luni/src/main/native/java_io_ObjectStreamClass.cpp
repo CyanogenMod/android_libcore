@@ -15,88 +15,43 @@
  *  limitations under the License.
  */
 
+#define LOG_TAG "ObjectStreamClass"
+
 #include "JNIHelp.h"
+#include "JniConstants.h"
 
-static jobject java_io_osc_getFieldSignature(JNIEnv* env, jclass,
-                                                  jobject reflectField) {
-    jclass lookupClass;
-    jmethodID mid;
-
-    lookupClass = env->FindClass("java/lang/reflect/Field");
-    if(!lookupClass) {
+static jobject getSignature(JNIEnv* env, jclass c, jobject object) {
+    jmethodID mid = env->GetMethodID(c, "getSignature", "()Ljava/lang/String;");
+    if (!mid) {
         return NULL;
     }
-
-    mid = env->GetMethodID(lookupClass, "getSignature",
-            "()Ljava/lang/String;");
-    if(!mid)
-    {
-        return NULL;
-    }
-
-    jclass fieldClass = env->GetObjectClass(reflectField);
-    
-    return env->CallNonvirtualObjectMethod(reflectField, 
-            fieldClass, mid);
+    jclass objectClass = env->GetObjectClass(object);
+    return env->CallNonvirtualObjectMethod(object, objectClass, mid);
 }
 
-static jobject java_io_osc_getMethodSignature(JNIEnv* env, jclass,
-                                                   jobject reflectMethod)
-{
-    jclass lookupClass;
-    jmethodID mid;
-
-    lookupClass = env->FindClass("java/lang/reflect/Method");
-    if(!lookupClass) {
-        return NULL;
-    }
-
-    mid = env->GetMethodID(lookupClass, "getSignature",
-            "()Ljava/lang/String;");
-    if(!mid) {
-        return NULL;
-    }
-  
-    jclass methodClass = env->GetObjectClass(reflectMethod);
-    return env->CallNonvirtualObjectMethod(reflectMethod, 
-            methodClass, mid);
+static jobject ObjectStreamClass_getFieldSignature(JNIEnv* env, jclass, jobject field) {
+    return getSignature(env, JniConstants::fieldClass, field);
 }
 
-static jobject java_io_osc_getConstructorSignature(JNIEnv* env,
-                                                        jclass,
-                                                        jobject
-                                                        reflectConstructor)
-{
-    jclass lookupClass;
-    jmethodID mid;
-
-    lookupClass = env->FindClass("java/lang/reflect/Constructor");
-    if(!lookupClass) {
-        return NULL;
-    }
-
-    mid = env->GetMethodID(lookupClass, "getSignature",
-            "()Ljava/lang/String;");
-    if(!mid) {
-        return NULL;
-    }
-
-    jclass constructorClass = env->GetObjectClass(reflectConstructor);
-    return env->CallNonvirtualObjectMethod(reflectConstructor,
-                                             constructorClass, mid);
+static jobject ObjectStreamClass_getMethodSignature(JNIEnv* env, jclass, jobject method) {
+    return getSignature(env, JniConstants::methodClass, method);
 }
 
-static jboolean java_io_osc_hasClinit(JNIEnv * env, jclass, jclass targetClass) {
+static jobject ObjectStreamClass_getConstructorSignature(JNIEnv* env, jclass, jobject constructor) {
+    return getSignature(env, JniConstants::constructorClass, constructor);
+}
+
+static jboolean ObjectStreamClass_hasClinit(JNIEnv * env, jclass, jclass targetClass) {
     jmethodID mid = env->GetStaticMethodID(targetClass, "<clinit>", "()V");
     env->ExceptionClear();
     return (mid != 0);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "getConstructorSignature", "(Ljava/lang/reflect/Constructor;)Ljava/lang/String;", (void*) java_io_osc_getConstructorSignature },
-    { "getFieldSignature", "(Ljava/lang/reflect/Field;)Ljava/lang/String;", (void*) java_io_osc_getFieldSignature },
-    { "getMethodSignature", "(Ljava/lang/reflect/Method;)Ljava/lang/String;", (void*) java_io_osc_getMethodSignature },
-    { "hasClinit", "(Ljava/lang/Class;)Z", (void*) java_io_osc_hasClinit },
+    { "getConstructorSignature", "(Ljava/lang/reflect/Constructor;)Ljava/lang/String;", (void*) ObjectStreamClass_getConstructorSignature },
+    { "getFieldSignature", "(Ljava/lang/reflect/Field;)Ljava/lang/String;", (void*) ObjectStreamClass_getFieldSignature },
+    { "getMethodSignature", "(Ljava/lang/reflect/Method;)Ljava/lang/String;", (void*) ObjectStreamClass_getMethodSignature },
+    { "hasClinit", "(Ljava/lang/Class;)Z", (void*) ObjectStreamClass_hasClinit },
 };
 int register_java_io_ObjectStreamClass(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/ObjectStreamClass", gMethods, NELEM(gMethods));

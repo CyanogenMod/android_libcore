@@ -22,7 +22,6 @@ import dalvik.annotation.TestTargetNew;
 
 import java.nio.charset.CharacterCodingException;
 
-@TestTargetClass(targets.Charsets.IBM864.class)
 @AndroidOnly("icu different from RI")
 
 public class Charset_SingleByte_IBM864 extends Charset_SingleByteAbstractTest {

@@ -22,7 +22,6 @@ import dalvik.annotation.TestTargetNew;
 
 import java.nio.charset.CharacterCodingException;
 
-@TestTargetClass(targets.Charsets.GSM0338.class)
 @AndroidOnly("gsm specific")
 public class Charset_GSM0338 extends Charset_AbstractTest {
 

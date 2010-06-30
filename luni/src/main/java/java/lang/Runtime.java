@@ -32,6 +32,8 @@
 
 package java.lang;
 
+import dalvik.system.VMDebug;
+import dalvik.system.VMStack;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -44,13 +46,10 @@ import java.io.Reader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-
+import java.nio.charset.Charsets;
 import java.util.StringTokenizer;
 import java.util.List;
 import java.util.ArrayList;
-
-import dalvik.system.VMDebug;
-import dalvik.system.VMStack;
 
 /**
  * Allows Java applications to interface with the environment in which they are
@@ -499,7 +498,7 @@ public class Runtime {
 
     /**
      * Switches the output of debug information for instructions on or off.
-     * For the Android 1.0 reference implementation, this method does nothing.
+     * On Android, this method does nothing.
      *
      * @param enable
      *            {@code true} to switch tracing on, {@code false} to switch it
@@ -541,10 +540,8 @@ public class Runtime {
      */
     @Deprecated
     public InputStream getLocalizedInputStream(InputStream stream) {
-        if (System.getProperty("file.encoding", "UTF-8").equals("UTF-8")) {
-            return stream;
-        }
-        return new ReaderInputStream(stream);
+        String encoding = System.getProperty("file.encoding", "UTF-8");
+        return encoding.equals("UTF-8") ? stream : new ReaderInputStream(stream, encoding);
     }
 
     /**
@@ -560,10 +557,8 @@ public class Runtime {
      */
     @Deprecated
     public OutputStream getLocalizedOutputStream(OutputStream stream) {
-        if (System.getProperty("file.encoding", "UTF-8").equals("UTF-8")) {
-            return stream;
-        }
-        return new WriterOutputStream(stream );
+        String encoding = System.getProperty("file.encoding", "UTF-8");
+        return encoding.equals("UTF-8") ? stream : new WriterOutputStream(stream, encoding);
     }
 
     /**
@@ -727,11 +722,9 @@ class ReaderInputStream extends InputStream {
 
     private int numBytes;
 
-    String encoding = System.getProperty("file.encoding", "UTF-8");
-
-    public ReaderInputStream(InputStream stream) {
+    public ReaderInputStream(InputStream stream, String encoding) {
         try {
-            reader = new InputStreamReader(stream, "UTF-8");
+            reader = new InputStreamReader(stream, Charsets.UTF_8);
             writer = new OutputStreamWriter(out, encoding);
         } catch (UnsupportedEncodingException e) {
             // Should never happen, since UTF-8 and platform encoding must be
@@ -783,17 +776,15 @@ class WriterOutputStream extends OutputStream {
 
     private int numBytes;
 
-    private String enc = System.getProperty("file.encoding", "UTF-8");
-
-    public WriterOutputStream(OutputStream stream) {
+    public WriterOutputStream(OutputStream stream, String encoding) {
         try {
             // sink
-            this.writer = new OutputStreamWriter(stream, enc);
+            this.writer = new OutputStreamWriter(stream, encoding);
 
             // transcriber
             out = new PipedOutputStream();
             pipe = new PipedInputStream(out);
-            this.reader = new InputStreamReader(pipe, "UTF-8");
+            this.reader = new InputStreamReader(pipe, Charsets.UTF_8);
 
         } catch (UnsupportedEncodingException e) {
             // Should never happen, since platform encoding must be supported.

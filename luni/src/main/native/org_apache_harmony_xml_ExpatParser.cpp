@@ -17,7 +17,9 @@
 #define LOG_TAG "ExpatParser"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "LocalArray.h"
+#include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -32,10 +34,20 @@
 
 #define BUCKET_COUNT 128
 
+static void throw_OutOfMemoryError(JNIEnv* env) {
+    jniThrowException(env, "java/lang/OutOfMemoryError", "Out of memory.");
+}
+
 /**
  * Wrapper around an interned string.
  */
 struct InternedString {
+    InternedString() : interned(NULL), bytes(NULL) {
+    }
+
+    ~InternedString() {
+        delete[] bytes;
+    }
 
     /** The interned string itself. */
     jstring interned;
@@ -50,7 +62,38 @@ struct InternedString {
 /**
  * Keeps track of strings between start and end events.
  */
-struct StringStack {
+class StringStack {
+public:
+    StringStack() : array(new jstring[DEFAULT_CAPACITY]), capacity(DEFAULT_CAPACITY), size(0) {
+    }
+
+    ~StringStack() {
+        delete[] array;
+    }
+
+    void push(JNIEnv* env, jstring s) {
+        if (size == capacity) {
+            int newCapacity = capacity * 2;
+            jstring* newArray = new jstring[newCapacity];
+            if (newArray == NULL) {
+                throw_OutOfMemoryError(env);
+                return;
+            }
+            memcpy(newArray, array, capacity * sizeof(jstring));
+
+            array = newArray;
+            capacity = newCapacity;
+        }
+
+        array[size++] = s;
+    }
+
+    jstring pop() {
+        return (size == 0) ? NULL : array[--size];
+    }
+
+private:
+    enum { DEFAULT_CAPACITY = 10 };
 
     jstring* array;
     int capacity;
@@ -61,7 +104,64 @@ struct StringStack {
  * Data passed to parser handler method by the parser.
  */
 struct ParsingContext {
+    ParsingContext(jobject object) : env(NULL), object(object), buffer(NULL), bufferSize(-1) {
+        for (int i = 0; i < BUCKET_COUNT; i++) {
+            internedStrings[i] = NULL;
+        }
+    }
 
+    // Warning: 'env' must be valid on entry.
+    ~ParsingContext() {
+        freeBuffer();
+
+        // Free interned string cache.
+        for (int i = 0; i < BUCKET_COUNT; i++) {
+            if (internedStrings[i]) {
+                InternedString** bucket = internedStrings[i];
+                InternedString* current;
+                while ((current = *(bucket++)) != NULL) {
+                    // Free the interned string reference.
+                    env->DeleteGlobalRef(current->interned);
+
+                    // Free the bucket.
+                    delete current;
+                }
+
+                // Free the buckets.
+                delete[] internedStrings[i];
+            }
+        }
+    }
+
+    jcharArray ensureCapacity(int length) {
+        if (bufferSize < length) {
+            // Free the existing char[].
+            freeBuffer();
+
+            // Allocate a new char[].
+            jcharArray javaBuffer = env->NewCharArray(length);
+            if (javaBuffer == NULL) return NULL;
+
+            // Create a global reference.
+            javaBuffer = (jcharArray) env->NewGlobalRef(javaBuffer);
+            if (javaBuffer == NULL) return NULL;
+
+            buffer = javaBuffer;
+            bufferSize = length;
+        }
+        return buffer;
+    }
+
+private:
+    void freeBuffer() {
+        if (buffer != NULL) {
+            env->DeleteGlobalRef(buffer);
+            buffer = NULL;
+            bufferSize = -1;
+        }
+    }
+
+public:
     /**
      * The JNI environment for the current thread. This should only be used
      * to keep a reference to the env for use in Expat callbacks.
@@ -74,9 +174,11 @@ struct ParsingContext {
     /** Buffer for text events. */
     jcharArray buffer;
 
+private:
     /** The size of our buffer in jchars. */
     int bufferSize;
 
+public:
     /** Current attributes. */
     const char** attributes;
 
@@ -108,15 +210,7 @@ static jmethodID startElementMethod;
 static jmethodID startNamespaceMethod;
 static jmethodID textMethod;
 static jmethodID unparsedEntityDeclMethod;
-static jclass stringClass;
 static jstring emptyString;
-
-/**
- * Throws OutOfMemoryError.
- */
-static void throw_OutOfMemoryError(JNIEnv* env) {
-    jniThrowException(env, "java/lang/OutOfMemoryError", "Out of memory.");
-}
 
 /**
  * Calculates a hash code for a null-terminated string. This is *not* equivalent
@@ -144,8 +238,7 @@ static int hashString(const char* s) {
  * @param hash of bytes
  * @returns wrapper of interned Java string
  */
-static InternedString* newInternedString(JNIEnv* env,
-        ParsingContext* parsingContext, const char* bytes, int hash) {
+static InternedString* newInternedString(JNIEnv* env, const char* bytes, int hash) {
     // Allocate a new wrapper.
     UniquePtr<InternedString> wrapper(new InternedString);
     if (wrapper.get() == NULL) {
@@ -155,12 +248,13 @@ static InternedString* newInternedString(JNIEnv* env,
 
     // Create a copy of the UTF-8 bytes.
     // TODO: sometimes we already know the length. Reuse it if so.
-    char* copy = strdup(bytes);
-    wrapper->bytes = copy;
-    if (wrapper->bytes == NULL) {
+    char* copy = new char[strlen(bytes) + 1];
+    if (copy == NULL) {
         throw_OutOfMemoryError(env);
         return NULL;
     }
+    strcpy(copy, bytes);
+    wrapper->bytes = copy;
 
     // Save the hash.
     wrapper->hash = hash;
@@ -169,7 +263,6 @@ static InternedString* newInternedString(JNIEnv* env,
     // intern() on it. We then keep a global reference to the interned string.
     ScopedLocalRef<jstring> newString(env, env->NewStringUTF(bytes));
     if (env->ExceptionCheck()) {
-        free(copy);
         return NULL;
     }
 
@@ -177,14 +270,12 @@ static InternedString* newInternedString(JNIEnv* env,
     ScopedLocalRef<jstring> interned(env,
             reinterpret_cast<jstring>(env->CallObjectMethod(newString.get(), internMethod)));
     if (env->ExceptionCheck()) {
-        free(copy);
         return NULL;
     }
 
     // Create a global reference to the interned string.
     wrapper->interned = (jstring) env->NewGlobalRef(interned.get());
     if (env->ExceptionCheck()) {
-        free(copy);
         return NULL;
     }
 
@@ -198,12 +289,11 @@ static InternedString* newInternedString(JNIEnv* env,
  * @returns a reference to the bucket
  */
 static InternedString** newInternedStringBucket(InternedString* entry) {
-    InternedString** bucket
-        = (InternedString**) malloc(sizeof(InternedString*) * 2);
-    if (bucket == NULL) return NULL;
-
-    bucket[0] = entry;
-    bucket[1] = NULL;
+    InternedString** bucket = new InternedString*[2];
+    if (bucket != NULL) {
+        bucket[0] = entry;
+        bucket[1] = NULL;
+    }
     return bucket;
 }
 
@@ -223,10 +313,10 @@ static InternedString** expandInternedStringBucket(
 
     // Allocate the new bucket with enough space for one more entry and
     // a null terminator.
-    InternedString** newBucket = (InternedString**) realloc(existingBucket,
-            sizeof(InternedString*) * (size + 2));
+    InternedString** newBucket = new InternedString*[size + 2];
     if (newBucket == NULL) return NULL;
 
+    memcpy(newBucket, existingBucket, size * sizeof(InternedString*));
     newBucket[size] = entry;
     newBucket[size + 1] = NULL;
 
@@ -241,8 +331,7 @@ static InternedString** expandInternedStringBucket(
  * @param hash of s
  * @returns interned Java string equivalent of s or null if not found
  */
-static jstring findInternedString(InternedString** bucket, const char* s,
-        int hash) {
+static jstring findInternedString(InternedString** bucket, const char* s, int hash) {
     InternedString* current;
     while ((current = *(bucket++)) != NULL) {
         if (current->hash != hash) continue;
@@ -257,8 +346,7 @@ static jstring findInternedString(InternedString** bucket, const char* s,
  * @param s null-terminated string to intern
  * @returns interned Java string equivelent of s or NULL if s is null
  */
-static jstring internString(JNIEnv* env, ParsingContext* parsingContext,
-        const char* s) {
+static jstring internString(JNIEnv* env, ParsingContext* parsingContext, const char* s) {
     if (s == NULL) return NULL;
 
     int hash = hashString(s);
@@ -278,7 +366,7 @@ static jstring internString(JNIEnv* env, ParsingContext* parsingContext,
 
         // We didn't find it. :(
         // Create a new entry.
-        internedString = newInternedString(env, parsingContext, s, hash);
+        internedString = newInternedString(env, s, hash);
         if (internedString == NULL) return NULL;
 
         // Expand the bucket.
@@ -293,7 +381,7 @@ static jstring internString(JNIEnv* env, ParsingContext* parsingContext,
         return internedString->interned;
     } else {
         // We don't even have a bucket yet. Create an entry.
-        internedString = newInternedString(env, parsingContext, s, hash);
+        internedString = newInternedString(env, s, hash);
         if (internedString == NULL) return NULL;
 
         // Create a new bucket with one entry.
@@ -314,70 +402,6 @@ static void jniThrowExpatException(JNIEnv* env, XML_Error error) {
     jniThrowException(env, "org/apache/harmony/xml/ExpatException", message);
 }
 
-static ParsingContext* newParsingContext(JNIEnv* env, jobject object) {
-    ParsingContext* result = (ParsingContext*) malloc(sizeof(ParsingContext));
-    if (result == NULL) {
-        throw_OutOfMemoryError(env);
-        return NULL;
-    }
-
-    result->env = NULL;
-    result->buffer = NULL;
-    result->bufferSize = -1;
-    result->object = object;
-
-    int stackSize = 10;
-    result->stringStack.capacity = stackSize;
-    result->stringStack.size = 0;
-    result->stringStack.array
-            = (jstring*) malloc(stackSize * sizeof(jstring));
-
-    for (int i = 0; i < BUCKET_COUNT; i++) {
-        result->internedStrings[i] = NULL;
-    }
-
-    return result;
-}
-
-/**
- * Frees the char[] buffer if it exists.
- */
-static void freeBuffer(JNIEnv* env, ParsingContext* parsingContext) {
-    if (parsingContext->buffer != NULL) {
-        env->DeleteGlobalRef(parsingContext->buffer);
-        parsingContext->buffer = NULL;
-        parsingContext->bufferSize = -1;
-    }
-}
-
-/**
- * Ensures our buffer is big enough.
- *
- * @param length in jchars
- * @returns a reference to the buffer
- */
-static jcharArray ensureCapacity(ParsingContext* parsingContext, int length) {
-    if (parsingContext->bufferSize < length) {
-        JNIEnv* env = parsingContext->env;
-
-        // Free the existing char[].
-        freeBuffer(env, parsingContext);
-
-        // Allocate a new char[].
-        jcharArray javaBuffer = env->NewCharArray(length);
-        if (javaBuffer == NULL) return NULL;
-
-        // Create a global reference.
-        javaBuffer = (jcharArray) env->NewGlobalRef(javaBuffer);
-        if (javaBuffer == NULL) return NULL;
-
-        parsingContext->buffer = javaBuffer;
-        parsingContext->bufferSize = length;
-    }
-
-    return parsingContext->buffer;
-}
-
 /**
  * Copies UTF-8 characters into the buffer. Returns the number of Java chars
  * which were buffered.
@@ -390,7 +414,7 @@ static size_t fillBuffer(ParsingContext* parsingContext, const char* characters,
     JNIEnv* env = parsingContext->env;
 
     // Grow buffer if necessary.
-    jcharArray buffer = ensureCapacity(parsingContext, length);
+    jcharArray buffer = parsingContext->ensureCapacity(length);
     if (buffer == NULL) return -1;
 
     // Decode UTF-8 characters into our buffer.
@@ -409,8 +433,7 @@ static size_t fillBuffer(ParsingContext* parsingContext, const char* characters,
  * @param text to copy into the buffer
  * @param length of text to copy (in bytes)
  */
-static void bufferAndInvoke(jmethodID method, void* data, const char* text,
-        size_t length) {
+static void bufferAndInvoke(jmethodID method, void* data, const char* text, size_t length) {
     ParsingContext* parsingContext = (ParsingContext*) data;
     JNIEnv* env = parsingContext->env;
 
@@ -552,42 +575,6 @@ private:
 };
 
 /**
- * Pushes a string onto the stack.
- */
-static void stringStackPush(ParsingContext* parsingContext, jstring s) {
-    StringStack* stringStack = &parsingContext->stringStack;
-
-    // Expand if necessary.
-    if (stringStack->size == stringStack->capacity) {
-        int newCapacity = stringStack->capacity * 2;
-        stringStack->array = (jstring*) realloc(stringStack->array,
-            newCapacity * sizeof(jstring));
-
-        if (stringStack->array == NULL) {
-            throw_OutOfMemoryError(parsingContext->env);
-            return;
-        }
-
-        stringStack->capacity = newCapacity;
-    }
-
-    stringStack->array[stringStack->size++] = s;
-}
-
-/**
- * Pops a string off the stack.
- */
-static jstring stringStackPop(ParsingContext* parsingContext) {
-    StringStack* stringStack = &parsingContext->stringStack;
-
-    if (stringStack->size == 0) {
-        return NULL;
-    }
-
-    return stringStack->array[--stringStack->size];
-}
-
-/**
  * Called by Expat at the start of an element. Delegates to the same method
  * on the Java parser.
  *
@@ -596,8 +583,7 @@ static jstring stringStackPop(ParsingContext* parsingContext) {
  * @param attributes alternating attribute names and values. Like element
  * names, attribute names follow the format "uri|localName" or "localName".
  */
-static void startElement(void* data, const char* elementName,
-        const char** attributes) {
+static void startElement(void* data, const char* elementName, const char** attributes) {
     ParsingContext* parsingContext = (ParsingContext*) data;
     JNIEnv* env = parsingContext->env;
 
@@ -619,12 +605,11 @@ static void startElement(void* data, const char* elementName,
     jstring localName = parsingContext->processNamespaces ? e.localName() : emptyString;
     jstring qName = e.qName();
 
-    stringStackPush(parsingContext, qName);
-    stringStackPush(parsingContext, uri);
-    stringStackPush(parsingContext, localName);
+    parsingContext->stringStack.push(env, qName);
+    parsingContext->stringStack.push(env, uri);
+    parsingContext->stringStack.push(env, localName);
 
-    env->CallVoidMethod(javaParser, startElementMethod, uri, localName,
-            qName, attributes, count);
+    env->CallVoidMethod(javaParser, startElementMethod, uri, localName, qName, attributes, count);
 
     parsingContext->attributes = NULL;
     parsingContext->attributeCount = -1;
@@ -635,9 +620,10 @@ static void startElement(void* data, const char* elementName,
  * on the Java parser.
  *
  * @param data parsing context
- * @param elementName "uri|localName" or "localName" for the current element
+ * @param elementName "uri|localName" or "localName" for the current element;
+ *         we assume that this matches the last data on our stack.
  */
-static void endElement(void* data, const char* elementName) {
+static void endElement(void* data, const char* /*elementName*/) {
     ParsingContext* parsingContext = (ParsingContext*) data;
     JNIEnv* env = parsingContext->env;
 
@@ -646,9 +632,9 @@ static void endElement(void* data, const char* elementName) {
 
     jobject javaParser = parsingContext->object;
 
-    jstring localName = stringStackPop(parsingContext);
-    jstring uri = stringStackPop(parsingContext);
-    jstring qName = stringStackPop(parsingContext);
+    jstring localName = parsingContext->stringStack.pop();
+    jstring uri = parsingContext->stringStack.pop();
+    jstring qName = parsingContext->stringStack.pop();
 
     env->CallVoidMethod(javaParser, endElementMethod, uri, localName, qName);
 }
@@ -703,27 +689,27 @@ static void startNamespace(void* data, const char* prefix, const char* uri) {
         if (env->ExceptionCheck()) return;
     }
 
-    stringStackPush(parsingContext, internedPrefix);
+    parsingContext->stringStack.push(env, internedPrefix);
 
     jobject javaParser = parsingContext->object;
-    env->CallVoidMethod(javaParser, startNamespaceMethod, internedPrefix,
-        internedUri);
+    env->CallVoidMethod(javaParser, startNamespaceMethod, internedPrefix, internedUri);
 }
 
 /**
  * Called by Expat at the end of a namespace mapping.
  *
  * @param data parsing context
- * @param prefix null-terminated namespace prefix used in the XML
+ * @param prefix null-terminated namespace prefix used in the XML;
+ *         we assume this is the same as the last prefix on the stack.
  */
-static void endNamespace(void* data, const char* prefix) {
+static void endNamespace(void* data, const char* /*prefix*/) {
     ParsingContext* parsingContext = (ParsingContext*) data;
     JNIEnv* env = parsingContext->env;
 
     // Bail out if a previously called handler threw an exception.
     if (env->ExceptionCheck()) return;
 
-    jstring internedPrefix = stringStackPop(parsingContext);
+    jstring internedPrefix = parsingContext->stringStack.pop();
 
     jobject javaParser = parsingContext->object;
     env->CallVoidMethod(javaParser, endNamespaceMethod, internedPrefix);
@@ -763,9 +749,10 @@ static void endCdata(void* data) {
 
 /**
  * Called by Expat at the beginning of a DOCTYPE section.
+ * Expat gives us 'hasInternalSubset', but the Java API doesn't expect it, so we don't need it.
  */
 static void startDtd(void* data, const char* name,
-        const char* systemId, const char* publicId, int hasInternalSubset) {
+        const char* systemId, const char* publicId, int /*hasInternalSubset*/) {
     ParsingContext* parsingContext = (ParsingContext*) data;
     JNIEnv* env = parsingContext->env;
 
@@ -835,7 +822,7 @@ static void processingInstruction(void* data, const char* target, const char* in
  * @param javaContext that was provided to handleExternalEntity
  * @returns the pointer to the C Expat entity parser
  */
-static jint createEntityParser(JNIEnv* env, jobject, jint parentParser, jstring javaEncoding, jstring javaContext) {
+static jint createEntityParser(JNIEnv* env, jobject, jint parentParser, jstring javaContext) {
     ScopedUtfChars context(env, javaContext);
     if (context.c_str() == NULL) {
         return 0;
@@ -896,7 +883,10 @@ static int handleExternalEntity(XML_Parser parser, const char* context,
     return env->ExceptionCheck() ? XML_STATUS_ERROR : XML_STATUS_OK;
 }
 
-static void unparsedEntityDecl(void* data, const char* name, const char* base, const char* systemId, const char* publicId, const char* notationName) {
+/**
+ * Expat gives us 'base', but the Java API doesn't expect it, so we don't need it.
+ */
+static void unparsedEntityDecl(void* data, const char* name, const char* /*base*/, const char* systemId, const char* publicId, const char* notationName) {
     ParsingContext* parsingContext = reinterpret_cast<ParsingContext*>(data);
     jobject javaParser = parsingContext->object;
     JNIEnv* env = parsingContext->env;
@@ -916,7 +906,10 @@ static void unparsedEntityDecl(void* data, const char* name, const char* base, c
     env->CallVoidMethod(javaParser, unparsedEntityDeclMethod, javaName.get(), javaPublicId.get(), javaSystemId.get(), javaNotationName.get());
 }
 
-static void notationDecl(void* data, const char* name, const char* base, const char* systemId, const char* publicId) {
+/**
+ * Expat gives us 'base', but the Java API doesn't expect it, so we don't need it.
+ */
+static void notationDecl(void* data, const char* name, const char* /*base*/, const char* systemId, const char* publicId) {
     ParsingContext* parsingContext = reinterpret_cast<ParsingContext*>(data);
     jobject javaParser = parsingContext->object;
     JNIEnv* env = parsingContext->env;
@@ -935,38 +928,6 @@ static void notationDecl(void* data, const char* name, const char* base, const c
 }
 
 /**
- * Releases the parsing context.
- */
-static void releaseParsingContext(JNIEnv* env, ParsingContext* context) {
-    free(context->stringStack.array);
-
-    freeBuffer(env, context);
-
-    // Free interned string cache.
-    for (int i = 0; i < BUCKET_COUNT; i++) {
-        if (context->internedStrings[i]) {
-            InternedString** bucket = context->internedStrings[i];
-            InternedString* current;
-            while ((current = *(bucket++)) != NULL) {
-                // Free the UTF-8 bytes.
-                free((void*) (current->bytes));
-
-                // Free the interned string reference.
-                env->DeleteGlobalRef(current->interned);
-
-                // Free the bucket.
-                free(current);
-            }
-
-            // Free the buckets.
-            free(context->internedStrings[i]);
-        }
-    }
-
-    free(context);
-}
-
-/**
  * Creates a new Expat parser. Called from the Java ExpatParser constructor.
  *
  * @param object the Java ExpatParser instance
@@ -977,8 +938,9 @@ static void releaseParsingContext(JNIEnv* env, ParsingContext* context) {
 static jint initialize(JNIEnv* env, jobject object, jstring javaEncoding,
         jboolean processNamespaces) {
     // Allocate parsing context.
-    ParsingContext* context = newParsingContext(env, object);
-    if (context == NULL) {
+    UniquePtr<ParsingContext> context(new ParsingContext(object));
+    if (context.get() == NULL) {
+        throw_OutOfMemoryError(env);
         return 0;
     }
 
@@ -1012,9 +974,8 @@ static jint initialize(JNIEnv* env, jobject object, jstring javaEncoding,
         XML_SetNotationDeclHandler(parser, notationDecl);
         XML_SetProcessingInstructionHandler(parser, processingInstruction);
         XML_SetUnparsedEntityDeclHandler(parser, unparsedEntityDecl);
-        XML_SetUserData(parser, context);
+        XML_SetUserData(parser, context.release());
     } else {
-        releaseParsingContext(env, context);
         throw_OutOfMemoryError(env);
         return 0;
     }
@@ -1056,12 +1017,12 @@ static void appendCharacters(JNIEnv* env, jobject object, jint pointer,
     append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
 }
 
-static void appendString(JNIEnv* env, jobject object, jint pointer, jstring xml, jboolean isFinal) {
-    const jchar* chars = env->GetStringChars(xml, NULL);
-    const char* bytes = reinterpret_cast<const char*>(chars);
-    size_t byteCount = 2 * env->GetStringLength(xml);
+static void appendString(JNIEnv* env, jobject object, jint pointer,
+        jstring javaXml, jboolean isFinal) {
+    ScopedJavaUnicodeString xml(env, javaXml);
+    const char* bytes = reinterpret_cast<const char*>(xml.unicodeString().getBuffer());
+    size_t byteCount = 2 * xml.unicodeString().length();
     append(env, object, pointer, bytes, 0, byteCount, isFinal);
-    env->ReleaseStringChars(xml, chars);
 }
 
 /**
@@ -1085,7 +1046,8 @@ static void release(JNIEnv* env, jobject, jint i) {
     XML_Parser parser = (XML_Parser) i;
 
     ParsingContext* context = (ParsingContext*) XML_GetUserData(parser);
-    releaseParsingContext(env, context);
+    context->env = env;
+    delete context;
 
     XML_ParserFree(parser);
 }
@@ -1267,8 +1229,14 @@ static jstring getAttributeValue(JNIEnv* env, jobject clazz,
 /**
  * Clones an array of strings. Uses one contiguous block of memory so as to
  * maximize performance.
+ *
+ * @param address char** to clone
+ * @param count number of attributes
  */
-static char** cloneStrings(const char** source, int count) {
+static jint cloneAttributes(JNIEnv* env, jobject, jint address, jint count) {
+    const char** source = reinterpret_cast<const char**>(static_cast<uintptr_t>(address));
+    count <<= 1;
+
     // Figure out how big the buffer needs to be.
     int arraySize = (count + 1) * sizeof(char*);
     int totalSize = arraySize;
@@ -1279,8 +1247,9 @@ static char** cloneStrings(const char** source, int count) {
         totalSize += length + 1;
     }
 
-    char* buffer = (char*) malloc(totalSize);
+    char* buffer = new char[totalSize];
     if (buffer == NULL) {
+        throw_OutOfMemoryError(env);
         return NULL;
     }
 
@@ -1288,9 +1257,8 @@ static char** cloneStrings(const char** source, int count) {
     char** clonedArray = (char**) buffer;
     clonedArray[count] = NULL; // null terminate
 
-    // First string is immediately after.
+    // String data follows immediately after.
     char* destinationString = buffer + arraySize;
-
     for (int i = 0; i < count; i++) {
         const char* sourceString = source[i];
         int stringLength = stringLengths[i];
@@ -1299,25 +1267,14 @@ static char** cloneStrings(const char** source, int count) {
         destinationString += stringLength + 1;
     }
 
-    return clonedArray;
-}
-
-/**
- * Clones attributes.
- *
- * @param pointer to char** to clone
- * @param count number of attributes
- */
-static jint cloneAttributes(JNIEnv*, jobject,
-        jint pointer, jint count) {
-    return (int) cloneStrings((const char**) pointer, count << 1);
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(buffer));
 }
 
 /**
  * Frees cloned attributes.
  */
 static void freeAttributes(JNIEnv*, jobject, jint pointer) {
-    free((void*) pointer);
+    delete[] reinterpret_cast<char*>(static_cast<uintptr_t>(pointer));
 }
 
 /**
@@ -1379,11 +1336,7 @@ static void staticInitialize(JNIEnv* env, jobject classObject, jstring empty) {
             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     if (unparsedEntityDeclMethod == NULL) return;
 
-    // Look up String class.
-    stringClass = env->FindClass("java/lang/String");
-
-    internMethod = env->GetMethodID(stringClass, "intern",
-        "()Ljava/lang/String;");
+    internMethod = env->GetMethodID(JniConstants::stringClass, "intern", "()Ljava/lang/String;");
     if (internMethod == NULL) return;
 
     // Reference to "".
@@ -1399,7 +1352,7 @@ static JNINativeMethod parserMethods[] = {
     { "append", "(I[CII)V", (void*) appendCharacters },
     { "append", "(I[BII)V", (void*) appendBytes },
     { "initialize", "(Ljava/lang/String;Z)I", (void*) initialize},
-    { "createEntityParser", "(ILjava/lang/String;Ljava/lang/String;)I", (void*) createEntityParser},
+    { "createEntityParser", "(ILjava/lang/String;)I", (void*) createEntityParser},
     { "staticInitialize", "(Ljava/lang/String;)V", (void*) staticInitialize},
     { "cloneAttributes", "(II)I", (void*) cloneAttributes },
 };

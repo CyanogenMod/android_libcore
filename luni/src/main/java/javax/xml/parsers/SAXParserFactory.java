@@ -63,37 +63,38 @@ public abstract class SAXParserFactory {
      *     compatibility with other Java implementations.
      */
     public static SAXParserFactory newInstance() {
-        // BEGIN android-changed
-        //     instantiate the class directly rather than using reflection
+        // instantiate the class directly rather than using reflection
         return new SAXParserFactoryImpl();
-        // END android-changed
     }
 
-    // BEGIN android-only
-    //     omit this method which wasn't included in Java 5
-    // /**
-    //  * @return A new instance of a SAXParserFactory.
-    //  *
-    //  * @exception FactoryConfigurationError if the implementation is
-    //  * not available or cannot be instantiated.
-    //  * @since 1.6
-    //  */
-    // public static SAXParserFactory newInstance(String factoryClassName,
-    //         ClassLoader classLoader) {
-    //     if (factoryClassName == null) {
-    //         throw new FactoryConfigurationError("factoryClassName cannot be null.");
-    //     }
-    //     if (classLoader == null) {
-    //         classLoader = SecuritySupport.getContextClassLoader();
-    //     }
-    //     try {
-    //         return (SAXParserFactory) FactoryFinder.newInstance(factoryClassName, classLoader, false);
-    //     }
-    //     catch (FactoryFinder.ConfigurationError e) {
-    //         throw new FactoryConfigurationError(e.getException(), e.getMessage());
-    //     }
-    // }
-    // END android-only
+    /**
+     * Returns an instance of the named implementation of {@code SAXParserFactory}.
+     *
+     * @throws FactoryConfigurationError if {@code factoryClassName} is not available or cannot be
+     *     instantiated.
+     * @since 1.6
+     */
+    public static SAXParserFactory newInstance(String factoryClassName,
+            ClassLoader classLoader) {
+        if (factoryClassName == null) {
+            throw new FactoryConfigurationError("factoryClassName == null");
+        }
+        if (classLoader == null) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+        try {
+            Class<?> type = classLoader != null
+                    ? classLoader.loadClass(factoryClassName)
+                    : Class.forName(factoryClassName);
+            return (SAXParserFactory) type.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new FactoryConfigurationError(e);
+        } catch (InstantiationException e) {
+            throw new FactoryConfigurationError(e);
+        } catch (IllegalAccessException e) {
+            throw new FactoryConfigurationError(e);
+        }
+    }
 
     /**
      * <p>Creates a new instance of a SAXParser using the currently

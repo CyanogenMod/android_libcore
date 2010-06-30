@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
+import libcore.base.Objects;
 
 /**
  * Produces concatenated messages in language-neutral way. New code
@@ -1333,7 +1334,7 @@ public class MessageFormat extends Format {
         @Override
         protected Object readResolve() throws InvalidObjectException {
             String name = this.getName();
-            if (name != null && name.equals(ARGUMENT.getName())) {
+            if (Objects.equal(name, ARGUMENT.getName())) {
                 return ARGUMENT;
             }
             throw new InvalidObjectException("Not a valid MessageFormat.Field, subclass should override readResolve()");

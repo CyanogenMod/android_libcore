@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import com.ibm.icu4jni.regex.NativeRegEx;
 
 /**
  * Patterns are compiled regular expressions. In many cases, convenience methods such as
@@ -61,8 +60,9 @@ import com.ibm.icu4jni.regex.NativeRegEx;
  * <tr> <td> \Q </td> <td>Quote all following metacharacters until {@code \E}.</td> </tr>
  * <tr> <td> \E </td> <td>Stop quoting metacharacters (started by {@code \Q}).</td> </tr>
  * <tr> <td> \\ </td> <td>A literal backslash.</td> </tr>
- * <tr> <td> &#x005c;<i>hhhh</i> </td> <td>The Unicode character U+hhhh (in hex).</td> </tr>
- * <tr> <td> \c<i>x</i> </td> <td>The ASCII control character <i>x</i> (so {@code \cI} would be U+0009).</td> </tr>
+ * <tr> <td> &#x005c;u<i>hhhh</i> </td> <td>The Unicode character U+hhhh (in hex).</td> </tr>
+ * <tr> <td> &#x005c;x<i>hh</i> </td> <td>The Unicode character U+00hh (in hex).</td> </tr>
+ * <tr> <td> \c<i>x</i> </td> <td>The ASCII control character ^x (so {@code \cH} would be ^H, U+0008).</td> </tr>
  *
  * <tr> <td> \a </td> <td>The ASCII bell character (U+0007).</td> </tr>
  * <tr> <td> \e </td> <td>The ASCII ESC character (U+001b).</td> </tr>
@@ -280,15 +280,7 @@ public final class Pattern implements Serializable {
     private final String pattern;
     private final int flags;
 
-    /**
-     * Holds a handle (a pointer, actually) for the native ICU pattern.
-     */
-    transient int mNativePattern;
-
-    /**
-     * Holds the number of groups in the pattern.
-     */
-    transient int mGroupCount;
+    transient int address;
 
     /**
      * Returns a {@link Matcher} for this pattern applied to the given {@code input}.
@@ -390,24 +382,24 @@ public final class Pattern implements Serializable {
         }
         this.pattern = pattern;
         this.flags = flags;
-        compileImpl(pattern, flags);
+        compile();
     }
 
-    private void compileImpl(String pattern, int flags) throws PatternSyntaxException {
+    private void compile() throws PatternSyntaxException {
         if (pattern == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("pattern == null");
         }
 
+        String icuPattern = pattern;
         if ((flags & LITERAL) != 0) {
-            pattern = quote(pattern);
+            icuPattern = quote(pattern);
         }
 
         // These are the flags natively supported by ICU.
         // They even have the same value in native code.
-        flags = flags & (CASE_INSENSITIVE | COMMENTS | MULTILINE | DOTALL | UNIX_LINES);
+        int icuFlags = flags & (CASE_INSENSITIVE | COMMENTS | MULTILINE | DOTALL | UNIX_LINES);
 
-        mNativePattern = NativeRegEx.open(pattern, flags);
-        mGroupCount = NativeRegEx.groupCount(mNativePattern);
+        address = compileImpl(icuPattern, icuFlags);
     }
 
     /**
@@ -445,9 +437,7 @@ public final class Pattern implements Serializable {
     @Override
     protected void finalize() throws Throwable {
         try {
-            if (mNativePattern != 0) {
-                NativeRegEx.close(mNativePattern);
-            }
+            closeImpl(address);
         } finally {
             super.finalize();
         }
@@ -455,6 +445,9 @@ public final class Pattern implements Serializable {
 
     private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
         s.defaultReadObject();
-        compileImpl(pattern, flags);
+        compile();
     }
+
+    private static native void closeImpl(int addr);
+    private static native int compileImpl(String regex, int flags);
 }

@@ -18,25 +18,26 @@
 package java.util.jar;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CoderResult;
+import java.nio.charset.Charsets;
+import java.util.Arrays;
 import java.util.Map;
 import org.apache.harmony.luni.util.ThreadLocalCache;
 
+/**
+ * Reads a JAR file manifest. The specification is here:
+ * http://java.sun.com/javase/6/docs/technotes/guides/jar/jar.html
+ */
 class InitManifest {
-
-    private byte[] buf;
+    private final byte[] buf;
 
     private int pos;
 
-    Attributes.Name name;
+    private Attributes.Name name;
 
-    String value;
+    private String value;
 
-    CharsetDecoder decoder = ThreadLocalCache.utf8Decoder.get();
-    CharBuffer cBuf = ThreadLocalCache.charBuffer.get();
+    private final UnsafeByteSequence valueBuffer = new UnsafeByteSequence(80);
+    private int consecutiveLineBreaks = 0;
 
     InitManifest(byte[] buf, Attributes main, Attributes.Name ver) throws IOException {
         this.buf = buf;
@@ -94,31 +95,20 @@ class InitManifest {
     }
 
     /**
-     * Number of subsequent line breaks.
-     */
-    int linebreak = 0;
-
-    /**
      * Read a single line from the manifest buffer.
      */
     private boolean readHeader() throws IOException {
-        if (linebreak > 1) {
+        if (consecutiveLineBreaks > 1) {
             // break a section on an empty line
-            linebreak = 0;
+            consecutiveLineBreaks = 0;
             return false;
         }
         readName();
-        linebreak = 0;
+        consecutiveLineBreaks = 0;
         readValue();
         // if the last line break is missed, the line
         // is ignored by the reference implementation
-        return linebreak > 0;
-    }
-
-    private byte[] wrap(int mark, int pos) {
-        byte[] buffer = new byte[pos - mark];
-        System.arraycopy(buf, mark, buffer, 0, pos - mark);
-        return buffer;
+        return consecutiveLineBreaks > 0;
     }
 
     private void readName() throws IOException {
@@ -129,10 +119,11 @@ class InitManifest {
             byte b = buf[pos++];
 
             if (b == ':') {
-                byte[] nameBuffer = wrap(mark, pos - 1);
+                byte[] nameBuffer = Arrays.copyOfRange(buf, mark, pos - 1);
 
                 if (buf[pos++] != ' ') {
-                    throw new IOException("Invalid attribute: " + nameBuffer);
+                    String name = new String(nameBuffer, Charsets.UTF_8);
+                    throw new IOException(String.format("Invalid value for attribute '%s'", name));
                 }
 
                 name = new Attributes.Name(nameBuffer);
@@ -145,22 +136,18 @@ class InitManifest {
             }
         }
         if (i > 0) {
-            throw new IOException("Invalid attribute: " + wrap(mark, buf.length));
+            throw new IOException("Invalid attribute name: " +
+                    Arrays.toString(Arrays.copyOfRange(buf, mark, buf.length)));
         }
     }
 
     private void readValue() throws IOException {
-        byte next;
         boolean lastCr = false;
         int mark = pos;
         int last = pos;
-
-        decoder.reset();
-        cBuf.clear();
-
+        valueBuffer.rewind();
         while (pos < buf.length) {
-            next = buf[pos++];
-
+            byte next = buf[pos++];
             switch (next) {
             case 0:
                 throw new IOException("NUL character in a manifest");
@@ -168,48 +155,30 @@ class InitManifest {
                 if (lastCr) {
                     lastCr = false;
                 } else {
-                    linebreak++;
+                    consecutiveLineBreaks++;
                 }
                 continue;
             case '\r':
                 lastCr = true;
-                linebreak++;
+                consecutiveLineBreaks++;
                 continue;
             case ' ':
-                if (linebreak == 1) {
-                    decode(mark, last, false);
+                if (consecutiveLineBreaks == 1) {
+                    valueBuffer.write(buf, mark, last - mark);
                     mark = pos;
-                    linebreak = 0;
+                    consecutiveLineBreaks = 0;
                     continue;
                 }
             }
 
-            if (linebreak >= 1) {
+            if (consecutiveLineBreaks >= 1) {
                 pos--;
                 break;
             }
             last = pos;
         }
 
-        decode(mark, last, true);
-        while (CoderResult.OVERFLOW == decoder.flush(cBuf)) {
-            enlargeBuffer();
-        }
-        value = new String(cBuf.array(), cBuf.arrayOffset(), cBuf.position());
-    }
-
-    private void decode(int mark, int pos, boolean endOfInput)
-            throws IOException {
-        ByteBuffer bBuf = ByteBuffer.wrap(buf, mark, pos - mark);
-        while (CoderResult.OVERFLOW == decoder.decode(bBuf, cBuf, endOfInput)) {
-            enlargeBuffer();
-        }
-    }
-
-    private void enlargeBuffer() {
-        CharBuffer newBuf = CharBuffer.allocate(cBuf.capacity() * 2);
-        newBuf.put(cBuf.array(), cBuf.arrayOffset(), cBuf.position());
-        cBuf = newBuf;
-        ThreadLocalCache.charBuffer.set(cBuf);
+        valueBuffer.write(buf, mark, last - mark);
+        value = valueBuffer.toString(Charsets.UTF_8);
     }
 }

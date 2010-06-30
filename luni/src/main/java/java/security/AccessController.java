@@ -33,8 +33,8 @@
 package java.security;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.WeakHashMap;
-
 import org.apache.harmony.security.fortress.SecurityUtils;
 
 /**
@@ -50,12 +50,14 @@ public final class AccessController {
     /**
      * A map used to store a mapping between a given Thread and
      * AccessControllerContext-s used in successive calls of doPrivileged(). A
-     * WeakHashMap is used to allow automagical wiping of the dead threads from
+     * WeakHashMap is used to allow automatic wiping of the dead threads from
      * the map. The thread (normally Thread.currentThread()) is used as a key
      * for the map, and a value is ArrayList where all AccessControlContext-s
      * are stored.
      * ((ArrayList)contexts.get(Thread.currentThread())).lastElement() - is
      * reference to the latest context passed to the doPrivileged() call.
+     *
+     * TODO: ThreadLocal?
      */
     private static final WeakHashMap<Thread, ArrayList<AccessControlContext>> contexts = new WeakHashMap<Thread, ArrayList<AccessControlContext>>();
 
@@ -78,9 +80,9 @@ public final class AccessController {
      */
     public static <T> T doPrivileged(PrivilegedAction<T> action) {
         if (action == null) {
-            throw new NullPointerException("action can not be null");
+            throw new NullPointerException("action == null");
         }
-        return doPrivilegedImpl(action, null);
+        return doPrivileged(action, null);
     }
 
     /**
@@ -106,9 +108,15 @@ public final class AccessController {
     public static <T> T doPrivileged(PrivilegedAction<T> action,
             AccessControlContext context) {
         if (action == null) {
-            throw new NullPointerException("action can not be null");
+            throw new NullPointerException("action == null");
         }
-        return doPrivilegedImpl(action, context);
+        List<AccessControlContext> contextsStack = contextsForThread();
+        contextsStack.add(context);
+        try {
+            return action.run();
+        } finally {
+            contextsStack.remove(contextsStack.size() - 1);
+        }
     }
 
     /**
@@ -135,10 +143,7 @@ public final class AccessController {
      */
     public static <T> T doPrivileged(PrivilegedExceptionAction<T> action)
             throws PrivilegedActionException {
-        if (action == null) {
-            throw new NullPointerException("action can not be null");
-        }
-        return doPrivilegedImpl(action, null);
+        return doPrivileged(action, null);
     }
 
     /**
@@ -169,108 +174,62 @@ public final class AccessController {
     public static <T> T doPrivileged(PrivilegedExceptionAction<T> action,
             AccessControlContext context) throws PrivilegedActionException {
         if (action == null) {
-            throw new NullPointerException("action can not be null");
+            throw new NullPointerException("action == null");
         }
-        return doPrivilegedImpl(action, context);
-    }
-
-    /**
-     * The real implementation of doPrivileged() method. It pushes the passed
-     * context into this thread's contexts stack, and then invokes
-     * <code>action.run()</code>. The pushed context is then investigated in the
-     * {@link #getContext()} which is called in the {@link #checkPermission}.
-     */
-    private static <T> T doPrivilegedImpl(PrivilegedExceptionAction<T> action,
-            AccessControlContext context) throws PrivilegedActionException {
-
-        Thread currThread = Thread.currentThread();
-
-        ArrayList<AccessControlContext> a = null;
+        List<AccessControlContext> contextsStack = contextsForThread();
+        contextsStack.add(context);
         try {
-            // currThread==null means that VM warm up is in progress
-            if (currThread != null && contexts != null) {
-                synchronized (contexts) {
-                    a = contexts.get(currThread);
-                    if (a == null) {
-                        a = new ArrayList<AccessControlContext>();
-                        contexts.put(currThread, a);
-                    }
-                }
-                a.add(context);
-            }
             return action.run();
-
-        } catch (Exception ex) {
-            // Errors automagically go through - they are not catched by this
-            // block
-
-            // Unchecked exceptions must pass through without modification
-            if (ex instanceof RuntimeException) {
-                throw (RuntimeException) ex;
-            }
-
-            // All other (==checked) exceptions get wrapped
-            throw new PrivilegedActionException(ex);
+        } catch (RuntimeException e) {
+            throw e; // so we don't wrap RuntimeExceptions with PrivilegedActionException
+        } catch (Exception e) {
+            throw new PrivilegedActionException(e);
         } finally {
-            if (currThread != null) {
-                // No need to sync() here, as each given 'a' will be accessed
-                // only from one Thread. 'contexts' still need sync() however,
-                // as it's accessed from different threads simultaneously
-                if (a != null) {
-                    // it seems I will never have here [v.size() == 0]
-                    a.remove(a.size() - 1);
-                }
-            }
+            contextsStack.remove(contextsStack.size() - 1);
         }
     }
 
-    /**
-     * The real implementation of appropriate doPrivileged() method.<br>
-     * It pushes the passed context into this thread's stack of contexts and
-     * then invokes <code>action.run()</code>.<br>
-     * The pushed context is then investigated in the {@link #getContext()}
-     * which is called in the {@link #checkPermission}.
-     */
-    private static <T> T doPrivilegedImpl(PrivilegedAction<T> action,
-            AccessControlContext context) {
+    public static <T> T doPrivilegedWithCombiner(PrivilegedAction<T> action) {
+        return doPrivileged(action, newContextSameDomainCombiner());
+    }
 
+    public static <T> T doPrivilegedWithCombiner(PrivilegedExceptionAction<T> action)
+            throws PrivilegedActionException {
+        return doPrivileged(action, newContextSameDomainCombiner());
+    }
+
+    private static AccessControlContext newContextSameDomainCombiner() {
+        List<AccessControlContext> contextsStack = contextsForThread();
+        DomainCombiner domainCombiner = contextsStack.isEmpty()
+                ? null
+                : contextsStack.get(contextsStack.size() - 1).getDomainCombiner();
+        return new AccessControlContext(new ProtectionDomain[0], domainCombiner);
+    }
+
+    private static List<AccessControlContext> contextsForThread() {
         Thread currThread = Thread.currentThread();
 
+        /*
+         * Thread.currentThread() is null when Thread.class is being initialized, and contexts is
+         * null when AccessController.class is still being initialized. In either case, return an
+         * empty list so callers need not worry.
+         */
         if (currThread == null || contexts == null) {
-            // Big boom time - VM is starting... No need to check permissions:
-            // 1st, I do believe there is no malicious code available here for
-            // this moment
-            // 2d, I cant use currentThread() as a key anyway - when it will
-            // turn into the real Thread, I'll be unable to retrieve the value
-            // stored with 'currThread==null' as a key.
-            return action.run();
+            return new ArrayList<AccessControlContext>();
         }
 
-        ArrayList<AccessControlContext> a = null;
-        try {
-            synchronized (contexts) {
-                a = contexts.get(currThread);
-                if (a == null) {
-                    a = new ArrayList<AccessControlContext>();
-                    contexts.put(currThread, a);
-                }
+        synchronized (contexts) {
+            ArrayList<AccessControlContext> result = contexts.get(currThread);
+            if (result == null) {
+                result = new ArrayList<AccessControlContext>();
+                contexts.put(currThread, result);
             }
-            a.add(context);
-
-            return action.run();
-
-        } finally {
-            // No need to sync() here, as each given 'a' will be accessed
-            // only from one Thread. 'contexts' still need sync() however,
-            // as it's accessed from different threads simultaneously
-            if (a != null) {
-                a.remove(a.size() - 1);
-            }
+            return result;
         }
     }
 
     /**
-     * Checks the specified permission against the vm's current security policy.
+     * Checks the specified permission against the VM's current security policy.
      * The check is performed in the context of the current thread. This method
      * returns silently if the permission is granted, otherwise an {@code
      * AccessControlException} is thrown.
@@ -285,7 +244,7 @@ public final class AccessController {
      * {@link AccessControlContext#checkPermission(Permission)} on the current
      * callers' context obtained by {@link #getContext()}.
      *
-     * @param perm
+     * @param permission
      *            the permission to check against the policy
      * @throws AccessControlException
      *             if the specified permission is not granted
@@ -294,13 +253,13 @@ public final class AccessController {
      * @see AccessControlContext#checkPermission(Permission)
      *
      */
-    public static void checkPermission(Permission perm)
+    public static void checkPermission(Permission permission)
             throws AccessControlException {
-        if (perm == null) {
-            throw new NullPointerException("permission can not be null");
+        if (permission == null) {
+            throw new NullPointerException("permission == null");
         }
 
-        getContext().checkPermission(perm);
+        getContext().checkPermission(permission);
     }
 
     /**
@@ -328,27 +287,18 @@ public final class AccessController {
         // duplicates (if any) will be removed in ACC constructor
         ProtectionDomain[] stack = getStackDomains();
 
-        Thread currThread = Thread.currentThread();
-        if (currThread == null || contexts == null) {
+        Thread currentThread = Thread.currentThread();
+        if (currentThread == null || AccessController.contexts == null) {
             // Big boo time. No need to check anything ?
             return new AccessControlContext(stack);
         }
 
-        ArrayList<AccessControlContext> threadContexts;
-        synchronized (contexts) {
-            threadContexts = contexts.get(currThread);
-        }
+        List<AccessControlContext> threadContexts = contextsForThread();
 
-        AccessControlContext that;
-        if ((threadContexts == null) || (threadContexts.size() == 0)) {
-            // We were not in doPrivileged method, so
-            // have inherited context here
-            that = SecurityUtils.getContext(currThread);
-        } else {
-            // We were in doPrivileged method, so
-            // Use context passed to the doPrivileged()
-            that = threadContexts.get(threadContexts.size() - 1);
-        }
+        // if we're in a doPrivileged method, use its context.
+        AccessControlContext that = threadContexts.isEmpty()
+                ? SecurityUtils.getContext(currentThread)
+                : threadContexts.get(threadContexts.size() - 1);
 
         if (that != null && that.combiner != null) {
             ProtectionDomain[] assigned = null;
@@ -356,11 +306,11 @@ public final class AccessController {
                 assigned = new ProtectionDomain[that.context.length];
                 System.arraycopy(that.context, 0, assigned, 0, assigned.length);
             }
-            ProtectionDomain[] allpds = that.combiner.combine(stack, assigned);
-            if (allpds == null) {
-                allpds = new ProtectionDomain[0];
+            ProtectionDomain[] protectionDomains = that.combiner.combine(stack, assigned);
+            if (protectionDomains == null) {
+                protectionDomains = new ProtectionDomain[0];
             }
-            return new AccessControlContext(allpds, that.combiner);
+            return new AccessControlContext(protectionDomains, that.combiner);
         }
 
         return new AccessControlContext(stack, that);

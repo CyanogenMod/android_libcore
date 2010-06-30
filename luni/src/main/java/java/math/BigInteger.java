@@ -264,7 +264,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
         if (bitLength < 2) {
             throw new ArithmeticException("bitLength < 2");
         }
-        bigInt = BigInt.generatePrimeDefault(bitLength, rnd, null);
+        bigInt = BigInt.generatePrimeDefault(bitLength, rnd);
         bigIntIsValid = true;
         // !oldReprIsValid
     }
@@ -1023,7 +1023,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
      */
     public BigInteger gcd(BigInteger val) {
         validate2("gcd", this, val);
-        return new BigInteger(BigInt.gcd(bigInt, val.bigInt, null));
+        return new BigInteger(BigInt.gcd(bigInt, val.bigInt));
     }
 
     /**
@@ -1037,7 +1037,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
      */
     public BigInteger multiply(BigInteger val) {
         validate2("multiply", this, val);
-        return new BigInteger(BigInt.product(bigInt, val.bigInt, null));
+        return new BigInteger(BigInt.product(bigInt, val.bigInt));
     }
 
     /**
@@ -1054,7 +1054,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
             throw new ArithmeticException("exp < 0");
         }
         validate1("pow", this);
-        return new BigInteger(BigInt.exp(bigInt, exp, null));
+        return new BigInteger(BigInt.exp(bigInt, exp));
     }
 
     /**
@@ -1075,7 +1075,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
         validate2("divideAndRemainder", this, divisor);
         BigInt quotient = new BigInt();
         BigInt remainder = new BigInt();
-        BigInt.division(bigInt, divisor.bigInt, null, quotient, remainder);
+        BigInt.division(bigInt, divisor.bigInt, quotient, remainder);
         BigInteger[] a = new BigInteger[2];
         a[0] = new BigInteger(quotient);
         a[1] = new BigInteger(remainder);
@@ -1098,7 +1098,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
     public BigInteger divide(BigInteger divisor) {
         validate2("divide", this, divisor);
         BigInt quotient = new BigInt();
-        BigInt.division(bigInt, divisor.bigInt, null, quotient, null);
+        BigInt.division(bigInt, divisor.bigInt, quotient, null);
         return new BigInteger(quotient);
     }
 
@@ -1118,7 +1118,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
     public BigInteger remainder(BigInteger divisor) {
         validate2("remainder", this, divisor);
         BigInt remainder = new BigInt();
-        BigInt.division(bigInt, divisor.bigInt, null, null, remainder);
+        BigInt.division(bigInt, divisor.bigInt, null, remainder);
         return new BigInteger(remainder);
     }
 
@@ -1142,7 +1142,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
             throw new ArithmeticException("modulus not positive");
         }
         validate2("modInverse", this, m);
-        return new BigInteger(BigInt.modInverse(bigInt, m.bigInt, null));
+        return new BigInteger(BigInt.modInverse(bigInt, m.bigInt));
     }
 
     /**
@@ -1176,7 +1176,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
             base = this;
         }
         validate3("modPow", base, exponent, m);
-        return new BigInteger(BigInt.modExp(base.bigInt, exponent.bigInt, m.bigInt, null));
+        return new BigInteger(BigInt.modExp(base.bigInt, exponent.bigInt, m.bigInt));
     }
 
     /**
@@ -1199,7 +1199,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
             throw new ArithmeticException("modulus not positive");
         }
         validate2("mod", this, m);
-        return new BigInteger(BigInt.modulus(bigInt, m.bigInt, null));
+        return new BigInteger(BigInt.modulus(bigInt, m.bigInt));
     }
 
     /**
@@ -1219,7 +1219,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
             return true;
         }
         validate1("isProbablePrime", this);
-        return bigInt.isPrime(certainty, null, null);
+        return bigInt.isPrime(certainty, null);
     }
 
     /**

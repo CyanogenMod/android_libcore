@@ -23,35 +23,6 @@ public class AllTests {
     public static Test suite() {
         TestSuite suite = new TestSuite("All tests for package tests.api.java.nio.charset;");
 
-        suite.addTestSuite(CharsetProviderTest.class);
-        suite.addTestSuite(CharsetTest.class);
-        suite.addTestSuite(CharsetDecoderTest.class);
-        suite.addTestSuite(CharsetEncoderTest.class);
-        suite.addTestSuite(CoderResultTest.class);
-        suite.addTestSuite(CodingErrorActionTest.class);
-
-        suite.addTestSuite(ASCCharsetDecoderTest.class);
-        suite.addTestSuite(ASCCharsetTest.class);
-// GBCharset not supported
-//        suite.addTestSuite(GBCharsetDecoderTest.class);
-//        suite.addTestSuite(GBCharsetEncoderTest.class);
-        suite.addTestSuite(ISOCharsetDecoderTest.class);
-        suite.addTestSuite(ISOCharsetEncoderTest.class);
-        suite.addTestSuite(ISOCharsetTest.class);
-        suite.addTestSuite(UTF16BECharsetDecoderTest.class);
-        suite.addTestSuite(UTF16BECharsetEncoderTest.class);
-        suite.addTestSuite(UTF16BECharsetTest.class);
-        suite.addTestSuite(UTF16CharsetDecoderTest.class);
-        suite.addTestSuite(UTF16CharsetEncoderTest.class);
-        suite.addTestSuite(UTF16CharsetTest.class);
-        suite.addTestSuite(UTF16LECharsetDecoderTest.class);
-        suite.addTestSuite(UTF16LECharsetEncoderTest.class);
-        suite.addTestSuite(UTF16LECharsetTest.class);
-        suite.addTestSuite(UTF8CharsetTest.class);
-        suite.addTestSuite(UTFCharsetDecoderTest.class);
-        suite.addTestSuite(UTFCharsetEncoderTest.class);
-
-
         suite.addTestSuite(Charset_MultiByte_EUC_KR.class);
         suite.addTestSuite(Charset_MultiByte_UTF_8.class);
         suite.addTestSuite(Charset_MultiByte_UTF_16BE.class);

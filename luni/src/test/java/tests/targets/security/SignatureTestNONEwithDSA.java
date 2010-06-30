@@ -15,9 +15,8 @@
  */
 package tests.targets.security;
 
-import dalvik.annotation.TestTargetClass;
+import tests.security.SignatureTest;
 
-@TestTargetClass(targets.Signatures.NONEwithDSA.class)
 public class SignatureTestNONEwithDSA extends SignatureTest {
 
     public SignatureTestNONEwithDSA() {

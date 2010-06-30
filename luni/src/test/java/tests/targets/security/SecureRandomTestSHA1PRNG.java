@@ -15,9 +15,8 @@
  */
 package tests.targets.security;
 
-import dalvik.annotation.TestTargetClass;
+import tests.security.SecureRandomTest;
 
-@TestTargetClass(targets.SecureRandoms.SHAPRNG1.class)
 public class SecureRandomTestSHA1PRNG extends SecureRandomTest {
 
     public SecureRandomTestSHA1PRNG() {

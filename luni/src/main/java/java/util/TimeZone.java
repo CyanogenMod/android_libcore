@@ -17,8 +17,8 @@
 
 package java.util;
 
-import com.ibm.icu4jni.util.ICU;
 import java.io.Serializable;
+import libcore.icu.TimeZones;
 import org.apache.harmony.luni.internal.util.ZoneInfo;
 import org.apache.harmony.luni.internal.util.ZoneInfoDB;
 
@@ -181,8 +181,7 @@ public abstract class TimeZone implements Serializable, Cloneable {
 
         boolean useDaylight = daylightTime && useDaylightTime();
 
-        String result = ICU.getDisplayTimeZone(getID(), daylightTime, style,
-                locale.toString());
+        String result = TimeZones.getDisplayName(getID(), daylightTime, style, locale);
         if (result != null) {
             return result;
         }
@@ -277,7 +276,7 @@ public abstract class TimeZone implements Serializable, Cloneable {
      * Returns a time zone whose ID is {@code id}. Time zone IDs are typically
      * named by geographic identifiers like {@code America/Los_Angeles} or GMT
      * offsets like {@code GMT-8:00}. Three letter IDs like {@code PST} are
-     * supported but should not be used because they is often ambiguous.
+     * supported but should not be used because they are often ambiguous.
      *
      * @return a time zone with the specified ID, or {@code GMT} if the ID
      *     is not recognized and cannot be parsed.

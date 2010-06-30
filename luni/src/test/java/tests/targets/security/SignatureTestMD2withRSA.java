@@ -17,11 +17,7 @@ package tests.targets.security;
 
 import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
-
-import junit.framework.TestCase;
-
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -31,8 +27,8 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
+import junit.framework.TestCase;
 
-@TestTargetClass(targets.Signatures.MD2withRSA.class)
 public class SignatureTestMD2withRSA extends TestCase {
 
     @TestTargetNew(

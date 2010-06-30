@@ -310,7 +310,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         // testing for a certificate chain
         java.security.cert.Certificate cert2 = keyTest.getCertificate("alias2");
         assertTrue("the certificate for alias2 is supposed to exist",
-                cert2 != null && cert2.equals(cert[0]));
+                cert2.equals(cert[0]));
 
     }
 

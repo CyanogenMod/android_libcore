@@ -19,6 +19,7 @@
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -73,23 +74,7 @@ static jlong NativeConverter_openConverter(JNIEnv* env, jclass, jstring converte
 }
 
 static void NativeConverter_closeConverter(JNIEnv*, jclass, jlong address) {
-    UConverter* cnv = toUConverter(address);
-    if (!cnv) {
-        return;
-    }
-    // Free up contexts created in setCallback[Encode|Decode].
-    UConverterToUCallback toAction;
-    UConverterFromUCallback fromAction;
-    void* context1 = NULL;
-    void* context2 = NULL;
-    // TODO: ICU API bug?
-    // The documentation clearly states that the caller owns the returned
-    // pointers: http://icu-project.org/apiref/icu4c/ucnv_8h.html
-    ucnv_getToUCallBack(cnv, &toAction, const_cast<const void**>(&context1));
-    ucnv_getFromUCallBack(cnv, &fromAction, const_cast<const void**>(&context2));
-    ucnv_close(cnv);
-    delete reinterpret_cast<DecoderCallbackContext*>(context1);
-    delete reinterpret_cast<EncoderCallbackContext*>(context2);
+    ucnv_close(toUConverter(address));
 }
 
 static jint NativeConverter_encode(JNIEnv* env, jclass, jlong address,
@@ -316,7 +301,7 @@ static jstring getJavaCanonicalName(JNIEnv* env, const char* icuCanonicalName) {
 
 static jobjectArray NativeConverter_getAvailableCharsetNames(JNIEnv* env, jclass) {
     int32_t num = ucnv_countAvailable();
-    jobjectArray result = env->NewObjectArray(num, env->FindClass("java/lang/String"), NULL);
+    jobjectArray result = env->NewObjectArray(num, JniConstants::stringClass, NULL);
     for (int i = 0; i < num; ++i) {
         const char* name = ucnv_getAvailableName(i);
         ScopedLocalRef<jstring> javaCanonicalName(env, getJavaCanonicalName(env, name));
@@ -353,7 +338,7 @@ static jobjectArray getAliases(JNIEnv* env, const char* icuCanonicalName) {
     }
 
     // Convert our C++ char*[] into a Java String[]...
-    jobjectArray result = env->NewObjectArray(actualAliasCount, env->FindClass("java/lang/String"), NULL);
+    jobjectArray result = env->NewObjectArray(actualAliasCount, JniConstants::stringClass, NULL);
     for (int i = 0; i < actualAliasCount; ++i) {
         ScopedLocalRef<jstring> alias(env, env->NewStringUTF(aliasArray[i]));
         env->SetObjectArrayElement(result, i, alias.get());
@@ -398,6 +383,9 @@ static void CHARSET_ENCODER_CALLBACK(const void* rawContext, UConverterFromUnico
     case UCNV_ILLEGAL:
     case UCNV_IRREGULAR:
         ctx->onMalformedInput(ctx, args, codeUnits, length, codePoint, reason, status);
+        return;
+    case UCNV_CLOSE:
+        delete ctx;
         return;
     default:
         *status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -506,6 +494,9 @@ static void CHARSET_DECODER_CALLBACK(const void* rawContext, UConverterToUnicode
     case UCNV_ILLEGAL:
     case UCNV_IRREGULAR:
         ctx->onMalformedInput(ctx, args, codeUnits, length, reason, status);
+        return;
+    case UCNV_CLOSE:
+        delete ctx;
         return;
     default:
         *status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -632,16 +623,12 @@ static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring chars
     }
 
     // Construct the CharsetICU object.
-    jclass charsetClass = env->FindClass("com/ibm/icu4jni/charset/CharsetICU");
-    if (env->ExceptionOccurred()) {
-        return NULL;
-    }
-    jmethodID charsetConstructor = env->GetMethodID(charsetClass, "<init>",
+    jmethodID charsetConstructor = env->GetMethodID(JniConstants::charsetICUClass, "<init>",
             "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V");
     if (env->ExceptionOccurred()) {
         return NULL;
     }
-    return env->NewObject(charsetClass, charsetConstructor,
+    return env->NewObject(JniConstants::charsetICUClass, charsetConstructor,
             javaCanonicalName, env->NewStringUTF(icuCanonicalName), aliases);
 }
 

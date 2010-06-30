@@ -19,12 +19,13 @@
 #define LOG_DNS 0
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "LocalArray.h"
 #include "NetworkUtilities.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
-#include "utils/Log.h"
 #include "jni.h"
+#include "utils/Log.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -34,9 +35,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-
-
-static jclass byteArrayClass = NULL;
 
 static jstring InetAddress_gethostname(JNIEnv* env, jclass)
 {
@@ -98,7 +96,7 @@ static jobjectArray InetAddress_getaddrinfo(JNIEnv* env, jclass, jstring javaNam
         }
 
         // Prepare output array.
-        addressArray = env->NewObjectArray(addressCount, byteArrayClass, NULL);
+        addressArray = env->NewObjectArray(addressCount, JniConstants::byteArrayClass, NULL);
         if (addressArray == NULL) {
             // Appropriate exception will be thrown.
             LOGE("getaddrinfo: could not allocate array of size %i", addressCount);
@@ -335,14 +333,5 @@ static JNINativeMethod gMethods[] = {
     { "ipStringToByteArray", "(Ljava/lang/String;)[B", (void*) InetAddress_ipStringToByteArray },
 };
 int register_java_net_InetAddress(JNIEnv* env) {
-    jclass tempClass = env->FindClass("[B");
-    if (tempClass) {
-        byteArrayClass = (jclass) env->NewGlobalRef(tempClass);
-    }
-    if (!byteArrayClass) {
-        LOGE("register_java_net_InetAddress: cannot allocate byte array class");
-        return -1;
-    }
-    return jniRegisterNativeMethods(env, "java/net/InetAddress",
-                gMethods, NELEM(gMethods));
+    return jniRegisterNativeMethods(env, "java/net/InetAddress", gMethods, NELEM(gMethods));
 }

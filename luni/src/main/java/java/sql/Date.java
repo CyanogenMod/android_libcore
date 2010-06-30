@@ -20,7 +20,7 @@ package java.sql;
 /**
  * A class which can consume and produce dates in SQL {@code Date} format.
  * <p>
- * Dates are represented in SQL as {@code yyyy-mm-dd}. Note that this date
+ * Dates are represented in SQL as {@code yyyy-MM-dd}. Note that this date
  * format only deals with year, month and day values. There are no values for
  * hours, minutes, seconds.
  * <p>
@@ -170,8 +170,7 @@ public class Date extends java.util.Date {
     /**
      * Produces a string representation of the date in SQL format
      *
-     * @return a string representation of the date in SQL format - {@code
-     *         "yyyy-mm-dd"}.
+     * @return a string representation of the date in SQL format - {@code "yyyy-MM-dd"}.
      */
     @Override
     public String toString() {
@@ -204,8 +203,7 @@ public class Date extends java.util.Date {
      * format.
      *
      * @param dateString
-     *            the string representation of a date in SQL format - " {@code
-     *            yyyy-mm-dd}".
+     *            the string representation of a date in SQL format - " {@code yyyy-MM-dd}".
      * @return the {@code Date} object.
      * @throws IllegalArgumentException
      *             if the format of the supplied string does not match the SQL

@@ -22,6 +22,8 @@
 
 package org.apache.harmony.security.asn1;
 
+import libcore.base.Objects;
+
 
 /**
  * Encodes ASN.1 types with DER (X.690)
@@ -200,8 +202,7 @@ public final class DerOutputStream extends BerOutputStream {
                 }
             }
 
-            if (sequence.DEFAULT[i] != null
-                    && sequence.DEFAULT[i].equals(values[i])) {
+            if (Objects.equal(sequence.DEFAULT[i], values[i])) {
                 values[i] = null;
                 continue;
             }

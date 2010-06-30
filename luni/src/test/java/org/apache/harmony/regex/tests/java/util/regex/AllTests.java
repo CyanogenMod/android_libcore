@@ -29,7 +29,6 @@ public class AllTests {
         //$JUnit-BEGIN$
 
         suite.addTestSuite(Matcher2Test.class);
-        suite.addTestSuite(MatcherTest.class);
         suite.addTestSuite(ModeTest.class);
         suite.addTestSuite(Pattern2Test.class);
         suite.addTestSuite(PatternErrorTest.class);

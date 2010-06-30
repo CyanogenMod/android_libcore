@@ -1223,6 +1223,8 @@ public final class Formatter implements Closeable, Flushable {
                 return false;
             }
             if (dupe) {
+                // The RI documentation implies we're supposed to report all the flags, not just
+                // the first duplicate, but the RI behaves the same as we do.
                 throw new DuplicateFormatFlagsException(String.valueOf(ch));
             }
             if (strFlags == null) {
@@ -1361,7 +1363,8 @@ public final class Formatter implements Closeable, Flushable {
             // Check that no-argument conversion types don't have an argument.
             // Note: the RI doesn't enforce this.
             if (!allowArgument && argIndex != UNSET) {
-                throw new IllegalFormatFlagsException(getStrFlags());
+                throw new IllegalFormatFlagsException("%" + conversionType +
+                        " doesn't take an argument");
             }
 
             // Check that we don't have a precision or width where they're not allowed.

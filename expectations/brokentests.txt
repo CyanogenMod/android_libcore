@@ -551,10 +551,6 @@ test org.apache.harmony.luni.tests.java.util.PropertiesTest#test_Sequentialstrin
 result EXEC_FAILED
 pattern .*junit.framework.ComparisonFailure.*
 
-test org.apache.harmony.luni.tests.java.util.PropertiesTest.test_propertyNames_sequence
-result EXEC_FAILED
-pattern .*junit.framework.AssertionFailedError: expected:<current.b.key> but was:<current.a.key>.*
-
 test org.apache.harmony.luni.tests.java.util.PropertiesTest#test_propertyNames_sequence
 result EXEC_FAILED
 pattern .*junit.framework.AssertionFailedError: expected:<current.b.key> but was:<current.a.key>.*
@@ -624,19 +620,10 @@ test org.apache.harmony.luni.tests.java.util.LinkedHashMapTest#test_getInterface
 result EXEC_FAILED
 pattern .*junit.framework.AssertionFailedError: expected:<3> but was:<2>.*
 
-# our behaviour is consistent with the JDK
-test tests.api.java.math.BigDecimalTest#test_stripTrailingZero
-result EXEC_FAILED
-pattern .*junit.framework.AssertionFailedError: stripTrailingZero failed for 0.0000.*
-
 # this is testing exception priorities
 test org.apache.harmony.nio.tests.java.nio.channels.DatagramChannelTest#testReadByteBuffer_readOnlyBuf
 result EXEC_FAILED
 pattern .*java.lang.IllegalArgumentException: read-only buffer.*
-
-# we don't cache canonical paths.
-test org.apache.harmony.luni.tests.java.io.FileCanonPathCacheTest
-result EXEC_FAILED
 
 # ICU doesn't provide localized pattern characters, and these tests assume the locale they're using has them.
 test org.apache.harmony.text.tests.java.text.SimpleDateFormatTest#test_applyLocalizedPatternLjava_lang_String
@@ -662,6 +649,11 @@ test tests.api.java.nio.charset.UTFCharsetEncoderTest#testSpecificDefaultValue
 result EXEC_FAILED
 pattern .*junit.framework.AssertionFailedError: expected:<1.1> but was:<2.0>.*
 
+# We don't permit runtime switching of the default charset (and neither does the RI)
+test org.apache.harmony.nio_char.tests.java.nio.charset.CharsetTest#test_defaultCharset
+result EXEC_FAILED
+pattern .*expected:<ISO-8859-1> but was:<UTF-8>.*
+
 # this test needs external interaction
 test com.sun.tools.attach.Application
 result UNSUPPORTED
@@ -685,3 +677,58 @@ result UNSUPPORTED
 
 test java.util.ArrayList.IteratorMicroBenchmark
 result UNSUPPORTED
+
+
+# The RI is still on Unicode 4.0, we're on 5.2, and Harmony is inconsistent
+# between its test for isJavaIdentifierPart(char) and isJavaIdentifierPart(int).
+test org.apache.harmony.luni.tests.java.lang.CharacterTest#test_isJavaIdentifierPartC
+result EXEC_FAILED
+
+
+# We removed this: we don't support Pack200.
+test org.apache.harmony.archive.tests.java.util.jar.Pack200Test
+result UNSUPPORTED
+
+# We removed this: we don't cache canonical paths.
+test org.apache.harmony.luni.tests.java.io.FileCanonPathCacheTest
+result UNSUPPORTED
+
+# We removed this: we don't throw NotYetImplementedException.
+test org.apache.harmony.luni.tests.util.NYITest
+result UNSUPPORTED
+
+# We removed this: we don't support localized exceptions.
+test org.apache.harmony.luni.tests.internal.nls.MessagesTest
+result UNSUPPORTED
+
+
+# These test implementation details we don't share.
+test org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getInt
+result EXEC_FAILED
+test org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getLong
+result EXEC_FAILED
+test org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getShort
+result EXEC_FAILED
+
+
+
+
+# These test exception priority.
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_BigDecimalExceptionOrder
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_BigIntegerExceptionOrder
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_FloatDoubleBigDecimalExceptionOrder
+result EXEC_FAILED
+
+
+# These format specifiers are documented to not take flags, but the RI accepts and ignores them.
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_LineSeparator
+pattern .*java.util.IllegalFormatFlagsException: %n doesn't take an argument.*
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_Percent
+pattern .*java.util.IllegalFormatFlagsException: %% doesn't take an argument.*
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_Width
+pattern .*java.util.IllegalFormatFlagsException: %% doesn't take an argument.*
+result EXEC_FAILED

@@ -70,44 +70,43 @@ public abstract class TransformerFactory {
      * other Java implementations, this method does not consult system
      * properties, properties files, or the services API.
      *
-     * @return new TransformerFactory instance, never null.
-     *
      * @throws TransformerFactoryConfigurationError never. Included for API
      *     compatibility with other Java implementations.
      */
     public static TransformerFactory newInstance()
             throws TransformerFactoryConfigurationError {
-        // BEGIN android-changed
-        //     instantiate the class directly rather than using reflection
+        // instantiate the class directly rather than using reflection
         return new TransformerFactoryImpl();
-        // END android-changed
     }
 
-    // BEGIN android-only
-    //     omit this method which wasn't included in Java 5
-    // /**
-    //  * @return new TransformerFactory instance, never null.
-    //  *
-    //  * @throws TransformerFactoryConfigurationError Thrown if the implementation
-    //  *    is not available or cannot be instantiated.
-    //  * @since 1.6
-    //  */
-    // public static TransformerFactory newInstance(String factoryClassName,
-    //         ClassLoader classLoader) throws TransformerFactoryConfigurationError {
-    //     if (factoryClassName == null) {
-    //         throw new TransformerFactoryConfigurationError("factoryClassName cannot be null.");
-    //     }
-    //     if (classLoader == null) {
-    //         classLoader = SecuritySupport.getContextClassLoader();
-    //     }
-    //     try {
-    //         return (TransformerFactory) FactoryFinder.newInstance(factoryClassName, classLoader, false);
-    //     }
-    //     catch (FactoryFinder.ConfigurationError e) {
-    //         throw new TransformerFactoryConfigurationError(e.getException(), e.getMessage());
-    //     }
-    // }
-    // END android-only
+    /**
+     * Returns an instance of the named implementation of {@code TransformerFactory}.
+     *
+     * @throws TransformerFactoryConfigurationError if {@code factoryClassName} is not available or
+     *     cannot be instantiated.
+     * @since 1.6
+     */
+    public static TransformerFactory newInstance(String factoryClassName, ClassLoader classLoader)
+            throws TransformerFactoryConfigurationError {
+        if (factoryClassName == null) {
+            throw new TransformerFactoryConfigurationError("factoryClassName == null");
+        }
+        if (classLoader == null) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+        try {
+            Class<?> type = classLoader != null
+                    ? classLoader.loadClass(factoryClassName)
+                    : Class.forName(factoryClassName);
+            return (TransformerFactory) type.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new TransformerFactoryConfigurationError(e);
+        } catch (InstantiationException e) {
+            throw new TransformerFactoryConfigurationError(e);
+        } catch (IllegalAccessException e) {
+            throw new TransformerFactoryConfigurationError(e);
+        }
+    }
 
     /**
      * <p>Process the <code>Source</code> into a <code>Transformer</code>

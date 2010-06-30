@@ -22,8 +22,6 @@ import dalvik.annotation.TestTargetNew;
 
 import java.nio.charset.CharacterCodingException;
 
-@TestTargetClass(targets.Charsets.GB2312.class)
-
 public class Charset_MultiByte_GB2312 extends Charset_AbstractTest {
 
     @Override

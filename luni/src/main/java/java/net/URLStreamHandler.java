@@ -18,6 +18,7 @@
 package java.net;
 
 import java.io.IOException;
+import libcore.base.Objects;
 import org.apache.harmony.luni.util.URLUtil;
 
 /**
@@ -339,13 +340,8 @@ public abstract class URLStreamHandler {
         if (!sameFile(url1, url2)) {
             return false;
         }
-        String s1 = url1.getRef(), s2 = url2.getRef();
-        if (s1 != s2 && (s1 == null || !s1.equals(s2))) {
-            return false;
-        }
-        s1 = url1.getQuery();
-        s2 = url2.getQuery();
-        return s1 == s2 || (s1 != null && s1.equals(s2));
+        return Objects.equal(url1.getRef(), url2.getRef())
+                && Objects.equal(url1.getQuery(), url2.getQuery());
     }
 
     /**
@@ -400,16 +396,8 @@ public abstract class URLStreamHandler {
      */
     protected boolean hostsEqual(URL url1, URL url2) {
         String host1 = getHost(url1), host2 = getHost(url2);
-        if (host1 != null && host1.equalsIgnoreCase(host2)) {
-            return true;
-        }
-        // Compare host address if the host name is not equal.
-        InetAddress address1 = getHostAddress(url1);
-        InetAddress address2 = getHostAddress(url2);
-        if (address1 != null && address1.equals(address2)) {
-            return true;
-        }
-        return false;
+        return (host1 != null && host1.equalsIgnoreCase(host2))
+                || Objects.equal(getHostAddress(url1), getHostAddress(url2));
     }
 
     /**
@@ -424,29 +412,10 @@ public abstract class URLStreamHandler {
      *         otherwise.
      */
     protected boolean sameFile(URL url1, URL url2) {
-        String s1 = url1.getProtocol();
-        String s2 = url2.getProtocol();
-        if (s1 != s2 && (s1 == null || !s1.equals(s2))) {
-            return false;
-        }
-
-        s1 = url1.getFile();
-        s2 = url2.getFile();
-        if (s1 != s2 && (s1 == null || !s1.equals(s2))) {
-            return false;
-        }
-        if (!hostsEqual(url1, url2)) {
-            return false;
-        }
-        int p1 = url1.getPort();
-        if (p1 == -1) {
-            p1 = getDefaultPort();
-        }
-        int p2 = url2.getPort();
-        if (p2 == -1) {
-            p2 = getDefaultPort();
-        }
-        return p1 == p2;
+        return Objects.equal(url1.getProtocol(), url2.getProtocol())
+                && Objects.equal(url1.getFile(), url2.getFile())
+                && hostsEqual(url1, url2)
+                && url1.getEffectivePort() == url2.getEffectivePort();
     }
 
     /*

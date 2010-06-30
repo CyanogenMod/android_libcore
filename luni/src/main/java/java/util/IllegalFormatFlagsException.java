@@ -24,24 +24,23 @@ import java.io.Serializable;
  *
  * @see java.lang.RuntimeException
  */
-public class IllegalFormatFlagsException extends IllegalFormatException
-        implements Serializable {
+public class IllegalFormatFlagsException extends IllegalFormatException implements Serializable {
     private static final long serialVersionUID = 790824L;
 
-    private String flags;
+    private final String flags;
 
     /**
      * Constructs a new {@code IllegalFormatFlagsException} with the specified
      * flags.
      *
-     * @param f
+     * @param flags
      *           the specified flags.
      */
-    public IllegalFormatFlagsException(String f) {
-        if (null == f) {
+    public IllegalFormatFlagsException(String flags) {
+        if (flags == null) {
             throw new NullPointerException();
         }
-        flags = f;
+        this.flags = flags;
     }
 
     /**
@@ -53,18 +52,8 @@ public class IllegalFormatFlagsException extends IllegalFormatException
         return flags;
     }
 
-    /**
-     * Returns the message string of the IllegalFormatFlagsException.
-     *
-     * @return the message string of the IllegalFormatFlagsException.
-     */
     @Override
     public String getMessage() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("Flags = '");
-        buffer.append(flags);
-        buffer.append("'");
-        return buffer.toString();
+        return flags;
     }
-
 }

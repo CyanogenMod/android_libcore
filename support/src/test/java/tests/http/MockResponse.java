@@ -35,6 +35,7 @@ public class MockResponse {
     private String status = "HTTP/1.1 200 OK";
     private List<String> headers = new ArrayList<String>();
     private byte[] body = EMPTY_BODY;
+    private boolean disconnectAtEnd;
 
     public MockResponse() {
         headers.add(EMPTY_BODY_HEADER);
@@ -52,11 +53,21 @@ public class MockResponse {
         return this;
     }
 
+    public MockResponse setStatus(String status) {
+        this.status = status;
+        return this;
+    }
+
     /**
      * Returns the HTTP headers, such as "Content-Length: 0".
      */
     public List<String> getHeaders() {
         return headers;
+    }
+
+    public MockResponse clearHeaders() {
+        headers.clear();
+        return this;
     }
 
     public MockResponse addHeader(String header) {
@@ -102,13 +113,22 @@ public class MockResponse {
             bytesOut.write("\r\n".getBytes(ASCII));
             pos += chunkSize;
         }
-        bytesOut.write("0\r\n".getBytes(ASCII));
+        bytesOut.write("0\r\n\r\n".getBytes(ASCII)); // last chunk + empty trailer + crlf
         this.body = bytesOut.toByteArray();
         return this;
     }
 
     public MockResponse setChunkedBody(String body, int maxChunkSize) throws IOException {
         return setChunkedBody(body.getBytes(ASCII), maxChunkSize);
+    }
+
+    public MockResponse setDisconnectAtEnd(boolean disconnectAtEnd) {
+        this.disconnectAtEnd = disconnectAtEnd;
+        return this;
+    }
+
+    public boolean getDisconnectAtEnd() {
+        return disconnectAtEnd;
     }
 
     @Override public String toString() {

@@ -61,8 +61,6 @@ public class AllTests {
         suite.addTestSuite(MissingResourceExceptionTest.class);
         suite.addTestSuite(NoSuchElementExceptionTest.class);
         suite.addTestSuite(ObservableTest.class);
-        suite.addTestSuite(PriorityQueueTest.class);
-        suite.addTestSuite(PropertiesTest.class);
         suite.addTestSuite(PropertyPermissionTest.class);
         suite.addTestSuite(PropertyResourceBundleTest.class);
         suite.addTestSuite(RandomTest.class);
@@ -73,10 +71,7 @@ public class AllTests {
         suite.addTestSuite(StringTokenizerTest.class);
         suite.addTestSuite(TimerTaskTest.class);
         suite.addTestSuite(TimerTest.class);
-        suite.addTestSuite(TimeZoneTest.class);
         suite.addTestSuite(TooManyListenersExceptionTest.class);
-        suite.addTestSuite(TreeMapTest.class);
-        suite.addTestSuite(TreeSetTest.class);
         suite.addTestSuite(VectorTest.class);
         suite.addTestSuite(WeakHashMapTest.class);
         // $JUnit-END$

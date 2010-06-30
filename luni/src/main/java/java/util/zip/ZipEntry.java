@@ -21,7 +21,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -399,19 +399,13 @@ public class ZipEntry implements ZipConstants, Cloneable {
             myReadFully(in, extra);
         }
 
-        try {
-            // BEGIN android-changed
-            // The RI has always assumed UTF-8. (If GPBF_UTF8_FLAG isn't set, the encoding is
-            // actually IBM-437.)
-            name = new String(nameBytes, "UTF-8");
-            if (commentBytes != null) {
-                comment = new String(commentBytes, "UTF-8");
-            } else {
-                comment = null;
-            }
-            // END android-changed
-        } catch (UnsupportedEncodingException uee) {
-            throw new InternalError(uee.getMessage());
+        // The RI has always assumed UTF-8. (If GPBF_UTF8_FLAG isn't set, the encoding is
+        // actually IBM-437.)
+        name = new String(nameBytes, 0, nameBytes.length, Charsets.UTF_8);
+        if (commentBytes != null) {
+            comment = new String(commentBytes, 0, commentBytes.length, Charsets.UTF_8);
+        } else {
+            comment = null;
         }
     }
 

@@ -18,6 +18,7 @@
 
 #include "JNIHelp.h"
 #include "ErrorCode.h"
+#include "ScopedJavaUnicodeString.h"
 #include "ScopedUtfChars.h"
 #include "unicode/ubrk.h"
 #include "unicode/putil.h"
@@ -66,11 +67,11 @@ static jint cloneImpl(JNIEnv* env, jclass, jint address) {
     return reinterpret_cast<uintptr_t>(it);
 }
 
-static void setTextImpl(JNIEnv* env, jclass, jint address, jstring text) {
+static void setTextImpl(JNIEnv* env, jclass, jint address, jstring javaText) {
+    ScopedJavaUnicodeString text(env, javaText);
+    UnicodeString& s(text.unicodeString());
     UErrorCode status = U_ZERO_ERROR;
-    const UChar* chars = env->GetStringChars(text, NULL);
-    ubrk_setText(breakIterator(address), chars, env->GetStringLength(text), &status);
-    env->ReleaseStringChars(text, chars);
+    ubrk_setText(breakIterator(address), s.getBuffer(), s.length(), &status);
     icu4jni_error(env, status);
 }
 

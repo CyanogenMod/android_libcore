@@ -66,7 +66,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
             String signatureAttribute = getSignatureAttribute();
             GenericSignatureParser parser = new GenericSignatureParser(
                     VMStack.getCallingClassLoader2());
-            parser.parseForConstructor(this, signatureAttribute);
+            parser.parseForConstructor(this, signatureAttribute, exceptionTypes);
             formalTypeParameters = parser.formalTypeParameters;
             genericParameterTypes = parser.parameterTypes;
             genericExceptionTypes = parser.exceptionTypes;

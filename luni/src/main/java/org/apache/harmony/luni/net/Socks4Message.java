@@ -17,7 +17,7 @@
 
 package org.apache.harmony.luni.net;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charsets;
 
 class Socks4Message {
     static final int COMMAND_CONNECT = 1;
@@ -200,17 +200,10 @@ class Socks4Message {
     private String getString(int offset, int maxLength) {
         int index = offset;
         int lastIndex = index + maxLength;
-        String result;
-
         while (index < lastIndex && (buffer[index] != 0)) {
             index++;
         }
-        try {
-            result = new String(buffer, offset, index - offset, "ISO8859_1");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.toString());
-        }
-        return result;
+        return new String(buffer, offset, index - offset, Charsets.ISO_8859_1);
     }
 
     /**
@@ -232,12 +225,7 @@ class Socks4Message {
      * Put a string into the buffer at the offset given.
      */
     private void setString(int offset, int maxLength, String theString) {
-        byte[] stringBytes;
-        try {
-            stringBytes = theString.getBytes("ISO8859_1");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.toString());
-        }
+        byte[] stringBytes = theString.getBytes(Charsets.ISO_8859_1);
         int length = Math.min(stringBytes.length, maxLength);
         System.arraycopy(stringBytes, 0, buffer, offset, length);
         buffer[offset + length] = 0;

@@ -29,7 +29,7 @@ public class AllTests {
         TestRunner.main(new String[] { AllTests.class.getName() });
     }
 
-    public static final Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite("Tests for java.net");
 
         // add net testsuites here
@@ -44,7 +44,6 @@ public class AllTests {
         suite.addTestSuite(URITest.class);
         suite.addTestSuite(URLConnectionTest.class);
         suite.addTestSuite(URLEncoderTest.class);
-        suite.addTestSuite(URLTest.class);
 
         return suite;
     }

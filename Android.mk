@@ -34,3 +34,15 @@ include $(LOCAL_PATH)/NativeCode.mk
 #
 
 include $(LOCAL_PATH)/sqlite-jdbc/Android.mk
+
+#
+# Disable test modules if LIBCORE_SKIP_TESTS envar is set
+#
+
+ifneq ($(LIBCORE_SKIP_TESTS),)
+$(info ********************************************************************************)
+$(info * libcore tests are skipped because environment variable LIBCORE_SKIP_TESTS=$(LIBCORE_SKIP_TESTS))
+$(info ********************************************************************************)
+ALL_MODULE_TAGS := $(filter-out tests,$(ALL_MODULE_TAGS))
+ALL_MODULES := $(filter-out $(ALL_MODULE_NAME_TAGS.tests),$(ALL_MODULES))
+endif

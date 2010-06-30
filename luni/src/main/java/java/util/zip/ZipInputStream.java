@@ -21,9 +21,9 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.nio.charset.ModifiedUtf8;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
-import org.apache.harmony.luni.util.Util;
 
 /**
  * This class provides an implementation of {@code FilterInputStream} that
@@ -258,8 +258,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
                 throw new EOFException();
             }
         }
-        currentEntry = createZipEntry(Util.convertUTF8WithBuf(nameBuf, charBuf,
-                0, flen));
+        currentEntry = createZipEntry(ModifiedUtf8.decode(nameBuf, charBuf, 0, flen));
         currentEntry.time = cetime;
         currentEntry.modDate = cemodDate;
         currentEntry.setMethod(cecompressionMethod);

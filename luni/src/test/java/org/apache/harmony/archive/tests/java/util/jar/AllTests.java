@@ -36,9 +36,6 @@ public class AllTests {
         suite.addTestSuite(JarInputStreamTest.class);
         suite.addTestSuite(JarOutputStreamTest.class);
         suite.addTestSuite(ManifestTest.class);
-        suite.addTestSuite(Pack200Test.class);
-        suite.addTestSuite(Pack200PackerTest.class);
-        suite.addTestSuite(Pack200UnpackerTest.class);
         suite.addTestSuite(ZipExecTest.class);
         return suite;
     }

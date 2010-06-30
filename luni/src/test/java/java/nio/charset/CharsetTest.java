@@ -62,72 +62,127 @@ public class CharsetTest extends junit.framework.TestCase {
         assertEncodes(Charset.forName("Shift_JIS"), "\ufffd", 0xfc, 0xfc);
     }
 
-    public void test_UTF_32BE() throws Exception {
-        // Writes big-endian, with no BOM.
-        assertEncodes(Charset.forName("UTF-32BE"), "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
-        // Treats a little-endian BOM as an error and continues to read big-endian.
-        // This test uses REPLACE mode, so we get the U+FFFD replacement character in the result.
-        assertDecodes(Charset.forName("UTF-32BE"), "\ufffda\u0666", 0xff, 0xfe, 0, 0, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
-        // Accepts a big-endian BOM and swallows the BOM.
-        assertDecodes(Charset.forName("UTF-32BE"), "a\u0666", 0, 0, 0xfe, 0xff, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
-        // Defaults to reading big-endian.
-        assertDecodes(Charset.forName("UTF-32BE"), "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
-    }
-
-    public void test_UTF_32LE() throws Exception {
-        // Writes little-endian, with no BOM.
-        assertEncodes(Charset.forName("UTF-32LE"), "a\u0666", 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
-        // Accepts a little-endian BOM and swallows the BOM.
-        assertDecodes(Charset.forName("UTF-32LE"), "a\u0666", 0xff, 0xfe, 0, 0, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
-        // Treats a big-endian BOM as an error and continues to read little-endian.
-        // This test uses REPLACE mode, so we get the U+FFFD replacement character in the result.
-        assertDecodes(Charset.forName("UTF-32LE"), "\ufffda\u0666", 0, 0, 0xfe, 0xff, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
-        // Defaults to reading little-endian.
-        assertDecodes(Charset.forName("UTF-32LE"), "a\u0666", 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
-    }
-
-    public void test_UTF_32() throws Exception {
-        // Writes big-endian, with no BOM.
-        assertEncodes(Charset.forName("UTF-32"), "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+    public void test_UTF_16() throws Exception {
+        Charset cs = Charset.forName("UTF-16");
+        // Writes big-endian, with a big-endian BOM.
+        assertEncodes(cs, "a\u0666", 0xfe, 0xff, 0, 'a', 0x06, 0x66);
         // Reads whatever the BOM tells it to read...
-        assertDecodes(Charset.forName("UTF-32"), "a\u0666", 0, 0, 0xfe, 0xff, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
-        assertDecodes(Charset.forName("UTF-32"), "a\u0666", 0xff, 0xfe, 0, 0, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
+        assertDecodes(cs, "a\u0666", 0xfe, 0xff, 0, 'a', 0x06, 0x66);
+        assertDecodes(cs, "a\u0666", 0xff, 0xfe, 'a', 0, 0x66, 0x06);
         // ...and defaults to reading big-endian if there's no BOM.
-        assertDecodes(Charset.forName("UTF-32"), "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+        assertDecodes(cs, "a\u0666", 0, 'a', 0x06, 0x66);
     }
 
     public void test_UTF_16BE() throws Exception {
+        Charset cs = Charset.forName("UTF-16BE");
         // Writes big-endian, with no BOM.
-        assertEncodes(Charset.forName("UTF-16BE"), "a\u0666", 0, 'a', 0x06, 0x66);
+        assertEncodes(cs, "a\u0666", 0, 'a', 0x06, 0x66);
         // Treats a little-endian BOM as an error and continues to read big-endian.
         // This test uses REPLACE mode, so we get the U+FFFD replacement character in the result.
-        assertDecodes(Charset.forName("UTF-16BE"), "\ufffda\u0666", 0xff, 0xfe, 0, 'a', 0x06, 0x66);
+        assertDecodes(cs, "\ufffda\u0666", 0xff, 0xfe, 0, 'a', 0x06, 0x66);
         // Accepts a big-endian BOM and includes U+FEFF in the decoded output.
-        assertDecodes(Charset.forName("UTF-16BE"), "\ufeffa\u0666", 0xfe, 0xff, 0, 'a', 0x06, 0x66);
+        assertDecodes(cs, "\ufeffa\u0666", 0xfe, 0xff, 0, 'a', 0x06, 0x66);
         // Defaults to reading big-endian.
-        assertDecodes(Charset.forName("UTF-16BE"), "a\u0666", 0, 'a', 0x06, 0x66);
+        assertDecodes(cs, "a\u0666", 0, 'a', 0x06, 0x66);
     }
 
     public void test_UTF_16LE() throws Exception {
+        Charset cs = Charset.forName("UTF-16LE");
         // Writes little-endian, with no BOM.
-        assertEncodes(Charset.forName("UTF-16LE"), "a\u0666", 'a', 0, 0x66, 0x06);
+        assertEncodes(cs, "a\u0666", 'a', 0, 0x66, 0x06);
         // Accepts a little-endian BOM and includes U+FEFF in the decoded output.
-        assertDecodes(Charset.forName("UTF-16LE"), "\ufeffa\u0666", 0xff, 0xfe, 'a', 0, 0x66, 0x06);
+        assertDecodes(cs, "\ufeffa\u0666", 0xff, 0xfe, 'a', 0, 0x66, 0x06);
         // Treats a big-endian BOM as an error and continues to read little-endian.
         // This test uses REPLACE mode, so we get the U+FFFD replacement character in the result.
-        assertDecodes(Charset.forName("UTF-16LE"), "\ufffda\u0666", 0xfe, 0xff, 'a', 0, 0x66, 0x06);
+        assertDecodes(cs, "\ufffda\u0666", 0xfe, 0xff, 'a', 0, 0x66, 0x06);
         // Defaults to reading little-endian.
-        assertDecodes(Charset.forName("UTF-16LE"), "a\u0666", 'a', 0, 0x66, 0x06);
+        assertDecodes(cs, "a\u0666", 'a', 0, 0x66, 0x06);
     }
 
-    public void test_UTF_16() throws Exception {
-        // Writes big-endian, with a big-endian BOM.
-        assertEncodes(Charset.forName("UTF-16"), "a\u0666", 0xfe, 0xff, 0, 'a', 0x06, 0x66);
+    public void test_x_UTF_16LE_BOM() throws Exception {
+        Charset cs = Charset.forName("x-UTF-16LE-BOM");
+        // Writes little-endian, with a BOM.
+        assertEncodes(cs, "a\u0666", 0xff, 0xfe, 'a', 0, 0x66, 0x06);
+        // Accepts a little-endian BOM and swallows the BOM.
+        assertDecodes(cs, "a\u0666", 0xff, 0xfe, 'a', 0, 0x66, 0x06);
+        // Swallows a big-endian BOM, but continues to read little-endian!
+        assertDecodes(cs, "\u6100\u6606", 0xfe, 0xff, 'a', 0, 0x66, 0x06);
+        // Defaults to reading little-endian.
+        assertDecodes(cs, "a\u0666", 'a', 0, 0x66, 0x06);
+    }
+
+    public void test_UTF_32() throws Exception {
+        Charset cs = Charset.forName("UTF-32");
+        // Writes big-endian, with no BOM.
+        assertEncodes(cs, "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
         // Reads whatever the BOM tells it to read...
-        assertDecodes(Charset.forName("UTF-16"), "a\u0666", 0xfe, 0xff, 0, 'a', 0x06, 0x66);
-        assertDecodes(Charset.forName("UTF-16"), "a\u0666", 0xff, 0xfe, 'a', 0, 0x66, 0x06);
+        assertDecodes(cs, "a\u0666", 0, 0, 0xfe, 0xff, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+        assertDecodes(cs, "a\u0666", 0xff, 0xfe, 0, 0, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
         // ...and defaults to reading big-endian if there's no BOM.
-        assertDecodes(Charset.forName("UTF-16"), "a\u0666", 0, 'a', 0x06, 0x66);
+        assertDecodes(cs, "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+    }
+
+    public void test_UTF_32BE() throws Exception {
+        Charset cs = Charset.forName("UTF-32BE");
+        // Writes big-endian, with no BOM.
+        assertEncodes(cs, "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+        // Treats a little-endian BOM as an error and continues to read big-endian.
+        // This test uses REPLACE mode, so we get the U+FFFD replacement character in the result.
+        assertDecodes(cs, "\ufffda\u0666", 0xff, 0xfe, 0, 0, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+        // Accepts a big-endian BOM and swallows the BOM.
+        assertDecodes(cs, "a\u0666", 0, 0, 0xfe, 0xff, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+        // Defaults to reading big-endian.
+        assertDecodes(cs, "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+    }
+
+    public void test_UTF_32LE() throws Exception {
+        Charset cs = Charset.forName("UTF-32LE");
+        // Writes little-endian, with no BOM.
+        assertEncodes(cs, "a\u0666", 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
+        // Accepts a little-endian BOM and swallows the BOM.
+        assertDecodes(cs, "a\u0666", 0xff, 0xfe, 0, 0, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
+        // Treats a big-endian BOM as an error and continues to read little-endian.
+        // This test uses REPLACE mode, so we get the U+FFFD replacement character in the result.
+        assertDecodes(cs, "\ufffda\u0666", 0, 0, 0xfe, 0xff, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
+        // Defaults to reading little-endian.
+        assertDecodes(cs, "a\u0666", 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
+    }
+
+    public void test_X_UTF_32BE_BOM() throws Exception {
+        Charset cs = Charset.forName("X-UTF-32BE-BOM");
+        // Writes big-endian, with a big-endian BOM.
+        assertEncodes(cs, "a\u0666", 0, 0, 0xfe, 0xff, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+        // Treats a little-endian BOM as an error and continues to read big-endian.
+        // This test uses REPLACE mode, so we get the U+FFFD replacement character in the result.
+        assertDecodes(cs, "\ufffda\u0666", 0xff, 0xfe, 0, 0, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+        // Swallows a big-endian BOM, and continues to read big-endian.
+        assertDecodes(cs, "a\u0666", 0, 0, 0xfe, 0xff, 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+        // Defaults to reading big-endian.
+        assertDecodes(cs, "a\u0666", 0, 0, 0, 'a', 0, 0, 0x06, 0x66);
+    }
+
+    public void test_X_UTF_32LE_BOM() throws Exception {
+        Charset cs = Charset.forName("X-UTF-32LE-BOM");
+        // Writes little-endian, with a little-endian BOM.
+        assertEncodes(cs, "a\u0666", 0xff, 0xfe, 0, 0, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
+        // Accepts a little-endian BOM and swallows the BOM.
+        assertDecodes(cs, "a\u0666", 0xff, 0xfe, 0, 0, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
+        // Treats a big-endian BOM as an error and continues to read little-endian.
+        // This test uses REPLACE mode, so we get the U+FFFD replacement character in the result.
+        assertDecodes(cs, "\ufffda\u0666", 0, 0, 0xfe, 0xff, 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
+        // Defaults to reading little-endian.
+        assertDecodes(cs, "a\u0666", 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
+    }
+
+    public void test_preNioAliases() throws Exception {
+        // Various pre-nio java.lang/java.io encoding names are translated to nio charsets.
+        assertEquals("UTF-16BE", Charset.forName("UnicodeBigUnmarked").name());
+        assertEquals("UTF-16LE", Charset.forName("UnicodeLittleUnmarked").name());
+        assertEquals("UTF-16", Charset.forName("Unicode").name());
+        assertEquals("UTF-16", Charset.forName("UnicodeBig").name());
+        assertEquals("x-UTF-16LE-BOM", Charset.forName("UnicodeLittle").name());
+        assertEquals("X-UTF-32BE-BOM", Charset.forName("UTF_32BE_BOM").name());
+        assertEquals("X-UTF-32LE-BOM", Charset.forName("UTF_32LE_BOM").name());
     }
 
     private byte[] toByteArray(int[] ints) {

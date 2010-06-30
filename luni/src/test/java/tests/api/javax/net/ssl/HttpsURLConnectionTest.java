@@ -332,11 +332,15 @@ public class HttpsURLConnectionTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // expected
         }
+        HostnameVerifier def = HttpsURLConnection.getDefaultHostnameVerifier();
         try {
             myHostnameVerifier hnv = new myHostnameVerifier();
             HttpsURLConnection.setDefaultHostnameVerifier(hnv);
+            assertEquals(hnv, HttpsURLConnection.getDefaultHostnameVerifier());
         } catch (Exception e) {
             fail("Unexpected exception " + e);
+        } finally {
+            HttpsURLConnection.setDefaultHostnameVerifier(def);
         }
     }
 

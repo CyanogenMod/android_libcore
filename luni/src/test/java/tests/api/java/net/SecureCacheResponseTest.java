@@ -23,13 +23,9 @@ import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
-import tests.api.java.net.ResponseCacheTest.TestCacheRequest;
-import tests.api.java.net.ResponseCacheTest.TestCacheResponse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.CacheRequest;
-import java.net.CacheResponse;
 import java.net.HttpURLConnection;
 import java.net.ResponseCache;
 import java.net.SecureCacheResponse;

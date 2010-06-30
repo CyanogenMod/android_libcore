@@ -30,7 +30,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.ISO_8859_14.class)
 @AndroidOnly("icu")
 public class Charset_ISO_8859_14 extends Charset_AbstractTest {
 

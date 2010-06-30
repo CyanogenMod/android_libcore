@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@
 #include "ScopedJavaUnicodeString.h"
 #include "unicode/normlzr.h"
 
-static jstring normalizeImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
+static jstring NativeNormalizer_normalizeImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
     ScopedJavaUnicodeString src(env, s);
     UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
     UErrorCode errorCode = U_ZERO_ERROR;
@@ -31,7 +31,7 @@ static jstring normalizeImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
     return dst.isBogus() ? NULL : env->NewString(dst.getBuffer(), dst.length());
 }
 
-static jboolean isNormalizedImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
+static jboolean NativeNormalizer_isNormalizedImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
     ScopedJavaUnicodeString src(env, s);
     UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
     UErrorCode errorCode = U_ZERO_ERROR;
@@ -41,10 +41,9 @@ static jboolean isNormalizedImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
 }
 
 static JNINativeMethod gMethods[] = {
-    {"normalizeImpl", "(Ljava/lang/String;I)Ljava/lang/String;", (void*) normalizeImpl},
-    {"isNormalizedImpl", "(Ljava/lang/String;I)Z", (void*) isNormalizedImpl},
+    {"normalizeImpl", "(Ljava/lang/String;I)Ljava/lang/String;", (void*) NativeNormalizer_normalizeImpl},
+    {"isNormalizedImpl", "(Ljava/lang/String;I)Z", (void*) NativeNormalizer_isNormalizedImpl},
 };
-int register_com_ibm_icu4jni_text_NativeNormalizer(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativeNormalizer",
-            gMethods, NELEM(gMethods));
+int register_libcore_icu_NativeNormalizer(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "libcore/icu/NativeNormalizer", gMethods, NELEM(gMethods));
 }

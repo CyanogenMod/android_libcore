@@ -15,9 +15,8 @@
  */
 package tests.targets.security;
 
-import dalvik.annotation.TestTargetClass;
+import tests.security.SignatureTest;
 
-@TestTargetClass(targets.Signatures.SHA1withRSA.class)
 public class SignatureTestSHA1withRSA extends SignatureTest {
 
     public SignatureTestSHA1withRSA() {

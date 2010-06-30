@@ -22,9 +22,6 @@ import dalvik.annotation.TestTargetNew;
 
 import junit.framework.TestCase;
 
-import targets.Cipher;
-
-@TestTargetClass(Cipher.RSA.class)
 public class CipherRSATest extends TestCase {
 // 3 cases checked
     @TestTargetNew(
@@ -57,7 +54,7 @@ public class CipherRSATest extends TestCase {
     }
 
     // Not supported by Android
-   public void disabled_test_RSAXXXLKey() {
+    public void disabled_test_RSAXXXLKey() {
         CipherRSAThread rsa = new CipherRSAThread("RSA", new int[] {2048},
                 new String[] {"ECB"},
                 new String[] {"OAEPWITHSHA-512ANDMGF1PADDING"});

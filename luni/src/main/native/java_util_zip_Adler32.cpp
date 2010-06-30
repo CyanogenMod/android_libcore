@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "Adler32"
+
 #include "JNIHelp.h"
 #include "ScopedPrimitiveArray.h"
 #include "jni.h"

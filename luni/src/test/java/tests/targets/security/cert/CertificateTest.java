@@ -18,9 +18,6 @@ package tests.targets.security.cert;
 import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-
-import junit.framework.TestCase;
-
 import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -37,6 +34,7 @@ import java.security.cert.PKIXParameters;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import junit.framework.TestCase;
 
 public class CertificateTest extends TestCase {
 

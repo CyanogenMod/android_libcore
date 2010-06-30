@@ -29,9 +29,9 @@ public class FormatFlagsConversionMismatchException extends
 
     private static final long serialVersionUID = 19120414L;
 
-    private String f;
+    private final String f;
 
-    private char c;
+    private final char c;
 
     /**
      * Constructs a new {@code FormatFlagsConversionMismatchException} with the
@@ -68,18 +68,8 @@ public class FormatFlagsConversionMismatchException extends
         return c;
     }
 
-    /**
-     * Returns the message string of the {@code FormatFlagsConversionMismatchException}.
-     *
-     * @return the message string of the {@code FormatFlagsConversionMismatchException}.
-     */
     @Override
     public String getMessage() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("Mismatched Convertor =");
-        buffer.append(c);
-        buffer.append(", Flags= ");
-        buffer.append(f);
-        return buffer.toString();
+        return "%" + c + " does not support '" + f + "'";
     }
 }

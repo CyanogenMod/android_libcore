@@ -24,10 +24,12 @@
 #define LOG_TAG "OSNetworkSystem"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "LocalArray.h"
 #include "NetworkUtilities.h"
 #include "ScopedPrimitiveArray.h"
 #include "jni.h"
+#include "valueOf.h"
 
 #include <arpa/inet.h>
 #include <assert.h>
@@ -94,25 +96,13 @@
 #define SOCKET_NOFLAGS 0
 
 static struct CachedFields {
-    jfieldID fd_descriptor;
-    jclass iaddr_class;
-    jclass i4addr_class;
-    jmethodID i4addr_class_init;
     jfieldID iaddr_ipaddress;
-    jclass genericipmreq_class;
-    jclass integer_class;
-    jmethodID integer_class_init;
     jfieldID integer_class_value;
-    jclass boolean_class;
-    jmethodID boolean_class_init;
     jfieldID boolean_class_value;
-    jclass byte_class;
     jfieldID byte_class_value;
-    jclass socketimpl_class;
     jfieldID socketimpl_address;
     jfieldID socketimpl_port;
     jfieldID socketimpl_localport;
-    jclass dpack_class;
     jfieldID dpack_address;
     jfieldID dpack_port;
     jfieldID dpack_length;
@@ -277,35 +267,6 @@ static bool inetAddressToSocketAddress(JNIEnv *env, jobject inetaddress,
             gCachedFields.iaddr_ipaddress));
 
     return byteArrayToSocketAddress(env, NULL, addressBytes, port, sockaddress);
-}
-
-/**
- * Answer a new java.lang.Boolean object.
- *
- * @param env   pointer to the JNI library
- * @param anInt the Boolean constructor argument
- *
- * @return  the new Boolean
- */
-static jobject newJavaLangBoolean(JNIEnv * env, jint anInt) {
-    jclass tempClass;
-    jmethodID tempMethod;
-
-    tempClass = gCachedFields.boolean_class;
-    tempMethod = gCachedFields.boolean_class_init;
-    return env->NewObject(tempClass, tempMethod, (jboolean) (anInt != 0));
-}
-
-/**
- * Answer a new java.lang.Integer object.
- *
- * @param env   pointer to the JNI library
- * @param anInt the Integer constructor argument
- *
- * @return  the new Integer
- */
-static jobject newJavaLangInteger(JNIEnv* env, jint anInt) {
-    return env->NewObject(gCachedFields.integer_class, gCachedFields.integer_class_init, anInt);
 }
 
 // Converts a number of milliseconds to a timeval.
@@ -631,7 +592,7 @@ static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal, int 
      * is passed in, only support IPv4 as obtaining an interface from an
      * InetAddress is complex and should be done by the Java caller.
      */
-    if (env->IsInstanceOf(optVal, gCachedFields.iaddr_class)) {
+    if (env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
         /*
          * optVal is an InetAddress. Construct a multicast request structure
          * from this address. Support IPv4 only.
@@ -672,12 +633,11 @@ static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal, int 
          */
 
         // Get the multicast address to join or leave.
-        jclass cls = env->GetObjectClass(optVal);
-        jfieldID multiaddrID = env->GetFieldID(cls, "multiaddr", "Ljava/net/InetAddress;");
+        jfieldID multiaddrID = env->GetFieldID(JniConstants::genericIPMreqClass, "multiaddr", "Ljava/net/InetAddress;");
         jobject multiaddr = env->GetObjectField(optVal, multiaddrID);
 
         // Get the interface index to use.
-        jfieldID interfaceIdxID = env->GetFieldID(cls, "interfaceIdx", "I");
+        jfieldID interfaceIdxID = env->GetFieldID(JniConstants::genericIPMreqClass, "interfaceIdx", "I");
         interfaceIndex = env->GetIntField(optVal, interfaceIdxID);
         LOGI("mcastAddDropMembership interfaceIndex=%i", interfaceIndex);
 
@@ -743,63 +703,22 @@ static bool initCachedFields(JNIEnv* env) {
     memset(&gCachedFields, 0, sizeof(gCachedFields));
     struct CachedFields *c = &gCachedFields;
 
-    struct classInfo {
-        jclass *clazz;
-        const char *name;
-    } classes[] = {
-        {&c->iaddr_class, "java/net/InetAddress"},
-        {&c->i4addr_class, "java/net/Inet4Address"},
-        {&c->genericipmreq_class, "org/apache/harmony/luni/net/GenericIPMreq"},
-        {&c->integer_class, "java/lang/Integer"},
-        {&c->boolean_class, "java/lang/Boolean"},
-        {&c->byte_class, "java/lang/Byte"},
-        {&c->socketimpl_class, "java/net/SocketImpl"},
-        {&c->dpack_class, "java/net/DatagramPacket"}
-    };
-    for (unsigned i = 0; i < sizeof(classes) / sizeof(classes[0]); i++) {
-        classInfo c = classes[i];
-        jclass tempClass = env->FindClass(c.name);
-        if (tempClass == NULL) return false;
-        *c.clazz = (jclass) env->NewGlobalRef(tempClass);
-    }
-
-    struct methodInfo {
-        jmethodID *method;
-        jclass clazz;
-        const char *name;
-        const char *signature;
-        bool isStatic;
-    } methods[] = {
-        {&c->i4addr_class_init, c->i4addr_class, "<init>", "([B)V", false},
-        {&c->integer_class_init, c->integer_class, "<init>", "(I)V", false},
-        {&c->boolean_class_init, c->boolean_class, "<init>", "(Z)V", false},
-    };
-    for (unsigned i = 0; i < sizeof(methods) / sizeof(methods[0]); i++) {
-        methodInfo m = methods[i];
-        if (m.isStatic) {
-            *m.method = env->GetStaticMethodID(m.clazz, m.name, m.signature);
-        } else {
-            *m.method = env->GetMethodID(m.clazz, m.name, m.signature);
-        }
-        if (*m.method == NULL) return false;
-    }
-
     struct fieldInfo {
         jfieldID *field;
         jclass clazz;
         const char *name;
         const char *type;
     } fields[] = {
-        {&c->iaddr_ipaddress, c->iaddr_class, "ipaddress", "[B"},
-        {&c->integer_class_value, c->integer_class, "value", "I"},
-        {&c->boolean_class_value, c->boolean_class, "value", "Z"},
-        {&c->byte_class_value, c->byte_class, "value", "B"},
-        {&c->socketimpl_port, c->socketimpl_class, "port", "I"},
-        {&c->socketimpl_localport, c->socketimpl_class, "localport", "I"},
-        {&c->socketimpl_address, c->socketimpl_class, "address", "Ljava/net/InetAddress;"},
-        {&c->dpack_address, c->dpack_class, "address", "Ljava/net/InetAddress;"},
-        {&c->dpack_port, c->dpack_class, "port", "I"},
-        {&c->dpack_length, c->dpack_class, "length", "I"}
+        {&c->iaddr_ipaddress, JniConstants::inetAddressClass, "ipaddress", "[B"},
+        {&c->integer_class_value, JniConstants::integerClass, "value", "I"},
+        {&c->boolean_class_value, JniConstants::booleanClass, "value", "Z"},
+        {&c->byte_class_value, JniConstants::byteClass, "value", "B"},
+        {&c->socketimpl_port, JniConstants::socketImplClass, "port", "I"},
+        {&c->socketimpl_localport, JniConstants::socketImplClass, "localport", "I"},
+        {&c->socketimpl_address, JniConstants::socketImplClass, "address", "Ljava/net/InetAddress;"},
+        {&c->dpack_address, JniConstants::datagramPacketClass, "address", "Ljava/net/InetAddress;"},
+        {&c->dpack_port, JniConstants::datagramPacketClass, "port", "I"},
+        {&c->dpack_length, JniConstants::datagramPacketClass, "length", "I"}
     };
     for (unsigned i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
         fieldInfo f = fields[i];
@@ -848,7 +767,7 @@ static void osNetworkSystem_createStreamSocket(JNIEnv* env, jobject, jobject fil
 static void osNetworkSystem_createDatagramSocket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean) {
     int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_DGRAM);
 #ifdef __linux__
-    // The RFC (http://tools.ietf.org/rfc/rfc3493.txt) says that IPV6_MULTICAST_HOPS defaults to 1.
+    // The RFC (http://www.ietf.org/rfc/rfc3493.txt) says that IPV6_MULTICAST_HOPS defaults to 1.
     // The Linux kernel (at least up to 2.6.32) accidentally defaults to 64 (which would be correct
     // for the *unicast* hop limit). See http://www.spinics.net/lists/netdev/msg129022.html.
     // When that's fixed, we can remove this code. Until then, we manually set the hop limit on
@@ -1672,12 +1591,12 @@ static bool getSocketOption(JNIEnv* env, int fd, int level, int option, T* value
 
 static jobject getSocketOption_Boolean(JNIEnv* env, int fd, int level, int option) {
     int value;
-    return getSocketOption(env, fd, level, option, &value) ? newJavaLangBoolean(env, value) : NULL;
+    return getSocketOption(env, fd, level, option, &value) ? booleanValueOf(env, value) : NULL;
 }
 
 static jobject getSocketOption_Integer(JNIEnv* env, int fd, int level, int option) {
     int value;
-    return getSocketOption(env, fd, level, option, &value) ? newJavaLangInteger(env, value) : NULL;
+    return getSocketOption(env, fd, level, option, &value) ? integerValueOf(env, value) : NULL;
 }
 
 static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fileDescriptor, jint option) {
@@ -1717,13 +1636,13 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
         {
             linger lingr;
             bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &lingr);
-            return ok ? newJavaLangInteger(env, !lingr.l_onoff ? -1 : lingr.l_linger) : NULL;
+            return ok ? integerValueOf(env, !lingr.l_onoff ? -1 : lingr.l_linger) : NULL;
         }
     case JAVASOCKOPT_SO_RCVTIMEOUT:
         {
             timeval timeout;
             bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_RCVTIMEO, &timeout);
-            return ok ? newJavaLangInteger(env, toMs(timeout)) : NULL;
+            return ok ? integerValueOf(env, toMs(timeout)) : NULL;
         }
 #ifdef ENABLE_MULTICAST
     case JAVASOCKOPT_IP_MULTICAST_IF:
@@ -1744,7 +1663,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
         if (family == AF_INET) {
             struct ip_mreqn multicastRequest;
             bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &multicastRequest);
-            return ok ? newJavaLangInteger(env, multicastRequest.imr_ifindex) : NULL;
+            return ok ? integerValueOf(env, multicastRequest.imr_ifindex) : NULL;
         } else {
             return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
         }
@@ -1753,7 +1672,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
             // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
             u_char loopback;
             bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_LOOP, &loopback);
-            return ok ? newJavaLangBoolean(env, loopback) : NULL;
+            return ok ? booleanValueOf(env, loopback) : NULL;
         } else {
             return getSocketOption_Boolean(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP);
         }
@@ -1763,7 +1682,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
             // IPv4 multicast TTL uses a byte.
             u_char ttl;
             bool ok = getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl);
-            return ok ? newJavaLangInteger(env, ttl) : NULL;
+            return ok ? integerValueOf(env, ttl) : NULL;
         } else {
             return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
         }
@@ -1798,13 +1717,13 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     }
 
     int intVal;
-    if (env->IsInstanceOf(optVal, gCachedFields.integer_class)) {
+    if (env->IsInstanceOf(optVal, JniConstants::integerClass)) {
         intVal = (int) env->GetIntField(optVal, gCachedFields.integer_class_value);
-    } else if (env->IsInstanceOf(optVal, gCachedFields.boolean_class)) {
+    } else if (env->IsInstanceOf(optVal, JniConstants::booleanClass)) {
         intVal = (int) env->GetBooleanField(optVal, gCachedFields.boolean_class_value);
-    } else if (env->IsInstanceOf(optVal, gCachedFields.byte_class)) {
+    } else if (env->IsInstanceOf(optVal, JniConstants::byteClass)) {
         intVal = (int) env->GetByteField(optVal, gCachedFields.byte_class_value);
-    } else if (env->IsInstanceOf(optVal, gCachedFields.genericipmreq_class) || env->IsInstanceOf(optVal, gCachedFields.iaddr_class)) {
+    } else if (env->IsInstanceOf(optVal, JniConstants::genericIPMreqClass) || env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
         // we'll use optVal directly
     } else {
         jniThrowSocketException(env, EINVAL);
@@ -1874,7 +1793,7 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     case JAVASOCKOPT_IP_MULTICAST_IF:
         {
             struct sockaddr_storage sockVal;
-            if (!env->IsInstanceOf(optVal, gCachedFields.iaddr_class) ||
+            if (!env->IsInstanceOf(optVal, JniConstants::inetAddressClass) ||
                     !inetAddressToSocketAddress(env, optVal, 0, &sockVal)) {
                 return;
             }

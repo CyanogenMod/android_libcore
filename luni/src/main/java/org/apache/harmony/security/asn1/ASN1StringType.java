@@ -23,8 +23,7 @@
 package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
+import java.nio.charset.Charsets;
 
 /**
  * This class is the super class for all string ASN.1 types
@@ -64,18 +63,13 @@ public abstract class ASN1StringType extends ASN1Type {
             TAG_UTF8STRING) {
 
         public Object getDecodedObject(BerInputStream in) throws IOException {
-            return new String(in.buffer, in.contentOffset, in.length, "UTF-8");
+            return new String(in.buffer, in.contentOffset, in.length, Charsets.UTF_8);
         }
 
         public void setEncodingContent(BerOutputStream out) {
-
-            try {
-                byte[] bytes = ((String) out.content).getBytes("UTF-8");
-                out.content = bytes;
-                out.length = bytes.length;
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e.getMessage());
-            }
+            byte[] bytes = ((String) out.content).getBytes(Charsets.UTF_8);
+            out.content = bytes;
+            out.length = bytes.length;
         }
     };
 
@@ -120,7 +114,7 @@ public abstract class ASN1StringType extends ASN1Type {
     public Object getDecodedObject(BerInputStream in) throws IOException {
         /* To ensure we get the correct encoding on non-ASCII platforms, specify
            that we wish to convert from ASCII to the default platform encoding */
-        return new String(in.buffer, in.contentOffset, in.length, "ISO-8859-1");
+        return new String(in.buffer, in.contentOffset, in.length, Charsets.ISO_8859_1);
     }
 
     //
@@ -139,15 +133,8 @@ public abstract class ASN1StringType extends ASN1Type {
     }
 
     public void setEncodingContent(BerOutputStream out) {
-        try {
-            byte[] bytes = ((String) out.content).getBytes("UTF-8");
-            out.content = bytes;
-            out.length = bytes.length;
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        byte[] bytes = ((String) out.content).getBytes(Charsets.UTF_8);
+        out.content = bytes;
+        out.length = bytes.length;
     }
 }
-
-
-

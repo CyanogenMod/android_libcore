@@ -15,9 +15,8 @@
  */
 package tests.targets.security;
 
-import dalvik.annotation.TestTargetClass;
+import tests.security.SignatureTest;
 
-@TestTargetClass(targets.Signatures.MD5withRSA.class)
 public class SignatureTestMD5withRSA extends SignatureTest {
 
     public SignatureTestMD5withRSA() {

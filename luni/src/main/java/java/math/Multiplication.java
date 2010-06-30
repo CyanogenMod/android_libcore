@@ -140,7 +140,7 @@ class Multiplication {
         long byteArraySize = 1 + (long)(exp / 2.4082399653118496);
 
         if (byteArraySize > Runtime.getRuntime().freeMemory()) {
-            throw new OutOfMemoryError();
+            throw new ArithmeticException();
         }
         if (exp <= Integer.MAX_VALUE) {
             // To calculate:    5^exp * 2^exp

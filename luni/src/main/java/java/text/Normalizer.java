@@ -16,7 +16,7 @@
 
 package java.text;
 
-import com.ibm.icu4jni.text.NativeNormalizer;
+import libcore.icu.NativeNormalizer;
 
 /**
  * Provides normalization functions according to

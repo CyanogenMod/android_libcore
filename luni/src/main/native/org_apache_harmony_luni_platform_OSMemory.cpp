@@ -17,6 +17,7 @@
 #define LOG_TAG "OSMemory"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "utils/misc.h"
 #include "utils/Log.h"
 #include <sys/mman.h>
@@ -107,7 +108,7 @@ static void harmony_nio_freeImpl(JNIEnv* _env, jobject, jint pointer) {
  * Method:    memset
  * Signature: (IBJ)V
  */
-static void harmony_nio_memset(JNIEnv*, jobject, jint address, 
+static void harmony_nio_memset(JNIEnv*, jobject, jint address,
         jbyte value, jlong length) {
     memset ((void *) ((jint) address), (jbyte) value, (jlong) length);
 }
@@ -117,9 +118,9 @@ static void harmony_nio_memset(JNIEnv*, jobject, jint address,
  * Method:    memmove
  * Signature: (IIJ)V
  */
-static void harmony_nio_memmove(JNIEnv*, jobject, jint destAddress, 
+static void harmony_nio_memmove(JNIEnv*, jobject, jint destAddress,
         jint srcAddress, jlong length) {
-    memmove ((void *) ((jint) destAddress), (const void *) ((jint) srcAddress), 
+    memmove ((void *) ((jint) destAddress), (const void *) ((jint) srcAddress),
         (jlong) length);
 }
 
@@ -128,7 +129,7 @@ static void harmony_nio_memmove(JNIEnv*, jobject, jint destAddress,
  * Method:    getByteImpl
  * Signature: (I)B
  */
-static jbyte harmony_nio_getByteImpl(JNIEnv*, jobject, 
+static jbyte harmony_nio_getByteImpl(JNIEnv*, jobject,
         jint pointer) {
     jbyte returnValue = *((jbyte *)pointer);
     return returnValue;
@@ -139,7 +140,7 @@ static jbyte harmony_nio_getByteImpl(JNIEnv*, jobject,
  * Method:    getBytesImpl
  * Signature: (I[BII)V
  */
-static void harmony_nio_getBytesImpl(JNIEnv* _env, jobject, jint pointer, 
+static void harmony_nio_getBytesImpl(JNIEnv* _env, jobject, jint pointer,
         jbyteArray dst, jint offset, jint length) {
     jbyte* src = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(pointer));
     _env->SetByteArrayRegion(dst, offset, length, src);
@@ -227,7 +228,7 @@ static void harmony_nio_setIntArrayImpl(JNIEnv* _env, jobject,
  * Method:    getShortImpl
  * Signature: (I)S
  */
-static jshort harmony_nio_getShortImpl(JNIEnv*, jobject, 
+static jshort harmony_nio_getShortImpl(JNIEnv*, jobject,
         jint pointer) {
     if ((pointer & 0x1) == 0) {
         jshort returnValue = *((jshort *)pointer);
@@ -248,7 +249,7 @@ static jshort harmony_nio_getShortImpl(JNIEnv*, jobject,
  * Method:    petShortImpl
  * Signature: (IS)V
  */
-static void harmony_nio_putShortImpl(JNIEnv*, jobject, jint pointer, 
+static void harmony_nio_putShortImpl(JNIEnv*, jobject, jint pointer,
         jshort value) {
     if ((pointer & 0x1) == 0) {
         *((jshort *)pointer) = value;
@@ -288,7 +289,7 @@ static jint harmony_nio_getIntImpl(JNIEnv*, jobject, jint pointer) {
  * Method:    putIntImpl
  * Signature: (II)V
  */
-static void harmony_nio_putIntImpl(JNIEnv*, jobject, jint pointer, 
+static void harmony_nio_putIntImpl(JNIEnv*, jobject, jint pointer,
         jint value) {
     if ((pointer & 0x3) == 0) {
         *((jint *)pointer) = value;
@@ -308,7 +309,7 @@ static void harmony_nio_putIntImpl(JNIEnv*, jobject, jint pointer,
  * Method:    getLongImpl
  * Signature: (I)Ljava/lang/Long;
  */
-static jlong harmony_nio_getLongImpl(JNIEnv*, jobject, 
+static jlong harmony_nio_getLongImpl(JNIEnv*, jobject,
         jint pointer) {
     if ((pointer & 0x7) == 0) {
         jlong returnValue = *((jlong *)pointer);
@@ -326,7 +327,7 @@ static jlong harmony_nio_getLongImpl(JNIEnv*, jobject,
  * Method:    putLongImpl
  * Signature: (IJ)V
  */
-static void harmony_nio_putLongImpl(JNIEnv*, jobject, jint pointer, 
+static void harmony_nio_putLongImpl(JNIEnv*, jobject, jint pointer,
         jlong value) {
     if ((pointer & 0x7) == 0) {
         *((jlong *)pointer) = value;
@@ -341,7 +342,7 @@ static void harmony_nio_putLongImpl(JNIEnv*, jobject, jint pointer,
  * Method:    getFloatImpl
  * Signature: (I)F
  */
-static jfloat harmony_nio_getFloatImpl(JNIEnv*, jobject, 
+static jfloat harmony_nio_getFloatImpl(JNIEnv*, jobject,
         jint pointer) {
     if ((pointer & 0x3) == 0) {
         jfloat returnValue = *((jfloat *)pointer);
@@ -359,7 +360,7 @@ static jfloat harmony_nio_getFloatImpl(JNIEnv*, jobject,
  * Method:    setFloatImpl
  * Signature: (IF)V
  */
-static void harmony_nio_putFloatImpl(JNIEnv*, jobject, jint pointer, 
+static void harmony_nio_putFloatImpl(JNIEnv*, jobject, jint pointer,
         jfloat value) {
     if ((pointer & 0x3) == 0) {
         *((jfloat *)pointer) = value;
@@ -374,7 +375,7 @@ static void harmony_nio_putFloatImpl(JNIEnv*, jobject, jint pointer,
  * Method:    getDoubleImpl
  * Signature: (I)D
  */
-static jdouble harmony_nio_getDoubleImpl(JNIEnv*, jobject, 
+static jdouble harmony_nio_getDoubleImpl(JNIEnv*, jobject,
         jint pointer) {
     if ((pointer & 0x7) == 0) {
         jdouble returnValue = *((jdouble *)pointer);
@@ -392,7 +393,7 @@ static jdouble harmony_nio_getDoubleImpl(JNIEnv*, jobject,
  * Method:    putDoubleImpl
  * Signature: (ID)V
  */
-static void harmony_nio_putDoubleImpl(JNIEnv*, jobject, jint pointer, 
+static void harmony_nio_putDoubleImpl(JNIEnv*, jobject, jint pointer,
         jdouble value) {
     if ((pointer & 0x7) == 0) {
         *((jdouble *)pointer) = value;
@@ -416,7 +417,7 @@ static jint harmony_nio_getAddress(JNIEnv*, jobject, jint pointer) {
  * Method:    setAddress
  * Signature: (II)V
  */
-static void harmony_nio_setAddress(JNIEnv*, jobject, jint pointer, 
+static void harmony_nio_setAddress(JNIEnv*, jobject, jint pointer,
         jint value) {
     *(int *) pointer = (int) value;
 }
@@ -426,7 +427,7 @@ static void harmony_nio_setAddress(JNIEnv*, jobject, jint pointer,
  * Method:    mmapImpl
  * Signature: (IJJI)I
  */
-static jint harmony_nio_mmapImpl(JNIEnv* env, jobject, jint fd, 
+static jint harmony_nio_mmapImpl(JNIEnv* env, jobject, jint fd,
         jlong offset, jlong size, jint mapMode) {
     int prot, flags;
     switch (mapMode) {
@@ -460,7 +461,7 @@ static jint harmony_nio_mmapImpl(JNIEnv* env, jobject, jint fd,
  * Method:    unmapImpl
  * Signature: (IJ)V
  */
-static void harmony_nio_unmapImpl(JNIEnv*, jobject, jint address, 
+static void harmony_nio_unmapImpl(JNIEnv*, jobject, jint address,
         jlong size) {
     munmap((void *)address, (size_t)size);
 }
@@ -470,7 +471,7 @@ static void harmony_nio_unmapImpl(JNIEnv*, jobject, jint address,
  * Method:    loadImpl
  * Signature: (IJ)I
  */
-static jint harmony_nio_loadImpl(JNIEnv*, jobject, jint address, 
+static jint harmony_nio_loadImpl(JNIEnv*, jobject, jint address,
         jlong size) {
 
     if(mlock((void *)address, (size_t)size)!=-1) {
@@ -484,7 +485,7 @@ static jint harmony_nio_loadImpl(JNIEnv*, jobject, jint address,
              return 0;
          }
     }
-    
+
     return -1;
 }
 
@@ -493,20 +494,20 @@ static jint harmony_nio_loadImpl(JNIEnv*, jobject, jint address,
  * Method:    isLoadedImpl
  * Signature: (IJ)Z
  */
-static jboolean harmony_nio_isLoadedImpl(JNIEnv*, jobject, 
+static jboolean harmony_nio_isLoadedImpl(JNIEnv*, jobject,
         jint address, jlong size) {
 
     static int page_size = getpagesize();
     jboolean result = 0;
     jint m_addr = (jint)address;
-    
+
     int align_offset = m_addr%page_size;// addr should align with the boundary of a page.
     m_addr -= align_offset;
     size   += align_offset;
     int page_count = (size+page_size-1)/page_size;
-    
+
     unsigned char* vec = (unsigned char *) malloc(page_count*sizeof(char));
-    
+
     if (mincore((void *)m_addr, size, (MINCORE_POINTER_TYPE) vec)==0) {
         // or else there is error about the mincore and return false;
         int i;
@@ -519,9 +520,9 @@ static jboolean harmony_nio_isLoadedImpl(JNIEnv*, jobject,
             result = 1;
         }
     }
-    
+
     free(vec);
-    
+
     return result;
 }
 
@@ -570,20 +571,12 @@ int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env) {
      * We need to call VMRuntime.trackExternal{Allocation,Free}.  Cache
      * method IDs and a reference to the singleton.
      */
-    static const char* kVMRuntimeName = "dalvik/system/VMRuntime";
-    jmethodID method_getRuntime;
-    jclass clazz;
-
-    clazz = env->FindClass(kVMRuntimeName);
-    if (clazz == NULL) {
-        LOGE("Unable to find class %s\n", kVMRuntimeName);
-        return -1;
-    }
-    gIDCache.method_trackExternalAllocation = env->GetMethodID(clazz,
+    gIDCache.method_trackExternalAllocation = env->GetMethodID(JniConstants::vmRuntimeClass,
         "trackExternalAllocation", "(J)Z");
-    gIDCache.method_trackExternalFree = env->GetMethodID(clazz,
+    gIDCache.method_trackExternalFree = env->GetMethodID(JniConstants::vmRuntimeClass,
         "trackExternalFree", "(J)V");
-    method_getRuntime = env->GetStaticMethodID(clazz,
+
+    jmethodID method_getRuntime = env->GetStaticMethodID(JniConstants::vmRuntimeClass,
         "getRuntime", "()Ldalvik/system/VMRuntime;");
 
     if (gIDCache.method_trackExternalAllocation == NULL ||
@@ -594,7 +587,7 @@ int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env) {
         return -1;
     }
 
-    jobject instance = env->CallStaticObjectMethod(clazz, method_getRuntime);
+    jobject instance = env->CallStaticObjectMethod(JniConstants::vmRuntimeClass, method_getRuntime);
     if (instance == NULL) {
         LOGE("Unable to obtain VMRuntime instance\n");
         return -1;

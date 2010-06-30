@@ -15,13 +15,6 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// We've made several changes including:
-//  - delayed buffer creation until pipe connection
-//  - throw an IOException when a pipe is closed during a write
-//  - improved consistency with PipedReader
-// END android-note
-
 package java.io;
 
 /**
@@ -219,13 +212,6 @@ public class PipedInputStream extends InputStream {
             throw new IOException("InputStream is closed");
         }
 
-        // BEGIN android-removed
-        // eagerly throwing prevents checking isClosed and returning normally
-        // if (lastWriter != null && !lastWriter.isAlive() && (in < 0)) {
-        //     throw new IOException("Write end dead");
-        // }
-        // END android-removed
-
         /**
          * Set the last thread to be reading on this PipedInputStream. If
          * lastReader dies while someone is waiting to write an IOException of
@@ -250,7 +236,6 @@ public class PipedInputStream extends InputStream {
             throw new InterruptedIOException();
         }
 
-        // BEGIN android-changed
         int result = buffer[out++] & 0xff;
         if (out == buffer.length) {
             out = 0;
@@ -265,7 +250,6 @@ public class PipedInputStream extends InputStream {
         notifyAll();
 
         return result;
-        // END android-changed
     }
 
     /**
@@ -302,19 +286,13 @@ public class PipedInputStream extends InputStream {
     @Override
     public synchronized int read(byte[] bytes, int offset, int count)
             throws IOException {
-        // BEGIN android-changed
         if (bytes == null) {
             throw new NullPointerException("bytes == null");
         }
 
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // removed redundant check, used (offset | count) < 0
-        // instead of (offset < 0) || (count < 0) to safe one operation
         if ((offset | count) < 0 || count > bytes.length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        // END android-changed
 
         if (count == 0) {
             return 0;
@@ -328,14 +306,7 @@ public class PipedInputStream extends InputStream {
             throw new IOException("InputStream is closed");
         }
 
-        // BEGIN android-removed
-        // eagerly throwing prevents checking isClosed and returning normally
-        // if (lastWriter != null && !lastWriter.isAlive() && (in < 0)) {
-        //     throw new IOException("Write end dead");
-        // }
-        // END android-removed
-
-        /**
+        /*
          * Set the last thread to be reading on this PipedInputStream. If
          * lastReader dies while someone is waiting to write an IOException of
          * "Pipe broken" will be thrown in receive()
@@ -359,7 +330,6 @@ public class PipedInputStream extends InputStream {
             throw new InterruptedIOException();
         }
 
-        // BEGIN android-changed
         int totalCopied = 0;
 
         // copy bytes from out thru the end of buffer
@@ -398,7 +368,6 @@ public class PipedInputStream extends InputStream {
         notifyAll();
 
         return totalCopied;
-        // END android-changed
     }
 
     /**
@@ -422,13 +391,8 @@ public class PipedInputStream extends InputStream {
         if (buffer == null || isClosed) {
             throw new IOException("Pipe is closed");
         }
-        // BEGIN android-removed
-        // eagerly throwing causes us to fail even if the buffer's not full
-        // if (lastReader != null && !lastReader.isAlive()) {
-        //     throw new IOException("Pipe broken");
-        // }
-        // END android-removed
-        /**
+
+        /*
          * Set the last thread to be writing on this PipedInputStream. If
          * lastWriter dies while someone is waiting to read an IOException of
          * "Pipe broken" will be thrown in read()
@@ -436,14 +400,11 @@ public class PipedInputStream extends InputStream {
         lastWriter = Thread.currentThread();
         try {
             while (buffer != null && out == in) {
-                // BEGIN android-changed
-                // moved has-last-reader-died check to be before wait()
                 if (lastReader != null && !lastReader.isAlive()) {
                     throw new IOException("Pipe broken");
                 }
                 notifyAll();
                 wait(1000);
-                // END android-changed
             }
         } catch (InterruptedException e) {
             throw new InterruptedIOException();
@@ -459,10 +420,8 @@ public class PipedInputStream extends InputStream {
             in = 0;
         }
 
-        // BEGIN android-added
         // let blocked readers read the newly available data
         notifyAll();
-        // END android-added
     }
 
     synchronized void done() {

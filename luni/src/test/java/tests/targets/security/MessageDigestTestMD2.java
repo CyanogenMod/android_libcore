@@ -17,17 +17,13 @@ package tests.targets.security;
 
 import dalvik.annotation.AndroidOnly;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
-
-import junit.framework.TestCase;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
+import junit.framework.TestCase;
 
-@TestTargetClass(targets.MessageDigests.MD2.class)
 public class MessageDigestTestMD2 extends TestCase {
 
     @TestTargetNew(

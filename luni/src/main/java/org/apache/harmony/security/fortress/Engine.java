@@ -36,7 +36,7 @@ import org.apache.harmony.security.Util;
 public class Engine {
 
     // Service name
-    private String serviceName;
+    private final String serviceName;
 
     // for getInstance(String algorithm, Object param) optimization:
     // previous result

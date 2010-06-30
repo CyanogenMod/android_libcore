@@ -15,6 +15,8 @@
  *  limitations under the License.
  */
 
+#define LOG_TAG "OSFileSystem"
+
 /* Values for HyFileOpen */
 #define HyOpenRead    1
 #define HyOpenWrite   2

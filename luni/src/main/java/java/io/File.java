@@ -32,14 +32,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.Charsets;
 import java.security.AccessController;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.harmony.luni.util.DeleteOnExit;
 import org.apache.harmony.luni.util.PriviAction;
-import org.apache.harmony.luni.util.Util;
 
 /**
  * An "abstract" representation of a file system entity identified by a
@@ -66,11 +65,6 @@ import org.apache.harmony.luni.util.Util;
 public class File implements Serializable, Comparable<File> {
 
     private static final long serialVersionUID = 301077366599181567L;
-
-    private static final String EMPTY_STRING = "";
-
-    // Caches the UTF-8 Charset for newCString.
-    private static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
      * The system dependent file separator character.
@@ -210,11 +204,7 @@ public class File implements Serializable, Comparable<File> {
     }
 
     private byte[] newCString(String s) {
-        ByteBuffer buffer = UTF8.encode(s);
-        // Add a trailing NUL, because this byte[] is going to be used as a char*.
-        int byteCount = buffer.limit() + 1;
-        byte[] bytes = new byte[byteCount];
-        buffer.get(bytes, 0, byteCount - 1);
+        byte[] bytes = s.getBytes(Charsets.UTF_8);
         // This is an awful mistake, because '\' is a perfectly acceptable
         // character on Linux/Android. But we've shipped so many versions
         // that behaved like this, I'm too scared to change it.
@@ -223,7 +213,11 @@ public class File implements Serializable, Comparable<File> {
                 bytes[i] = '/';
             }
         }
-        return bytes;
+        // Add a trailing NUL, because this byte[] is going to be used as a char*.
+        int byteCount = bytes.length + 1;
+        byte[] result = new byte[byteCount];
+        System.arraycopy(bytes, 0, result, 0, bytes.length);
+        return result;
     }
 
     // Removes duplicate adjacent slashes and any trailing slash.
@@ -263,19 +257,17 @@ public class File implements Serializable, Comparable<File> {
         return haveSlash ? (prefix + suffix) : (prefix + separatorChar + suffix);
     }
 
-    @SuppressWarnings("nls")
     private void checkURI(URI uri) {
         if (!uri.isAbsolute()) {
             throw new IllegalArgumentException("URI is not absolute: " + uri);
         } else if (!uri.getRawSchemeSpecificPart().startsWith("/")) {
             throw new IllegalArgumentException("URI is not hierarchical: " + uri);
         }
-        String temp = uri.getScheme();
-        if (temp == null || !temp.equals("file")) {
+        if (!"file".equals(uri.getScheme())) {
             throw new IllegalArgumentException("Expected file scheme in URI: " + uri);
         }
-        temp = uri.getRawPath();
-        if (temp == null || temp.isEmpty()) {
+        String rawPath = uri.getRawPath();
+        if (rawPath == null || rawPath.isEmpty()) {
             throw new IllegalArgumentException("Expected non-empty path in URI: " + uri);
         }
         if (uri.getRawAuthority() != null) {
@@ -471,7 +463,7 @@ public class File implements Serializable, Comparable<File> {
      * @return the absolute file path.
      */
     public String getAbsolutePath() {
-        return Util.toUTF8String(pathBytes, 0, pathBytes.length - 1);
+        return new String(pathBytes, 0, pathBytes.length - 1, Charsets.UTF_8);
     }
 
     /**
@@ -583,13 +575,7 @@ public class File implements Serializable, Comparable<File> {
         newResult[newLength] = 0;
         newResult = getCanonImpl(newResult);
         newLength = newResult.length;
-
-        // BEGIN android-changed
-        //     caching the canonical path is completely bogus
-        return Util.toUTF8String(newResult, 0, newLength);
-        // FileCanonPathCache.put(absPath, canonPath);
-        // return canonPath;
-        // END android-changed
+        return new String(newResult, 0, newLength, Charsets.UTF_8);
     }
 
     /*
@@ -1477,13 +1463,12 @@ public class File implements Serializable, Comparable<File> {
         String name = getAbsoluteName();
         if (!name.startsWith("/")) {
             // start with sep.
-            return new URL(
-                    "file", EMPTY_STRING, -1, new StringBuilder(name.length() + 1)
-                            .append('/').append(name).toString(), null);
+            return new URL("file", "", -1,
+                    new StringBuilder(name.length() + 1).append('/').append(name).toString(), null);
         } else if (name.startsWith("//")) {
             return new URL("file:" + name); // UNC path
         }
-        return new URL("file", EMPTY_STRING, -1, name, null);
+        return new URL("file", "", -1, name, null);
     }
 
     private String getAbsoluteName() {

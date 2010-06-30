@@ -22,8 +22,8 @@
 
 package org.apache.harmony.security.fortress;
 
-import java.util.Iterator;
 import java.security.Provider;
+import java.util.List;
 
 /**
  *
@@ -42,7 +42,7 @@ public interface SecurityAccess {
      * @param s
      * @return
      */
-    public Iterator<String> getAliases(Provider.Service s);
+    public List<String> getAliases(Provider.Service s);
 
     /**
      * Access to Provider.getService(String type)

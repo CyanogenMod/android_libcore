@@ -15,10 +15,8 @@
  */
 package tests.targets.security;
 
-import dalvik.annotation.TestTargetClass;
+import tests.security.MessageDigestTest;
 
-
-@TestTargetClass(value=targets.MessageDigests.MD5.class)
 public class MessageDigestTestMD5 extends MessageDigestTest {
 
     public MessageDigestTestMD5() {

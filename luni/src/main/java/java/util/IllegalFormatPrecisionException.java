@@ -26,7 +26,7 @@ package java.util;
 public class IllegalFormatPrecisionException extends IllegalFormatException {
     private static final long serialVersionUID = 18711008L;
 
-    private int p;
+    private final int p;
 
     /**
      * Constructs a new {@code IllegalFormatPrecisionException} with specified
@@ -48,14 +48,8 @@ public class IllegalFormatPrecisionException extends IllegalFormatException {
         return p;
     }
 
-    /**
-     * Returns the message of the exception.
-     *
-     * @return the message of the exception.
-     */
     @Override
     public String getMessage() {
-        return String.valueOf(p);
+        return Integer.toString(p);
     }
-
 }

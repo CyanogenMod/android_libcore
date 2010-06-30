@@ -29,8 +29,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.UTF_16BE.class)
-
 public class Charset_MultiByte_UTF_16BE extends Charset_AbstractTest {
 
     @Override

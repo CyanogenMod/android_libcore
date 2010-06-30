@@ -29,9 +29,6 @@ import java.nio.charset.UnsupportedCharsetException;
  * application/x-www-form-urlencoded} MIME content type.
  */
 public class URLDecoder {
-
-    static Charset defaultCharset;
-
     /**
      * Decodes the argument which is assumed to be encoded in the {@code
      * x-www-form-urlencoded} MIME content type.
@@ -48,22 +45,7 @@ public class URLDecoder {
      */
     @Deprecated
     public static String decode(String s) {
-
-        if (defaultCharset == null) {
-            try {
-                defaultCharset = Charset.forName(
-                        System.getProperty("file.encoding"));
-            } catch (IllegalCharsetNameException e) {
-                // Ignored
-            } catch (UnsupportedCharsetException e) {
-                // Ignored
-            }
-
-            if (defaultCharset == null) {
-                defaultCharset = Charset.forName("ISO-8859-1");
-            }
-        }
-        return decode(s, defaultCharset);
+        return decode(s, Charset.defaultCharset());
     }
 
     /**

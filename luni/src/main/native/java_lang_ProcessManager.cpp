@@ -28,13 +28,13 @@
 
 #include "jni.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "utils/Log.h"
 
 /** Environment variables. */
 extern char **environ;
 
 static jmethodID onExitMethod = NULL;
-static jfieldID descriptorField = NULL;
 
 #ifdef ANDROID
 // Keeps track of the system properties fd so we don't close it.
@@ -50,9 +50,8 @@ static int androidSystemPropertiesFd = -1;
 #define WAIT_STATUS_STRANGE_ERRNO (-3) // observed an undocumented errno
 
 /** Closes a file descriptor. */
-static void java_lang_ProcessManager_close(JNIEnv* env,
-        jclass, jobject javaDescriptor) {
-    int fd = env->GetIntField(javaDescriptor, descriptorField);
+static void java_lang_ProcessManager_close(JNIEnv* env, jclass, jobject javaDescriptor) {
+    int fd = jniGetFDFromFileDescriptor(env, javaDescriptor);
     if (TEMP_FAILURE_RETRY(close(fd)) == -1) {
         jniThrowIOException(env, errno);
     }
@@ -353,7 +352,7 @@ static pid_t java_lang_ProcessManager_exec(
     char** environment = convertStrings(env, javaEnvironment);
 
     pid_t result = executeProcess(
-            env, commands, environment, workingDirectory, 
+            env, commands, environment, workingDirectory,
             inDescriptor, outDescriptor, errDescriptor, redirectErrorStream);
 
     // Temporarily clear exception so we can clean up.
@@ -393,15 +392,6 @@ static void java_lang_ProcessManager_staticInitialize(JNIEnv* env,
 
     onExitMethod = env->GetMethodID(clazz, "onExit", "(II)V");
     if (onExitMethod == NULL) {
-        return;
-    }
-
-    jclass fileDescriptorClass = env->FindClass("java/io/FileDescriptor");
-    if (fileDescriptorClass == NULL) {
-        return;
-    }
-    descriptorField = env->GetFieldID(fileDescriptorClass, "descriptor", "I");
-    if (descriptorField == NULL) {
         return;
     }
 }

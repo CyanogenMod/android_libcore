@@ -29,8 +29,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-@TestTargetClass(targets.Charsets.windows_1250.class)
-
 public class Charset_SingleByte_windows_1250 extends Charset_SingleByteAbstractTest {
 
     protected void setUp() throws Exception {

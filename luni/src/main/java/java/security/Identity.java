@@ -20,6 +20,7 @@ package java.security;
 import java.io.Serializable;
 import java.util.Vector;
 import java.util.Arrays;
+import libcore.base.Objects;
 
 /**
  * {@code Identity} represents an identity like a person or a company.
@@ -356,8 +357,7 @@ public abstract class Identity implements Principal, Serializable {
             return false;
         }
         Identity i = (Identity) obj;
-        if ((name == i.name || (name != null && name.equals(i.name)))
-                && (scope == i.scope || (scope != null && scope.equals(i.scope)))) {
+        if (Objects.equal(name, i.name) && (Objects.equal(scope, i.scope))) {
             return true;
         }
         return identityEquals(i);

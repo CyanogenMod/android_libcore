@@ -15,7 +15,10 @@
  *  limitations under the License.
  */
 
+#define LOG_TAG "NetworkInterface"
+
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "jni.h"
 #include "NetworkUtilities.h"
 #include "ScopedFd.h"
@@ -67,11 +70,7 @@ static void jniThrowSocketException(JNIEnv* env) {
 }
 
 static jobject makeInterfaceAddress(JNIEnv* env, jint interfaceIndex, ifaddrs* ifa) {
-    jclass clazz = env->FindClass("java/net/InterfaceAddress");
-    if (clazz == NULL) {
-        return NULL;
-    }
-    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+    jmethodID constructor = env->GetMethodID(JniConstants::interfaceAddressClass, "<init>",
             "(ILjava/lang/String;Ljava/net/InetAddress;Ljava/net/InetAddress;)V");
     if (constructor == NULL) {
         return NULL;
@@ -90,7 +89,8 @@ static jobject makeInterfaceAddress(JNIEnv* env, jint interfaceIndex, ifaddrs* i
     if (javaMask == NULL) {
         return NULL;
     }
-    return env->NewObject(clazz, constructor, interfaceIndex, javaName, javaAddress, javaMask);
+    return env->NewObject(JniConstants::interfaceAddressClass, constructor,
+            interfaceIndex, javaName, javaAddress, javaMask);
 }
 
 static jobjectArray getAllInterfaceAddressesImpl(JNIEnv* env, jclass) {
@@ -108,11 +108,8 @@ static jobjectArray getAllInterfaceAddressesImpl(JNIEnv* env, jclass) {
     }
 
     // Build the InterfaceAddress[]...
-    jclass interfaceAddressClass = env->FindClass("java/net/InterfaceAddress");
-    if (interfaceAddressClass == NULL) {
-        return NULL;
-    }
-    jobjectArray result = env->NewObjectArray(interfaceAddressCount, interfaceAddressClass, NULL);
+    jobjectArray result =
+            env->NewObjectArray(interfaceAddressCount, JniConstants::interfaceAddressClass, NULL);
     if (result == NULL) {
         return NULL;
     }

@@ -20,11 +20,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
+import libcore.base.Objects;
 
-/**
- * {@hide}
- */
-public class ZoneInfo extends TimeZone {
+public final class ZoneInfo extends TimeZone {
 
     private static final long MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
     private static final long MILLISECONDS_PER_400_YEARS =
@@ -41,8 +39,7 @@ public class ZoneInfo extends TimeZone {
     };
 
     public static TimeZone getTimeZone(String name) {
-        if (name == null)
-        {
+        if (name == null) {
             return null;
         }
 
@@ -54,17 +51,28 @@ public class ZoneInfo extends TimeZone {
     }
 
     private static String nullName(byte[] data, int where, int off) {
-        if (off < 0)
+        if (off < 0) {
             return null;
+        }
 
         int end = where + off;
-        while (end < data.length && data[end] != '\0')
+        while (end < data.length && data[end] != '\0') {
             end++;
+        }
 
         return new String(data, where + off, end - (where + off));
     }
 
-    /*package*/ ZoneInfo(String name, int[] transitions, byte[] type,
+    private int mRawOffset;
+    private int[] mTransitions;
+    private int[] mGmtOffs;
+    private byte[] mTypes;
+    private byte[] mIsDsts;
+    private boolean mUseDst;
+    private String mDaylightName;
+    private String mStandardName;
+
+    ZoneInfo(String name, int[] transitions, byte[] type,
                      int[] gmtoff, byte[] isdst, byte[] abbrev,
                      byte[] data, int abbrevoff) {
         mTransitions = transitions;
@@ -136,10 +144,7 @@ public class ZoneInfo extends TimeZone {
     }
 
     @Override
-    public int getOffset(@SuppressWarnings("unused") int era,
-        int year, int month, int day,
-        @SuppressWarnings("unused") int dayOfWeek,
-        int millis) {
+    public int getOffset(int era, int year, int month, int day, int dayOfWeek, int millis) {
         // XXX This assumes Gregorian always; Calendar switches from
         // Julian to Gregorian in 1582.  What calendar system are the
         // arguments supposed to come from?
@@ -211,30 +216,18 @@ public class ZoneInfo extends TimeZone {
         return mUseDst;
     }
 
-    private int mRawOffset;
-    private int[] mTransitions;
-    private int[] mGmtOffs;
-    private byte[] mTypes;
-    private byte[] mIsDsts;
-    private boolean mUseDst;
-    private String mDaylightName;
-    private String mStandardName;
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
+    @Override public boolean hasSameRules(TimeZone timeZone) {
+        if (!(timeZone instanceof ZoneInfo)) {
+            return false;
         }
-        if (!(obj instanceof ZoneInfo)) {
-           return false;
+        ZoneInfo other = (ZoneInfo) timeZone;
+        if (mUseDst != other.mUseDst) {
+            return false;
         }
-        ZoneInfo other = (ZoneInfo) obj;
-        return mUseDst == other.mUseDst
-                && (mDaylightName == null ? other.mDaylightName == null :
-                        mDaylightName.equals(other.mDaylightName))
-                && (mStandardName == null ? other.mStandardName == null :
-                        mStandardName.equals(other.mStandardName))
-                && mRawOffset == other.mRawOffset
+        if (!mUseDst) {
+            return mRawOffset == other.mRawOffset;
+        }
+        return mRawOffset == other.mRawOffset
                 // Arrays.equals returns true if both arrays are null
                 && Arrays.equals(mGmtOffs, other.mGmtOffs)
                 && Arrays.equals(mIsDsts, other.mIsDsts)
@@ -242,17 +235,25 @@ public class ZoneInfo extends TimeZone {
                 && Arrays.equals(mTransitions, other.mTransitions);
     }
 
+    @Override public boolean equals(Object obj) {
+        if (!(obj instanceof ZoneInfo)) {
+            return false;
+        }
+        ZoneInfo other = (ZoneInfo) obj;
+        return Objects.equal(mDaylightName, other.mDaylightName)
+                && Objects.equal(mStandardName, other.mStandardName)
+                && hasSameRules(other);
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((mDaylightName == null) ? 0 :
-                mDaylightName.hashCode());
+        result = prime * result + ((mDaylightName == null) ? 0 : mDaylightName.hashCode());
         result = prime * result + Arrays.hashCode(mGmtOffs);
         result = prime * result + Arrays.hashCode(mIsDsts);
         result = prime * result + mRawOffset;
-        result = prime * result + ((mStandardName == null) ? 0 :
-                mStandardName.hashCode());
+        result = prime * result + ((mStandardName == null) ? 0 : mStandardName.hashCode());
         result = prime * result + Arrays.hashCode(mTransitions);
         result = prime * result + Arrays.hashCode(mTypes);
         result = prime * result + (mUseDst ? 1231 : 1237);

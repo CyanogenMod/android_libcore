@@ -15,8 +15,6 @@
  */
 package tests.targets.security.cert;
 
-import dalvik.annotation.TestTargetClass;
-
 import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.cert.CertPath;
@@ -36,8 +34,8 @@ import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import tests.security.CertPathValidatorTest;
 
-@TestTargetClass(targets.CertPathValidators.PKIX.class)
 public class CertPathValidatorTestPKIX extends CertPathValidatorTest {
 
     private CertPath certPath;
@@ -48,7 +46,7 @@ public class CertPathValidatorTestPKIX extends CertPathValidatorTest {
     }
 
     @Override
-    CertPath getCertPath() {
+    public CertPath getCertPath() {
         return certPath;
     }
 
@@ -93,12 +91,12 @@ public class CertPathValidatorTestPKIX extends CertPathValidatorTest {
     }
 
     @Override
-    CertPathParameters getParams() {
+    public CertPathParameters getParams() {
         return params;
     }
 
     @Override
-    void validateResult(CertPathValidatorResult validatorResult) {
+    public void validateResult(CertPathValidatorResult validatorResult) {
         assertNotNull("validator result is null", validatorResult);
         assertTrue("validator result is not PKIX",
                 validatorResult instanceof PKIXCertPathValidatorResult);

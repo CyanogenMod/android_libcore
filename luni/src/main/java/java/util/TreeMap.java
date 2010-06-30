@@ -30,6 +30,7 @@ import static java.util.TreeMap.Relation.EQUAL;
 import static java.util.TreeMap.Relation.FLOOR;
 import static java.util.TreeMap.Relation.HIGHER;
 import static java.util.TreeMap.Relation.LOWER;
+import libcore.base.Objects;
 
 /**
  * A map whose entries are sorted by their keys. All optional operations such as
@@ -367,9 +368,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
      */
     Node<K, V> findByEntry(Entry<?, ?> entry) {
         Node<K, V> mine = findByObject(entry.getKey());
-        boolean valuesEqual = mine != null && (mine.value != null
-                ? mine.value.equals(entry.getValue())
-                : entry.getValue() == null);
+        boolean valuesEqual = mine != null && Objects.equal(mine.value, entry.getValue());
         return valuesEqual ? mine : null;
     }
 

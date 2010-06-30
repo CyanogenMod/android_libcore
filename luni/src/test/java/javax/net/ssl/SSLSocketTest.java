@@ -19,6 +19,7 @@ package javax.net.ssl;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.security.Principal;
+import java.security.StandardNames;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;

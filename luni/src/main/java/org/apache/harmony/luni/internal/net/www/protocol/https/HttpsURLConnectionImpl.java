@@ -363,25 +363,21 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 // first - make the connection
                 super.connect();
                 // keep request method
-                String save_meth = method;
+                String originalMethod = method;
                 // make SSL Tunnel
-                method = "CONNECT";
+                method = CONNECT;
                 try {
                     doRequest();
                     endRequest();
                 } finally {
                     // restore initial request method
-                    method = save_meth;
+                    method = originalMethod;
                 }
                 if (!connected) {
                     throw new IOException("Could not make SSL tunnel. " +
                             responseMessage + " (" + responseCode + ")");
                 }
-                // if there are some remaining data in the stream - read it out
-                InputStream is = connection.getInputStream();
-                while (is.available() != 0) {
-                    is.read();
-                }
+                discardResponse();
                 makingSSLTunnel = false;
             } else {
                 // no need in SSL tunnel
@@ -393,14 +389,21 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             }
         }
 
+        @Override protected void releaseSocket(boolean closeSocket) {
+            // when a CONNECT completes, don't release the socket!
+            if (method == CONNECT) {
+                return;
+            }
+
+            super.releaseSocket(closeSocket);
+        }
+
         @Override
         protected String requestString() {
-            if (super.usingProxy()) {
+            if (usingProxy()) {
                 if (makingSSLTunnel) {
-                    // we are making the SSL Tunneling, return remotehost:port
-                    int port = url.getPort();
-                    return (port > 0) ? url.getHost() + ":" + port
-                    : url.getHost();
+                    // SSL tunnels require host:port for the origin server
+                    return url.getHost() + ":" + url.getEffectivePort();
                 }
                 // we has made SSL Tunneling, return /requested.data
                 String file = url.getFile();

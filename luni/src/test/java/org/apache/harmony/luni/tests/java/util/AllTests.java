@@ -38,14 +38,12 @@ public class AllTests {
         suite.addTestSuite(ArraysTest.class);
         suite.addTestSuite(BitSetTest.class);
         suite.addTestSuite(CollectionsTest.class);
-        suite.addTestSuite(DateTest.class);
         suite.addTestSuite(DictionaryTest.class);
         suite.addTestSuite(DuplicateFormatFlagsExceptionTest.class);
         suite.addTestSuite(EventListenerProxyTest.class);
         suite.addTestSuite(FormatFlagsConversionMismatchExceptionTest.class);
         suite.addTestSuite(FormattableTest.class);
         suite.addTestSuite(FormatterClosedExceptionTest.class);
-        suite.addTestSuite(FormatterTest.class);
         suite.addTestSuite(HashMapTest.class);
         suite.addTestSuite(IdentityHashMapTest.class);
         suite.addTestSuite(IllegalFormatCodePointExceptionTest.class);
@@ -57,12 +55,10 @@ public class AllTests {
         suite.addTestSuite(InvalidPropertiesFormatExceptionTest.class);
         suite.addTestSuite(LinkedHashMapTest.class);
         suite.addTestSuite(ListIteratorTest.class);
-        suite.addTestSuite(LocaleTest.class);
         suite.addTestSuite(MapEntryTest.class);
         suite.addTestSuite(MissingFormatArgumentExceptionTest.class);
         suite.addTestSuite(MissingFormatWidthExceptionTest.class);
         suite.addTestSuite(ObserverTest.class);
-        suite.addTestSuite(UnknownFormatConversionExceptionTest.class);
         suite.addTestSuite(UnknownFormatFlagsExceptionTest.class);
         suite.addTestSuite(UUIDTest.class);
         suite.addTestSuite(VectorTest.class);
