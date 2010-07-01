@@ -36,6 +36,7 @@ LOCAL_SRC_FILES := \
 	java_lang_System.cpp \
 	java_net_InetAddress.cpp \
 	java_net_NetworkInterface.cpp \
+	java_nio_charset_Charsets.cpp \
 	java_util_regex_Matcher.cpp \
 	java_util_regex_Pattern.cpp \
 	java_util_zip_Adler32.cpp \

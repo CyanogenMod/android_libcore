@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.Charsets;
 import java.util.Comparator;
 import java.util.Formatter;
 import java.util.Locale;
@@ -236,21 +237,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if the named charset is not supported.
      */
     public String(byte[] data, int start, int length, String charsetName) throws UnsupportedEncodingException {
-        this(data, start, length, charsetForName(charsetName));
-    }
-
-    /**
-     * Calls Charset.forName but only throws UnsupportedEncodingException, which is all String
-     * claims to throw.
-     */
-    private static Charset charsetForName(String charsetName) throws UnsupportedEncodingException {
-        try {
-            return Charset.forName(charsetName);
-        } catch (Exception cause) {
-            UnsupportedEncodingException ex = new UnsupportedEncodingException(charsetName);
-            ex.initCause(cause);
-            throw ex;
-        }
+        this(data, start, length, Charset.forNameUEE(charsetName));
     }
 
     /**
@@ -269,7 +256,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if {@code charsetName} is not supported.
      */
     public String(byte[] data, String charsetName) throws UnsupportedEncodingException {
-        this(data, 0, data.length, charsetForName(charsetName));
+        this(data, 0, data.length, Charset.forNameUEE(charsetName));
     }
 
     /**
@@ -423,17 +410,12 @@ outer:
             this.offset = 0;
             this.value = new char[length];
             this.count = length;
-            for (int i = 0; i < count; ++i) {
-                value[i] = (char) (data[start++] & 0xff);
-            }
+            Charsets.isoLatin1BytesToChars(data, start, length, value);
         } else if (canonicalCharsetName.equals("US-ASCII")) {
             this.offset = 0;
             this.value = new char[length];
             this.count = length;
-            for (int i = 0; i < count; ++i) {
-                char ch = (char) (data[start++] & 0xff);
-                value[i] = (ch <= 0x7f) ? ch : REPLACEMENT_CHAR;
-            }
+            Charsets.asciiBytesToChars(data, start, length, value);
         } else {
             CharBuffer cb = charset.decode(ByteBuffer.wrap(data, start, length));
             this.offset = 0;
@@ -970,7 +952,7 @@ outer:
      * @throws UnsupportedEncodingException if the charset is not supported
      */
     public byte[] getBytes(String charsetName) throws UnsupportedEncodingException {
-        return getBytes(charsetForName(charsetName));
+        return getBytes(Charset.forNameUEE(charsetName));
     }
 
     /**
@@ -986,11 +968,11 @@ outer:
     public byte[] getBytes(Charset charset) {
         String canonicalCharsetName = charset.name();
         if (canonicalCharsetName.equals("UTF-8")) {
-            return getUtf8Bytes();
+            return Charsets.toUtf8Bytes(value, offset, count);
         } else if (canonicalCharsetName.equals("ISO-8859-1")) {
-            return getDirectMappedBytes(0xff);
+            return Charsets.toIsoLatin1Bytes(value, offset, count);
         } else if (canonicalCharsetName.equals("US-ASCII")) {
-            return getDirectMappedBytes(0x7f);
+            return Charsets.toAsciiBytes(value, offset, count);
         } else {
             CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
             ByteBuffer buffer = charset.encode(chars.asReadOnlyBuffer());
@@ -998,59 +980,6 @@ outer:
             buffer.get(bytes);
             return bytes;
         }
-    }
-
-    /**
-     * Translates this string's characters to US-ASCII or ISO-8859-1 bytes, using the fact that
-     * Unicode code points between U+0000 and U+007f inclusive are identical to US-ASCII, while
-     * U+0000 to U+00ff inclusive are identical to ISO-8859-1.
-     */
-    private byte[] getDirectMappedBytes(int maxValidChar) {
-        byte[] result = new byte[count];
-        int o = offset;
-        for (int i = 0; i < count; ++i) {
-            int ch = value[o++];
-            result[i] = (byte) ((ch <= maxValidChar) ? ch : '?');
-        }
-        return result;
-    }
-
-    private byte[] getUtf8Bytes() {
-        UnsafeByteSequence result = new UnsafeByteSequence(count);
-        final int end = offset + count;
-        for (int i = offset; i < end; ++i) {
-            int ch = value[i];
-            if (ch < 0x80) {
-                // One byte.
-                result.write(ch);
-            } else if (ch < 0x800) {
-                // Two bytes.
-                result.write((ch >> 6) | 0xc0);
-                result.write((ch & 0x3f) | 0x80);
-            } else if (ch >= Character.MIN_SURROGATE && ch <= Character.MAX_SURROGATE) {
-                // A supplementary character.
-                char high = (char) ch;
-                char low = (i + 1 != end) ? value[i + 1] : '\u0000';
-                if (!Character.isSurrogatePair(high, low)) {
-                    result.write('?');
-                    continue;
-                }
-                // Now we know we have a *valid* surrogate pair, we can consume the low surrogate.
-                ++i;
-                ch = Character.toCodePoint(high, low);
-                // Four bytes.
-                result.write((ch >> 18) | 0xf0);
-                result.write(((ch >> 12) & 0x3f) | 0x80);
-                result.write(((ch >> 6) & 0x3f) | 0x80);
-                result.write((ch & 0x3f) | 0x80);
-            } else {
-                // Three bytes.
-                result.write((ch >> 12) | 0xe0);
-                result.write(((ch >> 6) & 0x3f) | 0x80);
-                result.write((ch & 0x3f) | 0x80);
-            }
-        }
-        return result.toByteArray();
     }
 
     /**
