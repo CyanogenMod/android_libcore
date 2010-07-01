@@ -14,110 +14,78 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.harmony.luni.internal.net.www.protocol.http;
 
+import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.URI;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import libcore.base.Objects;
 
 /**
- * An <code>HttpConnection</code> represents a persistent http or https connection and contains
- * various utility methods to access that connection.
+ * Holds the sockets and streams of an HTTP or HTTPS connection, which may be
+ * used for multiple HTTP request/response exchanges. Connections may be direct
+ * to the origin server or via a proxy. Create an instance using the {@link
+ * Address} inner class.
+ *
+ * <p>Do not confuse this class with the misnamed {@code HttpURLConnection},
+ * which isn't so much a connection as a single request/response pair.
  */
-public class HttpConnection {
+public final class HttpConnection {
+    private final Address address;
 
-    private boolean usingSecureSocket = false;
-
-    private Socket socket;
-    private SSLSocket sslSocket;
-
+    private final Socket socket;
     private InputStream inputStream;
     private OutputStream outputStream;
+
+    private SSLSocket sslSocket;
     private InputStream sslInputStream;
     private OutputStream sslOutputStream;
 
-    private HttpConfiguration config;
-
-    public HttpConnection(HttpConfiguration config, int connectTimeout) throws IOException {
-        this.config = config;
-        String hostName = config.getHostName();
-        int hostPort = config.getHostPort();
-        Proxy proxy = config.getProxy();
-        if(proxy == null || proxy.type() == Proxy.Type.HTTP) {
-            socket = new Socket();
-        } else {
-            socket = new Socket(proxy);
-        }
-        socket.connect(new InetSocketAddress(hostName, hostPort), connectTimeout);
+    private HttpConnection(Address config, int connectTimeout) throws IOException {
+        this.address = config;
+        this.socket = (config.proxy != null && config.proxy.type() != Proxy.Type.HTTP)
+                ? new Socket(config.proxy)
+                : new Socket();
+        SocketAddress address = new InetSocketAddress(config.hostName, config.hostPort);
+        socket.connect(address, connectTimeout);
     }
 
     public void closeSocketAndStreams() {
-        if(usingSecureSocket) {
-            if (null != sslOutputStream) {
-                OutputStream temp = sslOutputStream;
-                sslOutputStream = null;
-                try {
-                    temp.close();
-                } catch (Exception ex) {
-                    // ignored
-                }
-            }
+        closeQuietly(sslOutputStream);
+        closeQuietly(sslInputStream);
+        closeQuietly(sslSocket);
+        closeQuietly(outputStream);
+        closeQuietly(inputStream);
+        closeQuietly(socket);
+    }
 
-            if (null != sslInputStream) {
-                InputStream temp = sslInputStream;
-                sslInputStream = null;
-                try {
-                    temp.close();
-                } catch (Exception ex) {
-                    // ignored
-                }
-            }
-
-            if (null != sslSocket) {
-                Socket temp = sslSocket;
-                sslSocket = null;
-                try {
-                    temp.close();
-                } catch (Exception ex) {
-                    // ignored
-                }
+    private void closeQuietly(Socket socket) {
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (Exception ignored) {
             }
         }
-        if (null != outputStream) {
-            OutputStream temp = outputStream;
-            outputStream = null;
-            try {
-                temp.close();
-            } catch (Exception ex) {
-                // ignored
-            }
-        }
+    }
 
-        if (null != inputStream) {
-            InputStream temp = inputStream;
-            inputStream = null;
+    private void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
             try {
-                temp.close();
-            } catch (Exception ex) {
-                // ignored
-            }
-        }
-
-        if (null != socket) {
-            Socket temp = socket;
-            socket = null;
-            try {
-                temp.close();
-            } catch (Exception ex) {
-                // ignored
+                closeable.close();
+            } catch (Exception ignored) {
             }
         }
     }
@@ -127,7 +95,7 @@ public class HttpConnection {
     }
 
     public OutputStream getOutputStream() throws IOException {
-        if(usingSecureSocket) {
+        if (sslSocket != null) {
             if (sslOutputStream == null) {
                 sslOutputStream = sslSocket.getOutputStream();
             }
@@ -139,127 +107,144 @@ public class HttpConnection {
     }
 
     public InputStream getInputStream() throws IOException {
-        if(usingSecureSocket) {
+        if (sslSocket != null) {
             if (sslInputStream == null) {
                 sslInputStream = sslSocket.getInputStream();
             }
             return sslInputStream;
-        } else if(inputStream == null) {
-            inputStream = socket.getInputStream();
+        } else if (inputStream == null) {
+            /*
+             * Buffer the socket stream to permit efficient parsing of HTTP
+             * headers and chunk sizes. Benchmarks suggest 128 is sufficient.
+             * We cannot buffer when setting up a tunnel because we may consume
+             * bytes intended for the SSL socket.
+             */
+            int bufferSize = 128;
+            inputStream = address.requiresTunnel
+                    ? socket.getInputStream()
+                    : new BufferedInputStream(socket.getInputStream(), bufferSize);
         }
         return inputStream;
     }
 
-    public HttpConfiguration getHttpConfiguration() {
-        return config;
+    public Address getAddress() {
+        return address;
     }
 
-    public SSLSocket getSecureSocket(SSLSocketFactory sslSocketFactory, HostnameVerifier hostnameVerifier) throws IOException {
-        if (!usingSecureSocket) {
-            String hostName = config.getHostName();
-            int port = config.getHostPort();
+    public SSLSocket getSecureSocket(SSLSocketFactory sslSocketFactory,
+            HostnameVerifier hostnameVerifier) throws IOException {
+        if (sslSocket == null) {
             // create the wrapper over connected socket
-            sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket, hostName, port, true);
-            if (!hostnameVerifier.verify(hostName, sslSocket.getSession())) {
-                throw new IOException("Hostname '" + hostName + "' was not verified");
+            SSLSocket unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(
+                    socket, address.hostName, address.hostPort, true /* autoClose */);
+            if (!hostnameVerifier.verify(address.hostName, unverifiedSocket.getSession())) {
+                throw new IOException("Hostname '" + address.hostName + "' was not verified");
             }
-            usingSecureSocket = true;
+            sslSocket = unverifiedSocket;
         }
+
         return sslSocket;
     }
 
-    Socket getSocket() {
-        return socket;
-    }
-
-    /*
-     * This method has been copied from the Apache Jakarta Commons HttpClient project
-     * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424
-     */
-    protected boolean isStale() throws IOException {
-        boolean isStale = true;
-        // BEGIN android-note
-        // The following line was expanded to check for input/output shutdown.
-        // END android-note
-        if (! (socket.isClosed() || socket.isInputShutdown()
-                        || socket.isOutputShutdown())) {
-            // the socket is open, but could still have been closed from the other end
-            isStale = false;
-            try {
-                if (inputStream.available() <= 0) {
-                    int soTimeout = socket.getSoTimeout();
-                    try {
-                        socket.setSoTimeout(1);
-                        inputStream.mark(1);
-                        int byteRead = inputStream.read();
-                        if (byteRead == -1) {
-                            // again - if the socket is reporting all data read,
-                            // probably stale
-                            isStale = true;
-                        } else {
-                            inputStream.reset();
-                        }
-                    } finally {
-                        socket.setSoTimeout(soTimeout);
-                    }
-                }
-            } catch (InterruptedIOException e) {
-                if (!isSocketTimeoutException(e)) {
-                    throw e;
-                }
-                // aha - the connection is NOT stale - continue on!
-            } catch (IOException e) {
-                // oops - the connection is stale, the read or soTimeout failed.
-                isStale = true;
-            }
-        }
-
-        return isStale;
-    }
-
-    // BEGIN android-added
     /**
-     * Returns whether this connection is eligible to be recycled. This
-     * is like {@link #isStale} except that it doesn't try to actually
-     * perform any I/O.
-     *
-     * @return <code>true</code> if the connection is eligible to be
-     * recycled
+     * Returns true if the connection is functional. This uses a shameful hack
+     * to peek a byte from the socket.
      */
-    protected boolean isEligibleForRecycling() {
-        return ! (socket.isClosed() || socket.isInputShutdown()
-                || socket.isOutputShutdown());
-    }
-    // END android-added
-
-    /*
-     * This field has been copied from the Apache Jakarta Commons HttpClient project
-     * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424
-     */
-    static private final Class SOCKET_TIMEOUT_CLASS = SocketTimeoutExceptionClass();
-
-    /*
-     * This method has been copied from the Apache Jakarta Commons HttpClient project
-     * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424
-     */
-    public static boolean isSocketTimeoutException(final InterruptedIOException e) {
-        if (SOCKET_TIMEOUT_CLASS != null) {
-            return SOCKET_TIMEOUT_CLASS.isInstance(e);
-        } else {
+    boolean isStale() throws IOException {
+        if (!isEligibleForRecycling()) {
             return true;
         }
-    }
 
-    /*
-     * This method has been copied from the Apache Jakarta Commons HttpClient project
-     * http://svn.apache.org/repos/asf/jakarta/commons/proper/httpclient/trunk/HttpClient/src/java/org/apache/commons/httpclient/HttpConnection.java r480424
-     */
-    static private Class SocketTimeoutExceptionClass() {
+        if (inputStream.available() > 0) {
+            return false;
+        }
+
+        int soTimeout = socket.getSoTimeout();
         try {
-            return Class.forName("java.net.SocketTimeoutException");
-        } catch (ClassNotFoundException e) {
-            return null;
+            socket.setSoTimeout(1);
+            inputStream.mark(1);
+            int byteRead = inputStream.read();
+            if (byteRead != -1) {
+                inputStream.reset();
+                return false;
+            }
+            return true; // the socket is reporting all data read; it's stale
+        } catch (SocketTimeoutException e) {
+            return false; // the connection is not stale; hooray
+        } catch (IOException e) {
+            return true; // the connection is stale, the read or soTimeout failed.
+        } finally {
+            socket.setSoTimeout(soTimeout);
         }
     }
 
+    /**
+     * Returns true if this connection is eligible to be recycled. This
+     * is like {@link #isStale} except that it doesn't try to actually
+     * perform any I/O.
+     */
+    protected boolean isEligibleForRecycling() {
+        return !socket.isClosed()
+                && !socket.isInputShutdown()
+                && !socket.isOutputShutdown();
+    }
+
+    public static final class Address {
+        private final URI uri;
+        private final Proxy proxy;
+        private final boolean requiresTunnel;
+        private final String hostName;
+        private final int hostPort;
+
+        public Address(URI uri) {
+            this.uri = uri;
+            this.proxy = null;
+            this.requiresTunnel = false;
+            this.hostName = uri.getHost();
+            this.hostPort = uri.getEffectivePort();
+        }
+
+        /**
+         * @param requiresTunnel true if the HTTP connection needs to tunnel one
+         *     protocol over another, such as when using HTTPS through an HTTP
+         *     proxy. When doing so, we must avoid buffering bytes intended for
+         *     the higher-level protocol.
+         */
+        public Address(URI uri, Proxy proxy, boolean requiresTunnel) {
+            this.uri = uri;
+            this.proxy = proxy;
+            this.requiresTunnel = requiresTunnel;
+
+            SocketAddress proxyAddress = proxy.address();
+            if (!(proxyAddress instanceof InetSocketAddress)) {
+                throw new IllegalArgumentException("Proxy.address() is not an InetSocketAddress: " +
+                        proxyAddress.getClass());
+            }
+            InetSocketAddress proxySocketAddress = (InetSocketAddress) proxyAddress;
+            this.hostName = proxySocketAddress.getHostName();
+            this.hostPort = proxySocketAddress.getPort();
+        }
+
+        @Override public boolean equals(Object other) {
+            if (other instanceof Address) {
+                Address that = (Address) other;
+                return Objects.equal(this.proxy, that.proxy)
+                        && this.uri.equals(that.uri)
+                        && this.requiresTunnel == that.requiresTunnel;
+            }
+            return false;
+        }
+
+        @Override public int hashCode() {
+            int result = 17;
+            result = 31 * result + uri.hashCode();
+            result = 31 * result + (proxy != null ? proxy.hashCode() : 0);
+            result = 31 * result + (requiresTunnel ? 1 : 0);
+            return result;
+        }
+
+        public HttpConnection connect(int connectTimeout) throws IOException {
+            return new HttpConnection(this, connectTimeout);
+        }
+    }
 }

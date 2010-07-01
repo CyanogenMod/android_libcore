@@ -545,14 +545,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * Returns connected socket to be used for this HTTP connection.
      */
     protected HttpConnection getHTTPConnection(Proxy proxy) throws IOException {
-        HttpConfiguration configuration;
+        HttpConnection.Address address;
         if (proxy == null || proxy.type() == Proxy.Type.DIRECT) {
             this.proxy = null; // not using proxy
-            configuration = new HttpConfiguration(uri);
+            address = new HttpConnection.Address(uri);
         } else {
-            configuration = new HttpConfiguration(uri, proxy);
+            address = new HttpConnection.Address(uri, proxy, requiresTunnel());
         }
-        return HttpConnectionPool.INSTANCE.get(configuration, getConnectTimeout());
+        return HttpConnectionPool.INSTANCE.get(address, getConnectTimeout());
     }
 
     /**
@@ -1235,6 +1235,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public boolean usingProxy() {
         return (proxy != null && proxy.type() != Proxy.Type.DIRECT);
+    }
+
+    protected boolean requiresTunnel() {
+        return false;
     }
 
     /**

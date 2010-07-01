@@ -32,6 +32,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TestSSLContext;
 import tests.http.DefaultResponseCache;
@@ -253,14 +255,35 @@ public class URLConnectionTest extends junit.framework.TestCase {
                 .setBody("this response comes via HTTPS"));
         server.play();
 
-        URL url = new URL("https://localhost:" + server.getPort() + "/foo");
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/foo").openConnection();
         connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
 
         assertContent("this response comes via HTTPS", connection);
 
         RecordedRequest request = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
+    }
+
+    public void testConnectViaHttpsReusingConnections() throws IOException, InterruptedException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+
+        server.useHttps(testSSLContext.sslContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse().setBody("this response comes via HTTPS"));
+        server.enqueue(new MockResponse().setBody("another response via HTTPS"));
+        server.play();
+
+        // install a custom SSL socket factory so the server can be authorized
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
+        assertContent("this response comes via HTTPS", connection);
+
+        // without an SSL socket factory, the connection should fail
+        connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        try {
+            readAscii(connection.getInputStream(), Integer.MAX_VALUE);
+            fail();
+        } catch (SSLException expected) {
+        }
     }
 
     public void testConnectViaProxy() throws IOException, InterruptedException {
@@ -373,6 +396,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(-1, in.read());
         in.close();
         assertEquals(1, cache.getSuccessCount());
+        assertEquals(0, cache.getAbortCount());
 
         urlConnection = server.getUrl("/").openConnection(); // this response is cached!
         in = urlConnection.getInputStream();
@@ -381,6 +405,8 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(-1, in.read());
         assertEquals(1, cache.getMissCount());
         assertEquals(1, cache.getHitCount());
+        assertEquals(1, cache.getSuccessCount());
+        assertEquals(0, cache.getAbortCount());
     }
 
     private void reliableSkip(InputStream in, int length) throws IOException {

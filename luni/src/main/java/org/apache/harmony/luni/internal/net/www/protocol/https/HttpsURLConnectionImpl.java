@@ -335,10 +335,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         return httpsEngine.toString();
     }
 
-    /**
-     * HttpsEngine
-     */
-    private class HttpsEngine extends HttpURLConnectionImpl {
+    private final class HttpsEngine extends HttpURLConnectionImpl {
 
         // In case of using proxy this field indicates
         // if it is a SSL Tunnel establishing stage
@@ -352,12 +349,11 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             super(url, port, proxy);
         }
 
-        @Override
-        public void connect() throws IOException {
+        @Override public void connect() throws IOException {
             if (connected) {
                 return;
             }
-            if (super.usingProxy() && !makingSSLTunnel) {
+            if (usingProxy() && !makingSSLTunnel) {
                 // SSL Tunnel through the proxy was not established yet, do so
                 makingSSLTunnel = true;
                 // first - make the connection
@@ -389,6 +385,10 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             }
         }
 
+        @Override protected boolean requiresTunnel() {
+            return usingProxy();
+        }
+
         @Override protected void releaseSocket(boolean closeSocket) {
             // when a CONNECT completes, don't release the socket!
             if (method == CONNECT) {
@@ -398,13 +398,15 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             super.releaseSocket(closeSocket);
         }
 
-        @Override
-        protected String requestString() {
-            if (usingProxy()) {
-                if (makingSSLTunnel) {
-                    // SSL tunnels require host:port for the origin server
-                    return url.getHost() + ":" + url.getEffectivePort();
-                }
+        @Override protected String requestString() {
+            if (!usingProxy()) {
+                return super.requestString();
+
+            } else if (makingSSLTunnel) {
+                // SSL tunnels require host:port for the origin server
+                return url.getHost() + ":" + url.getEffectivePort();
+
+            } else {
                 // we has made SSL Tunneling, return /requested.data
                 String file = url.getFile();
                 if (file == null || file.length() == 0) {
@@ -412,8 +414,6 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 }
                 return file;
             }
-            return super.requestString();
         }
-
     }
 }

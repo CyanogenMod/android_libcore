@@ -29,7 +29,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -52,6 +56,9 @@ public final class MockWebServer {
             = new LinkedBlockingQueue<RecordedRequest>();
     private final BlockingQueue<MockResponse> responseQueue
             = new LinkedBlockingDeque<MockResponse>();
+    private final Set<Socket> openClientSockets
+            = Collections.synchronizedSet(new HashSet<Socket>());
+    private boolean singleResponse;
     private final AtomicInteger requestCount = new AtomicInteger();
     private int bodyLimit = Integer.MAX_VALUE;
     private ServerSocket serverSocket;
@@ -78,7 +85,9 @@ public final class MockWebServer {
      * @param path the request path, such as "/".
      */
     public URL getUrl(String path) throws MalformedURLException {
-        return new URL("http://localhost:" + getPort() + path);
+        return sslSocketFactory != null
+                ? new URL("https://localhost:" + getPort() + path)
+                : new URL("http://localhost:" + getPort() + path);
     }
 
     /**
@@ -122,6 +131,19 @@ public final class MockWebServer {
     }
 
     /**
+     * By default, this class processes requests coming in by adding them to a
+     * queue and serves responses by removing them from another queue. This mode
+     * is appropriate for correctness testing.
+     *
+     * <p>Serving a single response causes the server to be stateless: requests
+     * are not enqueued, and responses are not dequeued. This mode is appropriate
+     * for benchmarking.
+     */
+    public void setSingleResponse(boolean singleResponse) {
+        this.singleResponse = singleResponse;
+    }
+
+    /**
      * Starts the server, serves all enqueued requests, and shuts the server
      * down.
      */
@@ -131,36 +153,74 @@ public final class MockWebServer {
         serverSocket.setReuseAddress(true);
 
         port = serverSocket.getLocalPort();
-        executor.submit(new Callable<Void>() {
+        executor.submit(namedCallable("MockWebServer-accept-" + port, new Callable<Void>() {
             public Void call() throws Exception {
-                int count = 0;
+                List<Throwable> failures = new ArrayList<Throwable>();
                 try {
-                    while (true) {
-                        if (count > 0 && responseQueue.isEmpty()) {
-                            return null;
-                        }
+                    acceptConnections();
+                } catch (Throwable e) {
+                    failures.add(e);
+                }
 
-                        serveConnection(serverSocket.accept());
-                        count++;
+                /*
+                 * This gnarly block of code will release all sockets and
+                 * all thread, even if any close fails.
+                 */
+                try {
+                    serverSocket.close();
+                } catch (Throwable e) {
+                    failures.add(e);
+                }
+                for (Iterator<Socket> s = openClientSockets.iterator(); s.hasNext(); ) {
+                    try {
+                        s.next().close();
+                        s.remove();
+                    } catch (Throwable e) {
+                        failures.add(e);
                     }
-                } finally {
-                    shutdown();
+                }
+                try {
+                    executor.shutdown();
+                } catch (Throwable e) {
+                    failures.add(e);
+                }
+                if (!failures.isEmpty()) {
+                    Throwable thrown = failures.get(0);
+                    if (thrown instanceof Exception) {
+                        throw (Exception) thrown;
+                    } else {
+                        throw (Error) thrown;
+                    }
+                } else {
+                    return null;
                 }
             }
-        });
+
+            public void acceptConnections() throws IOException {
+                int count = 0;
+                while (true) {
+                    if (count > 0 && responseQueue.isEmpty()) {
+                        return;
+                    }
+
+                    Socket socket = serverSocket.accept();
+                    openClientSockets.add(socket);
+                    serveConnection(socket);
+                    count++;
+                }
+            }
+        }));
     }
 
     public void shutdown() throws IOException {
-        if (executor != null) {
-            executor.shutdown();
-        }
         if (serverSocket != null) {
-            serverSocket.close();
+            serverSocket.close(); // should cause acceptConnections() to break out
         }
     }
 
     private void serveConnection(final Socket raw) {
-        executor.submit(new Callable<Void>() {
+        String name = "MockWebServer-" + raw.getRemoteSocketAddress();
+        executor.submit(namedCallable(name, new Callable<Void>() {
             int sequenceNumber = 0;
 
             public Void call() throws Exception {
@@ -188,6 +248,8 @@ public final class MockWebServer {
 
                 in.close();
                 out.close();
+                raw.close();
+                openClientSockets.remove(raw);
                 return null;
             }
 
@@ -201,9 +263,7 @@ public final class MockWebServer {
                 if (request == null) {
                     return false;
                 }
-                requestCount.incrementAndGet();
-                requestQueue.add(request);
-                MockResponse response = computeResponse(request);
+                MockResponse response = dispatch(request);
                 writeResponse(out, response);
                 if (response.getDisconnectAtEnd()) {
                     in.close();
@@ -212,7 +272,7 @@ public final class MockWebServer {
                 sequenceNumber++;
                 return true;
             }
-        });
+        }));
     }
 
     /**
@@ -279,11 +339,18 @@ public final class MockWebServer {
     /**
      * Returns a response to satisfy {@code request}.
      */
-    private MockResponse computeResponse(RecordedRequest request) throws InterruptedException {
+    private MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         if (responseQueue.isEmpty()) {
             throw new IllegalStateException("Unexpected request: " + request);
         }
-        return responseQueue.take();
+
+        if (singleResponse) {
+            return responseQueue.peek();
+        } else {
+            requestCount.incrementAndGet();
+            requestQueue.add(request);
+            return responseQueue.take();
+        }
     }
 
     private void writeResponse(OutputStream out, MockResponse response) throws IOException {
@@ -353,5 +420,19 @@ public final class MockWebServer {
                 super.write(oneByte);
             }
         }
+    }
+
+    private static <T> Callable<T> namedCallable(final String name, final Callable<T> callable) {
+        return new Callable<T>() {
+            public T call() throws Exception {
+                String originalName = Thread.currentThread().getName();
+                Thread.currentThread().setName(name);
+                try {
+                    return callable.call();
+                } finally {
+                    Thread.currentThread().setName(originalName);
+                }
+            }
+        };
     }
 }
