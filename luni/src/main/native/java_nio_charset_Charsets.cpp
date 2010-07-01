@@ -71,8 +71,10 @@ public:
         }
 
         // Copy data out of the old array and then let go of it.
-        memcpy(newRawArray, mRawArray, mSize);
-        mEnv->ReleaseByteArrayElements(mJavaArray, mRawArray, JNI_ABORT);
+        if (mRawArray != NULL) {
+            memcpy(newRawArray, mRawArray, mSize);
+            mEnv->ReleaseByteArrayElements(mJavaArray, mRawArray, JNI_ABORT);
+        }
 
         // Point ourselves at the new array.
         mJavaArray = newJavaArray;
