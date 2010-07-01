@@ -21,6 +21,8 @@
 #include "jni.h"
 #include "unicode/utf16.h"
 
+#include <string.h>
+
 /**
  * Approximates java.lang.UnsafeByteSequence so we don't have to pay the cost of calling back into
  * Java when converting a char[] to a UTF-8 byte[]. This lets us have UTF-8 conversions slightly
