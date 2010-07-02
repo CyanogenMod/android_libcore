@@ -17,13 +17,13 @@
 
 package java.lang;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.Charsets;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Formatter;
 import java.util.Locale;
@@ -34,6 +34,23 @@ import java.util.regex.Pattern;
  * {@code String} is represented by array of UTF-16 values, such that
  * Unicode supplementary characters (code points) are stored/encoded as
  * surrogate pairs via Unicode code units ({@code char}).
+ *
+ * <a name="backing_array"><h3>Backing Arrays</h3></a>
+ * This class is implemented using a char[]. The length of the array may exceed
+ * the length of the string. For example, the string "Hello" may be backed by
+ * the array {@code ['H', 'e', 'l', 'l', 'o', 'W'. 'o', 'r', 'l', 'd']} with
+ * offset 0 and length 5.
+ *
+ * <p>Multiple strings can share the same char[] because strings are immutable.
+ * The {@link #substring} method <strong>always</strong> returns a string that
+ * shares the backing array of its source string. Generally this is an
+ * optimization: fewer character arrays need to be allocated, and less copying
+ * is necessary. But this can also lead to unwanted heap retention. Taking a
+ * short substring of long string means that the long shared char[] won't be
+ * garbage until both strings are garbage. This typically happens when parsing
+ * small substrings out of a large input. To avoid this where necessary, call
+ * {@code new String(longString.subString(...))}. The string copy constructor
+ * always ensures that the backing array is no larger than necessary.
  *
  * @see StringBuffer
  * @see StringBuilder
@@ -512,15 +529,16 @@ outer:
     }
 
     /**
-     * Creates a {@code String} that is a copy of the specified string.
-     *
-     * @param string
-     *            the string to copy.
+     * Constructs a new string with the same sequence of characters as {@code
+     * toCopy}. The returned string's <a href="#backing_array">backing array</a>
+     * is no larger than necessary.
      */
-    public String(String string) {
-        value = string.value;
-        offset = string.offset;
-        count = string.count;
+    public String(String toCopy) {
+        value = (toCopy.value.length == toCopy.count)
+                ? toCopy.value
+                : Arrays.copyOfRange(toCopy.value, toCopy.offset, toCopy.offset + toCopy.length());
+        offset = 0;
+        count = value.length;
     }
 
     /*
@@ -1587,7 +1605,8 @@ outer:
     }
 
     /**
-     * Copies a range of characters into a new string.
+     * Returns a string containing a suffix of this string. The returned string
+     * shares this string's <a href="#backing_array">backing array</a>.
      *
      * @param start
      *            the offset of the first character.
@@ -1607,7 +1626,9 @@ outer:
     }
 
     /**
-     * Copies a range of characters into a new string.
+     * Returns a string containing a subsequence of characters from this string.
+     * The returned string shares this string's <a href="#backing_array">backing
+     * array</a>.
      *
      * @param start
      *            the offset of the first character.
