@@ -38,13 +38,15 @@
 class NativeUnsafeByteSequence {
 public:
     NativeUnsafeByteSequence(JNIEnv* env)
-        : mEnv(env), mJavaArray(NULL), mRawArray(NULL), mSize(0), mOffset(0)
+        : mEnv(env), mJavaArray(NULL), mRawArray(NULL), mSize(-1), mOffset(0)
     {
     }
 
     ~NativeUnsafeByteSequence() {
         // Release our pointer to the raw array, copying changes back to the Java heap.
-        mEnv->ReleaseByteArrayElements(mJavaArray, mRawArray, 0);
+        if (mRawArray != NULL) {
+            mEnv->ReleaseByteArrayElements(mJavaArray, mRawArray, 0);
+        }
     }
 
     bool append(jbyte b) {

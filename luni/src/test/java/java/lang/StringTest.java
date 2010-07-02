@@ -115,6 +115,9 @@ public class StringTest extends TestCase {
         // We have a fast path implementation of String.getBytes for UTF-8.
         Charset cs = Charset.forName("UTF-8");
 
+        // Test the empty string.
+        assertEquals("[]", Arrays.toString("".getBytes(cs)));
+
         // Test one-byte characters.
         assertEquals("[0]", Arrays.toString("\u0000".getBytes(cs)));
         assertEquals("[127]", Arrays.toString("\u007f".getBytes(cs)));
