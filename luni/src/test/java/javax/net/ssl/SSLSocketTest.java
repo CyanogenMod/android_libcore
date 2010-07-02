@@ -36,7 +36,10 @@ public class SSLSocketTest extends TestCase {
     }
 
     public void test_SSLSocket_getSupportedCipherSuites_connect() throws Exception {
-        TestSSLContext c = TestSSLContext.create();
+        // note the rare usage of DSA keys here in addition to RSA
+        TestKeyStore testKeyStore = TestKeyStore.create(new String[] { "RSA", "DSA" } );
+        TestSSLContext c = TestSSLContext.create(testKeyStore.keyStore,
+                                                 testKeyStore.keyStorePassword);
         String[] cipherSuites = c.sslContext.getSocketFactory().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
             /*

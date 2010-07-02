@@ -21,7 +21,7 @@ public class X509KeyManagerImpl implements X509KeyManager {
     private KeyStore keyTest;
     private X509Certificate[] cert = null;
 
- // creating a certificate
+    // creating a certificate
     String certificate = "-----BEGIN CERTIFICATE-----\n"
             + "MIICZTCCAdICBQL3AAC2MA0GCSqGSIb3DQEBAgUAMF8xCzAJBgNVBAYTAlVTMSAw\n"
             + "HgYDVQQKExdSU0EgRGF0YSBTZWN1cml0eSwgSW5jLjEuMCwGA1UECxMlU2VjdXJl\n"
@@ -188,8 +188,10 @@ public class X509KeyManagerImpl implements X509KeyManager {
         }
         try {
             if (as.equals(server) && socket != null) {
-                    return alias = keyTest.getCertificateAlias(cert[0]);
-             } else return null;
+                return alias = keyTest.getCertificateAlias(cert[0]);
+            } else {
+                return null;
+            }
         } catch (Exception ex) {
             throw new IllegalArgumentException(ex.getMessage());
         }

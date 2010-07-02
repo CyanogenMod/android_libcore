@@ -31,7 +31,7 @@ import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 
 /**
- * TestSSLContext is a convenience class for other tests that
+ * TestKeyStore is a convenience class for other tests that
  * want a canned KeyStore with a variety of key pairs.
  *
  * Creating a key store is relatively slow, so a singleton instance is
@@ -48,17 +48,24 @@ public final class TestKeyStore {
         this.keyStorePassword = keyStorePassword;
     }
 
-    private static final TestKeyStore SINGLETON = create();
+    private static final TestKeyStore SINGLETON = create(new String[] { "RSA" } );
 
+    /**
+     * Return a keystore with an RSA keypair
+     */
     public static TestKeyStore get() {
         return SINGLETON;
     }
 
-    public static TestKeyStore create() {
+    /**
+     * Create a new KeyStore containing the requested key types.
+     * Since key generation can be expensive, most tests should reuse
+     * the RSA-only singleton instance returned by TestKeyStore.get
+     */
+    public static TestKeyStore create(String[] keyAlgorithms) {
         try {
             char[] keyStorePassword = null;
             KeyStore keyStore = createKeyStore();
-            String[] keyAlgorithms = new String[] { "RSA", "DSA" };
             for (String keyAlgorithm : keyAlgorithms) {
                 String publicAlias  = "public-"  + keyAlgorithm;
                 String privateAlias = "private-" + keyAlgorithm;
@@ -121,7 +128,6 @@ public final class TestKeyStore {
             KeyPair kp = kpg.generateKeyPair();
             privateKey = (PrivateKey)kp.getPrivate();
             PublicKey publicKey  = (PublicKey)kp.getPublic();
-
             // 2.) use keys to make certficate
 
             // note that there doesn't seem to be a standard way to make a
