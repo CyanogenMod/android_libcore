@@ -409,7 +409,7 @@ public final class Matcher implements MatchResult {
             return false;
         }
 
-        matchFound = findImpl(address, findPos, matchOffsets);
+        matchFound = findImpl(address, input, findPos, matchOffsets);
         if (matchFound) {
             findPos = matchOffsets[1];
         }
@@ -425,7 +425,7 @@ public final class Matcher implements MatchResult {
      * @return true if (and only if) a match has been found.
      */
     public boolean find() {
-        matchFound = findNextImpl(address, matchOffsets);
+        matchFound = findNextImpl(address, input, matchOffsets);
         if (matchFound) {
             findPos = matchOffsets[1];
         }
@@ -440,7 +440,7 @@ public final class Matcher implements MatchResult {
      * @return true if (and only if) the {@code Pattern} matches.
      */
     public boolean lookingAt() {
-        matchFound = lookingAtImpl(address, matchOffsets);
+        matchFound = lookingAtImpl(address, input, matchOffsets);
         if (matchFound) {
             findPos = matchOffsets[1];
         }
@@ -455,7 +455,7 @@ public final class Matcher implements MatchResult {
      *         region.
      */
     public boolean matches() {
-        matchFound = matchesImpl(address, matchOffsets);
+        matchFound = matchesImpl(address, input, matchOffsets);
         if (matchFound) {
             findPos = matchOffsets[1];
         }
@@ -684,15 +684,15 @@ public final class Matcher implements MatchResult {
     }
 
     private static native void closeImpl(int addr);
-    private static native boolean findImpl(int addr, int startIndex, int[] offsets);
-    private static native boolean findNextImpl(int addr, int[] offsets);
+    private static native boolean findImpl(int addr, String s, int startIndex, int[] offsets);
+    private static native boolean findNextImpl(int addr, String s, int[] offsets);
     private static native int groupCountImpl(int addr);
     private static native boolean hitEndImpl(int addr);
-    private static native boolean lookingAtImpl(int addr, int[] offsets);
-    private static native boolean matchesImpl(int addr, int[] offsets);
+    private static native boolean lookingAtImpl(int addr, String s, int[] offsets);
+    private static native boolean matchesImpl(int addr, String s, int[] offsets);
     private static native int openImpl(int patternAddr);
     private static native boolean requireEndImpl(int addr);
-    private static native void setInputImpl(int addr, String text, int start, int end);
+    private static native void setInputImpl(int addr, String s, int start, int end);
     private static native void useAnchoringBoundsImpl(int addr, boolean value);
     private static native void useTransparentBoundsImpl(int addr, boolean value);
 }
