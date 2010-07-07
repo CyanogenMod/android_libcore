@@ -34,9 +34,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.Charsets;
 import java.security.AccessController;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import org.apache.harmony.luni.util.DeleteOnExit;
 import org.apache.harmony.luni.util.PriviAction;
 
@@ -91,9 +91,6 @@ public class File implements Serializable, Comparable<File> {
      * This field is a single-character string equal to String.valueOf(pathSeparatorChar).
      */
     public static final String pathSeparator;
-
-    /* Temp file counter */
-    private static int counter;
 
     /**
      * The path we return from getPath. This is almost the path we were
@@ -1299,7 +1296,7 @@ public class File implements Serializable, Comparable<File> {
 
     /**
      * Creates an empty temporary file using the given prefix and suffix as part
-     * of the file name. If suffix is {@code null}, {@code .tmp} is used. This
+     * of the file name. If {@code suffix} is null, {@code .tmp} is used. This
      * method is a convenience method that calls
      * {@link #createTempFile(String, String, File)} with the third argument
      * being {@code null}.
@@ -1312,14 +1309,15 @@ public class File implements Serializable, Comparable<File> {
      * @throws IOException
      *             if an error occurs when writing the file.
      */
-    public static File createTempFile(String prefix, String suffix)
-            throws IOException {
+    public static File createTempFile(String prefix, String suffix) throws IOException {
         return createTempFile(prefix, suffix, null);
     }
 
     /**
      * Creates an empty temporary file in the given directory using the given
-     * prefix and suffix as part of the file name.
+     * prefix and suffix as part of the file name. If {@code suffix} is null, {@code .tmp} is used.
+     *
+     * <p>Note that this method does <i>not</i> call {@link #deleteOnExit}.
      *
      * @param prefix
      *            the prefix to the temp file name.
@@ -1344,33 +1342,20 @@ public class File implements Serializable, Comparable<File> {
         if (prefix.length() < 3) {
             throw new IllegalArgumentException("prefix must be at least 3 characters");
         }
-        String newSuffix = suffix == null ? ".tmp" : suffix;
-        File tmpDirFile;
-        if (directory == null) {
+        if (suffix == null) {
+            suffix = ".tmp";
+        }
+        File tmpDirFile = directory;
+        if (tmpDirFile == null) {
             String tmpDir = AccessController.doPrivileged(
                 new PriviAction<String>("java.io.tmpdir", "."));
             tmpDirFile = new File(tmpDir);
-        } else {
-            tmpDirFile = directory;
         }
         File result;
         do {
-            result = genTempFile(prefix, newSuffix, tmpDirFile);
+            result = new File(tmpDirFile, prefix + new Random().nextInt() + suffix);
         } while (!result.createNewFile());
         return result;
-    }
-
-    private static File genTempFile(String prefix, String suffix, File directory) {
-        if (counter == 0) {
-            // TODO: this doesn't make a lot of sense. SecureRandom for the seed, but then always just add one?
-            int newInt = new SecureRandom().nextInt();
-            counter = ((newInt / 65535) & 0xFFFF) + 0x2710;
-        }
-        StringBuilder newName = new StringBuilder();
-        newName.append(prefix);
-        newName.append(counter++);
-        newName.append(suffix);
-        return new File(directory, newName.toString());
     }
 
     /**

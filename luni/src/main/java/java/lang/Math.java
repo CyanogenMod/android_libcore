@@ -17,6 +17,8 @@
 
 package java.lang;
 
+import java.util.Random;
+
 /**
  * Class Math provides basic math constants and operations such as trigonometric
  * functions, hyperbolic functions, exponential, logarithms, etc.
@@ -57,7 +59,7 @@ public final class Math {
      */
     public static final double PI = 3.141592653589793;
 
-    private static java.util.Random random;
+    private static Random random;
 
     /**
      * Prevents this class from being instantiated.
@@ -972,14 +974,17 @@ public final class Math {
     public static native double tanh(double d);
 
     /**
-     * Returns a pseudo-random number between 0.0 (inclusive) and 1.0
-     * (exclusive).
+     * Returns a pseudo-random double {@code n}, where {@code n >= 0.0 && n < 1.0}.
+     * This method reuses a single instance of {@link java.util.Random}.
+     * This method is thread-safe because access to the {@code Random} is synchronized,
+     * but this harms scalability. Applications may find a performance benefit from
+     * allocating a {@code Random} for each of their threads.
      *
      * @return a pseudo-random number.
      */
-    public static double random() {
+    public static synchronized double random() {
         if (random == null) {
-            random = new java.util.Random();
+            random = new Random();
         }
         return random.nextDouble();
     }
