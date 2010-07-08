@@ -83,7 +83,7 @@ public class SSLContextTest extends TestCase {
             }
         }
         try {
-            SSLContext.getInstance(null, StandardNames.PROVIDER_NAME);
+            SSLContext.getInstance(null, StandardNames.JSSE_PROVIDER_NAME);
             fail();
         } catch (NullPointerException expected) {
         }
@@ -100,7 +100,7 @@ public class SSLContextTest extends TestCase {
     public void test_SSLContext_getProvider() throws Exception {
         Provider provider = SSLContext.getDefault().getProvider();
         assertNotNull(provider);
-        assertEquals(StandardNames.PROVIDER_NAME, provider.getName());
+        assertEquals(StandardNames.JSSE_PROVIDER_NAME, provider.getName());
     }
 
     public void test_SSLContext_init() throws Exception {
@@ -286,9 +286,16 @@ public class SSLContextTest extends TestCase {
     public void test_SSLContextTest_TestSSLContext_create() {
         TestSSLContext testContext = TestSSLContext.create();
         assertNotNull(testContext);
-        assertNotNull(testContext.keyStore);
-        assertNull(testContext.keyStorePassword);
-        assertNotNull(testContext.sslContext);
+        assertNotNull(testContext.clientKeyStore);
+        assertNull(testContext.clientKeyStorePassword);
+        assertNotNull(testContext.serverKeyStore);
+        assertNull(testContext.serverKeyStorePassword);
+        assertNotNull(testContext.clientKeyManager);
+        assertNotNull(testContext.serverKeyManager);
+        assertNotNull(testContext.clientTrustManager);
+        assertNotNull(testContext.serverTrustManager);
+        assertNotNull(testContext.clientContext);
+        assertNotNull(testContext.serverContext);
         assertNotNull(testContext.serverSocket);
         assertNotNull(testContext.host);
         assertTrue(testContext.port != 0);

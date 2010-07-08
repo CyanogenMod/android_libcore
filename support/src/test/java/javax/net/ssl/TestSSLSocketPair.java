@@ -55,7 +55,7 @@ public final class TestSSLSocketPair {
                                        final String[] serverCipherSuites) {
         try {
             SSLSocket client = (SSLSocket)
-                c.sslContext.getSocketFactory().createSocket(c.host, c.port);
+                c.clientContext.getSocketFactory().createSocket(c.host, c.port);
             final SSLSocket server = (SSLSocket) c.serverSocket.accept();
             Thread thread = new Thread(new Runnable () {
                     public void run() {

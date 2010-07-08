@@ -261,12 +261,12 @@ public class URLConnectionTest extends junit.framework.TestCase {
     public void testConnectViaHttps() throws IOException, InterruptedException {
         TestSSLContext testSSLContext = TestSSLContext.create();
 
-        server.useHttps(testSSLContext.sslContext.getSocketFactory(), false);
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
         server.enqueue(new MockResponse().setBody("this response comes via HTTPS"));
         server.play();
 
         HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/foo").openConnection();
-        connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
+        connection.setSSLSocketFactory(testSSLContext.serverContext.getSocketFactory());
 
         assertContent("this response comes via HTTPS", connection);
 
@@ -277,14 +277,14 @@ public class URLConnectionTest extends junit.framework.TestCase {
     public void testConnectViaHttpsReusingConnections() throws IOException, InterruptedException {
         TestSSLContext testSSLContext = TestSSLContext.create();
 
-        server.useHttps(testSSLContext.sslContext.getSocketFactory(), false);
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
         server.enqueue(new MockResponse().setBody("this response comes via HTTPS"));
         server.enqueue(new MockResponse().setBody("another response via HTTPS"));
         server.play();
 
         // install a custom SSL socket factory so the server can be authorized
         HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
-        connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         assertContent("this response comes via HTTPS", connection);
 
         // without an SSL socket factory, the connection should fail
@@ -339,7 +339,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
     public void testConnectViaHttpProxyToHttps() throws IOException, InterruptedException {
         TestSSLContext testSSLContext = TestSSLContext.create();
 
-        server.useHttps(testSSLContext.sslContext.getSocketFactory(), true);
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
         server.enqueue(new MockResponse().clearHeaders()); // for CONNECT
         server.enqueue(new MockResponse().setBody("this response comes via a secure proxy"));
         server.play();
@@ -347,7 +347,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         URL url = new URL("https://android.com/foo");
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(
                 server.toProxyAddress());
-        connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         connection.setHostnameVerifier(new HostnameVerifier() {
             public boolean verify(String hostname, SSLSession session) {
                 return true;
@@ -841,7 +841,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
     public void testRedirectedOnHttps() throws IOException, InterruptedException {
         TestSSLContext testSSLContext = TestSSLContext.create();
-        server.useHttps(testSSLContext.sslContext.getSocketFactory(), false);
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
         server.enqueue(new MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
                 .addHeader("Location: /foo")
@@ -850,7 +850,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         server.play();
 
         HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
-        connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         assertEquals("This is the new location!",
                 readAscii(connection.getInputStream(), Integer.MAX_VALUE));
 
@@ -863,7 +863,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
     public void testNotRedirectedFromHttpsToHttp() throws IOException, InterruptedException {
         TestSSLContext testSSLContext = TestSSLContext.create();
-        server.useHttps(testSSLContext.sslContext.getSocketFactory(), false);
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
         server.enqueue(new MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
                 .addHeader("Location: http://anyhost/foo")
@@ -871,7 +871,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         server.play();
 
         HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
-        connection.setSSLSocketFactory(testSSLContext.sslContext.getSocketFactory());
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         assertEquals("This page has moved!",
                 readAscii(connection.getInputStream(), Integer.MAX_VALUE));
     }
@@ -931,7 +931,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         try {
             TestSSLContext testSSLContext = TestSSLContext.create();
-            server.useHttps(testSSLContext.sslContext.getSocketFactory(), false);
+            server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
             server.enqueue(new MockResponse().setBody("ABC"));
             server.enqueue(new MockResponse().setBody("DEF"));
             server.enqueue(new MockResponse().setBody("GHI"));

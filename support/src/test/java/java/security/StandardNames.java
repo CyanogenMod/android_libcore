@@ -49,7 +49,7 @@ public final class StandardNames extends Assert {
 
     public static final boolean IS_RI
             = !"Dalvik Core Library".equals(System.getProperty("java.specification.name"));
-    public static final String PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "HarmonyJSSE";
+    public static final String JSSE_PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "AndroidOpenSSL";
 
     /**
      * A map from algorithm type (e.g. Cipher) to a set of algorithms (e.g. AES, DES, ...)
@@ -276,11 +276,6 @@ public final class StandardNames extends Assert {
             // Harmony has X.509, BouncyCastle X509
             // TODO remove one, probably Harmony's
             provide("CertificateFactory", "X509");
-
-            // Harmony JSSEProvider is missing these
-            // TODO add them
-            unprovide("SSLContext", "SSLv3");
-            unprovide("SSLContext", "TLSv1");
 
             // not just different names, but different binary formats
             unprovide("KeyStore", "JKS");

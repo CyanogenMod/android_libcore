@@ -40,8 +40,11 @@ public final class TestSSLEnginePair extends Assert {
     }
 
     public static TestSSLEnginePair create(Hooks hooks) throws IOException {
-        TestSSLContext c = TestSSLContext.create();
-        SSLEngine[] engines = connect(c, c, hooks);
+        return create(TestSSLContext.create(), hooks);
+    }
+
+    public static TestSSLEnginePair create(TestSSLContext c, Hooks hooks) throws IOException {
+        SSLEngine[] engines = connect(c, hooks);
         return new TestSSLEnginePair(c, engines[0], engines[1]);
     }
 
@@ -52,14 +55,13 @@ public final class TestSSLEnginePair extends Assert {
      * caching. Optionally specify serverCipherSuites for testing
      * cipher suite negotiation.
      */
-    public static SSLEngine[] connect(final TestSSLContext clientContext,
-                                      final TestSSLContext serverContext,
+    public static SSLEngine[] connect(final TestSSLContext c,
                                       Hooks hooks) throws IOException {
         if (hooks == null) {
             hooks = new Hooks();
         }
 
-        SSLSession session = clientContext.sslContext.createSSLEngine().getSession();
+        SSLSession session = c.clientContext.createSSLEngine().getSession();
 
         int packetBufferSize = session.getPacketBufferSize();
         ByteBuffer clientToServer = ByteBuffer.allocate(packetBufferSize);
@@ -68,8 +70,8 @@ public final class TestSSLEnginePair extends Assert {
         int applicationBufferSize = session.getApplicationBufferSize();
         ByteBuffer scratch = ByteBuffer.allocate(applicationBufferSize);
 
-        SSLEngine client = clientContext.sslContext.createSSLEngine();
-        SSLEngine server = serverContext.sslContext.createSSLEngine();
+        SSLEngine client = c.clientContext.createSSLEngine();
+        SSLEngine server = c.serverContext.createSSLEngine();
         client.setUseClientMode(true);
         server.setUseClientMode(false);
         hooks.beforeBeginHandshake(client, server);

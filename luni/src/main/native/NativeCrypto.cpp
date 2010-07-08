@@ -151,6 +151,11 @@ static void freeSslErrorState(void) {
     ERR_remove_state(0);
 }
 
+// FIXME: move to JNIHelp.h
+static void jniThrowOutOfMemoryError(JNIEnv* env, const char* message) {
+    jniThrowException(env, "java/lang/OutOfMemoryError", message);
+}
+
 /*
  * Checks this thread's OpenSSL error queue and throws a RuntimeException if
  * necessary.
@@ -1035,37 +1040,74 @@ static jobjectArray getCertificateBytes(JNIEnv* env, const STACK_OF(X509)* chain
         return NULL;
     }
 
-    Unique_BIO bio(BIO_new(BIO_s_mem()));
-    if (bio.get() == NULL) {
-        jniThrowRuntimeException(env, "BIO_new failed");
-        return NULL;
-    }
-
-    // LOGD("Start fetching the certificates");
     for (int i = 0; i < count; i++) {
         X509* cert = sk_X509_value(chain, i);
 
-        BIO_reset(bio.get());
-        PEM_write_bio_X509(bio.get(), cert);
-
-        BUF_MEM* bptr;
-        BIO_get_mem_ptr(bio.get(), &bptr);
-        jbyteArray bytes = env->NewByteArray(bptr->length);
-
-        if (bytes == NULL) {
-            /*
-             * Indicate an error by resetting joa to NULL. It will
-             * eventually get gc'ed.
-             */
-            joa = NULL;
-            break;
+        int len = i2d_X509(cert, NULL);
+        if (len < 0) {
+            return NULL;
         }
-        jbyte* src = reinterpret_cast<jbyte*>(bptr->data);
-        env->SetByteArrayRegion(bytes, 0, bptr->length, src);
-        env->SetObjectArrayElement(joa, i, bytes);
+        ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(len));
+        if (byteArray.get() == NULL) {
+            return NULL;
+        }
+        ScopedByteArrayRW bytes(env, byteArray.get());
+        if (bytes.get() == NULL) {
+            return NULL;
+        }
+        unsigned char* p = reinterpret_cast<unsigned char*>(bytes.get());
+        int n = i2d_X509(cert, &p);
+        if (n < 0) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(joa, i, byteArray.get());
     }
 
-    // LOGD("Certificate fetching complete");
+    return joa;
+}
+
+/**
+ * Returns an array containing all the X500 principal's bytes.
+ */
+static jobjectArray getPrincipalBytes(JNIEnv* env, const STACK_OF(X509_NAME)* names)
+{
+    if (names == NULL) {
+        return NULL;
+    }
+
+    int count = sk_X509_NAME_num(names);
+    if (count <= 0) {
+        return NULL;
+    }
+
+    jobjectArray joa = env->NewObjectArray(count, JniConstants::byteArrayClass, NULL);
+    if (joa == NULL) {
+        return NULL;
+    }
+
+    for (int i = 0; i < count; i++) {
+        X509_NAME* principal = sk_X509_NAME_value(names, i);
+
+        int len = i2d_X509_NAME(principal, NULL);
+        if (len < 0) {
+            return NULL;
+        }
+        ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(len));
+        if (byteArray.get() == NULL) {
+            return NULL;
+        }
+        ScopedByteArrayRW bytes(env, byteArray.get());
+        if (bytes.get() == NULL) {
+            return NULL;
+        }
+        unsigned char* p = reinterpret_cast<unsigned char*>(bytes.get());
+        int n = i2d_X509_NAME(principal, &p);
+        if (n < 0) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(joa, i, byteArray.get());
+    }
+
     return joa;
 }
 
@@ -1492,14 +1534,37 @@ static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
 
     jclass cls = env->GetObjectClass(sslHandshakeCallbacks);
     jmethodID methodID
-        = env->GetMethodID(cls, "clientCertificateRequested", "(Ljava/lang/String;)V");
+        = env->GetMethodID(cls, "clientCertificateRequested", "([B[[B)V");
 
     // Call Java callback which can use SSL_use_certificate and SSL_use_PrivateKey to set values
-    const char* authMethod = SSL_authentication_method(ssl);
-    JNI_TRACE("ssl=%p clientCertificateRequested calling clientCertificateRequested authMethod=%s",
-              ssl, authMethod);
-    jstring authMethodString = env->NewStringUTF(authMethod);
-    env->CallVoidMethod(sslHandshakeCallbacks, methodID, authMethodString);
+    char ssl2_ctype = SSL3_CT_RSA_SIGN;
+    const char* ctype = NULL;
+    int ctype_num = 0;
+    jobjectArray issuers = NULL;
+    switch (ssl->version) {
+        case SSL2_VERSION:
+            ctype = &ssl2_ctype;
+            ctype_num = 1;
+            break;
+        case SSL3_VERSION:
+        case TLS1_VERSION:
+        case DTLS1_VERSION:
+            ctype = ssl->s3->tmp.ctype;
+            ctype_num = ssl->s3->tmp.ctype_num;
+            issuers = getPrincipalBytes(env, ssl->s3->tmp.ca_names);
+            break;
+    }
+
+    jbyteArray keyTypes = env->NewByteArray(ctype_num);
+    if (keyTypes == NULL) {
+        JNI_TRACE("ssl=%p client_cert_cb bytes == null => 0", ssl);
+        return 0;
+    }
+    env->SetByteArrayRegion(keyTypes, 0, ctype_num, reinterpret_cast<const jbyte*>(ctype));
+
+    JNI_TRACE("ssl=%p clientCertificateRequested calling clientCertificateRequested "
+              "keyTypes=%p issuers=%p", ssl, keyTypes, issuers);
+    env->CallVoidMethod(sslHandshakeCallbacks, methodID, keyTypes, issuers);
 
     if (env->ExceptionCheck()) {
         JNI_TRACE("ssl=%p client_cert_cb exception => 0", ssl);
@@ -1812,6 +1877,29 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
         return;
     }
 
+    Unique_sk_X509 chain(sk_X509_new_null());
+    if (chain.get() == NULL) {
+        jniThrowOutOfMemoryError(env, "Unable to allocate local certificate chain");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => chain allocation error", ssl);
+        return;
+    }
+    for (int i = 1; i < length; i++) {
+        if (!sk_X509_push(chain.get(), certificatesX509[i].release())) {
+            jniThrowOutOfMemoryError(env, "Unable to push certificate");
+            JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificate push error", ssl);
+            return;
+        }
+    }
+    int chainResult = SSL_use_certificate_chain(ssl, chain.get());
+    if (chainResult == 0) {
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting certificate chain");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => SSL_use_certificate_chain error",
+                  ssl);
+        return;
+    } else {
+        chain.release();
+    }
+
     JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => ok", ssl);
 }
 
@@ -1957,7 +2045,11 @@ static void NativeCrypto_SSL_set_cipher_lists(JNIEnv* env, jclass,
             const SSL_CIPHER* cipher = ssl_method->get_cipher(j);
             if ((strcmp(c.c_str(), cipher->name) == 0)
                     && (strcmp(SSL_CIPHER_get_version(cipher), "SSLv2"))) {
-                sk_SSL_CIPHER_push(cipherstack.get(), cipher);
+                if (!sk_SSL_CIPHER_push(cipherstack.get(), cipher)) {
+                    jniThrowOutOfMemoryError(env, "Unable to push cipher");
+                    JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists => cipher push error", ssl);
+                    return;
+                }
                 found = true;
             }
         }
@@ -2228,17 +2320,27 @@ static jobjectArray NativeCrypto_SSL_get_certificate(JNIEnv* env, jclass, jint s
         JNI_TRACE("ssl=%p NativeCrypto_SSL_get_certificate => NULL", ssl);
         return NULL;
     }
-    // TODO convert from single certificate to chain properly.  One
-    // option would be to have the chain remembered where
-    // SSL_use_certificate is used. Another would be to save the
-    // intermediate CAs with SSL_CTX SSL_CTX_add_extra_chain_cert.
+
     Unique_sk_X509 chain(sk_X509_new_null());
     if (chain.get() == NULL) {
-        jniThrowRuntimeException(env, "Unable to allocate local certificate chain");
+        jniThrowOutOfMemoryError(env, "Unable to allocate local certificate chain");
         JNI_TRACE("ssl=%p NativeCrypto_SSL_get_certificate => threw exception", ssl);
         return NULL;
     }
-    sk_X509_push(chain.get(), certificate);
+    if (!sk_X509_push(chain.get(), certificate)) {
+        jniThrowOutOfMemoryError(env, "Unable to push local certificate");
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_get_certificate => NULL", ssl);
+        return NULL;
+    }
+    STACK_OF(X509)* cert_chain = SSL_get_certificate_chain(ssl, certificate);
+    for (int i=0; i<sk_X509_num(cert_chain); i++) {
+        if (!sk_X509_push(chain.get(), sk_X509_value(cert_chain,i))) {
+            jniThrowOutOfMemoryError(env, "Unable to push local certificate chain");
+            JNI_TRACE("ssl=%p NativeCrypto_SSL_get_certificate => NULL", ssl);
+            return NULL;
+        }
+    }
+
     jobjectArray objectArray = getCertificateBytes(env, chain.get());
     JNI_TRACE("ssl=%p NativeCrypto_SSL_get_certificate => %p", ssl, objectArray);
     return objectArray;
@@ -2438,7 +2540,7 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
         // See sslRead() regarding improper failure to handle normal cases.
         throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "Read error");
         result = -1;
-    } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
+    } else if (ret == THROW_SOCKETTIMEOUTEXCEPTION) {
         throwSocketTimeoutException(env, "Read timed out");
         result = -1;
     } else {
@@ -2593,7 +2695,7 @@ static void NativeCrypto_SSL_write_byte(JNIEnv* env, jclass, jint ssl_address, j
     if (ret == THROW_EXCEPTION) {
         // See sslWrite() regarding improper failure to handle normal cases.
         throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "Write error");
-    } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
+    } else if (ret == THROW_SOCKETTIMEOUTEXCEPTION) {
         throwSocketTimeoutException(env, "Write timed out");
     }
 }
@@ -2627,7 +2729,7 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
     if (ret == THROW_EXCEPTION) {
         // See sslWrite() regarding improper failure to handle normal cases.
         throwSSLExceptionWithSslErrors(env, ssl, sslErrorCode, "Write error");
-    } else if(ret == THROW_SOCKETTIMEOUTEXCEPTION) {
+    } else if (ret == THROW_SOCKETTIMEOUTEXCEPTION) {
         throwSocketTimeoutException(env, "Write timed out");
     }
 }
@@ -2880,7 +2982,8 @@ static jbyteArray NativeCrypto_i2d_SSL_SESSION(JNIEnv* env, jclass, jint ssl_ses
     if (bytes != NULL) {
         ScopedByteArrayRW tmp(env, bytes);
         if (tmp.get() == NULL) {
-            JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => threw exception");
+            JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => threw exception",
+                      ssl_session);
             return NULL;
         }
         unsigned char* ucp = reinterpret_cast<unsigned char*>(tmp.get());
