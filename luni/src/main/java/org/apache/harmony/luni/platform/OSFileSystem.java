@@ -24,12 +24,7 @@ package org.apache.harmony.luni.platform;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
-/**
- * This is the portable implementation of the file system interface.
- *
- */
 class OSFileSystem implements IFileSystem {
 
     private static final OSFileSystem singleton = new OSFileSystem();
@@ -39,7 +34,6 @@ class OSFileSystem implements IFileSystem {
     }
 
     private OSFileSystem() {
-        super();
     }
 
     private final void validateLockArgs(int type, long start, long length) {
@@ -50,19 +44,16 @@ class OSFileSystem implements IFileSystem {
 
         // Start position
         if (start < 0) {
-            throw new IllegalArgumentException(
-                    "Lock start position must be non-negative");
+            throw new IllegalArgumentException("start < 0");
         }
 
         // Length of lock stretch
         if (length < 0) {
-            throw new IllegalArgumentException(
-                    "Lock length must be non-negative");
+            throw new IllegalArgumentException("length < 0");
         }
     }
 
-    private native int lockImpl(int fileDescriptor, long start, long length,
-            int type, boolean wait);
+    private native int lockImpl(int fd, long start, long length, int type, boolean wait);
 
     /**
      * Returns the granularity for virtual memory allocation.
@@ -73,25 +64,23 @@ class OSFileSystem implements IFileSystem {
 
     public native long length(int fd);
 
-    public boolean lock(int fileDescriptor, long start, long length, int type,
-            boolean waitFlag) throws IOException {
+    public boolean lock(int fd, long start, long length, int type, boolean waitFlag)
+            throws IOException {
         // Validate arguments
         validateLockArgs(type, start, length);
-        int result = lockImpl(fileDescriptor, start, length, type, waitFlag);
+        int result = lockImpl(fd, start, length, type, waitFlag);
         return result != -1;
     }
 
-    // BEGIN android-changed
-    private native void unlockImpl(int fileDescriptor, long start, long length) throws IOException;
+    private native void unlockImpl(int fd, long start, long length) throws IOException;
 
-    public void unlock(int fileDescriptor, long start, long length)
-            throws IOException {
+    public void unlock(int fd, long start, long length) throws IOException {
         // Validate arguments
         validateLockArgs(IFileSystem.SHARED_LOCK_TYPE, start, length);
-        unlockImpl(fileDescriptor, start, length);
+        unlockImpl(fd, start, length);
     }
 
-    public native void fflush(int fileDescriptor, boolean metadata) throws IOException;
+    public native void fflush(int fd, boolean metadata) throws IOException;
 
     /*
      * File position seeking.
@@ -101,89 +90,34 @@ class OSFileSystem implements IFileSystem {
     /*
      * Direct read/write APIs work on addresses.
      */
-    public native long readDirect(int fileDescriptor, int address, int offset, int length);
+    public native long readDirect(int fd, int address, int offset, int length);
 
-    public native long writeDirect(int fileDescriptor, int address, int offset, int length)
-            throws IOException;
+    public native long writeDirect(int fd, int address, int offset, int length);
 
     /*
      * Indirect read/writes work on byte[]'s
      */
-    private native long readImpl(int fileDescriptor, byte[] bytes, int offset,
-            int length) throws IOException;
+    public native long read(int fd, byte[] bytes, int offset, int length) throws IOException;
 
-    public long read(int fileDescriptor, byte[] bytes, int offset, int length)
-            throws IOException {
-        if (bytes == null) {
-            throw new NullPointerException();
-        }
-        return readImpl(fileDescriptor, bytes, offset, length);
-    }
-
-    private native long writeImpl(int fileDescriptor, byte[] bytes,
-            int offset, int length) throws IOException;
-
-    public long write(int fileDescriptor, byte[] bytes, int offset, int length)
-            throws IOException {
-        if (bytes == null) {
-            throw new NullPointerException();
-        }
-        return writeImpl(fileDescriptor, bytes, offset, length);
-    }
-    // END android-changed
+    public native long write(int fd, byte[] bytes, int offset, int length) throws IOException;
 
     /*
      * Scatter/gather calls.
      */
-    public native long readv(int fileDescriptor, int[] addresses,
-            int[] offsets, int[] lengths, int size) throws IOException;
+    public native long readv(int fd, int[] addresses, int[] offsets, int[] lengths, int size)
+            throws IOException;
 
-    public native long writev(int fileDescriptor, int[] addresses, int[] offsets,
-            int[] lengths, int size) throws IOException;
+    public native long writev(int fd, int[] addresses, int[] offsets, int[] lengths, int size)
+            throws IOException;
 
-    // BEGIN android-changed
-    public native void close(int fileDescriptor) throws IOException;
+    public native void close(int fd) throws IOException;
 
-    public native void truncate(int fileDescriptor, long size) throws IOException;
-    // END android-changed
+    public native void truncate(int fd, long size) throws IOException;
 
-    public int open(byte[] utfPathBytes, int mode) throws FileNotFoundException {
-        if (utfPathBytes == null) {
-            throw new NullPointerException();
-        }
-        return openImpl(utfPathBytes, mode);
-    }
+    public native int open(byte[] utfPathBytes, int mode) throws FileNotFoundException;
 
-    private native int openImpl(byte[] fileName, int mode);
-
-    // BEGIN android-changed
     public native long transfer(int fd, FileDescriptor sd, long offset, long count)
             throws IOException;
-    // END android-changed
 
-    // BEGIN android-deleted
-    // public long ttyAvailable() throws IOException {
-    //     long nChar = ttyAvailableImpl();
-    //     if (nChar < 0) {
-    //         throw new IOException();
-    //     }
-    //     return nChar;
-    // }
-    //
-    // private native long ttyAvailableImpl();
-    // END android-deleted
-
-    // BEGIN android-deleted
-    // public long ttyRead(byte[] bytes, int offset, int length) throws IOException {
-    //    if (bytes == null) {
-    //        throw new NullPointerException();
-    //    }
-    //    return ttyReadImpl(bytes, offset, length);
-    // }
-    // private native long ttyReadImpl(byte[] bytes, int offset, int length) throws IOException;
-    // END android-deleted
-
-    // BEGIN android-added
     public native int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException;
-    // END android-added
 }
