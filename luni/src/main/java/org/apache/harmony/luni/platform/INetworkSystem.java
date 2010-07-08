@@ -73,12 +73,10 @@ public interface INetworkSystem {
             byte[] context) throws IOException;
 
     public int sendDatagram(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, boolean bindToDevice, int trafficClass,
-            InetAddress inetAddress) throws IOException;
+            int length, int port, int trafficClass, InetAddress inetAddress) throws IOException;
 
     public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
-            int length, int port, boolean bindToDevice, int trafficClass,
-            InetAddress inetAddress) throws IOException;
+            int length, int port, int trafficClass, InetAddress inetAddress) throws IOException;
 
     public int receiveDatagram(FileDescriptor aFD, DatagramPacket packet,
             byte[] data, int offset, int length, int receiveTimeout,
@@ -97,10 +95,10 @@ public interface INetworkSystem {
             int receiveTimeout, boolean peek) throws IOException;
 
     public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
-            int offset, int length, boolean bindToDevice) throws IOException;
+            int offset, int length) throws IOException;
 
     public int sendConnectedDatagramDirect(FileDescriptor fd, int address,
-            int offset, int length, boolean bindToDevice) throws IOException;
+            int offset, int length) throws IOException;
 
     public void disconnectDatagram(FileDescriptor aFD) throws SocketException;
 

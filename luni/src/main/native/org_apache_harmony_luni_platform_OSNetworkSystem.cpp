@@ -1299,8 +1299,7 @@ static jint osNetworkSystem_recvConnectedDatagram(JNIEnv* env, jobject,
 
 static jint osNetworkSystem_sendDatagramDirect(JNIEnv* env, jobject,
         jobject fileDescriptor, jint address, jint offset, jint length,
-        jint port,
-        jboolean bindToDevice, jint trafficClass, jobject inetAddress) {
+        jint port, jint trafficClass, jobject inetAddress) {
     int fd;
     if (!jniGetFd(env, fileDescriptor, fd)) {
         return -1;
@@ -1328,17 +1327,16 @@ static jint osNetworkSystem_sendDatagramDirect(JNIEnv* env, jobject,
 
 static jint osNetworkSystem_sendDatagram(JNIEnv* env, jobject,
         jobject fd, jbyteArray data, jint offset, jint length, jint port,
-        jboolean bindToDevice, jint trafficClass, jobject inetAddress) {
+        jint trafficClass, jobject inetAddress) {
     ScopedByteArrayRO bytes(env, data);
     return osNetworkSystem_sendDatagramDirect(env, NULL, fd,
             reinterpret_cast<uintptr_t>(bytes.get()), offset, length, port,
-            bindToDevice, trafficClass, inetAddress);
+            trafficClass, inetAddress);
 }
 
 static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env,
         jobject, jobject fileDescriptor,
-        jint address, jint offset, jint length,
-        jboolean bindToDevice) {
+        jint address, jint offset, jint length) {
     int fd;
     if (!jniGetFd(env, fileDescriptor, fd)) {
         return 0;
@@ -1357,11 +1355,10 @@ static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env,
 }
 
 static jint osNetworkSystem_sendConnectedDatagram(JNIEnv* env, jobject,
-        jobject fd, jbyteArray data, jint offset, jint length,
-        jboolean bindToDevice) {
+        jobject fd, jbyteArray data, jint offset, jint length) {
     ScopedByteArrayRO bytes(env, data);
     return osNetworkSystem_sendConnectedDatagramDirect(env, NULL, fd,
-            reinterpret_cast<uintptr_t>(bytes.get()), offset, length, bindToDevice);
+            reinterpret_cast<uintptr_t>(bytes.get()), offset, length);
 }
 
 static void osNetworkSystem_createServerStreamSocket(JNIEnv* env, jobject,
@@ -1887,10 +1884,10 @@ static JNINativeMethod gMethods[] = {
     { "recvConnectedDatagramDirect",       "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIIZ)I",                (void*) osNetworkSystem_recvConnectedDatagramDirect },
     { "recvConnectedDatagram",             "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIIZ)I",               (void*) osNetworkSystem_recvConnectedDatagram },
     { "selectImpl",                        "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z",               (void*) osNetworkSystem_selectImpl },
-    { "sendConnectedDatagramDirect",       "(Ljava/io/FileDescriptor;IIIZ)I",                                          (void*) osNetworkSystem_sendConnectedDatagramDirect },
-    { "sendConnectedDatagram",             "(Ljava/io/FileDescriptor;[BIIZ)I",                                         (void*) osNetworkSystem_sendConnectedDatagram },
-    { "sendDatagramDirect",                "(Ljava/io/FileDescriptor;IIIIZILjava/net/InetAddress;)I",                  (void*) osNetworkSystem_sendDatagramDirect },
-    { "sendDatagram",                      "(Ljava/io/FileDescriptor;[BIIIZILjava/net/InetAddress;)I",                 (void*) osNetworkSystem_sendDatagram },
+    { "sendConnectedDatagramDirect",       "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_sendConnectedDatagramDirect },
+    { "sendConnectedDatagram",             "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_sendConnectedDatagram },
+    { "sendDatagramDirect",                "(Ljava/io/FileDescriptor;IIIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_sendDatagramDirect },
+    { "sendDatagram",                      "(Ljava/io/FileDescriptor;[BIIIILjava/net/InetAddress;)I",                  (void*) osNetworkSystem_sendDatagram },
     { "sendDatagram2",                     "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_sendDatagram2 },
     { "sendUrgentData",                    "(Ljava/io/FileDescriptor;B)V",                                             (void*) osNetworkSystem_sendUrgentData },
     { "setInetAddress",                    "(Ljava/net/InetAddress;[B)V",                                              (void*) osNetworkSystem_setInetAddress },

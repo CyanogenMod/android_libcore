@@ -62,9 +62,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
      */
     static final int REUSEADDR_AND_REUSEPORT = 10001;
 
-    // Ignored in native code
-    private boolean bindToDevice = false;
-
     private byte[] ipaddress = { 0, 0, 0, 0 };
 
     private INetworkSystem netImpl = Platform.getNetworkSystem();
@@ -105,8 +102,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void bind(int port, InetAddress addr) throws SocketException {
-        String prop = AccessController.doPrivileged(new PriviAction<String>("bindToDevice"));
-        boolean useBindToDevice = prop != null && prop.toLowerCase().equals("true");
         netImpl.bind(fd, addr, port);
         if (0 != port) {
             localPort = port;
@@ -221,14 +216,12 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void send(DatagramPacket packet) throws IOException {
-
         if (isNativeConnected) {
-            netImpl.sendConnectedDatagram(fd, packet.getData(), packet.getOffset(), packet
-                    .getLength(), bindToDevice);
+            netImpl.sendConnectedDatagram(fd,
+                    packet.getData(), packet.getOffset(), packet.getLength());
         } else {
-            // sendDatagramImpl2
             netImpl.sendDatagram(fd, packet.getData(), packet.getOffset(), packet.getLength(),
-                    packet.getPort(), bindToDevice, trafficClass, packet.getAddress());
+                    packet.getPort(), trafficClass, packet.getAddress());
         }
     }
 

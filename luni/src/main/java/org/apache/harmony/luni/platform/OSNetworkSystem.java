@@ -156,26 +156,20 @@ final class OSNetworkSystem implements INetworkSystem {
             FileDescriptor[] writefd, int cread, int cwirte, int[] flags,
             long timeout);
 
-    // TODO: bindToDevice is unused.
     public native int sendConnectedDatagram(FileDescriptor fd, byte[] data,
-            int offset, int length, boolean bindToDevice) throws IOException;
+            int offset, int length) throws IOException;
 
-    // TODO: bindToDevice is unused.
     public native int sendConnectedDatagramDirect(FileDescriptor fd,
-            int address, int offset, int length, boolean bindToDevice)
-            throws IOException;
+            int address, int offset, int length) throws IOException;
 
-    // TODO: bindToDevice is unused.
     public native int sendDatagram(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, boolean bindToDevice, int trafficClass,
-            InetAddress inetAddress) throws IOException;
+            int length, int port, int trafficClass, InetAddress inetAddress) throws IOException;
 
     public native int sendDatagram2(FileDescriptor fd, byte[] data, int offset,
             int length, int port, InetAddress inetAddress) throws IOException;
 
-    // TODO: bindToDevice is unused.
     public native int sendDatagramDirect(FileDescriptor fd, int address,
-            int offset, int length, int port, boolean bindToDevice,
+            int offset, int length, int port,
             int trafficClass, InetAddress inetAddress) throws IOException;
 
     public native void sendUrgentData(FileDescriptor fd, byte value);

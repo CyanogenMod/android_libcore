@@ -378,11 +378,9 @@ class DatagramChannelImpl extends DatagramChannel implements
             int start = oldposition;
             if (source.isDirect()) {
                 synchronized (writeLock) {
-                    int data_address = AddressUtil
-                            .getDirectBufferAddress(source);
-                    sendCount = networkSystem.sendDatagramDirect(fd,
-                            data_address, start, length, isa.getPort(), false,
-                            trafficClass, isa.getAddress());
+                    int data_address = AddressUtil.getDirectBufferAddress(source);
+                    sendCount = networkSystem.sendDatagramDirect(fd, data_address, start, length,
+                            isa.getPort(), trafficClass, isa.getAddress());
                 }
             } else {
                 if (source.hasArray()) {
@@ -395,8 +393,7 @@ class DatagramChannelImpl extends DatagramChannel implements
                 }
                 synchronized (writeLock) {
                     sendCount = networkSystem.sendDatagram(fd, array, start,
-                            length, isa.getPort(), false, trafficClass, isa
-                                    .getAddress());
+                            length, isa.getPort(), trafficClass, isa.getAddress());
                 }
             }
             source.position(oldposition + sendCount);
@@ -592,13 +589,11 @@ class DatagramChannelImpl extends DatagramChannel implements
 
                 if (buf.isDirect()) {
                     int address = AddressUtil.getDirectBufferAddress(buf);
-                    result = networkSystem.sendConnectedDatagramDirect(fd,
-                            address, start, length, isBound);
+                    result = networkSystem.sendConnectedDatagramDirect(fd, address, start, length);
                 } else {
                     // buf is assured to have array.
                     start += buf.arrayOffset();
-                    result = networkSystem.sendConnectedDatagram(fd, buf
-                            .array(), start, length, isBound);
+                    result = networkSystem.sendConnectedDatagram(fd, buf.array(), start, length);
                 }
                 return result;
             } finally {

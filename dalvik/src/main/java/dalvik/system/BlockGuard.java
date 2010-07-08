@@ -311,21 +311,21 @@ public final class BlockGuard {
         }
 
         public int sendDatagram(FileDescriptor fd, byte[] data, int offset,
-                int length, int port, boolean bindToDevice, int trafficClass,
+                int length, int port, int trafficClass,
                 InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.sendDatagram(fd, data, offset, length, port, bindToDevice,
+            return mNetwork.sendDatagram(fd, data, offset, length, port,
                     trafficClass, inetAddress);
         }
 
         public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
-                int length, int port, boolean bindToDevice, int trafficClass,
+                int length, int port, int trafficClass,
                 InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
             return mNetwork.sendDatagramDirect(fd, address, offset, length, port,
-                    bindToDevice, trafficClass, inetAddress);
+                    trafficClass, inetAddress);
         }
 
         public int receiveDatagram(FileDescriptor aFD, DatagramPacket packet,
@@ -361,13 +361,13 @@ public final class BlockGuard {
         }
 
         public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
-                int offset, int length, boolean bindToDevice) throws IOException {
-            return mNetwork.sendConnectedDatagram(fd, data, offset, length, bindToDevice);
+                int offset, int length) throws IOException {
+            return mNetwork.sendConnectedDatagram(fd, data, offset, length);
         }
 
         public int sendConnectedDatagramDirect(FileDescriptor fd, int address,
-                int offset, int length, boolean bindToDevice) throws IOException {
-            return mNetwork.sendConnectedDatagramDirect(fd, address, offset, length, bindToDevice);
+                int offset, int length) throws IOException {
+            return mNetwork.sendConnectedDatagramDirect(fd, address, offset, length);
         }
 
         public void disconnectDatagram(FileDescriptor aFD) throws SocketException {
