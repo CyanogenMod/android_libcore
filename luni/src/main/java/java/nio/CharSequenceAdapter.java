@@ -76,8 +76,8 @@ final class CharSequenceAdapter extends CharBuffer {
     }
 
     @Override
-    public final CharBuffer get(char[] dest, int off, int len) {
-        int length = dest.length;
+    public final CharBuffer get(char[] dst, int off, int len) {
+        int length = dst.length;
         if ((off < 0) || (len < 0) || (long) off + (long) len > length) {
             throw new IndexOutOfBoundsException();
         }
@@ -85,7 +85,7 @@ final class CharSequenceAdapter extends CharBuffer {
             throw new BufferUnderflowException();
         }
         int newPosition = position + len;
-        sequence.toString().getChars(position, newPosition, dest, off);
+        sequence.toString().getChars(position, newPosition, dst, off);
         position = newPosition;
         return this;
     }

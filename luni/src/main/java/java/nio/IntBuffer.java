@@ -236,16 +236,16 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * increases the position by the number of ints read.
      * <p>
      * Calling this method has the same effect as
-     * {@code get(dest, 0, dest.length)}.
+     * {@code get(dst, 0, dst.length)}.
      *
-     * @param dest
+     * @param dst
      *            the destination int array.
      * @return this buffer.
      * @exception BufferUnderflowException
-     *                if {@code dest.length} is greater than {@code remaining()}.
+     *                if {@code dst.length} is greater than {@code remaining()}.
      */
-    public IntBuffer get(int[] dest) {
-        return get(dest, 0, dest.length);
+    public IntBuffer get(int[] dst) {
+        return get(dst, 0, dst.length);
     }
 
     /**
@@ -253,22 +253,22 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * starting from the specified offset, and increases the position by the
      * number of ints read.
      *
-     * @param dest
+     * @param dst
      *            the target int array.
      * @param off
      *            the offset of the int array, must not be negative and not
-     *            greater than {@code dest.length}.
+     *            greater than {@code dst.length}.
      * @param len
      *            the number of ints to read, must be no less than zero and not
-     *            greater than {@code dest.length - off}.
+     *            greater than {@code dst.length - off}.
      * @return this buffer.
      * @exception IndexOutOfBoundsException
      *                if either {@code off} or {@code len} is invalid.
      * @exception BufferUnderflowException
      *                if {@code len} is greater than {@code remaining()}.
      */
-    public IntBuffer get(int[] dest, int off, int len) {
-        int length = dest.length;
+    public IntBuffer get(int[] dst, int off, int len) {
+        int length = dst.length;
         if (off < 0 || len < 0 || (long) len + (long) off > length) {
             throw new IndexOutOfBoundsException();
         }
@@ -276,7 +276,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
             throw new BufferUnderflowException();
         }
         for (int i = off; i < off + len; i++) {
-            dest[i] = get();
+            dst[i] = get();
         }
         return this;
     }

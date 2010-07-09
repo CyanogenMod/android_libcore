@@ -66,15 +66,15 @@ abstract class DoubleArrayBuffer extends DoubleBuffer {
     }
 
     @Override
-    public final DoubleBuffer get(double[] dest, int off, int len) {
-        int length = dest.length;
+    public final DoubleBuffer get(double[] dst, int off, int len) {
+        int length = dst.length;
         if (off < 0 || len < 0 || (long) off + (long) len > length) {
             throw new IndexOutOfBoundsException();
         }
         if (len > remaining()) {
             throw new BufferUnderflowException();
         }
-        System.arraycopy(backingArray, offset + position, dest, off, len);
+        System.arraycopy(backingArray, offset + position, dst, off, len);
         position += len;
         return this;
     }

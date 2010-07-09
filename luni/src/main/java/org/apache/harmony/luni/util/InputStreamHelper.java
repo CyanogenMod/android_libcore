@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 
 /**
  * The class contains static {@link java.io.InputStream} utilities.
@@ -176,9 +177,7 @@ public class InputStreamHelper {
 
             // Did we get it all in one read?
             if (nextByte == -1) {
-                byte[] dest = new byte[count];
-                System.arraycopy(buffer, 0, dest, 0, count);
-                return dest;
+                return Arrays.copyOf(buffer, count);
             }
 
             // Requires additional reads

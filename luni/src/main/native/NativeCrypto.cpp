@@ -1713,7 +1713,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
     Unique_EVP_PKEY privatekeyevp(EVP_PKCS82PKEY(pkcs8.get()));
     if (privatekeyevp.get() == NULL) {
         LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
-        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, 
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
                                        "Error creating private key from PKCS8");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => error from PKCS8 to key", ssl);
@@ -2391,16 +2391,16 @@ static jint NativeCrypto_SSL_read_byte(JNIEnv* env, jclass, jint ssl_address, ji
  * Returns 1 (success) or value <= 0 (failure).
  */
 static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
-                                  ssl_address, jbyteArray dest, jint offset, jint len, jint timeout)
+                                  ssl_address, jbyteArray b, jint offset, jint len, jint timeout)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_read dest=%p offset=%d len=%d timeout=%d",
-              ssl, dest, offset, len, timeout);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_read b=%p offset=%d len=%d timeout=%d",
+              ssl, b, offset, len, timeout);
     if (ssl == NULL) {
         return 0;
     }
 
-    ScopedByteArrayRW bytes(env, dest);
+    ScopedByteArrayRW bytes(env, b);
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;;
 
@@ -2576,15 +2576,15 @@ static void NativeCrypto_SSL_write_byte(JNIEnv* env, jclass, jint ssl_address, j
  * OpenSSL write function (2): write into buffer at offset n chunks.
  */
 static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
-        jint ssl_address, jbyteArray dest, jint offset, jint len)
+        jint ssl_address, jbyteArray b, jint offset, jint len)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_write dest=%p offset=%d len=%d", ssl, dest, offset, len);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_write b=%p offset=%d len=%d", ssl, b, offset, len);
     if (ssl == NULL) {
         return;
     }
 
-    ScopedByteArrayRO bytes(env, dest);
+    ScopedByteArrayRO bytes(env, b);
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
     int ret = sslWrite(env,

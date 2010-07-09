@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -225,9 +226,7 @@ public class Manifest implements Cloneable {
 
         // Did we get it all in one read?
         if (nextByte == -1) {
-            byte[] dest = new byte[count];
-            System.arraycopy(buffer, 0, dest, 0, count);
-            return dest;
+            return Arrays.copyOf(buffer, count);
         }
 
         // Does it look like a manifest?

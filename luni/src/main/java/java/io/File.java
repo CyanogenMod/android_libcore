@@ -1359,7 +1359,7 @@ public class File implements Serializable, Comparable<File> {
     }
 
     /**
-     * Renames this file to {@code dest}. This operation is supported for both
+     * Renames this file to {@code newPath}. This operation is supported for both
      * files and directories.
      *
      * <p>Many failures are possible. Some of the more likely failures include:
@@ -1374,22 +1374,22 @@ public class File implements Serializable, Comparable<File> {
      * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
      * Callers must check the return value.
      *
-     * @param dest the new name.
+     * @param newPath the new path.
      * @return true on success.
      * @throws SecurityException
      *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file or the {@code dest} file.
+     *             access for this file or {@code newPath}.
      */
-    public boolean renameTo(File dest) {
-        if (path.isEmpty() || dest.path.isEmpty()) {
+    public boolean renameTo(File newPath) {
+        if (path.isEmpty() || newPath.path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkWrite(path);
-            security.checkWrite(dest.path);
+            security.checkWrite(newPath.path);
         }
-        return renameToImpl(pathBytes, dest.pathBytes);
+        return renameToImpl(pathBytes, newPath.pathBytes);
     }
 
     private native boolean renameToImpl(byte[] pathExist, byte[] pathNew);

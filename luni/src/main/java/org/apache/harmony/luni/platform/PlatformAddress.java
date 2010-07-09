@@ -87,8 +87,8 @@ public class PlatformAddress implements ICommonDataTypes, Comparable {
     // }
     // END android-removed
 
-    public final void moveTo(PlatformAddress dest, long numBytes) {
-        osMemory.memmove(dest.osaddr, osaddr, numBytes);
+    public final void moveTo(PlatformAddress dst, long numBytes) {
+        osMemory.memmove(dst.osaddr, osaddr, numBytes);
     }
 
     public final boolean equals(Object other) {

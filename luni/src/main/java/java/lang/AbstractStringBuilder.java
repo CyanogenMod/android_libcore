@@ -289,29 +289,29 @@ abstract class AbstractStringBuilder {
     }
 
     /**
-     * Copies the requested sequence of characters to the {@code char[]} passed
-     * starting at {@code destStart}.
+     * Copies the requested sequence of characters into {@code dst} passed
+     * starting at {@code dst}.
      *
      * @param start
      *            the inclusive start index of the characters to copy.
      * @param end
      *            the exclusive end index of the characters to copy.
-     * @param dest
+     * @param dst
      *            the {@code char[]} to copy the characters to.
-     * @param destStart
-     *            the inclusive start index of {@code dest} to begin copying to.
+     * @param dstStart
+     *            the inclusive start index of {@code dst} to begin copying to.
      * @throws IndexOutOfBoundsException
-     *             if the {@code start} is negative, the {@code destStart} is
+     *             if the {@code start} is negative, the {@code dstStart} is
      *             negative, the {@code start} is greater than {@code end}, the
      *             {@code end} is greater than the current {@link #length()} or
-     *             {@code destStart + end - begin} is greater than
-     *             {@code dest.length}.
+     *             {@code dstStart + end - begin} is greater than
+     *             {@code dst.length}.
      */
-    public void getChars(int start, int end, char[] dest, int destStart) {
+    public void getChars(int start, int end, char[] dst, int dstStart) {
         if (start > count || end > count || start > end) {
             throw new StringIndexOutOfBoundsException();
         }
-        System.arraycopy(value, start, dest, destStart, end - start);
+        System.arraycopy(value, start, dst, dstStart, end - start);
     }
 
     final void insert0(int index, char[] chars) {
