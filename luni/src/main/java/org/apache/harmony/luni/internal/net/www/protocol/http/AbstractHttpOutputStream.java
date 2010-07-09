@@ -22,9 +22,8 @@ import java.io.OutputStream;
 /**
  * An output stream for the body of an HTTP request.
  *
- * <p>Since a single socket stream may carry multiple HTTP requests (in
- * series), closing this stream shouldn't close any underlying socket
- * stream.
+ * <p>Since a single socket's output stream may be used to write multiple HTTP
+ * requests to the same server, subclasses should not close the socket stream.
  */
 abstract class AbstractHttpOutputStream extends OutputStream {
     protected boolean closed;
@@ -34,11 +33,9 @@ abstract class AbstractHttpOutputStream extends OutputStream {
     }
 
     protected final void checkBounds(byte[] buffer, int offset, int count) {
-        if (offset < 0 || offset > buffer.length) {
-            throw new ArrayIndexOutOfBoundsException("offset out of bounds: " + offset);
-        }
-        if (count < 0 || buffer.length - offset < count) {
-            throw new ArrayIndexOutOfBoundsException("count out of bounds: " + count);
+        if (offset < 0|| offset > buffer.length || count < 0 || buffer.length - offset < count) {
+            throw new ArrayIndexOutOfBoundsException(
+                    "offset=" + offset + ", buffer.length=" + buffer.length + ", count=" + count);
         }
     }
 

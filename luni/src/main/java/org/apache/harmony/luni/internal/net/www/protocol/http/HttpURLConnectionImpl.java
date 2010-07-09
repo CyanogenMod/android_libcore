@@ -69,6 +69,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     public static final String TRACE = "TRACE";
     public static final String CONNECT = "CONNECT";
 
+    public static final int HTTP_CONTINUE = 100;
+
+    public static final int MAX_REDIRECTS = 4;
+
     /**
      * The subset of HTTP methods that the user may select via {@link #setRequestMethod}.
      */
@@ -85,6 +89,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private final int defaultPort;
 
+    /**
+     * The version this client will use. Either 0 for HTTP/1.0, or 1 for
+     * HTTP/1.1. Upon receiving a non-HTTP/1.1 response, this client
+     * automatically sets its version to HTTP/1.0.
+     */
     private int httpVersion = 1; // Assume HTTP/1.1
 
     protected HttpConnection connection;
@@ -132,7 +141,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     // response header received from the server
     private Header resHeader;
 
-    private int timesRedirected;
+    private int redirectionCount;
 
     /**
      * Creates an instance of the <code>HttpURLConnection</code>
@@ -501,7 +510,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return uis;
     }
 
-    private InputStream initializeContentStream() throws IOException {
+    private InputStream initContentStream() throws IOException {
         if (!hasResponseBody()) {
             return uis = new FixedLengthInputStream(is, cacheRequest, this, 0);
         }
@@ -536,7 +545,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         // you can't write after you read
         if (sentRequestHeaders) {
-            throw new ProtocolException("can't open OutputStream after reading from InputStream");
+            // TODO: just return 'os' if that's non-null?
+            throw new ProtocolException(
+                    "OutputStream unavailable because request headers have already been sent!");
         }
 
         if (os != null) {
@@ -560,7 +571,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         String encoding = reqHeader.get("Transfer-Encoding");
-        if ("chunked".equalsIgnoreCase(encoding) || chunkLength > 0) {
+        if (chunkLength > 0 || "chunked".equalsIgnoreCase(encoding)) {
             sendChunked = true;
             contentLength = -1;
         }
@@ -570,7 +581,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             connect();
         }
         if (socketOut == null) {
-            throw new IOException(); // TODO: what should we do if a cached response exists?
+             // TODO: what should we do if a cached response exists?
+            throw new IOException("No socket to write to; was a POST cached?");
         }
 
         if (httpVersion == 0) {
@@ -636,14 +648,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return file;
     }
 
-    void readResponseHeaders() throws IOException {
+    private void readResponseHeaders() throws IOException {
         do {
             responseCode = -1;
             responseMessage = null;
             resHeader = new Header();
             resHeader.setStatusLine(readLine(is).trim());
             readHeaders();
-        } while (parseResponseCode() == 100);
+        } while (parseResponseCode() == HTTP_CONTINUE);
     }
 
     /**
@@ -653,7 +665,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     private boolean hasResponseBody() {
         return method != HEAD
                 && method != CONNECT
-                && (responseCode < 100 || responseCode >= 200)
+                && (responseCode < HTTP_CONTINUE || responseCode >= 200)
                 && responseCode != HTTP_NO_CONTENT
                 && responseCode != HTTP_NOT_MODIFIED;
     }
@@ -717,8 +729,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      *
      * <p>For non-streaming requests with a body, headers must be prepared
      * <strong>after</strong> the output stream has been written to and closed.
-     * Only this ensures that the {@code Content-Length} header receives the
-     * proper value.
+     * This ensures that the {@code Content-Length} header receives the proper
+     * value.
      */
     private void writeRequestHeaders(OutputStream out) throws IOException {
         prepareRequestHeaders();
@@ -914,7 +926,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return;
         }
 
-        timesRedirected = 0;
+        redirectionCount = 0;
         while (true) {
             connect();
 
@@ -944,7 +956,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 maybeCache(); // reentrant. this calls into user code which may call back into this!
             }
 
-            initializeContentStream();
+            initContentStream();
 
             if (processResponseHeaders()) {
                 return;
@@ -972,84 +984,83 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * is an intermediate result and another request should be sent.
      */
     private boolean processResponseHeaders() throws IOException {
-        // proxy authorization failed ?
-        if (responseCode == HTTP_PROXY_AUTH) {
-            if (!usingProxy()) {
-                throw new IOException("Received HTTP_PROXY_AUTH (407) code while not using proxy");
-            }
-            // keep asking for username/password until authorized
-            String challenge = resHeader.get("Proxy-Authenticate");
-            if (challenge == null) {
-                throw new IOException("Received authentication challenge is null");
-            }
-            String credentials = getAuthorizationCredentials(challenge);
-            if (credentials == null) {
-                return true; // could not find credentials, end request cycle
-            }
-            // set up the authorization credentials
-            connected = false;
-            setRequestProperty("Proxy-Authorization", credentials);
-            return false;
-
-        // HTTP authorization failed ?
-        } else if (responseCode == HTTP_UNAUTHORIZED) {
-            // keep asking for username/password until authorized
-            String challenge = resHeader.get("WWW-Authenticate");
-            if (challenge == null) {
-                throw new IOException("Received authentication challenge is null");
-            }
-            String credentials = getAuthorizationCredentials(challenge);
-            if (credentials == null) {
-                return true; // could not find credentials, end request cycle
-            }
-            // set up the authorization credentials
-            connected = false;
-            setRequestProperty("Authorization", credentials);
-            return false;
-
-        /*
-         * See if there is a server redirect to the URL, but only handle 1
-         * level of URL redirection from the server to avoid being caught in
-         * an infinite loop
-         */
-        } else if (responseCode == HTTP_MULT_CHOICE
-                || responseCode == HTTP_MOVED_PERM
-                || responseCode == HTTP_MOVED_TEMP
-                || responseCode == HTTP_SEE_OTHER
-                || responseCode == HTTP_USE_PROXY) {
-            if (!getInstanceFollowRedirects()) {
-                return true;
-            }
-            if (os != null) {
-                return true; // TODO: we could follow redirects for retryable output streams...
-            }
-            if (++timesRedirected > 4) {
-                throw new ProtocolException("Too many redirects");
-            }
-            String location = getHeaderField("Location");
-            if (location == null) {
-                return true;
-            }
-            if (responseCode == HTTP_USE_PROXY) {
-                int start = 0;
-                if (location.startsWith(url.getProtocol() + ':')) {
-                    start = url.getProtocol().length() + 1;
+        switch (responseCode) {
+            case HTTP_PROXY_AUTH: // proxy authorization failed ?
+                if (!usingProxy()) {
+                    throw new IOException(
+                            "Received HTTP_PROXY_AUTH (407) code while not using proxy");
                 }
-                if (location.startsWith("//", start)) {
-                    start += 2;
-                }
-                setProxy(location.substring(start));
-            } else {
-                url = new URL(url, location);
-                hostName = url.getHost();
-                // update the port
-                hostPort = -1;
-            }
-            return false;
+                return processAuthHeader("Proxy-Authenticate", "Proxy-Authorization");
 
-        } else {
-            return true;
+            case HTTP_UNAUTHORIZED: // HTTP authorization failed ?
+                return processAuthHeader("WWW-Authenticate", "Authorization");
+
+            case HTTP_MULT_CHOICE:
+            case HTTP_MOVED_PERM:
+            case HTTP_MOVED_TEMP:
+            case HTTP_SEE_OTHER:
+            case HTTP_USE_PROXY:
+
+                /*
+                 * See if there is a server redirect to the URL, but only handle 1
+                 * level of URL redirection from the server to avoid being caught in
+                 * an infinite loop
+                 */
+
+                if (!getInstanceFollowRedirects()) {
+                    return true;
+                }
+                if (os != null) {
+                    return true; // TODO: we could follow redirects for retryable output streams...
+                }
+                if (++redirectionCount > MAX_REDIRECTS) {
+                    throw new ProtocolException("Too many redirects");
+                }
+                String location = getHeaderField("Location");
+                if (location == null) {
+                    return true;
+                }
+                if (responseCode == HTTP_USE_PROXY) {
+                    int start = 0;
+                    if (location.startsWith(url.getProtocol() + ':')) {
+                        start = url.getProtocol().length() + 1;
+                    }
+                    if (location.startsWith("//", start)) {
+                        start += 2;
+                    }
+                    setProxy(location.substring(start));
+                } else {
+                    url = new URL(url, location);
+                    hostName = url.getHost();
+                    // reset the port
+                    hostPort = -1;
+                }
+                return false;
+
+            default:
+                return true;
         }
+    }
+
+    /**
+     * Returns true if authorization failed permanently; false if we should
+     * retry with new credentials.
+     */
+    private boolean processAuthHeader(String responseHeader, String followUpRequestHeader)
+            throws IOException {
+        // keep asking for username/password until authorized
+        String challenge = resHeader.get(responseHeader);
+        if (challenge == null) {
+            throw new IOException("Received authentication challenge is null");
+        }
+        String credentials = getAuthorizationCredentials(challenge);
+        if (credentials == null) {
+            return true; // could not find credentials, end request cycle
+        }
+        // set up the authorization credentials
+        connected = false;
+        setRequestProperty(followUpRequestHeader, credentials);
+        return false;
     }
 
     /**

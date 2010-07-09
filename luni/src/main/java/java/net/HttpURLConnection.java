@@ -517,7 +517,7 @@ public abstract class HttpURLConnection extends URLConnection {
      *
      * @see #setFixedLengthStreamingMode
      * @throws IllegalStateException
-     *             if already connected or an other mode already set.
+     *             if already connected or another mode already set.
      */
     public void setChunkedStreamingMode(int chunkLength) {
         if (super.connected) {

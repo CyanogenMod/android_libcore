@@ -26,21 +26,24 @@ import java.io.OutputStream;
  * chunk is written and the buffer is cleared.
  */
 final class ChunkedOutputStream extends AbstractHttpOutputStream {
-    private static final byte[] CRLF = new byte[] { '\r', '\n' };
-    private static final byte[] HEX_DIGITS = new byte[] {
+    private static final byte[] CRLF = { '\r', '\n' };
+    private static final byte[] HEX_DIGITS = {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
     private static final byte[] FINAL_CHUNK = new byte[] { '0', '\r', '\n', '\r', '\n' };
 
+    /** Scratch space for up to 8 hex digits, and then a constant CRLF */
+    private final byte[] hex = { 0, 0, 0, 0, 0, 0, 0, 0, '\r', '\n' };
+
     private final OutputStream socketOut;
     private final int maxChunkLength;
-    private final ByteArrayOutputStream currentChunk;
-    private byte[] hex = new byte[8];
+    private final ByteArrayOutputStream bufferedChunk;
+
 
     public ChunkedOutputStream(OutputStream socketOut, int maxChunkLength) {
         this.socketOut = socketOut;
         this.maxChunkLength = Math.max(1, dataLength(maxChunkLength));
-        this.currentChunk = new ByteArrayOutputStream(maxChunkLength);
+        this.bufferedChunk = new ByteArrayOutputStream(maxChunkLength);
     }
 
     /**
@@ -64,19 +67,19 @@ final class ChunkedOutputStream extends AbstractHttpOutputStream {
         while (count > 0) {
             int numBytesWritten;
 
-            // write to the current chunk and then maybe write that to the stream
-            if (currentChunk.size() > 0 || count < maxChunkLength) {
-                numBytesWritten = Math.min(count, maxChunkLength - currentChunk.size());
-                currentChunk.write(buffer, offset, numBytesWritten);
-                if (currentChunk.size() == maxChunkLength) {
-                    writeCurrentChunkToSocket();
+            if (bufferedChunk.size() > 0 || count < maxChunkLength) {
+                // fill the buffered chunk and then maybe write that to the stream
+                numBytesWritten = Math.min(count, maxChunkLength - bufferedChunk.size());
+                // TODO: skip unnecessary copies from buffer->bufferedChunk?
+                bufferedChunk.write(buffer, offset, numBytesWritten);
+                if (bufferedChunk.size() == maxChunkLength) {
+                    writeBufferedChunkToSocket();
                 }
 
-            // write a single chunk of size maxChunkLength to the stream
             } else {
+                // write a single chunk of size maxChunkLength to the stream
                 numBytesWritten = maxChunkLength;
                 writeHex(numBytesWritten);
-                socketOut.write(CRLF);
                 socketOut.write(buffer, offset, numBytesWritten);
                 socketOut.write(CRLF);
             }
@@ -87,19 +90,20 @@ final class ChunkedOutputStream extends AbstractHttpOutputStream {
     }
 
     /**
-     * Equivalent to, but cheaper than, Integer.toHexString().getBytes().
+     * Equivalent to, but cheaper than writing Integer.toHexString().getBytes()
+     * followed by CRLF.
      */
     private void writeHex(int i) throws IOException {
         int cursor = 8;
         do {
             hex[--cursor] = HEX_DIGITS[i & 0xf];
         } while ((i >>>= 4) != 0);
-        socketOut.write(hex, cursor, 8 - cursor);
+        socketOut.write(hex, cursor, hex.length - cursor);
     }
 
     @Override public synchronized void flush() throws IOException {
         checkNotClosed();
-        writeCurrentChunkToSocket();
+        writeBufferedChunkToSocket();
         socketOut.flush();
     }
 
@@ -108,20 +112,19 @@ final class ChunkedOutputStream extends AbstractHttpOutputStream {
             return;
         }
         closed = true;
-        writeCurrentChunkToSocket();
+        writeBufferedChunkToSocket();
         socketOut.write(FINAL_CHUNK);
     }
 
-    private void writeCurrentChunkToSocket() throws IOException {
-        int size = currentChunk.size();
+    private void writeBufferedChunkToSocket() throws IOException {
+        int size = bufferedChunk.size();
         if (size <= 0) {
             return;
         }
 
         writeHex(size);
-        socketOut.write(CRLF);
-        currentChunk.writeTo(socketOut);
-        currentChunk.reset();
+        bufferedChunk.writeTo(socketOut);
+        bufferedChunk.reset();
         socketOut.write(CRLF);
     }
 }

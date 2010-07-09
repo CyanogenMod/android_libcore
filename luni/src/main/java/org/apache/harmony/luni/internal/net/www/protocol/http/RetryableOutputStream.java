@@ -49,7 +49,8 @@ final class RetryableOutputStream extends AbstractHttpOutputStream {
         }
         closed = true;
         if (content.size() < limit) {
-            throw new IOException("unexpected end of stream");
+            throw new IOException("content-length promised "
+                    + limit + " bytes, but received " + content.size());
         }
     }
 

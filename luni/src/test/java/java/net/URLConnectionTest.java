@@ -767,7 +767,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         RecordedRequest request = server.takeRequest();
         assertContainsNoneMatching(request.getHeaders(), "Authorization: Basic .*");
 
-        // ...but the three requests that follow requests include an authorization header
+        // ...but the three requests that follow include an authorization header
         for (int i = 0; i < 3; i++) {
             request = server.takeRequest();
             assertEquals("POST / HTTP/1.1", request.getRequestLine());

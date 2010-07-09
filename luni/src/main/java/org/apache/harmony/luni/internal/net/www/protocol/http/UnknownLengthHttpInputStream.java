@@ -31,20 +31,20 @@ final class UnknownLengthHttpInputStream extends AbstractHttpInputStream {
         super(is, httpURLConnection, cacheRequest);
     }
 
-    @Override public int read(byte[] buffer, int offset, int length) throws IOException {
-        checkBounds(buffer, offset, length);
+    @Override public int read(byte[] buffer, int offset, int count) throws IOException {
+        checkBounds(buffer, offset, count);
         checkNotClosed();
         if (in == null) {
             return -1;
         }
-        int count = in.read(buffer, offset, length);
-        if (count == -1) {
+        int read = in.read(buffer, offset, count);
+        if (read == -1) {
             inputExhausted = true;
             endOfInput(true);
             return -1;
         }
-        cacheWrite(buffer, offset, count);
-        return count;
+        cacheWrite(buffer, offset, read);
+        return read;
     }
 
     @Override public int available() throws IOException {
