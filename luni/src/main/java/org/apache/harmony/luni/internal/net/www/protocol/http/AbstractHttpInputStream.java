@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.net.CacheRequest;
 
 /**
- * An input stream for the payload of an HTTP response.
+ * An input stream for the body of an HTTP response.
  *
  * <p>Since a single socket stream may carry multiple HTTP responses (in
  * series), closing this stream doesn't necessarily close the underlying
@@ -103,7 +103,7 @@ abstract class AbstractHttpInputStream extends InputStream {
 
     /**
      * Closes the cache entry and makes the socket available for reuse. This
-     * should be invoked when the end of the payload has been reached.
+     * should be invoked when the end of the body has been reached.
      */
     protected final void endOfInput(boolean closeSocket) throws IOException {
         if (cacheRequest != null) {
