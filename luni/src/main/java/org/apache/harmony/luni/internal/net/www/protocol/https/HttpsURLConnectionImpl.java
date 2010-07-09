@@ -363,7 +363,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 // make SSL Tunnel
                 method = CONNECT;
                 try {
-                    doRequest();
+                    retrieveResponse();
                     endRequest();
                 } finally {
                     // restore initial request method

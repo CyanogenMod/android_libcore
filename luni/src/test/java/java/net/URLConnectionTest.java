@@ -33,7 +33,6 @@ import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TestSSLContext;
 import tests.http.DefaultResponseCache;
@@ -43,10 +42,17 @@ import tests.http.RecordedRequest;
 
 public class URLConnectionTest extends junit.framework.TestCase {
 
+    private static final Authenticator SIMPLE_AUTHENTICATOR = new Authenticator() {
+        protected PasswordAuthentication getPasswordAuthentication() {
+            return new PasswordAuthentication("username", "password".toCharArray());
+        }
+    };
+
     private MockWebServer server = new MockWebServer();
 
     @Override protected void tearDown() throws Exception {
         ResponseCache.setDefault(null);
+        Authenticator.setDefault(null);
         server.shutdown();
     }
 
@@ -670,6 +676,138 @@ public class URLConnectionTest extends junit.framework.TestCase {
     }
 
     /**
+     * Obnoxiously test that the chunk sizes transmitted exactly equal the
+     * requested data+chunk header size. Although setChunkedStreamingMode()
+     * isn't specific about whether the size applies to the data or the
+     * complete chunk, the RI interprets it as a complete chunk.
+     */
+    public void testSetChunkedStreamingMode() throws IOException, InterruptedException {
+        server.enqueue(new MockResponse());
+        server.play();
+
+        HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
+        urlConnection.setChunkedStreamingMode(8);
+        urlConnection.setDoOutput(true);
+        OutputStream outputStream = urlConnection.getOutputStream();
+        outputStream.write("ABCDEFGHIJKLMNOPQ".getBytes("US-ASCII"));
+        assertEquals(200, urlConnection.getResponseCode());
+
+        RecordedRequest request = server.takeRequest();
+        assertEquals("ABCDEFGHIJKLMNOPQ", new String(request.getBody(), "US-ASCII"));
+        assertEquals(Arrays.asList(3, 3, 3, 3, 3, 2), request.getChunkSizes());
+    }
+
+    public void testAuthenticateWithFixedLengthStreaming() throws Exception {
+        testAuthenticateWithStreamingPost(StreamingMode.FIXED_LENGTH);
+    }
+
+    public void testAuthenticateWithChunkedStreaming() throws Exception {
+        testAuthenticateWithStreamingPost(StreamingMode.CHUNKED);
+    }
+
+    private void testAuthenticateWithStreamingPost(StreamingMode streamingMode) throws Exception {
+        MockResponse pleaseAuthenticate = new MockResponse()
+                .setResponseCode(401)
+                .addHeader("WWW-Authenticate: Basic realm=\"protected area\"")
+                .setBody("Please authenticate.");
+        server.enqueue(pleaseAuthenticate);
+        server.play();
+
+        Authenticator.setDefault(SIMPLE_AUTHENTICATOR);
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setDoOutput(true);
+        byte[] requestBody = { 'A', 'B', 'C', 'D' };
+        if (streamingMode == StreamingMode.FIXED_LENGTH) {
+            connection.setFixedLengthStreamingMode(requestBody.length);
+        } else if (streamingMode == StreamingMode.CHUNKED) {
+            connection.setChunkedStreamingMode(0);
+        }
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(requestBody);
+        outputStream.close();
+        try {
+            connection.getInputStream();
+            fail();
+        } catch (HttpRetryException expected) {
+        }
+
+        // no authorization header for the request...
+        RecordedRequest request = server.takeRequest();
+        assertContainsNoneMatching(request.getHeaders(), "Authorization: Basic .*");
+        assertEquals(Arrays.toString(requestBody), Arrays.toString(request.getBody()));
+    }
+
+    enum StreamingMode {
+        FIXED_LENGTH, CHUNKED
+    }
+
+    public void testAuthenticateWithPost() throws Exception {
+        MockResponse pleaseAuthenticate = new MockResponse()
+                .setResponseCode(401)
+                .addHeader("WWW-Authenticate: Basic realm=\"protected area\"")
+                .setBody("Please authenticate.");
+        // fail auth three times...
+        server.enqueue(pleaseAuthenticate);
+        server.enqueue(pleaseAuthenticate);
+        server.enqueue(pleaseAuthenticate);
+        // ...then succeed the fourth time
+        server.enqueue(new MockResponse().setBody("Successful auth!"));
+        server.play();
+
+        Authenticator.setDefault(SIMPLE_AUTHENTICATOR);
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setDoOutput(true);
+        byte[] requestBody = { 'A', 'B', 'C', 'D' };
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(requestBody);
+        outputStream.close();
+        assertEquals("Successful auth!", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        // no authorization header for the first request...
+        RecordedRequest request = server.takeRequest();
+        assertContainsNoneMatching(request.getHeaders(), "Authorization: Basic .*");
+
+        // ...but the three requests that follow requests include an authorization header
+        for (int i = 0; i < 3; i++) {
+            request = server.takeRequest();
+            assertEquals("POST / HTTP/1.1", request.getRequestLine());
+            assertContains(request.getHeaders(), "Authorization: Basic "
+                    + "dXNlcm5hbWU6cGFzc3dvcmQ="); // "dXNl..." == base64("username:password")
+            assertEquals(Arrays.toString(requestBody), Arrays.toString(request.getBody()));
+        }
+    }
+
+    public void testAuthenticateWithGet() throws Exception {
+        MockResponse pleaseAuthenticate = new MockResponse()
+                .setResponseCode(401)
+                .addHeader("WWW-Authenticate: Basic realm=\"protected area\"")
+                .setBody("Please authenticate.");
+        // fail auth three times...
+        server.enqueue(pleaseAuthenticate);
+        server.enqueue(pleaseAuthenticate);
+        server.enqueue(pleaseAuthenticate);
+        // ...then succeed the fourth time
+        server.enqueue(new MockResponse().setBody("Successful auth!"));
+        server.play();
+
+        Authenticator.setDefault(SIMPLE_AUTHENTICATOR);
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("Successful auth!", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        // no authorization header for the first request...
+        RecordedRequest request = server.takeRequest();
+        assertContainsNoneMatching(request.getHeaders(), "Authorization: Basic .*");
+
+        // ...but the three requests that follow requests include an authorization header
+        for (int i = 0; i < 3; i++) {
+            request = server.takeRequest();
+            assertEquals("GET / HTTP/1.1", request.getRequestLine());
+            assertContains(request.getHeaders(), "Authorization: Basic "
+                    + "dXNlcm5hbWU6cGFzc3dvcmQ="); // "dXNl..." == base64("username:password")
+        }
+    }
+
+    /**
      * Encodes the response body using GZIP and adds the corresponding header.
      */
     public byte[] gzip(byte[] bytes) throws IOException {
@@ -696,6 +834,14 @@ public class URLConnectionTest extends junit.framework.TestCase {
 
     private void assertContains(List<String> headers, String header) {
         assertTrue(headers.toString(), headers.contains(header));
+    }
+
+    private void assertContainsNoneMatching(List<String> headers, String pattern) {
+        for (String header : headers) {
+            if (header.matches(pattern)) {
+                fail("Header " + header + " matches " + pattern);
+            }
+        }
     }
 
     enum TransferKind {

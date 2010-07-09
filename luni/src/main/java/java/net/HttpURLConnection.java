@@ -516,22 +516,20 @@ public abstract class HttpURLConnection extends URLConnection {
      * exception.
      *
      * @see #setFixedLengthStreamingMode
-     * @param chunklen
-     *            the length of a chunk.
      * @throws IllegalStateException
      *             if already connected or an other mode already set.
      */
-    public void setChunkedStreamingMode(int chunklen) {
+    public void setChunkedStreamingMode(int chunkLength) {
         if (super.connected) {
             throw new IllegalStateException("Already connected");
         }
-        if (0 <= fixedContentLength) {
+        if (fixedContentLength >= 0) {
             throw new IllegalStateException("Already in fixed-length mode");
         }
-        if (0 >= chunklen) {
-            chunkLength = DEFAULT_CHUNK_LENGTH;
+        if (chunkLength <= 0) {
+            this.chunkLength = DEFAULT_CHUNK_LENGTH;
         } else {
-            chunkLength = chunklen;
+            this.chunkLength = chunkLength;
         }
     }
 }

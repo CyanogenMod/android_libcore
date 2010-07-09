@@ -17,7 +17,6 @@
 
 package org.apache.harmony.luni.internal.net.www.protocol.http;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +25,7 @@ import java.net.Authenticator;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
 import java.net.CookieHandler;
+import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -83,11 +83,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             // Note: we don't allow users to specify "CONNECT"
     };
 
-    private static final byte[] CRLF = new byte[] { '\r', '\n' };
-    private static final byte[] HEX_DIGITS = new byte[] {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-    };
-
     private final int defaultPort;
 
     private int httpVersion = 1; // Assume HTTP/1.1
@@ -108,9 +103,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private boolean hasTriedCache;
 
-    private HttpOutputStream os;
+    private AbstractHttpOutputStream os;
 
-    private boolean sentRequest;
+    private boolean sentRequestHeaders;
 
     boolean sendChunked;
 
@@ -137,292 +132,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     // response header received from the server
     private Header resHeader;
 
-    /**
-     * An HttpOutputStream used to implement setFixedLengthStreamingMode.
-     */
-    private class FixedLengthHttpOutputStream extends HttpOutputStream {
-        private final int fixedLength;
-        private int actualLength;
-
-        public FixedLengthHttpOutputStream(int fixedLength) {
-            this.fixedLength = fixedLength;
-        }
-
-        @Override public void close() throws IOException {
-            if (closed) {
-                return;
-            }
-            closed = true;
-            socketOut.flush();
-            if (actualLength != fixedLength) {
-                throw new IOException("actual length of " + actualLength +
-                        " did not match declared fixed length of " + fixedLength);
-            }
-        }
-
-        @Override public void flush() throws IOException {
-            checkClosed();
-            socketOut.flush();
-        }
-
-        @Override public void write(byte[] buffer, int offset, int count) throws IOException {
-            checkClosed();
-            if (buffer == null) {
-                throw new NullPointerException();
-            }
-            if (offset < 0 || count < 0 || offset > buffer.length || buffer.length - offset < count) {
-                throw new ArrayIndexOutOfBoundsException();
-            }
-            checkSpace(count);
-            socketOut.write(buffer, offset, count);
-            actualLength += count;
-        }
-
-        @Override public void write(int oneByte) throws IOException {
-            checkClosed();
-            checkSpace(1);
-            socketOut.write(oneByte);
-            ++actualLength;
-        }
-
-        @Override public int size() {
-            return fixedLength;
-        }
-
-        private void checkSpace(int byteCount) throws IOException {
-            if (actualLength + byteCount > fixedLength) {
-                throw new IOException("declared fixed content length of " + fixedLength +
-                        " bytes exceeded");
-            }
-        }
-    }
-
-    private abstract class HttpOutputStream extends OutputStream {
-        public boolean closed;
-
-        protected void checkClosed() throws IOException {
-            if (closed) {
-                throw new IOException("Stream is closed");
-            }
-        }
-
-        public boolean isCached() {
-            return false;
-        }
-
-        public boolean isChunked() {
-            return false;
-        }
-
-        public void flushToSocket() throws IOException {
-        }
-
-        public abstract int size();
-    }
-
-    private static final byte[] FINAL_CHUNK = new byte[] { '0', '\r', '\n', '\r', '\n' };
-
-    // TODO: pull ChunkedHttpOutputStream out of here.
-    private class DefaultHttpOutputStream extends HttpOutputStream {
-        private int cacheLength;
-        private int defaultCacheSize = 1024;
-        private ByteArrayOutputStream cache;
-        private boolean writeToSocket;
-        private int limit;
-
-        public DefaultHttpOutputStream() {
-            cacheLength = defaultCacheSize;
-            cache = new ByteArrayOutputStream(cacheLength);
-            limit = -1;
-        }
-
-        public DefaultHttpOutputStream(int limit, int chunkLength) {
-            writeToSocket = true;
-            this.limit = limit;
-            if (limit > 0) {
-                cacheLength = limit;
-            } else {
-                // chunkLength must be larger than 3
-                if (chunkLength > 3) {
-                    defaultCacheSize = chunkLength;
-                }
-                cacheLength = calculateChunkDataLength();
-            }
-            cache = new ByteArrayOutputStream(cacheLength);
-        }
-
-        /**
-         * Calculates the exact size of chunk data, chunk data size is chunk
-         * size minus chunk head (which writes chunk data size in HEX and
-         * "\r\n") size. For example, a string "abcd" use chunk whose size is 5
-         * must be written to socket as "2\r\nab","2\r\ncd" ...
-         *
-         */
-        private int calculateChunkDataLength() {
-            /*
-             * chunk head size is the hex string length of the cache size plus 2
-             * (which is the length of "\r\n"), it must be suitable to express
-             * the size of chunk data, as short as possible. Notices that
-             * according to RI, if chunklength is 19, chunk head length is 4
-             * (expressed as "10\r\n"), chunk data length is 16 (which real sum
-             * is 20,not 19); while if chunklength is 18, chunk head length is
-             * 3. Thus the cacheSize = chunkdataSize + sizeof(string length of
-             * chunk head in HEX) + sizeof("\r\n");
-             */
-            int bitSize = Integer.toHexString(defaultCacheSize).length();
-            /*
-             * here is the calculated head size, not real size (for 19, it
-             * counts 3, not real size 4)
-             */
-            int headSize = (Integer.toHexString(defaultCacheSize - bitSize - 2).length()) + 2;
-            return defaultCacheSize - headSize;
-        }
-
-        /**
-         * Equivalent to, but cheaper than, Integer.toHexString().getBytes().
-         */
-        private void writeHex(int i) throws IOException {
-            int cursor = 8;
-            do {
-                hex[--cursor] = HEX_DIGITS[i & 0xf];
-            } while ((i >>>= 4) != 0);
-            socketOut.write(hex, cursor, 8 - cursor);
-        }
-        private byte[] hex = new byte[8];
-
-        private void sendCache(boolean close) throws IOException {
-            int size = cache.size();
-            if (size > 0 || close) {
-                if (limit < 0) {
-                    if (size > 0) {
-                        writeHex(size);
-                        socketOut.write(CRLF);
-                        cache.writeTo(socketOut);
-                        cache.reset();
-                        socketOut.write(CRLF);
-                    }
-                    if (close) {
-                        socketOut.write(FINAL_CHUNK);
-                    }
-                }
-            }
-        }
-
-        @Override
-        public synchronized void flush() throws IOException {
-            checkClosed();
-            if (writeToSocket) {
-                sendCache(false);
-                socketOut.flush();
-            }
-        }
-
-        @Override
-        public void flushToSocket() throws IOException  {
-            if (isCached()) {
-                cache.writeTo(socketOut);
-            }
-        }
-
-        @Override
-        public synchronized void close() throws IOException {
-            if (closed) {
-                return;
-            }
-            closed = true;
-            if (writeToSocket) {
-                if (limit > 0) {
-                    throw new IOException("Content-Length underflow");
-                }
-                sendCache(closed);
-            }
-        }
-
-        @Override
-        public synchronized void write(int data) throws IOException {
-            checkClosed();
-            if (limit >= 0) {
-                if (limit == 0) {
-                    throw new IOException("Content-Length exceeded");
-                }
-                limit--;
-            }
-            cache.write(data);
-            if (writeToSocket && cache.size() >= cacheLength) {
-                sendCache(false);
-            }
-        }
-
-        @Override
-        public synchronized void write(byte[] buffer, int offset, int count) throws IOException {
-            checkClosed();
-            if (buffer == null) {
-                throw new NullPointerException();
-            }
-            // avoid int overflow
-            if (offset < 0 || count < 0 || offset > buffer.length || buffer.length - offset < count) {
-                throw new ArrayIndexOutOfBoundsException();
-            }
-
-            if (limit >= 0) {
-                if (count > limit) {
-                    throw new IOException("Content-Length exceeded");
-                }
-                limit -= count;
-                cache.write(buffer, offset, count);
-                if (limit == 0) {
-                    cache.writeTo(socketOut);
-                }
-            } else {
-                if (!writeToSocket || cache.size() + count < cacheLength) {
-                    cache.write(buffer, offset, count);
-                } else {
-                    writeHex(cacheLength);
-                    socketOut.write(CRLF);
-                    int writeNum = cacheLength - cache.size();
-                    cache.write(buffer, offset, writeNum);
-                    cache.writeTo(socketOut);
-                    cache.reset();
-                    socketOut.write(CRLF);
-                    int left = count - writeNum;
-                    int position = offset + writeNum;
-                    while (left > cacheLength) {
-                        writeHex(cacheLength);
-                        socketOut.write(CRLF);
-                        socketOut.write(buffer, position, cacheLength);
-                        socketOut.write(CRLF);
-                        left = left - cacheLength;
-                        position = position + cacheLength;
-                    }
-                    cache.write(buffer, position, left);
-                }
-            }
-        }
-
-        @Override
-        public synchronized int size() {
-            return cache.size();
-        }
-
-        @Override public boolean isCached() {
-            return !writeToSocket;
-        }
-
-        @Override public boolean isChunked() {
-            return writeToSocket && limit == -1;
-        }
-    }
-
-    /**
-     * Creates an instance of the <code>HttpURLConnection</code> using default
-     * port 80.
-     *
-     * @param url
-     *            URL The URL this connection is connecting
-     */
-    protected HttpURLConnectionImpl(URL url) {
-        this(url, 80);
-    }
+    private int timesRedirected;
 
     /**
      * Creates an instance of the <code>HttpURLConnection</code>
@@ -640,12 +350,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         /*
-         * Clear "is" and "os" to ensure that no further I/O attempts
+         * Clear "is" and "socketOut" to ensure that no further I/O attempts
          * from this instance make their way to the underlying
          * connection (which may get recycled).
          */
         is = null;
-        os = null; // TODO: should this be socketOut instead?
+        socketOut = null;
     }
 
     /**
@@ -663,15 +373,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (os != null) {
             os.close();
         }
-        sentRequest = false;
-    }
-
-    /**
-     * Returns the default value for the field specified by <code>field</code>,
-     * null if there's no such a field.
-     */
-    public static String getDefaultRequestProperty(String field) {
-        return defaultReqHeader.get(field);
+        sentRequestHeaders = false;
     }
 
     /**
@@ -758,15 +460,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public Map<String, List<String>> getHeaderFields() {
         try {
-            // ensure that resHeader exists
-            getInputStream();
-        } catch (IOException e) {
-            // ignore
+            retrieveResponse();
+        } catch (IOException ignored) {
         }
-        if (null == resHeader) {
-            return null;
-        }
-        return resHeader.getFieldMap();
+        return resHeader != null ? resHeader.getFieldMap() : null;
     }
 
     @Override
@@ -783,9 +480,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             throw new ProtocolException("This protocol does not support input");
         }
 
-        // connect before sending requests
-        connect();
-        doRequest();
+        retrieveResponse();
 
         /*
          * if the requested file does not exist, throw an exception formerly the
@@ -797,14 +492,16 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             throw new FileNotFoundException(url.toString());
         }
 
+        if (uis == null) {
+            // probably a reentrant call, such as from ResponseCache.put()
+            throw new IllegalStateException(
+                    "getInputStream() is not available. Is this a reentrant call?");
+        }
+
         return uis;
     }
 
-    private InputStream getContentStream() throws IOException {
-        if (uis != null) {
-            return uis;
-        }
-
+    private InputStream initializeContentStream() throws IOException {
         if (!hasResponseBody()) {
             return uis = new FixedLengthInputStream(is, cacheRequest, this, 0);
         }
@@ -819,7 +516,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             try {
                 int length = Integer.parseInt(sLength);
                 return uis = new FixedLengthInputStream(is, cacheRequest, this, length);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
             }
         }
 
@@ -838,7 +535,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         // you can't write after you read
-        if (sentRequest) {
+        if (sentRequestHeaders) {
             throw new ProtocolException("can't open OutputStream after reading from InputStream");
         }
 
@@ -856,40 +553,42 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             throw new ProtocolException(method + " does not support writing");
         }
 
-        int limit = -1;
-        String contentLength = reqHeader.get("Content-Length");
-        if (contentLength != null) {
-            limit = Integer.parseInt(contentLength);
+        int contentLength = -1;
+        String contentLengthString = reqHeader.get("Content-Length");
+        if (contentLengthString != null) {
+            contentLength = Integer.parseInt(contentLengthString);
         }
 
         String encoding = reqHeader.get("Transfer-Encoding");
-        if (httpVersion > 0 && encoding != null) {
-            encoding = encoding.toLowerCase();
-            if ("chunked".equals(encoding)) {
-                sendChunked = true;
-                limit = -1;
-            }
-        }
-        // if user has set chunk/fixedLength mode, use that value
-        if (chunkLength > 0) {
+        if ("chunked".equalsIgnoreCase(encoding) || chunkLength > 0) {
             sendChunked = true;
-            limit = -1;
+            contentLength = -1;
         }
-        if (fixedContentLength >= 0) {
-            os = new FixedLengthHttpOutputStream(fixedContentLength);
-            doRequest();
-            return os;
-        }
-        if ((httpVersion > 0 && sendChunked) || limit >= 0) {
-            os = new DefaultHttpOutputStream(limit, chunkLength);
-            doRequest();
-            return os;
-        }
+
         if (!connected) {
             // connect and see if there is cache available.
             connect();
         }
-        return os = new DefaultHttpOutputStream();
+        if (socketOut == null) {
+            throw new IOException(); // TODO: what should we do if a cached response exists?
+        }
+
+        if (httpVersion == 0) {
+            sendChunked = false;
+        }
+
+        if (fixedContentLength != -1) {
+            writeRequestHeaders(socketOut);
+            os = new FixedLengthOutputStream(socketOut, fixedContentLength);
+        } else if (sendChunked) {
+            writeRequestHeaders(socketOut);
+            os = new ChunkedOutputStream(socketOut, chunkLength);
+        } else if (contentLength != -1) {
+            os = new RetryableOutputStream(contentLength);
+        } else {
+            os = new RetryableOutputStream();
+        }
+        return os;
     }
 
     @Override
@@ -937,49 +636,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         return file;
     }
 
-    /**
-     * Sends the request header to the remote HTTP server Not all of them are
-     * guaranteed to have any effect on the content the server will return,
-     * depending on if the server supports that field.
-     *
-     * Examples : Accept: text/*, text/html, text/html;level=1, Accept-Charset:
-     * iso-8859-5, unicode-1-1;q=0.8
-     */
-    private boolean sendRequest() throws IOException {
-
-        if (cacheResponse != null) {
-            // does not send if already has a response cache
-            return true;
-        }
-        if (!connected) {
-            connect();
-        }
-        writeRequest(socketOut);
-        sentRequest = true;
-        // send any output to the socket (i.e. POST data)
-        if (os != null) {
-            os.flushToSocket();
-        }
-        if (os == null || os.isCached()) {
-            readServerResponse();
-            return true;
-        }
-        return false;
-    }
-
-    void readServerResponse() throws IOException {
-        socketOut.flush();
+    void readResponseHeaders() throws IOException {
         do {
             responseCode = -1;
             responseMessage = null;
             resHeader = new Header();
             resHeader.setStatusLine(readLine(is).trim());
             readHeaders();
-        } while (getResponseCode() == 100);
-
-        if (hasResponseBody()) {
-            maybeCache();
-        }
+        } while (parseResponseCode() == 100);
     }
 
     /**
@@ -996,14 +660,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override
     public int getResponseCode() throws IOException {
-        // Response Code Sample : "HTTP/1.0 200 OK"
+        retrieveResponse();
+        return responseCode;
+    }
 
-        // Call connect() first since getHeaderField() doesn't return exceptions
-        connect();
-        doRequest();
-        if (responseCode != -1) {
-            return responseCode;
-        }
+    private int parseResponseCode() {
+        // Response Code Sample : "HTTP/1.0 200 OK"
         String response = resHeader.getStatusLine();
         if (response == null || !response.startsWith("HTTP/")) {
             return -1;
@@ -1046,7 +708,19 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
     }
 
-    private void writeRequest(OutputStream out) throws IOException {
+    /**
+     * Prepares the HTTP headers and sends them to the server.
+     *
+     * <p>For streaming requests with a body, headers must be prepared
+     * <strong>before</strong> the output stream has been written to. Otherwise
+     * the body would need to be buffered!
+     *
+     * <p>For non-streaming requests with a body, headers must be prepared
+     * <strong>after</strong> the output stream has been written to and closed.
+     * Only this ensures that the {@code Content-Length} header receives the
+     * proper value.
+     */
+    private void writeRequestHeaders(OutputStream out) throws IOException {
         prepareRequestHeaders();
 
         StringBuilder result = new StringBuilder(256);
@@ -1060,6 +734,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
         result.append("\r\n");
         out.write(result.toString().getBytes(Charsets.ISO_8859_1));
+        sentRequestHeaders = true;
     }
 
     /**
@@ -1093,12 +768,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             reqHeader.addIfAbsent("Connection", "Keep-Alive");
         }
 
-        if (fixedContentLength >= 0) {
+        if (fixedContentLength != -1) {
             reqHeader.addIfAbsent("Content-Length", Integer.toString(fixedContentLength));
-        } else if (os != null && os.isCached()) {
-            reqHeader.addIfAbsent("Content-Length", Integer.toString(os.size()));
-        } else if (os != null && os.isChunked()) {
+        } else if (sendChunked) {
             reqHeader.addIfAbsent("Transfer-Encoding", "chunked");
+        } else if (os instanceof RetryableOutputStream) {
+            int size = ((RetryableOutputStream) os).contentLength();
+            reqHeader.addIfAbsent("Content-Length", Integer.toString(size));
         }
 
         if (os != null) {
@@ -1116,19 +792,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 }
             }
         }
-    }
-
-    /**
-     * Sets the default request header fields to be sent to the remote server.
-     * This does not affect the current URL Connection, only newly created ones.
-     *
-     * @param field
-     *            java.lang.String The name of the field to be changed
-     * @param value
-     *            java.lang.String The new value of the field
-     */
-    public static void setDefaultRequestProperty(String field, String value) {
-        defaultReqHeader.add(field, value);
     }
 
     /**
@@ -1242,121 +905,151 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Handles an HTTP request along with its redirects and authentication
+     * Aggressively tries to get the final HTTP response, potentially making
+     * many HTTP requests in the process in order to cope with redirects and
+     * authentication.
      */
-    protected void doRequest() throws IOException {
-        // do nothing if we've already sent the request
-        if (sentRequest) {
-            // If necessary, finish the request by
-            // closing the uncached output stream.
-            if (resHeader == null && os != null) {
-                os.close();
-                readServerResponse();
-                getContentStream();
-            }
+    protected final void retrieveResponse() throws IOException {
+        if (resHeader != null) {
             return;
         }
-        doRequestInternal();
-    }
 
-    void doRequestInternal() throws IOException {
-        int redirect = 0;
+        timesRedirected = 0;
         while (true) {
-            // send the request and process the results
-            if (!sendRequest()) {
+            connect();
+
+            // if we can get a response from the cache, we're done
+            if (cacheResponse != null) {
+                // TODO: how does this interact with redirects? Consider processing the headers so
+                // that a redirect is never returned.
                 return;
             }
-            // proxy authorization failed ?
-            if (responseCode == HTTP_PROXY_AUTH) {
-                if (!usingProxy()) {
-                    throw new IOException("Received HTTP_PROXY_AUTH (407) code while not using proxy");
-                }
-                // username/password
-                // until authorized
-                String challenge = resHeader.get("Proxy-Authenticate");
-                if (challenge == null) {
-                    throw new IOException("Received authentication challenge is null");
-                }
-                // drop everything and reconnect, might not be required for
-                // HTTP/1.1
-                endRequest();
-                disconnect();
-                connected = false;
-                String credentials = getAuthorizationCredentials(challenge);
-                if (credentials == null) {
-                    // could not find credentials, end request cycle
-                    break;
-                }
-                // set up the authorization credentials
-                setRequestProperty("Proxy-Authorization", credentials);
-                // continue to send request
-                continue;
-            }
-            // HTTP authorization failed ?
-            if (responseCode == HTTP_UNAUTHORIZED) {
-                // keep asking for username/password until authorized
-                String challenge = resHeader.get("WWW-Authenticate");
-                if (challenge == null) {
-                    throw new IOException("Received authentication challenge is null");
-                }
-                // drop everything and reconnect, might not be required for HTTP/1.1
-                endRequest();
-                disconnect();
-                connected = false;
-                String credentials = getAuthorizationCredentials(challenge);
-                if (credentials == null) {
-                    // could not find credentials, end request cycle
-                    break;
-                }
-                // set up the authorization credentials
-                setRequestProperty("Authorization", credentials);
-                // continue to send request
-                continue;
-            }
-            /*
-             * See if there is a server redirect to the URL, but only handle 1
-             * level of URL redirection from the server to avoid being caught in
-             * an infinite loop
-             */
-            if (getInstanceFollowRedirects()) {
-                if ((responseCode == HTTP_MULT_CHOICE
-                        || responseCode == HTTP_MOVED_PERM
-                        || responseCode == HTTP_MOVED_TEMP
-                        || responseCode == HTTP_SEE_OTHER || responseCode == HTTP_USE_PROXY)
-                        && os == null) {
 
-                    if (++redirect > 4) {
-                        throw new ProtocolException("Too many redirects");
-                    }
-                    String location = getHeaderField("Location");
-                    if (location != null) {
-                        // start over
-                        if (responseCode == HTTP_USE_PROXY) {
-                            int start = 0;
-                            if (location.startsWith(url.getProtocol() + ':')) {
-                                start = url.getProtocol().length() + 1;
-                            }
-                            if (location.startsWith("//", start)) {
-                                start += 2;
-                            }
-                            setProxy(location.substring(start));
-                        } else {
-                            url = new URL(url, location);
-                            hostName = url.getHost();
-                            // update the port
-                            hostPort = -1;
-                        }
-                        endRequest();
-                        disconnect();
-                        connected = false;
-                        continue;
-                    }
+            if (!sentRequestHeaders) {
+                writeRequestHeaders(socketOut);
+            }
+
+            if (os != null) {
+                os.close();
+                if (os instanceof RetryableOutputStream) {
+                    ((RetryableOutputStream) os).writeToSocket(socketOut);
                 }
             }
-            break;
+
+            socketOut.flush();
+
+            readResponseHeaders();
+
+            if (hasResponseBody()) {
+                maybeCache(); // reentrant. this calls into user code which may call back into this!
+            }
+
+            initializeContentStream();
+
+            if (processResponseHeaders()) {
+                return;
+            }
+
+            /*
+             * The first request wasn't sufficient. Prepare for another...
+             */
+
+            // TODO: read the response body so we don't have to create another socket connection?
+            uis.close();
+            uis = null;
+            endRequest();
+            releaseSocket(true);
+            connected = false;
+
+            if (os != null && !(os instanceof RetryableOutputStream)) {
+                throw new HttpRetryException("Cannot retry streamed HTTP body", responseCode);
+            }
         }
-        // Cache the content stream and read the first chunked header
-        getContentStream();
+    }
+
+    /**
+     * Returns true if this is a final response; otherwise the current response
+     * is an intermediate result and another request should be sent.
+     */
+    private boolean processResponseHeaders() throws IOException {
+        // proxy authorization failed ?
+        if (responseCode == HTTP_PROXY_AUTH) {
+            if (!usingProxy()) {
+                throw new IOException("Received HTTP_PROXY_AUTH (407) code while not using proxy");
+            }
+            // keep asking for username/password until authorized
+            String challenge = resHeader.get("Proxy-Authenticate");
+            if (challenge == null) {
+                throw new IOException("Received authentication challenge is null");
+            }
+            String credentials = getAuthorizationCredentials(challenge);
+            if (credentials == null) {
+                return true; // could not find credentials, end request cycle
+            }
+            // set up the authorization credentials
+            connected = false;
+            setRequestProperty("Proxy-Authorization", credentials);
+            return false;
+
+        // HTTP authorization failed ?
+        } else if (responseCode == HTTP_UNAUTHORIZED) {
+            // keep asking for username/password until authorized
+            String challenge = resHeader.get("WWW-Authenticate");
+            if (challenge == null) {
+                throw new IOException("Received authentication challenge is null");
+            }
+            String credentials = getAuthorizationCredentials(challenge);
+            if (credentials == null) {
+                return true; // could not find credentials, end request cycle
+            }
+            // set up the authorization credentials
+            connected = false;
+            setRequestProperty("Authorization", credentials);
+            return false;
+
+        /*
+         * See if there is a server redirect to the URL, but only handle 1
+         * level of URL redirection from the server to avoid being caught in
+         * an infinite loop
+         */
+        } else if (responseCode == HTTP_MULT_CHOICE
+                || responseCode == HTTP_MOVED_PERM
+                || responseCode == HTTP_MOVED_TEMP
+                || responseCode == HTTP_SEE_OTHER
+                || responseCode == HTTP_USE_PROXY) {
+            if (!getInstanceFollowRedirects()) {
+                return true;
+            }
+            if (os != null) {
+                return true; // TODO: we could follow redirects for retryable output streams...
+            }
+            if (++timesRedirected > 4) {
+                throw new ProtocolException("Too many redirects");
+            }
+            String location = getHeaderField("Location");
+            if (location == null) {
+                return true;
+            }
+            if (responseCode == HTTP_USE_PROXY) {
+                int start = 0;
+                if (location.startsWith(url.getProtocol() + ':')) {
+                    start = url.getProtocol().length() + 1;
+                }
+                if (location.startsWith("//", start)) {
+                    start += 2;
+                }
+                setProxy(location.substring(start));
+            } else {
+                url = new URL(url, location);
+                hostName = url.getHost();
+                // update the port
+                hostPort = -1;
+            }
+            return false;
+
+        } else {
+            return true;
+        }
     }
 
     /**
