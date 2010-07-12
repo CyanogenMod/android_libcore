@@ -164,6 +164,10 @@ static jboolean NativeBN_litEndInts2bn(JNIEnv* env, jclass, jintArray arr, int l
     bn_check_top(ret);
     if (len > 0) {
         ScopedIntArrayRO scopedArray(env, arr);
+        if (scopedArray.get() == NULL) {
+            return JNI_FALSE;
+        }
+
         assert(sizeof(BN_ULONG) == sizeof(jint));
         const BN_ULONG* tmpInts = reinterpret_cast<const BN_ULONG*>(scopedArray.get());
         if ((tmpInts != NULL) && (bn_wexpand(ret, len) != NULL)) {
@@ -352,6 +356,9 @@ static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass, BIGNUM* a) {
         return NULL;
     }
     ScopedIntArrayRW ints(env, result);
+    if (ints.get() == NULL) {
+        return NULL;
+    }
     BN_ULONG* ulongs = reinterpret_cast<BN_ULONG*>(ints.get());
     if (ulongs == NULL) {
         return NULL;

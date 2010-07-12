@@ -82,8 +82,11 @@ static void NativeBidi_ubidi_setPara(JNIEnv* env, jclass, jlong ptr, jcharArray 
     } else {
         data->setEmbeddingLevels(NULL);
     }
-    UErrorCode err = U_ZERO_ERROR;
     ScopedCharArrayRO chars(env, text);
+    if (chars.get() == NULL) {
+        return;
+    }
+    UErrorCode err = U_ZERO_ERROR;
     ubidi_setPara(data->uBiDi(), chars.get(), length, paraLevel, data->embeddingLevels(), &err);
     icu4jni_error(env, err);
 }
@@ -154,6 +157,10 @@ static jobjectArray NativeBidi_ubidi_getRuns(JNIEnv* env, jclass, jlong ptr) {
 
 static jintArray NativeBidi_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray javaLevels, jint length) {
     ScopedByteArrayRO levelBytes(env, javaLevels);
+    if (levelBytes.get() == NULL) {
+        return NULL;
+    }
+
     const UBiDiLevel* levels = reinterpret_cast<const UBiDiLevel*>(levelBytes.get());
 
     UniquePtr<int[]> indexMap(new int[length]);

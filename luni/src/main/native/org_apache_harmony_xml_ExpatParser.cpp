@@ -419,6 +419,10 @@ static size_t fillBuffer(ParsingContext* parsingContext, const char* characters,
 
     // Decode UTF-8 characters into our buffer.
     ScopedCharArrayRW nativeBuffer(env, buffer);
+    if (nativeBuffer.get() == NULL) {
+        return -1;
+    }
+
     size_t utf16length;
     strcpylen8to16((char16_t*) nativeBuffer.get(), characters, length, &utf16length);
     return utf16length;
@@ -1004,6 +1008,10 @@ static void append(JNIEnv* env, jobject object, jint pointer,
 static void appendBytes(JNIEnv* env, jobject object, jint pointer,
         jbyteArray xml, jint byteOffset, jint byteCount) {
     ScopedByteArrayRO byteArray(env, xml);
+    if (byteArray.get() == NULL) {
+        return;
+    }
+
     const char* bytes = reinterpret_cast<const char*>(byteArray.get());
     append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
 }
@@ -1011,6 +1019,10 @@ static void appendBytes(JNIEnv* env, jobject object, jint pointer,
 static void appendCharacters(JNIEnv* env, jobject object, jint pointer,
         jcharArray xml, jint charOffset, jint charCount) {
     ScopedCharArrayRO charArray(env, xml);
+    if (charArray.get() == NULL) {
+        return;
+    }
+
     const char* bytes = reinterpret_cast<const char*>(charArray.get());
     size_t byteOffset = 2 * charOffset;
     size_t byteCount = 2 * charCount;

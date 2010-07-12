@@ -367,6 +367,9 @@ static BIGNUM* arrayToBignum(JNIEnv* env, jbyteArray source) {
     // LOGD("Entering arrayToBignum()");
 
     ScopedByteArrayRO sourceBytes(env, source);
+    if (sourceBytes.get() == NULL) {
+        return NULL;
+    }
     return BN_bin2bn((unsigned char*) sourceBytes.get(), sourceBytes.size(), NULL);
 }
 
@@ -584,6 +587,9 @@ static jint NativeCrypto_EVP_DigestFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
     int result = -1;
 
     ScopedByteArrayRW hashBytes(env, hash);
+    if (hashBytes.get() == NULL) {
+        return -1;
+    }
     EVP_DigestFinal(ctx, (unsigned char*) (hashBytes.get() + offset), (unsigned int*)&result);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestFinal");
@@ -668,6 +674,9 @@ static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
     }
 
     ScopedByteArrayRO bufferBytes(env, buffer);
+    if (bufferBytes.get() == NULL) {
+        return;
+    }
     EVP_DigestUpdate(ctx, (unsigned char*) (bufferBytes.get() + offset), length);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestUpdate");
@@ -714,6 +723,9 @@ static void NativeCrypto_EVP_VerifyUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
     }
 
     ScopedByteArrayRO bufferBytes(env, buffer);
+    if (bufferBytes.get() == NULL) {
+        return;
+    }
     EVP_VerifyUpdate(ctx, (unsigned char*) (bufferBytes.get() + offset), length);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyUpdate");
@@ -732,6 +744,9 @@ static int NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx, jb
     }
 
     ScopedByteArrayRO bufferBytes(env, buffer);
+    if (bufferBytes.get() == NULL) {
+        return -1;
+    }
     int result = EVP_VerifyFinal(ctx, (unsigned char*) (bufferBytes.get() + offset), length, pkey);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyFinal");
@@ -818,16 +833,22 @@ static int NativeCrypto_verifysignature(JNIEnv* env, jclass,
     JNI_TRACE("NativeCrypto_verifysignature msg=%p sig=%p algorithm=%p mod=%p exp%p",
               msg, sig, algorithm, mod, exp);
 
-    if (msg == NULL || sig == NULL || algorithm == NULL || mod == NULL || exp == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        JNI_TRACE("NativeCrypto_verifysignature => -1");
+    ScopedByteArrayRO msgBytes(env, msg);
+    if (msgBytes.get() == NULL) {
         return -1;
     }
-
-    ScopedByteArrayRO msgBytes(env, msg);
     ScopedByteArrayRO sigBytes(env, sig);
+    if (sigBytes.get() == NULL) {
+        return -1;
+    }
     ScopedByteArrayRO modBytes(env, mod);
+    if (modBytes.get() == NULL) {
+        return -1;
+    }
     ScopedByteArrayRO expBytes(env, exp);
+    if (expBytes.get() == NULL) {
+        return -1;
+    }
 
     ScopedUtfChars algorithmChars(env, algorithm);
     if (algorithmChars.c_str() == NULL) {
@@ -856,11 +877,10 @@ static int NativeCrypto_verifysignature(JNIEnv* env, jclass,
 
 static void NativeCrypto_RAND_seed(JNIEnv* env, jclass, jbyteArray seed) {
     JNI_TRACE("NativeCrypto_RAND_seed seed=%p", seed);
-    if (seed == NULL) {
-        jniThrowNullPointerException(env, "seed == null");
+    ScopedByteArrayRO randseed(env, seed);
+    if (randseed.get() == NULL) {
         return;
     }
-    ScopedByteArrayRO randseed(env, seed);
     RAND_seed(randseed.get(), randseed.size());
 }
 
@@ -1692,13 +1712,11 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
         return;
     }
 
-    if (privatekey == NULL) {
-        jniThrowNullPointerException(env, "privatekey == null");
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => privatekey == null", ssl);
+    ScopedByteArrayRO buf(env, privatekey);
+    if (buf.get() == NULL) {
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => threw exception", ssl);
         return;
     }
-
-    ScopedByteArrayRO buf(env, privatekey);
     const unsigned char* tmp = (const unsigned char*) buf.get();
     Unique_PKCS8_PRIV_KEY_INFO pkcs8(d2i_PKCS8_PRIV_KEY_INFO(NULL, &tmp, buf.size()));
     if (pkcs8.get() == NULL) {
@@ -1767,6 +1785,10 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
         }
 
         ScopedByteArrayRO buf(env, certificate.get());
+        if (buf.get() == NULL) {
+            JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => threw exception", ssl);
+            return;
+        }
         const unsigned char* tmp = (const unsigned char*) buf.get();
         certificatesX509[i].reset(d2i_X509(NULL, &tmp, buf.size()));
 
@@ -2213,7 +2235,7 @@ static jobjectArray NativeCrypto_SSL_get_certificate(JNIEnv* env, jclass, jint s
     Unique_sk_X509 chain(sk_X509_new_null());
     if (chain.get() == NULL) {
         jniThrowRuntimeException(env, "Unable to allocate local certificate chain");
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_get_certificate => NULL", ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_get_certificate => threw exception", ssl);
         return NULL;
     }
     sk_X509_push(chain.get(), certificate);
@@ -2401,6 +2423,10 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
     }
 
     ScopedByteArrayRW bytes(env, b);
+    if (bytes.get() == NULL) {
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_read => threw exception", ssl);
+        return 0;
+    }
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;;
 
@@ -2585,6 +2611,10 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
     }
 
     ScopedByteArrayRO bytes(env, b);
+    if (bytes.get() == NULL) {
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_write => threw exception", ssl);
+        return;
+    }
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
     int ret = sslWrite(env,
@@ -2849,6 +2879,10 @@ static jbyteArray NativeCrypto_i2d_SSL_SESSION(JNIEnv* env, jclass, jint ssl_ses
     jbyteArray bytes = env->NewByteArray(size);
     if (bytes != NULL) {
         ScopedByteArrayRW tmp(env, bytes);
+        if (tmp.get() == NULL) {
+            JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => threw exception");
+            return NULL;
+        }
         unsigned char* ucp = reinterpret_cast<unsigned char*>(tmp.get());
         i2d_SSL_SESSION(ssl_session, &ucp);
     }
@@ -2862,12 +2896,12 @@ static jbyteArray NativeCrypto_i2d_SSL_SESSION(JNIEnv* env, jclass, jint ssl_ses
  */
 static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray bytes, jint size) {
     JNI_TRACE("NativeCrypto_d2i_SSL_SESSION bytes=%p size=%d", bytes, size);
-    if (bytes == NULL) {
-        JNI_TRACE("NativeCrypto_d2i_SSL_SESSION => 0");
-        return 0;
-    }
 
     ScopedByteArrayRO tmp(env, bytes);
+    if (tmp.get() == NULL) {
+        JNI_TRACE("NativeCrypto_d2i_SSL_SESSION => threw exception");
+        return 0;
+    }
     const unsigned char* ucp = reinterpret_cast<const unsigned char*>(tmp.get());
     SSL_SESSION* ssl_session = d2i_SSL_SESSION(NULL, &ucp, size);
 

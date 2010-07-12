@@ -28,7 +28,11 @@
     public: \
         Scoped ## NAME ## ArrayRO(JNIEnv* env, PRIMITIVE_TYPE ## Array javaArray) \
         : mEnv(env), mJavaArray(javaArray), mRawArray(NULL) { \
-            mRawArray = mEnv->Get ## NAME ## ArrayElements(mJavaArray, NULL); \
+            if (mJavaArray == NULL) { \
+                jniThrowNullPointerException(mEnv, NULL); \
+            } else { \
+                mRawArray = mEnv->Get ## NAME ## ArrayElements(mJavaArray, NULL); \
+            } \
         } \
         ~Scoped ## NAME ## ArrayRO() { \
             if (mRawArray) { \
@@ -66,7 +70,11 @@ INSTANTIATE_SCOPED_PRIMITIVE_ARRAY_RO(jshort, Short);
     public: \
         Scoped ## NAME ## ArrayRW(JNIEnv* env, PRIMITIVE_TYPE ## Array javaArray) \
         : mEnv(env), mJavaArray(javaArray), mRawArray(NULL) { \
-            mRawArray = mEnv->Get ## NAME ## ArrayElements(mJavaArray, NULL); \
+            if (mJavaArray == NULL) { \
+                jniThrowNullPointerException(mEnv, NULL); \
+            } else { \
+                mRawArray = mEnv->Get ## NAME ## ArrayElements(mJavaArray, NULL); \
+            } \
         } \
         ~Scoped ## NAME ## ArrayRW() { \
             if (mRawArray) { \

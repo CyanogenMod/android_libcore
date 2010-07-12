@@ -201,15 +201,16 @@ static jstring formatResult(JNIEnv* env, const UnicodeString &str, FieldPosition
 
     if (fpi != NULL) {
         int len = fpi->getData(NULL, 0);
-        jintArray iary;
+        jintArray data = NULL;
         if (len) {
-            iary = env->NewIntArray(len);
-            ScopedIntArrayRW ints(env, iary);
+            data = env->NewIntArray(len);
+            ScopedIntArrayRW ints(env, data);
+            if (ints.get() == NULL) {
+                return NULL;
+            }
             fpi->getData(ints.get(), len);
-        } else {
-            iary = NULL;
         }
-        env->CallVoidMethod(fpIter, gFPI_setData, iary);
+        env->CallVoidMethod(fpIter, gFPI_setData, data);
     }
 
     return env->NewString(str.getBuffer(), str.length());

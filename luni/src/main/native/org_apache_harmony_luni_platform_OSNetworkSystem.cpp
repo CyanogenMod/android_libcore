@@ -889,6 +889,9 @@ static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
     }
 
     ScopedByteArrayRW contextBytes(env, passContext);
+    if (contextBytes.get() == NULL) {
+        return JNI_FALSE;
+    }
     selectFDSet* context = reinterpret_cast<selectFDSet*>(contextBytes.get());
     int result = 0;
     switch (step) {
@@ -1329,6 +1332,9 @@ static jint osNetworkSystem_sendDatagram(JNIEnv* env, jobject,
         jobject fd, jbyteArray data, jint offset, jint length, jint port,
         jint trafficClass, jobject inetAddress) {
     ScopedByteArrayRO bytes(env, data);
+    if (bytes.get() == NULL) {
+        return -1;
+    }
     return osNetworkSystem_sendDatagramDirect(env, NULL, fd,
             reinterpret_cast<uintptr_t>(bytes.get()), offset, length, port,
             trafficClass, inetAddress);
@@ -1357,6 +1363,9 @@ static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env,
 static jint osNetworkSystem_sendConnectedDatagram(JNIEnv* env, jobject,
         jobject fd, jbyteArray data, jint offset, jint length) {
     ScopedByteArrayRO bytes(env, data);
+    if (bytes.get() == NULL) {
+        return -1;
+    }
     return osNetworkSystem_sendConnectedDatagramDirect(env, NULL, fd,
             reinterpret_cast<uintptr_t>(bytes.get()), offset, length);
 }

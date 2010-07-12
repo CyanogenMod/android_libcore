@@ -25,7 +25,6 @@
 static jlong CRC32_updateImpl(JNIEnv* env, jobject, jbyteArray byteArray, int off, int len, jlong crc) {
     ScopedByteArrayRO bytes(env, byteArray);
     if (bytes.get() == NULL) {
-        jniThrowNullPointerException(env, NULL);
         return 0;
     }
     jlong result = crc32((uLong) crc, (Bytef *) (bytes.get() + off), (uInt) len);

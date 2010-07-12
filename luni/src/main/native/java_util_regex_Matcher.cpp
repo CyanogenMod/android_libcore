@@ -85,6 +85,10 @@ public:
 
     void updateOffsets(jintArray javaOffsets) {
         ScopedIntArrayRW offsets(mEnv, javaOffsets);
+        if (offsets.get() == NULL) {
+            return;
+        }
+
         for (size_t i = 0, groupCount = mMatcher->groupCount(); i <= groupCount; ++i) {
             offsets[2*i + 0] = mMatcher->start(i, mStatus);
             offsets[2*i + 1] = mMatcher->end(i, mStatus);

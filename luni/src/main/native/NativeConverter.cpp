@@ -82,10 +82,19 @@ static jint NativeConverter_encode(JNIEnv* env, jclass, jlong address,
         jintArray data, jboolean flush) {
 
     UConverter* cnv = toUConverter(address);
+    if (cnv == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedCharArrayRO uSource(env, source);
+    if (uSource.get() == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedByteArrayRW uTarget(env, target);
+    if (uTarget.get() == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedIntArrayRW myData(env, data);
-    if (cnv == NULL || uSource.get() == NULL || uTarget.get() == NULL || myData.get() == NULL) {
+    if (myData.get() == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
 
@@ -125,10 +134,19 @@ static jint NativeConverter_decode(JNIEnv* env, jclass, jlong address,
         jintArray data, jboolean flush) {
 
     UConverter* cnv = toUConverter(address);
+    if (cnv == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedByteArrayRO uSource(env, source);
+    if (uSource.get() == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedCharArrayRW uTarget(env, target);
+    if (uTarget.get() == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedIntArrayRW myData(env, data);
-    if (cnv == NULL || uSource.get() == NULL || uTarget.get() == NULL || myData.get() == NULL) {
+    if (myData.get() == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
 
@@ -194,9 +212,15 @@ static jfloat NativeConverter_getAveBytesPerChar(JNIEnv*, jclass, jlong address)
 static jint NativeConverter_flushByteToChar(JNIEnv* env, jclass, jlong address,
         jcharArray target, jint targetEnd, jintArray data) {
     UConverter* cnv = toUConverter(address);
+    if (cnv == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedCharArrayRW uTarget(env, target);
+    if (uTarget.get() == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedIntArrayRW myData(env, data);
-    if (cnv == NULL || uTarget.get() == NULL || myData.get() == NULL) {
+    if (myData.get() == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
     jbyte source = '\0';
@@ -214,9 +238,15 @@ static jint NativeConverter_flushByteToChar(JNIEnv* env, jclass, jlong address,
 static jint NativeConverter_flushCharToByte(JNIEnv* env, jclass, jlong address,
         jbyteArray target, jint targetEnd, jintArray data) {
     UConverter* cnv = toUConverter(address);
+    if (cnv == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedByteArrayRW uTarget(env, target);
+    if (uTarget.get() == NULL) {
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
     ScopedIntArrayRW myData(env, data);
-    if (cnv == NULL || uTarget.get() == NULL || myData.get() == NULL) {
+    if (myData.get() == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
     jchar source = '\0';
