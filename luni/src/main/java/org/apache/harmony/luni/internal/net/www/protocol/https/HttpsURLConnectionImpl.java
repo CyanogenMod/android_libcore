@@ -337,10 +337,6 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     private final class HttpsEngine extends HttpURLConnectionImpl {
 
-        // In case of using proxy this field indicates
-        // if it is a SSL Tunnel establishing stage
-        private boolean makingSSLTunnel;
-
         protected HttpsEngine(URL url, int port) {
             super(url, port);
         }
@@ -350,59 +346,39 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         }
 
         @Override public void connect() throws IOException {
-            if (connected) {
+            if (connection != null) {
                 return;
             }
-            if (usingProxy() && !makingSSLTunnel) {
-                // SSL Tunnel through the proxy was not established yet, do so
-                makingSSLTunnel = true;
-                // first - make the connection
-                super.connect();
-                // keep request method
+
+            super.connect();
+
+            // make SSL Tunnel
+            if (usingProxy()) {
                 String originalMethod = method;
-                // make SSL Tunnel
                 method = CONNECT;
+                intermediateResponse = true;
                 try {
                     retrieveResponse();
-                    endRequest();
+                    discardIntermediateResponse();
                 } finally {
-                    // restore initial request method
                     method = originalMethod;
+                    intermediateResponse = false;
                 }
-                if (!connected) {
-                    throw new IOException("Could not make SSL tunnel. " +
-                            responseMessage + " (" + responseCode + ")");
-                }
-                discardResponse();
-                makingSSLTunnel = false;
-            } else {
-                // no need in SSL tunnel
-                super.connect();
             }
-            if (!makingSSLTunnel) {
-                sslSocket = connection.getSecureSocket(getSSLSocketFactory(), getHostnameVerifier());
-                setUpTransportIO(connection);
-            }
+
+            sslSocket = connection.getSecureSocket(getSSLSocketFactory(), getHostnameVerifier());
+            setUpTransportIO(connection);
         }
 
         @Override protected boolean requiresTunnel() {
             return usingProxy();
         }
 
-        @Override protected void releaseSocket(boolean closeSocket) {
-            // when a CONNECT completes, don't release the socket!
-            if (method == CONNECT) {
-                return;
-            }
-
-            super.releaseSocket(closeSocket);
-        }
-
         @Override protected String requestString() {
             if (!usingProxy()) {
                 return super.requestString();
 
-            } else if (makingSSLTunnel) {
+            } else if (method == CONNECT) {
                 // SSL tunnels require host:port for the origin server
                 return url.getHost() + ":" + url.getEffectivePort();
 

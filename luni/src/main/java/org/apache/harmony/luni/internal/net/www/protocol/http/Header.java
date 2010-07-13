@@ -111,6 +111,17 @@ public class Header implements Cloneable {
         props.add(value);
     }
 
+    public void removeAll(String key) {
+        keyTable.remove(key);
+
+        for (int i = 0; i < props.size(); i += 2) {
+            if (key.equals(props.get(i))) {
+                props.remove(i); // key
+                props.remove(i); // value
+            }
+        }
+    }
+
     public void addAll(String key, List<String> headers) {
         for (String header : headers) {
             add(key, header);
@@ -142,7 +153,7 @@ public class Header implements Cloneable {
             list.add(value);
             for (int i = 0; i < props.size(); i += 2) {
                 String propKey = props.get(i);
-                if (propKey != null && key.equals(propKey)) {
+                if (key.equals(propKey)) {
                     props.set(i + 1, value);
                 }
             }

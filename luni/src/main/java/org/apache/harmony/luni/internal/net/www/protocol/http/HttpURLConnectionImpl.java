@@ -38,8 +38,6 @@ import java.net.SocketPermission;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
 import java.nio.charset.Charsets;
 import java.security.AccessController;
 import java.security.Permission;
@@ -50,6 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import libcore.base.Streams;
 import org.apache.harmony.luni.util.Base64;
 import org.apache.harmony.luni.util.PriviAction;
 
@@ -58,6 +57,15 @@ import org.apache.harmony.luni.util.PriviAction;
  * <code>URLConnection</code> This is the actual class that "does the work",
  * such as connecting, sending request and getting the content from the remote
  * server.
+ *
+ * <h3>What does 'connected' mean?</h3>
+ * This class inherits a {@code connected} field from the superclass. That field
+ * is <strong>not</strong> used to indicate not whether this URLConnection is
+ * currently connected. Instead, it indicates whether a connection has ever been
+ * attempted. Once a connection has been attempted, certain properties (request
+ * headers, request method, etc.) are immutable. Test the {@code connection}
+ * field on this class for null/non-null to determine of an instance is
+ * currently connected to a server.
  */
 public class HttpURLConnectionImpl extends HttpURLConnection {
     public static final String OPTIONS = "OPTIONS";
@@ -71,7 +79,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     public static final int HTTP_CONTINUE = 100;
 
-    public static final int MAX_REDIRECTS = 4;
+    /**
+     * HTTP 1.1 doesn't specify how many redirects to follow, but HTTP/1.0
+     * recommended 5. http://www.w3.org/Protocols/HTTP/1.0/spec.html#Code3xx
+     */
+    public static final int MAX_REDIRECTS = 5;
 
     /**
      * The subset of HTTP methods that the user may select via {@link #setRequestMethod}.
@@ -118,14 +130,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     boolean sendChunked;
 
-    private String proxyName;
-
-    private int hostPort = -1;
-
-    private String hostName;
-
-    private InetAddress hostAddress;
-
     // proxy which is used to make the connection.
     private Proxy proxy;
 
@@ -142,6 +146,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     private Header resHeader;
 
     private int redirectionCount;
+
+    /**
+     * Intermediate responses are always followed by another request for the
+     * same content, possibly from a different URL or with different headers.
+     */
+    protected boolean intermediateResponse = false;
 
     /**
      * Creates an instance of the <code>HttpURLConnection</code>
@@ -185,50 +195,36 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Establishes the connection to the remote HTTP server
-     *
-     * Any methods that requires a valid connection to the resource will call
-     * this method implicitly. After the connection is established,
-     * <code>connected</code> is set to true.
-     *
-     *
-     * @see #connected
-     * @see java.io.IOException
-     * @see URLStreamHandler
+     * Establishes a socket connection to the remote origin server or proxy.
      */
-    @Override
-    public void connect() throws IOException {
-        if (connected) {
+    @Override public void connect() throws IOException {
+        if (connection != null) {
             return;
         }
+
+        connected = true;
+
         if (getFromCache()) {
             return;
         }
-        // BEGIN android-changed
-        // url.toURI(); throws an URISyntaxException if the url contains
-        // illegal characters in e.g. the query.
-        // Since the query is not needed for proxy selection, we just create an
-        // URI that only contains the necessary information.
+
+        /*
+         * URL.toURI() throws if it has illegal characters. Since we don't mind
+         * illegal characters for proxy selection, just create the minimal URI.
+         */
         try {
-            uri = new URI(url.getProtocol(),
-                          null,
-                          url.getHost(),
-                          url.getPort(),
-                          url.getPath(),
-                          null,
-                          null);
+            uri = new URI(url.getProtocol(), null, url.getHost(), url.getPort(), url.getPath(),
+                    null, null);
         } catch (URISyntaxException e1) {
             throw new IOException(e1.getMessage());
         }
-        // END android-changed
-        // socket to be used for connection
-        connection = null;
+
         // try to determine: to use the proxy or not
         if (proxy != null) {
             // try to make the connection to the proxy
             // specified in constructor.
             // IOException will be thrown in the case of failure
-            connection = getHTTPConnection(proxy);
+            connection = getHttpConnection(proxy);
         } else {
             // Use system-wide ProxySelect to select proxy list,
             // then try to connect via elements in the proxy list.
@@ -241,7 +237,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                         continue;
                     }
                     try {
-                        connection = getHTTPConnection(selectedProxy);
+                        connection = getHttpConnection(selectedProxy);
                         proxy = selectedProxy;
                         break; // connected
                     } catch (IOException e) {
@@ -250,20 +246,19 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                     }
                 }
             }
-        }
-        if (connection == null) {
-            // make direct connection
-            connection = getHTTPConnection(null);
+            if (connection == null) {
+                // make direct connection
+                connection = getHttpConnection(null);
+            }
         }
         connection.setSoTimeout(getReadTimeout());
         setUpTransportIO(connection);
-        connected = true;
     }
 
     /**
      * Returns connected socket to be used for this HTTP connection.
      */
-    protected HttpConnection getHTTPConnection(Proxy proxy) throws IOException {
+    private HttpConnection getHttpConnection(Proxy proxy) throws IOException {
         HttpConnection.Address address;
         if (proxy == null || proxy.type() == Proxy.Type.DIRECT) {
             this.proxy = null; // not using proxy
@@ -275,10 +270,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Sets up the data streams used to send request[s] and read response[s].
-     *
-     * @param connection
-     *            HttpConnection to be used
+     * Sets up the data streams used to send requests and read responses.
      */
     protected void setUpTransportIO(HttpConnection connection) throws IOException {
         socketOut = connection.getOutputStream();
@@ -327,33 +319,32 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Closes the connection with the HTTP server
-     *
-     *
-     * @see URLConnection#connect()
+     * Close the socket connection to the remote origin server or proxy.
      */
-    @Override
-    public void disconnect() {
-        releaseSocket(true);
+    @Override public void disconnect() {
+        releaseSocket(false);
     }
 
     /**
-     * Releases this connection so that it may be either closed or reused.
-     *
-     * @param closeSocket true if the socket must not be recycled.
+     * Releases this connection so that it may be either reused or closed.
      */
-    protected synchronized void releaseSocket(boolean closeSocket) {
+    protected synchronized void releaseSocket(boolean reuseSocket) {
+        // we cannot recycle sockets that have incomplete output.
+        boolean canBeReused = reuseSocket && (os == null || os.closed);
+
+        /*
+         * Don't return the socket to the connection pool if this is an
+         * intermediate response; we're going to use it again right away.
+         */
+        if (intermediateResponse && canBeReused) {
+            return;
+        }
+
         if (connection != null) {
-            if (closeSocket || ((os != null) && !os.closed)) {
-                /*
-                 * In addition to closing the socket if explicitly
-                 * requested to do so, we also close it if there was
-                 * an output stream associated with the request and it
-                 * wasn't cleanly closed.
-                 */
-                connection.closeSocketAndStreams();
-            } else {
+            if (canBeReused) {
                 HttpConnectionPool.INSTANCE.recycle(connection);
+            } else {
+                connection.closeSocketAndStreams();
             }
             connection = null;
         }
@@ -371,18 +362,25 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * Discard all state initialized from the HTTP response including response
      * code, message, headers and body.
      */
-    protected void discardResponse() {
-        responseCode = -1;
-        responseMessage = null;
-        resHeader = null;
-        uis = null;
-    }
-
-    protected void endRequest() throws IOException {
-        if (os != null) {
-            os.close();
+    protected void discardIntermediateResponse() throws IOException {
+        intermediateResponse = true;
+        try {
+            if (uis != null) {
+                if (!(uis instanceof UnknownLengthHttpInputStream)) {
+                    // skip the response so that the connection may be reused for the retry
+                    Streams.skipAll(uis);
+                }
+                uis.close();
+                uis = null;
+            }
+            sentRequestHeaders = false;
+            resHeader = null;
+            responseCode = -1;
+            responseMessage = null;
+            cacheRequest = null;
+        } finally {
+            intermediateResponse = false;
         }
-        sentRequestHeaders = false;
     }
 
     /**
@@ -576,10 +574,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             contentLength = -1;
         }
 
-        if (!connected) {
-            // connect and see if there is cache available.
-            connect();
-        }
+        connect();
+
         if (socketOut == null) {
              // TODO: what should we do if a cached response exists?
             throw new IOException("No socket to write to; was a POST cached?");
@@ -605,7 +601,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override
     public Permission getPermission() throws IOException {
-        return new SocketPermission(getHostName() + ":" + getHostPort(), "connect, resolve");
+        String connectToAddress = getConnectToHost() + ":" + getConnectToPort();
+        return new SocketPermission(connectToAddress, "connect, resolve");
     }
 
     @Override
@@ -638,7 +635,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     protected String requestString() {
-        if (usingProxy() || proxyName != null) {
+        if (usingProxy()) {
             return url.toString();
         }
         String file = url.getFile();
@@ -769,11 +766,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         if (reqHeader.get("Host") == null) {
-            int port = url.getPort();
-            String host = (port > 0 && port != defaultPort)
-                    ? url.getHost() + ":" + port
-                    : url.getHost();
-            reqHeader.add("Host", host);
+            reqHeader.add("Host", getOriginAddress(url));
         }
 
         if (httpVersion > 0) {
@@ -804,6 +797,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 }
             }
         }
+    }
+
+    private String getOriginAddress(URL url) {
+        int port = url.getPort();
+        String result = url.getHost();
+        if (port > 0 && port != defaultPort) {
+            result = result + ":" + port;
+        }
+        return result;
     }
 
     /**
@@ -852,63 +854,41 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Get the connection port. This is either the URL's port or the proxy port
-     * if a proxy port has been set.
+     * Returns the target port of the socket connection; either a port of the
+     * origin server or an intermediate proxy.
      */
-    private int getHostPort() {
-        if (hostPort < 0) {
-            // the value was not set yet
-            if (proxy != null) {
-                hostPort = ((InetSocketAddress) proxy.address()).getPort();
-            } else {
-                hostPort = url.getPort();
-            }
-            if (hostPort < 0) {
-                hostPort = defaultPort;
-            }
-        }
-        return hostPort;
+    private int getConnectToPort() {
+        int hostPort = usingProxy()
+                ? ((InetSocketAddress) proxy.address()).getPort()
+                : url.getPort();
+        return hostPort < 0 ? defaultPort : hostPort;
     }
 
     /**
-     * Get the InetAddress of the connection machine. This is either the address
-     * given in the URL or the address of the proxy server.
+     * Returns the target address of the socket connection; either the address
+     * of the origin server or an intermediate proxy.
      */
-    private InetAddress getHostAddress() throws IOException {
-        if (hostAddress == null) {
-            // the value was not set yet
-            if (proxy != null && proxy.type() != Proxy.Type.DIRECT) {
-                hostAddress = ((InetSocketAddress) proxy.address())
-                        .getAddress();
-            } else {
-                hostAddress = InetAddress.getByName(url.getHost());
-            }
-        }
-        return hostAddress;
+    private InetAddress getConnectToInetAddress() throws IOException {
+        return usingProxy()
+                ? ((InetSocketAddress) proxy.address()).getAddress()
+                : InetAddress.getByName(url.getHost());
     }
 
     /**
-     * Get the hostname of the connection machine. This is either the name given
-     * in the URL or the name of the proxy server.
+     * Returns the target host name of the socket connection; either the host
+     * name of the origin server or an intermediate proxy.
      */
-    private String getHostName() {
-        if (hostName == null) {
-            // the value was not set yet
-            if (proxy != null) {
-                hostName = ((InetSocketAddress) proxy.address()).getHostName();
-            } else {
-                hostName = url.getHost();
-            }
-        }
-        return hostName;
+    private String getConnectToHost() {
+        return usingProxy()
+                ? ((InetSocketAddress) proxy.address()).getHostName()
+                : url.getHost();
     }
 
     private String getSystemProperty(final String property) {
         return AccessController.doPrivileged(new PriviAction<String>(property));
     }
 
-    @Override
-    public boolean usingProxy() {
+    @Override public final boolean usingProxy() {
         return (proxy != null && proxy.type() != Proxy.Type.DIRECT);
     }
 
@@ -958,7 +938,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
             initContentStream();
 
-            if (processResponseHeaders()) {
+            Retry retry = processResponseHeaders();
+
+            if (retry == Retry.NONE) {
                 return;
             }
 
@@ -966,24 +948,30 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
              * The first request wasn't sufficient. Prepare for another...
              */
 
-            // TODO: read the response body so we don't have to create another socket connection?
-            uis.close();
-            uis = null;
-            endRequest();
-            releaseSocket(true);
-            connected = false;
-
             if (os != null && !(os instanceof RetryableOutputStream)) {
                 throw new HttpRetryException("Cannot retry streamed HTTP body", responseCode);
+            }
+
+            discardIntermediateResponse();
+
+            if (retry == Retry.NEW_CONNECTION) {
+                releaseSocket(true);
             }
         }
     }
 
+    enum Retry {
+        NONE,
+        SAME_CONNECTION,
+        NEW_CONNECTION
+    }
+
     /**
-     * Returns true if this is a final response; otherwise the current response
-     * is an intermediate result and another request should be sent.
+     * Returns the retry action to take for the current response headers. The
+     * headers, proxy and target URL or this connection may be adjusted to
+     * prepare for a follow up request.
      */
-    private boolean processResponseHeaders() throws IOException {
+    private Retry processResponseHeaders() throws IOException {
         switch (responseCode) {
             case HTTP_PROXY_AUTH: // proxy authorization failed ?
                 if (!usingProxy()) {
@@ -1000,25 +988,19 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             case HTTP_MOVED_TEMP:
             case HTTP_SEE_OTHER:
             case HTTP_USE_PROXY:
-
-                /*
-                 * See if there is a server redirect to the URL, but only handle 1
-                 * level of URL redirection from the server to avoid being caught in
-                 * an infinite loop
-                 */
-
                 if (!getInstanceFollowRedirects()) {
-                    return true;
+                    return Retry.NONE;
                 }
                 if (os != null) {
-                    return true; // TODO: we could follow redirects for retryable output streams...
+                    // TODO: follow redirects for retryable output streams...
+                    return Retry.NONE;
                 }
                 if (++redirectionCount > MAX_REDIRECTS) {
                     throw new ProtocolException("Too many redirects");
                 }
                 String location = getHeaderField("Location");
                 if (location == null) {
-                    return true;
+                    return Retry.NONE;
                 }
                 if (responseCode == HTTP_USE_PROXY) {
                     int start = 0;
@@ -1029,25 +1011,31 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                         start += 2;
                     }
                     setProxy(location.substring(start));
-                } else {
-                    url = new URL(url, location);
-                    hostName = url.getHost();
-                    // reset the port
-                    hostPort = -1;
+                    return Retry.NEW_CONNECTION;
                 }
-                return false;
+                URL previousUrl = url;
+                url = new URL(previousUrl, location);
+                if (!previousUrl.getProtocol().equals(url.getProtocol())) {
+                    return Retry.NONE; // the scheme changed; don't retry.
+                }
+                if (previousUrl.getHost().equals(url.getHost())
+                        && previousUrl.getEffectivePort() == url.getEffectivePort()) {
+                    return Retry.SAME_CONNECTION;
+                } else {
+                    // TODO: strip cookies?
+                    reqHeader.removeAll("Host");
+                    return Retry.NEW_CONNECTION;
+                }
 
             default:
-                return true;
+                return Retry.NONE;
         }
     }
 
     /**
-     * Returns true if authorization failed permanently; false if we should
-     * retry with new credentials.
+     * React to a failed authorization response by looking up new credentials.
      */
-    private boolean processAuthHeader(String responseHeader, String followUpRequestHeader)
-            throws IOException {
+    private Retry processAuthHeader(String responseHeader, String retryHeader) throws IOException {
         // keep asking for username/password until authorized
         String challenge = resHeader.get(responseHeader);
         if (challenge == null) {
@@ -1055,21 +1043,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
         String credentials = getAuthorizationCredentials(challenge);
         if (credentials == null) {
-            return true; // could not find credentials, end request cycle
+            return Retry.NONE; // could not find credentials, end request cycle
         }
-        // set up the authorization credentials
-        connected = false;
-        setRequestProperty(followUpRequestHeader, credentials);
-        return false;
+        // add authorization credentials, bypassing the already-connected check
+        reqHeader.set(retryHeader, credentials);
+        return Retry.SAME_CONNECTION;
     }
 
     /**
-     * Returns the authorization credentials on the base of provided
-     * authorization challenge
-     *
-     * @param challenge
-     * @return authorization credentials
-     * @throws IOException
+     * Returns the authorization credentials on the base of provided challenge.
      */
     private String getAuthorizationCredentials(String challenge) throws IOException {
         int idx = challenge.indexOf(" ");
@@ -1085,13 +1067,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 prompt = challenge.substring(realm, end);
             }
         }
-        // The following will use the user-defined authenticator to get
-        // the password
-        PasswordAuthentication pa = Authenticator
-                .requestPasswordAuthentication(getHostAddress(), getHostPort(),
-                        url.getProtocol(), prompt, scheme);
+        // use the global authenticator to get the password
+        PasswordAuthentication pa = Authenticator.requestPasswordAuthentication(
+                getConnectToInetAddress(), getConnectToPort(), url.getProtocol(), prompt, scheme);
         if (pa == null) {
-            // could not retrieve the credentials
             return null;
         }
         // base64 encode the username and password
@@ -1102,21 +1081,17 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     private void setProxy(String proxy) {
-        int index = proxy.indexOf(':');
-        if (index == -1) {
-            proxyName = proxy;
-            hostPort = defaultPort;
+        // TODO: convert IllegalArgumentException etc. to ProtocolException?
+        int colon = proxy.indexOf(':');
+        String host;
+        int port;
+        if (colon != -1) {
+            host = proxy.substring(0, colon);
+            port = Integer.parseInt(proxy.substring(colon + 1));
         } else {
-            proxyName = proxy.substring(0, index);
-            String port = proxy.substring(index + 1);
-            try {
-                hostPort = Integer.parseInt(port);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid port: " + port);
-            }
-            if (hostPort < 0 || hostPort > 65535) {
-                throw new IllegalArgumentException("Port out of range: " + hostPort);
-            }
+            host = proxy;
+            port = defaultPort;
         }
+        this.proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
     }
 }
