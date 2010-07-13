@@ -312,7 +312,7 @@ public final class VMDebug {
     public static native int getLoadedClassCount();
 
     /**
-     * Dump "hprof" data to the specified file.  This will cause a GC.
+     * Dumps "hprof" data to the specified file.  This may cause a GC.
      *
      * The VM may create a temporary file in the same directory.
      *
@@ -321,10 +321,14 @@ public final class VMDebug {
      *         HPROF support.
      * @throws IOException if an error occurs while opening or writing files.
      */
-    public static native void dumpHprofData(String fileName) throws IOException;
+    public static void dumpHprofData(String fileName) throws IOException {
+        if (fileName == null)
+            throw new NullPointerException();
+        dumpHprofData(fileName, null);
+    }
 
     /**
-     * Collect "hprof" and send it to DDMS.  This will cause a GC.
+     * Collects "hprof" heap data and sends it to DDMS.  This may cause a GC.
      *
      * @throws UnsupportedOperationException if the VM was built without
      *         HPROF support.
@@ -332,6 +336,19 @@ public final class VMDebug {
      * @hide
      */
     public static native void dumpHprofDataDdms();
+
+    /**
+     * Dumps "hprof" heap data to a file, by name or descriptor.
+     *
+     * @param fileName Name of output file.  If fd is non-null, the
+     *        file name is only used in log messages (and may be null).
+     * @param fd Descriptor of open file that will receive the output.
+     *        If this is null, the fileName is used instead.
+     *
+     * @hide
+     */
+    public static native void dumpHprofData(String fileName, FileDescriptor fd)
+            throws IOException;
 
     /**
      * Primes the register map cache.
