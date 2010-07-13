@@ -31,7 +31,7 @@ final class FixedLengthInputStream extends AbstractHttpInputStream {
         super(is, httpURLConnection, cacheRequest);
         bytesRemaining = length;
         if (bytesRemaining == 0) {
-            endOfInput(false);
+            endOfInput(true);
         }
     }
 
@@ -49,7 +49,7 @@ final class FixedLengthInputStream extends AbstractHttpInputStream {
         bytesRemaining -= read;
         cacheWrite(buffer, offset, read);
         if (bytesRemaining == 0) {
-            endOfInput(false);
+            endOfInput(true);
         }
         return read;
     }

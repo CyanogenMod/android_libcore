@@ -40,7 +40,7 @@ final class UnknownLengthHttpInputStream extends AbstractHttpInputStream {
         int read = in.read(buffer, offset, count);
         if (read == -1) {
             inputExhausted = true;
-            endOfInput(true);
+            endOfInput(false);
             return -1;
         }
         cacheWrite(buffer, offset, read);
