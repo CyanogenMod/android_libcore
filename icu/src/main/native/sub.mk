@@ -24,7 +24,6 @@ LOCAL_C_INCLUDES += \
 # TODO: fix this requirement
 
 LOCAL_SHARED_LIBRARIES += \
-	libicudata \
 	libicuuc \
 	libicui18n
 
