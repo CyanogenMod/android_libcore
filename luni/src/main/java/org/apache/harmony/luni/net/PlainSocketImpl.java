@@ -169,7 +169,7 @@ public class PlainSocketImpl extends SocketImpl {
     protected void close() throws IOException {
         synchronized (fd) {
             if (fd.valid()) {
-                netImpl.socketClose(fd);
+                netImpl.close(fd);
                 fd = new FileDescriptor();
             }
         }
@@ -482,12 +482,9 @@ public class PlainSocketImpl extends SocketImpl {
         connect(inetAddr.getAddress(), inetAddr.getPort(), timeout);
     }
 
-    /**
-     * Answer if the socket supports urgent data.
-     */
     @Override
     protected boolean supportsUrgentData() {
-        return !streaming || netImpl.supportsUrgentData(fd);
+        return true;
     }
 
     @Override

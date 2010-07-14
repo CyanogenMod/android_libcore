@@ -328,36 +328,17 @@ public final class BlockGuard {
                     trafficClass, inetAddress);
         }
 
-        public int receiveDatagram(FileDescriptor aFD, DatagramPacket packet,
-                byte[] data, int offset, int length, int receiveTimeout,
-                boolean peek) throws IOException {
+        public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
+                int length, int timeout, boolean peek, boolean connected) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.receiveDatagram(aFD, packet, data, offset,
-                    length, receiveTimeout, peek);
+            return mNetwork.recv(fd, packet, data, offset, length, timeout, peek, connected);
         }
 
-        public int receiveDatagramDirect(FileDescriptor aFD, DatagramPacket packet,
-                int address, int offset, int length, int receiveTimeout,
-                boolean peek) throws IOException {
+        public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
+                int length, int timeout, boolean peek, boolean connected) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.receiveDatagramDirect(aFD, packet, address, offset, length,
-                    receiveTimeout, peek);
-        }
-
-        public int recvConnectedDatagram(FileDescriptor aFD, DatagramPacket packet,
-                byte[] data, int offset, int length, int receiveTimeout,
-                boolean peek) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recvConnectedDatagram(aFD, packet, data, offset, length,
-                    receiveTimeout, peek);
-        }
-
-        public int recvConnectedDatagramDirect(FileDescriptor aFD,
-                DatagramPacket packet, int address, int offset, int length,
-                int receiveTimeout, boolean peek) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recvConnectedDatagramDirect(aFD, packet, address, offset, length,
-                    receiveTimeout, peek);
+            return mNetwork.recvDirect(fd, packet, address, offset, length, timeout, peek,
+                    connected);
         }
 
         public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
@@ -390,10 +371,6 @@ public final class BlockGuard {
 
         public void shutdownOutput(FileDescriptor descriptor) throws IOException {
             mNetwork.shutdownOutput(descriptor);
-        }
-
-        public boolean supportsUrgentData(FileDescriptor fd) {
-            return mNetwork.supportsUrgentData(fd);
         }
 
         public void sendUrgentData(FileDescriptor fd, byte value) {
@@ -452,9 +429,9 @@ public final class BlockGuard {
             mNetwork.setSocketOption(aFD, opt, optVal);
         }
 
-        public void socketClose(FileDescriptor aFD) throws IOException {
+        public void close(FileDescriptor aFD) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.socketClose(aFD);
+            mNetwork.close(aFD);
         }
 
         public void setInetAddress(InetAddress sender, byte[] address) {

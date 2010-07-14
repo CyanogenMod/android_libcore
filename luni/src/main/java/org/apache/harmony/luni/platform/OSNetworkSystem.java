@@ -83,59 +83,19 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void listen(FileDescriptor fd, int backlog) throws SocketException;
 
-    public int read(FileDescriptor fd, byte[] data, int offset, int count,
-            int timeout) throws IOException {
-        if (offset < 0 || count < 0 || offset > data.length - count) {
-            throw new IllegalArgumentException("data.length=" + data.length + " offset=" + offset +
-                    " count=" + count);
-        }
-        return readSocketImpl(fd, data, offset, count, timeout);
-    }
-
-    static native int readSocketImpl(FileDescriptor aFD, byte[] data,
-            int offset, int count, int timeout) throws IOException;
+    public native int read(FileDescriptor fd, byte[] data, int offset, int count, int timeout)
+            throws IOException;
 
     public native int readDirect(FileDescriptor fd, int address, int count, int timeout)
             throws IOException;
 
-    public native int receiveDatagram(FileDescriptor fd, DatagramPacket packet,
-            byte[] data, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
+    public native int recv(FileDescriptor fd, DatagramPacket packet,
+            byte[] data, int offset, int length,
+            int timeout, boolean peek, boolean connected) throws IOException;
 
-    public native int receiveDatagramDirect(FileDescriptor fd,
-            DatagramPacket packet, int address, int offset, int length,
-            int receiveTimeout, boolean peek) throws IOException;
-
-    /**
-     * Receive data on the connected socket into the specified buffer. The
-     * packet fields <code>data</code> and <code>length</code> are passed in
-     * addition to <code>packet</code> to eliminate the JNI field access calls.
-     *
-     * @param fd
-     *            the socket FileDescriptor
-     * @param packet
-     *            the DatagramPacket to receive into
-     * @param data
-     *            the data buffer of the packet
-     * @param offset
-     *            the offset in the data buffer
-     * @param length
-     *            the length of the data buffer in the packet
-     * @param receiveTimeout
-     *            the maximum length of time the socket should block, reading
-     * @param peek
-     *            indicates to peek at the data
-     * @return number of data received
-     * @throws IOException
-     *             upon an read error or timeout
-     */
-    public native int recvConnectedDatagram(FileDescriptor fd,
-            DatagramPacket packet, byte[] data, int offset, int length,
-            int receiveTimeout, boolean peek) throws IOException;
-
-    public native int recvConnectedDatagramDirect(FileDescriptor fd,
-            DatagramPacket packet, int address, int offset, int length,
-            int receiveTimeout, boolean peek) throws IOException;
+    public native int recvDirect(FileDescriptor fd, DatagramPacket packet,
+            int address, int offset, int length,
+            int timeout, boolean peek, boolean connected) throws IOException;
 
     public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
             int numReadable, int numWritable, long timeout, int[] flags)
@@ -185,9 +145,7 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void shutdownOutput(FileDescriptor fd) throws IOException;
 
-    public native void socketClose(FileDescriptor fd) throws IOException;
-
-    public native boolean supportsUrgentData(FileDescriptor fd);
+    public native void close(FileDescriptor fd) throws IOException;
 
     public native int write(FileDescriptor fd, byte[] data, int offset, int count)
             throws IOException;

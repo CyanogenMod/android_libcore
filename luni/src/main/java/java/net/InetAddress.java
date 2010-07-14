@@ -877,7 +877,7 @@ public class InetAddress implements Serializable {
             }
         }
 
-        NETIMPL.socketClose(fd);
+        NETIMPL.close(fd);
 
         return reached;
     }

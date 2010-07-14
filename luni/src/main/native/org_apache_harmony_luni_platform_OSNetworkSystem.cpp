@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-// BEGIN android-changed
-//
-// This file has been substantially reworked in order to provide more IPv6
-// support and to move functionality from Java to native code where it made
-// sense (e.g. when converting between IP addresses, socket structures, and
-// strings, for which there exist fast and robust native implementations).
-
 #define LOG_TAG "OSNetworkSystem"
 
 #include "JNIHelp.h"
@@ -93,8 +86,6 @@
 #define SOCKET_OP_READ 1
 #define SOCKET_OP_WRITE 2
 
-#define SOCKET_NOFLAGS 0
-
 static struct CachedFields {
     jfieldID iaddr_ipaddress;
     jfieldID integer_class_value;
@@ -143,14 +134,58 @@ static void jniThrowSocketTimeoutException(JNIEnv* env, int error) {
     jniThrowExceptionWithErrno(env, "java/net/SocketTimeoutException", error);
 }
 
-static bool jniGetFd(JNIEnv* env, jobject fileDescriptor, int& fd) {
-    fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
-    if (fd == -1) {
-        jniThrowSocketException(env, EBADF);
-        return false;
+/**
+ * Wraps access to the int inside a java.io.FileDescriptor, taking care of throwing exceptions.
+ */
+class NetFd {
+public:
+    NetFd(JNIEnv* env, jobject fileDescriptor)
+        : mEnv(env), mFileDescriptor(fileDescriptor), mFd(-1)
+    {
     }
-    return true;
-}
+
+    bool isClosed() {
+        mFd = jniGetFDFromFileDescriptor(mEnv, mFileDescriptor);
+        bool closed = (mFd == -1);
+        if (closed) {
+            jniThrowException(mEnv, "java/net/SocketException", "Socket closed");
+        }
+        return closed;
+    }
+
+    int get() const {
+        return mFd;
+    }
+
+private:
+    JNIEnv* mEnv;
+    jobject mFileDescriptor;
+    int mFd;
+
+    // Disallow copy and assignment.
+    NetFd(const NetFd&);
+    void operator=(const NetFd&);
+};
+
+/**
+ * Used to retry syscalls that can return EINTR. This differs from TEMP_FAILURE_RETRY in that
+ * it also considers the case where the reason for failure is that another thread called
+ * shutdown(2) on the socket.
+ */
+#define NET_FAILURE_RETRY(env, fd, exp) ({            \
+    typeof (exp) _rc;                                 \
+    do {                                              \
+        _rc = (exp);                                  \
+        if (_rc == -1) {                              \
+            if (fd.isClosed()) {                      \
+                break;                                \
+            }                                         \
+            if (errno != EINTR) {                     \
+                jniThrowSocketException(env, errno);  \
+            }                                         \
+        }                                             \
+    } while (_rc == -1 && errno == EINTR);            \
+    _rc; })
 
 /**
  * Returns the port number in a sockaddr_storage structure.
@@ -294,7 +329,6 @@ static long toMs(const timeval& tv) {
  * technically, this should return uint64_t since both timeval.tv_sec and
  * timeval.tv_usec are long
  */
-
 static int time_msec_clock() {
     timeval tp;
     struct timezone tzp;
@@ -338,7 +372,6 @@ static int pollSelectWait(JNIEnv *env, jobject fileDescriptor, int timeout) {
     int timeLeft = timeout;
     bool hasTimeout = timeout > 0;
     int result = 0;
-    int handle;
 
     if (hasTimeout) {
         finishTime = time_msec_clock() + timeout;
@@ -349,10 +382,10 @@ static int pollSelectWait(JNIEnv *env, jobject fileDescriptor, int timeout) {
     while (poll) { /* begin polling loop */
 
         /*
-         * Fetch the handle every time in case the socket is closed.
+         * Fetch the fd every time in case the socket is closed.
          */
-        handle = jniGetFDFromFileDescriptor(env, fileDescriptor);
-        if (handle == -1) {
+        int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
+        if (fd == -1) {
             jniThrowSocketException(env, EINTR);
             return -1;
         }
@@ -363,7 +396,7 @@ static int pollSelectWait(JNIEnv *env, jobject fileDescriptor, int timeout) {
                 pollTimeoutUSec = timeLeft <= 0 ? 0 : (timeLeft * 1000);
             }
 
-            result = selectWait(handle, pollTimeoutUSec);
+            result = selectWait(fd, pollTimeoutUSec);
 
             /*
              * because we are polling at a time smaller than timeout
@@ -390,7 +423,7 @@ static int pollSelectWait(JNIEnv *env, jobject fileDescriptor, int timeout) {
 
         } else { /* polling with no timeout (why would you do this?)*/
 
-            result = selectWait(handle, pollTimeoutUSec);
+            result = selectWait(fd, pollTimeoutUSec);
 
             /*
              *  if interrupted (or a timeout) just retry
@@ -580,7 +613,7 @@ static int interfaceIndexFromMulticastSocket(int socket) {
  *
  * @exception SocketException if an error occurs during the call
  */
-static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal, int setSockOptVal) {
+static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setSockOptVal) {
     struct sockaddr_storage sockaddrP;
     int result;
     // By default, let the system decide which interface to use.
@@ -601,7 +634,7 @@ static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal, int 
         socklen_t length = sizeof(multicastRequest);
         memset(&multicastRequest, 0, length);
 
-        interfaceIndex = interfaceIndexFromMulticastSocket(handle);
+        interfaceIndex = interfaceIndexFromMulticastSocket(fd);
         multicastRequest.imr_ifindex = interfaceIndex;
         if (interfaceIndex == -1) {
             jniThrowSocketException(env, errno);
@@ -619,8 +652,7 @@ static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal, int 
         struct sockaddr_in *sin = (struct sockaddr_in *) &sockaddrP;
         multicastRequest.imr_multiaddr = sin->sin_addr;
 
-        result = setsockopt(handle, IPPROTO_IP, setSockOptVal,
-                            &multicastRequest, length);
+        result = setsockopt(fd, IPPROTO_IP, setSockOptVal, &multicastRequest, length);
         if (0 != result) {
             jniThrowSocketException(env, errno);
             return;
@@ -645,7 +677,7 @@ static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal, int 
             return;
         }
 
-        int family = getSocketAddressFamily(handle);
+        int family = getSocketAddressFamily(fd);
 
         // Handle IPv4 multicast on an IPv6 socket.
         if (family == AF_INET6 && sockaddrP.ss_family == AF_INET) {
@@ -689,7 +721,7 @@ static void mcastAddDropMembership(JNIEnv *env, int handle, jobject optVal, int 
         }
 
         /* join/drop the multicast address */
-        result = setsockopt(handle, level, setSockOptVal, multicastRequest,
+        result = setsockopt(fd, level, setSockOptVal, multicastRequest,
                             requestLength);
         if (0 != result) {
             jniThrowSocketException(env, errno);
@@ -728,18 +760,6 @@ static bool initCachedFields(JNIEnv* env) {
     return true;
 }
 
-/**
- * Helper function to create a socket of the specified type and bind it to a
- * Java file descriptor.
- *
- * @param fileDescriptor the file descriptor to bind the socket to
- * @param type the socket type to create, e.g., SOCK_STREAM
- * @throws SocketException an error occurred when creating the socket
- *
- * @return the socket file descriptor. On failure, an exception is thrown and
- *         a negative value is returned.
- *
- */
 static int createSocketFileDescriptor(JNIEnv* env, jobject fileDescriptor, int type) {
     if (fileDescriptor == NULL) {
         jniThrowNullPointerException(env, NULL);
@@ -764,6 +784,15 @@ static void osNetworkSystem_createStreamSocket(JNIEnv* env, jobject, jobject fil
     createSocketFileDescriptor(env, fileDescriptor, SOCK_STREAM);
 }
 
+static void osNetworkSystem_createServerStreamSocket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean) {
+    int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_STREAM);
+    if (fd != -1) {
+        // TODO: we could actually do this in Java. (and check for errors!)
+        int value = 1;
+        setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(int));
+    }
+}
+
 static void osNetworkSystem_createDatagramSocket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean) {
     int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_DGRAM);
 #ifdef __linux__
@@ -779,64 +808,19 @@ static void osNetworkSystem_createDatagramSocket(JNIEnv* env, jobject, jobject f
 #endif
 }
 
-static jint osNetworkSystem_readDirect(JNIEnv* env, jobject,
-        jobject fileDescriptor, jint address, jint count, jint timeout) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
-        return 0;
-    }
-
-    if (timeout != 0) {
-        int result = selectWait(fd, timeout * 1000);
-        if (result < 0) {
-            return 0;
-        }
-    }
-
-    jbyte* dst = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address));
-    ssize_t bytesReceived = TEMP_FAILURE_RETRY(recv(fd, dst, count, SOCKET_NOFLAGS));
-    if (bytesReceived == 0) {
-        return -1;
-    } else if (bytesReceived == -1) {
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            // We were asked to read a non-blocking socket with no data
-            // available, so report "no bytes read".
-            return 0;
-        } else {
-            jniThrowSocketException(env, errno);
-            return 0;
-        }
-    }
-    return bytesReceived;
-}
-
-static jint osNetworkSystem_readSocketImpl(JNIEnv* env, jclass,
-        jobject fileDescriptor, jbyteArray byteArray, jint offset, jint count,
-        jint timeout) {
-    // LOGD("ENTER readSocketImpl");
-
-    ScopedByteArrayRW bytes(env, byteArray);
-    if (bytes.get() == NULL) {
-        return -1;
-    }
-    jint address = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get() + offset));
-    int result = osNetworkSystem_readDirect(env, NULL, fileDescriptor, address, count, timeout);
-    return result;
-}
-
 static jint osNetworkSystem_writeDirect(JNIEnv* env, jobject,
         jobject fileDescriptor, jint address, jint offset, jint count) {
     if (count <= 0) {
         return 0;
     }
 
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return 0;
     }
 
     jbyte* message = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address + offset));
-    int bytesSent = send(fd, message, count, SOCKET_NOFLAGS);
+    int bytesSent = write(fd.get(), message, count);
     if (bytesSent == -1) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             // We were asked to write to a non-blocking socket, but were told
@@ -863,13 +847,13 @@ static jint osNetworkSystem_write(JNIEnv* env, jobject,
 
 static void osNetworkSystem_setNonBlocking(JNIEnv* env, jobject,
         jobject fileDescriptor, jboolean nonblocking) {
-    int handle;
-    if (!jniGetFd(env, fileDescriptor, handle)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return;
     }
 
     int block = nonblocking;
-    int rc = ioctl(handle, FIONBIO, &block);
+    int rc = ioctl(fd.get(), FIONBIO, &block);
     if (rc == -1) {
         jniThrowSocketException(env, errno);
     }
@@ -883,8 +867,8 @@ static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
         return JNI_FALSE;
     }
 
-    int handle;
-    if (!jniGetFd(env, fileDescriptor, handle)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return JNI_FALSE;
     }
 
@@ -896,10 +880,10 @@ static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
     int result = 0;
     switch (step) {
     case SOCKET_CONNECT_STEP_START:
-        result = sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_START, context);
+        result = sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_START, context);
         break;
     case SOCKET_CONNECT_STEP_CHECK:
-        result = sockConnectWithTimeout(handle, address, timeout, SOCKET_STEP_CHECK, context);
+        result = sockConnectWithTimeout(fd.get(), address, timeout, SOCKET_STEP_CHECK, context);
         break;
     default:
         assert(false);
@@ -907,7 +891,7 @@ static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
 
     if (result == 0) {
         // Connected!
-        sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, NULL);
+        sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, NULL);
         return JNI_TRUE;
     }
 
@@ -917,7 +901,7 @@ static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
     }
 
     // Denied!
-    sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, NULL);
+    sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, NULL);
     if (result == -EACCES) {
         jniThrowSecurityException(env, -result);
     } else {
@@ -941,8 +925,8 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
         finishTime = time_msec_clock() + (int) timeout;
     }
 
-    int handle;
-    if (!jniGetFd(env, fileDescriptor, handle)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return;
     }
 
@@ -955,13 +939,13 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
      * the descriptor sets that we will use
      */
     selectFDSet context;
-    result = sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_START, &context);
+    result = sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_START, &context);
     if (result == 0) {
         /* ok we connected right away so we are done */
-        sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
+        sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
         return;
     } else if (result != -EINPROGRESS) {
-        sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
+        sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
         /* we got an error other than NOTCONNECTED so we cannot continue */
         if (result == -EACCES) {
             jniThrowSecurityException(env, -result);
@@ -978,17 +962,15 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
          * ok now try and connect. Depending on the platform this may sleep
          * for up to passedTimeout milliseconds
          */
-        result = sockConnectWithTimeout(handle, address, passedTimeout, SOCKET_STEP_CHECK, &context);
+        result = sockConnectWithTimeout(fd.get(), address, passedTimeout, SOCKET_STEP_CHECK, &context);
 
         /*
          * now check if the socket is still connected.
          * Do it here as some platforms seem to think they
          * are connected if the socket is closed on them.
          */
-        handle = jniGetFDFromFileDescriptor(env, fileDescriptor);
-        if (handle == -1) {
-            sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
-            jniThrowSocketException(env, EBADF);
+        if (fd.isClosed()) {
+            sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
             return;
         }
 
@@ -997,7 +979,7 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
          * if so we can finish the process and return
          */
         if (result == 0) {
-            sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
+            sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
             return;
         }
 
@@ -1010,7 +992,7 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
             if (hasTimeout) {
                 remainingTimeout = finishTime - time_msec_clock();
                 if (remainingTimeout <= 0) {
-                    sockConnectWithTimeout(handle, address, 0, SOCKET_STEP_DONE, &context);
+                    sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
                     jniThrowSocketTimeoutException(env, ETIMEDOUT);
                     return;
                 }
@@ -1018,7 +1000,7 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
                 remainingTimeout = 100;
             }
         } else {
-            sockConnectWithTimeout(handle, address, remainingTimeout, SOCKET_STEP_DONE, &context);
+            sockConnectWithTimeout(fd.get(), address, remainingTimeout, SOCKET_STEP_DONE, &context);
             if (result == -ECONNRESET || result == -ECONNREFUSED || result == -EADDRNOTAVAIL ||
                     result == -EADDRINUSE || result == -ENETUNREACH) {
                 jniThrowConnectException(env, -result);
@@ -1039,25 +1021,25 @@ static void osNetworkSystem_bind(JNIEnv* env, jobject, jobject fileDescriptor,
         return;
     }
 
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return;
     }
 
-    const CompatibleSocketAddress compatibleAddress(fd, socketAddress, false);
-    int rc = TEMP_FAILURE_RETRY(bind(fd, compatibleAddress.get(), sizeof(sockaddr_storage)));
+    const CompatibleSocketAddress compatibleAddress(fd.get(), socketAddress, false);
+    int rc = TEMP_FAILURE_RETRY(bind(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage)));
     if (rc == -1) {
         jniThrowBindException(env, errno);
     }
 }
 
 static void osNetworkSystem_listen(JNIEnv* env, jobject, jobject fileDescriptor, jint backlog) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return;
     }
 
-    int rc = listen(fd, backlog);
+    int rc = listen(fd.get(), backlog);
     if (rc == -1) {
         jniThrowSocketException(env, errno);
     }
@@ -1066,7 +1048,6 @@ static void osNetworkSystem_listen(JNIEnv* env, jobject, jobject fileDescriptor,
 static void osNetworkSystem_accept(JNIEnv* env, jobject,
         jobject serverFileDescriptor,
         jobject newSocket, jobject clientFileDescriptor, jint timeout) {
-    // LOGD("ENTER acceptSocketImpl");
 
     if (newSocket == NULL) {
         jniThrowNullPointerException(env, NULL);
@@ -1078,16 +1059,16 @@ static void osNetworkSystem_accept(JNIEnv* env, jobject,
         return;
     }
 
-    int serverFd;
-    if (!jniGetFd(env, serverFileDescriptor, serverFd)) {
+    NetFd serverFd(env, serverFileDescriptor);
+    if (serverFd.isClosed()) {
         return;
     }
 
-    sockaddr_storage sa;
-    socklen_t addrLen = sizeof(sa);
-    int clientFd = TEMP_FAILURE_RETRY(accept(serverFd, reinterpret_cast<sockaddr*>(&sa), &addrLen));
+    sockaddr_storage ss;
+    socklen_t addrLen = sizeof(ss);
+    sockaddr* sa = reinterpret_cast<sockaddr*>(&ss);
+    int clientFd = NET_FAILURE_RETRY(env, serverFd, accept(serverFd.get(), sa, &addrLen));
     if (clientFd == -1) {
-        jniThrowSocketException(env, errno);
         return;
     }
 
@@ -1096,47 +1077,40 @@ static void osNetworkSystem_accept(JNIEnv* env, jobject,
      * We don't bother to do this for UNIX domain sockets, since most peers are
      * anonymous anyway.
      */
-    if (sa.ss_family == AF_INET || sa.ss_family == AF_INET6) {
+    if (ss.ss_family == AF_INET || ss.ss_family == AF_INET6) {
         // Remote address and port.
-        jobject remoteAddress = socketAddressToInetAddress(env, &sa);
+        jobject remoteAddress = socketAddressToInetAddress(env, &ss);
         if (remoteAddress == NULL) {
             close(clientFd);
             return;
         }
-        int remotePort = getSocketAddressPort(&sa);
+        int remotePort = getSocketAddressPort(&ss);
         env->SetObjectField(newSocket, gCachedFields.socketimpl_address, remoteAddress);
         env->SetIntField(newSocket, gCachedFields.socketimpl_port, remotePort);
 
         // Local port.
-        memset(&sa, 0, addrLen);
-        int rc = getsockname(clientFd, reinterpret_cast<sockaddr*>(&sa), &addrLen);
+        memset(&ss, 0, addrLen);
+        int rc = getsockname(clientFd, sa, &addrLen);
         if (rc == -1) {
             close(clientFd);
             jniThrowSocketException(env, errno);
             return;
         }
-        int localPort = getSocketAddressPort(&sa);
+        int localPort = getSocketAddressPort(&ss);
         env->SetIntField(newSocket, gCachedFields.socketimpl_localport, localPort);
     }
 
     jniSetFileDescriptorOfFD(env, clientFileDescriptor, clientFd);
 }
 
-static jboolean osNetworkSystem_supportsUrgentData(JNIEnv* env,
-        jobject, jobject fileDescriptor) {
-    // TODO(enh): do we really need to exclude the invalid file descriptor case?
-    int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
-    return (fd == -1) ? JNI_FALSE : JNI_TRUE;
-}
-
 static void osNetworkSystem_sendUrgentData(JNIEnv* env, jobject,
         jobject fileDescriptor, jbyte value) {
-    int handle;
-    if (!jniGetFd(env, fileDescriptor, handle)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return;
     }
 
-    int rc = send(handle, &value, 1, MSG_OOB);
+    int rc = send(fd.get(), &value, 1, MSG_OOB);
     if (rc == -1) {
         jniThrowSocketException(env, errno);
     }
@@ -1149,20 +1123,19 @@ static void osNetworkSystem_connectDatagram(JNIEnv* env, jobject,
         return;
     }
 
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return;
     }
 
-    if (doConnect(fd, &sockAddr) == -1) {
+    if (doConnect(fd.get(), &sockAddr) == -1) {
         jniThrowSocketException(env, errno);
     }
 }
 
-static void osNetworkSystem_disconnectDatagram(JNIEnv* env, jobject,
-        jobject fileDescriptor) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+static void osNetworkSystem_disconnectDatagram(JNIEnv* env, jobject, jobject fileDescriptor) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return;
     }
 
@@ -1172,7 +1145,7 @@ static void osNetworkSystem_disconnectDatagram(JNIEnv* env, jobject,
     memset(&ss, 0, sizeof(ss));
     ss.ss_family = AF_UNSPEC;
     const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
-    int rc = TEMP_FAILURE_RETRY(connect(fd, sa, sizeof(ss)));
+    int rc = TEMP_FAILURE_RETRY(connect(fd.get(), sa, sizeof(ss)));
     if (rc == -1) {
         jniThrowSocketException(env, errno);
     }
@@ -1183,128 +1156,125 @@ static void osNetworkSystem_setInetAddress(JNIEnv* env, jobject,
     env->SetObjectField(sender, gCachedFields.iaddr_ipaddress, address);
 }
 
-static jint osNetworkSystem_receiveDatagramDirect(JNIEnv* env,
-        jobject, jobject fileDescriptor, jobject packet,
-        jint address, jint offset, jint length,
-        jint receiveTimeout, jboolean peek) {
+// TODO: can we merge this with recvDirect?
+static jint osNetworkSystem_readDirect(JNIEnv* env, jobject, jobject fileDescriptor,
+        jint address, jint count, jint timeout) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
+        return 0;
+    }
 
-    int result = pollSelectWait(env, fileDescriptor, receiveTimeout);
+    if (timeout != 0) {
+        int result = selectWait(fd.get(), timeout * 1000);
+        if (result < 0) {
+            return 0;
+        }
+    }
+
+    jbyte* dst = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address));
+    while (true) {
+        ssize_t bytesReceived = read(fd.get(), dst, count);
+        if (bytesReceived == 0) {
+            // If fd is closed, we saw EOF because of the shutdown(2) that happens at close...
+            if (fd.isClosed()) {
+                return 0;
+            }
+            // ...otherwise it was a genuine EOF.
+            return -1;
+        } else if (bytesReceived == -1) {
+            if (errno == EINTR) {
+                continue;
+            }
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                // We were asked to read a non-blocking socket with no data
+                // available, so report "no bytes read".
+                return 0;
+            } else {
+                jniThrowSocketException(env, errno);
+                return 0;
+            }
+        } else {
+            return bytesReceived;
+        }
+    }
+}
+
+static jint osNetworkSystem_read(JNIEnv* env, jclass, jobject fileDescriptor,
+        jbyteArray byteArray, jint offset, jint count, jint timeout) {
+    ScopedByteArrayRW bytes(env, byteArray);
+    if (bytes.get() == NULL) {
+        return -1;
+    }
+    jint address = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get() + offset));
+    return osNetworkSystem_readDirect(env, NULL, fileDescriptor, address, count, timeout);
+}
+
+// TODO: can we merge this with readDirect?
+static jint osNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescriptor,jobject packet,
+        jint address, jint offset, jint length, jint timeout, jboolean peek, jboolean connected) {
+    int result = pollSelectWait(env, fileDescriptor, timeout);
     if (result < 0) {
         return 0;
     }
 
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return 0;
     }
 
     char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
-    const int mode = peek ? MSG_PEEK : 0;
-    sockaddr_storage sockAddr;
-    socklen_t sockAddrLen = sizeof(sockAddr);
-    ssize_t actualLength = TEMP_FAILURE_RETRY(recvfrom(fd, buf, length, mode,
-            reinterpret_cast<sockaddr*>(&sockAddr), &sockAddrLen));
+    const int flags = peek ? MSG_PEEK : 0;
+    sockaddr_storage ss;
+    socklen_t sockAddrLen = sizeof(ss);
+    sockaddr* from = connected ? NULL : reinterpret_cast<sockaddr*>(&ss);
+    socklen_t* fromLength = connected ? NULL : &sockAddrLen;
+    ssize_t actualLength = TEMP_FAILURE_RETRY(recvfrom(fd.get(), buf, length, flags, from, fromLength));
     if (actualLength == -1) {
-        jniThrowSocketException(env, errno);
-        return 0;
-    }
-
-    if (packet != NULL) {
-        jbyteArray addr = socketAddressToByteArray(env, &sockAddr);
-        if (addr == NULL) {
-            return 0;
+        // FIXME: is this a legitimate difference between connected and unconnected?
+        if (connected) {
+            jniThrowException(env, "java/net/PortUnreachableException", "");
+        } else {
+            jniThrowSocketException(env, errno);
         }
-        int port = getSocketAddressPort(&sockAddr);
-        jobject sender = byteArrayToInetAddress(env, addr);
-        if (sender == NULL) {
-            return 0;
-        }
-        env->SetObjectField(packet, gCachedFields.dpack_address, sender);
-        env->SetIntField(packet, gCachedFields.dpack_port, port);
-        env->SetIntField(packet, gCachedFields.dpack_length, (jint) actualLength);
-    }
-    return (jint) actualLength;
-}
-
-static jint osNetworkSystem_receiveDatagram(JNIEnv* env, jobject,
-        jobject fd, jobject packet, jbyteArray data, jint offset, jint length,
-        jint receiveTimeout, jboolean peek) {
-    int localLength = (length < 65536) ? length : 65536;
-    jbyte *bytes = (jbyte*) malloc(localLength);
-    if (bytes == NULL) {
-        jniThrowException(env, "java/lang/OutOfMemoryError",
-                "couldn't allocate enough memory for receiveDatagram");
-        return 0;
-    }
-
-    int actualLength = osNetworkSystem_receiveDatagramDirect(env, NULL, fd,
-            packet, (jint)bytes, 0, localLength, receiveTimeout, peek);
-
-    if (actualLength > 0) {
-        env->SetByteArrayRegion(data, offset, actualLength, bytes);
-    }
-    free(bytes);
-
-    return actualLength;
-}
-
-static jint osNetworkSystem_recvConnectedDatagramDirect(JNIEnv* env,
-        jobject, jobject fileDescriptor, jobject packet,
-        jint address, jint offset, jint length,
-        jint receiveTimeout, jboolean peek) {
-
-    int result = pollSelectWait(env, fileDescriptor, receiveTimeout);
-    if (result < 0) {
-        return 0;
-    }
-
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
-        return 0;
-    }
-
-    char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
-    int mode = peek ? MSG_PEEK : 0;
-    int actualLength = recvfrom(fd, buf, length, mode, NULL, NULL);
-    if (actualLength < 0) {
-        jniThrowException(env, "java/net/PortUnreachableException", "");
         return 0;
     }
 
     if (packet != NULL) {
         env->SetIntField(packet, gCachedFields.dpack_length, actualLength);
+        if (!connected) {
+            jbyteArray addr = socketAddressToByteArray(env, &ss);
+            if (addr == NULL) {
+                return 0;
+            }
+            int port = getSocketAddressPort(&ss);
+            jobject sender = byteArrayToInetAddress(env, addr);
+            if (sender == NULL) {
+                return 0;
+            }
+            env->SetObjectField(packet, gCachedFields.dpack_address, sender);
+            env->SetIntField(packet, gCachedFields.dpack_port, port);
+        }
     }
     return actualLength;
 }
 
-static jint osNetworkSystem_recvConnectedDatagram(JNIEnv* env, jobject,
-        jobject fd, jobject packet, jbyteArray data, jint offset, jint length,
-        jint receiveTimeout, jboolean peek) {
-    int localLength = (length < 65536) ? length : 65536;
-    jbyte *bytes = (jbyte*) malloc(localLength);
-    if (bytes == NULL) {
-        jniThrowException(env, "java/lang/OutOfMemoryError",
-                "couldn't allocate enough memory for recvConnectedDatagram");
-        return 0;
+static jint osNetworkSystem_recv(JNIEnv* env, jobject, jobject fd, jobject packet,
+        jbyteArray javaBytes, jint offset, jint length, jint receiveTimeout,
+        jboolean peek, jboolean connected) {
+    ScopedByteArrayRW bytes(env, javaBytes);
+    if (bytes.get() == NULL) {
+        return -1;
     }
-
-    int actualLength = osNetworkSystem_recvConnectedDatagramDirect(env,
-            NULL, fd, packet, (jint)bytes, 0, localLength,
-            receiveTimeout, peek);
-
-    if (actualLength > 0) {
-        env->SetByteArrayRegion(data, offset, actualLength, bytes);
-    }
-    free(bytes);
-
-    return actualLength;
+    uintptr_t address = reinterpret_cast<uintptr_t>(bytes.get());
+    return osNetworkSystem_recvDirect(env, NULL, fd, packet, address, offset, length,
+            receiveTimeout, peek, connected);
 }
 
 static jint osNetworkSystem_sendDatagramDirect(JNIEnv* env, jobject,
         jobject fileDescriptor, jint address, jint offset, jint length,
         jint port, jint trafficClass, jobject inetAddress) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return -1;
     }
 
@@ -1313,10 +1283,10 @@ static jint osNetworkSystem_sendDatagramDirect(JNIEnv* env, jobject,
         return -1;
     }
 
-    char* buf =
-            reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
-    ssize_t bytesSent = TEMP_FAILURE_RETRY(sendto(fd, buf, length,
-            SOCKET_NOFLAGS,
+    int flags = 0;
+    char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
+    ssize_t bytesSent = TEMP_FAILURE_RETRY(sendto(fd.get(), buf, length,
+            flags,
             reinterpret_cast<sockaddr*>(&receiver), sizeof(receiver)));
     if (bytesSent == -1) {
         if (errno == ECONNRESET || errno == ECONNREFUSED) {
@@ -1340,16 +1310,15 @@ static jint osNetworkSystem_sendDatagram(JNIEnv* env, jobject,
             trafficClass, inetAddress);
 }
 
-static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env,
-        jobject, jobject fileDescriptor,
-        jint address, jint offset, jint length) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env, jobject,
+        jobject fileDescriptor, jint address, jint offset, jint length) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return 0;
     }
 
     char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
-    ssize_t bytesSent = TEMP_FAILURE_RETRY(send(fd, buf, length, 0));
+    ssize_t bytesSent = TEMP_FAILURE_RETRY(send(fd.get(), buf, length, 0));
     if (bytesSent == -1) {
         if (errno == ECONNRESET || errno == ECONNREFUSED) {
             return 0;
@@ -1370,37 +1339,8 @@ static jint osNetworkSystem_sendConnectedDatagram(JNIEnv* env, jobject,
             reinterpret_cast<uintptr_t>(bytes.get()), offset, length);
 }
 
-static void osNetworkSystem_createServerStreamSocket(JNIEnv* env, jobject,
-        jobject fileDescriptor, jboolean) {
-    int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_STREAM);
-    if (fd != -1) {
-        // TODO: we could actually do this in Java. (and check for errors!)
-        int value = 1;
-        setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(int));
-    }
-}
-
-static void doShutdown(JNIEnv* env, jobject fileDescriptor, int how) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
-        return;
-    }
-    int rc = shutdown(fd, how);
-    if (rc == -1) {
-        jniThrowSocketException(env, errno);
-    }
-}
-
-static void osNetworkSystem_shutdownInput(JNIEnv* env, jobject, jobject fd) {
-    doShutdown(env, fd, SHUT_RD);
-}
-
-static void osNetworkSystem_shutdownOutput(JNIEnv* env, jobject, jobject fd) {
-    doShutdown(env, fd, SHUT_WR);
-}
-
 static jint osNetworkSystem_sendDatagram2(JNIEnv* env, jobject,
-        jobject fileDescriptor, jbyteArray data, jint offset, jint length,
+        jobject fileDescriptor, jbyteArray javaBytes, jint offset, jint length,
         jint port, jobject inetAddress) {
     sockaddr_storage sockAddr;
     if (inetAddress != NULL) {
@@ -1409,36 +1349,32 @@ static jint osNetworkSystem_sendDatagram2(JNIEnv* env, jobject,
         }
     }
 
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
-        return 0;
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
+        return -1;
     }
 
-    jbyte* message = (jbyte*) malloc(length * sizeof(jbyte));
-    if (message == NULL) {
-        jniThrowException(env, "java/lang/OutOfMemoryError",
-                "couldn't allocate enough memory for readSocket");
-        return 0;
+    ScopedByteArrayRO bytes(env, javaBytes);
+    if (bytes.get() == NULL) {
+        return -1;
     }
 
-    env->GetByteArrayRegion(data, offset, length, message);
-
+    const jbyte* base = &bytes[offset];
     int totalBytesSent = 0;
     while (totalBytesSent < length) {
-        ssize_t bytesSent = TEMP_FAILURE_RETRY(sendto(fd,
-                message + totalBytesSent, length - totalBytesSent,
-                SOCKET_NOFLAGS,
+        int flags = 0;
+        ssize_t bytesSent = TEMP_FAILURE_RETRY(sendto(fd.get(),
+                base + totalBytesSent, length - totalBytesSent,
+                flags,
                 reinterpret_cast<sockaddr*>(&sockAddr), sizeof(sockAddr)));
         if (bytesSent == -1) {
             jniThrowSocketException(env, errno);
-            free(message);
             return 0;
         }
 
         totalBytesSent += bytesSent;
     }
 
-    free(message);
     return totalBytesSent;
 }
 
@@ -1542,15 +1478,15 @@ static jboolean osNetworkSystem_selectImpl(JNIEnv* env, jclass,
 
 static jobject osNetworkSystem_getSocketLocalAddress(JNIEnv* env,
         jobject, jobject fileDescriptor) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return NULL;
     }
 
     sockaddr_storage addr;
     socklen_t addrLen = sizeof(addr);
     memset(&addr, 0, addrLen);
-    int rc = getsockname(fd, (sockaddr*) &addr, &addrLen);
+    int rc = getsockname(fd.get(), (sockaddr*) &addr, &addrLen);
     if (rc == -1) {
         // TODO: the public API doesn't allow failure, so this whole method
         // represents a broken design. In practice, though, getsockname can't
@@ -1563,15 +1499,15 @@ static jobject osNetworkSystem_getSocketLocalAddress(JNIEnv* env,
 
 static jint osNetworkSystem_getSocketLocalPort(JNIEnv* env, jobject,
         jobject fileDescriptor) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return 0;
     }
 
     sockaddr_storage addr;
     socklen_t addrLen = sizeof(addr);
     memset(&addr, 0, addrLen);
-    int rc = getsockname(fd, (sockaddr*) &addr, &addrLen);
+    int rc = getsockname(fd.get(), (sockaddr*) &addr, &addrLen);
     if (rc == -1) {
         // TODO: the public API doesn't allow failure, so this whole method
         // represents a broken design. In practice, though, getsockname can't
@@ -1583,35 +1519,35 @@ static jint osNetworkSystem_getSocketLocalPort(JNIEnv* env, jobject,
 }
 
 template <typename T>
-static bool getSocketOption(JNIEnv* env, int fd, int level, int option, T* value) {
+static bool getSocketOption(JNIEnv* env, const NetFd& fd, int level, int option, T* value) {
     socklen_t size = sizeof(*value);
-    int rc = getsockopt(fd, level, option, value, &size);
+    int rc = getsockopt(fd.get(), level, option, value, &size);
     if (rc == -1) {
         LOGE("getSocketOption(fd=%i, level=%i, option=%i) failed: %s (errno=%i)",
-                fd, level, option, strerror(errno), errno);
+                fd.get(), level, option, strerror(errno), errno);
         jniThrowSocketException(env, errno);
         return false;
     }
     return true;
 }
 
-static jobject getSocketOption_Boolean(JNIEnv* env, int fd, int level, int option) {
+static jobject getSocketOption_Boolean(JNIEnv* env, const NetFd& fd, int level, int option) {
     int value;
     return getSocketOption(env, fd, level, option, &value) ? booleanValueOf(env, value) : NULL;
 }
 
-static jobject getSocketOption_Integer(JNIEnv* env, int fd, int level, int option) {
+static jobject getSocketOption_Integer(JNIEnv* env, const NetFd& fd, int level, int option) {
     int value;
     return getSocketOption(env, fd, level, option, &value) ? integerValueOf(env, value) : NULL;
 }
 
 static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fileDescriptor, jint option) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return NULL;
     }
 
-    int family = getSocketAddressFamily(fd);
+    int family = getSocketAddressFamily(fd.get());
     if (family != AF_INET && family != AF_INET6) {
         jniThrowSocketException(env, EAFNOSUPPORT);
         return NULL;
@@ -1707,18 +1643,18 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
 }
 
 template <typename T>
-static void setSocketOption(JNIEnv* env, int fd, int level, int option, T* value) {
-    int rc = setsockopt(fd, level, option, value, sizeof(*value));
+static void setSocketOption(JNIEnv* env, const NetFd& fd, int level, int option, T* value) {
+    int rc = setsockopt(fd.get(), level, option, value, sizeof(*value));
     if (rc == -1) {
         LOGE("setSocketOption(fd=%i, level=%i, option=%i) failed: %s (errno=%i)",
-                fd, level, option, strerror(errno), errno);
+                fd.get(), level, option, strerror(errno), errno);
         jniThrowSocketException(env, errno);
     }
 }
 
 static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDescriptor, jint option, jobject optVal) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return;
     }
 
@@ -1736,7 +1672,7 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         return;
     }
 
-    int family = getSocketAddressFamily(fd);
+    int family = getSocketAddressFamily(fd.get());
     if (family != AF_INET && family != AF_INET6) {
         jniThrowSocketException(env, EAFNOSUPPORT);
         return;
@@ -1791,10 +1727,10 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         return;
 #ifdef ENABLE_MULTICAST
     case JAVASOCKOPT_MCAST_ADD_MEMBERSHIP:
-        mcastAddDropMembership(env, fd, optVal, IP_ADD_MEMBERSHIP);
+        mcastAddDropMembership(env, fd.get(), optVal, IP_ADD_MEMBERSHIP);
         return;
     case JAVASOCKOPT_MCAST_DROP_MEMBERSHIP:
-        mcastAddDropMembership(env, fd, optVal, IP_DROP_MEMBERSHIP);
+        mcastAddDropMembership(env, fd.get(), optVal, IP_DROP_MEMBERSHIP);
         return;
     case JAVASOCKOPT_IP_MULTICAST_IF:
         {
@@ -1861,20 +1797,43 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     }
 }
 
-static void osNetworkSystem_socketClose(JNIEnv* env, jobject, jobject fileDescriptor) {
-    int fd;
-    if (!jniGetFd(env, fileDescriptor, fd)) {
+static void doShutdown(JNIEnv* env, jobject fileDescriptor, int how) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
+        return;
+    }
+    int rc = shutdown(fd.get(), how);
+    if (rc == -1) {
+        jniThrowSocketException(env, errno);
+    }
+}
+
+static void osNetworkSystem_shutdownInput(JNIEnv* env, jobject, jobject fd) {
+    doShutdown(env, fd, SHUT_RD);
+}
+
+static void osNetworkSystem_shutdownOutput(JNIEnv* env, jobject, jobject fd) {
+    doShutdown(env, fd, SHUT_WR);
+}
+
+static void osNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
         return;
     }
 
     jniSetFileDescriptorOfFD(env, fileDescriptor, -1);
 
-    close(fd);
+    // TODO: this will be part of the fix for http://b/2823977.
+    // shutdown(fd.get(), SHUT_RDWR);
+
+    close(fd.get());
 }
 
 static JNINativeMethod gMethods[] = {
     { "accept",                            "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;I)V",(void*) osNetworkSystem_accept },
     { "bind",                              "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V",                       (void*) osNetworkSystem_bind },
+    { "close",                             "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_close },
     { "connectDatagram",                   "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;)V",                      (void*) osNetworkSystem_connectDatagram },
     { "connectStreamWithTimeoutSocket",    "(Ljava/io/FileDescriptor;IIILjava/net/InetAddress;)V",                     (void*) osNetworkSystem_connectStreamWithTimeoutSocket },
     { "connectWithTimeout",                "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;II[B)Z",                  (void*) osNetworkSystem_connectWithTimeout },
@@ -1886,12 +1845,10 @@ static JNINativeMethod gMethods[] = {
     { "getSocketLocalPort",                "(Ljava/io/FileDescriptor;)I",                                              (void*) osNetworkSystem_getSocketLocalPort },
     { "getSocketOption",                   "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;",                            (void*) osNetworkSystem_getSocketOption },
     { "listen",                            "(Ljava/io/FileDescriptor;I)V",                                             (void*) osNetworkSystem_listen },
+    { "read",                              "(Ljava/io/FileDescriptor;[BIII)I",                                         (void*) osNetworkSystem_read },
     { "readDirect",                        "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_readDirect },
-    { "readSocketImpl",                    "(Ljava/io/FileDescriptor;[BIII)I",                                         (void*) osNetworkSystem_readSocketImpl },
-    { "receiveDatagramDirect",             "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIIZ)I",                (void*) osNetworkSystem_receiveDatagramDirect },
-    { "receiveDatagram",                   "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIIZ)I",               (void*) osNetworkSystem_receiveDatagram },
-    { "recvConnectedDatagramDirect",       "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIIZ)I",                (void*) osNetworkSystem_recvConnectedDatagramDirect },
-    { "recvConnectedDatagram",             "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIIZ)I",               (void*) osNetworkSystem_recvConnectedDatagram },
+    { "recv",                              "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIIZZ)I",              (void*) osNetworkSystem_recv },
+    { "recvDirect",                        "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIIZZ)I",               (void*) osNetworkSystem_recvDirect },
     { "selectImpl",                        "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z",               (void*) osNetworkSystem_selectImpl },
     { "sendConnectedDatagramDirect",       "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_sendConnectedDatagramDirect },
     { "sendConnectedDatagram",             "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_sendConnectedDatagram },
@@ -1904,8 +1861,6 @@ static JNINativeMethod gMethods[] = {
     { "setSocketOption",                   "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V",                           (void*) osNetworkSystem_setSocketOption },
     { "shutdownInput",                     "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownInput },
     { "shutdownOutput",                    "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownOutput },
-    { "socketClose",                       "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_socketClose },
-    { "supportsUrgentData",                "(Ljava/io/FileDescriptor;)Z",                                              (void*) osNetworkSystem_supportsUrgentData },
     { "writeDirect",                       "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_writeDirect },
     { "write",                             "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_write },
 };
@@ -1913,4 +1868,3 @@ int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env) {
     return initCachedFields(env) && jniRegisterNativeMethods(env,
             "org/apache/harmony/luni/platform/OSNetworkSystem", gMethods, NELEM(gMethods));
 }
-// END android-changed

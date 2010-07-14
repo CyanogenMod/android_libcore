@@ -1127,9 +1127,6 @@ public class Socket {
      *             if an error occurs while sending urgent data.
      */
     public void sendUrgentData(int value) throws IOException {
-        if (!impl.supportsUrgentData()) {
-            throw new SocketException("Urgent data not supported");
-        }
         impl.sendUrgentData(value);
     }
 

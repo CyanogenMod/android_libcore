@@ -78,21 +78,10 @@ public interface INetworkSystem {
     public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
             int length, int port, int trafficClass, InetAddress inetAddress) throws IOException;
 
-    public int receiveDatagram(FileDescriptor aFD, DatagramPacket packet,
-            byte[] data, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
-
-    public int receiveDatagramDirect(FileDescriptor aFD, DatagramPacket packet,
-            int address, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
-
-    public int recvConnectedDatagram(FileDescriptor aFD, DatagramPacket packet,
-            byte[] data, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
-
-    public int recvConnectedDatagramDirect(FileDescriptor aFD,
-            DatagramPacket packet, int address, int offset, int length,
-            int receiveTimeout, boolean peek) throws IOException;
+    public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
+            int length, int timeout, boolean peek, boolean connected) throws IOException;
+    public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
+            int length, int timeout, boolean peek, boolean connected) throws IOException;
 
     public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
             int offset, int length) throws IOException;
@@ -111,8 +100,6 @@ public interface INetworkSystem {
     public void shutdownInput(FileDescriptor descriptor) throws IOException;
 
     public void shutdownOutput(FileDescriptor descriptor) throws IOException;
-
-    public boolean supportsUrgentData(FileDescriptor fd);
 
     public void sendUrgentData(FileDescriptor fd, byte value);
 
@@ -197,10 +184,9 @@ public interface INetworkSystem {
     public void setSocketOption(FileDescriptor aFD, int opt, Object optVal)
             throws SocketException;
 
-    // TODO: change OSFileSystem.close to take a FileDescriptor, and lose this duplicate.
-    public void socketClose(FileDescriptor aFD) throws IOException;
+    public void close(FileDescriptor aFD) throws IOException;
 
-    // TODO: change the single caller so that recvConnectedDatagram
+    // TODO: change the single caller so that recv/recvDirect
     // can mutate the InetAddress as a side-effect.
     public void setInetAddress(InetAddress sender, byte[] address);
 }

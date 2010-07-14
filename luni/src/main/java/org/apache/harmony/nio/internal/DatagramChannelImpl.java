@@ -235,8 +235,7 @@ class DatagramChannelImpl extends DatagramChannel implements
         return retAddr;
     }
 
-    private SocketAddress receiveImpl(ByteBuffer target, boolean loop)
-            throws IOException {
+    private SocketAddress receiveImpl(ByteBuffer target, boolean loop) throws IOException {
         SocketAddress retAddr = null;
         DatagramPacket receivePacket;
         int oldposition = target.position();
@@ -250,17 +249,10 @@ class DatagramChannelImpl extends DatagramChannel implements
                     target.remaining());
         }
         do {
-            if (isConnected()) {
-                received = networkSystem.recvConnectedDatagram(fd,
-                        receivePacket, receivePacket.getData(), receivePacket
-                                .getOffset(), receivePacket.getLength(),
-                        isBlocking() ? 0 : DEFAULT_TIMEOUT, false);
-            } else {
-                received = networkSystem.receiveDatagram(fd, receivePacket,
-                        receivePacket.getData(), receivePacket.getOffset(),
-                        receivePacket.getLength(), isBlocking() ? 0
-                                : DEFAULT_TIMEOUT, false);
-            }
+            int timeout = isBlocking() ? 0 : DEFAULT_TIMEOUT;
+            received = networkSystem.recv(fd, receivePacket,
+                    receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(),
+                    timeout, false, isConnected());
 
             // security check
             SecurityManager sm = System.getSecurityManager();
@@ -290,25 +282,16 @@ class DatagramChannelImpl extends DatagramChannel implements
         return retAddr;
     }
 
-    private SocketAddress receiveDirectImpl(ByteBuffer target, boolean loop)
-            throws IOException {
+    private SocketAddress receiveDirectImpl(ByteBuffer target, boolean loop) throws IOException {
         SocketAddress retAddr = null;
         DatagramPacket receivePacket = new DatagramPacket(stubArray, 0);
         int oldposition = target.position();
         int received = 0;
         do {
+            int timeout = isBlocking() ? 0 : DEFAULT_TIMEOUT;
             int address = AddressUtil.getDirectBufferAddress(target);
-            if (isConnected()) {
-                received = networkSystem.recvConnectedDatagramDirect(fd,
-                        receivePacket, address, target.position(), target
-                                .remaining(), isBlocking() ? 0
-                                : DEFAULT_TIMEOUT, false);
-            } else {
-                received = networkSystem.receiveDatagramDirect(fd,
-                        receivePacket, address, target.position(), target
-                                .remaining(), isBlocking() ? 0
-                                : DEFAULT_TIMEOUT, false);
-            }
+            received = networkSystem.recvDirect(fd, receivePacket, address,
+                    target.position(), target.remaining(), timeout, false, isConnected());
 
             // security check
             SecurityManager sm = System.getSecurityManager();
@@ -476,25 +459,14 @@ class DatagramChannelImpl extends DatagramChannel implements
                 int length = readBuffer.remaining();
                 if (readBuffer.isDirect()) {
                     int address = AddressUtil.getDirectBufferAddress(readBuffer);
-                    if (isConnected()) {
-                        readCount = networkSystem.recvConnectedDatagramDirect(
-                                fd, null, address, start, length, timeout,
-                                false);
-                    } else {
-                        readCount = networkSystem.receiveDatagramDirect(fd,
-                                null, address, start, length, timeout, false);
-                    }
+                    readCount = networkSystem.recvDirect(fd, null, address, start, length, timeout,
+                            false, isConnected());
                 } else {
                     // the target is assured to have array.
                     byte[] target = readBuffer.array();
                     start += readBuffer.arrayOffset();
-                    if (isConnected()) {
-                        readCount = networkSystem.recvConnectedDatagram(fd,
-                                null, target, start, length, timeout, false);
-                    } else {
-                        readCount = networkSystem.receiveDatagram(fd, null,
-                                target, start, length, timeout, false);
-                    }
+                    readCount = networkSystem.recv(fd, null, target, start, length, timeout,
+                            false, isConnected());
                 }
                 return readCount;
             } catch (InterruptedIOException e) {
@@ -611,7 +583,7 @@ class DatagramChannelImpl extends DatagramChannel implements
         if (null != socket && !socket.isClosed()) {
             socket.close();
         } else {
-            networkSystem.socketClose(fd);
+            networkSystem.close(fd);
         }
     }
 

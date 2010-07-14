@@ -121,7 +121,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         synchronized (fd) {
             if (fd.valid()) {
                 try {
-                    netImpl.socketClose(fd);
+                    netImpl.close(fd);
                 } catch (IOException e) {
                 }
                 fd = new FileDescriptor();
@@ -196,22 +196,27 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         return result;
     }
 
-    @Override
-    public void receive(DatagramPacket pack) throws java.io.IOException {
+    private void doRecv(DatagramPacket pack, boolean peek) throws IOException {
         try {
+            netImpl.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(),
+                    receiveTimeout, peek, isNativeConnected);
             if (isNativeConnected) {
-                // do not peek
-                netImpl.recvConnectedDatagram(fd, pack, pack.getData(), pack.getOffset(), pack
-                        .getLength(), receiveTimeout, false);
                 updatePacketRecvAddress(pack);
-            } else {
-                // receiveDatagramImpl2
-                netImpl.receiveDatagram(fd, pack, pack.getData(), pack.getOffset(), pack
-                        .getLength(), receiveTimeout, false);
             }
         } catch (InterruptedIOException e) {
             throw new SocketTimeoutException(e.getMessage());
         }
+    }
+
+    @Override
+    public void receive(DatagramPacket pack) throws IOException {
+        doRecv(pack, false);
+    }
+
+    @Override
+    public int peekData(DatagramPacket pack) throws IOException {
+        doRecv(pack, true);
+        return pack.getPort();
     }
 
     @Override
@@ -307,24 +312,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         connectedPort = -1;
         connectedAddress = null;
         isNativeConnected = false;
-    }
-
-    @Override
-    public int peekData(DatagramPacket pack) throws IOException {
-        try {
-            if (isNativeConnected) {
-                netImpl.recvConnectedDatagram(fd, pack, pack.getData(), pack.getOffset(), pack
-                        .getLength(), receiveTimeout, true); // peek
-                updatePacketRecvAddress(pack);
-            } else {
-                // receiveDatagram 2
-                netImpl.receiveDatagram(fd, pack, pack.getData(), pack.getOffset(), pack
-                        .getLength(), receiveTimeout, true); // peek
-            }
-        } catch (InterruptedIOException e) {
-            throw new SocketTimeoutException(e.toString());
-        }
-        return pack.getPort();
     }
 
     /**
