@@ -287,9 +287,9 @@ public class SSLContextTest extends TestCase {
         TestSSLContext testContext = TestSSLContext.create();
         assertNotNull(testContext);
         assertNotNull(testContext.clientKeyStore);
-        assertNull(testContext.clientKeyStorePassword);
+        assertNull(testContext.clientStorePassword);
         assertNotNull(testContext.serverKeyStore);
-        assertNull(testContext.serverKeyStorePassword);
+        assertNull(testContext.serverStorePassword);
         assertNotNull(testContext.clientKeyManager);
         assertNotNull(testContext.serverKeyManager);
         assertNotNull(testContext.clientTrustManager);

@@ -1152,20 +1152,19 @@ static jobjectArray getPrincipalBytes(JNIEnv* env, const STACK_OF(X509_NAME)* na
  * currently this seems a bit like overkill. Marking volatile at the very least.
  *
  * During handshaking, two additional fields are used to up-call into
- * Java to perform certificate verification and handshake completion.
+ * Java to perform certificate verification and handshake
+ * completion. These are also used in any renegotiation.
  *
  * (5) the JNIEnv so we can invoke the Java callback
  *
  * (6) a NativeCrypto.SSLHandshakeCallbacks instance for callbacks from native to Java
  *
- * These fields are cleared by the info_callback the handshake has
- * completed. SSL_VERIFY_CLIENT_ONCE is currently used to disable
- * renegotiation but if that changes, care would need to be taken to
- * maintain an appropriate JNIEnv on any downcall to openssl that
- * could result in an upcall to Java. The current code does try to
- * cover these cases by conditionally setting the JNIenv on calls that
- * can read and write to the SSL such as SSL_do_handshake, SSL_read,
- * SSL_write, and SSL_shutdown if handshaking is not complete.
+ * Because renegotiation can be requested by the peer at any time,
+ * care should be taken to maintain an appropriate JNIEnv on any
+ * downcall to openssl since it could result in an upcall to Java. The
+ * current code does try to cover these cases by conditionally setting
+ * the JNIenv on calls that can read and write to the SSL such as
+ * SSL_do_handshake, SSL_read, SSL_write, and SSL_shutdown.
  *
  * Finally, we have one other piece of state setup by OpenSSL callbacks:
  *
@@ -1261,10 +1260,6 @@ class AppData {
 
     void clearEnv() {
         env = NULL;
-    }
-
-    void handshakeCompleted(JNIEnv* e) {
-        cleanupGlobalRef(e);
     }
 };
 
@@ -1508,8 +1503,6 @@ static void info_callback(const SSL *ssl, int where, int ret __attribute__ ((unu
     if (env->ExceptionCheck()) {
         JNI_TRACE("ssl=%p info_callback exception", ssl);
     }
-
-    appData->handshakeCompleted(env);
     JNI_TRACE("ssl=%p info_callback completed", ssl);
 }
 

@@ -20,6 +20,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.security.Principal;
 import java.security.StandardNames;
+import java.security.TestKeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ public class SSLSocketTest extends TestCase {
     public void test_SSLSocket_getSupportedCipherSuites_connect() throws Exception {
         // note the rare usage of DSA keys here in addition to RSA
         TestKeyStore testKeyStore = TestKeyStore.create(new String[] { "RSA", "DSA" },
+                                                        null,
                                                         null,
                                                         "rsa-dsa",
                                                         TestKeyStore.localhost(),

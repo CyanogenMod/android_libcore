@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package javax.net.ssl;
+package java.security;
 
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.KeyStore.PasswordProtection;
 import java.security.KeyStore.PrivateKeyEntry;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.Security;
-import java.security.StandardNames;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
@@ -57,16 +49,20 @@ public final class TestKeyStore extends Assert {
         }
     }
     public final KeyStore keyStore;
-    public final char[] keyStorePassword;
+    public final char[] storePassword;
+    public final char[] keyPassword;
 
     private TestKeyStore(KeyStore keyStore,
-                         char[] keyStorePassword) {
+                         char[] storePassword,
+                         char[] keyPassword) {
         this.keyStore = keyStore;
-        this.keyStorePassword = keyStorePassword;
+        this.storePassword = storePassword;
+        this.keyPassword = keyPassword;
     }
 
     private static final TestKeyStore ROOT_CA
             = create(new String[] { "RSA" },
+                     null,
                      null,
                      "RootCA",
                      x509Principal("Test Root Certificate Authority"),
@@ -75,6 +71,7 @@ public final class TestKeyStore extends Assert {
     private static final TestKeyStore INTERMEDIATE_CA
             = create(new String[] { "RSA" },
                      null,
+                     null,
                      "IntermediateCA",
                      x509Principal("Test Intermediate Certificate Authority"),
                      true,
@@ -82,14 +79,16 @@ public final class TestKeyStore extends Assert {
     private static final TestKeyStore SERVER
             = create(new String[] { "RSA" },
                      null,
+                     null,
                      "server",
                      localhost(),
                      false,
                      INTERMEDIATE_CA);
     private static final TestKeyStore CLIENT
-            = new TestKeyStore(createClient(INTERMEDIATE_CA.keyStore), null);
+            = new TestKeyStore(createClient(INTERMEDIATE_CA.keyStore), null, null);
     private static final TestKeyStore CLIENT_CERTIFICATE
             = create(new String[] { "RSA" },
+                     null,
                      null,
                      "client",
                      x509Principal("test@user"),
@@ -131,7 +130,8 @@ public final class TestKeyStore extends Assert {
      * @param signer If non-null, key store used for signing key, otherwise self-signed
      */
     public static TestKeyStore create(String[] keyAlgorithms,
-                                      char[] keyStorePassword,
+                                      char[] storePassword,
+                                      char[] keyPassword,
                                       String aliasPrefix,
                                       X509Principal subject,
                                       boolean ca,
@@ -141,7 +141,7 @@ public final class TestKeyStore extends Assert {
             for (String keyAlgorithm : keyAlgorithms) {
                 String publicAlias  = aliasPrefix + "-public-"  + keyAlgorithm;
                 String privateAlias = aliasPrefix + "-private-" + keyAlgorithm;
-                createKeys(keyStore, keyStorePassword,
+                createKeys(keyStore, keyPassword,
                            keyAlgorithm,
                            publicAlias, privateAlias,
                            subject,
@@ -151,7 +151,7 @@ public final class TestKeyStore extends Assert {
             if (signer != null) {
                 copySelfSignedCertificates(keyStore, signer.keyStore);
             }
-            return new TestKeyStore(keyStore, keyStorePassword);
+            return new TestKeyStore(keyStore, storePassword, keyPassword);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -189,7 +189,7 @@ public final class TestKeyStore extends Assert {
      * org.bouncycastle.jce.provider.test.CertTest
      */
     public static KeyStore createKeys(KeyStore keyStore,
-                                      char[] keyStorePassword,
+                                      char[] keyPassword,
                                       String keyAlgorithm,
                                       String publicAlias,
                                       String privateAlias,
@@ -205,7 +205,7 @@ public final class TestKeyStore extends Assert {
             caCertChain = null;
         } else {
             PrivateKeyEntry privateKeyEntry
-                    = privateKey(signer.keyStore, signer.keyStorePassword, keyAlgorithm);
+                    = privateKey(signer.keyStore, signer.keyPassword, keyAlgorithm);
             caKey = privateKeyEntry.getPrivateKey();
             caCert = (X509Certificate)privateKeyEntry.getCertificate();
             caCertChain = (X509Certificate[])privateKeyEntry.getCertificateChain();
@@ -276,7 +276,7 @@ public final class TestKeyStore extends Assert {
 
         // 3.) put certificate and private key into the key store
         if (privateAlias != null) {
-            keyStore.setKeyEntry(privateAlias, privateKey, keyStorePassword, x509cc);
+            keyStore.setKeyEntry(privateAlias, privateKey, keyPassword, x509cc);
         }
         if (publicAlias != null) {
             keyStore.setCertificateEntry(publicAlias, x509c);
@@ -310,11 +310,11 @@ public final class TestKeyStore extends Assert {
      * or less than one.
      */
     public static PrivateKeyEntry privateKey(KeyStore keyStore,
-                                             char[] keyStorePassword,
+                                             char[] keyPassword,
                                              String algorithm) {
         try {
             PrivateKeyEntry found = null;
-            PasswordProtection password = new PasswordProtection(keyStorePassword);
+            PasswordProtection password = new PasswordProtection(keyPassword);
             for (String alias: Collections.list(keyStore.aliases())) {
                 if (!keyStore.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class)) {
                     continue;
@@ -374,15 +374,19 @@ public final class TestKeyStore extends Assert {
      */
     public static void dump(String context,
                             KeyStore keyStore,
-                            char[] keyStorePassword) {
+                            char[] keyPassword) {
         try {
             PrintStream out = System.out;
             out.println("context=" + context);
             out.println("\tkeyStore=" + keyStore);
-            out.println("\tpassword="
-                        + ((keyStorePassword == null) ? null : new String(keyStorePassword)));
+            out.println("\tkeyStore.type=" + keyStore.getType());
+            out.println("\tkeyStore.provider=" + keyStore.getProvider());
+            out.println("\tkeyPassword="
+                        + ((keyPassword == null) ? null : new String(keyPassword)));
+            out.println("\tsize=" + keyStore.size());
             for (String alias: Collections.list(keyStore.aliases())) {
-                out.println("\talias=" + alias);
+                out.println("alias=" + alias);
+                out.println("\tcreationDate=" + keyStore.getCreationDate(alias));
                 if (keyStore.isCertificateEntry(alias)) {
                     out.println("\tcertificate:");
                     out.println("==========================================");
@@ -393,7 +397,19 @@ public final class TestKeyStore extends Assert {
                 if (keyStore.isKeyEntry(alias)) {
                     out.println("\tkey:");
                     out.println("==========================================");
-                    out.println(keyStore.getKey(alias, keyStorePassword));
+                    String key;
+                    try {
+                        key = ("Key retreived using password\n"
+                               + keyStore.getKey(alias, keyPassword).toString());
+                    } catch (UnrecoverableKeyException e1) {
+                        try {
+                            key = ("Key retreived without password\n"
+                                   + keyStore.getKey(alias, null).toString());
+                        } catch (UnrecoverableKeyException e2) {
+                            key = "Key could not be retreived";
+                        }
+                    }
+                    out.println(key);
                     out.println("==========================================");
                     continue;
                 }

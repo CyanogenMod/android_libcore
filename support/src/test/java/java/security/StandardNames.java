@@ -50,6 +50,7 @@ public final class StandardNames extends Assert {
     public static final boolean IS_RI
             = !"Dalvik Core Library".equals(System.getProperty("java.specification.name"));
     public static final String JSSE_PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "AndroidOpenSSL";
+    public static final String SECURITY_PROVIDER_NAME = (IS_RI) ? "SUN" : "BC";
 
     /**
      * A map from algorithm type (e.g. Cipher) to a set of algorithms (e.g. AES, DES, ...)
@@ -282,6 +283,15 @@ public final class StandardNames extends Assert {
             provide("KeyStore", "BKS");
             unprovide("KeyStore", "JCEKS");
             provide("KeyStore", "BouncyCastle");
+
+            // Noise to support KeyStore.PKCS12
+            provide("Cipher", "PBEWITHSHAAND40BITRC2-CBC");
+            provide("Cipher", "PBEWITHSHAANDTWOFISH-CBC");
+            provide("Mac", "PBEWITHHMACSHA");
+            provide("Mac", "PBEWITHHMACSHA1");
+            provide("SecretKeyFactory", "PBEWITHHMACSHA1");
+            provide("SecretKeyFactory", "PBEWITHSHAAND40BITRC2-CBC");
+            provide("SecretKeyFactory", "PBEWITHSHAANDTWOFISH-CBC");
 
             // removed Blowfish
             unprovide("AlgorithmParameters", "Blowfish");

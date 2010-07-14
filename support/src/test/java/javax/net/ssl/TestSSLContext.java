@@ -22,6 +22,7 @@ import java.security.KeyStore;
 import java.security.Principal;
 import java.security.SecureRandom;
 import java.security.StandardNames;
+import java.security.TestKeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -67,9 +68,9 @@ public final class TestSSLContext extends Assert {
     }
 
     public final KeyStore clientKeyStore;
-    public final char[] clientKeyStorePassword;
+    public final char[] clientStorePassword;
     public final KeyStore serverKeyStore;
-    public final char[] serverKeyStorePassword;
+    public final char[] serverStorePassword;
     public final X509ExtendedKeyManager clientKeyManager;
     public final X509ExtendedKeyManager serverKeyManager;
     public final X509TrustManager clientTrustManager;
@@ -81,9 +82,9 @@ public final class TestSSLContext extends Assert {
     public final int port;
 
     private TestSSLContext(KeyStore clientKeyStore,
-                           char[] clientKeyStorePassword,
+                           char[] clientStorePassword,
                            KeyStore serverKeyStore,
-                           char[] serverKeyStorePassword,
+                           char[] serverStorePassword,
                            X509ExtendedKeyManager clientKeyManager,
                            X509ExtendedKeyManager serverKeyManager,
                            X509TrustManager clientTrustManager,
@@ -94,9 +95,9 @@ public final class TestSSLContext extends Assert {
                            InetAddress host,
                            int port) {
         this.clientKeyStore = clientKeyStore;
-        this.clientKeyStorePassword = clientKeyStorePassword;
+        this.clientStorePassword = clientStorePassword;
         this.serverKeyStore = serverKeyStore;
-        this.serverKeyStorePassword = serverKeyStorePassword;
+        this.serverStorePassword = serverStorePassword;
         this.clientKeyManager = clientKeyManager;
         this.serverKeyManager = serverKeyManager;
         this.clientTrustManager = clientTrustManager;
@@ -122,25 +123,23 @@ public final class TestSSLContext extends Assert {
      * TestSSLContext creation method that allows separate creation of server key store
      */
     public static TestSSLContext create(TestKeyStore client, TestKeyStore server) {
-        return create(client.keyStore, client.keyStorePassword,
-                      server.keyStore, server.keyStorePassword);
+        return create(client.keyStore, client.storePassword,
+                      server.keyStore, server.storePassword);
     }
 
     /**
      * TestSSLContext creation method that allows separate creation of client and server key store
      */
-    public static TestSSLContext create(KeyStore clientKeyStore, char[] clientKeyStorePassword,
-                                        KeyStore serverKeyStore, char[] serverKeyStorePassword) {
+    public static TestSSLContext create(KeyStore clientKeyStore, char[] clientStorePassword,
+                                        KeyStore serverKeyStore, char[] serverStorePassword) {
         try {
             KeyManager[] clientKeyManagers = createKeyManagers(clientKeyStore,
-                                                               clientKeyStorePassword);
+                                                               clientStorePassword);
             KeyManager[] serverKeyManagers = createKeyManagers(serverKeyStore,
-                                                               serverKeyStorePassword);
+                                                               serverStorePassword);
 
-            TrustManager[] clientTrustManagers = createTrustManagers(clientKeyStore,
-                                                                     clientKeyStorePassword);
-            TrustManager[] serverTrustManagers = createTrustManagers(serverKeyStore,
-                                                                     serverKeyStorePassword);
+            TrustManager[] clientTrustManagers = createTrustManagers(clientKeyStore);
+            TrustManager[] serverTrustManagers = createTrustManagers(serverKeyStore);
 
             SSLContext clientContext = createSSLContext(clientKeyManagers, clientTrustManagers);
             SSLContext serverContext = createSSLContext(serverKeyManagers, serverTrustManagers);
@@ -151,8 +150,8 @@ public final class TestSSLContext extends Assert {
             InetAddress host = sa.getAddress();
             int port = sa.getPort();
 
-            return new TestSSLContext(clientKeyStore, clientKeyStorePassword,
-                                      serverKeyStore, serverKeyStorePassword,
+            return new TestSSLContext(clientKeyStore, clientStorePassword,
+                                      serverKeyStore, serverStorePassword,
                                       (X509ExtendedKeyManager) clientKeyManagers[0],
                                       (X509ExtendedKeyManager) serverKeyManagers[0],
                                       (X509TrustManager) clientTrustManagers[0],
@@ -180,15 +179,14 @@ public final class TestSSLContext extends Assert {
     }
 
     public static KeyManager[] createKeyManagers(final KeyStore keyStore,
-                                                 final char[] keyStorePassword) throws Exception {
+                                                 final char[] storePassword) throws Exception {
         String kmfa = KeyManagerFactory.getDefaultAlgorithm();
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(kmfa);
-        kmf.init(keyStore, keyStorePassword);
+        kmf.init(keyStore, storePassword);
         return kmf.getKeyManagers();
     }
 
-    public static TrustManager[] createTrustManagers(final KeyStore keyStore,
-                                                   final char[] keyStorePassword) throws Exception {
+    public static TrustManager[] createTrustManagers(final KeyStore keyStore) throws Exception {
         String tmfa = TrustManagerFactory.getDefaultAlgorithm();
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfa);
         tmf.init(keyStore);

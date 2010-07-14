@@ -18,6 +18,7 @@ package javax.net.ssl;
 
 import dalvik.annotation.KnownFailure;
 import java.security.StandardNames;
+import java.security.TestKeyStore;
 import java.util.Arrays;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import junit.framework.TestCase;
@@ -64,6 +65,7 @@ public class SSLEngineTest extends TestCase {
     public void test_SSLEngine_getSupportedCipherSuites_connect() throws Exception {
         // note the rare usage of DSA keys here in addition to RSA
         TestKeyStore testKeyStore = TestKeyStore.create(new String[] { "RSA", "DSA" },
+                                                        null,
                                                         null,
                                                         "rsa-dsa",
                                                         TestKeyStore.localhost(),

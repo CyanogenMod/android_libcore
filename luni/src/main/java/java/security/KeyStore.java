@@ -430,17 +430,12 @@ public class KeyStore {
      * @throws KeyStoreException
      *             if this {@code KeyStore} is not initialized, or if the entry
      *             can not be deleted.
-     * @throws NullPointerException
-     *             if {@code alias} is {@code null}.
      */
     public final void deleteEntry(String alias) throws KeyStoreException {
         if (!isInit) {
             // BEGIN android-changed
             throwNotInitialized();
             // END android-changed
-        }
-        if (alias == null) {
-            throw new NullPointerException("alias == null");
         }
         implSpi.engineDeleteEntry(alias);
     }
@@ -471,17 +466,12 @@ public class KeyStore {
      * @return {@code true} if the alias exists, {@code false} otherwise.
      * @throws KeyStoreException
      *             if this {@code KeyStore} is not initialized.
-     * @throws NullPointerException
-     *             if {@code alias} is {@code null}.
      */
     public final boolean containsAlias(String alias) throws KeyStoreException {
         if (!isInit) {
             // BEGIN android-changed
             throwNotInitialized();
             // END android-changed
-        }
-        if (alias == null) {
-            throw new NullPointerException("alias == null");
         }
         return implSpi.engineContainsAlias(alias);
     }
@@ -511,17 +501,12 @@ public class KeyStore {
      * @return {@code true} if the given alias is associated with a key entry.
      * @throws KeyStoreException
      *             if this {@code KeyStore} is not initialized.
-     * @throws NullPointerException
-     *             if {@code alias} is {@code null}.
      */
     public final boolean isKeyEntry(String alias) throws KeyStoreException {
         if (!isInit) {
             // BEGIN android-changed
             throwNotInitialized();
             // END android-changed
-        }
-        if (alias == null) {
-            throw new NullPointerException("alias == null");
         }
         return implSpi.engineIsKeyEntry(alias);
     }
@@ -536,8 +521,6 @@ public class KeyStore {
      *         entry.
      * @throws KeyStoreException
      *             if this {@code KeyStore} is not initialized.
-     * @throws NullPointerException
-     *             if {@code alias} is {@code null}.
      */
     public final boolean isCertificateEntry(String alias)
             throws KeyStoreException {
@@ -545,9 +528,6 @@ public class KeyStore {
             // BEGIN android-changed
             throwNotInitialized();
             // END android-changed
-        }
-        if (alias == null) {
-            throw new NullPointerException("alias == null");
         }
         return implSpi.engineIsCertificateEntry(alias);
     }
@@ -1329,8 +1309,7 @@ public class KeyStore {
 
             if(isAllX509Certificates){
                 this.chain = new X509Certificate[chain.length];
-            }
-            else{
+            } else {
                 this.chain = new Certificate[chain.length];
             }
             System.arraycopy(chain, 0, this.chain, 0, chain.length);
