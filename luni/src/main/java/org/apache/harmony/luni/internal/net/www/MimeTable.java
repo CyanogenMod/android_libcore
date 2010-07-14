@@ -78,15 +78,6 @@ public class MimeTable implements FileNameMap {
         }
     }
 
-    /**
-     * Answer an InputStream over an external properties file containing the
-     * MIME types.
-     *
-     * Looks in the location specified in the user property, and then in the
-     * expected location.
-     *
-     * @return the InputStream, or null if none.
-     */
     private InputStream getContentTypes() {
         // User override?
         String userTable = System.getProperty("content.types.user.table");

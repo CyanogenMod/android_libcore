@@ -190,7 +190,7 @@ public class ServerSocket {
     }
 
     /**
-     * Answer the default number of pending connections on a server socket. If
+     * Returns the default number of pending connections on a server socket. If
      * the backlog value maximum is reached, any subsequent incoming request is
      * rejected.
      *

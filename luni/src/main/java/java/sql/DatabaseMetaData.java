@@ -3155,7 +3155,7 @@ public interface DatabaseMetaData extends Wrapper {
     boolean autoCommitFailureClosesAllResultSets() throws SQLException;
 
     /**
-     * Answers a list of the client info properties of the driver.
+     * Returns a list of the client info properties of the driver.
      *
      * @return a list of the client info
      * @throws SQLException
@@ -3164,7 +3164,7 @@ public interface DatabaseMetaData extends Wrapper {
     ResultSet getClientInfoProperties() throws SQLException;
 
     /**
-     * Answers a description according to the given catalog's system or user
+     * Returns a description according to the given catalog's system or user
      * function parameters and return type.
      *
      * @param catalog
@@ -3184,7 +3184,7 @@ public interface DatabaseMetaData extends Wrapper {
             throws SQLException;
 
     /**
-     * Answers a description of the system and user functions available
+     * Returns a description of the system and user functions available
      * according to the given catalog.
      *
      * @param catalog
@@ -3201,7 +3201,7 @@ public interface DatabaseMetaData extends Wrapper {
             String functionNamePattern) throws SQLException;
 
     /**
-     * Answers the lifetime for which a RowId object remains valid if this data
+     * Returns the lifetime for which a RowId object remains valid if this data
      * source supports the SQL ROWID type
      *
      * @return the time of a RowId object that remains valid.
@@ -3211,7 +3211,7 @@ public interface DatabaseMetaData extends Wrapper {
     RowIdLifetime getRowIdLifetime() throws SQLException;
 
     /**
-     * Answers the schema names ordered by TABLE_CATALOG and TABLE_SCHEMA.
+     * Returns the schema names ordered by TABLE_CATALOG and TABLE_SCHEMA.
      *
      * @param catalog
      *            the catalog

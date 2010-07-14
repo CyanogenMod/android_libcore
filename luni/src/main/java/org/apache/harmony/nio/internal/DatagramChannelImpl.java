@@ -124,7 +124,7 @@ class DatagramChannelImpl extends DatagramChannel implements
     }
 
     /**
-     * Answer the local address from the IP stack. This method should not be
+     * Returns the local address from the IP stack. This method should not be
      * called directly as it does not check the security policy.
      *
      * @return InetAddress the local address to which the socket is bound.

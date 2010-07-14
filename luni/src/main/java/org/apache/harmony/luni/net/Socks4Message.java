@@ -73,7 +73,7 @@ class Socks4Message {
     }
 
     /**
-     * Answer the request's port number.
+     * Returns the request's port number.
      */
     public int getPort() {
         return getInt16(INDEX_PORT);
@@ -86,8 +86,8 @@ class Socks4Message {
         setInt16(INDEX_PORT, port);
     }
 
-    /*
-     * Answer the IP address of the request as an integer.
+    /**
+     * Returns the IP address of the request as an integer.
      */
     public int getIP() {
         return getInt32(INDEX_IP);
@@ -104,7 +104,7 @@ class Socks4Message {
     }
 
     /**
-     * Answer the user id for authentication.
+     * Returns the user id for authentication.
      */
     public String getUserId() {
         return getString(INDEX_USER_ID, MAX_USER_ID_LENGTH);
@@ -134,7 +134,7 @@ class Socks4Message {
     }
 
     /**
-     * Answer the total number of bytes used for the request. This method
+     * Returns the total number of bytes used for the request. This method
      * searches for the end of the user id, then searches for the end of the
      * password and returns the final index as the requests length.
      */
@@ -155,7 +155,7 @@ class Socks4Message {
     }
 
     /**
-     * Answer an error string corresponding to the given error value.
+     * Returns an error string corresponding to the given error value.
      */
     public String getErrorString(int error) {
         switch (error) {
@@ -171,7 +171,7 @@ class Socks4Message {
     }
 
     /**
-     * Answer the message's byte buffer.
+     * Returns the message's byte buffer.
      */
     public byte[] getBytes() {
         return buffer;
@@ -207,7 +207,7 @@ class Socks4Message {
     }
 
     /**
-     * Answer the SOCKS version number. Should always be 4.
+     * Returns the SOCKS version number. Should always be 4.
      */
     private int getVersionNumber() {
         return buffer[INDEX_VERSION];
