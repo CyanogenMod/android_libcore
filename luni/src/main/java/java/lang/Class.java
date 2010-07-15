@@ -133,6 +133,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient volatile SoftReference<ClassCache<T>> cacheRef;
 
+    /**
+     * Lazily computed name of this class; always prefer calling getName().
+     */
+    private transient String name;
+
     private Class() {
         // Prevent this class to be instantiated, instance
         // should be created by JVM only
@@ -961,7 +966,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             SecurityException {
         checkPublicMemberAccess();
 
-        Method[] methods = getClassCache().getAllPublicMethods();
+        Method[] methods = getClassCache().getMethods();
         Method method = findMethodByName(methods, name, parameterTypes);
 
         /*
@@ -992,7 +997,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         checkPublicMemberAccess();
 
         // Return a copy of the private (to the package) array.
-        Method[] methods = getClassCache().getAllPublicMethods();
+        Method[] methods = getClassCache().getMethods();
         return ClassCache.deepCopy(methods);
     }
 
@@ -1068,7 +1073,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @return the name of the class represented by this {@code Class}.
      */
-    public native String getName();
+    public String getName() {
+        String result = name;
+        return (result == null) ? (name = getNameNative()) : result;
+    }
+
+    private native String getNameNative();
 
     /**
      * Returns the simple name of the class represented by this {@code Class} as
