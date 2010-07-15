@@ -190,7 +190,7 @@ public final class DatagramPacket {
     public synchronized void setData(byte[] buf, int anOffset, int aLength) {
         if (0 > anOffset || anOffset > buf.length || 0 > aLength
                 || aLength > buf.length - anOffset) {
-            throw new IndexOutOfBoundsException();
+            throw new IllegalArgumentException();
         }
         data = buf;
         offset = anOffset;
