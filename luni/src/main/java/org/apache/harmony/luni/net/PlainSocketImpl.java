@@ -513,10 +513,10 @@ public class PlainSocketImpl extends SocketImpl {
     }
 
     int write(byte[] buffer, int offset, int count) throws IOException {
-        if (!streaming) {
-            return netImpl.sendDatagram2(fd, buffer, offset, count, port,
-                    address);
+        if (streaming) {
+            return netImpl.write(fd, buffer, offset, count);
+        } else {
+            return netImpl.send(fd, buffer, offset, count, port, 0, address);
         }
-        return netImpl.write(fd, buffer, offset, count);
     }
 }

@@ -116,21 +116,10 @@ final class OSNetworkSystem implements INetworkSystem {
             FileDescriptor[] writefd, int cread, int cwirte, int[] flags,
             long timeout);
 
-    public native int sendConnectedDatagram(FileDescriptor fd, byte[] data,
-            int offset, int length) throws IOException;
-
-    public native int sendConnectedDatagramDirect(FileDescriptor fd,
-            int address, int offset, int length) throws IOException;
-
-    public native int sendDatagram(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, int trafficClass, InetAddress inetAddress) throws IOException;
-
-    public native int sendDatagram2(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, InetAddress inetAddress) throws IOException;
-
-    public native int sendDatagramDirect(FileDescriptor fd, int address,
-            int offset, int length, int port,
-            int trafficClass, InetAddress inetAddress) throws IOException;
+    public native int send(FileDescriptor fd, byte[] data, int offset, int length,
+            int port, int trafficClass, InetAddress inetAddress) throws IOException;
+    public native int sendDirect(FileDescriptor fd, int address, int offset, int length,
+            int port, int trafficClass, InetAddress inetAddress) throws IOException;
 
     public native void sendUrgentData(FileDescriptor fd, byte value);
 

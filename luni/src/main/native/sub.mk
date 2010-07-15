@@ -6,6 +6,7 @@ LOCAL_SRC_FILES := \
 	ErrorCode.cpp \
 	ICU.cpp \
 	JniConstants.cpp \
+	JniException.cpp \
 	NativeBN.cpp \
 	NativeBidi.cpp \
 	NativeBreakIterator.cpp \

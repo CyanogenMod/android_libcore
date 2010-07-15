@@ -72,22 +72,15 @@ public interface INetworkSystem {
             int trafficClass, InetAddress hostname, int port, int step,
             byte[] context) throws IOException;
 
-    public int sendDatagram(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, int trafficClass, InetAddress inetAddress) throws IOException;
-
-    public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
-            int length, int port, int trafficClass, InetAddress inetAddress) throws IOException;
+    public int send(FileDescriptor fd, byte[] data, int offset, int length,
+            int port, int trafficClass, InetAddress inetAddress) throws IOException;
+    public int sendDirect(FileDescriptor fd, int address, int offset, int length,
+            int port, int trafficClass, InetAddress inetAddress) throws IOException;
 
     public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
             int length, int timeout, boolean peek, boolean connected) throws IOException;
     public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
             int length, int timeout, boolean peek, boolean connected) throws IOException;
-
-    public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
-            int offset, int length) throws IOException;
-
-    public int sendConnectedDatagramDirect(FileDescriptor fd, int address,
-            int offset, int length) throws IOException;
 
     public void disconnectDatagram(FileDescriptor aFD) throws SocketException;
 
@@ -114,9 +107,6 @@ public interface INetworkSystem {
     public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int aport,
             int timeout, int trafficClass, InetAddress inetAddress)
             throws IOException;
-
-    public int sendDatagram2(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, InetAddress inetAddress) throws IOException;
 
     public InetAddress getSocketLocalAddress(FileDescriptor aFD);
 

@@ -310,22 +310,19 @@ public final class BlockGuard {
                     hostname, port, step, context);
         }
 
-        public int sendDatagram(FileDescriptor fd, byte[] data, int offset,
-                int length, int port, int trafficClass,
-                InetAddress inetAddress) throws IOException {
+        public int send(FileDescriptor fd, byte[] data, int offset, int length,
+                int port, int trafficClass, InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.sendDatagram(fd, data, offset, length, port,
-                    trafficClass, inetAddress);
+            return mNetwork.send(fd, data, offset, length, port, trafficClass, inetAddress);
         }
 
-        public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
-                int length, int port, int trafficClass,
-                InetAddress inetAddress) throws IOException {
+        public int sendDirect(FileDescriptor fd, int address, int offset, int length,
+                int port, int trafficClass, InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.sendDatagramDirect(fd, address, offset, length, port,
-                    trafficClass, inetAddress);
+            return mNetwork.sendDirect(fd, address, offset, length,
+                    port, trafficClass, inetAddress);
         }
 
         public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
@@ -339,16 +336,6 @@ public final class BlockGuard {
             BlockGuard.getThreadPolicy().onNetwork();
             return mNetwork.recvDirect(fd, packet, address, offset, length, timeout, peek,
                     connected);
-        }
-
-        public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
-                int offset, int length) throws IOException {
-            return mNetwork.sendConnectedDatagram(fd, data, offset, length);
-        }
-
-        public int sendConnectedDatagramDirect(FileDescriptor fd, int address,
-                int offset, int length) throws IOException {
-            return mNetwork.sendConnectedDatagramDirect(fd, address, offset, length);
         }
 
         public void disconnectDatagram(FileDescriptor aFD) throws SocketException {
@@ -397,11 +384,6 @@ public final class BlockGuard {
             BlockGuard.getThreadPolicy().onNetwork();
             mNetwork.connectStreamWithTimeoutSocket(aFD, aport,
                     timeout, trafficClass, inetAddress);
-        }
-
-        public int sendDatagram2(FileDescriptor fd, byte[] data, int offset,
-                int length, int port, InetAddress inetAddress) throws IOException {
-            return mNetwork.sendDatagram2(fd, data, offset, length, port, inetAddress);
         }
 
         public InetAddress getSocketLocalAddress(FileDescriptor aFD) {

@@ -266,11 +266,11 @@ public abstract class SocketImpl implements SocketOptions {
      *                thrown if an error occurs while writing
      */
     int write(byte[] buffer, int offset, int count) throws IOException {
-        if (!streaming) {
-            return this.netImpl.sendDatagram2(fd, buffer, offset, count, port,
-                    address);
+        if (streaming) {
+            return this.netImpl.write(fd, buffer, offset, count);
+        } else {
+            return this.netImpl.send(fd, buffer, offset, count, port, 0, address);
         }
-        return this.netImpl.write(fd, buffer, offset, count);
     }
 
     /**

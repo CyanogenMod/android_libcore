@@ -18,6 +18,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "LocalArray.h"
 #include "NetworkUtilities.h"
 #include "ScopedPrimitiveArray.h"
@@ -107,32 +108,6 @@ struct selectFDSet {
   fd_set readSet;
   fd_set exceptionSet;
 };
-
-// TODO(enh): move to JNIHelp.h
-static void jniThrowExceptionWithErrno(JNIEnv* env, const char* exceptionClassName, int error) {
-    char buf[BUFSIZ];
-    jniThrowException(env, exceptionClassName, jniStrError(error, buf, sizeof(buf)));
-}
-
-static void jniThrowBindException(JNIEnv* env, int error) {
-    jniThrowExceptionWithErrno(env, "java/net/BindException", error);
-}
-
-static void jniThrowConnectException(JNIEnv* env, int error) {
-    jniThrowExceptionWithErrno(env, "java/net/ConnectException", error);
-}
-
-static void jniThrowSecurityException(JNIEnv* env, int error) {
-    jniThrowExceptionWithErrno(env, "java/lang/SecurityException", error);
-}
-
-static void jniThrowSocketException(JNIEnv* env, int error) {
-    jniThrowExceptionWithErrno(env, "java/net/SocketException", error);
-}
-
-static void jniThrowSocketTimeoutException(JNIEnv* env, int error) {
-    jniThrowExceptionWithErrno(env, "java/net/SocketTimeoutException", error);
-}
 
 /**
  * Wraps access to the int inside a java.io.FileDescriptor, taking care of throwing exceptions.
@@ -1270,24 +1245,29 @@ static jint osNetworkSystem_recv(JNIEnv* env, jobject, jobject fd, jobject packe
             receiveTimeout, peek, connected);
 }
 
-static jint osNetworkSystem_sendDatagramDirect(JNIEnv* env, jobject,
-        jobject fileDescriptor, jint address, jint offset, jint length,
-        jint port, jint trafficClass, jobject inetAddress) {
+
+
+
+
+
+
+
+static jint osNetworkSystem_sendDirect(JNIEnv* env, jobject, jobject fileDescriptor, jint address, jint offset, jint length, jint port, jint trafficClass, jobject inetAddress) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return -1;
     }
 
     sockaddr_storage receiver;
-    if (!inetAddressToSocketAddress(env, inetAddress, port, &receiver)) {
+    if (inetAddress != NULL && !inetAddressToSocketAddress(env, inetAddress, port, &receiver)) {
         return -1;
     }
 
     int flags = 0;
     char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
-    ssize_t bytesSent = TEMP_FAILURE_RETRY(sendto(fd.get(), buf, length,
-            flags,
-            reinterpret_cast<sockaddr*>(&receiver), sizeof(receiver)));
+    sockaddr* to = inetAddress ? reinterpret_cast<sockaddr*>(&receiver) : NULL;
+    socklen_t toLength = inetAddress ? sizeof(receiver) : 0;
+    ssize_t bytesSent = TEMP_FAILURE_RETRY(sendto(fd.get(), buf, length, flags, to, toLength));
     if (bytesSent == -1) {
         if (errno == ECONNRESET || errno == ECONNREFUSED) {
             return 0;
@@ -1298,85 +1278,24 @@ static jint osNetworkSystem_sendDatagramDirect(JNIEnv* env, jobject,
     return bytesSent;
 }
 
-static jint osNetworkSystem_sendDatagram(JNIEnv* env, jobject,
-        jobject fd, jbyteArray data, jint offset, jint length, jint port,
-        jint trafficClass, jobject inetAddress) {
+static jint osNetworkSystem_send(JNIEnv* env, jobject, jobject fd,
+        jbyteArray data, jint offset, jint length,
+        jint port, jint trafficClass, jobject inetAddress) {
     ScopedByteArrayRO bytes(env, data);
     if (bytes.get() == NULL) {
         return -1;
     }
-    return osNetworkSystem_sendDatagramDirect(env, NULL, fd,
-            reinterpret_cast<uintptr_t>(bytes.get()), offset, length, port,
-            trafficClass, inetAddress);
+    return osNetworkSystem_sendDirect(env, NULL, fd,
+            reinterpret_cast<uintptr_t>(bytes.get()), offset, length,
+            port, trafficClass, inetAddress);
 }
 
-static jint osNetworkSystem_sendConnectedDatagramDirect(JNIEnv* env, jobject,
-        jobject fileDescriptor, jint address, jint offset, jint length) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return 0;
-    }
 
-    char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
-    ssize_t bytesSent = TEMP_FAILURE_RETRY(send(fd.get(), buf, length, 0));
-    if (bytesSent == -1) {
-        if (errno == ECONNRESET || errno == ECONNREFUSED) {
-            return 0;
-        } else {
-            jniThrowSocketException(env, errno);
-        }
-    }
-    return bytesSent;
-}
 
-static jint osNetworkSystem_sendConnectedDatagram(JNIEnv* env, jobject,
-        jobject fd, jbyteArray data, jint offset, jint length) {
-    ScopedByteArrayRO bytes(env, data);
-    if (bytes.get() == NULL) {
-        return -1;
-    }
-    return osNetworkSystem_sendConnectedDatagramDirect(env, NULL, fd,
-            reinterpret_cast<uintptr_t>(bytes.get()), offset, length);
-}
 
-static jint osNetworkSystem_sendDatagram2(JNIEnv* env, jobject,
-        jobject fileDescriptor, jbyteArray javaBytes, jint offset, jint length,
-        jint port, jobject inetAddress) {
-    sockaddr_storage sockAddr;
-    if (inetAddress != NULL) {
-        if (!inetAddressToSocketAddress(env, inetAddress, port, &sockAddr)) {
-            return -1;
-        }
-    }
 
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return -1;
-    }
 
-    ScopedByteArrayRO bytes(env, javaBytes);
-    if (bytes.get() == NULL) {
-        return -1;
-    }
 
-    const jbyte* base = &bytes[offset];
-    int totalBytesSent = 0;
-    while (totalBytesSent < length) {
-        int flags = 0;
-        ssize_t bytesSent = TEMP_FAILURE_RETRY(sendto(fd.get(),
-                base + totalBytesSent, length - totalBytesSent,
-                flags,
-                reinterpret_cast<sockaddr*>(&sockAddr), sizeof(sockAddr)));
-        if (bytesSent == -1) {
-            jniThrowSocketException(env, errno);
-            return 0;
-        }
-
-        totalBytesSent += bytesSent;
-    }
-
-    return totalBytesSent;
-}
 
 static bool isValidFd(int fd) {
     return fd >= 0 && fd < FD_SETSIZE;
@@ -1850,19 +1769,16 @@ static JNINativeMethod gMethods[] = {
     { "recv",                              "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIIZZ)I",              (void*) osNetworkSystem_recv },
     { "recvDirect",                        "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIIZZ)I",               (void*) osNetworkSystem_recvDirect },
     { "selectImpl",                        "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z",               (void*) osNetworkSystem_selectImpl },
-    { "sendConnectedDatagramDirect",       "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_sendConnectedDatagramDirect },
-    { "sendConnectedDatagram",             "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_sendConnectedDatagram },
-    { "sendDatagramDirect",                "(Ljava/io/FileDescriptor;IIIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_sendDatagramDirect },
-    { "sendDatagram",                      "(Ljava/io/FileDescriptor;[BIIIILjava/net/InetAddress;)I",                  (void*) osNetworkSystem_sendDatagram },
-    { "sendDatagram2",                     "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_sendDatagram2 },
+    { "send",                              "(Ljava/io/FileDescriptor;[BIIIILjava/net/InetAddress;)I",                  (void*) osNetworkSystem_send },
+    { "sendDirect",                        "(Ljava/io/FileDescriptor;IIIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_sendDirect },
     { "sendUrgentData",                    "(Ljava/io/FileDescriptor;B)V",                                             (void*) osNetworkSystem_sendUrgentData },
     { "setInetAddress",                    "(Ljava/net/InetAddress;[B)V",                                              (void*) osNetworkSystem_setInetAddress },
     { "setNonBlocking",                    "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_setNonBlocking },
     { "setSocketOption",                   "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V",                           (void*) osNetworkSystem_setSocketOption },
     { "shutdownInput",                     "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownInput },
     { "shutdownOutput",                    "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownOutput },
-    { "writeDirect",                       "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_writeDirect },
     { "write",                             "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_write },
+    { "writeDirect",                       "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_writeDirect },
 };
 int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env) {
     return initCachedFields(env) && jniRegisterNativeMethods(env,

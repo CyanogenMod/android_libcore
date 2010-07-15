@@ -19,14 +19,10 @@
 #define zip_h
 
 #include "JNIHelp.h"
+#include "JniException.h"
 #include "UniquePtr.h"
 #include "jni.h"
 #include "zlib.h"
-
-// FIXME: move to JNIHelp.h
-static void jniThrowOutOfMemoryError(JNIEnv* env, const char* message) {
-    jniThrowException(env, "java/lang/OutOfMemoryError", message);
-}
 
 static void throwExceptionForZlibError(JNIEnv* env, const char* exceptionClassName, int error) {
     if (error == Z_MEM_ERROR) {

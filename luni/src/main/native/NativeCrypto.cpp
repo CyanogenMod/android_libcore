@@ -35,6 +35,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "LocalArray.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
@@ -149,11 +150,6 @@ typedef UniquePtr<STACK_OF(X509), sk_X509_Delete> Unique_sk_X509;
 static void freeSslErrorState(void) {
     ERR_clear_error();
     ERR_remove_state(0);
-}
-
-// FIXME: move to JNIHelp.h
-static void jniThrowOutOfMemoryError(JNIEnv* env, const char* message) {
-    jniThrowException(env, "java/lang/OutOfMemoryError", message);
 }
 
 /*

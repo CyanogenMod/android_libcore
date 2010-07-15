@@ -19,6 +19,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "jni.h"
 #include "NetworkUtilities.h"
 #include "ScopedFd.h"
@@ -63,12 +64,6 @@ private:
     void operator=(const ScopedInterfaceAddresses&);
 };
 
-// TODO(enh): move to JNIHelp.h
-static void jniThrowSocketException(JNIEnv* env) {
-    char buf[BUFSIZ];
-    jniThrowException(env, "java/net/SocketException", jniStrError(errno, buf, sizeof(buf)));
-}
-
 static jobject makeInterfaceAddress(JNIEnv* env, jint interfaceIndex, ifaddrs* ifa) {
     jmethodID constructor = env->GetMethodID(JniConstants::interfaceAddressClass, "<init>",
             "(ILjava/lang/String;Ljava/net/InetAddress;Ljava/net/InetAddress;)V");
@@ -97,7 +92,7 @@ static jobjectArray getAllInterfaceAddressesImpl(JNIEnv* env, jclass) {
     // Get the list of interface addresses.
     ScopedInterfaceAddresses addresses;
     if (!addresses.init()) {
-        jniThrowSocketException(env);
+        jniThrowSocketException(env, errno);
         return NULL;
     }
 
@@ -152,7 +147,7 @@ static bool doIoctl(JNIEnv* env, jstring name, int request, ifreq& ifr) {
     jsize nameLength = env->GetStringLength(name);
     if (nameLength >= IFNAMSIZ) {
         errno = ENAMETOOLONG;
-        jniThrowSocketException(env);
+        jniThrowSocketException(env, errno);
         return false;
     }
     memset(&ifr, 0, sizeof(ifr));
@@ -161,12 +156,12 @@ static bool doIoctl(JNIEnv* env, jstring name, int request, ifreq& ifr) {
     // ...and do the ioctl.
     ScopedFd fd(socket(AF_INET, SOCK_DGRAM, 0));
     if (fd.get() == -1) {
-        jniThrowSocketException(env);
+        jniThrowSocketException(env, errno);
         return false;
     }
     int rc = ioctl(fd.get(), request, &ifr);
     if (rc == -1) {
-        jniThrowSocketException(env);
+        jniThrowSocketException(env, errno);
         return false;
     }
     return true;

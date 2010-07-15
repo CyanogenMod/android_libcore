@@ -60,7 +60,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
      * it is a public interface it ends up being public even if it is not
      * declared public
      */
-    static final int REUSEADDR_AND_REUSEPORT = 10001;
+    private static final int REUSEADDR_AND_REUSEPORT = 10001;
 
     private byte[] ipaddress = { 0, 0, 0, 0 };
 
@@ -221,13 +221,10 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void send(DatagramPacket packet) throws IOException {
-        if (isNativeConnected) {
-            netImpl.sendConnectedDatagram(fd,
-                    packet.getData(), packet.getOffset(), packet.getLength());
-        } else {
-            netImpl.sendDatagram(fd, packet.getData(), packet.getOffset(), packet.getLength(),
-                    packet.getPort(), trafficClass, packet.getAddress());
-        }
+        int port = isNativeConnected ? 0 : packet.getPort();
+        InetAddress address = isNativeConnected ? null : packet.getAddress();
+        netImpl.send(fd, packet.getData(), packet.getOffset(), packet.getLength(),
+                port, trafficClass, address);
     }
 
     /**
