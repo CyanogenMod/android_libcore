@@ -36,6 +36,7 @@ import dalvik.system.VMStack;
 
 import java.lang.annotation.Annotation;
 
+import java.util.Comparator;
 import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
 import org.apache.harmony.luni.lang.reflect.ListOfTypes;
@@ -46,6 +47,39 @@ import org.apache.harmony.luni.lang.reflect.Types;
  * and the method can be invoked dynamically.
  */
 public final class Method extends AccessibleObject implements GenericDeclaration, Member {
+
+    /**
+     * Orders methods by their signature, including name, parameters and return
+     * type. When one method overrides another, they will always have the same
+     * type signature unless covariant return types are in play.
+     *
+     * @hide
+     */
+    public static final Comparator<Method> ORDER_BY_SIGNATURE = new Comparator<Method>() {
+        public int compare(Method a, Method b) {
+            int comparison = a.name.compareTo(b.name);
+            if (comparison != 0) {
+                return comparison;
+            }
+
+            Class<?>[] aParameters = a.parameterTypes;
+            Class<?>[] bParameters = b.parameterTypes;
+            int length = Math.min(aParameters.length, bParameters.length);
+            for (int i = 0; i < length; i++) {
+                comparison = aParameters[i].getName().compareTo(bParameters[i].getName());
+                if (comparison != 0) {
+                    return comparison;
+                }
+            }
+
+            comparison = aParameters.length - bParameters.length;
+            if (comparison != 0) {
+                return comparison;
+            }
+
+            return a.returnType.getName().compareTo(b.returnType.getName());
+        }
+    };
 
     private int slot;
 
