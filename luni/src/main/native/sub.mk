@@ -67,7 +67,6 @@ LOCAL_SHARED_LIBRARIES += \
 	libcrypto \
 	libcutils \
 	libexpat \
-	libicudata \
 	libicuuc \
 	libicui18n \
 	libssl \
