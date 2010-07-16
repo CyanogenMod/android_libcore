@@ -1,0 +1,10 @@
+# Copyright 2010 Google Inc. All Rights Reserved.
+#Fri Jul 16 10:03:08 PDT 2010
+currentVersion=1.43
+version=1.42
+isNative=false
+feedurl=http\://www.bouncycastle.org/releasenotes.html
+name=bouncy_castle
+keywords=bouncy castle
+onDevice=true
+homepage=http\://www.bouncycastle.org/releasenotes.html
