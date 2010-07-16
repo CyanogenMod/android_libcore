@@ -78,14 +78,15 @@ public final class BlockGuard {
         int getPolicyMask();
     }
 
-    public static final class BlockGuardPolicyException extends RuntimeException {
+    public static class BlockGuardPolicyException extends RuntimeException {
         // bitmask of DISALLOW_*, PENALTY_*, etc flags
-        public final int mPolicyState;
-        public final int mPolicyViolated;
+        private final int mPolicyState;
+        private final int mPolicyViolated;
 
         public BlockGuardPolicyException(int policyState, int policyViolated) {
             mPolicyState = policyState;
             mPolicyViolated = policyViolated;
+            fillInStackTrace();
         }
 
         public int getPolicy() {
@@ -96,7 +97,15 @@ public final class BlockGuard {
             return mPolicyViolated;
         }
 
-        // TODO: toString() and stringify the bitmasks above
+        public String getMessage() {
+            // Note: do not change this format casually.  It's
+            // somewhat unfortunately Parceled and passed around
+            // Binder calls and parsed back into an Exception by
+            // Android's StrictMode.  This was the least invasive
+            // option and avoided a gross mix of Java Serialization
+            // combined with Parcels.
+            return "policy=" + mPolicyState + " violation=" + mPolicyViolated;
+        }
     }
 
     /**
