@@ -82,7 +82,7 @@ public class PipedOutputStream extends OutputStream {
      * Connects this stream to a {@link PipedInputStream}. Any data written to
      * this output stream becomes readable in the input stream.
      *
-     * @param target
+     * @param stream
      *            the piped input stream to connect to.
      * @throws IOException
      *             if either stream is already connected.
