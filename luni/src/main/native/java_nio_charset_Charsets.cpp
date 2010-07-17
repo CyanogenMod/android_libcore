@@ -57,31 +57,32 @@ public:
         return true;
     }
 
-    bool resize(int size) {
-        if (size == mSize) {
+    bool resize(int newSize) {
+        if (newSize == mSize) {
             return true;
         }
 
         // Allocate a new array.
-        jbyteArray newJavaArray = mEnv->NewByteArray(size);
+        jbyteArray newJavaArray = mEnv->NewByteArray(newSize);
         if (newJavaArray == NULL) {
             return false;
         }
         jbyte* newRawArray = mEnv->GetByteArrayElements(newJavaArray, NULL);
-        if (newJavaArray == NULL) {
+        if (newRawArray == NULL) {
             return false;
         }
 
         // Copy data out of the old array and then let go of it.
+        // Note that we may be trimming the array.
         if (mRawArray != NULL) {
-            memcpy(newRawArray, mRawArray, mSize);
+            memcpy(newRawArray, mRawArray, mOffset);
             mEnv->ReleaseByteArrayElements(mJavaArray, mRawArray, JNI_ABORT);
         }
 
         // Point ourselves at the new array.
         mJavaArray = newJavaArray;
         mRawArray = newRawArray;
-        mSize = size;
+        mSize = newSize;
         return true;
     }
 
