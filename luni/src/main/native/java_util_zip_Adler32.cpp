@@ -27,12 +27,12 @@ static jlong Adler32_updateImpl(JNIEnv* env, jobject, jbyteArray byteArray, int 
     if (bytes.get() == NULL) {
         return 0;
     }
-    return adler32((uLong) crc, (Bytef *) (bytes.get() + off), (uInt) len);
+    return adler32(crc, reinterpret_cast<const Bytef*>(bytes.get() + off), len);
 }
 
 static jlong Adler32_updateByteImpl(JNIEnv*, jobject, jint val, jlong crc) {
     Bytef bytefVal = val;
-    return adler32((uLong) crc, (Bytef *) (&bytefVal), 1);
+    return adler32(crc, reinterpret_cast<const Bytef*>(&bytefVal), 1);
 }
 
 static JNINativeMethod gMethods[] = {

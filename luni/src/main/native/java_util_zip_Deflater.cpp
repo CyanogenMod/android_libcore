@@ -80,11 +80,11 @@ static jint Deflater_deflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int 
     stream->stream.avail_out = len;
     jint sin = stream->stream.total_in;
     jint sout = stream->stream.total_out;
-    ScopedByteArrayRO out(env, buf);
+    ScopedByteArrayRW out(env, buf);
     if (out.get() == NULL) {
         return -1;
     }
-    stream->stream.next_out = (Bytef *) out.get() + off;
+    stream->stream.next_out = reinterpret_cast<Bytef*>(out.get() + off);
     int err = deflate(&stream->stream, flushParm);
     if (err != Z_OK) {
         if (err == Z_MEM_ERROR) {
@@ -124,7 +124,7 @@ static void Deflater_setLevelsImpl(JNIEnv* env, jobject, int level, int strategy
     }
     NativeZipStream* stream = toNativeZipStream(handle);
     jbyte b = 0;
-    stream->stream.next_out = (Bytef*) &b;
+    stream->stream.next_out = reinterpret_cast<Bytef*>(&b);
     int err = deflateParams(&stream->stream, level, strategy);
     if (err != Z_OK) {
         throwExceptionForZlibError(env, "java/lang/IllegalStateException", err);
