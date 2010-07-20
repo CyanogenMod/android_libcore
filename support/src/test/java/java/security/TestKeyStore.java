@@ -21,11 +21,19 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.security.KeyStore.PasswordProtection;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.StandardNames;
+import java.security.TestKeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import junit.framework.Assert;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.X509Extensions;
@@ -51,6 +59,8 @@ public final class TestKeyStore extends Assert {
     public final KeyStore keyStore;
     public final char[] storePassword;
     public final char[] keyPassword;
+    public final KeyManager[] keyManagers;
+    public final TrustManager[] trustManagers;
 
     private TestKeyStore(KeyStore keyStore,
                          char[] storePassword,
@@ -58,6 +68,31 @@ public final class TestKeyStore extends Assert {
         this.keyStore = keyStore;
         this.storePassword = storePassword;
         this.keyPassword = keyPassword;
+        this.keyManagers = createKeyManagers(keyStore, storePassword);
+        this.trustManagers = createTrustManagers(keyStore);
+    }
+
+    public static KeyManager[] createKeyManagers(final KeyStore keyStore,
+                                                 final char[] storePassword) {
+        try {
+            String kmfa = KeyManagerFactory.getDefaultAlgorithm();
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(kmfa);
+            kmf.init(keyStore, storePassword);
+            return kmf.getKeyManagers();
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
+
+    public static TrustManager[] createTrustManagers(final KeyStore keyStore) {
+        try {
+            String tmfa = TrustManagerFactory.getDefaultAlgorithm();
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfa);
+            tmf.init(keyStore);
+            return tmf.getTrustManagers();
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
     }
 
     private static final TestKeyStore ROOT_CA

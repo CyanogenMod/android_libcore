@@ -45,7 +45,38 @@ public class SSLSocketTest extends TestCase {
                                                         TestKeyStore.localhost(),
                                                         true,
                                                         null);
-        TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore);
+        if (StandardNames.IS_RI) {
+            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
+                                                            StandardNames.JSSE_PROVIDER_NAME,
+                                                            StandardNames.JSSE_PROVIDER_NAME);
+        } else  {
+            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
+                                                            "HarmonyJSSE",
+                                                            "HarmonyJSSE");
+            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
+                                                            "AndroidOpenSSL",
+                                                            "AndroidOpenSSL");
+            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
+                                                            "HarmonyJSSE",
+                                                            "AndroidOpenSSL");
+            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
+                                                            "AndroidOpenSSL",
+                                                            "HarmonyJSSE");
+        }
+
+    }
+    private void test_SSLSocket_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
+                                                                 String clientProvider,
+                                                                 String serverProvider)
+            throws Exception {
+
+        String clientToServerString = "this is sent from the client to the server...";
+        String serverToClientString = "... and this from the server to the client";
+        byte[] clientToServer = clientToServerString.getBytes();
+        byte[] serverToClient = serverToClientString.getBytes();
+
+        TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore,
+                                                 clientProvider, serverProvider);
         String[] cipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
             /*
@@ -55,9 +86,27 @@ public class SSLSocketTest extends TestCase {
             if (cipherSuite.startsWith("TLS_KRB5_")) {
                 continue;
             }
-            // System.out.println("Trying to connect cipher suite " + cipherSuite);
+            // System.out.println("Trying to connect cipher suite " + cipherSuite
+            //                    + " client=" + clientProvider
+            //                    + " server=" + serverProvider);
             String[] cipherSuiteArray = new String[] { cipherSuite };
-            TestSSLSocketPair.connect(c, cipherSuiteArray, cipherSuiteArray);
+            SSLSocket[] pair = TestSSLSocketPair.connect(c, cipherSuiteArray, cipherSuiteArray);
+
+            SSLSocket server = pair[0];
+            SSLSocket client = pair[1];
+            server.getOutputStream().write(serverToClient);
+            client.getOutputStream().write(clientToServer);
+            // arrays are too big to make sure we get back only what we expect
+            byte[] clientFromServer = new byte[serverToClient.length+1];
+            byte[] serverFromClient = new byte[clientToServer.length+1];
+            int readFromServer = client.getInputStream().read(clientFromServer);
+            int readFromClient = server.getInputStream().read(serverFromClient);
+            assertEquals(serverToClient.length, readFromServer);
+            assertEquals(clientToServer.length, readFromClient);
+            assertEquals(clientToServerString, new String(serverFromClient, 0, readFromClient));
+            assertEquals(serverToClientString, new String(clientFromServer, 0, readFromServer));
+            server.close();
+            client.close();
         }
     }
 
@@ -187,7 +236,8 @@ public class SSLSocketTest extends TestCase {
     }
 
     public void test_SSLSocket_startHandshake_noKeyStore() throws Exception {
-        TestSSLContext c = TestSSLContext.create(null, null, null, null);
+        TestSSLContext c = TestSSLContext.create(null, null, null, null, null, null, null, null,
+                                                 SSLContext.getDefault(), SSLContext.getDefault());
         SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
                                                                                        c.port);
         try {

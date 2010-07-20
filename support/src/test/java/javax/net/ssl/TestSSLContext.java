@@ -123,27 +123,38 @@ public final class TestSSLContext extends Assert {
      * TestSSLContext creation method that allows separate creation of server key store
      */
     public static TestSSLContext create(TestKeyStore client, TestKeyStore server) {
+        String provider = StandardNames.JSSE_PROVIDER_NAME;
+        return create(client, server, provider, provider);
+    }
+    public static TestSSLContext create(TestKeyStore client, TestKeyStore server,
+                                        String clientProvider, String serverProvider) {
+        String protocol = "TLS";
+        SSLContext clientContext = createSSLContext(protocol, clientProvider,
+                                                    client.keyManagers, client.trustManagers);
+        SSLContext serverContext = createSSLContext(protocol, serverProvider,
+                                                    server.keyManagers, server.trustManagers);
         return create(client.keyStore, client.storePassword,
-                      server.keyStore, server.storePassword);
+                      server.keyStore, server.storePassword,
+                      client.keyManagers[0],
+                      server.keyManagers[0],
+                      client.trustManagers[0],
+                      server.trustManagers[0],
+                      clientContext,
+                      serverContext);
     }
 
     /**
      * TestSSLContext creation method that allows separate creation of client and server key store
      */
     public static TestSSLContext create(KeyStore clientKeyStore, char[] clientStorePassword,
-                                        KeyStore serverKeyStore, char[] serverStorePassword) {
+                                        KeyStore serverKeyStore, char[] serverStorePassword,
+                                        KeyManager clientKeyManagers,
+                                        KeyManager serverKeyManagers,
+                                        TrustManager clientTrustManagers,
+                                        TrustManager serverTrustManagers,
+                                        SSLContext clientContext,
+                                        SSLContext serverContext) {
         try {
-            KeyManager[] clientKeyManagers = createKeyManagers(clientKeyStore,
-                                                               clientStorePassword);
-            KeyManager[] serverKeyManagers = createKeyManagers(serverKeyStore,
-                                                               serverStorePassword);
-
-            TrustManager[] clientTrustManagers = createTrustManagers(clientKeyStore);
-            TrustManager[] serverTrustManagers = createTrustManagers(serverKeyStore);
-
-            SSLContext clientContext = createSSLContext(clientKeyManagers, clientTrustManagers);
-            SSLContext serverContext = createSSLContext(serverKeyManagers, serverTrustManagers);
-
             SSLServerSocket serverSocket = (SSLServerSocket)
                 serverContext.getServerSocketFactory().createServerSocket(0);
             InetSocketAddress sa = (InetSocketAddress) serverSocket.getLocalSocketAddress();
@@ -152,10 +163,10 @@ public final class TestSSLContext extends Assert {
 
             return new TestSSLContext(clientKeyStore, clientStorePassword,
                                       serverKeyStore, serverStorePassword,
-                                      (X509ExtendedKeyManager) clientKeyManagers[0],
-                                      (X509ExtendedKeyManager) serverKeyManagers[0],
-                                      (X509TrustManager) clientTrustManagers[0],
-                                      (X509TrustManager) serverTrustManagers[0],
+                                      (X509ExtendedKeyManager) clientKeyManagers,
+                                      (X509ExtendedKeyManager) serverKeyManagers,
+                                      (X509TrustManager) clientTrustManagers,
+                                      (X509TrustManager) serverTrustManagers,
                                       clientContext, serverContext,
                                       serverSocket, host, port);
         } catch (RuntimeException e) {
@@ -170,27 +181,18 @@ public final class TestSSLContext extends Assert {
      * certificate chain from the given KeyStore and a TrustManager
      * using the certificates authorities from the same KeyStore.
      */
-    public static final SSLContext createSSLContext(final KeyManager[] keyManagers,
+    public static final SSLContext createSSLContext(final String protocol,
+                                                    final String provider,
+                                                    final KeyManager[] keyManagers,
                                                     final TrustManager[] trustManagers)
-            throws Exception {
-        SSLContext context = SSLContext.getInstance("TLS");
-        context.init(keyManagers, trustManagers, new SecureRandom());
-        return context;
-    }
-
-    public static KeyManager[] createKeyManagers(final KeyStore keyStore,
-                                                 final char[] storePassword) throws Exception {
-        String kmfa = KeyManagerFactory.getDefaultAlgorithm();
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(kmfa);
-        kmf.init(keyStore, storePassword);
-        return kmf.getKeyManagers();
-    }
-
-    public static TrustManager[] createTrustManagers(final KeyStore keyStore) throws Exception {
-        String tmfa = TrustManagerFactory.getDefaultAlgorithm();
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfa);
-        tmf.init(keyStore);
-        return tmf.getTrustManagers();
+    {
+        try {
+            SSLContext context = SSLContext.getInstance(protocol, provider);
+            context.init(keyManagers, trustManagers, new SecureRandom());
+            return context;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void assertCertificateInKeyStore(Principal principal,

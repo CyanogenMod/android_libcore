@@ -859,10 +859,6 @@ result EXEC_FAILED
 test javax.net.ssl.SSLEngineTest#test_SSLEngine_beginHandshake_noKeyStore
 result EXEC_FAILED
 
-# No *_WITH_NULL_* ciphers work because of 'Invalid transformation: null'
-test javax.net.ssl.SSLEngineTest#test_SSLEngine_getSupportedCipherSuites_connect
-result EXEC_FAILED
-
 # AlertException instead of SSLException
 test javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_client
 result EXEC_FAILED

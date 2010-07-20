@@ -16,7 +16,6 @@
 
 package org.apache.harmony.xnet.provider.jsse;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -120,9 +119,9 @@ public class NativeCryptoTest extends TestCase {
     static {
         try {
             CLIENT_CERTIFICATES = NativeCrypto.encodeCertificates(
-                                                                  CLIENT_PRIVATE_KEY_ENTRY.getCertificateChain());
+                    CLIENT_PRIVATE_KEY_ENTRY.getCertificateChain());
             SERVER_CERTIFICATES = NativeCrypto.encodeCertificates(
-                                                                  SERVER_PRIVATE_KEY_ENTRY.getCertificateChain());
+                    SERVER_PRIVATE_KEY_ENTRY.getCertificateChain());
         } catch (CertificateEncodingException e) {
             throw new RuntimeException(e);
         }

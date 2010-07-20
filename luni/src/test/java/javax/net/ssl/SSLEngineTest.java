@@ -56,8 +56,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] cipherSuites = e.getSupportedCipherSuites();
-        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE,
-                                                  cipherSuites);
+        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
         assertNotSame(cipherSuites, e.getSupportedCipherSuites());
     }
 
@@ -97,8 +96,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] cipherSuites = e.getEnabledCipherSuites();
-        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE,
-                                              cipherSuites);
+        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
     }
 
@@ -189,7 +187,8 @@ public class SSLEngineTest extends TestCase {
 
     @KnownFailure("NO SERVER CERTIFICATE FOUND")
     public void test_SSLEngine_beginHandshake_noKeyStore() throws Exception {
-        TestSSLContext c = TestSSLContext.create(null, null, null, null);
+        TestSSLContext c = TestSSLContext.create(null, null, null, null, null, null, null, null,
+                                                 SSLContext.getDefault(), SSLContext.getDefault());
         try {
             // TODO Fix KnownFailure AlertException "NO SERVER CERTIFICATE FOUND"
             // ServerHandshakeImpl.selectSuite should not select a suite without a required cert
@@ -325,8 +324,7 @@ public class SSLEngineTest extends TestCase {
         assertNotNull(p);
 
         String[] cipherSuites = p.getCipherSuites();
-        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE,
-                                              cipherSuites);
+        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
         assertEquals(Arrays.asList(cipherSuites), Arrays.asList(e.getEnabledCipherSuites()));
 

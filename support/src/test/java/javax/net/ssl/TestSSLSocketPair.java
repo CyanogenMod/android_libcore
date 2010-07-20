@@ -16,6 +16,11 @@
 
 package javax.net.ssl;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 /**
  * TestSSLSocketPair is a convenience class for other tests that want
  * a pair of connected and handshaked client and server SSLSockets for
@@ -50,33 +55,37 @@ public final class TestSSLSocketPair {
      * caching. Optionally specify serverCipherSuites for testing
      * cipher suite negotiation.
      */
-    public static SSLSocket[] connect (final TestSSLContext c,
+    public static SSLSocket[] connect (final TestSSLContext context,
                                        final String[] clientCipherSuites,
                                        final String[] serverCipherSuites) {
         try {
-            SSLSocket client = (SSLSocket)
-                c.clientContext.getSocketFactory().createSocket(c.host, c.port);
-            final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-            Thread thread = new Thread(new Runnable () {
-                    public void run() {
-                        try {
-                            if (serverCipherSuites != null) {
-                                server.setEnabledCipherSuites(serverCipherSuites);
-                            }
-                            server.startHandshake();
-                        } catch (RuntimeException e) {
-                            throw e;
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
+            final SSLSocket client = (SSLSocket)
+                context.clientContext.getSocketFactory().createSocket(context.host, context.port);
+            final SSLSocket server = (SSLSocket) context.serverSocket.accept();
+
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+            Future s = executor.submit(new Callable<Void>() {
+                    public Void call() throws Exception {
+                        if (serverCipherSuites != null) {
+                            server.setEnabledCipherSuites(serverCipherSuites);
                         }
+                        server.startHandshake();
+                        return null;
                     }
                 });
-            thread.start();
-            if (clientCipherSuites != null) {
-                client.setEnabledCipherSuites(clientCipherSuites);
-            }
-            client.startHandshake();
-            thread.join();
+            Future c = executor.submit(new Callable<Void>() {
+                    public Void call() throws Exception {
+                        if (clientCipherSuites != null) {
+                            client.setEnabledCipherSuites(clientCipherSuites);
+                        }
+                        client.startHandshake();
+                        return null;
+                    }
+                });
+            executor.shutdown();
+
+            s.get();
+            c.get();
             return new SSLSocket[] { server, client };
         } catch (RuntimeException e) {
             throw e;

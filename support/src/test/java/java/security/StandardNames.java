@@ -52,6 +52,8 @@ public final class StandardNames extends Assert {
     public static final String JSSE_PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "AndroidOpenSSL";
     public static final String SECURITY_PROVIDER_NAME = (IS_RI) ? "SUN" : "BC";
 
+    public static final String KEY_MANAGER_FACTORY_DEFAULT = (IS_RI) ? "SunX509" : "X509";
+
     /**
      * A map from algorithm type (e.g. Cipher) to a set of algorithms (e.g. AES, DES, ...)
      */
@@ -314,10 +316,6 @@ public final class StandardNames extends Assert {
             unprovide("KeyGenerator", "RC2");
             unprovide("SecretKeyFactory", "PBEWithSHA1AndRC2_40");
 
-            // removed ARCFOUR
-            unprovide("Cipher", "ARCFOUR");
-            unprovide("KeyGenerator", "ARCFOUR");
-
             // PBEWithMD5AndTripleDES is Sun proprietary
             unprovide("AlgorithmParameters", "PBEWithMD5AndTripleDES");
             unprovide("Cipher", "PBEWithMD5AndTripleDES");
@@ -495,40 +493,6 @@ public final class StandardNames extends Assert {
         addNeither("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
 
         CIPHER_SUITES = (IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
-    }
-
-    public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
-    static {
-        if (!IS_RI) {
-            // Android does not include Java versions of RC4 and IDEA
-            // Java crypto implementations so these fail to work for
-            // the SSLEngine implementation.
-            CIPHER_SUITES_SSLENGINE.remove("SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_DH_anon_WITH_RC4_128_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_EXPORT_WITH_RC4_40_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_WITH_RC4_128_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_WITH_RC4_128_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_RSA_WITH_IDEA_CBC_SHA");
-            // Harmony SSLEngine does not support AES cipher suites
-            // that are supported by the OpenSSL based SSLSocket
-            // implementations
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DH_anon_WITH_AES_128_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DH_anon_WITH_AES_256_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_RSA_WITH_AES_128_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_RSA_WITH_AES_256_CBC_SHA");
-            // Harmony SSLEngine supports has some older cipher suites
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_DSS_WITH_DES_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_RSA_WITH_DES_CBC_SHA");
-        }
     }
 
     /**
