@@ -827,7 +827,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public void setRequestProperty(String field, String newValue) {
         if (connected) {
-            throw new IllegalStateException("Cannot set method after connection is made");
+            throw new IllegalStateException("Cannot set request property after connection is made");
         }
         if (field == null) {
             throw new NullPointerException();

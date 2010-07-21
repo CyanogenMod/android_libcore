@@ -1056,6 +1056,43 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
     }
 
+    public void testConnectTimeouts() throws IOException {
+        // 10.0.0.0 is non-routable and will time out on every network
+        URLConnection urlConnection = new URL("http://10.0.0.0/").openConnection();
+        urlConnection.setConnectTimeout(1000);
+        try {
+            urlConnection.getInputStream();
+            fail();
+        } catch (SocketTimeoutException expected) {
+        }
+    }
+
+    public void testReadTimeouts() throws IOException {
+        /*
+         * This relies on the fact that MockWebServer doesn't close the
+         * connection after a response has been sent. This causes the client to
+         * try to read more bytes than are sent, which results in a timeout.
+         */
+        MockResponse timeout = new MockResponse()
+                .setBody("ABC")
+                .clearHeaders()
+                .addHeader("Content-Length: 4");
+        server.enqueue(timeout);
+        server.play();
+
+        URLConnection urlConnection = server.getUrl("/").openConnection();
+        urlConnection.setReadTimeout(1000);
+        InputStream in = urlConnection.getInputStream();
+        assertEquals('A', in.read());
+        assertEquals('B', in.read());
+        assertEquals('C', in.read());
+        try {
+            in.read(); // if Content-Length was accurate, this would return -1 immediately
+            fail();
+        } catch (SocketTimeoutException expected) {
+        }
+    }
+
     /**
      * Encodes the response body using GZIP and adds the corresponding header.
      */
@@ -1093,7 +1130,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
     }
 
-    private final Set<String> newSet(String... elements) {
+    private Set<String> newSet(String... elements) {
         return new HashSet<String>(Arrays.asList(elements));
     }
 
