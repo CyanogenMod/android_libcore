@@ -27,9 +27,12 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.HostnameVerifier;
@@ -60,6 +63,84 @@ public class URLConnectionTest extends junit.framework.TestCase {
         ResponseCache.setDefault(null);
         Authenticator.setDefault(null);
         server.shutdown();
+    }
+
+    public void testRequestHeaders() throws IOException, InterruptedException {
+        server.enqueue(new MockResponse());
+        server.play();
+
+        HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
+        urlConnection.addRequestProperty("D", "e");
+        urlConnection.addRequestProperty("D", "f");
+        Map<String, List<String>> requestHeaders = urlConnection.getRequestProperties();
+        assertEquals(newSet("e", "f"), new HashSet<String>(requestHeaders.get("D")));
+        try {
+            requestHeaders.put("G", Arrays.asList("h"));
+            fail("Modified an unmodifiable view.");
+        } catch (UnsupportedOperationException expected) {
+        }
+        try {
+            requestHeaders.get("D").add("i");
+            fail("Modified an unmodifiable view.");
+        } catch (UnsupportedOperationException expected) {
+        }
+        try {
+            urlConnection.setRequestProperty(null, "j");
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        try {
+            urlConnection.addRequestProperty(null, "k");
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        urlConnection.setRequestProperty("NullValue", null); // should fail silently!
+        urlConnection.addRequestProperty("AnotherNullValue", null);  // should fail silently!
+
+        urlConnection.getResponseCode();
+        RecordedRequest request = server.takeRequest();
+        assertContains(request.getHeaders(), "D: e");
+        assertContains(request.getHeaders(), "D: f");
+        assertContainsNoneMatching(request.getHeaders(), "NullValue.*");
+        assertContainsNoneMatching(request.getHeaders(), "AnotherNullValue.*");
+        assertContainsNoneMatching(request.getHeaders(), "G:.*");
+        assertContainsNoneMatching(request.getHeaders(), "null:.*");
+
+        try {
+            urlConnection.addRequestProperty("N", "o");
+            fail("Set header after connect");
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            urlConnection.setRequestProperty("P", "q");
+            fail("Set header after connect");
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testResponseHeaders() throws IOException, InterruptedException {
+        server.enqueue(new MockResponse()
+                .setStatus("HTTP/1.0 200 Fantastic")
+                .addHeader("A: b")
+                .addHeader("A: c")
+                .setChunkedBody("ABCDE\nFGHIJ\nKLMNO\nPQR", 8));
+        server.play();
+
+        HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals(200, urlConnection.getResponseCode());
+        assertEquals("Fantastic", urlConnection.getResponseMessage());
+        Map<String, List<String>> responseHeaders = urlConnection.getHeaderFields();
+        assertEquals(newSet("b", "c"), new HashSet<String>(responseHeaders.get("A")));
+        try {
+            responseHeaders.put("N", Arrays.asList("o"));
+            fail("Modified an unmodifiable view.");
+        } catch (UnsupportedOperationException expected) {
+        }
+        try {
+            responseHeaders.get("A").add("d");
+            fail("Modified an unmodifiable view.");
+        } catch (UnsupportedOperationException expected) {
+        }
     }
 
     // Check that if we don't read to the end of a response, the next request on the
@@ -411,6 +492,30 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(1, cache.getHitCount());
         assertEquals(1, cache.getSuccessCount());
         assertEquals(0, cache.getAbortCount());
+    }
+
+    public void testResponseCacheRequestHeaders() throws IOException, URISyntaxException {
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.play();
+
+        final AtomicReference<Map<String, List<String>>> requestHeadersRef
+                = new AtomicReference<Map<String, List<String>>>();
+        ResponseCache.setDefault(new ResponseCache() {
+            @Override public CacheResponse get(URI uri, String requestMethod,
+                    Map<String, List<String>> requestHeaders) throws IOException {
+                requestHeadersRef.set(requestHeaders);
+                return null;
+            }
+            @Override public CacheRequest put(URI uri, URLConnection conn) throws IOException {
+                return null;
+            }
+        });
+
+        URL url = server.getUrl("/");
+        URLConnection urlConnection = url.openConnection();
+        urlConnection.addRequestProperty("A", "android");
+        readAscii(urlConnection.getInputStream(), Integer.MAX_VALUE);
+        assertEquals(Arrays.asList("android"), requestHeadersRef.get().get("A"));
     }
 
     private void reliableSkip(InputStream in, int length) throws IOException {
@@ -986,6 +1091,10 @@ public class URLConnectionTest extends junit.framework.TestCase {
                 fail("Header " + header + " matches " + pattern);
             }
         }
+    }
+
+    private final Set<String> newSet(String... elements) {
+        return new HashSet<String>(Arrays.asList(elements));
     }
 
     enum TransferKind {
