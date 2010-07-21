@@ -109,12 +109,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     private int httpVersion = 1; // Assume HTTP/1.1
 
     protected HttpConnection connection;
-
-    private InputStream is;
-
-    private InputStream uis;
-
+    private InputStream socketIn;
     private OutputStream socketOut;
+
+    private InputStream responseBodyIn;
+    private AbstractHttpOutputStream requestBodyOut;
 
     private ResponseCache responseCache;
 
@@ -123,8 +122,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     private CacheRequest cacheRequest;
 
     private boolean hasTriedCache;
-
-    private AbstractHttpOutputStream os;
 
     private boolean sentRequestHeaders;
 
@@ -136,14 +133,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     // the destination URI
     private URI uri;
 
-    // default request header
-    private static Header defaultReqHeader = new Header();
+    private static Header defaultRequestHeader = new Header();
 
-    // request header that will be sent to the server
-    private Header reqHeader;
+    private final Header requestHeader;
 
-    // response header received from the server
-    private Header resHeader;
+    /** Null until a response is received from the network or the cache */
+    private Header responseHeader;
 
     private int redirectionCount;
 
@@ -164,7 +159,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     protected HttpURLConnectionImpl(URL url, int port) {
         super(url);
         defaultPort = port;
-        reqHeader = (Header) defaultReqHeader.clone();
+        requestHeader = (Header) defaultRequestHeader.clone();
 
         try {
             uri = url.toURI();
@@ -274,7 +269,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     protected void setUpTransportIO(HttpConnection connection) throws IOException {
         socketOut = connection.getOutputStream();
-        is = connection.getInputStream();
+        socketIn = connection.getInputStream();
     }
 
     /**
@@ -283,23 +278,20 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     private boolean getFromCache() throws IOException {
         if (!useCaches || responseCache == null || hasTriedCache) {
-            return (hasTriedCache && is != null);
+            return (hasTriedCache && socketIn != null);
         }
 
         hasTriedCache = true;
-        if (resHeader == null) {
-            resHeader = new Header();
-        }
-        cacheResponse = responseCache.get(uri, method, resHeader.getFieldMap());
+        cacheResponse = responseCache.get(uri, method, requestHeader.getFieldMap());
         if (cacheResponse == null) {
-            return is != null;
+            return socketIn != null; // TODO: if this is non-null, why are we calling getFromCache?
         }
         Map<String, List<String>> headersMap = cacheResponse.getHeaders();
         if (headersMap != null) {
-            resHeader = new Header(headersMap);
+            responseHeader = new Header(headersMap);
         }
-        is = uis = cacheResponse.getBody();
-        return is != null;
+        socketIn = responseBodyIn = cacheResponse.getBody();
+        return socketIn != null;
     }
 
     private void maybeCache() throws IOException {
@@ -330,7 +322,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     protected synchronized void releaseSocket(boolean reuseSocket) {
         // we cannot recycle sockets that have incomplete output.
-        boolean canBeReused = reuseSocket && (os == null || os.closed);
+        boolean canBeReused = reuseSocket && (requestBodyOut == null || requestBodyOut.closed);
 
         /*
          * Don't return the socket to the connection pool if this is an
@@ -350,11 +342,11 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         /*
-         * Clear "is" and "socketOut" to ensure that no further I/O attempts
-         * from this instance make their way to the underlying
+         * Clear "socketIn" and "socketOut" to ensure that no further I/O
+         * attempts from this instance make their way to the underlying
          * connection (which may get recycled).
          */
-        is = null;
+        socketIn = null;
         socketOut = null;
     }
 
@@ -365,16 +357,16 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     protected void discardIntermediateResponse() throws IOException {
         intermediateResponse = true;
         try {
-            if (uis != null) {
-                if (!(uis instanceof UnknownLengthHttpInputStream)) {
+            if (responseBodyIn != null) {
+                if (!(responseBodyIn instanceof UnknownLengthHttpInputStream)) {
                     // skip the response so that the connection may be reused for the retry
-                    Streams.skipAll(uis);
+                    Streams.skipAll(responseBodyIn);
                 }
-                uis.close();
-                uis = null;
+                responseBodyIn.close();
+                responseBodyIn = null;
             }
             sentRequestHeaders = false;
-            resHeader = null;
+            responseHeader = null;
             responseCode = -1;
             responseMessage = null;
             cacheRequest = null;
@@ -395,7 +387,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     @Override
     public InputStream getErrorStream() {
         if (connected && method != HEAD && responseCode >= HTTP_BAD_REQUEST) {
-            return uis;
+            return responseBodyIn;
         }
         return null;
     }
@@ -418,10 +410,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         } catch (IOException e) {
             // ignore
         }
-        if (null == resHeader) {
+        if (null == responseHeader) {
             return null;
         }
-        return resHeader.get(pos);
+        return responseHeader.get(pos);
     }
 
     /**
@@ -445,10 +437,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         } catch (IOException e) {
             // ignore
         }
-        if (null == resHeader) {
+        if (null == responseHeader) {
             return null;
         }
-        return resHeader.get(key);
+        return responseHeader.get(key);
     }
 
     @Override
@@ -458,10 +450,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         } catch (IOException e) {
             // ignore
         }
-        if (null == resHeader) {
+        if (null == responseHeader) {
             return null;
         }
-        return resHeader.getKey(pos);
+        return responseHeader.getKey(pos);
     }
 
     @Override
@@ -470,7 +462,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             retrieveResponse();
         } catch (IOException ignored) {
         }
-        return resHeader != null ? resHeader.getFieldMap() : null;
+        return responseHeader != null ? responseHeader.getFieldMap() : null;
     }
 
     @Override
@@ -478,7 +470,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (connected) {
             throw new IllegalStateException("Cannot access request header fields after connection is set");
         }
-        return reqHeader.getFieldMap();
+        return requestHeader.getFieldMap();
     }
 
     @Override
@@ -499,40 +491,41 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             throw new FileNotFoundException(url.toString());
         }
 
-        if (uis == null) {
+        if (responseBodyIn == null) {
             // probably a reentrant call, such as from ResponseCache.put()
             throw new IllegalStateException(
                     "getInputStream() is not available. Is this a reentrant call?");
         }
 
-        return uis;
+        return responseBodyIn;
     }
 
     private InputStream initContentStream() throws IOException {
         if (!hasResponseBody()) {
-            return uis = new FixedLengthInputStream(is, cacheRequest, this, 0);
+            return responseBodyIn = new FixedLengthInputStream(socketIn, cacheRequest, this, 0);
         }
 
-        String encoding = resHeader.get("Transfer-Encoding");
+        String encoding = responseHeader.get("Transfer-Encoding");
         if (encoding != null && encoding.toLowerCase().equals("chunked")) {
-            return uis = new ChunkedInputStream(is, cacheRequest, this);
+            return responseBodyIn = new ChunkedInputStream(socketIn, cacheRequest, this);
         }
 
-        String sLength = resHeader.get("Content-Length");
+        String sLength = responseHeader.get("Content-Length");
         if (sLength != null) {
             try {
                 int length = Integer.parseInt(sLength);
-                return uis = new FixedLengthInputStream(is, cacheRequest, this, length);
+                return responseBodyIn = new FixedLengthInputStream(
+                        socketIn, cacheRequest, this, length);
             } catch (NumberFormatException ignored) {
             }
         }
 
         /*
          * Wrap the input stream from the HttpConnection (rather than
-         * just returning "is" directly here), so that we can control
+         * just returning "socketIn" directly here), so that we can control
          * its use after the reference escapes.
          */
-        return uis = new UnknownLengthHttpInputStream(is, cacheRequest, this);
+        return responseBodyIn = new UnknownLengthHttpInputStream(socketIn, cacheRequest, this);
     }
 
     @Override
@@ -543,13 +536,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         // you can't write after you read
         if (sentRequestHeaders) {
-            // TODO: just return 'os' if that's non-null?
+            // TODO: just return 'requestBodyOut' if that's non-null?
             throw new ProtocolException(
                     "OutputStream unavailable because request headers have already been sent!");
         }
 
-        if (os != null) {
-            return os;
+        if (requestBodyOut != null) {
+            return requestBodyOut;
         }
 
         // they are requesting a stream to write to. This implies a POST method
@@ -563,12 +556,12 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         int contentLength = -1;
-        String contentLengthString = reqHeader.get("Content-Length");
+        String contentLengthString = requestHeader.get("Content-Length");
         if (contentLengthString != null) {
             contentLength = Integer.parseInt(contentLengthString);
         }
 
-        String encoding = reqHeader.get("Transfer-Encoding");
+        String encoding = requestHeader.get("Transfer-Encoding");
         if (chunkLength > 0 || "chunked".equalsIgnoreCase(encoding)) {
             sendChunked = true;
             contentLength = -1;
@@ -587,16 +580,16 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         if (fixedContentLength != -1) {
             writeRequestHeaders(socketOut);
-            os = new FixedLengthOutputStream(socketOut, fixedContentLength);
+            requestBodyOut = new FixedLengthOutputStream(socketOut, fixedContentLength);
         } else if (sendChunked) {
             writeRequestHeaders(socketOut);
-            os = new ChunkedOutputStream(socketOut, chunkLength);
+            requestBodyOut = new ChunkedOutputStream(socketOut, chunkLength);
         } else if (contentLength != -1) {
-            os = new RetryableOutputStream(contentLength);
+            requestBodyOut = new RetryableOutputStream(contentLength);
         } else {
-            os = new RetryableOutputStream();
+            requestBodyOut = new RetryableOutputStream();
         }
-        return os;
+        return requestBodyOut;
     }
 
     @Override
@@ -610,7 +603,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (null == field) {
             return null;
         }
-        return reqHeader.get(field);
+        return requestHeader.get(field);
     }
 
     /**
@@ -649,8 +642,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         do {
             responseCode = -1;
             responseMessage = null;
-            resHeader = new Header();
-            resHeader.setStatusLine(readLine(is).trim());
+            responseHeader = new Header();
+            responseHeader.setStatusLine(readLine(socketIn).trim());
             readHeaders();
         } while (parseResponseCode() == HTTP_CONTINUE);
     }
@@ -675,7 +668,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     private int parseResponseCode() {
         // Response Code Sample : "HTTP/1.0 200 OK"
-        String response = resHeader.getStatusLine();
+        String response = responseHeader.getStatusLine();
         if (response == null || !response.startsWith("HTTP/")) {
             return -1;
         }
@@ -701,19 +694,19 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     void readHeaders() throws IOException {
         // parse the result headers until the first blank line
         String line;
-        while ((line = readLine(is)).length() > 1) {
+        while ((line = readLine(socketIn)).length() > 1) {
             // Header parsing
             int index = line.indexOf(":");
             if (index == -1) {
-                resHeader.add("", line.trim());
+                responseHeader.add("", line.trim());
             } else {
-                resHeader.add(line.substring(0, index), line.substring(index + 1).trim());
+                responseHeader.add(line.substring(0, index), line.substring(index + 1).trim());
             }
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
-            cookieHandler.put(uri, resHeader.getFieldMap());
+            cookieHandler.put(uri, responseHeader.getFieldMap());
         }
     }
 
@@ -733,10 +726,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         prepareRequestHeaders();
 
         StringBuilder result = new StringBuilder(256);
-        result.append(reqHeader.getStatusLine()).append("\r\n");
-        for (int i = 0; i < reqHeader.length(); i++) {
-            String key = reqHeader.getKey(i);
-            String value = reqHeader.get(i);
+        result.append(requestHeader.getStatusLine()).append("\r\n");
+        for (int i = 0; i < requestHeader.length(); i++) {
+            String key = requestHeader.getKey(i);
+            String value = requestHeader.get(i);
             if (key != null) {
                 result.append(key).append(": ").append(value).append("\r\n");
             }
@@ -747,7 +740,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     /**
-     * Populates reqHeader with the HTTP headers to be sent. Header values are
+     * Populates requestHeader with the HTTP headers to be sent. Header values are
      * derived from the request itself and the cookie manager.
      *
      * <p>This client doesn't specify a default {@code Accept} header because it
@@ -755,45 +748,45 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     private void prepareRequestHeaders() throws IOException {
         String protocol = (httpVersion == 0) ? "HTTP/1.0" : "HTTP/1.1";
-        reqHeader.setStatusLine(method + " " + requestString() + " " + protocol);
+        requestHeader.setStatusLine(method + " " + requestString() + " " + protocol);
 
-        if (reqHeader.get("User-Agent") == null) {
+        if (requestHeader.get("User-Agent") == null) {
             String agent = getSystemProperty("http.agent");
             if (agent == null) {
                 agent = "Java" + getSystemProperty("java.version");
             }
-            reqHeader.add("User-Agent", agent);
+            requestHeader.add("User-Agent", agent);
         }
 
-        if (reqHeader.get("Host") == null) {
-            reqHeader.add("Host", getOriginAddress(url));
+        if (requestHeader.get("Host") == null) {
+            requestHeader.add("Host", getOriginAddress(url));
         }
 
         if (httpVersion > 0) {
-            reqHeader.addIfAbsent("Connection", "Keep-Alive");
+            requestHeader.addIfAbsent("Connection", "Keep-Alive");
         }
 
         if (fixedContentLength != -1) {
-            reqHeader.addIfAbsent("Content-Length", Integer.toString(fixedContentLength));
+            requestHeader.addIfAbsent("Content-Length", Integer.toString(fixedContentLength));
         } else if (sendChunked) {
-            reqHeader.addIfAbsent("Transfer-Encoding", "chunked");
-        } else if (os instanceof RetryableOutputStream) {
-            int size = ((RetryableOutputStream) os).contentLength();
-            reqHeader.addIfAbsent("Content-Length", Integer.toString(size));
+            requestHeader.addIfAbsent("Transfer-Encoding", "chunked");
+        } else if (requestBodyOut instanceof RetryableOutputStream) {
+            int size = ((RetryableOutputStream) requestBodyOut).contentLength();
+            requestHeader.addIfAbsent("Content-Length", Integer.toString(size));
         }
 
-        if (os != null) {
-            reqHeader.addIfAbsent("Content-Type", "application/x-www-form-urlencoded");
+        if (requestBodyOut != null) {
+            requestHeader.addIfAbsent("Content-Type", "application/x-www-form-urlencoded");
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
             Map<String, List<String>> allCookieHeaders
-                    = cookieHandler.get(uri, reqHeader.getFieldMap());
+                    = cookieHandler.get(uri, requestHeader.getFieldMap());
             for (Map.Entry<String, List<String>> entry : allCookieHeaders.entrySet()) {
                 String key = entry.getKey();
                 if ("Cookie".equalsIgnoreCase(key) || "Cookie2".equalsIgnoreCase(key)) {
-                    reqHeader.addAll(key, entry.getValue());
+                    requestHeader.addAll(key, entry.getValue());
                 }
             }
         }
@@ -828,7 +821,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String date = sdf.format(new Date(newValue));
-        reqHeader.add("If-Modified-Since", date);
+        requestHeader.add("If-Modified-Since", date);
     }
 
     @Override
@@ -839,18 +832,18 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (field == null) {
             throw new NullPointerException();
         }
-        reqHeader.set(field, newValue);
+        requestHeader.set(field, newValue);
     }
 
     @Override
     public void addRequestProperty(String field, String value) {
         if (connected) {
-            throw new IllegalAccessError("Cannot set method after connection is made");
+            throw new IllegalStateException("Cannot set request property after connection is made");
         }
         if (field == null) {
             throw new NullPointerException();
         }
-        reqHeader.add(field, value);
+        requestHeader.add(field, value);
     }
 
     /**
@@ -902,7 +895,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * authentication.
      */
     protected final void retrieveResponse() throws IOException {
-        if (resHeader != null) {
+        if (responseHeader != null) {
             return;
         }
 
@@ -921,10 +914,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 writeRequestHeaders(socketOut);
             }
 
-            if (os != null) {
-                os.close();
-                if (os instanceof RetryableOutputStream) {
-                    ((RetryableOutputStream) os).writeToSocket(socketOut);
+            if (requestBodyOut != null) {
+                requestBodyOut.close();
+                if (requestBodyOut instanceof RetryableOutputStream) {
+                    ((RetryableOutputStream) requestBodyOut).writeToSocket(socketOut);
                 }
             }
 
@@ -948,7 +941,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
              * The first request wasn't sufficient. Prepare for another...
              */
 
-            if (os != null && !(os instanceof RetryableOutputStream)) {
+            if (requestBodyOut != null && !(requestBodyOut instanceof RetryableOutputStream)) {
                 throw new HttpRetryException("Cannot retry streamed HTTP body", responseCode);
             }
 
@@ -991,7 +984,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 if (!getInstanceFollowRedirects()) {
                     return Retry.NONE;
                 }
-                if (os != null) {
+                if (requestBodyOut != null) {
                     // TODO: follow redirects for retryable output streams...
                     return Retry.NONE;
                 }
@@ -1023,7 +1016,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                     return Retry.SAME_CONNECTION;
                 } else {
                     // TODO: strip cookies?
-                    reqHeader.removeAll("Host");
+                    requestHeader.removeAll("Host");
                     return Retry.NEW_CONNECTION;
                 }
 
@@ -1037,7 +1030,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     private Retry processAuthHeader(String responseHeader, String retryHeader) throws IOException {
         // keep asking for username/password until authorized
-        String challenge = resHeader.get(responseHeader);
+        String challenge = this.responseHeader.get(responseHeader);
         if (challenge == null) {
             throw new IOException("Received authentication challenge is null");
         }
@@ -1046,7 +1039,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return Retry.NONE; // could not find credentials, end request cycle
         }
         // add authorization credentials, bypassing the already-connected check
-        reqHeader.set(retryHeader, credentials);
+        requestHeader.set(retryHeader, credentials);
         return Retry.SAME_CONNECTION;
     }
 
