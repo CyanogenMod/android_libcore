@@ -232,12 +232,12 @@ public final class BlockGuard {
             return mFileSystem.getAllocGranularity();
         }
 
-        public int open(byte[] fileName, int mode) throws FileNotFoundException {
+        public int open(String path, int mode) throws FileNotFoundException {
             BlockGuard.getThreadPolicy().onReadFromDisk();
             if (mode != 0) {  // 0 is read-only
                 BlockGuard.getThreadPolicy().onWriteToDisk();
             }
-            return mFileSystem.open(fileName, mode);
+            return mFileSystem.open(path, mode);
         }
 
         public long transfer(int fileHandler, FileDescriptor socketDescriptor,

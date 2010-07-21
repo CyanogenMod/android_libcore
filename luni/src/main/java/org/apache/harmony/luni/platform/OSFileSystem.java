@@ -114,7 +114,7 @@ class OSFileSystem implements IFileSystem {
 
     public native void truncate(int fd, long size) throws IOException;
 
-    public native int open(byte[] utfPathBytes, int mode) throws FileNotFoundException;
+    public native int open(String path, int mode) throws FileNotFoundException;
 
     public native long transfer(int fd, FileDescriptor sd, long offset, long count)
             throws IOException;

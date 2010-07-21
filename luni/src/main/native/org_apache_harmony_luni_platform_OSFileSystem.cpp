@@ -33,6 +33,7 @@
 #include "JNIHelp.h"
 #include "LocalArray.h"
 #include "ScopedPrimitiveArray.h"
+#include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 
 #include <assert.h>
@@ -394,43 +395,41 @@ static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
     return rc;
 }
 
-static jint OSFileSystem_open(JNIEnv* env, jobject, jbyteArray pathByteArray, jint jflags) {
+static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflags) {
     int flags = 0;
     int mode = 0;
 
-// BEGIN android-changed
-// don't want default permissions to allow global access.
-    switch(jflags) {
-      case 0:
-              flags = HyOpenRead;
-              mode = 0;
-              break;
-      case 1:
-              flags = HyOpenCreate | HyOpenWrite | HyOpenTruncate;
-              mode = 0600;
-              break;
-      case 16:
-              flags = HyOpenRead | HyOpenWrite | HyOpenCreate;
-              mode = 0600;
-              break;
-      case 32:
-              flags = HyOpenRead | HyOpenWrite | HyOpenCreate | HyOpenSync;
-              mode = 0600;
-              break;
-      case 256:
-              flags = HyOpenWrite | HyOpenCreate | HyOpenAppend;
-              mode = 0600;
-              break;
+    // On Android, we don't want default permissions to allow global access.
+    switch (jflags) {
+    case 0:
+        flags = HyOpenRead;
+        mode = 0;
+        break;
+    case 1:
+        flags = HyOpenCreate | HyOpenWrite | HyOpenTruncate;
+        mode = 0600;
+        break;
+    case 16:
+        flags = HyOpenRead | HyOpenWrite | HyOpenCreate;
+        mode = 0600;
+        break;
+    case 32:
+        flags = HyOpenRead | HyOpenWrite | HyOpenCreate | HyOpenSync;
+        mode = 0600;
+        break;
+    case 256:
+        flags = HyOpenWrite | HyOpenCreate | HyOpenAppend;
+        mode = 0600;
+        break;
     }
-// BEGIN android-changed
 
     flags = EsTranslateOpenFlags(flags);
 
-    ScopedByteArrayRO path(env, pathByteArray);
-    if (path.get() == NULL) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
         return -1;
     }
-    jint rc = TEMP_FAILURE_RETRY(open(reinterpret_cast<const char*>(&path[0]), flags, mode));
+    jint rc = TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode));
     if (rc == -1) {
         // Get the human-readable form of errno.
         char buffer[80];
@@ -439,7 +438,7 @@ static jint OSFileSystem_open(JNIEnv* env, jobject, jbyteArray pathByteArray, ji
         // Construct a message that includes the path and the reason.
         // (path.size() already includes space for our trailing NUL.)
         LocalArray<128> message(path.size() + 2 + strlen(reason) + 1);
-        snprintf(&message[0], message.size(), "%s (%s)", &path[0], reason);
+        snprintf(&message[0], message.size(), "%s (%s)", path.c_str(), reason);
 
         // We always throw FileNotFoundException, regardless of the specific
         // failure. (This appears to be true of the RI too.)
@@ -515,7 +514,7 @@ static JNINativeMethod gMethods[] = {
     { "ioctlAvailable", "(Ljava/io/FileDescriptor;)I", (void*) OSFileSystem_ioctlAvailable },
     { "length", "(I)J", (void*) lengthImpl },
     { "lockImpl", "(IJJIZ)I", (void*) OSFileSystem_lockImpl },
-    { "open", "([BI)I", (void*) OSFileSystem_open },
+    { "open", "(Ljava/lang/String;I)I", (void*) OSFileSystem_open },
     { "read", "(I[BII)J", (void*) OSFileSystem_read },
     { "readDirect", "(IIII)J", (void*) OSFileSystem_readDirect },
     { "readv", "(I[I[I[II)J", (void*) OSFileSystem_readv },

@@ -130,7 +130,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             }
         }
 
-        fd.descriptor = fileSystem.open(file.pathBytes, options);
+        fd.descriptor = fileSystem.open(file.getAbsolutePath(), options);
         // BEGIN android-removed
         // channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
         //         options);

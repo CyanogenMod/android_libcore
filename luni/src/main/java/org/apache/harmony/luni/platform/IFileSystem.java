@@ -103,7 +103,7 @@ public interface IFileSystem {
      */
     public int getAllocGranularity() throws IOException;
 
-    public int open(byte[] fileName, int mode) throws FileNotFoundException;
+    public int open(String path, int mode) throws FileNotFoundException;
 
     public long transfer(int fileHandler, FileDescriptor socketDescriptor,
             long offset, long count) throws IOException;
