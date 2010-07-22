@@ -502,13 +502,13 @@ static jboolean NativeBN_BN_mod_inverse(JNIEnv* env, jclass, BIGNUM* ret, BIGNUM
 static jboolean NativeBN_BN_generate_prime_ex(JNIEnv* env, jclass, BIGNUM* ret, int bits, jboolean safe,
         BIGNUM* add, BIGNUM* rem, jint cb) {
     if (!oneValidHandle(env, ret)) return JNI_FALSE;
-    return BN_generate_prime_ex(ret, bits, safe, add, rem, (BN_GENCB*) cb);
+    return BN_generate_prime_ex(ret, bits, safe, add, rem, reinterpret_cast<BN_GENCB*>(cb));
 }
 
 static jboolean NativeBN_BN_is_prime_ex(JNIEnv* env, jclass, BIGNUM* p, int nchecks, jint cb) {
     if (!oneValidHandle(env, p)) return JNI_FALSE;
     Unique_BN_CTX ctx(BN_CTX_new());
-    return BN_is_prime_ex(p, nchecks, ctx.get(), (BN_GENCB*) cb);
+    return BN_is_prime_ex(p, nchecks, ctx.get(), reinterpret_cast<BN_GENCB*>(cb));
 }
 
 static JNINativeMethod gMethods[] = {

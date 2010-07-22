@@ -388,7 +388,8 @@ static BIGNUM* arrayToBignum(JNIEnv* env, jbyteArray source) {
     if (sourceBytes.get() == NULL) {
         return NULL;
     }
-    return BN_bin2bn((unsigned char*) sourceBytes.get(), sourceBytes.size(), NULL);
+    return BN_bin2bn(reinterpret_cast<const unsigned char*>(sourceBytes.get()), sourceBytes.size(),
+            NULL);
 }
 
 /**
@@ -420,13 +421,12 @@ static unsigned long id_function(void) {
 }
 
 int THREAD_setup(void) {
-    mutex_buf = (MUTEX_TYPE *)malloc(CRYPTO_num_locks( ) * sizeof(MUTEX_TYPE));
-
+    mutex_buf = new MUTEX_TYPE[CRYPTO_num_locks()];
     if (!mutex_buf) {
         return 0;
     }
 
-    for (int i = 0; i < CRYPTO_num_locks( ); i++) {
+    for (int i = 0; i < CRYPTO_num_locks(); ++i) {
         MUTEX_SETUP(mutex_buf[i]);
     }
 
@@ -608,7 +608,8 @@ static jint NativeCrypto_EVP_DigestFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
     if (hashBytes.get() == NULL) {
         return -1;
     }
-    EVP_DigestFinal(ctx, (unsigned char*) (hashBytes.get() + offset), (unsigned int*)&result);
+    EVP_DigestFinal(ctx, reinterpret_cast<unsigned char*>(hashBytes.get() + offset),
+            reinterpret_cast<unsigned int*>(&result));
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestFinal");
 
@@ -695,7 +696,8 @@ static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
     if (bufferBytes.get() == NULL) {
         return;
     }
-    EVP_DigestUpdate(ctx, (unsigned char*) (bufferBytes.get() + offset), length);
+    EVP_DigestUpdate(ctx, reinterpret_cast<const unsigned char*>(bufferBytes.get() + offset),
+            length);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestUpdate");
 }
@@ -744,7 +746,8 @@ static void NativeCrypto_EVP_VerifyUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
     if (bufferBytes.get() == NULL) {
         return;
     }
-    EVP_VerifyUpdate(ctx, (unsigned char*) (bufferBytes.get() + offset), length);
+    EVP_VerifyUpdate(ctx, reinterpret_cast<const unsigned char*>(bufferBytes.get() + offset),
+            length);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyUpdate");
 }
@@ -765,7 +768,8 @@ static int NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx, jb
     if (bufferBytes.get() == NULL) {
         return -1;
     }
-    int result = EVP_VerifyFinal(ctx, (unsigned char*) (bufferBytes.get() + offset), length, pkey);
+    int result = EVP_VerifyFinal(ctx,
+            reinterpret_cast<const unsigned char*>(bufferBytes.get() + offset), length, pkey);
 
     throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyFinal");
 
@@ -783,7 +787,7 @@ static int NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx, jb
  *
  * @return A pointer to the new RSA structure, or NULL on error
  */
-static RSA* rsaCreateKey(unsigned char* mod, int modLen, unsigned char* exp, int expLen) {
+static RSA* rsaCreateKey(const jbyte* mod, int modLen, const jbyte* exp, int expLen) {
     // LOGD("Entering rsaCreateKey()");
 
     Unique_RSA rsa(RSA_new());
@@ -791,8 +795,8 @@ static RSA* rsaCreateKey(unsigned char* mod, int modLen, unsigned char* exp, int
         return NULL;
     }
 
-    rsa->n = BN_bin2bn(mod, modLen, NULL);
-    rsa->e = BN_bin2bn(exp, expLen, NULL);
+    rsa->n = BN_bin2bn(reinterpret_cast<const unsigned char*>(mod), modLen, NULL);
+    rsa->e = BN_bin2bn(reinterpret_cast<const unsigned char*>(exp), expLen, NULL);
 
     if (rsa->n == NULL || rsa->e == NULL) {
         return NULL;
@@ -814,8 +818,8 @@ static RSA* rsaCreateKey(unsigned char* mod, int modLen, unsigned char* exp, int
  * @return 1 on success, 0 on failure, -1 on error (check SSL errors then)
  *
  */
-static int rsaVerify(unsigned char* msg, unsigned int msgLen, unsigned char* sig,
-                     unsigned int sigLen, char* algorithm, RSA* rsa) {
+static int rsaVerify(const jbyte* msg, unsigned int msgLen, const jbyte* sig,
+                     unsigned int sigLen, const char* algorithm, RSA* rsa) {
 
     // LOGD("Entering rsaVerify(%x, %d, %x, %d, %s, %x)", msg, msgLen, sig, sigLen, algorithm, rsa);
 
@@ -837,7 +841,8 @@ static int rsaVerify(unsigned char* msg, unsigned int msgLen, unsigned char* sig
     }
 
     EVP_VerifyUpdate(&ctx, msg, msgLen);
-    int result = EVP_VerifyFinal(&ctx, sig, sigLen, pkey.get());
+    int result = EVP_VerifyFinal(&ctx, reinterpret_cast<const unsigned char*>(sig), sigLen,
+            pkey.get());
     EVP_MD_CTX_cleanup(&ctx);
     return result;
 }
@@ -874,13 +879,11 @@ static int NativeCrypto_verifysignature(JNIEnv* env, jclass,
     }
     JNI_TRACE("NativeCrypto_verifysignature algorithmChars=%s", algorithmChars.c_str());
 
-    Unique_RSA rsa(rsaCreateKey((unsigned char*) modBytes.get(), modBytes.size(),
-                                (unsigned char*) expBytes.get(), expBytes.size()));
+    Unique_RSA rsa(rsaCreateKey(modBytes.get(), modBytes.size(), expBytes.get(), expBytes.size()));
     int result = -1;
     if (rsa.get() != NULL) {
-        result = rsaVerify((unsigned char*) msgBytes.get(), msgBytes.size(),
-                           (unsigned char*) sigBytes.get(), sigBytes.size(),
-                (char*) algorithmChars.c_str(), rsa.get());
+        result = rsaVerify(msgBytes.get(), msgBytes.size(), sigBytes.get(), sigBytes.size(),
+                algorithmChars.c_str(), rsa.get());
     }
 
     if (result == -1) {
@@ -1446,17 +1449,21 @@ static const char* SSL_authentication_method(SSL* ssl)
     }
 }
 
+static AppData* toAppData(const SSL* ssl) {
+    return reinterpret_cast<AppData*>(SSL_get_app_data(ssl));
+}
+
 /**
  * Verify the X509 certificate via SSL_CTX_set_cert_verify_callback
  */
 static int cert_verify_callback(X509_STORE_CTX* x509_store_ctx, void* arg __attribute__ ((unused)))
 {
     /* Get the correct index to the SSLobject stored into X509_STORE_CTX. */
-    SSL* ssl = (SSL*)X509_STORE_CTX_get_ex_data(x509_store_ctx,
-                                                SSL_get_ex_data_X509_STORE_CTX_idx());
+    SSL* ssl = reinterpret_cast<SSL*>(X509_STORE_CTX_get_ex_data(x509_store_ctx,
+            SSL_get_ex_data_X509_STORE_CTX_idx()));
     JNI_TRACE("ssl=%p cert_verify_callback x509_store_ctx=%p arg=%p", ssl, x509_store_ctx, arg);
 
-    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    AppData* appData = toAppData(ssl);
     JNIEnv* env = appData->env;
     if (env == NULL) {
         LOGE("AppData->env missing in cert_verify_callback");
@@ -1497,7 +1504,7 @@ static void info_callback(const SSL *ssl, int where, int ret __attribute__ ((unu
         return;
     }
 
-    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    AppData* appData = toAppData(ssl);
     JNIEnv* env = appData->env;
     if (env == NULL) {
         LOGE("AppData->env missing in info_callback");
@@ -1529,7 +1536,7 @@ static void info_callback(const SSL *ssl, int where, int ret __attribute__ ((unu
 static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
     JNI_TRACE("ssl=%p client_cert_cb x509Out=%p pkeyOut=%p", ssl, x509Out, pkeyOut);
 
-    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    AppData* appData = toAppData(ssl);
     JNIEnv* env = appData->env;
     if (env == NULL) {
         LOGE("AppData->env missing in client_cert_cb");
@@ -1627,7 +1634,7 @@ static RSA* tmp_rsa_callback(SSL* ssl __attribute__ ((unused)),
                              int keylength) {
     JNI_TRACE("ssl=%p tmp_rsa_callback is_export=%d keylength=%d", ssl, is_export, keylength);
 
-    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    AppData* appData = toAppData(ssl);
     if (appData->ephemeralRsa.get() == NULL) {
         JNI_TRACE("ssl=%p tmp_rsa_callback generating ephemeral RSA key", ssl);
         appData->ephemeralRsa.reset(rsaGenerateKey(keylength));
@@ -2294,7 +2301,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
         return 0;
     }
-    SSL_set_app_data(ssl, (char*) appData);
+    SSL_set_app_data(ssl, reinterpret_cast<char*>(appData));
     JNI_TRACE("ssl=%p AppData::create => %p", ssl, appData);
 
     if (client_mode) {
@@ -2485,7 +2492,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
     int fd = SSL_get_fd(ssl);
     BIO* bio = SSL_get_rbio(ssl);
 
-    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    AppData* appData = toAppData(ssl);
     if (appData == NULL) {
         return THROW_EXCEPTION;
     }
@@ -2600,7 +2607,7 @@ static jint NativeCrypto_SSL_read_byte(JNIEnv* env, jclass, jint ssl_address, ji
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
 
-    int ret = sslRead(env, ssl, (char *) &byteRead, 1, &returnCode, &sslErrorCode, timeout);
+    int ret = sslRead(env, ssl, reinterpret_cast<char*>(&byteRead), 1, &returnCode, &sslErrorCode, timeout);
 
     int result;
     switch (ret) {
@@ -2648,7 +2655,7 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;;
 
-    int ret = sslRead(env, ssl, (char*) (bytes.get() + offset), len,
+    int ret = sslRead(env, ssl, reinterpret_cast<char*>(bytes.get() + offset), len,
                       &returnCode, &sslErrorCode, timeout);
 
     int result;
@@ -2692,7 +2699,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
     int fd = SSL_get_fd(ssl);
     BIO* bio = SSL_get_wbio(ssl);
 
-    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    AppData* appData = toAppData(ssl);
     if (appData == NULL) {
         return THROW_EXCEPTION;
     }
@@ -2839,12 +2846,8 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass,
     }
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
-    int ret = sslWrite(env,
-                       ssl,
-                       (const char *) (bytes.get() + offset),
-                       len,
-                       &returnCode,
-                       &sslErrorCode);
+    int ret = sslWrite(env, ssl, reinterpret_cast<const char*>(bytes.get() + offset), len,
+            &returnCode, &sslErrorCode);
 
     if (ret == THROW_EXCEPTION) {
         // See sslWrite() regarding improper failure to handle normal cases.
@@ -2869,7 +2872,7 @@ static void NativeCrypto_SSL_interrupt(
      * Mark the connection as quasi-dead, then send something to the emergency
      * file descriptor, so any blocking select() calls are woken up.
      */
-    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    AppData* appData = toAppData(ssl);
     if (appData != NULL) {
         appData->aliveAndKicking = 0;
 
@@ -2902,7 +2905,7 @@ static void NativeCrypto_SSL_shutdown(
         }
     }
 
-    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    AppData* appData = toAppData(ssl);
     if (appData != NULL) {
         appData->setEnv(env);
     }
@@ -2951,7 +2954,7 @@ static void NativeCrypto_SSL_free(JNIEnv* env, jclass, jint ssl_address)
     if (ssl == NULL) {
         return;
     }
-    AppData* appData = (AppData*) SSL_get_app_data(ssl);
+    AppData* appData = toAppData(ssl);
     SSL_set_app_data(ssl, NULL);
     JNI_TRACE("ssl=%p AppData::destroy(%p)", ssl, appData);
     AppData::destroy(env, appData);

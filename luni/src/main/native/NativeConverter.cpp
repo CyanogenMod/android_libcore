@@ -153,13 +153,13 @@ static jint NativeConverter_decode(JNIEnv* env, jclass, jlong address,
     // Do the conversion.
     jint* sourceOffset = &myData[0];
     jint* targetOffset = &myData[1];
-    const jbyte* mySource = uSource.get() + *sourceOffset;
+    const char* mySource = reinterpret_cast<const char*>(uSource.get() + *sourceOffset);
     const char* mySourceLimit = reinterpret_cast<const char*>(uSource.get() + sourceEnd);
     UChar* cTarget = uTarget.get() + *targetOffset;
     const UChar* cTargetLimit = uTarget.get() + targetEnd;
     UErrorCode errorCode = U_ZERO_ERROR;
-    ucnv_toUnicode(cnv, &cTarget, cTargetLimit, (const char**)&mySource, mySourceLimit, NULL, (UBool) flush, &errorCode);
-    *sourceOffset = mySource - uSource.get() - *sourceOffset;
+    ucnv_toUnicode(cnv, &cTarget, cTargetLimit, &mySource, mySourceLimit, NULL, flush, &errorCode);
+    *sourceOffset = mySource - reinterpret_cast<const char*>(uSource.get()) - *sourceOffset;
     *targetOffset = cTarget - uTarget.get() - *targetOffset;
 
     // Check how much more input is necessary to complete what's in the converter's internal buffer.
@@ -223,14 +223,14 @@ static jint NativeConverter_flushByteToChar(JNIEnv* env, jclass, jlong address,
     if (myData.get() == NULL) {
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
-    jbyte source = '\0';
+    char source = '\0';
     jint* targetOffset = &myData[1];
-    const jbyte* mySource = &source;
-    const char* mySourceLimit = reinterpret_cast<char*>(&source);
+    const char* mySource = &source;
+    const char* mySourceLimit = &source;
     UChar* cTarget = uTarget.get() + *targetOffset;
     const UChar* cTargetLimit = uTarget.get() + targetEnd;
     UErrorCode errorCode = U_ZERO_ERROR;
-    ucnv_toUnicode(cnv, &cTarget, cTargetLimit, (const char**)&mySource, mySourceLimit, NULL, TRUE, &errorCode);
+    ucnv_toUnicode(cnv, &cTarget, cTargetLimit, &mySource, mySourceLimit, NULL, TRUE, &errorCode);
     *targetOffset = cTarget - uTarget.get() - *targetOffset;
     return errorCode;
 }
@@ -262,25 +262,25 @@ static jint NativeConverter_flushCharToByte(JNIEnv* env, jclass, jlong address,
 }
 
 static jboolean NativeConverter_canEncode(JNIEnv*, jclass, jlong address, jint codeUnit) {
-    UErrorCode errorCode =U_ZERO_ERROR;
+    UErrorCode errorCode = U_ZERO_ERROR;
     UConverter* cnv = toUConverter(address);
-    if(cnv) {
-        UChar source[3];
-        UChar *mySource=source;
-        const UChar* sourceLimit = (codeUnit<0x010000) ? &source[1] : &source[2];
-        char target[5];
-        char *myTarget = target;
-        const char* targetLimit = &target[4];
-        int i=0;
-        UTF_APPEND_CHAR(&source[0],i,2,codeUnit);
-
-        ucnv_fromUnicode(cnv, &myTarget, targetLimit,
-                (const UChar**)&mySource, sourceLimit, NULL, TRUE, &errorCode);
-        if (U_SUCCESS(errorCode)) {
-            return JNI_TRUE;
-        }
+    if (cnv == NULL) {
+        return JNI_FALSE;
     }
-    return JNI_FALSE;
+
+    UChar srcBuffer[3];
+    const UChar* src = &srcBuffer[0];
+    const UChar* srcLimit = (codeUnit < 0x10000) ? &src[1] : &src[2];
+
+    char dstBuffer[5];
+    char* dst = &dstBuffer[0];
+    const char* dstLimit = &dstBuffer[4];
+
+    int i = 0;
+    UTF_APPEND_CHAR(&srcBuffer[0], i, 2, codeUnit);
+
+    ucnv_fromUnicode(cnv, &dst, dstLimit, &src, srcLimit, NULL, TRUE, &errorCode);
+    return U_SUCCESS(errorCode);
 }
 
 /*
@@ -453,7 +453,7 @@ static jint NativeConverter_setCallbackEncode(JNIEnv* env, jclass, jlong address
         return U_ILLEGAL_ARGUMENT_ERROR;
     }
     UConverterFromUCallback fromUOldAction = NULL;
-    void* fromUOldContext = NULL;
+    const void* fromUOldContext = NULL;
     ucnv_getFromUCallBack(cnv, &fromUOldAction, const_cast<const void**>(&fromUOldContext));
 
     /* fromUOldContext can only be DecodeCallbackContext since
@@ -466,7 +466,8 @@ static jint NativeConverter_setCallbackEncode(JNIEnv* env, jclass, jlong address
         fromUNewContext = new EncoderCallbackContext;
         fromUNewAction = CHARSET_ENCODER_CALLBACK;
     } else {
-        fromUNewContext = (EncoderCallbackContext*) fromUOldContext;
+        fromUNewContext = const_cast<EncoderCallbackContext*>(
+                reinterpret_cast<const EncoderCallbackContext*>(fromUOldContext));
         fromUNewAction = fromUOldAction;
         fromUOldAction = NULL;
         fromUOldContext = NULL;
@@ -480,7 +481,8 @@ static jint NativeConverter_setCallbackEncode(JNIEnv* env, jclass, jlong address
     fromUNewContext->length = sub.size();
     memcpy(fromUNewContext->subBytes, sub.get(), sub.size());
     UErrorCode errorCode = U_ZERO_ERROR;
-    ucnv_setFromUCallBack(cnv, fromUNewAction, fromUNewContext, &fromUOldAction, (const void**)&fromUOldContext, &errorCode);
+    ucnv_setFromUCallBack(cnv, fromUNewAction, fromUNewContext, &fromUOldAction, &fromUOldContext,
+            &errorCode);
     return errorCode;
 }
 
@@ -542,8 +544,8 @@ static jint NativeConverter_setCallbackDecode(JNIEnv* env, jclass, jlong address
     }
 
     UConverterToUCallback toUOldAction;
-    void* toUOldContext;
-    ucnv_getToUCallBack(cnv, &toUOldAction, const_cast<const void**>(&toUOldContext));
+    const void* toUOldContext;
+    ucnv_getToUCallBack(cnv, &toUOldAction, &toUOldContext);
 
     /* toUOldContext can only be DecodeCallbackContext since
      * the converter created is private data for the decoder
@@ -551,11 +553,12 @@ static jint NativeConverter_setCallbackDecode(JNIEnv* env, jclass, jlong address
      */
     DecoderCallbackContext* toUNewContext = NULL;
     UConverterToUCallback toUNewAction = NULL;
-    if (toUOldContext==NULL) {
+    if (toUOldContext == NULL) {
         toUNewContext = new DecoderCallbackContext;
         toUNewAction = CHARSET_DECODER_CALLBACK;
     } else {
-        toUNewContext = reinterpret_cast<DecoderCallbackContext*>(toUOldContext);
+        toUNewContext = const_cast<DecoderCallbackContext*>(
+                reinterpret_cast<const DecoderCallbackContext*>(toUOldContext));
         toUNewAction = toUOldAction;
         toUOldAction = NULL;
         toUOldContext = NULL;
@@ -569,8 +572,8 @@ static jint NativeConverter_setCallbackDecode(JNIEnv* env, jclass, jlong address
     toUNewContext->length = sub.size();
     u_strncpy(toUNewContext->subUChars, sub.get(), sub.size());
     UErrorCode errorCode = U_ZERO_ERROR;
-    ucnv_setToUCallBack(cnv, toUNewAction, toUNewContext,
-            &toUOldAction, (const void**)&toUOldContext, &errorCode);
+    ucnv_setToUCallBack(cnv, toUNewAction, toUNewContext, &toUOldAction, &toUOldContext,
+            &errorCode);
     return errorCode;
 }
 
