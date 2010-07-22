@@ -21,6 +21,7 @@
 #include "JniConstants.h"
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -101,4 +102,20 @@ jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray) {
 jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* ss) {
     jbyteArray byteArray = socketAddressToByteArray(env, ss);
     return byteArrayToInetAddress(env, byteArray);
+}
+
+bool setNonBlocking(int fd, bool newState) {
+    int flags = fcntl(fd, F_GETFL);
+    if (flags == -1) {
+        return false;
+    }
+
+    if (newState) {
+        flags |= O_NONBLOCK;
+    } else {
+        flags &= ~O_NONBLOCK;
+    }
+
+    int rc = fcntl(fd, F_SETFL, flags);
+    return (rc != -1);
 }

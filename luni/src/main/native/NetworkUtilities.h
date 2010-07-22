@@ -29,3 +29,8 @@ jbyteArray socketAddressToByteArray(JNIEnv* env, sockaddr_storage* ss);
 
 // Convert from sockaddr_storage to InetAddress.
 jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* ss);
+
+
+
+// Changes 'fd' to be blocking/non-blocking. Returns false and sets errno on failure.
+bool setNonBlocking(int fd, bool newState);

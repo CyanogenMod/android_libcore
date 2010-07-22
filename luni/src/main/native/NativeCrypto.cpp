@@ -37,6 +37,7 @@
 #include "JniConstants.h"
 #include "JniException.h"
 #include "LocalArray.h"
+#include "NetworkUtilities.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -244,25 +245,25 @@ static void throwSSLExceptionWithSslErrors(
             sslErrorStr = "Failure in SSL library, usually a protocol error";
             break;
         case SSL_ERROR_WANT_READ:
-            sslErrorStr = "SSL_ERROR_WANT_READ occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_READ occurred. You should never see this.";
             break;
         case SSL_ERROR_WANT_WRITE:
-            sslErrorStr = "SSL_ERROR_WANT_WRITE occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_WRITE occurred. You should never see this.";
             break;
         case SSL_ERROR_WANT_X509_LOOKUP:
-            sslErrorStr = "SSL_ERROR_WANT_X509_LOOKUP occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_X509_LOOKUP occurred. You should never see this.";
             break;
         case SSL_ERROR_SYSCALL:
             sslErrorStr = "I/O error during system call";
             break;
         case SSL_ERROR_ZERO_RETURN:
-            sslErrorStr = "SSL_ERROR_ZERO_RETURN occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_ZERO_RETURN occurred. You should never see this.";
             break;
         case SSL_ERROR_WANT_CONNECT:
-            sslErrorStr = "SSL_ERROR_WANT_CONNECT occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_CONNECT occurred. You should never see this.";
             break;
         case SSL_ERROR_WANT_ACCEPT:
-            sslErrorStr = "SSL_ERROR_WANT_ACCEPT occured. You should never see this.";
+            sslErrorStr = "SSL_ERROR_WANT_ACCEPT occurred. You should never see this.";
             break;
         default:
             sslErrorStr = "Unknown SSL error";
@@ -1183,12 +1184,12 @@ static jobjectArray getPrincipalBytes(JNIEnv* env, const STACK_OF(X509_NAME)* na
  * care should be taken to maintain an appropriate JNIEnv on any
  * downcall to openssl since it could result in an upcall to Java. The
  * current code does try to cover these cases by conditionally setting
- * the JNIenv on calls that can read and write to the SSL such as
+ * the JNIEnv on calls that can read and write to the SSL such as
  * SSL_do_handshake, SSL_read, SSL_write, and SSL_shutdown.
  *
  * Finally, we have one other piece of state setup by OpenSSL callbacks:
  *
- * (7) a set of emphemeral RSA keys that is lazily generated if a peer
+ * (7) a set of ephemeral RSA keys that is lazily generated if a peer
  * wants to use an exportable RSA cipher suite.
  *
  */
@@ -1380,7 +1381,7 @@ static void sslNotify(AppData* appData) {
 }
 
 // From private header file external/openssl/ssl_locl.h
-// TODO move dependant code to jsse.patch to avoid dependency
+// TODO move dependent code to jsse.patch to avoid dependency
 #define SSL_aRSA                0x00000001L
 #define SSL_aDSS                0x00000002L
 #define SSL_aNULL               0x00000004L
@@ -1700,7 +1701,7 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
                         SSL_OP_ALL
                         // Note: We explicitly do not allow SSLv2 to be used.
                         | SSL_OP_NO_SSLv2
-                        // We also disable session tickets for better compatability b/2682876
+                        // We also disable session tickets for better compatibility b/2682876
                         | SSL_OP_NO_TICKET
                         // Because dhGenerateParameters uses DSA_generate_parameters_ex
                         | SSL_OP_SINGLE_DH_USE);
@@ -2283,8 +2284,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
      * Make socket non-blocking, so SSL_connect SSL_read() and SSL_write() don't hang
      * forever and we can use select() to find out if the socket is ready.
      */
-    int mode = fcntl(fd, F_GETFL);
-    if (mode == -1 || fcntl(fd, F_SETFL, mode | O_NONBLOCK) == -1) {
+    if (!setNonBlocking(fd, true)) {
         throwSSLExceptionStr(env, "Unable to make socket non blocking");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
@@ -2536,7 +2536,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
         MUTEX_UNLOCK(appData->mutex);
 
         switch (sslError) {
-            // Sucessfully read at least one byte.
+            // Successfully read at least one byte.
             case SSL_ERROR_NONE: {
                 return result;
             }
@@ -2562,7 +2562,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, char* buf, jint len, int* sslReturnCod
                 break;
             }
 
-            // A problem occured during a system call, but this is not
+            // A problem occurred during a system call, but this is not
             // necessarily an error.
             case SSL_ERROR_SYSCALL: {
                 // Connection closed without proper shutdown. Tell caller we
@@ -2742,7 +2742,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
         MUTEX_UNLOCK(appData->mutex);
 
         switch (sslError) {
-            // Sucessfully write at least one byte.
+            // Successfully write at least one byte.
             case SSL_ERROR_NONE: {
                 buf += result;
                 len -= result;
@@ -2772,7 +2772,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, const char* buf, jint len, int* sslRe
                 break;
             }
 
-            // An problem occured during a system call, but this is not
+            // An problem occurred during a system call, but this is not
             // necessarily an error.
             case SSL_ERROR_SYSCALL: {
                 // Connection closed without proper shutdown. Tell caller we
@@ -2885,8 +2885,7 @@ static void NativeCrypto_SSL_interrupt(
 /**
  * OpenSSL close SSL socket function.
  */
-static void NativeCrypto_SSL_shutdown(
-        JNIEnv* env, jclass, jint ssl_address) {
+static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address) {
     SSL* ssl = to_SSL(env, ssl_address, false);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_shutdown", ssl);
     if (ssl == NULL) {
@@ -2898,11 +2897,7 @@ static void NativeCrypto_SSL_shutdown(
     int fd = SSL_get_fd(ssl);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_shutdown s=%d", ssl, fd);
     if (fd != -1) {
-        int mode = fcntl(fd, F_GETFL);
-        if (mode == -1 || fcntl(fd, F_SETFL, mode & ~O_NONBLOCK) == -1) {
-//            throwSSLExceptionStr(env, "Unable to make socket blocking again");
-//            LOGW("Unable to make socket blocking again");
-        }
+        setNonBlocking(fd, false);
     }
 
     AppData* appData = toAppData(ssl);
@@ -2927,7 +2922,7 @@ static void NativeCrypto_SSL_shutdown(
             break;
         case 1:
             /*
-             * Shutdown was sucessful. We can safely return. Hooray!
+             * Shutdown was successful. We can safely return. Hooray!
              */
             break;
         default:

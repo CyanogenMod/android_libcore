@@ -452,9 +452,7 @@ static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int time
         context->nfds = fd + 1;
 
         /* set the socket to non-blocking */
-        int block = JNI_TRUE;
-        if (ioctl(fd, FIONBIO, &block) == -1) {
-            LOGE("ioctl(fd, FIONBIO, true) failed: %s %i", strerror(errno), errno);
+        if (!setNonBlocking(fd, true)) {
             return -errno;
         }
 
@@ -528,8 +526,7 @@ static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int time
     } else if (step == SOCKET_STEP_DONE) {
         /* we are done the connect or an error occurred so clean up  */
         if (fd != -1) {
-            int block = JNI_FALSE;
-            ioctl(fd, FIONBIO, &block);
+            setNonBlocking(fd, false);
         }
         return 0;
     }
@@ -821,15 +818,13 @@ static jint osNetworkSystem_write(JNIEnv* env, jobject,
 }
 
 static void osNetworkSystem_setNonBlocking(JNIEnv* env, jobject,
-        jobject fileDescriptor, jboolean nonblocking) {
+        jobject fileDescriptor, jboolean newState) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return;
     }
 
-    int block = nonblocking;
-    int rc = ioctl(fd.get(), FIONBIO, &block);
-    if (rc == -1) {
+    if (!setNonBlocking(fd.get(), newState)) {
         jniThrowSocketException(env, errno);
     }
 }
