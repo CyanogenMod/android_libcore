@@ -298,15 +298,13 @@ static char** convertStrings(JNIEnv* env, jobjectArray javaArray) {
         return NULL;
     }
 
-    char** array = NULL;
     jsize length = env->GetArrayLength(javaArray);
-    array = (char**) malloc(sizeof(char*) * (length + 1));
+    char** array = new char*[length + 1];
     array[length] = 0;
-    jsize index;
-    for (index = 0; index < length; index++) {
-        jstring javaEntry =
-                (jstring) env->GetObjectArrayElement(javaArray, index);
-        char* entry = (char*) env->GetStringUTFChars(javaEntry, NULL);
+    for (jsize index = 0; index < length; index++) {
+        jstring javaEntry = (jstring) env->GetObjectArrayElement(javaArray, index);
+        // We need to pass these strings to const-unfriendly code.
+        char* entry = const_cast<char*>(env->GetStringUTFChars(javaEntry, NULL));
         array[index] = entry;
     }
 
@@ -320,14 +318,12 @@ static void freeStrings(JNIEnv* env, jobjectArray javaArray, char** array) {
     }
 
     jsize length = env->GetArrayLength(javaArray);
-    jsize index;
-    for (index = 0; index < length; index++) {
-        jstring javaEntry =
-                (jstring) env->GetObjectArrayElement(javaArray, index);
+    for (jsize index = 0; index < length; index++) {
+        jstring javaEntry = reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, index));
         env->ReleaseStringUTFChars(javaEntry, array[index]);
     }
 
-    free(array);
+    delete[] array;
 }
 
 /**

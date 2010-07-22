@@ -23,59 +23,36 @@
 #include <stdio.h>
 #include <stdint.h>
 
-typedef union {
-    uint64_t    bits;
-    double      d;
-} Double;
+union Double {
+    uint64_t bits;
+    double d;
+};
 
-#define NaN (0x7ff8000000000000ULL)
+static const jlong NaN = 0x7ff8000000000000ULL;
 
-/*
- * public static native long doubleToLongBits(double value)
- */
-static jlong doubleToLongBits(JNIEnv*, jclass, jdouble val)
-{
-    Double   d;
-
+static jlong Double_doubleToLongBits(JNIEnv*, jclass, jdouble val) {
+    Double d;
     d.d = val;
+    //  For this method all values in the NaN range are normalized to the canonical NaN value.
+    return isnan(d.d) ? NaN : d.bits;
+}
 
-    //  For this method all values in the NaN range are
-    //  normalized to the canonical NaN value.
-
-    if (isnan(d.d))
-        d.bits = NaN;
-
+static jlong Double_doubleToRawLongBits(JNIEnv*, jclass, jdouble val) {
+    Double d;
+    d.d = val;
     return d.bits;
 }
 
-/*
- * public static native long doubleToRawLongBits(double value)
- */
-static jlong doubleToRawLongBits(JNIEnv*, jclass, jdouble val)
-{
-    Double   d;
-
-    d.d = val;
-
-    return d.bits;
-}
-
-/*
- * public static native double longBitsToDouble(long bits)
- */
-static jdouble longBitsToDouble(JNIEnv*, jclass, jlong val)
-{
-    Double   d;
-
+static jdouble Double_longBitsToDouble(JNIEnv*, jclass, jlong val) {
+    Double d;
     d.bits = val;
-
     return d.d;
 }
 
 static JNINativeMethod gMethods[] = {
-  { "doubleToLongBits",       "(D)J",     (void*)doubleToLongBits },
-  { "doubleToRawLongBits",    "(D)J",     (void*)doubleToRawLongBits },
-  { "longBitsToDouble",       "(J)D",     (void*)longBitsToDouble },
+    { "doubleToLongBits",       "(D)J",     (void*)Double_doubleToLongBits },
+    { "doubleToRawLongBits",    "(D)J",     (void*)Double_doubleToRawLongBits },
+    { "longBitsToDouble",       "(J)D",     (void*)Double_longBitsToDouble },
 };
 int register_java_lang_Double(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/Double", gMethods, NELEM(gMethods));
