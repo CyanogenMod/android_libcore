@@ -22,7 +22,6 @@ namespace android {
 }
 
 extern int register_com_ibm_icu4jni_converters_NativeConverter(JNIEnv* env);
-extern int register_com_ibm_icu4jni_lang_UCharacter(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeBreakIterator(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeCollator(JNIEnv* env);
 extern int register_com_ibm_icu4jni_text_NativeDecimalFormat(JNIEnv* env);
@@ -33,6 +32,7 @@ extern int register_java_io_FileDescriptor(JNIEnv* env);
 extern int register_java_io_ObjectInputStream(JNIEnv* env);
 extern int register_java_io_ObjectOutputStream(JNIEnv* env);
 extern int register_java_io_ObjectStreamClass(JNIEnv* env);
+extern int register_java_lang_Character(JNIEnv* env);
 extern int register_java_lang_Double(JNIEnv* env);
 extern int register_java_lang_Float(JNIEnv* env);
 extern int register_java_lang_Math(JNIEnv* env);
@@ -71,7 +71,6 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
 
     bool result =
             register_com_ibm_icu4jni_converters_NativeConverter(env) != -1 &&
-            register_com_ibm_icu4jni_lang_UCharacter(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeBreakIterator(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeCollator(env) != -1 &&
             register_com_ibm_icu4jni_text_NativeDecimalFormat(env) != -1 &&
@@ -82,6 +81,7 @@ extern "C" int registerCoreLibrariesJni(JNIEnv* env) {
             register_java_io_ObjectInputStream(env) != -1 &&
             register_java_io_ObjectOutputStream(env) != -1 &&
             register_java_io_ObjectStreamClass(env) != -1 &&
+            register_java_lang_Character(env) != -1 &&
             register_java_lang_Double(env) != -1 &&
             register_java_lang_Float(env) != -1 &&
             register_java_lang_Math(env) != -1 &&

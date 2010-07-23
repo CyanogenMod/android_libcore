@@ -20,7 +20,6 @@ LOCAL_SRC_FILES := \
 	NetworkUtilities.cpp \
 	Register.cpp \
 	TimeZones.cpp \
-	UCharacter.cpp \
 	cbigint.cpp \
 	commonDblParce.cpp \
 	java_io_Console.cpp \
@@ -29,6 +28,7 @@ LOCAL_SRC_FILES := \
 	java_io_ObjectInputStream.cpp \
 	java_io_ObjectOutputStream.cpp \
 	java_io_ObjectStreamClass.cpp \
+	java_lang_Character.cpp \
 	java_lang_Double.cpp \
 	java_lang_Float.cpp \
 	java_lang_Math.cpp \

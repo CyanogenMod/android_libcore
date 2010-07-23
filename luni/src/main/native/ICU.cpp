@@ -536,6 +536,22 @@ static jboolean initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobject 
     return JNI_TRUE;
 }
 
+static jstring ICU_toLowerCase(JNIEnv* env, jclass, jstring javaString, jstring localeName) {
+    ScopedJavaUnicodeString scopedString(env, javaString);
+    UnicodeString& s(scopedString.unicodeString());
+    UnicodeString original(s);
+    s.toLower(Locale::createFromName(ScopedUtfChars(env, localeName).c_str()));
+    return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
+}
+
+static jstring ICU_toUpperCase(JNIEnv* env, jclass, jstring javaString, jstring localeName) {
+    ScopedJavaUnicodeString scopedString(env, javaString);
+    UnicodeString& s(scopedString.unicodeString());
+    UnicodeString original(s);
+    s.toUpper(Locale::createFromName(ScopedUtfChars(env, localeName).c_str()));
+    return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
+}
+
 static JNINativeMethod gMethods[] = {
     {"getAvailableBreakIteratorLocalesNative", "()[Ljava/lang/String;", (void*) getAvailableBreakIteratorLocalesNative},
     {"getAvailableCalendarLocalesNative", "()[Ljava/lang/String;", (void*) getAvailableCalendarLocalesNative},
@@ -554,6 +570,8 @@ static JNINativeMethod gMethods[] = {
     {"getISOCountriesNative", "()[Ljava/lang/String;", (void*) getISOCountriesNative},
     {"getISOLanguagesNative", "()[Ljava/lang/String;", (void*) getISOLanguagesNative},
     {"initLocaleDataImpl", "(Ljava/lang/String;Lcom/ibm/icu4jni/util/LocaleData;)Z", (void*) initLocaleDataImpl},
+    {"toLowerCase", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", (void*) ICU_toLowerCase},
+    {"toUpperCase", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", (void*) ICU_toUpperCase},
 };
 int register_com_ibm_icu4jni_util_ICU(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "com/ibm/icu4jni/util/ICU", gMethods, NELEM(gMethods));

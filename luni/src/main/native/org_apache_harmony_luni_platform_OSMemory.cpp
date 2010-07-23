@@ -331,7 +331,7 @@ static jboolean OSMemory_isLoadedImpl(JNIEnv*, jobject, jint address, jlong size
 }
 
 static jint OSMemory_flushImpl(JNIEnv*, jobject, jint address, jlong size) {
-    return msync(cast<const void*>(address), size, MS_SYNC);
+    return msync(cast<void*>(address), size, MS_SYNC);
 }
 
 static JNINativeMethod gMethods[] = {

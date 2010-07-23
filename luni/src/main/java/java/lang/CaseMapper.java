@@ -16,7 +16,7 @@
 
 package java.lang;
 
-import com.ibm.icu4jni.lang.UCharacter;
+import com.ibm.icu4jni.util.ICU;
 import java.util.Locale;
 
 /**
@@ -47,7 +47,7 @@ class CaseMapper {
         // Punt hard cases to ICU4C.
         String languageCode = locale.getLanguage();
         if (languageCode.equals("tr") || languageCode.equals("az") || languageCode.equals("lt")) {
-            return UCharacter.toLowerCase(s, locale.toString());
+            return ICU.toLowerCase(s, locale.toString());
         }
 
         char[] newValue = null;
@@ -57,7 +57,7 @@ class CaseMapper {
             char newCh = ch;
             if (ch == LATIN_CAPITAL_I_WITH_DOT || Character.isHighSurrogate(ch)) {
                 // Punt these hard cases.
-                return UCharacter.toLowerCase(s, locale.toString());
+                return ICU.toLowerCase(s, locale.toString());
             } else if (ch == GREEK_CAPITAL_SIGMA && isFinalSigma(value, offset, count, i)) {
                 newCh = GREEK_SMALL_FINAL_SIGMA;
             } else {
@@ -150,7 +150,7 @@ class CaseMapper {
     public static String toUpperCase(Locale locale, String s, char[] value, int offset, int count) {
         String languageCode = locale.getLanguage();
         if (languageCode.equals("tr") || languageCode.equals("az") || languageCode.equals("lt")) {
-            return UCharacter.toUpperCase(s, locale.toString());
+            return ICU.toUpperCase(s, locale.toString());
         }
 
         char[] output = null;
@@ -158,7 +158,7 @@ class CaseMapper {
         for (int o = offset, end = offset + count; o < end; o++) {
             char ch = value[o];
             if (Character.isHighSurrogate(ch)) {
-                return UCharacter.toUpperCase(s, locale.toString());
+                return ICU.toUpperCase(s, locale.toString());
             }
             int index = upperIndex(ch);
             if (index == -1) {
