@@ -117,11 +117,11 @@ private:
     void operator=(const MatcherAccessor&);
 };
 
-static void RegexMatcher_closeImpl(JNIEnv*, jclass, jint addr) {
+static void Matcher_closeImpl(JNIEnv*, jclass, jint addr) {
     delete toRegexMatcher(addr);
 }
 
-static jint RegexMatcher_findImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jint startIndex, jintArray offsets) {
+static jint Matcher_findImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jint startIndex, jintArray offsets) {
     MatcherAccessor matcher(env, addr, javaText, false);
     UBool result = matcher->find(startIndex, matcher.status());
     if (result) {
@@ -130,7 +130,7 @@ static jint RegexMatcher_findImpl(JNIEnv* env, jclass, jint addr, jstring javaTe
     return result;
 }
 
-static jint RegexMatcher_findNextImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jintArray offsets) {
+static jint Matcher_findNextImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jintArray offsets) {
     MatcherAccessor matcher(env, addr, javaText, false);
     if (matcher.status() != U_ZERO_ERROR) {
         return -1;
@@ -142,17 +142,17 @@ static jint RegexMatcher_findNextImpl(JNIEnv* env, jclass, jint addr, jstring ja
     return result;
 }
 
-static jint RegexMatcher_groupCountImpl(JNIEnv* env, jclass, jint addr) {
+static jint Matcher_groupCountImpl(JNIEnv* env, jclass, jint addr) {
     MatcherAccessor matcher(env, addr);
     return matcher->groupCount();
 }
 
-static jint RegexMatcher_hitEndImpl(JNIEnv* env, jclass, jint addr) {
+static jint Matcher_hitEndImpl(JNIEnv* env, jclass, jint addr) {
     MatcherAccessor matcher(env, addr);
     return matcher->hitEnd();
 }
 
-static jint RegexMatcher_lookingAtImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jintArray offsets) {
+static jint Matcher_lookingAtImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jintArray offsets) {
     MatcherAccessor matcher(env, addr, javaText, false);
     UBool result = matcher->lookingAt(matcher.status());
     if (result) {
@@ -161,7 +161,7 @@ static jint RegexMatcher_lookingAtImpl(JNIEnv* env, jclass, jint addr, jstring j
     return result;
 }
 
-static jint RegexMatcher_matchesImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jintArray offsets) {
+static jint Matcher_matchesImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jintArray offsets) {
     MatcherAccessor matcher(env, addr, javaText, false);
     UBool result = matcher->matches(matcher.status());
     if (result) {
@@ -170,7 +170,7 @@ static jint RegexMatcher_matchesImpl(JNIEnv* env, jclass, jint addr, jstring jav
     return result;
 }
 
-static jint RegexMatcher_openImpl(JNIEnv* env, jclass, jint patternAddr) {
+static jint Matcher_openImpl(JNIEnv* env, jclass, jint patternAddr) {
     RegexPattern* pattern = reinterpret_cast<RegexPattern*>(static_cast<uintptr_t>(patternAddr));
     UErrorCode status = U_ZERO_ERROR;
     RegexMatcher* result = pattern->matcher(status);
@@ -178,39 +178,39 @@ static jint RegexMatcher_openImpl(JNIEnv* env, jclass, jint patternAddr) {
     return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
 }
 
-static jint RegexMatcher_requireEndImpl(JNIEnv* env, jclass, jint addr) {
+static jint Matcher_requireEndImpl(JNIEnv* env, jclass, jint addr) {
     MatcherAccessor matcher(env, addr);
     return matcher->requireEnd();
 }
 
-static void RegexMatcher_setInputImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jint start, jint end) {
+static void Matcher_setInputImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jint start, jint end) {
     MatcherAccessor matcher(env, addr, javaText, true);
     matcher->region(start, end, matcher.status());
 }
 
-static void RegexMatcher_useAnchoringBoundsImpl(JNIEnv* env, jclass, jint addr, jboolean value) {
+static void Matcher_useAnchoringBoundsImpl(JNIEnv* env, jclass, jint addr, jboolean value) {
     MatcherAccessor matcher(env, addr);
     matcher->useAnchoringBounds(value);
 }
 
-static void RegexMatcher_useTransparentBoundsImpl(JNIEnv* env, jclass, jint addr, jboolean value) {
+static void Matcher_useTransparentBoundsImpl(JNIEnv* env, jclass, jint addr, jboolean value) {
     MatcherAccessor matcher(env, addr);
     matcher->useTransparentBounds(value);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "closeImpl", "(I)V", (void*) RegexMatcher_closeImpl },
-    { "findImpl", "(ILjava/lang/String;I[I)Z", (void*) RegexMatcher_findImpl },
-    { "findNextImpl", "(ILjava/lang/String;[I)Z", (void*) RegexMatcher_findNextImpl },
-    { "groupCountImpl", "(I)I", (void*) RegexMatcher_groupCountImpl },
-    { "hitEndImpl", "(I)Z", (void*) RegexMatcher_hitEndImpl },
-    { "lookingAtImpl", "(ILjava/lang/String;[I)Z", (void*) RegexMatcher_lookingAtImpl },
-    { "matchesImpl", "(ILjava/lang/String;[I)Z", (void*) RegexMatcher_matchesImpl },
-    { "openImpl", "(I)I", (void*) RegexMatcher_openImpl },
-    { "requireEndImpl", "(I)Z", (void*) RegexMatcher_requireEndImpl },
-    { "setInputImpl", "(ILjava/lang/String;II)V", (void*) RegexMatcher_setInputImpl },
-    { "useAnchoringBoundsImpl", "(IZ)V", (void*) RegexMatcher_useAnchoringBoundsImpl },
-    { "useTransparentBoundsImpl", "(IZ)V", (void*) RegexMatcher_useTransparentBoundsImpl },
+    { "closeImpl", "(I)V", (void*) Matcher_closeImpl },
+    { "findImpl", "(ILjava/lang/String;I[I)Z", (void*) Matcher_findImpl },
+    { "findNextImpl", "(ILjava/lang/String;[I)Z", (void*) Matcher_findNextImpl },
+    { "groupCountImpl", "(I)I", (void*) Matcher_groupCountImpl },
+    { "hitEndImpl", "(I)Z", (void*) Matcher_hitEndImpl },
+    { "lookingAtImpl", "(ILjava/lang/String;[I)Z", (void*) Matcher_lookingAtImpl },
+    { "matchesImpl", "(ILjava/lang/String;[I)Z", (void*) Matcher_matchesImpl },
+    { "openImpl", "(I)I", (void*) Matcher_openImpl },
+    { "requireEndImpl", "(I)Z", (void*) Matcher_requireEndImpl },
+    { "setInputImpl", "(ILjava/lang/String;II)V", (void*) Matcher_setInputImpl },
+    { "useAnchoringBoundsImpl", "(IZ)V", (void*) Matcher_useAnchoringBoundsImpl },
+    { "useTransparentBoundsImpl", "(IZ)V", (void*) Matcher_useTransparentBoundsImpl },
 };
 int register_java_util_regex_Matcher(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/util/regex/Matcher", gMethods, NELEM(gMethods));

@@ -120,7 +120,7 @@ public final class NativeDecimalFormat {
 
     public NativeDecimalFormat(String pattern, DecimalFormatSymbols dfs) {
         try {
-            this.addr = openDecimalFormatImpl(pattern, dfs.getCurrencySymbol(),
+            this.addr = open(pattern, dfs.getCurrencySymbol(),
                     dfs.getDecimalSeparator(), dfs.getDigit(), dfs.getGroupingSeparator(),
                     dfs.getInfinity(), dfs.getInternationalCurrencySymbol(), dfs.getMinusSign(),
                     dfs.getMonetaryDecimalSeparator(), dfs.getNaN(), dfs.getPatternSeparator(),
@@ -135,7 +135,7 @@ public final class NativeDecimalFormat {
 
     // Used to implement clone.
     private NativeDecimalFormat(NativeDecimalFormat other) {
-        this.addr = cloneDecimalFormatImpl(other.addr);
+        this.addr = cloneImpl(other.addr);
         this.lastPattern = other.lastPattern;
         this.negPrefNull = other.negPrefNull;
         this.negSuffNull = other.negSuffNull;
@@ -156,7 +156,7 @@ public final class NativeDecimalFormat {
 
     @Override
     protected void finalize() {
-        closeDecimalFormatImpl(this.addr);
+        close(this.addr);
     }
 
     /**
@@ -606,14 +606,14 @@ public final class NativeDecimalFormat {
     }
 
     private static native void applyPatternImpl(int addr, boolean localized, String pattern);
-    private static native int cloneDecimalFormatImpl(int addr);
-    private static native void closeDecimalFormatImpl(int addr);
+    private static native int cloneImpl(int addr);
+    private static native void close(int addr);
     private static native String format(int addr, long value, FieldPositionIterator iter);
     private static native String format(int addr, double value, FieldPositionIterator iter);
     private static native String format(int addr, String value, FieldPositionIterator iter);
     private static native int getAttribute(int addr, int symbol);
     private static native String getTextAttribute(int addr, int symbol);
-    private static native int openDecimalFormatImpl(String pattern, String currencySymbol,
+    private static native int open(String pattern, String currencySymbol,
             char decimalSeparator, char digit, char groupingSeparator, String infinity,
             String internationalCurrencySymbol, char minusSign, char monetaryDecimalSeparator,
             String nan, char patternSeparator, char percent, char perMill, char zeroDigit);

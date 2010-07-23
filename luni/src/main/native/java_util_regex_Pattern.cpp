@@ -41,11 +41,11 @@ static void throwPatternSyntaxException(JNIEnv* env, UErrorCode status, jstring 
     env->Throw(reinterpret_cast<jthrowable>(exception));
 }
 
-static void RegexPattern_closeImpl(JNIEnv*, jclass, jint addr) {
+static void Pattern_closeImpl(JNIEnv*, jclass, jint addr) {
     delete toRegexPattern(addr);
 }
 
-static jint RegexPattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint flags) {
+static jint Pattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint flags) {
     flags |= UREGEX_ERROR_ON_UNKNOWN_ESCAPES;
 
     UErrorCode status = U_ZERO_ERROR;
@@ -62,8 +62,8 @@ static jint RegexPattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jin
 }
 
 static JNINativeMethod gMethods[] = {
-    { "closeImpl", "(I)V", (void*) RegexPattern_closeImpl },
-    { "compileImpl", "(Ljava/lang/String;I)I", (void*) RegexPattern_compileImpl },
+    { "closeImpl", "(I)V", (void*) Pattern_closeImpl },
+    { "compileImpl", "(Ljava/lang/String;I)I", (void*) Pattern_compileImpl },
 };
 int register_java_util_regex_Pattern(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/util/regex/Pattern", gMethods, NELEM(gMethods));
