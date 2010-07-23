@@ -24,6 +24,8 @@ import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import static java.nio.channels.SelectionKey.*;
 import java.nio.channels.Selector;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.AbstractSelectionKey;
 import java.nio.channels.spi.AbstractSelector;
@@ -246,6 +248,12 @@ final class SelectorImpl extends AbstractSelector {
         }
     }
 
+    private int getReadyOps(SelectionKeyImpl key) {
+        SelectableChannel channel = key.channel();
+        return ((channel instanceof SocketChannel) && !((SocketChannel) channel).isConnectionPending()) ?
+                OP_WRITE : CONNECT_OR_WRITE;
+    }
+
     /**
      * Prepare the readableFDs, writableFDs, readyKeys and flags arrays in
      * preparation for a call to {@code INetworkSystem#select()}. After they're
@@ -280,7 +288,7 @@ final class SelectorImpl extends AbstractSelector {
                 readyKeys[r] = key;
                 r++;
             }
-            if ((CONNECT_OR_WRITE & interestOps) != 0) {
+            if ((getReadyOps(key) & interestOps) != 0) {
                 writableFDs[w] = ((FileDescriptorHandler) key.channel()).getFD();
                 readyKeys[w + numReadable] = key;
                 w++;
