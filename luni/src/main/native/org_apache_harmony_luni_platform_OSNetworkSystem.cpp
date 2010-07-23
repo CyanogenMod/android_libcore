@@ -57,23 +57,22 @@
 #define ENABLE_MULTICAST
 #endif
 
-#define JAVASOCKOPT_TCP_NODELAY 1
-#define JAVASOCKOPT_IP_TOS 3
-#define JAVASOCKOPT_SO_REUSEADDR 4
-#define JAVASOCKOPT_SO_KEEPALIVE 8
 #define JAVASOCKOPT_IP_MULTICAST_IF 16
-#define JAVASOCKOPT_MULTICAST_TTL 17
+#define JAVASOCKOPT_IP_MULTICAST_IF2 31
 #define JAVASOCKOPT_IP_MULTICAST_LOOP 18
+#define JAVASOCKOPT_IP_TOS 3
 #define JAVASOCKOPT_MCAST_ADD_MEMBERSHIP 19
 #define JAVASOCKOPT_MCAST_DROP_MEMBERSHIP 20
-#define JAVASOCKOPT_IP_MULTICAST_IF2 31
+#define JAVASOCKOPT_MULTICAST_TTL 17
 #define JAVASOCKOPT_SO_BROADCAST 32
+#define JAVASOCKOPT_SO_KEEPALIVE 8
 #define JAVASOCKOPT_SO_LINGER 128
-#define JAVASOCKOPT_REUSEADDR_AND_REUSEPORT  10001
-#define JAVASOCKOPT_SO_SNDBUF 4097
-#define JAVASOCKOPT_SO_RCVBUF 4098
-#define JAVASOCKOPT_SO_RCVTIMEOUT  4102
 #define JAVASOCKOPT_SO_OOBINLINE  4099
+#define JAVASOCKOPT_SO_RCVBUF 4098
+#define JAVASOCKOPT_SO_TIMEOUT  4102
+#define JAVASOCKOPT_SO_REUSEADDR 4
+#define JAVASOCKOPT_SO_SNDBUF 4097
+#define JAVASOCKOPT_TCP_NODELAY 1
 
 /* constants for calling multi-call functions */
 #define SOCKET_STEP_START 10
@@ -575,10 +574,6 @@ static int interfaceIndexFromMulticastSocket(int socket) {
  * be properly tested on Android due to GSM routing restrictions. So it might
  * or might not work.
  *
- * - The REUSEPORT socket option that Harmony employs is not supported on Linux
- * and thus also not supported on Android. It's is not needed for multicast
- * to work anyway (REUSEADDR should suffice).
- *
  * @param env pointer to the JNI library.
  * @param socketP pointer to the hysocket to join/leave on.
  * @param optVal pointer to the InetAddress, the multicast group to join/drop.
@@ -586,11 +581,6 @@ static int interfaceIndexFromMulticastSocket(int socket) {
  * @exception SocketException if an error occurs during the call
  */
 static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setSockOptVal) {
-    struct sockaddr_storage sockaddrP;
-    int result;
-    // By default, let the system decide which interface to use.
-    int interfaceIndex = 0;
-
     /*
      * Check whether we are getting an InetAddress or an Generic IPMreq. For now
      * we support both so that we will not break the tests. If an InetAddress
@@ -606,7 +596,7 @@ static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setS
         socklen_t length = sizeof(multicastRequest);
         memset(&multicastRequest, 0, length);
 
-        interfaceIndex = interfaceIndexFromMulticastSocket(fd);
+        int interfaceIndex = interfaceIndexFromMulticastSocket(fd);
         multicastRequest.imr_ifindex = interfaceIndex;
         if (interfaceIndex == -1) {
             jniThrowSocketException(env, errno);
@@ -614,6 +604,7 @@ static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setS
         }
 
         // Convert the inetAddress to an IPv4 address structure.
+        sockaddr_storage sockaddrP;
         if (!inetAddressToSocketAddress(env, optVal, 0, &sockaddrP)) {
             return;
         }
@@ -624,8 +615,8 @@ static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setS
         struct sockaddr_in *sin = (struct sockaddr_in *) &sockaddrP;
         multicastRequest.imr_multiaddr = sin->sin_addr;
 
-        result = setsockopt(fd, IPPROTO_IP, setSockOptVal, &multicastRequest, length);
-        if (0 != result) {
+        int rc = setsockopt(fd, IPPROTO_IP, setSockOptVal, &multicastRequest, length);
+        if (rc == -1) {
             jniThrowSocketException(env, errno);
             return;
         }
@@ -642,9 +633,10 @@ static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setS
 
         // Get the interface index to use.
         jfieldID interfaceIdxID = env->GetFieldID(JniConstants::genericIPMreqClass, "interfaceIdx", "I");
-        interfaceIndex = env->GetIntField(optVal, interfaceIdxID);
+        int interfaceIndex = env->GetIntField(optVal, interfaceIdxID);
         LOGI("mcastAddDropMembership interfaceIndex=%i", interfaceIndex);
 
+        sockaddr_storage sockaddrP;
         if (!inetAddressToSocketAddress(env, multiaddr, 0, &sockaddrP)) {
             return;
         }
@@ -665,8 +657,7 @@ static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setS
             case AF_INET:
                 requestLength = sizeof(ipv4Request);
                 memset(&ipv4Request, 0, requestLength);
-                ipv4Request.imr_multiaddr =
-                        ((struct sockaddr_in *) &sockaddrP)->sin_addr;
+                ipv4Request.imr_multiaddr = ((struct sockaddr_in *) &sockaddrP)->sin_addr;
                 ipv4Request.imr_ifindex = interfaceIndex;
                 multicastRequest = &ipv4Request;
                 level = IPPROTO_IP;
@@ -681,8 +672,7 @@ static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setS
                 }
                 requestLength = sizeof(ipv6Request);
                 memset(&ipv6Request, 0, requestLength);
-                ipv6Request.ipv6mr_multiaddr =
-                        ((struct sockaddr_in6 *) &sockaddrP)->sin6_addr;
+                ipv6Request.ipv6mr_multiaddr = ((struct sockaddr_in6 *) &sockaddrP)->sin6_addr;
                 ipv6Request.ipv6mr_interface = interfaceIndex;
                 multicastRequest = &ipv6Request;
                 level = IPPROTO_IPV6;
@@ -693,9 +683,8 @@ static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setS
         }
 
         /* join/drop the multicast address */
-        result = setsockopt(fd, level, setSockOptVal, multicastRequest,
-                            requestLength);
-        if (0 != result) {
+        int rc = setsockopt(fd, level, setSockOptVal, multicastRequest, requestLength);
+        if (rc == -1) {
             jniThrowSocketException(env, errno);
             return;
         }
@@ -740,9 +729,9 @@ static int createSocketFileDescriptor(JNIEnv* env, jobject fileDescriptor, int t
     }
 
     // Try IPv6 but fall back to IPv4...
-    int sock = socket(PF_INET6, type, 0);
+    int sock = socket(AF_INET6, type, 0);
     if (sock == -1 && errno == EAFNOSUPPORT) {
-        sock = socket(PF_INET, type, 0);
+        sock = socket(AF_INET, type, 0);
     }
     if (sock == -1) {
         jniThrowSocketException(env, errno);
@@ -1494,7 +1483,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
             bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &lingr);
             return ok ? integerValueOf(env, !lingr.l_onoff ? -1 : lingr.l_linger) : NULL;
         }
-    case JAVASOCKOPT_SO_RCVTIMEOUT:
+    case JAVASOCKOPT_SO_TIMEOUT:
         {
             timeval timeout;
             bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_RCVTIMEO, &timeout);
@@ -1592,50 +1581,48 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         return;
     }
 
+    // Since we expect to have a AF_INET6 socket even if we're communicating via IPv4, we always
+    // set the IPPROTO_IP options. As long as we support "java.net.preferIPv4Stack" we need to
+    // make setting the IPPROTO_IPV6 options conditional.
     switch (option) {
-    case JAVASOCKOPT_SO_LINGER:
-        {
-            linger lingr;
-            lingr.l_onoff = intVal > 0 ? 1 : 0;
-            lingr.l_linger = intVal;
-            setSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &lingr);
-            return;
+    case JAVASOCKOPT_IP_TOS:
+        setSocketOption(env, fd, IPPROTO_IP, IP_TOS, &intVal);
+        if (family == AF_INET6) {
+            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_TCLASS, &intVal);
         }
-    case JAVASOCKOPT_SO_SNDBUF:
-        setSocketOption(env, fd, SOL_SOCKET, SO_SNDBUF, &intVal);
-        return;
-    case JAVASOCKOPT_SO_RCVBUF:
-        setSocketOption(env, fd, SOL_SOCKET, SO_RCVBUF, &intVal);
         return;
     case JAVASOCKOPT_SO_BROADCAST:
         setSocketOption(env, fd, SOL_SOCKET, SO_BROADCAST, &intVal);
         return;
-    case JAVASOCKOPT_SO_REUSEADDR:
-        setSocketOption(env, fd, SOL_SOCKET, SO_REUSEADDR, &intVal);
-        return;
     case JAVASOCKOPT_SO_KEEPALIVE:
         setSocketOption(env, fd, SOL_SOCKET, SO_KEEPALIVE, &intVal);
         return;
+    case JAVASOCKOPT_SO_LINGER:
+        {
+            linger l;
+            l.l_onoff = intVal > 0 ? 1 : 0;
+            l.l_linger = intVal;
+            setSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &l);
+            return;
+        }
     case JAVASOCKOPT_SO_OOBINLINE:
         setSocketOption(env, fd, SOL_SOCKET, SO_OOBINLINE, &intVal);
         return;
-    case JAVASOCKOPT_REUSEADDR_AND_REUSEPORT:
-        // SO_REUSEPORT doesn't need to get set on this System
+    case JAVASOCKOPT_SO_RCVBUF:
+        setSocketOption(env, fd, SOL_SOCKET, SO_RCVBUF, &intVal);
+        return;
+    case JAVASOCKOPT_SO_REUSEADDR:
         setSocketOption(env, fd, SOL_SOCKET, SO_REUSEADDR, &intVal);
         return;
-    case JAVASOCKOPT_SO_RCVTIMEOUT:
+    case JAVASOCKOPT_SO_SNDBUF:
+        setSocketOption(env, fd, SOL_SOCKET, SO_SNDBUF, &intVal);
+        return;
+    case JAVASOCKOPT_SO_TIMEOUT:
         {
             timeval timeout(toTimeval(intVal));
             setSocketOption(env, fd, SOL_SOCKET, SO_RCVTIMEO, &timeout);
             return;
         }
-    case JAVASOCKOPT_IP_TOS:
-        if (family == AF_INET) {
-            setSocketOption(env, fd, IPPROTO_IP, IP_TOS, &intVal);
-        } else {
-            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_TCLASS, &intVal);
-        }
-        return;
     case JAVASOCKOPT_TCP_NODELAY:
         setSocketOption(env, fd, IPPROTO_TCP, TCP_NODELAY, &intVal);
         return;
@@ -1666,6 +1653,8 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
             return;
         }
     case JAVASOCKOPT_IP_MULTICAST_IF2:
+        // TODO: is this right? should we unconditionally set the IPPROTO_IP state in case
+        // we have an IPv6 socket communicating via IPv4?
         if (family == AF_INET) {
             // IP_MULTICAST_IF expects a pointer to a struct ip_mreqn.
             struct ip_mreqn multicastRequest;
@@ -1678,24 +1667,26 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         }
         return;
     case JAVASOCKOPT_MULTICAST_TTL:
-        if (family == AF_INET) {
+        {
             // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
             // IPv4 multicast TTL uses a byte.
             u_char ttl = intVal;
             setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl);
-        } else {
-            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &intVal);
+            if (family == AF_INET6) {
+                setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &intVal);
+            }
+            return;
         }
-        return;
     case JAVASOCKOPT_IP_MULTICAST_LOOP:
-        if (family == AF_INET) {
+        {
             // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
             u_char loopback = intVal;
             setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_LOOP, &loopback);
-        } else {
-            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &intVal);
+            if (family == AF_INET6) {
+                setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &intVal);
+            }
+            return;
         }
-        return;
 #else
     case JAVASOCKOPT_MULTICAST_TTL:
     case JAVASOCKOPT_MCAST_ADD_MEMBERSHIP:
