@@ -42,25 +42,15 @@ import org.apache.harmony.luni.util.PriviAction;
  */
 public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
-    static final int TCP_NODELAY = 4;
+    private static final int SO_BROADCAST = 32;
 
-    private final static int SO_BROADCAST = 32;
+    static final int TCP_NODELAY = 4;
 
     final static int IP_MULTICAST_ADD = 19;
 
     final static int IP_MULTICAST_DROP = 20;
 
     final static int IP_MULTICAST_TTL = 17;
-
-    /**
-     * for datagram and multicast sockets we have to set REUSEADDR and REUSEPORT
-     * when REUSEADDR is set for other types of sockets we need to just set
-     * REUSEADDR therefore we have this other option which sets both if
-     * supported by the platform. this cannot be in SOCKET_OPTIONS because since
-     * it is a public interface it ends up being public even if it is not
-     * declared public
-     */
-    private static final int REUSEADDR_AND_REUSEPORT = 10001;
 
     private byte[] ipaddress = { 0, 0, 0, 0 };
 
@@ -235,14 +225,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
      *         invalid
      */
     public void setOption(int optID, Object val) throws SocketException {
-        /*
-         * for datagram sockets on some platforms we have to set both the
-         * REUSEADDR AND REUSEPORT so for REUSEADDR set this option option which
-         * tells the VM to set the two values as appropriate for the platform
-         */
-        if (optID == SocketOptions.SO_REUSEADDR) {
-            optID = REUSEADDR_AND_REUSEPORT;
-        }
         if (optID == SocketOptions.SO_TIMEOUT) {
             receiveTimeout = ((Integer) val).intValue();
         } else {

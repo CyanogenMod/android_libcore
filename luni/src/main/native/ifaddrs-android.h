@@ -164,7 +164,7 @@ inline int getifaddrs(ifaddrs** result) {
     *result = NULL;
 
     // Create a netlink socket.
-    ScopedFd fd(socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE));
+    ScopedFd fd(socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE));
     if (fd.get() < 0) {
         return -1;
     }
