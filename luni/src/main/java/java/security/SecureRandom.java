@@ -64,7 +64,7 @@ public class SecureRandom extends Random {
      */
     public SecureRandom() {
         super(0);
-        Provider.Service service = findService();
+        Provider.Service service = Services.getService("SecureRandom");
         if (service == null) {
             this.provider = null;
             this.secureRandomSpi = new SHA1PRNG_SecureRandomImpl();
@@ -91,19 +91,6 @@ public class SecureRandom extends Random {
     public SecureRandom(byte[] seed) {
         this();
         setSeed(seed);
-    }
-
-    //Find SecureRandom service.
-    private Provider.Service findService() {
-        Set s;
-        Provider.Service service;
-        for (Iterator it1 = Services.getProvidersList().iterator(); it1.hasNext();) {
-            service = ((Provider)it1.next()).getService("SecureRandom");
-            if (service != null) {
-                return service;
-            }
-        }
-        return null;
     }
 
     /**
