@@ -144,8 +144,15 @@ public class PlainSocketImpl extends SocketImpl {
         this.port = remotePort;
     }
 
+    private void checkNotClosed() throws IOException {
+        if (!fd.valid()) {
+            throw new SocketException("Socket is closed");
+        }
+    }
+
     @Override
     protected synchronized int available() throws IOException {
+        checkNotClosed();
         // we need to check if the input has been shutdown. If so
         // we should return that there is no data to be read
         if (shutdownInput) {
@@ -238,10 +245,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected synchronized InputStream getInputStream() throws IOException {
-        if (!fd.valid()) {
-            throw new SocketException("Socket is closed");
-        }
-
+        checkNotClosed();
         return new SocketInputStream(this);
     }
 
@@ -258,9 +262,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected synchronized OutputStream getOutputStream() throws IOException {
-        if (!fd.valid()) {
-            throw new SocketException("Socket is closed");
-        }
+        checkNotClosed();
         return new SocketOutputStream(this);
     }
 
