@@ -25,14 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// Used by functions that shouldn't throw SocketException. (These functions
-// aren't meant to see bad addresses, so seeing one really does imply an
-// internal error.)
-// TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
-static void jniThrowBadAddressFamily(JNIEnv* env) {
-    jniThrowException(env, "java/lang/IllegalArgumentException", "Bad address family");
-}
-
 bool byteArrayToSocketAddress(JNIEnv* env, jclass, jbyteArray byteArray, int port, sockaddr_storage* ss) {
     if (byteArray == NULL) {
         jniThrowNullPointerException(env, NULL);
@@ -57,7 +49,12 @@ bool byteArrayToSocketAddress(JNIEnv* env, jclass, jbyteArray byteArray, int por
         jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
         env->GetByteArrayRegion(byteArray, 0, 16, dst);
     } else {
-        jniThrowBadAddressFamily(env);
+        // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
+        // really does imply an internal error.
+        // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
+        char buf[64];
+        snprintf(buf, sizeof(buf), "byteArrayToSocketAddress bad array length (%i)", addressLength);
+        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
         return false;
     }
     return true;
@@ -67,15 +64,20 @@ jbyteArray socketAddressToByteArray(JNIEnv* env, sockaddr_storage* ss) {
     void *rawAddress;
     size_t addressLength;
     if (ss->ss_family == AF_INET) {
-        struct sockaddr_in *sin = reinterpret_cast<sockaddr_in*>(ss);
+        sockaddr_in *sin = reinterpret_cast<sockaddr_in*>(ss);
         rawAddress = &sin->sin_addr.s_addr;
         addressLength = 4;
     } else if (ss->ss_family == AF_INET6) {
-        struct sockaddr_in6 *sin6 = reinterpret_cast<sockaddr_in6*>(ss);
+        sockaddr_in6 *sin6 = reinterpret_cast<sockaddr_in6*>(ss);
         rawAddress = &sin6->sin6_addr.s6_addr;
         addressLength = 16;
     } else {
-        jniThrowBadAddressFamily(env);
+        // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
+        // really does imply an internal error.
+        // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
+        char buf[64];
+        snprintf(buf, sizeof(buf), "socketAddressToByteArray bad ss_family (%i)", ss->ss_family);
+        jniThrowException(env, "java/lang/IllegalArgumentException", buf);
         return NULL;
     }
 
