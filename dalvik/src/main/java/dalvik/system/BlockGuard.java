@@ -264,10 +264,10 @@ public final class BlockGuard {
             mNetwork = network;
         }
 
-        public void accept(FileDescriptor fdServer, SocketImpl newSocket,
-                FileDescriptor fdnewSocket, int timeout) throws IOException {
+        public void accept(FileDescriptor serverFd, SocketImpl newSocket,
+                FileDescriptor clientFd) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.accept(fdServer, newSocket, fdnewSocket, timeout);
+            mNetwork.accept(serverFd, newSocket, clientFd);
         }
 
 
@@ -276,16 +276,14 @@ public final class BlockGuard {
             mNetwork.bind(aFD, inetAddress, port);
         }
 
-        public int read(FileDescriptor aFD, byte[] data, int offset, int count,
-                int timeout) throws IOException {
+        public int read(FileDescriptor aFD, byte[] data, int offset, int count) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.read(aFD, data, offset, count, timeout);
+            return mNetwork.read(aFD, data, offset, count);
         }
 
-        public int readDirect(FileDescriptor aFD, int address, int count,
-                int timeout) throws IOException {
+        public int readDirect(FileDescriptor aFD, int address, int count) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.readDirect(aFD, address, count, timeout);
+            return mNetwork.readDirect(aFD, address, count);
         }
 
         public int write(FileDescriptor fd, byte[] data, int offset, int count)
@@ -335,16 +333,15 @@ public final class BlockGuard {
         }
 
         public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
-                int length, int timeout, boolean peek, boolean connected) throws IOException {
+                int length, boolean peek, boolean connected) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recv(fd, packet, data, offset, length, timeout, peek, connected);
+            return mNetwork.recv(fd, packet, data, offset, length, peek, connected);
         }
 
         public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
-                int length, int timeout, boolean peek, boolean connected) throws IOException {
+                int length, boolean peek, boolean connected) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recvDirect(fd, packet, address, offset, length, timeout, peek,
-                    connected);
+            return mNetwork.recvDirect(fd, packet, address, offset, length, peek, connected);
         }
 
         public void disconnectDatagram(FileDescriptor aFD) throws SocketException {

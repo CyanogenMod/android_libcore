@@ -240,8 +240,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      *             if an I/O error occurs.
      */
     @Override
-    public final SelectableChannel configureBlocking(boolean blockingMode)
-            throws IOException {
+    public final SelectableChannel configureBlocking(boolean blockingMode) throws IOException {
         if (isOpen()) {
             synchronized (blockingLock) {
                 if (isBlocking == blockingMode) {

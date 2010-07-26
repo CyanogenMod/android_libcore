@@ -40,8 +40,8 @@ final class OSNetworkSystem implements INetworkSystem {
     private OSNetworkSystem() {
     }
 
-    public native void accept(FileDescriptor fdServer, SocketImpl newSocket,
-            FileDescriptor fdnewSocket, int timeout) throws IOException;
+    public native void accept(FileDescriptor serverFd, SocketImpl newSocket,
+            FileDescriptor clientFd) throws IOException;
 
     public native void bind(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException;
 
@@ -83,19 +83,18 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void listen(FileDescriptor fd, int backlog) throws SocketException;
 
-    public native int read(FileDescriptor fd, byte[] data, int offset, int count, int timeout)
+    public native int read(FileDescriptor fd, byte[] data, int offset, int count)
             throws IOException;
 
-    public native int readDirect(FileDescriptor fd, int address, int count, int timeout)
-            throws IOException;
+    public native int readDirect(FileDescriptor fd, int address, int count) throws IOException;
 
     public native int recv(FileDescriptor fd, DatagramPacket packet,
             byte[] data, int offset, int length,
-            int timeout, boolean peek, boolean connected) throws IOException;
+            boolean peek, boolean connected) throws IOException;
 
     public native int recvDirect(FileDescriptor fd, DatagramPacket packet,
             int address, int offset, int length,
-            int timeout, boolean peek, boolean connected) throws IOException;
+            boolean peek, boolean connected) throws IOException;
 
     public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
             int numReadable, int numWritable, long timeout, int[] flags)

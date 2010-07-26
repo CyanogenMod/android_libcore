@@ -146,19 +146,23 @@ private:
  * it also considers the case where the reason for failure is that another thread called
  * shutdown(2) on the socket.
  */
-#define NET_FAILURE_RETRY(env, fd, exp) ({            \
-    typeof (exp) _rc;                                 \
-    do {                                              \
-        _rc = (exp);                                  \
-        if (_rc == -1) {                              \
-            if (fd.isClosed()) {                      \
-                break;                                \
-            }                                         \
-            if (errno != EINTR) {                     \
-                jniThrowSocketException(env, errno);  \
-            }                                         \
-        }                                             \
-    } while (_rc == -1 && errno == EINTR);            \
+#define NET_FAILURE_RETRY(env, fd, exp) ({                          \
+    typeof (exp) _rc;                                               \
+    do {                                                            \
+        _rc = (exp);                                                \
+        if (_rc == -1) {                                            \
+            if (fd.isClosed()) {                                    \
+                break;                                              \
+            }                                                       \
+            if (errno != EINTR) {                                   \
+                if (errno == EAGAIN || errno == EWOULDBLOCK) {      \
+                    jniThrowSocketTimeoutException(env, ETIMEDOUT); \
+                } else {                                            \
+                    jniThrowSocketException(env, errno);            \
+                }                                                   \
+            }                                                       \
+        }                                                           \
+    } while (_rc == -1 && errno == EINTR);                          \
     _rc; })
 
 /**
@@ -308,110 +312,6 @@ static int time_msec_clock() {
     struct timezone tzp;
     gettimeofday(&tp, &tzp);
     return toMs(tp);
-}
-
-static int selectWait(int fd, int uSecTime) {
-    timeval tv;
-    timeval* tvp;
-    if (uSecTime >= 0) {
-        /* Use a timeout if uSecTime >= 0 */
-        memset(&tv, 0, sizeof(tv));
-        tv.tv_usec = uSecTime;
-        tvp = &tv;
-    } else {
-        /* Infinite timeout if uSecTime < 0 */
-        tvp = NULL;
-    }
-
-    fd_set readFds;
-    FD_ZERO(&readFds);
-    FD_SET(fd, &readFds);
-    int result = select(fd + 1, &readFds, NULL, NULL, tvp);
-    if (result == -1) {
-        return -errno;
-    } else if (result == 0) {
-        return -ETIMEDOUT;
-    }
-    return result;
-}
-
-// Returns 0 on success, not obviously meaningful negative values on error.
-static int pollSelectWait(JNIEnv *env, jobject fileDescriptor, int timeout) {
-    /* now try reading the socket for the timeout.
-     * if timeout is 0 try forever until the sockets gets ready or until an
-     * exception occurs.
-     */
-    int pollTimeoutUSec = 100000, pollMsec = 100;
-    int finishTime = 0;
-    int timeLeft = timeout;
-    bool hasTimeout = timeout > 0;
-    int result = 0;
-
-    if (hasTimeout) {
-        finishTime = time_msec_clock() + timeout;
-    }
-
-    int poll = 1;
-
-    while (poll) { /* begin polling loop */
-
-        /*
-         * Fetch the fd every time in case the socket is closed.
-         */
-        int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
-        if (fd == -1) {
-            jniThrowSocketException(env, EINTR);
-            return -1;
-        }
-
-        if (hasTimeout) {
-
-            if (timeLeft - 10 < pollMsec) {
-                pollTimeoutUSec = timeLeft <= 0 ? 0 : (timeLeft * 1000);
-            }
-
-            result = selectWait(fd, pollTimeoutUSec);
-
-            /*
-             * because we are polling at a time smaller than timeout
-             * (presumably) lets treat an interrupt and timeout the same - go
-             * see if we're done timewise, and then just try again if not.
-             */
-            if (result == -ETIMEDOUT || result == -EINTR) {
-                timeLeft = finishTime - time_msec_clock();
-                if (timeLeft <= 0) {
-                    /*
-                     * Always throw the "timeout" message because that is
-                     * effectively what has happened, even if we happen to
-                     * have been interrupted.
-                     */
-                    jniThrowSocketTimeoutException(env, ETIMEDOUT);
-                } else {
-                    continue; // try again
-                }
-
-            } else if (result < 0) {
-                jniThrowSocketException(env, -result);
-            }
-            poll = 0;
-
-        } else { /* polling with no timeout (why would you do this?)*/
-
-            result = selectWait(fd, pollTimeoutUSec);
-
-            /*
-             *  if interrupted (or a timeout) just retry
-             */
-            if (result == -ETIMEDOUT || result == -EINTR) {
-                continue; // try again
-            } else if (result < 0) {
-                jniThrowSocketException(env, -result);
-            }
-            poll = 0;
-        }
-    } /* end polling loop */
-
-    return result;
 }
 
 /**
@@ -873,7 +773,7 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
         jobject, jobject fileDescriptor, jint remotePort, jint timeout,
         jint trafficClass, jobject inetAddr) {
     int result = 0;
-    struct sockaddr_storage address;
+    sockaddr_storage address;
     int remainingTimeout = timeout;
     int passedTimeout = 0;
     int finishTime = 0;
@@ -1004,17 +904,11 @@ static void osNetworkSystem_listen(JNIEnv* env, jobject, jobject fileDescriptor,
     }
 }
 
-static void osNetworkSystem_accept(JNIEnv* env, jobject,
-        jobject serverFileDescriptor,
-        jobject newSocket, jobject clientFileDescriptor, jint timeout) {
+static void osNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescriptor,
+        jobject newSocket, jobject clientFileDescriptor) {
 
     if (newSocket == NULL) {
         jniThrowNullPointerException(env, NULL);
-        return;
-    }
-
-    int rc = pollSelectWait(env, serverFileDescriptor, timeout);
-    if (rc < 0) {
         return;
     }
 
@@ -1029,6 +923,14 @@ static void osNetworkSystem_accept(JNIEnv* env, jobject,
     int clientFd = NET_FAILURE_RETRY(env, serverFd, accept(serverFd.get(), sa, &addrLen));
     if (clientFd == -1) {
         return;
+    }
+
+    // Reset the inherited read timeout to the Java-specified default of 0.
+    timeval timeout(toTimeval(0));
+    int rc = setsockopt(clientFd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+    if (rc == -1) {
+        LOGE("couldn't reset SO_RCVTIMEO on accepted socket: %s (%i)", strerror(errno), errno);
+        jniThrowSocketException(env, errno);
     }
 
     /*
@@ -1117,17 +1019,10 @@ static void osNetworkSystem_setInetAddress(JNIEnv* env, jobject,
 
 // TODO: can we merge this with recvDirect?
 static jint osNetworkSystem_readDirect(JNIEnv* env, jobject, jobject fileDescriptor,
-        jint address, jint count, jint timeout) {
+        jint address, jint count) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return 0;
-    }
-
-    if (timeout != 0) {
-        int result = selectWait(fd.get(), timeout * 1000);
-        if (result < 0) {
-            return 0;
-        }
     }
 
     jbyte* dst = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address));
@@ -1159,23 +1054,18 @@ static jint osNetworkSystem_readDirect(JNIEnv* env, jobject, jobject fileDescrip
 }
 
 static jint osNetworkSystem_read(JNIEnv* env, jclass, jobject fileDescriptor,
-        jbyteArray byteArray, jint offset, jint count, jint timeout) {
+        jbyteArray byteArray, jint offset, jint count) {
     ScopedByteArrayRW bytes(env, byteArray);
     if (bytes.get() == NULL) {
         return -1;
     }
     jint address = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get() + offset));
-    return osNetworkSystem_readDirect(env, NULL, fileDescriptor, address, count, timeout);
+    return osNetworkSystem_readDirect(env, NULL, fileDescriptor, address, count);
 }
 
 // TODO: can we merge this with readDirect?
-static jint osNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescriptor,jobject packet,
-        jint address, jint offset, jint length, jint timeout, jboolean peek, jboolean connected) {
-    int result = pollSelectWait(env, fileDescriptor, timeout);
-    if (result < 0) {
-        return 0;
-    }
-
+static jint osNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescriptor, jobject packet,
+        jint address, jint offset, jint length, jboolean peek, jboolean connected) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return 0;
@@ -1184,14 +1074,16 @@ static jint osNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
     char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
     const int flags = peek ? MSG_PEEK : 0;
     sockaddr_storage ss;
+    memset(&ss, 0, sizeof(ss));
     socklen_t sockAddrLen = sizeof(ss);
     sockaddr* from = connected ? NULL : reinterpret_cast<sockaddr*>(&ss);
     socklen_t* fromLength = connected ? NULL : &sockAddrLen;
     ssize_t actualLength = TEMP_FAILURE_RETRY(recvfrom(fd.get(), buf, length, flags, from, fromLength));
     if (actualLength == -1) {
-        // FIXME: is this a legitimate difference between connected and unconnected?
-        if (connected) {
+        if (connected && errno == ECONNREFUSED) {
             jniThrowException(env, "java/net/PortUnreachableException", "");
+        } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            jniThrowSocketTimeoutException(env, errno);
         } else {
             jniThrowSocketException(env, errno);
         }
@@ -1218,15 +1110,14 @@ static jint osNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
 }
 
 static jint osNetworkSystem_recv(JNIEnv* env, jobject, jobject fd, jobject packet,
-        jbyteArray javaBytes, jint offset, jint length, jint receiveTimeout,
-        jboolean peek, jboolean connected) {
+        jbyteArray javaBytes, jint offset, jint length, jboolean peek, jboolean connected) {
     ScopedByteArrayRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
         return -1;
     }
     uintptr_t address = reinterpret_cast<uintptr_t>(bytes.get());
-    return osNetworkSystem_recvDirect(env, NULL, fd, packet, address, offset, length,
-            receiveTimeout, peek, connected);
+    return osNetworkSystem_recvDirect(env, NULL, fd, packet, address, offset, length, peek,
+            connected);
 }
 
 
@@ -1492,7 +1383,7 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
 #ifdef ENABLE_MULTICAST
     case JAVASOCKOPT_IP_MULTICAST_IF:
         {
-            struct sockaddr_storage sockVal;
+            sockaddr_storage sockVal;
             if (!getSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &sockVal)) {
                 return NULL;
             }
@@ -1635,7 +1526,7 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         return;
     case JAVASOCKOPT_IP_MULTICAST_IF:
         {
-            struct sockaddr_storage sockVal;
+            sockaddr_storage sockVal;
             if (!env->IsInstanceOf(optVal, JniConstants::inetAddressClass) ||
                     !inetAddressToSocketAddress(env, optVal, 0, &sockVal)) {
                 return;
@@ -1736,7 +1627,7 @@ static void osNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) 
 }
 
 static JNINativeMethod gMethods[] = {
-    { "accept",                            "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;I)V",(void*) osNetworkSystem_accept },
+    { "accept",                            "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V", (void*) osNetworkSystem_accept },
     { "bind",                              "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V",                       (void*) osNetworkSystem_bind },
     { "close",                             "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_close },
     { "connectDatagram",                   "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;)V",                      (void*) osNetworkSystem_connectDatagram },
@@ -1750,10 +1641,10 @@ static JNINativeMethod gMethods[] = {
     { "getSocketLocalPort",                "(Ljava/io/FileDescriptor;)I",                                              (void*) osNetworkSystem_getSocketLocalPort },
     { "getSocketOption",                   "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;",                            (void*) osNetworkSystem_getSocketOption },
     { "listen",                            "(Ljava/io/FileDescriptor;I)V",                                             (void*) osNetworkSystem_listen },
-    { "read",                              "(Ljava/io/FileDescriptor;[BIII)I",                                         (void*) osNetworkSystem_read },
-    { "readDirect",                        "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_readDirect },
-    { "recv",                              "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIIZZ)I",              (void*) osNetworkSystem_recv },
-    { "recvDirect",                        "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIIZZ)I",               (void*) osNetworkSystem_recvDirect },
+    { "read",                              "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_read },
+    { "readDirect",                        "(Ljava/io/FileDescriptor;II)I",                                            (void*) osNetworkSystem_readDirect },
+    { "recv",                              "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I",               (void*) osNetworkSystem_recv },
+    { "recvDirect",                        "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIZZ)I",                (void*) osNetworkSystem_recvDirect },
     { "selectImpl",                        "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z",               (void*) osNetworkSystem_selectImpl },
     { "send",                              "(Ljava/io/FileDescriptor;[BIIIILjava/net/InetAddress;)I",                  (void*) osNetworkSystem_send },
     { "sendDirect",                        "(Ljava/io/FileDescriptor;IIIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_sendDirect },

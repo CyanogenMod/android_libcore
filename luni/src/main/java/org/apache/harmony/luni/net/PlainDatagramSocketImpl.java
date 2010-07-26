@@ -58,8 +58,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private volatile boolean isNativeConnected;
 
-    public int receiveTimeout;
-
     public boolean streaming = true;
 
     public boolean shutdownInput;
@@ -130,9 +128,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     public Object getOption(int optID) throws SocketException {
-        if (optID == SocketOptions.SO_TIMEOUT) {
-            return Integer.valueOf(receiveTimeout);
-        } else if (optID == SocketOptions.IP_TOS) {
+        if (optID == SocketOptions.IP_TOS) {
             return Integer.valueOf(trafficClass);
         } else {
             return netImpl.getSocketOption(fd, optID);
@@ -188,8 +184,8 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private void doRecv(DatagramPacket pack, boolean peek) throws IOException {
         try {
-            netImpl.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(),
-                    receiveTimeout, peek, isNativeConnected);
+            netImpl.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(), peek,
+                    isNativeConnected);
             if (isNativeConnected) {
                 updatePacketRecvAddress(pack);
             }
@@ -217,38 +213,27 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
                 port, trafficClass, address);
     }
 
-    /**
-     * Set the nominated socket option. As the timeouts are not set as options
-     * in the IP stack, the value is stored in an instance field.
-     *
-     * @throws SocketException thrown if the option value is unsupported or
-     *         invalid
-     */
     public void setOption(int optID, Object val) throws SocketException {
-        if (optID == SocketOptions.SO_TIMEOUT) {
-            receiveTimeout = ((Integer) val).intValue();
-        } else {
-            try {
-                netImpl.setSocketOption(fd, optID, val);
-            } catch (SocketException e) {
-                // we don't throw an exception for IP_TOS even if the platform
-                // won't let us set the requested value
-                if (optID != SocketOptions.IP_TOS) {
-                    throw e;
-                }
+        try {
+            netImpl.setSocketOption(fd, optID, val);
+        } catch (SocketException e) {
+            // we don't throw an exception for IP_TOS even if the platform
+            // won't let us set the requested value
+            if (optID != SocketOptions.IP_TOS) {
+                throw e;
             }
-            /*
-             * save this value as it is actually used differently for IPv4 and
-             * IPv6 so we cannot get the value using the getOption. The option
-             * is actually only set for IPv4 and a masked version of the value
-             * will be set as only a subset of the values are allowed on the
-             * socket. Therefore we need to retain it to return the value that
-             * was set. We also need the value to be passed into a number of
-             * natives so that it can be used properly with IPv6
-             */
-            if (optID == SocketOptions.IP_TOS) {
-                trafficClass = ((Integer) val).intValue();
-            }
+        }
+        /*
+         * save this value as it is actually used differently for IPv4 and
+         * IPv6 so we cannot get the value using the getOption. The option
+         * is actually only set for IPv4 and a masked version of the value
+         * will be set as only a subset of the values are allowed on the
+         * socket. Therefore we need to retain it to return the value that
+         * was set. We also need the value to be passed into a number of
+         * natives so that it can be used properly with IPv6
+         */
+        if (optID == SocketOptions.IP_TOS) {
+            trafficClass = ((Integer) val).intValue();
         }
     }
 

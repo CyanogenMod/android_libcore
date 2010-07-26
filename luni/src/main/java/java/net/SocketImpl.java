@@ -57,10 +57,6 @@ public abstract class SocketImpl implements SocketOptions {
 
     INetworkSystem netImpl = Platform.getNetworkSystem();
 
-    // BEGIN android-removed
-    // int receiveTimeout;
-    // END android-removed
-
     boolean streaming = true;
 
     /**

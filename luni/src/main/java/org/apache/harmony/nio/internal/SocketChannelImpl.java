@@ -77,12 +77,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     // Status closed.
     static final int SOCKET_STATUS_CLOSED = 3;
 
-    // Timeout used for non-block mode.
-    private static final int TIMEOUT_NONBLOCK = 0;
-
-    // Timeout used for block mode.
-    private static final int TIMEOUT_BLOCK = EOF;
-
     // Step used for connect.
     private static final int HY_SOCK_STEP_START = 0;
 
@@ -409,16 +403,13 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                     // BEGIN android-changed
                     // changed address from long to int
                     int address = AddressUtil.getDirectBufferAddress(target);
-                    readCount = networkSystem.readDirect(fd, address + offset,
-                            length, (isBlocking() ? TIMEOUT_BLOCK
-                                    : TIMEOUT_NONBLOCK));
+                    readCount = networkSystem.readDirect(fd, address + offset, length);
                     // END android-changed
                 } else {
                     // target is assured to have array.
                     byte[] array = target.array();
                     offset += target.arrayOffset();
-                    readCount = networkSystem.read(fd, array, offset, length,
-                            (isBlocking() ? TIMEOUT_BLOCK : TIMEOUT_NONBLOCK));
+                    readCount = networkSystem.read(fd, array, offset, length);
                 }
                 return readCount;
             } finally {
@@ -869,8 +860,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         }
 
         @Override
-        public void write(byte[] buffer, int offset, int count)
-                throws IOException {
+        public void write(byte[] buffer, int offset, int count) throws IOException {
             if (0 > offset || 0 > count || count + offset > buffer.length) {
                 throw new IndexOutOfBoundsException();
             }
@@ -925,8 +915,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         }
 
         @Override
-        public int read(byte[] buffer, int offset, int count)
-                throws IOException {
+        public int read(byte[] buffer, int offset, int count) throws IOException {
             if (0 > offset || 0 > count || count + offset > buffer.length) {
                 throw new IndexOutOfBoundsException();
             }

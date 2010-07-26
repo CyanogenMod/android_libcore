@@ -39,7 +39,6 @@ public class AllTests {
         suite.addTestSuite(DatagramPacketTest.class);
         suite.addTestSuite(DatagramSocketImplFactoryTest.class);
         suite.addTestSuite(DatagramSocketImplTest.class);
-        suite.addTestSuite(DatagramSocketTest.class);
         suite.addTestSuite(FileNameMapTest.class);
         suite.addTestSuite(HttpRetryExceptionTest.class);
         suite.addTestSuite(IDNTest.class);
@@ -63,7 +62,6 @@ public class AllTests {
         suite.addTestSuite(SocketPermissionTest.class);
         suite.addTestSuite(SocketTest.class);
         suite.addTestSuite(SocketTimeoutExceptionTest.class);
-        suite.addTestSuite(UnixSocketTest.class);
         suite.addTestSuite(URISyntaxExceptionTest.class);
         suite.addTestSuite(URITest.class);
         suite.addTestSuite(URLDecoderTest.class);

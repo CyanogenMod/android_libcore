@@ -60,8 +60,6 @@ public class PlainSocketImpl extends SocketImpl {
 
     protected INetworkSystem netImpl = Platform.getNetworkSystem();
 
-    public int receiveTimeout = 0;
-
     public boolean streaming = true;
 
     public boolean shutdownInput;
@@ -100,7 +98,7 @@ public class PlainSocketImpl extends SocketImpl {
         try {
             if (newImpl instanceof PlainSocketImpl) {
                 PlainSocketImpl newPlainSocketImpl = (PlainSocketImpl) newImpl;
-                netImpl.accept(fd, newImpl, newPlainSocketImpl.getFileDescriptor(), receiveTimeout);
+                netImpl.accept(fd, newImpl, newPlainSocketImpl.getFileDescriptor());
             } else {
                 // if newImpl is not an instance of PlainSocketImpl, use
                 // reflection to get/set protected fields.
@@ -108,7 +106,7 @@ public class PlainSocketImpl extends SocketImpl {
                     fdField = getSocketImplField("fd");
                 }
                 FileDescriptor newFd = (FileDescriptor) fdField.get(newImpl);
-                netImpl.accept(fd, newImpl, newFd, receiveTimeout);
+                netImpl.accept(fd, newImpl, newFd);
             }
         } catch (InterruptedIOException e) {
             throw new SocketTimeoutException(e.getMessage());
@@ -251,9 +249,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     public Object getOption(int optID) throws SocketException {
-        if (optID == SocketOptions.SO_TIMEOUT) {
-            return Integer.valueOf(receiveTimeout);
-        } else if (optID == SocketOptions.IP_TOS) {
+        if (optID == SocketOptions.IP_TOS) {
             return Integer.valueOf(trafficClass);
         } else {
             return netImpl.getSocketOption(fd, optID);
@@ -278,31 +274,27 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     public void setOption(int optID, Object val) throws SocketException {
-        if (optID == SocketOptions.SO_TIMEOUT) {
-            receiveTimeout = ((Integer) val).intValue();
-        } else {
-            try {
-                netImpl.setSocketOption(fd, optID, val);
-            } catch (SocketException e) {
-                // we don't throw an exception for IP_TOS even if the platform
-                // won't let us set the requested value
-                if (optID != SocketOptions.IP_TOS) {
-                    throw e;
-                }
+        try {
+            netImpl.setSocketOption(fd, optID, val);
+        } catch (SocketException e) {
+            // we don't throw an exception for IP_TOS even if the platform
+            // won't let us set the requested value
+            if (optID != SocketOptions.IP_TOS) {
+                throw e;
             }
+        }
 
-            /*
-             * save this value as it is actually used differently for IPv4 and
-             * IPv6 so we cannot get the value using the getOption. The option
-             * is actually only set for IPv4 and a masked version of the value
-             * will be set as only a subset of the values are allowed on the
-             * socket. Therefore we need to retain it to return the value that
-             * was set. We also need the value to be passed into a number of
-             * natives so that it can be used properly with IPv6
-             */
-            if (optID == SocketOptions.IP_TOS) {
-                trafficClass = ((Integer) val).intValue();
-            }
+        /*
+         * save this value as it is actually used differently for IPv4 and
+         * IPv6 so we cannot get the value using the getOption. The option
+         * is actually only set for IPv4 and a masked version of the value
+         * will be set as only a subset of the values are allowed on the
+         * socket. Therefore we need to retain it to return the value that
+         * was set. We also need the value to be passed into a number of
+         * natives so that it can be used properly with IPv6
+         */
+        if (optID == SocketOptions.IP_TOS) {
+            trafficClass = ((Integer) val).intValue();
         }
     }
 
@@ -502,7 +494,7 @@ public class PlainSocketImpl extends SocketImpl {
         if (shutdownInput) {
             return -1;
         }
-        int read = netImpl.read(fd, buffer, offset, count, receiveTimeout);
+        int read = netImpl.read(fd, buffer, offset, count);
         // Return of zero bytes for a blocking socket means a timeout occurred
         if (read == 0) {
             throw new SocketTimeoutException();

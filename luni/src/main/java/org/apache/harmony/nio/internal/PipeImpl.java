@@ -124,8 +124,7 @@ final class PipeImpl extends Pipe {
             sourceSocket.close();
         }
 
-        protected void implConfigureBlocking(boolean blockingMode)
-                throws IOException {
+        protected void implConfigureBlocking(boolean blockingMode) throws IOException {
             sourceSocket.configureBlocking(blockingMode);
         }
 
@@ -169,8 +168,7 @@ final class PipeImpl extends Pipe {
             sinkSocket.close();
         }
 
-        protected void implConfigureBlocking(boolean blockingMode)
-                throws IOException {
+        protected void implConfigureBlocking(boolean blockingMode) throws IOException {
             sinkSocket.configureBlocking(blockingMode);
         }
 

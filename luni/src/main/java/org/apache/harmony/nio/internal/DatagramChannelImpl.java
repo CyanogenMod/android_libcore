@@ -49,15 +49,10 @@ import org.apache.harmony.nio.AddressUtil;
 /*
  * The default implementation class of java.nio.channels.DatagramChannel.
  */
-class DatagramChannelImpl extends DatagramChannel implements
-        FileDescriptorHandler {
+class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandler {
 
     // The singleton to do the native network operation.
-    private static final INetworkSystem networkSystem = Platform
-            .getNetworkSystem();
-
-    // default timeout used to nonblocking mode.
-    private static final int DEFAULT_TIMEOUT = 1;
+    private static final INetworkSystem networkSystem = Platform.getNetworkSystem();
 
     private static final byte[] stubArray = new byte[0];
 
@@ -93,8 +88,7 @@ class DatagramChannelImpl extends DatagramChannel implements
     /*
      * Constructor
      */
-    protected DatagramChannelImpl(SelectorProvider selectorProvider)
-            throws IOException {
+    protected DatagramChannelImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
         fd = new FileDescriptor();
         networkSystem.createDatagramSocket(fd, true);
@@ -117,8 +111,7 @@ class DatagramChannelImpl extends DatagramChannel implements
     @Override
     synchronized public DatagramSocket socket() {
         if (null == socket) {
-            socket = new DatagramSocketAdapter(
-                    new PlainDatagramSocketImpl(fd, localPort), this);
+            socket = new DatagramSocketAdapter(new PlainDatagramSocketImpl(fd, localPort), this);
         }
         return socket;
     }
@@ -146,8 +139,7 @@ class DatagramChannelImpl extends DatagramChannel implements
      * @see java.nio.channels.DatagramChannel#connect(java.net.SocketAddress)
      */
     @Override
-    synchronized public DatagramChannel connect(SocketAddress address)
-            throws IOException {
+    synchronized public DatagramChannel connect(SocketAddress address) throws IOException {
         // must open
         checkOpen();
         // status must be un-connected.
@@ -156,8 +148,7 @@ class DatagramChannelImpl extends DatagramChannel implements
         }
 
         // check the address
-        InetSocketAddress inetSocketAddress = SocketChannelImpl
-                .validateAddress(address);
+        InetSocketAddress inetSocketAddress = SocketChannelImpl.validateAddress(address);
 
         // security check
         SecurityManager sm = System.getSecurityManager();
@@ -249,10 +240,9 @@ class DatagramChannelImpl extends DatagramChannel implements
                     target.remaining());
         }
         do {
-            int timeout = isBlocking() ? 0 : DEFAULT_TIMEOUT;
             received = networkSystem.recv(fd, receivePacket,
                     receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(),
-                    timeout, false, isConnected());
+                    false, isConnected());
 
             // security check
             SecurityManager sm = System.getSecurityManager();
@@ -288,10 +278,9 @@ class DatagramChannelImpl extends DatagramChannel implements
         int oldposition = target.position();
         int received = 0;
         do {
-            int timeout = isBlocking() ? 0 : DEFAULT_TIMEOUT;
             int address = AddressUtil.getDirectBufferAddress(target);
             received = networkSystem.recvDirect(fd, receivePacket, address,
-                    target.position(), target.remaining(), timeout, false, isConnected());
+                    target.position(), target.remaining(), false, isConnected());
 
             // security check
             SecurityManager sm = System.getSecurityManager();
@@ -321,8 +310,7 @@ class DatagramChannelImpl extends DatagramChannel implements
      *      java.net.SocketAddress)
      */
     @Override
-    public int send(ByteBuffer source, SocketAddress socketAddress)
-            throws IOException {
+    public int send(ByteBuffer source, SocketAddress socketAddress) throws IOException {
         // must not null
         checkNotNull(source);
         // must open
@@ -451,21 +439,18 @@ class DatagramChannelImpl extends DatagramChannel implements
             int readCount = 0;
             try {
                 begin();
-                // timeout == 0 means block read.
-                // DEFAULT_TIMEOUT is used in non-block mode.
-                int timeout = isBlocking() ? 0 : DEFAULT_TIMEOUT;
                 int start = readBuffer.position();
                 int length = readBuffer.remaining();
                 if (readBuffer.isDirect()) {
                     int address = AddressUtil.getDirectBufferAddress(readBuffer);
-                    readCount = networkSystem.recvDirect(fd, null, address, start, length, timeout,
+                    readCount = networkSystem.recvDirect(fd, null, address, start, length,
                             false, isConnected());
                 } else {
                     // the target is assured to have array.
                     byte[] target = readBuffer.array();
                     start += readBuffer.arrayOffset();
-                    readCount = networkSystem.recv(fd, null, target, start, length, timeout,
-                            false, isConnected());
+                    readCount = networkSystem.recv(fd, null, target, start, length, false,
+                            isConnected());
                 }
                 return readCount;
             } catch (InterruptedIOException e) {
@@ -586,13 +571,8 @@ class DatagramChannelImpl extends DatagramChannel implements
         }
     }
 
-    /**
-     * @see java.nio.channels.spi.AbstractSelectableChannel#implConfigureBlocking(boolean)
-     */
     @Override
-    @SuppressWarnings("unused")
-    protected void implConfigureBlocking(boolean blockingMode)
-            throws IOException {
+    protected void implConfigureBlocking(boolean blockingMode) throws IOException {
         // Do nothing here. For real read/write operation in nonblocking mode,
         // it uses select system call. Whether a channel is blocking can be
         // decided by isBlocking() method.

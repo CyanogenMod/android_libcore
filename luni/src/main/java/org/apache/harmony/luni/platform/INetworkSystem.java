@@ -45,23 +45,18 @@ public interface INetworkSystem {
      */
     public final int SOCKET_CONNECT_STEP_CHECK = 1;
 
-    public void accept(FileDescriptor fdServer, SocketImpl newSocket,
-            FileDescriptor fdnewSocket, int timeout) throws IOException;
-
-    public void bind(FileDescriptor aFD, InetAddress inetAddress, int port)
-            throws SocketException;
-
-    public int read(FileDescriptor aFD, byte[] data, int offset, int count,
-            int timeout) throws IOException;
-
-    public int readDirect(FileDescriptor aFD, int address, int count,
-            int timeout) throws IOException;
-
-    public int write(FileDescriptor fd, byte[] data, int offset, int count)
+    public void accept(FileDescriptor serverFd, SocketImpl newSocket, FileDescriptor clientFd)
             throws IOException;
 
-    public int writeDirect(FileDescriptor fd, int address, int offset, int count)
-            throws IOException;
+    public void bind(FileDescriptor aFD, InetAddress inetAddress, int port) throws SocketException;
+
+    public int read(FileDescriptor aFD, byte[] data, int offset, int count) throws IOException;
+
+    public int readDirect(FileDescriptor aFD, int address, int count) throws IOException;
+
+    public int write(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
+
+    public int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
 
     public void setNonBlocking(FileDescriptor aFD, boolean block) throws IOException;
 
@@ -78,9 +73,9 @@ public interface INetworkSystem {
             int port, int trafficClass, InetAddress inetAddress) throws IOException;
 
     public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
-            int length, int timeout, boolean peek, boolean connected) throws IOException;
+            int length, boolean peek, boolean connected) throws IOException;
     public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
-            int length, int timeout, boolean peek, boolean connected) throws IOException;
+            int length, boolean peek, boolean connected) throws IOException;
 
     public void disconnectDatagram(FileDescriptor aFD) throws SocketException;
 
