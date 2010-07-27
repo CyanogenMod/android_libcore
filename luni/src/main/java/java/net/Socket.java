@@ -36,7 +36,7 @@ public class Socket {
     final SocketImpl impl;
     private final Proxy proxy;
 
-    private volatile boolean isCreated = false;
+    volatile boolean isCreated = false;
     private boolean isBound = false;
     private boolean isConnected = false;
     private boolean isClosed = false;
@@ -401,7 +401,7 @@ public class Socket {
      *             socket is in an invalid state.
      */
     public InputStream getInputStream() throws IOException {
-        checkClosedAndCreate(false);
+        checkOpenAndCreate(false);
         if (isInputShutdown()) {
             throw new SocketException("Socket input is shutdown");
         }
@@ -418,7 +418,7 @@ public class Socket {
      * @see SocketOptions#SO_KEEPALIVE
      */
     public boolean getKeepAlive() throws SocketException {
-        checkClosedAndCreate(true);
+        checkOpenAndCreate(true);
         return (Boolean) impl.getOption(SocketOptions.SO_KEEPALIVE);
     }
 
@@ -449,7 +449,7 @@ public class Socket {
      *             socket is in an invalid state.
      */
     public OutputStream getOutputStream() throws IOException {
-        checkClosedAndCreate(false);
+        checkOpenAndCreate(false);
         if (isOutputShutdown()) {
             throw new SocketException("Socket output is shutdown");
         }
@@ -470,7 +470,7 @@ public class Socket {
     }
 
     /**
-     * Gets the value of the socket option {@code SocketOptions.SO_LINGER}.
+     * Gets the value of the socket option {@link SocketOptions#SO_LINGER}.
      *
      * @return the current value of the option {@code SocketOptions.SO_LINGER}
      *         or {@code -1} if this option is disabled.
@@ -479,8 +479,14 @@ public class Socket {
      * @see SocketOptions#SO_LINGER
      */
     public int getSoLinger() throws SocketException {
-        checkClosedAndCreate(true);
-        return ((Integer) impl.getOption(SocketOptions.SO_LINGER)).intValue();
+        checkOpenAndCreate(true);
+        // The RI explicitly guarantees this idiocy in the SocketOptions.setOption documentation.
+        Object value = impl.getOption(SocketOptions.SO_LINGER);
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -492,8 +498,8 @@ public class Socket {
      * @see SocketOptions#SO_RCVBUF
      */
     public synchronized int getReceiveBufferSize() throws SocketException {
-        checkClosedAndCreate(true);
-        return ((Integer) impl.getOption(SocketOptions.SO_RCVBUF)).intValue();
+        checkOpenAndCreate(true);
+        return (Integer) impl.getOption(SocketOptions.SO_RCVBUF);
     }
 
     /**
@@ -505,8 +511,8 @@ public class Socket {
      * @see SocketOptions#SO_SNDBUF
      */
     public synchronized int getSendBufferSize() throws SocketException {
-        checkClosedAndCreate(true);
-        return ((Integer) impl.getOption(SocketOptions.SO_SNDBUF)).intValue();
+        checkOpenAndCreate(true);
+        return (Integer) impl.getOption(SocketOptions.SO_SNDBUF);
     }
 
     /**
@@ -516,8 +522,8 @@ public class Socket {
      *             if an error occurs while reading the socket option.
      */
     public synchronized int getSoTimeout() throws SocketException {
-        checkClosedAndCreate(true);
-        return ((Integer) impl.getOption(SocketOptions.SO_TIMEOUT)).intValue();
+        checkOpenAndCreate(true);
+        return (Integer) impl.getOption(SocketOptions.SO_TIMEOUT);
     }
 
     /**
@@ -530,24 +536,23 @@ public class Socket {
      * @see SocketOptions#TCP_NODELAY
      */
     public boolean getTcpNoDelay() throws SocketException {
-        checkClosedAndCreate(true);
-        return ((Boolean) impl.getOption(SocketOptions.TCP_NODELAY)).booleanValue();
+        checkOpenAndCreate(true);
+        return (Boolean) impl.getOption(SocketOptions.TCP_NODELAY);
     }
 
     /**
      * Sets the state of the {@code SocketOptions.SO_KEEPALIVE} for this socket.
      *
-     * @param value
+     * @param keepAlive
      *            the state whether this option is enabled or not.
      * @throws SocketException
      *             if an error occurs while setting the option.
      * @see SocketOptions#SO_KEEPALIVE
      */
-    public void setKeepAlive(boolean value) throws SocketException {
+    public void setKeepAlive(boolean keepAlive) throws SocketException {
         if (impl != null) {
-            checkClosedAndCreate(true);
-            impl.setOption(SocketOptions.SO_KEEPALIVE, value ? Boolean.TRUE
-                    : Boolean.FALSE);
+            checkOpenAndCreate(true);
+            impl.setOption(SocketOptions.SO_KEEPALIVE, Boolean.valueOf(keepAlive));
         }
     }
 
@@ -584,7 +589,7 @@ public class Socket {
      * @see SocketOptions#SO_SNDBUF
      */
     public synchronized void setSendBufferSize(int size) throws SocketException {
-        checkClosedAndCreate(true);
+        checkOpenAndCreate(true);
         if (size < 1) {
             throw new IllegalArgumentException("size < 1");
         }
@@ -603,7 +608,7 @@ public class Socket {
      * @see SocketOptions#SO_RCVBUF
      */
     public synchronized void setReceiveBufferSize(int size) throws SocketException {
-        checkClosedAndCreate(true);
+        checkOpenAndCreate(true);
         if (size < 1) {
             throw new IllegalArgumentException("size < 1");
         }
@@ -611,9 +616,7 @@ public class Socket {
     }
 
     /**
-     * Sets the state of the {@code SocketOptions.SO_LINGER} with the given
-     * timeout in seconds. The timeout value for this option is silently limited
-     * to the maximum of {@code 65535}.
+     * Sets the {@link SocketOptions#SO_LINGER} timeout in seconds.
      *
      * @param on
      *            the state whether this option is enabled or not.
@@ -624,24 +627,16 @@ public class Socket {
      * @see SocketOptions#SO_LINGER
      */
     public void setSoLinger(boolean on, int timeout) throws SocketException {
-        checkClosedAndCreate(true);
+        checkOpenAndCreate(true);
+        // The RI explicitly guarantees this idiocy in the SocketOptions.setOption documentation.
         if (on && timeout < 0) {
             throw new IllegalArgumentException("timeout < 0");
         }
-        // BEGIN android-changed
-        /*
-         * The spec indicates that the right way to turn off an option
-         * is to pass Boolean.FALSE, so that's what we do here.
-         */
         if (on) {
-            if (timeout > 65535) {
-                timeout = 65535;
-            }
             impl.setOption(SocketOptions.SO_LINGER, Integer.valueOf(timeout));
         } else {
             impl.setOption(SocketOptions.SO_LINGER, Boolean.FALSE);
         }
-        // END android-changed
     }
 
     /**
@@ -656,7 +651,7 @@ public class Socket {
      *             if an error occurs while setting the option.
      */
     public synchronized void setSoTimeout(int timeout) throws SocketException {
-        checkClosedAndCreate(true);
+        checkOpenAndCreate(true);
         if (timeout < 0) {
             throw new IllegalArgumentException("timeout < 0");
         }
@@ -673,7 +668,7 @@ public class Socket {
      * @see SocketOptions#TCP_NODELAY
      */
     public void setTcpNoDelay(boolean on) throws SocketException {
-        checkClosedAndCreate(true);
+        checkOpenAndCreate(true);
         impl.setOption(SocketOptions.TCP_NODELAY, Boolean.valueOf(on));
     }
 
@@ -693,7 +688,7 @@ public class Socket {
      *             thrown if an error occurs during the bind or connect
      *             operations.
      */
-    void startupSocket(InetAddress dstAddress, int dstPort,
+    private void startupSocket(InetAddress dstAddress, int dstPort,
             InetAddress localAddress, int localPort, boolean streaming)
             throws IOException {
 
@@ -748,7 +743,7 @@ public class Socket {
         if (isInputShutdown()) {
             throw new SocketException("Socket input is shutdown");
         }
-        checkClosedAndCreate(false);
+        checkOpenAndCreate(false);
         impl.shutdownInput();
         isInputShutdown = true;
     }
@@ -767,7 +762,7 @@ public class Socket {
         if (isOutputShutdown()) {
             throw new SocketException("Socket output is shutdown");
         }
-        checkClosedAndCreate(false);
+        checkOpenAndCreate(false);
         impl.shutdownOutput();
         isOutputShutdown = true;
     }
@@ -779,7 +774,7 @@ public class Socket {
      * @throws SocketException
      *             if the socket is closed.
      */
-    private void checkClosedAndCreate(boolean create) throws SocketException {
+    private void checkOpenAndCreate(boolean create) throws SocketException {
         if (isClosed()) {
             throw new SocketException("Socket is closed");
         }
@@ -883,7 +878,7 @@ public class Socket {
      *             binding.
      */
     public void bind(SocketAddress localAddr) throws IOException {
-        checkClosedAndCreate(true);
+        checkOpenAndCreate(true);
         if (isBound()) {
             throw new BindException("Socket is already bound");
         }
@@ -949,7 +944,7 @@ public class Socket {
      *             connecting.
      */
     public void connect(SocketAddress remoteAddr, int timeout) throws IOException {
-        checkClosedAndCreate(true);
+        checkOpenAndCreate(true);
         if (timeout < 0) {
             throw new IllegalArgumentException("timeout < 0");
         }
@@ -976,7 +971,7 @@ public class Socket {
             try {
                 if (!isBound()) {
                     // socket already created at this point by earlier call or
-                    // checkClosedAndCreate this caused us to lose socket
+                    // checkOpenAndCreate this caused us to lose socket
                     // options on create
                     // impl.create(true);
                     if (!NetUtil.usingSocks(proxy)) {
@@ -1026,9 +1021,8 @@ public class Socket {
      * @see SocketOptions#SO_REUSEADDR
      */
     public void setReuseAddress(boolean reuse) throws SocketException {
-        checkClosedAndCreate(true);
-        impl.setOption(SocketOptions.SO_REUSEADDR, reuse ? Boolean.TRUE
-                : Boolean.FALSE);
+        checkOpenAndCreate(true);
+        impl.setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(reuse));
     }
 
     /**
@@ -1041,9 +1035,8 @@ public class Socket {
      * @see SocketOptions#SO_REUSEADDR
      */
     public boolean getReuseAddress() throws SocketException {
-        checkClosedAndCreate(true);
-        return ((Boolean) impl.getOption(SocketOptions.SO_REUSEADDR))
-                .booleanValue();
+        checkOpenAndCreate(true);
+        return (Boolean) impl.getOption(SocketOptions.SO_REUSEADDR);
     }
 
     /**
@@ -1058,9 +1051,8 @@ public class Socket {
      * @see SocketOptions#SO_OOBINLINE
      */
     public void setOOBInline(boolean oobinline) throws SocketException {
-        checkClosedAndCreate(true);
-        impl.setOption(SocketOptions.SO_OOBINLINE, oobinline ? Boolean.TRUE
-                : Boolean.FALSE);
+        checkOpenAndCreate(true);
+        impl.setOption(SocketOptions.SO_OOBINLINE, Boolean.valueOf(oobinline));
     }
 
     /**
@@ -1073,9 +1065,8 @@ public class Socket {
      * @see SocketOptions#SO_OOBINLINE
      */
     public boolean getOOBInline() throws SocketException {
-        checkClosedAndCreate(true);
-        return ((Boolean) impl.getOption(SocketOptions.SO_OOBINLINE))
-                .booleanValue();
+        checkOpenAndCreate(true);
+        return (Boolean) impl.getOption(SocketOptions.SO_OOBINLINE);
     }
 
     /**
@@ -1091,7 +1082,7 @@ public class Socket {
      * @see SocketOptions#IP_TOS
      */
     public void setTrafficClass(int value) throws SocketException {
-        checkClosedAndCreate(true);
+        checkOpenAndCreate(true);
         if (value < 0 || value > 255) {
             throw new IllegalArgumentException();
         }
@@ -1107,8 +1098,8 @@ public class Socket {
      * @see SocketOptions#IP_TOS
      */
     public int getTrafficClass() throws SocketException {
-        checkClosedAndCreate(true);
-        return ((Number) impl.getOption(SocketOptions.IP_TOS)).intValue();
+        checkOpenAndCreate(true);
+        return (Integer) impl.getOption(SocketOptions.IP_TOS);
     }
 
     /**
@@ -1162,8 +1153,7 @@ public class Socket {
      * @param bandwidth
      *            the value representing the importance of high bandwidth.
      */
-    public void setPerformancePreferences(int connectionTime, int latency,
-            int bandwidth) {
+    public void setPerformancePreferences(int connectionTime, int latency, int bandwidth) {
         // Our socket implementation only provide one protocol: TCP/IP, so
         // we do nothing for this method
     }

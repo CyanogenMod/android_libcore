@@ -33,6 +33,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.SocketOptions;
+import java.net.SocketUtils;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AlreadyConnectedException;
@@ -596,6 +597,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             super(socketImpl);
             this.socketImpl = socketImpl;
             this.channel = channel;
+            SocketUtils.setCreated(this);
         }
 
         PlainSocketImpl socketImpl() {
@@ -670,130 +672,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         }
 
         @Override
-        public boolean getReuseAddress() throws SocketException {
-            checkOpen();
-            return (Boolean) socketImpl.getOption(SocketOptions.SO_REUSEADDR);
-        }
-
-        @Override
-        public synchronized int getReceiveBufferSize() throws SocketException {
-            checkOpen();
-            return (Integer) socketImpl.getOption(SocketOptions.SO_RCVBUF);
-        }
-
-        @Override
-        public synchronized int getSendBufferSize() throws SocketException {
-            checkOpen();
-            return (Integer) socketImpl.getOption(SocketOptions.SO_SNDBUF);
-        }
-
-        @Override
-        public synchronized int getSoTimeout() throws SocketException {
-            checkOpen();
-            return (Integer) socketImpl.getOption(SocketOptions.SO_TIMEOUT);
-        }
-
-        @Override
-        public int getTrafficClass() throws SocketException {
-            checkOpen();
-            return ((Number) socketImpl.getOption(SocketOptions.IP_TOS)).intValue();
-        }
-
-        @Override
-        public boolean getKeepAlive() throws SocketException {
-            checkOpen();
-            return (Boolean) socketImpl.getOption(SocketOptions.SO_KEEPALIVE);
-        }
-
-        @Override
-        public boolean getOOBInline() throws SocketException {
-            checkOpen();
-            return (Boolean) socketImpl.getOption(SocketOptions.SO_OOBINLINE);
-        }
-
-        @Override
-        public int getSoLinger() throws SocketException {
-            checkOpen();
-            return (Integer) socketImpl.getOption(SocketOptions.SO_LINGER);
-        }
-
-        @Override
-        public boolean getTcpNoDelay() throws SocketException {
-            checkOpen();
-            return (Boolean) socketImpl.getOption(SocketOptions.TCP_NODELAY);
-        }
-
-        @Override
-        public void setKeepAlive(boolean value) throws SocketException {
-            checkOpen();
-            socketImpl.setOption(SocketOptions.SO_KEEPALIVE, value);
-        }
-
-        @Override
-        public void setOOBInline(boolean oobinline) throws SocketException {
-            checkOpen();
-            socketImpl.setOption(SocketOptions.SO_OOBINLINE, oobinline);
-        }
-
-        @Override
-        public synchronized void setReceiveBufferSize(int size) throws SocketException {
-            checkOpen();
-            if (size < 1) {
-                throw new IllegalArgumentException("size < 1");
-            }
-            socketImpl.setOption(SocketOptions.SO_RCVBUF, Integer.valueOf(size));
-        }
-
-        @Override
-        public void setReuseAddress(boolean reuse) throws SocketException {
-            checkOpen();
-            socketImpl.setOption(SocketOptions.SO_REUSEADDR, reuse);
-        }
-
-        @Override
-        public synchronized void setSendBufferSize(int size) throws SocketException {
-            checkOpen();
-            if (size < 1) {
-                throw new IllegalArgumentException("size < 1");
-            }
-            socketImpl.setOption(SocketOptions.SO_SNDBUF, Integer.valueOf(size));
-        }
-
-        @Override
-        public void setSoLinger(boolean on, int timeout) throws SocketException {
-            checkOpen();
-            if (on && timeout < 0) {
-                throw new IllegalArgumentException("timeout < 0");
-            }
-            int val = on ? (65535 < timeout ? 65535 : timeout) : -1;
-            socketImpl.setOption(SocketOptions.SO_LINGER, Integer.valueOf(val));
-        }
-
-        @Override
-        public synchronized void setSoTimeout(int timeout) throws SocketException {
-            checkOpen();
-            if (timeout < 0) {
-                throw new IllegalArgumentException("timeout < 0");
-            }
-            socketImpl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(timeout));
-        }
-
-        @Override
-        public void setTcpNoDelay(boolean on) throws SocketException {
-            checkOpen();
-            socketImpl.setOption(SocketOptions.TCP_NODELAY, Boolean.valueOf(on));
-        }
-
-        @Override
-        public void setTrafficClass(int value) throws SocketException {
-            checkOpen();
-            if (value < 0 || value > 255) {
-                throw new IllegalArgumentException();
-            }
-            socketImpl.setOption(SocketOptions.IP_TOS, Integer.valueOf(value));
-        }
-
-        @Override
         public OutputStream getOutputStream() throws IOException {
             checkOpenAndConnected();
             if (isOutputShutdown()) {
@@ -818,22 +696,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
             if (!channel.isConnected()) {
                 throw new SocketException("Socket is not connected");
             }
-        }
-
-        /*
-         * Checks whether the channel is open.
-         */
-        private void checkOpen() throws SocketException {
-            if (isClosed()) {
-                throw new SocketException("Socket is closed");
-            }
-        }
-
-        /*
-         * Used for net and nio exchange.
-         */
-        public SocketImpl getImpl() {
-            return socketImpl;
         }
     }
 

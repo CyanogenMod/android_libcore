@@ -90,7 +90,6 @@ static struct CachedFields {
     jfieldID iaddr_ipaddress;
     jfieldID integer_class_value;
     jfieldID boolean_class_value;
-    jfieldID byte_class_value;
     jfieldID socketimpl_address;
     jfieldID socketimpl_port;
     jfieldID socketimpl_localport;
@@ -605,7 +604,6 @@ static bool initCachedFields(JNIEnv* env) {
         {&c->iaddr_ipaddress, JniConstants::inetAddressClass, "ipaddress", "[B"},
         {&c->integer_class_value, JniConstants::integerClass, "value", "I"},
         {&c->boolean_class_value, JniConstants::booleanClass, "value", "Z"},
-        {&c->byte_class_value, JniConstants::byteClass, "value", "B"},
         {&c->socketimpl_port, JniConstants::socketImplClass, "port", "I"},
         {&c->socketimpl_localport, JniConstants::socketImplClass, "localport", "I"},
         {&c->socketimpl_address, JniConstants::socketImplClass, "address", "Ljava/net/InetAddress;"},
@@ -1364,15 +1362,21 @@ static jobject osNetworkSystem_getSocketOption(JNIEnv* env, jobject, jobject fil
         return getSocketOption_Boolean(env, fd, SOL_SOCKET, SO_OOBINLINE);
     case JAVASOCKOPT_IP_TOS:
         if (family == AF_INET) {
-            return getSocketOption_Boolean(env, fd, IPPROTO_IP, IP_TOS);
+            return getSocketOption_Integer(env, fd, IPPROTO_IP, IP_TOS);
         } else {
-            return getSocketOption_Boolean(env, fd, IPPROTO_IPV6, IPV6_TCLASS);
+            return getSocketOption_Integer(env, fd, IPPROTO_IPV6, IPV6_TCLASS);
         }
     case JAVASOCKOPT_SO_LINGER:
         {
             linger lingr;
             bool ok = getSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &lingr);
-            return ok ? integerValueOf(env, !lingr.l_onoff ? -1 : lingr.l_linger) : NULL;
+            if (!ok) {
+                return NULL; // We already threw.
+            } else if (!lingr.l_onoff) {
+                return booleanValueOf(env, false);
+            } else {
+                return integerValueOf(env, lingr.l_linger);
+            }
         }
     case JAVASOCKOPT_SO_TIMEOUT:
         {
@@ -1453,12 +1457,12 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     }
 
     int intVal;
+    bool wasBoolean = false;
     if (env->IsInstanceOf(optVal, JniConstants::integerClass)) {
         intVal = (int) env->GetIntField(optVal, gCachedFields.integer_class_value);
     } else if (env->IsInstanceOf(optVal, JniConstants::booleanClass)) {
         intVal = (int) env->GetBooleanField(optVal, gCachedFields.boolean_class_value);
-    } else if (env->IsInstanceOf(optVal, JniConstants::byteClass)) {
-        intVal = (int) env->GetByteField(optVal, gCachedFields.byte_class_value);
+        wasBoolean = true;
     } else if (env->IsInstanceOf(optVal, JniConstants::genericIPMreqClass) || env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
         // we'll use optVal directly
     } else {
@@ -1491,8 +1495,8 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     case JAVASOCKOPT_SO_LINGER:
         {
             linger l;
-            l.l_onoff = intVal > 0 ? 1 : 0;
-            l.l_linger = intVal;
+            l.l_onoff = !wasBoolean;
+            l.l_linger = intVal <= 65535 ? intVal : 65535;
             setSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &l);
             return;
         }

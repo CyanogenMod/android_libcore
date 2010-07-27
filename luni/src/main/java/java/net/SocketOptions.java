@@ -36,7 +36,7 @@ public interface SocketOptions {
      * the method blocks this time in milliseconds. If all data could be sent
      * during this timeout the socket is closed normally otherwise forcefully.
      * Valid values for this option are in the range {@code 0 <= SO_LINGER <=
-     * 65535}.
+     * 65535}. (Larger timeouts will be treated as 65535s timeouts; roughly 18 hours.)
      */
     public static final int SO_LINGER = 128;
 

@@ -560,18 +560,16 @@ public class MulticastSocket extends DatagramSocket {
     }
 
     /**
-     * Sets the {@code SocketOptions.IP_MULTICAST_LOOP}.
+     * Sets the {@link SocketOptions#IP_MULTICAST_LOOP}.
      *
-     * @param loop
-     *            the value for the socket option socket {@code
-     *            SocketOptions.IP_MULTICAST_LOOP}.
+     * @param disable
+     *            true to <i>disable</i> loopback
      * @throws SocketException
      *             if the socket is closed or the option is invalid.
      * @since 1.4
      */
-    public void setLoopbackMode(boolean loop) throws SocketException {
+    public void setLoopbackMode(boolean disable) throws SocketException {
         checkClosedAndBind(false);
-        impl.setOption(SocketOptions.IP_MULTICAST_LOOP, loop ? Boolean.FALSE
-                : Boolean.TRUE);
+        impl.setOption(SocketOptions.IP_MULTICAST_LOOP, Boolean.valueOf(!disable));
     }
 }

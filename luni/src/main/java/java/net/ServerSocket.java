@@ -476,8 +476,7 @@ public class ServerSocket {
      */
     public void setReuseAddress(boolean reuse) throws SocketException {
         checkClosedAndCreate(true);
-        impl.setOption(SocketOptions.SO_REUSEADDR, reuse ? Boolean.TRUE
-                : Boolean.FALSE);
+        impl.setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(reuse));
     }
 
     /**

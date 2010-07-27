@@ -745,8 +745,7 @@ public class DatagramSocket {
      */
     public void setReuseAddress(boolean reuse) throws SocketException {
         checkClosedAndBind(false);
-        impl.setOption(SocketOptions.SO_REUSEADDR, reuse ? Boolean.TRUE
-                : Boolean.FALSE);
+        impl.setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(reuse));
     }
 
     /**
@@ -773,8 +772,7 @@ public class DatagramSocket {
      */
     public void setBroadcast(boolean broadcast) throws SocketException {
         checkClosedAndBind(false);
-        impl.setOption(SocketOptions.SO_BROADCAST, broadcast ? Boolean.TRUE
-                : Boolean.FALSE);
+        impl.setOption(SocketOptions.SO_BROADCAST, Boolean.valueOf(broadcast));
     }
 
     /**
