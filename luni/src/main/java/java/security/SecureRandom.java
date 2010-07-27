@@ -64,7 +64,8 @@ public class SecureRandom extends Random {
      */
     public SecureRandom() {
         super(0);
-        Provider.Service service = Services.getService("SecureRandom");
+        Services.refresh();
+        Provider.Service service = Services.getSecureRandomService();
         if (service == null) {
             this.provider = null;
             this.secureRandomSpi = new SHA1PRNG_SecureRandomImpl();

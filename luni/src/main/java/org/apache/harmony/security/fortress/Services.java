@@ -51,6 +51,9 @@ public class Services {
     // initialization adds a few entries more than the growth threshold.
     private static final Map<String, Provider.Service> services
             = new HashMap<String, Provider.Service>(600);
+    // save default SecureRandom service as well.
+    // avoids similar provider/services iteration in SecureRandom constructor
+    private static Provider.Service secureRandom;
     // END android-changed
 
     // Need refresh flag
@@ -171,6 +174,9 @@ public class Services {
 
         for (Provider.Service serv : p.getServices()) {
             String type = serv.getType();
+            if (secureRandom == null && type.equals("SecureRandom")) {
+                secureRandom = serv;
+            }
             sb.delete(0, sb.length());
             String key = sb.append(type).append(".").append(
                     Util.toUpperCase(serv.getAlgorithm())).toString();
@@ -195,6 +201,7 @@ public class Services {
      */
     public static void updateServiceInfo() {
         services.clear();
+        secureRandom = null;
         for (Provider p : providers) {
             initServiceInfo(p);
         }
@@ -210,15 +217,22 @@ public class Services {
     }
 
     /**
-     *
      * Returns service description.
      * Call refresh() before.
      *
-     * @param key
+     * @param key in the format TYPE.ALGORITHM
      * @return
      */
     public static Provider.Service getService(String key) {
         return services.get(key);
+    }
+
+    /**
+     * Returns the default SecureRandom service description.
+     * Call refresh() before.
+     */
+    public static Provider.Service getSecureRandomService() {
+        return secureRandom;
     }
 
     /**
