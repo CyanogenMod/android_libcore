@@ -311,6 +311,11 @@ final class OSMemory implements IMemorySystem {
     public native void setIntArray(int address, int[] ints, int offset,
             int length, boolean swap) throws NullPointerException,
             IndexOutOfBoundsException;
+
+    public native void setFloatArray(int address, float[] floats, int offset,
+            int length, boolean swap) throws NullPointerException,
+            IndexOutOfBoundsException;
+
     // END android-added
 
     // Primitive get & set methods

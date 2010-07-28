@@ -32,7 +32,6 @@ import org.apache.harmony.luni.platform.PlatformAddressFactory;
  * <p>
  * This class is marked final for runtime performance.
  * </p>
- *
  */
 final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
@@ -214,6 +213,46 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         }
         boolean swap = order() != ByteOrder.nativeOrder();
         getBaseAddress().setIntArray(offset + position, src, off, len, swap);
+        position += len << 2;
+        return this;
+    }
+
+    /**
+     * Writes <code>float</code>s in the given float array, starting from the
+     * specified offset, to the current position and increase the position by
+     * the number of <code>float</code>s written.
+     *
+     * @param src
+     *            The source float array
+     * @param off
+     *            The offset of float array, must be no less than zero and no
+     *            greater than <code>src.length</code>
+     * @param len
+     *            The number of <code>float</code>s to write, must be no less
+     *            than zero and no greater than <code>src.length - off</code>
+     * @return This buffer
+     * @exception BufferOverflowException
+     *                If <code>remaining()</code> is less than
+     *                <code>len</code>
+     * @exception IndexOutOfBoundsException
+     *                If either <code>off</code> or <code>len</code> is
+     *                invalid
+     * @exception ReadOnlyBufferException
+     *                If no changes may be made to the contents of this buffer
+     */
+    ByteBuffer put(float[] src, int off, int len) {
+        int length = src.length;
+        if (off < 0 || len < 0 || (long)off + (long)len > length) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (len << 2 > remaining()) {
+            throw new BufferOverflowException();
+        }
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
+        boolean swap = order() != ByteOrder.nativeOrder();
+        getBaseAddress().setFloatArray(offset + position, src, off, len, swap);
         position += len << 2;
         return this;
     }
