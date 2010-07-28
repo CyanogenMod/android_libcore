@@ -34,9 +34,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.Charsets;
 import java.security.AccessController;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import org.apache.harmony.luni.util.DeleteOnExit;
 import org.apache.harmony.luni.util.PriviAction;
 
@@ -92,9 +92,6 @@ public class File implements Serializable, Comparable<File> {
      */
     public static final String pathSeparator;
 
-    /* Temp file counter */
-    private static int counter;
-
     /**
      * The path we return from getPath. This is almost the path we were
      * given, but without duplicate adjacent slashes and without trailing
@@ -104,14 +101,9 @@ public class File implements Serializable, Comparable<File> {
     private String path;
 
     /**
-     * The cached UTF-8 byte sequence corresponding to 'path'.
-     * This is suitable for direct use by our JNI, and includes a trailing NUL.
-     * For non-absolute paths, the "user.dir" property is prepended: that is,
-     * this byte sequence usually represents an absolute path (the exception
-     * being if the user overwrites the "user.dir" property with a non-absolute
-     * path).
+     * The path we return from getAbsolutePath, and pass down to native code.
      */
-    transient byte[] pathBytes;
+    private String absolutePath;
 
     static {
         // The default protection domain grants access to these properties.
@@ -190,34 +182,18 @@ public class File implements Serializable, Comparable<File> {
     }
 
     private void init(String dirtyPath) {
-        // Keep a copy of the cleaned-up string path.
-        this.path = fixSlashes(dirtyPath);
-        // Cache the UTF-8 bytes we need for the JNI.
-        // TODO: we shouldn't do this caching at all; the RI demonstrably doesn't.
-        if (path.length() > 0 && path.charAt(0) == separatorChar) { // http://b/2486943
-            this.pathBytes = newCString(path);
-            return;
+        // Cache the path and the absolute path.
+        // We can't call isAbsolute() here (http://b/2486943).
+        String cleanPath = fixSlashes(dirtyPath);
+        boolean isAbsolute = cleanPath.length() > 0 && cleanPath.charAt(0) == separatorChar;
+        if (isAbsolute) {
+            this.path = this.absolutePath = cleanPath;
+        } else {
+            String userDir = AccessController.doPrivileged(new PriviAction<String>("user.dir"));
+            this.absolutePath = cleanPath.isEmpty() ? userDir : join(userDir, cleanPath);
+            // We want path to be equal to cleanPath, but we'd like to reuse absolutePath's char[].
+            this.path = absolutePath.substring(absolutePath.length() - cleanPath.length());
         }
-        String userDir = AccessController.doPrivileged(
-            new PriviAction<String>("user.dir"));
-        this.pathBytes = newCString(path.isEmpty() ? userDir : join(userDir, path));
-    }
-
-    private byte[] newCString(String s) {
-        byte[] bytes = s.getBytes(Charsets.UTF_8);
-        // This is an awful mistake, because '\' is a perfectly acceptable
-        // character on Linux/Android. But we've shipped so many versions
-        // that behaved like this, I'm too scared to change it.
-        for (int i = 0; i < bytes.length; ++i) {
-            if (bytes[i] == '\\') {
-                bytes[i] = '/';
-            }
-        }
-        // Add a trailing NUL, because this byte[] is going to be used as a char*.
-        int byteCount = bytes.length + 1;
-        byte[] result = new byte[byteCount];
-        System.arraycopy(bytes, 0, result, 0, bytes.length);
-        return result;
     }
 
     // Removes duplicate adjacent slashes and any trailing slash.
@@ -315,9 +291,9 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkExec(path); // Seems bogus, but this is what the RI does.
         }
-        return canExecuteImpl(pathBytes);
+        return canExecuteImpl(absolutePath);
     }
-    private native boolean canExecuteImpl(byte[] filePath);
+    private static native boolean canExecuteImpl(String path);
 
     /**
      * Indicates whether the current context is allowed to read from this file.
@@ -335,9 +311,9 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkRead(path);
         }
-        return canReadImpl(pathBytes);
+        return canReadImpl(absolutePath);
     }
-    private native boolean canReadImpl(byte[] filePath);
+    private static native boolean canReadImpl(String path);
 
     /**
      * Indicates whether the current context is allowed to write to this file.
@@ -356,9 +332,9 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkWrite(path);
         }
-        return canWriteImpl(pathBytes);
+        return canWriteImpl(absolutePath);
     }
-    private native boolean canWriteImpl(byte[] filePath);
+    private static native boolean canWriteImpl(String path);
 
     /**
      * Returns the relative sort ordering of the paths for this file and the
@@ -394,10 +370,10 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkDelete(path);
         }
-        return deleteImpl(pathBytes);
+        return deleteImpl(absolutePath);
     }
 
-    private native boolean deleteImpl(byte[] filePath);
+    private static native boolean deleteImpl(String path);
 
     /**
      * Schedules this file to be automatically deleted once the virtual machine
@@ -452,10 +428,10 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkRead(path);
         }
-        return existsImpl(pathBytes);
+        return existsImpl(absolutePath);
     }
 
-    private native boolean existsImpl(byte[] filePath);
+    private static native boolean existsImpl(String path);
 
     /**
      * Returns the absolute path of this file.
@@ -463,7 +439,7 @@ public class File implements Serializable, Comparable<File> {
      * @return the absolute file path.
      */
     public String getAbsolutePath() {
-        return new String(pathBytes, 0, pathBytes.length - 1, Charsets.UTF_8);
+        return absolutePath;
     }
 
     /**
@@ -503,37 +479,40 @@ public class File implements Serializable, Comparable<File> {
         // }
         // END android-removed
 
-        byte[] result = pathBytes;
-        if(separatorChar == '/') {
+        // TODO: rewrite getCanonicalPath, resolve, and resolveLink.
+
+        String result = absolutePath;
+        if (separatorChar == '/') {
             // resolve the full path first
-            result = resolveLink(result, result.length, false);
+            result = resolveLink(result, result.length(), false);
             // resolve the parent directories
             result = resolve(result);
         }
         int numSeparators = 1;
-        for (int i = 0; i < result.length; i++) {
-            if (result[i] == separatorChar) {
+        for (int i = 0; i < result.length(); ++i) {
+            if (result.charAt(i) == separatorChar) {
                 numSeparators++;
             }
         }
-        int sepLocations[] = new int[numSeparators];
+        int[] sepLocations = new int[numSeparators];
         int rootLoc = 0;
         if (separatorChar != '/') {
-            if (result[0] == '\\') {
-                rootLoc = (result.length > 1 && result[1] == '\\') ? 1 : 0;
+            if (result.charAt(0) == '\\') {
+                rootLoc = (result.length() > 1 && result.charAt(1) == '\\') ? 1 : 0;
             } else {
                 rootLoc = 2; // skip drive i.e. c:
             }
         }
-        byte newResult[] = new byte[result.length + 1];
+
+        char[] newResult = new char[result.length() + 1];
         int newLength = 0, lastSlash = 0, foundDots = 0;
         sepLocations[lastSlash] = rootLoc;
-        for (int i = 0; i <= result.length; i++) {
+        for (int i = 0; i <= result.length(); ++i) {
             if (i < rootLoc) {
-                newResult[newLength++] = result[i];
+                newResult[newLength++] = result.charAt(i);
             } else {
-                if (i == result.length || result[i] == separatorChar) {
-                    if (i == result.length && foundDots == 0) {
+                if (i == result.length() || result.charAt(i) == separatorChar) {
+                    if (i == result.length() && foundDots == 0) {
                         break;
                     }
                     if (foundDots == 1) {
@@ -543,82 +522,76 @@ public class File implements Serializable, Comparable<File> {
                     }
                     if (foundDots > 1) {
                         /* Go back N levels */
-                        lastSlash = lastSlash > (foundDots - 1) ? lastSlash
-                                - (foundDots - 1) : 0;
+                        lastSlash = lastSlash > (foundDots - 1) ? lastSlash - (foundDots - 1) : 0;
                         newLength = sepLocations[lastSlash] + 1;
                         foundDots = 0;
                         continue;
                     }
                     sepLocations[++lastSlash] = newLength;
-                    newResult[newLength++] = (byte) separatorChar;
+                    newResult[newLength++] = separatorChar;
                     continue;
                 }
-                if (result[i] == '.') {
+                if (result.charAt(i) == '.') {
                     foundDots++;
                     continue;
                 }
                 /* Found some dots within text, write them out */
                 if (foundDots > 0) {
                     for (int j = 0; j < foundDots; j++) {
-                        newResult[newLength++] = (byte) '.';
+                        newResult[newLength++] = '.';
                     }
                 }
-                newResult[newLength++] = result[i];
+                newResult[newLength++] = result.charAt(i);
                 foundDots = 0;
             }
         }
         // remove trailing slash
-        if (newLength > (rootLoc + 1)
-                && newResult[newLength - 1] == separatorChar) {
+        if (newLength > (rootLoc + 1) && newResult[newLength - 1] == separatorChar) {
             newLength--;
         }
-        newResult[newLength] = 0;
-        newResult = getCanonImpl(newResult);
-        newLength = newResult.length;
-        return new String(newResult, 0, newLength, Charsets.UTF_8);
+        return new String(newResult, 0, newLength);
     }
 
     /*
      * Resolve symbolic links in the parent directories.
      */
-    private byte[] resolve(byte[] newResult) throws IOException {
-        int last = 1, nextSize, linkSize;
-        byte[] linkPath = newResult, bytes;
-        boolean done, inPlace;
-        for (int i = 1; i <= newResult.length; i++) {
-            if (i == newResult.length || newResult[i] == separatorChar) {
-                done = i >= newResult.length - 1;
+    private static String resolve(String path) throws IOException {
+        int last = 1;
+        String linkPath = path;
+        String bytes;
+        boolean done;
+        for (int i = 1; i <= path.length(); i++) {
+            if (i == path.length() || path.charAt(i) == separatorChar) {
+                done = i >= path.length() - 1;
                 // if there is only one segment, do nothing
-                if (done && linkPath.length == 1) {
-                    return newResult;
+                if (done && linkPath.length() == 1) {
+                    return path;
                 }
-                inPlace = false;
-                if (linkPath == newResult) {
-                    bytes = newResult;
-                    // if there are no symbolic links, terminate the C string
-                    // instead of copying
+                boolean inPlace = false;
+                if (linkPath.equals(path)) {
+                    bytes = path;
+                    // if there are no symbolic links, truncate the path instead of copying
                     if (!done) {
                         inPlace = true;
-                        newResult[i] = '\0';
+                        path = path.substring(0, i);
                     }
                 } else {
-                    nextSize = i - last + 1;
-                    linkSize = linkPath.length;
-                    if (linkPath[linkSize - 1] == separatorChar) {
+                    int nextSize = i - last + 1;
+                    int linkSize = linkPath.length();
+                    if (linkPath.charAt(linkSize - 1) == separatorChar) {
                         linkSize--;
                     }
-                    bytes = new byte[linkSize + nextSize];
-                    System.arraycopy(linkPath, 0, bytes, 0, linkSize);
-                    System.arraycopy(newResult, last - 1, bytes, linkSize,
-                            nextSize);
+                    bytes = linkPath.substring(0, linkSize) +
+                            path.substring(last - 1, last - 1 + nextSize);
                     // the full path has already been resolved
                 }
                 if (done) {
                     return bytes;
                 }
-                linkPath = resolveLink(bytes, inPlace ? i : bytes.length, true);
+                linkPath = resolveLink(bytes, inPlace ? i : bytes.length(), true);
                 if (inPlace) {
-                    newResult[i] = '/';
+                    // path[i] = '/';
+                    path = path.substring(0, i) + '/' + (i + 1 < path.length() ? path.substring(i + 1) : "");
                 }
                 last = i + 1;
             }
@@ -631,41 +604,31 @@ public class File implements Serializable, Comparable<File> {
      * keep resolving. If an absolute link is found, resolve the parent
      * directories if resolveAbsolute is true.
      */
-    private byte[] resolveLink(byte[] pathBytes, int length,
-            boolean resolveAbsolute) throws IOException {
+    private static String resolveLink(String path, int length, boolean resolveAbsolute)
+            throws IOException {
         boolean restart = false;
-        byte[] linkBytes, temp;
         do {
-            linkBytes = getLinkImpl(pathBytes);
-            if (linkBytes == pathBytes) {
+            String target = readlink(path);
+            if (target.equals(path)) {
                 break;
             }
-            if (linkBytes[0] == separatorChar) {
-                // link to an absolute path, if resolving absolute paths,
-                // resolve the parent dirs again
+            if (target.charAt(0) == separatorChar) {
+                // The link target was an absolute path, so we may need to start again.
                 restart = resolveAbsolute;
-                pathBytes = linkBytes;
+                path = target;
             } else {
-                int last = length - 1;
-                while (pathBytes[last] != separatorChar) {
-                    last--;
-                }
-                last++;
-                temp = new byte[last + linkBytes.length];
-                System.arraycopy(pathBytes, 0, temp, 0, last);
-                System.arraycopy(linkBytes, 0, temp, last, linkBytes.length);
-                pathBytes = temp;
+                path = path.substring(0, path.lastIndexOf(separatorChar, length - 1) + 1) + target;
             }
-            length = pathBytes.length;
-        } while (existsImpl(pathBytes));
+            length = path.length();
+        } while (existsImpl(path));
         // resolve the parent directories
         if (restart) {
-            return resolve(pathBytes);
+            return resolve(path);
         }
-        return pathBytes;
+        return path;
     }
 
-    private native byte[] getLinkImpl(byte[] filePath);
+    private static native String readlink(String filePath);
 
     /**
      * Returns a new file created using the canonical path of this file.
@@ -680,8 +643,6 @@ public class File implements Serializable, Comparable<File> {
         return new File(getCanonicalPath());
     }
 
-    private native byte[] getCanonImpl(byte[] filePath);
-
     /**
      * Returns the name of the file or directory represented by this file.
      *
@@ -690,8 +651,7 @@ public class File implements Serializable, Comparable<File> {
      */
     public String getName() {
         int separatorIndex = path.lastIndexOf(separator);
-        return (separatorIndex < 0) ? path : path.substring(separatorIndex + 1,
-                path.length());
+        return (separatorIndex < 0) ? path : path.substring(separatorIndex + 1, path.length());
     }
 
     /**
@@ -787,10 +747,10 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkRead(path);
         }
-        return isDirectoryImpl(pathBytes);
+        return isDirectoryImpl(absolutePath);
     }
 
-    private native boolean isDirectoryImpl(byte[] filePath);
+    private static native boolean isDirectoryImpl(String path);
 
     /**
      * Indicates if this file represents a <em>file</em> on the underlying
@@ -809,10 +769,10 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkRead(path);
         }
-        return isFileImpl(pathBytes);
+        return isFileImpl(absolutePath);
     }
 
-    private native boolean isFileImpl(byte[] filePath);
+    private static native boolean isFileImpl(String path);
 
     /**
      * Returns whether or not this file is a hidden file as defined by the
@@ -855,10 +815,10 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkRead(path);
         }
-        return lastModifiedImpl(pathBytes);
+        return lastModifiedImpl(absolutePath);
     }
 
-    private native long lastModifiedImpl(byte[] filePath);
+    private static native long lastModifiedImpl(String path);
 
     /**
      * Sets the time this file was last modified, measured in milliseconds since
@@ -888,10 +848,10 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkWrite(path);
         }
-        return setLastModifiedImpl(pathBytes, time);
+        return setLastModifiedImpl(absolutePath, time);
     }
 
-    private native boolean setLastModifiedImpl(byte[] path, long time);
+    private static native boolean setLastModifiedImpl(String path, long time);
 
     /**
      * Equivalent to setWritable(false, false).
@@ -935,7 +895,7 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkWrite(path);
         }
-        return setExecutableImpl(pathBytes, executable, ownerOnly);
+        return setExecutableImpl(absolutePath, executable, ownerOnly);
     }
 
     /**
@@ -947,7 +907,7 @@ public class File implements Serializable, Comparable<File> {
         return setExecutable(executable, true);
     }
 
-    private native boolean setExecutableImpl(byte[] path, boolean executable, boolean ownerOnly);
+    private static native boolean setExecutableImpl(String path, boolean executable, boolean ownerOnly);
 
     /**
      * Manipulates the read permissions for the abstract path designated by this
@@ -979,7 +939,7 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkWrite(path);
         }
-        return setReadableImpl(pathBytes, readable, ownerOnly);
+        return setReadableImpl(absolutePath, readable, ownerOnly);
     }
 
     /**
@@ -991,7 +951,7 @@ public class File implements Serializable, Comparable<File> {
         return setReadable(readable, true);
     }
 
-    private native boolean setReadableImpl(byte[] path, boolean readable, boolean ownerOnly);
+    private static native boolean setReadableImpl(String path, boolean readable, boolean ownerOnly);
 
     /**
      * Manipulates the write permissions for the abstract path designated by this
@@ -1021,7 +981,7 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkWrite(path);
         }
-        return setWritableImpl(pathBytes, writable, ownerOnly);
+        return setWritableImpl(absolutePath, writable, ownerOnly);
     }
 
     /**
@@ -1033,7 +993,7 @@ public class File implements Serializable, Comparable<File> {
         return setWritable(writable, true);
     }
 
-    private native boolean setWritableImpl(byte[] path, boolean writable, boolean ownerOnly);
+    private static native boolean setWritableImpl(String path, boolean writable, boolean ownerOnly);
 
     /**
      * Returns the length of this file in bytes.
@@ -1050,10 +1010,10 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkRead(path);
         }
-        return lengthImpl(pathBytes);
+        return lengthImpl(absolutePath);
     }
 
-    private native long lengthImpl(byte[] filePath);
+    private static native long lengthImpl(String path);
 
     /**
      * Returns an array of strings with the file names in the directory
@@ -1078,10 +1038,10 @@ public class File implements Serializable, Comparable<File> {
         if (path.isEmpty()) {
             return null;
         }
-        return listImpl(pathBytes);
+        return listImpl(absolutePath);
     }
 
-    private native String[] listImpl(byte[] path);
+    private static native String[] listImpl(String path);
 
     /**
      * Gets a list of the files in the directory represented by this file. This
@@ -1229,10 +1189,10 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkWrite(path);
         }
-        return mkdirImpl(pathBytes);
+        return mkdirImpl(absolutePath);
     }
 
-    private native boolean mkdirImpl(byte[] filePath);
+    private static native boolean mkdirImpl(String path);
 
     /**
      * Creates the directory named by the trailing filename of this file,
@@ -1292,14 +1252,14 @@ public class File implements Serializable, Comparable<File> {
         if (path.isEmpty()) {
             throw new IOException("No such file or directory");
         }
-        return createNewFileImpl(pathBytes);
+        return createNewFileImpl(absolutePath);
     }
 
-    private native boolean createNewFileImpl(byte[] filePath);
+    private static native boolean createNewFileImpl(String path);
 
     /**
      * Creates an empty temporary file using the given prefix and suffix as part
-     * of the file name. If suffix is {@code null}, {@code .tmp} is used. This
+     * of the file name. If {@code suffix} is null, {@code .tmp} is used. This
      * method is a convenience method that calls
      * {@link #createTempFile(String, String, File)} with the third argument
      * being {@code null}.
@@ -1312,14 +1272,15 @@ public class File implements Serializable, Comparable<File> {
      * @throws IOException
      *             if an error occurs when writing the file.
      */
-    public static File createTempFile(String prefix, String suffix)
-            throws IOException {
+    public static File createTempFile(String prefix, String suffix) throws IOException {
         return createTempFile(prefix, suffix, null);
     }
 
     /**
      * Creates an empty temporary file in the given directory using the given
-     * prefix and suffix as part of the file name.
+     * prefix and suffix as part of the file name. If {@code suffix} is null, {@code .tmp} is used.
+     *
+     * <p>Note that this method does <i>not</i> call {@link #deleteOnExit}.
      *
      * @param prefix
      *            the prefix to the temp file name.
@@ -1344,37 +1305,24 @@ public class File implements Serializable, Comparable<File> {
         if (prefix.length() < 3) {
             throw new IllegalArgumentException("prefix must be at least 3 characters");
         }
-        String newSuffix = suffix == null ? ".tmp" : suffix;
-        File tmpDirFile;
-        if (directory == null) {
+        if (suffix == null) {
+            suffix = ".tmp";
+        }
+        File tmpDirFile = directory;
+        if (tmpDirFile == null) {
             String tmpDir = AccessController.doPrivileged(
                 new PriviAction<String>("java.io.tmpdir", "."));
             tmpDirFile = new File(tmpDir);
-        } else {
-            tmpDirFile = directory;
         }
         File result;
         do {
-            result = genTempFile(prefix, newSuffix, tmpDirFile);
+            result = new File(tmpDirFile, prefix + new Random().nextInt() + suffix);
         } while (!result.createNewFile());
         return result;
     }
 
-    private static File genTempFile(String prefix, String suffix, File directory) {
-        if (counter == 0) {
-            // TODO: this doesn't make a lot of sense. SecureRandom for the seed, but then always just add one?
-            int newInt = new SecureRandom().nextInt();
-            counter = ((newInt / 65535) & 0xFFFF) + 0x2710;
-        }
-        StringBuilder newName = new StringBuilder();
-        newName.append(prefix);
-        newName.append(counter++);
-        newName.append(suffix);
-        return new File(directory, newName.toString());
-    }
-
     /**
-     * Renames this file to {@code dest}. This operation is supported for both
+     * Renames this file to {@code newPath}. This operation is supported for both
      * files and directories.
      *
      * <p>Many failures are possible. Some of the more likely failures include:
@@ -1389,25 +1337,25 @@ public class File implements Serializable, Comparable<File> {
      * <p>Note that this method does <i>not</i> throw {@code IOException} on failure.
      * Callers must check the return value.
      *
-     * @param dest the new name.
+     * @param newPath the new path.
      * @return true on success.
      * @throws SecurityException
      *             if a {@code SecurityManager} is installed and it denies write
-     *             access for this file or the {@code dest} file.
+     *             access for this file or {@code newPath}.
      */
-    public boolean renameTo(File dest) {
-        if (path.isEmpty() || dest.path.isEmpty()) {
+    public boolean renameTo(File newPath) {
+        if (path.isEmpty() || newPath.path.isEmpty()) {
             return false;
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkWrite(path);
-            security.checkWrite(dest.path);
+            security.checkWrite(newPath.path);
         }
-        return renameToImpl(pathBytes, dest.pathBytes);
+        return renameToImpl(absolutePath, newPath.absolutePath);
     }
 
-    private native boolean renameToImpl(byte[] pathExist, byte[] pathNew);
+    private static native boolean renameToImpl(String oldPath, String newPath);
 
     /**
      * Returns a string containing a concise, human-readable description of this
@@ -1508,9 +1456,9 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkPermission(new RuntimePermission("getFileSystemAttributes"));
         }
-        return getTotalSpaceImpl(pathBytes);
+        return getTotalSpaceImpl(absolutePath);
     }
-    private native long getTotalSpaceImpl(byte[] filePath);
+    private static native long getTotalSpaceImpl(String path);
 
     /**
      * Returns the number of usable free bytes on the partition containing this path.
@@ -1530,9 +1478,9 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkPermission(new RuntimePermission("getFileSystemAttributes"));
         }
-        return getUsableSpaceImpl(pathBytes);
+        return getUsableSpaceImpl(absolutePath);
     }
-    private native long getUsableSpaceImpl(byte[] filePath);
+    private static native long getUsableSpaceImpl(String path);
 
     /**
      * Returns the number of free bytes on the partition containing this path.
@@ -1548,7 +1496,7 @@ public class File implements Serializable, Comparable<File> {
         if (security != null) {
             security.checkPermission(new RuntimePermission("getFileSystemAttributes"));
         }
-        return getFreeSpaceImpl(pathBytes);
+        return getFreeSpaceImpl(absolutePath);
     }
-    private native long getFreeSpaceImpl(byte[] filePath);
+    private static native long getFreeSpaceImpl(String path);
 }

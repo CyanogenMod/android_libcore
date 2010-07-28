@@ -299,10 +299,6 @@ public class InputStreamReader extends Reader {
         }
     }
 
-    /*
-     * Answer a boolean indicating whether or not this InputStreamReader is
-     * open.
-     */
     private boolean isOpen() {
         return in != null;
     }

@@ -31,27 +31,27 @@ final class FixedLengthInputStream extends AbstractHttpInputStream {
         super(is, httpURLConnection, cacheRequest);
         bytesRemaining = length;
         if (bytesRemaining == 0) {
-            endOfInput(false);
+            endOfInput(true);
         }
     }
 
-    @Override public int read(byte[] buffer, int offset, int length) throws IOException {
-        checkBounds(buffer, offset, length);
+    @Override public int read(byte[] buffer, int offset, int count) throws IOException {
+        checkBounds(buffer, offset, count);
         checkNotClosed();
         if (bytesRemaining == 0) {
             return -1;
         }
-        int count = in.read(buffer, offset, Math.min(length, bytesRemaining));
-        if (count == -1) {
+        int read = in.read(buffer, offset, Math.min(count, bytesRemaining));
+        if (read == -1) {
             unexpectedEndOfInput(); // the server didn't supply the promised content length
             throw new IOException("unexpected end of stream");
         }
-        bytesRemaining -= count;
-        cacheWrite(buffer, offset, count);
+        bytesRemaining -= read;
+        cacheWrite(buffer, offset, read);
         if (bytesRemaining == 0) {
-            endOfInput(false);
+            endOfInput(true);
         }
-        return count;
+        return read;
     }
 
     @Override public int available() throws IOException {

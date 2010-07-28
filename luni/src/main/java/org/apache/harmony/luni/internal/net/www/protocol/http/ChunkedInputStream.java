@@ -34,8 +34,8 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
         super(is, httpURLConnection, cacheRequest);
     }
 
-    @Override public int read(byte[] buffer, int offset, int length) throws IOException {
-        checkBounds(buffer, offset, length);
+    @Override public int read(byte[] buffer, int offset, int count) throws IOException {
+        checkBounds(buffer, offset, count);
         checkNotClosed();
 
         if (!hasMoreChunks) {
@@ -47,13 +47,13 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
                 return -1;
             }
         }
-        int count = in.read(buffer, offset, Math.min(length, bytesRemainingInChunk));
-        if (count == -1) {
+        int read = in.read(buffer, offset, Math.min(count, bytesRemainingInChunk));
+        if (read == -1) {
             unexpectedEndOfInput(); // the server didn't supply the promised chunk length
             throw new IOException("unexpected end of stream");
         }
-        bytesRemainingInChunk -= count;
-        cacheWrite(buffer, offset, count);
+        bytesRemainingInChunk -= read;
+        cacheWrite(buffer, offset, read);
 
         /*
          * If we're at the end of a chunk and the next chunk size is readable,
@@ -66,7 +66,7 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
             readChunkSize();
         }
 
-        return count;
+        return read;
     }
 
     private void readChunkSize() throws IOException {
@@ -87,7 +87,7 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
         if (bytesRemainingInChunk == 0) {
             hasMoreChunks = false;
             httpURLConnection.readHeaders(); // actually trailers!
-            endOfInput(false);
+            endOfInput(true);
         }
     }
 

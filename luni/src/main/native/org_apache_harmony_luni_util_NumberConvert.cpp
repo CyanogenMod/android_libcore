@@ -192,6 +192,9 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
   fid = env->GetFieldID(clazz, "uArray", "[I");
   uArrayObject = (jintArray) env->GetObjectField(inst, fid);
   ScopedIntArrayRW uArray(env, uArrayObject);
+  if (uArray.get() == NULL) {
+    return;
+  }
 
   getCount = setCount = 0;
   do

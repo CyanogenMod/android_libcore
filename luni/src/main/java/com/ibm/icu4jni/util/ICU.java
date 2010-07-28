@@ -123,7 +123,12 @@ public final class ICU {
         return localesFromStrings(getAvailableNumberFormatLocalesNative());
     }
 
-    // --- Native methods accessing ICU's database ----------------------------
+    // --- Case mapping.
+
+    public static native String toLowerCase(String s, String localeName);
+    public static native String toUpperCase(String s, String localeName);
+
+    // --- Native methods accessing ICU's database.
 
     private static native String[] getAvailableBreakIteratorLocalesNative();
     private static native String[] getAvailableCalendarLocalesNative();

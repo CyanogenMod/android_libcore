@@ -27,7 +27,7 @@ package java.sql;
 public interface Wrapper {
 
     /**
-     * Answers an object that implements the given interface. If the caller is
+     * Returns an object that implements the given interface. If the caller is
      * not a wrapper, a SQLException will be thrown.
      *
      * @param iface -

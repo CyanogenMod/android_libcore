@@ -67,6 +67,14 @@ public abstract class Reference<T> {
     volatile Reference queueNext;
 
     /**
+     * Used internally by the VM.  This field forms a singly-linked
+     * list of reference objects awaiting processing by the garbage
+     * collector.
+     */
+    @SuppressWarnings("unchecked")
+    volatile Reference pendingNext;
+
+    /**
      * Constructs a new instance of this class.
      */
     Reference() {

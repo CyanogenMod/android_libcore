@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 /**
  * The general structure for request / response header. It is essentially
@@ -101,6 +102,16 @@ public class Header implements Cloneable {
         if (key == null) {
             throw new NullPointerException();
         }
+        if (value == null) {
+            /*
+             * Given null values, the RI sends a malformed header line like
+             * "Accept\r\n". For platform compatibility and HTTP compliance, we
+             * print a warning and ignore null values.
+             */
+            Logger.getAnonymousLogger().warning(
+                    "Ignoring HTTP header field " + key + " because its value is null.");
+            return;
+        }
         LinkedList<String> list = keyTable.get(key);
         if (list == null) {
             list = new LinkedList<String>();
@@ -109,6 +120,17 @@ public class Header implements Cloneable {
         list.add(value);
         props.add(key);
         props.add(value);
+    }
+
+    public void removeAll(String key) {
+        keyTable.remove(key);
+
+        for (int i = 0; i < props.size(); i += 2) {
+            if (key.equals(props.get(i))) {
+                props.remove(i); // key
+                props.remove(i); // value
+            }
+        }
     }
 
     public void addAll(String key, List<String> headers) {
@@ -131,22 +153,8 @@ public class Header implements Cloneable {
      * @param value
      */
     public void set(String key, String value) {
-        if (key == null) {
-            throw new NullPointerException();
-        }
-        LinkedList<String> list = keyTable.get(key);
-        if (list == null) {
-            add(key, value);
-        } else {
-            list.clear();
-            list.add(value);
-            for (int i = 0; i < props.size(); i += 2) {
-                String propKey = props.get(i);
-                if (propKey != null && key.equals(propKey)) {
-                    props.set(i + 1, value);
-                }
-            }
-        }
+        removeAll(key);
+        add(key, value);
     }
 
     /**

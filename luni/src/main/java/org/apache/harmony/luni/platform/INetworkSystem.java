@@ -45,23 +45,18 @@ public interface INetworkSystem {
      */
     public final int SOCKET_CONNECT_STEP_CHECK = 1;
 
-    public void accept(FileDescriptor fdServer, SocketImpl newSocket,
-            FileDescriptor fdnewSocket, int timeout) throws IOException;
-
-    public void bind(FileDescriptor aFD, InetAddress inetAddress, int port)
-            throws SocketException;
-
-    public int read(FileDescriptor aFD, byte[] data, int offset, int count,
-            int timeout) throws IOException;
-
-    public int readDirect(FileDescriptor aFD, int address, int count,
-            int timeout) throws IOException;
-
-    public int write(FileDescriptor fd, byte[] data, int offset, int count)
+    public void accept(FileDescriptor serverFd, SocketImpl newSocket, FileDescriptor clientFd)
             throws IOException;
 
-    public int writeDirect(FileDescriptor fd, int address, int offset, int count)
-            throws IOException;
+    public void bind(FileDescriptor aFD, InetAddress inetAddress, int port) throws SocketException;
+
+    public int read(FileDescriptor aFD, byte[] data, int offset, int count) throws IOException;
+
+    public int readDirect(FileDescriptor aFD, int address, int count) throws IOException;
+
+    public int write(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
+
+    public int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
 
     public void setNonBlocking(FileDescriptor aFD, boolean block) throws IOException;
 
@@ -72,35 +67,15 @@ public interface INetworkSystem {
             int trafficClass, InetAddress hostname, int port, int step,
             byte[] context) throws IOException;
 
-    public int sendDatagram(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, boolean bindToDevice, int trafficClass,
-            InetAddress inetAddress) throws IOException;
+    public int send(FileDescriptor fd, byte[] data, int offset, int length,
+            int port, int trafficClass, InetAddress inetAddress) throws IOException;
+    public int sendDirect(FileDescriptor fd, int address, int offset, int length,
+            int port, int trafficClass, InetAddress inetAddress) throws IOException;
 
-    public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
-            int length, int port, boolean bindToDevice, int trafficClass,
-            InetAddress inetAddress) throws IOException;
-
-    public int receiveDatagram(FileDescriptor aFD, DatagramPacket packet,
-            byte[] data, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
-
-    public int receiveDatagramDirect(FileDescriptor aFD, DatagramPacket packet,
-            int address, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
-
-    public int recvConnectedDatagram(FileDescriptor aFD, DatagramPacket packet,
-            byte[] data, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
-
-    public int recvConnectedDatagramDirect(FileDescriptor aFD,
-            DatagramPacket packet, int address, int offset, int length,
-            int receiveTimeout, boolean peek) throws IOException;
-
-    public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
-            int offset, int length, boolean bindToDevice) throws IOException;
-
-    public int sendConnectedDatagramDirect(FileDescriptor fd, int address,
-            int offset, int length, boolean bindToDevice) throws IOException;
+    public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
+            int length, boolean peek, boolean connected) throws IOException;
+    public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
+            int length, boolean peek, boolean connected) throws IOException;
 
     public void disconnectDatagram(FileDescriptor aFD) throws SocketException;
 
@@ -113,8 +88,6 @@ public interface INetworkSystem {
     public void shutdownInput(FileDescriptor descriptor) throws IOException;
 
     public void shutdownOutput(FileDescriptor descriptor) throws IOException;
-
-    public boolean supportsUrgentData(FileDescriptor fd);
 
     public void sendUrgentData(FileDescriptor fd, byte value);
 
@@ -129,9 +102,6 @@ public interface INetworkSystem {
     public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int aport,
             int timeout, int trafficClass, InetAddress inetAddress)
             throws IOException;
-
-    public int sendDatagram2(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, InetAddress inetAddress) throws IOException;
 
     public InetAddress getSocketLocalAddress(FileDescriptor aFD);
 
@@ -199,10 +169,9 @@ public interface INetworkSystem {
     public void setSocketOption(FileDescriptor aFD, int opt, Object optVal)
             throws SocketException;
 
-    // TODO: change OSFileSystem.close to take a FileDescriptor, and lose this duplicate.
-    public void socketClose(FileDescriptor aFD) throws IOException;
+    public void close(FileDescriptor aFD) throws IOException;
 
-    // TODO: change the single caller so that recvConnectedDatagram
+    // TODO: change the single caller so that recv/recvDirect
     // can mutate the InetAddress as a side-effect.
     public void setInetAddress(InetAddress sender, byte[] address);
 }

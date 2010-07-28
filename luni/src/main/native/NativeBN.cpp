@@ -164,6 +164,10 @@ static jboolean NativeBN_litEndInts2bn(JNIEnv* env, jclass, jintArray arr, int l
     bn_check_top(ret);
     if (len > 0) {
         ScopedIntArrayRO scopedArray(env, arr);
+        if (scopedArray.get() == NULL) {
+            return JNI_FALSE;
+        }
+
         assert(sizeof(BN_ULONG) == sizeof(jint));
         const BN_ULONG* tmpInts = reinterpret_cast<const BN_ULONG*>(scopedArray.get());
         if ((tmpInts != NULL) && (bn_wexpand(ret, len) != NULL)) {
@@ -352,6 +356,9 @@ static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass, BIGNUM* a) {
         return NULL;
     }
     ScopedIntArrayRW ints(env, result);
+    if (ints.get() == NULL) {
+        return NULL;
+    }
     BN_ULONG* ulongs = reinterpret_cast<BN_ULONG*>(ints.get());
     if (ulongs == NULL) {
         return NULL;
@@ -495,13 +502,13 @@ static jboolean NativeBN_BN_mod_inverse(JNIEnv* env, jclass, BIGNUM* ret, BIGNUM
 static jboolean NativeBN_BN_generate_prime_ex(JNIEnv* env, jclass, BIGNUM* ret, int bits, jboolean safe,
         BIGNUM* add, BIGNUM* rem, jint cb) {
     if (!oneValidHandle(env, ret)) return JNI_FALSE;
-    return BN_generate_prime_ex(ret, bits, safe, add, rem, (BN_GENCB*) cb);
+    return BN_generate_prime_ex(ret, bits, safe, add, rem, reinterpret_cast<BN_GENCB*>(cb));
 }
 
 static jboolean NativeBN_BN_is_prime_ex(JNIEnv* env, jclass, BIGNUM* p, int nchecks, jint cb) {
     if (!oneValidHandle(env, p)) return JNI_FALSE;
     Unique_BN_CTX ctx(BN_CTX_new());
-    return BN_is_prime_ex(p, nchecks, ctx.get(), (BN_GENCB*) cb);
+    return BN_is_prime_ex(p, nchecks, ctx.get(), reinterpret_cast<BN_GENCB*>(cb));
 }
 
 static JNINativeMethod gMethods[] = {

@@ -25,15 +25,14 @@
 static jlong CRC32_updateImpl(JNIEnv* env, jobject, jbyteArray byteArray, int off, int len, jlong crc) {
     ScopedByteArrayRO bytes(env, byteArray);
     if (bytes.get() == NULL) {
-        jniThrowNullPointerException(env, NULL);
         return 0;
     }
-    jlong result = crc32((uLong) crc, (Bytef *) (bytes.get() + off), (uInt) len);
+    jlong result = crc32(crc, reinterpret_cast<const Bytef*>(bytes.get() + off), len);
     return result;
 }
 
 static jlong CRC32_updateByteImpl(JNIEnv*, jobject, jbyte val, jlong crc) {
-    return crc32((uLong) crc, (Bytef *) (&val), 1);
+    return crc32(crc, reinterpret_cast<const Bytef*>(&val), 1);
 }
 
 static JNINativeMethod gMethods[] = {

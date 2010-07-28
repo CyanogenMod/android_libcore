@@ -33,6 +33,7 @@
 #include "JNIHelp.h"
 #include "LocalArray.h"
 #include "ScopedPrimitiveArray.h"
+#include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 
 #include <assert.h>
@@ -60,8 +61,7 @@
  */
 #include <sys/socket.h>
 #include <sys/types.h>
-static inline ssize_t sendfile(int out_fd, int in_fd, off_t *offset,
-        size_t count) {
+static inline ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count) {
     off_t len = count;
     int result = sendfile(in_fd, out_fd, *offset, &len, NULL, 0);
     if (result < 0) {
@@ -146,7 +146,7 @@ static struct flock flockFromStartAndLength(jlong start, jlong length) {
     return lock;
 }
 
-static jint harmony_io_lockImpl(JNIEnv* env, jobject, jint handle,
+static jint OSFileSystem_lockImpl(JNIEnv* env, jobject, jint fd,
         jlong start, jlong length, jint typeFlag, jboolean waitFlag) {
 
     length = translateLockLength(length);
@@ -163,12 +163,10 @@ static jint harmony_io_lockImpl(JNIEnv* env, jobject, jint handle,
     }
 
     int waitMode = (waitFlag) ? F_SETLKW : F_SETLK;
-    return TEMP_FAILURE_RETRY(fcntl(handle, waitMode, &lock));
+    return TEMP_FAILURE_RETRY(fcntl(fd, waitMode, &lock));
 }
 
-static void harmony_io_unlockImpl(JNIEnv* env, jobject, jint handle,
-        jlong start, jlong length) {
-
+static void OSFileSystem_unlockImpl(JNIEnv* env, jobject, jint fd, jlong start, jlong length) {
     length = translateLockLength(length);
     if (offsetTooLarge(env, start) || offsetTooLarge(env, length)) {
         return;
@@ -177,7 +175,7 @@ static void harmony_io_unlockImpl(JNIEnv* env, jobject, jint handle,
     struct flock lock(flockFromStartAndLength(start, length));
     lock.l_type = F_UNLCK;
 
-    int rc = TEMP_FAILURE_RETRY(fcntl(handle, F_SETLKW, &lock));
+    int rc = TEMP_FAILURE_RETRY(fcntl(fd, F_SETLKW, &lock));
     if (rc == -1) {
         jniThrowIOException(env, errno);
     }
@@ -187,7 +185,7 @@ static void harmony_io_unlockImpl(JNIEnv* env, jobject, jint handle,
  * Returns the granularity of the starting address for virtual memory allocation.
  * (It's the same as the page size.)
  */
-static jint harmony_io_getAllocGranularity(JNIEnv*, jobject) {
+static jint OSFileSystem_getAllocGranularity(JNIEnv*, jobject) {
     static int allocGranularity = getpagesize();
     return allocGranularity;
 }
@@ -195,24 +193,33 @@ static jint harmony_io_getAllocGranularity(JNIEnv*, jobject) {
 // Translate three Java int[]s to a native iovec[] for readv and writev.
 static iovec* initIoVec(JNIEnv* env,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    iovec* vectors = new iovec[size];
-    if (vectors == NULL) {
+    UniquePtr<iovec[]> vectors(new iovec[size]);
+    if (vectors.get() == NULL) {
         jniThrowException(env, "java/lang/OutOfMemoryError", "native heap");
         return NULL;
     }
     ScopedIntArrayRO buffers(env, jBuffers);
+    if (buffers.get() == NULL) {
+        return NULL;
+    }
     ScopedIntArrayRO offsets(env, jOffsets);
+    if (offsets.get() == NULL) {
+        return NULL;
+    }
     ScopedIntArrayRO lengths(env, jLengths);
+    if (lengths.get() == NULL) {
+        return NULL;
+    }
     for (int i = 0; i < size; ++i) {
         vectors[i].iov_base = reinterpret_cast<void*>(buffers[i] + offsets[i]);
         vectors[i].iov_len = lengths[i];
     }
-    return vectors;
+    return vectors.release();
 }
 
-static jlong harmony_io_readv(JNIEnv* env, jobject, jint fd,
+static jlong OSFileSystem_readv(JNIEnv* env, jobject, jint fd,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    UniquePtr<iovec> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
+    UniquePtr<iovec[]> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
     if (vectors.get() == NULL) {
         return -1;
     }
@@ -226,9 +233,9 @@ static jlong harmony_io_readv(JNIEnv* env, jobject, jint fd,
     return result;
 }
 
-static jlong harmony_io_writev(JNIEnv* env, jobject, jint fd,
+static jlong OSFileSystem_writev(JNIEnv* env, jobject, jint fd,
         jintArray jBuffers, jintArray jOffsets, jintArray jLengths, jint size) {
-    UniquePtr<iovec> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
+    UniquePtr<iovec[]> vectors(initIoVec(env, jBuffers, jOffsets, jLengths, size));
     if (vectors.get() == NULL) {
         return -1;
     }
@@ -239,7 +246,7 @@ static jlong harmony_io_writev(JNIEnv* env, jobject, jint fd,
     return result;
 }
 
-static jlong harmony_io_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
+static jlong OSFileSystem_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
         jlong offset, jlong count) {
 
     int socket = jniGetFDFromFileDescriptor(env, sd);
@@ -259,7 +266,7 @@ static jlong harmony_io_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
     return rc;
 }
 
-static jlong harmony_io_readDirect(JNIEnv* env, jobject, jint fd,
+static jlong OSFileSystem_readDirect(JNIEnv* env, jobject, jint fd,
         jint buf, jint offset, jint nbytes) {
     if (nbytes == 0) {
         return 0;
@@ -276,7 +283,7 @@ static jlong harmony_io_readDirect(JNIEnv* env, jobject, jint fd,
     return rc;
 }
 
-static jlong harmony_io_writeDirect(JNIEnv* env, jobject, jint fd,
+static jlong OSFileSystem_writeDirect(JNIEnv* env, jobject, jint fd,
         jint buf, jint offset, jint nbytes) {
     jbyte* src = reinterpret_cast<jbyte*>(buf + offset);
     jlong rc = TEMP_FAILURE_RETRY(write(fd, src, nbytes));
@@ -286,14 +293,16 @@ static jlong harmony_io_writeDirect(JNIEnv* env, jobject, jint fd,
     return rc;
 }
 
-static jlong harmony_io_readImpl(JNIEnv* env, jobject, jint fd,
+static jlong OSFileSystem_read(JNIEnv* env, jobject, jint fd,
         jbyteArray byteArray, jint offset, jint nbytes) {
-
     if (nbytes == 0) {
         return 0;
     }
 
     ScopedByteArrayRW bytes(env, byteArray);
+    if (bytes.get() == NULL) {
+        return 0;
+    }
     jlong rc = TEMP_FAILURE_RETRY(read(fd, bytes.get() + offset, nbytes));
     if (rc == 0) {
         return -1;
@@ -308,15 +317,17 @@ static jlong harmony_io_readImpl(JNIEnv* env, jobject, jint fd,
     return rc;
 }
 
-static jlong harmony_io_writeImpl(JNIEnv* env, jobject, jint fd,
+static jlong OSFileSystem_write(JNIEnv* env, jobject, jint fd,
         jbyteArray byteArray, jint offset, jint nbytes) {
 
     ScopedByteArrayRO bytes(env, byteArray);
+    if (bytes.get() == NULL) {
+        return 0;
+    }
     jlong result = TEMP_FAILURE_RETRY(write(fd, bytes.get() + offset, nbytes));
     if (result == -1) {
         if (errno == EAGAIN) {
-            jniThrowException(env, "java/io/InterruptedIOException",
-                    "Write timed out");
+            jniThrowException(env, "java/io/InterruptedIOException", "Write timed out");
         } else {
             jniThrowIOException(env, errno);
         }
@@ -324,8 +335,7 @@ static jlong harmony_io_writeImpl(JNIEnv* env, jobject, jint fd,
     return result;
 }
 
-static jlong harmony_io_seek(JNIEnv* env, jobject, jint fd, jlong offset,
-        jint javaWhence) {
+static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint javaWhence) {
     /* Convert whence argument */
     int nativeWhence = 0;
     switch (javaWhence) {
@@ -356,7 +366,7 @@ static jlong harmony_io_seek(JNIEnv* env, jobject, jint fd, jlong offset,
     return result;
 }
 
-static void harmony_io_fflush(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
+static void OSFileSystem_fflush(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
     LOGW("fdatasync unimplemented on Android"); // http://b/2667481
     int rc = fsync(fd);
     // int rc = metadataToo ? fsync(fd) : fdatasync(fd);
@@ -365,7 +375,7 @@ static void harmony_io_fflush(JNIEnv* env, jobject, jint fd, jboolean metadataTo
     }
 }
 
-static jint harmony_io_close(JNIEnv* env, jobject, jint fd) {
+static jint OSFileSystem_close(JNIEnv* env, jobject, jint fd) {
     jint rc = TEMP_FAILURE_RETRY(close(fd));
     if (rc == -1) {
         jniThrowIOException(env, errno);
@@ -373,7 +383,7 @@ static jint harmony_io_close(JNIEnv* env, jobject, jint fd) {
     return rc;
 }
 
-static jint harmony_io_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
+static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
     if (offsetTooLarge(env, length)) {
         return -1;
     }
@@ -385,41 +395,41 @@ static jint harmony_io_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
     return rc;
 }
 
-static jint harmony_io_openImpl(JNIEnv* env, jobject, jbyteArray pathByteArray,
-        jint jflags) {
+static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflags) {
     int flags = 0;
     int mode = 0;
 
-// BEGIN android-changed
-// don't want default permissions to allow global access.
-    switch(jflags) {
-      case 0:
-              flags = HyOpenRead;
-              mode = 0;
-              break;
-      case 1:
-              flags = HyOpenCreate | HyOpenWrite | HyOpenTruncate;
-              mode = 0600;
-              break;
-      case 16:
-              flags = HyOpenRead | HyOpenWrite | HyOpenCreate;
-              mode = 0600;
-              break;
-      case 32:
-              flags = HyOpenRead | HyOpenWrite | HyOpenCreate | HyOpenSync;
-              mode = 0600;
-              break;
-      case 256:
-              flags = HyOpenWrite | HyOpenCreate | HyOpenAppend;
-              mode = 0600;
-              break;
+    // On Android, we don't want default permissions to allow global access.
+    switch (jflags) {
+    case 0:
+        flags = HyOpenRead;
+        mode = 0;
+        break;
+    case 1:
+        flags = HyOpenCreate | HyOpenWrite | HyOpenTruncate;
+        mode = 0600;
+        break;
+    case 16:
+        flags = HyOpenRead | HyOpenWrite | HyOpenCreate;
+        mode = 0600;
+        break;
+    case 32:
+        flags = HyOpenRead | HyOpenWrite | HyOpenCreate | HyOpenSync;
+        mode = 0600;
+        break;
+    case 256:
+        flags = HyOpenWrite | HyOpenCreate | HyOpenAppend;
+        mode = 0600;
+        break;
     }
-// BEGIN android-changed
 
     flags = EsTranslateOpenFlags(flags);
 
-    ScopedByteArrayRO path(env, pathByteArray);
-    jint rc = TEMP_FAILURE_RETRY(open(reinterpret_cast<const char*>(&path[0]), flags, mode));
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return -1;
+    }
+    jint rc = TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode));
     if (rc == -1) {
         // Get the human-readable form of errno.
         char buffer[80];
@@ -428,7 +438,7 @@ static jint harmony_io_openImpl(JNIEnv* env, jobject, jbyteArray pathByteArray,
         // Construct a message that includes the path and the reason.
         // (path.size() already includes space for our trailing NUL.)
         LocalArray<128> message(path.size() + 2 + strlen(reason) + 1);
-        snprintf(&message[0], message.size(), "%s (%s)", &path[0], reason);
+        snprintf(&message[0], message.size(), "%s (%s)", path.c_str(), reason);
 
         // We always throw FileNotFoundException, regardless of the specific
         // failure. (This appears to be true of the RI too.)
@@ -437,7 +447,7 @@ static jint harmony_io_openImpl(JNIEnv* env, jobject, jbyteArray pathByteArray,
     return rc;
 }
 
-static jint harmony_io_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescriptor) {
+static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescriptor) {
     /*
      * On underlying platforms Android cares about (read "Linux"),
      * ioctl(fd, FIONREAD, &avail) is supposed to do the following:
@@ -498,23 +508,23 @@ static jlong lengthImpl(JNIEnv* env, jobject, jint fd) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "close",              "(I)V",       (void*) harmony_io_close },
-    { "fflush",             "(IZ)V",      (void*) harmony_io_fflush },
-    { "getAllocGranularity","()I",        (void*) harmony_io_getAllocGranularity },
-    { "ioctlAvailable", "(Ljava/io/FileDescriptor;)I", (void*) harmony_io_ioctlAvailable },
+    { "close", "(I)V", (void*) OSFileSystem_close },
+    { "fflush", "(IZ)V", (void*) OSFileSystem_fflush },
+    { "getAllocGranularity", "()I", (void*) OSFileSystem_getAllocGranularity },
+    { "ioctlAvailable", "(Ljava/io/FileDescriptor;)I", (void*) OSFileSystem_ioctlAvailable },
     { "length", "(I)J", (void*) lengthImpl },
-    { "lockImpl",           "(IJJIZ)I",   (void*) harmony_io_lockImpl },
-    { "openImpl",           "([BI)I",     (void*) harmony_io_openImpl },
-    { "readDirect",         "(IIII)J",    (void*) harmony_io_readDirect },
-    { "readImpl",           "(I[BII)J",   (void*) harmony_io_readImpl },
-    { "readv",              "(I[I[I[II)J",(void*) harmony_io_readv },
-    { "seek",               "(IJI)J",     (void*) harmony_io_seek },
-    { "transfer",           "(ILjava/io/FileDescriptor;JJ)J", (void*) harmony_io_transfer },
-    { "truncate",           "(IJ)V",      (void*) harmony_io_truncate },
-    { "unlockImpl",         "(IJJ)V",     (void*) harmony_io_unlockImpl },
-    { "writeDirect",        "(IIII)J",    (void*) harmony_io_writeDirect },
-    { "writeImpl",          "(I[BII)J",   (void*) harmony_io_writeImpl },
-    { "writev",             "(I[I[I[II)J",(void*) harmony_io_writev },
+    { "lockImpl", "(IJJIZ)I", (void*) OSFileSystem_lockImpl },
+    { "open", "(Ljava/lang/String;I)I", (void*) OSFileSystem_open },
+    { "read", "(I[BII)J", (void*) OSFileSystem_read },
+    { "readDirect", "(IIII)J", (void*) OSFileSystem_readDirect },
+    { "readv", "(I[I[I[II)J", (void*) OSFileSystem_readv },
+    { "seek", "(IJI)J", (void*) OSFileSystem_seek },
+    { "transfer", "(ILjava/io/FileDescriptor;JJ)J", (void*) OSFileSystem_transfer },
+    { "truncate", "(IJ)V", (void*) OSFileSystem_truncate },
+    { "unlockImpl", "(IJJ)V", (void*) OSFileSystem_unlockImpl },
+    { "write", "(I[BII)J", (void*) OSFileSystem_write },
+    { "writeDirect", "(IIII)J", (void*) OSFileSystem_writeDirect },
+    { "writev", "(I[I[I[II)J", (void*) OSFileSystem_writev },
 };
 int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/platform/OSFileSystem", gMethods,

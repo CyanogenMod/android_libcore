@@ -320,7 +320,8 @@ public abstract class KeyStoreSpi {
                 throw new IllegalArgumentException(e);
             }
         }
-        throw new UnsupportedOperationException("protectionParameter is neither PasswordProtection nor CallbackHandlerProtection instance");
+        throw new UnsupportedOperationException("protectionParameter is neither PasswordProtection "
+                                                + "nor CallbackHandlerProtection instance");
     }
 
     /**
@@ -363,22 +364,18 @@ public abstract class KeyStoreSpi {
             } else if (protParam instanceof KeyStore.CallbackHandlerProtection) {
                 passW = getPasswordFromCallBack(protParam);
             } else {
-                throw new UnrecoverableEntryException("ProtectionParameter object is not " +
-                        "PasswordProtection: " + protParam);
+                throw new UnrecoverableEntryException("ProtectionParameter object is not "
+                                                      + "PasswordProtection: " + protParam);
             }
         }
         if (engineIsKeyEntry(alias)) {
-            try {
-                Key key = engineGetKey(alias, passW);
-                if (key instanceof PrivateKey) {
-                    return new KeyStore.PrivateKeyEntry((PrivateKey) key,
-                            engineGetCertificateChain(alias));
-                }
-                if (key instanceof SecretKey) {
-                    return new KeyStore.SecretKeyEntry((SecretKey) key);
-                }
-            } catch (UnrecoverableKeyException e) {
-                throw new KeyStoreException(e);
+            Key key = engineGetKey(alias, passW);
+            if (key instanceof PrivateKey) {
+                return new KeyStore.PrivateKeyEntry((PrivateKey) key,
+                                                    engineGetCertificateChain(alias));
+            }
+            if (key instanceof SecretKey) {
+                return new KeyStore.SecretKeyEntry((SecretKey) key);
             }
         }
         throw new NoSuchAlgorithmException("Unknown KeyStore.Entry object");
@@ -431,7 +428,8 @@ public abstract class KeyStoreSpi {
                     throw new KeyStoreException(e);
                 }
             } else {
-                throw new KeyStoreException("protParam should be PasswordProtection or CallbackHandlerProtection");
+                throw new KeyStoreException("protParam should be PasswordProtection or "
+                                            + "CallbackHandlerProtection");
             }
         }
 
@@ -449,8 +447,8 @@ public abstract class KeyStoreSpi {
             return;
         }
 
-        throw new KeyStoreException("Entry object is neither PrivateKeyObject nor SecretKeyEntry " +
-                "nor TrustedCertificateEntry: " + entry);
+        throw new KeyStoreException("Entry object is neither PrivateKeyObject nor SecretKeyEntry "
+                                    + "nor TrustedCertificateEntry: " + entry);
     }
 
     /**

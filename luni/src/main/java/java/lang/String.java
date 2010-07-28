@@ -17,12 +17,13 @@
 
 package java.lang;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.Charsets;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Formatter;
 import java.util.Locale;
@@ -33,6 +34,23 @@ import java.util.regex.Pattern;
  * {@code String} is represented by array of UTF-16 values, such that
  * Unicode supplementary characters (code points) are stored/encoded as
  * surrogate pairs via Unicode code units ({@code char}).
+ *
+ * <a name="backing_array"><h3>Backing Arrays</h3></a>
+ * This class is implemented using a char[]. The length of the array may exceed
+ * the length of the string. For example, the string "Hello" may be backed by
+ * the array {@code ['H', 'e', 'l', 'l', 'o', 'W'. 'o', 'r', 'l', 'd']} with
+ * offset 0 and length 5.
+ *
+ * <p>Multiple strings can share the same char[] because strings are immutable.
+ * The {@link #substring} method <strong>always</strong> returns a string that
+ * shares the backing array of its source string. Generally this is an
+ * optimization: fewer character arrays need to be allocated, and less copying
+ * is necessary. But this can also lead to unwanted heap retention. Taking a
+ * short substring of long string means that the long shared char[] won't be
+ * garbage until both strings are garbage. This typically happens when parsing
+ * small substrings out of a large input. To avoid this where necessary, call
+ * {@code new String(longString.subString(...))}. The string copy constructor
+ * always ensures that the backing array is no larger than necessary.
  *
  * @see StringBuffer
  * @see StringBuilder
@@ -236,21 +254,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if the named charset is not supported.
      */
     public String(byte[] data, int start, int length, String charsetName) throws UnsupportedEncodingException {
-        this(data, start, length, charsetForName(charsetName));
-    }
-
-    /**
-     * Calls Charset.forName but only throws UnsupportedEncodingException, which is all String
-     * claims to throw.
-     */
-    private static Charset charsetForName(String charsetName) throws UnsupportedEncodingException {
-        try {
-            return Charset.forName(charsetName);
-        } catch (Exception cause) {
-            UnsupportedEncodingException ex = new UnsupportedEncodingException(charsetName);
-            ex.initCause(cause);
-            throw ex;
-        }
+        this(data, start, length, Charset.forNameUEE(charsetName));
     }
 
     /**
@@ -269,7 +273,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if {@code charsetName} is not supported.
      */
     public String(byte[] data, String charsetName) throws UnsupportedEncodingException {
-        this(data, 0, data.length, charsetForName(charsetName));
+        this(data, 0, data.length, Charset.forNameUEE(charsetName));
     }
 
     /**
@@ -423,17 +427,12 @@ outer:
             this.offset = 0;
             this.value = new char[length];
             this.count = length;
-            for (int i = 0; i < count; ++i) {
-                value[i] = (char) (data[start++] & 0xff);
-            }
+            Charsets.isoLatin1BytesToChars(data, start, length, value);
         } else if (canonicalCharsetName.equals("US-ASCII")) {
             this.offset = 0;
             this.value = new char[length];
             this.count = length;
-            for (int i = 0; i < count; ++i) {
-                char ch = (char) (data[start++] & 0xff);
-                value[i] = (ch <= 0x7f) ? ch : REPLACEMENT_CHAR;
-            }
+            Charsets.asciiBytesToChars(data, start, length, value);
         } else {
             CharBuffer cb = charset.decode(ByteBuffer.wrap(data, start, length));
             this.offset = 0;
@@ -530,15 +529,16 @@ outer:
     }
 
     /**
-     * Creates a {@code String} that is a copy of the specified string.
-     *
-     * @param string
-     *            the string to copy.
+     * Constructs a new string with the same sequence of characters as {@code
+     * toCopy}. The returned string's <a href="#backing_array">backing array</a>
+     * is no larger than necessary.
      */
-    public String(String string) {
-        value = string.value;
-        offset = string.offset;
-        count = string.count;
+    public String(String toCopy) {
+        value = (toCopy.value.length == toCopy.count)
+                ? toCopy.value
+                : Arrays.copyOfRange(toCopy.value, toCopy.offset, toCopy.offset + toCopy.length());
+        offset = 0;
+        count = value.length;
     }
 
     /*
@@ -970,7 +970,7 @@ outer:
      * @throws UnsupportedEncodingException if the charset is not supported
      */
     public byte[] getBytes(String charsetName) throws UnsupportedEncodingException {
-        return getBytes(charsetForName(charsetName));
+        return getBytes(Charset.forNameUEE(charsetName));
     }
 
     /**
@@ -986,11 +986,11 @@ outer:
     public byte[] getBytes(Charset charset) {
         String canonicalCharsetName = charset.name();
         if (canonicalCharsetName.equals("UTF-8")) {
-            return getUtf8Bytes();
+            return Charsets.toUtf8Bytes(value, offset, count);
         } else if (canonicalCharsetName.equals("ISO-8859-1")) {
-            return getDirectMappedBytes(0xff);
+            return Charsets.toIsoLatin1Bytes(value, offset, count);
         } else if (canonicalCharsetName.equals("US-ASCII")) {
-            return getDirectMappedBytes(0x7f);
+            return Charsets.toAsciiBytes(value, offset, count);
         } else {
             CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
             ByteBuffer buffer = charset.encode(chars.asReadOnlyBuffer());
@@ -998,59 +998,6 @@ outer:
             buffer.get(bytes);
             return bytes;
         }
-    }
-
-    /**
-     * Translates this string's characters to US-ASCII or ISO-8859-1 bytes, using the fact that
-     * Unicode code points between U+0000 and U+007f inclusive are identical to US-ASCII, while
-     * U+0000 to U+00ff inclusive are identical to ISO-8859-1.
-     */
-    private byte[] getDirectMappedBytes(int maxValidChar) {
-        byte[] result = new byte[count];
-        int o = offset;
-        for (int i = 0; i < count; ++i) {
-            int ch = value[o++];
-            result[i] = (byte) ((ch <= maxValidChar) ? ch : '?');
-        }
-        return result;
-    }
-
-    private byte[] getUtf8Bytes() {
-        UnsafeByteSequence result = new UnsafeByteSequence(count);
-        final int end = offset + count;
-        for (int i = offset; i < end; ++i) {
-            int ch = value[i];
-            if (ch < 0x80) {
-                // One byte.
-                result.write(ch);
-            } else if (ch < 0x800) {
-                // Two bytes.
-                result.write((ch >> 6) | 0xc0);
-                result.write((ch & 0x3f) | 0x80);
-            } else if (ch >= Character.MIN_SURROGATE && ch <= Character.MAX_SURROGATE) {
-                // A supplementary character.
-                char high = (char) ch;
-                char low = (i + 1 != end) ? value[i + 1] : '\u0000';
-                if (!Character.isSurrogatePair(high, low)) {
-                    result.write('?');
-                    continue;
-                }
-                // Now we know we have a *valid* surrogate pair, we can consume the low surrogate.
-                ++i;
-                ch = Character.toCodePoint(high, low);
-                // Four bytes.
-                result.write((ch >> 18) | 0xf0);
-                result.write(((ch >> 12) & 0x3f) | 0x80);
-                result.write(((ch >> 6) & 0x3f) | 0x80);
-                result.write((ch & 0x3f) | 0x80);
-            } else {
-                // Three bytes.
-                result.write((ch >> 12) | 0xe0);
-                result.write(((ch >> 6) & 0x3f) | 0x80);
-                result.write((ch & 0x3f) | 0x80);
-            }
-        }
-        return result.toByteArray();
     }
 
     /**
@@ -1658,7 +1605,8 @@ outer:
     }
 
     /**
-     * Copies a range of characters into a new string.
+     * Returns a string containing a suffix of this string. The returned string
+     * shares this string's <a href="#backing_array">backing array</a>.
      *
      * @param start
      *            the offset of the first character.
@@ -1678,7 +1626,9 @@ outer:
     }
 
     /**
-     * Copies a range of characters into a new string.
+     * Returns a string containing a subsequence of characters from this string.
+     * The returned string shares this string's <a href="#backing_array">backing
+     * array</a>.
      *
      * @param start
      *            the offset of the first character.

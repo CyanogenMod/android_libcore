@@ -22,12 +22,10 @@ import java.io.OutputStream;
 import java.net.CacheRequest;
 
 /**
- * An input stream for the payload of an HTTP response.
+ * An input stream for the body of an HTTP response.
  *
- * <p>Since a single socket stream may carry multiple HTTP responses (in
- * series), closing this stream doesn't necessarily close the underlying
- * socket stream. Closing this stream before all data has been read
- * means the socket will not be reused for subsequent HTTP requests.
+ * <p>Since a single socket's input stream may be used to read multiple HTTP
+ * responses from the same server, subclasses shouldn't close the socket stream.
  *
  * <p>A side effect of reading an HTTP response is that the response cache
  * is populated. If the stream is closed early, that cache entry will be
@@ -79,13 +77,10 @@ abstract class AbstractHttpInputStream extends InputStream {
         return total;
     }
 
-    protected final void checkBounds(byte[] buffer, int offset, int length) {
-        // Force buf null check first, and avoid int overflow
-        if (offset < 0 || offset > buffer.length) {
-            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
-        }
-        if (length < 0 || buffer.length - offset < length) {
-            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
+    protected final void checkBounds(byte[] buffer, int offset, int count) {
+        if (offset < 0 || offset > buffer.length || count < 0 || buffer.length - offset < count) {
+            throw new ArrayIndexOutOfBoundsException(
+                    "offset=" + offset + ", buffer.length=" + buffer.length + ", count=" + count);
         }
     }
 
@@ -103,13 +98,13 @@ abstract class AbstractHttpInputStream extends InputStream {
 
     /**
      * Closes the cache entry and makes the socket available for reuse. This
-     * should be invoked when the end of the payload has been reached.
+     * should be invoked when the end of the body has been reached.
      */
-    protected final void endOfInput(boolean closeSocket) throws IOException {
+    protected final void endOfInput(boolean reuseSocket) throws IOException {
         if (cacheRequest != null) {
             cacheOut.close();
         }
-        httpURLConnection.releaseSocket(closeSocket);
+        httpURLConnection.releaseSocket(reuseSocket);
     }
 
     /**
@@ -128,6 +123,6 @@ abstract class AbstractHttpInputStream extends InputStream {
         if (cacheRequest != null) {
             cacheRequest.abort();
         }
-        httpURLConnection.releaseSocket(true);
+        httpURLConnection.releaseSocket(false);
     }
 }

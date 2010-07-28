@@ -335,14 +335,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         return httpsEngine.toString();
     }
 
-    /**
-     * HttpsEngine
-     */
-    private class HttpsEngine extends HttpURLConnectionImpl {
-
-        // In case of using proxy this field indicates
-        // if it is a SSL Tunnel establishing stage
-        private boolean makingSSLTunnel;
+    private final class HttpsEngine extends HttpURLConnectionImpl {
 
         protected HttpsEngine(URL url, int port) {
             super(url, port);
@@ -352,59 +345,44 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             super(url, port, proxy);
         }
 
-        @Override
-        public void connect() throws IOException {
-            if (connected) {
-                return;
-            }
-            if (super.usingProxy() && !makingSSLTunnel) {
-                // SSL Tunnel through the proxy was not established yet, do so
-                makingSSLTunnel = true;
-                // first - make the connection
-                super.connect();
-                // keep request method
-                String originalMethod = method;
-                // make SSL Tunnel
-                method = CONNECT;
-                try {
-                    doRequest();
-                    endRequest();
-                } finally {
-                    // restore initial request method
-                    method = originalMethod;
-                }
-                if (!connected) {
-                    throw new IOException("Could not make SSL tunnel. " +
-                            responseMessage + " (" + responseCode + ")");
-                }
-                discardResponse();
-                makingSSLTunnel = false;
-            } else {
-                // no need in SSL tunnel
-                super.connect();
-            }
-            if (!makingSSLTunnel) {
-                sslSocket = connection.getSecureSocket(getSSLSocketFactory(), getHostnameVerifier());
-                setUpTransportIO(connection);
-            }
-        }
-
-        @Override protected void releaseSocket(boolean closeSocket) {
-            // when a CONNECT completes, don't release the socket!
-            if (method == CONNECT) {
+        @Override public void connect() throws IOException {
+            if (connection != null) {
                 return;
             }
 
-            super.releaseSocket(closeSocket);
-        }
+            super.connect();
 
-        @Override
-        protected String requestString() {
+            // make SSL Tunnel
             if (usingProxy()) {
-                if (makingSSLTunnel) {
-                    // SSL tunnels require host:port for the origin server
-                    return url.getHost() + ":" + url.getEffectivePort();
+                String originalMethod = method;
+                method = CONNECT;
+                intermediateResponse = true;
+                try {
+                    retrieveResponse();
+                    discardIntermediateResponse();
+                } finally {
+                    method = originalMethod;
+                    intermediateResponse = false;
                 }
+            }
+
+            sslSocket = connection.getSecureSocket(getSSLSocketFactory(), getHostnameVerifier());
+            setUpTransportIO(connection);
+        }
+
+        @Override protected boolean requiresTunnel() {
+            return usingProxy();
+        }
+
+        @Override protected String requestString() {
+            if (!usingProxy()) {
+                return super.requestString();
+
+            } else if (method == CONNECT) {
+                // SSL tunnels require host:port for the origin server
+                return url.getHost() + ":" + url.getEffectivePort();
+
+            } else {
                 // we has made SSL Tunneling, return /requested.data
                 String file = url.getFile();
                 if (file == null || file.length() == 0) {
@@ -412,8 +390,6 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 }
                 return file;
             }
-            return super.requestString();
         }
-
     }
 }

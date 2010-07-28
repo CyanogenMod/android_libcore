@@ -55,13 +55,11 @@ public class Throwable implements java.io.Serializable {
      */
     private Throwable cause = this;
 
-    // BEGIN android-added
     /**
      * An intermediate representation of the stack trace.  This field may
      * be accessed by the VM; do not rename.
      */
     private volatile Object stackState;
-    // END android-added
 
     /**
      * A fully-expanded representation of the stack trace.
@@ -116,12 +114,19 @@ public class Throwable implements java.io.Serializable {
         cause = throwable;
     }
 
-    // BEGIN android-changed
     /**
      * Records the stack trace from the point where this method has been called
-     * to this {@code Throwable}. The method is public so that code which
-     * catches a {@code Throwable} and then re-throws it can adjust the stack
-     * trace to represent the location where the exception was re-thrown.
+     * to this {@code Throwable}. This method is invoked by the {@code Throwable} constructors.
+     *
+     * <p>This method is public so that code (such as an RPC system) which catches
+     * a {@code Throwable} and then re-throws it can replace the construction-time stack trace
+     * with a stack trace from the location where the exception was re-thrown, by <i>calling</i>
+     * {@code fillInStackTrace}.
+     *
+     * <p>This method is non-final so that non-Java language implementations can disable VM stack
+     * traces for their language. Filling in the stack trace is relatively expensive.
+     * <i>Overriding</i> this method in the root of a language's exception hierarchy allows the
+     * language to avoid paying for something it doesn't need.
      *
      * @return this {@code Throwable} instance.
      */
@@ -132,7 +137,6 @@ public class Throwable implements java.io.Serializable {
         stackTrace = null;
         return this;
     }
-    // END android-changed
 
     /**
      * Returns the extra information message which was provided when this
@@ -189,7 +193,7 @@ public class Throwable implements java.io.Serializable {
      */
     public void setStackTrace(StackTraceElement[] trace) {
         StackTraceElement[] newTrace = trace.clone();
-        for (java.lang.StackTraceElement element : newTrace) {
+        for (StackTraceElement element : newTrace) {
             if (element == null) {
                 throw new NullPointerException();
             }
@@ -238,10 +242,8 @@ public class Throwable implements java.io.Serializable {
      */
     private StackTraceElement[] getInternalStackTrace() {
         if (stackTrace == null) {
-            // BEGIN android-changed
             stackTrace = nativeGetStackTrace(stackState);
             stackState = null; // Clean up intermediate representation
-            // END android-changed
         }
         return stackTrace;
     }
@@ -260,8 +262,10 @@ public class Throwable implements java.io.Serializable {
         // Don't use getStackTrace() as it calls clone()
         // Get stackTrace, in case stackTrace is reassigned
         StackTraceElement[] stack = getInternalStackTrace();
-        for (java.lang.StackTraceElement element : stack) {
-            err.println("\tat " + element);
+        if (stack != null) {
+            for (StackTraceElement element : stack) {
+                err.println("\tat " + element);
+            }
         }
 
         StackTraceElement[] parentStack = stack;
@@ -296,8 +300,10 @@ public class Throwable implements java.io.Serializable {
         // Don't use getStackTrace() as it calls clone()
         // Get stackTrace, in case stackTrace is reassigned
         StackTraceElement[] stack = getInternalStackTrace();
-        for (java.lang.StackTraceElement element : stack) {
-            err.println("\tat " + element);
+        if (stack != null) {
+            for (StackTraceElement element : stack) {
+                err.println("\tat " + element);
+            }
         }
 
         StackTraceElement[] parentStack = stack;
@@ -342,9 +348,6 @@ public class Throwable implements java.io.Serializable {
      *             if the cause has already been initialized.
      */
     public Throwable initCause(Throwable throwable) {
-        // BEGIN android-note
-        // removed synchronized modifier
-        // END android-note
         if (cause == this) {
             if (throwable != this) {
                 cause = throwable;
@@ -374,18 +377,16 @@ public class Throwable implements java.io.Serializable {
         s.defaultWriteObject();
     }
 
-    // BEGIN android-added
     /*
      * Creates a compact, VM-specific collection of goodies, suitable for
      * storing in the "stackState" field, based on the current thread's
      * call stack.
      */
-    native private static Object nativeFillInStackTrace();
+    private static native Object nativeFillInStackTrace();
 
     /*
      * Creates an array of StackTraceElement objects from the data held
      * in "stackState".
      */
-    native private static StackTraceElement[] nativeGetStackTrace(Object stackState);
-    // END android-added
+    private static native StackTraceElement[] nativeGetStackTrace(Object stackState);
 }

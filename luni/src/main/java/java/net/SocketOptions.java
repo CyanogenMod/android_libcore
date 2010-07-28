@@ -41,9 +41,10 @@ public interface SocketOptions {
     public static final int SO_LINGER = 128;
 
     /**
-     * Timeout for blocking operations. The argument value is specified in
-     * milliseconds. An {@code InterruptedIOException} is thrown if this timeout
-     * expires.
+     * Timeout for blocking accept or read/receive operations (but not write/send operations).
+     * The argument value is specified in milliseconds, with 0 meaning no timeout and negative
+     * values not allowed.
+     * An {@code InterruptedIOException} is thrown if this timeout expires.
      */
     public static final int SO_TIMEOUT = 4102;
 

@@ -49,7 +49,10 @@ public final class StandardNames extends Assert {
 
     public static final boolean IS_RI
             = !"Dalvik Core Library".equals(System.getProperty("java.specification.name"));
-    public static final String PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "HarmonyJSSE";
+    public static final String JSSE_PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "AndroidOpenSSL";
+    public static final String SECURITY_PROVIDER_NAME = (IS_RI) ? "SUN" : "BC";
+
+    public static final String KEY_MANAGER_FACTORY_DEFAULT = (IS_RI) ? "SunX509" : "X509";
 
     /**
      * A map from algorithm type (e.g. Cipher) to a set of algorithms (e.g. AES, DES, ...)
@@ -218,16 +221,6 @@ public final class StandardNames extends Assert {
         // Fixups for dalvik
         if (!IS_RI) {
 
-            // OpenSSL implementations with non-Standard algorithm names
-            // TODO move our additions to a new provider and use standard names
-            // See also HarmonyJSSE provider additions for OpenSSL
-            provide("Cipher", "PBEWithMD5And128BitAES-CBC-OpenSSL");
-            provide("Cipher", "PBEWithMD5And192BitAES-CBC-OpenSSL");
-            provide("Cipher", "PBEWithMD5And256BitAES-CBC-OpenSSL");
-            provide("SecretKeyFactory", "PBEWithMD5And128BitAES-CBC-OpenSSL");
-            provide("SecretKeyFactory", "PBEWithMD5And192BitAES-CBC-OpenSSL");
-            provide("SecretKeyFactory", "PBEWithMD5And256BitAES-CBC-OpenSSL");
-
             // whole types that we do not provide
             PROVIDER_ALGORITHMS.remove("Configuration");
             PROVIDER_ALGORITHMS.remove("GssApiMechanism");
@@ -287,16 +280,20 @@ public final class StandardNames extends Assert {
             // TODO remove one, probably Harmony's
             provide("CertificateFactory", "X509");
 
-            // Harmony JSSEProvider is missing these
-            // TODO add them
-            unprovide("SSLContext", "SSLv3");
-            unprovide("SSLContext", "TLSv1");
-
             // not just different names, but different binary formats
             unprovide("KeyStore", "JKS");
             provide("KeyStore", "BKS");
             unprovide("KeyStore", "JCEKS");
             provide("KeyStore", "BouncyCastle");
+
+            // Noise to support KeyStore.PKCS12
+            provide("Cipher", "PBEWITHSHAAND40BITRC2-CBC");
+            provide("Cipher", "PBEWITHSHAANDTWOFISH-CBC");
+            provide("Mac", "PBEWITHHMACSHA");
+            provide("Mac", "PBEWITHHMACSHA1");
+            provide("SecretKeyFactory", "PBEWITHHMACSHA1");
+            provide("SecretKeyFactory", "PBEWITHSHAAND40BITRC2-CBC");
+            provide("SecretKeyFactory", "PBEWITHSHAANDTWOFISH-CBC");
 
             // removed Blowfish
             unprovide("AlgorithmParameters", "Blowfish");
@@ -318,10 +315,6 @@ public final class StandardNames extends Assert {
             unprovide("Cipher", "RC2");
             unprovide("KeyGenerator", "RC2");
             unprovide("SecretKeyFactory", "PBEWithSHA1AndRC2_40");
-
-            // removed ARCFOUR
-            unprovide("Cipher", "ARCFOUR");
-            unprovide("KeyGenerator", "ARCFOUR");
 
             // PBEWithMD5AndTripleDES is Sun proprietary
             unprovide("AlgorithmParameters", "PBEWithMD5AndTripleDES");
@@ -500,40 +493,6 @@ public final class StandardNames extends Assert {
         addNeither("TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
 
         CIPHER_SUITES = (IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
-    }
-
-    public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
-    static {
-        if (!IS_RI) {
-            // Android does not include Java versions of RC4 and IDEA
-            // Java crypto implementations so these fail to work for
-            // the SSLEngine implementation.
-            CIPHER_SUITES_SSLENGINE.remove("SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_DH_anon_WITH_RC4_128_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_EXPORT_WITH_RC4_40_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_WITH_RC4_128_MD5");
-            CIPHER_SUITES_SSLENGINE.remove("SSL_RSA_WITH_RC4_128_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_RSA_WITH_IDEA_CBC_SHA");
-            // Harmony SSLEngine does not support AES cipher suites
-            // that are supported by the OpenSSL based SSLSocket
-            // implementations
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DH_anon_WITH_AES_128_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_DH_anon_WITH_AES_256_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_RSA_WITH_AES_128_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.remove("TLS_RSA_WITH_AES_256_CBC_SHA");
-            // Harmony SSLEngine supports has some older cipher suites
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_DSS_WITH_DES_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA");
-            CIPHER_SUITES_SSLENGINE.add("SSL_DH_RSA_WITH_DES_CBC_SHA");
-        }
     }
 
     /**

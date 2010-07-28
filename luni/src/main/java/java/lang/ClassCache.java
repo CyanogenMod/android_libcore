@@ -22,9 +22,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import org.apache.harmony.kernel.vm.LangAccess;
 import org.apache.harmony.kernel.vm.ReflectionAccess;
 
@@ -54,17 +56,14 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
     /** non-null; class that this instance represents */
     private final Class<T> clazz;
 
+    /** null-ok; list of all public methods, both direct and inherited */
+    private volatile Method[] methods;
+
     /** null-ok; list of all declared methods */
     private volatile Method[] declaredMethods;
 
     /** null-ok; list of all public declared methods */
     private volatile Method[] declaredPublicMethods;
-
-    /** null-ok; list of all methods, both direct and inherited */
-    private volatile Method[] allMethods;
-
-    /** null-ok; list of all public methods, both direct and inherited */
-    private volatile Method[] allPublicMethods;
 
     /** null-ok; list of all declared fields */
     private volatile Field[] declaredFields;
@@ -129,16 +128,6 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
         }
 
         this.clazz = clazz;
-        this.declaredMethods = null;
-        this.declaredPublicMethods = null;
-        this.allMethods = null;
-        this.allPublicMethods = null;
-        this.enumValuesInOrder = null;
-        this.enumValuesByName = null;
-        this.declaredFields = null;
-        this.declaredPublicFields = null;
-        this.allFields = null;
-        this.allPublicFields = null;
     }
 
     /**
@@ -159,7 +148,7 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
      *
      * @return non-null; the list of all declared public methods
      */
-    public Method[] getDeclaredPublicMethods() {
+    private Method[] getDeclaredPublicMethods() {
         if (declaredPublicMethods == null) {
             declaredPublicMethods = Class.getDeclaredMethods(clazz, true);
         }
@@ -168,116 +157,59 @@ import org.apache.harmony.kernel.vm.ReflectionAccess;
     }
 
     /**
-     * Gets either the list of declared methods or the list of declared
-     * public methods.
-     *
-     * @param publicOnly whether to only return public methods
+     * Returns public methods defined by {@code clazz}, its superclasses and all
+     * implemented interfaces, not including overridden methods. This method
+     * performs no security checks.
      */
-    public Method[] getDeclaredMethods(boolean publicOnly) {
-        return publicOnly ? getDeclaredPublicMethods() : getDeclaredMethods();
-    }
-
-    /**
-     * Gets the list of all methods, both directly
-     * declared and inherited.
-     *
-     * @return non-null; the list of all methods
-     */
-    public Method[] getAllMethods() {
-        if (allMethods == null) {
-            allMethods = getFullListOfMethods(false);
+    public Method[] getMethods() {
+        Method[] cachedResult = methods;
+        if (cachedResult == null) {
+            methods = findMethods();
         }
 
-        return allMethods;
+        return methods;
     }
 
-    /**
-     * Gets the list of all public methods, both directly declared and
-     * inherited. Methods declared by this type appear earlier in this list than
-     * methods declared by the superclass.
-     *
-     * @return non-null; the list of all public methods
-     */
-    public Method[] getAllPublicMethods() {
-        if (allPublicMethods == null) {
-            allPublicMethods = getFullListOfMethods(true);
-        }
-
-        return allPublicMethods;
-    }
-
-    /*
-     * Returns the list of methods without performing any security checks
-     * first. This includes the methods inherited from superclasses. If no
-     * methods exist at all, an empty array is returned.
-     *
-     * @param publicOnly reflects whether we want only public methods
-     * or all of them
-     * @return the list of methods
-     */
-    private Method[] getFullListOfMethods(boolean publicOnly) {
-        ArrayList<Method> methods = new ArrayList<Method>();
-        HashSet<String> seen = new HashSet<String>();
-
-        findAllMethods(clazz, methods, seen, publicOnly);
-
-        return methods.toArray(new Method[methods.size()]);
-    }
-
-    /**
-     * Collects the list of methods without performing any security checks
-     * first. This includes the methods inherited from superclasses and from
-     * all implemented interfaces. The latter may also implement multiple
-     * interfaces, so we (potentially) recursively walk through a whole tree of
-     * classes. If no methods exist at all, an empty array is returned.
-     *
-     * @param clazz non-null; class to inspect
-     * @param methods non-null; the target list to add the results to
-     * @param seen non-null; a set of signatures we've already seen
-     * @param publicOnly reflects whether we want only public methods
-     * or all of them
-     */
-    private static void findAllMethods(Class<?> clazz,
-            ArrayList<Method> methods, HashSet<String> seen,
-            boolean publicOnly) {
-        StringBuilder builder = new StringBuilder();
-        Class<?> origClass = clazz;
+    private Method[] findMethods() {
+        List<Method> allMethods = new ArrayList<Method>();
+        getMethodsRecursive(clazz, allMethods);
 
         /*
-         * Traverse class and superclasses, get rid of dupes by signature.
-         * If two signatures differ only by return type, covariant return types
-         * are in play. For consistency with the RI we return both methods.
+         * Keep only unique methods by signature. If two signatures differ only
+         * by return type, covariant return types are in play. For consistency
+         * with the RI we return both methods.
          */
-        do {
-            for (Method method : clazz.getClassCache().getDeclaredMethods(publicOnly)) {
-                builder.setLength(0);
-                builder.append(method.getReturnType().getName());
-                builder.append(" ");
-                builder.append(method.getName());
-                builder.append('(');
-                Class<?>[] types = method.getParameterTypes();
-                if (types.length != 0) {
-                    builder.append(types[0].getName());
-                    for (int j = 1; j < types.length; j++) {
-                        builder.append(',');
-                        builder.append(types[j].getName());
-                    }
-                }
-                builder.append(')');
-
-                String signature = builder.toString();
-                if (!seen.contains(signature)) {
-                    methods.add(method);
-                    seen.add(signature);
+        Collections.sort(allMethods, Method.ORDER_BY_SIGNATURE);
+        List<Method> uniqueMethods = new ArrayList<Method>(allMethods.size());
+        if (!allMethods.isEmpty()) {
+            Method last = allMethods.get(0);
+            uniqueMethods.add(last);
+            for (int i = 1; i < allMethods.size(); i++) {
+                Method current = allMethods.get(i);
+                if (Method.ORDER_BY_SIGNATURE.compare(last, current) != 0) {
+                    uniqueMethods.add(current);
+                    last = current;
                 }
             }
+        }
 
-            clazz = clazz.getSuperclass();
-        } while (clazz != null);
+        return uniqueMethods.toArray(new Method[uniqueMethods.size()]);
+    }
 
-        // Traverse all interfaces, and do the same recursively.
-        for (Class<?> ifc : origClass.getInterfaces()) {
-            findAllMethods(ifc, methods, seen, publicOnly);
+    /**
+     * Populates {@code sink} with public methods defined by {@code clazz}, its
+     * superclasses, and all implemented interfaces, including overridden methods.
+     * This method performs no security checks.
+     */
+    private static void getMethodsRecursive(Class<?> clazz, List<Method> result) {
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            for (Method method : c.getClassCache().getDeclaredPublicMethods()) {
+                result.add(method);
+            }
+        }
+
+        for (Class<?> ifc : clazz.getInterfaces()) {
+            getMethodsRecursive(ifc, result);
         }
     }
 

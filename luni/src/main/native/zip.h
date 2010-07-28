@@ -19,14 +19,10 @@
 #define zip_h
 
 #include "JNIHelp.h"
+#include "JniException.h"
 #include "UniquePtr.h"
 #include "jni.h"
 #include "zlib.h"
-
-// FIXME: move to JNIHelp.h
-static void jniThrowOutOfMemoryError(JNIEnv* env, const char* message) {
-    jniThrowException(env, "java/lang/OutOfMemoryError", message);
-}
 
 static void throwExceptionForZlibError(JNIEnv* env, const char* exceptionClassName, int error) {
     if (error == Z_MEM_ERROR) {
@@ -52,24 +48,25 @@ public:
     ~NativeZipStream() {
     }
 
-    void setDictionary(JNIEnv* env, jbyteArray dict, int off, int len, bool inflate) {
-        UniquePtr<jbyte[]> dBytes(new jbyte[len]);
-        if (dBytes.get() == NULL) {
+    void setDictionary(JNIEnv* env, jbyteArray javaDictionary, int off, int len, bool inflate) {
+        UniquePtr<jbyte[]> dictionaryBytes(new jbyte[len]);
+        if (dictionaryBytes.get() == NULL) {
             jniThrowOutOfMemoryError(env, NULL);
             return;
         }
-        env->GetByteArrayRegion(dict, off, len, &dBytes[0]);
+        env->GetByteArrayRegion(javaDictionary, off, len, &dictionaryBytes[0]);
+        const Bytef* dictionary = reinterpret_cast<const Bytef*>(&dictionaryBytes[0]);
         int err;
         if (inflate) {
-            err = inflateSetDictionary(&stream, (Bytef *) &dBytes[0], len);
+            err = inflateSetDictionary(&stream, dictionary, len);
         } else {
-            err = deflateSetDictionary(&stream, (Bytef *) &dBytes[0], len);
+            err = deflateSetDictionary(&stream, dictionary, len);
         }
         if (err != Z_OK) {
             throwExceptionForZlibError(env, "java/lang/IllegalArgumentException", err);
             return;
         }
-        mDict.reset(dBytes.release());
+        mDict.reset(dictionaryBytes.release());
     }
 
     void setInput(JNIEnv* env, jbyteArray buf, jint off, jint len) {

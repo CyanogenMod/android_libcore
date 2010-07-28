@@ -65,7 +65,7 @@ public class NodeTest extends TestCase {
 
         // TODO: test other node types
         // TODO: test resolution of relative paths
-        // TODO: test URI santization
+        // TODO: test URI sanitization
     }
 
     private void assertFileUriEquals(File expectedFile, String actual) {

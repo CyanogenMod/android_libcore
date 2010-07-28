@@ -190,7 +190,7 @@ public class ServerSocket {
     }
 
     /**
-     * Answer the default number of pending connections on a server socket. If
+     * Returns the default number of pending connections on a server socket. If
      * the backlog value maximum is reached, any subsequent incoming request is
      * rejected.
      *
@@ -227,10 +227,8 @@ public class ServerSocket {
     }
 
     /**
-     * Gets the timeout period of this server socket. This is the time the
-     * server will wait listening for accepted connections before exiting.
+     * Gets the socket {@link SocketOptions#SO_TIMEOUT accept timeout}.
      *
-     * @return the listening timeout value of this server socket.
      * @throws IOException
      *             if the option cannot be retrieved.
      */
@@ -298,12 +296,13 @@ public class ServerSocket {
     }
 
     /**
-     * Sets the timeout period of this server socket. This is the time the
-     * server will wait listening for accepted connections before exiting. This
-     * value must be a positive number.
+     * Sets the {@link SocketOptions#SO_TIMEOUT accept timeout} in milliseconds for this socket.
+     * This accept timeout defines the period the socket will block waiting to
+     * accept a connection before throwing an {@code InterruptedIOException}. The value
+     * {@code 0} (default) is used to set an infinite timeout. To have effect
+     * this option must be set before the blocking method was called.
      *
-     * @param timeout
-     *            the listening timeout value of this server socket.
+     * @param timeout the timeout in milliseconds or 0 for no timeout.
      * @throws SocketException
      *             if an error occurs while setting the option.
      */

@@ -15,10 +15,7 @@
  *  limitations under the License.
  */
 
-// BEGIN android-changed
-package tests.api.java.net;
-//package org.apache.harmony.luni.tests.java.net;
-// END android-changed
+package java.net;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,11 +29,8 @@ import java.net.SocketException;
 
 import junit.framework.TestCase;
 
-public class UnixSocketTest extends TestCase {
+public class OldUnixSocketTest extends TestCase {
 
-    /**
-     * @tests java.net.Socket#getInputStream()
-     */
     public void test_getInputStream() throws IOException {
         // Simple read/write test over the IO streams
         final ServerSocket pingServer = new ServerSocket(0);
@@ -62,8 +56,8 @@ public class UnixSocketTest extends TestCase {
             clientIn.read(new byte[42]);
 
             try {
-                clientIn.read();
-                fail("Should throw SocketException");
+                int i = clientIn.read();
+                fail("Should throw SocketException; got i=" + i);
             } catch (SocketException e) {
                 // expected
             }

@@ -91,15 +91,15 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
      * @see java.nio.ByteBuffer#get(byte[], int, int)
      */
     @Override
-    public final ByteBuffer get(byte[] dest, int off, int len) {
-        int length = dest.length;
+    public final ByteBuffer get(byte[] dst, int off, int len) {
+        int length = dst.length;
         if ((off < 0) || (len < 0) || (long) off + (long) len > length) {
             throw new IndexOutOfBoundsException();
         }
         if (len > remaining()) {
             throw new BufferUnderflowException();
         }
-        getBaseAddress().getByteArray(offset + position, dest, off, len);
+        getBaseAddress().getByteArray(offset + position, dst, off, len);
         position += len;
         return this;
     }

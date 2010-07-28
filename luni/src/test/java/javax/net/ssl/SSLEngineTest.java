@@ -18,6 +18,7 @@ package javax.net.ssl;
 
 import dalvik.annotation.KnownFailure;
 import java.security.StandardNames;
+import java.security.TestKeyStore;
 import java.util.Arrays;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import junit.framework.TestCase;
@@ -53,17 +54,24 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_getSupportedCipherSuites_names() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
         String[] cipherSuites = e.getSupportedCipherSuites();
-        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE,
-                                                  cipherSuites);
+        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
         assertNotSame(cipherSuites, e.getSupportedCipherSuites());
     }
 
     @KnownFailure("No *_WITH_NULL_* ciphers work because of 'Invalid transformation: null'")
     public void test_SSLEngine_getSupportedCipherSuites_connect() throws Exception {
-        String[] cipherSuites
-                = SSLContext.getDefault().createSSLEngine().getSupportedCipherSuites();
+        // note the rare usage of DSA keys here in addition to RSA
+        TestKeyStore testKeyStore = TestKeyStore.create(new String[] { "RSA", "DSA" },
+                                                        null,
+                                                        null,
+                                                        "rsa-dsa",
+                                                        TestKeyStore.localhost(),
+                                                        true,
+                                                        null);
+        TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore);
+        String[] cipherSuites = c.clientContext.createSSLEngine().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
             /*
              * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
@@ -72,9 +80,9 @@ public class SSLEngineTest extends TestCase {
             if (cipherSuite.startsWith("TLS_KRB5_")) {
                 continue;
             }
-            System.out.println("Trying to connect cipher suite " + cipherSuite);
+            // System.out.println("Trying to connect cipher suite " + cipherSuite);
             final String[] cipherSuiteArray = new String[] { cipherSuite };
-            assertConnected(TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
+            assertConnected(TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
                 @Override
                 void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
                     client.setEnabledCipherSuites(cipherSuiteArray);
@@ -86,16 +94,15 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_getEnabledCipherSuites() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
         String[] cipherSuites = e.getEnabledCipherSuites();
-        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE,
-                                              cipherSuites);
+        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
     }
 
     public void test_SSLEngine_setEnabledCipherSuites() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
 
         try {
             e.setEnabledCipherSuites(null);
@@ -120,7 +127,7 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_getSupportedProtocols() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
         String[] protocols = e.getSupportedProtocols();
         StandardNames.assertSupportedProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
         assertNotSame(protocols, e.getSupportedProtocols());
@@ -128,7 +135,7 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_getEnabledProtocols() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
         String[] protocols = e.getEnabledProtocols();
         StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
         assertNotSame(protocols, e.getEnabledProtocols());
@@ -136,7 +143,7 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_setEnabledProtocols() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
 
         try {
             e.setEnabledProtocols(null);
@@ -160,7 +167,7 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_getSession() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
         SSLSession session = e.getSession();
         assertNotNull(session);
         assertFalse(session.isValid());
@@ -170,7 +177,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
 
         try {
-            c.sslContext.createSSLEngine().beginHandshake();
+            c.clientContext.createSSLEngine().beginHandshake();
             fail();
         } catch (IllegalStateException expected) {
         }
@@ -180,27 +187,27 @@ public class SSLEngineTest extends TestCase {
 
     @KnownFailure("NO SERVER CERTIFICATE FOUND")
     public void test_SSLEngine_beginHandshake_noKeyStore() throws Exception {
-        TestSSLContext c = TestSSLContext.create(null, null);
+        TestSSLContext c = TestSSLContext.create(null, null, null, null, null, null, null, null,
+                                                 SSLContext.getDefault(), SSLContext.getDefault());
         try {
             // TODO Fix KnownFailure AlertException "NO SERVER CERTIFICATE FOUND"
             // ServerHandshakeImpl.selectSuite should not select a suite without a required cert
-            TestSSLEnginePair.connect(c, c, null);
+            TestSSLEnginePair.connect(c, null);
             fail();
         } catch (SSLHandshakeException expected) {
         }
     }
 
     public void test_SSLEngine_beginHandshake_noClientCertificate() throws Exception {
-        TestSSLContext serverContext = TestSSLContext.create();
-        TestSSLContext clientContext = TestSSLContext.createClient(serverContext);
-        SSLEngine[] engines = TestSSLEnginePair.connect(clientContext, serverContext, null);
+        TestSSLContext c = TestSSLContext.create();
+        SSLEngine[] engines = TestSSLEnginePair.connect(c, null);
         assertConnected(engines[0], engines[1]);
     }
 
     public void test_SSLEngine_getUseClientMode() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        assertFalse(c.sslContext.createSSLEngine().getUseClientMode());
-        assertFalse(c.sslContext.createSSLEngine(null, -1).getUseClientMode());
+        assertFalse(c.clientContext.createSSLEngine().getUseClientMode());
+        assertFalse(c.clientContext.createSSLEngine(null, -1).getUseClientMode());
     }
 
     @KnownFailure("SSLHandshakeException instead assertNotConnected")
@@ -221,7 +228,14 @@ public class SSLEngineTest extends TestCase {
     private TestSSLEnginePair test_SSLEngine_setUseClientMode(final boolean clientClientMode,
                                                               final boolean serverClientMode)
             throws Exception {
-        return TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
+        TestSSLContext c;
+        if (!clientClientMode && serverClientMode) {
+            c = TestSSLContext.create(TestKeyStore.getServer(), TestKeyStore.getClient());
+        } else {
+            c = TestSSLContext.create();
+        }
+
+        return TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
             @Override
             void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
                 client.setUseClientMode(clientClientMode);
@@ -233,7 +247,7 @@ public class SSLEngineTest extends TestCase {
     @KnownFailure("init - invalid private key")
     public void test_SSLEngine_clientAuth() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
 
         assertFalse(e.getWantClientAuth());
         assertFalse(e.getNeedClientAuth());
@@ -254,20 +268,26 @@ public class SSLEngineTest extends TestCase {
         assertFalse(e.getNeedClientAuth());
 
         // TODO Fix KnownFailure "init - invalid private key"
-        TestSSLEnginePair p = TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
+        TestSSLContext clientAuthContext
+                = TestSSLContext.create(TestKeyStore.getClientCertificate(),
+                                        TestKeyStore.getServer());
+        TestSSLEnginePair p = TestSSLEnginePair.create(clientAuthContext,
+                                                       new TestSSLEnginePair.Hooks() {
             @Override
-            void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
+                    void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
                 server.setWantClientAuth(true);
             }
         });
         assertConnected(p);
         assertNotNull(p.client.getSession().getLocalCertificates());
-        assertEquals(1, p.client.getSession().getLocalCertificates().length);
+        TestKeyStore.assertChainLength(p.client.getSession().getLocalCertificates());
+        TestSSLContext.assertClientCertificateChain(clientAuthContext.clientTrustManager,
+                                                    p.client.getSession().getLocalCertificates());
     }
 
     public void test_SSLEngine_getEnableSessionCreation() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
         assertTrue(e.getEnableSessionCreation());
     }
 
@@ -298,14 +318,13 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_getSSLParameters() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
 
         SSLParameters p = e.getSSLParameters();
         assertNotNull(p);
 
         String[] cipherSuites = p.getCipherSuites();
-        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE,
-                                              cipherSuites);
+        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
         assertEquals(Arrays.asList(cipherSuites), Arrays.asList(e.getEnabledCipherSuites()));
 
@@ -320,7 +339,7 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_setSSLParameters() throws Exception {
         TestSSLContext c = TestSSLContext.create();
-        SSLEngine e = c.sslContext.createSSLEngine();
+        SSLEngine e = c.clientContext.createSSLEngine();
         String[] defaultCipherSuites = e.getEnabledCipherSuites();
         String[] defaultProtocols = e.getEnabledProtocols();
         String[] supportedCipherSuites = e.getSupportedCipherSuites();

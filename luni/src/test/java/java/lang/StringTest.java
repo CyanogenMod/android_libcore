@@ -16,6 +16,8 @@
 
 package java.lang;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.ReadOnlyBufferException;
@@ -115,6 +117,9 @@ public class StringTest extends TestCase {
         // We have a fast path implementation of String.getBytes for UTF-8.
         Charset cs = Charset.forName("UTF-8");
 
+        // Test the empty string.
+        assertEquals("[]", Arrays.toString("".getBytes(cs)));
+
         // Test one-byte characters.
         assertEquals("[0]", Arrays.toString("\u0000".getBytes(cs)));
         assertEquals("[127]", Arrays.toString("\u007f".getBytes(cs)));
@@ -149,5 +154,46 @@ public class StringTest extends TestCase {
         // Check that we use U+FFFD as the replacement string for invalid bytes.
         assertEquals("a\ufffdb", new String(new byte[] { 97, -2, 98 }, "US-ASCII"));
         assertEquals("a\ufffdb", new String(new byte[] { 97, -2, 98 }, Charset.forName("US-ASCII")));
+    }
+
+    /**
+     * Tests a widely assumed performance characteristic of String.substring():
+     * that it reuses the original's backing array. Although behaviour should be
+     * correct even if this test fails, many applications may suffer
+     * significant performance degradation.
+     */
+    public void testSubstringSharesBackingArray() throws IllegalAccessException {
+        String abcdefghij = "ABCDEFGHIJ";
+        String cdefg = abcdefghij.substring(2, 7);
+        assertSame(getBackingArray(abcdefghij), getBackingArray(cdefg));
+    }
+
+    /**
+     * Tests a widely assumed performance characteristic of string's copy
+     * constructor: that it ensures the backing array is the same length as the
+     * string. Although behaviour should be correct even if this test fails,
+     * many applications may suffer significant performance degradation.
+     */
+    public void testStringCopiesAvoidHeapRetention() throws IllegalAccessException {
+        String abcdefghij = "ABCDEFGHIJ";
+        assertSame(getBackingArray(abcdefghij), getBackingArray(new String(abcdefghij)));
+
+        String cdefg = abcdefghij.substring(2, 7);
+        assertSame(getBackingArray(abcdefghij), getBackingArray(cdefg));
+        assertEquals(5, getBackingArray(new String(cdefg)).length);
+    }
+
+    /**
+     * Uses reflection to return the char[] backing the given string. This
+     * returns the actual backing array; which must not be modified.
+     */
+    private char[] getBackingArray(String string) throws IllegalAccessException {
+        for (Field f : String.class.getDeclaredFields()) {
+            if (!Modifier.isStatic(f.getModifiers()) && f.getType() == char[].class) {
+                f.setAccessible(true);
+                return (char[]) f.get(string);
+            }
+        }
+        throw new UnsupportedOperationException("No chars[] field on String!");
     }
 }

@@ -42,9 +42,9 @@ import org.apache.harmony.luni.util.PriviAction;
  */
 public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
-    static final int TCP_NODELAY = 4;
+    private static final int SO_BROADCAST = 32;
 
-    private final static int SO_BROADCAST = 32;
+    static final int TCP_NODELAY = 4;
 
     final static int IP_MULTICAST_ADD = 19;
 
@@ -52,26 +52,11 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     final static int IP_MULTICAST_TTL = 17;
 
-    /**
-     * for datagram and multicast sockets we have to set REUSEADDR and REUSEPORT
-     * when REUSEADDR is set for other types of sockets we need to just set
-     * REUSEADDR therefore we have this other option which sets both if
-     * supported by the platform. this cannot be in SOCKET_OPTIONS because since
-     * it is a public interface it ends up being public even if it is not
-     * declared public
-     */
-    static final int REUSEADDR_AND_REUSEPORT = 10001;
-
-    // Ignored in native code
-    private boolean bindToDevice = false;
-
     private byte[] ipaddress = { 0, 0, 0, 0 };
 
     private INetworkSystem netImpl = Platform.getNetworkSystem();
 
     private volatile boolean isNativeConnected;
-
-    public int receiveTimeout;
 
     public boolean streaming = true;
 
@@ -105,8 +90,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void bind(int port, InetAddress addr) throws SocketException {
-        String prop = AccessController.doPrivileged(new PriviAction<String>("bindToDevice"));
-        boolean useBindToDevice = prop != null && prop.toLowerCase().equals("true");
         netImpl.bind(fd, addr, port);
         if (0 != port) {
             localPort = port;
@@ -126,7 +109,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         synchronized (fd) {
             if (fd.valid()) {
                 try {
-                    netImpl.socketClose(fd);
+                    netImpl.close(fd);
                 } catch (IOException e) {
                 }
                 fd = new FileDescriptor();
@@ -145,9 +128,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     public Object getOption(int optID) throws SocketException {
-        if (optID == SocketOptions.SO_TIMEOUT) {
-            return Integer.valueOf(receiveTimeout);
-        } else if (optID == SocketOptions.IP_TOS) {
+        if (optID == SocketOptions.IP_TOS) {
             return Integer.valueOf(trafficClass);
         } else {
             return netImpl.getSocketOption(fd, optID);
@@ -201,18 +182,12 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         return result;
     }
 
-    @Override
-    public void receive(DatagramPacket pack) throws java.io.IOException {
+    private void doRecv(DatagramPacket pack, boolean peek) throws IOException {
         try {
+            netImpl.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(), peek,
+                    isNativeConnected);
             if (isNativeConnected) {
-                // do not peek
-                netImpl.recvConnectedDatagram(fd, pack, pack.getData(), pack.getOffset(), pack
-                        .getLength(), receiveTimeout, false);
                 updatePacketRecvAddress(pack);
-            } else {
-                // receiveDatagramImpl2
-                netImpl.receiveDatagram(fd, pack, pack.getData(), pack.getOffset(), pack
-                        .getLength(), receiveTimeout, false);
             }
         } catch (InterruptedIOException e) {
             throw new SocketTimeoutException(e.getMessage());
@@ -220,58 +195,45 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     @Override
-    public void send(DatagramPacket packet) throws IOException {
-
-        if (isNativeConnected) {
-            netImpl.sendConnectedDatagram(fd, packet.getData(), packet.getOffset(), packet
-                    .getLength(), bindToDevice);
-        } else {
-            // sendDatagramImpl2
-            netImpl.sendDatagram(fd, packet.getData(), packet.getOffset(), packet.getLength(),
-                    packet.getPort(), bindToDevice, trafficClass, packet.getAddress());
-        }
+    public void receive(DatagramPacket pack) throws IOException {
+        doRecv(pack, false);
     }
 
-    /**
-     * Set the nominated socket option. As the timeouts are not set as options
-     * in the IP stack, the value is stored in an instance field.
-     *
-     * @throws SocketException thrown if the option value is unsupported or
-     *         invalid
-     */
+    @Override
+    public int peekData(DatagramPacket pack) throws IOException {
+        doRecv(pack, true);
+        return pack.getPort();
+    }
+
+    @Override
+    public void send(DatagramPacket packet) throws IOException {
+        int port = isNativeConnected ? 0 : packet.getPort();
+        InetAddress address = isNativeConnected ? null : packet.getAddress();
+        netImpl.send(fd, packet.getData(), packet.getOffset(), packet.getLength(),
+                port, trafficClass, address);
+    }
+
     public void setOption(int optID, Object val) throws SocketException {
-        /*
-         * for datagram sockets on some platforms we have to set both the
-         * REUSEADDR AND REUSEPORT so for REUSEADDR set this option option which
-         * tells the VM to set the two values as appropriate for the platform
-         */
-        if (optID == SocketOptions.SO_REUSEADDR) {
-            optID = REUSEADDR_AND_REUSEPORT;
+        try {
+            netImpl.setSocketOption(fd, optID, val);
+        } catch (SocketException e) {
+            // we don't throw an exception for IP_TOS even if the platform
+            // won't let us set the requested value
+            if (optID != SocketOptions.IP_TOS) {
+                throw e;
+            }
         }
-        if (optID == SocketOptions.SO_TIMEOUT) {
-            receiveTimeout = ((Integer) val).intValue();
-        } else {
-            try {
-                netImpl.setSocketOption(fd, optID, val);
-            } catch (SocketException e) {
-                // we don't throw an exception for IP_TOS even if the platform
-                // won't let us set the requested value
-                if (optID != SocketOptions.IP_TOS) {
-                    throw e;
-                }
-            }
-            /*
-             * save this value as it is actually used differently for IPv4 and
-             * IPv6 so we cannot get the value using the getOption. The option
-             * is actually only set for IPv4 and a masked version of the value
-             * will be set as only a subset of the values are allowed on the
-             * socket. Therefore we need to retain it to return the value that
-             * was set. We also need the value to be passed into a number of
-             * natives so that it can be used properly with IPv6
-             */
-            if (optID == SocketOptions.IP_TOS) {
-                trafficClass = ((Integer) val).intValue();
-            }
+        /*
+         * save this value as it is actually used differently for IPv4 and
+         * IPv6 so we cannot get the value using the getOption. The option
+         * is actually only set for IPv4 and a masked version of the value
+         * will be set as only a subset of the values are allowed on the
+         * socket. Therefore we need to retain it to return the value that
+         * was set. We also need the value to be passed into a number of
+         * natives so that it can be used properly with IPv6
+         */
+        if (optID == SocketOptions.IP_TOS) {
+            trafficClass = ((Integer) val).intValue();
         }
     }
 
@@ -314,24 +276,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         connectedPort = -1;
         connectedAddress = null;
         isNativeConnected = false;
-    }
-
-    @Override
-    public int peekData(DatagramPacket pack) throws IOException {
-        try {
-            if (isNativeConnected) {
-                netImpl.recvConnectedDatagram(fd, pack, pack.getData(), pack.getOffset(), pack
-                        .getLength(), receiveTimeout, true); // peek
-                updatePacketRecvAddress(pack);
-            } else {
-                // receiveDatagram 2
-                netImpl.receiveDatagram(fd, pack, pack.getData(), pack.getOffset(), pack
-                        .getLength(), receiveTimeout, true); // peek
-            }
-        } catch (InterruptedIOException e) {
-            throw new SocketTimeoutException(e.toString());
-        }
-        return pack.getPort();
     }
 
     /**

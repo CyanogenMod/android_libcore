@@ -23,8 +23,8 @@
 # 
 #     openssl x509 -subject_hash -in filename
 #
-# and the "n" is the the depth of the certificate along a chain, i.e.
-# .0 for roots, .1 for an intermediate one level deep, etc.
+# and the "n" is a unique integer identifier starting at 0 to deal
+# with collisions. See OpenSSL's c_rehash manpage for details.
 #
 # The filename itself is not important, and is around just for convention sake.
 #

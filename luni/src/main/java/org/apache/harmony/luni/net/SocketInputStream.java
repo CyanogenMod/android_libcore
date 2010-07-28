@@ -57,7 +57,7 @@ class SocketInputStream extends InputStream {
     public int read() throws IOException {
         byte[] buffer = new byte[1];
         int result = socket.read(buffer, 0, 1);
-        return (-1 == result) ? result : buffer[0] & 0xFF;
+        return (result == -1) ? result : buffer[0] & 0xFF;
     }
 
     @Override

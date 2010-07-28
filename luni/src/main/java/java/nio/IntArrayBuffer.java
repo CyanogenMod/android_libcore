@@ -66,15 +66,15 @@ abstract class IntArrayBuffer extends IntBuffer {
     }
 
     @Override
-    public final IntBuffer get(int[] dest, int off, int len) {
-        int length = dest.length;
+    public final IntBuffer get(int[] dst, int off, int len) {
+        int length = dst.length;
         if (off < 0 || len < 0 || (long) len + (long) off > length) {
             throw new IndexOutOfBoundsException();
         }
         if (len > remaining()) {
             throw new BufferUnderflowException();
         }
-        System.arraycopy(backingArray, offset + position, dest, off, len);
+        System.arraycopy(backingArray, offset + position, dst, off, len);
         position += len;
         return this;
     }

@@ -72,7 +72,7 @@ static DecimalFormatSymbols* makeDecimalFormatSymbols(JNIEnv* env,
     return result;
 }
 
-static void setDecimalFormatSymbols(JNIEnv* env, jclass, jint addr,
+static void NativeDecimalFormat_setDecimalFormatSymbols(JNIEnv* env, jclass, jint addr,
         jstring currencySymbol, jchar decimalSeparator, jchar digit,
         jchar groupingSeparator, jstring infinity,
         jstring internationalCurrencySymbol, jchar minusSign,
@@ -86,7 +86,7 @@ static void setDecimalFormatSymbols(JNIEnv* env, jclass, jint addr,
     toDecimalFormat(addr)->adoptDecimalFormatSymbols(symbols);
 }
 
-static jint openDecimalFormatImpl(JNIEnv* env, jclass, jstring pattern0,
+static jint NativeDecimalFormat_open(JNIEnv* env, jclass, jstring pattern0,
         jstring currencySymbol, jchar decimalSeparator, jchar digit,
         jchar groupingSeparator, jstring infinity,
         jstring internationalCurrencySymbol, jchar minusSign,
@@ -112,17 +112,17 @@ static jint openDecimalFormatImpl(JNIEnv* env, jclass, jstring pattern0,
     return static_cast<jint>(reinterpret_cast<uintptr_t>(fmt));
 }
 
-static void closeDecimalFormatImpl(JNIEnv*, jclass, jint addr) {
+static void NativeDecimalFormat_close(JNIEnv*, jclass, jint addr) {
     delete toDecimalFormat(addr);
 }
 
-static void setRoundingMode(JNIEnv*, jclass, jint addr, jint mode, jdouble increment) {
+static void NativeDecimalFormat_setRoundingMode(JNIEnv*, jclass, jint addr, jint mode, jdouble increment) {
     DecimalFormat* fmt = toDecimalFormat(addr);
     fmt->setRoundingMode(static_cast<DecimalFormat::ERoundingMode>(mode));
     fmt->setRoundingIncrement(increment);
 }
 
-static void setSymbol(JNIEnv* env, jclass, jint addr, jint javaSymbol, jstring javaValue) {
+static void NativeDecimalFormat_setSymbol(JNIEnv* env, jclass, jint addr, jint javaSymbol, jstring javaValue) {
     ScopedJavaUnicodeString value(env, javaValue);
     UnicodeString& s(value.unicodeString());
     UErrorCode status = U_ZERO_ERROR;
@@ -131,17 +131,17 @@ static void setSymbol(JNIEnv* env, jclass, jint addr, jint javaSymbol, jstring j
     icu4jni_error(env, status);
 }
 
-static void setAttribute(JNIEnv*, jclass, jint addr, jint javaAttr, jint value) {
+static void NativeDecimalFormat_setAttribute(JNIEnv*, jclass, jint addr, jint javaAttr, jint value) {
     UNumberFormatAttribute attr = static_cast<UNumberFormatAttribute>(javaAttr);
     unum_setAttribute(toUNumberFormat(addr), attr, value);
 }
 
-static jint getAttribute(JNIEnv*, jclass, jint addr, jint javaAttr) {
+static jint NativeDecimalFormat_getAttribute(JNIEnv*, jclass, jint addr, jint javaAttr) {
     UNumberFormatAttribute attr = static_cast<UNumberFormatAttribute>(javaAttr);
     return unum_getAttribute(toUNumberFormat(addr), attr);
 }
 
-static void setTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr, jstring javaValue) {
+static void NativeDecimalFormat_setTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr, jstring javaValue) {
     ScopedJavaUnicodeString value(env, javaValue);
     UnicodeString& s(value.unicodeString());
     UErrorCode status = U_ZERO_ERROR;
@@ -150,7 +150,7 @@ static void setTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr, jstr
     icu4jni_error(env, status);
 }
 
-static jstring getTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr) {
+static jstring NativeDecimalFormat_getTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr) {
     UErrorCode status = U_ZERO_ERROR;
     UNumberFormat* fmt = toUNumberFormat(addr);
     UNumberFormatTextAttribute attr = static_cast<UNumberFormatTextAttribute>(javaAttr);
@@ -169,7 +169,7 @@ static jstring getTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr) {
     return icu4jni_error(env, status) ? NULL : env->NewString(chars.get(), charCount);
 }
 
-static void applyPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized, jstring pattern0) {
+static void NativeDecimalFormat_applyPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized, jstring pattern0) {
     if (pattern0 == NULL) {
         jniThrowNullPointerException(env, NULL);
         return;
@@ -185,7 +185,7 @@ static void applyPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized,
     icu4jni_error(env, status);
 }
 
-static jstring toPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized) {
+static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized) {
     DecimalFormat* fmt = toDecimalFormat(addr);
     UnicodeString pattern;
     if (localized) {
@@ -201,15 +201,16 @@ static jstring formatResult(JNIEnv* env, const UnicodeString &str, FieldPosition
 
     if (fpi != NULL) {
         int len = fpi->getData(NULL, 0);
-        jintArray iary;
+        jintArray data = NULL;
         if (len) {
-            iary = env->NewIntArray(len);
-            ScopedIntArrayRW ints(env, iary);
+            data = env->NewIntArray(len);
+            ScopedIntArrayRW ints(env, data);
+            if (ints.get() == NULL) {
+                return NULL;
+            }
             fpi->getData(ints.get(), len);
-        } else {
-            iary = NULL;
         }
-        env->CallVoidMethod(fpIter, gFPI_setData, iary);
+        env->CallVoidMethod(fpIter, gFPI_setData, data);
     }
 
     return env->NewString(str.getBuffer(), str.length());
@@ -226,17 +227,17 @@ static jstring format(JNIEnv* env, jint addr, jobject fpIter, T val) {
     return formatResult(env, str, pfpi, fpIter);
 }
 
-static jstring formatLong(JNIEnv* env, jclass, jint addr, jlong value, jobject fpIter) {
+static jstring NativeDecimalFormat_formatLong(JNIEnv* env, jclass, jint addr, jlong value, jobject fpIter) {
     int64_t longValue = value;
     return format(env, addr, fpIter, (jlong) longValue);
 }
 
-static jstring formatDouble(JNIEnv* env, jclass, jint addr, jdouble value, jobject fpIter) {
+static jstring NativeDecimalFormat_formatDouble(JNIEnv* env, jclass, jint addr, jdouble value, jobject fpIter) {
     double doubleValue = value;
     return format(env, addr, fpIter, (jdouble) doubleValue);
 }
 
-static jstring formatDigitList(JNIEnv* env, jclass, jint addr, jstring value, jobject fpIter) {
+static jstring NativeDecimalFormat_formatDigitList(JNIEnv* env, jclass, jint addr, jstring value, jobject fpIter) {
     ScopedUtfChars chars(env, value);
     if (chars.c_str() == NULL) {
         return NULL;
@@ -257,8 +258,8 @@ static jobject newBigDecimal(JNIEnv* env, const char* value, jsize len) {
     return env->NewObject(JniConstants::bigDecimalClass, gBigDecimal_init, str);
 }
 
-static jobject parse(JNIEnv* env, jclass, jint addr, jstring text,
-                     jobject position, jboolean parseBigDecimal) {
+static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jint addr, jstring text,
+        jobject position, jboolean parseBigDecimal) {
 
     static jmethodID gPP_getIndex = env->GetMethodID(JniConstants::parsePositionClass, "getIndex", "()I");
     static jmethodID gPP_setIndex = env->GetMethodID(JniConstants::parsePositionClass, "setIndex", "(I)V");
@@ -322,32 +323,30 @@ static jobject parse(JNIEnv* env, jclass, jint addr, jstring text,
     }
 }
 
-static jint cloneDecimalFormatImpl(JNIEnv*, jclass, jint addr) {
+static jint NativeDecimalFormat_cloneImpl(JNIEnv*, jclass, jint addr) {
     DecimalFormat* fmt = toDecimalFormat(addr);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(fmt->clone()));
 }
 
 static JNINativeMethod gMethods[] = {
-      {"applyPatternImpl", "(IZLjava/lang/String;)V", (void*) applyPatternImpl},
-      {"cloneDecimalFormatImpl", "(I)I", (void*) cloneDecimalFormatImpl},
-      {"closeDecimalFormatImpl", "(I)V", (void*) closeDecimalFormatImpl},
-      {"format", "(IDLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;", (void*) formatDouble},
-      {"format", "(IJLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;", (void*) formatLong},
-      {"format", "(ILjava/lang/String;Lcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;", (void*) formatDigitList},
-      {"getAttribute", "(II)I", (void*) getAttribute},
-      {"getTextAttribute", "(II)Ljava/lang/String;", (void*) getTextAttribute},
-      {"openDecimalFormatImpl", "(Ljava/lang/String;Ljava/lang/String;CCCLjava/lang/String;Ljava/lang/String;CCLjava/lang/String;CCCC)I", (void*) openDecimalFormatImpl},
-      {"parse", "(ILjava/lang/String;Ljava/text/ParsePosition;Z)Ljava/lang/Number;", (void*) parse},
-      {"setAttribute", "(III)V", (void*) setAttribute},
-      {"setDecimalFormatSymbols", "(ILjava/lang/String;CCCLjava/lang/String;Ljava/lang/String;CCLjava/lang/String;CCCC)V", (void*) setDecimalFormatSymbols},
-      {"setSymbol", "(IILjava/lang/String;)V", (void*) setSymbol},
-      {"setRoundingMode", "(IID)V", (void*) setRoundingMode},
-      {"setTextAttribute", "(IILjava/lang/String;)V", (void*) setTextAttribute},
-      {"toPatternImpl", "(IZ)Ljava/lang/String;", (void*) toPatternImpl},
+    {"applyPatternImpl", "(IZLjava/lang/String;)V", (void*) NativeDecimalFormat_applyPatternImpl},
+    {"cloneImpl", "(I)I", (void*) NativeDecimalFormat_cloneImpl},
+    {"close", "(I)V", (void*) NativeDecimalFormat_close},
+    {"format", "(IDLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;", (void*) NativeDecimalFormat_formatDouble},
+    {"format", "(IJLcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;", (void*) NativeDecimalFormat_formatLong},
+    {"format", "(ILjava/lang/String;Lcom/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator;)Ljava/lang/String;", (void*) NativeDecimalFormat_formatDigitList},
+    {"getAttribute", "(II)I", (void*) NativeDecimalFormat_getAttribute},
+    {"getTextAttribute", "(II)Ljava/lang/String;", (void*) NativeDecimalFormat_getTextAttribute},
+    {"open", "(Ljava/lang/String;Ljava/lang/String;CCCLjava/lang/String;Ljava/lang/String;CCLjava/lang/String;CCCC)I", (void*) NativeDecimalFormat_open},
+    {"parse", "(ILjava/lang/String;Ljava/text/ParsePosition;Z)Ljava/lang/Number;", (void*) NativeDecimalFormat_parse},
+    {"setAttribute", "(III)V", (void*) NativeDecimalFormat_setAttribute},
+    {"setDecimalFormatSymbols", "(ILjava/lang/String;CCCLjava/lang/String;Ljava/lang/String;CCLjava/lang/String;CCCC)V", (void*) NativeDecimalFormat_setDecimalFormatSymbols},
+    {"setRoundingMode", "(IID)V", (void*) NativeDecimalFormat_setRoundingMode},
+    {"setSymbol", "(IILjava/lang/String;)V", (void*) NativeDecimalFormat_setSymbol},
+    {"setTextAttribute", "(IILjava/lang/String;)V", (void*) NativeDecimalFormat_setTextAttribute},
+    {"toPatternImpl", "(IZ)Ljava/lang/String;", (void*) NativeDecimalFormat_toPatternImpl},
 };
-
 int register_com_ibm_icu4jni_text_NativeDecimalFormat(JNIEnv* env) {
-    return jniRegisterNativeMethods(env,
-            "com/ibm/icu4jni/text/NativeDecimalFormat", gMethods,
+    return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativeDecimalFormat", gMethods,
             NELEM(gMethods));
 }

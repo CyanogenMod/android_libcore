@@ -23,11 +23,11 @@
 #include <termios.h>
 #include <unistd.h>
 
-static jboolean java_io_Console_isatty(JNIEnv*, jclass, jint fd) {
+static jboolean Console_isatty(JNIEnv*, jclass, jint fd) {
     return TEMP_FAILURE_RETRY(isatty(fd));
 }
 
-static jint java_io_Console_setEcho(JNIEnv* env, jclass, jboolean on, jint previousState) {
+static jint Console_setEcho(JNIEnv* env, jclass, jboolean on, jint previousState) {
     termios state;
     if (TEMP_FAILURE_RETRY(tcgetattr(STDIN_FILENO, &state)) == -1) {
         jniThrowIOException(env, errno);
@@ -47,8 +47,8 @@ static jint java_io_Console_setEcho(JNIEnv* env, jclass, jboolean on, jint previ
 }
 
 static JNINativeMethod gMethods[] = {
-    { "isatty", "(I)Z", (void*) java_io_Console_isatty },
-    { "setEchoImpl", "(ZI)I", (void*) java_io_Console_setEcho },
+    { "isatty", "(I)Z", (void*) Console_isatty },
+    { "setEchoImpl", "(ZI)I", (void*) Console_setEcho },
 };
 int register_java_io_Console(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/Console", gMethods, NELEM(gMethods));

@@ -44,8 +44,8 @@ public final class HttpConnectionPool {
     public static final HttpConnectionPool INSTANCE = new HttpConnectionPool();
 
     private final int maxConnections;
-    private final HashMap<HttpConfiguration, List<HttpConnection>> connectionPool
-            = new HashMap<HttpConfiguration, List<HttpConnection>>();
+    private final HashMap<HttpConnection.Address, List<HttpConnection>> connectionPool
+            = new HashMap<HttpConnection.Address, List<HttpConnection>>();
 
     private HttpConnectionPool() {
         SecurityManager security = System.getSecurityManager();
@@ -66,18 +66,19 @@ public final class HttpConnectionPool {
                 : 5;
     }
 
-    public HttpConnection get(HttpConfiguration config, int connectTimeout) throws IOException {
+    public HttpConnection get(HttpConnection.Address address, int connectTimeout)
+            throws IOException {
         // First try to reuse an existing HTTP connection.
         synchronized (connectionPool) {
-            List<HttpConnection> connections = connectionPool.get(config);
+            List<HttpConnection> connections = connectionPool.get(address);
             if (connections != null) {
                 while (!connections.isEmpty()) {
                     HttpConnection connection = connections.remove(connections.size() - 1);
-                    if (!connection.isStale()) {
+                    if (!connection.isStale()) { // TODO: this op does I/O!
                         return connection;
                     }
                 }
-                connectionPool.remove(config);
+                connectionPool.remove(address);
             }
         }
 
@@ -85,17 +86,17 @@ public final class HttpConnectionPool {
          * We couldn't find a reusable connection, so we need to create a new
          * connection. We're careful not to do so while holding a lock!
          */
-        return new HttpConnection(config, connectTimeout);
+        return address.connect(connectTimeout);
     }
 
     public void recycle(HttpConnection connection) {
         if (maxConnections > 0 && connection.isEligibleForRecycling()) {
-            HttpConfiguration config = connection.getHttpConfiguration();
+            HttpConnection.Address address = connection.getAddress();
             synchronized (connectionPool) {
-                List<HttpConnection> connections = connectionPool.get(config);
+                List<HttpConnection> connections = connectionPool.get(address);
                 if (connections == null) {
                     connections = new ArrayList<HttpConnection>();
-                    connectionPool.put(config, connections);
+                    connectionPool.put(address, connections);
                 }
                 if (connections.size() < maxConnections) {
                     connections.add(connection);

@@ -36,7 +36,6 @@ public class AllTests {
         suite.addTestSuite(ContentHandlerTest.class);
         suite.addTestSuite(ContentHandlerFactoryTest.class);
         suite.addTestSuite(HttpRetryExceptionTest.class);
-        suite.addTestSuite(HttpURLConnectionTest.class);
         suite.addTestSuite(Inet4AddressTest.class);
         suite.addTestSuite(Inet6AddressTest.class);
         suite.addTestSuite(InetAddressTest.class);

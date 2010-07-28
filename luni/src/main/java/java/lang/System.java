@@ -160,24 +160,22 @@ public final class System {
     }
 
     /**
-     * Copies the number of {@code length} elements of the Array {@code src}
-     * starting at the offset {@code srcPos} into the Array {@code dest} at
-     * the position {@code destPos}.
+     * Copies {@code length} elements from the array {@code src},
+     * starting at offset {@code srcPos}, into the array {@code dst},
+     * starting at offset {@code dstPos}.
      *
      * @param src
      *            the source array to copy the content.
      * @param srcPos
      *            the starting index of the content in {@code src}.
-     * @param dest
+     * @param dst
      *            the destination array to copy the data into.
-     * @param destPos
-     *            the starting index for the copied content in {@code dest}.
+     * @param dstPos
+     *            the starting index for the copied content in {@code dst}.
      * @param length
-     *            the number of elements of the {@code array1} content they have
-     *            to be copied.
+     *            the number of elements to be copied.
      */
-    public static native void arraycopy(Object src, int srcPos, Object dest,
-            int destPos, int length);
+    public static native void arraycopy(Object src, int srcPos, Object dst, int dstPos, int length);
 
     /**
      * Returns the current system time in milliseconds since January 1, 1970
@@ -351,29 +349,49 @@ public final class System {
     /**
      * Returns the value of a particular system property or {@code null} if no
      * such property exists.
-     * <p>
-     * The properties currently provided by the virtual machine are:
      *
-     * <pre>
-     *        java.vendor.url
-     *        java.class.path
-     *        user.home
-     *        java.class.version
-     *        os.version
-     *        java.vendor
-     *        user.dir
-     *        user.timezone
-     *        path.separator
-     *        os.name
-     *        os.arch
-     *        line.separator
-     *        file.separator
-     *        user.name
-     *        java.version
-     *        java.home
-     * </pre>
+     * <p>The following properties are always provided by the virtual machine:
+     * <p><table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+     * <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+     *     <td><b>Name</b></td>        <td><b>Meaning</b></td>                    <td><b>Example</b></td></tr>
+     * <tr><td>file.separator</td>     <td>{@link java.io.File#separator}</td>    <td>{@code /}</td></tr>
      *
-     * @param prop
+     * <tr><td>java.class.path</td>    <td>System class path</td>                 <td>{@code .}</td></tr>
+     * <tr><td>java.class.version</td> <td>Maximum supported .class file version</td> <td>{@code 46.0}</td></tr>
+     * <tr><td>java.compiler</td>      <td>(Not useful on Android)</td>           <td>Empty</td></tr>
+     * <tr><td>java.ext.dirs</td>      <td>(Not useful on Android)</td>           <td>Empty</td></tr>
+     * <tr><td>java.home</td>          <td>Location of the VM on the file system</td> <td>{@code /system}</td></tr>
+     * <tr><td>java.io.tmpdir</td>     <td>See {@link java.io.File#createTempFile}</td> <td>{@code /sdcard}</td></tr>
+     * <tr><td>java.library.path</td>  <td>Search path for JNI libraries</td>     <td>{@code /system/lib}</td></tr>
+     * <tr><td>java.vendor</td>        <td>Human-readable VM vendor</td>          <td>{@code The Android Project}</td></tr>
+     * <tr><td>java.vendor.url</td>    <td>URL for VM vendor's web site</td>      <td>{@code http://www.android.com/}</td></tr>
+     * <tr><td>java.version</td>       <td>(Not useful on Android)</td>           <td>{@code 0}</td></tr>
+     *
+     * <tr><td>java.specification.version</td>    <td>VM libraries version</td>        <td>{@code 0.9}</td></tr>
+     * <tr><td>java.specification.vendor</td>     <td>VM libraries vendor</td>         <td>{@code The Android Project}</td></tr>
+     * <tr><td>java.specification.name</td>       <td>VM libraries name</td>           <td>{@code Dalvik Core Library}</td></tr>
+     * <tr><td>java.vm.version</td>               <td>VM implementation version</td>   <td>{@code 1.2.0}</td></tr>
+     * <tr><td>java.vm.vendor</td>                <td>VM implementation vendor</td>    <td>{@code The Android Project}</td></tr>
+     * <tr><td>java.vm.name</td>                  <td>VM implementation name</td>      <td>{@code Dalvik}</td></tr>
+     * <tr><td>java.vm.specification.version</td> <td>VM specification version</td>    <td>{@code 0.9}</td></tr>
+     * <tr><td>java.vm.specification.vendor</td>  <td>VM specification vendor</td>     <td>{@code The Android Project}</td></tr>
+     * <tr><td>java.vm.specification.name</td>    <td>VM specification name</td>       <td>{@code Dalvik Virtual Machine Specification}</td></tr>
+     *
+     * <tr><td>line.separator</td>     <td>Default line separator</td>            <td>{@code \n}</td></tr>
+     *
+     * <tr><td>os.arch</td>            <td>OS architecture</td>                   <td>{@code armv7l}</td></tr>
+     * <tr><td>os.name</td>            <td>OS (kernel) name</td>                  <td>{@code Linux}</td></tr>
+     * <tr><td>os.version</td>         <td>OS (kernel) version</td>               <td>{@code 2.6.32.9-g103d848}</td></tr>
+     *
+     * <tr><td>path.separator</td>     <td>{@link java.io.File#pathSeparator}</td> <td>{@code :}</td></tr>
+     *
+     * <tr><td>user.dir</td>           <td>Base of non-absolute paths</td>        <td>{@code /}</td></tr>
+     * <tr><td>user.home</td>          <td>(Not useful on Android)</td>           <td>Empty</td></tr>
+     * <tr><td>user.name</td>          <td>(Not useful on Android)</td>           <td>Empty</td></tr>
+     *
+     * </table>
+     *
+     * @param propertyName
      *            the name of the system property to look up.
      * @return the value of the specified system property or {@code null} if the
      *         property doesn't exist.
@@ -381,8 +399,8 @@ public final class System {
      *             if a {@link SecurityManager} is installed and its {@code
      *             checkPropertyAccess()} method does not allow the operation.
      */
-    public static String getProperty(String prop) {
-        return getProperty(prop, null);
+    public static String getProperty(String propertyName) {
+        return getProperty(propertyName, null);
     }
 
     /**

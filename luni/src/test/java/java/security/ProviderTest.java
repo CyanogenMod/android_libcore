@@ -31,6 +31,11 @@ import junit.framework.TestCase;
 
 public class ProviderTest extends TestCase {
 
+    /**
+     * Makes sure all all expected implementations (but not aliases)
+     * and that there are no extras, according to what we expect from
+     * StandardNames
+     */
     public void test_Provider_getServices() throws Exception {
 
         // build set of expected algorithms
@@ -107,6 +112,10 @@ public class ProviderTest extends TestCase {
 
     private static final Pattern alias = Pattern.compile("Alg\\.Alias\\.([^.]*)\\.(.*)");
 
+    /**
+     * Makes sure all provider properties either point to a class
+     * implementation that exists or are aliases to known algorithms.
+     */
     public void test_Provider_Properties() throws Exception {
         /*
          * A useful reference on Provider properties

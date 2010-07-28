@@ -17,6 +17,7 @@
 package javax.net.ssl;
 
 import java.security.StandardNames;
+import java.security.TestKeyStore;
 import java.util.Arrays;
 import junit.framework.TestCase;
 
@@ -89,9 +90,11 @@ public class SSLSessionTest extends TestCase {
         assertNull(s.invalid.getLocalCertificates());
         assertNull(s.client.getLocalCertificates());
         assertNotNull(s.server.getLocalCertificates());
-        assertEquals(1, s.server.getLocalCertificates().length);
+        TestKeyStore.assertChainLength(s.server.getLocalCertificates());
+        TestSSLContext.assertServerCertificateChain(s.s.c.serverTrustManager,
+                                                    s.server.getLocalCertificates());
         TestSSLContext.assertCertificateInKeyStore(s.server.getLocalCertificates()[0],
-                                                   s.s.c.keyStore);
+                                                   s.s.c.serverKeyStore);
     }
 
     public void test_SSLSession_getLocalPrincipal() throws Exception {
@@ -101,7 +104,7 @@ public class SSLSessionTest extends TestCase {
         assertNotNull(s.server.getLocalPrincipal());
         assertNotNull(s.server.getLocalPrincipal().getName());
         TestSSLContext.assertCertificateInKeyStore(s.server.getLocalPrincipal(),
-                                                   s.s.c.keyStore);
+                                                   s.s.c.serverKeyStore);
     }
 
     public void test_SSLSession_getPacketBufferSize() {
@@ -119,12 +122,9 @@ public class SSLSessionTest extends TestCase {
         } catch (SSLPeerUnverifiedException expected) {
         }
         assertNotNull(s.client.getPeerCertificates());
-        assertEquals(1, s.client.getPeerCertificates().length);
-        TestSSLContext.assertCertificateInKeyStore(s.client.getPeerCertificates()[0],
-                                                   s.s.c.keyStore);
-
+        TestKeyStore.assertChainLength(s.client.getPeerCertificateChain());
         try {
-            assertNull(s.server.getPeerCertificates());
+            assertNull(s.server.getPeerCertificateChain());
             fail();
         } catch (SSLPeerUnverifiedException expected) {
         }
@@ -138,9 +138,11 @@ public class SSLSessionTest extends TestCase {
         } catch (SSLPeerUnverifiedException expected) {
         }
         assertNotNull(s.client.getPeerCertificates());
-        assertEquals(1, s.client.getPeerCertificates().length);
+        TestKeyStore.assertChainLength(s.client.getPeerCertificates());
+        TestSSLContext.assertServerCertificateChain(s.s.c.serverTrustManager,
+                                                    s.client.getPeerCertificates());
         TestSSLContext.assertCertificateInKeyStore(s.client.getPeerCertificates()[0],
-                                                   s.s.c.keyStore);
+                                                   s.s.c.serverKeyStore);
         try {
             s.server.getPeerCertificates();
             fail();
@@ -177,7 +179,7 @@ public class SSLSessionTest extends TestCase {
         assertNotNull(s.client.getPeerPrincipal());
         assertNotNull(s.client.getPeerPrincipal().getName());
         TestSSLContext.assertCertificateInKeyStore(s.client.getPeerPrincipal(),
-                                                   s.s.c.keyStore);
+                                                   s.s.c.serverKeyStore);
     }
 
     public void test_SSLSession_getProtocol() {
@@ -196,9 +198,9 @@ public class SSLSessionTest extends TestCase {
         assertNull(s.invalid.getSessionContext());
         assertNotNull(s.server.getSessionContext());
         assertNotNull(s.client.getSessionContext());
-        assertEquals(s.s.c.sslContext.getServerSessionContext(),
+        assertEquals(s.s.c.serverContext.getServerSessionContext(),
                      s.server.getSessionContext());
-        assertEquals(s.s.c.sslContext.getClientSessionContext(),
+        assertEquals(s.s.c.clientContext.getClientSessionContext(),
                      s.client.getSessionContext());
         assertNotSame(s.server.getSessionContext(),
                       s.client.getSessionContext());

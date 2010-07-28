@@ -232,12 +232,12 @@ public final class BlockGuard {
             return mFileSystem.getAllocGranularity();
         }
 
-        public int open(byte[] fileName, int mode) throws FileNotFoundException {
+        public int open(String path, int mode) throws FileNotFoundException {
             BlockGuard.getThreadPolicy().onReadFromDisk();
             if (mode != 0) {  // 0 is read-only
                 BlockGuard.getThreadPolicy().onWriteToDisk();
             }
-            return mFileSystem.open(fileName, mode);
+            return mFileSystem.open(path, mode);
         }
 
         public long transfer(int fileHandler, FileDescriptor socketDescriptor,
@@ -264,10 +264,10 @@ public final class BlockGuard {
             mNetwork = network;
         }
 
-        public void accept(FileDescriptor fdServer, SocketImpl newSocket,
-                FileDescriptor fdnewSocket, int timeout) throws IOException {
+        public void accept(FileDescriptor serverFd, SocketImpl newSocket,
+                FileDescriptor clientFd) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.accept(fdServer, newSocket, fdnewSocket, timeout);
+            mNetwork.accept(serverFd, newSocket, clientFd);
         }
 
 
@@ -276,16 +276,14 @@ public final class BlockGuard {
             mNetwork.bind(aFD, inetAddress, port);
         }
 
-        public int read(FileDescriptor aFD, byte[] data, int offset, int count,
-                int timeout) throws IOException {
+        public int read(FileDescriptor aFD, byte[] data, int offset, int count) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.read(aFD, data, offset, count, timeout);
+            return mNetwork.read(aFD, data, offset, count);
         }
 
-        public int readDirect(FileDescriptor aFD, int address, int count,
-                int timeout) throws IOException {
+        public int readDirect(FileDescriptor aFD, int address, int count) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.readDirect(aFD, address, count, timeout);
+            return mNetwork.readDirect(aFD, address, count);
         }
 
         public int write(FileDescriptor fd, byte[] data, int offset, int count)
@@ -319,64 +317,31 @@ public final class BlockGuard {
                     hostname, port, step, context);
         }
 
-        public int sendDatagram(FileDescriptor fd, byte[] data, int offset,
-                int length, int port, boolean bindToDevice, int trafficClass,
-                InetAddress inetAddress) throws IOException {
+        public int send(FileDescriptor fd, byte[] data, int offset, int length,
+                int port, int trafficClass, InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.sendDatagram(fd, data, offset, length, port, bindToDevice,
-                    trafficClass, inetAddress);
+            return mNetwork.send(fd, data, offset, length, port, trafficClass, inetAddress);
         }
 
-        public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
-                int length, int port, boolean bindToDevice, int trafficClass,
-                InetAddress inetAddress) throws IOException {
+        public int sendDirect(FileDescriptor fd, int address, int offset, int length,
+                int port, int trafficClass, InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.sendDatagramDirect(fd, address, offset, length, port,
-                    bindToDevice, trafficClass, inetAddress);
+            return mNetwork.sendDirect(fd, address, offset, length,
+                    port, trafficClass, inetAddress);
         }
 
-        public int receiveDatagram(FileDescriptor aFD, DatagramPacket packet,
-                byte[] data, int offset, int length, int receiveTimeout,
-                boolean peek) throws IOException {
+        public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
+                int length, boolean peek, boolean connected) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.receiveDatagram(aFD, packet, data, offset,
-                    length, receiveTimeout, peek);
+            return mNetwork.recv(fd, packet, data, offset, length, peek, connected);
         }
 
-        public int receiveDatagramDirect(FileDescriptor aFD, DatagramPacket packet,
-                int address, int offset, int length, int receiveTimeout,
-                boolean peek) throws IOException {
+        public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
+                int length, boolean peek, boolean connected) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.receiveDatagramDirect(aFD, packet, address, offset, length,
-                    receiveTimeout, peek);
-        }
-
-        public int recvConnectedDatagram(FileDescriptor aFD, DatagramPacket packet,
-                byte[] data, int offset, int length, int receiveTimeout,
-                boolean peek) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recvConnectedDatagram(aFD, packet, data, offset, length,
-                    receiveTimeout, peek);
-        }
-
-        public int recvConnectedDatagramDirect(FileDescriptor aFD,
-                DatagramPacket packet, int address, int offset, int length,
-                int receiveTimeout, boolean peek) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recvConnectedDatagramDirect(aFD, packet, address, offset, length,
-                    receiveTimeout, peek);
-        }
-
-        public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
-                int offset, int length, boolean bindToDevice) throws IOException {
-            return mNetwork.sendConnectedDatagram(fd, data, offset, length, bindToDevice);
-        }
-
-        public int sendConnectedDatagramDirect(FileDescriptor fd, int address,
-                int offset, int length, boolean bindToDevice) throws IOException {
-            return mNetwork.sendConnectedDatagramDirect(fd, address, offset, length, bindToDevice);
+            return mNetwork.recvDirect(fd, packet, address, offset, length, peek, connected);
         }
 
         public void disconnectDatagram(FileDescriptor aFD) throws SocketException {
@@ -399,10 +364,6 @@ public final class BlockGuard {
 
         public void shutdownOutput(FileDescriptor descriptor) throws IOException {
             mNetwork.shutdownOutput(descriptor);
-        }
-
-        public boolean supportsUrgentData(FileDescriptor fd) {
-            return mNetwork.supportsUrgentData(fd);
         }
 
         public void sendUrgentData(FileDescriptor fd, byte value) {
@@ -431,11 +392,6 @@ public final class BlockGuard {
                     timeout, trafficClass, inetAddress);
         }
 
-        public int sendDatagram2(FileDescriptor fd, byte[] data, int offset,
-                int length, int port, InetAddress inetAddress) throws IOException {
-            return mNetwork.sendDatagram2(fd, data, offset, length, port, inetAddress);
-        }
-
         public InetAddress getSocketLocalAddress(FileDescriptor aFD) {
             return mNetwork.getSocketLocalAddress(aFD);
         }
@@ -461,9 +417,9 @@ public final class BlockGuard {
             mNetwork.setSocketOption(aFD, opt, optVal);
         }
 
-        public void socketClose(FileDescriptor aFD) throws IOException {
+        public void close(FileDescriptor aFD) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.socketClose(aFD);
+            mNetwork.close(aFD);
         }
 
         public void setInetAddress(InetAddress sender, byte[] address) {

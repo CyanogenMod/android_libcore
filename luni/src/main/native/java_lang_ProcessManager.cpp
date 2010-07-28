@@ -50,7 +50,7 @@ static int androidSystemPropertiesFd = -1;
 #define WAIT_STATUS_STRANGE_ERRNO (-3) // observed an undocumented errno
 
 /** Closes a file descriptor. */
-static void java_lang_ProcessManager_close(JNIEnv* env, jclass, jobject javaDescriptor) {
+static void ProcessManager_close(JNIEnv* env, jclass, jobject javaDescriptor) {
     int fd = jniGetFDFromFileDescriptor(env, javaDescriptor);
     if (TEMP_FAILURE_RETRY(close(fd)) == -1) {
         jniThrowIOException(env, errno);
@@ -60,7 +60,7 @@ static void java_lang_ProcessManager_close(JNIEnv* env, jclass, jobject javaDesc
 /**
  * Kills process with the given ID.
  */
-static void java_lang_ProcessManager_kill(JNIEnv* env, jclass, jint pid) {
+static void ProcessManager_kill(JNIEnv* env, jclass, jint pid) {
     int result = kill((pid_t) pid, SIGKILL);
     if (result == -1) {
         jniThrowIOException(env, errno);
@@ -70,7 +70,7 @@ static void java_lang_ProcessManager_kill(JNIEnv* env, jclass, jint pid) {
 /**
  * Loops indefinitely and calls ProcessManager.onExit() when children exit.
  */
-static void java_lang_ProcessManager_watchChildren(JNIEnv* env, jobject o) {
+static void ProcessManager_watchChildren(JNIEnv* env, jobject o) {
     if (onExitMethod == NULL) {
         jniThrowException(env, "java/lang/IllegalStateException",
                 "staticInitialize() must run first.");
@@ -298,15 +298,13 @@ static char** convertStrings(JNIEnv* env, jobjectArray javaArray) {
         return NULL;
     }
 
-    char** array = NULL;
     jsize length = env->GetArrayLength(javaArray);
-    array = (char**) malloc(sizeof(char*) * (length + 1));
+    char** array = new char*[length + 1];
     array[length] = 0;
-    jsize index;
-    for (index = 0; index < length; index++) {
-        jstring javaEntry =
-                (jstring) env->GetObjectArrayElement(javaArray, index);
-        char* entry = (char*) env->GetStringUTFChars(javaEntry, NULL);
+    for (jsize index = 0; index < length; index++) {
+        jstring javaEntry = (jstring) env->GetObjectArrayElement(javaArray, index);
+        // We need to pass these strings to const-unfriendly code.
+        char* entry = const_cast<char*>(env->GetStringUTFChars(javaEntry, NULL));
         array[index] = entry;
     }
 
@@ -320,20 +318,18 @@ static void freeStrings(JNIEnv* env, jobjectArray javaArray, char** array) {
     }
 
     jsize length = env->GetArrayLength(javaArray);
-    jsize index;
-    for (index = 0; index < length; index++) {
-        jstring javaEntry =
-                (jstring) env->GetObjectArrayElement(javaArray, index);
+    for (jsize index = 0; index < length; index++) {
+        jstring javaEntry = reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, index));
         env->ReleaseStringUTFChars(javaEntry, array[index]);
     }
 
-    free(array);
+    delete[] array;
 }
 
 /**
  * Converts Java String[] to char** and delegates to executeProcess().
  */
-static pid_t java_lang_ProcessManager_exec(
+static pid_t ProcessManager_exec(
         JNIEnv* env, jclass, jobjectArray javaCommands,
         jobjectArray javaEnvironment, jstring javaWorkingDirectory,
         jobject inDescriptor, jobject outDescriptor, jobject errDescriptor,
@@ -381,7 +377,7 @@ static pid_t java_lang_ProcessManager_exec(
 /**
  * Looks up Java members.
  */
-static void java_lang_ProcessManager_staticInitialize(JNIEnv* env,
+static void ProcessManager_staticInitialize(JNIEnv* env,
         jclass clazz) {
 #ifdef ANDROID
     char* fdString = getenv("ANDROID_PROPERTY_WORKSPACE");
@@ -397,12 +393,12 @@ static void java_lang_ProcessManager_staticInitialize(JNIEnv* env,
 }
 
 static JNINativeMethod methods[] = {
-    { "close",            "(Ljava/io/FileDescriptor;)V", (void*) java_lang_ProcessManager_close },
-    { "kill",             "(I)V",                        (void*) java_lang_ProcessManager_kill },
-    { "staticInitialize", "()V",                         (void*) java_lang_ProcessManager_staticInitialize },
-    { "watchChildren",    "()V",                         (void*) java_lang_ProcessManager_watchChildren },
+    { "close",            "(Ljava/io/FileDescriptor;)V", (void*) ProcessManager_close },
+    { "kill",             "(I)V",                        (void*) ProcessManager_kill },
+    { "staticInitialize", "()V",                         (void*) ProcessManager_staticInitialize },
+    { "watchChildren",    "()V",                         (void*) ProcessManager_watchChildren },
     { "exec",             "([Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Z)I",
-                                                         (void*) java_lang_ProcessManager_exec },
+                                                         (void*) ProcessManager_exec },
 };
 int register_java_lang_ProcessManager(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/ProcessManager", methods, NELEM(methods));

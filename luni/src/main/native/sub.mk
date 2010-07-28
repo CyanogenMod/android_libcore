@@ -6,6 +6,7 @@ LOCAL_SRC_FILES := \
 	ErrorCode.cpp \
 	ICU.cpp \
 	JniConstants.cpp \
+	JniException.cpp \
 	NativeBN.cpp \
 	NativeBidi.cpp \
 	NativeBreakIterator.cpp \
@@ -19,7 +20,6 @@ LOCAL_SRC_FILES := \
 	NetworkUtilities.cpp \
 	Register.cpp \
 	TimeZones.cpp \
-	UCharacter.cpp \
 	cbigint.cpp \
 	commonDblParce.cpp \
 	java_io_Console.cpp \
@@ -28,6 +28,7 @@ LOCAL_SRC_FILES := \
 	java_io_ObjectInputStream.cpp \
 	java_io_ObjectOutputStream.cpp \
 	java_io_ObjectStreamClass.cpp \
+	java_lang_Character.cpp \
 	java_lang_Double.cpp \
 	java_lang_Float.cpp \
 	java_lang_Math.cpp \
@@ -36,6 +37,7 @@ LOCAL_SRC_FILES := \
 	java_lang_System.cpp \
 	java_net_InetAddress.cpp \
 	java_net_NetworkInterface.cpp \
+	java_nio_charset_Charsets.cpp \
 	java_util_regex_Matcher.cpp \
 	java_util_regex_Pattern.cpp \
 	java_util_zip_Adler32.cpp \

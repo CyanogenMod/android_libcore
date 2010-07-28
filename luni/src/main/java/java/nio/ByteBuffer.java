@@ -384,16 +384,16 @@ public abstract class ByteBuffer extends Buffer implements
      * increases the position by the number of bytes read.
      * <p>
      * Calling this method has the same effect as
-     * {@code get(dest, 0, dest.length)}.
+     * {@code get(dst, 0, dst.length)}.
      *
-     * @param dest
+     * @param dst
      *            the destination byte array.
      * @return this buffer.
      * @exception BufferUnderflowException
-     *                if {@code dest.length} is greater than {@code remaining()}.
+     *                if {@code dst.length} is greater than {@code remaining()}.
      */
-    public ByteBuffer get(byte[] dest) {
-        return get(dest, 0, dest.length);
+    public ByteBuffer get(byte[] dst) {
+        return get(dst, 0, dst.length);
     }
 
     /**
@@ -401,22 +401,22 @@ public abstract class ByteBuffer extends Buffer implements
      * starting at the specified offset, and increases the position by the
      * number of bytes read.
      *
-     * @param dest
+     * @param dst
      *            the target byte array.
      * @param off
      *            the offset of the byte array, must not be negative and
-     *            not greater than {@code dest.length}.
+     *            not greater than {@code dst.length}.
      * @param len
      *            the number of bytes to read, must not be negative and not
-     *            greater than {@code dest.length - off}
+     *            greater than {@code dst.length - off}
      * @return this buffer.
      * @exception IndexOutOfBoundsException
      *                if either {@code off} or {@code len} is invalid.
      * @exception BufferUnderflowException
      *                if {@code len} is greater than {@code remaining()}.
      */
-    public ByteBuffer get(byte[] dest, int off, int len) {
-        int length = dest.length;
+    public ByteBuffer get(byte[] dst, int off, int len) {
+        int length = dst.length;
         if ((off < 0) || (len < 0) || ((long) off + (long) len > length)) {
             throw new IndexOutOfBoundsException();
         }
@@ -425,7 +425,7 @@ public abstract class ByteBuffer extends Buffer implements
             throw new BufferUnderflowException();
         }
         for (int i = off; i < off + len; i++) {
-            dest[i] = get();
+            dst[i] = get();
         }
         return this;
     }

@@ -49,20 +49,16 @@ class Division {
      * Divides an array by an integer value. Implements the Knuth's division
      * algorithm. See D. Knuth, The Art of Computer Programming, vol. 2.
      *
-     * @param dest the quotient
-     * @param src the dividend
-     * @param srcLength the length of the dividend
-     * @param divisor the divisor
      * @return remainder
      */
-    static int divideArrayByInt(int dest[], int src[], final int srcLength,
+    static int divideArrayByInt(int[] quotient, int[] dividend, final int dividendLength,
             final int divisor) {
 
         long rem = 0;
         long bLong = divisor & 0xffffffffL;
 
-        for (int i = srcLength - 1; i >= 0; i--) {
-            long temp = (rem << 32) | (src[i] & 0xffffffffL);
+        for (int i = dividendLength - 1; i >= 0; i--) {
+            long temp = (rem << 32) | (dividend[i] & 0xffffffffL);
             long quot;
             if (temp >= 0) {
                 quot = (temp / bLong);
@@ -93,7 +89,7 @@ class Division {
                     }
                 }
             }
-            dest[i] = (int) (quot & 0xffffffffL);
+            quotient[i] = (int) (quot & 0xffffffffL);
         }
         return (int) rem;
     }

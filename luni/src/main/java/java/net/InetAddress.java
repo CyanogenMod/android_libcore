@@ -857,7 +857,7 @@ public class InetAddress implements Serializable {
         return false;
     }
 
-    private boolean isReachableByTCP(InetAddress dest, InetAddress source,
+    private boolean isReachableByTCP(InetAddress destination, InetAddress source,
             int timeout) throws IOException {
         FileDescriptor fd = new FileDescriptor();
         // define traffic only for parameter
@@ -868,8 +868,7 @@ public class InetAddress implements Serializable {
             if (null != source) {
                 NETIMPL.bind(fd, source, 0);
             }
-            NETIMPL.connectStreamWithTimeoutSocket(fd, 7, timeout, traffic,
-                    dest);
+            NETIMPL.connectStreamWithTimeoutSocket(fd, 7, timeout, traffic, destination);
             reached = true;
         } catch (IOException e) {
             if (ERRMSG_CONNECTION_REFUSED.equals(e.getMessage())) {
@@ -878,7 +877,7 @@ public class InetAddress implements Serializable {
             }
         }
 
-        NETIMPL.socketClose(fd);
+        NETIMPL.close(fd);
 
         return reached;
     }

@@ -42,9 +42,7 @@ public class NetUtil {
     }
 
     /**
-     * Answer whether to prefer IPV6 address
-     *
-     * @return boolean
+     * Returns whether to prefer IPV6 address
      */
     public static boolean preferIPv6Addresses() {
         final Action a = new Action("java.net.preferIPv6Addresses");
@@ -52,9 +50,7 @@ public class NetUtil {
     }
 
     /**
-     * Answer whether to prefer IPV4 stack
-     *
-     * @return boolean
+     * Returns whether to prefer IPV4 stack
      */
     public static boolean preferIPv4Stack() {
         final Action a = new Action("java.net.preferIPv4Stack");

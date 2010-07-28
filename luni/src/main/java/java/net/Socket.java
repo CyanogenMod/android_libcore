@@ -510,14 +510,10 @@ public class Socket {
     }
 
     /**
-     * Gets the timeout for this socket during which a reading operation shall
-     * block while waiting for data.
+     * Gets the socket {@link SocketOptions#SO_TIMEOUT receive timeout}.
      *
-     * @return the current value of the option {@code SocketOptions.SO_TIMEOUT}
-     *         or {@code 0} which represents an infinite timeout.
      * @throws SocketException
      *             if an error occurs while reading the socket option.
-     * @see SocketOptions#SO_TIMEOUT
      */
     public synchronized int getSoTimeout() throws SocketException {
         checkClosedAndCreate(true);
@@ -649,17 +645,15 @@ public class Socket {
     }
 
     /**
-     * Sets the reading timeout in milliseconds for this socket. The read
-     * operation will block indefinitely if this option value is set to {@code
-     * 0}. The timeout must be set before calling the read operation. A
-     * {@code SocketTimeoutException} is thrown when this timeout expires.
+     * Sets the {@link SocketOptions#SO_TIMEOUT read timeout} in milliseconds for this socket.
+     * This receive timeout defines the period the socket will block waiting to
+     * receive data before throwing an {@code InterruptedIOException}. The value
+     * {@code 0} (default) is used to set an infinite timeout. To have effect
+     * this option must be set before the blocking method was called.
      *
-     * @param timeout
-     *            the reading timeout value as number greater than {@code 0} or
-     *            {@code 0} for an infinite timeout.
+     * @param timeout the timeout in milliseconds or 0 for no timeout.
      * @throws SocketException
      *             if an error occurs while setting the option.
-     * @see SocketOptions#SO_TIMEOUT
      */
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         checkClosedAndCreate(true);
@@ -1127,9 +1121,6 @@ public class Socket {
      *             if an error occurs while sending urgent data.
      */
     public void sendUrgentData(int value) throws IOException {
-        if (!impl.supportsUrgentData()) {
-            throw new SocketException("Urgent data not supported");
-        }
         impl.sendUrgentData(value);
     }
 

@@ -35,19 +35,19 @@ static jint getIterator(JNIEnv* env, jstring locale, UBreakIteratorType type) {
     return reinterpret_cast<uintptr_t>(it);
 }
 
-static jint getCharacterInstanceImpl(JNIEnv* env, jclass, jstring locale) {
+static jint NativeBreakIterator_getCharacterInstanceImpl(JNIEnv* env, jclass, jstring locale) {
     return getIterator(env, locale, UBRK_CHARACTER);
 }
 
-static jint getLineInstanceImpl(JNIEnv* env, jclass, jstring locale) {
+static jint NativeBreakIterator_getLineInstanceImpl(JNIEnv* env, jclass, jstring locale) {
     return getIterator(env, locale, UBRK_LINE);
 }
 
-static jint getSentenceInstanceImpl(JNIEnv* env, jclass, jstring locale) {
+static jint NativeBreakIterator_getSentenceInstanceImpl(JNIEnv* env, jclass, jstring locale) {
     return getIterator(env, locale, UBRK_SENTENCE);
 }
 
-static jint getWordInstanceImpl(JNIEnv* env, jclass, jstring locale) {
+static jint NativeBreakIterator_getWordInstanceImpl(JNIEnv* env, jclass, jstring locale) {
     return getIterator(env, locale, UBRK_WORD);
 }
 
@@ -55,11 +55,11 @@ static UBreakIterator* breakIterator(jint address) {
     return reinterpret_cast<UBreakIterator*>(static_cast<uintptr_t>(address));
 }
 
-static void closeBreakIteratorImpl(JNIEnv*, jclass, jint address) {
+static void NativeBreakIterator_closeBreakIteratorImpl(JNIEnv*, jclass, jint address) {
     ubrk_close(breakIterator(address));
 }
 
-static jint cloneImpl(JNIEnv* env, jclass, jint address) {
+static jint NativeBreakIterator_cloneImpl(JNIEnv* env, jclass, jint address) {
     UErrorCode status = U_ZERO_ERROR;
     jint bufferSize = U_BRK_SAFECLONE_BUFFERSIZE;
     UBreakIterator* it = ubrk_safeClone(breakIterator(address), NULL, &bufferSize, &status);
@@ -67,7 +67,7 @@ static jint cloneImpl(JNIEnv* env, jclass, jint address) {
     return reinterpret_cast<uintptr_t>(it);
 }
 
-static void setTextImpl(JNIEnv* env, jclass, jint address, jstring javaText) {
+static void NativeBreakIterator_setTextImpl(JNIEnv* env, jclass, jint address, jstring javaText) {
     ScopedJavaUnicodeString text(env, javaText);
     UnicodeString& s(text.unicodeString());
     UErrorCode status = U_ZERO_ERROR;
@@ -75,11 +75,11 @@ static void setTextImpl(JNIEnv* env, jclass, jint address, jstring javaText) {
     icu4jni_error(env, status);
 }
 
-static jboolean isBoundaryImpl(JNIEnv*, jclass, jint address, jint offset) {
+static jboolean NativeBreakIterator_isBoundaryImpl(JNIEnv*, jclass, jint address, jint offset) {
     return ubrk_isBoundary(breakIterator(address), offset);
 }
 
-static jint nextImpl(JNIEnv*, jclass, jint address, jint n) {
+static jint NativeBreakIterator_nextImpl(JNIEnv*, jclass, jint address, jint n) {
     UBreakIterator* bi = breakIterator(address);
     if (n < 0) {
         while (n++ < -1) {
@@ -97,46 +97,46 @@ static jint nextImpl(JNIEnv*, jclass, jint address, jint n) {
     return -1;
 }
 
-static jint precedingImpl(JNIEnv*, jclass, jint address, jint offset) {
+static jint NativeBreakIterator_precedingImpl(JNIEnv*, jclass, jint address, jint offset) {
     return ubrk_preceding(breakIterator(address), offset);
 }
 
-static jint firstImpl(JNIEnv*, jclass, jint address) {
+static jint NativeBreakIterator_firstImpl(JNIEnv*, jclass, jint address) {
     return ubrk_first(breakIterator(address));
 }
 
-static jint followingImpl(JNIEnv*, jclass, jint address, jint offset) {
+static jint NativeBreakIterator_followingImpl(JNIEnv*, jclass, jint address, jint offset) {
     return ubrk_following(breakIterator(address), offset);
 }
 
-static jint currentImpl(JNIEnv*, jclass, jint address) {
+static jint NativeBreakIterator_currentImpl(JNIEnv*, jclass, jint address) {
     return ubrk_current(breakIterator(address));
 }
 
-static jint previousImpl(JNIEnv*, jclass, jint address) {
+static jint NativeBreakIterator_previousImpl(JNIEnv*, jclass, jint address) {
     return ubrk_previous(breakIterator(address));
 }
 
-static jint lastImpl(JNIEnv*, jclass, jint address) {
+static jint NativeBreakIterator_lastImpl(JNIEnv*, jclass, jint address) {
     return ubrk_last(breakIterator(address));
 }
 
 static JNINativeMethod gMethods[] = {
-    { "cloneImpl", "(I)I", (void*) cloneImpl },
-    { "closeBreakIteratorImpl", "(I)V", (void*) closeBreakIteratorImpl },
-    { "currentImpl", "(I)I", (void*) currentImpl },
-    { "firstImpl", "(I)I", (void*) firstImpl },
-    { "followingImpl", "(II)I", (void*) followingImpl },
-    { "getCharacterInstanceImpl", "(Ljava/lang/String;)I", (void*) getCharacterInstanceImpl },
-    { "getLineInstanceImpl", "(Ljava/lang/String;)I", (void*) getLineInstanceImpl },
-    { "getSentenceInstanceImpl", "(Ljava/lang/String;)I", (void*) getSentenceInstanceImpl },
-    { "getWordInstanceImpl", "(Ljava/lang/String;)I", (void*) getWordInstanceImpl },
-    { "isBoundaryImpl", "(II)Z", (void*) isBoundaryImpl },
-    { "lastImpl", "(I)I", (void*) lastImpl },
-    { "nextImpl", "(II)I", (void*) nextImpl },
-    { "precedingImpl", "(II)I", (void*) precedingImpl },
-    { "previousImpl", "(I)I", (void*) previousImpl },
-    { "setTextImpl", "(ILjava/lang/String;)V", (void*) setTextImpl },
+    { "cloneImpl", "(I)I", (void*) NativeBreakIterator_cloneImpl },
+    { "closeBreakIteratorImpl", "(I)V", (void*) NativeBreakIterator_closeBreakIteratorImpl },
+    { "currentImpl", "(I)I", (void*) NativeBreakIterator_currentImpl },
+    { "firstImpl", "(I)I", (void*) NativeBreakIterator_firstImpl },
+    { "followingImpl", "(II)I", (void*) NativeBreakIterator_followingImpl },
+    { "getCharacterInstanceImpl", "(Ljava/lang/String;)I", (void*) NativeBreakIterator_getCharacterInstanceImpl },
+    { "getLineInstanceImpl", "(Ljava/lang/String;)I", (void*) NativeBreakIterator_getLineInstanceImpl },
+    { "getSentenceInstanceImpl", "(Ljava/lang/String;)I", (void*) NativeBreakIterator_getSentenceInstanceImpl },
+    { "getWordInstanceImpl", "(Ljava/lang/String;)I", (void*) NativeBreakIterator_getWordInstanceImpl },
+    { "isBoundaryImpl", "(II)Z", (void*) NativeBreakIterator_isBoundaryImpl },
+    { "lastImpl", "(I)I", (void*) NativeBreakIterator_lastImpl },
+    { "nextImpl", "(II)I", (void*) NativeBreakIterator_nextImpl },
+    { "precedingImpl", "(II)I", (void*) NativeBreakIterator_precedingImpl },
+    { "previousImpl", "(I)I", (void*) NativeBreakIterator_previousImpl },
+    { "setTextImpl", "(ILjava/lang/String;)V", (void*) NativeBreakIterator_setTextImpl },
 };
 int register_com_ibm_icu4jni_text_NativeBreakIterator(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativeBreakIterator",
