@@ -145,6 +145,13 @@ public class PlatformAddress implements ICommonDataTypes, Comparable {
         memorySpy.rangeCheck(this, offset, length * SIZEOF_JINT);
         osMemory.setIntArray(osaddr + offset, ints, intsOffset, length, swap);
     }
+
+    public final void setFloatArray(int offset, float[] floats,
+            int floatsOffset, int length, boolean swap) {
+        memorySpy.rangeCheck(this, offset, length * SIZEOF_JFLOAT);
+        osMemory.setFloatArray(
+                osaddr + offset, floats, floatsOffset, length, swap);
+    }
     // END android-added
 
     public final byte getByte(int offset) {

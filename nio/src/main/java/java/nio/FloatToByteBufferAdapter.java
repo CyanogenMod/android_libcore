@@ -198,6 +198,22 @@ final class FloatToByteBufferAdapter extends FloatBuffer implements
         return this;
     }
 
+    // BEGIN android-added
+    @Override
+    public FloatBuffer put(float[] c, int off, int len) {
+        if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
+            byteBuffer.limit(limit << 2);
+            byteBuffer.position(position << 2);
+            ((ReadWriteDirectByteBuffer) byteBuffer).put(c, off, len);
+            this.position += len;
+            return this;
+        } else {
+            return super.put(c, off, len);
+        }
+    }
+    // END android-added
+
+
     @Override
     public FloatBuffer slice() {
         byteBuffer.limit(limit << 2);

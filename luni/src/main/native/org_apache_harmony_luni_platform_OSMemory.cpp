@@ -224,6 +224,20 @@ static void harmony_nio_setIntArrayImpl(JNIEnv *_env, jobject _this,
 
 /*
  * Class:     org_apache_harmony_luni_platform_OSMemory
+ * Method:    setFloatArrayImpl
+ * Signature: (I[FIIZ)V
+ */
+static void harmony_nio_setFloatArrayImpl(JNIEnv *_env, jobject _this,
+       jint pointer, jfloatArray src, jint offset, jint length, jboolean swap) {
+    jfloat* dst = reinterpret_cast<jfloat*>(static_cast<uintptr_t>(pointer));
+    _env->GetFloatArrayRegion(src, offset, length, dst);
+    if (swap) {
+        swapInts(reinterpret_cast<jint*>(dst), length);
+    }
+}
+
+/*
+ * Class:     org_apache_harmony_luni_platform_OSMemory
  * Method:    getShortImpl
  * Signature: (I)S
  */
@@ -550,6 +564,7 @@ static JNINativeMethod gMethods[] = {
     { "setByteArray",       "(I[BII)V",(void*) harmony_nio_putBytesImpl },
     { "setShortArray",     "(I[SIIZ)V",(void*) harmony_nio_setShortArrayImpl },
     { "setIntArray",       "(I[IIIZ)V",(void*) harmony_nio_setIntArrayImpl },
+    { "setFloatArray",     "(I[FIIZ)V",(void*) harmony_nio_setFloatArrayImpl },
     { "getByte",            "(I)B",    (void*) harmony_nio_getByteImpl },
     { "setByte",            "(IB)V",   (void*) harmony_nio_putByteImpl },
     { "getShort",           "(I)S",    (void*) harmony_nio_getShortImpl },
