@@ -253,6 +253,39 @@ public interface IMemorySystem {
     public void setIntArray(int address, int[] ints, int offset, int length,
             boolean swap)
             throws NullPointerException, IndexOutOfBoundsException;
+
+    /**
+     * Copies <code>length</code> floats from the float array
+     * <code>floats</code> into the memory block at <code>address</code>,
+     * starting at element <code>offset</code> within the float array.
+     * <p>
+     * The behavior of this method is undefined if the range
+     * <code>(address ... address + length*4)</code> is not within a memory
+     * block that was allocated using {@link #malloc(int) malloc(long)}.
+     * </p>
+     *
+     * @param address
+     *            the address of the OS memory block into which to copy the
+     *            floats.
+     * @param floats
+     *            the float array from which to copy the floats.
+     * @param offset
+     *            the index of the first element in <code>floats</code> that
+     *            will be read.
+     * @param length
+     *            the total number of floats to copy from <code>floats</code>
+     *            into the memory block.
+     * @param swap
+     *            true if the floats should be written in reverse byte order.
+     * @throws NullPointerException
+     *             if <code>floats</code> is <code>null</code>.
+     * @throws IndexOutOfBoundsException
+     *             if <code>offset + length > ints.length</code>.
+     */
+    public void setFloatArray(int address, float[] floats, int offset,
+            int length, boolean swap)
+            throws NullPointerException, IndexOutOfBoundsException;
+
     // END android-added
 
     /**

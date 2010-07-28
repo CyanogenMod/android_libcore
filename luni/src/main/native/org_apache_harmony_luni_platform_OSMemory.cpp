@@ -138,12 +138,12 @@ static void swapInts(jint* ints, int count) {
     }
 }
 
-static void OSMemory_setShortArray(JNIEnv* env, jobject,
-       jint dstAddress, jshortArray src, jint offset, jint length, jboolean swap) {
-    jshort* dst = cast<jshort*>(dstAddress);
-    env->GetShortArrayRegion(src, offset, length, dst);
+static void OSMemory_setFloatArrayImpl(JNIEnv* env, jobject, jint dstAddress,
+        jfloatArray src, jint offset, jint length, jboolean swap) {
+    jfloat* dst = cast<jfloat*>(dstAddress);
+    env->GetFloatArrayRegion(src, offset, length, dst);
     if (swap) {
-        swapShorts(dst, length);
+        swapInts(reinterpret_cast<jint*>(dst), length);
     }
 }
 
@@ -153,6 +153,15 @@ static void OSMemory_setIntArray(JNIEnv* env, jobject,
     env->GetIntArrayRegion(src, offset, length, dst);
     if (swap) {
         swapInts(dst, length);
+    }
+}
+
+static void OSMemory_setShortArray(JNIEnv* env, jobject,
+       jint dstAddress, jshortArray src, jint offset, jint length, jboolean swap) {
+    jshort* dst = cast<jshort*>(dstAddress);
+    env->GetShortArrayRegion(src, offset, length, dst);
+    if (swap) {
+        swapShorts(dst, length);
     }
 }
 
@@ -358,11 +367,12 @@ static JNINativeMethod gMethods[] = {
     { "setByteArray",       "(I[BII)V",(void*) OSMemory_setByteArray },
     { "setDouble",          "(ID)V",   (void*) OSMemory_setDouble },
     { "setFloat",           "(IF)V",   (void*) OSMemory_setFloat },
+    { "setFloatArray",      "(I[FIIZ)V",(void*) OSMemory_setFloatArrayImpl },
     { "setInt",             "(II)V",   (void*) OSMemory_setInt },
-    { "setIntArray",       "(I[IIIZ)V",(void*) OSMemory_setIntArray },
+    { "setIntArray",        "(I[IIIZ)V",(void*) OSMemory_setIntArray },
     { "setLong",            "(IJ)V",   (void*) OSMemory_setLong },
     { "setShort",           "(IS)V",   (void*) OSMemory_setShort },
-    { "setShortArray",     "(I[SIIZ)V",(void*) OSMemory_setShortArray },
+    { "setShortArray",      "(I[SIIZ)V",(void*) OSMemory_setShortArray },
     { "unmapImpl",          "(IJ)V",   (void*) OSMemory_unmapImpl },
 };
 int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env) {
