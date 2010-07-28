@@ -138,7 +138,7 @@ static void swapInts(jint* ints, int count) {
     }
 }
 
-static void OSMemory_setFloatArrayImpl(JNIEnv* env, jobject, jint dstAddress,
+static void OSMemory_setFloatArray(JNIEnv* env, jobject, jint dstAddress,
         jfloatArray src, jint offset, jint length, jboolean swap) {
     jfloat* dst = cast<jfloat*>(dstAddress);
     env->GetFloatArrayRegion(src, offset, length, dst);
@@ -367,7 +367,7 @@ static JNINativeMethod gMethods[] = {
     { "setByteArray",       "(I[BII)V",(void*) OSMemory_setByteArray },
     { "setDouble",          "(ID)V",   (void*) OSMemory_setDouble },
     { "setFloat",           "(IF)V",   (void*) OSMemory_setFloat },
-    { "setFloatArray",      "(I[FIIZ)V",(void*) OSMemory_setFloatArrayImpl },
+    { "setFloatArray",      "(I[FIIZ)V",(void*) OSMemory_setFloatArray },
     { "setInt",             "(II)V",   (void*) OSMemory_setInt },
     { "setIntArray",        "(I[IIIZ)V",(void*) OSMemory_setIntArray },
     { "setLong",            "(IJ)V",   (void*) OSMemory_setLong },
