@@ -117,11 +117,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     private byte[] connectContext = new byte[392];
     // END android-changed
 
-    // Used to store the trafficClass value which is simply returned
-    // as the value that was set. We also need it to pass it to methods
-    // that specify an address packets are going to be sent to.
-    private int trafficClass = 0;
-
     /*
      * Constructor for creating a connected socket channel.
      */
@@ -224,10 +219,10 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         try {
             if (isBlocking()) {
                 begin();
-                networkSystem.connect(fd, trafficClass, normalAddr, port);
+                networkSystem.connect(fd, normalAddr, port);
                 finished = true; // Or we'd have thrown an exception.
             } else {
-                finished = networkSystem.connectWithTimeout(fd, 0, trafficClass,
+                finished = networkSystem.connectWithTimeout(fd, 0,
                         normalAddr, port, HY_SOCK_STEP_START, connectContext);
                 // set back to nonblocking to work around with a bug in portlib
                 if (!this.isBlocking()) {
@@ -294,7 +289,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         boolean finished = false;
         try {
             begin();
-            finished = networkSystem.connectWithTimeout(fd, isBlocking() ? -1 : 0, trafficClass,
+            finished = networkSystem.connectWithTimeout(fd, isBlocking() ? -1 : 0,
                     connectAddress.getAddress(), connectAddress.getPort(),
                     HY_PORT_SOCKET_STEP_CHECK, connectContext);
             isBound = finished;

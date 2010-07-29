@@ -1070,16 +1070,10 @@ public class Socket {
     }
 
     /**
-     * Sets the value of the {@code SocketOptions.IP_TOS} for this socket. See
-     * the specification RFC 1349 for more information about the type of service
-     * field.
+     * Sets the {@see SocketOptions#IP_TOS} value for every packet sent by this socket.
      *
-     * @param value
-     *            the value to be set for this option with a valid range of
-     *            {@code 0-255}.
      * @throws SocketException
-     *             if an error occurs while setting the option.
-     * @see SocketOptions#IP_TOS
+     *             if the socket is closed or the option could not be set.
      */
     public void setTrafficClass(int value) throws SocketException {
         checkOpenAndCreate(true);
@@ -1090,12 +1084,10 @@ public class Socket {
     }
 
     /**
-     * Gets the value of the socket option {@code SocketOptions.IP_TOS}.
+     * Returns this socket's {@see SocketOptions#IP_TOS} setting.
      *
-     * @return the value which represents the type of service.
      * @throws SocketException
-     *             if an error occurs while reading the socket option.
-     * @see SocketOptions#IP_TOS
+     *             if the socket is closed or the option is invalid.
      */
     public int getTrafficClass() throws SocketException {
         checkOpenAndCreate(true);

@@ -45,21 +45,19 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void bind(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException;
 
-    public void connect(FileDescriptor fd, int trafficClass,
-            InetAddress inetAddress, int port) throws IOException{
-        connectStreamWithTimeoutSocket(fd, port, 0, trafficClass, inetAddress);
+    public void connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException {
+        connectStreamWithTimeoutSocket(fd, port, 0, inetAddress);
     }
 
-    public native void connectDatagram(FileDescriptor fd, int port,
-            int trafficClass, InetAddress inetAddress) throws SocketException;
+    public native void connectDatagram(FileDescriptor fd, int port, InetAddress inetAddress)
+            throws SocketException;
 
     public native void connectStreamWithTimeoutSocket(FileDescriptor fd,
-            int port, int timeout, int trafficClass, InetAddress inetAddress)
+            int port, int timeout, InetAddress inetAddress)
             throws IOException;
 
     public native boolean connectWithTimeout(FileDescriptor fd, int timeout,
-            int trafficClass, InetAddress inetAddress, int port, int step,
-            byte[] context) throws IOException;
+            InetAddress inetAddress, int port, int step, byte[] context) throws IOException;
 
     // TODO: preferIPv4Stack is ignored.
     public native void createDatagramSocket(FileDescriptor fd, boolean preferIPv4Stack)
@@ -116,9 +114,9 @@ final class OSNetworkSystem implements INetworkSystem {
             long timeout);
 
     public native int send(FileDescriptor fd, byte[] data, int offset, int length,
-            int port, int trafficClass, InetAddress inetAddress) throws IOException;
+            int port, InetAddress inetAddress) throws IOException;
     public native int sendDirect(FileDescriptor fd, int address, int offset, int length,
-            int port, int trafficClass, InetAddress inetAddress) throws IOException;
+            int port, InetAddress inetAddress) throws IOException;
 
     public native void sendUrgentData(FileDescriptor fd, byte value);
 

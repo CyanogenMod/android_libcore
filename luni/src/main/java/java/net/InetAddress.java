@@ -857,18 +857,16 @@ public class InetAddress implements Serializable {
         return false;
     }
 
-    private boolean isReachableByTCP(InetAddress destination, InetAddress source,
-            int timeout) throws IOException {
+    private boolean isReachableByTCP(InetAddress destination, InetAddress source, int timeout)
+            throws IOException {
         FileDescriptor fd = new FileDescriptor();
-        // define traffic only for parameter
-        int traffic = 0;
         boolean reached = false;
         NETIMPL.createStreamSocket(fd, NetUtil.preferIPv4Stack());
         try {
             if (null != source) {
                 NETIMPL.bind(fd, source, 0);
             }
-            NETIMPL.connectStreamWithTimeoutSocket(fd, 7, timeout, traffic, destination);
+            NETIMPL.connectStreamWithTimeoutSocket(fd, 7, timeout, destination);
             reached = true;
         } catch (IOException e) {
             if (ERRMSG_CONNECTION_REFUSED.equals(e.getMessage())) {

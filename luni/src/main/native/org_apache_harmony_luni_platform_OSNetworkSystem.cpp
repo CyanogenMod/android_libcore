@@ -717,7 +717,7 @@ static void osNetworkSystem_setNonBlocking(JNIEnv* env, jobject,
 }
 
 static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
-        jobject, jobject fileDescriptor, jint timeout, jint trafficClass,
+        jobject, jobject fileDescriptor, jint timeout,
         jobject inetAddr, jint port, jint step, jbyteArray passContext) {
     sockaddr_storage address;
     if (!inetAddressToSocketAddress(env, inetAddr, port, &address)) {
@@ -768,8 +768,7 @@ static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
 }
 
 static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
-        jobject, jobject fileDescriptor, jint remotePort, jint timeout,
-        jint trafficClass, jobject inetAddr) {
+        jobject, jobject fileDescriptor, jint remotePort, jint timeout, jobject inetAddr) {
     int result = 0;
     sockaddr_storage address;
     int remainingTimeout = timeout;
@@ -976,7 +975,7 @@ static void osNetworkSystem_sendUrgentData(JNIEnv* env, jobject,
 }
 
 static void osNetworkSystem_connectDatagram(JNIEnv* env, jobject,
-        jobject fileDescriptor, jint port, jint trafficClass, jobject inetAddress) {
+        jobject fileDescriptor, jint port, jobject inetAddress) {
     sockaddr_storage sockAddr;
     if (!inetAddressToSocketAddress(env, inetAddress, port, &sockAddr)) {
         return;
@@ -1125,7 +1124,7 @@ static jint osNetworkSystem_recv(JNIEnv* env, jobject, jobject fd, jobject packe
 
 
 
-static jint osNetworkSystem_sendDirect(JNIEnv* env, jobject, jobject fileDescriptor, jint address, jint offset, jint length, jint port, jint trafficClass, jobject inetAddress) {
+static jint osNetworkSystem_sendDirect(JNIEnv* env, jobject, jobject fileDescriptor, jint address, jint offset, jint length, jint port, jobject inetAddress) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return -1;
@@ -1153,14 +1152,13 @@ static jint osNetworkSystem_sendDirect(JNIEnv* env, jobject, jobject fileDescrip
 
 static jint osNetworkSystem_send(JNIEnv* env, jobject, jobject fd,
         jbyteArray data, jint offset, jint length,
-        jint port, jint trafficClass, jobject inetAddress) {
+        jint port, jobject inetAddress) {
     ScopedByteArrayRO bytes(env, data);
     if (bytes.get() == NULL) {
         return -1;
     }
     return osNetworkSystem_sendDirect(env, NULL, fd,
-            reinterpret_cast<uintptr_t>(bytes.get()), offset, length,
-            port, trafficClass, inetAddress);
+            reinterpret_cast<uintptr_t>(bytes.get()), offset, length, port, inetAddress);
 }
 
 
@@ -1634,9 +1632,9 @@ static JNINativeMethod gMethods[] = {
     { "accept",                            "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V", (void*) osNetworkSystem_accept },
     { "bind",                              "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V",                       (void*) osNetworkSystem_bind },
     { "close",                             "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_close },
-    { "connectDatagram",                   "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;)V",                      (void*) osNetworkSystem_connectDatagram },
-    { "connectStreamWithTimeoutSocket",    "(Ljava/io/FileDescriptor;IIILjava/net/InetAddress;)V",                     (void*) osNetworkSystem_connectStreamWithTimeoutSocket },
-    { "connectWithTimeout",                "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;II[B)Z",                  (void*) osNetworkSystem_connectWithTimeout },
+    { "connectDatagram",                   "(Ljava/io/FileDescriptor;ILjava/net/InetAddress;)V",                       (void*) osNetworkSystem_connectDatagram },
+    { "connectStreamWithTimeoutSocket",    "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;)V",                      (void*) osNetworkSystem_connectStreamWithTimeoutSocket },
+    { "connectWithTimeout",                "(Ljava/io/FileDescriptor;ILjava/net/InetAddress;II[B)Z",                   (void*) osNetworkSystem_connectWithTimeout },
     { "createDatagramSocket",              "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_createDatagramSocket },
     { "createServerStreamSocket",          "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_createServerStreamSocket },
     { "createStreamSocket",                "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_createStreamSocket },
@@ -1650,8 +1648,8 @@ static JNINativeMethod gMethods[] = {
     { "recv",                              "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I",               (void*) osNetworkSystem_recv },
     { "recvDirect",                        "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIZZ)I",                (void*) osNetworkSystem_recvDirect },
     { "selectImpl",                        "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z",               (void*) osNetworkSystem_selectImpl },
-    { "send",                              "(Ljava/io/FileDescriptor;[BIIIILjava/net/InetAddress;)I",                  (void*) osNetworkSystem_send },
-    { "sendDirect",                        "(Ljava/io/FileDescriptor;IIIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_sendDirect },
+    { "send",                              "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_send },
+    { "sendDirect",                        "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I",                    (void*) osNetworkSystem_sendDirect },
     { "sendUrgentData",                    "(Ljava/io/FileDescriptor;B)V",                                             (void*) osNetworkSystem_sendUrgentData },
     { "setInetAddress",                    "(Ljava/net/InetAddress;[B)V",                                              (void*) osNetworkSystem_setInetAddress },
     { "setNonBlocking",                    "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_setNonBlocking },

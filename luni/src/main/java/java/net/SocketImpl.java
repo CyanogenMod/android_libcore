@@ -265,7 +265,7 @@ public abstract class SocketImpl implements SocketOptions {
         if (streaming) {
             return this.netImpl.write(fd, buffer, offset, count);
         } else {
-            return this.netImpl.send(fd, buffer, offset, count, port, 0, address);
+            return this.netImpl.send(fd, buffer, offset, count, port, address);
         }
     }
 
