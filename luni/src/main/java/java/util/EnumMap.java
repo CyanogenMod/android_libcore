@@ -113,7 +113,8 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
             StringBuilder result = new StringBuilder(enumMap.keys[ordinal]
                     .toString());
             result.append("=");
-            result.append(enumMap.values[ordinal].toString());
+            result.append(enumMap.values[ordinal] == null
+                    ? "null" : enumMap.values[ordinal].toString());
             return result.toString();
         }
 
