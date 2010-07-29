@@ -227,7 +227,7 @@ public class ServerSocket {
     }
 
     /**
-     * Gets the socket {@link SocketOptions.SO_TIMEOUT accept timeout}.
+     * Gets the socket {@link SocketOptions#SO_TIMEOUT accept timeout}.
      *
      * @throws IOException
      *             if the option cannot be retrieved.
@@ -296,7 +296,7 @@ public class ServerSocket {
     }
 
     /**
-     * Sets the {@link SocketOptions.SO_TIMEOUT accept timeout} in milliseconds for this socket.
+     * Sets the {@link SocketOptions#SO_TIMEOUT accept timeout} in milliseconds for this socket.
      * This accept timeout defines the period the socket will block waiting to
      * accept a connection before throwing an {@code InterruptedIOException}. The value
      * {@code 0} (default) is used to set an infinite timeout. To have effect

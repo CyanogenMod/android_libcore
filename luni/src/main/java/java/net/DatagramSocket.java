@@ -297,7 +297,7 @@ public class DatagramSocket {
     }
 
     /**
-     * Gets the socket {@link SocketOptions.SO_TIMEOUT receive timeout}.
+     * Gets the socket {@link SocketOptions#SO_TIMEOUT receive timeout}.
      *
      * @throws SocketException
      *                if an error occurs while getting the option value.
@@ -491,7 +491,7 @@ public class DatagramSocket {
     }
 
     /**
-     * Sets the {@link SocketOptions.SO_TIMEOUT read timeout} in milliseconds for this socket.
+     * Sets the {@link SocketOptions#SO_TIMEOUT read timeout} in milliseconds for this socket.
      * This receive timeout defines the period the socket will block waiting to
      * receive data before throwing an {@code InterruptedIOException}. The value
      * {@code 0} (default) is used to set an infinite timeout. To have effect
