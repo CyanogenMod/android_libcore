@@ -303,33 +303,30 @@ public final class BlockGuard {
             mNetwork.setNonBlocking(aFD, block);
         }
 
-        public void connect(FileDescriptor aFD, int trafficClass,
-                            InetAddress inetAddress, int port) throws IOException {
+        public void connect(FileDescriptor aFD, InetAddress inetAddress, int port)
+                throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.connect(aFD, trafficClass, inetAddress, port);
+            mNetwork.connect(aFD, inetAddress, port);
         }
 
         public boolean connectWithTimeout(FileDescriptor aFD, int timeout,
-                int trafficClass, InetAddress hostname, int port, int step,
-                byte[] context) throws IOException {
+                InetAddress hostname, int port, int step, byte[] context) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.connectWithTimeout(aFD, timeout, trafficClass,
-                    hostname, port, step, context);
+            return mNetwork.connectWithTimeout(aFD, timeout, hostname, port, step, context);
         }
 
         public int send(FileDescriptor fd, byte[] data, int offset, int length,
-                int port, int trafficClass, InetAddress inetAddress) throws IOException {
+                int port, InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.send(fd, data, offset, length, port, trafficClass, inetAddress);
+            return mNetwork.send(fd, data, offset, length, port, inetAddress);
         }
 
         public int sendDirect(FileDescriptor fd, int address, int offset, int length,
-                int port, int trafficClass, InetAddress inetAddress) throws IOException {
+                int port, InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.sendDirect(fd, address, offset, length,
-                    port, trafficClass, inetAddress);
+            return mNetwork.sendDirect(fd, address, offset, length, port, inetAddress);
         }
 
         public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
@@ -353,9 +350,9 @@ public final class BlockGuard {
             mNetwork.createDatagramSocket(aFD, preferIPv4Stack);
         }
 
-        public void connectDatagram(FileDescriptor aFD, int port, int trafficClass,
-                InetAddress inetAddress) throws SocketException {
-            mNetwork.connectDatagram(aFD, port, trafficClass, inetAddress);
+        public void connectDatagram(FileDescriptor aFD, int port, InetAddress inetAddress)
+                throws SocketException {
+            mNetwork.connectDatagram(aFD, port, inetAddress);
         }
 
         public void shutdownInput(FileDescriptor descriptor) throws IOException {
@@ -384,12 +381,10 @@ public final class BlockGuard {
             mNetwork.listen(aFD, backlog);
         }
 
-        public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int aport,
-                int timeout, int trafficClass, InetAddress inetAddress)
-                throws IOException {
+        public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int port,
+                int timeout, InetAddress inetAddress) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.connectStreamWithTimeoutSocket(aFD, aport,
-                    timeout, trafficClass, inetAddress);
+            mNetwork.connectStreamWithTimeoutSocket(aFD, port, timeout, inetAddress);
         }
 
         public InetAddress getSocketLocalAddress(FileDescriptor aFD) {

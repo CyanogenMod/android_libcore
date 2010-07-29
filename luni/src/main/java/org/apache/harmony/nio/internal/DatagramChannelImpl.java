@@ -80,11 +80,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
     private static class WriteLock {}
     private final Object writeLock = new WriteLock();
 
-    // used to store the trafficClass value which is simply returned
-    // as the value that was set. We also need it to pass it to methods
-    // that specify an address packets are going to be sent to
-    private int trafficClass = 0;
-
     /*
      * Constructor
      */
@@ -163,8 +158,8 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
         try {
             begin();
-            networkSystem.connectDatagram(fd, inetSocketAddress.getPort(),
-                    trafficClass, inetSocketAddress.getAddress());
+            networkSystem.connectDatagram(fd,
+                    inetSocketAddress.getPort(), inetSocketAddress.getAddress());
         } catch (ConnectException e) {
             // ConnectException means connect fail, not exception
         } finally {
@@ -350,7 +345,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                 synchronized (writeLock) {
                     int data_address = AddressUtil.getDirectBufferAddress(source);
                     sendCount = networkSystem.sendDirect(fd, data_address, start, length,
-                            isa.getPort(), trafficClass, isa.getAddress());
+                            isa.getPort(), isa.getAddress());
                 }
             } else {
                 if (source.hasArray()) {
@@ -363,7 +358,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
                 }
                 synchronized (writeLock) {
                     sendCount = networkSystem.send(fd, array, start, length,
-                            isa.getPort(), trafficClass, isa.getAddress());
+                            isa.getPort(), isa.getAddress());
                 }
             }
             source.position(oldposition + sendCount);
@@ -545,11 +540,11 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
                 if (buf.isDirect()) {
                     int address = AddressUtil.getDirectBufferAddress(buf);
-                    result = networkSystem.sendDirect(fd, address, start, length, 0, 0, null);
+                    result = networkSystem.sendDirect(fd, address, start, length, 0, null);
                 } else {
                     // buf is assured to have array.
                     start += buf.arrayOffset();
-                    result = networkSystem.send(fd, buf.array(), start, length, 0, 0, null);
+                    result = networkSystem.send(fd, buf.array(), start, length, 0, null);
                 }
                 return result;
             } finally {

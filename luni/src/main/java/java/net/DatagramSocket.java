@@ -789,16 +789,8 @@ public class DatagramSocket {
     }
 
     /**
-     * Sets the socket option {@code SocketOptions.IP_TOS}. This option defines
-     * the value of the type-of-service field of the IP-header for every packet
-     * sent by this socket. The value could be ignored by the underlying network
-     * implementation.
-     * <p>
-     * Values between {@code 0} and {@code 255} inclusive are valid for this
-     * option.
+     * Sets the {@see SocketOptions#IP_TOS} value for every packet sent by this socket.
      *
-     * @param value
-     *            the socket option value to be set as type-of-service.
      * @throws SocketException
      *             if the socket is closed or the option could not be set.
      */
@@ -811,16 +803,14 @@ public class DatagramSocket {
     }
 
     /**
-     * Gets the value of the type-of-service socket option {@code
-     * SocketOptions.IP_TOS}.
+     * Returns this socket's {@see SocketOptions#IP_TOS} setting.
      *
-     * @return the type-of-service socket option value.
      * @throws SocketException
      *             if the socket is closed or the option is invalid.
      */
     public int getTrafficClass() throws SocketException {
         checkClosedAndBind(false);
-        return ((Number) impl.getOption(SocketOptions.IP_TOS)).intValue();
+        return (Integer) impl.getOption(SocketOptions.IP_TOS);
     }
 
     /**
