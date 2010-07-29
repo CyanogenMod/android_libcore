@@ -488,7 +488,7 @@ public final class HttpCookie implements Cloneable {
      * @param name a non-empty string that contains only printable ASCII, no
      *     commas or semicolons, and is not prefixed with  {@code $}. May not be
      *     an HTTP attribute name.
-     * @code value an opaque value from the HTTP server.
+     * @param value an opaque value from the HTTP server.
      * @throws IllegalArgumentException if {@code name} is invalid.
      */
     public HttpCookie(String name, String value) {
