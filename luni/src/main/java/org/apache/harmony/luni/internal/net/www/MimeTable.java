@@ -44,10 +44,58 @@ public class MimeTable implements FileNameMap {
 
     // Default mapping.
     static {
-        types.setProperty("text", "text/plain");
-        types.setProperty("txt", "text/plain");
-        types.setProperty("htm", "text/html");
+        // Copied from the tables in Chrome's "net/base/mime_util.cc".
+        // The order is the same as the original, for ease of comparison.
         types.setProperty("html", "text/html");
+        types.setProperty("htm", "text/html");
+        types.setProperty("css", "text/css");
+        types.setProperty("xml", "text/xml");
+        types.setProperty("gif", "image/gif");
+        types.setProperty("jpeg", "image/jpeg");
+        types.setProperty("jpg", "image/jpeg");
+        types.setProperty("png", "image/png");
+        types.setProperty("mp4", "video/mp4");
+        types.setProperty("m4v", "video/mp4");
+        types.setProperty("m4a", "audio/x-m4a");
+        types.setProperty("mp3", "audio/mp3");
+        types.setProperty("ogv", "video/ogg");
+        types.setProperty("ogm", "video/ogg");
+        types.setProperty("ogg", "audio/ogg");
+        types.setProperty("oga", "audio/ogg");
+        types.setProperty("xhtml", "application/xhtml+xml");
+        types.setProperty("xht", "application/xhtml+xml");
+        // { "application/x-chrome-extension", "crx" }
+        types.setProperty("exe", "application/octet-stream");
+        types.setProperty("com", "application/octet-stream");
+        types.setProperty("bin", "application/octet-stream");
+        types.setProperty("gz", "application/gzip");
+        types.setProperty("pdf", "application/pdf");
+        types.setProperty("ps", "application/postscript");
+        types.setProperty("eps", "application/postscript");
+        types.setProperty("ai", "application/postscript");
+        types.setProperty("js", "application/x-javascript");
+        types.setProperty("bmp", "image/bmp");
+        types.setProperty("ico", "image/x-icon");
+        types.setProperty("jfif", "image/jpeg");
+        types.setProperty("pjpeg", "image/jpeg");
+        types.setProperty("pjp", "image/jpeg");
+        types.setProperty("tiff", "image/tiff");
+        types.setProperty("tif", "image/tiff");
+        types.setProperty("xbm", "image/x-xbitmap");
+        types.setProperty("svg", "image/svg+xml");
+        types.setProperty("svgz", "image/svg+xml");
+        types.setProperty("eml", "message/rfc822");
+        types.setProperty("txt", "text/plain");
+        types.setProperty("text", "text/plain");
+        types.setProperty("shtml", "text/html");
+        types.setProperty("ehtml", "text/html");
+        types.setProperty("rss", "application/rss+xml");
+        types.setProperty("rdf", "application/rdf+xml");
+        types.setProperty("xsl", "text/xml");
+        types.setProperty("xbl", "text/xml");
+        types.setProperty("xul", "application/vnd.mozilla.xul+xml");
+        types.setProperty("swf", "application/x-shockwave-flash");
+        types.setProperty("swl", "application/x-shockwave-flash");
     }
 
     /**
@@ -58,12 +106,11 @@ public class MimeTable implements FileNameMap {
      * which is represented in standard java.util.Properties.load(...) format.
      */
     public MimeTable() {
-        InputStream str = AccessController
-                .doPrivileged(new PrivilegedAction<InputStream>() {
-                    public InputStream run() {
-                        return getContentTypes();
-                    }
-                });
+        InputStream str = AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
+            public InputStream run() {
+                return getContentTypes();
+            }
+        });
 
         if (str != null) {
             try {
