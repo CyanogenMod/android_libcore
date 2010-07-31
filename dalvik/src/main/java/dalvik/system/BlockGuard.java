@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketOptions;
 import java.net.SocketImpl;
 import java.net.UnknownHostException;
 import java.nio.channels.Channel;
@@ -413,12 +414,26 @@ public final class BlockGuard {
         }
 
         public void close(FileDescriptor aFD) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
+            if (isLingerSocket(aFD)) {
+                BlockGuard.getThreadPolicy().onNetwork();
+            }
             mNetwork.close(aFD);
         }
 
         public void setInetAddress(InetAddress sender, byte[] address) {
             mNetwork.setInetAddress(sender, address);
+        }
+
+        private boolean isLingerSocket(FileDescriptor fd) throws SocketException {
+            Object lingerValue = mNetwork.getSocketOption(fd, SocketOptions.SO_LINGER);
+            if (lingerValue instanceof Boolean) {
+                return (Boolean) lingerValue;
+            } else if (lingerValue instanceof Integer) {
+                // Note: not exactly to spec, but gingerbread returns
+                // -1 when linger is disabled.
+                return ((Integer) lingerValue) > 0;
+            }
+            return false;  // shouldn't happen
         }
     }
 }
