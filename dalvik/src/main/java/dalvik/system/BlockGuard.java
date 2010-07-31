@@ -346,9 +346,8 @@ public final class BlockGuard {
             mNetwork.disconnectDatagram(aFD);
         }
 
-        public void createDatagramSocket(FileDescriptor aFD, boolean preferIPv4Stack)
-                throws SocketException {
-            mNetwork.createDatagramSocket(aFD, preferIPv4Stack);
+        public void createDatagramSocket(FileDescriptor aFD) throws SocketException {
+            mNetwork.createDatagramSocket(aFD);
         }
 
         public void connectDatagram(FileDescriptor aFD, int port, InetAddress inetAddress)
@@ -368,14 +367,12 @@ public final class BlockGuard {
             mNetwork.sendUrgentData(fd, value);
         }
 
-        public void createServerStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
-                throws SocketException {
-            mNetwork.createServerStreamSocket(aFD, preferIPv4Stack);
+        public void createServerStreamSocket(FileDescriptor aFD) throws SocketException {
+            mNetwork.createServerStreamSocket(aFD);
         }
 
-        public void createStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
-                throws SocketException {
-            mNetwork.createStreamSocket(aFD, preferIPv4Stack);
+        public void createStreamSocket(FileDescriptor aFD) throws SocketException {
+            mNetwork.createStreamSocket(aFD);
         }
 
         public void listen(FileDescriptor aFD, int backlog) throws SocketException {

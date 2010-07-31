@@ -50,14 +50,6 @@ public class NetUtil {
     }
 
     /**
-     * Returns whether to prefer IPV4 stack
-     */
-    public static boolean preferIPv4Stack() {
-        final Action a = new Action("java.net.preferIPv4Stack");
-        return AccessController.doPrivileged(a).booleanValue();
-    }
-
-    /**
      * Gets proxy list according to the URI by system ProxySelector.
      *
      * @param uri

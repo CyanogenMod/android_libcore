@@ -112,7 +112,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void create() throws SocketException {
-        netImpl.createDatagramSocket(fd, NetUtil.preferIPv4Stack());
+        netImpl.createDatagramSocket(fd);
     }
 
     @Override

@@ -627,23 +627,23 @@ static int createSocketFileDescriptor(JNIEnv* env, jobject fileDescriptor, int t
     }
 
     // Try IPv6 but fall back to IPv4...
-    int sock = socket(AF_INET6, type, 0);
-    if (sock == -1 && errno == EAFNOSUPPORT) {
-        sock = socket(AF_INET, type, 0);
+    int fd = socket(AF_INET6, type, 0);
+    if (fd == -1 && errno == EAFNOSUPPORT) {
+        fd = socket(AF_INET, type, 0);
     }
-    if (sock == -1) {
+    if (fd == -1) {
         jniThrowSocketException(env, errno);
-        return sock;
+    } else {
+        jniSetFileDescriptorOfFD(env, fileDescriptor, fd);
     }
-    jniSetFileDescriptorOfFD(env, fileDescriptor, sock);
-    return sock;
+    return fd;
 }
 
-static void osNetworkSystem_createStreamSocket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean) {
+static void osNetworkSystem_createStreamSocket(JNIEnv* env, jobject, jobject fileDescriptor) {
     createSocketFileDescriptor(env, fileDescriptor, SOCK_STREAM);
 }
 
-static void osNetworkSystem_createServerStreamSocket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean) {
+static void osNetworkSystem_createServerStreamSocket(JNIEnv* env, jobject, jobject fileDescriptor) {
     int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_STREAM);
     if (fd != -1) {
         // TODO: we could actually do this in Java. (and check for errors!)
@@ -652,7 +652,7 @@ static void osNetworkSystem_createServerStreamSocket(JNIEnv* env, jobject, jobje
     }
 }
 
-static void osNetworkSystem_createDatagramSocket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean) {
+static void osNetworkSystem_createDatagramSocket(JNIEnv* env, jobject, jobject fileDescriptor) {
     int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_DGRAM);
 #ifdef __linux__
     // The RFC (http://www.ietf.org/rfc/rfc3493.txt) says that IPV6_MULTICAST_HOPS defaults to 1.
@@ -1475,8 +1475,8 @@ static void osNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     }
 
     // Since we expect to have a AF_INET6 socket even if we're communicating via IPv4, we always
-    // set the IPPROTO_IP options. As long as we support "java.net.preferIPv4Stack" we need to
-    // make setting the IPPROTO_IPV6 options conditional.
+    // set the IPPROTO_IP options. As long as we fall back to creating IPv4 sockets if creating
+    // an IPv6 socket fails, we need to make setting the IPPROTO_IPV6 options conditional.
     switch (option) {
     case JAVASOCKOPT_IP_TOS:
         setSocketOption(env, fd, IPPROTO_IP, IP_TOS, &intVal);
@@ -1629,35 +1629,35 @@ static void osNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) 
 }
 
 static JNINativeMethod gMethods[] = {
-    { "accept",                            "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V", (void*) osNetworkSystem_accept },
-    { "bind",                              "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V",                       (void*) osNetworkSystem_bind },
-    { "close",                             "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_close },
-    { "connectDatagram",                   "(Ljava/io/FileDescriptor;ILjava/net/InetAddress;)V",                       (void*) osNetworkSystem_connectDatagram },
-    { "connectStreamWithTimeoutSocket",    "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;)V",                      (void*) osNetworkSystem_connectStreamWithTimeoutSocket },
-    { "connectWithTimeout",                "(Ljava/io/FileDescriptor;ILjava/net/InetAddress;II[B)Z",                   (void*) osNetworkSystem_connectWithTimeout },
-    { "createDatagramSocket",              "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_createDatagramSocket },
-    { "createServerStreamSocket",          "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_createServerStreamSocket },
-    { "createStreamSocket",                "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_createStreamSocket },
-    { "disconnectDatagram",                "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_disconnectDatagram },
-    { "getSocketLocalAddress",             "(Ljava/io/FileDescriptor;)Ljava/net/InetAddress;",                         (void*) osNetworkSystem_getSocketLocalAddress },
-    { "getSocketLocalPort",                "(Ljava/io/FileDescriptor;)I",                                              (void*) osNetworkSystem_getSocketLocalPort },
-    { "getSocketOption",                   "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;",                            (void*) osNetworkSystem_getSocketOption },
-    { "listen",                            "(Ljava/io/FileDescriptor;I)V",                                             (void*) osNetworkSystem_listen },
-    { "read",                              "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_read },
-    { "readDirect",                        "(Ljava/io/FileDescriptor;II)I",                                            (void*) osNetworkSystem_readDirect },
-    { "recv",                              "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I",               (void*) osNetworkSystem_recv },
-    { "recvDirect",                        "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIZZ)I",                (void*) osNetworkSystem_recvDirect },
-    { "selectImpl",                        "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z",               (void*) osNetworkSystem_selectImpl },
-    { "send",                              "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_send },
-    { "sendDirect",                        "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I",                    (void*) osNetworkSystem_sendDirect },
-    { "sendUrgentData",                    "(Ljava/io/FileDescriptor;B)V",                                             (void*) osNetworkSystem_sendUrgentData },
-    { "setInetAddress",                    "(Ljava/net/InetAddress;[B)V",                                              (void*) osNetworkSystem_setInetAddress },
-    { "setNonBlocking",                    "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_setNonBlocking },
-    { "setSocketOption",                   "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V",                           (void*) osNetworkSystem_setSocketOption },
-    { "shutdownInput",                     "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownInput },
-    { "shutdownOutput",                    "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownOutput },
-    { "write",                             "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_write },
-    { "writeDirect",                       "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_writeDirect },
+    { "accept",                         "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V", (void*) osNetworkSystem_accept },
+    { "bind",                           "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V",                       (void*) osNetworkSystem_bind },
+    { "close",                          "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_close },
+    { "connectDatagram",                "(Ljava/io/FileDescriptor;ILjava/net/InetAddress;)V",                       (void*) osNetworkSystem_connectDatagram },
+    { "connectStreamWithTimeoutSocket", "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;)V",                      (void*) osNetworkSystem_connectStreamWithTimeoutSocket },
+    { "connectWithTimeout",             "(Ljava/io/FileDescriptor;ILjava/net/InetAddress;II[B)Z",                   (void*) osNetworkSystem_connectWithTimeout },
+    { "createDatagramSocket",           "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createDatagramSocket },
+    { "createServerStreamSocket",       "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createServerStreamSocket },
+    { "createStreamSocket",             "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createStreamSocket },
+    { "disconnectDatagram",             "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_disconnectDatagram },
+    { "getSocketLocalAddress",          "(Ljava/io/FileDescriptor;)Ljava/net/InetAddress;",                         (void*) osNetworkSystem_getSocketLocalAddress },
+    { "getSocketLocalPort",             "(Ljava/io/FileDescriptor;)I",                                              (void*) osNetworkSystem_getSocketLocalPort },
+    { "getSocketOption",                "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;",                            (void*) osNetworkSystem_getSocketOption },
+    { "listen",                         "(Ljava/io/FileDescriptor;I)V",                                             (void*) osNetworkSystem_listen },
+    { "read",                           "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_read },
+    { "readDirect",                     "(Ljava/io/FileDescriptor;II)I",                                            (void*) osNetworkSystem_readDirect },
+    { "recv",                           "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I",               (void*) osNetworkSystem_recv },
+    { "recvDirect",                     "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIZZ)I",                (void*) osNetworkSystem_recvDirect },
+    { "selectImpl",                     "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z",               (void*) osNetworkSystem_selectImpl },
+    { "send",                           "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_send },
+    { "sendDirect",                     "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I",                    (void*) osNetworkSystem_sendDirect },
+    { "sendUrgentData",                 "(Ljava/io/FileDescriptor;B)V",                                             (void*) osNetworkSystem_sendUrgentData },
+    { "setInetAddress",                 "(Ljava/net/InetAddress;[B)V",                                              (void*) osNetworkSystem_setInetAddress },
+    { "setNonBlocking",                 "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_setNonBlocking },
+    { "setSocketOption",                "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V",                           (void*) osNetworkSystem_setSocketOption },
+    { "shutdownInput",                  "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownInput },
+    { "shutdownOutput",                 "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownOutput },
+    { "write",                          "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_write },
+    { "writeDirect",                    "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_writeDirect },
 };
 int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env) {
     return initCachedFields(env) && jniRegisterNativeMethods(env,

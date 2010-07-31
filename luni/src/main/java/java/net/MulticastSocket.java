@@ -127,8 +127,7 @@ public class MulticastSocket extends DatagramSocket {
         }
 
         // ok it was not set at the IPV6 level so try at the IPV4 level
-        InetAddress theAddress = (InetAddress) impl
-                .getOption(SocketOptions.IP_MULTICAST_IF);
+        InetAddress theAddress = (InetAddress) impl.getOption(SocketOptions.IP_MULTICAST_IF);
         if (theAddress != null) {
             if (!theAddress.isAnyLocalAddress()) {
                 return NetworkInterface.getByInetAddress(theAddress);
@@ -138,7 +137,7 @@ public class MulticastSocket extends DatagramSocket {
             // interface with only the any address. We do this to be
             // compatible
             InetAddress theAddresses[] = new InetAddress[1];
-            if (!NetUtil.preferIPv4Stack() && NetUtil.preferIPv6Addresses()) {
+            if (NetUtil.preferIPv6Addresses()) {
                 theAddresses[0] = Inet6Address.ANY;
             } else {
                 theAddresses[0] = Inet4Address.ANY;

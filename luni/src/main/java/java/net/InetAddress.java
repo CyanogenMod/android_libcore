@@ -265,11 +265,9 @@ public class InetAddress implements Serializable {
     static InetAddress[] getAllByNameImpl(String host) throws UnknownHostException {
         if (host == null || host.isEmpty()) {
             if (NetUtil.preferIPv6Addresses()) {
-                return new InetAddress[] { Inet6Address.LOOPBACK,
-                                           Inet4Address.LOOPBACK };
+                return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
             } else {
-                return new InetAddress[] { Inet4Address.LOOPBACK,
-                                           Inet6Address.LOOPBACK };
+                return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
             }
         }
 
@@ -861,7 +859,7 @@ public class InetAddress implements Serializable {
             throws IOException {
         FileDescriptor fd = new FileDescriptor();
         boolean reached = false;
-        NETIMPL.createStreamSocket(fd, NetUtil.preferIPv4Stack());
+        NETIMPL.createStreamSocket(fd);
         try {
             if (null != source) {
                 NETIMPL.bind(fd, source, 0);

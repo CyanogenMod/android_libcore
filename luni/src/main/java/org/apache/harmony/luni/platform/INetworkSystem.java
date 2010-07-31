@@ -77,8 +77,7 @@ public interface INetworkSystem {
 
     public void disconnectDatagram(FileDescriptor fd) throws SocketException;
 
-    public void createDatagramSocket(FileDescriptor fd, boolean preferIPv4Stack)
-            throws SocketException;
+    public void createDatagramSocket(FileDescriptor fd) throws SocketException;
 
     public void connectDatagram(FileDescriptor fd, int port, InetAddress inetAddress)
             throws SocketException;
@@ -89,11 +88,9 @@ public interface INetworkSystem {
 
     public void sendUrgentData(FileDescriptor fd, byte value);
 
-    public void createServerStreamSocket(FileDescriptor fd, boolean preferIPv4Stack)
-            throws SocketException;
+    public void createServerStreamSocket(FileDescriptor fd) throws SocketException;
 
-    public void createStreamSocket(FileDescriptor fd, boolean preferIPv4Stack)
-            throws SocketException;
+    public void createStreamSocket(FileDescriptor fd) throws SocketException;
 
     public void listen(FileDescriptor fd, int backlog) throws SocketException;
 

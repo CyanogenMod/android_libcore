@@ -59,17 +59,11 @@ final class OSNetworkSystem implements INetworkSystem {
     public native boolean connectWithTimeout(FileDescriptor fd, int timeout,
             InetAddress inetAddress, int port, int step, byte[] context) throws IOException;
 
-    // TODO: preferIPv4Stack is ignored.
-    public native void createDatagramSocket(FileDescriptor fd, boolean preferIPv4Stack)
-            throws SocketException;
+    public native void createDatagramSocket(FileDescriptor fd) throws SocketException;
 
-    // TODO: preferIPv4Stack is ignored.
-    public native void createServerStreamSocket(FileDescriptor fd, boolean preferIPv4Stack)
-            throws SocketException;
+    public native void createServerStreamSocket(FileDescriptor fd) throws SocketException;
 
-    // TODO: preferIPv4Stack is ignored.
-    public native void createStreamSocket(FileDescriptor fd, boolean preferIPv4Stack)
-            throws SocketException;
+    public native void createStreamSocket(FileDescriptor fd) throws SocketException;
 
     public native void disconnectDatagram(FileDescriptor fd) throws SocketException;
 

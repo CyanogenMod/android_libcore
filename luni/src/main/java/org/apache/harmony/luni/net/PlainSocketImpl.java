@@ -222,9 +222,9 @@ public class PlainSocketImpl extends SocketImpl {
     protected void create(boolean streaming) throws IOException {
         this.streaming = streaming;
         if (streaming) {
-            netImpl.createStreamSocket(fd, NetUtil.preferIPv4Stack());
+            netImpl.createStreamSocket(fd);
         } else {
-            netImpl.createDatagramSocket(fd, NetUtil.preferIPv4Stack());
+            netImpl.createDatagramSocket(fd);
         }
     }
 
