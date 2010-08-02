@@ -40,7 +40,6 @@ import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.harmony.luni.internal.net.www.MimeTable;
 import org.apache.harmony.luni.net.NetUtil;
 
 public class FtpURLConnection extends URLConnection {
@@ -261,7 +260,7 @@ public class FtpURLConnection extends URLConnection {
     public String getContentType() {
         String result = guessContentTypeFromName(url.getFile());
         if (result == null) {
-            return MimeTable.UNKNOWN;
+            return "content/unknown";
         }
         return result;
     }

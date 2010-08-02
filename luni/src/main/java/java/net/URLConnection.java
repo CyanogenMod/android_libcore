@@ -28,7 +28,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import org.apache.harmony.luni.internal.net.www.MimeTable;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -391,12 +390,9 @@ public abstract class URLConnection {
      * @return the file name map to determine the MIME-type.
      */
     public static FileNameMap getFileNameMap() {
-        // Must use lazy initialization or there is a bootstrap problem
-        // trying to load the MimeTable resource from a .jar before
-        // JarURLConnection has finished initialization.
         synchronized (URLConnection.class) {
             if (fileNameMap == null) {
-                fileNameMap = new MimeTable();
+                fileNameMap = new DefaultFileNameMap();
             }
             return fileNameMap;
         }
