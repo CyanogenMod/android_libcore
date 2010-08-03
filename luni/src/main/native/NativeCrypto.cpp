@@ -1703,6 +1703,8 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
                         | SSL_OP_NO_SSLv2
                         // We also disable session tickets for better compatibility b/2682876
                         | SSL_OP_NO_TICKET
+                        // We also disable compression for better compatibility b/2710492 b/2710497
+                        | SSL_OP_NO_COMPRESSION
                         // Because dhGenerateParameters uses DSA_generate_parameters_ex
                         | SSL_OP_SINGLE_DH_USE);
 
@@ -2214,6 +2216,43 @@ static void NativeCrypto_SSL_set_session_creation_enabled(JNIEnv* env, jclass,
     SSL_set_session_creation_enabled(ssl, creation_enabled);
 }
 
+static void NativeCrypto_SSL_set_tlsext_host_name(JNIEnv* env, jclass,
+        jint ssl_address, jstring hostname)
+{
+    SSL* ssl = to_SSL(env, ssl_address, true);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_set_tlsext_host_name hostname=%p",
+              ssl, hostname);
+    if (ssl == NULL) {
+        return;
+    }
+
+    ScopedUtfChars hostnameChars(env, hostname);
+    if (hostnameChars.c_str() == NULL) {
+        return;
+    }
+    JNI_TRACE("NativeCrypto_SSL_set_tlsext_host_name hostnameChars=%s", hostnameChars.c_str());
+
+    int ret = SSL_set_tlsext_host_name(ssl, hostnameChars.c_str());
+    if (ret != 1) {
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting host name");
+        SSL_clear(ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_set_tlsext_host_name => error", ssl);
+        return;
+    }
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_set_tlsext_host_name => ok", ssl);
+}
+
+static jstring NativeCrypto_SSL_get_servername(JNIEnv* env, jclass, jint ssl_address) {
+    SSL* ssl = to_SSL(env, ssl_address, true);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_get_servername", ssl);
+    if (ssl == NULL) {
+        return NULL;
+    }
+    const char* servername = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_get_servername => %s", ssl, servername);
+    return env->NewStringUTF(servername);
+}
+
 /**
  * Module scope variables initialized during JNI registration.
  */
@@ -2454,7 +2493,7 @@ static jobjectArray NativeCrypto_SSL_get_certificate(JNIEnv* env, jclass, jint s
     }
     STACK_OF(X509)* cert_chain = SSL_get_certificate_chain(ssl, certificate);
     for (int i=0; i<sk_X509_num(cert_chain); i++) {
-        if (!sk_X509_push(chain.get(), sk_X509_value(cert_chain,i))) {
+        if (!sk_X509_push(chain.get(), sk_X509_value(cert_chain, i))) {
             jniThrowOutOfMemoryError(env, "Unable to push local certificate chain");
             JNI_TRACE("ssl=%p NativeCrypto_SSL_get_certificate => NULL", ssl);
             return NULL;
@@ -2607,7 +2646,8 @@ static jint NativeCrypto_SSL_read_byte(JNIEnv* env, jclass, jint ssl_address, ji
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
 
-    int ret = sslRead(env, ssl, reinterpret_cast<char*>(&byteRead), 1, &returnCode, &sslErrorCode, timeout);
+    int ret = sslRead(env, ssl, reinterpret_cast<char*>(&byteRead), 1,
+                      &returnCode, &sslErrorCode, timeout);
 
     int result;
     switch (ret) {
@@ -3068,6 +3108,43 @@ static jstring NativeCrypto_SSL_SESSION_cipher(JNIEnv* env, jclass, jint ssl_ses
 }
 
 /**
+ * Gets and returns in a string the compression method negotiated for the SSL session.
+ */
+static jstring NativeCrypto_SSL_SESSION_compress_meth(JNIEnv* env, jclass,
+                                                      jint ssl_ctx_address,
+                                                      jint ssl_session_address) {
+    SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
+    SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, true);
+    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_compress_meth ssl_ctx=%p",
+              ssl_session, ssl_ctx);
+    if (ssl_ctx == NULL || ssl_session == NULL) {
+        return NULL;
+    }
+
+    int compress_meth = ssl_session->compress_meth;
+    if (compress_meth == 0) {
+        const char* name = "NULL";
+        JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_compress_meth => %s", ssl_session, name);
+        return env->NewStringUTF(name);
+    }
+
+    int num_comp_methods = sk_SSL_COMP_num(ssl_ctx->comp_methods);
+    for (int i = 0; i < num_comp_methods; i++) {
+        SSL_COMP* comp = sk_SSL_COMP_value(ssl_ctx->comp_methods, i);
+        if (comp->id != compress_meth) {
+            continue;
+        }
+        const char* name = ((comp->method && comp->method->type == NID_zlib_compression)
+                            ? SN_zlib_compression
+                            : (comp->name ? comp->name : "UNKNOWN"));
+        JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_compress_meth => %s", ssl_session, name);
+        return env->NewStringUTF(name);
+    }
+    throwSSLExceptionStr(env, "Unknown compression method");
+    return NULL;
+}
+
+/**
  * Frees the SSL session.
  */
 static void NativeCrypto_SSL_SESSION_free(JNIEnv* env, jclass, jint ssl_session_address) {
@@ -3173,6 +3250,8 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     { "SSL_set_verify",       "(II)V",         (void*)NativeCrypto_SSL_set_verify},
     { "SSL_set_session",      "(II)V",         (void*)NativeCrypto_SSL_set_session },
     { "SSL_set_session_creation_enabled", "(IZ)V", (void*)NativeCrypto_SSL_set_session_creation_enabled },
+    { "SSL_set_tlsext_host_name", "(ILjava/lang/String;)V", (void*)NativeCrypto_SSL_set_tlsext_host_name },
+    { "SSL_get_servername",   "(I)Ljava/lang/String;", (void*)NativeCrypto_SSL_get_servername },
     { "SSL_do_handshake",     "(ILjava/net/Socket;Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$SSLHandshakeCallbacks;IZ)I",(void*)NativeCrypto_SSL_do_handshake},
     { "SSL_renegotiate",      "(I)V",          (void*)NativeCrypto_SSL_renegotiate},
     { "SSL_get_certificate",  "(I)[[B",        (void*)NativeCrypto_SSL_get_certificate},
@@ -3188,6 +3267,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     { "SSL_SESSION_get_time", "(I)J",          (void*)NativeCrypto_SSL_SESSION_get_time },
     { "SSL_SESSION_get_version", "(I)Ljava/lang/String;", (void*)NativeCrypto_SSL_SESSION_get_version },
     { "SSL_SESSION_cipher",   "(I)Ljava/lang/String;", (void*)NativeCrypto_SSL_SESSION_cipher },
+    { "SSL_SESSION_compress_meth", "(II)Ljava/lang/String;", (void*)NativeCrypto_SSL_SESSION_compress_meth },
     { "SSL_SESSION_free",     "(I)V",          (void*)NativeCrypto_SSL_SESSION_free },
     { "i2d_SSL_SESSION",      "(I)[B",         (void*)NativeCrypto_i2d_SSL_SESSION },
     { "d2i_SSL_SESSION",      "([B)I",         (void*)NativeCrypto_d2i_SSL_SESSION },

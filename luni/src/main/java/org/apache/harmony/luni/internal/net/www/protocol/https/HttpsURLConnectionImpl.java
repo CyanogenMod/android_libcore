@@ -350,6 +350,26 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 return;
             }
 
+            // first try an SSL connection with compression and
+            // various TLS extensions enabled, if it fails (and its
+            // not unheard of that it will) fallback to a more
+            // barebones connections
+            try {
+                connect(true);
+            } catch (IOException e) {
+                releaseSocket(false);
+                connect(false);
+            }
+        }
+
+        /**
+         * Attempt to make an https connection.
+         *
+         * @param tlsTolerant If true, assume server can handle common
+         * TLS extensions and SSL deflate compression. If false, use
+         * an SSL3 only fallback mode without compression.
+         */
+        private void connect(boolean tlsTolerant) throws IOException {
             super.connect();
 
             // make SSL Tunnel
@@ -366,7 +386,9 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
                 }
             }
 
-            sslSocket = connection.getSecureSocket(getSSLSocketFactory(), getHostnameVerifier());
+            sslSocket = connection.getSecureSocket(getSSLSocketFactory(),
+                                                   getHostnameVerifier(),
+                                                   tlsTolerant);
             setUpTransportIO(connection);
         }
 

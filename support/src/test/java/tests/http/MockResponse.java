@@ -35,6 +35,7 @@ public class MockResponse {
     private String status = "HTTP/1.1 200 OK";
     private List<String> headers = new ArrayList<String>();
     private byte[] body = EMPTY_BODY;
+    private boolean disconnectAtStart;
     private boolean disconnectAtEnd;
 
     public MockResponse() {
@@ -122,6 +123,28 @@ public class MockResponse {
         return setChunkedBody(body.getBytes(ASCII), maxChunkSize);
     }
 
+    /**
+     * Request immediate close of connection without even reading the
+     * request.
+     * <p>
+     * Use to simulate the real life case of losing connection
+     * because of bugger SSL server close connection when it seems
+     * something like a compression method or TLS extension it doesn't
+     * understand, instead of simply ignoring it like it should.
+     */
+    public MockResponse setDisconnectAtStart(boolean disconnectAtStart) {
+        this.disconnectAtStart = disconnectAtStart;
+        return this;
+    }
+
+    public boolean getDisconnectAtStart() {
+        return disconnectAtStart;
+    }
+
+    /**
+     * Request close of connection after the response. This is the
+     * default HTTP/1.0 behavior.
+     */
     public MockResponse setDisconnectAtEnd(boolean disconnectAtEnd) {
         this.disconnectAtEnd = disconnectAtEnd;
         return this;

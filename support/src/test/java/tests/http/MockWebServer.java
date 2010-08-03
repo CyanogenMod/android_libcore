@@ -196,7 +196,7 @@ public final class MockWebServer {
                 }
             }
 
-            public void acceptConnections() throws IOException {
+            public void acceptConnections() throws Exception {
                 int count = 0;
                 while (true) {
                     if (count > 0 && responseQueue.isEmpty()) {
@@ -204,6 +204,11 @@ public final class MockWebServer {
                     }
 
                     Socket socket = serverSocket.accept();
+                    if (responseQueue.peek().getDisconnectAtStart()) {
+                        responseQueue.take();
+                        socket.close();
+                        continue;
+                    }
                     openClientSockets.add(socket);
                     serveConnection(socket);
                     count++;

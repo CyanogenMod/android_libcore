@@ -33,6 +33,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import libcore.base.Objects;
+import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
 
 /**
  * Holds the sockets and streams of an HTTP or HTTPS connection, which may be
@@ -131,12 +132,34 @@ public final class HttpConnection {
         return address;
     }
 
+    /**
+     * Return an {@code SSLSocket} that is connected and passed hostname verification.
+     *
+     * @param sslSocketFactory Source of new {@code SSLSocket} instances.
+     * @param hostnameVerifier Used to verify the hostname we
+     * connected to is an acceptable match for the peer certificate
+     * chain of the SSLSession.
+     * @param tlsTolerant If true, assume server can handle common
+     * TLS extensions and SSL deflate compression. If false, use
+     * an SSL3 only fallback mode without compression.
+     */
     public SSLSocket getSecureSocket(SSLSocketFactory sslSocketFactory,
-            HostnameVerifier hostnameVerifier) throws IOException {
+            HostnameVerifier hostnameVerifier,
+            boolean tlsTolerant) throws IOException {
         if (sslSocket == null) {
             // create the wrapper over connected socket
             SSLSocket unverifiedSocket = (SSLSocket) sslSocketFactory.createSocket(
                     socket, address.hostName, address.hostPort, true /* autoClose */);
+            // tlsTolerant mimics Chrome's behavior
+            if (tlsTolerant && unverifiedSocket instanceof OpenSSLSocketImpl) {
+                OpenSSLSocketImpl openSslSocket = (OpenSSLSocketImpl) unverifiedSocket;
+                openSslSocket.setEnabledCompressionMethods(new String[] { "ZLIB"});
+                openSslSocket.setUseSessionTickets(true);
+                openSslSocket.setHostname(address.hostName);
+                // use SSLSocketFactory default enabled protocols
+            } else {
+                unverifiedSocket.setEnabledProtocols(new String [] { "SSLv3" });
+            }
             if (!hostnameVerifier.verify(address.hostName, unverifiedSocket.getSession())) {
                 throw new IOException("Hostname '" + address.hostName + "' was not verified");
             }
