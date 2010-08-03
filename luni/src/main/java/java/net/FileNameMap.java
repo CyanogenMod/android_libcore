@@ -28,13 +28,8 @@ package java.net;
  * @see URLStreamHandler
  */
 public interface FileNameMap {
-
     /**
-     * Determines the MIME type for a file {@code fileName} of a URL.
-     *
-     * @param fileName
-     *            the name of the file to consider.
-     * @return the appropriate MIME type of the given file.
+     * Returns the MIME type (such as "text/plain") for the given filename, or null.
      */
-    public String getContentTypeFor(String fileName);
+    public String getContentTypeFor(String filename);
 }

@@ -29,7 +29,6 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.apache.harmony.luni.internal.net.www.MimeTable;
 import org.apache.harmony.luni.util.Util;
 
 /**
@@ -119,7 +118,7 @@ public class FileURLConnection extends URLConnection {
                 connect();
             }
         } catch (IOException e) {
-            return MimeTable.UNKNOWN;
+            return "content/unknown";
         }
         if (isDir) {
             return "text/plain";
@@ -138,7 +137,7 @@ public class FileURLConnection extends URLConnection {
             return result;
         }
 
-        return MimeTable.UNKNOWN;
+        return "content/unknown";
     }
 
     /**
