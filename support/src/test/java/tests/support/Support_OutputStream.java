@@ -45,7 +45,7 @@ public class Support_OutputStream extends OutputStream {
         }
         super.close();
     }
-    
+
     @Override
     public void flush() throws IOException {
         if (throwsException) {
@@ -70,7 +70,7 @@ public class Support_OutputStream extends OutputStream {
             throw new IOException("Exception thrown for testing purposes.");
         }
         if (offset < 0 || count < 0 || (offset + count) > buffer.length) {
-            throw new IndexOutOfBoundsException(); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         for (int i = offset; i < offset + count; i++) {
             write(buffer[i]);
@@ -99,7 +99,7 @@ public class Support_OutputStream extends OutputStream {
     public String toString() {
         return new String(buffer, 0, position);
     }
-    
+
     public int size() {
         return position;
     }

@@ -16,6 +16,7 @@
 
 package tests.api.java.net;
 
+import java.net.OldURLClassLoaderTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -24,13 +25,8 @@ import junit.framework.TestSuite;
  */
 
 public class AllTests {
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AllTests.suite());
-    }
-
     public static Test suite() {
-        TestSuite suite = tests.TestSuiteFactory.createTestSuite("All tests for package tests.api.java.net;");
+        TestSuite suite = new TestSuite("All tests for package tests.api.java.net;");
         // $JUnit-BEGIN$
 
         suite.addTestSuite(AuthenticatorRequestorTypeTest.class);
@@ -43,10 +39,9 @@ public class AllTests {
         suite.addTestSuite(DatagramPacketTest.class);
         suite.addTestSuite(DatagramSocketImplFactoryTest.class);
         suite.addTestSuite(DatagramSocketImplTest.class);
-        suite.addTestSuite(DatagramSocketTest.class);
-        suite.addTestSuite(ExcludedProxyTest.class);
         suite.addTestSuite(FileNameMapTest.class);
         suite.addTestSuite(HttpRetryExceptionTest.class);
+        suite.addTestSuite(IDNTest.class);
         suite.addTestSuite(JarURLConnectionTest.class);
         suite.addTestSuite(MalformedURLExceptionTest.class);
         suite.addTestSuite(MulticastSocketTest.class);
@@ -59,7 +54,6 @@ public class AllTests {
         suite.addTestSuite(ProxySelectorTest.class);
         suite.addTestSuite(ProxyTest.class);
         suite.addTestSuite(ProxyTypeTest.class);
-        suite.addTestSuite(ResponseCacheTest.class);
         suite.addTestSuite(SecureCacheResponseTest.class);
         suite.addTestSuite(ServerSocketTest.class);
         suite.addTestSuite(SocketExceptionTest.class);
@@ -68,15 +62,12 @@ public class AllTests {
         suite.addTestSuite(SocketPermissionTest.class);
         suite.addTestSuite(SocketTest.class);
         suite.addTestSuite(SocketTimeoutExceptionTest.class);
-        suite.addTestSuite(UnixSocketTest.class);
         suite.addTestSuite(URISyntaxExceptionTest.class);
         suite.addTestSuite(URITest.class);
-        suite.addTestSuite(URLClassLoaderTest.class);
         suite.addTestSuite(URLDecoderTest.class);
         suite.addTestSuite(URLEncoderTest.class);
         suite.addTestSuite(UnknownHostExceptionTest.class);
         suite.addTestSuite(UnknownServiceExceptionTest.class);
-        suite.addTestSuite(URLStreamHandlerFactoryTest.class);
         suite.addTestSuite(URLStreamHandlerTest.class);
 
         // $JUnit-END$

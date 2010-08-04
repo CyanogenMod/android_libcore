@@ -23,7 +23,7 @@ import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(StackTraceElement.class) 
+@TestTargetClass(StackTraceElement.class)
 public class StackTraceElementTest extends TestCase {
     private StackTraceElementOriginal original;
 

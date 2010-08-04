@@ -25,14 +25,14 @@ import java.security.SecureRandomSpi;
 
 /**
  * Test implementation of SecureRandom
- * 
+ *
  */
 public class RandomImpl extends SecureRandomSpi {
 
     public static boolean runEngineGenerateSeed = false;
     public static boolean runEngineNextBytes = false;
     public static boolean runEngineSetSeed = false;
-    
+
     protected void engineSetSeed(byte[] seed) {
         runEngineSetSeed = true;
     }

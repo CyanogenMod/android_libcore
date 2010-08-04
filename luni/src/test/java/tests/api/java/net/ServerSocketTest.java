@@ -17,7 +17,7 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestLevel;
 
@@ -47,7 +47,7 @@ import tests.support.Support_Configuration;
 import tests.support.Support_PortManager;
 import tests.util.TestEnvironment;
 
-@TestTargetClass(value = ServerSocket.class) 
+@TestTargetClass(value = ServerSocket.class)
 public class ServerSocketTest extends SocketTestCase {
 
     boolean interrupted;
@@ -90,12 +90,12 @@ public class ServerSocketTest extends SocketTestCase {
             }
         }
     }
-    
+
     SecurityManager sm = new SecurityManager() {
 
         public void checkPermission(Permission perm) {
         }
-        
+
         public void checkListen(int port) {
             throw new SecurityException();
         }
@@ -150,7 +150,7 @@ public class ServerSocketTest extends SocketTestCase {
         } finally {
             s.close();
         }
-        
+
         s = new ServerSocket(0);
         try {
             startClient(s.getLocalPort());
@@ -216,12 +216,12 @@ public class ServerSocketTest extends SocketTestCase {
             s.setSoTimeout(2000);
             startClient(freePortNumber);
             sconn = s.accept();
-            
+
         } catch (InterruptedIOException e) {
             fail("InterruptedIOException was thrown.");
         } finally {
             try {
-                sconn.close();            
+                sconn.close();
                 s.close();
             } catch(IOException ioe) {}
         }
@@ -238,7 +238,7 @@ public class ServerSocketTest extends SocketTestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         int portNumber = Support_PortManager.getNextPort();
         new ServerSocket(portNumber, 0);
         try {
@@ -270,27 +270,27 @@ public class ServerSocketTest extends SocketTestCase {
         } finally {
             s.close();
         }
-        
+
         int freePortNumber = Support_PortManager.getNextPort();
-        ServerSocket ss = new ServerSocket(freePortNumber, 10, 
+        ServerSocket ss = new ServerSocket(freePortNumber, 10,
                 InetAddress.getLocalHost());
-        
+
         try {
-            new ServerSocket(freePortNumber, 10, 
+            new ServerSocket(freePortNumber, 10,
                     InetAddress.getLocalHost());
             fail("IOException was not thrown.");
         } catch(IOException ioe) {
             //expected
         }
-        
+
         try {
-            new ServerSocket(65536, 10, 
+            new ServerSocket(65536, 10,
                     InetAddress.getLocalHost());
             fail("IllegalArgumentException was not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -303,7 +303,7 @@ public class ServerSocketTest extends SocketTestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         int portNumber = Support_PortManager.getNextPort();
         new ServerSocket(portNumber, 0);
         try {
@@ -392,22 +392,22 @@ public class ServerSocketTest extends SocketTestCase {
         } catch (IOException e) {
             fail("Unexpected IOException : " + e.getMessage());
         }
-        
+
         int portNumber = Support_PortManager.getNextPort();
         ServerSocket serSocket = new ServerSocket(portNumber);
         startClient(portNumber);
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkAccept(String host,
                     int port) {
-               throw new SecurityException();    
+               throw new SecurityException();
             }
         };
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -424,7 +424,7 @@ public class ServerSocketTest extends SocketTestCase {
 
         ServerSocket newSocket = new ServerSocket(portNumber);
         newSocket.setSoTimeout(500);
-        
+
         try {
             newSocket.accept();
             fail("SocketTimeoutException was not thrown.");
@@ -433,10 +433,10 @@ public class ServerSocketTest extends SocketTestCase {
         } finally {
             newSocket.close();
         }
-        
+
         ServerSocketChannel ssc = ServerSocketChannel.open();
         ServerSocket ss = ssc.socket();
-                
+
         try {
             ss.accept();
             fail("IllegalBlockingModeException was not thrown.");
@@ -546,7 +546,7 @@ public class ServerSocketTest extends SocketTestCase {
             }
         } catch(Exception e) {
             fail("Unexpected exception.");
-        }             
+        }
     }
 
     /**
@@ -580,7 +580,7 @@ public class ServerSocketTest extends SocketTestCase {
         startClient(s.getLocalPort());
         s.setSoTimeout(10000);
         sconn = s.accept();
-        
+
         ServerSocket newSocket = new ServerSocket();
         newSocket.close();
         try {
@@ -609,7 +609,7 @@ public class ServerSocketTest extends SocketTestCase {
             try {
                 s.close();
             } catch(Exception e) {
-                
+
             }
         }
     }
@@ -701,10 +701,10 @@ public class ServerSocketTest extends SocketTestCase {
         } catch (IllegalArgumentException ex) {
         }
         theSocket.close();
-        
-        
+
+
         ServerSocket serSocket = new ServerSocket();
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -836,9 +836,9 @@ public class ServerSocketTest extends SocketTestCase {
 
         theSocket.close();
         servSock.close();
-        
+
         ServerSocket serSocket = new ServerSocket();
-        
+
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
@@ -903,7 +903,7 @@ public class ServerSocketTest extends SocketTestCase {
     /**
      * @tests java.net.ServerSocket#isBound()
      */
-    @TestTargetNew(  
+    @TestTargetNew(
       level = TestLevel.COMPLETE,
       notes = "",
       method = "isBound",
@@ -1112,7 +1112,7 @@ public class ServerSocketTest extends SocketTestCase {
         } catch (Exception e) {
             handleException(e, SO_REUSEADDR);
         }
-        
+
         try {
             ServerSocket newSocket = new ServerSocket();
             newSocket.close();
@@ -1124,7 +1124,7 @@ public class ServerSocketTest extends SocketTestCase {
             }
         } catch(Exception e) {
             fail("Unexpected exception.");
-        }        
+        }
     }
 
     /**
@@ -1194,7 +1194,7 @@ public class ServerSocketTest extends SocketTestCase {
                     .getReceiveBufferSize());
             assertFalse("get Buffer size returns  a negative value:",
                     0 > theSocket.getReceiveBufferSize());
-           
+
             ensureExceptionThrownIfOptionIsUnsupportedOnOS(SO_RCVBUF);
         } catch (Exception e) {
             handleException(e, SO_RCVBUF);
@@ -1239,15 +1239,15 @@ public class ServerSocketTest extends SocketTestCase {
         performancePreferenceTest(1, 0, 0);
         performancePreferenceTest(1, 1, 1);
         performancePreferenceTest(0, 1, 2);
-        performancePreferenceTest(Integer.MAX_VALUE, Integer.MAX_VALUE, 
+        performancePreferenceTest(Integer.MAX_VALUE, Integer.MAX_VALUE,
                 Integer.MAX_VALUE);
     }
-    
-    void performancePreferenceTest(int connectionTime, int latency, 
+
+    void performancePreferenceTest(int connectionTime, int latency,
             int bandwidth) throws Exception {
         ServerSocket theSocket = new ServerSocket();
         theSocket.setPerformancePreferences(connectionTime, latency, bandwidth);
-        
+
         InetSocketAddress theAddress = new InetSocketAddress(InetAddress
                 .getLocalHost(), 0);
         theSocket.bind(theAddress);
@@ -1275,7 +1275,7 @@ public class ServerSocketTest extends SocketTestCase {
         assertEquals(clAddress, clientSocket.getRemoteSocketAddress());
         theSocket.close();
         servSock.close();
-        clientSocket.close(); 
+        clientSocket.close();
     }
 
     /**
@@ -1334,12 +1334,12 @@ public class ServerSocketTest extends SocketTestCase {
             // expected
         }
     }
-    
+
     class MockSocketImpl extends SocketImpl {
         public MockSocketImpl() {
-            isCreateCalled = true; 
+            isCreateCalled = true;
         }
-        
+
         protected void create(boolean arg0) throws IOException {
             //empty
         }
@@ -1412,7 +1412,7 @@ public class ServerSocketTest extends SocketTestCase {
             super.implAccept(s);
         }
     }
-    
+
     @TestTargetNew(
       level = TestLevel.PARTIAL_COMPLETE,
       notes = "",
@@ -1423,17 +1423,17 @@ public class ServerSocketTest extends SocketTestCase {
         ServerSocket ss1 = new ServerSocket(4242);
         assertEquals(ss1.getLocalPort(), 4242);
         ss1.close();
-        
+
         ServerSocket ss2 = new ServerSocket();
-        ss2.bind(new InetSocketAddress("127.0.0.1", 4343));        
+        ss2.bind(new InetSocketAddress("127.0.0.1", 4343));
         assertEquals(ss2.getLocalPort(), 4343);
         ss2.close();
-        
+
         ServerSocket ss3 = new ServerSocket(0);
         assertTrue(ss3.getLocalPort() != 0);
         ss3.close();
     }
-    
+
     /**
      * @tests java.net.ServerSocket#setSocketFactory(java.net.SocketImplFactory)
      */
@@ -1444,17 +1444,17 @@ public class ServerSocketTest extends SocketTestCase {
       args = {java.net.SocketImplFactory.class}
     )
     public void test_setSocketFactoryLjava_net_SocketImplFactory() {
-     
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkSetFactory() {
                 throw new SecurityException();
             }
         };
-        
+
         MockSocketFactory sf = new MockSocketFactory();
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
@@ -1471,15 +1471,15 @@ public class ServerSocketTest extends SocketTestCase {
 /*
 *        try {
 *            ServerSocket.setSocketFactory(sf);
-*            ServerSocket ss1 = new ServerSocket(); 
+*            ServerSocket ss1 = new ServerSocket();
 *            assertTrue(isCreateCalled);
 *            isCreateCalled = false;
-*            ServerSocket ss2 = new ServerSocket(0); 
-*            assertTrue(isCreateCalled);            
+*            ServerSocket ss2 = new ServerSocket(0);
+*            assertTrue(isCreateCalled);
 *        } catch(IOException ioe) {
 *            fail("IOException was thrown: " + ioe.toString());
 *        }
-        
+
 *        try {
 *            ServerSocket.setSocketFactory(null);
 *            fail("IOException was not thrown.");
@@ -1488,7 +1488,7 @@ public class ServerSocketTest extends SocketTestCase {
 *        }
 */
     }
-    
+
     class MockSocketFactory implements SocketImplFactory {
         public SocketImpl createSocketImpl() {
             return new MockSocketImpl();

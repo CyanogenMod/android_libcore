@@ -27,23 +27,23 @@ import junit.textui.TestRunner;
 
 /**
  * A wrapper around a single test that allows to execute the test either in the
- * same thread, in a separate thread, or even in a different process. 
+ * same thread, in a separate thread, or even in a different process.
  */
 public class CoreTestRunnable implements Runnable {
 
     private static boolean IS_DALVIK = "Dalvik".equals(
             System.getProperty("java.vm.name"));
-    
+
     /**
      * The test case we are supposed to run.
      */
     private TestCase fTest;
-    
+
     /**
      * The TestResult we need to update after the run.
      */
     private TestResult fResult;
-    
+
     /**
      * The Protectable that JUnit has created for us.
      */
@@ -54,13 +54,13 @@ public class CoreTestRunnable implements Runnable {
      * treating known failures.
      */
     private boolean fInvert;
-    
+
     /**
      * Reflects whether we need to isolate the test, which means we run it in
-     * a separate process. 
+     * a separate process.
      */
     private boolean fIsolate;
-    
+
     /**
      * If we are isolating the test case, this holds the process that is running
      * it.
@@ -72,7 +72,7 @@ public class CoreTestRunnable implements Runnable {
      */
     public CoreTestRunnable(TestCase test, TestResult result,
             Protectable protectable, boolean invert, boolean isolate) {
-        
+
         this.fTest = test;
         this.fProtectable = protectable;
         this.fResult = result;
@@ -91,7 +91,7 @@ public class CoreTestRunnable implements Runnable {
             } else {
                 runInternally();
             }
-            
+
             if (fInvert) {
                 fInvert = false;
                 throw new AssertionFailedError(
@@ -126,16 +126,16 @@ public class CoreTestRunnable implements Runnable {
      * thread.
      */
     private void runInternally() throws Throwable {
-        fProtectable.protect();        
+        fProtectable.protect();
     }
-    
+
     /**
      * Runs the test case in a different process. This is what we do for
      * isolating test cases that have side effects or do suffer from them.
      */
     private void runExternally() throws Throwable {
         Throwable throwable = null;
-        
+
         File file = File.createTempFile("isolation", ".tmp");
 
         String program = (IS_DALVIK ? "dalvikvm" : "java") +
@@ -150,7 +150,7 @@ public class CoreTestRunnable implements Runnable {
         fProcess = Runtime.getRuntime().exec(program);
 
         int result = fProcess.waitFor();
-        
+
         if (result != TestRunner.SUCCESS_EXIT) {
             try {
                 FileInputStream fis = new FileInputStream(file);
@@ -161,12 +161,12 @@ public class CoreTestRunnable implements Runnable {
                 throwable = new RuntimeException("Error isolating test: " + program, ex);
             }
         }
-        
+
         file.delete();
-        
+
         if (throwable != null) {
             throw throwable;
         }
     }
-    
+
 }

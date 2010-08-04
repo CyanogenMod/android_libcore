@@ -23,8 +23,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Places information on a communications pipe. When two threads want to pass
  * data back and forth, one creates a piped output stream and the other one
@@ -37,7 +35,7 @@ public class PipedOutputStream extends OutputStream {
     /**
      * The destination PipedInputStream
      */
-    private PipedInputStream dest;
+    private PipedInputStream target;
 
     /**
      * Constructs a new unconnected {@code PipedOutputStream}. The resulting
@@ -50,17 +48,17 @@ public class PipedOutputStream extends OutputStream {
 
     /**
      * Constructs a new {@code PipedOutputStream} connected to the
-     * {@link PipedInputStream} {@code dest}. Any data written to this stream
+     * {@link PipedInputStream} {@code target}. Any data written to this stream
      * can be read from the target stream.
      *
-     * @param dest
+     * @param target
      *            the piped input stream to connect to.
      * @throws IOException
-     *             if this stream or {@code dest} are already connected.
+     *             if this stream or {@code target} are already connected.
      */
-    public PipedOutputStream(PipedInputStream dest) throws IOException {
+    public PipedOutputStream(PipedInputStream target) throws IOException {
         super();
-        connect(dest);
+        connect(target);
     }
 
     /**
@@ -73,10 +71,10 @@ public class PipedOutputStream extends OutputStream {
     @Override
     public void close() throws IOException {
         // Is the pipe connected?
-        PipedInputStream stream = dest;
+        PipedInputStream stream = target;
         if (stream != null) {
             stream.done();
-            dest = null;
+            target = null;
         }
     }
 
@@ -85,7 +83,7 @@ public class PipedOutputStream extends OutputStream {
      * this output stream becomes readable in the input stream.
      *
      * @param stream
-     *            the destination input stream.
+     *            the piped input stream to connect to.
      * @throws IOException
      *             if either stream is already connected.
      */
@@ -94,14 +92,14 @@ public class PipedOutputStream extends OutputStream {
             throw new NullPointerException();
         }
         synchronized (stream) {
-            if (this.dest != null) {
-                throw new IOException(Msg.getString("K0079")); //$NON-NLS-1$
+            if (this.target != null) {
+                throw new IOException("Already connected");
             }
             if (stream.isConnected) {
-                throw new IOException(Msg.getString("K007a")); //$NON-NLS-1$
+                throw new IOException("Pipe already connected");
             }
             stream.establishConnection();
-            this.dest = stream;
+            this.target = stream;
         }
     }
 
@@ -114,7 +112,7 @@ public class PipedOutputStream extends OutputStream {
      */
     @Override
     public void flush() throws IOException {
-        PipedInputStream stream = dest;
+        PipedInputStream stream = target;
         if (stream == null) {
             return;
         }
@@ -179,10 +177,9 @@ public class PipedOutputStream extends OutputStream {
      */
     @Override
     public void write(int oneByte) throws IOException {
-        PipedInputStream stream = dest;
+        PipedInputStream stream = target;
         if (stream == null) {
-            // K007b=Pipe Not Connected
-            throw new IOException(Msg.getString("K007b")); //$NON-NLS-1$
+            throw new IOException("Pipe not connected");
         }
         stream.receive(oneByte);
     }

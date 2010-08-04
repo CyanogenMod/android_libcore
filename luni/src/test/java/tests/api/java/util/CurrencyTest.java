@@ -20,7 +20,7 @@ package tests.api.java.util;
 import tests.support.Support_Locale;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.AndroidOnly;
 
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import java.util.Currency;
 import java.util.Iterator;
 import java.util.Locale;
 
-@TestTargetClass(Currency.class) 
+@TestTargetClass(Currency.class)
 public class CurrencyTest extends junit.framework.TestCase {
 
     private static Locale defaultLocale = Locale.getDefault();
@@ -152,7 +152,7 @@ public class CurrencyTest extends junit.framework.TestCase {
             + "to find a set of combinations where no differences between"
             + "the RI and Android exist.")
     public void test_getSymbol() {
-        
+
         Currency currK = Currency.getInstance("KRW");
         Currency currI = Currency.getInstance("IEP");
         Currency currUS = Currency.getInstance("USD");
@@ -204,7 +204,7 @@ public class CurrencyTest extends junit.framework.TestCase {
                 Locale.FRANCE, Locale.FRENCH,
                 Locale.US,     Locale.UK,
                 Locale.CANADA, Locale.CANADA_FRENCH,
-                Locale.ENGLISH, 
+                Locale.ENGLISH,
                 new Locale("ja", "JP"), new Locale("", "JP"),
 
                 new Locale("fr", "FR"), new Locale("", "FR"),
@@ -213,7 +213,7 @@ public class CurrencyTest extends junit.framework.TestCase {
                 new Locale("es", "US"), new Locale("ar", "US"),
                 new Locale("ja", "US"),
 
-                new Locale("en", "CA"), new Locale("fr", "CA"), 
+                new Locale("en", "CA"), new Locale("fr", "CA"),
                 new Locale("", "CA"),   new Locale("ar", "CA"),
 
                 new Locale("ja", "JP"), new Locale("", "JP"),
@@ -230,10 +230,10 @@ public class CurrencyTest extends junit.framework.TestCase {
             // locale dependent test, bug 1943269
             return;
         }
-                
+
         String[] euro    = new String[] {"EUR", "\u20ac"};
         // \u00a5 and \uffe5 are actually the same symbol, just different code points.
-        // But the RI returns the \uffe5 and Android returns those with \u00a5 
+        // But the RI returns the \uffe5 and Android returns those with \u00a5
         String[] yen     = new String[] {"JPY", "\u00a5", "\u00a5JP", "JP\u00a5", "\uffe5", "\uffe5JP", "JP\uffe5"};
         String[] dollar  = new String[] {"USD", "$", "US$", "$US"};
         // BEGIN android-changed
@@ -248,10 +248,10 @@ public class CurrencyTest extends junit.framework.TestCase {
 
         int i, j, k;
         boolean flag;
-        
+
         for(k = 0; k < loc1.length; k++) {
             Locale.setDefault(loc1[k]);
-            
+
             for (i = 0; i < loc1.length; i++) {
                 flag = false;
                 for  (j = 0; j < euro.length; j++) {
@@ -267,7 +267,7 @@ public class CurrencyTest extends junit.framework.TestCase {
                         + ". Expected was one of these: "
                         + Arrays.toString(euro), flag);
             }
-            
+
             for (i = 0; i < loc1.length; i++) {
                 flag = false;
                 for  (j = 0; j < yen.length; j++) {
@@ -285,7 +285,7 @@ public class CurrencyTest extends junit.framework.TestCase {
                         + ". Expected was one of these: "
                         + Arrays.toString(yen), flag);
             }
-            
+
             for (i = 0; i < loc1.length; i++) {
                 flag = false;
                 for  (j = 0; j < dollar.length; j++) {
@@ -301,7 +301,7 @@ public class CurrencyTest extends junit.framework.TestCase {
                         + ". Expected was one of these: "
                         + Arrays.toString(dollar), flag);
             }
-            
+
             for (i = 0; i < loc1.length; i++) {
                 flag = false;
                 for  (j = 0; j < cDollar.length; j++) {
@@ -429,7 +429,7 @@ public class CurrencyTest extends junit.framework.TestCase {
                 Locale.UK, Locale.US);
         final Collection<String> locDat = Arrays.asList("CAD", "CAD", "CNY", "EUR", "EUR", "EUR",
                 "JPY", "KRW", "CNY", "CNY", "TWD", "TWD", "GBP", "USD");
-    
+
         Iterator<String> dat = locDat.iterator();
         for (Locale l : locVal) {
             String d = dat.next().trim();
@@ -447,7 +447,7 @@ public class CurrencyTest extends junit.framework.TestCase {
 
     /**
      * Helper method to display Currency info
-     * 
+     *
      * @param c
      */
     private void printCurrency(Currency c) {

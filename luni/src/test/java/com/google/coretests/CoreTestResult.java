@@ -28,35 +28,35 @@ import dalvik.annotation.SideEffect;
  * A special TestResult implementation that is able to filter out annotated
  * tests and handles our known failures properly (expects them to fail).
  * Handy when running the Core Libraries tests on Android, the bare-metal
- * Dalvik VM, or the RI.  
+ * Dalvik VM, or the RI.
  */
 public class CoreTestResult extends TestResult {
 
     /**
-     * The flags the user specified for this test run. 
+     * The flags the user specified for this test run.
      */
     protected int fFlags;
 
     /**
-     * The timeout the user specified for this test run. 
+     * The timeout the user specified for this test run.
      */
     protected int fTimeout;
-    
+
     /**
      * The total number of tests in the original suite.
      */
     protected int fTotalTestCount;
-    
+
     /**
      * The number of Android-only tests in the original suite.
      */
     protected int fAndroidOnlyCount;
-    
+
     /**
      * The number of broken tests in the original suite.
      */
     protected int fBrokenTestCount;
-    
+
     /**
      * The number of known failures in the original suite.
      */
@@ -66,7 +66,7 @@ public class CoreTestResult extends TestResult {
      * The number of side-effective tests in the original suite.
      */
     protected int fSideEffectCount;
-    
+
     /**
      * The number of normal (non-annotated) tests in the original suite.
      */
@@ -83,13 +83,13 @@ public class CoreTestResult extends TestResult {
      */
     public CoreTestResult(int flags, int timeout) {
         super();
-    
+
         fFlags = flags;
         fTimeout = timeout;
     }
 
     /**
-     * Checks whether the given TestCase method has the given annotation. 
+     * Checks whether the given TestCase method has the given annotation.
      */
     @SuppressWarnings("unchecked")
     boolean hasAnnotation(TestCase test, Class clazz) {
@@ -99,7 +99,7 @@ public class CoreTestResult extends TestResult {
         } catch (Exception e) {
             // Ignore
         }
-        
+
         return false;
     }
 
@@ -109,19 +109,19 @@ public class CoreTestResult extends TestResult {
         if ((fFlags & CoreTestSuite.DRY_RUN) == 0) {
             if (test instanceof TestCase) {
                 TestCase testCase = (TestCase)test;
-                
-                // Check whether we need to invert the test result (known failures) 
+
+                // Check whether we need to invert the test result (known failures)
                 boolean invert = hasAnnotation(testCase, KnownFailure.class) &&
                         (fFlags & CoreTestSuite.INVERT_KNOWN_FAILURES) != 0;
-    
+
                 // Check whether we need to isolate the test (side effects)
                 boolean isolate = hasAnnotation(testCase, SideEffect.class) &&
                         (fFlags & CoreTestSuite.ISOLATE_NONE) == 0 ||
                         (fFlags & CoreTestSuite.ISOLATE_ALL) != 0;
-                
+
                 CoreTestRunnable runnable = new CoreTestRunnable(
                         testCase, this, p, invert, isolate);
-                
+
                 if (fTimeout > 0) {
                     Thread thread = new Thread(runnable);
                     thread.start();
@@ -147,7 +147,7 @@ public class CoreTestResult extends TestResult {
                 } else {
                     runnable.run();
                 }
-            }        
+            }
         }
     }
 

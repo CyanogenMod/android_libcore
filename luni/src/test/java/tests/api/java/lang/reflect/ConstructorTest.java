@@ -35,7 +35,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @TestTargetClass(
-        value = Constructor.class, 
+        value = Constructor.class,
         untestedMethods = {
             @TestTargetNew(
                level = TestLevel.NOT_FEASIBLE,
@@ -46,7 +46,7 @@ import java.util.Set;
             )
         })
 public class ConstructorTest extends junit.framework.TestCase {
-    
+
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target( {ElementType.CONSTRUCTOR, ElementType.PARAMETER})
@@ -80,9 +80,9 @@ public class ConstructorTest extends junit.framework.TestCase {
         }
 
         public ConstructorTestHelper(
-                @ConstructorTestAnnotationRuntime0 
-                @ConstructorTestAnnotationRuntime1 
-                @ConstructorTestAnnotationClass0 
+                @ConstructorTestAnnotationRuntime0
+                @ConstructorTestAnnotationRuntime1
+                @ConstructorTestAnnotationClass0
                 @ConstructorTestAnnotationSource0 Object x) {
         }
 
@@ -99,18 +99,18 @@ public class ConstructorTest extends junit.framework.TestCase {
             return cval;
         }
     }
-    
+
     static class GenericConstructorTestHelper<T, S extends T, E extends Exception> {
         public GenericConstructorTestHelper(T t, S s) {}
         public GenericConstructorTestHelper() throws E{}
     }
-    
+
     static class NoPublicConstructorTestHelper {
         // This class has no public constructor.
     }
-    
+
 //    Used to test synthetic constructor.
-//    
+//
 //    static class Outer {
 //        private Outer(){}
 //        class Inner {
@@ -135,11 +135,11 @@ public class ConstructorTest extends junit.framework.TestCase {
                 paramAnnotations.length);
         assertEquals("Wrong number of annotations returned", 2,
                 paramAnnotations[0].length);
-        
+
         Set<Class<?>> ignoreOrder = new HashSet<Class<?>>();
         ignoreOrder.add(paramAnnotations[0][0].annotationType());
         ignoreOrder.add(paramAnnotations[0][1].annotationType());
-        
+
         assertTrue("Missing ConstructorTestAnnotationRuntime0", ignoreOrder
                 .contains(ConstructorTestAnnotationRuntime0.class));
         assertTrue("Missing ConstructorTestAnnotationRuntime1", ignoreOrder
@@ -165,7 +165,7 @@ public class ConstructorTest extends junit.framework.TestCase {
         Set<Class<?>> ignoreOrder = new HashSet<Class<?>>();
         ignoreOrder.add(annotations[0].annotationType());
         ignoreOrder.add(annotations[1].annotationType());
-        
+
         assertTrue("Missing ConstructorTestAnnotationRuntime0", ignoreOrder
                 .contains(ConstructorTestAnnotationRuntime0.class));
         assertTrue("Missing ConstructorTestAnnotationRuntime1", ignoreOrder
@@ -191,7 +191,7 @@ public class ConstructorTest extends junit.framework.TestCase {
         assertFalse("Non vararg constructor recognized as vararg constructor",
                 nonVarArgCtor.isVarArgs());
     }
-    
+
     /**
      * @tests java.lang.reflect.Constructor#hashCode()
      */
@@ -412,7 +412,7 @@ public class ConstructorTest extends junit.framework.TestCase {
         }
         assertTrue("Incorrect parameter returned", types[0].equals(parms[0]));
     }
-    
+
     /**
      * @tests java.lang.reflect.Constructor#getGenericParameterTypes()
      */
@@ -444,8 +444,8 @@ public class ConstructorTest extends junit.framework.TestCase {
             fail("Exception during getParameterTypes test:" + e.toString());
         }
         assertTrue("Incorrect parameter returned", types[0].equals(parms[0]));
-        
-        
+
+
         try {
             Constructor<GenericConstructorTestHelper> constructor = GenericConstructorTestHelper.class
                     .getConstructor(Object.class, Object.class);
@@ -453,16 +453,16 @@ public class ConstructorTest extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("Exception during getParameterTypes test:" + e.toString());
         }
-        
+
         assertEquals("Wrong number of parameter types returned", 2,
                 types.length);
-        
+
         assertEquals("Wrong number of parameter types returned", "T",
                 ((TypeVariable)types[0]).getName());
         assertEquals("Wrong number of parameter types returned", "S",
                 ((TypeVariable)types[1]).getName());
     }
-    
+
     /**
      * @tests java.lang.reflect.Constructor#getGenericParameterTypes()
      */
@@ -475,7 +475,7 @@ public class ConstructorTest extends junit.framework.TestCase {
     @SuppressWarnings("unchecked")
     public void test_getGenericExceptionTypes() {
         Type[] types = null;
-        
+
         try {
             Constructor<? extends ConstructorTestHelper> ctor = new ConstructorTestHelper()
                     .getClass().getConstructor(new Class[0]);
@@ -484,8 +484,8 @@ public class ConstructorTest extends junit.framework.TestCase {
             fail("Exception during getGenericExceptionTypes test:" + e.toString());
         }
         assertEquals("Wrong number of exception types returned", 1, types.length);
-       
-        
+
+
         try {
             Constructor<GenericConstructorTestHelper> constructor = GenericConstructorTestHelper.class
                     .getConstructor();
@@ -494,16 +494,16 @@ public class ConstructorTest extends junit.framework.TestCase {
             fail("Exception during getGenericExceptionTypes test:"
                     + e.toString());
         }
-        
+
         assertEquals("Wrong number of exception types returned", 1,
                 types.length);
-        
+
         assertEquals("Wrong exception name returned.", "E",
                 ((TypeVariable)types[0]).getName());
-       
+
     }
-    
-    
+
+
 
     /**
      * @tests java.lang.reflect.Constructor#newInstance(java.lang.Object[])
@@ -558,7 +558,7 @@ public class ConstructorTest extends junit.framework.TestCase {
                         .equals(
                                 "public tests.api.java.lang.reflect.ConstructorTest$ConstructorTestHelper(java.lang.Object)"));
     }
-    
+
     /**
      * @tests java.lang.reflect.Constructor#getConstructor((Class[]) null)
      */
@@ -574,7 +574,7 @@ public class ConstructorTest extends junit.framework.TestCase {
         assertEquals(c2.getConstructor(new Class[0]), c2.getConstructor((Class[]) null));
         assertEquals(c2.getDeclaredConstructor(new Class[0]),
                      c2.getDeclaredConstructor((Class[]) null));
-        
+
         // We can get a non-public constructor via getDeclaredConstructor...
         Class<NoPublicConstructorTestHelper> c1 = NoPublicConstructorTestHelper.class;
         c1.getDeclaredConstructor((Class[]) null);
@@ -586,7 +586,7 @@ public class ConstructorTest extends junit.framework.TestCase {
             // Expected.
         }
     }
-    
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.

@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 import java.io.ObjectInputValidation;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 @TestTargetClass(
         value = ObjectInputValidation.class,

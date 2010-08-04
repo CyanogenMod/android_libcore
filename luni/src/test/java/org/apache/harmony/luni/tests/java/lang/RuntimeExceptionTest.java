@@ -24,7 +24,7 @@ import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(RuntimeException.class) 
+@TestTargetClass(RuntimeException.class)
 public class RuntimeExceptionTest extends TestCase {
 
     /**
@@ -57,7 +57,7 @@ public class RuntimeExceptionTest extends TestCase {
         assertEquals("fixture", e.getMessage());
         assertNull(e.getCause());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -70,14 +70,14 @@ public class RuntimeExceptionTest extends TestCase {
         RuntimeException re = new RuntimeException(message, npe);
         assertEquals(message, re.getMessage());
         assertEquals(npe, re.getCause());
-        
+
         re = new RuntimeException(null, npe);
         assertNull(re.getMessage());
-        
+
         re = new RuntimeException(message, null);
-        assertNull(re.getCause());        
+        assertNull(re.getCause());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -86,9 +86,9 @@ public class RuntimeExceptionTest extends TestCase {
     )
     public void test_ConstructorLThrowable() {
         NullPointerException npe = new NullPointerException();
-        RuntimeException re = new RuntimeException(npe);        
+        RuntimeException re = new RuntimeException(npe);
         assertEquals(npe, re.getCause());
-        
+
         re = new RuntimeException((Throwable) null);
         assertNull(re.getCause());
     }

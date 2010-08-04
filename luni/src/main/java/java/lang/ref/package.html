@@ -1,12 +1,12 @@
 <html>
   <body>
     <p>
-      Provides the system's {@link ReferenceQueue} implementation as well as
+      Provides the system's {@link java.lang.ref.ReferenceQueue} implementation as well as
       different forms of reference objects which impose special behavior on the
-      garbage collector. The behavior depends on the type of {@link Reference}
+      garbage collector. The behavior depends on the type of {@link java.lang.ref.Reference}
       being used. Three different type of references exist, each being weaker
-      than the preceding one: {@link SoftReference}, {@link WeakReference}, and
-      {@link PhantomReference}. "Weakness" here means that less restrictions are
+      than the preceding one: {@link java.lang.ref.SoftReference}, {@link java.lang.ref.WeakReference}, and
+      {@link java.lang.ref.PhantomReference}. "Weakness" here means that less restrictions are
       being imposed on the garbage collector as to when it is allowed to
       actually garbage-collect the referenced object.
     </p>
@@ -31,7 +31,7 @@
             <ul>
               <li>
                 There exists at least one path from the root set to the object
-                that does not traverse any instance of a {@link Reference}
+                that does not traverse any instance of a {@link java.lang.ref.Reference}
                 subclass.
               </li>
             </ul>
@@ -49,8 +49,8 @@
               </li>
               <li>
                 There exists at least one path from the root set to the object
-                that does traverse a {@link SoftReference} instance, but no
-                {@link WeakReference} or {@link PhantomReference} instances.
+                that does traverse a {@link java.lang.ref.SoftReference} instance, but no
+                {@link java.lang.ref.WeakReference} or {@link java.lang.ref.PhantomReference} instances.
               </li>
             </ul>
           </td>
@@ -67,8 +67,8 @@
               </li>
               <li>
                 There exists at least one path from the root set to the object
-                that does traverse a {@link WeakReference} instance, but no
-                {@link PhantomReference} instances.
+                that does traverse a {@link java.lang.ref.WeakReference} instance, but no
+                {@link java.lang.ref.PhantomReference} instances.
               </li>
             </ul>
           </td>
@@ -84,7 +84,7 @@
                 The object is neither strongly, softly nor weakly reachable.
               </li>
               <li>
-                The object is referenced by a {@link PhantomReference} instance.
+                The object is referenced by a {@link java.lang.ref.PhantomReference} instance.
               </li>
               <li>
                 The object has already been finalized.
@@ -94,7 +94,5 @@
         </tr>
       </table>
     </p>
-    
-    @since Android 1.0
   </body>
 </html>

@@ -19,13 +19,13 @@ package tests.api.java.io;
 
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
 
-@TestTargetClass(EOFException.class) 
+@TestTargetClass(EOFException.class)
 public class EOFExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -35,7 +35,7 @@ public class EOFExceptionTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "EOFException",
         args = {}
-    )   
+    )
     public void test_Constructor() {
         try {
             new DataInputStream(new ByteArrayInputStream(new byte[1]))
@@ -56,7 +56,7 @@ public class EOFExceptionTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "EOFException",
         args = {java.lang.String.class}
-    )      
+    )
     public void test_ConstructorLjava_lang_String() {
         try {
             if (true) // Needed to avoid unreachable code compilation error.

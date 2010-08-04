@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,22 +16,10 @@
 
 package org.apache.harmony.luni.tests.java.lang;
 
-import dalvik.annotation.TestTargets;
-import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass;
-
 import junit.framework.TestCase;
 
-@TestTargetClass(Character.UnicodeBlock.class) 
 public class Character_UnicodeBlockTest extends TestCase {
 
-    @TestTargetNew(
-        level = TestLevel.COMPLETE,
-        notes = "",
-        method = "of",
-        args = {char.class}
-    )
     public void test_ofC() {
         assertEquals(Character.UnicodeBlock.BASIC_LATIN, Character.UnicodeBlock.of((char)0x0));
         assertEquals(Character.UnicodeBlock.BASIC_LATIN, Character.UnicodeBlock.of((char)0x7f));
@@ -270,12 +258,6 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.SPECIALS, Character.UnicodeBlock.of((char)0xfff0));
         assertEquals(Character.UnicodeBlock.SPECIALS, Character.UnicodeBlock.of((char)0xffff));
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't check exception.",
-        method = "of",
-        args = {int.class}
-    )
     public void test_ofI() {
         assertEquals(Character.UnicodeBlock.BASIC_LATIN, Character.UnicodeBlock.of(0x0));
         assertEquals(Character.UnicodeBlock.BASIC_LATIN, Character.UnicodeBlock.of(0x7f));
@@ -578,12 +560,7 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B, Character.UnicodeBlock.of(0x100000));
         assertEquals(Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B, Character.UnicodeBlock.of(0x10ffff));
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Checks IllegalArgumentException.",
-        method = "of",
-        args = {int.class}
-    )
+
     public void test_ofIExceptions() {
         try {
             Character.UnicodeBlock.of(Character.MAX_CODE_POINT + 1);
@@ -591,12 +568,7 @@ public class Character_UnicodeBlockTest extends TestCase {
         } catch(IllegalArgumentException e) {
         }
     }
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Doesn't check null.",
-        method = "forName",
-        args = {java.lang.String.class}
-    )
+
     @SuppressWarnings("deprecation")
     public void test_forNameLjava_lang_String() {
         assertEquals(Character.UnicodeBlock.SURROGATES_AREA, Character.UnicodeBlock.forName("SURROGATES_AREA"));
@@ -890,20 +862,14 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B, Character.UnicodeBlock.forName("Supplementary Private Use Area-B"));
         assertEquals(Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B, Character.UnicodeBlock.forName("SupplementaryPrivateUseArea-B"));
     }
-    
-    @TestTargetNew(
-        level = TestLevel.PARTIAL_COMPLETE,
-        notes = "Checks null as a parameter.",
-        method = "forName",
-        args = {java.lang.String.class}
-    )
+
     public void test_forNameLjava_lang_StringExceptions() {
         try {
             Character.UnicodeBlock.forName(null);
             fail("No NPE");
         } catch(NullPointerException e) {
         }
-        
+
         try {
             Character.UnicodeBlock.forName("INVALID_NAME");
             fail("No illegal argument exception");

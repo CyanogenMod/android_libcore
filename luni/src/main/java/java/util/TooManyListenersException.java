@@ -38,7 +38,7 @@ public class TooManyListenersException extends Exception {
     /**
      * Constructs a new {@code TooManyListenersException} with the stack trace
      * and message filled in.
-     * 
+     *
      * @param detailMessage
      *            the detail message for the exception.
      */

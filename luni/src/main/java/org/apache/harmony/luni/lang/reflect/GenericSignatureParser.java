@@ -27,23 +27,23 @@ import java.lang.reflect.TypeVariable;
  * Implements a parser for the generics signature attribute.
  * Uses a top-down, resursive descent parsing approach for the following grammar:
  * <pre>
- * ClassSignature ::= 
+ * ClassSignature ::=
  *     OptFormalTypeParams SuperclassSignature {SuperinterfaceSignature}.
  * SuperclassSignature ::= ClassTypeSignature.
  * SuperinterfaceSignature ::= ClassTypeSignature.
  *
- * OptFormalTypeParams ::= 
+ * OptFormalTypeParams ::=
  *     ["<" FormalTypeParameter {FormalTypeParameter} ">"].
  *
  * FormalTypeParameter ::= Ident ClassBound {InterfaceBound}.
  * ClassBound ::= ":" [FieldTypeSignature].
  * InterfaceBound ::= ":" FieldTypeSignature.
  *
- * FieldTypeSignature ::= 
+ * FieldTypeSignature ::=
  *     ClassTypeSignature | ArrayTypeSignature | TypeVariableSignature.
  * ArrayTypeSignature ::= "[" TypSignature.
  *
- * ClassTypeSignature ::= 
+ * ClassTypeSignature ::=
  *     "L" {Ident "/"} Ident OptTypeArguments {"." Ident OptTypeArguments} ";".
  *
  * OptTypeArguments ::= "<" TypeArgument {TypeArgument} ">".
@@ -56,7 +56,7 @@ import java.lang.reflect.TypeVariable;
  * TypSignature ::= FieldTypeSignature | BaseType.
  * BaseType ::= "B" | "C" | "D" | "F" | "I" | "J" | "S" | "Z".
  *
- * MethodTypeSignature ::= 
+ * MethodTypeSignature ::=
  *     OptFormalTypeParams "(" {TypeSignature} ")" ReturnType {ThrowsSignature}.
  * ThrowsSignature ::= ("^" ClassTypeSignature) | ("^" TypeVariableSignature).
  *
@@ -74,7 +74,7 @@ public class GenericSignatureParser {
     public ListOfTypes interfaceTypes;
     public Type superclassType;
     public ClassLoader loader;
-    
+
     GenericDeclaration genericDecl;
 
     /*
@@ -84,7 +84,7 @@ public class GenericSignatureParser {
     String identifier;
 
 
-    /* 
+    /*
      * Scanner:
      * eof is private to the scan methods
      * and it's set only when a scan is issued at the end of the buffer.
@@ -113,11 +113,11 @@ public class GenericSignatureParser {
     /**
      * Parses the generic signature of a class and creates the data structure
      * representing the signature.
-     * 
+     *
      * @param genericDecl the GenericDeclaration calling this method
      * @param signature the generic signature of the class
      */
-    public void parseForClass(GenericDeclaration genericDecl, 
+    public void parseForClass(GenericDeclaration genericDecl,
             String signature) {
         setInput(genericDecl, signature);
         if (!eof) {
@@ -139,15 +139,15 @@ public class GenericSignatureParser {
     /**
      * Parses the generic signature of a method and creates the data structure
      * representing the signature.
-     * 
+     *
      * @param genericDecl the GenericDeclaration calling this method
      * @param signature the generic signature of the class
      */
-    public void parseForMethod(GenericDeclaration genericDecl, 
-            String signature) {
+    public void parseForMethod(GenericDeclaration genericDecl,
+            String signature, Class<?>[] rawExceptionTypes) {
         setInput(genericDecl, signature);
         if (!eof) {
-            parseMethodTypeSignature();
+            parseMethodTypeSignature(rawExceptionTypes);
         } else {
             if(genericDecl instanceof Method) {
                 Method m = (Method) genericDecl;
@@ -163,19 +163,19 @@ public class GenericSignatureParser {
             }
         }
     }
-    
+
     /**
-     * Parses the generic signature of a constructor and creates the data 
+     * Parses the generic signature of a constructor and creates the data
      * structure representing the signature.
-     * 
+     *
      * @param genericDecl the GenericDeclaration calling this method
      * @param signature the generic signature of the class
      */
-    public void parseForConstructor(GenericDeclaration genericDecl, 
-            String signature) {
+    public void parseForConstructor(GenericDeclaration genericDecl,
+            String signature, Class<?>[] rawExceptionTypes) {
         setInput(genericDecl, signature);
         if (!eof) {
-            parseMethodTypeSignature();
+            parseMethodTypeSignature(rawExceptionTypes);
         } else {
             if(genericDecl instanceof Constructor) {
                 Constructor c = (Constructor) genericDecl;
@@ -191,13 +191,13 @@ public class GenericSignatureParser {
     }
 
     /**
-     * Parses the generic signature of a field and creates the data structure 
+     * Parses the generic signature of a field and creates the data structure
      * representing the signature.
-     * 
+     *
      * @param genericDecl the GenericDeclaration calling this method
      * @param signature the generic signature of the class
      */
-    public void parseForField(GenericDeclaration genericDecl, 
+    public void parseForField(GenericDeclaration genericDecl,
             String signature) {
         setInput(genericDecl, signature);
         if (!eof) {
@@ -211,7 +211,7 @@ public class GenericSignatureParser {
     //
 
     void parseClassSignature() {
-        // ClassSignature ::= 
+        // ClassSignature ::=
         // OptFormalTypeParameters SuperclassSignature {SuperinterfaceSignature}.
 
         parseOptFormalTypeParameters();
@@ -227,7 +227,7 @@ public class GenericSignatureParser {
     }
 
     void parseOptFormalTypeParameters() {
-        // OptFormalTypeParameters ::= 
+        // OptFormalTypeParameters ::=
         // ["<" FormalTypeParameter {FormalTypeParameter} ">"].
 
         ListOfVariables typeParams = new ListOfVariables();
@@ -267,7 +267,7 @@ public class GenericSignatureParser {
     }
 
     Type parseFieldTypeSignature() {
-        // FieldTypeSignature ::= ClassTypeSignature | ArrayTypeSignature 
+        // FieldTypeSignature ::= ClassTypeSignature | ArrayTypeSignature
         //         | TypeVariableSignature.
 
         switch (symbol) {
@@ -285,7 +285,7 @@ public class GenericSignatureParser {
     }
 
     Type parseClassTypeSignature() {
-        // ClassTypeSignature ::= "L" {Ident "/"} Ident 
+        // ClassTypeSignature ::= "L" {Ident "/"} Ident
         //         OptTypeArguments {"." Ident OptTypeArguments} ";".
 
         expect('L');
@@ -301,7 +301,7 @@ public class GenericSignatureParser {
         qualIdent.append(this.identifier);
 
         ListOfTypes typeArgs = parseOptTypeArguments();
-        ImplForType parentType = 
+        ImplForType parentType =
                 new ImplForType(null, qualIdent.toString(), typeArgs, loader);
         ImplForType type = parentType;
 
@@ -311,7 +311,7 @@ public class GenericSignatureParser {
             scanIdentifier();
             qualIdent.append("$").append(identifier); // FIXME: is "$" correct?
             typeArgs = parseOptTypeArguments();
-            type = new ImplForType(parentType, qualIdent.toString(), typeArgs, 
+            type = new ImplForType(parentType, qualIdent.toString(), typeArgs,
                     loader);
         }
 
@@ -387,8 +387,13 @@ public class GenericSignatureParser {
         }
     }
 
-    void parseMethodTypeSignature() {
-        // MethodTypeSignature ::= [FormalTypeParameters] 
+    /**
+     * @param rawExceptionTypes the non-generic exceptions. This is necessary
+     *     because the signature may omit the exceptions when none are generic.
+     *     May be null for methods that declare no exceptions.
+     */
+    void parseMethodTypeSignature(Class<?>[] rawExceptionTypes) {
+        // MethodTypeSignature ::= [FormalTypeParameters]
         //         "(" {TypeSignature} ")" ReturnType {ThrowsSignature}.
 
         parseOptFormalTypeParameters();
@@ -402,17 +407,23 @@ public class GenericSignatureParser {
 
         returnType = parseReturnType();
 
-        exceptionTypes = new ListOfTypes(8);
-        while (symbol == '^') {
-            scanSymbol();
+        if (symbol == '^') {
+            exceptionTypes = new ListOfTypes(8);
+            do {
+                scanSymbol();
 
-            // ThrowsSignature ::= ("^" ClassTypeSignature) |
-            //     ("^" TypeVariableSignature).
-            if (symbol == 'T') {
-                exceptionTypes.add(parseTypeVariableSignature());
-            } else {
-                exceptionTypes.add(parseClassTypeSignature());
-            }
+                // ThrowsSignature ::= ("^" ClassTypeSignature) |
+                //     ("^" TypeVariableSignature).
+                if (symbol == 'T') {
+                    exceptionTypes.add(parseTypeVariableSignature());
+                } else {
+                    exceptionTypes.add(parseClassTypeSignature());
+                }
+            } while (symbol == '^');
+        } else if (rawExceptionTypes != null) {
+            exceptionTypes = new ListOfTypes(rawExceptionTypes);
+        } else {
+            exceptionTypes = new ListOfTypes(0);
         }
     }
 
@@ -462,7 +473,7 @@ public class GenericSignatureParser {
     }
 
     // PRE: symbol is the first char of the identifier.
-    // POST: symbol = the next symbol AFTER the identifier. 
+    // POST: symbol = the next symbol AFTER the identifier.
     void scanIdentifier() {
         if (!eof) {
             StringBuilder identBuf = new StringBuilder(32);
@@ -487,7 +498,7 @@ public class GenericSignatureParser {
                 // Ident starts with incorrect char.
                 symbol = 0;
                 eof = true;
-                throw new GenericSignatureFormatError(); 
+                throw new GenericSignatureFormatError();
             }
         } else {
             throw new GenericSignatureFormatError();

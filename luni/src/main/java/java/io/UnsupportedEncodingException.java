@@ -36,7 +36,7 @@ public class UnsupportedEncodingException extends IOException {
     /**
      * Constructs a new {@code UnsupportedEncodingException} with its stack
      * trace and detail message filled in.
-     * 
+     *
      * @param detailMessage
      *            the detail message for this exception.
      */

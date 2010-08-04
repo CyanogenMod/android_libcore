@@ -19,7 +19,7 @@ package tests.api.java.util;
 
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -38,7 +38,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.WeakHashMap;
 
-@TestTargetClass(AbstractMap.class) 
+@TestTargetClass(AbstractMap.class)
 public class AbstractMapTest extends junit.framework.TestCase {
 
     static final String specialKey = "specialKey".intern();
@@ -225,7 +225,7 @@ public class AbstractMapTest extends junit.framework.TestCase {
         MyMap mapClone = (MyMap) map.clone();
         assertTrue("clone not shallow", map.getMap() == mapClone.getMap());
     }
-    
+
     public class AMT extends AbstractMap {
 
         // Very crude AbstractMap implementation
@@ -299,7 +299,7 @@ public class AbstractMapTest extends junit.framework.TestCase {
         AMT amt = new AMT();
         ht.put("this", "that");
         amt.putAll(ht);
-      
+
         assertEquals("Should be equal", amt, ht);
     }
 

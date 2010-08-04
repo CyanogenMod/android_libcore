@@ -28,7 +28,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(FileDescriptor.class) 
+@TestTargetClass(FileDescriptor.class)
 public class FileDescriptorTest extends junit.framework.TestCase {
 
     private static String platformId = "JDK"
@@ -49,7 +49,7 @@ public class FileDescriptorTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "FileDescriptor",
         args = {}
-    )     
+    )
     public void test_Constructor() {
         // Test for method java.io.FileDescriptor()
         FileDescriptor fd = new FileDescriptor();
@@ -66,7 +66,7 @@ public class FileDescriptorTest extends junit.framework.TestCase {
                 "by the native implementation of sync().",
         method = "sync",
         args = {}
-    )    
+    )
        public void test_sync() throws Exception {
         // Test for method void java.io.FileDescriptor.sync()
         f = File.createTempFile("fd" + platformId, ".tst");
@@ -79,15 +79,15 @@ public class FileDescriptorTest extends junit.framework.TestCase {
         int length = "Test String".length();
         assertEquals("Bytes were not written after sync", length, fis
                 .available());
-        
+
         // Regression test for Harmony-1494
         fd = fis.getFD();
         fd.sync();
         assertEquals("Bytes were not written after sync", length, fis
                 .available());
-        
+
         RandomAccessFile raf = new RandomAccessFile(f, "r");
-        fd = raf.getFD(); 
+        fd = raf.getFD();
         fd.sync();
         raf.close();
     }
@@ -99,7 +99,7 @@ public class FileDescriptorTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "valid",
         args = {}
-    )        
+    )
     public void test_valid() {
         // Test for method boolean java.io.FileDescriptor.valid()
         try {

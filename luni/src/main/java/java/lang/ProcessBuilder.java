@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ package java.lang;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -65,9 +66,9 @@ public final class ProcessBuilder {
             throw new NullPointerException();
         }
         this.command = command;
-        // BEGIN android-changed
-        this.environment = System.getenv();
-        // END android-changed
+
+        // use a hashtable to prevent nulls from sneaking in
+        this.environment = new Hashtable<String, String>(System.getenv());
     }
 
     /**
@@ -196,7 +197,7 @@ public final class ProcessBuilder {
         String[] envArray = new String[environment.size()];
         int i = 0;
         for (Map.Entry<String, String> entry : environment.entrySet()) {
-            envArray[i++] = entry.getKey() + "=" + entry.getValue(); //$NON-NLS-1$
+            envArray[i++] = entry.getKey() + "=" + entry.getValue();
         }
         return ProcessManager.getInstance().exec(cmdArray, envArray, directory, redirectErrorStream);
         // END android-changed

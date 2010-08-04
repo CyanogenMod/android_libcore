@@ -20,8 +20,6 @@ package java.lang;
 import java.io.InvalidObjectException;
 import java.util.Arrays;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A modifiable {@link CharSequence sequence of characters} for use in creating
  * and modifying Strings. This class is intended as a base class for
@@ -64,7 +62,7 @@ abstract class AbstractStringBuilder {
             val = new char[0];
         }
         if (val.length < len) {
-            throw new InvalidObjectException(Msg.getString("K0199")); //$NON-NLS-1$
+            throw new InvalidObjectException("count out of range");
         }
 
         shared = false;
@@ -123,12 +121,10 @@ abstract class AbstractStringBuilder {
     final void append0(char[] chars, int offset, int length) {
         // Force null check of chars first!
         if (offset > chars.length || offset < 0) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
         if (length < 0 || chars.length - offset < length) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
 
         int newSize = count + length;
@@ -164,7 +160,7 @@ abstract class AbstractStringBuilder {
 
     final void append0(CharSequence s, int start, int end) {
         if (s == null) {
-            s = "null"; //$NON-NLS-1$
+            s = "null";
         }
         if (start < 0 || end < 0 || start > end || end > s.length()) {
             throw new IndexOutOfBoundsException();
@@ -191,7 +187,7 @@ abstract class AbstractStringBuilder {
                 value[j++] = s.charAt(i);
             }
         }
-        
+
         this.count = newSize;
         // END android-changed
     }
@@ -293,29 +289,29 @@ abstract class AbstractStringBuilder {
     }
 
     /**
-     * Copies the requested sequence of characters to the {@code char[]} passed
-     * starting at {@code destStart}.
+     * Copies the requested sequence of characters into {@code dst} passed
+     * starting at {@code dst}.
      *
      * @param start
      *            the inclusive start index of the characters to copy.
      * @param end
      *            the exclusive end index of the characters to copy.
-     * @param dest
+     * @param dst
      *            the {@code char[]} to copy the characters to.
-     * @param destStart
-     *            the inclusive start index of {@code dest} to begin copying to.
+     * @param dstStart
+     *            the inclusive start index of {@code dst} to begin copying to.
      * @throws IndexOutOfBoundsException
-     *             if the {@code start} is negative, the {@code destStart} is
+     *             if the {@code start} is negative, the {@code dstStart} is
      *             negative, the {@code start} is greater than {@code end}, the
      *             {@code end} is greater than the current {@link #length()} or
-     *             {@code destStart + end - begin} is greater than
-     *             {@code dest.length}.
+     *             {@code dstStart + end - begin} is greater than
+     *             {@code dst.length}.
      */
-    public void getChars(int start, int end, char[] dest, int destStart) {
+    public void getChars(int start, int end, char[] dst, int dstStart) {
         if (start > count || end > count || start > end) {
             throw new StringIndexOutOfBoundsException();
         }
-        System.arraycopy(value, start, dest, destStart, end - start);
+        System.arraycopy(value, start, dst, dstStart, end - start);
     }
 
     final void insert0(int index, char[] chars) {
@@ -340,9 +336,9 @@ abstract class AbstractStringBuilder {
                 }
                 return;
             }
-            throw new StringIndexOutOfBoundsException("offset " + start //$NON-NLS-1$
-                    + ", length " + length //$NON-NLS-1$
-                    + ", char[].length " + chars.length); //$NON-NLS-1$
+            throw new StringIndexOutOfBoundsException("offset " + start
+                    + ", length " + length
+                    + ", char[].length " + chars.length);
         }
         throw new StringIndexOutOfBoundsException(index);
     }
@@ -360,7 +356,7 @@ abstract class AbstractStringBuilder {
     final void insert0(int index, String string) {
         if (0 <= index && index <= count) {
             if (string == null) {
-                string = "null"; //$NON-NLS-1$
+                string = "null";
             }
             int min = string.length();
             if (min != 0) {
@@ -377,7 +373,7 @@ abstract class AbstractStringBuilder {
 
     final void insert0(int index, CharSequence s, int start, int end) {
         if (s == null) {
-            s = "null"; //$NON-NLS-1$
+            s = "null";
         }
         if (index < 0 || index > count || start < 0 || end < 0 || start > end
                 || end > s.length()) {
@@ -608,7 +604,7 @@ abstract class AbstractStringBuilder {
     public String substring(int start) {
         if (0 <= start && start <= count) {
             if (start == count) {
-                return ""; //$NON-NLS-1$
+                return "";
             }
 
             // Remove String sharing for more performance
@@ -633,7 +629,7 @@ abstract class AbstractStringBuilder {
     public String substring(int start, int end) {
         if (0 <= start && start <= end && end <= count) {
             if (start == end) {
-                return ""; //$NON-NLS-1$
+                return "";
             }
 
             // Remove String sharing for more performance
@@ -650,7 +646,7 @@ abstract class AbstractStringBuilder {
     @Override
     public String toString() {
         if (count == 0) {
-            return ""; //$NON-NLS-1$
+            return "";
         }
         // Optimize String sharing for more performance
         int wasted = value.length - count;

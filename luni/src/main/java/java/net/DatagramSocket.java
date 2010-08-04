@@ -22,7 +22,6 @@ import java.nio.channels.DatagramChannel;
 
 import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * This class implements a UDP socket for sending and receiving {@code
@@ -50,12 +49,6 @@ public class DatagramSocket {
 
     private static class Lock {
     }
-
-    // BEGIN android-removed: we do this statically, when we start the VM.
-    // static {
-    //     Platform.getNetworkSystem().oneTimeInitialization(true);
-    // }
-    // END android-removed
 
     private Object lock = new Lock();
 
@@ -114,7 +107,7 @@ public class DatagramSocket {
      */
     void checkListen(int aPort) {
         if (aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0325", aPort)); //$NON-NLS-1$
+            throw new IllegalArgumentException("Port out of range: " + aPort);
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -146,7 +139,7 @@ public class DatagramSocket {
      */
     public void connect(InetAddress anAddress, int aPort) {
         if (anAddress == null || aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException(Msg.getString("K0032")); //$NON-NLS-1$
+            throw new IllegalArgumentException("Address null or destination port out of range");
         }
 
         synchronized (lock) {
@@ -304,11 +297,8 @@ public class DatagramSocket {
     }
 
     /**
-     * Gets the socket receive timeout in milliseconds. The return value {@code
-     * 0} implies the timeout is disabled/infinitive. ( {@code
-     * SocketOptions.SO_TIMEOUT} )
+     * Gets the socket {@link SocketOptions#SO_TIMEOUT receive timeout}.
      *
-     * @return the socket receive timeout.
      * @throws SocketException
      *                if an error occurs while getting the option value.
      */
@@ -361,7 +351,7 @@ public class DatagramSocket {
                     senderAddr = tempPack.getAddress();
                 } catch (SocketException e) {
                     if (e.getMessage().equals(
-                            "The socket does not support the operation")) { //$NON-NLS-1$
+                            "The socket does not support the operation")) {
                         // receive packet to temporary buffer
                         tempPack = new DatagramPacket(new byte[pack.getCapacity()],
                                 pack.getCapacity());
@@ -435,7 +425,7 @@ public class DatagramSocket {
         if (address != null) { // The socket is connected
             if (packAddr != null) {
                 if (!address.equals(packAddr) || port != pack.getPort()) {
-                    throw new IllegalArgumentException(Msg.getString("K0034")); //$NON-NLS-1$
+                    throw new IllegalArgumentException("Packet address mismatch with connected address");
                 }
             } else {
                 pack.setAddress(address);
@@ -445,8 +435,7 @@ public class DatagramSocket {
             // not connected so the target address is not allowed to be null
             if (packAddr == null) {
                 if (pack.getPort() == -1) {
-                    // KA019 Destination address is null
-                    throw new NullPointerException(Msg.getString("KA019")); //$NON-NLS-1$
+                    throw new NullPointerException("Destination address is null");
                 }
                 return;
             }
@@ -476,7 +465,7 @@ public class DatagramSocket {
      */
     public synchronized void setSendBufferSize(int size) throws SocketException {
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035")); //$NON-NLS-1$
+            throw new IllegalArgumentException("size < 1");
         }
         checkClosedAndBind(false);
         impl.setOption(SocketOptions.SO_SNDBUF, Integer.valueOf(size));
@@ -493,31 +482,28 @@ public class DatagramSocket {
      * @throws SocketException
      *                if an error occurs while setting the option.
      */
-    public synchronized void setReceiveBufferSize(int size)
-            throws SocketException {
+    public synchronized void setReceiveBufferSize(int size) throws SocketException {
         if (size < 1) {
-            throw new IllegalArgumentException(Msg.getString("K0035")); //$NON-NLS-1$
+            throw new IllegalArgumentException("size < 1");
         }
         checkClosedAndBind(false);
         impl.setOption(SocketOptions.SO_RCVBUF, Integer.valueOf(size));
     }
 
     /**
-     * Sets the timeout period in milliseconds for the {@code receive()} method.
+     * Sets the {@link SocketOptions#SO_TIMEOUT read timeout} in milliseconds for this socket.
      * This receive timeout defines the period the socket will block waiting to
      * receive data before throwing an {@code InterruptedIOException}. The value
      * {@code 0} (default) is used to set an infinite timeout. To have effect
-     * this option must be set before the blocking method was called. ( {@code
-     * SocketOptions.SO_TIMEOUT} )
+     * this option must be set before the blocking method was called.
      *
-     * @param timeout
-     *            the timeout period in milliseconds or {@code 0} for infinite.
+     * @param timeout the timeout in milliseconds or 0 for no timeout.
      * @throws SocketException
      *                if an error occurs while setting the option.
      */
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         if (timeout < 0) {
-            throw new IllegalArgumentException(Msg.getString("K0036")); //$NON-NLS-1$
+            throw new IllegalArgumentException("timeout < 0");
         }
         checkClosedAndBind(false);
         impl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(timeout));
@@ -544,7 +530,7 @@ public class DatagramSocket {
             security.checkSetFactory();
         }
         if (factory != null) {
-            throw new SocketException(Msg.getString("K0044")); //$NON-NLS-1$
+            throw new SocketException("Factory already set");
         }
         factory = fac;
     }
@@ -579,8 +565,8 @@ public class DatagramSocket {
     public DatagramSocket(SocketAddress localAddr) throws SocketException {
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
-                throw new IllegalArgumentException(Msg.getString(
-                        "K0316", localAddr.getClass())); //$NON-NLS-1$
+                throw new IllegalArgumentException("Local address not an InetSocketAddress: " +
+                        localAddr.getClass());
             }
             checkListen(((InetSocketAddress) localAddr).getPort());
         }
@@ -601,7 +587,7 @@ public class DatagramSocket {
 
     void checkClosedAndBind(boolean bind) throws SocketException {
         if (isClosed()) {
-            throw new SocketException(Msg.getString("K003d")); //$NON-NLS-1$
+            throw new SocketException("Socket is closed");
         }
         if (bind && !isBound()) {
             checkListen(0);
@@ -629,14 +615,13 @@ public class DatagramSocket {
         InetAddress addr = Inet4Address.ANY;
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
-                throw new IllegalArgumentException(Msg.getString(
-                        "K0316", localAddr.getClass())); //$NON-NLS-1$
+                throw new IllegalArgumentException("Local address not an InetSocketAddress: " +
+                        localAddr.getClass());
             }
             InetSocketAddress inetAddr = (InetSocketAddress) localAddr;
             addr = inetAddr.getAddress();
             if (addr == null) {
-                throw new SocketException(Msg.getString(
-                        "K0317", inetAddr.getHostName())); //$NON-NLS-1$
+                throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
             }
             localPort = inetAddr.getPort();
             checkListen(localPort);
@@ -658,18 +643,17 @@ public class DatagramSocket {
      */
     public void connect(SocketAddress remoteAddr) throws SocketException {
         if (remoteAddr == null) {
-            throw new IllegalArgumentException(Msg.getString("K0318")); //$NON-NLS-1$
+            throw new IllegalArgumentException("remoteAddr == null");
         }
 
         if (!(remoteAddr instanceof InetSocketAddress)) {
-            throw new IllegalArgumentException(Msg.getString(
-                    "K0316", remoteAddr.getClass())); //$NON-NLS-1$
+            throw new IllegalArgumentException("Remote address not an InetSocketAddress: " +
+                    remoteAddr.getClass());
         }
 
         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
         if (inetAddr.getAddress() == null) {
-            throw new SocketException(Msg.getString(
-                    "K0317", inetAddr.getHostName())); //$NON-NLS-1$
+            throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
         }
 
         synchronized (lock) {
@@ -761,8 +745,7 @@ public class DatagramSocket {
      */
     public void setReuseAddress(boolean reuse) throws SocketException {
         checkClosedAndBind(false);
-        impl.setOption(SocketOptions.SO_REUSEADDR, reuse ? Boolean.TRUE
-                : Boolean.FALSE);
+        impl.setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(reuse));
     }
 
     /**
@@ -789,8 +772,7 @@ public class DatagramSocket {
      */
     public void setBroadcast(boolean broadcast) throws SocketException {
         checkClosedAndBind(false);
-        impl.setOption(SocketOptions.SO_BROADCAST, broadcast ? Boolean.TRUE
-                : Boolean.FALSE);
+        impl.setOption(SocketOptions.SO_BROADCAST, Boolean.valueOf(broadcast));
     }
 
     /**
@@ -807,16 +789,8 @@ public class DatagramSocket {
     }
 
     /**
-     * Sets the socket option {@code SocketOptions.IP_TOS}. This option defines
-     * the value of the type-of-service field of the IP-header for every packet
-     * sent by this socket. The value could be ignored by the underlying network
-     * implementation.
-     * <p>
-     * Values between {@code 0} and {@code 255} inclusive are valid for this
-     * option.
+     * Sets the {@see SocketOptions#IP_TOS} value for every packet sent by this socket.
      *
-     * @param value
-     *            the socket option value to be set as type-of-service.
      * @throws SocketException
      *             if the socket is closed or the option could not be set.
      */
@@ -829,16 +803,14 @@ public class DatagramSocket {
     }
 
     /**
-     * Gets the value of the type-of-service socket option {@code
-     * SocketOptions.IP_TOS}.
+     * Returns this socket's {@see SocketOptions#IP_TOS} setting.
      *
-     * @return the type-of-service socket option value.
      * @throws SocketException
      *             if the socket is closed or the option is invalid.
      */
     public int getTrafficClass() throws SocketException {
         checkClosedAndBind(false);
-        return ((Number) impl.getOption(SocketOptions.IP_TOS)).intValue();
+        return (Integer) impl.getOption(SocketOptions.IP_TOS);
     }
 
     /**

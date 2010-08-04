@@ -583,9 +583,9 @@ public class ClassTest extends junit.framework.TestCase {
           URL resourceURL = new URL("file:/" + resPath + "/Package/"
                   + hyts_package_name);
 
-          ClassLoader cl = Support_ClassLoader.getInstance(resourceURL, 
+          ClassLoader cl = Support_ClassLoader.getInstance(resourceURL,
                   getClass().getClassLoader());
-          
+
           Class clazz = cl.loadClass("C");
           assertNull("getPackage for C.class should return null",
                   clazz.getPackage());

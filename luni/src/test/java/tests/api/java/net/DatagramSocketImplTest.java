@@ -18,7 +18,7 @@
 package tests.api.java.net;
 
 import dalvik.annotation.AndroidOnly;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
@@ -32,7 +32,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 
 /*
- * DatagramSocketImplFactory can be specified only once, 
+ * DatagramSocketImplFactory can be specified only once,
  * therefore we can't check DatagramSocketImpl functionality.
  */
 
@@ -49,7 +49,7 @@ import java.net.SocketException;
                      notes = "",
                      method = "close",
                      args = {}
-                 ),   
+                 ),
                  @TestTargetNew(
                      level = TestLevel.NOT_FEASIBLE,
                      notes = "",
@@ -79,7 +79,7 @@ import java.net.SocketException;
                      notes = "",
                      method = "joinGroup",
                      args = { SocketAddress.class, NetworkInterface.class }
-                 ),  
+                 ),
                  @TestTargetNew(
                      level = TestLevel.NOT_FEASIBLE,
                      notes = "",
@@ -97,31 +97,31 @@ import java.net.SocketException;
                      notes = "",
                      method = "peek",
                      args = { InetAddress.class }
-                 ),     
+                 ),
                  @TestTargetNew(
                      level = TestLevel.NOT_FEASIBLE,
                      notes = "",
                      method = "peekData",
                      args = { DatagramPacket.class }
-                 ),    
+                 ),
                  @TestTargetNew(
                      level = TestLevel.NOT_FEASIBLE,
                      notes = "",
                      method = "receive",
                      args = { DatagramPacket.class }
-                 ), 
+                 ),
                  @TestTargetNew(
                      level = TestLevel.NOT_FEASIBLE,
                      notes = "",
                      method = "send",
                      args = { DatagramPacket.class }
-                 ),    
+                 ),
                  @TestTargetNew(
                      level = TestLevel.NOT_FEASIBLE,
                      notes = "",
                      method = "setTimeToLive",
                      args = { int.class }
-                 ),     
+                 ),
                  @TestTargetNew(
                      level = TestLevel.NOT_FEASIBLE,
                      notes = "",
@@ -139,16 +139,16 @@ import java.net.SocketException;
                      notes = "",
                      method = "getOption",
                      args = { int.class }
-                 )                 
-             }) 
+                 )
+             })
 public class DatagramSocketImplTest extends junit.framework.TestCase {
-    
+
     MockDatagramSocketImpl ds;
-    
+
     public void setUp() {
         ds = new MockDatagramSocketImpl();
     }
-    
+
     public void tearDown() {
         ds.close();
         ds = null;
@@ -167,7 +167,7 @@ public class DatagramSocketImplTest extends junit.framework.TestCase {
         MockDatagramSocketImpl impl = new MockDatagramSocketImpl();
         assertNull(impl.getFileDescriptor());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "SocketException is not checked.",
@@ -188,7 +188,7 @@ public class DatagramSocketImplTest extends junit.framework.TestCase {
             ds.close();
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -210,7 +210,7 @@ public class DatagramSocketImplTest extends junit.framework.TestCase {
             ds.close();
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -220,7 +220,7 @@ public class DatagramSocketImplTest extends junit.framework.TestCase {
     public void test_getFileDescriptor() {
         assertNull(ds.getFileDescriptor());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -332,17 +332,17 @@ class MockDatagramSocketImpl extends DatagramSocketImpl {
 
     public void setOption(int optID, Object value) throws SocketException {
         // TODO Auto-generated method stub
-        
+
     }
 
     public void connect(InetAddress address, int port) throws SocketException {
         super.connect(address, port);
     }
-    
+
     public void disconnect() {
         super.disconnect();
     }
-    
+
     public int getLocalPort() {
         return super.getLocalPort();
     }

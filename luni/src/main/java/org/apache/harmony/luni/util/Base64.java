@@ -22,21 +22,24 @@
 package org.apache.harmony.luni.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 /**
  * This class implements Base64 encoding/decoding functionality
  * as specified in RFC 2045 (http://www.ietf.org/rfc/rfc2045.txt).
  */
 public class Base64 {
-    
+    private Base64() {
+    }
+
     public static byte[] decode(byte[] in) {
         return decode(in, in.length);
     }
-    
+
     public static byte[] decode(byte[] in, int len) {
         // approximate output length
         int length = len / 4 * 3;
-        // return an empty array on emtpy or short input without padding
+        // return an empty array on empty or short input without padding
         if (length == 0) {
             return new byte[0];
         }
@@ -50,7 +53,7 @@ public class Base64 {
         for (;;len--) {
             chr = in[len-1];
             // skip the neutral characters
-            if ((chr == '\n') || (chr == '\r') || 
+            if ((chr == '\n') || (chr == '\r') ||
                     (chr == ' ') || (chr == '\t')) {
                 continue;
             }
@@ -71,7 +74,7 @@ public class Base64 {
         for (int i=0; i<len; i++) {
             chr = in[i];
             // skip the neutral characters
-            if ((chr == '\n') || (chr == '\r') || 
+            if ((chr == '\n') || (chr == '\r') ||
                     (chr == ' ') || (chr == '\t')) {
                 continue;
             }
@@ -123,22 +126,22 @@ public class Base64 {
     }
 
     private static final byte[] map = new byte[]
-        {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 
-         'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 
-         'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 
-         'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', 
+        {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+         'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b',
+         'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+         'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
          '4', '5', '6', '7', '8', '9', '+', '/'};
 
-    public static String encode(byte[] in, String charsetName) throws UnsupportedEncodingException {
+    public static String encode(byte[] in, Charset charset) {
         int length = in.length * 4 / 3;
         length += length / 76 + 3; // for crlr
         byte[] out = new byte[length];
         int index = 0, i, crlr = 0, end = in.length - in.length%3;
         for (i=0; i<end; i+=3) {
             out[index++] = map[(in[i] & 0xff) >> 2];
-            out[index++] = map[((in[i] & 0x03) << 4) 
+            out[index++] = map[((in[i] & 0x03) << 4)
                                 | ((in[i+1] & 0xff) >> 4)];
-            out[index++] = map[((in[i+1] & 0x0f) << 2) 
+            out[index++] = map[((in[i+1] & 0x0f) << 2)
                                 | ((in[i+2] & 0xff) >> 6)];
             out[index++] = map[(in[i+2] & 0x3f)];
             if (((index - crlr)%76 == 0) && (index != 0)) {
@@ -157,13 +160,12 @@ public class Base64 {
                 break;
             case 2:
                 out[index++] = map[(in[end] & 0xff) >> 2];
-                out[index++] = map[((in[end] & 0x03) << 4) 
+                out[index++] = map[((in[end] & 0x03) << 4)
                                     | ((in[end+1] & 0xff) >> 4)];
-                out[index++] = map[((in[end+1] & 0x0f) << 2)];     
+                out[index++] = map[((in[end+1] & 0x0f) << 2)];
                 out[index++] = '=';
                 break;
         }
-        return new String(out, 0, index, charsetName);
+        return new String(out, 0, index, charset);
     }
 }
-

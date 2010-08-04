@@ -23,13 +23,9 @@ import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
-import tests.api.java.net.ResponseCacheTest.TestCacheRequest;
-import tests.api.java.net.ResponseCacheTest.TestCacheResponse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.CacheRequest;
-import java.net.CacheResponse;
 import java.net.HttpURLConnection;
 import java.net.ResponseCache;
 import java.net.SecureCacheResponse;
@@ -44,7 +40,7 @@ import java.util.Map;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 
-@TestTargetClass(SecureCacheResponse.class) 
+@TestTargetClass(SecureCacheResponse.class)
 public class SecureCacheResponseTest extends TestCase {
 
     @TestTargets({
@@ -95,7 +91,7 @@ public class SecureCacheResponseTest extends TestCase {
         assertNull(scr.getBody());
         assertNull(scr.getHeaders());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.ADDITIONAL,
         notes = "",
@@ -103,7 +99,7 @@ public class SecureCacheResponseTest extends TestCase {
         args = {}
     )
     public void test_additional() throws Exception {
-            
+
             URL url  = new URL("http://google.com");
             ResponseCache.setDefault(new TestResponseCache());
             HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
@@ -113,9 +109,9 @@ public class SecureCacheResponseTest extends TestCase {
                 Thread.sleep(5000);
             } catch(Exception e) {}
             httpCon.disconnect();
-      
+
     }
-    
+
     class TestSecureCacheResponse extends SecureCacheResponse {
 
         @Override
@@ -152,21 +148,21 @@ public class SecureCacheResponseTest extends TestCase {
         public Map<String, List<String>> getHeaders() throws IOException {
             return null;
         }
-        
+
     }
-    
+
     class TestResponseCache extends ResponseCache {
-        
-        URI uri1 = null;    
-    
+
+        URI uri1 = null;
+
         public TestSecureCacheResponse get(URI uri, String rqstMethod, Map rqstHeaders)
                                                           throws IOException {
-            
+
 
           try {
             uri1  = new URI("http://google.com");
           } catch (URISyntaxException e) {
-          }  
+          }
           if (uri.equals(uri)) {
             return new TestSecureCacheResponse();
           }

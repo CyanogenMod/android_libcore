@@ -17,8 +17,7 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-import org.apache.harmony.luni.util.Util;
+import java.nio.charset.ModifiedUtf8;
 
 /**
  * Wraps an existing {@link InputStream} and reads typed data from it.
@@ -235,8 +234,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
      *             if {@code buffer} or the source stream are null.
      * @see java.io.DataInput#readFully(byte[], int, int)
      */
-    public final void readFully(byte[] buffer, int offset, int length)
-            throws IOException {
+    public final void readFully(byte[] buffer, int offset, int length) throws IOException {
         // BEGIN android-removed
         // if (length < 0) {
         //     throw new IndexOutOfBoundsException();
@@ -246,10 +244,10 @@ public class DataInputStream extends FilterInputStream implements DataInput {
             return;
         }
         if (in == null) {
-            throw new NullPointerException(Msg.getString("KA00b")); //$NON-NLS-1$
+            throw new NullPointerException("in == null");
         }
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         // BEGIN android-changed
         // Exception priorities (in case of multiple errors) differ from
@@ -257,7 +255,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
         // used (offset | length) < 0 instead of separate (offset < 0) and
         // (length < 0) check to safe one operation
         if ((offset | length) < 0 || offset > buffer.length - length) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         while (length > 0) {
@@ -439,10 +437,8 @@ public class DataInputStream extends FilterInputStream implements DataInput {
 
     private static String decodeUTF(int utfSize, DataInput in) throws IOException {
         byte[] buf = new byte[utfSize];
-        char[] out = new char[utfSize];
         in.readFully(buf, 0, utfSize);
-
-        return Util.convertUTF8WithBuf(buf, out, 0, utfSize);
+        return ModifiedUtf8.decode(buf, new char[utfSize], 0, utfSize);
     }
 
     /**

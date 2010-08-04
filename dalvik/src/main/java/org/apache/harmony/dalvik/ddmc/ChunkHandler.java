@@ -76,7 +76,7 @@ public abstract class ChunkHandler {
      */
     public static ByteBuffer wrapChunk(Chunk request) {
         ByteBuffer in;
-        
+
         in = ByteBuffer.wrap(request.data, request.offset, request.length);
         in.order(CHUNK_ORDER);
         return in;

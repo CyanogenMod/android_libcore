@@ -28,7 +28,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(DataInputStream.class) 
+@TestTargetClass(DataInputStream.class)
 public class DataInputStreamTest extends junit.framework.TestCase {
 
     private DataOutputStream os;
@@ -51,7 +51,7 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         notes = "Verifies DataInputStream(java.io.InputStream) constructor.",
         method = "DataInputStream",
         args = {java.io.InputStream.class}
-    )         
+    )
     public void test_ConstructorLjava_io_InputStream() {
         // Test for method java.io.DataInputStream(java.io.InputStream)
         try {
@@ -76,27 +76,27 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "read",
         args = {byte[].class}
-    )       
+    )
     public void test_read$B() throws IOException {
         byte rbytes[] = new byte[testLength - 5];
         Support_ASimpleInputStream sis = new Support_ASimpleInputStream();
         int r;
-        
+
         os.write(fileString.getBytes());
         os.close();
         openDataInputStream();
-       
+
         r = dis.read(rbytes);
-        assertEquals("Test 1: Incorrect number of bytes read;", 
+        assertEquals("Test 1: Incorrect number of bytes read;",
                 testLength - 5, r);
-        assertTrue("Test 2: Incorrect data written or read.", 
+        assertTrue("Test 2: Incorrect data written or read.",
                 new String(rbytes).equals(fileString.substring(0, testLength - 5)));
 
         r = dis.read(rbytes);
         assertEquals("Test 3: Incorrect number of bytes read;", 5, r);
-        assertTrue("Test 4: Incorrect data written or read.", 
+        assertTrue("Test 4: Incorrect data written or read.",
                 new String(rbytes, 0, 5).equals(fileString.substring(testLength - 5)));
-        
+
         dis.close();
         sis.throwExceptionOnNextUse = true;
         dis = new DataInputStream(sis);
@@ -115,28 +115,28 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )     
+    )
     public void test_read$BII() throws IOException {
         byte rbytes[] = new byte[testLength - 5];
         Support_ASimpleInputStream sis = new Support_ASimpleInputStream();
         int r;
-        
+
         os.write(fileString.getBytes());
         os.close();
         openDataInputStream();
-       
+
         r = dis.read(rbytes, 1, testLength - 10);
-        assertEquals("Test 1: Incorrect number of bytes read;", 
+        assertEquals("Test 1: Incorrect number of bytes read;",
                 testLength - 10, r);
         assertEquals("Test 2: Incorrect data read.", 0, rbytes[0]);
-        assertTrue("Test 3: Incorrect data written or read.", 
+        assertTrue("Test 3: Incorrect data written or read.",
                 new String(rbytes, 1, r).equals(fileString.substring(0, r)));
 
         r = dis.read(rbytes, 0, 15);
         assertEquals("Test 3: Incorrect number of bytes read;", 10, r);
-        assertTrue("Test 4: Incorrect data written or read.", 
+        assertTrue("Test 4: Incorrect data written or read.",
                 new String(rbytes, 0, r).equals(fileString.substring(testLength - 10)));
-        
+
         dis.close();
         sis.throwExceptionOnNextUse = true;
         dis = new DataInputStream(sis);
@@ -155,28 +155,28 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )     
+    )
     public void test_read$BII_Exception() throws IOException {
         byte rbytes[] = new byte[testLength - 5];
-        
+
         os.write(fileString.getBytes());
         os.close();
         openDataInputStream();
-        
+
         try {
             dis.read(rbytes, -1, 1);
             fail("IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             dis.read(rbytes, 0, -1);
             fail("IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             dis.read(rbytes, rbytes.length, 1);
             fail("IndexOutOfBoundsException expected.");
@@ -192,18 +192,18 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "readFully",
         args = {byte[].class}
-    )    
+    )
     public void test_readFully$B() throws IOException {
         byte rbytes[] = new byte[testLength];
-        
+
         os.write(fileString.getBytes());
         os.close();
         openDataInputStream();
-       
+
         dis.readFully(rbytes);
-        assertTrue("Test 1: Incorrect data written or read.", 
+        assertTrue("Test 1: Incorrect data written or read.",
                 new String(rbytes, 0, testLength).equals(fileString));
-        
+
         dis.close();
         try {
             dis.readFully(rbytes);
@@ -230,19 +230,19 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         notes = "Verifies everything except illegal argument values.",
         method = "readFully",
         args = {byte[].class, int.class, int.class}
-    )       
+    )
     public void test_readFully$BII() throws IOException {
         byte rbytes[] = new byte[testLength];
 
         os.write(fileString.getBytes());
         os.close();
         openDataInputStream();
-        
+
         dis.readFully(rbytes, 2, testLength - 4);
-        assertTrue("Test 1: Incorrect data written or read.", 
+        assertTrue("Test 1: Incorrect data written or read.",
                 new String(rbytes, 2, testLength - 4).equals(
                         fileString.substring(0, testLength - 4)));
-        
+
         dis.close();
         try {
             dis.readFully(rbytes, 0, testLength);
@@ -260,7 +260,7 @@ public class DataInputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
     }
-    
+
     /**
      * @tests java.io.DataInputStream#readFully(byte[], int, int)
      */
@@ -269,33 +269,33 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         notes = "Verifies that exceptions are thrown for illegal arguments.",
         method = "readFully",
         args = {byte[].class, int.class, int.class}
-    )     
+    )
     public void test_readFully$BII_Exception() throws IOException {
         DataInputStream is =  new DataInputStream(new ByteArrayInputStream(new byte[testLength]));
 
         byte[] byteArray = new byte[testLength];
-        
+
         try {
             is.readFully(byteArray, 0, -1);
             fail("Test 1: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         try {
             is.readFully(byteArray, 0, byteArray.length + 1);
             fail("Test 2: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         try {
             is.readFully(byteArray, 1, byteArray.length);
             fail("Test 3: IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         try {
             is.readFully(byteArray, -1, byteArray.length);
             fail("Test 4: IndexOutOfBoundsException expected.");
@@ -309,9 +309,9 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             // Expected.
         }
-        
+
         is = new DataInputStream(null);
-           
+
         try {
             is.readFully(byteArray, 0, 1);
             fail("Test 6: NullPointerException expected.");
@@ -319,7 +319,7 @@ public class DataInputStreamTest extends junit.framework.TestCase {
             // Expected.
         }
     }
-    
+
     /**
      * @tests java.io.DataInputStream#readLine()
      */
@@ -328,22 +328,22 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "readLine",
         args = {}
-    )     
+    )
     public void test_readLine() throws IOException {
         String line;
         os.writeBytes("Lorem\nipsum\rdolor sit amet...");
         os.close();
         openDataInputStream();
         line = dis.readLine();
-        assertTrue("Test 1: Incorrect line written or read: " + line, 
+        assertTrue("Test 1: Incorrect line written or read: " + line,
                 line.equals("Lorem"));
         line = dis.readLine();
-        assertTrue("Test 2: Incorrect line written or read: " + line, 
+        assertTrue("Test 2: Incorrect line written or read: " + line,
                 line.equals("ipsum"));
         line = dis.readLine();
-        assertTrue("Test 3: Incorrect line written or read: " + line, 
+        assertTrue("Test 3: Incorrect line written or read: " + line,
                 line.equals("dolor sit amet..."));
-        
+
         dis.close();
         try {
             dis.readLine();
@@ -360,14 +360,14 @@ public class DataInputStreamTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "readUnsignedByte",
             args = {}
-    )    
+    )
     public void test_readUnsignedByte() throws IOException {
         os.writeByte((byte) -127);
         os.close();
         openDataInputStream();
-        assertEquals("Test 1: Incorrect byte written or read;", 
+        assertEquals("Test 1: Incorrect byte written or read;",
                 129, dis.readUnsignedByte());
-        
+
         try {
             dis.readUnsignedByte();
             fail("Test 2: EOFException expected.");
@@ -391,14 +391,14 @@ public class DataInputStreamTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "readUnsignedShort",
             args = {}
-    )    
+    )
     public void test_readUnsignedShort() throws IOException {
         os.writeShort(Short.MIN_VALUE);
         os.close();
         openDataInputStream();
-        assertEquals("Test 1: Incorrect short written or read;", 
+        assertEquals("Test 1: Incorrect short written or read;",
                 (Short.MAX_VALUE + 1), dis.readUnsignedShort());
-        
+
         try {
             dis.readUnsignedShort();
             fail("Test 2: EOFException expected.");
@@ -422,14 +422,14 @@ public class DataInputStreamTest extends junit.framework.TestCase {
             level = TestLevel.COMPLETE,
             method = "readUTF",
             args = {java.io.DataInput.class}
-    )    
+    )
     public void test_readUTFLjava_io_DataInput() throws IOException {
         os.writeUTF(unihw);
         os.close();
         openDataInputStream();
-        assertTrue("Test 1: Incorrect UTF-8 string written or read.", 
+        assertTrue("Test 1: Incorrect UTF-8 string written or read.",
                 DataInputStream.readUTF(dis).equals(unihw));
-        
+
         try {
             DataInputStream.readUTF(dis);
             fail("Test 2: EOFException expected.");
@@ -453,7 +453,7 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "skipBytes",
         args = {int.class}
-    )     
+    )
     public void test_skipBytesI() {
         // Test for method int java.io.DataInputStream.skipBytes(int)
         try {

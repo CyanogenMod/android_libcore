@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * but each sees a different value when accessing it, and changes made by one
  * thread do not affect the other threads. The implementation supports
  * {@code null} values.
- * 
+ *
  * @see java.lang.Thread
  * @author Bob Lee
  */
@@ -50,7 +50,7 @@ public class ThreadLocal<T> {
      * doesn't yet exist for this variable on this thread, this method will
      * create an entry, populating the value with the result of
      * {@link #initialValue()}.
-     * 
+     *
      * @return the current value of the variable for the calling thread.
      */
     @SuppressWarnings("unchecked")
@@ -74,7 +74,7 @@ public class ThreadLocal<T> {
     /**
      * Provides the initial value of this variable for the current thread.
      * The default implementation returns {@code null}.
-     * 
+     *
      * @return the initial value of the variable.
      */
     protected T initialValue() {
@@ -85,7 +85,7 @@ public class ThreadLocal<T> {
      * Sets the value of this variable for the current thread. If set to
      * {@code null}, the value will be set to null and the underlying entry will
      * still be present.
-     * 
+     *
      * @param value the new value of the variable for the caller thread.
      */
     public void set(T value) {

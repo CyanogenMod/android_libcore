@@ -21,8 +21,7 @@ package dalvik.system;
  * be partially initialized and then fork()'d from the partially initialized
  * state.
  *
- * @deprecated this is an internal Dalvik class that is not appropriate for
- *      general use. It will be removed from the public API in a future release.
+ * @hide
  */
 public class Zygote {
     /*
@@ -95,7 +94,7 @@ public class Zygote {
     /**
      * Special method to start the system server process. In addition to the
      * common actions performed in forkAndSpecialize, the pid of the child
-     * process is recorded such that the death of the child process will cause 
+     * process is recorded such that the death of the child process will cause
      * zygote to exit.
      *
      * @param uid the UNIX uid that the new process should setuid() to after
@@ -113,7 +112,7 @@ public class Zygote {
      * @return 0 if this is the child, pid of the child
      * if this is the parent, or -1 on error.
      */
-    native public static int forkSystemServer(int uid, int gid, 
+    native public static int forkSystemServer(int uid, int gid,
             int[] gids, int debugFlags, int[][] rlimits);
 
     /**

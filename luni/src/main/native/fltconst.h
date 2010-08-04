@@ -18,7 +18,31 @@
 #if !defined(fltconst_h)
 #define fltconst_h
 
-#include "hycomp.h"
+#include <sys/types.h>
+#include <sys/param.h>
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define HY_LITTLE_ENDIAN
+#elif __BYTE_ORDER == __BIG_ENDIAN
+#define HY_BIG_ENDIAN
+#endif
+
+/**
+ * By default order doubles in the native (that is big/little endian) ordering.
+ */
+#define HY_PLATFORM_DOUBLE_ORDER
+
+#include <stdint.h>
+
+typedef int32_t I_32;
+typedef uint32_t U_32;
+typedef uint64_t U_64;
+
+typedef I_32 IDATA;
+typedef U_32 UDATA;
+
+#define U32(x)      ((U_32) (x))
+#define I32(x)      ((I_32) (x))
+#define U32P(x)     ((U_32 *) (x))
 
 /* IEEE floats consist of: sign bit, exponent field, significand field
     single:  31 = sign bit, 30..23 = exponent (8 bits), 22..0 = significand (23 bits)
@@ -31,9 +55,9 @@
     positive           ==    sign bit clear
     negative           ==    sign bit set
 */
-#define MAX_U32_DOUBLE (ESDOUBLE) (4294967296.0)    /* 2^32 */
-#define MAX_U32_SINGLE (ESSINGLE) (4294967296.0)    /* 2^32 */
-#define HY_POS_PI      (ESDOUBLE) (3.141592653589793)
+#define MAX_U32_DOUBLE (double) (4294967296.0)    /* 2^32 */
+#define MAX_U32_SINGLE (float) (4294967296.0)    /* 2^32 */
+#define HY_POS_PI      (double) (3.141592653589793)
 
 #ifdef HY_LITTLE_ENDIAN
 #ifdef HY_PLATFORM_DOUBLE_ORDER

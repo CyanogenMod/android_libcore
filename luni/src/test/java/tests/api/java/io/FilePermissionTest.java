@@ -26,7 +26,7 @@ import java.io.File;
 import java.io.FilePermission;
 import java.security.PermissionCollection;
 
-@TestTargetClass(FilePermission.class) 
+@TestTargetClass(FilePermission.class)
 public class FilePermissionTest extends junit.framework.TestCase {
 
     FilePermission readAllFiles;
@@ -55,7 +55,7 @@ public class FilePermissionTest extends junit.framework.TestCase {
         notes = "Verifies FilePermission(java.lang.String, java.lang.String) constructor.",
         method = "FilePermission",
         args = {java.lang.String.class, java.lang.String.class}
-    )     
+    )
     public void test_ConstructorLjava_lang_StringLjava_lang_String() {
         // Test for method java.io.FilePermission(java.lang.String,
         // java.lang.String)
@@ -75,14 +75,14 @@ public class FilePermissionTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        
+
         try {
             new FilePermission(null, "read");
             fail("Expected NPE");
         } catch (NullPointerException e) {
             // Expected
         }
-        
+
         try {
             new FilePermission(null, null);
             fail("Expected IAE");
@@ -99,7 +99,7 @@ public class FilePermissionTest extends junit.framework.TestCase {
         notes = "Verifies getActions() method.",
         method = "getActions",
         args = {}
-    )     
+    )
     public void test_getActions() {
         // Test for method java.lang.String java.io.FilePermission.getActions()
         assertEquals("getActions should have returned only read", "read", readAllFiles
@@ -116,7 +116,7 @@ public class FilePermissionTest extends junit.framework.TestCase {
         notes = "Verifies equals(java.lang.Object) method.",
         method = "equals",
         args = {java.lang.Object.class}
-    )     
+    )
     public void test_equalsLjava_lang_Object() {
         // test for method java.io.FilePermission.equals()
         assertTrue(
@@ -135,7 +135,7 @@ public class FilePermissionTest extends junit.framework.TestCase {
         notes = "Verifies implies(java.security.Permission) method.",
         method = "implies",
         args = {java.security.Permission.class}
-    )    
+    )
     public void test_impliesLjava_security_Permission() {
         // Test for method boolean
         // java.io.FilePermission.implies(java.security.Permission)
@@ -197,7 +197,7 @@ public class FilePermissionTest extends junit.framework.TestCase {
         notes = "Verifies newPermissionCollection() method.",
         method = "newPermissionCollection",
         args = {}
-    )      
+    )
     public void test_newPermissionCollection() {
         // test for method java.io.FilePermission.newPermissionCollection
         char s = File.separatorChar;
@@ -239,7 +239,7 @@ public class FilePermissionTest extends junit.framework.TestCase {
         notes = "Verifies hashCode() method.",
         method = "hashCode",
         args = {}
-    )         
+    )
     public void test_hashCode() {
         // test method java.io.FilePermission.hasCode()
         assertTrue(

@@ -17,8 +17,6 @@
 
 package java.lang;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * Thrown when the an array is indexed with a value less than zero, or greater
  * than or equal to the size of the array.
@@ -39,13 +37,12 @@ public class ArrayIndexOutOfBoundsException extends IndexOutOfBoundsException {
      * Constructs a new {@code ArrayIndexOutOfBoundsException} with the current
      * stack trace and a detail message that is based on the specified invalid
      * {@code index}.
-     * 
+     *
      * @param index
      *            the invalid index.
      */
     public ArrayIndexOutOfBoundsException(int index) {
-        // K0052=Array index out of range\: {0}
-        super(Msg.getString("K0052", index)); //$NON-NLS-1$
+        super("Array index out of range: " + index);
     }
 
     /**

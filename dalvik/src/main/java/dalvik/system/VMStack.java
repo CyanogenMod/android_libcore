@@ -20,13 +20,12 @@ package dalvik.system;
  * Provides a limited interface to the Dalvik VM stack. This class is mostly
  * used for implementing security checks.
  *
- * @deprecated this is an internal Dalvik class that is not appropriate for
- *      general use. It will be removed from the public API in a future release.
+ * @hide
  */
 public final class VMStack {
     /**
      * Returns the defining class loader of the caller's caller.
-     * 
+     *
      * @return the requested class loader, or {@code null} if this is the
      *         bootstrap class loader.
      */
@@ -34,7 +33,7 @@ public final class VMStack {
 
     /**
      * Returns the defining class loader of the caller's caller's caller.
-     * 
+     *
      * @return the requested class loader, or {@code null} if this is the
      *         bootstrap class loader.
      */

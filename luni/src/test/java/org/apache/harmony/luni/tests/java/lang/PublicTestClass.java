@@ -19,8 +19,8 @@ package org.apache.harmony.luni.tests.java.lang;
 import java.io.Serializable;
 
 interface TestInterface {
-    
-    public static int TEST_INTERFACE_FIELD = 0; 
+
+    public static int TEST_INTERFACE_FIELD = 0;
 
     int getCount();
     void setCount(int value);
@@ -28,46 +28,46 @@ interface TestInterface {
 
 @TestAnnotation("org.apache.harmony.luni.tests.java.lang.PublicTestClass")
 public class PublicTestClass implements TestInterface, Serializable, Cloneable {
-    
+
     private static final long serialVersionUID = 1L;
 
-    public static String TEST_FIELD = "test field"; 
-    
+    public static String TEST_FIELD = "test field";
+
     Object clazz;
-    
+
     public PublicTestClass() {
         class LocalClass { }
-        
+
         clazz = new LocalClass();
     }
-    
+
     public Object getLocalClass() {
         class LocalClass {}
         Object returnedObject = new LocalClass();
         return returnedObject;
     }
 
-    int count = 0; 
-    
+    int count = 0;
+
     public int getCount() {
         return count;
     }
 
     public void setCount(int value) {
-        count = value;        
+        count = value;
     }
-    
+
     private class PrivateClass1 {
-        
+
         public String toString() {
             return "PrivateClass0";
         }
     }
-    
+
     public class PrivateClass2 {
-        
+
         public String toString() {
             return "PrivateClass1";
         }
-    }    
+    }
 }

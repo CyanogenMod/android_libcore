@@ -60,7 +60,7 @@ import java.util.Set;
 
 /**
  * java.security.cert test utilities
- * 
+ *
  */
 public class TestUtils {
     // Certificate type used during testing
@@ -139,17 +139,17 @@ public class TestUtils {
 
     /**
      * Creates test <code>KeyStore</code> instance
-     * 
+     *
      * @param initialize
      *  Do not initialize returned <code>KeyStore</code> if false
-     * 
-     * @param testKeyStoreType 
+     *
+     * @param testKeyStoreType
      *  this parameter ignored if <code>initialize</code> is false;
      *  The following types supported:<br>
      *  1 - <code>KeyStore</code> with untrusted certificates only<br>
      *  2 - <code>KeyStore</code> with trusted certificates only<br>
      *  3 - <code>KeyStore</code> with both trusted and untrusted certificates
-     * 
+     *
      * @return Returns test <code>KeyStore</code> instance
      */
     public static KeyStore getKeyStore(boolean initialize,
@@ -178,7 +178,7 @@ public class TestUtils {
      * Creates <code>List</code> of <code>CollectionCertStores</code>
      *
      * @return The list created
-     * 
+     *
      * @throws InvalidAlgorithmParameterException
      * @throws NoSuchAlgorithmException
      */
@@ -318,20 +318,20 @@ public class TestUtils {
     public static byte[] getEncodedX509Certificate() {
         return ENCODED_X509_CERTIFICATE.getBytes();
     }
-    
+
     /**
      * Returns X.509 certificate encoding corresponding to version v1.
-     * 
+     *
      * Certificate encoding was created by hands according to X.509 Certificate
      * ASN.1 notation. The certificate encoding has the following encoded
-     * field values:<br> 
+     * field values:<br>
      * - version: 1<br>
      * - serialNumber: 5<br>
      * - issuer: CN=Z<br>
      * - notBefore: 13 Dec 1999 14:15:16<br>
      * - notAfter: 01 Jan 2000 00:00:00<br>
      * - subject: CN=Y<br>
-     * 
+     *
      * @return X.509 certificate encoding corresponding to version v1.
      */
     public static byte[] getX509Certificate_v1() {
@@ -394,17 +394,17 @@ public class TestUtils {
             0x01, 0x01, 0x07, //ANY
 
             //
-            // signature: BIT STRING  
+            // signature: BIT STRING
             //
             0x03, 0x02, 0x00, 0x01 };
     }
 
     /**
      * Returns X.509 certificate encoding corresponding to version v3.
-     * 
+     *
      * Certificate encoding was created by hands according to X.509 Certificate
      * ASN.1 notation. The certificate encoding has the following encoded
-     * field values:<br> 
+     * field values:<br>
      * - version: 3<br>
      * - serialNumber: 5<br>
      * - issuer: CN=Z<br>
@@ -412,8 +412,8 @@ public class TestUtils {
      * - notAfter: 01 Jan 2000 00:00:00<br>
      * - subject: CN=Y<br>
      * - extensions:
-     *       1) AuthorityKeyIdentifier(OID=2.5.29.35): no values in it(empty sequence) 
-     * 
+     *       1) AuthorityKeyIdentifier(OID=2.5.29.35): no values in it(empty sequence)
+     *
      * @return X.509 certificate encoding corresponding to version v3.
      */
     public static byte[] getX509Certificate_v3() {
@@ -492,28 +492,28 @@ public class TestUtils {
             0x01, 0x01, 0x07, //ANY
 
             //
-            // signature: BIT STRING  
+            // signature: BIT STRING
             //
             0x03, 0x02, 0x00, 0x01 };
     }
 
     /**
      * Returns X.509 CRL encoding corresponding to version v1.
-     * 
+     *
      * CRL encoding was created by hands according to X.509 CRL ASN.1
-     * notation. The CRL encoding has the following encoded field values:<br> 
+     * notation. The CRL encoding has the following encoded field values:<br>
      * - version: 1<br>
      * - issuer: CN=Z<br>
      * - thisUpdate: 01 Jan 2001 01:02:03<br>
-     * 
+     *
      * @return X.509 CRL encoding corresponding to version v1.
      */
     public static byte[] getX509CRL_v1() {
         return new byte[] {
                 //CertificateList: SEQUENCE
-                0x30, 0x35, 
-                
-                // TBSCertList: SEQUENCE  
+                0x30, 0x35,
+
+                // TBSCertList: SEQUENCE
                 0x30, 0x27,
                 // Version: INTEGER OPTIONAL
                 // 0x02, 0x01, 0x01, - missed here cause it is v1
@@ -521,27 +521,27 @@ public class TestUtils {
                 0x30, 0x06, // SEQUENCE
                 0x06, 0x01, 0x01, // OID
                 0x01, 0x01, 0x11, // ANY
-                // issuer: Name                   
+                // issuer: Name
                 0x30, 0x0C, 0x31, 0x0A, 0x30, 0x08, 0x06, 0x03, 0x55, 0x04,
-                0x03, 0x13, 0x01, 0x5A, // CN=Z 
+                0x03, 0x13, 0x01, 0x5A, // CN=Z
                 // thisUpdate: ChoiceOfTime
                 // GeneralizedTime: 01 Jan 2001 01:02:03
                 0x18, 0x0F, 0x32, 0x30, 0x30, 0x31, 0x30, 0x31, 0x30, 0x31,
                 0x30, 0x31, 0x30, 0x32, 0x30, 0x33, 0x5A,
-                
+
                 // nextUpdate - missed
                 // revokedCertificates - missed
                 // crlExtensions - missed
-                
+
                 // signatureAlgorithm: AlgorithmIdentifier
                 0x30, 0x06, // SEQUENCE
                 0x06, 0x01, 0x01, //OID
                 0x01, 0x01, 0x11, //ANY
-                // signature: BIT STRING  
+                // signature: BIT STRING
                 0x03, 0x02, 0x00, 0x01 };
     }
     //--------------------------------------------------------------------------
-    
+
     // Second example
     /**
      * Certificate:
@@ -570,14 +570,14 @@ public class TestUtils {
                     b0:fc:53:33:73:4a:e5:d0:df
                 Exponent: 65537 (0x10001)
         X509v3 extensions:
-            X509v3 Subject Key Identifier: 
+            X509v3 Subject Key Identifier:
                 4B:E3:22:14:AD:0A:14:46:B7:52:31:8B:AB:9E:5A:62:F3:98:37:80
-            X509v3 Authority Key Identifier: 
+            X509v3 Authority Key Identifier:
                 keyid:4B:E3:22:14:AD:0A:14:46:B7:52:31:8B:AB:9E:5A:62:F3:98:37:80
                 DirName:/C=AN/ST=Android/O=Android/OU=Android/CN=Android/emailAddress=android
                 serial:00
 
-            X509v3 Basic Constraints: 
+            X509v3 Basic Constraints:
                 CA:TRUE
     Signature Algorithm: sha1WithRSAEncryption
         72:4f:12:8a:4e:61:b2:9a:ba:58:17:0b:55:96:f5:66:1c:a8:
@@ -591,46 +591,46 @@ public class TestUtils {
 
      * </pre>
      */
-    public static final String rootCert = "-----BEGIN CERTIFICATE-----\n" + 
-    "MIIDGzCCAoSgAwIBAgIBADANBgkqhkiG9w0BAQUFADBtMQswCQYDVQQGEwJBTjEQ\n" + 
-    "MA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5k\n" + 
-    "cm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYHYW5kcm9pZDAe\n" + 
-    "Fw0wODEyMDkxNjM1MzBaFw0xMTEyMDkxNjM1MzBaMG0xCzAJBgNVBAYTAkFOMRAw\n" + 
-    "DgYDVQQIEwdBbmRyb2lkMRAwDgYDVQQKEwdBbmRyb2lkMRAwDgYDVQQLEwdBbmRy\n" + 
-    "b2lkMRAwDgYDVQQDEwdBbmRyb2lkMRYwFAYJKoZIhvcNAQkBFgdhbmRyb2lkMIGf\n" + 
-    "MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDF+15oN4IdWO3LMYwIf1ExTGhAjE0H\n" + 
-    "oQ4YNgJriZLBz4gezwAiAIw36Gp2lHFTgXjhSJT6FmGT66DuYp1q0iy4d53JNtXZ\n" + 
-    "HOsmPENmTXscHcehN2bihFTT7SHdARzsmwweNek3FZ0reKg7ETruwt5VREy9QI3l\n" + 
-    "UrD8UzNzSuXQ3wIDAQABo4HKMIHHMB0GA1UdDgQWBBRL4yIUrQoURrdSMYurnlpi\n" + 
-    "85g3gDCBlwYDVR0jBIGPMIGMgBRL4yIUrQoURrdSMYurnlpi85g3gKFxpG8wbTEL\n" + 
-    "MAkGA1UEBhMCQU4xEDAOBgNVBAgTB0FuZHJvaWQxEDAOBgNVBAoTB0FuZHJvaWQx\n" + 
-    "EDAOBgNVBAsTB0FuZHJvaWQxEDAOBgNVBAMTB0FuZHJvaWQxFjAUBgkqhkiG9w0B\n" + 
-    "CQEWB2FuZHJvaWSCAQAwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOBgQBy\n" + 
-    "TxKKTmGymrpYFwtVlvVmHKi60Q+Lmy2rqACsf5l99g/Xhet1S+VCN3FGsUqwGxfk\n" + 
-    "+XyfvSB1NZ8njgeV6DS9q+QQX6N7TFZp1NDx6XQVLX938Dh364qZ86mI8GNYB7la\n" + 
-    "Yfj/EecGodH4hfuZHPXLd4Y2zUM3mQnCmtjyKAUGDA==\n" + 
+    public static final String rootCert = "-----BEGIN CERTIFICATE-----\n" +
+    "MIIDGzCCAoSgAwIBAgIBADANBgkqhkiG9w0BAQUFADBtMQswCQYDVQQGEwJBTjEQ\n" +
+    "MA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5k\n" +
+    "cm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYHYW5kcm9pZDAe\n" +
+    "Fw0wODEyMDkxNjM1MzBaFw0xMTEyMDkxNjM1MzBaMG0xCzAJBgNVBAYTAkFOMRAw\n" +
+    "DgYDVQQIEwdBbmRyb2lkMRAwDgYDVQQKEwdBbmRyb2lkMRAwDgYDVQQLEwdBbmRy\n" +
+    "b2lkMRAwDgYDVQQDEwdBbmRyb2lkMRYwFAYJKoZIhvcNAQkBFgdhbmRyb2lkMIGf\n" +
+    "MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDF+15oN4IdWO3LMYwIf1ExTGhAjE0H\n" +
+    "oQ4YNgJriZLBz4gezwAiAIw36Gp2lHFTgXjhSJT6FmGT66DuYp1q0iy4d53JNtXZ\n" +
+    "HOsmPENmTXscHcehN2bihFTT7SHdARzsmwweNek3FZ0reKg7ETruwt5VREy9QI3l\n" +
+    "UrD8UzNzSuXQ3wIDAQABo4HKMIHHMB0GA1UdDgQWBBRL4yIUrQoURrdSMYurnlpi\n" +
+    "85g3gDCBlwYDVR0jBIGPMIGMgBRL4yIUrQoURrdSMYurnlpi85g3gKFxpG8wbTEL\n" +
+    "MAkGA1UEBhMCQU4xEDAOBgNVBAgTB0FuZHJvaWQxEDAOBgNVBAoTB0FuZHJvaWQx\n" +
+    "EDAOBgNVBAsTB0FuZHJvaWQxEDAOBgNVBAMTB0FuZHJvaWQxFjAUBgkqhkiG9w0B\n" +
+    "CQEWB2FuZHJvaWSCAQAwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOBgQBy\n" +
+    "TxKKTmGymrpYFwtVlvVmHKi60Q+Lmy2rqACsf5l99g/Xhet1S+VCN3FGsUqwGxfk\n" +
+    "+XyfvSB1NZ8njgeV6DS9q+QQX6N7TFZp1NDx6XQVLX938Dh364qZ86mI8GNYB7la\n" +
+    "Yfj/EecGodH4hfuZHPXLd4Y2zUM3mQnCmtjyKAUGDA==\n" +
     "-----END CERTIFICATE-----";
-    
+
     public static final String rootPrivateKey =
-         "-----BEGIN RSA PRIVATE KEY-----\n" + 
-         "Proc-Type: 4,ENCRYPTED\n" + 
-         "DEK-Info: DES-EDE3-CBC,D9682F66FDA316E5\n" + 
-         "\n" + 
-         "8lGaQPlUZ/iHhdldB//xfNUrZ3RAkBthzKg+n9HBJsjztXXAZ40NGYZmgvpgnfmr\n" + 
-         "7ZJxHxYHFc3GAmBBk9v+/dA8E5yWJa71roffWMQUuFNfGzHhGTOxvNC04W7yAajs\n" + 
-         "CPuyI+xnAAo73F7NVTiqX3NVgu4bB8RVxJyToMe4M289oh93YvxWQ4buVTf0ErJ8\n" + 
-         "Yc8+0ugpfXjGfRhL36qj6B1CcV7NMdXAVExrGlTf0TWT9wVbiROk4XaoaFuWh17h\n" + 
-         "11NEDjsKQ8T4M9kRdC+tKfST8sLik1Pq6jRLIKeX8GQd7tV1IWVZ3KcQBJwu9zLq\n" + 
-         "Hi0GTSF7IWCdwXjDyniMQiSbkmHNP+OnVyhaqew5Ooh0uOEQq/KWFewXg7B3VMr0\n" + 
-         "l6U8sBX9ODGeW0wVdNopvl17udCkV0xm3S+MRZDnZiTlAXwKx/a/gyf5R5XYp3S0\n" + 
-         "0eqrfy2o6Ax4hRkwcNJ2KMeLQNIiYYWKABQj5/i4TYZV6npCIXOnQEkXa9DmqyUE\n" + 
-         "qB7eFj5FcXeqQ8ERmsLveWArsLDn2NNPdv5EaKIs2lrvwoKYeYF7hrKNpifq+QqS\n" + 
-         "u1kN+KHjibcF42EAUozNVmkHsW8VqlywAs4MsMwxU0D57cVGWycuSedraKhc0D6j\n" + 
-         "a4pQOWWY3ZMLoAA1ZmHG9cjDPqcJt0rqk5AhSBRmGVUccfkP7dk9KyJQizro87LI\n" + 
-         "u7zWwMIqTfmlhyfAP0AWjrt/bMN9heGByVA55xkyCdSEVaC5gsIfmGpNy4u+wbZ9\n" + 
-         "rSWVuTfAbjW0n0FW+CDS1LgdjXNkeAP2Uvc1QgVRCPdA23WniLFFJQ==\n" + 
+         "-----BEGIN RSA PRIVATE KEY-----\n" +
+         "Proc-Type: 4,ENCRYPTED\n" +
+         "DEK-Info: DES-EDE3-CBC,D9682F66FDA316E5\n" +
+         "\n" +
+         "8lGaQPlUZ/iHhdldB//xfNUrZ3RAkBthzKg+n9HBJsjztXXAZ40NGYZmgvpgnfmr\n" +
+         "7ZJxHxYHFc3GAmBBk9v+/dA8E5yWJa71roffWMQUuFNfGzHhGTOxvNC04W7yAajs\n" +
+         "CPuyI+xnAAo73F7NVTiqX3NVgu4bB8RVxJyToMe4M289oh93YvxWQ4buVTf0ErJ8\n" +
+         "Yc8+0ugpfXjGfRhL36qj6B1CcV7NMdXAVExrGlTf0TWT9wVbiROk4XaoaFuWh17h\n" +
+         "11NEDjsKQ8T4M9kRdC+tKfST8sLik1Pq6jRLIKeX8GQd7tV1IWVZ3KcQBJwu9zLq\n" +
+         "Hi0GTSF7IWCdwXjDyniMQiSbkmHNP+OnVyhaqew5Ooh0uOEQq/KWFewXg7B3VMr0\n" +
+         "l6U8sBX9ODGeW0wVdNopvl17udCkV0xm3S+MRZDnZiTlAXwKx/a/gyf5R5XYp3S0\n" +
+         "0eqrfy2o6Ax4hRkwcNJ2KMeLQNIiYYWKABQj5/i4TYZV6npCIXOnQEkXa9DmqyUE\n" +
+         "qB7eFj5FcXeqQ8ERmsLveWArsLDn2NNPdv5EaKIs2lrvwoKYeYF7hrKNpifq+QqS\n" +
+         "u1kN+KHjibcF42EAUozNVmkHsW8VqlywAs4MsMwxU0D57cVGWycuSedraKhc0D6j\n" +
+         "a4pQOWWY3ZMLoAA1ZmHG9cjDPqcJt0rqk5AhSBRmGVUccfkP7dk9KyJQizro87LI\n" +
+         "u7zWwMIqTfmlhyfAP0AWjrt/bMN9heGByVA55xkyCdSEVaC5gsIfmGpNy4u+wbZ9\n" +
+         "rSWVuTfAbjW0n0FW+CDS1LgdjXNkeAP2Uvc1QgVRCPdA23WniLFFJQ==\n" +
          "-----END RSA PRIVATE KEY-----";
-    
+
     /**
      * Certificate:
      * <pre>
@@ -658,13 +658,13 @@ public class TestUtils {
                     f3:38:23:b0:97:0e:92:b1:1b
                 Exponent: 65537 (0x10001)
         X509v3 extensions:
-            X509v3 Basic Constraints: 
+            X509v3 Basic Constraints:
                 CA:FALSE
-            Netscape Comment: 
+            Netscape Comment:
                 OpenSSL Generated Certificate
-            X509v3 Subject Key Identifier: 
+            X509v3 Subject Key Identifier:
                 88:4D:EC:16:26:A7:76:F5:26:43:BC:34:99:DF:D5:EA:7B:F8:5F:DE
-            X509v3 Authority Key Identifier: 
+            X509v3 Authority Key Identifier:
                 keyid:4B:E3:22:14:AD:0A:14:46:B7:52:31:8B:AB:9E:5A:62:F3:98:37:80
 
     Signature Algorithm: sha1WithRSAEncryption
@@ -678,46 +678,46 @@ public class TestUtils {
         6f:98
      * </pre>
      */
-    public static final String  endCert = 
-        "-----BEGIN CERTIFICATE-----\n" + 
-        "MIIC6jCCAlOgAwIBAgIBATANBgkqhkiG9w0BAQUFADBtMQswCQYDVQQGEwJBTjEQ\n" + 
-        "MA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5k\n" + 
-        "cm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYHYW5kcm9pZDAe\n" + 
-        "Fw0wODEyMDkxNjQwMzVaFw0wOTEyMDkxNjQwMzVaMIGLMQswCQYDVQQGEwJBTjEQ\n" + 
-        "MA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEBxMHQW5kcm9pZDEQMA4GA1UEChMHQW5k\n" + 
-        "cm9pZDEQMA4GA1UECxMHQW5kcm9pZDEcMBoGA1UEAxMTQW5kcm9pZCBDZXJ0aWZp\n" + 
-        "Y2F0ZTEWMBQGCSqGSIb3DQEJARYHYW5kcm9pZDCBnzANBgkqhkiG9w0BAQEFAAOB\n" + 
-        "jQAwgYkCgYEAuOPex6lARywqb/Uq9M3yLUD6FT8cN2ZzpWdNW6C2sd3cvwHH4sFI\n" + 
-        "Go8czuywolUpmhs6bsx712WuCwU0A4qv2/DcAYCSA7QT5db9eWZ/wxpi1V49wBmk\n" + 
-        "QhVHGebwyLfie4Kixz3frIzVvDm45ZOsP68wt8wAqADzOCOwlw6SsRsCAwEAAaN7\n" + 
-        "MHkwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQg\n" + 
-        "Q2VydGlmaWNhdGUwHQYDVR0OBBYEFIhN7BYmp3b1JkO8NJnf1ep7+F/eMB8GA1Ud\n" + 
-        "IwQYMBaAFEvjIhStChRGt1Ixi6ueWmLzmDeAMA0GCSqGSIb3DQEBBQUAA4GBAFVz\n" + 
-        "leZMQPz9UopfgxVJc8rz2F+71vUukOZ/w31NJ9NFxlObquMymUCzqdMUfdXmp3CV\n" + 
-        "MG7cjHtI4ZjRZXrrv7BczcLrMV626d9WlbzreXQnW23IVWMJ0/niQLq0oscsy7E6\n" + 
-        "wtgMITHuaH6XzpgiLsbP8BoRBMqaBt6YSIWsbG+Y\n" + 
+    public static final String  endCert =
+        "-----BEGIN CERTIFICATE-----\n" +
+        "MIIC6jCCAlOgAwIBAgIBATANBgkqhkiG9w0BAQUFADBtMQswCQYDVQQGEwJBTjEQ\n" +
+        "MA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5k\n" +
+        "cm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEWMBQGCSqGSIb3DQEJARYHYW5kcm9pZDAe\n" +
+        "Fw0wODEyMDkxNjQwMzVaFw0wOTEyMDkxNjQwMzVaMIGLMQswCQYDVQQGEwJBTjEQ\n" +
+        "MA4GA1UECBMHQW5kcm9pZDEQMA4GA1UEBxMHQW5kcm9pZDEQMA4GA1UEChMHQW5k\n" +
+        "cm9pZDEQMA4GA1UECxMHQW5kcm9pZDEcMBoGA1UEAxMTQW5kcm9pZCBDZXJ0aWZp\n" +
+        "Y2F0ZTEWMBQGCSqGSIb3DQEJARYHYW5kcm9pZDCBnzANBgkqhkiG9w0BAQEFAAOB\n" +
+        "jQAwgYkCgYEAuOPex6lARywqb/Uq9M3yLUD6FT8cN2ZzpWdNW6C2sd3cvwHH4sFI\n" +
+        "Go8czuywolUpmhs6bsx712WuCwU0A4qv2/DcAYCSA7QT5db9eWZ/wxpi1V49wBmk\n" +
+        "QhVHGebwyLfie4Kixz3frIzVvDm45ZOsP68wt8wAqADzOCOwlw6SsRsCAwEAAaN7\n" +
+        "MHkwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQg\n" +
+        "Q2VydGlmaWNhdGUwHQYDVR0OBBYEFIhN7BYmp3b1JkO8NJnf1ep7+F/eMB8GA1Ud\n" +
+        "IwQYMBaAFEvjIhStChRGt1Ixi6ueWmLzmDeAMA0GCSqGSIb3DQEBBQUAA4GBAFVz\n" +
+        "leZMQPz9UopfgxVJc8rz2F+71vUukOZ/w31NJ9NFxlObquMymUCzqdMUfdXmp3CV\n" +
+        "MG7cjHtI4ZjRZXrrv7BczcLrMV626d9WlbzreXQnW23IVWMJ0/niQLq0oscsy7E6\n" +
+        "wtgMITHuaH6XzpgiLsbP8BoRBMqaBt6YSIWsbG+Y\n" +
         "-----END CERTIFICATE-----";
-    
+
     public static final String endPrivateKey =
-        "-----BEGIN RSA PRIVATE KEY-----\n" + 
-        "Proc-Type: 4,ENCRYPTED\n" + 
-        "DEK-Info: DES-EDE3-CBC,E20AAB000D1D90B1\n" + 
-        "\n" + 
-        "cWrCb6eHuwb6/gnbX12Va47qSpFW0j99Lq2eEj0fqLdlwA6+KvD3/U+Nj4ldaAQ4\n" + 
-        "rYryQv0MJu/kT9z/mJbBI4NwunX/9vXttyuh8s07sv8AqdHCylYR9miz61Q0LkLR\n" + 
-        "9H9D8NWMgMnuVhlj+NUXlkF+Jfriu5xkIqeYDhN8c3/AMawQoNdW/pWmgz0BfFIP\n" + 
-        "DUxszfXHx5mfSMoRdC2YZGlFdsONSO7s14Ayz8+pKD0PzSARXtTEJ5+mELCnhFsw\n" + 
-        "R7zYYwD+9WjL702bjYQxwRS5Sk1Z/VAxLFfjdtlUFSi6VLGIG+jUnM1RF91KtJY1\n" + 
-        "bJOQrlHw9/wyH75y9sXUrVpil4qH9shILHgu4A0VaL7IpIFjWS9vPY7SvwqRlbk7\n" + 
-        "QPhxoIpiNzjzjEa7PG6nSqy8mRzJP0OLWzRUoMWJn6ntf+oj7CzaaIgFrrwRGOCQ\n" + 
-        "BYibTTMZ/paxKDvZ9Lcl8a6uRvi2II2/F63bPcTcILsKDsBdQp93Evanw1QKXdGi\n" + 
-        "jb4b0Y1LYZM0jl7z2TSBZ27HyHKp4jMQP9q9mujEKInjzSB+gsRGfP6++OilrR2U\n" + 
-        "Y7kN2o/ufnPHltel0pUWOHr45IyK8zowgXWtKVl9U+VRwr2thGbdqkRGk55KjJK4\n" + 
-        "Q+OfwvIKHgvn/4cN/BGIA/52eyY//bTFk6ePGY2vlQK4mvB7MeSxtxoCGxdCYQru\n" + 
-        "wI28rOHyQ1cdx141yxlKVSIcxBVZHm8sfh9PHeKMKuaOgc8kfx+Qh8IghFHyJ+yg\n" + 
-        "PboNF9/PiM/glaaBzY2OKTYQKY6LiTetZiI6RdLE7Y+SFwG7Wwo5dg==\n" + 
+        "-----BEGIN RSA PRIVATE KEY-----\n" +
+        "Proc-Type: 4,ENCRYPTED\n" +
+        "DEK-Info: DES-EDE3-CBC,E20AAB000D1D90B1\n" +
+        "\n" +
+        "cWrCb6eHuwb6/gnbX12Va47qSpFW0j99Lq2eEj0fqLdlwA6+KvD3/U+Nj4ldaAQ4\n" +
+        "rYryQv0MJu/kT9z/mJbBI4NwunX/9vXttyuh8s07sv8AqdHCylYR9miz61Q0LkLR\n" +
+        "9H9D8NWMgMnuVhlj+NUXlkF+Jfriu5xkIqeYDhN8c3/AMawQoNdW/pWmgz0BfFIP\n" +
+        "DUxszfXHx5mfSMoRdC2YZGlFdsONSO7s14Ayz8+pKD0PzSARXtTEJ5+mELCnhFsw\n" +
+        "R7zYYwD+9WjL702bjYQxwRS5Sk1Z/VAxLFfjdtlUFSi6VLGIG+jUnM1RF91KtJY1\n" +
+        "bJOQrlHw9/wyH75y9sXUrVpil4qH9shILHgu4A0VaL7IpIFjWS9vPY7SvwqRlbk7\n" +
+        "QPhxoIpiNzjzjEa7PG6nSqy8mRzJP0OLWzRUoMWJn6ntf+oj7CzaaIgFrrwRGOCQ\n" +
+        "BYibTTMZ/paxKDvZ9Lcl8a6uRvi2II2/F63bPcTcILsKDsBdQp93Evanw1QKXdGi\n" +
+        "jb4b0Y1LYZM0jl7z2TSBZ27HyHKp4jMQP9q9mujEKInjzSB+gsRGfP6++OilrR2U\n" +
+        "Y7kN2o/ufnPHltel0pUWOHr45IyK8zowgXWtKVl9U+VRwr2thGbdqkRGk55KjJK4\n" +
+        "Q+OfwvIKHgvn/4cN/BGIA/52eyY//bTFk6ePGY2vlQK4mvB7MeSxtxoCGxdCYQru\n" +
+        "wI28rOHyQ1cdx141yxlKVSIcxBVZHm8sfh9PHeKMKuaOgc8kfx+Qh8IghFHyJ+yg\n" +
+        "PboNF9/PiM/glaaBzY2OKTYQKY6LiTetZiI6RdLE7Y+SFwG7Wwo5dg==\n" +
         "-----END RSA PRIVATE KEY-----";
-    
+
     /**
      * a self signed certificate
      */
@@ -731,7 +731,7 @@ public class TestUtils {
 
     public static CertPathBuilder builder;
     private static CertStore store;
-    
+
     public static void initCertPathSSCertChain() throws CertificateException,
             InvalidAlgorithmParameterException, NoSuchAlgorithmException,
             IOException {
@@ -762,12 +762,12 @@ public class TestUtils {
         theCertSelector.setCertificate(endCertificate);
         theCertSelector.setIssuer(endCertificate.getIssuerX500Principal()
                 .getEncoded());
-        
+
      // build the path
         builder = CertPathBuilder.getInstance("PKIX");
 
     }
-    
+
     public static CertPathBuilder getCertPathBuilder() {
         if (builder == null) {
             throw new RuntimeException(
@@ -775,7 +775,7 @@ public class TestUtils {
         }
         return builder;
     }
-    
+
     public static CertPath buildCertPathSSCertChain()
             throws InvalidAlgorithmParameterException {
 

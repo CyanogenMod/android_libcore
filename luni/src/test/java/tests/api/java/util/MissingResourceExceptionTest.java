@@ -20,13 +20,13 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-@TestTargetClass(MissingResourceException.class) 
+@TestTargetClass(MissingResourceException.class)
 public class MissingResourceExceptionTest extends junit.framework.TestCase {
 
     /**

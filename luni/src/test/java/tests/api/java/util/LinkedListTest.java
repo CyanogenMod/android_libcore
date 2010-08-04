@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,13 +34,13 @@ import java.util.NoSuchElementException;
 
 import tests.support.Support_ListTest;
 
-@TestTargetClass(LinkedList.class) 
+@TestTargetClass(LinkedList.class)
 public class LinkedListTest extends junit.framework.TestCase {
 
     LinkedList ll;
 
     Object[] objArray;
-    
+
     /**
      * @tests java.util.LinkedList#LinkedList()
      */
@@ -73,7 +73,7 @@ public class LinkedListTest extends junit.framework.TestCase {
         // Test for method java.util.LinkedList(java.util.Collection)
         assertTrue("Incorrect LinkedList constructed", new LinkedList(ll)
                 .equals(ll));
-        
+
         try {
             new LinkedList(null);
             fail("NullPointerException expected");
@@ -152,10 +152,10 @@ public class LinkedListTest extends junit.framework.TestCase {
         myList.add(null);
         ll.addAll(50, myList);
         assertNull("a) List w/nulls not added correctly", ll.get(50));
-        assertEquals("b) List w/nulls not added correctly", 
+        assertEquals("b) List w/nulls not added correctly",
                 "Blah", ll.get(51));
         assertNull("c) List w/nulls not added correctly", ll.get(52));
-        assertEquals("d) List w/nulls not added correctly", 
+        assertEquals("d) List w/nulls not added correctly",
                 "Booga", ll.get(53));
         assertNull("e) List w/nulls not added correctly", ll.get(54));
 
@@ -234,10 +234,10 @@ public class LinkedListTest extends junit.framework.TestCase {
         myList.add(null);
         ll.addAll(myList);
         assertNull("a) List w/nulls not added correctly", ll.get(200));
-        assertEquals("b) List w/nulls not added correctly", 
+        assertEquals("b) List w/nulls not added correctly",
                 "Blah", ll.get(201));
         assertNull("c) List w/nulls not added correctly", ll.get(202));
-        assertEquals("d) List w/nulls not added correctly", 
+        assertEquals("d) List w/nulls not added correctly",
                 "Booga", ll.get(203));
         assertNull("e) List w/nulls not added correctly", ll.get(204));
 
@@ -493,7 +493,7 @@ public class LinkedListTest extends junit.framework.TestCase {
                     elm == objArray[n]);
             ++n;
         }
-        
+
         i2 = ll.listIterator(ll.size()/2);
         assertTrue((Integer)i2.next() == ll.size()/2);
         List myList = new LinkedList();
@@ -549,7 +549,7 @@ public class LinkedListTest extends junit.framework.TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Correct
         }
-        
+
         ll.add(20, null);
         ll.remove(20);
         assertNotNull("Should have removed null", ll.get(20));
@@ -683,7 +683,7 @@ public class LinkedListTest extends junit.framework.TestCase {
         ll.add(null);
         Object[] obj = ll.toArray();
         assertEquals("Returned array of incorrect size", objArray.length + 1, obj.length);
-        
+
         for (int i = 0; i < obj.length - 1; i++)
             assertTrue("Returned incorrect array: " + i, obj[i] == objArray[i]);
         assertNull("Returned incorrect array--end isn't null",
@@ -736,7 +736,7 @@ public class LinkedListTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         LinkedList<String> lls = new LinkedList<String>();
         lls.add("First");
         lls.add("Second");
@@ -816,7 +816,7 @@ public class LinkedListTest extends junit.framework.TestCase {
     public void test_peek() {
         assertEquals("should remove the head", objArray[0], ll.peek());
         assertEquals("should remove the head", objArray[0], ll.peek());
-        
+
         ll.clear();
 
         assertNull("should return 'null' if list is empty", ll.peek());
@@ -828,7 +828,7 @@ public class LinkedListTest extends junit.framework.TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         objArray = new Object[100];
         for (int i = 0; i < objArray.length; i++) {
             objArray[i] = new Integer(i);
@@ -839,12 +839,12 @@ public class LinkedListTest extends junit.framework.TestCase {
             ll.add(objArray[i]);
         }
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         objArray = null;
         ll = null;
-        
+
         super.tearDown();
     }
 }

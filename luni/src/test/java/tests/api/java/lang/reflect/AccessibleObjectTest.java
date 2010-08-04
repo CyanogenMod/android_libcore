@@ -33,16 +33,16 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-@TestTargetClass(AccessibleObject.class) 
+@TestTargetClass(AccessibleObject.class)
 public class AccessibleObjectTest extends junit.framework.TestCase {
 
     public class TestClass {
         public Object aField;
-        
+
         @InheritedRuntime
         public void annotatedMethod(){}
     }
-    
+
     public class SubTestClass extends TestClass{
         @AnnotationRuntime0
         @AnnotationRuntime1
@@ -50,8 +50,8 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
         @AnnotationSource0
         public void annotatedMethod(){}
     }
-    
-    
+
+
     @Retention(RetentionPolicy.RUNTIME)
     @Target( {ElementType.METHOD})
     static @interface AnnotationRuntime0 {
@@ -71,20 +71,20 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
     @Target( {ElementType.METHOD})
     static @interface AnnotationSource0 {
     }
-    
+
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
     @Target( {ElementType.METHOD})
     static @interface InheritedRuntime {
     }
-    
+
     //used for constructor test
     private static class MyAccessibleObject extends AccessibleObject{
         public MyAccessibleObject() {
             super();
         }
     }
-    
+
     /**
      * @tests java.lang.reflect.AccessibleObject#AccessibleObject()
      */
@@ -143,7 +143,7 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
             fail("Exception during test : " + e.getMessage());
         }
     }
-    
+
     /**
      * @tests java.lang.reflect.AccessibleObject#setAccessible(boolean)
      */
@@ -160,7 +160,7 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
         ao.setAccessible(false);
         assertFalse("Returned true to isAccessible", ao.isAccessible());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -178,16 +178,16 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
             npeThrown = true;
         }
         assertTrue("NPE expected", npeThrown);
-        
+
         //test inherited on method has no effect
         InheritedRuntime ir = ao.getAnnotation(InheritedRuntime.class);
         assertNull("Inherited Annotations should have no effect", ir);
-        
+
         //test ordinary runtime annotation
         AnnotationRuntime0 rt0 = ao.getAnnotation(AnnotationRuntime0.class);
         assertNotNull("AnnotationRuntime0 instance expected", rt0);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -198,17 +198,17 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
         AccessibleObject ao = SubTestClass.class.getMethod("annotatedMethod");
         Annotation[] annotations = ao.getAnnotations();
         assertEquals(2, annotations.length);
-        
+
         Set<Class<?>> ignoreOrder = new HashSet<Class<?>>();
         ignoreOrder.add(annotations[0].annotationType());
         ignoreOrder.add(annotations[1].annotationType());
 
-        assertTrue("Missing @AnnotationRuntime0", 
+        assertTrue("Missing @AnnotationRuntime0",
                 ignoreOrder.contains(AnnotationRuntime0.class));
         assertTrue("Missing @AnnotationRuntime1",
                 ignoreOrder.contains(AnnotationRuntime1.class));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -219,17 +219,17 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
         AccessibleObject ao = SubTestClass.class.getMethod("annotatedMethod");
         Annotation[] annotations = ao.getDeclaredAnnotations();
         assertEquals(2, annotations.length);
-        
+
         Set<Class<?>> ignoreOrder = new HashSet<Class<?>>();
         ignoreOrder.add(annotations[0].annotationType());
         ignoreOrder.add(annotations[1].annotationType());
 
-        assertTrue("Missing @AnnotationRuntime0", 
+        assertTrue("Missing @AnnotationRuntime0",
                 ignoreOrder.contains(AnnotationRuntime0.class));
         assertTrue("Missing @AnnotationRuntime1",
                 ignoreOrder.contains(AnnotationRuntime1.class));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -252,7 +252,7 @@ public class AccessibleObjectTest extends junit.framework.TestCase {
         assertTrue("NPE expected", npeThrown);
     }
 
-   
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.

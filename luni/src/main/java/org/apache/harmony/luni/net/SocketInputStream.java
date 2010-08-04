@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketImpl;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * The SocketInputStream supports the streamed reading of bytes from a socket.
  * Multiple streams may be opened on a socket, so care should be taken to manage
@@ -36,7 +34,7 @@ class SocketInputStream extends InputStream {
     /**
      * Constructs a SocketInputStream for the <code>socket</code>. Read
      * operations are forwarded to the <code>socket</code>.
-     * 
+     *
      * @param socket the socket to be read
      * @see Socket
      */
@@ -59,7 +57,7 @@ class SocketInputStream extends InputStream {
     public int read() throws IOException {
         byte[] buffer = new byte[1];
         int result = socket.read(buffer, 0, 1);
-        return (-1 == result) ? result : buffer[0] & 0xFF;
+        return (result == -1) ? result : buffer[0] & 0xFF;
     }
 
     @Override
@@ -69,20 +67,19 @@ class SocketInputStream extends InputStream {
 
     @Override
     public int read(byte[] buffer, int offset, int count) throws IOException {
-        if (null == buffer) {
-            throw new IOException(Msg.getString("K0047"));//$NON-NLS-1$
+        if (buffer == null) {
+            throw new IOException("buffer == null");
         }
 
-        if (0 == count) {
+        if (count == 0) {
             return 0;
         }
 
         if (0 > offset || offset >= buffer.length) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset));//$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
         if (0 > count || offset + count > buffer.length) {
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002f"));//$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException();
         }
 
         return socket.read(buffer, offset, count);

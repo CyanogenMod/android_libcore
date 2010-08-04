@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -102,10 +102,10 @@ public class PlatformAddressFactory {
         MappedPlatformAddress addr = new MappedPlatformAddress(value, size);
         return addr;
     }
-    
+
     public static PlatformAddress allocMap(int fd, long start, long size, int mode) throws IOException {
         if (size == 0) {
-            // if size is 0, call to mmap has incorrect behaviour on 
+            // if size is 0, call to mmap has incorrect behaviour on
             // unix and windows, so return empty address
             return mapOn(0, 0);
         }
@@ -117,7 +117,7 @@ public class PlatformAddressFactory {
 
     /**
      * Allocates a contiguous block of OS heap memory.
-     * 
+     *
      * @param size The number of bytes to allocate from the system heap.
      * @return PlatformAddress representing the memory block.
      */
@@ -141,7 +141,7 @@ public class PlatformAddressFactory {
     /**
      * Allocates a contiguous block of OS heap memory and initializes it to
      * a given value.
-     * 
+     *
      * @param size The number of bytes to allocate from the system heap.
      * @param init The value to initialize the memory.
      * @return PlatformAddress representing the memory block.

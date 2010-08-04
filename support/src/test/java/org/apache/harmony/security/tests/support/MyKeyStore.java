@@ -40,7 +40,7 @@ import java.util.Hashtable;
 
 /**
  * Additional class for KeyStoreSpi and KeyStore verification
- * 
+ *
  */
 
 public class MyKeyStore extends KeyStoreSpi {

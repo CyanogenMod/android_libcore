@@ -29,14 +29,13 @@ public class AllTests {
         TestRunner.main(new String[] { AllTests.class.getName() });
     }
 
-    public static final Test suite() {
-        TestSuite suite = tests.TestSuiteFactory.createTestSuite("Tests for java.net");
+    public static Test suite() {
+        TestSuite suite = new TestSuite("Tests for java.net");
 
         // add net testsuites here
         suite.addTestSuite(ContentHandlerTest.class);
         suite.addTestSuite(ContentHandlerFactoryTest.class);
         suite.addTestSuite(HttpRetryExceptionTest.class);
-        suite.addTestSuite(HttpURLConnectionTest.class);
         suite.addTestSuite(Inet4AddressTest.class);
         suite.addTestSuite(Inet6AddressTest.class);
         suite.addTestSuite(InetAddressTest.class);
@@ -44,8 +43,7 @@ public class AllTests {
         suite.addTestSuite(URITest.class);
         suite.addTestSuite(URLConnectionTest.class);
         suite.addTestSuite(URLEncoderTest.class);
-        suite.addTestSuite(URLTest.class);
-        
+
         return suite;
     }
 }

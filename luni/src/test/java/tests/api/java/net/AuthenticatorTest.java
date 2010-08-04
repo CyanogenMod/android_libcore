@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,7 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -70,7 +70,7 @@ import junit.framework.TestCase;
                          method = "getRequestingScheme",
                          args = {}
                      )}
-    ) 
+    )
 public class AuthenticatorTest extends TestCase {
 
     /**
@@ -93,7 +93,7 @@ public class AuthenticatorTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // correct
         }
-        // Some old RIs throw IllegalArgumentException 
+        // Some old RIs throw IllegalArgumentException
         // Latest RIs throw NullPointerException.
         try {
             Authenticator.RequestorType.valueOf(null);
@@ -114,7 +114,7 @@ public class AuthenticatorTest extends TestCase {
         method = "!Constants",
         args = {}
     )
-    public void test_RequestorType_values() throws Exception {        
+    public void test_RequestorType_values() throws Exception {
         RequestorType[] rt = RequestorType.values();
         assertEquals(RequestorType.PROXY, rt[0]);
         assertEquals(RequestorType.SERVER, rt[1]);
@@ -136,7 +136,7 @@ public class AuthenticatorTest extends TestCase {
         Authenticator.setDefault(mock);
         Authenticator.requestPasswordAuthentication(addr, -1, "http", "promt", "HTTP");
         assertEquals(mock.getRequestorType(), RequestorType.SERVER);
-        
+
         SecurityManager sm = new SecurityManager() {
             final String permissionName = "requestPasswordAuthentication";
 
@@ -150,7 +150,7 @@ public class AuthenticatorTest extends TestCase {
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
-            Authenticator.requestPasswordAuthentication("test_host", addr, -1, 
+            Authenticator.requestPasswordAuthentication("test_host", addr, -1,
                     "http", "promt", "HTTP");
             fail("Should throw SecurityException");
         } catch (SecurityException e) {
@@ -158,7 +158,7 @@ public class AuthenticatorTest extends TestCase {
         } finally {
             System.setSecurityManager(oldSm);
             Authenticator.setDefault(null);
-        }        
+        }
     }
 
     /**
@@ -177,7 +177,7 @@ public class AuthenticatorTest extends TestCase {
         Authenticator.setDefault(mock);
         Authenticator.requestPasswordAuthentication("test_host", addr, -1, "http", "promt", "HTTP");
         assertEquals(mock.getRequestorType(), RequestorType.SERVER);
-        
+
         SecurityManager sm = new SecurityManager() {
             final String permissionName = "requestPasswordAuthentication";
 
@@ -191,7 +191,7 @@ public class AuthenticatorTest extends TestCase {
         SecurityManager oldSm = System.getSecurityManager();
         System.setSecurityManager(sm);
         try {
-            Authenticator.requestPasswordAuthentication("test_host", addr, -1, 
+            Authenticator.requestPasswordAuthentication("test_host", addr, -1,
                     "http", "promt", "HTTP");
             fail("Should throw SecurityException");
         } catch (SecurityException e) {
@@ -203,7 +203,7 @@ public class AuthenticatorTest extends TestCase {
     }
 
     /**
-     * 
+     *
      * @tests java.net.Authenticator#
      *         requestPasswordAuthentication_String_InetAddress_int_String_String_String_URL_Authenticator_RequestorType()
      */
@@ -222,7 +222,7 @@ public class AuthenticatorTest extends TestCase {
                 RequestorType.PROXY);
         assertNull(mock.getRequestingURL());
         assertNull(mock.getRequestorType());
-        
+
         SecurityManager sm = new SecurityManager() {
             final String permissionName = "requestPasswordAuthentication";
 
@@ -249,7 +249,7 @@ public class AuthenticatorTest extends TestCase {
     }
 
     /**
-     * 
+     *
      * @tests java.net.Authenticator#getRequestingURL()
      */
     @TestTargetNew(
@@ -264,7 +264,7 @@ public class AuthenticatorTest extends TestCase {
     }
 
     /**
-     * 
+     *
      * @tests java.net.Authenticator#getRequestorType()
      */
     @TestTargetNew(
@@ -292,25 +292,25 @@ public class AuthenticatorTest extends TestCase {
             PasswordAuthentication  pa = Authenticator.
             requestPasswordAuthentication(addr, 8080, "http", "promt", "HTTP");
             assertNull(pa);
-       
+
         } catch (UnknownHostException e) {
             fail("UnknownHostException was thrown.");
         }
-        
+
         MockAuthenticator mock = new MockAuthenticator();
         Authenticator.setDefault(mock);
-        
+
         try {
             addr = InetAddress.getLocalHost();
             PasswordAuthentication  pa = Authenticator.
             requestPasswordAuthentication(addr, 80, "http", "promt", "HTTP");
             assertNull(pa);
-        
+
         } catch (UnknownHostException e) {
             fail("UnknownHostException was thrown.");
         }
         Authenticator.setDefault(null);
-        
+
         SecurityManager sm = new SecurityManager() {
             final String permissionName = "setDefaultAuthenticator";
 
@@ -333,7 +333,7 @@ public class AuthenticatorTest extends TestCase {
             Authenticator.setDefault(null);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -344,8 +344,8 @@ public class AuthenticatorTest extends TestCase {
         MockAuthenticator ma = new MockAuthenticator();
         assertNull(ma.getRequestingURL());
         assertNull(ma.getRequestorType());
-    }    
-    
+    }
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -356,7 +356,7 @@ public class AuthenticatorTest extends TestCase {
         MockAuthenticator ma = new MockAuthenticator();
         assertNull(ma.getPasswordAuthentication());
     }
-    
+
     /*
      * Mock Authernticator for test
      */
@@ -372,36 +372,36 @@ public class AuthenticatorTest extends TestCase {
         public Authenticator.RequestorType getRequestorType() {
             return super.getRequestorType();
         }
-        
+
         public PasswordAuthentication getPasswordAuthentication() {
             return super.getPasswordAuthentication();
         }
-        
+
         public String getMockRequestingHost() {
             return super.getRequestingHost();
         }
-        
+
         public int getMockRequestingPort() {
             return super.getRequestingPort();
         }
-        
+
         public String getMockRequestingPrompt() {
             return super.getRequestingPrompt();
         }
-        
+
         public String getMockRequestingProtocol() {
             return super.getRequestingProtocol();
         }
-        
+
         public String getMockRequestingScheme() {
             return super.getRequestingScheme();
         }
-        
+
         public InetAddress getMockRequestingSite() {
             return super.getRequestingSite();
         }
     }
-    
+
     class StubAuthenticator extends java.net.Authenticator {
         public StubAuthenticator() {
             super();
@@ -414,9 +414,9 @@ public class AuthenticatorTest extends TestCase {
         public Authenticator.RequestorType getRequestorType() {
             return null;
         }
-        
+
         public PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication("test", 
+            return new PasswordAuthentication("test",
                     new char[] {'t', 'e', 's', 't'});
         }
     }

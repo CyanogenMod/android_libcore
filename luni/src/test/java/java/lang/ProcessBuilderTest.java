@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2009 The Android Open Source Project
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,9 @@
 
 package java.lang;
 
+import java.util.HashMap;
+import java.util.Map;
 import static tests.support.Support_Exec.execAndCheckOutput;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import java.io.InputStream;
-import java.util.Arrays;
 
 public class ProcessBuilderTest extends junit.framework.TestCase {
     private static String shell() {
@@ -42,5 +38,28 @@ public class ProcessBuilderTest extends junit.framework.TestCase {
 
     public void test_redirectErrorStream_false() throws Exception {
         testRedirectErrorStream(false, "out\n", "err\n");
+    }
+
+    public void testEnvironment() throws Exception {
+        ProcessBuilder pb = new ProcessBuilder(shell(), "-c", "echo $A");
+        pb.environment().put("A", "android");
+        execAndCheckOutput(pb, "android\n", "");
+    }
+
+    public void testEnvironmentMapForbidsNulls() throws Exception {
+        ProcessBuilder pb = new ProcessBuilder(shell(), "-c", "echo $A");
+        Map<String, String> environment = pb.environment();
+        Map<String, String> before = new HashMap<String, String>(environment);
+        try {
+            environment.put("A", null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        try {
+            environment.put(null, "android");
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        assertEquals(before, environment);
     }
 }

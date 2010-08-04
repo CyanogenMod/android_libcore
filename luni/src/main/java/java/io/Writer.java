@@ -36,7 +36,7 @@ package java.io;
  */
 public abstract class Writer implements Appendable, Closeable, Flushable {
 
-    static final String TOKEN_NULL = "null"; //$NON-NLS-1$
+    static final String TOKEN_NULL = "null";
 
     /**
      * The object used to synchronize access to the writer.

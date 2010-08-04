@@ -17,16 +17,12 @@
 
 package java.util;
 
-// BEGIN android-added
+import com.ibm.icu4jni.util.ICU;
 import com.ibm.icu4jni.util.LocaleData;
-import com.ibm.icu4jni.util.Resources;
-import java.util.logging.Logger;
-import org.apache.harmony.luni.util.Msg;
-// END android-added
-
-import java.security.AccessController;
 import java.io.Serializable;
+import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.logging.Logger;
 
 /**
  * This class represents a currency as identified in the ISO 4217 currency
@@ -58,11 +54,25 @@ public final class Currency implements Serializable {
             return;
         }
 
-        this.defaultFractionDigits = Resources.getCurrencyFractionDigitsNative(currencyCode);
+        // Ensure that we throw if the our currency code isn't an ISO currency code.
+        String symbol = ICU.getCurrencySymbolNative(Locale.US.toString(), currencyCode);
+        if (symbol == null) {
+            throw badCurrency(currencyCode);
+        }
+
+        this.defaultFractionDigits = ICU.getCurrencyFractionDigitsNative(currencyCode);
         if (defaultFractionDigits < 0) {
-            throw new IllegalArgumentException(Msg.getString("K0322", currencyCode));
+            // In practice, I don't think this can fail because ICU doesn't care whether you give
+            // it a valid country code, and will just return a sensible default for the default
+            // locale's currency.
+            throw badCurrency(currencyCode);
         }
         // END android-changed
+    }
+
+    private IllegalArgumentException badCurrency(String currencyCode) {
+        throw new IllegalArgumentException("Not a supported ISO 4217 currency code: " +
+                currencyCode);
     }
 
     /**
@@ -111,9 +121,9 @@ public final class Currency implements Serializable {
             country = country + "_" + variant;
         }
 
-        String currencyCode = Resources.getCurrencyCodeNative(country);
+        String currencyCode = ICU.getCurrencyCodeNative(country);
         if (currencyCode == null) {
-            throw new IllegalArgumentException(Msg.getString("K0323", locale.toString()));
+            throw new IllegalArgumentException("Not a supported ISO 3166 country: " + locale);
         } else if (currencyCode.equals("None")) {
             return null;
         }
@@ -124,60 +134,45 @@ public final class Currency implements Serializable {
     }
 
     /**
-     * Returns this {@code Currency}'s ISO 4217 currency code.
-     *
-     * @return this {@code Currency}'s ISO 4217 currency code.
+     * Returns this currency's ISO 4217 currency code.
      */
     public String getCurrencyCode() {
         return currencyCode;
     }
 
     /**
-     * Returns the symbol for this currency in the default locale. For instance,
-     * if the default locale is the US, the symbol of the US dollar is "$". For
-     * other locales it may be "US$". If no symbol can be determined, the ISO
-     * 4217 currency code of the US dollar is returned.
-     *
-     * @return the symbol for this {@code Currency} in the default {@code Locale}.
+     * Returns the localized currency symbol for this currency in the user's default locale.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      */
     public String getSymbol() {
         return getSymbol(Locale.getDefault());
     }
 
     /**
-     * Returns the symbol for this currency in the given {@code Locale}.
+     * Returns the localized currency symbol for this currency in {@code locale}.
      * That is, given "USD" and Locale.US, you'd get "$", but given "USD" and a non-US locale,
      * you'd get "US$".
-     * <p>
-     * If the locale only specifies a language rather than a language and a countries (e.g.
-     * {@code Locale.JAPANESE, new Locale("en","")}), the the ISO
-     * 4217 currency code is returned.
-     * <p>
-     * If there is no currency symbol specific to this locale does not exist, the
-     * ISO 4217 currency code is returned.
-     * <p>
      *
-     * @param locale
-     *            the locale for which the currency symbol should be returned.
-     * @return the representation of this {@code Currency}'s symbol in the specified
-     *         locale.
+     * <p>If the locale only specifies a language rather than a language and a country (such as
+     * {@code Locale.JAPANESE} or {new Locale("en", "")} rather than {@code Locale.JAPAN} or
+     * {new Locale("en", "US")}), the ISO 4217 currency code is returned.
+     *
+     * <p>If there is no locale-specific currency symbol, the ISO 4217 currency code is returned.
      */
     public String getSymbol(Locale locale) {
-        // BEGIN android-changed
         if (locale.getCountry().length() == 0) {
             return currencyCode;
         }
 
         // Check the locale first, in case the locale has the same currency.
-        LocaleData localeData = Resources.getLocaleData(locale);
+        LocaleData localeData = LocaleData.get(locale);
         if (localeData.internationalCurrencySymbol.equals(currencyCode)) {
             return localeData.currencySymbol;
         }
 
         // Try ICU, and fall back to the currency code if ICU has nothing.
-        String symbol = Resources.getCurrencySymbolNative(locale.toString(), currencyCode);
+        String symbol = ICU.getCurrencySymbolNative(locale.toString(), currencyCode);
         return symbol != null ? symbol : currencyCode;
-        // END android-changed
     }
 
     /**

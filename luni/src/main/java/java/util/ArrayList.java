@@ -31,16 +31,16 @@ import java.lang.reflect.Array;
 /**
  * ArrayList is an implementation of {@link List}, backed by an array.
  * All optional operations including adding, removing, and replacing elements are supported.
- * 
+ *
  * <p>All elements are permitted, including null.
- * 
+ *
  * <p>This class is a good choice as your default {@code List} implementation.
  * {@link Vector} synchronizes all operations, but not necessarily in a way that's
  * meaningful to your application: synchronizing each call to {@code get}, for example, is not
  * equivalent to synchronizing the list and iterating over it (which is probably what you intended).
  * {@link java.util.concurrent.CopyOnWriteArrayList} is intended for the special case of very high
  * concurrency, frequent traversals, and very rare mutations.
- * 
+ *
  * @param <E> The element type of this list.
  * @since 1.2
  */
@@ -148,7 +148,7 @@ public class ArrayList<E> extends AbstractList<E>
     @Override public void add(int index, E object) {
         Object[] a = array;
         int s = size;
-        if (index > s) {
+        if (index > s || index < 0) {
             throwIndexOutOfBoundsException(index, s);
         }
 
@@ -226,16 +226,16 @@ public class ArrayList<E> extends AbstractList<E>
      */
     @Override
     public boolean addAll(int index, Collection<? extends E> collection) {
+        int s = size;
+        if (index > s || index < 0) {
+            throwIndexOutOfBoundsException(index, s);
+        }
         Object[] newPart = collection.toArray();
         int newPartSize = newPart.length;
         if (newPartSize == 0) {
             return false;
         }
         Object[] a = array;
-        int s = size;
-        if (index > s) {
-            throwIndexOutOfBoundsException(index, s);
-        }
         int newSize = s + newPartSize; // If add overflows, arraycopy will fail
         if (newSize <= a.length) {
              System.arraycopy(a, index, a, index + newPartSize, s - index);
@@ -441,6 +441,9 @@ public class ArrayList<E> extends AbstractList<E>
     }
 
     @Override protected void removeRange(int fromIndex, int toIndex) {
+        if (fromIndex == toIndex) {
+            return;
+        }
         Object[] a = array;
         int s = size;
         if (fromIndex >= s) {

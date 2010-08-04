@@ -24,13 +24,8 @@ import junit.framework.TestSuite;
  */
 
 public class AllTests {
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AllTests.suite());
-    }
-
     public static Test suite() {
-        TestSuite suite = tests.TestSuiteFactory.createTestSuite("All tests for package tests.api.java.io;");
+        TestSuite suite = new TestSuite("All tests for package tests.api.java.io;");
         // $JUnit-BEGIN$
 
         suite.addTestSuite(BufferedInputStreamTest.class);
@@ -90,11 +85,6 @@ public class AllTests {
         suite.addTestSuite(RandomAccessFileTest.class);
         suite.addTestSuite(SequenceInputStreamTest.class);
         suite.addTestSuite(SerializablePermissionTest.class);
-        suite.addTestSuite(SerializationStressTest0.class);
-        suite.addTestSuite(SerializationStressTest1.class);
-        suite.addTestSuite(SerializationStressTest2.class);
-        suite.addTestSuite(SerializationStressTest3.class);
-        suite.addTestSuite(SerializationStressTest4.class);
         suite.addTestSuite(StreamCorruptedExceptionTest.class);
         suite.addTestSuite(StreamTokenizerTest.class);
         suite.addTestSuite(StringBufferInputStreamTest.class);

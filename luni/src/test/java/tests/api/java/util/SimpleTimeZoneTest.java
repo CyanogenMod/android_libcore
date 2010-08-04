@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -28,7 +28,7 @@ import java.util.GregorianCalendar;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
-@TestTargetClass(SimpleTimeZone.class) 
+@TestTargetClass(SimpleTimeZone.class)
 public class SimpleTimeZoneTest extends junit.framework.TestCase {
 
     SimpleTimeZone st1;
@@ -80,7 +80,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         assertEquals("Incorrect TZ constructed", "TEST", st.getID());
         assertEquals("Incorrect TZ constructed", 1000, st.getRawOffset());
         assertTrue("Incorrect TZ constructed", st.useDaylightTime());
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", 12,
                     1, Calendar.SUNDAY, 0, Calendar.NOVEMBER, -1, Calendar.SUNDAY,
@@ -89,7 +89,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", Calendar.NOVEMBER,
                     10, Calendar.SUNDAY, 0, Calendar.NOVEMBER, -1, Calendar.SUNDAY,
@@ -98,7 +98,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", Calendar.NOVEMBER,
                     1, 10, 0, Calendar.NOVEMBER, -1, Calendar.SUNDAY,
@@ -107,7 +107,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", Calendar.DECEMBER,
                     1, Calendar.SUNDAY, 0, Calendar.NOVEMBER, -10, Calendar.SUNDAY,
@@ -145,7 +145,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         assertTrue("Incorrect TZ constructed", st.useDaylightTime());
         assertTrue("Incorrect TZ constructed",
                 st.getDSTSavings() == 1000 * 60 * 60);
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", 12,
                     1, Calendar.SUNDAY, 0, Calendar.NOVEMBER, -1, Calendar.SUNDAY,
@@ -154,7 +154,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", Calendar.NOVEMBER,
                     10, Calendar.SUNDAY, 0, Calendar.NOVEMBER, -1, Calendar.SUNDAY,
@@ -163,7 +163,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", Calendar.NOVEMBER,
                     1, 10, 0, Calendar.NOVEMBER, -1, Calendar.SUNDAY,
@@ -172,7 +172,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", Calendar.DECEMBER,
                     1, Calendar.SUNDAY, 0, Calendar.NOVEMBER, -10, Calendar.SUNDAY,
@@ -228,7 +228,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
                 SimpleTimeZone.UTC_TIME,
                 Integer.MIN_VALUE,
                 TimeZone.LONG));
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", 12,
                     1, Calendar.SUNDAY, 0, Integer.MAX_VALUE, Calendar.NOVEMBER, -1, Calendar.SUNDAY,
@@ -237,7 +237,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", Calendar.NOVEMBER,
                     10, Calendar.SUNDAY, 0, Integer.MAX_VALUE, Calendar.NOVEMBER, -1, Calendar.SUNDAY,
@@ -246,7 +246,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", Calendar.NOVEMBER,
                     1, 10, 0, Calendar.NOVEMBER, Integer.MAX_VALUE, -1, Calendar.SUNDAY,
@@ -255,7 +255,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             new SimpleTimeZone(1000, "TEST", Calendar.DECEMBER,
                     1, Calendar.SUNDAY, 0, Calendar.NOVEMBER, Integer.MAX_VALUE, -10, Calendar.SUNDAY,
@@ -359,41 +359,41 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         assertEquals("Incorrect offset returned", -(5 * 60 * 60 * 1000), st1
                 .getOffset(GregorianCalendar.AD, 1998, Calendar.JUNE, 11,
                         Calendar.THURSDAY, 0));
-        
+
         // Regression for HARMONY-5459
         st1 = new SimpleTimeZone(TimeZone.getDefault().getRawOffset(), TimeZone.getDefault().getID());
-        int fourHours = 4*60*60*1000; 
-        st1.setRawOffset(fourHours); 
+        int fourHours = 4*60*60*1000;
+        st1.setRawOffset(fourHours);
         assertEquals(fourHours, st1.getOffset(1, 2099, 01, 1, 5, 0));
-        
+
         try {
             st1.getOffset(-1, 2099, 01, 1, 5, 0);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             st1.getOffset(1, 2099, 15, 1, 5, 0);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             st1.getOffset(1, 2099, 01, 100, 5, 0);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             st1.getOffset(1, 2099, 01, 1, 50, 0);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             st1.getOffset(1, 2099, 01, 1, 5, -10);
             fail("IllegalArgumentException expected");
@@ -479,9 +479,9 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         // java.util.SimpleTimeZone.inDaylightTime(java.util.Date)
         TimeZone tz = TimeZone.getTimeZone("EST");
         SimpleTimeZone zone = new SimpleTimeZone(tz.getRawOffset(), "EST",
-                Calendar.APRIL, 1, -Calendar.SUNDAY, 7200000, Calendar.OCTOBER, -1, Calendar.SUNDAY, 7200000, 3600000); 
+                Calendar.APRIL, 1, -Calendar.SUNDAY, 7200000, Calendar.OCTOBER, -1, Calendar.SUNDAY, 7200000, 3600000);
         GregorianCalendar gc = new GregorianCalendar(1998, Calendar.JUNE, 11);
-        
+
         assertTrue("Returned incorrect daylight value1", zone.inDaylightTime(gc
                 .getTime()));
         gc = new GregorianCalendar(1998, Calendar.NOVEMBER, 11);
@@ -551,22 +551,22 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
                         13).getTime())));
 
         try {
-            st.setEndRule(13, 20, 0);    
+            st.setEndRule(13, 20, 0);
             fail("IllegalArgumentException is not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
-            st.setEndRule(1, 32, 0);    
+            st.setEndRule(1, 32, 0);
             fail("IllegalArgumentException is not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
-            st.setEndRule(1, 30, 10);    
-            fail("IllegalArgumentException is not thrown.");           
+            st.setEndRule(1, 30, 10);
+            fail("IllegalArgumentException is not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
@@ -732,22 +732,22 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
                         13).getTime())));
 
         try {
-            st.setStartRule(13, 20, 0);    
+            st.setStartRule(13, 20, 0);
             fail("IllegalArgumentException is not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
-            st.setStartRule(1, 32, 0);    
+            st.setStartRule(1, 32, 0);
             fail("IllegalArgumentException is not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
-            st.setStartRule(1, 30, 10);    
-            fail("IllegalArgumentException is not thrown.");           
+            st.setStartRule(1, 30, 10);
+            fail("IllegalArgumentException is not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
@@ -930,7 +930,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         assertTrue("useDaylightTime returned incorrect value", st
                 .useDaylightTime());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -949,17 +949,17 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
         cal.set(1998, Calendar.JUNE, 11, 0, 0);
         assertEquals("Incorrect offset returned", -(5 * 60 * 60 * 1000), st1
                 .getOffset(cal.getTimeInMillis()));
-        
+
         // Regression for HARMONY-5459
         st1 = new SimpleTimeZone(TimeZone.getDefault().getRawOffset(), TimeZone.getDefault().getID());
-        int fourHours = 4*60*60*1000; 
-        st1.setRawOffset(fourHours); 
+        int fourHours = 4*60*60*1000;
+        st1.setRawOffset(fourHours);
         cal.set(2099, 01, 1, 0, 0);
-        
+
         assertEquals(fourHours, st1.getOffset(cal.getTimeInMillis()));
 
     }
-    
+
 
     /**
      * Sets up the fixture, for example, open a network connection. This method

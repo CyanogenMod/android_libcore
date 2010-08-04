@@ -34,7 +34,7 @@ public class PasswordProtectedInputStream extends FilterInputStream {
 
     /**
      * Constructs a new instance of the receiver.
-     * 
+     *
      * @param in The actual input stream where to read the bytes from.
      * @param password The password bytes to use to decrypt the input bytes
      */

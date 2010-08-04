@@ -24,7 +24,7 @@ import dalvik.annotation.TestTargetClass;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(InheritableThreadLocal.class) 
+@TestTargetClass(InheritableThreadLocal.class)
 public class InheritableThreadLocalTest extends TestCase {
 
     /**
@@ -66,13 +66,13 @@ public class InheritableThreadLocalTest extends TestCase {
             @Override
             protected String initialValue() {
                 return "initial";
-            }            
+            }
             @Override
             protected String childValue(String parentValue) {
                 return "childValue";
             }
         };
-        assertEquals("initial", itl.get());        
-    }  
-    
+        assertEquals("initial", itl.get());
+    }
+
 }

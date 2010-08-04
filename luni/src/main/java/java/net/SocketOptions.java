@@ -22,7 +22,7 @@ package java.net;
  * Defines an interface for socket implementations to get and set socket
  * options. It is implemented by the classes {@code SocketImpl} and {@code
  * DatagramSocketImpl}.
- * 
+ *
  * @see SocketImpl
  * @see DatagramSocketImpl
  */
@@ -36,14 +36,15 @@ public interface SocketOptions {
      * the method blocks this time in milliseconds. If all data could be sent
      * during this timeout the socket is closed normally otherwise forcefully.
      * Valid values for this option are in the range {@code 0 <= SO_LINGER <=
-     * 65535}.
+     * 65535}. (Larger timeouts will be treated as 65535s timeouts; roughly 18 hours.)
      */
     public static final int SO_LINGER = 128;
 
     /**
-     * Timeout for blocking operations. The argument value is specified in
-     * milliseconds. An {@code InterruptedIOException} is thrown if this timeout
-     * expires.
+     * Timeout for blocking accept or read/receive operations (but not write/send operations).
+     * The argument value is specified in milliseconds, with 0 meaning no timeout and negative
+     * values not allowed.
+     * An {@code InterruptedIOException} is thrown if this timeout expires.
      */
     public static final int SO_TIMEOUT = 4102;
 
@@ -58,7 +59,7 @@ public interface SocketOptions {
     // For 5 and 6 see MulticastSocket
 
     // For 7 see PlainDatagramSocketImpl
-    
+
     /**
      * This option specifies the interface which is used to send multicast
      * packets. It's only available on a {@code MulticastSocket}.
@@ -80,7 +81,7 @@ public interface SocketOptions {
     public static final int SO_REUSEADDR = 4;
 
     // 10 not currently used
-    
+
     /**
      * Buffer size of the outgoing channel.
      */
@@ -92,37 +93,39 @@ public interface SocketOptions {
     public static final int SO_RCVBUF = 4098;
 
     // For 13, see DatagramSocket
-    
+
     /**
      * This option specifies whether socket implementations can send keepalive
      * messages if no data has been sent for a longer time.
      */
     public static final int SO_KEEPALIVE = 8;
-    
+
     /**
      * This option specifies the value for the Type-of-Service (TOS) field of
-     * the IP header.
+     * the IP header. This may be ignored by the underlying OS.
+     * Values must be between 0 and 255 inclusive.
+     * See <a href="http://www.ietf.org/rfc/rfc1349.txt">RFC 1349</a> for more information.
      */
     public static final int IP_TOS = 3;
-    
+
     /**
      * This option specifies whether the local loopback of multicast packets is
      * enabled or disabled. This option is enabled by default on multicast
      * sockets.
      */
     public static final int IP_MULTICAST_LOOP = 18;
-    
+
     /**
      * This option can be used to enable broadcasting on datagram sockets.
      */
     public static final int SO_BROADCAST = 32;
-    
+
     /**
      * This option specifies whether sending TCP urgent data is supported on
      * this socket or not.
      */
     public static final int SO_OOBINLINE = 4099;
-    
+
     /**
      * This option can be used to set one specific interface on a multihomed
      * host on which incoming connections are accepted. It's only available on
@@ -133,7 +136,7 @@ public interface SocketOptions {
 
     /**
      * Gets the value for the specified socket option.
-     * 
+     *
      * @return the option value.
      * @param optID
      *            the option identifier.
@@ -144,7 +147,7 @@ public interface SocketOptions {
 
     /**
      * Sets the value of the specified socket option.
-     * 
+     *
      * @param optID
      *            the option identifier.
      * @param val

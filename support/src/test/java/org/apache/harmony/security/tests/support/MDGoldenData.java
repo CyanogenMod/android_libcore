@@ -29,11 +29,11 @@ import java.util.HashMap;
  * - reference message<br>
  * - reference message digests calculated using
  *   BEA JRockit j2sdk1.4.2_04 (http://www.bea.com)
- *   for various MD algorithms: 
+ *   for various MD algorithms:
  *   SHA-1, SHA-256, SHA-384, SHA-512, MD-5.
- * Standard algorithm names are defined in 
+ * Standard algorithm names are defined in
  * "JavaTM Cryptography Architecture API Specification & Reference"
- *   
+ *
  */
 public class MDGoldenData {
     // The length of test message
@@ -43,7 +43,7 @@ public class MDGoldenData {
     // Reference digests for various algorithms calculated
     // for <code>myMessage</code>
     private static final HashMap<String, byte[]> goldenData = new HashMap<String, byte[]>();
-    
+
     static {
         // fill myMessage
         for (int i=0; i<myMessage.length; i++) {
@@ -190,7 +190,7 @@ public class MDGoldenData {
      *
      * @param key
      *  MD algorithm name or MD algorithm name + "_NU" if
-     *  not updated MD value requested  
+     *  not updated MD value requested
      * @return
      *  reference digest for specified MD algorithm name
      */

@@ -32,9 +32,9 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 
-@TestTargetClass(Thread.class) 
+@TestTargetClass(Thread.class)
 public class ThreadTest extends junit.framework.TestCase {
-    
+
     int counter = 0;
 
     static class SimpleThread implements Runnable {
@@ -138,17 +138,17 @@ public class ThreadTest extends junit.framework.TestCase {
             boolean b = Thread.holdsLock(this);
             assertTrue("Thread should hold lock for object", b);
         }
-        
+
         public void enterNonLocked() {
             boolean b = Thread.holdsLock(this);
             assertFalse("Thread should not hold lock for object", b);
         }
     }
-    
+
     Thread st, ct, spinner;
 
     static boolean calledMySecurityManager = false;
-    
+
     boolean wasInterrupted = false;
 
     /**
@@ -170,7 +170,7 @@ public class ThreadTest extends junit.framework.TestCase {
                 calledMySecurityManager = true;
                 return Thread.currentThread().getThreadGroup();
             }
-            
+
             @Override
             public void checkPermission(Permission permission) {
                 if (permission.getName().equals("setSecurityManager")) {
@@ -241,7 +241,7 @@ public class ThreadTest extends junit.framework.TestCase {
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.lang.Thread(java.lang.String)
         Thread t = new Thread("Testing");
-        assertEquals("Created tread with incorrect name", 
+        assertEquals("Created tread with incorrect name",
                 "Testing", t.getName());
         t.start();
     }
@@ -331,9 +331,9 @@ public class ThreadTest extends junit.framework.TestCase {
             public void run() {
             }
         };
-        
+
         try {
-            new Thread(tg, new SimpleThread(1), "SimpleThread3", 
+            new Thread(tg, new SimpleThread(1), "SimpleThread3",
                     Integer.MAX_VALUE);
             fail("StackOverflowError/OutOfMemoryError is not thrown.");
         } catch(IllegalThreadStateException itse) {
@@ -341,7 +341,7 @@ public class ThreadTest extends junit.framework.TestCase {
         }
 
     }
-    
+
     /**
      * @tests java.lang.Thread#Thread(java.lang.ThreadGroup, java.lang.String)
      */
@@ -355,7 +355,7 @@ public class ThreadTest extends junit.framework.TestCase {
         // Test for method java.lang.Thread(java.lang.ThreadGroup,
         // java.lang.String)
         st = new Thread(new SimpleThread(1), "SimpleThread4");
-        assertEquals("Returned incorrect thread name", 
+        assertEquals("Returned incorrect thread name",
                 "SimpleThread4", st.getName());
         st.start();
     }
@@ -406,12 +406,12 @@ public class ThreadTest extends junit.framework.TestCase {
         } catch (InterruptedException e) {
         }
         tg.destroy();
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkAccess(Thread t) {
                throw new SecurityException();
             }
@@ -482,7 +482,7 @@ public class ThreadTest extends junit.framework.TestCase {
         } catch (NoSuchMethodError e) {
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -496,11 +496,11 @@ public class ThreadTest extends junit.framework.TestCase {
             System.setErr(new PrintStream(baos));
             Thread.dumpStack();
             System.setErr(savedErr);
-            
+
             String s = new String(baos.toByteArray());
-            
+
             assertTrue(s.contains("java.lang.Thread.dumpStack"));
-            
+
         } catch(Exception e) {
             fail("Unexpected exception was thrown: " + e.toString());
         }
@@ -523,7 +523,7 @@ public class ThreadTest extends junit.framework.TestCase {
             MyThread(ThreadGroup tg, String name) {
                 super(tg, name);
             }
-            
+
             boolean failed = false;
             String failMessage = null;
 
@@ -582,7 +582,7 @@ public class ThreadTest extends junit.framework.TestCase {
                 }
             }
         };
-        
+
         ThreadGroup tg = new ThreadGroup("tg");
         MyThread t = new MyThread(tg, "top");
         t.start();
@@ -627,7 +627,7 @@ public class ThreadTest extends junit.framework.TestCase {
     public void test_getName() {
         // Test for method java.lang.String java.lang.Thread.getName()
         st = new Thread(new SimpleThread(1), "SimpleThread6");
-        assertEquals("Returned incorrect thread name", 
+        assertEquals("Returned incorrect thread name",
                 "SimpleThread6", st.getName());
         st.start();
     }
@@ -766,7 +766,7 @@ public class ThreadTest extends junit.framework.TestCase {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkAccess(Thread t) {
                throw new SecurityException();
             }
@@ -781,7 +781,7 @@ public class ThreadTest extends junit.framework.TestCase {
             // expected
         } finally {
            System.setSecurityManager(oldSm);
-        }        
+        }
     }
 
     /**
@@ -823,7 +823,7 @@ public class ThreadTest extends junit.framework.TestCase {
             }
         }
         assertTrue("Started thread returned false", st.isAlive());
-        
+
         try {
             st.join();
         } catch (InterruptedException e) {
@@ -924,7 +924,7 @@ public class ThreadTest extends junit.framework.TestCase {
         }
         assertTrue("Hung joining a non-started thread", result);
         th.start();
-        
+
         st = new Thread() {
             public void run() {
                 try {
@@ -932,11 +932,11 @@ public class ThreadTest extends junit.framework.TestCase {
                     fail("InterruptedException was not thrown.");
                 } catch(InterruptedException ie) {
                     //expected
-                }       
-            }           
+                }
+            }
         };
 
-        st.start();        
+        st.start();
     }
 
     @TestTargetNew(
@@ -1047,7 +1047,7 @@ public class ThreadTest extends junit.framework.TestCase {
         killer.interrupt();
         assertTrue("Hung joining a non-started thread", result);
         th.start();
-        
+
         st = new Thread() {
             public void run() {
                 try {
@@ -1055,11 +1055,11 @@ public class ThreadTest extends junit.framework.TestCase {
                     fail("InterruptedException was not thrown.");
                 } catch(InterruptedException ie) {
                     //expected
-                }       
-            }           
+                }
+            }
         };
 
-        st.start(); 
+        st.start();
     }
 
     /**
@@ -1081,7 +1081,7 @@ public class ThreadTest extends junit.framework.TestCase {
                 st.start();
                 simple.wait();
             }
-            
+
             long firstRead = System.currentTimeMillis();
             st.join(100, 999999);
             long secondRead = System.currentTimeMillis();
@@ -1089,7 +1089,7 @@ public class ThreadTest extends junit.framework.TestCase {
                     + firstRead + "=" + (secondRead - firstRead), secondRead
                     - firstRead <= 300);
             assertTrue("Joined thread is not alive", st.isAlive());
-            st.interrupt();  
+            st.interrupt();
         } catch (Exception e) {
             fail("Exception during test : " + e.getMessage());
         }
@@ -1123,7 +1123,7 @@ public class ThreadTest extends junit.framework.TestCase {
         killer.interrupt();
         assertTrue("Hung joining a non-started thread", result);
         th.start();
-        
+
         st = new Thread() {
             public void run() {
                 try {
@@ -1131,11 +1131,11 @@ public class ThreadTest extends junit.framework.TestCase {
                     fail("InterruptedException was not thrown.");
                 } catch(InterruptedException ie) {
                     //expected
-                }       
-            }           
+                }
+            }
         };
 
-        st.start(); 
+        st.start();
     }
 
     @TestTargets({
@@ -1157,13 +1157,13 @@ public class ThreadTest extends junit.framework.TestCase {
         st = new Thread();
         st.setContextClassLoader(pcl);
         assertEquals(pcl, st.getContextClassLoader());
-        
+
         st.setContextClassLoader(null);
         assertNull(st.getContextClassLoader());
-        
+
         SecurityManager sm = new SecurityManager() {
             public void checkPermission(Permission perm) {
-                if (perm.getName().equals("setContextClassLoader") 
+                if (perm.getName().equals("setContextClassLoader")
                         || perm.getName().equals("getClassLoader") ) {
                     throw new SecurityException();
                 }
@@ -1181,7 +1181,7 @@ public class ThreadTest extends junit.framework.TestCase {
             System.setSecurityManager(oldSm);
         }
     }
-    
+
     private Thread launchFiveSecondDummyThread() {
         Thread thread = new Thread() {
             public void run() {
@@ -1192,21 +1192,21 @@ public class ThreadTest extends junit.framework.TestCase {
                 }
             }
         };
-        
+
         thread.start();
-        
+
         return thread;
     }
 
     private class ThreadSecurityManager extends SecurityManager {
         public void checkPermission(Permission perm) {
         }
-        
+
         public void checkAccess(Thread t) {
             throw new SecurityException();
         }
     };
-    
+
     /**
      * @tests java.lang.Thread#resume()
      */
@@ -1219,7 +1219,7 @@ public class ThreadTest extends junit.framework.TestCase {
     @AndroidOnly("RI does implement this method, whereas Android does not")
     @SuppressWarnings("deprecation")
     public void test_resume() {
-        Thread thread = launchFiveSecondDummyThread(); 
+        Thread thread = launchFiveSecondDummyThread();
 
         try {
             Thread.sleep(1000);
@@ -1243,7 +1243,7 @@ public class ThreadTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         try {
             thread.join();
         } catch (InterruptedException e) {
@@ -1301,7 +1301,7 @@ public class ThreadTest extends junit.framework.TestCase {
         st.setDaemon(true);
         assertTrue("Failed to set thread as daemon thread", st.isDaemon());
         st.start();
-        
+
         // BEGIN android-added
         st = new Thread(new SimpleThread(5));
         st.start();
@@ -1317,7 +1317,7 @@ public class ThreadTest extends junit.framework.TestCase {
 
             public void checkPermission(Permission perm) {
             }
-           
+
             public void checkAccess(Thread t) {
                throw new SecurityException();
             }
@@ -1348,7 +1348,7 @@ public class ThreadTest extends junit.framework.TestCase {
         // Test for method void java.lang.Thread.setName(java.lang.String)
         st = new Thread(new SimpleThread(1), "SimpleThread15");
         st.setName("Bogus Name");
-        assertEquals("Failed to set thread name", 
+        assertEquals("Failed to set thread name",
                 "Bogus Name", st.getName());
         try {
             st.setName(null);
@@ -1358,12 +1358,12 @@ public class ThreadTest extends junit.framework.TestCase {
             assertTrue("Null should not be accepted as a valid name", true);
         }
         st.start();
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkAccess(Thread t) {
                throw new SecurityException();
             }
@@ -1397,12 +1397,12 @@ public class ThreadTest extends junit.framework.TestCase {
         assertTrue("Failed to set priority",
                 st.getPriority() == Thread.MAX_PRIORITY);
         st.start();
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
             }
-           
+
             public void checkAccess(Thread t) {
                throw new SecurityException();
             }
@@ -1418,20 +1418,20 @@ public class ThreadTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         try {
             st.setPriority(Thread.MIN_PRIORITY - 1);
             fail("IllegalArgumentException is not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
         }
-        
+
         try {
             st.setPriority(Thread.MAX_PRIORITY + 1);
             fail("IllegalArgumentException is not thrown.");
         } catch(IllegalArgumentException iae) {
             //expected
-        }        
+        }
     }
 
     /**
@@ -1445,10 +1445,10 @@ public class ThreadTest extends junit.framework.TestCase {
     )
     public void test_sleepJ() {
         // Note: Not too much we can test here that can be reliably measured.
-        
+
         // Check that basic behavior is about right (with some tolerance)
         long stime = System.currentTimeMillis();
-        
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -1456,10 +1456,10 @@ public class ThreadTest extends junit.framework.TestCase {
         }
 
         long ftime = System.currentTimeMillis();
-        
+
         assertTrue("Failed to sleep long enough", (ftime - stime) >= 500);
         assertTrue("Failed to wake up early enough", (ftime - stime) <= 1500);
-        
+
         // Check that interrupt works
         st = new Thread() {
             public void run() {
@@ -1472,21 +1472,21 @@ public class ThreadTest extends junit.framework.TestCase {
         };
 
         st.start();
-        
+
         try {
             Thread.sleep(5000);
         } catch(InterruptedException e) {
             fail("Unexpected InterruptedException was thrown");
         }
-        
+
         st.interrupt();
-        
+
         try {
             Thread.sleep(5000);
         } catch(InterruptedException e) {
             fail("Unexpected InterruptedException was thrown");
         }
-        
+
         assertTrue(wasInterrupted);
     }
 
@@ -1501,10 +1501,10 @@ public class ThreadTest extends junit.framework.TestCase {
     )
     public void test_sleepJI() {
         // Note: Not too much we can test here that can be reliably measured.
-        
+
         // Check that basic behavior is about right (with some tolerance)
         long stime = System.currentTimeMillis();
-        
+
         try {
             Thread.sleep(1000, 99999);
         } catch (InterruptedException e) {
@@ -1512,10 +1512,10 @@ public class ThreadTest extends junit.framework.TestCase {
         }
 
         long ftime = System.currentTimeMillis();
-        
+
         assertTrue("Failed to sleep long enough", (ftime - stime) >= 500);
         assertTrue("Failed to wake up early enough", (ftime - stime) <= 1500);
-        
+
         // Check that interrupt works
         st = new Thread() {
             public void run() {
@@ -1528,21 +1528,21 @@ public class ThreadTest extends junit.framework.TestCase {
         };
 
         st.start();
-        
+
         try {
             Thread.sleep(5000, 99999);
         } catch(InterruptedException e) {
             fail("Unexpected InterruptedException was thrown");
         }
-        
+
         st.interrupt();
-        
+
         try {
             Thread.sleep(5000);
         } catch(InterruptedException e) {
             fail("Unexpected InterruptedException was thrown");
         }
-        
+
         assertTrue(wasInterrupted);
     }
 
@@ -1618,7 +1618,7 @@ public class ThreadTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         try {
             thread.join();
         } catch (InterruptedException e) {
@@ -1646,7 +1646,7 @@ public class ThreadTest extends junit.framework.TestCase {
                 }
             }
         };
-        
+
         thread.start();
         try {
             Thread.sleep(1000);
@@ -1663,7 +1663,7 @@ public class ThreadTest extends junit.framework.TestCase {
         SecurityManager sm = new SecurityManager() {
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkAccess(Thread t) {
                 throw new SecurityException();
             }
@@ -1679,7 +1679,7 @@ public class ThreadTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         try {
             thread.join();
         } catch (InterruptedException e) {
@@ -1723,7 +1723,7 @@ public class ThreadTest extends junit.framework.TestCase {
         } finally {
             System.setSecurityManager(oldSm);
         }
-        
+
         try {
             thread.join();
         } catch (InterruptedException e) {
@@ -1755,7 +1755,7 @@ public class ThreadTest extends junit.framework.TestCase {
         }
         tg.destroy();
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -1765,29 +1765,29 @@ public class ThreadTest extends junit.framework.TestCase {
     public void test_yield() {
 
         Counter [] countersNotYeld = new Counter[10];
-        
+
         for(int i = 0; i < 10; i++) {
             countersNotYeld[i] = new Counter(false);
         }
         Counter countersYeld = new Counter(true);
         try {
             Thread.sleep(11000);
-        } catch(InterruptedException ie) {}                
-       
+        } catch(InterruptedException ie) {}
+
         for(Counter c:countersNotYeld) {
             assertTrue(countersYeld.counter == c.counter);
         }
     }
-    
+
     class Counter extends Thread {
         public int counter = 0;
         boolean isDoYield = false;
-        
+
         public Counter(boolean isDoYield) {
             this.isDoYield = isDoYield;
             start();
         }
-        
+
         public void run() {
             for(int i = 0; i < 10000; i++) {
                 if(isDoYield)
@@ -1795,9 +1795,9 @@ public class ThreadTest extends junit.framework.TestCase {
                 counter ++;
             }
         }
-    } 
+    }
 
-    
+
     /**
      * @tests java.lang.Thread#getAllStackTraces()
      */
@@ -1811,7 +1811,7 @@ public class ThreadTest extends junit.framework.TestCase {
         Map<Thread, StackTraceElement[]> stMap = Thread.getAllStackTraces();
         assertNotNull(stMap);
         //TODO add security-based tests
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
@@ -1832,7 +1832,7 @@ public class ThreadTest extends junit.framework.TestCase {
            System.setSecurityManager(oldSm);
         }
     }
-    
+
     /**
      * @tests java.lang.Thread#getDefaultUncaughtExceptionHandler
      * @tests java.lang.Thread#setDefaultUncaughtExceptionHandler
@@ -1856,15 +1856,15 @@ public class ThreadTest extends junit.framework.TestCase {
             public void uncaughtException(Thread thread, Throwable ex) {
             }
         }
-        
+
         final Handler handler = new Handler();
         Thread.setDefaultUncaughtExceptionHandler(handler);
         assertSame(handler, Thread.getDefaultUncaughtExceptionHandler());
-        
+
         Thread.setDefaultUncaughtExceptionHandler(null);
         assertNull(Thread.getDefaultUncaughtExceptionHandler());
         //TODO add security-based tests
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
@@ -1883,10 +1883,10 @@ public class ThreadTest extends junit.framework.TestCase {
         } catch (SecurityException e) {
             // expected
         }  finally {
-            System.setSecurityManager(oldSm);           
+            System.setSecurityManager(oldSm);
         }
     }
-    
+
     /**
      * @tests java.lang.Thread#getStackTrace()
      */
@@ -1898,7 +1898,7 @@ public class ThreadTest extends junit.framework.TestCase {
     )
     public void test_getStackTrace() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        
+
         assertNotNull(stackTrace);
 
         stack_trace_loop: {
@@ -1912,9 +1912,9 @@ public class ThreadTest extends junit.framework.TestCase {
             }
             fail("class and method not found in stack trace");
         }
-        
+
         //TODO add security-based tests
-        
+
         SecurityManager sm = new SecurityManager() {
 
             public void checkPermission(Permission perm) {
@@ -1933,10 +1933,10 @@ public class ThreadTest extends junit.framework.TestCase {
         } catch (SecurityException e) {
             // expected
         }  finally {
-            System.setSecurityManager(oldSm);           
+            System.setSecurityManager(oldSm);
         }
     }
-    
+
     /**
      * @tests java.lang.Thread#getState()
      */
@@ -1950,7 +1950,7 @@ public class ThreadTest extends junit.framework.TestCase {
         Thread.State state = Thread.currentThread().getState();
         assertNotNull(state);
         assertEquals(Thread.State.RUNNABLE, state);
-        
+
         final Semaphore sem = new Semaphore(0);
         final Object lock = new Object();
         Thread th = new Thread() {
@@ -1998,7 +1998,7 @@ public class ThreadTest extends junit.framework.TestCase {
         run = false;
 
         while (!sem.hasQueuedThreads()){}
-        
+
         assertEquals(Thread.State.WAITING, th.getState());
         synchronized (lock) {
             sem.release();
@@ -2012,12 +2012,12 @@ public class ThreadTest extends junit.framework.TestCase {
         } catch (InterruptedException e) {
             fail("InterruptedException was thrown.");
         }
-        
+
         synchronized (lock) {
             assertEquals(Thread.State.TIMED_WAITING, th.getState());
             th.interrupt();
         }
-        
+
         try {
             th.join(1000);
         } catch(InterruptedException ie) {
@@ -2026,7 +2026,7 @@ public class ThreadTest extends junit.framework.TestCase {
         assertEquals(Thread.State.TERMINATED, th.getState());
     }
     volatile boolean run = true;
-    
+
     /**
      * @tests java.lang.Thread#getUncaughtExceptionHandler
      * @tests java.lang.Thread#setUncaughtExceptionHandler
@@ -2050,11 +2050,11 @@ public class ThreadTest extends junit.framework.TestCase {
             public void uncaughtException(Thread thread, Throwable ex) {
             }
         }
-        
+
         final Handler handler = new Handler();
         Thread.currentThread().setUncaughtExceptionHandler(handler);
         assertSame(handler, Thread.currentThread().getUncaughtExceptionHandler());
-        
+
         Thread.currentThread().setUncaughtExceptionHandler(null);
 
         //TODO add security-based tests
@@ -2062,7 +2062,7 @@ public class ThreadTest extends junit.framework.TestCase {
 
             public void checkPermission(Permission perm) {
             }
-           
+
             public void checkAccess(Thread t) {
                throw new SecurityException();
             }
@@ -2080,7 +2080,7 @@ public class ThreadTest extends junit.framework.TestCase {
         }
 
     }
-    
+
     /**
      * @tests java.lang.Thread#getId()
      */
@@ -2092,7 +2092,7 @@ public class ThreadTest extends junit.framework.TestCase {
     )
     public void test_getId() {
         assertTrue("current thread's ID is not positive", Thread.currentThread().getId() > 0);
-        
+
         //check all the current threads for positive IDs
         Map<Thread, StackTraceElement[]> stMap = Thread.getAllStackTraces();
         for (Thread thread : stMap.keySet()) {
@@ -2111,10 +2111,10 @@ public class ThreadTest extends junit.framework.TestCase {
     )
     public void test_holdsLock() {
         MonitoredClass monitor = new MonitoredClass();
-        
+
         monitor.enterLocked();
         monitor.enterNonLocked();
-    
+
         try {
             Thread.holdsLock(null);
             fail("NullPointerException was not thrown.");

@@ -30,7 +30,7 @@ public final class ReflectPermission extends BasicPermission {
     /**
      * Constructs a new {@code ReflectPermission} instance with the specified
      * name.
-     * 
+     *
      * @param permissionName
      *            the name of the new permission
      * @throws IllegalArgumentException
@@ -45,7 +45,7 @@ public final class ReflectPermission extends BasicPermission {
     /**
      * Constructs a new {@code ReflectPermission} instance with the specified
      * name and action list. The action list will be ignored.
-     * 
+     *
      * @param name
      *            the name of the new permission
      * @param actions

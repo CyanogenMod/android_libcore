@@ -19,16 +19,16 @@ package java.util;
 
 /**
  * A legacy iteration interface.
- * 
+ *
  * <p>New code should use {@link Iterator} instead. {@code Iterator} replaces the
  * enumeration interface and adds a way to remove elements from a collection.
- * 
+ *
  * <p>If you <i>have</i> an {@code Enumeration} and want a {@code Collection}, you
  * can use {@link Collections#list} to get a {@code List}.
- * 
+ *
  * <p>If you <i>need</i> an {@code Enumeration} for a legacy API and have a
  * {@code Collection}, you can use {@link Collections#enumeration}.
- * 
+ *
  * @version 1.0
  * @see Iterator
  */
@@ -36,7 +36,7 @@ public interface Enumeration<E> {
 
     /**
      * Returns whether this {@code Enumeration} has more elements.
-     * 
+     *
      * @return {@code true} if there are more elements, {@code false} otherwise.
      * @see #nextElement
      */
@@ -44,7 +44,7 @@ public interface Enumeration<E> {
 
     /**
      * Returns the next element in this {@code Enumeration}.
-     * 
+     *
      * @return the next element..
      * @throws NoSuchElementException
      *             if there are no more elements.

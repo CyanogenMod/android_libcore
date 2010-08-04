@@ -33,7 +33,7 @@ import javax.crypto.SecretKey;
 
 /**
  * Support class for KeyStore tests
- *  
+ *
  */
 
 public class KeyStoreTestSupport {

@@ -20,11 +20,11 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Random;
 
-@TestTargetClass(Random.class) 
+@TestTargetClass(Random.class)
 public class RandomTest extends junit.framework.TestCase {
 
     Random r;
@@ -315,23 +315,23 @@ public class RandomTest extends junit.framework.TestCase {
                     "Reseting a random to its old seed did not result in the same chain of values as it gave before",
                     aRandom.nextLong() == randomArray[counter]);
     }
-    
+
     class Mock_Random extends Random {
         boolean nextCalled = false;
-        
+
         public boolean getFlag () {
             boolean retVal = nextCalled;
             nextCalled = false;
             return retVal;
         }
-        
+
         @Override
         protected int next(int bits) {
             nextCalled = true;
             return super.next(bits);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",

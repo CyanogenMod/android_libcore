@@ -43,7 +43,7 @@ public interface Queue<E> extends Collection<E> {
      * allows such an operation. The method is generally preferable to
      * {@link Collection#add}, since the latter might throw an exception if the
      * operation fails.
-     * 
+     *
      * @param o
      *            the specified element to insert into the queue.
      * @return {@code true} if the operation succeeds and {@code false} if it
@@ -54,7 +54,7 @@ public interface Queue<E> extends Collection<E> {
     /**
      * Gets and removes the element at the head of the queue, or returns {@code
      * null} if there is no element in the queue.
-     * 
+     *
      * @return the element at the head of the queue or {@code null} if there is
      *         no element in the queue.
      */
@@ -63,7 +63,7 @@ public interface Queue<E> extends Collection<E> {
     /**
      * Gets and removes the element at the head of the queue. Throws a
      * NoSuchElementException if there is no element in the queue.
-     * 
+     *
      * @return the element at the head of the queue.
      * @throws NoSuchElementException
      *             if there is no element in the queue.
@@ -72,7 +72,7 @@ public interface Queue<E> extends Collection<E> {
 
     /**
      * Gets but does not remove the element at the head of the queue.
-     * 
+     *
      * @return the element at the head of the queue or {@code null} if there is
      *         no element in the queue.
      */
@@ -81,7 +81,7 @@ public interface Queue<E> extends Collection<E> {
     /**
      * Gets but does not remove the element at the head of the queue. Throws a
      * {@code NoSuchElementException} if there is no element in the queue.
-     * 
+     *
      * @return the element at the head of the queue.
      * @throws NoSuchElementException
      *             if there is no element in the queue.

@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,7 +51,7 @@ public class Support_StringWriter extends Writer {
     /**
      * Close this Writer. This is the concrete implementation required. This
      * particular implementation does nothing.
-     * 
+     *
      * @exception java.io.IOException
      *                If an IO error occurs closing this StringWriter.
      */
@@ -62,7 +62,7 @@ public class Support_StringWriter extends Writer {
     /**
      * Flush this Writer. This is the concrete implementation required. This
      * particular implementation does nothing.
-     * 
+     *
      */
     @Override
     public void flush() {
@@ -72,7 +72,7 @@ public class Support_StringWriter extends Writer {
      * Answer the contents of this StringWriter as a StringBuffer. Any changes
      * made to the StringBuffer by the receiver or the caller are reflected in
      * this StringWriter.
-     * 
+     *
      * @return this StringWriters local StringBuffer.
      */
     public StringBuffer getBuffer() {
@@ -85,7 +85,7 @@ public class Support_StringWriter extends Writer {
      * Answer the contents of this StringWriter as a String. Any changes made to
      * the StringBuffer by the receiver after returning will not be reflected in
      * the String returned to the caller.
-     * 
+     *
      * @return this StringWriters current contents as a String.
      */
     @Override
@@ -98,14 +98,14 @@ public class Support_StringWriter extends Writer {
     /**
      * Writes <code>count</code> characters starting at <code>offset</code>
      * in <code>buf</code> to this StringWriter.
-     * 
+     *
      * @param buf
      *            the non-null array containing characters to write.
      * @param offset
      *            offset in buf to retrieve characters
      * @param count
      *            maximum number of characters to write
-     * 
+     *
      * @exception java.lang.ArrayIndexOutOfBoundsException
      *                If offset or count are outside of bounds.
      */
@@ -126,10 +126,10 @@ public class Support_StringWriter extends Writer {
      * Writes the specified character <code>oneChar</code> to this
      * StringWriter. This implementation writes the low order two bytes to the
      * Stream.
-     * 
+     *
      * @param oneChar
      *            The character to write
-     * 
+     *
      */
     @Override
     public void write(int oneChar) {
@@ -141,10 +141,10 @@ public class Support_StringWriter extends Writer {
     /**
      * Writes the characters from the String <code>str</code> to this
      * StringWriter.
-     * 
+     *
      * @param str
      *            the non-null String containing the characters to write.
-     * 
+     *
      */
     @Override
     public void write(String str) {
@@ -157,14 +157,14 @@ public class Support_StringWriter extends Writer {
      * Writes <code>count</code> number of characters starting at
      * <code>offset</code> from the String <code>str</code> to this
      * StringWriter.
-     * 
+     *
      * @param str
      *            the non-null String containing the characters to write.
      * @param offset
      *            the starting point to retrieve characters.
      * @param count
      *            the number of characters to retrieve and write.
-     * 
+     *
      * @exception java.lang.ArrayIndexOutOfBoundsException
      *                If offset or count are outside of bounds.
      */

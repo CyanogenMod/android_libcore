@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.KnownFailure;
 
 import java.io.Closeable;
@@ -56,7 +56,7 @@ import tests.support.Support_PortManager;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(Scanner.class) 
+@TestTargetClass(Scanner.class)
 public class ScannerTest extends TestCase {
     static final boolean disableRIBugs = false;
 
@@ -280,7 +280,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner(new StringReader("test string"));
         assertNotNull(s);
         s.close();
-        
+
         // Scanner(Readable)
         try {
             s = new Scanner((Readable) null);
@@ -647,7 +647,7 @@ public class ScannerTest extends TestCase {
         } catch (IllegalStateException e) {
             // Expected
         }
-        
+
         s = new Scanner("True faLse");
         try {
             s.match();
@@ -676,7 +676,7 @@ public class ScannerTest extends TestCase {
         } catch (IllegalStateException e) {
             // Expected
         }
-        
+
         s = new Scanner("True faLse");
         assertTrue(s.nextBoolean());
         result = s.match();
@@ -700,7 +700,7 @@ public class ScannerTest extends TestCase {
         assertEquals(4, result.end(0));
         assertEquals("True", result.group());
         assertEquals(0, result.groupCount());
-        
+
         s = new Scanner("True fase");
         assertTrue(s.nextBoolean());
         assertEquals(0, result.groupCount());
@@ -716,7 +716,7 @@ public class ScannerTest extends TestCase {
         } catch (IllegalStateException e) {
             // Expected
         }
-        
+
         s = new Scanner("True fase");
         assertTrue(s.nextBoolean());
         try {
@@ -732,9 +732,9 @@ public class ScannerTest extends TestCase {
         assertEquals(4, result.end(0));
         assertEquals("True", result.group());
         assertEquals(0, result.groupCount());
-        
+
     }
-     
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#next()
@@ -761,7 +761,7 @@ public class ScannerTest extends TestCase {
         } catch (NoSuchElementException e) {
             // Expected
         }
-        
+
         s = new Scanner("a").useDelimiter("a?");
         try {
             s.next();
@@ -769,7 +769,7 @@ public class ScannerTest extends TestCase {
         } catch (NoSuchElementException e) {
             // Expected
         }
-        
+
         s = new Scanner("aa").useDelimiter("a?");
         assertEquals("", s.next());
         try {
@@ -778,7 +778,7 @@ public class ScannerTest extends TestCase {
         } catch (NoSuchElementException e) {
             // Expected
         }
-        
+
 
         s = new Scanner("word( )test( )").useDelimiter("\\( \\)");
         assertEquals("word", s.next());
@@ -851,7 +851,7 @@ public class ScannerTest extends TestCase {
                 Pattern.MULTILINE));
         assertEquals("test\n", s.next());
         assertEquals("test", s.next());
-        
+
         s = new Scanner("").useDelimiter(Pattern.compile("^",
                 Pattern.MULTILINE));
         try {
@@ -860,7 +860,7 @@ public class ScannerTest extends TestCase {
         } catch (NoSuchElementException e) {
             // Expected
         }
-        
+
         s = new Scanner("").useDelimiter(Pattern.compile("^*",
                 Pattern.MULTILINE));
         try {
@@ -900,7 +900,7 @@ public class ScannerTest extends TestCase {
         } catch (NoSuchElementException e) {
             // Expected
         }
-        
+
         s.close();
         try {
             s.next();
@@ -909,7 +909,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#next(Pattern)
@@ -968,7 +968,7 @@ public class ScannerTest extends TestCase {
         } catch (InputMismatchException e) {
             // Expected
         }
-        
+
         s.close();
         try {
             s.next(pattern);
@@ -1030,7 +1030,7 @@ public class ScannerTest extends TestCase {
         } catch (InputMismatchException e) {
             // Expected
         }
-        
+
         s.close();
         try {
             s.next("a*b");
@@ -1039,7 +1039,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextBoolean()
@@ -1101,7 +1101,7 @@ public class ScannerTest extends TestCase {
 
         s = new Scanner("false( )").useDelimiter("\\( \\)");
         assertFalse(s.nextBoolean());
-        
+
         s.close();
         try {
             s.nextBoolean();
@@ -1110,7 +1110,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextInt(int)
@@ -1257,7 +1257,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt(10));
@@ -1265,7 +1265,7 @@ public class ScannerTest extends TestCase {
         /*
          * There are three types of negative prefix all in all. '' '-' '(' There
          * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used togethor. Prefix '-' and suffix '-' must be used 
+         * must be used togethor. Prefix '-' and suffix '-' must be used
          * exclusively.
          */
 
@@ -1323,7 +1323,7 @@ public class ScannerTest extends TestCase {
                 }
             }
         }
-        
+
         s.close();
         try {
             s.nextInt(10);
@@ -1485,7 +1485,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt());
@@ -1536,7 +1536,7 @@ public class ScannerTest extends TestCase {
                 assertEquals(-123, s.nextInt());
             }
         }
-        
+
         s.close();
         try {
             s.nextInt();
@@ -1545,7 +1545,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextByte(int)
@@ -1616,7 +1616,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("1\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(100, s.nextByte(10));
-        
+
         s = new Scanner("1\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(100, s.nextByte(10));
@@ -1624,12 +1624,12 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("ar", "AE"));
         assertEquals(-123, s.nextByte(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextByte(10));
-        
+
         s.close();
         try {
             s.nextByte(10);
@@ -1713,7 +1713,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("1\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(100, s.nextByte());
-        
+
         s = new Scanner("1\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(100, s.nextByte());
@@ -1725,7 +1725,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextByte());
-        
+
         s.close();
         try {
             s.nextByte();
@@ -1734,7 +1734,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextFloat()
@@ -1791,7 +1791,7 @@ public class ScannerTest extends TestCase {
         String str=String.valueOf(Float.MAX_VALUE*2);
         s=new Scanner(str);
         assertEquals(Float.POSITIVE_INFINITY,s.nextFloat());
-        
+
         /*
          * Different locale can only recognize corresponding locale sensitive
          * string. ',' is used in many locales as group separator.
@@ -1852,7 +1852,7 @@ public class ScannerTest extends TestCase {
                 assertEquals((float)-123.0, s.nextFloat());
             }
         }
-        
+
         s.close();
         try {
             s.nextFloat();
@@ -1861,7 +1861,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextBigInteger(int)
@@ -1872,7 +1872,6 @@ public class ScannerTest extends TestCase {
         method = "nextBigInteger",
         args = {int.class}
     )
-    @KnownFailure("nextBigInteger method doesn't work properly if input string has Arabic-Indic digits")
     public void test_nextBigIntegerI() throws IOException {
         s = new Scanner("123 456");
         assertEquals(new BigInteger("123"), s.nextBigInteger(10));
@@ -1988,7 +1987,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(new BigInteger("12300"), s.nextBigInteger(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(new BigInteger("12300"), s.nextBigInteger(10));
@@ -1996,12 +1995,12 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("ar", "AE"));
         assertEquals(new BigInteger("-123"), s.nextBigInteger(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(new BigInteger("-123"), s.nextBigInteger(10));
-        
+
         s.close();
         try {
             s.nextBigInteger(10);
@@ -2021,7 +2020,6 @@ public class ScannerTest extends TestCase {
         method = "nextBigInteger",
         args = {}
     )
-    @KnownFailure("nextBigInteger method doesn't work properly if input string has Arabic-Indic digits")
     public void test_nextBigInteger() throws IOException {
         s = new Scanner("123 456");
         assertEquals(new BigInteger("123"), s.nextBigInteger());
@@ -2141,7 +2139,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(new BigInteger("12300"), s.nextBigInteger());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(new BigInteger("12300"), s.nextBigInteger());
@@ -2153,7 +2151,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(new BigInteger("-123"), s.nextBigInteger());
-        
+
         s.close();
         try {
             s.nextBigInteger();
@@ -2162,7 +2160,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextShort(int)
@@ -2302,7 +2300,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextShort(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextShort(10));
@@ -2310,12 +2308,12 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("ar", "AE"));
         assertEquals(-123, s.nextShort(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextShort(10));
-        
+
         s.close();
         try {
             s.nextShort(10);
@@ -2468,7 +2466,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextShort());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextShort());
@@ -2480,7 +2478,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextShort());
-        
+
         s.close();
         try {
             s.nextShort();
@@ -2489,7 +2487,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextLong(int)
@@ -2629,7 +2627,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextLong(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextLong(10));
@@ -2637,12 +2635,12 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("ar", "AE"));
         assertEquals(-123, s.nextLong(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextLong(10));
-        
+
         s.close();
         try {
             s.nextLong(10);
@@ -2651,7 +2649,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextLong()
@@ -2795,7 +2793,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextLong());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextLong());
@@ -2807,7 +2805,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextLong());
-        
+
         s.close();
         try {
             s.nextLong();
@@ -2816,7 +2814,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNext()
@@ -2900,7 +2898,7 @@ public class ScannerTest extends TestCase {
             // Expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNext(Pattern)
@@ -2966,7 +2964,7 @@ public class ScannerTest extends TestCase {
         } catch (IllegalStateException e) {
             // expected
         }
-        
+
         // test socket inputStream
         os.write("aab b".getBytes());
         serverSocket.close();
@@ -2983,7 +2981,7 @@ public class ScannerTest extends TestCase {
             // Expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNext(String)
@@ -3002,7 +3000,7 @@ public class ScannerTest extends TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         s = new Scanner("aab*b*").useDelimiter("\\*");
         assertTrue(s.hasNext("a+b"));
         assertEquals("aab", s.next("a+b"));
@@ -3059,7 +3057,7 @@ public class ScannerTest extends TestCase {
             // Expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBoolean()
@@ -3119,7 +3117,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextByte(int)
@@ -3203,7 +3201,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextByte(10));
         assertEquals(100, s.nextByte(10));
-        
+
         s = new Scanner("1\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextByte(10));
@@ -3213,7 +3211,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextByte(10));
         assertEquals(-123, s.nextByte(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
@@ -3248,7 +3246,7 @@ public class ScannerTest extends TestCase {
         assertTrue(s.hasNextByte(8));
         assertEquals(-123, s.nextInt());
         assertEquals(-45, s.nextByte());
-        
+
         s = new Scanner("123 45");
         assertTrue(s.hasNextByte());
         s.close();
@@ -3345,7 +3343,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextByte());
         assertEquals(100, s.nextByte());
-        
+
         s = new Scanner("1\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextByte());
@@ -3360,7 +3358,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("mk", "MK"));
         assertTrue(s.hasNextByte());
         assertEquals(-123, s.nextByte());
-        
+
         s.close();
         try {
             s.hasNextByte();
@@ -3369,7 +3367,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBigInteger(int)
@@ -3380,7 +3378,6 @@ public class ScannerTest extends TestCase {
         method = "hasNextBigInteger",
         args = {int.class}
     )
-    @KnownFailure("hasNextBigInteger method doesn't work properly if input string has Arabic-Indic digits")    
     public void test_hasNextBigIntegerI() throws IOException {
         s = new Scanner("123 456");
         assertTrue(s.hasNextBigInteger(10));
@@ -3519,7 +3516,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextBigInteger(10));
         assertEquals(new BigInteger("12300"), s.nextBigInteger(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextBigInteger(10));
@@ -3529,14 +3526,14 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextBigInteger(10));
         assertEquals(new BigInteger("-123"), s.nextBigInteger(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertTrue(s.hasNextBigInteger(10));
         assertEquals(new BigInteger("-123"), s.nextBigInteger(10));
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBigInteger(int)
@@ -3564,7 +3561,7 @@ public class ScannerTest extends TestCase {
         assertTrue(s.hasNextBigInteger(8));
         assertEquals(-123, s.nextShort());
         assertEquals(new BigInteger("-123456789123456789"), s.nextBigInteger());
-        
+
         s = new Scanner("123 456");
         assertTrue(s.hasNextBigInteger());
         s.close();
@@ -3575,7 +3572,7 @@ public class ScannerTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBigInteger()
@@ -3586,7 +3583,6 @@ public class ScannerTest extends TestCase {
         method = "hasNextBigInteger",
         args = {}
     )
-    @KnownFailure("nextBigInteger method doesn't work properly if input string has Arabic-Indic digits")
     public void test_hasNextBigInteger() throws IOException {
         s = new Scanner("123 456");
         assertTrue(s.hasNextBigInteger());
@@ -3728,7 +3724,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextBigInteger());
         assertEquals(new BigInteger("12300"), s.nextBigInteger());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextBigInteger());
@@ -3743,7 +3739,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("mk", "MK"));
         assertTrue(s.hasNextBigInteger());
         assertEquals(new BigInteger("-123"), s.nextBigInteger());
-        
+
         s.close();
         try {
             s.hasNextBigInteger();
@@ -3752,7 +3748,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextInt(int)
@@ -3874,7 +3870,7 @@ public class ScannerTest extends TestCase {
         if (!disableRIBugs) {
             assertTrue(s.hasNextInt(16));
             assertEquals(930902, s.nextInt(16));
-    
+
             // If parameter radix is illegal, the following test case fails on RI
             try {
                 s.hasNextInt(Character.MIN_RADIX - 1);
@@ -3906,7 +3902,7 @@ public class ScannerTest extends TestCase {
         /*
          * There are three types of negative prefix all in all. '' '-' '(' There
          * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used togethor. Prefix '-' and suffix '-' must be used 
+         * must be used togethor. Prefix '-' and suffix '-' must be used
          * exclusively.
          */
 
@@ -3983,7 +3979,7 @@ public class ScannerTest extends TestCase {
         assertEquals(-456, s.nextInt());
         assertTrue(s.hasNextShort(16));
         assertEquals(-789, s.nextInt());
-        
+
         s = new Scanner("123 456");
         assertTrue(s.hasNextInt());
         s.close();
@@ -4135,7 +4131,7 @@ public class ScannerTest extends TestCase {
         /*
          * There are three types of negative prefix all in all. '' '-' '(' There
          * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used togethor. Prefix '-' and suffix '-' must be used 
+         * must be used togethor. Prefix '-' and suffix '-' must be used
          * exclusively.
          */
 
@@ -4180,7 +4176,7 @@ public class ScannerTest extends TestCase {
             assertTrue(s.hasNextInt());
             assertEquals(-123, s.nextInt());
         }
-        
+
         s.close();
         try {
             s.hasNextInt();
@@ -4189,7 +4185,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextFloat()
@@ -4264,7 +4260,7 @@ public class ScannerTest extends TestCase {
         s=new Scanner(str);
         assertTrue(s.hasNextFloat());
         assertEquals(Float.POSITIVE_INFINITY,s.nextFloat());
-        
+
         /*
          * Different locale can only recognize corresponding locale sensitive
          * string. ',' is used in many locales as group separator.
@@ -4328,7 +4324,7 @@ public class ScannerTest extends TestCase {
             assertTrue(s.hasNextFloat());
             assertEquals((float)-123.0, s.nextFloat());
         }
-        
+
         s = new Scanner("+123.4 -456.7");
         s.useLocale(Locale.ENGLISH);
         assertTrue(s.hasNextFloat());
@@ -4341,7 +4337,7 @@ public class ScannerTest extends TestCase {
         }
 
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextShort(int)
@@ -4505,7 +4501,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextShort(10));
         assertEquals(12300, s.nextShort(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextShort(10));
@@ -4515,7 +4511,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextShort(10));
         assertEquals(-123, s.nextShort(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
@@ -4693,7 +4689,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextShort());
         assertEquals(12300, s.nextShort());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextShort());
@@ -4708,7 +4704,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(mkLocale);
         assertTrue(s.hasNextShort());
         assertEquals(-123, s.nextShort());
-        
+
         s.close();
         try {
             s.hasNextShort();
@@ -4717,7 +4713,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextShort(int)
@@ -4747,7 +4743,7 @@ public class ScannerTest extends TestCase {
         assertEquals(-456, s.nextShort());
         assertTrue(s.hasNextInt(16));
         assertEquals(-789, s.nextShort());
-        
+
         s = new Scanner("123 456");
         assertTrue(s.hasNextShort());
         s.close();
@@ -4758,7 +4754,7 @@ public class ScannerTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextLong(int)
@@ -4922,7 +4918,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextLong(10));
         assertEquals(12300, s.nextLong(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextLong(10));
@@ -4932,14 +4928,14 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextLong(10));
         assertEquals(-123, s.nextLong(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertTrue(s.hasNextLong(10));
         assertEquals(-123, s.nextLong(10));
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextLong(int)
@@ -4969,7 +4965,7 @@ public class ScannerTest extends TestCase {
         assertEquals(-456, s.nextLong());
         assertTrue(s.hasNextShort(16));
         assertEquals(-789, s.nextLong());
-        
+
         s = new Scanner("123 456");
         assertTrue(s.hasNextLong());
         s.close();
@@ -5151,7 +5147,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextLong());
         assertEquals(12300, s.nextLong());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextLong());
@@ -5166,7 +5162,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(mkLocale);
         assertTrue(s.hasNextLong());
         assertEquals(-123, s.nextLong());
-        
+
         s.close();
         try {
             s.hasNextLong();
@@ -5175,7 +5171,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextDouble()
@@ -5248,7 +5244,7 @@ public class ScannerTest extends TestCase {
         s=new Scanner(str);
         assertTrue(s.hasNextDouble());
         assertEquals(Double.POSITIVE_INFINITY,s.nextDouble());
-        
+
         /*
          * Different locale can only recognize corresponding locale sensitive
          * string. ',' is used in many locales as group separator.
@@ -5281,7 +5277,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         assertTrue(s.hasNextDouble());
         assertEquals(-123.4, s.nextDouble());
-        
+
         s = new Scanner("+123.4 -456.7");
         s.useLocale(Locale.ENGLISH);
         assertTrue(s.hasNextDouble());
@@ -5293,7 +5289,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBigDecimal()
@@ -5392,7 +5388,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         assertTrue(s.hasNextBigDecimal());
         assertEquals(new BigDecimal("-123.4"), s.nextBigDecimal());
-        
+
         s.close();
         try {
             s.hasNextBigDecimal();
@@ -5401,7 +5397,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     private static class MockStringReader extends StringReader {
 
         public MockStringReader(String param) {
@@ -5417,7 +5413,7 @@ public class ScannerTest extends TestCase {
         }
 
     }
-    
+
     private static class MockStringReader2Read extends StringReader {
         private int timesRead = 1;
 
@@ -5442,7 +5438,7 @@ public class ScannerTest extends TestCase {
         }
 
     }
-    
+
     /**
      * @tests java.util.Scanner#findWithinHorizon(Pattern, int)
      */
@@ -5452,7 +5448,6 @@ public class ScannerTest extends TestCase {
         method = "findWithinHorizon",
         args = {java.util.regex.Pattern.class, int.class}
     )
-    @KnownFailure("findWithinHorizon method doesn't work properly")
     public void test_findWithinHorizon_LPatternI(){
 
         // This method searches through the input up to the specified search
@@ -5673,7 +5668,7 @@ public class ScannerTest extends TestCase {
         pattern = Pattern.compile("\\p{Lower}+");
         result = s.findWithinHorizon(pattern, 0);
         assertEquals(stringBuilder.toString(), result);
-        
+
         stringBuilder = new StringBuilder();
         for (int i = 0; i < 10240; i++) {
             stringBuilder.append('-');
@@ -5682,7 +5677,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner(stringBuilder.toString());
         result = s.findWithinHorizon(Pattern.compile("aa"), 0);
         assertEquals("aa", result);
-        
+
         s = new Scanner("aaaa");
         result = s.findWithinHorizon(Pattern.compile("a*"), 0);
         assertEquals("aaaa", result);
@@ -5929,7 +5924,7 @@ public class ScannerTest extends TestCase {
         result = s.findWithinHorizon("a*", 0);
         assertEquals("aaaa", result);
     }
-    
+
     /**
      * @tests java.util.Scanner#findInLine(Pattern)
      */
@@ -6041,13 +6036,13 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(14, matchResult.start());
         assertEquals(18, matchResult.end());
-        
+
         s = new Scanner("test\u0085\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
         result = s.findInLine("est");
         assertEquals("est", result);
-        
+
         s = new Scanner("test\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
@@ -6182,13 +6177,13 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(14, matchResult.start());
         assertEquals(18, matchResult.end());
-        
+
         s = new Scanner("test\u0085\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
         result = s.findInLine("est");
         assertEquals("est", result);
-        
+
         s = new Scanner("test\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
@@ -6204,9 +6199,9 @@ public class ScannerTest extends TestCase {
             assertNull(result);
         }
 
-    
+
     }
-    
+
     /**
      * @tests java.util.Scanner#skip(Pattern)
      */
@@ -6224,7 +6219,7 @@ public class ScannerTest extends TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         // If pattern does not match, NoSuchElementException will be thrown out.
         s = new Scanner("1234");
         try {
@@ -6285,7 +6280,7 @@ public class ScannerTest extends TestCase {
         } catch (IllegalStateException e) {
             // expected
         }
-        
+
         StringBuilder stringBuilder = new StringBuilder();
         char [] chars = new char[1024];
         Arrays.fill(chars, 'a');
@@ -6296,7 +6291,7 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1025, matchResult.end());
-        
+
         // Large amount of input may be cached
         chars = new char[102400];
         Arrays.fill(chars, 'a');
@@ -6307,7 +6302,7 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(102400, matchResult.end());
-        
+
         // skip something without risking a NoSuchElementException
         s.skip(Pattern.compile("[ \t]*"));
         matchResult = s.match();
@@ -6332,7 +6327,7 @@ public class ScannerTest extends TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         // If pattern does not match, NoSuchElementException will be thrown out.
         s = new Scanner("1234");
         try {
@@ -6393,7 +6388,7 @@ public class ScannerTest extends TestCase {
         } catch (IllegalStateException e) {
             // expected
         }
-        
+
         StringBuilder stringBuilder = new StringBuilder();
         char [] chars = new char[1024];
         Arrays.fill(chars, 'a');
@@ -6404,7 +6399,7 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1025, matchResult.end());
-        
+
         // Large amount of input may be cached
         chars = new char[102400];
         Arrays.fill(chars, 'a');
@@ -6415,7 +6410,7 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(102400, matchResult.end());
-        
+
         // skip something without risking a NoSuchElementException
         s.skip("[ \t]*");
         matchResult = s.match();
@@ -6430,7 +6425,7 @@ public class ScannerTest extends TestCase {
             // expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextDouble()
@@ -6483,7 +6478,7 @@ public class ScannerTest extends TestCase {
         assertEquals(Double.NaN, s.nextDouble());
         assertEquals(Double.POSITIVE_INFINITY, s.nextDouble());
         assertEquals(Double.NEGATIVE_INFINITY, s.nextDouble());
-        
+
         //The following test case fails on RI
         s=new Scanner("\u221e");
         s.useLocale(Locale.ENGLISH);
@@ -6492,7 +6487,7 @@ public class ScannerTest extends TestCase {
         String str=String.valueOf(Double.MAX_VALUE*2);
         s=new Scanner(str);
         assertEquals(Double.POSITIVE_INFINITY,s.nextDouble());
-        
+
         /*
          * Different locale can only recognize corresponding locale sensitive
          * string. ',' is used in many locales as group separator.
@@ -6518,7 +6513,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123.4");
         s.useLocale(Locale.ENGLISH);
         assertEquals(-123.4, s.nextDouble());
-        
+
         s.close();
         try {
             s.nextDouble();
@@ -6527,7 +6522,7 @@ public class ScannerTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextBigDecimal()
@@ -6607,7 +6602,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123.4");
         s.useLocale(Locale.ENGLISH);
         assertEquals(new BigDecimal("-123.4"), s.nextBigDecimal());
-        
+
         s.close();
         try {
             s.nextBigDecimal();
@@ -6649,7 +6644,7 @@ public class ScannerTest extends TestCase {
         } catch (IllegalStateException e) {
             // expected
         }
-        
+
         s = new Scanner("test\r\ntest");
         String result = s.nextLine();
         assertEquals("test", result);
@@ -6663,21 +6658,21 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("\u2028");
         result = s.nextLine();
         assertEquals("", result);
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("\u2029");
         result = s.nextLine();
         assertEquals("", result);
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("");
         try {
             result = s.nextLine();
@@ -6759,19 +6754,19 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(1, matchResult.start());
         assertEquals(2, matchResult.end());
-        
+
         s = new Scanner("123 test\n   ");
         int value = s.nextInt();
         assertEquals(123, value);
-        
+
         result = s.nextLine();
         assertEquals(" test", result);
-        
+
         s = new Scanner("test\n ");
         result = s.nextLine();
         assertEquals("test", result);
     }
-    
+
     /**
      * @tests java.util.Scanner#hasNextLine()
      */
@@ -6782,7 +6777,7 @@ public class ScannerTest extends TestCase {
         args = {}
     )
     public void test_hasNextLine() {
-        
+
         s = new Scanner("");
         s.close();
         try {
@@ -6791,7 +6786,7 @@ public class ScannerTest extends TestCase {
         } catch (IllegalStateException e) {
             // expected
         }
-        
+
         s = new Scanner("test\r\ntest");
         boolean result = s.hasNextLine();
         assertTrue(result);
@@ -6805,21 +6800,21 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("\u2028");
         result = s.hasNextLine();
         assertTrue(result);
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("\u2029");
         result = s.hasNextLine();
         assertTrue(result);
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("test\n");
         assertTrue(s.hasNextLine());
         matchResult = s.match();
@@ -6850,7 +6845,7 @@ public class ScannerTest extends TestCase {
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
 
@@ -6883,10 +6878,10 @@ public class ScannerTest extends TestCase {
             // do nothing
         }
     }
-    
+
     /**
      * @tests java.util.Scanner#Scanner(ReadableByteChannel)
-     */   
+     */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",

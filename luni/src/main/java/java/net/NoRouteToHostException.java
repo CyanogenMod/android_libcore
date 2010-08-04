@@ -36,7 +36,7 @@ public class NoRouteToHostException extends SocketException {
     /**
      * Constructs a new instance of this exception with its walkback and message
      * filled in.
-     * 
+     *
      * @param detailMessage
      *            the detail message for this exception.
      */

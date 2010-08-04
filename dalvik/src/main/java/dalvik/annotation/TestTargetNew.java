@@ -25,14 +25,12 @@ import java.lang.annotation.Target;
  * Defines an annotation used be used within the TestInfo annotation. It
  * specifies a single method target for the test (but can be used multiple
  * times).
- * 
- * @since Android 1.0
  * @hide
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 public @interface TestTargetNew {
-    
+
     /**
      * Specifies the name of the API method that is being tested. This field
      * may be left empty if the test target is a concept implemented in a
@@ -52,12 +50,12 @@ public @interface TestTargetNew {
      * test progress doclet.
      */
     Class<?> clazz() default void.class;
- 
+
     /**
      * Specifies the level of coverage the tested API method has.
      */
     TestLevel level();
-    
+
     /**
      * Specifies noteworthy plain-text information about the test, for example
      * if something is NOT covered by the test method.

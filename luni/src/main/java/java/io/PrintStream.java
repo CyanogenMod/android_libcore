@@ -23,8 +23,6 @@ import java.security.AccessController;
 import java.util.Formatter;
 import java.util.IllegalFormatException;
 import java.util.Locale;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -38,7 +36,7 @@ import org.apache.harmony.luni.util.PriviAction;
 public class PrintStream extends FilterOutputStream implements Appendable,
         Closeable {
 
-    private static final String TOKEN_NULL = "null"; //$NON-NLS-1$
+    private static final String TOKEN_NULL = "null";
 
     /**
      * indicates whether or not this PrintStream has incurred an error.
@@ -54,7 +52,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
     private String encoding;
 
     private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator")); //$NON-NLS-1$
+            .doPrivileged(new PriviAction<String>("line.separator"));
 
     // private Formatter formatter;
 
@@ -175,7 +173,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
             throw new NullPointerException();
         }
         if (!Charset.isSupported(csn)) {
-            throw new UnsupportedEncodingException();
+            throw new UnsupportedEncodingException(csn);
         }
         encoding = csn;
     }
@@ -242,6 +240,14 @@ public class PrintStream extends FilterOutputStream implements Appendable,
     }
 
     /**
+     * Sets the error state of the stream to false.
+     * @since 1.6
+     */
+    protected void clearError() {
+        ioError = false;
+    }
+
+    /**
      * Closes this print stream. Flushes this stream and then closes the target
      * stream. If an I/O error occurs, this stream's error state is set to
      * {@code true}.
@@ -278,24 +284,21 @@ public class PrintStream extends FilterOutputStream implements Appendable,
     }
 
     /**
-     * Writes a string formatted by an intermediate {@code Formatter} to the
-     * target stream using the specified format string and arguments. For the
-     * locale, the default value of the current virtual machine instance is
-     * used.
+     * Formats {@code args} according to the format string {@code format}, and writes the result
+     * to this stream. This method uses the user's default locale.
+     * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
-     * @param format
-     *            the format string used for {@link java.util.Formatter#format}.
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
      *            the list of arguments passed to the formatter. If there are
-     *            more arguments than required by the {@code format} string,
-     *            then the additional arguments are ignored.
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return this stream.
      * @throws IllegalFormatException
      *             if the format string is illegal or incompatible with the
      *             arguments, if there are not enough arguments or if any other
      *             error regarding the format string or arguments is detected.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}
      */
     public PrintStream format(String format, Object... args) {
         return format(Locale.getDefault(), format, args);
@@ -308,23 +311,21 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      * @param l
      *            the locale used in the method. No localization will be applied
      *            if {@code l} is {@code null}.
-     * @param format
-     *            the format string used for {@link java.util.Formatter#format}.
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
      *            the list of arguments passed to the formatter. If there are
-     *            more arguments than required by the {@code format} string,
-     *            then the additional arguments are ignored.
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return this stream.
      * @throws IllegalFormatException
      *             if the format string is illegal or incompatible with the
      *             arguments, if there are not enough arguments or if any other
      *             error regarding the format string or arguments is detected.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}
      */
     public PrintStream format(Locale l, String format, Object... args) {
         if (format == null) {
-            throw new NullPointerException(Msg.getString("K0351")); //$NON-NLS-1$
+            throw new NullPointerException("format == null");
         }
         new Formatter(this, l).format(format, args);
         return this;
@@ -335,20 +336,17 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      * this stream's {@code #format(String, Object...)} method. For the locale,
      * the default value of the current virtual machine instance is used.
      *
-     * @param format
-     *            the format string used for
-     *            {@link java.util.Formatter#format}.
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
      *            the list of arguments passed to the formatter. If there are
-     *            more arguments than required by the {@code format} string,
-     *            then the additional arguments are ignored.
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return this stream.
      * @throws IllegalFormatException
      *             if the format string is illegal or incompatible with the
      *             arguments, if there are not enough arguments or if any other
      *             error regarding the format string or arguments is detected.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}
      */
     public PrintStream printf(String format, Object... args) {
         return format(format, args);
@@ -361,19 +359,17 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      * @param l
      *            the locale used in the method. No localization will be applied
      *            if {@code l} is {@code null}.
-     * @param format
-     *            the format string used for {@link java.util.Formatter#format}.
+     * @param format the format string (see {@link java.util.Formatter#format})
      * @param args
      *            the list of arguments passed to the formatter. If there are
-     *            more arguments than required by the {@code format} string,
-     *            then the additional arguments are ignored.
+     *            more arguments than required by {@code format},
+     *            additional arguments are ignored.
      * @return this stream.
      * @throws IllegalFormatException
      *             if the format string is illegal or incompatible with the
      *             arguments, if there are not enough arguments or if any other
      *             error regarding the format string or arguments is detected.
-     * @throws NullPointerException
-     *             if {@code format} is {@code null}.
+     * @throws NullPointerException if {@code format == null}.
      */
     public PrintStream printf(Locale l, String format, Object... args) {
         return format(l, format, args);
@@ -488,7 +484,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
             return;
         }
         if (str == null) {
-            print("null"); //$NON-NLS-1$
+            print("null");
             return;
         }
 
@@ -579,7 +575,6 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      * @param inum
      *            the integer value to print to the target stream.
      * @see #print(String)
-     * @since Android 1.0
      */
     public void println(int inum) {
         println(String.valueOf(inum));
@@ -592,7 +587,6 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      * @param lnum
      *            the long value to print to the target stream.
      * @see #print(String)
-     * @since Android 1.0
      */
     public void println(long lnum) {
         println(String.valueOf(lnum));
@@ -605,7 +599,6 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      * @param obj
      *            the object to print to the target stream.
      * @see #print(String)
-     * @since Android 1.0
      */
     public void println(Object obj) {
         println(String.valueOf(obj));
@@ -623,7 +616,6 @@ public class PrintStream extends FilterOutputStream implements Appendable,
      * @param str
      *            the string to print to the target stream.
      * @see #write(int)
-     * @since Android 1.0
      */
     public synchronized void println(String str) {
         print(str);
@@ -643,7 +635,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
     }
 
     /**
-     * Sets the error flag of this print stream to {@code true}.
+     * Sets the error flag of this print stream to true.
      */
     protected void setError() {
         ioError = true;
@@ -672,12 +664,10 @@ public class PrintStream extends FilterOutputStream implements Appendable,
     public void write(byte[] buffer, int offset, int length) {
         // Force buffer null check first!
         if (offset > buffer.length || offset < 0) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
         }
         if (length < 0 || length > buffer.length - offset) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
         synchronized (this) {
             if (out == null) {
@@ -717,7 +707,7 @@ public class PrintStream extends FilterOutputStream implements Appendable,
             out.write(oneByte);
             int b = oneByte & 0xFF;
             // 0x0A is ASCII newline, 0x15 is EBCDIC newline.
-            boolean isNewline = b == 0x0A || b == 0x15; 
+            boolean isNewline = b == 0x0A || b == 0x15;
             if (autoflush && isNewline) {
                 flush();
             }

@@ -20,28 +20,28 @@ package org.apache.harmony.security.tests.support;
 import java.nio.ByteBuffer;
 import java.security.KeyManagementException;
 import java.security.SecureRandom;
-
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContextSpi;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
-import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 /**
  * Additional class for verification of SSLContextSpi and SSLContext
  * functionality
- * 
+ *
  */
 
 public class MySSLContextSpi extends SSLContextSpi {
-    
+
     private boolean init = false;
-    
+
     protected void engineInit(KeyManager[] km, TrustManager[] tm,
             SecureRandom sr) throws KeyManagementException {
         if (sr == null) {
@@ -54,7 +54,7 @@ public class MySSLContextSpi extends SSLContextSpi {
     protected SSLSocketFactory engineGetSocketFactory() {
         if (!init) {
             throw new RuntimeException("Not initialiazed");
-        }   
+        }
         return null;
     }
 
@@ -79,9 +79,19 @@ public class MySSLContextSpi extends SSLContextSpi {
         return null;
     }
 
+    protected SSLParameters engineGetDefaultSSLParameters() {
+        engineGetSocketFactory();
+        return null;
+    }
+
+    protected SSLParameters engineGetSupportedSSLParameters() {
+        engineGetSocketFactory();
+        return null;
+    }
+
     /*
      * FIXME: add these methods
-     */   
+     */
     protected SSLEngine engineCreateSSLEngine(String host, int port) {
         if (!init) {
             throw new RuntimeException("Not initialiazed");
@@ -95,20 +105,20 @@ public class MySSLContextSpi extends SSLContextSpi {
         }
         return new tmpSSLEngine();
     }
-    
+
     public class tmpSSLEngine extends SSLEngine {
         String tmpHost;
         int tmpPort;
         public tmpSSLEngine() {
             tmpHost = null;
-            tmpPort = 0;        
+            tmpPort = 0;
         }
         public tmpSSLEngine(String host, int port) {
             tmpHost = host;
-            tmpPort = port;        
+            tmpPort = port;
         }
         public String getPeerHost() {
-            return tmpHost;        
+            return tmpHost;
         }
         public int getPeerPort() {
             return tmpPort;
@@ -134,13 +144,13 @@ public class MySSLContextSpi extends SSLContextSpi {
         public void setEnableSessionCreation(boolean flag) { }
         public void setNeedClientAuth(boolean need) { }
         public void setUseClientMode(boolean mode) { }
-        public void setWantClientAuth(boolean want) { }        
+        public void setWantClientAuth(boolean want) { }
         public SSLEngineResult unwrap(ByteBuffer src, ByteBuffer[] dsts,
                 int offset, int length) throws SSLException {
             return null;
-        }        
+        }
         public SSLEngineResult wrap(ByteBuffer[] srcs, int offset,
-                int length, ByteBuffer dst) throws SSLException { 
+                int length, ByteBuffer dst) throws SSLException {
             return null;
         }
     }

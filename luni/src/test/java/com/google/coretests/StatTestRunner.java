@@ -31,27 +31,27 @@ import java.io.PrintStream;
  * java junit.textui.TestRunner [-wait] TestCaseClass
  * </pre>
  * TestRunner expects the name of a TestCase class as argument.
- * If this class defines a static <code>suite</code> method it 
- * will be invoked and the returned test is run. Otherwise all 
+ * If this class defines a static <code>suite</code> method it
+ * will be invoked and the returned test is run. Otherwise all
  * the methods starting with "test" having no arguments are run.
  * <p>
  * When the wait command line argument is given TestRunner
  * waits until the users types RETURN.
  * <p>
  * TestRunner prints a trace as the tests are executed followed by a
- * summary at the end. 
+ * summary at the end.
  */
 public class StatTestRunner extends BaseTestRunner {
     private ResultPrinter fPrinter;
     private PerfStatCollector fPerfStatCollector;
-    
+
     public static final int SUCCESS_EXIT= 0;
     public static final int FAILURE_EXIT= 1;
     public static final int EXCEPTION_EXIT= 2;
 
     public static final String DEFAULT_DATABASE = "sqlite:/coretests.db";
     public static final String DEFAULT_DRIVER = "SQLite.JDBCDriver";
-    
+
     public static String connectionURL;
     public static String jdbcDriver;
 
@@ -68,7 +68,7 @@ public class StatTestRunner extends BaseTestRunner {
     public StatTestRunner(PrintStream writer) {
         this(new ResultPrinter(writer));
     }
-    
+
     /**
      * Constructs a TestRunner using the given ResultPrinter all the output
      */
@@ -76,7 +76,7 @@ public class StatTestRunner extends BaseTestRunner {
         fPrinter= printer;
         fPerfStatCollector = new PerfStatCollector(printer.getWriter());
     }
-    
+
     /**
      * Runs a suite extracted from a TestCase subclass.
      */
@@ -126,10 +126,10 @@ public class StatTestRunner extends BaseTestRunner {
 
     public void testFailed(int status, Test test, Throwable t) {
     }
-    
+
     public void testStarted(String testName) {
     }
-    
+
     public void testEnded(String testName) {
     }
 
@@ -160,7 +160,7 @@ public class StatTestRunner extends BaseTestRunner {
         catch(Exception e) {
         }
     }
-    
+
     public static void main(String args[]) {
         StatTestRunner aTestRunner= new StatTestRunner();
         try {
@@ -182,9 +182,9 @@ public class StatTestRunner extends BaseTestRunner {
         String testCase= "";
         boolean wait= false;
 
-        jdbcDriver = System.getProperty("android.coretests.driver", DEFAULT_DRIVER); 
-        connectionURL = System.getProperty("android.coretests.database", "jdbc:" + DEFAULT_DATABASE); 
-            
+        jdbcDriver = System.getProperty("android.coretests.driver", DEFAULT_DRIVER);
+        connectionURL = System.getProperty("android.coretests.database", "jdbc:" + DEFAULT_DATABASE);
+
         for (int i= 0; i < args.length; i++) {
             if (args[i].equals("--all"))
                 fPerfStatCollector.listAll = true;
@@ -197,15 +197,15 @@ public class StatTestRunner extends BaseTestRunner {
                     Integer.valueOf(args[++i]);
             } else if (args[i].equals("-wait"))
                 wait= true;
-            else if (args[i].equals("-c")) 
+            else if (args[i].equals("-c"))
                 testCase= extractClassName(args[++i]);
             else if (args[i].equals("-v"))
                 System.err.println("JUnit "+Version.id()+" (plus Android performance stats)");
             else
                 testCase= args[i];
         }
-        
-        if (testCase.equals("")) 
+
+        if (testCase.equals(""))
             throw new Exception("Usage: TestRunner [-wait] testCaseName, where name is the name of the TestCase class");
 
         try {
@@ -216,15 +216,15 @@ public class StatTestRunner extends BaseTestRunner {
             throw new Exception("Exception: " + e);
         }
     }
-        
+
     protected void runFailed(String message) {
         System.err.println(message);
         System.exit(FAILURE_EXIT);
     }
-    
+
     public void setPrinter(ResultPrinter printer) {
         fPrinter= printer;
     }
-        
-    
+
+
 }

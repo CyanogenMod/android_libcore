@@ -38,7 +38,7 @@ public class SocketTimeoutException extends InterruptedIOException {
     /**
      * Creates a new {@code SocketTimeoutException} instance with its walkback
      * and message filled in.
-     * 
+     *
      * @param detailMessage
      *            the detail message of this exception.
      */

@@ -65,7 +65,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation independent test for HttpsURLConnection.
- * The test needs certstore file placed in system classpath 
+ * The test needs certstore file placed in system classpath
  * and named as "key_store." + the type of the
  * default KeyStore installed in the system in lower case.
  * <br>
@@ -101,7 +101,7 @@ public class HttpsURLConnectionTest extends TestCase {
     private static final int AUTHENTICATION_REQUIRED_CODE = 407;
 
     private static File store;
-    
+
     static {
         try {
             store = File.createTempFile("key_store", "bks");
@@ -147,9 +147,6 @@ public class HttpsURLConnectionTest extends TestCase {
         method = "setDefaultHostnameVerifier",
         args = {javax.net.ssl.HostnameVerifier.class}
     )
-    @KnownFailure("Handshake fails.")
-    @BrokenTest("Different behavior between cts host and run-core-test")
-    @AndroidOnly("we only have a .bks key store in the test resources")
     public void testHttpsConnection() throws Throwable {
         // set up the properties defining the default values needed by SSL stuff
         setUpStoreProperties();
@@ -202,9 +199,6 @@ public class HttpsURLConnectionTest extends TestCase {
             args = {int.class}
         )
     })
-    @KnownFailure("Handshake fails.")
-    @BrokenTest("Different behavior between cts host and run-core-test")
-    @AndroidOnly("we only have a .bks key store in the test resources")
     public void testHttpsConnection_Not_Found_Response() throws Throwable {
         // set up the properties defining the default values needed by SSL stuff
         setUpStoreProperties();
@@ -247,8 +241,6 @@ public class HttpsURLConnectionTest extends TestCase {
         method = "setDefaultSSLSocketFactory",
         args = {javax.net.ssl.SSLSocketFactory.class}
     )
-    @AndroidOnly("we only have a .bks key store in the test resources")
-    @KnownFailure("End to end test fails. No response data is transferred from server to client")
     public void testSetDefaultSSLSocketFactory() throws Throwable {
         // create the SSLServerSocket which will be used by server side
         SSLContext ctx = getContext();
@@ -304,8 +296,6 @@ public class HttpsURLConnectionTest extends TestCase {
         method = "setSSLSocketFactory",
         args = {javax.net.ssl.SSLSocketFactory.class}
     )
-    @AndroidOnly("we only have a .bks key store in the test resources")
-    @KnownFailure("End to end test fails. No response data is transferred from server to client")
     public void testSetSSLSocketFactory() throws Throwable {
         // create the SSLServerSocket which will be used by server side
         SSLContext ctx = getContext();
@@ -424,9 +414,6 @@ public class HttpsURLConnectionTest extends TestCase {
         method = "setHostnameVerifier",
         args = {javax.net.ssl.HostnameVerifier.class}
     )
-    @KnownFailure("Handshake fails.")
-    @BrokenTest("Different behavior between cts host and run-core-test")
-    @AndroidOnly("we only have a .bks key store in the test resources")
     public void testSetHostnameVerifier() throws Throwable {
         // setting up the properties pointing to the key/trust stores
         setUpStoreProperties();
@@ -470,9 +457,6 @@ public class HttpsURLConnectionTest extends TestCase {
         method = "setDoOutput",
         args = {boolean.class}
     )
-    @KnownFailure("Handshake fails.")
-    @BrokenTest("Different behavior between cts host and run-core-test")
-    @AndroidOnly("we only have a .bks key store in the test resources")
     public void test_doOutput() throws Throwable {
         // setting up the properties pointing to the key/trust stores
         setUpStoreProperties();
@@ -523,8 +507,6 @@ public class HttpsURLConnectionTest extends TestCase {
             args = {int.class}
         )
     })
-    @KnownFailure("Handshake fails.")
-    @AndroidOnly("we only have a .bks key store in the test resources")
     public void testProxyConnection() throws Throwable {
         // setting up the properties pointing to the key/trust stores
         setUpStoreProperties();
@@ -576,8 +558,6 @@ public class HttpsURLConnectionTest extends TestCase {
             args = {int.class}
         )
     })
-    @KnownFailure("Handshake fails.")
-    @AndroidOnly("we only have a .bks key store in the test resources")
     public void testProxyAuthConnection() throws Throwable {
         // setting up the properties pointing to the key/trust stores
         setUpStoreProperties();
@@ -639,8 +619,6 @@ public class HttpsURLConnectionTest extends TestCase {
             args = {}
         )
     })
-    @KnownFailure("Handshake fails.")
-    @AndroidOnly("we only have a .bks key store in the test resources")
     public void testConsequentProxyConnection() throws Throwable {
         // setting up the properties pointing to the key/trust stores
         setUpStoreProperties();
@@ -707,8 +685,6 @@ public class HttpsURLConnectionTest extends TestCase {
             args = {boolean.class}
         )
     })
-    @KnownFailure("Handshake fails.")
-    @AndroidOnly("we only have a .bks key store in the test resources")
     public void testProxyAuthConnection_doOutput() throws Throwable {
         // setting up the properties pointing to the key/trust stores
         setUpStoreProperties();
@@ -825,8 +801,6 @@ public class HttpsURLConnectionTest extends TestCase {
             args = {int.class}
         )
     })
-    @KnownFailure("Handshake fails.")
-    @AndroidOnly("we only have a .bks key store in the test resources")
     public void testProxyConnection_Not_Found_Response() throws Throwable {
         // setting up the properties pointing to the key/trust stores
         setUpStoreProperties();
@@ -874,7 +848,7 @@ public class HttpsURLConnectionTest extends TestCase {
             System.out.println("------ " + getName());
             System.out.println("------------------------");
         }
-        
+
         if (store != null) {
             String ksFileName = "org/apache/harmony/luni/tests/key_store."
                     + KeyStore.getDefaultType().toLowerCase();
@@ -900,7 +874,7 @@ public class HttpsURLConnectionTest extends TestCase {
             store.delete();
         }
     }
-    
+
     /**
      * Checks the HttpsURLConnection getter's values and compares
      * them with actual corresponding values of remote peer.
@@ -932,7 +906,7 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * Returns the file name of the key/trust store. The key store file 
+     * Returns the file name of the key/trust store. The key store file
      * (named as "key_store." + extension equals to the default KeyStore
      * type installed in the system in lower case) is searched in classpath.
      * @throws junit.framework.AssertionFailedError if property was not set
@@ -1015,7 +989,7 @@ public class HttpsURLConnectionTest extends TestCase {
      * Performs interaction between client's HttpURLConnection and
      * servers side (ServerSocket). Server will response with specified
      * response code.
-     * @param doAuthentication specifies 
+     * @param doAuthentication specifies
      * if the server needs client authentication.
      */
     public static Socket doInteraction(

@@ -18,14 +18,9 @@
 package java.io;
 
 import java.security.AccessController;
-
-import org.apache.harmony.luni.util.Msg;
+import java.util.logging.Logger;
 import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.SneakyThrow;
-
-// BEGIN android-added
-import java.util.logging.Logger;
-// END android-added
 
 /**
  * Wraps an existing {@link Writer} and <em>buffers</em> the output. Expensive
@@ -52,52 +47,30 @@ public class BufferedWriter extends Writer {
     private int pos;
 
     private final String lineSeparator = AccessController
-            .doPrivileged(new PriviAction<String>("line.separator")); //$NON-NLS-1$
+            .doPrivileged(new PriviAction<String>("line.separator"));
 
     /**
-     * Constructs a new {@code BufferedWriter} with {@code out} as the writer
-     * for which to buffer write operations. The buffer size is set to the
-     * default value of 8 KB.
+     * Constructs a new {@code BufferedWriter}, providing {@code out} with a buffer
+     * of 8192 bytes.
      *
-     * @param out
-     *            the writer for which character writing is buffered.
+     * @param out the {@code Writer} the buffer writes to.
      */
     public BufferedWriter(Writer out) {
-        super(out);
-        this.out = out;
-        buf = new char[8192];
-
-        // BEGIN android-added
-        /*
-         * For Android, we want to discourage the use of this constructor (with
-         * its arguably too-large default), so we note its use in the log. We
-         * don't disable it, nor do we alter the default, however, because we
-         * still aim to behave compatibly, and the default value, though not
-         * documented, is established by convention.
-         */
-        Logger.global.info(
-                "Default buffer size used in BufferedWriter " +
-                "constructor. It would be " +
-                "better to be explicit if an 8k-char buffer is required.");
-        // END android-added
+        this(out, 8192);
     }
 
     /**
-     * Constructs a new {@code BufferedWriter} with {@code out} as the writer
-     * for which to buffer write operations. The buffer size is set to {@code
-     * size}.
+     * Constructs a new {@code BufferedWriter}, providing {@code out} with {@code size} bytes
+     * of buffer.
      *
-     * @param out
-     *            the writer for which character writing is buffered.
-     * @param size
-     *            the size of the buffer in bytes.
-     * @throws IllegalArgumentException
-     *             if {@code size <= 0}.
+     * @param out the {@code OutputStream} the buffer writes to.
+     * @param size the size of buffer in bytes.
+     * @throws IllegalArgumentException if {@code size <= 0}.
      */
     public BufferedWriter(Writer out, int size) {
         super(out);
         if (size <= 0) {
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException("size <= 0");
         }
         this.out = out;
         this.buf = new char[size];
@@ -151,11 +124,15 @@ public class BufferedWriter extends Writer {
     @Override
     public void flush() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             flushInternal();
             out.flush();
+        }
+    }
+
+    private void checkNotClosed() throws IOException {
+        if (isClosed()) {
+            throw new IOException("BufferedWriter is closed");
         }
     }
 
@@ -212,19 +189,17 @@ public class BufferedWriter extends Writer {
     @Override
     public void write(char[] cbuf, int offset, int count) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             // BEGIN android-changed
             // Exception priorities (in case of multiple errors) differ from
             // RI, but are spec-compliant.
             // made implicit null check explicit, used (offset | count) < 0
             // instead of (offset < 0) || (count < 0) to safe one operation
             if (cbuf == null) {
-                throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+                throw new NullPointerException("buffer == null");
             }
             if ((offset | count) < 0 || offset > cbuf.length - count) {
-                throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+                throw new IndexOutOfBoundsException();
             }
             // END android-changed
             if (pos == 0 && count >= this.buf.length) {
@@ -270,9 +245,7 @@ public class BufferedWriter extends Writer {
     @Override
     public void write(int oneChar) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             if (pos >= buf.length) {
                 out.write(buf, 0, buf.length);
                 pos = 0;
@@ -304,9 +277,7 @@ public class BufferedWriter extends Writer {
     @Override
     public void write(String str, int offset, int count) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005d")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             if (count <= 0) {
                 return;
             }

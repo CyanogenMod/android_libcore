@@ -6,7 +6,7 @@ import java.io.FilenameFilter;
 import java.io.File;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 @TestTargetClass(
         value = FilenameFilter.class,

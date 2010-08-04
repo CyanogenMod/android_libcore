@@ -39,7 +39,7 @@ import java.util.Enumeration;
 
 /**
  * Additional class for KeyStoreSpi and KeyStore verification
- * 
+ *
  */
 
 public class MyKeyStoreSpi extends KeyStoreSpi {

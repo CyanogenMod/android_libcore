@@ -24,16 +24,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * This class is used to decode a string which is encoded in the {@code
  * application/x-www-form-urlencoded} MIME content type.
  */
 public class URLDecoder {
-
-    static Charset defaultCharset;
-
     /**
      * Decodes the argument which is assumed to be encoded in the {@code
      * x-www-form-urlencoded} MIME content type.
@@ -50,22 +45,7 @@ public class URLDecoder {
      */
     @Deprecated
     public static String decode(String s) {
-
-        if (defaultCharset == null) {
-            try {
-                defaultCharset = Charset.forName(
-                        System.getProperty("file.encoding")); //$NON-NLS-1$
-            } catch (IllegalCharsetNameException e) {
-                // Ignored
-            } catch (UnsupportedCharsetException e) {
-                // Ignored
-            }
-
-            if (defaultCharset == null) {
-                defaultCharset = Charset.forName("ISO-8859-1"); //$NON-NLS-1$
-            }
-        }
-        return decode(s, defaultCharset);
+        return decode(s, Charset.defaultCharset());
     }
 
     /**
@@ -80,24 +60,18 @@ public class URLDecoder {
      *
      * @param s
      *            the encoded string.
-     * @param enc
+     * @param encoding
      *            the encoding scheme to be used.
      * @return the decoded clear-text representation of the given string.
      * @throws UnsupportedEncodingException
      *             if the specified encoding scheme is invalid.
      */
-    public static String decode(String s, String enc)
-            throws UnsupportedEncodingException {
-
-        if (enc == null) {
+    public static String decode(String s, String encoding) throws UnsupportedEncodingException {
+        if (encoding == null) {
             throw new NullPointerException();
         }
-
-        // If the given encoding is an empty string throw an exception.
-        if (enc.length() == 0) {
-            throw new UnsupportedEncodingException(
-                    // K00a5=Invalid parameter - {0}
-                    Msg.getString("K00a5", "enc")); //$NON-NLS-1$ //$NON-NLS-2$
+        if (encoding.isEmpty()) {
+            throw new UnsupportedEncodingException(encoding);
         }
 
         if (s.indexOf('%') == -1) {
@@ -113,13 +87,13 @@ public class URLDecoder {
 
         Charset charset = null;
         try {
-            charset = Charset.forName(enc);
+            charset = Charset.forName(encoding);
         } catch (IllegalCharsetNameException e) {
             throw (UnsupportedEncodingException) (new UnsupportedEncodingException(
-                    enc).initCause(e));
+                    encoding).initCause(e));
         } catch (UnsupportedCharsetException e) {
             throw (UnsupportedEncodingException) (new UnsupportedEncodingException(
-                    enc).initCause(e));
+                    encoding).initCause(e));
         }
 
         return decode(s, charset);
@@ -140,19 +114,13 @@ public class URLDecoder {
                 int len = 0;
                 do {
                     if (i + 2 >= s.length()) {
-                        throw new IllegalArgumentException(
-                                // K01fe=Incomplete % sequence at\: {0}
-                                Msg.getString("K01fe", i)); //$NON-NLS-1$
+                        throw new IllegalArgumentException("Incomplete % sequence at: " + i);
                     }
                     int d1 = Character.digit(s.charAt(i + 1), 16);
                     int d2 = Character.digit(s.charAt(i + 2), 16);
                     if (d1 == -1 || d2 == -1) {
-                        throw new IllegalArgumentException(
-                                // K01ff=Invalid % sequence ({0}) at\: {1}
-                                Msg.getString(
-                                        "K01ff", //$NON-NLS-1$
-                                        s.substring(i, i + 3),
-                                        String.valueOf(i)));
+                        throw new IllegalArgumentException("Invalid % sequence " +
+                                s.substring(i, i + 3) + " at " + i);
                     }
                     buf[len++] = (byte) ((d1 << 4) + d2);
                     i += 3;

@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 /**
  * Marks a test-case as Android-only, that is, it should not be executed on
  * other systems.
- * 
+ *
  * @hide
  */
 @Retention(RetentionPolicy.RUNTIME)

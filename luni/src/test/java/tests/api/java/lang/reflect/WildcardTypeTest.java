@@ -30,7 +30,7 @@ import dalvik.annotation.TestTargetNew;
 /**
  * Tests bounded type parameters declared on methods and bounded wildcards.
  */
-@TestTargetClass(WildcardType.class) 
+@TestTargetClass(WildcardType.class)
 public class WildcardTypeTest extends GenericReflectionTestsBase {
     @SuppressWarnings({"unchecked", "hiding"})
     static class BoundedWildcardsGenericMethods<T> {
@@ -43,7 +43,7 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
 
         public <T extends BoundedWildcardsGenericMethods> T upperBoundedParamReturn(BoundedWildcardsGenericMethods<? extends T> param) { return (T) new Object();}
     }
-    
+
     @SuppressWarnings("unchecked")
     private static Class<? extends BoundedWildcardsGenericMethods> clazz = BoundedWildcardsGenericMethods.class;
 
@@ -125,7 +125,7 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
         Type upperBound = upperBounds[0];
         assertEquals(getTypeParameter(method), upperBound);
     }
-    
+
     @SuppressWarnings("unchecked")
     private void checkReturnType(Method method) {
         Type genericReturnType = method.getGenericReturnType();
@@ -141,7 +141,7 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
 
         assertEquals(BoundedWildcardsGenericMethods.class, bound);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
@@ -153,7 +153,7 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
         checkBoundedTypeParameter(method);
         checkUpperBoundedParameter(method);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
@@ -166,7 +166,7 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
         checkLowerBoundedParameter(method);
         checkReturnType(method);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",
@@ -179,7 +179,7 @@ public class WildcardTypeTest extends GenericReflectionTestsBase {
         checkUpperBoundedParameter(method);
         checkReturnType(method);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "Missing tests for TypeNotPresentException, MalformedParametrizedTypeException",

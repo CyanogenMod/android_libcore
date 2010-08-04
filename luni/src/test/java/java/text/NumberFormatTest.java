@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,5 +67,13 @@ public class NumberFormatTest extends junit.framework.TestCase {
         assertEquals("#,##0.###;#,##0.###-", ((DecimalFormat) numberFormat).toPattern());
         NumberFormat integerFormat = NumberFormat.getIntegerInstance(new Locale("ar"));
         assertEquals("#,##0;#,##0-", ((DecimalFormat) integerFormat).toPattern());
+    }
+
+    public void test_numberLocalization() throws Exception {
+        Locale arabic = new Locale("ar");
+        NumberFormat nf = NumberFormat.getNumberInstance(arabic);
+        assertEquals('\u0660', new DecimalFormatSymbols(arabic).getZeroDigit());
+        assertEquals("\u0661\u066c\u0662\u0663\u0664\u066c\u0665\u0666\u0667\u066c\u0668\u0669\u0660",
+                nf.format(1234567890));
     }
 }

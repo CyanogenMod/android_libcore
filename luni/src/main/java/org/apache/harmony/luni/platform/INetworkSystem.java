@@ -45,130 +45,57 @@ public interface INetworkSystem {
      */
     public final int SOCKET_CONNECT_STEP_CHECK = 1;
 
-    /*
-     * socket accept
-     */
-    public void accept(FileDescriptor fdServer, SocketImpl newSocket,
-            FileDescriptor fdnewSocket, int timeout) throws IOException;
+    public void accept(FileDescriptor serverFd, SocketImpl newSocket, FileDescriptor clientFd)
+            throws IOException;
 
-    public void bind(FileDescriptor aFD, InetAddress inetAddress, int port)
+    public void bind(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException;
+
+    public int read(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
+
+    public int readDirect(FileDescriptor fd, int address, int count) throws IOException;
+
+    public int write(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
+
+    public int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
+
+    public void connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException;
+
+    public boolean connectWithTimeout(FileDescriptor fd, int timeout,
+            InetAddress hostname, int port, int step, byte[] context) throws IOException;
+
+    public int send(FileDescriptor fd, byte[] data, int offset, int length,
+            int port, InetAddress inetAddress) throws IOException;
+    public int sendDirect(FileDescriptor fd, int address, int offset, int length,
+            int port, InetAddress inetAddress) throws IOException;
+
+    public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
+            int length, boolean peek, boolean connected) throws IOException;
+    public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
+            int length, boolean peek, boolean connected) throws IOException;
+
+    public void disconnectDatagram(FileDescriptor fd) throws SocketException;
+
+    public void createDatagramSocket(FileDescriptor fd) throws SocketException;
+
+    public void connectDatagram(FileDescriptor fd, int port, InetAddress inetAddress)
             throws SocketException;
-
-    public int read(FileDescriptor aFD, byte[] data, int offset, int count,
-            int timeout) throws IOException;
-    
-    public int readDirect(FileDescriptor aFD, int address, int count,
-            int timeout) throws IOException;
-
-    public int write(FileDescriptor fd, byte[] data, int offset, int count)
-            throws IOException;
-    
-    // BEGIN android-changed
-    //     added offset parameter
-    public int writeDirect(FileDescriptor fd, int address, int offset, int count)
-            throws IOException;
-    // END android-changed
-
-    // BEGIN android-removed
-    // public int writev(FileDescriptor fd, Object[] buffers, int[] offsets,
-    //         int[] counts, int length) throws IOException;
-    // END android-removed
-
-    public void setNonBlocking(FileDescriptor aFD, boolean block)
-            throws IOException;
-
-    // BEGIN android-changed (we always throw on error, the value returned was always 0)
-    public void connect(FileDescriptor aFD, int trafficClass,
-            InetAddress inetAddress, int port) throws IOException;
-    // END android-changed
-
-    // BEGIN android-changed
-    public int connectWithTimeout(FileDescriptor aFD, int timeout,
-            int trafficClass, InetAddress hostname, int port, int step,
-            byte[] context) throws IOException;
-    // END android-changed
-
-    public int sendDatagram(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, boolean bindToDevice, int trafficClass,
-            InetAddress inetAddress) throws IOException;
-    
-    public int sendDatagramDirect(FileDescriptor fd, int address, int offset,
-            int length, int port, boolean bindToDevice, int trafficClass,
-            InetAddress inetAddress) throws IOException;
-
-    public int receiveDatagram(FileDescriptor aFD, DatagramPacket packet,
-            byte[] data, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
-    
-    public int receiveDatagramDirect(FileDescriptor aFD, DatagramPacket packet,
-            int address, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
-
-    public int recvConnectedDatagram(FileDescriptor aFD, DatagramPacket packet,
-            byte[] data, int offset, int length, int receiveTimeout,
-            boolean peek) throws IOException;
-    
-    public int recvConnectedDatagramDirect(FileDescriptor aFD,
-            DatagramPacket packet, int address, int offset, int length,
-            int receiveTimeout, boolean peek) throws IOException;
-    
-    public int peekDatagram(FileDescriptor aFD, InetAddress sender,
-            int receiveTimeout) throws IOException;
-
-    public int sendConnectedDatagram(FileDescriptor fd, byte[] data,
-            int offset, int length, boolean bindToDevice) throws IOException;
-    
-    public int sendConnectedDatagramDirect(FileDescriptor fd, int address,
-            int offset, int length, boolean bindToDevice) throws IOException;
-
-    public void disconnectDatagram(FileDescriptor aFD) throws SocketException;
-
-    public void createDatagramSocket(FileDescriptor aFD, boolean preferIPv4Stack)
-            throws SocketException;
-
-    public void connectDatagram(FileDescriptor aFD, int port, int trafficClass,
-            InetAddress inetAddress) throws SocketException;
-
-    // BEGIN android-removed
-    // public int receiveStream(FileDescriptor aFD, byte[] data, int offset,
-    //         int count, int timeout) throws IOException;
-    // END android-removed
 
     public void shutdownInput(FileDescriptor descriptor) throws IOException;
 
     public void shutdownOutput(FileDescriptor descriptor) throws IOException;
 
-    public boolean supportsUrgentData(FileDescriptor fd);
-
     public void sendUrgentData(FileDescriptor fd, byte value);
 
-    public int availableStream(FileDescriptor aFD) throws SocketException;
+    public void createServerStreamSocket(FileDescriptor fd) throws SocketException;
 
-    // BEGIN android-removed
-    // public void acceptStreamSocket(FileDescriptor fdServer,
-    //         SocketImpl newSocket, FileDescriptor fdnewSocket, int timeout)
-    //         throws IOException;
-    // END android-removed
+    public void createStreamSocket(FileDescriptor fd) throws SocketException;
 
-    public void createServerStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
-            throws SocketException;
+    public void listen(FileDescriptor fd, int backlog) throws SocketException;
 
-    public void createStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
-            throws SocketException;
-    
-    public void listenStreamSocket(FileDescriptor aFD, int backlog)
-            throws SocketException;
+    public void connectStreamWithTimeoutSocket(FileDescriptor fd, int port,
+            int timeout, InetAddress inetAddress) throws IOException;
 
-    public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int aport,
-            int timeout, int trafficClass, InetAddress inetAddress)
-            throws IOException;
-
-    public int sendDatagram2(FileDescriptor fd, byte[] data, int offset,
-            int length, int port, InetAddress inetAddress) throws IOException;
-
-    // BEGIN android-changed: remove useless IPv6 check.
-    public InetAddress getSocketLocalAddress(FileDescriptor aFD);
-    // END android-changed
+    public InetAddress getSocketLocalAddress(FileDescriptor fd);
 
     /**
      * Select the given file descriptors for read and write operations.
@@ -204,70 +131,39 @@ public interface INetworkSystem {
             int numReadable, int numWritable, long timeout, int[] flags)
             throws SocketException;
 
-    // BEGIN android-changed: remove useless IPv6 check.
     /*
      * Query the IP stack for the local port to which this socket is bound.
-     * 
-     * @param aFD the socket descriptor
+     *
+     * @param fd the socket descriptor
      * @return int the local port to which the socket is bound
      */
-    public int getSocketLocalPort(FileDescriptor aFD);
-    // END android-changed
+    public int getSocketLocalPort(FileDescriptor fd);
 
     /*
      * Query the IP stack for the nominated socket option.
-     * 
-     * @param aFD the socket descriptor @param opt the socket option type
+     *
+     * @param fd the socket descriptor @param opt the socket option type
      * @return the nominated socket option value
-     * 
+     *
      * @throws SocketException if the option is invalid
      */
-    public Object getSocketOption(FileDescriptor aFD, int opt)
+    public Object getSocketOption(FileDescriptor fd, int opt)
             throws SocketException;
 
     /*
      * Set the nominated socket option in the IP stack.
-     * 
-     * @param aFD the socket descriptor @param opt the option selector @param
+     *
+     * @param fd the socket descriptor @param opt the option selector @param
      * optVal the nominated option value
-     * 
+     *
      * @throws SocketException if the option is invalid or cannot be set
      */
-    public void setSocketOption(FileDescriptor aFD, int opt, Object optVal)
+    public void setSocketOption(FileDescriptor fd, int opt, Object optVal)
             throws SocketException;
 
-    public int getSocketFlags();
+    public void close(FileDescriptor fd) throws IOException;
 
-    /*
-     * Close the socket in the IP stack.
-     * 
-     * @param aFD the socket descriptor
-     */
-    public void socketClose(FileDescriptor aFD) throws IOException;
-
-    public InetAddress getHostByAddr(byte[] addr) throws UnknownHostException;
-
-    // BEGIN android-changed: remove useless IPv6 check.
-    public InetAddress getHostByName(String addr) throws UnknownHostException;
-    // END android-changed
-
+    // TODO: change the single caller so that recv/recvDirect
+    // can mutate the InetAddress as a side-effect.
     public void setInetAddress(InetAddress sender, byte[] address);
-
-    // BEGIN android-added
-    public String byteArrayToIpString(byte[] address)
-            throws UnknownHostException;
-
-    public byte[] ipStringToByteArray(String address)
-            throws UnknownHostException;
-    // END android-added
-
-    // BEGIN android-removed
-    // public boolean isReachableByICMP(InetAddress dest,InetAddress source,int ttl,int timeout);
-    // END android-removed
-
-    public Channel inheritedChannel();
-
-    // BEGIN android-removed: we do this statically, when we start the VM.
-    // public void oneTimeInitialization(boolean jcl_supports_ipv6);
-    // END android-removed
 }

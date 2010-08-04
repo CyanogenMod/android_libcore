@@ -29,7 +29,7 @@ import java.lang.ref.ReferenceQueue;
 //TODO: write a test to verify that the referent's finalize() happens
 //      before the PhantomReference is enqueued.
 
-@TestTargetClass(PhantomReference.class) 
+@TestTargetClass(PhantomReference.class)
 public class PhantomReferenceTest extends junit.framework.TestCase {
     static Boolean bool;
     public boolean isCalled = false;
@@ -94,7 +94,7 @@ public class PhantomReferenceTest extends junit.framework.TestCase {
                 tprs[3] = new TestPhantomReference(obj, rq);
             }
         }
-        
+
         try {
             Thread t = new TestThread();
             t.start();
@@ -106,7 +106,7 @@ public class PhantomReferenceTest extends junit.framework.TestCase {
             assertNull("get() should return null.", tprs[1].get());
             assertNull("get() should return null.", tprs[2].get());
             assertNull("get() should return null.", tprs[3].get());
-            
+
             for (int i = 0; i < 4; i++) {
                 Reference r = rq.remove(100L);
                 assertNotNull("Reference should have been enqueued.", r);

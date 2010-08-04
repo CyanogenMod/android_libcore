@@ -20,7 +20,7 @@ package tests.api.java.io;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -66,12 +66,12 @@ import tests.support.Support_GetPutFieldsDeprecated;
  * called by the test methods.
  * </p>
  */
-@TestTargetClass(ObjectOutputStream.PutField.class) 
+@TestTargetClass(ObjectOutputStream.PutField.class)
 public class ObjectOutputStreamPutFieldTest extends junit.framework.TestCase {
 
-    private final String FILENAME = 
+    private final String FILENAME =
         "/tests/api/java/io/testFields.ser";
-    private final String DEPRECATED_FILENAME = 
+    private final String DEPRECATED_FILENAME =
         "/tests/api/java/io/testFieldsDeprecated.ser";
 
     @TestTargets({
@@ -136,25 +136,25 @@ public class ObjectOutputStreamPutFieldTest extends junit.framework.TestCase {
         byte[] refContent;
         ObjectOutputStream oos = null;
         ByteArrayOutputStream baos;
- 
+
         toSerialize.initTestValues();
 
         try {
             refContent = getRefContent(FILENAME);
-        
+
             baos = new ByteArrayOutputStream(refContent.length);
             oos = new ObjectOutputStream(baos);
 
             oos.writeObject(toSerialize);
             content = baos.toByteArray();
-            assertTrue("Serialization is not equal to reference platform.", 
+            assertTrue("Serialization is not equal to reference platform.",
                         Arrays.equals(content, refContent));
         }
         finally {
             if (oos != null) oos.close();
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Verifies the deprecated write(ObjectOutput) method.",
@@ -167,36 +167,36 @@ public class ObjectOutputStreamPutFieldTest extends junit.framework.TestCase {
         byte[] refContent;
         ObjectOutputStream oos = null;
         ByteArrayOutputStream baos;
-        
+
         toSerialize.initTestValues();
-        
+
         try {
             refContent = getRefContent(DEPRECATED_FILENAME);
-        
+
             baos = new ByteArrayOutputStream(refContent.length);
             oos = new ObjectOutputStream(baos);
 
             oos.writeObject(toSerialize);
             content = baos.toByteArray();
-            assertTrue("Serialization is not equal to reference platform.", 
+            assertTrue("Serialization is not equal to reference platform.",
                         Arrays.equals(content, refContent));
         }
         finally {
             if (oos != null) oos.close();
         }
     }
-    
+
     private byte[] getRefContent(String path) throws Exception {
         int bytesRead;
         byte[] refContent;
         byte[] streamContent = new byte[2000];
         InputStream refStream = null;
-        
+
         try {
             refStream = getClass().getResourceAsStream(path);
             bytesRead = refStream.read(streamContent);
             assertTrue("Test case implementation error: The byte array to " +
-                       "store the reference file is too small.", 
+                       "store the reference file is too small.",
                        (refStream.read() == -1));
             refContent = new byte[bytesRead];
             System.arraycopy(streamContent, 0, refContent, 0, bytesRead);

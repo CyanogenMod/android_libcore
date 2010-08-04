@@ -32,53 +32,53 @@ public final class RuntimePermission extends BasicPermission {
      * Constants for runtime permissions used in this package.
      */
     static final RuntimePermission permissionToSetSecurityManager = new RuntimePermission(
-            "setSecurityManager"); //$NON-NLS-1$
+            "setSecurityManager");
 
     static final RuntimePermission permissionToCreateSecurityManager = new RuntimePermission(
-            "createSecurityManager"); //$NON-NLS-1$
+            "createSecurityManager");
 
     static final RuntimePermission permissionToGetProtectionDomain = new RuntimePermission(
-            "getProtectionDomain"); //$NON-NLS-1$
+            "getProtectionDomain");
 
     static final RuntimePermission permissionToGetClassLoader = new RuntimePermission(
-            "getClassLoader"); //$NON-NLS-1$
+            "getClassLoader");
 
     static final RuntimePermission permissionToCreateClassLoader = new RuntimePermission(
-            "createClassLoader"); //$NON-NLS-1$
+            "createClassLoader");
 
     static final RuntimePermission permissionToModifyThread = new RuntimePermission(
-            "modifyThread"); //$NON-NLS-1$
+            "modifyThread");
 
     static final RuntimePermission permissionToModifyThreadGroup = new RuntimePermission(
-            "modifyThreadGroup"); //$NON-NLS-1$
+            "modifyThreadGroup");
 
     static final RuntimePermission permissionToExitVM = new RuntimePermission(
-            "exitVM"); //$NON-NLS-1$
+            "exitVM");
 
     static final RuntimePermission permissionToReadFileDescriptor = new RuntimePermission(
-            "readFileDescriptor"); //$NON-NLS-1$
+            "readFileDescriptor");
 
     static final RuntimePermission permissionToWriteFileDescriptor = new RuntimePermission(
-            "writeFileDescriptor"); //$NON-NLS-1$
+            "writeFileDescriptor");
 
     static final RuntimePermission permissionToQueuePrintJob = new RuntimePermission(
-            "queuePrintJob"); //$NON-NLS-1$
+            "queuePrintJob");
 
     static final RuntimePermission permissionToSetFactory = new RuntimePermission(
-            "setFactory"); //$NON-NLS-1$
+            "setFactory");
 
     static final RuntimePermission permissionToSetIO = new RuntimePermission(
-            "setIO"); //$NON-NLS-1$
+            "setIO");
 
     static final RuntimePermission permissionToStopThread = new RuntimePermission(
-            "stopThread"); //$NON-NLS-1$
+            "stopThread");
 
     static final RuntimePermission permissionToSetContextClassLoader = new RuntimePermission(
-            "setContextClassLoader"); //$NON-NLS-1$
+            "setContextClassLoader");
 
     /**
      * Creates an instance of {@code RuntimePermission} with the specified name.
-     * 
+     *
      * @param permissionName
      *            the name of the new permission.
      */
@@ -89,7 +89,7 @@ public final class RuntimePermission extends BasicPermission {
     /**
      * Creates an instance of {@code RuntimePermission} with the specified name
      * and action list. The action list is ignored.
-     * 
+     *
      * @param name
      *            the name of the new permission.
      * @param actions

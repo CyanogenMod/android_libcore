@@ -34,7 +34,7 @@ public class CoreTestDummy extends TestCase {
     public void testAndroidOnlyFail() {
         fail("Oops!");
     }
-    
+
     @BrokenTest("")
     public void testBrokenTestPass() {
     }
@@ -43,7 +43,7 @@ public class CoreTestDummy extends TestCase {
     public void testBrokenTestFail() {
         fail("Oops!");
     }
-    
+
     @KnownFailure("")
     public void testKnownFailurePass() {
     }
@@ -52,7 +52,7 @@ public class CoreTestDummy extends TestCase {
     public void testKnownFailureFail() {
         fail("Oops!");
     }
-    
+
     @SideEffect("")
     public void testSideEffectPass() {
     }

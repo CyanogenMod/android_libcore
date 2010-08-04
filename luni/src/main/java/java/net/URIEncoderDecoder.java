@@ -19,8 +19,7 @@ package java.net;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-
-import org.apache.harmony.luni.util.Msg;
+import java.nio.charset.Charsets;
 
 /**
  * This class is used to encode a string using the format required by {@code
@@ -30,9 +29,7 @@ import org.apache.harmony.luni.util.Msg;
  */
 class URIEncoderDecoder {
 
-    static final String digits = "0123456789ABCDEF"; //$NON-NLS-1$
-
-    static final String encoding = "UTF8"; //$NON-NLS-1$
+    static final String digits = "0123456789ABCDEF";
 
     /**
      * Validate a string by checking if it contains any characters other than:
@@ -54,14 +51,13 @@ class URIEncoderDecoder {
             if (ch == '%') {
                 do {
                     if (i + 2 >= s.length()) {
-                        throw new URISyntaxException(s, Msg.getString("K0313"), //$NON-NLS-1$
-                                i);
+                        throw new URISyntaxException(s, "Incomplete % sequence", i);
                     }
                     int d1 = Character.digit(s.charAt(i + 1), 16);
                     int d2 = Character.digit(s.charAt(i + 2), 16);
                     if (d1 == -1 || d2 == -1) {
-                        throw new URISyntaxException(s, Msg.getString("K0314", //$NON-NLS-1$
-                                s.substring(i, i + 3)), i);
+                        throw new URISyntaxException(s, "Invalid % sequence: " +
+                                s.substring(i, i + 3), i);
                     }
 
                     i += 3;
@@ -73,7 +69,7 @@ class URIEncoderDecoder {
                     || (ch >= '0' && ch <= '9') || legal.indexOf(ch) > -1 || (ch > 127
                     && !Character.isSpaceChar(ch) && !Character
                     .isISOControl(ch)))) {
-                throw new URISyntaxException(s, Msg.getString("K00c1"), i); //$NON-NLS-1$
+                throw new URISyntaxException(s, "Illegal character", i);
             }
             i++;
         }
@@ -85,7 +81,7 @@ class URIEncoderDecoder {
             char ch = s.charAt(i);
             if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
                     || (ch >= '0' && ch <= '9') || legal.indexOf(ch) > -1)) {
-                throw new URISyntaxException(s, Msg.getString("K00c1"), i); //$NON-NLS-1$
+                throw new URISyntaxException(s, "Illegal character", i);
             }
             i++;
         }
@@ -123,7 +119,7 @@ class URIEncoderDecoder {
                             .isISOControl(ch))) {
                 buf.append(ch);
             } else {
-                byte[] bytes = new String(new char[] { ch }).getBytes(encoding);
+                byte[] bytes = new String(new char[] { ch }).getBytes(Charsets.UTF_8);
                 for (int j = 0; j < bytes.length; j++) {
                     buf.append('%');
                     buf.append(digits.charAt((bytes[j] & 0xf0) >> 4));
@@ -154,7 +150,7 @@ class URIEncoderDecoder {
             if (ch <= 127) {
                 buf.append(ch);
             } else {
-                byte[] bytes = new String(new char[] { ch }).getBytes(encoding);
+                byte[] bytes = new String(new char[] { ch }).getBytes(Charsets.UTF_8);
                 for (int j = 0; j < bytes.length; j++) {
                     buf.append('%');
                     buf.append(digits.charAt((bytes[j] & 0xf0) >> 4));
@@ -176,7 +172,7 @@ class URIEncoderDecoder {
      * e.g. "A%20B%20C %24%25" -> "A B C $%"
      * <p>
      * Called from URI.getXYZ() methods
-     * 
+     *
      * @param s
      *            java.lang.String The encoded string.
      * @return java.lang.String The decoded version.
@@ -191,20 +187,18 @@ class URIEncoderDecoder {
                 out.reset();
                 do {
                     if (i + 2 >= s.length()) {
-                        throw new IllegalArgumentException(Msg.getString(
-                                "K01fe", i)); //$NON-NLS-1$
+                        throw new IllegalArgumentException("Incomplete % sequence at: " + i);
                     }
                     int d1 = Character.digit(s.charAt(i + 1), 16);
                     int d2 = Character.digit(s.charAt(i + 2), 16);
                     if (d1 == -1 || d2 == -1) {
-                        throw new IllegalArgumentException(Msg.getString(
-                                "K01ff", s.substring(i, i + 3), //$NON-NLS-1$
-                                String.valueOf(i)));
+                        throw new IllegalArgumentException("Invalid % sequence " +
+                                s.substring(i, i + 3) + " at " + i);
                     }
                     out.write((byte) ((d1 << 4) + d2));
                     i += 3;
                 } while (i < s.length() && s.charAt(i) == '%');
-                result.append(out.toString(encoding));
+                result.append(out.toString("UTF-8"));
                 continue;
             }
             result.append(c);

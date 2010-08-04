@@ -55,9 +55,9 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "available",
         args = {}
-    )     
+    )
     public void test_available() throws IOException {
-        assertEquals("Test 1: Returned incorrect number of available bytes;", 
+        assertEquals("Test 1: Returned incorrect number of available bytes;",
                 text.length() / 2, lnis.available());
 
         lnis.close();
@@ -77,7 +77,7 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         notes = "",
         method = "getLineNumber",
         args = {}
-    )    
+    )
     public void test_getLineNumber() {
         // Test for method int java.io.LineNumberInputStream.getLineNumber()
         assertEquals("New stream returned line number other than zero", 0, lnis
@@ -103,7 +103,7 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         notes = "",
         method = "mark",
         args = {int.class}
-    )     
+    )
     public void test_markI() {
         // Test for method void java.io.LineNumberInputStream.mark(int)
         try {
@@ -124,19 +124,19 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "read",
         args = {}
-    )     
+    )
     public void test_read() throws IOException {
-        assertEquals("Test 1: Failed to read correct byte;", 
+        assertEquals("Test 1: Failed to read correct byte;",
                 '0', lnis.read());
-        assertEquals("Test 2: Failed to read correct byte on dos text;", 
+        assertEquals("Test 2: Failed to read correct byte on dos text;",
                 '0', lnis2.read());
-        assertEquals("Test 3: Failed to read correct byte on dos text;", 
+        assertEquals("Test 3: Failed to read correct byte on dos text;",
                 '\n', lnis2.read());
-        assertEquals("Test 4: Failed to read correct byte on dos text;", 
+        assertEquals("Test 4: Failed to read correct byte on dos text;",
                 '1', lnis2.read());
-        assertEquals("Test 5: Failed to read correct byte on dos text;", 
+        assertEquals("Test 5: Failed to read correct byte on dos text;",
                 '\n', lnis2.read());
-        assertEquals("Test 6: Failed to read correct byte on dos text;", 
+        assertEquals("Test 6: Failed to read correct byte on dos text;",
                 '2', lnis2.read());
 
         lnis.close();
@@ -155,7 +155,7 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )     
+    )
     public void test_read$BII() throws IOException {
         byte[] buf = new byte[100];
         lnis.read(buf, 0, 100);
@@ -178,24 +178,24 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.PARTIAL_COMPLETE,
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )     
+    )
     public void test_read$BII_Exception() throws IOException {
         byte[] buf = new byte[10];
-        
+
         try {
             lnis.read(buf, -1, 1);
             fail("IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         try {
             lnis.read(buf, 0, -1);
             fail("IndexOutOfBoundsException expected.");
         } catch (IndexOutOfBoundsException e) {
             // Expected.
         }
-        
+
         try {
             lnis.read(buf, 10, 1);
             fail("IndexOutOfBoundsException expected.");
@@ -212,7 +212,7 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         notes = "IOException checking missed.",
         method = "reset",
         args = {}
-    )      
+    )
     public void test_reset() throws IOException {
         lnis.mark(40);
         lnis.skip(4);
@@ -229,7 +229,7 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         } catch (IOException e) {
             // Correct; mark has been invalidated.
         }
-        
+
         lnis.mark(5);
         lnis.close();
         try {
@@ -248,15 +248,15 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         notes = "",
         method = "setLineNumber",
         args = {int.class}
-    )      
+    )
     public void test_setLineNumberI() {
         lnis.setLineNumber(42);
-        assertEquals("Test 1: Failed to set line number;", 
+        assertEquals("Test 1: Failed to set line number;",
                 42, lnis.getLineNumber());
-        // Repeat the test with a different number to make sure that the 
+        // Repeat the test with a different number to make sure that the
         // line number is really set.
         lnis.setLineNumber(89);
-        assertEquals("Test 2: Failed to set line number;", 
+        assertEquals("Test 2: Failed to set line number;",
                 89, lnis.getLineNumber());
     }
 
@@ -267,14 +267,14 @@ public class LineNumberInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "skip",
         args = {long.class}
-    )      
+    )
     public void test_skipJ() throws IOException {
         long skipped = lnis.skip(4);
-        assertEquals("Test 1: Incorrect number of characters skipped;", 
+        assertEquals("Test 1: Incorrect number of characters skipped;",
                 4, skipped);
-        assertEquals("Test 2: Skip failed to increment line number;", 
+        assertEquals("Test 2: Skip failed to increment line number;",
                 2, lnis.getLineNumber());
-        
+
         lnis.close();
         try {
             lnis.skip(4);

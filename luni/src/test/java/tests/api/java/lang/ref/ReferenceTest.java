@@ -30,13 +30,13 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Vector;
 
-@TestTargetClass(Reference.class) 
+@TestTargetClass(Reference.class)
 public class ReferenceTest extends junit.framework.TestCase {
     Object tmpA, tmpB, tmpC, obj;
 
     volatile Reference r;
 
-    /* 
+    /*
      * For test_subclass().
      */
     static TestWeakReference twr;
@@ -65,7 +65,7 @@ public class ReferenceTest extends junit.framework.TestCase {
                 error = new AssertionFailedError("Clear should happen " +
                         "before enqueue.");
                 throw error;
-            }            
+            }
             super.clear();
         }
 
@@ -149,7 +149,7 @@ public class ReferenceTest extends junit.framework.TestCase {
 
         rq = new ReferenceQueue();
         obj = new Object();
-        
+
         ref = new WeakReference(obj, rq);
         assertTrue("Enqueue failed2.", (!ref.isEnqueued())
                 && ((ref.enqueue()) && (ref.isEnqueued())));
@@ -158,7 +158,7 @@ public class ReferenceTest extends junit.framework.TestCase {
         // fails.
         assertTrue("Can not enqueue twice2.", (!ref.enqueue())
                 && (rq.poll() == null));
-        
+
         ref = new PhantomReference(obj, rq);
         assertTrue("Enqueue failed3.", (!ref.isEnqueued())
                 && ((ref.enqueue()) && (ref.isEnqueued())));
@@ -196,7 +196,7 @@ public class ReferenceTest extends junit.framework.TestCase {
         final ReferenceQueue rq = new ReferenceQueue();
 
         class TestThread extends Thread {
-            
+
             public void run() {
                 // Create the object in a separate thread to ensure it will be
                 // gc'ed
@@ -205,7 +205,7 @@ public class ReferenceTest extends junit.framework.TestCase {
                 testObj = null;
             }
         }
-        
+
         Reference ref;
 
         try {
@@ -239,7 +239,7 @@ public class ReferenceTest extends junit.framework.TestCase {
         }
     }
 
-  
+
     /**
      * Makes sure that overridden versions of clear() and enqueue()
      * get called, and that clear/enqueue/finalize happen in the
@@ -333,10 +333,10 @@ public class ReferenceTest extends junit.framework.TestCase {
     )
     public void test_get() {
 
-        Vector<StringBuffer> vec = new Vector<StringBuffer>();        
+        Vector<StringBuffer> vec = new Vector<StringBuffer>();
         WeakReference ref = new WeakReference(vec, new ReferenceQueue());
         assertTrue("Get succeeded.", ref.get() == vec);
-        
+
         Runtime rt =  Runtime.getRuntime();
 
         long beforeTest = rt.freeMemory();
@@ -344,16 +344,16 @@ public class ReferenceTest extends junit.framework.TestCase {
             vec.add(new StringBuffer(1000));
         }
         vec = null;
- 
+
         System.gc();
         System.runFinalization();
-        assertNull("get() doesn't return null after gc for WeakReference", 
+        assertNull("get() doesn't return null after gc for WeakReference",
                     ref.get());
-        
+
         obj = new Object();
         ref = new WeakReference(obj, new ReferenceQueue());
         ref.clear();
-        assertNull("get() doesn't return null after clear for WeakReference", 
+        assertNull("get() doesn't return null after clear for WeakReference",
                 ref.get());
     }
 
@@ -397,7 +397,7 @@ public class ReferenceTest extends junit.framework.TestCase {
     public void test_finalizeReferenceInteraction() {
         error = null;
         testObjectFinalized = false;
-    
+
         class TestObject {
             WeakReference<String> stringRef;
 

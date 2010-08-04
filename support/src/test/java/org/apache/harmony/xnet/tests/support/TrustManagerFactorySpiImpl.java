@@ -8,12 +8,12 @@ import javax.net.ssl.ManagerFactoryParameters;
 import javax.net.ssl.TrustManager;
 
 public class TrustManagerFactorySpiImpl extends MyTrustManagerFactorySpi {
-    
+
     private static boolean isengineInitCalled = false;
     private static boolean isEngineGetTrustManagersCalled = false;
     private static KeyStore ks = null;
     private static ManagerFactoryParameters spec = null;
-    
+
     public void engineInit(KeyStore ks) throws KeyStoreException {
         isengineInitCalled = true;
         this.ks = ks;

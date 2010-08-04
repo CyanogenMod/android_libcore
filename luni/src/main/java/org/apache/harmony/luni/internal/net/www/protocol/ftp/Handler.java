@@ -23,8 +23,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
-import org.apache.harmony.luni.util.Msg;
-
 public class Handler extends URLStreamHandler {
     /**
      * Open a URLConnection on the given URL.
@@ -39,13 +37,13 @@ public class Handler extends URLStreamHandler {
      * to the FTP server specified by this <code>URL</code>. If
      * <code>proxy</code> is DIRECT type, the connection is made in normal
      * way.
-     * 
-     * @param u
+     *
+     * @param url
      *            the URL which the connection is pointing to
      * @param proxy
      *            the proxy which is used to make the connection
      * @return a connection to the resource pointed by this url.
-     * 
+     *
      * @throws IOException
      *             if this handler fails to establish a connection.
      * @throws IllegalArgumentException
@@ -54,12 +52,11 @@ public class Handler extends URLStreamHandler {
      *             if the protocol handler doesn't support this method.
      */
     @Override
-    protected URLConnection openConnection(URL u, Proxy proxy)
-            throws IOException {
-        if (null == u || null == proxy) {
-            throw new IllegalArgumentException(Msg.getString("K034b")); //$NON-NLS-1$
+    protected URLConnection openConnection(URL url, Proxy proxy) throws IOException {
+        if (url == null || proxy == null) {
+            throw new IllegalArgumentException("url == null || proxy == null");
         }
-        return new FtpURLConnection(u, proxy);
+        return new FtpURLConnection(url, proxy);
     }
 
     /**

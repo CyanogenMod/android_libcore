@@ -26,7 +26,7 @@ import java.io.IOException;
 
 /**
  * IMemorySystem
- * 
+ *
  */
 public interface IMemorySystem {
 
@@ -51,14 +51,14 @@ public interface IMemorySystem {
     /**
      * Returns true if the platform is little endian, otherwise it may be
      * assumed to be big endian..
-     * 
+     *
      * @return true if the platform is little endian.
      */
     public boolean isLittleEndian();
 
     /**
      * Returns the platform pointer size.
-     * 
+     *
      * @return the native platform pointer size, in bytes.
      */
     public int getPointerSize();
@@ -68,7 +68,7 @@ public interface IMemorySystem {
      * <code>length</code> bytes. The space is uninitialized and may be larger
      * than the number of bytes requested; however, the guaranteed usable memory
      * block is exactly <code>length</code> bytes long.
-     * 
+     *
      * @param length
      *            number of bytes requested.
      * @return the address of the start of the memory block.
@@ -86,7 +86,7 @@ public interface IMemorySystem {
      * Freeing a pointer to a memory block that was not allocated by
      * <code>malloc()</code> has unspecified effect.
      * </p>
-     * 
+     *
      * @param address
      *            the address of the memory block to deallocate.
      */
@@ -100,7 +100,7 @@ public interface IMemorySystem {
      * <code>(address ... address + length)</code> is not wholly within the
      * range that was previously allocated using <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the address of the first memory location.
      * @param value
@@ -123,7 +123,7 @@ public interface IMemorySystem {
      * within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param destAddress
      *            the address of the destination memory block.
      * @param srcAddress
@@ -142,7 +142,7 @@ public interface IMemorySystem {
      * <code>(address ... address + length)</code> is not within a memory
      * block that was allocated using {@link #malloc(int) malloc(long)}.
      * </p>
-     * 
+     *
      * @param address
      *            the address of the OS memory block from which to copy bytes.
      * @param bytes
@@ -169,7 +169,7 @@ public interface IMemorySystem {
      * <code>(address ... address + length)</code> is not within a memory
      * block that was allocated using {@link #malloc(int) malloc(long)}.
      * </p>
-     * 
+     *
      * @param address
      *            the address of the OS memory block into which to copy the
      *            bytes.
@@ -199,7 +199,7 @@ public interface IMemorySystem {
      * <code>(address ... address + length*2)</code> is not within a memory
      * block that was allocated using {@link #malloc(int) malloc(long)}.
      * </p>
-     * 
+     *
      * @param address
      *            the address of the OS memory block into which to copy the
      *            shorts.
@@ -231,7 +231,7 @@ public interface IMemorySystem {
      * <code>(address ... address + length*4)</code> is not within a memory
      * block that was allocated using {@link #malloc(int) malloc(long)}.
      * </p>
-     * 
+     *
      * @param address
      *            the address of the OS memory block into which to copy the
      *            ints.
@@ -307,7 +307,7 @@ public interface IMemorySystem {
      * The behavior is unspecified if <code>address</code> is not in the range
      * that was previously allocated using <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the address at which to set the byte value.
      * @param value
@@ -323,7 +323,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the two-byte value.
      * @return the value of the two-byte integer as a Java <code>short</code>.
@@ -355,7 +355,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the two-byte value.
      * @param value
@@ -373,7 +373,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the four-byte value.
      * @return the value of the four-byte integer as a Java <code>int</code>.
@@ -390,7 +390,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the four-byte value.
      * @param value
@@ -408,7 +408,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the eight-byte value.
      * @return the value of the eight-byte integer as a Java <code>long</code>.
@@ -425,7 +425,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the eight-byte value.
      * @param value
@@ -444,7 +444,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the eight-byte value.
      * @return the value of the four-byte float as a Java <code>float</code>.
@@ -461,7 +461,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the eight-byte value.
      * @param value
@@ -479,7 +479,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the eight-byte value.
      * @return the value of the eight-byte float as a Java <code>double</code>.
@@ -496,7 +496,7 @@ public interface IMemorySystem {
      * is not wholly within the range that was previously allocated using
      * <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the eight-byte value.
      * @param value
@@ -517,7 +517,7 @@ public interface IMemorySystem {
      * <code>(address ... address + POINTER_SIZE)</code> is not wholly within
      * the range that was previously allocated using <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the platform pointer.
      * @return the value of the platform pointer as a Java <code>long</code>.
@@ -535,7 +535,7 @@ public interface IMemorySystem {
      * <code>(address ... address + POINTER_SIZE)</code> is not wholly within
      * the range that was previously allocated using <code>malloc()</code>.
      * </p>
-     * 
+     *
      * @param address
      *            the platform address of the start of the platform pointer.
      * @param value
@@ -568,7 +568,7 @@ public interface IMemorySystem {
 
     /**
      * TODO: JavaDoc
-     * 
+     *
      * @param addr
      * @throws IOException
      */

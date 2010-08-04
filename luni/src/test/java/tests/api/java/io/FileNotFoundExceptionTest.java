@@ -19,11 +19,11 @@ package tests.api.java.io;
 
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.FileNotFoundException;
 
-@TestTargetClass(FileNotFoundException.class) 
+@TestTargetClass(FileNotFoundException.class)
 public class FileNotFoundExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -33,7 +33,7 @@ public class FileNotFoundExceptionTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "FileNotFoundException",
         args = {}
-    )        
+    )
     public void test_Constructor() {
         try {
             if (true) // To avoid unreachable code compilation error.
@@ -52,7 +52,7 @@ public class FileNotFoundExceptionTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "FileNotFoundException",
         args = {java.lang.String.class}
-    )        
+    )
     public void test_ConstructorLjava_lang_String() {
         try {
             if (true) // To avoid unreachable code compilation error.

@@ -15,14 +15,15 @@
  */
 
 #define LOG_TAG "OSMemory"
+
 #include "JNIHelp.h"
-#include "AndroidSystemNatives.h"
-#include "utils/misc.h"
-#include "utils/Log.h"
-#include <sys/mman.h>
+#include "JniConstants.h"
+#include "UniquePtr.h"
+
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
+#include <sys/mman.h>
 
 /*
  * Cached dalvik.system.VMRuntime pieces.
@@ -38,138 +39,82 @@ static const int MMAP_READ_ONLY = 1;
 static const int MMAP_READ_WRITE = 2;
 static const int MMAP_WRITE_COPY = 4;
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    littleEndian
- * Signature: ()Z
- */
-static jboolean harmony_nio_littleEndian(JNIEnv *_env, jclass _this) {
+template <typename T> static T cast(jint address) {
+    return reinterpret_cast<T>(static_cast<uintptr_t>(address));
+}
+
+static jboolean OSMemory_isLittleEndianImpl(JNIEnv*, jclass) {
     long l = 0x01020304;
-    unsigned char* c = (unsigned char*)&l;
+    unsigned char* c = reinterpret_cast<unsigned char*>(&l);
     return (*c == 0x04) ? JNI_TRUE : JNI_FALSE;
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    getPointerSizeImpl
- * Signature: ()I
- */
-static jint harmony_nio_getPointerSizeImpl(JNIEnv *_env, jclass _this) {
-    return sizeof(void *);
+static jint OSMemory_getPointerSizeImpl(JNIEnv*, jclass) {
+    return sizeof(void*);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    mallocImpl
- * Signature: (I)I
- */
-static jint harmony_nio_mallocImpl(JNIEnv *_env, jobject _this, jint size) {
-    jboolean allowed = _env->CallBooleanMethod(gIDCache.runtimeInstance,
+static jint OSMemory_malloc(JNIEnv* env, jobject, jint size) {
+    jboolean allowed = env->CallBooleanMethod(gIDCache.runtimeInstance,
         gIDCache.method_trackExternalAllocation, (jlong) size);
     if (!allowed) {
         LOGW("External allocation of %d bytes was rejected\n", size);
-        jniThrowException(_env, "java/lang/OutOfMemoryError", NULL);
+        jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
         return 0;
     }
 
     LOGV("OSMemory alloc %d\n", size);
-    void *returnValue = malloc(size + sizeof(jlong));
-    if (returnValue == NULL) {
-        jniThrowException(_env, "java/lang/OutOfMemoryError", NULL);
+    void* block = malloc(size + sizeof(jlong));
+    if (block == NULL) {
+        jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
         return 0;
     }
 
     /*
      * Tuck a copy of the size at the head of the buffer.  We need this
-     * so harmony_nio_freeImpl() knows how much memory is being freed.
+     * so OSMemory_free() knows how much memory is being freed.
      */
-    jlong* adjptr = (jlong*) returnValue;
-    *adjptr++ = size;
-    return (jint)adjptr;
+    jlong* result = reinterpret_cast<jlong*>(block);
+    *result++ = size;
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    freeImpl
- * Signature: (I)V
- */
-static void harmony_nio_freeImpl(JNIEnv *_env, jobject _this, jint pointer) {
-    jlong* adjptr = (jlong*) pointer;
-    jint size = *--adjptr;
-    LOGV("OSMemory free %d\n", size);
-    _env->CallVoidMethod(gIDCache.runtimeInstance,
-        gIDCache.method_trackExternalFree, (jlong) size);
-    free((void *)adjptr);
+static void OSMemory_free(JNIEnv* env, jobject, jint address) {
+    jlong* p = reinterpret_cast<jlong*>(static_cast<uintptr_t>(address));
+    jlong size = *--p;
+    LOGV("OSMemory free %ld\n", size);
+    env->CallVoidMethod(gIDCache.runtimeInstance, gIDCache.method_trackExternalFree, size);
+    free(reinterpret_cast<void*>(p));
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    memset
- * Signature: (IBJ)V
- */
-static void harmony_nio_memset(JNIEnv *_env, jobject _this, jint address, 
-        jbyte value, jlong length) {
-    memset ((void *) ((jint) address), (jbyte) value, (jlong) length);
+static void OSMemory_memset(JNIEnv*, jobject, jint dstAddress, jbyte value, jlong length) {
+    memset(cast<void*>(dstAddress), value, length);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    memmove
- * Signature: (IIJ)V
- */
-static void harmony_nio_memmove(JNIEnv *_env, jobject _this, jint destAddress, 
-        jint srcAddress, jlong length) {
-    memmove ((void *) ((jint) destAddress), (const void *) ((jint) srcAddress), 
-        (jlong) length);
+static void OSMemory_memmove(JNIEnv*, jobject, jint dstAddress, jint srcAddress, jlong length) {
+    memmove(cast<void*>(dstAddress), cast<const void*>(srcAddress), length);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    getByteImpl
- * Signature: (I)B
- */
-static jbyte harmony_nio_getByteImpl(JNIEnv *_env, jobject _this, 
-        jint pointer) {
-    jbyte returnValue = *((jbyte *)pointer);
-    return returnValue;
+static jbyte OSMemory_getByte(JNIEnv*, jobject, jint srcAddress) {
+    return *cast<const jbyte*>(srcAddress);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    getBytesImpl
- * Signature: (I[BII)V
- */
-static void harmony_nio_getBytesImpl(JNIEnv *_env, jobject _this, jint pointer, 
+static void OSMemory_getByteArray(JNIEnv* env, jobject, jint srcAddress,
         jbyteArray dst, jint offset, jint length) {
-    jbyte* src = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(pointer));
-    _env->SetByteArrayRegion(dst, offset, length, src);
+    env->SetByteArrayRegion(dst, offset, length, cast<const jbyte*>(srcAddress));
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    putByteImpl
- * Signature: (IB)V
- */
-static void harmony_nio_putByteImpl(JNIEnv *_env, jobject _this, jint pointer,
-        jbyte val) {
-    *((jbyte *)pointer) = val;
+static void OSMemory_setByte(JNIEnv*, jobject, jint dstAddress, jbyte value) {
+    *cast<jbyte*>(dstAddress) = value;
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    putBytesImpl
- * Signature: (I[BII)V
- */
-static void harmony_nio_putBytesImpl(JNIEnv *_env, jobject _this,
-        jint pointer, jbyteArray src, jint offset, jint length) {
-    jbyte* dst = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(pointer));
-    _env->GetByteArrayRegion(src, offset, length, dst);
+static void OSMemory_setByteArray(JNIEnv* env, jobject,
+        jint dstAddress, jbyteArray src, jint offset, jint length) {
+    env->GetByteArrayRegion(src, offset, length, cast<jbyte*>(dstAddress));
 }
 
-static void
-swapShorts(jshort *shorts, int count) {
-    jbyte *src = (jbyte *) shorts;
-    jbyte *dst = src;
+static void swapShorts(jshort* shorts, int count) {
+    jbyte* src = reinterpret_cast<jbyte*>(shorts);
+    jbyte* dst = src;
     for (int i = 0; i < count; ++i) {
         jbyte b0 = *src++;
         jbyte b1 = *src++;
@@ -178,10 +123,9 @@ swapShorts(jshort *shorts, int count) {
     }
 }
 
-static void
-swapInts(jint *ints, int count) {
-    jbyte *src = (jbyte *) ints;
-    jbyte *dst = src;
+static void swapInts(jint* ints, int count) {
+    jbyte* src = reinterpret_cast<jbyte*>(ints);
+    jbyte* dst = src;
     for (int i = 0; i < count; ++i) {
         jbyte b0 = *src++;
         jbyte b1 = *src++;
@@ -194,122 +138,82 @@ swapInts(jint *ints, int count) {
     }
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    setShortArrayImpl
- * Signature: (I[SIIZ)V
- */
-static void harmony_nio_setShortArrayImpl(JNIEnv *_env, jobject _this,
-       jint pointer, jshortArray src, jint offset, jint length, jboolean swap) {
-    jshort* dst = reinterpret_cast<jshort*>(static_cast<uintptr_t>(pointer));
-    _env->GetShortArrayRegion(src, offset, length, dst);
-    if (swap) {
-        swapShorts(dst, length);
-    }
-}
-
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    setIntArrayImpl
- * Signature: (I[IIIZ)V
- */
-static void harmony_nio_setIntArrayImpl(JNIEnv *_env, jobject _this,
-       jint pointer, jintArray src, jint offset, jint length, jboolean swap) {
-    jint* dst = reinterpret_cast<jint*>(static_cast<uintptr_t>(pointer));
-    _env->GetIntArrayRegion(src, offset, length, dst);
-    if (swap) {
-        swapInts(dst, length);
-    }
-}
-
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    setFloatArrayImpl
- * Signature: (I[FIIZ)V
- */
-static void harmony_nio_setFloatArrayImpl(JNIEnv *_env, jobject _this,
-       jint pointer, jfloatArray src, jint offset, jint length, jboolean swap) {
-    jfloat* dst = reinterpret_cast<jfloat*>(static_cast<uintptr_t>(pointer));
-    _env->GetFloatArrayRegion(src, offset, length, dst);
+static void OSMemory_setFloatArray(JNIEnv* env, jobject, jint dstAddress,
+        jfloatArray src, jint offset, jint length, jboolean swap) {
+    jfloat* dst = cast<jfloat*>(dstAddress);
+    env->GetFloatArrayRegion(src, offset, length, dst);
     if (swap) {
         swapInts(reinterpret_cast<jint*>(dst), length);
     }
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    getShortImpl
- * Signature: (I)S
- */
-static jshort harmony_nio_getShortImpl(JNIEnv *_env, jobject _this, 
-        jint pointer) {
-    if ((pointer & 0x1) == 0) {
-        jshort returnValue = *((jshort *)pointer);
-        return returnValue;
-    } else {
-        // Handle unaligned memory access one byte at a time
-        jshort s;
-        unsigned char *src = (unsigned char *) pointer;
-        unsigned char *dst = (unsigned char *) &s;
-        dst[0] = src[0];
-        dst[1] = src[1];
-        return s;
+static void OSMemory_setIntArray(JNIEnv* env, jobject,
+       jint dstAddress, jintArray src, jint offset, jint length, jboolean swap) {
+    jint* dst = cast<jint*>(dstAddress);
+    env->GetIntArrayRegion(src, offset, length, dst);
+    if (swap) {
+        swapInts(dst, length);
     }
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    petShortImpl
- * Signature: (IS)V
- */
-static void harmony_nio_putShortImpl(JNIEnv *_env, jobject _this, jint pointer, 
-        jshort value) {
-    if ((pointer & 0x1) == 0) {
-        *((jshort *)pointer) = value;
+static void OSMemory_setShortArray(JNIEnv* env, jobject,
+       jint dstAddress, jshortArray src, jint offset, jint length, jboolean swap) {
+    jshort* dst = cast<jshort*>(dstAddress);
+    env->GetShortArrayRegion(src, offset, length, dst);
+    if (swap) {
+        swapShorts(dst, length);
+    }
+}
+
+static jshort OSMemory_getShort(JNIEnv*, jobject, jint srcAddress) {
+    if ((srcAddress & 0x1) == 0) {
+        return *cast<const jshort*>(srcAddress);
     } else {
         // Handle unaligned memory access one byte at a time
-        unsigned char *src = (unsigned char *) &value;
-        unsigned char *dst = (unsigned char *) pointer;
+        jshort result;
+        const jbyte* src = cast<const jbyte*>(srcAddress);
+        jbyte* dst = reinterpret_cast<jbyte*>(&result);
+        dst[0] = src[0];
+        dst[1] = src[1];
+        return result;
+    }
+}
+
+static void OSMemory_setShort(JNIEnv*, jobject, jint dstAddress, jshort value) {
+    if ((dstAddress & 0x1) == 0) {
+        *cast<jshort*>(dstAddress) = value;
+    } else {
+        // Handle unaligned memory access one byte at a time
+        const jbyte* src = reinterpret_cast<const jbyte*>(&value);
+        jbyte* dst = cast<jbyte*>(dstAddress);
         dst[0] = src[0];
         dst[1] = src[1];
     }
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    getIntImpl
- * Signature: (I)I
- */
-static jint harmony_nio_getIntImpl(JNIEnv *_env, jobject _this, jint pointer) {
-    if ((pointer & 0x3) == 0) {
-        jint returnValue = *((jint *)pointer);
-        return returnValue;
+static jint OSMemory_getInt(JNIEnv*, jobject, jint srcAddress) {
+    if ((srcAddress & 0x3) == 0) {
+        return *cast<const jint*>(srcAddress);
     } else {
         // Handle unaligned memory access one byte at a time
-        jint i;
-        unsigned char *src = (unsigned char *) pointer;
-        unsigned char *dst = (unsigned char *) &i;
+        jint result;
+        const jbyte* src = cast<const jbyte*>(srcAddress);
+        jbyte* dst = reinterpret_cast<jbyte*>(&result);
         dst[0] = src[0];
         dst[1] = src[1];
         dst[2] = src[2];
         dst[3] = src[3];
-        return i;
+        return result;
     }
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    putIntImpl
- * Signature: (II)V
- */
-static void harmony_nio_putIntImpl(JNIEnv *_env, jobject _this, jint pointer, 
-        jint value) {
-    if ((pointer & 0x3) == 0) {
-        *((jint *)pointer) = value;
+static void OSMemory_setInt(JNIEnv*, jobject, jint dstAddress, jint value) {
+    if ((dstAddress & 0x3) == 0) {
+        *cast<jint*>(dstAddress) = value;
     } else {
         // Handle unaligned memory access one byte at a time
-        unsigned char *src = (unsigned char *) &value;
-        unsigned char *dst = (unsigned char *) pointer;
+        const jbyte* src = reinterpret_cast<const jbyte*>(&value);
+        jbyte* dst = cast<jbyte*>(dstAddress);
         dst[0] = src[0];
         dst[1] = src[1];
         dst[2] = src[2];
@@ -317,131 +221,61 @@ static void harmony_nio_putIntImpl(JNIEnv *_env, jobject _this, jint pointer,
     }
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    getLongImpl
- * Signature: (I)Ljava/lang/Long;
- */
-static jlong harmony_nio_getLongImpl(JNIEnv *_env, jobject _this, 
-        jint pointer) {
-    if ((pointer & 0x7) == 0) {
-        jlong returnValue = *((jlong *)pointer);
-        return returnValue;
+template <typename T> static T get(jint srcAddress) {
+    if ((srcAddress & (sizeof(T) - 1)) == 0) {
+        return *cast<const T*>(srcAddress);
     } else {
-        // Handle unaligned memory access one byte at a time
-        jlong l;
-        memcpy((void *) &l, (void *) pointer, sizeof(jlong));
-        return l;
+        // Cast to void* so GCC can't assume correct alignment and optimize this out.
+        const void* src = cast<const void*>(srcAddress);
+        T result;
+        memcpy(&result, src, sizeof(T));
+        return result;
     }
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    putLongImpl
- * Signature: (IJ)V
- */
-static void harmony_nio_putLongImpl(JNIEnv *_env, jobject _this, jint pointer, 
-        jlong value) {
-    if ((pointer & 0x7) == 0) {
-        *((jlong *)pointer) = value;
+template <typename T> static void set(jint dstAddress, T value) {
+    if ((dstAddress & (sizeof(T) - 1)) == 0) {
+        *cast<T*>(dstAddress) = value;
     } else {
-        // Handle unaligned memory access one byte at a time
-        memcpy((void *) pointer, (void *) &value, sizeof(jlong));
+        // Cast to void* so GCC can't assume correct alignment and optimize this out.
+        void* dst = cast<void*>(dstAddress);
+        memcpy(dst, &value, sizeof(T));
     }
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    getFloatImpl
- * Signature: (I)F
- */
-static jfloat harmony_nio_getFloatImpl(JNIEnv *_env, jobject _this, 
-        jint pointer) {
-    if ((pointer & 0x3) == 0) {
-        jfloat returnValue = *((jfloat *)pointer);
-        return returnValue;
-    } else {
-        // Handle unaligned memory access one byte at a time
-        jfloat f;
-        memcpy((void *) &f, (void *) pointer, sizeof(jfloat));
-        return f;
-    }
+static jlong OSMemory_getLong(JNIEnv*, jobject, jint srcAddress) {
+    return get<jlong>(srcAddress);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    setFloatImpl
- * Signature: (IF)V
- */
-static void harmony_nio_putFloatImpl(JNIEnv *_env, jobject _this, jint pointer, 
-        jfloat value) {
-    if ((pointer & 0x3) == 0) {
-        *((jfloat *)pointer) = value;
-    } else {
-        // Handle unaligned memory access one byte at a time
-        memcpy((void *) pointer, (void *) &value, sizeof(jfloat));
-    }
+static void OSMemory_setLong(JNIEnv*, jobject, jint dstAddress, jlong value) {
+    set<jlong>(dstAddress, value);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    getDoubleImpl
- * Signature: (I)D
- */
-static jdouble harmony_nio_getDoubleImpl(JNIEnv *_env, jobject _this, 
-        jint pointer) {
-    if ((pointer & 0x7) == 0) {
-        jdouble returnValue = *((jdouble *)pointer);
-        return returnValue;
-    } else {
-        // Handle unaligned memory access one byte at a time
-        jdouble d;
-        memcpy((void *) &d, (void *) pointer, sizeof(jdouble));
-        return d;
-    }
+static jfloat OSMemory_getFloat(JNIEnv*, jobject, jint srcAddress) {
+    return get<jfloat>(srcAddress);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    putDoubleImpl
- * Signature: (ID)V
- */
-static void harmony_nio_putDoubleImpl(JNIEnv *_env, jobject _this, jint pointer, 
-        jdouble value) {
-    if ((pointer & 0x7) == 0) {
-        *((jdouble *)pointer) = value;
-    } else {
-        // Handle unaligned memory access one byte at a time
-        memcpy((void *) pointer, (void *) &value, sizeof(jdouble));
-    }
+static void OSMemory_setFloat(JNIEnv*, jobject, jint dstAddress, jfloat value) {
+    set<jfloat>(dstAddress, value);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    getAddress
- * Signature: (I)I
- */
-static jint harmony_nio_getAddress(JNIEnv *_env, jobject _this, jint pointer) {
-    return (jint) * (int *) pointer;
+static jdouble OSMemory_getDouble(JNIEnv*, jobject, jint srcAddress) {
+    return get<jdouble>(srcAddress);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    setAddress
- * Signature: (II)V
- */
-static void harmony_nio_setAddress(JNIEnv *_env, jobject _this, jint pointer, 
-        jint value) {
-    *(int *) pointer = (int) value;
+static void OSMemory_setDouble(JNIEnv*, jobject, jint dstAddress, jdouble value) {
+    set<jdouble>(dstAddress, value);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    mmapImpl
- * Signature: (IJJI)I
- */
-static jint harmony_nio_mmapImpl(JNIEnv* env, jobject, jint fd, 
-        jlong offset, jlong size, jint mapMode) {
+static jint OSMemory_getAddress(JNIEnv*, jobject, jint srcAddress) {
+    return *cast<const jint*>(srcAddress);
+}
+
+static void OSMemory_setAddress(JNIEnv*, jobject, jint dstAddress, jint value) {
+    *cast<jint*>(dstAddress) = value;
+}
+
+static jint OSMemory_mmapImpl(JNIEnv* env, jobject, jint fd, jlong offset, jlong size, jint mapMode) {
     int prot, flags;
     switch (mapMode) {
     case MMAP_READ_ONLY:
@@ -469,141 +303,93 @@ static jint harmony_nio_mmapImpl(JNIEnv* env, jobject, jint fd,
     return reinterpret_cast<uintptr_t>(mapAddress);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    unmapImpl
- * Signature: (IJ)V
- */
-static void harmony_nio_unmapImpl(JNIEnv *_env, jobject _this, jint address, 
-        jlong size) {
-    munmap((void *)address, (size_t)size);
+static void OSMemory_unmapImpl(JNIEnv*, jobject, jint address, jlong size) {
+    munmap(cast<void*>(address), size);
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    loadImpl
- * Signature: (IJ)I
- */
-static jint harmony_nio_loadImpl(JNIEnv *_env, jobject _this, jint address, 
-        jlong size) {
-
-    if(mlock((void *)address, (size_t)size)!=-1) {
-        if(munlock((void *)address, (size_t)size)!=-1) {
+static jint OSMemory_loadImpl(JNIEnv*, jobject, jint address, jlong size) {
+    if (mlock(cast<void*>(address), size) != -1) {
+        if (munlock(cast<void*>(address), size) != -1) {
               return 0;  /* normally */
         }
-    }
-    else {
+    } else {
          /* according to linux sys call, only root can mlock memory. */
-         if(errno == EPERM) {
+         if (errno == EPERM) {
              return 0;
          }
     }
-    
     return -1;
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    isLoadedImpl
- * Signature: (IJ)Z
- */
-static jboolean harmony_nio_isLoadedImpl(JNIEnv *_env, jobject _this, 
-        jint address, jlong size) {
-
+static jboolean OSMemory_isLoadedImpl(JNIEnv*, jobject, jint address, jlong size) {
     static int page_size = getpagesize();
-    jboolean result = 0;
-    jint m_addr = (jint)address;
-    
-    int align_offset = m_addr%page_size;// addr should align with the boundary of a page.
-    m_addr -= align_offset;
-    size   += align_offset;
-    int page_count = (size+page_size-1)/page_size;
-    
-    unsigned char* vec = (unsigned char *) malloc(page_count*sizeof(char));
-    
-    if (mincore((void *)m_addr, size, (MINCORE_POINTER_TYPE) vec)==0) {
-        // or else there is error about the mincore and return false;
-        int i;
-        for(i=0 ;i<page_count;i++) {
-            if(vec[i]!=1) {
-                break;
-            }
-        }
-        if(i==page_count) {
-            result = 1;
+
+    int align_offset = address % page_size;// addr should align with the boundary of a page.
+    address -= align_offset;
+    size += align_offset;
+    int page_count = (size + page_size - 1) / page_size;
+
+    UniquePtr<unsigned char[]> vec(new unsigned char[page_count]);
+    int rc = mincore(cast<void*>(address), size, (MINCORE_POINTER_TYPE) vec.get());
+    if (rc == -1) {
+        return false;
+    }
+
+    for (int i = 0; i < page_count; ++i) {
+        if (vec[i] != 1) {
+            return false;
         }
     }
-    
-    free(vec);
-    
-    return result;
+    return true;
 }
 
-/*
- * Class:     org_apache_harmony_luni_platform_OSMemory
- * Method:    flushImpl
- * Signature: (IJ)I
- */
-static jint harmony_nio_flushImpl(JNIEnv *_env, jobject _this, jint address, 
-        jlong size) {
-    return msync((void *)address, size, MS_SYNC);
+static jint OSMemory_flushImpl(JNIEnv*, jobject, jint address, jlong size) {
+    return msync(cast<void*>(address), size, MS_SYNC);
 }
 
-/*
- * JNI registration
- */
 static JNINativeMethod gMethods[] = {
-    /* name, signature, funcPtr */
-    { "isLittleEndianImpl", "()Z",     (void*) harmony_nio_littleEndian },
-    { "getPointerSizeImpl", "()I",     (void*) harmony_nio_getPointerSizeImpl },
-    { "malloc",             "(I)I",    (void*) harmony_nio_mallocImpl },
-    { "free",               "(I)V",    (void*) harmony_nio_freeImpl },
-    { "memset",             "(IBJ)V",  (void*) harmony_nio_memset },
-    { "memmove",            "(IIJ)V",  (void*) harmony_nio_memmove },
-    { "getByteArray",       "(I[BII)V",(void*) harmony_nio_getBytesImpl },
-    { "setByteArray",       "(I[BII)V",(void*) harmony_nio_putBytesImpl },
-    { "setShortArray",     "(I[SIIZ)V",(void*) harmony_nio_setShortArrayImpl },
-    { "setIntArray",       "(I[IIIZ)V",(void*) harmony_nio_setIntArrayImpl },
-    { "setFloatArray",     "(I[FIIZ)V",(void*) harmony_nio_setFloatArrayImpl },
-    { "getByte",            "(I)B",    (void*) harmony_nio_getByteImpl },
-    { "setByte",            "(IB)V",   (void*) harmony_nio_putByteImpl },
-    { "getShort",           "(I)S",    (void*) harmony_nio_getShortImpl },
-    { "setShort",           "(IS)V",   (void*) harmony_nio_putShortImpl },
-    { "getInt",             "(I)I",    (void*) harmony_nio_getIntImpl },
-    { "setInt",             "(II)V",   (void*) harmony_nio_putIntImpl },
-    { "getLong",            "(I)J",    (void*) harmony_nio_getLongImpl },
-    { "setLong",            "(IJ)V",   (void*) harmony_nio_putLongImpl },
-    { "getFloat",           "(I)F",    (void*) harmony_nio_getFloatImpl },
-    { "setFloat",           "(IF)V",   (void*) harmony_nio_putFloatImpl },
-    { "getDouble",          "(I)D",    (void*) harmony_nio_getDoubleImpl },
-    { "setDouble",          "(ID)V",   (void*) harmony_nio_putDoubleImpl },
-    { "getAddress",         "(I)I",    (void*) harmony_nio_getAddress },
-    { "setAddress",         "(II)V",   (void*) harmony_nio_setAddress },
-    { "mmapImpl",           "(IJJI)I", (void*) harmony_nio_mmapImpl },
-    { "unmapImpl",          "(IJ)V",   (void*) harmony_nio_unmapImpl },
-    { "loadImpl",           "(IJ)I",   (void*) harmony_nio_loadImpl },
-    { "isLoadedImpl",       "(IJ)Z",   (void*) harmony_nio_isLoadedImpl },
-    { "flushImpl",          "(IJ)I",   (void*) harmony_nio_flushImpl }
+    { "flushImpl",          "(IJ)I",   (void*) OSMemory_flushImpl },
+    { "free",               "(I)V",    (void*) OSMemory_free },
+    { "getAddress",         "(I)I",    (void*) OSMemory_getAddress },
+    { "getByte",            "(I)B",    (void*) OSMemory_getByte },
+    { "getByteArray",       "(I[BII)V",(void*) OSMemory_getByteArray },
+    { "getDouble",          "(I)D",    (void*) OSMemory_getDouble },
+    { "getFloat",           "(I)F",    (void*) OSMemory_getFloat },
+    { "getInt",             "(I)I",    (void*) OSMemory_getInt },
+    { "getLong",            "(I)J",    (void*) OSMemory_getLong },
+    { "getPointerSizeImpl", "()I",     (void*) OSMemory_getPointerSizeImpl },
+    { "getShort",           "(I)S",    (void*) OSMemory_getShort },
+    { "isLittleEndianImpl", "()Z",     (void*) OSMemory_isLittleEndianImpl },
+    { "isLoadedImpl",       "(IJ)Z",   (void*) OSMemory_isLoadedImpl },
+    { "loadImpl",           "(IJ)I",   (void*) OSMemory_loadImpl },
+    { "malloc",             "(I)I",    (void*) OSMemory_malloc },
+    { "memmove",            "(IIJ)V",  (void*) OSMemory_memmove },
+    { "memset",             "(IBJ)V",  (void*) OSMemory_memset },
+    { "mmapImpl",           "(IJJI)I", (void*) OSMemory_mmapImpl },
+    { "setAddress",         "(II)V",   (void*) OSMemory_setAddress },
+    { "setByte",            "(IB)V",   (void*) OSMemory_setByte },
+    { "setByteArray",       "(I[BII)V",(void*) OSMemory_setByteArray },
+    { "setDouble",          "(ID)V",   (void*) OSMemory_setDouble },
+    { "setFloat",           "(IF)V",   (void*) OSMemory_setFloat },
+    { "setFloatArray",      "(I[FIIZ)V",(void*) OSMemory_setFloatArray },
+    { "setInt",             "(II)V",   (void*) OSMemory_setInt },
+    { "setIntArray",        "(I[IIIZ)V",(void*) OSMemory_setIntArray },
+    { "setLong",            "(IJ)V",   (void*) OSMemory_setLong },
+    { "setShort",           "(IS)V",   (void*) OSMemory_setShort },
+    { "setShortArray",      "(I[SIIZ)V",(void*) OSMemory_setShortArray },
+    { "unmapImpl",          "(IJ)V",   (void*) OSMemory_unmapImpl },
 };
-int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv *_env) {
+int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env) {
     /*
      * We need to call VMRuntime.trackExternal{Allocation,Free}.  Cache
      * method IDs and a reference to the singleton.
      */
-    static const char* kVMRuntimeName = "dalvik/system/VMRuntime";
-    jmethodID method_getRuntime;
-    jclass clazz;
-
-    clazz = _env->FindClass(kVMRuntimeName);
-    if (clazz == NULL) {
-        LOGE("Unable to find class %s\n", kVMRuntimeName);
-        return -1;
-    }
-    gIDCache.method_trackExternalAllocation = _env->GetMethodID(clazz,
+    gIDCache.method_trackExternalAllocation = env->GetMethodID(JniConstants::vmRuntimeClass,
         "trackExternalAllocation", "(J)Z");
-    gIDCache.method_trackExternalFree = _env->GetMethodID(clazz,
+    gIDCache.method_trackExternalFree = env->GetMethodID(JniConstants::vmRuntimeClass,
         "trackExternalFree", "(J)V");
-    method_getRuntime = _env->GetStaticMethodID(clazz,
+
+    jmethodID method_getRuntime = env->GetStaticMethodID(JniConstants::vmRuntimeClass,
         "getRuntime", "()Ldalvik/system/VMRuntime;");
 
     if (gIDCache.method_trackExternalAllocation == NULL ||
@@ -614,17 +400,13 @@ int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv *_env) {
         return -1;
     }
 
-    jobject instance = _env->CallStaticObjectMethod(clazz, method_getRuntime);
+    jobject instance = env->CallStaticObjectMethod(JniConstants::vmRuntimeClass, method_getRuntime);
     if (instance == NULL) {
         LOGE("Unable to obtain VMRuntime instance\n");
         return -1;
     }
-    gIDCache.runtimeInstance = _env->NewGlobalRef(instance);
+    gIDCache.runtimeInstance = env->NewGlobalRef(instance);
 
-    /*
-     * Register methods.
-     */
-    return jniRegisterNativeMethods(_env,
-                "org/apache/harmony/luni/platform/OSMemory",
-                gMethods, NELEM(gMethods));
+    return jniRegisterNativeMethods(env, "org/apache/harmony/luni/platform/OSMemory",
+            gMethods, NELEM(gMethods));
 }

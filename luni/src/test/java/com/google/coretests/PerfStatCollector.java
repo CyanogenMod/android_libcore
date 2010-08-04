@@ -36,7 +36,7 @@ public class PerfStatCollector implements TestListener {
 
     private static boolean havePreciseTime =
         VMDebug.threadCpuTimeNanos() != -1;
-    
+
     public class Item {
         Test test;
         long startTime, duration;
@@ -113,10 +113,10 @@ public class PerfStatCollector implements TestListener {
 
         void print2(PrintStream out, boolean bigMarking) {
             out.format("%5d. ", id);
-            
+
             out.println(test.toString());
             out.print("       ");
-            
+
             switch (histRelevance) {
                 case -4: out.print("FAIL"); break;
                 case 4: out.print("PASS"); break;
@@ -133,13 +133,13 @@ public class PerfStatCollector implements TestListener {
                     else if (res == -2) out.print("FAIL");
                     else out.print("XCPT");
             }
-            
+
             out.format(" %d ms (min %d ms, max %d ms, avg %#.1f ms, %d runs)",
                     duration,
                     statMinDuration, statMaxDuration, statAvgDuration,
                     statCount);
             out.println();
-            
+
             printed = true;
         }
 
@@ -244,7 +244,7 @@ public class PerfStatCollector implements TestListener {
     /*
      * Returns a "current time" in ms. Depending on the environment, this is
      * either the actual CPU time out current thread has used so far, or the
-     * wall clock time of the system. 
+     * wall clock time of the system.
      */
     private long currentTimeMillis() {
         if (havePreciseTime) {

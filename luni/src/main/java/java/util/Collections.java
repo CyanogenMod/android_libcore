@@ -18,13 +18,11 @@
 package java.util;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
-
-import org.apache.harmony.luni.internal.nls.Messages;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * {@code Collections} contains static methods which operate on
@@ -211,31 +209,26 @@ public class Collections {
         }
     }
 
-    private static final class ReverseComparatorWithComparator<T> implements
-            Comparator<T>, Serializable {
+    private static final class ReverseComparator2<T>
+            implements Comparator<T>, Serializable {
         private static final long serialVersionUID = 4374092139857L;
+        private final Comparator<T> cmp;
 
-        private final Comparator<T> comparator;
-
-        ReverseComparatorWithComparator(Comparator<T> comparator) {
-            super();
-            this.comparator = comparator;
+        ReverseComparator2(Comparator<T> comparator) {
+            this.cmp = comparator;
         }
 
         public int compare(T o1, T o2) {
-            return comparator.compare(o2, o1);
+            return cmp.compare(o2, o1);
         }
 
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof ReverseComparatorWithComparator
-                    && ((ReverseComparatorWithComparator) o).comparator
-                            .equals(comparator);
+        @Override public boolean equals(Object o) {
+            return o instanceof ReverseComparator2
+                    && ((ReverseComparator2) o).cmp.equals(cmp);
         }
 
-        @Override
-        public int hashCode() {
-            return ~comparator.hashCode();
+        @Override public int hashCode() {
+            return ~cmp.hashCode();
         }
     }
 
@@ -1290,7 +1283,7 @@ public class Collections {
                 Iterator<Map.Entry<K, V>> it = iterator();
                 if (size > contents.length) {
                     Class<?> ct = contents.getClass().getComponentType();
-                    contents = (T[]) java.lang.reflect.Array.newInstance(ct, size);
+                    contents = (T[]) Array.newInstance(ct, size);
                 }
                 while (index < size) {
                     contents[index++] = (T) it.next();
@@ -1509,7 +1502,7 @@ public class Collections {
 
         int low = 0, mid = list.size(), high = mid - 1, result = -1;
         while (low <= high) {
-            mid = (low + high) >> 1;
+            mid = (low + high) >>> 1;
             if ((result = -list.get(mid).compareTo(object)) > 0) {
                 low = mid + 1;
             } else if (result == 0) {
@@ -1567,7 +1560,7 @@ public class Collections {
 
         int low = 0, mid = list.size(), high = mid - 1, result = -1;
         while (low <= high) {
-            mid = (low + high) >> 1;
+            mid = (low + high) >>> 1;
             if ((result = -comparator.compare(list.get(mid),object)) > 0) {
                 low = mid + 1;
             } else if (result == 0) {
@@ -1595,11 +1588,10 @@ public class Collections {
      *             when replacing an element in the destination list is not
      *             supported.
      */
-    public static <T> void copy(List<? super T> destination,
-            List<? extends T> source) {
+    public static <T> void copy(List<? super T> destination, List<? extends T> source) {
         if (destination.size() < source.size()) {
-            // K0032=Source size {0} does not fit into destination
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size())); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Source size " + source.size() +
+                    " does not fit into destination");
         }
         Iterator<? extends T> srcIt = source.iterator();
         ListIterator<? super T> destIt = destination.listIterator();
@@ -1607,8 +1599,9 @@ public class Collections {
             try {
                 destIt.next();
             } catch (NoSuchElementException e) {
-                // K0032=Source size {0} does not fit into destination
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K0032", source.size())); //$NON-NLS-1$
+                // TODO: AssertionError?
+                throw new ArrayIndexOutOfBoundsException("Source size " + source.size() +
+                        " does not fit into destination");
             }
             destIt.set(srcIt.next());
         }
@@ -1837,10 +1830,10 @@ public class Collections {
         if (c == null) {
             return reverseOrder();
         }
-        if (c instanceof ReverseComparatorWithComparator) {
-            return ((ReverseComparatorWithComparator<T>) c).comparator;
+        if (c instanceof ReverseComparator2) {
+            return ((ReverseComparator2<T>) c).cmp;
         }
-        return new ReverseComparatorWithComparator<T>(c);
+        return new ReverseComparator2<T>(c);
     }
 
     /**
@@ -2687,12 +2680,226 @@ public class Collections {
      */
     static <E> E checkType(E obj, Class<? extends E> type) {
         if (obj != null && !type.isInstance(obj)) {
-            // luni.05=Attempt to insert {0} element into collection with
-            // element type {1}
-            throw new ClassCastException(Messages.getString(
-                    "luni.05", obj.getClass(), type)); //$NON-NLS-1$
+            throw new ClassCastException("Attempt to insert element of type " + obj.getClass() +
+                    " into collection of type " + type);
         }
         return obj;
+    }
+
+    /**
+     * Returns a set backed by {@code map}.
+     *
+     * @throws IllegalArgumentException if the map is not empty
+     * @since 1.6
+     */
+    public static <E> Set<E> newSetFromMap(Map<E, Boolean> map) {
+        if (map.isEmpty()) {
+            return new SetFromMap<E>(map);
+        }
+        throw new IllegalArgumentException();
+    }
+
+    /**
+     * Returns a last-in, first-out queue as a view of {@code deque}.
+     *
+     * @since 1.6
+     */
+    public static <T> Queue<T> asLifoQueue(Deque<T> deque) {
+        return new AsLIFOQueue<T>(deque);
+    }
+
+    private static class SetFromMap<E> extends AbstractSet<E> implements
+            Serializable {
+        private static final long serialVersionUID = 2454657854757543876L;
+
+        // must named as it, to pass serialization compatibility test.
+        private Map<E, Boolean> m;
+
+        private transient Set<E> backingSet;
+
+        SetFromMap(final Map<E, Boolean> map) {
+            super();
+            m = map;
+            backingSet = map.keySet();
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            return backingSet.equals(object);
+        }
+
+        @Override
+        public int hashCode() {
+            return backingSet.hashCode();
+        }
+
+        @Override
+        public boolean add(E object) {
+            return m.put(object, Boolean.TRUE) == null;
+        }
+
+        @Override
+        public void clear() {
+            m.clear();
+        }
+
+        @Override
+        public String toString() {
+            return backingSet.toString();
+        }
+
+        @Override
+        public boolean contains(Object object) {
+            return backingSet.contains(object);
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> collection) {
+            return backingSet.containsAll(collection);
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return m.isEmpty();
+        }
+
+        @Override
+        public boolean remove(Object object) {
+            return m.remove(object) != null;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> collection) {
+            return backingSet.retainAll(collection);
+        }
+
+        @Override
+        public Object[] toArray() {
+            return backingSet.toArray();
+        }
+
+        @Override
+        public <T> T[] toArray(T[] contents) {
+            return backingSet.toArray(contents);
+        }
+
+        @Override
+        public Iterator<E> iterator() {
+            return backingSet.iterator();
+        }
+
+        @Override
+        public int size() {
+            return m.size();
+        }
+
+        @SuppressWarnings("unchecked")
+        private void readObject(ObjectInputStream stream)
+                throws IOException, ClassNotFoundException {
+            stream.defaultReadObject();
+            backingSet = m.keySet();
+        }
+    }
+
+    private static class AsLIFOQueue<E> extends AbstractQueue<E> implements
+            Serializable {
+        private static final long serialVersionUID = 1802017725587941708L;
+
+        // must named as it, to pass serialization compatibility test.
+        private final Deque<E> q;
+
+        AsLIFOQueue(final Deque<E> deque) {
+            super();
+            this.q = deque;
+        }
+
+        @Override
+        public Iterator<E> iterator() {
+            return q.iterator();
+        }
+
+        @Override
+        public int size() {
+            return q.size();
+        }
+
+        public boolean offer(E o) {
+            return q.offerFirst(o);
+        }
+
+        public E peek() {
+            return q.peekFirst();
+        }
+
+        public E poll() {
+            return q.pollFirst();
+        }
+
+        @Override
+        public boolean add(E o) {
+            q.push(o);
+            return true;
+        }
+
+        @Override
+        public void clear() {
+            q.clear();
+        }
+
+        @Override
+        public E element() {
+            return q.getFirst();
+        }
+
+        @Override
+        public E remove() {
+            return q.pop();
+        }
+
+        @Override
+        public boolean contains(Object object) {
+            return q.contains(object);
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> collection) {
+            return q.containsAll(collection);
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return q.isEmpty();
+        }
+
+        @Override
+        public boolean remove(Object object) {
+            return q.remove(object);
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> collection) {
+            return q.removeAll(collection);
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> collection) {
+            return q.retainAll(collection);
+        }
+
+        @Override
+        public Object[] toArray() {
+            return q.toArray();
+        }
+
+        @Override
+        public <T> T[] toArray(T[] contents) {
+            return q.toArray(contents);
+        }
+
+        @Override
+        public String toString() {
+            return q.toString();
+        }
     }
 
     /**
@@ -3323,7 +3530,7 @@ public class Collections {
             /**
              * Constructs a dynamically typesafe view of the specified entry
              * set.
-             * 
+             *
              * @param s -
              *            the entry set for which a dynamically typesafe view is
              *            to be constructed.
@@ -3473,7 +3680,7 @@ public class Collections {
                 /**
                  * Constructs a dynamically typesafe view of the specified entry
                  * iterator.
-                 * 
+                 *
                  * @param i -
                  *            the entry iterator for which a dynamically
                  *            typesafe view is to be constructed.
@@ -3522,7 +3729,7 @@ public class Collections {
 
         /**
          * Constructs a dynamically typesafe view of the specified sortedSet.
-         * 
+         *
          * @param s -
          *            the sortedSet for which a dynamically typesafe view is to
          *            be constructed.
@@ -3588,7 +3795,7 @@ public class Collections {
 
         /**
          * Constructs a dynamically typesafe view of the specified sortedMap.
-         * 
+         *
          * @param m -
          *            the sortedMap for which a dynamically typesafe view is to
          *            be constructed.

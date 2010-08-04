@@ -31,9 +31,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
-@TestTargetClass(Process.class) 
+@TestTargetClass(Process.class)
 public class ProcessManagerTest extends TestCase {
-    
+
     Thread thread = null;
     Process process = null;
     boolean isThrown = false;
@@ -56,7 +56,7 @@ public class ProcessManagerTest extends TestCase {
 
         assertEquals(greeting, readLine(process));
     }
-   
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -67,9 +67,9 @@ public class ProcessManagerTest extends TestCase {
     public void testSleep() throws IOException {
         String[] commands = { "sleep", "1" };
         process = Runtime.getRuntime().exec(commands, null, null);
-        try { 
+        try {
             assertEquals(0, process.waitFor());
-            
+
         } catch(InterruptedException ie) {
             fail("InterruptedException was thrown.");
         }
@@ -91,8 +91,8 @@ public class ProcessManagerTest extends TestCase {
                 }
             }
         };
-        
-        Thread interruptThread = new Thread() { 
+
+        Thread interruptThread = new Thread() {
             public void run() {
                 try {
                     sleep(10);
@@ -113,17 +113,17 @@ public class ProcessManagerTest extends TestCase {
         try {
             Thread.sleep(100);
         } catch(InterruptedException ie) {
-            
+
         }
-        
+
         thread.interrupt();
         //process.destroy();
         try {
             Thread.sleep(100);
         } catch(InterruptedException ie) {
-            
+
         }
-        
+
         assertTrue(isThrown);
     }
 

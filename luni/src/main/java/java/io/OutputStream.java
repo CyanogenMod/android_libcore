@@ -17,8 +17,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * The base class for all output streams. An output stream is a means of writing
  * data to a target in a byte-wise manner. Most output streams expect the
@@ -112,10 +110,10 @@ public abstract class OutputStream implements Closeable, Flushable {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         if ((offset | count) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
         for (int i = offset; i < offset + count; i++) {

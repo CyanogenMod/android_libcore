@@ -27,12 +27,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
-// BEGIN android-removed
-// import java.security.AccessController;
-// import java.security.PrivilegedAction;
-// END android-removed
-
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * {@code SimpleTimeZone} is a concrete subclass of {@code TimeZone}
@@ -93,8 +87,6 @@ public class SimpleTimeZone extends TimeZone {
     public static final int WALL_TIME = 0;
 
     private boolean useDaylight;
-
-    private GregorianCalendar daylightSavings;
 
     private int dstSavings = 3600000;
 
@@ -269,8 +261,7 @@ public class SimpleTimeZone extends TimeZone {
         this(offset, name);
         // END android-changed
         if (daylightSavings <= 0) {
-            throw new IllegalArgumentException(Msg.getString(
-                    "K00e9", daylightSavings)); //$NON-NLS-1$
+            throw new IllegalArgumentException("Invalid daylightSavings: " + daylightSavings);
         }
         dstSavings = daylightSavings;
 
@@ -349,9 +340,6 @@ public class SimpleTimeZone extends TimeZone {
     @Override
     public Object clone() {
         SimpleTimeZone zone = (SimpleTimeZone) super.clone();
-        if (daylightSavings != null) {
-            zone.daylightSavings = (GregorianCalendar) daylightSavings.clone();
-        }
         return zone;
     }
 
@@ -394,10 +382,9 @@ public class SimpleTimeZone extends TimeZone {
     }
 
     @Override
-    public int getOffset(int era, int year, int month, int day, int dayOfWeek,
-            int time) {
+    public int getOffset(int era, int year, int month, int day, int dayOfWeek, int time) {
         if (era != GregorianCalendar.BC && era != GregorianCalendar.AD) {
-            throw new IllegalArgumentException(Msg.getString("K00ea", era)); //$NON-NLS-1$
+            throw new IllegalArgumentException("Invalid era: " + era);
         }
         checkRange(month, dayOfWeek, time);
         if (month != Calendar.FEBRUARY || day != 29 || !isLeapYear(year)) {
@@ -406,8 +393,7 @@ public class SimpleTimeZone extends TimeZone {
 
         // BEGIN android-changed
         // return icuTZ.getOffset(era, year, month, day, dayOfWeek, time);
-        if (!useDaylightTime() || era != GregorianCalendar.AD
-                || year < startYear) {
+        if (!useDaylightTime() || era != GregorianCalendar.AD || year < startYear) {
             return rawOffset;
         }
         if (endMonth < startMonth) {
@@ -530,15 +516,13 @@ public class SimpleTimeZone extends TimeZone {
 
     @Override
     public int getOffset(long time) {
-        // BEGIN android-changed
-        // return icuTZ.getOffset(time);
+        // BEGIN android-changed: simplified variant of the ICU4J code.
         if (!useDaylightTime()) {
             return rawOffset;
         }
-        if (daylightSavings == null) {
-            daylightSavings = new GregorianCalendar(this);
-        }
-        return daylightSavings.getOffset(time + rawOffset);
+        int[] fields = Grego.timeToFields(time + rawOffset, null);
+        return getOffset(GregorianCalendar.AD, fields[0], fields[1], fields[2],
+                fields[3], fields[5]);
         // END android-changed
     }
 
@@ -588,17 +572,8 @@ public class SimpleTimeZone extends TimeZone {
 
     @Override
     public boolean inDaylightTime(Date time) {
-        // BEGIN android-changed
-        // return icuTZ.inDaylightTime(time);
-        // check for null pointer
-        long millis = time.getTime();
-        if (!useDaylightTime()) {
-            return false;
-        }
-        if (daylightSavings == null) {
-            daylightSavings = new GregorianCalendar(this);
-        }
-        return daylightSavings.getOffset(millis + rawOffset) != rawOffset;
+        // BEGIN android-changed: reuse getOffset.
+        return useDaylightTime() && getOffset(time.getTime()) != rawOffset;
         // END android-changed
     }
 
@@ -632,20 +607,19 @@ public class SimpleTimeZone extends TimeZone {
 
     private void checkRange(int month, int dayOfWeek, int time) {
         if (month < Calendar.JANUARY || month > Calendar.DECEMBER) {
-            throw new IllegalArgumentException(Msg.getString("K00e5", month)); //$NON-NLS-1$
+            throw new IllegalArgumentException("Invalid month: " + month);
         }
         if (dayOfWeek < Calendar.SUNDAY || dayOfWeek > Calendar.SATURDAY) {
-            throw new IllegalArgumentException(Msg
-                    .getString("K00e7", dayOfWeek)); //$NON-NLS-1$
+            throw new IllegalArgumentException("Invalid day of week: " + dayOfWeek);
         }
         if (time < 0 || time >= 24 * 3600000) {
-            throw new IllegalArgumentException(Msg.getString("K00e8", time)); //$NON-NLS-1$
+            throw new IllegalArgumentException("Invalid time: " + time);
         }
     }
 
     private void checkDay(int month, int day) {
         if (day <= 0 || day > GregorianCalendar.DaysInMonth[month]) {
-            throw new IllegalArgumentException(Msg.getString("K00e6", day)); //$NON-NLS-1$
+            throw new IllegalArgumentException("Invalid day of month: " + day);
         }
     }
 
@@ -671,8 +645,7 @@ public class SimpleTimeZone extends TimeZone {
                 checkDay(endMonth, endDay);
             } else {
                 if (endDay < -5 || endDay > 5) {
-                    throw new IllegalArgumentException(Msg.getString(
-                            "K00f8", endDay)); //$NON-NLS-1$
+                    throw new IllegalArgumentException("Day of week in month: " + endDay);
                 }
             }
         }
@@ -803,8 +776,7 @@ public class SimpleTimeZone extends TimeZone {
                 checkDay(startMonth, startDay);
             } else {
                 if (startDay < -5 || startDay > 5) {
-                    throw new IllegalArgumentException(Msg.getString(
-                            "K00f8", startDay)); //$NON-NLS-1$
+                    throw new IllegalArgumentException("Day of week in month: " + startDay);
                 }
             }
         }
@@ -919,29 +891,29 @@ public class SimpleTimeZone extends TimeZone {
     @Override
     public String toString() {
         return getClass().getName()
-                + "[id=" //$NON-NLS-1$
+                + "[id="
                 + getID()
-                + ",offset=" //$NON-NLS-1$
+                + ",offset="
                 + rawOffset
-                + ",dstSavings=" //$NON-NLS-1$
+                + ",dstSavings="
                 + dstSavings
-                + ",useDaylight=" //$NON-NLS-1$
+                + ",useDaylight="
                 + useDaylight
-                + ",startYear=" //$NON-NLS-1$
+                + ",startYear="
                 + startYear
-                + ",startMode=" //$NON-NLS-1$
+                + ",startMode="
                 + startMode
-                + ",startMonth=" //$NON-NLS-1$
+                + ",startMonth="
                 + startMonth
-                + ",startDay=" //$NON-NLS-1$
+                + ",startDay="
                 + startDay
-                + ",startDayOfWeek=" //$NON-NLS-1$
+                + ",startDayOfWeek="
                 + (useDaylight && (startMode != DOM_MODE) ? startDayOfWeek + 1
-                        : 0) + ",startTime=" + startTime + ",endMode=" //$NON-NLS-1$ //$NON-NLS-2$
-                + endMode + ",endMonth=" + endMonth + ",endDay=" + endDay //$NON-NLS-1$ //$NON-NLS-2$
-                + ",endDayOfWeek=" //$NON-NLS-1$
+                        : 0) + ",startTime=" + startTime + ",endMode="
+                + endMode + ",endMonth=" + endMonth + ",endDay=" + endDay
+                + ",endDayOfWeek="
                 + (useDaylight && (endMode != DOM_MODE) ? endDayOfWeek + 1 : 0)
-                + ",endTime=" + endTime + "]"; //$NON-NLS-1$//$NON-NLS-2$
+                + ",endTime=" + endTime + "]";
     }
 
     @Override
@@ -950,22 +922,22 @@ public class SimpleTimeZone extends TimeZone {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("dstSavings", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("endDay", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("endDayOfWeek", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("endMode", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("endMonth", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("endTime", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("monthLength", byte[].class), //$NON-NLS-1$
-            new ObjectStreamField("rawOffset", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("serialVersionOnStream", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("startDay", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("startDayOfWeek", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("startMode", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("startMonth", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("startTime", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("startYear", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("useDaylight", Boolean.TYPE), }; //$NON-NLS-1$
+            new ObjectStreamField("dstSavings", Integer.TYPE),
+            new ObjectStreamField("endDay", Integer.TYPE),
+            new ObjectStreamField("endDayOfWeek", Integer.TYPE),
+            new ObjectStreamField("endMode", Integer.TYPE),
+            new ObjectStreamField("endMonth", Integer.TYPE),
+            new ObjectStreamField("endTime", Integer.TYPE),
+            new ObjectStreamField("monthLength", byte[].class),
+            new ObjectStreamField("rawOffset", Integer.TYPE),
+            new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
+            new ObjectStreamField("startDay", Integer.TYPE),
+            new ObjectStreamField("startDayOfWeek", Integer.TYPE),
+            new ObjectStreamField("startMode", Integer.TYPE),
+            new ObjectStreamField("startMonth", Integer.TYPE),
+            new ObjectStreamField("startTime", Integer.TYPE),
+            new ObjectStreamField("startYear", Integer.TYPE),
+            new ObjectStreamField("useDaylight", Boolean.TYPE), };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         int sEndDay = endDay, sEndDayOfWeek = endDayOfWeek + 1, sStartDay = startDay, sStartDayOfWeek = startDayOfWeek + 1;
@@ -990,22 +962,22 @@ public class SimpleTimeZone extends TimeZone {
             }
         }
         ObjectOutputStream.PutField fields = stream.putFields();
-        fields.put("dstSavings", dstSavings); //$NON-NLS-1$
-        fields.put("endDay", sEndDay); //$NON-NLS-1$
-        fields.put("endDayOfWeek", sEndDayOfWeek); //$NON-NLS-1$
-        fields.put("endMode", endMode); //$NON-NLS-1$
-        fields.put("endMonth", endMonth); //$NON-NLS-1$
-        fields.put("endTime", endTime); //$NON-NLS-1$
-        fields.put("monthLength", GregorianCalendar.DaysInMonth); //$NON-NLS-1$
-        fields.put("rawOffset", rawOffset); //$NON-NLS-1$
-        fields.put("serialVersionOnStream", 1); //$NON-NLS-1$
-        fields.put("startDay", sStartDay); //$NON-NLS-1$
-        fields.put("startDayOfWeek", sStartDayOfWeek); //$NON-NLS-1$
-        fields.put("startMode", startMode); //$NON-NLS-1$
-        fields.put("startMonth", startMonth); //$NON-NLS-1$
-        fields.put("startTime", startTime); //$NON-NLS-1$
-        fields.put("startYear", startYear); //$NON-NLS-1$
-        fields.put("useDaylight", useDaylight); //$NON-NLS-1$
+        fields.put("dstSavings", dstSavings);
+        fields.put("endDay", sEndDay);
+        fields.put("endDayOfWeek", sEndDayOfWeek);
+        fields.put("endMode", endMode);
+        fields.put("endMonth", endMonth);
+        fields.put("endTime", endTime);
+        fields.put("monthLength", GregorianCalendar.DaysInMonth);
+        fields.put("rawOffset", rawOffset);
+        fields.put("serialVersionOnStream", 1);
+        fields.put("startDay", sStartDay);
+        fields.put("startDayOfWeek", sStartDayOfWeek);
+        fields.put("startMode", startMode);
+        fields.put("startMonth", startMonth);
+        fields.put("startTime", startTime);
+        fields.put("startYear", startYear);
+        fields.put("useDaylight", useDaylight);
         stream.writeFields();
         stream.writeInt(4);
         byte[] values = new byte[4];
@@ -1019,28 +991,28 @@ public class SimpleTimeZone extends TimeZone {
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
         ObjectInputStream.GetField fields = stream.readFields();
-        rawOffset = fields.get("rawOffset", 0); //$NON-NLS-1$
-        useDaylight = fields.get("useDaylight", false); //$NON-NLS-1$
+        rawOffset = fields.get("rawOffset", 0);
+        useDaylight = fields.get("useDaylight", false);
         if (useDaylight) {
-            endMonth = fields.get("endMonth", 0); //$NON-NLS-1$
-            endTime = fields.get("endTime", 0); //$NON-NLS-1$
-            startMonth = fields.get("startMonth", 0); //$NON-NLS-1$
-            startTime = fields.get("startTime", 0); //$NON-NLS-1$
-            startYear = fields.get("startYear", 0); //$NON-NLS-1$
+            endMonth = fields.get("endMonth", 0);
+            endTime = fields.get("endTime", 0);
+            startMonth = fields.get("startMonth", 0);
+            startTime = fields.get("startTime", 0);
+            startYear = fields.get("startYear", 0);
         }
-        if (fields.get("serialVersionOnStream", 0) == 0) { //$NON-NLS-1$
+        if (fields.get("serialVersionOnStream", 0) == 0) {
             if (useDaylight) {
                 startMode = endMode = DOW_IN_MONTH_MODE;
-                endDay = fields.get("endDay", 0); //$NON-NLS-1$
-                endDayOfWeek = fields.get("endDayOfWeek", 0) - 1; //$NON-NLS-1$
-                startDay = fields.get("startDay", 0); //$NON-NLS-1$
-                startDayOfWeek = fields.get("startDayOfWeek", 0) - 1; //$NON-NLS-1$
+                endDay = fields.get("endDay", 0);
+                endDayOfWeek = fields.get("endDayOfWeek", 0) - 1;
+                startDay = fields.get("startDay", 0);
+                startDayOfWeek = fields.get("startDayOfWeek", 0) - 1;
             }
         } else {
-            dstSavings = fields.get("dstSavings", 0); //$NON-NLS-1$
+            dstSavings = fields.get("dstSavings", 0);
             if (useDaylight) {
-                endMode = fields.get("endMode", 0); //$NON-NLS-1$
-                startMode = fields.get("startMode", 0); //$NON-NLS-1$
+                endMode = fields.get("endMode", 0);
+                startMode = fields.get("startMode", 0);
                 int length = stream.readInt();
                 byte[] values = new byte[length];
                 stream.readFully(values);

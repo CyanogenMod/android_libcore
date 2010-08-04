@@ -51,14 +51,37 @@ public final class Double extends Number implements Comparable<Double> {
     public static final double NaN = 0.0 / 0.0;
 
     /**
-     * Constant for the Positive Infinity value of the {@code double} type.
+     * Constant for the positive infinity value of the {@code double} type.
      */
     public static final double POSITIVE_INFINITY = 1.0 / 0.0;
 
     /**
-     * Constant for the Negative Infinity value of the {@code double} type.
+     * Constant for the negative infinity value of the {@code double} type.
      */
     public static final double NEGATIVE_INFINITY = -1.0 / 0.0;
+
+    /**
+     * Constant for the smallest positive normal value of the {@code double} type.
+     *
+     * @since 1.6
+     */
+    public static final double MIN_NORMAL = 2.2250738585072014E-308;
+
+    /**
+     * Maximum exponent that a finite value of the {@code double} type may have.
+     * Equal to {@code Math.getExponent(Double.MAX_VALUE)}.
+     *
+     * @since 1.6
+     */
+    public static final int MAX_EXPONENT = 1023;
+
+    /**
+     * Minimum exponent that a normal value of the {@code double} type may have.
+     * Equal to {@code Math.getExponent(Double.MIN_NORMAL)}.
+     *
+     * @since 1.6
+     */
+    public static final int MIN_EXPONENT = -1022;
 
     /**
      * The {@link Class} object that represents the primitive type {@code
@@ -177,10 +200,10 @@ public final class Double extends Number implements Comparable<Double> {
      * Tests this double for equality with {@code object}.
      * To be equal, {@code object} must be an instance of {@code Double} and
      * {@code doubleToLongBits} must give the same value for both objects.
-     * 
+     *
      * <p>Note that, unlike {@code ==}, {@code -0.0} and {@code +0.0} compare
      * unequal, and {@code NaN}s compare equal by this method.
-     * 
+     *
      * @param object
      *            the object to compare this double with.
      * @return {@code true} if the specified object is equal to this
@@ -397,13 +420,13 @@ public final class Double extends Number implements Comparable<Double> {
          * Reference: http://en.wikipedia.org/wiki/IEEE_754
          */
         if (d != d) {
-            return "NaN"; //$NON-NLS-1$
+            return "NaN";
         }
         if (d == POSITIVE_INFINITY) {
-            return "Infinity"; //$NON-NLS-1$
+            return "Infinity";
         }
         if (d == NEGATIVE_INFINITY) {
-            return "-Infinity"; //$NON-NLS-1$
+            return "-Infinity";
         }
 
         long bitValue = doubleToLongBits(d);
@@ -415,18 +438,18 @@ public final class Double extends Number implements Comparable<Double> {
         long significand = bitValue & 0x000FFFFFFFFFFFFFL;
 
         if (exponent == 0 && significand == 0) {
-            return (negative ? "-0x0.0p0" : "0x0.0p0"); //$NON-NLS-1$ //$NON-NLS-2$
+            return (negative ? "-0x0.0p0" : "0x0.0p0");
         }
 
         StringBuilder hexString = new StringBuilder(10);
         if (negative) {
-            hexString.append("-0x"); //$NON-NLS-1$
+            hexString.append("-0x");
         } else {
-            hexString.append("0x"); //$NON-NLS-1$
+            hexString.append("0x");
         }
 
         if (exponent == 0) { // denormal (subnormal) value
-            hexString.append("0."); //$NON-NLS-1$
+            hexString.append("0.");
             // significand is 52-bits, so there can be 13 hex digits
             int fractionDigits = 13;
             // remove trailing hex zeros, so Integer.toHexString() won't print
@@ -446,9 +469,9 @@ public final class Double extends Number implements Comparable<Double> {
                 }
             }
             hexString.append(hexSignificand);
-            hexString.append("p-1022"); //$NON-NLS-1$
+            hexString.append("p-1022");
         } else { // normal value
-            hexString.append("1."); //$NON-NLS-1$
+            hexString.append("1.");
             // significand is 52-bits, so there can be 13 hex digits
             int fractionDigits = 13;
             // remove trailing hex zeros, so Integer.toHexString() won't print

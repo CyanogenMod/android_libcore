@@ -28,13 +28,6 @@ import java.util.IdentityHashMap;
 // yet migrated that API. As a consequence, there's a lot of changes here...
 // END android-note
 
-// BEGIN android-removed
-// import org.apache.harmony.misc.accessors.ObjectAccessor;
-// import org.apache.harmony.misc.accessors.AccessorFactory;
-// END android-removed
-
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * A specialized {@link OutputStream} that is able to write (serialize) Java
  * objects as well as primitive data types (int, byte, char etc.). The data can
@@ -293,7 +286,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
         if (implementationClass != thisClass) {
             boolean mustCheck = false;
             try {
-                Method method = implementationClass.getMethod("putFields", //$NON-NLS-1$
+                Method method = implementationClass.getMethod("putFields",
                         ObjectStreamClass.EMPTY_CONSTRUCTOR_PARAM_TYPES);
                 mustCheck = method.getDeclaringClass() != thisClass;
             } catch (NoSuchMethodException e) {
@@ -301,7 +294,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
             if (!mustCheck) {
                 try {
                     Method method = implementationClass.getMethod(
-                            "writeUnshared", //$NON-NLS-1$
+                            "writeUnshared",
                             ObjectStreamClass.UNSHARED_PARAM_TYPES);
                     mustCheck = method.getDeclaringClass() != thisClass;
                 } catch (NoSuchMethodException e) {
@@ -719,13 +712,11 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
      */
     public void useProtocolVersion(int version) throws IOException {
         if (!objectsWritten.isEmpty()) {
-            // KA028=Cannot set protocol version when stream in use
-            throw new IllegalStateException(Msg.getString("KA028")); //$NON-NLS-1$
+            throw new IllegalStateException("Cannot set protocol version when stream in use");
         }
         if (version != ObjectStreamConstants.PROTOCOL_VERSION_1
                 && version != ObjectStreamConstants.PROTOCOL_VERSION_2) {
-            // K00b3=Unknown protocol\: {0}
-            throw new IllegalArgumentException(Msg.getString("K00b3", version)); //$NON-NLS-1$
+            throw new IllegalArgumentException("Unknown protocol: " + version);
         }
         protocolVersion = version;
     }
@@ -1139,9 +1130,8 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
                                     declaringClass, fieldDesc.getName()));
                             break;
                         default:
-                            throw new IOException(
-                                    org.apache.harmony.luni.util.Msg.getString(
-                                            "K00d5", fieldDesc.getTypeCode())); //$NON-NLS-1$
+                            throw new IOException("Invalid typecode: " +
+                                    fieldDesc.getTypeCode());
                     }
                 } else {
                     // Object type (array included).
@@ -1368,9 +1358,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput,
                     output.writeDouble(doubleArray[i]);
                 }
             } else {
-                throw new InvalidClassException(
-                        org.apache.harmony.luni.util.Msg.getString(
-                                "K00d7", arrayClass.getName())); //$NON-NLS-1$
+                throw new InvalidClassException("Wrong base type in " + arrayClass.getName());
             }
         } else {
             // Array of Objects

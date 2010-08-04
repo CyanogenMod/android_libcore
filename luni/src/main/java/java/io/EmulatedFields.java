@@ -21,7 +21,7 @@ package java.io;
  * An EmulatedFields is an object that represents a set of emulated fields for
  * an object being dumped or loaded. It allows objects to be dumped with a shape
  * different than the fields they were declared to have.
- * 
+ *
  * @see ObjectInputStream.GetField
  * @see ObjectOutputStream.PutField
  * @see EmulatedFieldsForLoading
@@ -44,7 +44,7 @@ class EmulatedFields {
 
         /**
          * Returns the descriptor for this emulated field.
-         * 
+         *
          * @return the field descriptor
          */
         public ObjectStreamField getField() {
@@ -53,7 +53,7 @@ class EmulatedFields {
 
         /**
          * Returns the value held by this emulated field.
-         * 
+         *
          * @return the field value
          */
         public Object getFieldValue() {
@@ -68,7 +68,7 @@ class EmulatedFields {
 
     /**
      * Constructs a new instance of EmulatedFields.
-     * 
+     *
      * @param fields
      *            an array of ObjectStreamFields, which describe the fields to
      *            be emulated (names, types, etc).
@@ -87,7 +87,7 @@ class EmulatedFields {
     /**
      * Build emulated slots that correspond to emulated fields. A slot is a
      * field descriptor (ObjectStreamField) plus the actual value it holds.
-     * 
+     *
      * @param fields
      *            an array of ObjectStreamField, which describe the fields to be
      *            emulated (names, types, etc).
@@ -107,12 +107,12 @@ class EmulatedFields {
      * a value explicitly assigned and that it still holds a default value for
      * its type, or {@code false} indicating that the field named has been
      * assigned a value explicitly.
-     * 
+     *
      * @param name
      *            the name of the field to test.
      * @return {@code true} if {@code name} still holds its default value,
      *         {@code false} otherwise
-     * 
+     *
      * @throws IllegalArgumentException
      *             if {@code name} is {@code null}
      */
@@ -133,7 +133,7 @@ class EmulatedFields {
      * terms of assignment, or null is returned. If {@code fieldType} is {@code
      * null}, no such compatibility checking is performed and the slot is
      * returned.
-     * 
+     *
      * @param fieldName
      *            the name of the field to find
      * @param fieldType
@@ -191,14 +191,14 @@ class EmulatedFields {
      * Finds and returns the byte value of a given field named {@code name}
      * in the receiver. If the field has not been assigned any value yet, the
      * default value {@code defaultValue} is returned instead.
-     * 
+     *
      * @param name
      *            the name of the field to find.
      * @param defaultValue
      *            return value in case the field has not been assigned to yet.
      * @return the value of the given field if it has been assigned, the default
      *         value otherwise.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -217,14 +217,14 @@ class EmulatedFields {
      * Finds and returns the char value of a given field named {@code name} in the
      * receiver. If the field has not been assigned any value yet, the default
      * value {@code defaultValue} is returned instead.
-     * 
+     *
      * @param name
      *            the name of the field to find.
      * @param defaultValue
      *            return value in case the field has not been assigned to yet.
      * @return the value of the given field if it has been assigned, the default
      *         value otherwise.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -243,14 +243,14 @@ class EmulatedFields {
      * Finds and returns the double value of a given field named {@code name}
      * in the receiver. If the field has not been assigned any value yet, the
      * default value {@code defaultValue} is returned instead.
-     * 
+     *
      * @param name
      *            the name of the field to find.
      * @param defaultValue
      *            return value in case the field has not been assigned to yet.
      * @return the value of the given field if it has been assigned, the default
      *         value otherwise.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -269,14 +269,14 @@ class EmulatedFields {
      * Finds and returns the float value of a given field named {@code name} in
      * the receiver. If the field has not been assigned any value yet, the
      * default value {@code defaultValue} is returned instead.
-     * 
+     *
      * @param name
      *            the name of the field to find.
      * @param defaultValue
      *            return value in case the field has not been assigned to yet.
      * @return the value of the given field if it has been assigned, the default
      *         value otherwise.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -295,14 +295,14 @@ class EmulatedFields {
      * Finds and returns the int value of a given field named {@code name} in the
      * receiver. If the field has not been assigned any value yet, the default
      * value {@code defaultValue} is returned instead.
-     * 
+     *
      * @param name
      *            the name of the field to find.
      * @param defaultValue
      *            return value in case the field has not been assigned to yet.
      * @return the value of the given field if it has been assigned, the default
      *         value otherwise.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -321,14 +321,14 @@ class EmulatedFields {
      * Finds and returns the long value of a given field named {@code name} in the
      * receiver. If the field has not been assigned any value yet, the default
      * value {@code defaultValue} is returned instead.
-     * 
+     *
      * @param name
      *            the name of the field to find.
      * @param defaultValue
      *            return value in case the field has not been assigned to yet.
      * @return the value of the given field if it has been assigned, the default
      *         value otherwise.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -347,14 +347,14 @@ class EmulatedFields {
      * Finds and returns the Object value of a given field named {@code name} in
      * the receiver. If the field has not been assigned any value yet, the
      * default value {@code defaultValue} is returned instead.
-     * 
+     *
      * @param name
      *            the name of the field to find.
      * @param defaultValue
      *            return value in case the field has not been assigned to yet.
      * @return the value of the given field if it has been assigned, the default
      *         value otherwise.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -372,14 +372,14 @@ class EmulatedFields {
      * Finds and returns the short value of a given field named {@code name} in
      * the receiver. If the field has not been assigned any value yet, the
      * default value {@code defaultValue} is returned instead.
-     * 
+     *
      * @param name
      *            the name of the field to find.
      * @param defaultValue
      *            return value in case the field has not been assigned to yet.
      * @return the value of the given field if it has been assigned, the default
      *         value otherwise.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -398,14 +398,14 @@ class EmulatedFields {
      * Finds and returns the boolean value of a given field named {@code name} in
      * the receiver. If the field has not been assigned any value yet, the
      * default value {@code defaultValue} is returned instead.
-     * 
+     *
      * @param name
      *            the name of the field to find.
      * @param defaultValue
      *            return value in case the field has not been assigned to yet.
      * @return the value of the given field if it has been assigned, the default
      *         value otherwise.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -423,12 +423,12 @@ class EmulatedFields {
     /**
      * Find and set the byte value of a given field named {@code name} in the
      * receiver.
-     * 
+     *
      * @param name
      *            the name of the field to set.
      * @param value
      *            new value for the field.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -444,12 +444,12 @@ class EmulatedFields {
     /**
      * Find and set the char value of a given field named {@code name} in the
      * receiver.
-     * 
+     *
      * @param name
      *            the name of the field to set.
      * @param value
      *            new value for the field.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -465,12 +465,12 @@ class EmulatedFields {
     /**
      * Find and set the double value of a given field named {@code name} in the
      * receiver.
-     * 
+     *
      * @param name
      *            the name of the field to set.
      * @param value
      *            new value for the field.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -486,12 +486,12 @@ class EmulatedFields {
     /**
      * Find and set the float value of a given field named {@code name} in the
      * receiver.
-     * 
+     *
      * @param name
      *            the name of the field to set.
      * @param value
      *            new value for the field.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -507,12 +507,12 @@ class EmulatedFields {
     /**
      * Find and set the int value of a given field named {@code name} in the
      * receiver.
-     * 
+     *
      * @param name
      *            the name of the field to set.
      * @param value
      *            new value for the field.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -528,12 +528,12 @@ class EmulatedFields {
     /**
      * Find and set the long value of a given field named {@code name} in the
      * receiver.
-     * 
+     *
      * @param name
      *            the name of the field to set.
      * @param value
      *            new value for the field.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -549,12 +549,12 @@ class EmulatedFields {
     /**
      * Find and set the Object value of a given field named {@code name} in the
      * receiver.
-     * 
+     *
      * @param name
      *            the name of the field to set.
      * @param value
      *            new value for the field.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -574,12 +574,12 @@ class EmulatedFields {
     /**
      * Find and set the short value of a given field named {@code name} in the
      * receiver.
-     * 
+     *
      * @param name
      *            the name of the field to set.
      * @param value
      *            new value for the field.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -595,12 +595,12 @@ class EmulatedFields {
     /**
      * Find and set the boolean value of a given field named {@code name} in the
      * receiver.
-     * 
+     *
      * @param name
      *            the name of the field to set.
      * @param value
      *            new value for the field.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the corresponding field can not be found.
      */
@@ -615,7 +615,7 @@ class EmulatedFields {
 
     /**
      * Return the array of ObjectSlot the receiver represents.
-     * 
+     *
      * @return array of ObjectSlot the receiver represents.
      */
     public ObjectSlot[] slots() {

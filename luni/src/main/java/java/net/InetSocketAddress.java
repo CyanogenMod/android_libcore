@@ -93,27 +93,23 @@ public class InetSocketAddress extends SocketAddress {
      * Internal constructor for InetSocketAddress(String, int) and
      * createUnresolved(String, int);
      */
-    InetSocketAddress(String host, int port, boolean needResolved) {
-        if (host == null || port < 0 || port > 65535) {
-            throw new IllegalArgumentException();
+    InetSocketAddress(String hostname, int port, boolean needResolved) {
+        if (hostname == null || port < 0 || port > 65535) {
+            throw new IllegalArgumentException("host=" + hostname + ", port=" + port);
         }
-        hostname = host;
+        this.hostname = hostname;
         this.port = port;
+
         if (needResolved) {
-            // BEGIN android-added
             SecurityManager smgr = System.getSecurityManager();
-            if(smgr != null) {
-                smgr.checkConnect(host, port);
+            if (smgr != null) {
+                smgr.checkConnect(hostname, port);
             }
-            // END android-added
             try {
-                addr = InetAddress.getByName(hostname);
-                hostname = null;
-            } catch (UnknownHostException e) {
-                // Ignored
+                this.addr = InetAddress.getByName(hostname);
+                this.hostname = null;
+            } catch (UnknownHostException ignored) {
             }
-        } else {
-            addr = null;
         }
     }
 
@@ -186,7 +182,7 @@ public class InetSocketAddress extends SocketAddress {
         } else {
             host = hostname;
         }
-        return host + ":" + port; //$NON-NLS-1$
+        return host + ":" + port;
     }
 
     /**

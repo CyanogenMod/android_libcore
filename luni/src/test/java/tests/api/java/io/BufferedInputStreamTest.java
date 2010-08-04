@@ -34,7 +34,7 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 
-@TestTargetClass(BufferedInputStream.class) 
+@TestTargetClass(BufferedInputStream.class)
 public class BufferedInputStreamTest extends TestCase {
 
     public String fileName;
@@ -48,7 +48,7 @@ public class BufferedInputStreamTest extends TestCase {
     public String fileString = "Test_All_Tests\nTest_BufferedInputStream\nTest_java_io_BufferedOutputStream\nTest_java_io_ByteArrayInputStream\nTest_java_io_ByteArrayOutputStream\nTest_java_io_DataInputStream\nTest_java_io_File\nTest_java_io_FileDescriptor\nTest_java_io_FileInputStream\nTest_java_io_FileNotFoundException\nTest_java_io_FileOutputStream\nTest_java_io_FilterInputStream\nTest_java_io_FilterOutputStream\nTest_java_io_InputStream\nTest_java_io_IOException\nTest_java_io_OutputStream\nTest_java_io_PrintStream\nTest_java_io_RandomAccessFile\nTest_java_io_SyncFailedException\nTest_java_lang_AbstractMethodError\nTest_java_lang_ArithmeticException\nTest_java_lang_ArrayIndexOutOfBoundsException\nTest_java_lang_ArrayStoreException\nTest_java_lang_Boolean\nTest_java_lang_Byte\nTest_java_lang_Character\nTest_java_lang_Class\nTest_java_lang_ClassCastException\nTest_java_lang_ClassCircularityError\nTest_java_lang_ClassFormatError\nTest_java_lang_ClassLoader\nTest_java_lang_ClassNotFoundException\nTest_java_lang_CloneNotSupportedException\nTest_java_lang_Double\nTest_java_lang_Error\nTest_java_lang_Exception\nTest_java_lang_ExceptionInInitializerError\nTest_java_lang_Float\nTest_java_lang_IllegalAccessError\nTest_java_lang_IllegalAccessException\nTest_java_lang_IllegalArgumentException\nTest_java_lang_IllegalMonitorStateException\nTest_java_lang_IllegalThreadStateException\nTest_java_lang_IncompatibleClassChangeError\nTest_java_lang_IndexOutOfBoundsException\nTest_java_lang_InstantiationError\nTest_java_lang_InstantiationException\nTest_java_lang_Integer\nTest_java_lang_InternalError\nTest_java_lang_InterruptedException\nTest_java_lang_LinkageError\nTest_java_lang_Long\nTest_java_lang_Math\nTest_java_lang_NegativeArraySizeException\nTest_java_lang_NoClassDefFoundError\nTest_java_lang_NoSuchFieldError\nTest_java_lang_NoSuchMethodError\nTest_java_lang_NullPointerException\nTest_java_lang_Number\nTest_java_lang_NumberFormatException\nTest_java_lang_Object\nTest_java_lang_OutOfMemoryError\nTest_java_lang_RuntimeException\nTest_java_lang_SecurityManager\nTest_java_lang_Short\nTest_java_lang_StackOverflowError\nTest_java_lang_String\nTest_java_lang_StringBuffer\nTest_java_lang_StringIndexOutOfBoundsException\nTest_java_lang_System\nTest_java_lang_Thread\nTest_java_lang_ThreadDeath\nTest_java_lang_ThreadGroup\nTest_java_lang_Throwable\nTest_java_lang_UnknownError\nTest_java_lang_UnsatisfiedLinkError\nTest_java_lang_VerifyError\nTest_java_lang_VirtualMachineError\nTest_java_lang_vm_Image\nTest_java_lang_vm_MemorySegment\nTest_java_lang_vm_ROMStoreException\nTest_java_lang_vm_VM\nTest_java_lang_Void\nTest_java_net_BindException\nTest_java_net_ConnectException\nTest_java_net_DatagramPacket\nTest_java_net_DatagramSocket\nTest_java_net_DatagramSocketImpl\nTest_java_net_InetAddress\nTest_java_net_NoRouteToHostException\nTest_java_net_PlainDatagramSocketImpl\nTest_java_net_PlainSocketImpl\nTest_java_net_Socket\nTest_java_net_SocketException\nTest_java_net_SocketImpl\nTest_java_net_SocketInputStream\nTest_java_net_SocketOutputStream\nTest_java_net_UnknownHostException\nTest_java_util_ArrayEnumerator\nTest_java_util_Date\nTest_java_util_EventObject\nTest_java_util_HashEnumerator\nTest_java_util_Hashtable\nTest_java_util_Properties\nTest_java_util_ResourceBundle\nTest_java_util_tm\nTest_java_util_Vector\n";
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.BufferedInputStream#BufferedInputStream(java.io.InputStream,
      *        int)
      */
@@ -56,19 +56,19 @@ public class BufferedInputStreamTest extends TestCase {
         level = TestLevel.COMPLETE,
         method = "BufferedInputStream",
         args = {java.io.InputStream.class}
-    )    
+    )
     public void test_ConstructorLjava_io_InputStream() {
         is = new BufferedInputStream(isFile);
-        
+
         try {
             is.read();
         } catch (Exception e) {
             fail("Test 1: Read failed on a freshly constructed buffer.");
         }
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.BufferedInputStream#BufferedInputStream(java.io.InputStream,
      *        int)
      */
@@ -76,18 +76,18 @@ public class BufferedInputStreamTest extends TestCase {
         level = TestLevel.COMPLETE,
         method = "BufferedInputStream",
         args = {java.io.InputStream.class, int.class}
-    )    
+    )
     public void test_ConstructorLjava_io_InputStreamI() throws IOException {
         // Test for method java.io.BufferedInputStream(java.io.InputStream, int)
         boolean exceptionFired = false;
-        
+
         try {
             is = new BufferedInputStream(isFile, -1);
             fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
-        
+
         try {
             // Create buffer with exact size of file
             is = new BufferedInputStream(isFile, this.fileString
@@ -113,7 +113,7 @@ public class BufferedInputStreamTest extends TestCase {
         } catch (IOException e) {
             fail("Exception during test_1_Constructor");
         }
-        
+
         // regression test for harmony-2407
         new testBufferedInputStream(null);
         assertNotNull(testBufferedInputStream.buf);
@@ -121,7 +121,7 @@ public class BufferedInputStreamTest extends TestCase {
         new testBufferedInputStream(null, 100);
         assertNotNull(testBufferedInputStream.buf);
     }
-    
+
     static class testBufferedInputStream extends BufferedInputStream {
         static byte[] buf;
         testBufferedInputStream(InputStream is) throws IOException {
@@ -143,7 +143,7 @@ public class BufferedInputStreamTest extends TestCase {
         notes = "Verifies the available() method.",
         method = "available",
         args = {}
-    )    
+    )
     public void test_available() {
         // Test for method int java.io.BufferedInputStream.available()
         try {
@@ -178,17 +178,17 @@ public class BufferedInputStreamTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.BufferedInputStream#close()
      */
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "close",
         args = {}
-    )        
+    )
     public void test_close() throws IOException {
         is.close();
-        
+
         try {
             is.read();
             fail("Test 1: IOException expected when reading after closing " +
@@ -196,7 +196,7 @@ public class BufferedInputStreamTest extends TestCase {
         } catch (IOException e) {
             // Expected.
         }
-        
+
         Support_ASimpleInputStream sis = new Support_ASimpleInputStream(true);
         is = new BufferedInputStream(sis);
         try {
@@ -216,24 +216,24 @@ public class BufferedInputStreamTest extends TestCase {
                 level = TestLevel.COMPLETE,
                 method = "mark",
                 args = {int.class}
-        ),    
+        ),
         @TestTargetNew(
                 level = TestLevel.COMPLETE,
                 method = "reset",
                 args = {}
-        ) /* ,    
+        ) /* ,
         @TestTargetNew(
                 level = TestLevel.PARTIAL_COMPLETE,
                 notes = "Checks that a marked position is invalidated.",
                 method = "read",
                 args = {}
-        ),    
+        ),
         @TestTargetNew(
                 level = TestLevel.PARTIAL_COMPLETE,
                 notes = "Checks that a marked position is invalidated.",
                 method = "read",
                 args = {byte[].class, int.class, int.class}
-        ),    
+        ),
         @TestTargetNew(
                 level = TestLevel.PARTIAL_COMPLETE,
                 notes = "Checks that a marked position is invalidated.",
@@ -252,7 +252,7 @@ public class BufferedInputStreamTest extends TestCase {
         } catch (IOException e) {
             // Expected.
         }
-        
+
         // Test 2: Check that mark / reset works when the mark is not invalidated.
         is.skip(10);
         is.mark(100);
@@ -260,10 +260,10 @@ public class BufferedInputStreamTest extends TestCase {
         is.reset();
         is.read(buf2, 0, buf2.length);
         is.reset();
-        assertTrue("Test 2: Failed to mark correct position or reset failed.", 
+        assertTrue("Test 2: Failed to mark correct position or reset failed.",
                 new String(buf1, 0, buf1.length).equals(new String(buf2, 0, buf2.length)));
 
-        // Tests 3 and 4: Check that skipping less than readlimit bytes does 
+        // Tests 3 and 4: Check that skipping less than readlimit bytes does
         // not invalidate the mark.
         is.skip(10);
         try {
@@ -273,16 +273,16 @@ public class BufferedInputStreamTest extends TestCase {
         }
         is.read(buf2, 0, buf2.length);
         is.reset();
-        assertTrue("Test 4: Failed to mark correct position, or reset failed.", 
+        assertTrue("Test 4: Failed to mark correct position, or reset failed.",
                 new String(buf1, 0, buf1.length).equals(new String(buf2, 0, buf2.length)));
 
-/* Tests disabled because they fail. The specification is ambiguous 
+/* Tests disabled because they fail. The specification is ambiguous
  * regarding the invalidation of a set mark by read and skip operations.
- 
+
         // Test 5: Check that the mark is invalidated by a sequence of reads.
         is.skip(200);
         is.mark(10);
-        for (int i = 0; i < 11; i++) { 
+        for (int i = 0; i < 11; i++) {
             is.read();
         }
         try {
@@ -313,7 +313,7 @@ public class BufferedInputStreamTest extends TestCase {
             // Expected.
         }
 */
-        
+
         // Test 8: Check that reset fails for a closed input stream.
         is.close();
         try {
@@ -332,7 +332,7 @@ public class BufferedInputStreamTest extends TestCase {
         notes = "Verifies markSupported() method.",
         method = "markSupported",
         args = {}
-    )    
+    )
     public void test_markSupported() {
         // Test for method boolean java.io.BufferedInputStream.markSupported()
         assertTrue("markSupported returned incorrect value", is.markSupported());
@@ -349,25 +349,25 @@ public class BufferedInputStreamTest extends TestCase {
                 "PARTIAL_COMPLETE.",
         method = "read",
         args = {}
-    )    
+    )
     public void test_read() throws IOException {
         int c = is.read();
-        assertTrue("Test 1: Incorrect character read.", 
+        assertTrue("Test 1: Incorrect character read.",
                 c == fileString.charAt(0));
 
         byte[] bytes = new byte[256];
         for (int i = 0; i < 256; i++) {
             bytes[i] = (byte) i;
         }
-        
+
         BufferedInputStream in = new BufferedInputStream(
                 new ByteArrayInputStream(bytes), 5);
-        
+
         // Read more bytes than are buffered.
         for (int i = 0; i < 10; i++) {
-            assertEquals("Test 2: Incorrect byte read;", bytes[i], in.read()); 
+            assertEquals("Test 2: Incorrect byte read;", bytes[i], in.read());
         }
-        
+
         in.close();
         try {
             in.read();
@@ -385,7 +385,7 @@ public class BufferedInputStreamTest extends TestCase {
         notes = "Checks exceptions only.",
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )    
+    )
     public void test_read$BII_Exception() throws IOException {
         BufferedInputStream bis = new BufferedInputStream(null);
 
@@ -416,9 +416,9 @@ public class BufferedInputStreamTest extends TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         bis.close();
-        
+
         try {
             bis.read(null, -1, -1);
             fail("should throw IOException");
@@ -426,7 +426,7 @@ public class BufferedInputStreamTest extends TestCase {
             //expected
         }
     }
-    
+
     /**
      * @tests java.io.BufferedInputStream#read(byte[], int, int)
      */
@@ -435,7 +435,7 @@ public class BufferedInputStreamTest extends TestCase {
         notes = "Functional test.",
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )    
+    )
     public void test_read$BII() {
         // Test for method int java.io.BufferedInputStream.read(byte [], int,
         // int)
@@ -500,7 +500,7 @@ public class BufferedInputStreamTest extends TestCase {
         notes = "Verifies skip(long n) method.",
         method = "skip",
         args = {long.class}
-    )         
+    )
     public void test_skipJ() {
         // Test for method long java.io.BufferedInputStream.skip(long)
         byte[] buf1 = new byte[10];
@@ -522,7 +522,7 @@ public class BufferedInputStreamTest extends TestCase {
             fail("Should throw IOException");
         } catch (IOException e) {
             //expected
-        }                         
+        }
     }
 
     /**

@@ -24,7 +24,7 @@ import java.security.interfaces.DSAParams;
 import java.security.InvalidParameterException;
 
 /**
- * Additional class for verification DSAKeyPairGenerator interface 
+ * Additional class for verification DSAKeyPairGenerator interface
  */
 public class DSAKeyPairGeneratorImpl implements DSAKeyPairGenerator {
 
@@ -32,7 +32,7 @@ public class DSAKeyPairGeneratorImpl implements DSAKeyPairGenerator {
     private SecureRandom secureRandom = null;
     private DSAParams dsaParams = null;
     private int lengthModulus = 0;
-    
+
     public DSAKeyPairGeneratorImpl(DSAParams dsap) {
         dsaKeyPairGenerator = null;
         try {
@@ -53,7 +53,7 @@ public class DSAKeyPairGeneratorImpl implements DSAKeyPairGenerator {
         }
         secureRandom = random;
         dsaParams = params;
-        
+
     }
 
     public void initialize(int modlen, boolean genParams, SecureRandom random)

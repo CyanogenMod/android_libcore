@@ -30,7 +30,7 @@ import java.lang.reflect.TypeVariable;
 /**
  * Tests generic reflection on arrays with generic or parameterized component types.
  */
-@TestTargetClass(GenericArrayType.class) 
+@TestTargetClass(GenericArrayType.class)
 public class GenericArrayTypeTest extends GenericReflectionTestsBase {
 
     static class A<T> {

@@ -29,8 +29,6 @@ import java.util.Enumeration;
  * <p>
  * Note we don't directly open and read the DEX file here. They're memory-mapped
  * read-only by the VM.
- * 
- * @since Android 1.0
  */
 public final class DexFile {
     private final int mCookie;
@@ -40,15 +38,15 @@ public final class DexFile {
      * Opens a DEX file from a given File object. This will usually be a ZIP/JAR
      * file with a "classes.dex" inside.
      *
-     * The VM will generate the name of the coresponding file in
+     * The VM will generate the name of the corresponding file in
      * /data/dalvik-cache and open it, possibly creating or updating
      * it first if system permissions allow.  Don't pass in the name of
      * a file in /data/dalvik-cache, as the named file is expected to be
      * in its original (pre-dexopt) state.
-     * 
+     *
      * @param file
      *            the File object referencing the actual DEX file
-     * 
+     *
      * @throws IOException
      *             if an I/O error occurs, such as the file not being found or
      *             access rights missing for opening it
@@ -61,15 +59,15 @@ public final class DexFile {
      * Opens a DEX file from a given filename. This will usually be a ZIP/JAR
      * file with a "classes.dex" inside.
      *
-     * The VM will generate the name of the coresponding file in
+     * The VM will generate the name of the corresponding file in
      * /data/dalvik-cache and open it, possibly creating or updating
      * it first if system permissions allow.  Don't pass in the name of
      * a file in /data/dalvik-cache, as the named file is expected to be
      * in its original (pre-dexopt) state.
-     * 
+     *
      * @param fileName
      *            the filename of the DEX file
-     * 
+     *
      * @throws IOException
      *             if an I/O error occurs, such as the file not being found or
      *             access rights missing for opening it
@@ -146,7 +144,7 @@ public final class DexFile {
 
     /**
      * Gets the name of the (already opened) DEX file.
-     * 
+     *
      * @return the file name
      */
     public String getName() {
@@ -158,11 +156,11 @@ public final class DexFile {
      * <p>
      * This may not be able to release any resources. If classes have been
      * loaded, the underlying storage can't be discarded.
-     * 
+     *
      * @throws IOException
      *             if an I/O error occurs during closing the file, which
      *             normally should not happen
-     * 
+     *
      * @cts Second sentence is a bit cryptic.
      */
     public void close() throws IOException {
@@ -180,17 +178,17 @@ public final class DexFile {
      * isn't found because it isn't feasible to throw exceptions wildly every
      * time a class is not found in the first DEX file we look at. It will
      * throw exceptions for other failures, though.
-     * 
+     *
      * @param name
      *            the class name, which should look like "java/lang/String"
-     * 
+     *
      * @param loader
      *            the class loader that tries to load the class (in most cases
      *            the caller of the method
-     * 
+     *
      * @return the {@link Class} object representing the class, or {@code null}
      *         if the class cannot be loaded
-     * 
+     *
      * @cts Exception comment is a bit cryptic. What exception will be thrown?
      */
     public Class loadClass(String name, ClassLoader loader) {
@@ -216,7 +214,7 @@ public final class DexFile {
 
     /**
      * Enumerate the names of the classes in this DEX file.
-     * 
+     *
      * @return an enumeration of names of classes contained in the DEX file, in
      *         the usual internal form (like "java/lang/String").
      */
@@ -248,9 +246,9 @@ public final class DexFile {
     /* return a String array with class names */
     native private static String[] getClassNameList(int cookie);
 
-    /** 
+    /**
      * Called when the class is finalized. Makes sure the DEX file is closed.
-     * 
+     *
      * @throws IOException
      *             if an I/O error occurs during closing the file, which
      *             normally should not happen
@@ -288,4 +286,3 @@ public final class DexFile {
     native public static boolean isDexOptNeeded(String fileName)
             throws FileNotFoundException, IOException;
 }
-

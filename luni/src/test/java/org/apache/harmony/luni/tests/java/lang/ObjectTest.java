@@ -25,7 +25,7 @@ import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.BrokenTest;
 import dalvik.annotation.SideEffect;
 
-@TestTargetClass(Object.class) 
+@TestTargetClass(Object.class)
 public class ObjectTest extends junit.framework.TestCase {
 
     public boolean isCalled = false;
@@ -43,7 +43,7 @@ public class ObjectTest extends junit.framework.TestCase {
 
     int ready = 0;
     TestThread1 thr1;
-    TestThread2 thr2;    
+    TestThread2 thr2;
 
     /**
      * @tests java.lang.Object#Object()
@@ -89,7 +89,7 @@ public class ObjectTest extends junit.framework.TestCase {
             public void add() {
                 v.add(new StringBuffer(10000));
             }
-            
+
             protected void finalize() throws Throwable {
                 isCalled = true;
                 super.finalize();
@@ -97,7 +97,7 @@ public class ObjectTest extends junit.framework.TestCase {
         }
 
         TestObject to = new TestObject();
-        
+
         try {
             while(true) {
                 to.add();
@@ -110,7 +110,7 @@ public class ObjectTest extends junit.framework.TestCase {
         System.runFinalization();
         assertTrue(isCalled);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -125,7 +125,7 @@ public class ObjectTest extends junit.framework.TestCase {
         } catch(CloneNotSupportedException cnse) {
             fail("CloneNotSupportedException was thrown.");
         }
-        
+
         MockObject mo = new MockObject();
         try {
             mo.clone();
@@ -137,23 +137,23 @@ public class ObjectTest extends junit.framework.TestCase {
     class MockCloneableObject extends Object implements Cloneable {
         public Object clone() throws CloneNotSupportedException {
             return super.clone();
-        }        
+        }
     }
-    
+
     class MockObject extends Object {
-        
+
         boolean isCalled = false;
-        
+
         public void finalize() throws Throwable {
             super.finalize();
             isCalled = true;
         }
-        
+
         public Object clone() throws CloneNotSupportedException {
             return super.clone();
-        }        
+        }
     }
-    
+
     /**
      * @tests java.lang.Object#getClass()
      */
@@ -277,7 +277,7 @@ public class ObjectTest extends junit.framework.TestCase {
                                 + status + ")");
             }
         }
-        
+
         try {
             Object obj = new Object();
             obj.notify();
@@ -364,7 +364,7 @@ public class ObjectTest extends junit.framework.TestCase {
             }
 
         }
-        
+
         try {
             Object obj = new Object();
             obj.notifyAll();
@@ -413,7 +413,7 @@ public class ObjectTest extends junit.framework.TestCase {
                 }
             }
         }
-        
+
 
         // Start of test code.
 
@@ -439,7 +439,7 @@ public class ObjectTest extends junit.framework.TestCase {
                                 + status + ")");
             }
         }
-        
+
         try {
             Object obj = new Object();
             obj.wait();
@@ -454,7 +454,7 @@ public class ObjectTest extends junit.framework.TestCase {
            thr1 = new TestThread1(TestThread1.CASE_WAIT);
            thr2 = new TestThread2();
            thr1.start();
-           thr2.start();           
+           thr2.start();
            thr2.join();
            thr1.join();
            thr1 = null;
@@ -464,19 +464,19 @@ public class ObjectTest extends junit.framework.TestCase {
         }
         assertEquals(3, status);
     }
-    
+
     class TestThread1 extends Thread {
-        
+
         static final int CASE_WAIT = 0;
         static final int CASE_WAIT_LONG = 1;
         static final int CASE_WAIT_LONG_INT = 2;
-        
+
         int testCase = CASE_WAIT;
-        
+
         public TestThread1(int option) {
             testCase = option;
         }
-        
+
         public void run() {
             synchronized (obj1) {
                 try {
@@ -491,19 +491,19 @@ public class ObjectTest extends junit.framework.TestCase {
                             obj1.wait(10000L, 999999);
                             break;
                     }
-                    
+
                 } catch (InterruptedException ex) {
                     status = 3;
                 }
             }
         }
     }
-    
+
     class TestThread2 extends Thread {
         public void run() {
             thr1.interrupt();
         }
-    }   
+    }
 
     /**
      * @tests java.lang.Object#wait(long)
@@ -565,7 +565,7 @@ public class ObjectTest extends junit.framework.TestCase {
                                 + status + ")");
             }
         }
-        
+
         try {
             Object obj = new Object();
             obj.wait(5000L);
@@ -580,11 +580,11 @@ public class ObjectTest extends junit.framework.TestCase {
            thr1 = new TestThread1(TestThread1.CASE_WAIT_LONG);
            thr2 = new TestThread2();
            thr1.start();
-           thr2.start();           
+           thr2.start();
            thr2.join();
-           thr1.join();        
+           thr1.join();
            thr1 = null;
-           thr2 = null;           
+           thr2 = null;
         } catch(InterruptedException e) {
             fail("InterruptedException was thrown.");
         }
@@ -618,7 +618,7 @@ public class ObjectTest extends junit.framework.TestCase {
                 }
             }
         }
-        
+
 
         // Start of test code.
 
@@ -644,7 +644,7 @@ public class ObjectTest extends junit.framework.TestCase {
                                 + status + ")");
             }
         }
-        
+
         try {
             Object obj = new Object();
             obj.wait(5000L, 1);
@@ -659,11 +659,11 @@ public class ObjectTest extends junit.framework.TestCase {
            thr1 = new TestThread1(TestThread1.CASE_WAIT_LONG_INT);
            thr2 = new TestThread2();
            thr1.start();
-           thr2.start();           
+           thr2.start();
            thr2.join();
            thr1.join();
            thr1 = null;
-           thr2 = null;           
+           thr2 = null;
         } catch(InterruptedException e) {
             fail("InterruptedException was thrown.");
         }

@@ -37,7 +37,7 @@ public class TestSuite implements Test {
      */
     public TestSuite() {
     }
-    
+
     /**
      * Constructs a TestSuite from the given class with the given name.
      * @see TestSuite#TestSuite(Class)
@@ -46,7 +46,7 @@ public class TestSuite implements Test {
         this(theClass);
         setName(name);
     }
-    
+
     /**
      * Constructs a TestSuite from the given class. Adds all the methods
      * starting with "test" as test cases to the suite.
@@ -79,14 +79,14 @@ public class TestSuite implements Test {
         if (fTests.size() == 0)
             addTest(warning("No tests found in "+theClass.getName()));
     }
-    
+
        /**
      * Constructs an empty TestSuite.
      */
     public TestSuite(String name) {
         setName(name);
     }
-    
+
     /**
      * Adds a test to the suite.
      */
@@ -154,7 +154,7 @@ public class TestSuite implements Test {
         return stringWriter.toString();
 
     }
-    
+
     /**
      * Counts the number of test cases that will be run by this test.
      */
@@ -166,7 +166,7 @@ public class TestSuite implements Test {
         }
         return count;
     }
-    
+
     /**
      * Gets a constructor which takes a single String as
      * its argument or a no arg constructor.
@@ -174,7 +174,7 @@ public class TestSuite implements Test {
     public static Constructor getTestConstructor(Class theClass) throws NoSuchMethodException {
         Class[] args= { String.class };
         try {
-            return theClass.getConstructor(args);    
+            return theClass.getConstructor(args);
         } catch (NoSuchMethodException e) {
             // fall through
         }
@@ -184,14 +184,14 @@ public class TestSuite implements Test {
     private boolean isPublicTestMethod(Method m) {
         return isTestMethod(m) && Modifier.isPublic(m.getModifiers());
      }
-     
+
     private boolean isTestMethod(Method m) {
         String name= m.getName();
         Class[] parameters= m.getParameterTypes();
         Class returnType= m.getReturnType();
         return parameters.length == 0 && name.startsWith("test") && returnType.equals(Void.TYPE);
      }
-     
+
     /**
      * Runs the tests and collects their result in a TestResult.
      */
@@ -214,21 +214,21 @@ public class TestSuite implements Test {
     public Test testAt(int index) {
         return (Test)fTests.elementAt(index);
     }
-    
+
     /**
      * Returns the number of tests in this suite
      */
     public int testCount() {
         return fTests.size();
     }
-    
+
     /**
      * Returns the tests as an enumeration
      */
     public Enumeration tests() {
         return fTests.elements();
     }
-    
+
     /**
      */
     public String toString() {
@@ -236,7 +236,7 @@ public class TestSuite implements Test {
             return getName();
         return super.toString();
      }
-     
+
     /**
      * Sets the name of the suite.
      * @param name The name to set

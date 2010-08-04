@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,8 +36,12 @@ public class Support_Resources {
     public static final String RESOURCE_PACKAGE_NAME = "tests.resources";
 
     public static InputStream getStream(String name) {
-        return Support_Resources.class.getResourceAsStream(RESOURCE_PACKAGE
-                + name);
+        String path = RESOURCE_PACKAGE + name;
+        InputStream result = Support_Resources.class.getResourceAsStream(path);
+        if (result == null) {
+            throw new IllegalArgumentException("No such resource: " + path);
+        }
+        return result;
     }
 
     public static String getURL(String name) {
@@ -142,12 +146,12 @@ public class Support_Resources {
 
     /**
      * Util method to load resource files
-     * 
+     *
      * @param name - name of resource file
      * @return - resource input stream
      */
     public static InputStream getResourceStream(String name) {
-        
+
         InputStream is = Support_Resources.class.getResourceAsStream(name);
 
         if (is == null) {
@@ -157,13 +161,13 @@ public class Support_Resources {
                 throw new RuntimeException("Failed to load resource: " + name);
             }
         }
-        
+
         return is;
     }
 
     /**
      * Util method to write resource files directly to an OutputStream.
-     * 
+     *
      * @param name - name of resource file.
      * @param out - OutputStream to write to.
      * @return - number of bytes written to out.
@@ -188,7 +192,7 @@ public class Support_Resources {
 
     /**
      * Util method to get absolute path to resource file
-     * 
+     *
      * @param name - name of resource file
      * @return - path to resource
      */

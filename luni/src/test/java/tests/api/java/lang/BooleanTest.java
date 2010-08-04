@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 /**
  * Tests for the class {@link Boolean}.
  */
-@TestTargetClass(Boolean.class) 
+@TestTargetClass(Boolean.class)
 public class BooleanTest
     extends TestCase
 {

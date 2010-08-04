@@ -17,11 +17,7 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
-// BEGIN android-added
 import java.util.logging.Logger;
-// END android-added
 
 /**
  * Wraps an existing {@link OutputStream} and <em>buffers</em> the output.
@@ -51,48 +47,27 @@ public class BufferedOutputStream extends FilterOutputStream {
     protected int count;
 
     /**
-     * Constructs a new {@code BufferedOutputStream} on the {@link OutputStream}
-     * {@code out}. The buffer size is set to the default value of 8 KB.
+     * Constructs a new {@code BufferedOutputStream}, providing {@code out} with a buffer
+     * of 8192 bytes.
      *
-     * @param out
-     *            the {@code OutputStream} for which write operations are
-     *            buffered.
+     * @param out the {@code OutputStream} the buffer writes to.
      */
     public BufferedOutputStream(OutputStream out) {
-        super(out);
-        buf = new byte[8192];
-
-        // BEGIN android-added
-        /*
-         * For Android, we want to discourage the use of this constructor (with
-         * its arguably too-large default), so we note its use in the log. We
-         * don't disable it, nor do we alter the default, however, because we
-         * still aim to behave compatibly, and the default value, though not
-         * documented, is established by convention.
-         */
-        Logger.global.info(
-                "Default buffer size used in BufferedOutputStream " +
-                "constructor. It would be " +
-                "better to be explicit if an 8k buffer is required.");
-        // END android-added
+        this(out, 8192);
     }
 
     /**
-     * Constructs a new {@code BufferedOutputStream} on the {@link OutputStream}
-     * {@code out}. The buffer size is set to {@code size}.
+     * Constructs a new {@code BufferedOutputStream}, providing {@code out} with {@code size} bytes
+     * of buffer.
      *
-     * @param out
-     *            the output stream for which write operations are buffered.
-     * @param size
-     *            the size of the buffer in bytes.
-     * @throws IllegalArgumentException
-     *             if {@code size <= 0}.
+     * @param out the {@code OutputStream} the buffer writes to.
+     * @param size the size of buffer in bytes.
+     * @throws IllegalArgumentException if {@code size <= 0}.
      */
     public BufferedOutputStream(OutputStream out, int size) {
         super(out);
         if (size <= 0) {
-            // K0058=size must be > 0
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException("size <= 0");
         }
         buf = new byte[size];
     }
@@ -106,12 +81,15 @@ public class BufferedOutputStream extends FilterOutputStream {
      */
     @Override
     public synchronized void flush() throws IOException {
-        if (buf == null) {
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
-        }
-
+        checkNotClosed();
         flushInternal();
         out.flush();
+    }
+
+    private void checkNotClosed() throws IOException {
+        if (buf == null) {
+            throw new IOException("BufferedOutputStream is closed");
+        }
     }
 
     /**
@@ -140,32 +118,26 @@ public class BufferedOutputStream extends FilterOutputStream {
      *             If offset or count is outside of bounds.
      */
     @Override
-    public synchronized void write(byte[] buffer, int offset, int length)
-            throws IOException {
-        byte[] internalBuffer = buf;
-        if (internalBuffer == null) {
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
-        }
+    public synchronized void write(byte[] buffer, int offset, int length) throws IOException {
+        checkNotClosed();
 
         if (buffer == null) {
-            // K0047=buffer is null
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
-        
+
+        byte[] internalBuffer = buf;
         if (length >= internalBuffer.length) {
             flushInternal();
             out.write(buffer, offset, length);
             return;
         }
-        
+
         if (offset < 0 || offset > buffer.length - length) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
-        
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
+
         }
         if (length < 0) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
 
         // flush the internal buffer first if we have not enough space left
@@ -182,7 +154,7 @@ public class BufferedOutputStream extends FilterOutputStream {
         if (buf == null) {
             return;
         }
-        
+
         try {
             super.close();
         } finally {
@@ -204,16 +176,12 @@ public class BufferedOutputStream extends FilterOutputStream {
      */
     @Override
     public synchronized void write(int oneByte) throws IOException {
-        byte[] internalBuffer = buf;
-        if (internalBuffer == null) {
-            throw new IOException(Msg.getString("K0059")); //$NON-NLS-1$
-        }
-
-        if (count == internalBuffer.length) {
-            out.write(internalBuffer, 0, count);
+        checkNotClosed();
+        if (count == buf.length) {
+            out.write(buf, 0, count);
             count = 0;
         }
-        internalBuffer[count++] = (byte) oneByte;
+        buf[count++] = (byte) oneByte;
     }
 
     /**

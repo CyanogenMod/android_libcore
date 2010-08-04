@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.Charsets;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
@@ -28,7 +29,6 @@ import java.nio.charset.UnmappableCharacterException;
 import java.security.AccessController;
 
 import org.apache.harmony.luni.util.HistoricalNamesUtil;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -44,13 +44,11 @@ import org.apache.harmony.luni.util.PriviAction;
 public class InputStreamReader extends Reader {
     private InputStream in;
 
-    private static final int BUFFER_SIZE = 8192;
-
     private boolean endOfInput = false;
 
-    CharsetDecoder decoder;
+    private CharsetDecoder decoder;
 
-    ByteBuffer bytes = ByteBuffer.allocate(BUFFER_SIZE);
+    private final ByteBuffer bytes = ByteBuffer.allocate(8192);
 
     /**
      * Constructs a new {@code InputStreamReader} on the {@link InputStream}
@@ -62,15 +60,7 @@ public class InputStreamReader extends Reader {
      *            the input stream from which to read characters.
      */
     public InputStreamReader(InputStream in) {
-        super(in);
-        this.in = in;
-        String encoding = AccessController
-                .doPrivileged(new PriviAction<String>(
-                        "file.encoding", "ISO8859_1")); //$NON-NLS-1$//$NON-NLS-2$
-        decoder = Charset.forName(encoding).newDecoder().onMalformedInput(
-                CodingErrorAction.REPLACE).onUnmappableCharacter(
-                CodingErrorAction.REPLACE);
-        bytes.limit(0);
+        this(in, Charset.defaultCharset());
     }
 
     /**
@@ -101,7 +91,7 @@ public class InputStreamReader extends Reader {
                     CodingErrorAction.REPLACE);
         } catch (IllegalArgumentException e) {
             throw (UnsupportedEncodingException)
-                    new UnsupportedEncodingException().initCause(e);
+                    new UnsupportedEncodingException(enc).initCause(e);
         }
         bytes.limit(0);
     }
@@ -194,10 +184,8 @@ public class InputStreamReader extends Reader {
     public int read() throws IOException {
         synchronized (lock) {
             if (!isOpen()) {
-                // K0070=InputStreamReader is closed.
-                throw new IOException(Msg.getString("K0070")); //$NON-NLS-1$
+                throw new IOException("InputStreamReader is closed");
             }
-
             char buf[] = new char[1];
             return read(buf, 0, 1) != -1 ? buf[0] : -1;
         }
@@ -211,7 +199,7 @@ public class InputStreamReader extends Reader {
      * reader's buffer or by first filling the buffer from the source
      * InputStream and then reading from the buffer.
      *
-     * @param buf
+     * @param buffer
      *            the array to store the characters read.
      * @param offset
      *            the initial position in {@code buf} to store the characters
@@ -228,29 +216,26 @@ public class InputStreamReader extends Reader {
      *             if this reader is closed or some other I/O error occurs.
      */
     @Override
-    public int read(char[] buf, int offset, int length) throws IOException {
+    public int read(char[] buffer, int offset, int length) throws IOException {
         synchronized (lock) {
             if (!isOpen()) {
-                // K0070=InputStreamReader is closed.
-                throw new IOException(Msg.getString("K0070")); //$NON-NLS-1$
+                throw new IOException("InputStreamReader is closed");
             }
-            // BEGIN android-changed
-            // Exception priorities (in case of multiple errors) differ from
-            // RI, but are spec-compliant.
-            // made implicit null check explicit, used (offset | length) < 0
-            // instead of (offset < 0) || (length < 0) to safe one operation
-            if (buf == null) {
-                throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            // RI exception compatibility so we can run more tests.
+            if (offset < 0) {
+                throw new IndexOutOfBoundsException();
             }
-            if ((offset | length) < 0 || offset > buf.length - length) {
-                throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            if (buffer == null) {
+                throw new NullPointerException("buffer == null");
             }
-            // END android-changed
+            if (length < 0 || offset > buffer.length - length) {
+                throw new IndexOutOfBoundsException();
+            }
             if (length == 0) {
                 return 0;
             }
 
-            CharBuffer out = CharBuffer.wrap(buf, offset, length);
+            CharBuffer out = CharBuffer.wrap(buffer, offset, length);
             CoderResult result = CoderResult.UNDERFLOW;
 
             // bytes.remaining() indicates number of bytes in buffer
@@ -261,8 +246,7 @@ public class InputStreamReader extends Reader {
                 // fill the buffer if needed
                 if (needInput) {
                     try {
-                        if ((in.available() == 0) 
-                            && (out.position() > offset)) {
+                        if (in.available() == 0 && out.position() > offset) {
                             // we could return the result without blocking read
                             break;
                         }
@@ -315,10 +299,6 @@ public class InputStreamReader extends Reader {
         }
     }
 
-    /*
-     * Answer a boolean indicating whether or not this InputStreamReader is
-     * open.
-     */
     private boolean isOpen() {
         return in != null;
     }
@@ -340,8 +320,7 @@ public class InputStreamReader extends Reader {
     public boolean ready() throws IOException {
         synchronized (lock) {
             if (in == null) {
-                // K0070=InputStreamReader is closed.
-                throw new IOException(Msg.getString("K0070")); //$NON-NLS-1$
+                throw new IOException("InputStreamReader is closed");
             }
             try {
                 return bytes.hasRemaining() || in.available() > 0;

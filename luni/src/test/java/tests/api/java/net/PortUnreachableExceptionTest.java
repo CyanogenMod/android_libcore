@@ -26,7 +26,7 @@ import dalvik.annotation.TestTargetClass;
 import java.net.PasswordAuthentication;
 import java.net.PortUnreachableException;
 
-@TestTargetClass(PortUnreachableException.class) 
+@TestTargetClass(PortUnreachableException.class)
 public class PortUnreachableExceptionTest extends TestCase {
 
     @TestTargetNew(
@@ -39,7 +39,7 @@ public class PortUnreachableExceptionTest extends TestCase {
         PortUnreachableException pue = new PortUnreachableException();
         assertNull(pue.getMessage());
     }
- 
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -52,5 +52,5 @@ public class PortUnreachableExceptionTest extends TestCase {
             PortUnreachableException pue = new PortUnreachableException(str);
             assertEquals(str, pue.getMessage());
         }
-    }    
+    }
 }

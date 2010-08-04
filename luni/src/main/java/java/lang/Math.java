@@ -17,11 +17,36 @@
 
 package java.lang;
 
+import java.util.Random;
+
 /**
  * Class Math provides basic math constants and operations such as trigonometric
  * functions, hyperbolic functions, exponential, logarithms, etc.
  */
 public final class Math {
+    private static final int FLOAT_EXPONENT_BIAS = 127;
+
+    private static final int FLOAT_EXPONENT_MASK = 0x7F800000;
+
+    private static final int DOUBLE_NON_MANTISSA_BITS = 12;
+
+    private static final int DOUBLE_MANTISSA_BITS = 52;
+
+    private static final int FLOAT_NON_MANTISSA_BITS = 9;
+
+    private static final int FLOAT_MANTISSA_BITS = 23;
+
+    private static final int DOUBLE_EXPONENT_BIAS = 1023;
+
+    private static final long DOUBLE_EXPONENT_MASK = 0x7ff0000000000000L;
+
+    private static final int FLOAT_MANTISSA_MASK = 0x007fffff;
+
+    private static final int FLOAT_SIGN_MASK = 0x80000000;
+
+    private static final long DOUBLE_MANTISSA_MASK = 0x000fffffffffffffL;
+
+    private static final long DOUBLE_SIGN_MASK = 0x8000000000000000L;
 
     /**
      * The double value closest to e, the base of the natural logarithm.
@@ -34,7 +59,7 @@ public final class Math {
      */
     public static final double PI = 3.141592653589793;
 
-    private static java.util.Random random;
+    private static Random random;
 
     /**
      * Prevents this class from being instantiated.
@@ -52,7 +77,7 @@ public final class Math {
      * <li>{@code abs(-infinity) = +infinity}</li>
      * <li>{@code abs(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose absolute value has to be computed.
      * @return the absolute value of the argument.
@@ -73,7 +98,7 @@ public final class Math {
      * <li>{@code abs(-infinity) = +infinity}</li>
      * <li>{@code abs(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param f
      *            the value whose absolute value has to be computed.
      * @return the argument if it is positive, otherwise the negation of the
@@ -90,7 +115,7 @@ public final class Math {
      * <p>
      * If the argument is {@code Integer.MIN_VALUE}, {@code Integer.MIN_VALUE}
      * is returned.
-     * 
+     *
      * @param i
      *            the value whose absolute value has to be computed.
      * @return the argument if it is positive, otherwise the negation of the
@@ -103,7 +128,7 @@ public final class Math {
     /**
      * Returns the absolute value of the argument. If the argument is {@code
      * Long.MIN_VALUE}, {@code Long.MIN_VALUE} is returned.
-     * 
+     *
      * @param l
      *            the value whose absolute value has to be computed.
      * @return the argument if it is positive, otherwise the negation of the
@@ -124,7 +149,7 @@ public final class Math {
      * <li>{@code acos((anything < -1) = NaN}</li>
      * <li>{@code acos(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value to compute arc cosine of.
      * @return the arc cosine of the argument.
@@ -142,7 +167,7 @@ public final class Math {
      * <li>{@code asin((anything < -1)) = NaN}</li>
      * <li>{@code asin(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose arc sine has to be computed.
      * @return the arc sine of the argument.
@@ -162,7 +187,7 @@ public final class Math {
      * <li>{@code atan(-infinity) = -pi/2}</li>
      * <li>{@code atan(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose arc tangent has to be computed.
      * @return the arc tangent of the argument.
@@ -200,14 +225,14 @@ public final class Math {
      * <li>{@code atan2(-infinity, (anything but,0, NaN, and infinity))} {@code
      * =} {@code -pi/2}</li>
      * </ul>
-     * 
+     *
      * @param y
      *            the numerator of the value whose atan has to be computed.
      * @param x
      *            the denominator of the value whose atan has to be computed.
      * @return the arc tangent of {@code y/x}.
      */
-    public static native double atan2(double x, double y);
+    public static native double atan2(double y, double x);
 
     /**
      * Returns the closest double approximation of the cube root of the
@@ -221,7 +246,7 @@ public final class Math {
      * <li>{@code cbrt(-infinity) = -infinity}</li>
      * <li>{@code cbrt(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose cube root has to be computed.
      * @return the cube root of the argument.
@@ -241,7 +266,7 @@ public final class Math {
      * <li>{@code ceil(-infinity) = -infinity}</li>
      * <li>{@code ceil(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose closest integer value has to be computed.
      * @return the ceiling of the argument.
@@ -259,7 +284,7 @@ public final class Math {
      * <li>{@code cos(-infinity) = NaN}</li>
      * <li>{@code cos(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the angle whose cosine has to be computed, in radians.
      * @return the cosine of the argument.
@@ -277,7 +302,7 @@ public final class Math {
      * <li>{@code cosh(-infinity) = +infinity}</li>
      * <li>{@code cosh(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose hyperbolic cosine has to be computed.
      * @return the hyperbolic cosine of the argument.
@@ -295,7 +320,7 @@ public final class Math {
      * <li>{@code exp(-infinity) = +0.0}</li>
      * <li>{@code exp(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose exponential has to be computed.
      * @return the exponential of the argument.
@@ -320,7 +345,7 @@ public final class Math {
      * <li>{@code expm1(-infinity) = -1.0}</li>
      * <li>{@code expm1(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value to compute the <i>{@code e}</i><sup>{@code d} </sup>
      *            {@code - 1} of.
@@ -341,7 +366,7 @@ public final class Math {
      * <li>{@code floor(-infinity) = -infinity}</li>
      * <li>{@code floor(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose closest integer value has to be computed.
      * @return the floor of the argument.
@@ -363,7 +388,7 @@ public final class Math {
      * <li>{@code hypot((anything including NaN), -infinity) = +infinity}</li>
      * <li>{@code hypot(NaN, NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param x
      *            a double number.
      * @param y
@@ -392,7 +417,7 @@ public final class Math {
      * <li>{@code IEEEremainder(x, -infinity) = x } where x is anything but
      * +/-infinity</li>
      * </ul>
-     * 
+     *
      * @param x
      *            the numerator of the operation.
      * @param y
@@ -415,7 +440,7 @@ public final class Math {
      * <li>{@code log(-infinity) = NaN}</li>
      * <li>{@code log(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose log has to be computed.
      * @return the natural logarithm of the argument.
@@ -436,7 +461,7 @@ public final class Math {
      * <li>{@code log10(-infinity) = NaN}</li>
      * <li>{@code log10(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose base 10 log has to be computed.
      * @return the natural logarithm of the argument.
@@ -460,7 +485,7 @@ public final class Math {
      * <li>{@code log1p(-infinity) = NaN}</li>
      * <li>{@code log1p(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value to compute the {@code ln(1+d)} of.
      * @return the natural logarithm of the sum of the argument and 1.
@@ -478,7 +503,7 @@ public final class Math {
      * <li>{@code max(+0.0, -0.0) = +0.0}</li>
      * <li>{@code max(-0.0, +0.0) = +0.0}</li>
      * </ul>
-     * 
+     *
      * @param d1
      *            the first argument.
      * @param d2
@@ -497,7 +522,7 @@ public final class Math {
             return Double.NaN;
         }
         /* max(+0.0,-0.0) == +0.0 */
-        /* 0 == Double.doubleToRawLongBits(0.0d) */
+        /* Double.doubleToRawLongBits(0.0d) == 0 */
         if (Double.doubleToRawLongBits(d1) != 0) {
             return d2;
         }
@@ -515,7 +540,7 @@ public final class Math {
      * <li>{@code max(+0.0, -0.0) = +0.0}</li>
      * <li>{@code max(-0.0, +0.0) = +0.0}</li>
      * </ul>
-     * 
+     *
      * @param f1
      *            the first argument.
      * @param f2
@@ -534,7 +559,7 @@ public final class Math {
             return Float.NaN;
         }
         /* max(+0.0,-0.0) == +0.0 */
-        /* 0 == Float.floatToRawIntBits(0.0f) */
+        /* Float.floatToRawIntBits(0.0f) == 0*/
         if (Float.floatToRawIntBits(f1) != 0) {
             return f2;
         }
@@ -544,7 +569,7 @@ public final class Math {
     /**
      * Returns the most positive (closest to positive infinity) of the two
      * arguments.
-     * 
+     *
      * @param i1
      *            the first argument.
      * @param i2
@@ -558,7 +583,7 @@ public final class Math {
     /**
      * Returns the most positive (closest to positive infinity) of the two
      * arguments.
-     * 
+     *
      * @param l1
      *            the first argument.
      * @param l2
@@ -580,7 +605,7 @@ public final class Math {
      * <li>{@code min(+0.0, -0.0) = -0.0}</li>
      * <li>{@code min(-0.0, +0.0) = -0.0}</li>
      * </ul>
-     * 
+     *
      * @param d1
      *            the first argument.
      * @param d2
@@ -617,7 +642,7 @@ public final class Math {
      * <li>{@code min(+0.0, -0.0) = -0.0}</li>
      * <li>{@code min(-0.0, +0.0) = -0.0}</li>
      * </ul>
-     * 
+     *
      * @param f1
      *            the first argument.
      * @param f2
@@ -646,7 +671,7 @@ public final class Math {
     /**
      * Returns the most negative (closest to negative infinity) of the two
      * arguments.
-     * 
+     *
      * @param i1
      *            the first argument.
      * @param i2
@@ -660,7 +685,7 @@ public final class Math {
     /**
      * Returns the most negative (closest to negative infinity) of the two
      * arguments.
-     * 
+     *
      * @param l1
      *            the first argument.
      * @param l2
@@ -701,7 +726,7 @@ public final class Math {
      * pow(-1,(integer))*pow(+anything,integer) }</li>
      * <li>{@code pow((-anything except 0 and inf), (non-integer)) = NAN}</li>
      * </ul>
-     * 
+     *
      * @param x
      *            the base of the operation.
      * @param y
@@ -722,7 +747,7 @@ public final class Math {
      * <li>{@code rint(-infinity) = -infinity}</li>
      * <li>{@code rint(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value to be rounded.
      * @return the closest integer to the argument (as a double).
@@ -739,11 +764,11 @@ public final class Math {
      * <li>{@code round(-0.0) = +0.0}</li>
      * <li>{@code round((anything > Long.MAX_VALUE) = Long.MAX_VALUE}</li>
      * <li>{@code round((anything < Long.MIN_VALUE) = Long.MIN_VALUE}</li>
-     * <li>{@code round(+infintiy) = Long.MAX_VALUE}</li>
-     * <li>{@code round(-infintiy) = Long.MIN_VALUE}</li>
+     * <li>{@code round(+infinity) = Long.MAX_VALUE}</li>
+     * <li>{@code round(-infinity) = Long.MIN_VALUE}</li>
      * <li>{@code round(NaN) = +0.0}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value to be rounded.
      * @return the closest integer to the argument.
@@ -770,7 +795,7 @@ public final class Math {
      * <li>{@code round(-infintiy) = Integer.MIN_VALUE}</li>
      * <li>{@code round(NaN) = +0.0}</li>
      * </ul>
-     * 
+     *
      * @param f
      *            the value to be rounded.
      * @return the closest integer to the argument.
@@ -797,13 +822,22 @@ public final class Math {
      * <li>{@code signum(-infinity) = -1.0}</li>
      * <li>{@code signum(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose signum has to be computed.
      * @return the value of the signum function.
      */
     public static double signum(double d) {
-        return StrictMath.signum(d);
+        if (Double.isNaN(d)) {
+            return Double.NaN;
+        }
+        double sig = d;
+        if (d > 0) {
+            sig = 1.0;
+        } else if (d < 0) {
+            sig = -1.0;
+        }
+        return sig;
     }
 
     /**
@@ -820,13 +854,22 @@ public final class Math {
      * <li>{@code signum(-infinity) = -1.0}</li>
      * <li>{@code signum(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param f
      *            the value whose signum has to be computed.
      * @return the value of the signum function.
      */
     public static float signum(float f) {
-        return StrictMath.signum(f);
+        if (Float.isNaN(f)) {
+            return Float.NaN;
+        }
+        float sig = f;
+        if (f > 0) {
+            sig = 1.0f;
+        } else if (f < 0) {
+            sig = -1.0f;
+        }
+        return sig;
     }
 
     /**
@@ -842,7 +885,7 @@ public final class Math {
      * <li>{@code sin(-infinity) = NaN}</li>
      * <li>{@code sin(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the angle whose sin has to be computed, in radians.
      * @return the sine of the argument.
@@ -862,7 +905,7 @@ public final class Math {
      * <li>{@code sinh(-infinity) = -infinity}</li>
      * <li>{@code sinh(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose hyperbolic sine has to be computed.
      * @return the hyperbolic sine of the argument.
@@ -881,7 +924,7 @@ public final class Math {
      * <li>{@code sqrt(+infinity) = +infinity}</li>
      * <li>{@code sqrt(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose square root has to be computed.
      * @return the square root of the argument.
@@ -901,9 +944,9 @@ public final class Math {
      * <li>{@code tan(-infinity) = NaN}</li>
      * <li>{@code tan(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
-     *            the angle whose tangens has to be computed, in radians.
+     *            the angle whose tangent has to be computed, in radians.
      * @return the tangent of the argument.
      */
     public static native double tan(double d);
@@ -923,7 +966,7 @@ public final class Math {
      * <li>{@code tanh(-infinity) = -1.0}</li>
      * <li>{@code tanh(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the value whose hyperbolic tangent has to be computed.
      * @return the hyperbolic tangent of the argument.
@@ -931,14 +974,17 @@ public final class Math {
     public static native double tanh(double d);
 
     /**
-     * Returns a pseudo-random number between 0.0 (inclusive) and 1.0
-     * (exclusive).
-     * 
+     * Returns a pseudo-random double {@code n}, where {@code n >= 0.0 && n < 1.0}.
+     * This method reuses a single instance of {@link java.util.Random}.
+     * This method is thread-safe because access to the {@code Random} is synchronized,
+     * but this harms scalability. Applications may find a performance benefit from
+     * allocating a {@code Random} for each of their threads.
+     *
      * @return a pseudo-random number.
      */
-    public static double random() {
+    public static synchronized double random() {
         if (random == null) {
-            random = new java.util.Random();
+            random = new Random();
         }
         return random.nextDouble();
     }
@@ -955,7 +1001,7 @@ public final class Math {
      * <li>{@code toRadians(-infinity) = -infinity}</li>
      * <li>{@code toRadians(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param angdeg
      *            an angle in degrees.
      * @return the radian measure of the angle.
@@ -976,7 +1022,7 @@ public final class Math {
      * <li>{@code toDegrees(-infinity) = -infinity}</li>
      * <li>{@code toDegrees(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param angrad
      *            an angle in radians.
      * @return the degree measure of the angle.
@@ -999,7 +1045,7 @@ public final class Math {
      * <li>{@code ulp(-infintiy) = infinity}</li>
      * <li>{@code ulp(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param d
      *            the floating-point value to compute ulp of.
      * @return the size of a ulp of the argument.
@@ -1029,7 +1075,7 @@ public final class Math {
      * <li>{@code ulp(-infintiy) = infinity}</li>
      * <li>{@code ulp(NaN) = NaN}</li>
      * </ul>
-     * 
+     *
      * @param f
      *            the floating-point value to compute ulp of.
      * @return the size of a ulp of the argument.
@@ -1050,4 +1096,299 @@ public final class Math {
     private native static double nextafter(double x, double y);
 
     private native static float nextafterf(float x, float y);
+
+    /**
+     * Returns a double with the given magnitude and the sign of {@code sign}.
+     * If {@code sign} is NaN, the sign of the result is arbitrary.
+     * If you need a determinate sign in such cases, use {@code StrictMath.copySign}.
+     * @since 1.6
+     */
+    public static native double copySign(double magnitude, double sign);
+
+    /**
+     * Returns a float with the given magnitude and the sign of {@code sign}.
+     * If {@code sign} is NaN, the sign of the result is arbitrary.
+     * If you need a determinate sign in such cases, use {@code StrictMath.copySign}.
+     * @since 1.6
+     */
+    public static native float copySign(float magnitude, float sign);
+
+    /**
+     * Returns the exponent of float {@code f}.
+     * @since 1.6
+     */
+    public static int getExponent(float f) {
+        int bits = Float.floatToRawIntBits(f);
+        bits = (bits & FLOAT_EXPONENT_MASK) >> FLOAT_MANTISSA_BITS;
+        return bits - FLOAT_EXPONENT_BIAS;
+    }
+
+    /**
+     * Returns the exponent of double {@code d}.
+     * @since 1.6
+     */
+    public static int getExponent(double d) {
+        long bits = Double.doubleToRawLongBits(d);
+        bits = (bits & DOUBLE_EXPONENT_MASK) >> DOUBLE_MANTISSA_BITS;
+        return (int) bits - DOUBLE_EXPONENT_BIAS;
+    }
+
+    /**
+     * Returns the next double after {@code start} in the given {@code direction}.
+     * @since 1.6
+     */
+    public static double nextAfter(double start, double direction) {
+        if (start == 0 && direction == 0) {
+            return direction;
+        }
+        return nextafter(start, direction);
+    }
+
+    /**
+     * Returns the next float after {@code start} in the given {@code direction}.
+     * @since 1.6
+     */
+    public static float nextAfter(float start, double direction) {
+        if (Float.isNaN(start) || Double.isNaN(direction)) {
+            return Float.NaN;
+        }
+        if (start == 0 && direction == 0) {
+            return (float) direction;
+        }
+        if ((start == Float.MIN_VALUE && direction < start)
+                || (start == -Float.MIN_VALUE && direction > start)) {
+            return (start > 0 ? 0f : -0f);
+        }
+        if (Float.isInfinite(start) && (direction != start)) {
+            return (start > 0 ? Float.MAX_VALUE : -Float.MAX_VALUE);
+        }
+        if ((start == Float.MAX_VALUE && direction > start)
+                || (start == -Float.MAX_VALUE && direction < start)) {
+            return (start > 0 ? Float.POSITIVE_INFINITY
+                    : Float.NEGATIVE_INFINITY);
+        }
+        if (direction > start) {
+            if (start > 0) {
+                return Float.intBitsToFloat(Float.floatToIntBits(start) + 1);
+            }
+            if (start < 0) {
+                return Float.intBitsToFloat(Float.floatToIntBits(start) - 1);
+            }
+            return +Float.MIN_VALUE;
+        }
+        if (direction < start) {
+            if (start > 0) {
+                return Float.intBitsToFloat(Float.floatToIntBits(start) - 1);
+            }
+            if (start < 0) {
+                return Float.intBitsToFloat(Float.floatToIntBits(start) + 1);
+            }
+            return -Float.MIN_VALUE;
+        }
+        return (float) direction;
+    }
+
+    /**
+     * Returns the next double larger than {@code d}.
+     * @since 1.6
+     */
+    public static double nextUp(double d) {
+        if (Double.isNaN(d)) {
+            return Double.NaN;
+        }
+        if (d == Double.POSITIVE_INFINITY) {
+            return Double.POSITIVE_INFINITY;
+        }
+        if (d == 0) {
+            return Double.MIN_VALUE;
+        } else if (d > 0) {
+            return Double.longBitsToDouble(Double.doubleToLongBits(d) + 1);
+        } else {
+            return Double.longBitsToDouble(Double.doubleToLongBits(d) - 1);
+        }
+    }
+
+    /**
+     * Returns the next float larger than {@code f}.
+     * @since 1.6
+     */
+    public static float nextUp(float f) {
+        if (Float.isNaN(f)) {
+            return Float.NaN;
+        }
+        if (f == Float.POSITIVE_INFINITY) {
+            return Float.POSITIVE_INFINITY;
+        }
+        if (f == 0) {
+            return Float.MIN_VALUE;
+        } else if (f > 0) {
+            return Float.intBitsToFloat(Float.floatToIntBits(f) + 1);
+        } else {
+            return Float.intBitsToFloat(Float.floatToIntBits(f) - 1);
+        }
+    }
+
+    /**
+     * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
+     * @since 1.6
+     */
+    public static double scalb(double d, int scaleFactor) {
+        if (Double.isNaN(d) || Double.isInfinite(d) || d == 0) {
+            return d;
+        }
+        // change double to long for calculation
+        long bits = Double.doubleToLongBits(d);
+        // the sign of the results must be the same of given d
+        long sign = bits & DOUBLE_SIGN_MASK;
+        // calculates the factor of the result
+        long factor = ((bits & DOUBLE_EXPONENT_MASK) >> DOUBLE_MANTISSA_BITS)
+                - DOUBLE_EXPONENT_BIAS + scaleFactor;
+
+        // calculates the factor of sub-normal values
+        int subNormalFactor = Long.numberOfLeadingZeros(bits
+                & ~DOUBLE_SIGN_MASK)
+                - DOUBLE_NON_MANTISSA_BITS;
+        if (subNormalFactor < 0) {
+            // not sub-normal values
+            subNormalFactor = 0;
+        } else {
+            factor = factor - subNormalFactor;
+        }
+        if (factor > Double.MAX_EXPONENT) {
+            return (d > 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY);
+        }
+
+        long result;
+        // if result is a sub-normal
+        if (factor <= -DOUBLE_EXPONENT_BIAS) {
+            // the number of digits that shifts
+            long digits = factor + DOUBLE_EXPONENT_BIAS + subNormalFactor;
+            if (Math.abs(d) < Double.MIN_NORMAL) {
+                // origin d is already sub-normal
+                result = shiftLongBits(bits & DOUBLE_MANTISSA_MASK, digits);
+            } else {
+                // origin d is not sub-normal, change mantissa to sub-normal
+                result = shiftLongBits(bits & DOUBLE_MANTISSA_MASK
+                        | 0x0010000000000000L, digits - 1);
+            }
+        } else {
+            if (Math.abs(d) >= Double.MIN_NORMAL) {
+                // common situation
+                result = ((factor + DOUBLE_EXPONENT_BIAS) << DOUBLE_MANTISSA_BITS)
+                        | (bits & DOUBLE_MANTISSA_MASK);
+            } else {
+                // origin d is sub-normal, change mantissa to normal style
+                result = ((factor + DOUBLE_EXPONENT_BIAS) << DOUBLE_MANTISSA_BITS)
+                        | ((bits << (subNormalFactor + 1)) & DOUBLE_MANTISSA_MASK);
+            }
+        }
+        return Double.longBitsToDouble(result | sign);
+    }
+
+    /**
+     * Returns {@code d} * 2^{@code scaleFactor}. The result may be rounded.
+     * @since 1.6
+     */
+    public static float scalb(float d, int scaleFactor) {
+        if (Float.isNaN(d) || Float.isInfinite(d) || d == 0) {
+            return d;
+        }
+        int bits = Float.floatToIntBits(d);
+        int sign = bits & FLOAT_SIGN_MASK;
+        int factor = ((bits & FLOAT_EXPONENT_MASK) >> FLOAT_MANTISSA_BITS)
+                - FLOAT_EXPONENT_BIAS + scaleFactor;
+        // calcutes the factor of sub-normal values
+        int subNormalFactor = Integer.numberOfLeadingZeros(bits
+                & ~FLOAT_SIGN_MASK)
+                - FLOAT_NON_MANTISSA_BITS;
+        if (subNormalFactor < 0) {
+            // not sub-normal values
+            subNormalFactor = 0;
+        } else {
+            factor = factor - subNormalFactor;
+        }
+        if (factor > Float.MAX_EXPONENT) {
+            return (d > 0 ? Float.POSITIVE_INFINITY : Float.NEGATIVE_INFINITY);
+        }
+
+        int result;
+        // if result is a sub-normal
+        if (factor <= -FLOAT_EXPONENT_BIAS) {
+            // the number of digits that shifts
+            int digits = factor + FLOAT_EXPONENT_BIAS + subNormalFactor;
+            if (Math.abs(d) < Float.MIN_NORMAL) {
+                // origin d is already sub-normal
+                result = shiftIntBits(bits & FLOAT_MANTISSA_MASK, digits);
+            } else {
+                // origin d is not sub-normal, change mantissa to sub-normal
+                result = shiftIntBits(bits & FLOAT_MANTISSA_MASK | 0x00800000,
+                        digits - 1);
+            }
+        } else {
+            if (Math.abs(d) >= Float.MIN_NORMAL) {
+                // common situation
+                result = ((factor + FLOAT_EXPONENT_BIAS) << FLOAT_MANTISSA_BITS)
+                        | (bits & FLOAT_MANTISSA_MASK);
+            } else {
+                // origin d is sub-normal, change mantissa to normal style
+                result = ((factor + FLOAT_EXPONENT_BIAS) << FLOAT_MANTISSA_BITS)
+                        | ((bits << (subNormalFactor + 1)) & FLOAT_MANTISSA_MASK);
+            }
+        }
+        return Float.intBitsToFloat(result | sign);
+    }
+
+    // Shifts integer bits as float, if the digits is positive, left-shift; if
+    // not, shift to right and calculate its carry.
+    private static int shiftIntBits(int bits, int digits) {
+        if (digits > 0) {
+            return bits << digits;
+        }
+        // change it to positive
+        int absdigits = -digits;
+        if (!(Integer.numberOfLeadingZeros(bits & ~FLOAT_SIGN_MASK) <= (32 - absdigits))) {
+            return 0;
+        }
+        int ret = bits >> absdigits;
+        boolean halfbit = ((bits >> (absdigits - 1)) & 0x1) == 1;
+        if (halfbit) {
+            if (Integer.numberOfTrailingZeros(bits) < (absdigits - 1)) {
+                ret = ret + 1;
+            }
+            if (Integer.numberOfTrailingZeros(bits) == (absdigits - 1)) {
+                if ((ret & 0x1) == 1) {
+                    ret = ret + 1;
+                }
+            }
+        }
+        return ret;
+    }
+
+    // Shifts long bits as double, if the digits is positive, left-shift; if
+    // not, shift to right and calculate its carry.
+    private static long shiftLongBits(long bits, long digits) {
+        if (digits > 0) {
+            return bits << digits;
+        }
+        // change it to positive
+        long absdigits = -digits;
+        if (!(Long.numberOfLeadingZeros(bits & ~DOUBLE_SIGN_MASK) <= (64 - absdigits))) {
+            return 0;
+        }
+        long ret = bits >> absdigits;
+        boolean halfbit = ((bits >> (absdigits - 1)) & 0x1) == 1;
+        if (halfbit) {
+            // some bits will remain after shifting, calculates its carry
+            // subnormal
+            if (Long.numberOfTrailingZeros(bits) < (absdigits - 1)) {
+                ret = ret + 1;
+            }
+            if (Long.numberOfTrailingZeros(bits) == (absdigits - 1)) {
+                if ((ret & 0x1) == 1) {
+                    ret = ret + 1;
+                }
+            }
+        }
+        return ret;
+    }
 }

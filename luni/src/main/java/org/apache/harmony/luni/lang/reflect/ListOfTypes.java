@@ -64,10 +64,10 @@ public class ListOfTypes {
             resolvedTypes = new Type[list.size()];
             int i = 0;
             for (Type t : list) {
-                try { 
+                try {
                     resolvedTypes[i] = ((ImplForType)t).getResolvedType();
-                } catch (ClassCastException e) { 
-                    resolvedTypes[i] = t; 
+                } catch (ClassCastException e) {
+                    resolvedTypes[i] = t;
                 }
                 i++;
             }

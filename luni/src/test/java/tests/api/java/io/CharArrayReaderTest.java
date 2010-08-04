@@ -25,7 +25,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(CharArrayReader.class) 
+@TestTargetClass(CharArrayReader.class)
 public class CharArrayReaderTest extends junit.framework.TestCase {
 
     char[] hw = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd' };
@@ -40,7 +40,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         notes = "Verifies CharArrayReader(char[] buf) constructor.",
         method = "CharArrayReader",
         args = {char[].class}
-    )         
+    )
     public void test_Constructor$C() {
         // Test for method java.io.CharArrayReader(char [])
 
@@ -59,7 +59,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "CharArrayReader",
         args = {char[].class, int.class, int.class}
-    )         
+    )
     public void test_Constructor$CII() throws IOException {
         try {
             cr = new CharArrayReader(null, 0, 0);
@@ -85,7 +85,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             // Expected.
         }
-        
+
         cr = new CharArrayReader(hw, 5, 5);
         assertTrue("Test 5: Failed to create reader", cr.ready());
         assertEquals("Test 6: Incorrect character read;",
@@ -100,14 +100,14 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         notes = "Verifies close() method.",
         method = "close",
         args = {}
-    )     
+    )
     public void test_close() {
         cr = new CharArrayReader(hw);
         cr.close();
         try {
             cr.read();
-            fail("Failed to throw exception on read from closed stream");            
-        } catch (IOException e) { 
+            fail("Failed to throw exception on read from closed stream");
+        } catch (IOException e) {
             // Expected.
         }
 
@@ -120,7 +120,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "mark",
         args = {int.class}
-    )     
+    )
     public void test_markI() throws IOException {
         // Test for method void java.io.CharArrayReader.mark(int)
         cr = new CharArrayReader(hw);
@@ -128,9 +128,9 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         cr.mark(100);
         cr.read();
         cr.reset();
-        assertEquals("Test 1: Failed to mark correct position;", 
+        assertEquals("Test 1: Failed to mark correct position;",
                 'W', cr.read());
-        
+
         cr.close();
         try {
             cr.mark(100);
@@ -148,7 +148,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         notes = "Verifies markSupported() method.",
         method = "markSupported",
         args = {}
-    )       
+    )
     public void test_markSupported() {
         // Test for method boolean java.io.CharArrayReader.markSupported()
         cr = new CharArrayReader(hw);
@@ -162,13 +162,13 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "read",
         args = {}
-    )        
+    )
     public void test_read() throws IOException {
         cr = new CharArrayReader(hw);
-        assertEquals("Test 1: Read returned incorrect char;", 
+        assertEquals("Test 1: Read returned incorrect char;",
                 'H', cr.read());
         cr = new CharArrayReader(new char[] { '\u8765' });
-        assertTrue("Test 2: Incorrect double byte char;", 
+        assertTrue("Test 2: Incorrect double byte char;",
                 cr.read() == '\u8765');
 
         cr.close();
@@ -187,7 +187,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "read",
         args = {char[].class, int.class, int.class}
-    )        
+    )
     @AndroidOnly("The RI throws an IndexOutOfBoundsException instead of an" +
             "ArrayIndexOutOfBoundsException. The RI specification does not" +
             "define the expected behavior.")
@@ -196,9 +196,9 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         char[] c = new char[11];
         cr = new CharArrayReader(hw);
         cr.read(c, 1, 10);
-        assertTrue("Test 1: Read returned incorrect chars.", 
+        assertTrue("Test 1: Read returned incorrect chars.",
                 new String(c, 1, 10).equals(new String(hw, 0, 10)));
-        
+
         // Illegal argument checks.
         try {
             cr.read(null, 1, 0);
@@ -213,7 +213,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             cr.read(c , 1, -1);
             fail("Test 4: ArrayIndexOutOfBoundsException expected.");
@@ -245,7 +245,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         notes = "Verifies ready() method.",
         method = "ready",
         args = {}
-    )         
+    )
     public void test_ready() {
         // Test for method boolean java.io.CharArrayReader.ready()
         cr = new CharArrayReader(hw);
@@ -279,7 +279,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "reset",
         args = {}
-    )        
+    )
     public void test_reset() throws IOException {
         cr = new CharArrayReader(hw);
         cr.skip(5L);
@@ -288,7 +288,7 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         cr.reset();
         assertEquals("Test 1: Reset failed to return to marker position.",
                 'W', cr.read());
-        
+
         cr.close();
         try {
             cr.reset();
@@ -305,16 +305,16 @@ public class CharArrayReaderTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "skip",
         args = {long.class}
-    )         
+    )
     public void test_skipJ() throws IOException {
         long skipped = 0;
         cr = new CharArrayReader(hw);
         skipped = cr.skip(5L);
-        assertEquals("Test 1: Failed to skip correct number of chars;", 
+        assertEquals("Test 1: Failed to skip correct number of chars;",
                 5L, skipped);
-        assertEquals("Test 2: Skip skipped wrong chars;", 
+        assertEquals("Test 2: Skip skipped wrong chars;",
                 'W', cr.read());
-        
+
         cr.close();
         try {
             cr.skip(1);

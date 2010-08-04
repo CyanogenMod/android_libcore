@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -81,27 +81,27 @@ import java.util.TimeZone;
            args = {int.class}
        )
    }
-) 
+)
 public class URLConnectionTest extends TestCase {
-    
+
     private static final String testString = "Hello World";
-    
+
     private URLConnection fileURLCon;
-    
+
     private URL fileURL;
-    
+
     private JarURLConnection jarURLCon;
-    
+
     private URL jarURL;
-    
+
     private URLConnection gifURLCon;
-    
+
     private URL gifURL;
 
     public boolean isGetCalled;
 
     public boolean isPutCalled;
-    
+
     private Map<String, List<String>> mockHeaderMap;
 
     private InputStream mockIs = new MockInputStream();
@@ -109,7 +109,7 @@ public class URLConnectionTest extends TestCase {
     public boolean isCacheWriteCalled;
 
     public boolean isAbortCalled;
-    
+
     /**
      * @tests {@link java.net.URLConnection#addRequestProperty(String, String)}
      */
@@ -121,8 +121,8 @@ public class URLConnectionTest extends TestCase {
     )
     public void test_addRequestProperty() throws MalformedURLException,
             IOException {
-        
-        
+
+
         MockURLConnection u = new MockURLConnection(new URL(
                 "http://www.apache.org"));
 
@@ -133,7 +133,7 @@ public class URLConnectionTest extends TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         u.connect();
         try {
             // state of connection is checked first
@@ -143,7 +143,7 @@ public class URLConnectionTest extends TestCase {
         } catch (IllegalStateException e) {
             // expected
         }
-        
+
     }
 
     /**
@@ -166,15 +166,15 @@ public class URLConnectionTest extends TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         try {
             u.setRequestProperty("user-agent", "Mozilla/5.0 (Windows; U; Windows NT 5.0; de-DE; rv:1.7.5) Gecko/20041122 Firefox/1.0");
         } catch (NullPointerException e) {
             fail("Unexpected Exception");
         }
-        
+
         u.connect();
-        
+
         try {
             // state of connection is checked first
             // so no NPE in case of null 'field' param
@@ -231,7 +231,7 @@ public class URLConnectionTest extends TestCase {
             // expected
         }
     }
-    
+
     static class MockURLConnection extends URLConnection {
 
         public MockURLConnection(URL url) {
@@ -243,7 +243,7 @@ public class URLConnectionTest extends TestCase {
             connected = true;
         }
     }
-    
+
     static class NewHandler extends URLStreamHandler {
         protected URLConnection openConnection(URL u) throws IOException {
             return new HttpURLConnection(u) {
@@ -264,7 +264,7 @@ public class URLConnectionTest extends TestCase {
             };
         }
     }
-    
+
     class MockCachedResponseCache extends ResponseCache {
 
         public CacheResponse get(URI arg0, String arg1, Map arg2)
@@ -285,7 +285,7 @@ public class URLConnectionTest extends TestCase {
             return new MockCacheRequest();
         }
     }
-    
+
     class MockNonCachedResponseCache extends ResponseCache {
 
         public CacheResponse get(URI arg0, String arg1, Map arg2)
@@ -300,7 +300,7 @@ public class URLConnectionTest extends TestCase {
             return new MockCacheRequest();
         }
     }
-    
+
     class MockCacheRequest extends CacheRequest {
 
         public OutputStream getBody() throws IOException {
@@ -313,7 +313,7 @@ public class URLConnectionTest extends TestCase {
         }
 
     }
-    
+
     class MockInputStream extends InputStream {
 
         public int read() throws IOException {
@@ -329,7 +329,7 @@ public class URLConnectionTest extends TestCase {
         }
 
     }
-    
+
     class MockOutputStream extends OutputStream {
 
         public void write(int b) throws IOException {
@@ -344,7 +344,7 @@ public class URLConnectionTest extends TestCase {
             isCacheWriteCalled = true;
         }
     }
-    
+
     class MockCacheResponse extends CacheResponse {
 
         public Map<String, List<String>> getHeaders() throws IOException {
@@ -355,7 +355,7 @@ public class URLConnectionTest extends TestCase {
             return mockIs;
         }
     }
-    
+
 
     private static int port;
 
@@ -367,7 +367,7 @@ public class URLConnectionTest extends TestCase {
     }
 
     URL url;
-    
+
     URL url2;
 
     URLConnection uc;
@@ -375,13 +375,13 @@ public class URLConnectionTest extends TestCase {
     URLConnection uc2;
 
     Support_TestWebServer server;
-    
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        
+
 //        ftpURL = new URL(Support_Configuration.testFTPURL);
-       
+
         port = Support_PortManager.getNextPort();
         server = new Support_TestWebServer();
         server.initServer(port, false);
@@ -389,13 +389,13 @@ public class URLConnectionTest extends TestCase {
         uc = url.openConnection();
         url2 =  new URL("http://localhost:" + port + "/test2");
         uc2 = url2.openConnection();
-        
+
         fileURL = createTempHelloWorldFile();
         fileURLCon = fileURL.openConnection();
-        
+
         jarURLCon = openJarURLConnection();
         jarURL = jarURLCon.getURL();
-        
+
         gifURLCon = openGifURLConnection();
         gifURL = gifURLCon.getURL();
     }
@@ -412,8 +412,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws URISyntaxException 
-     * @throws ClassNotFoundException 
+     * @throws URISyntaxException
+     * @throws ClassNotFoundException
      * @tests {@link java.net.URLConnection#addRequestProperty(java.lang.String,java.lang.String)}
      */
     @TestTargetNew(
@@ -482,7 +482,7 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#getAllowUserInteraction()}
      */
     @TestTargets({
@@ -507,58 +507,58 @@ public class URLConnectionTest extends TestCase {
         uc.setAllowUserInteraction(true);
         assertTrue("getAllowUserInteraction should have returned true", uc
                 .getAllowUserInteraction());
-        
+
         uc.connect();
-        
+
         try {
             uc.setAllowUserInteraction(false);
             fail("Exception expected");
         } catch (IllegalStateException e) {
             //ok
         }
-        
+
         // test if setAllowUserInteraction works
         URL serverURL = new URL("http://onearth.jpl.nasa.gov/landsat.cgi");
-        
+
         // connect to server
         URLConnection uc2 = serverURL.openConnection();
         HttpURLConnection conn = (HttpURLConnection) uc2;
         uc2.setAllowUserInteraction(true);
-  
+
         uc2.setDoInput(true);
         uc2.setDoOutput(true);
-        
+
         // get reference to stream to post to
         OutputStream os = uc2.getOutputStream();
-        
+
         InputStream in = uc2.getInputStream();
-        
-        
+
+
         int contentLength = uc2.getContentLength();
         String contentType = uc2.getContentType();
         int numBytesRead = 0;
         int allBytesRead = 0;
 
         byte[] buffer = new byte[4096];
-        
+
         do {
-            
+
         numBytesRead = in.read(buffer);
         allBytesRead += allBytesRead + numBytesRead;
-        
+
         } while (numBytesRead > 0);
-        
+
         assertTrue(allBytesRead > 0);
-       
+
         uc2.connect();
-        
+
         numBytesRead = in.read(buffer);
-        
+
         assertEquals(-1, numBytesRead);
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#connect()}
      */
     @TestTargetNew(
@@ -568,11 +568,11 @@ public class URLConnectionTest extends TestCase {
       args = {}
     )
     public void test_connect() throws IOException {
-       
+
         uc.connect();
         ((HttpURLConnection) uc).disconnect();
         uc.connect();
-        
+
         try {
             uc.setDoOutput(false);
         } catch (Exception e) {
@@ -592,9 +592,9 @@ public class URLConnectionTest extends TestCase {
     public void test_getContent() throws IOException {
         byte[] ba = new byte[testString.getBytes().length];
         String buf = null;
-        
+
         Object obj = fileURLCon.getContent();
-        if (obj instanceof String) { 
+        if (obj instanceof String) {
             buf = (String) obj;
             assertTrue("Incorrect content returned from fileURL: "+buf,
                     testString.equals(buf.trim()));
@@ -607,7 +607,7 @@ public class URLConnectionTest extends TestCase {
         } else {
             fail("Some unkown type is returned "+obj.toString());
         }
-        
+
         //Exception test
         URL url = new URL("http://a/b/c/?y");
         URLConnection fakeCon = url.openConnection();
@@ -616,14 +616,14 @@ public class URLConnectionTest extends TestCase {
         } catch (IOException e) {
             //ok
         }
-        
+
         ((HttpURLConnection) uc).disconnect();
         try {
             uc.getContent();
         } catch (IOException e) {
             //ok
         }
-        
+
     }
 
     /**
@@ -637,19 +637,19 @@ public class URLConnectionTest extends TestCase {
     )
     public void test_getContent_LjavalangClass() throws IOException {
         byte[] ba = new byte[600];
-        
+
         fileURLCon.setDoInput(true);
         fileURLCon.connect();
-        
+
         InputStream  helloWorld2 = (InputStream) fileURLCon.getContent(new Class[] {InputStream.class});
         assertNotNull(helloWorld2);
         BufferedReader r = new BufferedReader(new InputStreamReader(helloWorld2),testString.getBytes().length);
         assertTrue("Incorrect content returned from fileURL",
                 testString.equals(r.readLine().trim()));
-        
+
         String test = (String) fileURLCon.getContent(new Class[] {String.class} );
         assertNull(test);
-        
+
         //Exception test
         ((HttpURLConnection) uc).disconnect();
         try {
@@ -682,7 +682,7 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#getContentEncoding()}
      */
     @TestTargetNew(
@@ -695,29 +695,29 @@ public class URLConnectionTest extends TestCase {
     public void test_getContentEncoding() throws IOException {
         // faulty setup
         try {
-        
+
         fileURLCon.getContentEncoding();
         fail("Exception expected");
         } catch (Throwable e) {
             //ok
         }
-        
+
         // positive case
-        
+
         URL url = new URL("http://www.amazon.com/");
-        
+
         URLConnection con = url.openConnection();
         con.setRequestProperty("Accept-Encoding", "gzip");
         con.connect();
-        
+
         assertEquals(con.getContentEncoding(), "gzip");
-        
-        
+
+
         uc2.setRequestProperty("Accept-Encoding", "bla");
         uc2.connect();
-        
+
         assertNull(uc2.getContentEncoding());
-        
+
     }
 
     /**
@@ -734,7 +734,7 @@ public class URLConnectionTest extends TestCase {
                 fileURLCon.getContentLength());
         assertEquals(Support_TestWebData.test1.length, uc.getContentLength());
         assertEquals(Support_TestWebData.test2.length, uc2.getContentLength());
-        
+
         assertNotNull(jarURLCon.getContentLength());
         assertNotNull(gifURLCon.getContentLength());
     }
@@ -749,17 +749,17 @@ public class URLConnectionTest extends TestCase {
         args = {}
     )
     public void test_getContentType() throws IOException, MalformedURLException {
-        
+
         assertTrue("getContentType failed: " + fileURLCon.getContentType(),
                 fileURLCon.getContentType().contains("text/plain"));
-        
+
         URLConnection htmlFileCon = openHTMLFile();
         String contentType = htmlFileCon.getContentType();
         if (contentType != null) {
             assertTrue(contentType.equalsIgnoreCase("text/html"));
         }
-        
-        
+
+
         /*
         contentType = uc.getContentType();
         if (contentType != null) {
@@ -771,7 +771,7 @@ public class URLConnectionTest extends TestCase {
         assertTrue(contentType.equalsIgnoreCase("image/gif"));
         }
         */
-        
+
     }
 
     /**
@@ -792,7 +792,7 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#getDefaultAllowUserInteraction()}
      */
     @TestTargets({
@@ -858,7 +858,7 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link  java.net.URLConnection#getDefaultUseCaches()}
      */
     @TestTargets({
@@ -877,36 +877,36 @@ public class URLConnectionTest extends TestCase {
     })
     public void test_getDefaultUseCaches_CachedRC() throws IOException {
         boolean oldSetting = uc.getDefaultUseCaches();
-        
+
         ResponseCache old = ResponseCache.getDefault();
         ResponseCache rc = new MockCachedResponseCache();
         ResponseCache.setDefault(rc);
-        
+
         // Recreate the connection so that we get the cache from ResponseCache.
         uc2 = url2.openConnection();
-        
+
         uc2.setUseCaches(true);
-        
+
         uc.setDefaultUseCaches(false);
 
         // uc unaffected
         assertTrue(uc.getUseCaches());
         // uc2 unaffected
         assertTrue(uc2.getUseCaches());
-        
+
         //test get
         assertFalse("getDefaultUseCaches should have returned false", uc
                 .getDefaultUseCaches());
-        
+
         // subsequent connections should have default value
         URL url3 =  new URL("http://localhost:" + port + "/test2");
         URLConnection uc3 = url3.openConnection();
         assertFalse(uc3.getUseCaches());
-        
+
         // test if uc does not cache but uc2 does
         isGetCalled = false;
         isPutCalled = false;
-        
+
         // test uc
         uc.setDoOutput(true);
         assertFalse(isGetCalled);
@@ -916,9 +916,9 @@ public class URLConnectionTest extends TestCase {
         OutputStream os = uc.getOutputStream();
         assertFalse(isPutCalled);
         assertFalse(isGetCalled);
-        
+
         os.close();
-        
+
         //uc2 should be unaffected
         uc2.setDoOutput(true);
         assertFalse(isGetCalled);
@@ -931,7 +931,7 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#getDoInput()}
      */
     @TestTargets({
@@ -959,7 +959,7 @@ public class URLConnectionTest extends TestCase {
 
         fileURLCon.connect();
         fileURLCon.getInputStream();
-        
+
         uc2.connect();
         try {
             uc2.getInputStream();
@@ -970,7 +970,7 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#getDoOutput()}
      */
     @TestTargets({
@@ -992,14 +992,14 @@ public class URLConnectionTest extends TestCase {
 
         uc.setDoOutput(true);
         assertTrue("Should have been set to true", uc.getDoOutput());
-        
+
         uc.connect();
         uc.getOutputStream();
 
         uc2.setDoOutput(false);
         assertFalse("Should have been set to false", uc2.getDoOutput());
         uc2.connect();
-        
+
         try{
             uc2.getOutputStream();
         } catch (Throwable e) {
@@ -1008,7 +1008,7 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#getExpiration()}
      */
     @TestTargetNew(
@@ -1020,12 +1020,12 @@ public class URLConnectionTest extends TestCase {
         args = {}
     )
     public void test_getExpiration() throws IOException {
-        
+
         uc.connect();
         // should be unknown
         assertEquals("getExpiration returned wrong expiration", 0, uc
                 .getExpiration());
-        
+
         uc2.connect();
         assertTrue("getExpiration returned wrong expiration: " + uc2
                 .getExpiration(), uc2.getExpiration() > 0);
@@ -1043,9 +1043,9 @@ public class URLConnectionTest extends TestCase {
     public void test_getFileNameMap() {
         // Tests for the standard MIME types -- users may override these
         // in their JRE
-        
+
         FileNameMap mapOld = URLConnection.getFileNameMap();
-        
+
         try {
         // These types are defaulted
         assertEquals("text/html", mapOld.getContentTypeFor(".htm"));
@@ -1066,7 +1066,7 @@ public class URLConnectionTest extends TestCase {
                 return "Spam!";
             }
         });
-       
+
             assertEquals("Incorrect FileNameMap returned", "Spam!",
                     URLConnection.getFileNameMap().getContentTypeFor(null));
         } finally {
@@ -1075,7 +1075,7 @@ public class URLConnectionTest extends TestCase {
         }
         // RI fails since it does not support fileName that does not begin with
         // '.'
-        
+
     }
 
     /**
@@ -1171,9 +1171,9 @@ public class URLConnectionTest extends TestCase {
                 "Could not find header field key containing \"content-type\"",
                 foundResponse);
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#getHeaderFieldInt(String, int)}
      */
     @TestTargetNew(
@@ -1204,7 +1204,7 @@ public class URLConnectionTest extends TestCase {
         assertEquals(Integer.MIN_VALUE, hf);
         hf = uc2.getHeaderFieldInt("DoesNotExist", Integer.MIN_VALUE);
         assertEquals(Integer.MIN_VALUE, hf);
-        
+
     }
 
     /**
@@ -1244,8 +1244,8 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws URISyntaxException 
-     * @throws ClassNotFoundException 
+     * @throws URISyntaxException
+     * @throws ClassNotFoundException
      * @tests {@link java.net.URLConnection#getHeaderFields()}
      */
     @TestTargetNew(
@@ -1281,7 +1281,7 @@ public class URLConnectionTest extends TestCase {
         // there should be at least 2 headers
         assertTrue("Not more than one header in URL connection",
                 headers.size() > 1);
-        
+
         headers = jarURLCon.getHeaderFields();
         assertNotNull(headers);
         assertEquals(0, headers.size());
@@ -1294,9 +1294,9 @@ public class URLConnectionTest extends TestCase {
             // Expected
         }
     }
-    
+
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#getLastModified()}
      */
     @TestTargetNew(
@@ -1306,29 +1306,29 @@ public class URLConnectionTest extends TestCase {
         args = {}
     )
     public void test_getLastModified() throws IOException {
-        
+
         URL url4 = new URL(Support_Configuration.hTTPURLwLastModified);
         URLConnection uc4 = url4.openConnection();
-        
+
         uc4.connect();
-        
+
         if (uc4.getLastModified() == 0) {
             System.out
                     .println("WARNING: Server does not support 'Last-Modified', test_getLastModified() not run");
             return;
         }
-        
+
         long millis = uc4.getHeaderFieldDate("Last-Modified", 0);
-        
+
         assertEquals(
                 "Returned wrong getLastModified value.  Wanted: "
                         + " got: " + uc4.getLastModified(),
                 millis, uc4.getLastModified());
-        
-        
+
+
         ((HttpURLConnection) uc).disconnect();
     }
-    
+
     @TestTargetNew(
       level = TestLevel.COMPLETE,
       notes = "",
@@ -1489,7 +1489,7 @@ public class URLConnectionTest extends TestCase {
         } catch (IllegalStateException e) {
             // expected
         }
-        
+
     }
 
     /**
@@ -1547,7 +1547,7 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests {@link java.net.URLConnection#getUseCaches()}
      */
     @TestTargets({
@@ -1570,21 +1570,21 @@ public class URLConnectionTest extends TestCase {
                 .getUseCaches());
         uc2.setUseCaches(true);
         assertTrue("getUseCaches should have returned true", uc2.getUseCaches());
-        
+
         uc2.connect();
-        
-        
+
+
         try {
         uc2.setUseCaches(false);
         fail("Exception expected");
         } catch (IllegalStateException e) {
             //ok
         }
-        
+
         ((HttpURLConnection) uc2).disconnect();
-        
+
     }
-    
+
     /**
      * @tests {@link java.net.URLConnection#guessContentTypeFromName(String)}
      */
@@ -1596,11 +1596,11 @@ public class URLConnectionTest extends TestCase {
     )
     public void test_guessContentTypeFromName()
             throws IOException {
-        
+
         URLConnection htmlFileCon = openHTMLFile();
         String[] expected = new String[] {"text/html",
                 "text/plain" };
-        String[] resources = new String[] { 
+        String[] resources = new String[] {
                 htmlFileCon.getURL().toString(),
                 fileURL.toString()
                 };
@@ -1643,7 +1643,7 @@ public class URLConnectionTest extends TestCase {
         assertContentTypeEquals("UTF-8", "text/html", "<body");
         assertContentTypeEquals("UTF-8", "text/html", "<BODY ");
         assertContentTypeEquals("UTF-8", "application/xml", "<?xml ");
-        
+
         //"UTF-16BE", "UTF-16LE", "UTF-32BE" and
         //"UTF-32LE" are not supported
 
@@ -1715,15 +1715,15 @@ public class URLConnectionTest extends TestCase {
             // correct
         }
         assertEquals(100, uc.getConnectTimeout());
-        
+
         uc2.setConnectTimeout(2);
-        
+
         try {
         uc2.connect();
         } catch (SocketTimeoutException e) {
             //ok
         }
-        
+
     }
 
     /**
@@ -1750,7 +1750,7 @@ public class URLConnectionTest extends TestCase {
         URLConnection.setFileNameMap(null);
         // take no effect
         assertNotNull(URLConnection.getFileNameMap());
-        
+
         try {
         URLConnection.setFileNameMap(new java.net.FileNameMap(){
                         public String getContentTypeFor(String fileName) {
@@ -1768,7 +1768,7 @@ public class URLConnectionTest extends TestCase {
                         type = "application/zip";
                     else if (name.endsWith(".gif"))
                         type = "image/gif";
-                    else 
+                    else
                       type="application/unknown";
                     return type;
                          }
@@ -1778,8 +1778,8 @@ public class URLConnectionTest extends TestCase {
         assertEquals("application/zip", mapNew.getContentTypeFor(".zip"));
         assertEquals("image/gif", mapNew.getContentTypeFor(".gif"));
         } finally {
-    
-        URLConnection.setFileNameMap(mapOld); 
+
+        URLConnection.setFileNameMap(mapOld);
         }
     }
 
@@ -1811,27 +1811,27 @@ public class URLConnectionTest extends TestCase {
         connection.setIfModifiedSince(sinceTime);
         assertEquals("Wrong date set", sinceTime, connection
                 .getIfModifiedSince());
-       
+
         // content should be returned
-        
+
         uc2.setIfModifiedSince(sinceTime);
         uc2.connect();
-        
-        
+
+
         assertEquals(200,((HttpURLConnection) uc2).getResponseCode());
-        
+
         try {
             uc2.setIfModifiedSince(2);
             fail("Exception expected");
         } catch (IllegalStateException e) {
             //ok
         }
-        
+
         ((HttpURLConnection) uc2).disconnect();
-        
-        
+
+
     }
-    
+
     @TestTargetNew(
         level = TestLevel.SUFFICIENT,
         notes = "test that page was not renewed in time indicated -> page returned event though it should not.",
@@ -1839,14 +1839,14 @@ public class URLConnectionTest extends TestCase {
         args = {}
     )
     public void test_getIfModifiedSinceJ() throws IOException {
-        
+
         uc2.setIfModifiedSince(Calendar.getInstance().getTimeInMillis());
         uc2.connect();
-        
+
         assertEquals(200,((HttpURLConnection) uc2).getResponseCode());
-        
+
     }
-    
+
 
     /**
      * @tests {@link java.net.URLConnection#setReadTimeout(int)}
@@ -1885,13 +1885,13 @@ public class URLConnectionTest extends TestCase {
             // correct
         }
         assertEquals(100, uc.getReadTimeout());
-        
+
         byte[] ba = new byte[600];
-        
+
         uc2.setReadTimeout(5);
         uc2.setDoInput(true);
         uc2.connect();
-  
+
         try {
         ((InputStream) uc2.getInputStream()).read(ba, 0, 600);
         } catch (SocketTimeoutException e) {
@@ -1911,13 +1911,13 @@ public class URLConnectionTest extends TestCase {
         args = {}
     )
     public void test_toString() {
-        
+
         assertTrue("Wrong toString: " + uc.toString(), uc.toString().indexOf(
                 "URLConnection") > 0);
         assertTrue("Wrong toString: " + uc.toString(), uc.toString().indexOf(
                 uc.getURL().toString()) > 0);
     }
-    
+
     @TestTargetNew(
       level = TestLevel.SUFFICIENT,
       notes = "protected constructor",
@@ -1928,7 +1928,7 @@ public class URLConnectionTest extends TestCase {
         String url = uc2.getURL().toString();
         assertEquals(url2.toString(), url);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
@@ -1956,7 +1956,7 @@ public class URLConnectionTest extends TestCase {
         assertNotNull(uc2.getInputStream());
 
     }
-    
+
     @TestTargetNew(
             level = TestLevel.PARTIAL_COMPLETE,
             notes = "Verifies SecurityException.",
@@ -1965,10 +1965,10 @@ public class URLConnectionTest extends TestCase {
      )
     public void test_setContentHandlerFactory() {
         SecurityManager sm = new SecurityManager() {
-            
+
             public void checkPermission(Permission perm) {
             }
-            
+
             public void checkSetFactory() {
                 throw new SecurityException();
             }
@@ -1983,9 +1983,9 @@ public class URLConnectionTest extends TestCase {
         } finally {
             System.setSecurityManager(old_sm);
         }
-      
-    }    
-    
+
+    }
+
     private URLConnection openGifURLConnection() throws IOException {
         String cts = System.getProperty("java.io.tmpdir");
         File tmpDir = new File(cts);
@@ -1995,7 +1995,7 @@ public class URLConnectionTest extends TestCase {
         URLConnection con1 = fUrl1.openConnection();
         return con1;
     }
-    
+
     private JarURLConnection openJarURLConnection()
             throws MalformedURLException, IOException {
         String cts = System.getProperty("java.io.tmpdir");
@@ -2006,7 +2006,7 @@ public class URLConnectionTest extends TestCase {
         JarURLConnection con1 = (JarURLConnection) fUrl1.openConnection();
         return con1;
     }
-    
+
     private URLConnection openHTMLFile() throws IOException {
         String cts = System.getProperty("java.io.tmpdir");
         File tmpDir = new File(cts);
@@ -2016,7 +2016,7 @@ public class URLConnectionTest extends TestCase {
         URLConnection con1 = fUrl1.openConnection();
         return con1;
     }
-    
+
     private URL createTempHelloWorldFile() throws MalformedURLException {
         // create content to read
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
@@ -2038,7 +2038,7 @@ public class URLConnectionTest extends TestCase {
         } catch (Exception e) {// Catch exception if any
             fail("Error: in test setup" + e.getMessage());
         }
-        
+
         // read content from file
         return sampleFile.toURL();
     }

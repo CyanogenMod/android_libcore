@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 
 /**
  * The class contains static {@link java.io.InputStream} utilities.
@@ -47,9 +48,9 @@ public class InputStreamHelper {
         AccessController.doPrivileged(new PrivilegedAction<Object>() {
             public Object run() {
                 try {
-                    f[0] = ByteArrayInputStream.class.getDeclaredField("buf"); //$NON-NLS-1$
+                    f[0] = ByteArrayInputStream.class.getDeclaredField("buf");
                     f[0].setAccessible(true);
-                    f[1] = ByteArrayInputStream.class.getDeclaredField("pos"); //$NON-NLS-1$
+                    f[1] = ByteArrayInputStream.class.getDeclaredField("pos");
                     f[1].setAccessible(true);
                 } catch (NoSuchFieldException nsfe) {
                     throw new InternalError(nsfe.getLocalizedMessage());
@@ -176,9 +177,7 @@ public class InputStreamHelper {
 
             // Did we get it all in one read?
             if (nextByte == -1) {
-                byte[] dest = new byte[count];
-                System.arraycopy(buffer, 0, dest, 0, count);
-                return dest;
+                return Arrays.copyOf(buffer, count);
             }
 
             // Requires additional reads

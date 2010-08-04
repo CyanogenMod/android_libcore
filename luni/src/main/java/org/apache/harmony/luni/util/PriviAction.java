@@ -47,10 +47,10 @@ public class PriviAction<T> implements PrivilegedAction<T> {
     /**
      * Creates a PrivilegedAction to get the security property with the given
      * name.
-     * 
+     *
      * @param property
      *            the name of the property
-     * 
+     *
      * @see Security#getProperty
      */
     public static PrivilegedAction<String> getSecurityProperty(String property) {
@@ -64,7 +64,7 @@ public class PriviAction<T> implements PrivilegedAction<T> {
 
     /**
      * Creates a PrivilegedAction to get the current security policy object.
-     * 
+     *
      * @see Policy#getPolicy
      */
     public PriviAction() {
@@ -74,11 +74,11 @@ public class PriviAction<T> implements PrivilegedAction<T> {
     /**
      * Creates a PrivilegedAction to disable the access checks to the given
      * object.
-     * 
+     *
      * @param object
      *            the object whose accessible flag will be set to
      *            <code>true</code>
-     * 
+     *
      * @see AccessibleObject#setAccessible(boolean)
      */
     public PriviAction(AccessibleObject object) {
@@ -89,10 +89,10 @@ public class PriviAction<T> implements PrivilegedAction<T> {
     /**
      * Creates a PrivilegedAction to return the value of the system property
      * with the given key.
-     * 
+     *
      * @param property
      *            the key of the system property
-     * 
+     *
      * @see System#getProperty(String)
      */
     public PriviAction(String property) {
@@ -103,12 +103,12 @@ public class PriviAction<T> implements PrivilegedAction<T> {
     /**
      * Creates a PrivilegedAction to return the value of the system property
      * with the given key.
-     * 
+     *
      * @param property
      *            the key of the system property
      * @param defaultAnswer
      *            the return value if the system property does not exist
-     * 
+     *
      * @see System#getProperty(String, String)
      */
     public PriviAction(String property, String defaultAnswer) {
@@ -119,7 +119,7 @@ public class PriviAction<T> implements PrivilegedAction<T> {
 
     /**
      * Performs the actual privileged computation as defined by the constructor.
-     * 
+     *
      * @see java.security.PrivilegedAction#run()
      */
     @SuppressWarnings("unchecked")

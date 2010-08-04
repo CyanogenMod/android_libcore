@@ -27,13 +27,10 @@ import java.security.Principal;
 import java.security.cert.Certificate;
 import java.util.List;
 import java.util.Map;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSocket;
-
 import org.apache.harmony.luni.internal.net.www.protocol.http.HttpURLConnectionImpl;
-import org.apache.harmony.luni.internal.nls.Messages;
 
 /**
  * HttpsURLConnection implementation.
@@ -56,44 +53,39 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         httpsEngine = new HttpsEngine(url, port, proxy);
     }
 
+    private void checkConnected() {
+        if (sslSocket == null) {
+            throw new IllegalStateException("Connection has not yet been established");
+        }
+    }
+
     @Override
     public String getCipherSuite() {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+        checkConnected();
         return sslSocket.getSession().getCipherSuite();
     }
 
     @Override
     public Certificate[] getLocalCertificates() {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+        checkConnected();
         return sslSocket.getSession().getLocalCertificates();
     }
 
     @Override
-    public Certificate[] getServerCertificates()
-            throws SSLPeerUnverifiedException {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+    public Certificate[] getServerCertificates() throws SSLPeerUnverifiedException {
+        checkConnected();
         return sslSocket.getSession().getPeerCertificates();
     }
 
     @Override
     public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+        checkConnected();
         return sslSocket.getSession().getPeerPrincipal();
     }
 
     @Override
     public Principal getLocalPrincipal() {
-        if (sslSocket == null) {
-            throw new IllegalStateException(Messages.getString("luni.00")); //$NON-NLS-1$
-        }
+        checkConnected();
         return sslSocket.getSession().getLocalPrincipal();
     }
 
@@ -343,14 +335,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
         return httpsEngine.toString();
     }
 
-    /**
-     * HttpsEngine
-     */
-    private class HttpsEngine extends HttpURLConnectionImpl {
-
-        // In case of using proxy this field indicates
-        // if it is a SSL Tunnel establishing stage
-        private boolean makingSSLTunnel;
+    private final class HttpsEngine extends HttpURLConnectionImpl {
 
         protected HttpsEngine(URL url, int port) {
             super(url, port);
@@ -360,65 +345,73 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
             super(url, port, proxy);
         }
 
-        @Override
-        public void connect() throws IOException {
-            if (connected) {
+        @Override public void connect() throws IOException {
+            if (connection != null) {
                 return;
             }
-            if (super.usingProxy() && !makingSSLTunnel) {
-                // SSL Tunnel through the proxy was not established yet, do so
-                makingSSLTunnel = true;
-                // first - make the connection
-                super.connect();
-                // keep request method
-                String save_meth = method;
-                // make SSL Tunnel
-                method = "CONNECT"; //$NON-NLS-1$
-                try {
-                    doRequest();
-                    endRequest();
-                } finally {
-                    // restore initial request method
-                    method = save_meth;
-                }
-                if (!connected) {
-                    throw new IOException(Messages.getString("luni.01", //$NON-NLS-1$
-                            responseMessage, responseCode));
-                }
-                // if there are some remaining data in the stream - read it out
-                InputStream is = connection.getInputStream();
-                while (is.available() != 0) {
-                    is.read();
-                }
-                makingSSLTunnel = false;
-            } else {
-                // no need in SSL tunnel
-                super.connect();
-            }
-            if (!makingSSLTunnel) {
-                sslSocket = connection.getSecureSocket(getSSLSocketFactory(), getHostnameVerifier());
-                setUpTransportIO(connection);
+
+            // first try an SSL connection with compression and
+            // various TLS extensions enabled, if it fails (and its
+            // not unheard of that it will) fallback to a more
+            // barebones connections
+            try {
+                connect(true);
+            } catch (IOException e) {
+                releaseSocket(false);
+                connect(false);
             }
         }
 
-        @Override
-        protected String requestString() {
-            if (super.usingProxy()) {
-                if (makingSSLTunnel) {
-                    // we are making the SSL Tunneling, return remotehost:port
-                    int port = url.getPort();
-                    return (port > 0) ? url.getHost() + ":" + port //$NON-NLS-1$
-                    : url.getHost();
+        /**
+         * Attempt to make an https connection.
+         *
+         * @param tlsTolerant If true, assume server can handle common
+         * TLS extensions and SSL deflate compression. If false, use
+         * an SSL3 only fallback mode without compression.
+         */
+        private void connect(boolean tlsTolerant) throws IOException {
+            super.connect();
+
+            // make SSL Tunnel
+            if (usingProxy()) {
+                String originalMethod = method;
+                method = CONNECT;
+                intermediateResponse = true;
+                try {
+                    retrieveResponse();
+                    discardIntermediateResponse();
+                } finally {
+                    method = originalMethod;
+                    intermediateResponse = false;
                 }
+            }
+
+            sslSocket = connection.getSecureSocket(getSSLSocketFactory(),
+                                                   getHostnameVerifier(),
+                                                   tlsTolerant);
+            setUpTransportIO(connection);
+        }
+
+        @Override protected boolean requiresTunnel() {
+            return usingProxy();
+        }
+
+        @Override protected String requestString() {
+            if (!usingProxy()) {
+                return super.requestString();
+
+            } else if (method == CONNECT) {
+                // SSL tunnels require host:port for the origin server
+                return url.getHost() + ":" + url.getEffectivePort();
+
+            } else {
                 // we has made SSL Tunneling, return /requested.data
                 String file = url.getFile();
                 if (file == null || file.length() == 0) {
-                    file = "/"; //$NON-NLS-1$
+                    file = "/";
                 }
                 return file;
             }
-            return super.requestString();
         }
-
     }
 }

@@ -22,17 +22,17 @@ import java.io.IOException;
 import java.io.InputStream;
 
     class PublicClassLoader extends ClassLoader {
-        
+
         public PublicClassLoader() {
             super();
         }
 
         public PublicClassLoader(ClassLoader cl) {
             super(cl);
-        }        
-        
+        }
+
         private byte[] getBytes( String filename ) throws IOException {
-            
+
             File file = new File( filename );
             long len = file.length();
             byte raw[] = new byte[(int)len];
@@ -43,10 +43,10 @@ import java.io.InputStream;
             fin.close();
             return raw;
           }
-        
+
         public Class<?> loadClass(String name, boolean resolve)
                                             throws ClassNotFoundException {
-            
+
             Class clazz = findLoadedClass(name);
             String classFileName = name.replace( '.', '/' ) + ".class";
             File classFile = new File(classFileName);
@@ -56,7 +56,7 @@ import java.io.InputStream;
                     clazz = defineClass( name, raw, 0, raw.length );
                 } catch(Exception ioe) {}
             }
-            
+
             if (clazz == null) {
                 Package p = getClass().getPackage();
                 InputStream is = getResourceAsStream("/" + classFileName);
@@ -64,11 +64,11 @@ import java.io.InputStream;
                 int len;
                 try {
                     len = is.read(buf);
-                    clazz = defineClass(name, buf, 0, len);                    
+                    clazz = defineClass(name, buf, 0, len);
                 } catch (IOException e) {
                 }
-            }            
-            
+            }
+
             if (clazz == null) {
                 clazz = findSystemClass(name);
             }
@@ -77,15 +77,15 @@ import java.io.InputStream;
                 throw new ClassNotFoundException(name);
             return clazz;
         }
-        
+
         public Class<?> defineClassTest(byte[] b, int off, int len) {
             return defineClass(b, off, len);
         }
-        
+
         public Package getPackage(String name) {
             return super.getPackage(name);
         }
-        
+
         public Package [] getPackages() {
             return super.getPackages();
         }
@@ -93,5 +93,5 @@ import java.io.InputStream;
         public InputStream getResourceAsStream(String name) {
             return getClass().getResourceAsStream("/" + getClass().getPackage().
                     getName().replace(".", "/") + "/" + name);
-        }    
+        }
     }

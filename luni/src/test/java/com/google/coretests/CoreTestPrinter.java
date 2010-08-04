@@ -29,7 +29,7 @@ import junit.textui.ResultPrinter;
 public class CoreTestPrinter extends ResultPrinter {
 
     /**
-     * The last test class we executed. 
+     * The last test class we executed.
      */
     private Class<?> fLastClass;
 
@@ -63,20 +63,20 @@ public class CoreTestPrinter extends ResultPrinter {
         if (fColumn != 0) {
             getWriter().println();
         }
-        
+
         getWriter().println();
     }
-    
+
     @Override
     protected void printFooter(TestResult result) {
         CoreTestResult coreResult = (CoreTestResult)result;
-        
+
         PrintStream printer = getWriter();
 
         if (fColumn != 0) {
             printer.println();
         }
-        
+
         printer.println();
         printer.println("Total tests   : " + coreResult.fTotalTestCount);
         printer.println("Tests run     : " + coreResult.runCount());
@@ -88,11 +88,11 @@ public class CoreTestPrinter extends ResultPrinter {
         printer.println("Broken tests  : " + coreResult.fBrokenTestCount);
         printer.println("Known failures: " + coreResult.fKnownFailureCount);
         printer.println("Side-effects  : " + coreResult.fSideEffectCount);
-        
+
         printMemory();
-        
+
         int seconds = fRunTime;
-        
+
         int hours = seconds / 3600;
         seconds = seconds % 3600;
 
@@ -100,13 +100,13 @@ public class CoreTestPrinter extends ResultPrinter {
         seconds = seconds % 60;
 
         String text = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-        
+
         printer.println();
         printer.println("Time taken    : " + text);
-        
+
         super.printFooter(result);
     }
-    
+
     /**
      * Dumps some memory info.
      */
@@ -117,7 +117,7 @@ public class CoreTestPrinter extends ResultPrinter {
         long total = runtime.totalMemory();
         long free = runtime.freeMemory();
         long used = total - free;
-        
+
         printer.println();
         printer.println("Total memory  : " + total);
         printer.println("Used memory   : " + used);
@@ -127,7 +127,7 @@ public class CoreTestPrinter extends ResultPrinter {
     @Override
     public void startTest(Test test) {
         TestCase caze = (TestCase)test;
-        
+
         if (fLastClass == null ||
                 caze.getClass().getPackage() != fLastClass.getPackage()) {
 
@@ -138,10 +138,10 @@ public class CoreTestPrinter extends ResultPrinter {
 
             getWriter().println();
             Package pack = caze.getClass().getPackage();
-            getWriter().println(pack == null ? "Default package" : 
+            getWriter().println(pack == null ? "Default package" :
                 pack.getName());
             getWriter().println();
-            
+
         }
 
         if ((fFlags & CoreTestSuite.VERBOSE) != 0) {
@@ -150,21 +150,21 @@ public class CoreTestPrinter extends ResultPrinter {
                     getWriter().println();
                     fColumn = 0;
                 }
-    
+
                 String name = caze.getClass().getSimpleName().toString();
-                
+
                 printMemory();
                 getWriter().println("Now executing : " + name);
                 getWriter().println();
             }
         }
-    
+
         getWriter().print(".");
         if (fColumn++ >= 40) {
             getWriter().println();
             fColumn= 0;
         }
-        
+
         fLastClass = caze.getClass();
     }
 
@@ -176,5 +176,5 @@ public class CoreTestPrinter extends ResultPrinter {
             super.addError(test, t);
         }
     }
-    
+
 }

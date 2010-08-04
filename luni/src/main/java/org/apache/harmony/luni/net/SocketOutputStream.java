@@ -22,8 +22,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketImpl;
 
-import org.apache.harmony.luni.util.Msg;
-
 class SocketOutputStream extends OutputStream {
 
     private PlainSocketImpl socket;
@@ -31,7 +29,7 @@ class SocketOutputStream extends OutputStream {
     /**
      * Constructs a SocketOutputStream for the <code>socket</code>. Write
      * operations are forwarded to the <code>socket</code>.
-     * 
+     *
      * @param socket the socket to be written
      * @see Socket
      */
@@ -52,16 +50,13 @@ class SocketOutputStream extends OutputStream {
 
     @Override
     public void write(byte[] buffer, int offset, int count) throws IOException {
-        // avoid int overflow
-        if (buffer != null) {
-            if (0 <= offset && offset <= buffer.length && 0 <= count
-                    && count <= buffer.length - offset) {
-                socket.write(buffer, offset, count);
-            } else {
-                throw new ArrayIndexOutOfBoundsException(Msg.getString("K002f"));//$NON-NLS-1$
-            }
+        if (buffer == null) {
+            throw new NullPointerException("buffer == null");
+        }
+        if (0 <= offset && offset <= buffer.length && 0 <= count && count <= buffer.length - offset) {
+            socket.write(buffer, offset, count);
         } else {
-            throw new NullPointerException(Msg.getString("K0047"));//$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException();
         }
     }
 

@@ -32,7 +32,7 @@ import junit.textui.TestRunner;
 /**
  * A minimalistic TestRunner implementation that silently executes a single test
  * method and writes a possible stack trace to a temporary file. Used for
- * isolating tests. 
+ * isolating tests.
  */
 public class CoreTestIsolator extends TestRunner {
 
@@ -57,25 +57,25 @@ public class CoreTestIsolator extends TestRunner {
     /**
      * Provides the main entry point. First and second argument are class and
      * method name, respectively. Third argument is the temporary file name for
-     * the result. Exits with one of the usual JUnit exit values. 
+     * the result. Exits with one of the usual JUnit exit values.
      */
     public static void main(String args[]) {
         Logger.global.setLevel(Level.OFF);
-        
+
         CoreTestIsolator testRunner = new CoreTestIsolator();
         try {
             TestResult r = testRunner.start(args);
-            
+
             if (!r.wasSuccessful()) {
                 // Store failure or error - we know there must be one
-                Throwable failure = r.failureCount() != 0 ? 
+                Throwable failure = r.failureCount() != 0 ?
                         ((TestFailure)r.failures().nextElement()).
                                 thrownException() :
                         ((TestFailure)r.errors().nextElement()).
                                 thrownException();
 
                 saveStackTrace(failure, args[2]);
-                
+
                 System.exit(FAILURE_EXIT);
             } else {
                 // Nothing to see here, please get along
@@ -86,7 +86,7 @@ public class CoreTestIsolator extends TestRunner {
             saveStackTrace(e, args[2]);
             System.exit(EXCEPTION_EXIT);
         }
-        
+
     }
 
     /**
@@ -96,9 +96,9 @@ public class CoreTestIsolator extends TestRunner {
         try {
             FileOutputStream fos = new FileOutputStream(fileName);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-    
+
             oos.writeObject(throwable);
-            
+
             oos.flush();
             oos.close();
         } catch (IOException ex) {
@@ -116,5 +116,5 @@ public class CoreTestIsolator extends TestRunner {
             throw new RuntimeException("Unable to launch test", e);
         }
     }
-    
+
 }

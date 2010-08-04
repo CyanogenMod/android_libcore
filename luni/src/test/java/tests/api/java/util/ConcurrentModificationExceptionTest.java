@@ -20,14 +20,14 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-@TestTargetClass(ConcurrentModificationException.class) 
+@TestTargetClass(ConcurrentModificationException.class)
 public class ConcurrentModificationExceptionTest extends
         junit.framework.TestCase {
 

@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * The {@code BitSet} class implements a bit field. Each element in a
  * {@code BitSet} can be on(1) or off(0). A {@code BitSet} is created with a
@@ -111,8 +109,7 @@ public class BitSet implements Serializable, Cloneable {
      * @param bits
      *            the size of the bit set
      */
-    private BitSet(long[] bits, boolean needClear, int actualArrayLength,
-            boolean isLengthActual) {
+    private BitSet(long[] bits, boolean needClear, int actualArrayLength, boolean isLengthActual) {
         this.bits = bits;
         this.needClear = needClear;
         this.actualArrayLength = actualArrayLength;
@@ -189,7 +186,7 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Increase the size of the internal array to accommodate {@code pos} bits.
+     * Increase the size of the internal array to accommodate {@code len} bits.
      * The new array max index will be a multiple of 64.
      *
      * @param len
@@ -220,15 +217,15 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Retrieves the bit at index {@code pos}. Grows the {@code BitSet} if
-     * {@code pos > size}.
+     * Retrieves the bit at index {@code index}. Grows the {@code BitSet} if
+     * {@code index > size}.
      *
-     * @param pos
+     * @param index
      *            the index of the bit to be retrieved.
-     * @return {@code true} if the bit at {@code pos} is set,
+     * @return {@code true} if the bit at {@code index} is set,
      *         {@code false} otherwise.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos} is negative.
+     *             if {@code index} is negative.
      * @see #clear(int)
      * @see #set(int)
      * @see #clear()
@@ -237,54 +234,59 @@ public class BitSet implements Serializable, Cloneable {
      * @see #set(int, int)
      * @see #set(int, int, boolean)
      */
-    public boolean get(int pos) {
-        if (pos < 0) {
-            // Negative index specified
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
-
-        int arrayPos = pos >> OFFSET;
+    public boolean get(int index) {
+        checkIndex(index);
+        int arrayPos = index >> OFFSET;
         if (arrayPos < actualArrayLength) {
-            return (bits[arrayPos] & TWO_N_ARRAY[pos & RIGHT_BITS]) != 0;
+            return (bits[arrayPos] & TWO_N_ARRAY[index & RIGHT_BITS]) != 0;
         }
         return false;
     }
 
+    private void checkIndex(int index) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("index < 0");
+        }
+    }
+
+    private void checkRange(int fromIndex, int toIndex) {
+        if (fromIndex < 0 || toIndex < 0 || toIndex < fromIndex) {
+            throw new IndexOutOfBoundsException("fromIndex=" + fromIndex + " toIndex=" + toIndex);
+        }
+    }
+
     /**
-     * Retrieves the bits starting from {@code pos1} to {@code pos2} and returns
-     * back a new bitset made of these bits. Grows the {@code BitSet} if
-     * {@code pos2 > size}.
+     * Retrieves the bits starting from {@code fromIndex} to {@code toIndex} and returns
+     * back a new bitset made of these bits. Grows the {@code BitSet} if {@code toIndex &gt; size}.
      *
-     * @param pos1
+     * @param fromIndex
      *            inclusive beginning position.
-     * @param pos2
+     * @param toIndex
      *            exclusive ending position.
      * @return new bitset of the range specified.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos1} or {@code pos2} is negative, or if
-     *             {@code pos2} is smaller than {@code pos1}.
+     *             if {@code fromIndex} or {@code toIndex} is negative, or if
+     *             {@code toIndex} is smaller than {@code fromIndex}.
      * @see #get(int)
      */
-    public BitSet get(int pos1, int pos2) {
-        if (pos1 < 0 || pos2 < 0 || pos2 < pos1) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
+    public BitSet get(int fromIndex, int toIndex) {
+        checkRange(fromIndex, toIndex);
 
         int last = actualArrayLength << OFFSET;
-        if (pos1 >= last || pos1 == pos2) {
+        if (fromIndex >= last || fromIndex == toIndex) {
             return new BitSet(0);
         }
-        if (pos2 > last) {
-            pos2 = last;
+        if (toIndex > last) {
+            toIndex = last;
         }
 
-        int idx1 = pos1 >> OFFSET;
-        int idx2 = (pos2 - 1) >> OFFSET;
-        long factor1 = (~0L) << (pos1 & RIGHT_BITS);
-        long factor2 = (~0L) >>> (ELM_SIZE - (pos2 & RIGHT_BITS));
+        int idx1 = fromIndex >> OFFSET;
+        int idx2 = (toIndex - 1) >> OFFSET;
+        long factor1 = (~0L) << (fromIndex & RIGHT_BITS);
+        long factor2 = (~0L) >>> (ELM_SIZE - (toIndex & RIGHT_BITS));
 
         if (idx1 == idx2) {
-            long result = (bits[idx1] & (factor1 & factor2)) >>> (pos1 % ELM_SIZE);
+            long result = (bits[idx1] & (factor1 & factor2)) >>> (fromIndex % ELM_SIZE);
             if (result == 0) {
                 return new BitSet(0);
             }
@@ -300,9 +302,8 @@ public class BitSet implements Serializable, Cloneable {
             newbits[i] = bits[idx1 + i];
         }
 
-        // shift all the elements in the new bitset to the right by pos1
-        // % ELM_SIZE
-        int numBitsToShift = pos1 & RIGHT_BITS;
+        // shift all the elements in the new bitset to the right by fromIndex % ELM_SIZE
+        int numBitsToShift = fromIndex & RIGHT_BITS;
         int actualLen = newbits.length;
         if (numBitsToShift != 0) {
             for (int i = 0; i < newbits.length; i++) {
@@ -325,27 +326,24 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Sets the bit at index {@code pos} to 1. Grows the {@code BitSet} if
-     * {@code pos > size}.
+     * Sets the bit at index {@code index} to 1. Grows the {@code BitSet} if
+     * {@code index > size}.
      *
-     * @param pos
+     * @param index
      *            the index of the bit to set.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos} is negative.
+     *             if {@code index} is negative.
      * @see #clear(int)
      * @see #clear()
      * @see #clear(int, int)
      */
-    public void set(int pos) {
-        if (pos < 0) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
-
-        int len = (pos >> OFFSET) + 1;
+    public void set(int index) {
+        checkIndex(index);
+        int len = (index >> OFFSET) + 1;
         if (len > bits.length) {
             growLength(len);
         }
-        bits[len - 1] |= TWO_N_ARRAY[pos & RIGHT_BITS];
+        bits[len - 1] |= TWO_N_ARRAY[index & RIGHT_BITS];
         if (len > actualArrayLength) {
             actualArrayLength = len;
             isLengthActual = true;
@@ -354,55 +352,53 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Sets the bit at index {@code pos} to {@code val}. Grows the
-     * {@code BitSet} if {@code pos > size}.
+     * Sets the bit at index {@code index} to {@code val}. Grows the
+     * {@code BitSet} if {@code index > size}.
      *
-     * @param pos
+     * @param index
      *            the index of the bit to set.
      * @param val
      *            value to set the bit.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos} is negative.
+     *             if {@code index} is negative.
      * @see #set(int)
      */
-    public void set(int pos, boolean val) {
+    public void set(int index, boolean val) {
         if (val) {
-            set(pos);
+            set(index);
         } else {
-            clear(pos);
+            clear(index);
         }
     }
 
     /**
-     * Sets the bits starting from {@code pos1} to {@code pos2}. Grows the
-     * {@code BitSet} if {@code pos2 > size}.
+     * Sets the bits starting from {@code fromIndex} to {@code toIndex}. Grows the
+     * {@code BitSet} if {@code toIndex > size}.
      *
-     * @param pos1
+     * @param fromIndex
      *            inclusive beginning position.
-     * @param pos2
+     * @param toIndex
      *            exclusive ending position.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos1} or {@code pos2} is negative, or if
-     *             {@code pos2} is smaller than {@code pos1}.
+     *             if {@code fromIndex} or {@code toIndex} is negative, or if
+     *             {@code toIndex} is smaller than {@code fromIndex}.
      * @see #set(int)
      */
-    public void set(int pos1, int pos2) {
-        if (pos1 < 0 || pos2 < 0 || pos2 < pos1) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
+    public void set(int fromIndex, int toIndex) {
+        checkRange(fromIndex, toIndex);
 
-        if (pos1 == pos2) {
+        if (fromIndex == toIndex) {
             return;
         }
-        int len2 = ((pos2 - 1) >> OFFSET) + 1;
+        int len2 = ((toIndex - 1) >> OFFSET) + 1;
         if (len2 > bits.length) {
             growLength(len2);
         }
 
-        int idx1 = pos1 >> OFFSET;
-        int idx2 = (pos2 - 1) >> OFFSET;
-        long factor1 = (~0L) << (pos1 & RIGHT_BITS);
-        long factor2 = (~0L) >>> (ELM_SIZE - (pos2 & RIGHT_BITS));
+        int idx1 = fromIndex >> OFFSET;
+        int idx2 = (toIndex - 1) >> OFFSET;
+        long factor1 = (~0L) << (fromIndex & RIGHT_BITS);
+        long factor2 = (~0L) >>> (ELM_SIZE - (toIndex & RIGHT_BITS));
 
         if (idx1 == idx2) {
             bits[idx1] |= (factor1 & factor2);
@@ -425,25 +421,25 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Sets the bits starting from {@code pos1} to {@code pos2} to the given
-     * {@code val}. Grows the {@code BitSet} if {@code pos2 > size}.
+     * Sets the bits starting from {@code fromIndex} to {@code toIndex} to the given
+     * {@code val}. Grows the {@code BitSet} if {@code toIndex > size}.
      *
-     * @param pos1
+     * @param fromIndex
      *            inclusive beginning position.
-     * @param pos2
+     * @param toIndex
      *            exclusive ending position.
      * @param val
      *            value to set these bits.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos1} or {@code pos2} is negative, or if
-     *             {@code pos2} is smaller than {@code pos1}.
+     *             if {@code fromIndex} or {@code toIndex} is negative, or if
+     *             {@code toIndex} is smaller than {@code fromIndex}.
      * @see #set(int,int)
      */
-    public void set(int pos1, int pos2, boolean val) {
+    public void set(int fromIndex, int toIndex, boolean val) {
         if (val) {
-            set(pos1, pos2);
+            set(fromIndex, toIndex);
         } else {
-            clear(pos1, pos2);
+            clear(fromIndex, toIndex);
         }
     }
 
@@ -465,27 +461,23 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Clears the bit at index {@code pos}. Grows the {@code BitSet} if
-     * {@code pos > size}.
+     * Clears the bit at index {@code index}. Grows the {@code BitSet} if
+     * {@code index > size}.
      *
-     * @param pos
+     * @param index
      *            the index of the bit to clear.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos} is negative.
+     *             if {@code index} is negative.
      * @see #clear(int, int)
      */
-    public void clear(int pos) {
-        if (pos < 0) {
-            // Negative index specified
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
-
+    public void clear(int index) {
+        checkIndex(index);
         if (!needClear) {
             return;
         }
-        int arrayPos = pos >> OFFSET;
+        int arrayPos = index >> OFFSET;
         if (arrayPos < actualArrayLength) {
-            bits[arrayPos] &= ~(TWO_N_ARRAY[pos & RIGHT_BITS]);
+            bits[arrayPos] &= ~(TWO_N_ARRAY[index & RIGHT_BITS]);
             if (bits[actualArrayLength - 1] == 0) {
                 isLengthActual = false;
             }
@@ -493,38 +485,36 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Clears the bits starting from {@code pos1} to {@code pos2}. Grows the
-     * {@code BitSet} if {@code pos2 > size}.
+     * Clears the bits starting from {@code fromIndex} to {@code toIndex}. Grows the
+     * {@code BitSet} if {@code toIndex > size}.
      *
-     * @param pos1
+     * @param fromIndex
      *            inclusive beginning position.
-     * @param pos2
+     * @param toIndex
      *            exclusive ending position.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos1} or {@code pos2} is negative, or if
-     *             {@code pos2} is smaller than {@code pos1}.
+     *             if {@code fromIndex} or {@code toIndex} is negative, or if
+     *             {@code toIndex} is smaller than {@code fromIndex}.
      * @see #clear(int)
      */
-    public void clear(int pos1, int pos2) {
-        if (pos1 < 0 || pos2 < 0 || pos2 < pos1) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
+    public void clear(int fromIndex, int toIndex) {
+        checkRange(fromIndex, toIndex);
 
         if (!needClear) {
             return;
         }
         int last = (actualArrayLength << OFFSET);
-        if (pos1 >= last || pos1 == pos2) {
+        if (fromIndex >= last || fromIndex == toIndex) {
             return;
         }
-        if (pos2 > last) {
-            pos2 = last;
+        if (toIndex > last) {
+            toIndex = last;
         }
 
-        int idx1 = pos1 >> OFFSET;
-        int idx2 = (pos2 - 1) >> OFFSET;
-        long factor1 = (~0L) << (pos1 & RIGHT_BITS);
-        long factor2 = (~0L) >>> (ELM_SIZE - (pos2 & RIGHT_BITS));
+        int idx1 = fromIndex >> OFFSET;
+        int idx2 = (toIndex - 1) >> OFFSET;
+        long factor1 = (~0L) << (fromIndex & RIGHT_BITS);
+        long factor2 = (~0L) >>> (ELM_SIZE - (toIndex & RIGHT_BITS));
 
         if (idx1 == idx2) {
             bits[idx1] &= ~(factor1 & factor2);
@@ -541,25 +531,22 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Flips the bit at index {@code pos}. Grows the {@code BitSet} if
-     * {@code pos > size}.
+     * Flips the bit at index {@code index}. Grows the {@code BitSet} if
+     * {@code index > size}.
      *
-     * @param pos
+     * @param index
      *            the index of the bit to flip.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos} is negative.
+     *             if {@code index} is negative.
      * @see #flip(int, int)
      */
-    public void flip(int pos) {
-        if (pos < 0) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
-
-        int len = (pos >> OFFSET) + 1;
+    public void flip(int index) {
+        checkIndex(index);
+        int len = (index >> OFFSET) + 1;
         if (len > bits.length) {
             growLength(len);
         }
-        bits[len - 1] ^= TWO_N_ARRAY[pos & RIGHT_BITS];
+        bits[len - 1] ^= TWO_N_ARRAY[index & RIGHT_BITS];
         if (len > actualArrayLength) {
             actualArrayLength = len;
         }
@@ -568,35 +555,33 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Flips the bits starting from {@code pos1} to {@code pos2}. Grows the
-     * {@code BitSet} if {@code pos2 > size}.
+     * Flips the bits starting from {@code fromIndex} to {@code toIndex}. Grows the
+     * {@code BitSet} if {@code toIndex > size}.
      *
-     * @param pos1
+     * @param fromIndex
      *            inclusive beginning position.
-     * @param pos2
+     * @param toIndex
      *            exclusive ending position.
      * @throws IndexOutOfBoundsException
-     *             if {@code pos1} or {@code pos2} is negative, or if
-     *             {@code pos2} is smaller than {@code pos1}.
+     *             if {@code fromIndex} or {@code toIndex} is negative, or if
+     *             {@code toIndex} is smaller than {@code fromIndex}.
      * @see #flip(int)
      */
-    public void flip(int pos1, int pos2) {
-        if (pos1 < 0 || pos2 < 0 || pos2 < pos1) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
+    public void flip(int fromIndex, int toIndex) {
+        checkRange(fromIndex, toIndex);
 
-        if (pos1 == pos2) {
+        if (fromIndex == toIndex) {
             return;
         }
-        int len2 = ((pos2 - 1) >> OFFSET) + 1;
+        int len2 = ((toIndex - 1) >> OFFSET) + 1;
         if (len2 > bits.length) {
             growLength(len2);
         }
 
-        int idx1 = pos1 >> OFFSET;
-        int idx2 = (pos2 - 1) >> OFFSET;
-        long factor1 = (~0L) << (pos1 & RIGHT_BITS);
-        long factor2 = (~0L) >>> (ELM_SIZE - (pos2 & RIGHT_BITS));
+        int idx1 = fromIndex >> OFFSET;
+        int idx2 = (toIndex - 1) >> OFFSET;
+        long factor1 = (~0L) << (fromIndex & RIGHT_BITS);
+        long factor2 = (~0L) >>> (ELM_SIZE - (toIndex & RIGHT_BITS));
 
         if (idx1 == idx2) {
             bits[idx1] ^= (factor1 & factor2);
@@ -830,7 +815,7 @@ public class BitSet implements Serializable, Cloneable {
             for (int j = 0; j < ELM_SIZE; j++) {
                 if (((bits[i] & (TWO_N_ARRAY[j])) != 0)) {
                     if (comma) {
-                        sb.append(", "); //$NON-NLS-1$
+                        sb.append(", ");
                     }
                     sb.append(bitCount);
                     comma = true;
@@ -843,25 +828,23 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the position of the first bit that is {@code true} on or after {@code pos}.
+     * Returns the position of the first bit that is {@code true} on or after {@code index}.
      *
-     * @param pos
+     * @param index
      *            the starting position (inclusive).
-     * @return -1 if there is no bits that are set to {@code true} on or after {@code pos}.
+     * @return -1 if there is no bits that are set to {@code true} on or after {@code index}.
      */
-    public int nextSetBit(int pos) {
-        if (pos < 0) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
+    public int nextSetBit(int index) {
+        checkIndex(index);
 
-        if (pos >= actualArrayLength << OFFSET) {
+        if (index >= actualArrayLength << OFFSET) {
             return -1;
         }
 
-        int idx = pos >> OFFSET;
+        int idx = index >> OFFSET;
         // first check in the same bit set element
         if (bits[idx] != 0L) {
-            for (int j = pos & RIGHT_BITS; j < ELM_SIZE; j++) {
+            for (int j = index & RIGHT_BITS; j < ELM_SIZE; j++) {
                 if (((bits[idx] & (TWO_N_ARRAY[j])) != 0)) {
                     return (idx << OFFSET) + j;
                 }
@@ -888,28 +871,26 @@ public class BitSet implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the position of the first bit that is {@code false} on or after {@code pos}.
+     * Returns the position of the first bit that is {@code false} on or after {@code index}.
      *
-     * @param pos
+     * @param index
      *            the starting position (inclusive).
      * @return the position of the next bit set to {@code false}, even if it is further
      *         than this {@code BitSet}'s size.
      */
-    public int nextClearBit(int pos) {
-        if (pos < 0) {
-            throw new IndexOutOfBoundsException(Msg.getString("K0006")); //$NON-NLS-1$
-        }
+    public int nextClearBit(int index) {
+        checkIndex(index);
 
         int length = actualArrayLength;
         int bssize = length << OFFSET;
-        if (pos >= bssize) {
-            return pos;
+        if (index >= bssize) {
+            return index;
         }
 
-        int idx = pos >> OFFSET;
+        int idx = index >> OFFSET;
         // first check in the same bit set element
         if (bits[idx] != (~0L)) {
-            for (int j = pos % ELM_SIZE; j < ELM_SIZE; j++) {
+            for (int j = index % ELM_SIZE; j < ELM_SIZE; j++) {
                 if (((bits[idx] & (TWO_N_ARRAY[j])) == 0)) {
                     return idx * ELM_SIZE + j;
                 }

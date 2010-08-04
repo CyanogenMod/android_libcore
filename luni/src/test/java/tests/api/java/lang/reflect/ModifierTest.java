@@ -24,7 +24,7 @@ import dalvik.annotation.TestTargetClass;
 
 import java.lang.reflect.Modifier;
 
-@TestTargetClass(Modifier.class) 
+@TestTargetClass(Modifier.class)
 public class ModifierTest extends junit.framework.TestCase {
 
     private static final int ALL_FLAGS = 0x7FF;

@@ -30,7 +30,7 @@ public class PositionedInputStream extends FilterInputStream {
 
     /**
      * Constructs a new instance of the receiver.
-     * 
+     *
      * @param in The actual input stream where to read the bytes from.
      */
     public PositionedInputStream(InputStream in) {
@@ -39,7 +39,7 @@ public class PositionedInputStream extends FilterInputStream {
 
     /**
      * Return the current position in the receiver
-     * 
+     *
      * @return int The current position in the receiver
      */
     public int currentPosition() {

@@ -27,7 +27,7 @@ import java.io.IOException;
 
 /**
  * TODO Type description
- * 
+ *
  */
 public interface IFileSystem {
 
@@ -48,7 +48,7 @@ public interface IFileSystem {
     public final int O_RDWR = 0x00000010;
 
     public final int O_RDWRSYNC = 0x00000020;
-    
+
     public final int O_APPEND = 0x00000100;
 
     public final int O_CREAT = 0x00001000;
@@ -80,6 +80,8 @@ public interface IFileSystem {
     public long writeDirect(int fileDescriptor, int address, int offset,
             int length) throws IOException;
 
+    public long length(int fd);
+
     public boolean lock(int fileDescriptor, long start, long length, int type,
             boolean waitFlag) throws IOException;
 
@@ -92,8 +94,6 @@ public interface IFileSystem {
     public void fflush(int fileDescriptor, boolean metadata)
             throws IOException;
 
-    public void close(int fileDescriptor) throws IOException;
-
     public void truncate(int fileDescriptor, long size) throws IOException;
 
     /**
@@ -101,7 +101,7 @@ public interface IFileSystem {
      */
     public int getAllocGranularity() throws IOException;
 
-    public int open(byte[] fileName, int mode) throws FileNotFoundException;
+    public int open(String path, int mode) throws FileNotFoundException;
 
     public long transfer(int fileHandler, FileDescriptor socketDescriptor,
             long offset, long count) throws IOException;
@@ -110,9 +110,9 @@ public interface IFileSystem {
     // public long ttyAvailable() throws IOException;
     // public long ttyRead(byte[] bytes, int offset, int length) throws IOException;
     // END android-deleted
-    
+
     // BEGIN android-added
-    public int ioctlAvailable(int fileDescriptor) throws IOException;
+    public int ioctlAvailable(FileDescriptor fileDescriptor) throws IOException;
     // END android-added
-    
+
 }

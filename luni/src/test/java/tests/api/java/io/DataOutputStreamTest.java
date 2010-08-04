@@ -37,9 +37,9 @@ import dalvik.annotation.TestTargetNew;
                     notes = "Implicitely tested in setUp().",
                     method = "DataOutputStream",
                     args = {java.io.OutputStream.class}
-                )    
+                )
         }
-) 
+)
 public class DataOutputStreamTest extends junit.framework.TestCase {
 
     private DataOutputStream os;
@@ -47,7 +47,7 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
     private DataInputStream dis;
 
     private ByteArrayOutputStream bos;
-    
+
     private Support_OutputStream sos;
 
     String unihw = "\u0048\u0065\u006C\u006C\u006F\u0020\u0057\u006F\u0072\u006C\u0064";
@@ -65,16 +65,16 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "flush",
         args = {}
-    )     
+    )
     public void test_flush() throws IOException {
         BufferedOutputStream buf = new BufferedOutputStream(bos);
-        
+
         os = new DataOutputStream(buf);
         os.writeInt(9087589);
-        assertTrue("Test 1: Written data should not be available.", 
+        assertTrue("Test 1: Written data should not be available.",
                 bos.toByteArray().length == 0);
         os.flush();
-        assertTrue("Test 2: Written data should be available.", 
+        assertTrue("Test 2: Written data should be available.",
                 bos.toByteArray().length > 0);
         os.close();
 
@@ -82,7 +82,7 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         int c = dis.readInt();
         assertEquals("Test 3: Failed to flush correctly;", 9087589, c);
         dis.close();
-        
+
         os = new DataOutputStream(sos);
         try {
             os.flush();
@@ -100,7 +100,7 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         notes = "Verifies size() method.",
         method = "size",
         args = {}
-    )     
+    )
     public void test_size() {
         // Test for method int java.io.DataOutputStream.size()
 
@@ -125,7 +125,7 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         notes = "IOException checking missed.",
         method = "write",
         args = {byte[].class, int.class, int.class}
-    )      
+    )
     public void test_write$BII() throws IOException {
         int r;
         os.write(testString.getBytes(), 5, testLength - 7);
@@ -136,7 +136,7 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         assertEquals("Test 1: Incorrect number of bytes read;",
                 testLength - 7, r);
         dis.close();
-        assertTrue("Test 2: Incorrect bytes written or read.", 
+        assertTrue("Test 2: Incorrect bytes written or read.",
                 new String(rbuf, 0, r).equals(
                         testString.substring(5, testLength - 2)));
     }
@@ -149,18 +149,18 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         notes = "Illegal argument checks.",
         method = "write",
         args = {byte[].class, int.class, int.class}
-    )         
+    )
     public void test_write$BII_Exception() throws IOException {
         byte[] nullByteArray = null;
         byte[] byteArray = new byte[10];
-        
+
         try {
             os.write(nullByteArray, 0, 1);
             fail("Test 1: NullPointerException expected.");
         } catch (NullPointerException e) {
             // Expected.
         }
-        
+
         try {
             os.write(byteArray, -1, 1);
             fail("Test 2: IndexOutOfBoundsException expected.");
@@ -190,13 +190,13 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "write",
         args = {int.class}
-    )    
+    )
     public void test_writeI() throws IOException {
         os.write(42);
         os.close();
-        
+
         openDataInputStream();
-        assertEquals("Test 1: Incorrect int written or read;", 
+        assertEquals("Test 1: Incorrect int written or read;",
                 42, dis.read());
         dis.close();
 
@@ -216,16 +216,16 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "writeBytes",
         args = {java.lang.String.class}
-    )         
+    )
     public void test_writeBytesLjava_lang_String() throws IOException {
         os.writeBytes(testString);
         os.close();
-        
+
         openDataInputStream();
         byte[] rbuf = new byte[testLength];
         dis.read(rbuf, 0, testLength);
         dis.close();
-        assertTrue("Test 1: Incorrect bytes written or read.", 
+        assertTrue("Test 1: Incorrect bytes written or read.",
                 new String(rbuf, 0, testLength).equals(testString));
 
         os = new DataOutputStream(sos);
@@ -244,7 +244,7 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "writeChars",
         args = {java.lang.String.class}
-    )       
+    )
     public void test_writeCharsLjava_lang_String() throws IOException {
         os.writeChars(unihw);
         os.close();
@@ -252,11 +252,11 @@ public class DataOutputStreamTest extends junit.framework.TestCase {
         char[] chars = new char[unihw.length()];
         int i, a = dis.available() / 2;
         for (i = 0; i < a; i++) chars[i] = dis.readChar();
-        assertEquals("Test 1: Incorrect chars written or read;", 
+        assertEquals("Test 1: Incorrect chars written or read;",
                 unihw, new String(chars, 0, i)
         );
         dis.close();
-        
+
         os = new DataOutputStream(sos);
         try {
             os.writeChars(unihw);

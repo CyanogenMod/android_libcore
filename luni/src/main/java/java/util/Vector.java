@@ -25,15 +25,15 @@ import java.lang.reflect.Array;
 /**
  * Vector is an implementation of {@link List}, backed by an array and synchronized.
  * All optional operations including adding, removing, and replacing elements are supported.
- * 
+ *
  * <p>All elements are permitted, including null.
- * 
+ *
  * <p>This class is equivalent to {@link ArrayList} with synchronized operations. This has a
  * performance cost, and the synchronization is not necessarily meaningful to your application:
  * synchronizing each call to {@code get}, for example, is not equivalent to synchronizing on the
  * list and iterating over it (which is probably what you intended). If you do need very highly
  * concurrent access, you should also consider {@link java.util.concurrent.CopyOnWriteArrayList}.
- * 
+ *
  * @param <E> The element type of this list.
  */
 public class Vector<E> extends AbstractList<E> implements List<E>,
@@ -1004,21 +1004,21 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
     @Override
     public synchronized String toString() {
         if (elementCount == 0) {
-            return "[]"; //$NON-NLS-1$
+            return "[]";
         }
         int length = elementCount - 1;
         StringBuilder buffer = new StringBuilder(elementCount * 16);
         buffer.append('[');
         for (int i = 0; i < length; i++) {
             if (elementData[i] == this) {
-                buffer.append("(this Collection)"); //$NON-NLS-1$
+                buffer.append("(this Collection)");
             } else {
                 buffer.append(elementData[i]);
             }
-            buffer.append(", "); //$NON-NLS-1$
+            buffer.append(", ");
         }
         if (elementData[length] == this) {
-            buffer.append("(this Collection)"); //$NON-NLS-1$
+            buffer.append("(this Collection)");
         } else {
             buffer.append(elementData[length]);
         }

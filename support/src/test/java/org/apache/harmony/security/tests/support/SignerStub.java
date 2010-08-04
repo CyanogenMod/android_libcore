@@ -28,13 +28,13 @@ import java.security.Signer;
 
 /**
  * Stub for abstract class Signer, necessary for testing purposes
- * 
+ *
  */
 @SuppressWarnings("deprecation")
 public class SignerStub extends Signer {
 
     /**
-     * Default constructor 
+     * Default constructor
      */
     public SignerStub() {
         super();
@@ -42,7 +42,7 @@ public class SignerStub extends Signer {
 
     /**
      * Constructor, sets given name
-     * 
+     *
      * @param name
      */
     public SignerStub(String name) {
@@ -51,7 +51,7 @@ public class SignerStub extends Signer {
 
     /**
      * Constructor, sets given name and scope
-     * 
+     *
      * @param name
      * @param scope
      * @throws KeyManagementException

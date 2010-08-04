@@ -47,7 +47,7 @@ public final class PropertyPermission extends BasicPermission {
 
     /**
      * Constructs a new instance of this class.
-     * 
+     *
      * @param name
      *            the (possibly wildcarded) name of the property.
      * @param actions
@@ -62,12 +62,12 @@ public final class PropertyPermission extends BasicPermission {
 
     private void decodeActions(String actions) {
         StringTokenizer tokenizer = new StringTokenizer(Util.toASCIILowerCase(actions),
-                " \t\n\r,"); //$NON-NLS-1$
+                " \t\n\r,");
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
-            if (token.equals("read")) { //$NON-NLS-1$
+            if (token.equals("read")) {
                 read = true;
-            } else if (token.equals("write")) { //$NON-NLS-1$
+            } else if (token.equals("write")) {
                 write = true;
             } else {
                 throw new IllegalArgumentException();
@@ -104,19 +104,19 @@ public final class PropertyPermission extends BasicPermission {
     /**
      * Returns the actions associated with the receiver. The result will be
      * either "read", "write", or "read,write".
-     * 
+     *
      * @return the actions associated with the receiver.
      */
     @Override
     public String getActions() {
-        return read ? (write ? "read,write" : "read") : "write"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+        return read ? (write ? "read,write" : "read") : "write";
     }
 
     /**
      * Returns an integer hash code for the receiver. Any two objects which
      * return {@code true} when passed to {@code equals} must return the same
      * value for this method.
-     * 
+     *
      * @return the receiver's hash.
      * @see #equals
      */
@@ -127,7 +127,7 @@ public final class PropertyPermission extends BasicPermission {
 
     /**
      * Indicates whether the argument permission is implied by the receiver.
-     * 
+     *
      * @return boolean {@code true} if the argument permission is implied by the
      *         receiver, and {@code false} if it is not.
      * @param permission
@@ -145,7 +145,7 @@ public final class PropertyPermission extends BasicPermission {
     /**
      * Returns a new {@code PermissionCollection} for holding permissions of this class.
      * Returns {@code null} if any {@code PermissionCollection} can be used.
-     * 
+     *
      * @return a new {@code PermissionCollection} or {@code null}.
      * @see java.security.PermissionCollection
      */
@@ -155,18 +155,18 @@ public final class PropertyPermission extends BasicPermission {
     }
 
     private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField(
-            "actions", String.class) }; //$NON-NLS-1$
+            "actions", String.class) };
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         ObjectOutputStream.PutField fields = stream.putFields();
-        fields.put("actions", getActions()); //$NON-NLS-1$
+        fields.put("actions", getActions());
         stream.writeFields();
     }
 
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
         ObjectInputStream.GetField fields = stream.readFields();
-        String actions = (String) fields.get("actions", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        String actions = (String) fields.get("actions", "");
         decodeActions(actions);
     }
 }

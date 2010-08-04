@@ -17,13 +17,14 @@
 
 package java.util;
 
+import com.ibm.icu4jni.util.LocaleData;
+import com.ibm.icu4jni.util.ICU;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-
-import com.ibm.icu4jni.util.LocaleData;
+import java.text.DateFormatSymbols;
 
 /**
  * {@code Calendar} is an abstract base class for converting between a
@@ -285,36 +286,48 @@ import com.ibm.icu4jni.util.LocaleData;
  * @see GregorianCalendar
  * @see TimeZone
  */
-public abstract class Calendar implements Serializable, Cloneable,
-        Comparable<Calendar> {
+public abstract class Calendar implements Serializable, Cloneable, Comparable<Calendar> {
 
     private static final long serialVersionUID = -1807547505821590642L;
 
     /**
-     * Set to {@code true} when the calendar fields have been set from the time, set to
-     * {@code false} when a field is changed and the fields must be recomputed.
+     * True iff the values in {@code fields[]} correspond to {@code time}. Despite the name, this
+     * is effectively "are the values in fields[] up-to-date?" --- {@code fields[]} may contain
+     * non-zero values and {@code isSet[]} may contain {@code true} values even when
+     * {@code areFieldsSet} is false.
+     * Accessing the fields via {@code get} will ensure the fields are up-to-date.
      */
     protected boolean areFieldsSet;
 
     /**
-     * An integer array of calendar fields. The length is {@code FIELD_COUNT}.
+     * Contains broken-down field values for the current value of {@code time} if
+     * {@code areFieldsSet} is true, or stale data corresponding to some previous value otherwise.
+     * Accessing the fields via {@code get} will ensure the fields are up-to-date.
+     * The array length is always {@code FIELD_COUNT}.
      */
     protected int[] fields;
 
     /**
-     * A boolean array. Each element indicates if the corresponding field has
-     * been set. The length is {@code FIELD_COUNT}.
+     * Whether the corresponding element in {@code field[]} has been set. Initially, these are all
+     * false. The first time the fields are computed, these are set to true and remain set even if
+     * the data becomes stale: you <i>must</i> check {@code areFieldsSet} if you want to know
+     * whether the value is up-to-date.
+     * Note that {@code isSet} is <i>not</i> a safe alternative to accessing this array directly,
+     * and will likewise return stale data!
+     * The array length is always {@code FIELD_COUNT}.
      */
     protected boolean[] isSet;
 
     /**
-     * Set to {@code true} when the time has been set, set to {@code false} when a field is
-     * changed and the time must be recomputed.
+     * Whether {@code time} corresponds to the values in {@code fields[]}. If false, {@code time}
+     * is out-of-date with respect to changes {@code fields[]}.
+     * Accessing the time via {@code getTimeInMillis} will always return the correct value.
      */
     protected boolean isTimeSet;
 
     /**
-     * The time in milliseconds since January 1, 1970.
+     * A time in milliseconds since January 1, 1970. See {@code isTimeSet}.
+     * Accessing the time via {@code getTimeInMillis} will always return the correct value.
      */
     protected long time;
 
@@ -656,11 +669,32 @@ public abstract class Calendar implements Serializable, Cloneable,
      */
     public static final int PM = 1;
 
-    private static String[] fieldNames = { "ERA=", "YEAR=", "MONTH=", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            "WEEK_OF_YEAR=", "WEEK_OF_MONTH=", "DAY_OF_MONTH=", "DAY_OF_YEAR=", //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            "DAY_OF_WEEK=", "DAY_OF_WEEK_IN_MONTH=", "AM_PM=", "HOUR=", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
-            "HOUR_OF_DAY", "MINUTE=", "SECOND=", "MILLISECOND=", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            "ZONE_OFFSET=", "DST_OFFSET=" }; //$NON-NLS-1$ //$NON-NLS-2$
+    /**
+     * Requests both {@code SHORT} and {@code LONG} styles in the map returned by
+     * {@link #getDisplayNames}.
+     * @since 1.6
+     */
+    public static final int ALL_STYLES = 0;
+
+    /**
+     * Requests short names (such as "Jan") from
+     * {@link #getDisplayName} or {@link #getDisplayNames}.
+     * @since 1.6
+     */
+    public static final int SHORT = 1;
+
+    /**
+     * Requests long names (such as "January") from
+     * {@link #getDisplayName} or {@link #getDisplayNames}.
+     * @since 1.6
+     */
+    public static final int LONG = 2;
+
+    private static final String[] FIELD_NAMES = { "ERA", "YEAR", "MONTH",
+            "WEEK_OF_YEAR", "WEEK_OF_MONTH", "DAY_OF_MONTH", "DAY_OF_YEAR",
+            "DAY_OF_WEEK", "DAY_OF_WEEK_IN_MONTH", "AM_PM", "HOUR",
+            "HOUR_OF_DAY", "MINUTE", "SECOND", "MILLISECOND",
+            "ZONE_OFFSET", "DST_OFFSET" };
 
     /**
      * Constructs a {@code Calendar} instance using the default {@code TimeZone} and {@code Locale}.
@@ -687,11 +721,9 @@ public abstract class Calendar implements Serializable, Cloneable,
      */
     protected Calendar(TimeZone timezone, Locale locale) {
         this(timezone);
-        // BEGIN android-changed
-        LocaleData localeData = com.ibm.icu4jni.util.Resources.getLocaleData(locale);
+        LocaleData localeData = LocaleData.get(locale);
         setFirstDayOfWeek(localeData.firstDayOfWeek.intValue());
         setMinimalDaysInFirstWeek(localeData.minimalDaysInFirstWeek.intValue());
-        // END android-changed
     }
 
 
@@ -921,12 +953,11 @@ public abstract class Calendar implements Serializable, Cloneable,
     }
 
     /**
-     * Gets the list of installed {@code Locale}s which support {@code Calendar}.
-     *
-     * @return an array of {@code Locale}.
+     * Returns an array of locales for which custom {@code Calendar} instances
+     * are available.
      */
     public static synchronized Locale[] getAvailableLocales() {
-        return Locale.getAvailableLocales();
+        return ICU.getAvailableCalendarLocales();
     }
 
     /**
@@ -1116,7 +1147,16 @@ public abstract class Calendar implements Serializable, Cloneable,
     }
 
     /**
-     * Returns whether the specified field is set.
+     * Returns whether the specified field is set. Note that the interpretation of "is set" is
+     * somewhat technical. In particular, it does <i>not</i> mean that the field's value is up
+     * to date. If you want to know whether a field contains an up-to-date value, you must also
+     * check {@code areFieldsSet}, making this method somewhat useless unless you're a subclass,
+     * in which case you can access the {@code isSet} array directly.
+     * <p>
+     * A field remains "set" from the first time its value is computed until it's cleared by one
+     * of the {@code clear} methods. Thus "set" does not mean "valid". You probably want to call
+     * {@code get} -- which will update fields as necessary -- rather than try to make use of
+     * this method.
      *
      * @param field
      *            a {@code Calendar} field number.
@@ -1328,7 +1368,7 @@ public abstract class Calendar implements Serializable, Cloneable,
                 + minimalDaysInFirstWeek);
         for (int i = 0; i < FIELD_COUNT; i++) {
             result.append(',');
-            result.append(fieldNames[i]);
+            result.append(FIELD_NAMES[i]);
             result.append('=');
             if (isSet[i]) {
                 result.append(fields[i]);
@@ -1370,35 +1410,126 @@ public abstract class Calendar implements Serializable, Cloneable,
         return -1;
     }
 
+    /**
+     * Returns a human-readable string for the value of {@code field}
+     * using the given style and locale. If no string is available, returns null.
+     * The value is retrieved by invoking {@code get(field)}.
+     *
+     * <p>For example, {@code getDisplayName(MONTH, SHORT, Locale.US)} will return "Jan"
+     * while {@code getDisplayName(MONTH, LONG, Locale.US)} will return "January".
+     *
+     * @param field the field
+     * @param style {@code SHORT} or {@code LONG}
+     * @param locale the locale
+     * @return the display name, or null
+     * @throws NullPointerException if {@code locale == null}
+     * @throws IllegalArgumentException if {@code field} or {@code style} is invalid
+     * @since 1.6
+     */
+    public String getDisplayName(int field, int style, Locale locale) {
+        // TODO: the RI's documentation says ALL_STYLES is invalid, but actually treats it as SHORT.
+        if (style == ALL_STYLES) {
+            style = SHORT;
+        }
+        String[] array = getDisplayNameArray(field, style, locale);
+        int value = get(field);
+        return (array != null) ? array[value] : null;
+    }
+
+    private String[] getDisplayNameArray(int field, int style, Locale locale) {
+        if (field < 0 || field >= FIELD_COUNT) {
+            throw new IllegalArgumentException("bad field " + field);
+        }
+        checkStyle(style);
+        DateFormatSymbols dfs = DateFormatSymbols.getInstance(locale);
+        switch (field) {
+        case AM_PM:
+            return dfs.getAmPmStrings();
+        case DAY_OF_WEEK:
+            return (style == LONG) ? dfs.getWeekdays() : dfs.getShortWeekdays();
+        case ERA:
+            return dfs.getEras();
+        case MONTH:
+            return (style == LONG) ? dfs.getMonths() : dfs.getShortMonths();
+        }
+        return null;
+    }
+
+    private static void checkStyle(int style) {
+        if (style != ALL_STYLES && style != SHORT && style != LONG) {
+            throw new IllegalArgumentException("bad style " + style);
+        }
+    }
+
+    /**
+     * Returns a map of human-readable strings to corresponding values,
+     * for the given field, style, and locale.
+     * Returns null if no strings are available.
+     *
+     * <p>For example, {@code getDisplayNames(MONTH, ALL_STYLES, Locale.US)} would
+     * contain mappings from "Jan" and "January" to {@link #JANUARY}, and so on.
+     *
+     * @param field the field
+     * @param style {@code SHORT}, {@code LONG}, or {@code ALL_STYLES}
+     * @param locale the locale
+     * @return the display name, or null
+     * @throws NullPointerException if {@code locale == null}
+     * @throws IllegalArgumentException if {@code field} or {@code style} is invalid
+     * @since 1.6
+     */
+    public Map<String, Integer> getDisplayNames(int field, int style, Locale locale) {
+        checkStyle(style);
+        complete();
+        Map<String, Integer> result = new HashMap<String, Integer>();
+        if (style == SHORT || style == ALL_STYLES) {
+            insertValuesInMap(result, getDisplayNameArray(field, SHORT, locale));
+        }
+        if (style == LONG || style == ALL_STYLES) {
+            insertValuesInMap(result, getDisplayNameArray(field, LONG, locale));
+        }
+        return result.isEmpty() ? null : result;
+    }
+
+    private static void insertValuesInMap(Map<String, Integer> map, String[] values) {
+        if (values == null) {
+            return;
+        }
+        for (int i = 0; i < values.length; ++i) {
+            if (values[i] != null && !values[i].isEmpty()) {
+                map.put(values[i], i);
+            }
+        }
+    }
+
     @SuppressWarnings("nls")
     private static final ObjectStreamField[] serialPersistentFields = {
-            new ObjectStreamField("areFieldsSet", Boolean.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("fields", int[].class), //$NON-NLS-1$
-            new ObjectStreamField("firstDayOfWeek", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("isSet", boolean[].class), //$NON-NLS-1$
-            new ObjectStreamField("isTimeSet", Boolean.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("lenient", Boolean.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("minimalDaysInFirstWeek", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("nextStamp", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("serialVersionOnStream", Integer.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("time", Long.TYPE), //$NON-NLS-1$
-            new ObjectStreamField("zone", TimeZone.class), }; //$NON-NLS-1$
+            new ObjectStreamField("areFieldsSet", Boolean.TYPE),
+            new ObjectStreamField("fields", int[].class),
+            new ObjectStreamField("firstDayOfWeek", Integer.TYPE),
+            new ObjectStreamField("isSet", boolean[].class),
+            new ObjectStreamField("isTimeSet", Boolean.TYPE),
+            new ObjectStreamField("lenient", Boolean.TYPE),
+            new ObjectStreamField("minimalDaysInFirstWeek", Integer.TYPE),
+            new ObjectStreamField("nextStamp", Integer.TYPE),
+            new ObjectStreamField("serialVersionOnStream", Integer.TYPE),
+            new ObjectStreamField("time", Long.TYPE),
+            new ObjectStreamField("zone", TimeZone.class), };
 
     @SuppressWarnings("nls")
     private void writeObject(ObjectOutputStream stream) throws IOException {
         complete();
         ObjectOutputStream.PutField putFields = stream.putFields();
-        putFields.put("areFieldsSet", areFieldsSet); //$NON-NLS-1$
-        putFields.put("fields", this.fields); //$NON-NLS-1$
-        putFields.put("firstDayOfWeek", firstDayOfWeek); //$NON-NLS-1$
-        putFields.put("isSet", isSet); //$NON-NLS-1$
-        putFields.put("isTimeSet", isTimeSet); //$NON-NLS-1$
-        putFields.put("lenient", lenient); //$NON-NLS-1$
-        putFields.put("minimalDaysInFirstWeek", minimalDaysInFirstWeek); //$NON-NLS-1$
-        putFields.put("nextStamp", 2 /* MINIMUM_USER_STAMP */); //$NON-NLS-1$
-        putFields.put("serialVersionOnStream", 1); //$NON-NLS-1$
-        putFields.put("time", time); //$NON-NLS-1$
-        putFields.put("zone", zone); //$NON-NLS-1$
+        putFields.put("areFieldsSet", areFieldsSet);
+        putFields.put("fields", this.fields);
+        putFields.put("firstDayOfWeek", firstDayOfWeek);
+        putFields.put("isSet", isSet);
+        putFields.put("isTimeSet", isTimeSet);
+        putFields.put("lenient", lenient);
+        putFields.put("minimalDaysInFirstWeek", minimalDaysInFirstWeek);
+        putFields.put("nextStamp", 2 /* MINIMUM_USER_STAMP */);
+        putFields.put("serialVersionOnStream", 1);
+        putFields.put("time", time);
+        putFields.put("zone", zone);
         stream.writeFields();
     }
 
@@ -1406,14 +1537,14 @@ public abstract class Calendar implements Serializable, Cloneable,
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
         ObjectInputStream.GetField readFields = stream.readFields();
-        areFieldsSet = readFields.get("areFieldsSet", false); //$NON-NLS-1$
-        this.fields = (int[]) readFields.get("fields", null); //$NON-NLS-1$
-        firstDayOfWeek = readFields.get("firstDayOfWeek", Calendar.SUNDAY); //$NON-NLS-1$
-        isSet = (boolean[]) readFields.get("isSet", null); //$NON-NLS-1$
-        isTimeSet = readFields.get("isTimeSet", false); //$NON-NLS-1$
-        lenient = readFields.get("lenient", true); //$NON-NLS-1$
-        minimalDaysInFirstWeek = readFields.get("minimalDaysInFirstWeek", 1); //$NON-NLS-1$
-        time = readFields.get("time", 0L); //$NON-NLS-1$
-        zone = (TimeZone) readFields.get("zone", null); //$NON-NLS-1$
+        areFieldsSet = readFields.get("areFieldsSet", false);
+        this.fields = (int[]) readFields.get("fields", null);
+        firstDayOfWeek = readFields.get("firstDayOfWeek", Calendar.SUNDAY);
+        isSet = (boolean[]) readFields.get("isSet", null);
+        isTimeSet = readFields.get("isTimeSet", false);
+        lenient = readFields.get("lenient", true);
+        minimalDaysInFirstWeek = readFields.get("minimalDaysInFirstWeek", 1);
+        time = readFields.get("time", 0L);
+        zone = (TimeZone) readFields.get("zone", null);
     }
 }

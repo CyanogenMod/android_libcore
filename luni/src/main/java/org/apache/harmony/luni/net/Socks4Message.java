@@ -17,9 +17,7 @@
 
 package org.apache.harmony.luni.net;
 
-import java.io.UnsupportedEncodingException;
-
-import org.apache.harmony.luni.util.Msg;
+import java.nio.charset.Charsets;
 
 class Socks4Message {
     static final int COMMAND_CONNECT = 1;
@@ -75,7 +73,7 @@ class Socks4Message {
     }
 
     /**
-     * Answer the request's port number.
+     * Returns the request's port number.
      */
     public int getPort() {
         return getInt16(INDEX_PORT);
@@ -88,8 +86,8 @@ class Socks4Message {
         setInt16(INDEX_PORT, port);
     }
 
-    /*
-     * Answer the IP address of the request as an integer.
+    /**
+     * Returns the IP address of the request as an integer.
      */
     public int getIP() {
         return getInt32(INDEX_IP);
@@ -106,7 +104,7 @@ class Socks4Message {
     }
 
     /**
-     * Answer the user id for authentication.
+     * Returns the user id for authentication.
      */
     public String getUserId() {
         return getString(INDEX_USER_ID, MAX_USER_ID_LENGTH);
@@ -136,7 +134,7 @@ class Socks4Message {
     }
 
     /**
-     * Answer the total number of bytes used for the request. This method
+     * Returns the total number of bytes used for the request. This method
      * searches for the end of the user id, then searches for the end of the
      * password and returns the final index as the requests length.
      */
@@ -157,23 +155,23 @@ class Socks4Message {
     }
 
     /**
-     * Answer an error string corresponding to the given error value.
+     * Returns an error string corresponding to the given error value.
      */
     public String getErrorString(int error) {
         switch (error) {
-            case RETURN_FAILURE:
-                return Msg.getString("K00cd"); //$NON-NLS-1$
-            case RETURN_CANNOT_CONNECT_TO_IDENTD:
-                return Msg.getString("K00ce"); //$NON-NLS-1$
-            case RETURN_DIFFERENT_USER_IDS:
-                return Msg.getString("K00cf"); //$NON-NLS-1$
-            default:
-                return Msg.getString("K00d0"); //$NON-NLS-1$
+        case RETURN_FAILURE:
+            return "Failure to connect to SOCKS server";
+        case RETURN_CANNOT_CONNECT_TO_IDENTD:
+            return "Unable to connect to identd to verify user";
+        case RETURN_DIFFERENT_USER_IDS:
+            return "Failure - user ids do not match";
+        default:
+            return "Success";
         }
     }
 
     /**
-     * Answer the message's byte buffer.
+     * Returns the message's byte buffer.
      */
     public byte[] getBytes() {
         return buffer;
@@ -202,21 +200,14 @@ class Socks4Message {
     private String getString(int offset, int maxLength) {
         int index = offset;
         int lastIndex = index + maxLength;
-        String result;
-
         while (index < lastIndex && (buffer[index] != 0)) {
             index++;
         }
-        try {
-            result = new String(buffer, offset, index - offset, "ISO8859_1"); //$NON-NLS-1$
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.toString());
-        }
-        return result;
+        return new String(buffer, offset, index - offset, Charsets.ISO_8859_1);
     }
 
     /**
-     * Answer the SOCKS version number. Should always be 4.
+     * Returns the SOCKS version number. Should always be 4.
      */
     private int getVersionNumber() {
         return buffer[INDEX_VERSION];
@@ -234,12 +225,7 @@ class Socks4Message {
      * Put a string into the buffer at the offset given.
      */
     private void setString(int offset, int maxLength, String theString) {
-        byte[] stringBytes;
-        try {
-            stringBytes = theString.getBytes("ISO8859_1"); //$NON-NLS-1$
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e.toString());
-        }
+        byte[] stringBytes = theString.getBytes(Charsets.ISO_8859_1);
         int length = Math.min(stringBytes.length, maxLength);
         System.arraycopy(stringBytes, 0, buffer, offset, length);
         buffer[offset + length] = 0;

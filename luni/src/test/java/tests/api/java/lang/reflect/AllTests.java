@@ -24,13 +24,8 @@ import junit.framework.TestSuite;
  * TODO Type description
  */
 public class AllTests {
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AllTests.suite());
-    }
-
     public static Test suite() {
-        TestSuite suite = tests.TestSuiteFactory.createTestSuite("Test for java.lang.reflect");
+        TestSuite suite = new TestSuite("Test for java.lang.reflect");
 
         // $JUnit-BEGIN$
         suite.addTestSuite(AccessibleObjectTest.class);
@@ -50,8 +45,6 @@ public class AllTests {
         suite.addTestSuite(BoundedGenericMethodsTests.class);
         suite.addTestSuite(GenericMethodsTests.class);
         suite.addTestSuite(WildcardTypeTest.class);
-        suite.addTestSuite(GenericTypesTest.class);
-        suite.addTestSuite(GenericReflectionCornerCases.class);
         suite.addTestSuite(GenericSignatureFormatErrorTest.class);
         // $JUnit-END$
 

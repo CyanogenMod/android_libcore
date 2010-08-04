@@ -23,7 +23,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(IOException.class) 
+@TestTargetClass(IOException.class)
 public class IOExceptionTest extends junit.framework.TestCase {
 
     /**
@@ -34,7 +34,7 @@ public class IOExceptionTest extends junit.framework.TestCase {
         notes = "",
         method = "IOException",
         args = {}
-    )       
+    )
     public void test_Constructor() {
         try {
             if (true) // Needed to avoid unreachable code compilation error.
@@ -54,7 +54,7 @@ public class IOExceptionTest extends junit.framework.TestCase {
         notes = "",
         method = "IOException",
         args = {java.lang.String.class}
-    )      
+    )
     public void test_ConstructorLjava_lang_String() {
         try {
             if (true) // Needed to avoid unreachable code compilation error.

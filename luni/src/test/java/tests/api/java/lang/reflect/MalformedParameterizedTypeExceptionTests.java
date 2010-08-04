@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier;
 
 @TestTargetClass(MalformedParameterizedTypeException.class)
 public class MalformedParameterizedTypeExceptionTests  extends junit.framework.TestCase {
-    
+
     /**
      * @tests java.lang.reflect.MalformedParameterizedTypeException#MalformedParameterizedTypeException()
      */

@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
  * @since 1.1
  */
 public final class Void extends Object {
-    
+
     /**
      * The {@link Class} object that represents the primitive type {@code void}.
      */
@@ -38,7 +38,7 @@ public final class Void extends Object {
     private static Class<Void> lookupType() {
         Class<?> voidType = null;
         try {
-            Method method = Runnable.class.getMethod("run", new Class[0]); //$NON-NLS-1$
+            Method method = Runnable.class.getMethod("run", new Class[0]);
             voidType = method.getReturnType();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -46,6 +46,6 @@ public final class Void extends Object {
         return (Class<Void>) voidType;
     }
 
-	private Void() {
-	}
+    private Void() {
+    }
 }

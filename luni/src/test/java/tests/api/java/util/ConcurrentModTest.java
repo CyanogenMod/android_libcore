@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
-@TestTargetClass(AbstractList.class) 
+@TestTargetClass(AbstractList.class)
 public class ConcurrentModTest extends TestCase {
 
     /*
@@ -68,7 +68,7 @@ public class ConcurrentModTest extends TestCase {
         } catch (ConcurrentModificationException e) {
             return;
         }
-        
+
         try {
             al.get(-1);
             fail("IndexOutOfBoundsException expected");
@@ -190,7 +190,7 @@ public class ConcurrentModTest extends TestCase {
         } catch (ConcurrentModificationException e) {
             return;
         }
-        
+
         try {
             sub.remove(-1);
             fail("IndexOutOfBoundsException expected");
@@ -204,7 +204,7 @@ public class ConcurrentModTest extends TestCase {
         } catch (IndexOutOfBoundsException ee) {
             //expected
         }
-        
+
         al = new AbstractList() {
 
             @Override
@@ -219,7 +219,7 @@ public class ConcurrentModTest extends TestCase {
                 return 0;
             }
         };
-        
+
         try {
             al.remove(1);
             fail("UnsupportedOperationException expected");
@@ -266,7 +266,7 @@ public class ConcurrentModTest extends TestCase {
             return;
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "Class is abstract - test testing simplest implementation.",
@@ -285,9 +285,9 @@ public class ConcurrentModTest extends TestCase {
             public int size() {
                 return 0;
             }
-            
+
         };
-        
+
         try {
             abstr.add(null);
             fail("UnsupportedOperationException expected");
@@ -310,7 +310,7 @@ public class ConcurrentModTest extends TestCase {
                 return 0;
             }
         };
-        
+
         try {
             abstr.add(1);
             fail("ClassCastException expected");
@@ -338,7 +338,7 @@ public class ConcurrentModTest extends TestCase {
                 return 0;
             }
         };
-        
+
         abstr.add(1);
         try {
             abstr.add(33);
@@ -364,19 +364,19 @@ public class ConcurrentModTest extends TestCase {
     })
     public void test_addILjava_lang_Object() {
         AbstractList abstr = new AbstractList() {
-    
+
             @Override
             public Object get(int arg0) {
                 return null;
             }
-    
+
             @Override
             public int size() {
                 return 0;
             }
-            
+
         };
-        
+
         try {
             abstr.add(1, null);
             fail("UnsupportedOperationException expected");
@@ -387,25 +387,25 @@ public class ConcurrentModTest extends TestCase {
             @Override
             public void add(int index, Double value) {
             }
-    
+
             @Override
             public Double get(int index) {
                 return null;
             }
-    
+
             @Override
             public int size() {
                 return 0;
             }
         };
-        
+
         try {
             abstr.add(1, 1);
             fail("ClassCastException expected");
         } catch (ClassCastException ee) {
             //expected
         }
-        
+
         abstr = new AbstractList<Integer>() {
             final int forbiddenValue = 33;
             @Override
@@ -414,18 +414,18 @@ public class ConcurrentModTest extends TestCase {
                     throw new IllegalArgumentException();
                 }
             }
-    
+
             @Override
             public Integer get(int index) {
                 return null;
             }
-    
+
             @Override
             public int size() {
                 return 0;
             }
         };
-        
+
         abstr.add(1, 1);
         try {
             abstr.add(1, 33);
@@ -433,9 +433,9 @@ public class ConcurrentModTest extends TestCase {
         } catch (IllegalArgumentException ee) {
             //expected
         }
-        
+
         abstr = new ArrayList();
-        
+
         abstr.add(0, "element");
         abstr.add(1, null);
         abstr.add(2, 1);
@@ -509,7 +509,7 @@ public class ConcurrentModTest extends TestCase {
                 return 0;
             }
         };
-        
+
         try {
             abstr.addAll(0, c);
             fail("ClassCastException expected");
@@ -542,11 +542,11 @@ public class ConcurrentModTest extends TestCase {
         c.add(new Integer(3));
         c.add(new Integer(4));
         c.add(new Integer(5));
-        
+
         abstr.addAll(0, c);
-        
+
         c.add(new Integer(33));
-        
+
         try {
             abstr.addAll(0, c);
             fail("IllegalArgumentException expected");
@@ -555,14 +555,14 @@ public class ConcurrentModTest extends TestCase {
         }
         abstr = new ArrayList();
         abstr.addAll(0, c);
-        
+
         try {
             abstr.addAll(-1, c);
             fail("IndexOutOfBoundsException expected");
         } catch (IndexOutOfBoundsException ee) {
             //expected
         }
-        
+
         try {
             abstr.addAll(abstr.size() + 1, c);
             fail("IndexOutOfBoundsException expected");
@@ -579,7 +579,7 @@ public class ConcurrentModTest extends TestCase {
     )
     public void test_clear() {
         AbstractList abstr = new ArrayList();
-        
+
         assertEquals(0, abstr.size());
         abstr.add("String");
         abstr.add("1");
@@ -604,7 +604,7 @@ public class ConcurrentModTest extends TestCase {
 
         AbstractList abstr = new ArrayList();
         AbstractList abstr1 = new ArrayList();
-        
+
         assertFalse(abstr.equals(this));
         abstr.add(new Double(33));
         abstr.add(10);
@@ -625,16 +625,16 @@ public class ConcurrentModTest extends TestCase {
         c.add(new Double(33));
         c.add(10);
         c.add("String");
-    
+
         AbstractList abstr1 = new ArrayList();
         AbstractList abstr2 = new ArrayList();
-        
+
         abstr1.addAll(c);
         abstr2.addAll(c);
         assertTrue(abstr1.equals(abstr2));
         abstr1.set(1, 1);
         assertFalse(abstr1.equals(abstr2));
-        
+
         try {
             abstr1.set(abstr1.size() + 1, 1);
             fail("IndexOutOfBoundsException expected");
@@ -660,7 +660,7 @@ public class ConcurrentModTest extends TestCase {
             public int size() {
                 return 0;
             }
-            
+
         };
 
         try {
@@ -675,12 +675,12 @@ public class ConcurrentModTest extends TestCase {
             public Double set(int index, Double value) {
                 return value;
             }
-    
+
             @Override
             public Double get(int index) {
                 return null;
             }
-    
+
             @Override
             public int size() {
                 return 0;
@@ -693,7 +693,7 @@ public class ConcurrentModTest extends TestCase {
         } catch (ClassCastException ee) {
             //expected
         }
-        
+
         abstr = new AbstractList<Integer>() {
             final int forbiddenValue = 33;
             @Override
@@ -703,12 +703,12 @@ public class ConcurrentModTest extends TestCase {
                 }
                 return value;
             }
-    
+
             @Override
             public Integer get(int index) {
                 return null;
             }
-    
+
             @Override
             public int size() {
                 return 0;
@@ -728,7 +728,7 @@ public class ConcurrentModTest extends TestCase {
             super.removeRange(fromIndex, toIndex);
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",

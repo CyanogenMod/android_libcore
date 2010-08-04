@@ -19,7 +19,7 @@ package tests.api.java.net;
 
 import org.apache.harmony.testframework.serialization.SerializationTest;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -31,7 +31,7 @@ import java.security.PermissionCollection;
 
 import tests.support.Support_Configuration;
 
-@TestTargetClass(SocketPermission.class) 
+@TestTargetClass(SocketPermission.class)
 public class SocketPermissionTest extends junit.framework.TestCase {
 
     String starName = "*." + Support_Configuration.DomainAddress;
@@ -63,14 +63,14 @@ public class SocketPermissionTest extends junit.framework.TestCase {
         // Test for method java.net.SocketPermission(java.lang.String,
         // java.lang.String)
         assertTrue("Incorrect name", star_Resolve.getName().equals(starName));
-        assertEquals("Incorrect actions", 
+        assertEquals("Incorrect actions",
                 "resolve", star_Resolve.getActions());
 
         SocketPermission sp1 = new SocketPermission("", "connect");
         assertEquals("Wrong name1", "localhost", sp1.getName());
         SocketPermission sp2 = new SocketPermission(":80", "connect");
         assertEquals("Wrong name2", ":80", sp2.getName());
-        
+
         // regression for HARMONY-1462
         SocketPermission sp3 = new SocketPermission("localhost:*", "listen");
         assertEquals("Wrong name3", "localhost:*", sp3.getName());
@@ -109,7 +109,7 @@ public class SocketPermissionTest extends junit.framework.TestCase {
 
         // Regression for HARMONY-1524
         assertFalse(sp1.equals(null));
-        
+
         // Regression for HARMONY-3333
         sp1 = new SocketPermission("TEST1.com:333", "resolve");
         sp2 = new SocketPermission("test1.com:444", "resolve");
@@ -133,7 +133,7 @@ public class SocketPermissionTest extends junit.framework.TestCase {
         assertTrue("Same IP address should be equal", sp1.equals(sp2));
 
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -145,10 +145,10 @@ public class SocketPermissionTest extends junit.framework.TestCase {
                 Support_Configuration.InetTestIP, "resolve,connect");
         SocketPermission sp2 = new SocketPermission(
                 Support_Configuration.InetTestIP, "resolve,connect");
-        assertTrue("Same IP address should have equal hash codes", 
+        assertTrue("Same IP address should have equal hash codes",
                 sp1.hashCode() == sp2.hashCode());
-        
-        assertTrue("Different names but returned equal hash codes", 
+
+        assertTrue("Different names but returned equal hash codes",
                 star_All.hashCode() != www_All.hashCode());
     }
 
@@ -164,7 +164,7 @@ public class SocketPermissionTest extends junit.framework.TestCase {
     public void test_getActions() {
         // Test for method java.lang.String
         // java.net.SocketPermission.getActions()
-        assertEquals("Incorrect actions", 
+        assertEquals("Incorrect actions",
                 "resolve", star_Resolve.getActions());
         assertEquals("Incorrect actions/not in canonical form", "connect,listen,accept,resolve", star_All
                 .getActions());
@@ -183,10 +183,10 @@ public class SocketPermissionTest extends junit.framework.TestCase {
         // Test for method boolean
         // java.net.SocketPermission.implies(java.security.Permission)
         assertTrue("All should imply resolve", star_All.implies(star_Resolve));
-        
+
         // regression for HARMONY-1200
         assertFalse("Null should not be implied", star_All.implies((SocketPermission)null));
-        
+
         assertTrue("Equals should imply eachother", www_All
                 .implies(copyOfWww_All));
         assertTrue("Wild should imply normal", star_All.implies(www_All));
@@ -222,7 +222,7 @@ public class SocketPermissionTest extends junit.framework.TestCase {
             host = InetAddress.getByName(Support_Configuration.UnresolvedIP);
         } catch (UnknownHostException e) {
         }
-        
+
         SocketPermission perm1 = new SocketPermission(
                 Support_Configuration.UnresolvedIP, "connect");
         SocketPermission perm2 = new SocketPermission(
@@ -296,7 +296,7 @@ public class SocketPermissionTest extends junit.framework.TestCase {
         args = {java.lang.String.class, java.lang.String.class}
     )
     public void test_ConstructorLjava_lang_StringLjava_lang_String_subtestIPv6() {
-        String[] goodTestStrings = { 
+        String[] goodTestStrings = {
                 "12334.0.0.01", "[fe80::1]",
                 "[FE80:0000:0000:0000:0000:0000:0000:0001]:80",
                 "[::ffff]:80-82", "[ffff::]:80-82", "[fe80::1]:80",

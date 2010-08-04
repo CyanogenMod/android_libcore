@@ -38,8 +38,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.Util;
 
 /**
@@ -92,7 +90,7 @@ public class JarURLConnectionImpl extends JarURLConnection {
 
     /**
      * Returns the Jar file referred by this {@code URLConnection}.
-     * 
+     *
      * @return the JAR file referenced by this connection
      *
      * @throws IOException
@@ -107,7 +105,7 @@ public class JarURLConnectionImpl extends JarURLConnection {
 
     /**
      * Returns the Jar file referred by this {@code URLConnection}
-     * 
+     *
      * @throws IOException
      *             if an IO error occurs while connecting to the resource.
      */
@@ -150,24 +148,32 @@ public class JarURLConnectionImpl extends JarURLConnection {
                 jar = AccessController
                         .doPrivileged(new PrivilegedAction<JarFile>() {
                             public JarFile run() {
+                                FileOutputStream fos = null;
+                                JarFile result = null;
                                 try {
-                                    File tempJar = File.createTempFile(
-                                            "hyjar_", ".tmp", null);
+                                    File tempJar = File.createTempFile("hyjar_", ".tmp", null);
                                     tempJar.deleteOnExit();
-                                    FileOutputStream fos = new FileOutputStream(
-                                            tempJar);
+                                    fos = new FileOutputStream(tempJar);
                                     byte[] buf = new byte[4096];
                                     int nbytes = 0;
                                     while ((nbytes = is.read(buf)) > -1) {
                                         fos.write(buf, 0, nbytes);
                                     }
                                     fos.close();
-                                    return new JarFile(tempJar, true,
-                                            ZipFile.OPEN_READ
-                                                    | ZipFile.OPEN_DELETE);
+                                    result = new JarFile(tempJar, true,
+                                            ZipFile.OPEN_READ | ZipFile.OPEN_DELETE);
                                 } catch (IOException e) {
                                     return null;
+                                } finally {
+                                    if (fos != null) {
+                                        try {
+                                            fos.close();
+                                        } catch (IOException ex) {
+                                            result = null;
+                                        }
+                                    }
                                 }
+                                return result;
                             }
                         });
             } finally {
@@ -183,9 +189,9 @@ public class JarURLConnectionImpl extends JarURLConnection {
     /**
      * Returns the JarEntry of the entry referenced by this {@code
      * URLConnection}.
-     * 
+     *
      * @return the JarEntry referenced
-     * 
+     *
      * @throws IOException
      *             if an IO error occurs while getting the entry
      */
@@ -221,16 +227,14 @@ public class JarURLConnectionImpl extends JarURLConnection {
     @Override
     public InputStream getInputStream() throws IOException {
         if (closed) {
-            // KA027=Inputstream of the JarURLConnection has been closed
-            throw new IllegalStateException(Msg.getString("KA027")); //$NON-NLS-1$
+            throw new IllegalStateException("JarURLConnection InputStream has been closed");
         }
         connect();
         if (jarInput != null) {
             return jarInput;
         }
         if (jarEntry == null) {
-            // K00fc=Jar entry not specified
-            throw new IOException(Msg.getString("K00fc")); //$NON-NLS-1$
+            throw new IOException("Jar entry not specified");
         }
         return jarInput = new JarURLConnectionInputStream(jarFile
                 .getInputStream(jarEntry), jarFile);
@@ -241,14 +245,14 @@ public class JarURLConnectionImpl extends JarURLConnection {
      * "x-java/jar" should be returned, for jar entries the content type of the
      * entry should be returned. Returns non-null results ("content/unknown" for
      * unknown types).
-     * 
+     *
      * @return the content type
      */
     @Override
     public String getContentType() {
-        if (url.getFile().endsWith("!/")) { //$NON-NLS-1$
+        if (url.getFile().endsWith("!/")) {
             // the type for jar file itself is always "x-java/jar"
-            return "x-java/jar"; //$NON-NLS-1$
+            return "x-java/jar";
         }
         String cType = null;
         String entryName = getEntryName();
@@ -265,7 +269,7 @@ public class JarURLConnectionImpl extends JarURLConnection {
             }
         }
         if (cType == null) {
-            cType = "content/unknown"; //$NON-NLS-1$
+            cType = "content/unknown";
         }
         return cType;
     }
@@ -297,12 +301,12 @@ public class JarURLConnectionImpl extends JarURLConnection {
      * pointing to a Jar File (no Jar Entry), this method will return a {@code
      * JarFile} If there is a Jar Entry, it will return the object corresponding
      * to the Jar entry content type.
-     * 
+     *
      * @return a non-null object
      *
      * @throws IOException
      *             if an IO error occurred
-     * 
+     *
      * @see ContentHandler
      * @see ContentHandlerFactory
      * @see java.io.IOException

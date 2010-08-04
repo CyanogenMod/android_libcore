@@ -30,13 +30,12 @@ public class AllTests
     }
 
     public static final Test suite() {
-        TestSuite suite = tests.TestSuiteFactory.createTestSuite();
-        
+        TestSuite suite = new TestSuite();
+
         // Harmony-written test suites (often with Android tests added in).
         suite.addTest(tests.annotation.AllTests.suite());
         suite.addTest(tests.archive.AllTests.suite());
         suite.addTest(tests.concurrent.AllTests.suite());
-        suite.addTest(tests.crypto.AllTests.suite());
         suite.addTest(tests.dom.AllTests.suite());
         suite.addTest(tests.logging.AllTests.suite());
         suite.addTest(tests.luni.AllTestsIo.suite());
@@ -50,25 +49,14 @@ public class AllTests
         suite.addTest(tests.regex.AllTests.suite());
         suite.addTest(tests.security.AllTests.suite());
         suite.addTest(tests.sql.AllTests.suite());
+        suite.addTest(tests.SQLite.AllTests.suite());
         suite.addTest(tests.suncompat.AllTests.suite());
         suite.addTest(tests.text.AllTests.suite());
         suite.addTest(tests.xml.AllTests.suite());
-        suite.addTest(tests.xnet.AllTests.suite());
-        
-        // Android-written test suites.
-        suite.addTest(com.ibm.icu4jni.util.AllTests.suite());
-        suite.addTest(java.io.AllTests.suite());
-        suite.addTest(java.lang.AllTests.suite());
-        suite.addTest(java.lang.reflect.AllTests.suite());
-        suite.addTest(java.net.AllTests.suite());
-        suite.addTest(java.nio.charset.AllTests.suite());
-        suite.addTest(java.text.AllTests.suite());
-        suite.addTest(java.util.AllTests.suite());
-        suite.addTest(javax.xml.parsers.AllTests.suite());
-        suite.addTest(org.apache.harmony.luni.platform.AllTests.suite());
-        suite.addTest(org.json.AllTests.suite());
         suite.addTest(tests.api.org.apache.harmony.kernel.dalvik.AllTests.suite());
-        
+
+        // Android-written test suites.
+
         return suite;
     }
 }

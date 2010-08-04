@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +38,7 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
     LinkedHashSet hs;
 
     Object[] objArray;
-    
+
     /**
      * @tests java.util.LinkedHashSet#LinkedHashSet()
      */
@@ -297,14 +297,14 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
         hs.clear();
         assertEquals("Cleared set returned non-zero size", 0, hs.size());
     }
-    
+
     class Mock_LinkedHashSet extends LinkedHashSet {
         @Override
         public boolean retainAll(Collection c) {
             throw new UnsupportedOperationException();
         }
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -338,16 +338,16 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
         assertEquals(9, lhs.size());
         lhs.retainAll(v);
         assertEquals(2, lhs.size());
-        
+
         try {
             lhs.retainAll(null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         lhs = new Mock_LinkedHashSet();
-        
+
         try {
             lhs.retainAll(v);
             fail("UnsupportedOperationException expected");
@@ -373,7 +373,7 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
         lhs.add(new Integer(11));
         lhs.add(new Integer(12));
         lhs.add(new Integer(13));
-        
+
         Object[] o = lhs.toArray();
         for (int i = 0; i < o.length; i++) {
             assertTrue(lhs.contains(o[i]));
@@ -398,21 +398,21 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
         lhs.add(new Integer(11));
         lhs.add(new Integer(12));
         lhs.add(new Integer(13));
-        
+
         Object[] o1 = new Object[lhs.size()];
         Object[] o2 = new Double[lhs.size()];
         lhs.toArray(o1);
         for (int i = 0; i < o1.length; i++) {
             assertTrue(lhs.contains(o1[i]));
         }
-        
+
         try {
             lhs.toArray(null);
             fail("NullPointerException expected");
         } catch (NullPointerException e) {
             //expected
         }
-        
+
         try {
             lhs.toArray(o2);
             fail("ArrayStoreException expected");

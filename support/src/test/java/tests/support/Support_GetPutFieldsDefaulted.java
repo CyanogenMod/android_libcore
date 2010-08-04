@@ -39,12 +39,12 @@ import java.io.IOException;
  * </p>
  */
 public class Support_GetPutFieldsDefaulted implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     public ObjectInputStream.GetField getField;
     public ObjectOutputStream.PutField putField;
-    
+
     public boolean booleanValue = false;
     public byte byteValue = 0;
     public char charValue = 0;
@@ -56,34 +56,34 @@ public class Support_GetPutFieldsDefaulted implements Serializable {
     public SimpleClass objectValue = null;
 
     class SimpleClass implements Serializable {
-    
+
         private static final long serialVersionUID = 1L;
         private int a;
         private String b;
-        
+
         public SimpleClass(int aValue, String bValue) {
             a = aValue;
             b = bValue;
         }
-        
+
         public int getA() {
             return a;
         }
-        
+
         public String getB() {
             return b;
         }
-        
+
         public boolean equals(Object obj) {
             if (obj == null || obj.getClass() != this.getClass()) {
                 return false;
             }
-            
+
             SimpleClass other = (SimpleClass) obj;
             return (a == other.getA() && b.equals(other.getB()));
         }
     }
-    
+
     public void initTestValues() {
         booleanValue = true;
         byteValue = (byte) 0x0b;
@@ -95,14 +95,14 @@ public class Support_GetPutFieldsDefaulted implements Serializable {
         objectValue = new SimpleClass(1965, "Hello Jupiter");
         shortValue = 4321;
     }
-    
+
     public boolean equals(Object obj) {
         if (obj == null || obj.getClass() != this.getClass()) {
             return false;
         }
-        
+
         Support_GetPutFieldsDefaulted other = (Support_GetPutFieldsDefaulted) obj;
-        return (booleanValue == other.booleanValue && 
+        return (booleanValue == other.booleanValue &&
                 byteValue == other.byteValue &&
                 charValue == other.charValue &&
                 doubleValue == other.doubleValue &&
@@ -113,7 +113,7 @@ public class Support_GetPutFieldsDefaulted implements Serializable {
                 shortValue == other.shortValue
                 );
     }
-    
+
     private void readObject(ObjectInputStream ois) throws Exception {
         getField = ois.readFields();
         booleanValue = getField.get("booleanValue", true);
@@ -123,17 +123,17 @@ public class Support_GetPutFieldsDefaulted implements Serializable {
         floatValue = getField.get("floatValue", 298.54f);
         longValue = getField.get("longValue", (long) 1234567890l);
         intValue = getField.get("intValue", 999999);
-        objectValue = (Support_GetPutFieldsDefaulted.SimpleClass) 
-                       getField.get("objectValue", 
+        objectValue = (Support_GetPutFieldsDefaulted.SimpleClass)
+                       getField.get("objectValue",
                                     new SimpleClass(1965, "Hello Jupiter"));
         shortValue = getField.get("shortValue", (short) 4321);
     }
-    
+
     private void writeObject(ObjectOutputStream oos) throws IOException {
         putField = oos.putFields();
         // Do not put anything into putField so that the get methods
         // will have to use default values.
         oos.writeFields();
     }
-    
+
 }

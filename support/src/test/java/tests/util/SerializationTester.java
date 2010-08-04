@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,7 @@ import java.net.URL;
 
 /**
  * This class simplifies the serialization test.
- * 
+ *
  */
 public class SerializationTester {
 
@@ -61,7 +61,7 @@ public class SerializationTester {
 
     /**
      * Serialize an object and then deserialize it.
-     * 
+     *
      * @param inputObject
      *            the input object
      * @return the deserialized object
@@ -83,7 +83,7 @@ public class SerializationTester {
 
     /**
      * Tests the serialization and deserialization of const objects.
-     * 
+     *
      * @param inputObject
      *            A const object
      * @return true if the deserialized object is the same as the input object,
@@ -97,7 +97,7 @@ public class SerializationTester {
 
     /**
      * Tests the serialization and deserialization of instance objects.
-     * 
+     *
      * @param inputObject
      *            An object
      * @return true if the deserialized object is equal to the input object,
@@ -111,7 +111,7 @@ public class SerializationTester {
 
     /**
      * Tests the serialization compatibility with reference const objects.
-     * 
+     *
      * @param obj
      *            the object to be checked
      * @param fileName
@@ -128,7 +128,7 @@ public class SerializationTester {
     /**
      * Tests the serialization compatibility with reference for instance
      * objects.
-     * 
+     *
      * @param obj
      *            the object to be checked
      * @param fileName
@@ -144,7 +144,7 @@ public class SerializationTester {
 
     /**
      * Deserialize an object from a file.
-     * 
+     *
      * @param obj
      *            the object to be serialized if no serialization file is found
      * @param fileName
@@ -190,7 +190,7 @@ public class SerializationTester {
 
     /*
      * Creates a serialization output.
-     * 
+     *
      * @param obj the object to be serialized @param fileName the output file
      * @throws Exception If any occurs.
      */
@@ -231,7 +231,7 @@ public class SerializationTester {
 
     /**
      * Gets the last deserialized object.
-     * 
+     *
      * @return the last deserialized object
      */
     public static Object getLastOutput() {

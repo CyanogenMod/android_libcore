@@ -18,10 +18,9 @@
 package java.io;
 
 import java.nio.channels.FileChannel;
-
+import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.nio.FileChannelFactory;
 
 /**
@@ -34,8 +33,6 @@ import org.apache.harmony.nio.FileChannelFactory;
  *
  * @see BufferedOutputStream
  * @see FileInputStream
- *
- * @since Android 1.0
  */
 public class FileOutputStream extends OutputStream implements Closeable {
 
@@ -94,7 +91,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
             security.checkWrite(file.getPath());
         }
         fd = new FileDescriptor();
-        fd.descriptor = fileSystem.open(file.pathBytes,
+        fd.descriptor = fileSystem.open(file.getAbsolutePath(),
                 append ? IFileSystem.O_APPEND : IFileSystem.O_WRONLY);
         innerFD = true;
         channel = FileChannelFactory.getFileChannel(this, fd.descriptor,
@@ -118,7 +115,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
     public FileOutputStream(FileDescriptor fd) {
         super();
         if (fd == null) {
-            throw new NullPointerException(Msg.getString("K006c")); //$NON-NLS-1$
+            throw new NullPointerException();
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -192,9 +189,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
         }
 
         synchronized (this) {
-            if (fd.descriptor >= 0 && innerFD) {
-                fileSystem.close(fd.descriptor);
-                fd.descriptor = -1;
+            if (fd.valid() && innerFD) {
+                IoUtils.close(fd);
             }
         }
     }
@@ -282,10 +278,10 @@ public class FileOutputStream extends OutputStream implements Closeable {
         // used (offset | count) < 0 instead of (offset < 0) || (count < 0)
         // to safe one operation
         if (buffer == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("buffer == null");
         }
         if ((count | offset) < 0 || count > buffer.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
         // END android-changed
 

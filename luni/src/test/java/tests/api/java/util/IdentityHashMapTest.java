@@ -20,7 +20,7 @@ package tests.api.java.util;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 
 import java.io.Serializable;
 import java.util.AbstractMap;
@@ -38,7 +38,7 @@ import tests.support.Support_MapTest2;
 
 import org.apache.harmony.testframework.serialization.SerializationTest;
 
-@TestTargetClass(IdentityHashMap.class) 
+@TestTargetClass(IdentityHashMap.class)
 public class IdentityHashMapTest extends junit.framework.TestCase {
     private static final String ID = "hello";
 
@@ -62,7 +62,7 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
     Object[] objArray;
 
     Object[] objArray2;
-    
+
     /**
      * @tests java.util.IdentityHashMap#IdentityHashMap()
      */
@@ -124,11 +124,11 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
         for (int counter = 0; counter < hmSize; counter++)
             assertTrue("Failed to construct correct IdentityHashMap", hm
                     .get(objArray2[counter]) == hm2.get(objArray2[counter]));
-        
+
         Map mockMap = new MockMap();
         hm2 = new IdentityHashMap(mockMap);
         assertEquals("Size should be 0", 0, hm2.size());
-        
+
         try {
             new IdentityHashMap(null);
             fail("NullPointerException expected");
@@ -178,22 +178,22 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
         // get the keySet() and values() on the original Map
         Set keys = map.keySet();
         Collection values = map.values();
-        assertEquals("values() does not work", 
+        assertEquals("values() does not work",
                 "value", values.iterator().next());
-        assertEquals("keySet() does not work", 
+        assertEquals("keySet() does not work",
                 "key", keys.iterator().next());
         AbstractMap map2 = (AbstractMap) map.clone();
         map2.put("key", "value2");
         Collection values2 = map2.values();
         assertTrue("values() is identical", values2 != values);
         // values() and keySet() on the cloned() map should be different
-        assertEquals("values() was not cloned", 
+        assertEquals("values() was not cloned",
                 "value2", values2.iterator().next());
         map2.clear();
         map2.put("key2", "value3");
         Set key2 = map2.keySet();
         assertTrue("keySet() is identical", key2 != keys);
-        assertEquals("keySet() was not cloned", 
+        assertEquals("keySet() was not cloned",
                 "key2", key2.iterator().next());
     }
 
@@ -376,7 +376,7 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
         // Test for method java.lang.Object
         // java.util.IdentityHashMap.put(java.lang.Object, java.lang.Object)
         hm.put("KEY", "VALUE");
-        assertEquals("Failed to install key/value pair", 
+        assertEquals("Failed to install key/value pair",
                 "VALUE", hm.get("KEY"));
 
         IdentityHashMap m = new IdentityHashMap();
@@ -385,7 +385,7 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
         m.put(null, "test");
         Integer i0 = new Integer(0);
         m.put(i0, "int");
-        assertEquals("Failed adding to bucket containing null", 
+        assertEquals("Failed adding to bucket containing null",
                 "short", m.get(s0));
         assertEquals("Failed adding to bucket containing null2", "int", m.get(i0)
                 );
@@ -407,12 +407,12 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
         for (int i = 0; i < 1000; i++)
             assertTrue("Failed to clear all elements", hm2.get(objArray2[i])
                     .equals((new Integer(i))));
-        
+
         hm2 = new IdentityHashMap();
         Map mockMap = new MockMap();
         hm2.putAll(mockMap);
         assertEquals("Size should be 0", 0, hm2.size());
-        
+
         try {
             hm2.putAll(null);
             fail("NullPointerException expected");
@@ -542,7 +542,7 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
                 !myIdentityHashMap.containsValue(objArray2[0]));
 
     }
-    
+
     /**
      * @tests java.util.IdentityHashMap#Serialization()
      */
@@ -602,8 +602,8 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
         objArray2 = null;
         hm = null;
     }
-    
-    private static final SerializationTest.SerializableAssert comparator = new 
+
+    private static final SerializationTest.SerializableAssert comparator = new
                              SerializationTest.SerializableAssert() {
 
         public void assertDeserialized(Serializable initial, Serializable deserialized) {
@@ -611,6 +611,6 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
             IdentityHashMap<String, String> deseriaMap = (IdentityHashMap<String, String>) deserialized;
             assertEquals("should be equal", initialMap.size(), deseriaMap.size());
         }
-        
+
     };
 }

@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 # Copyright (C) 2007 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,26 +21,37 @@
 # Common definitions for host and target.
 #
 
-# The core library is divided into modules. Each module has a separate
-# Java source directory, and some (hopefully eventually all) also have
-# a directory for tests.
+# libcore is divided into modules.
+#
+# The structure of each module is:
+#
+#   src/
+#       main/               # To be shipped on every device.
+#            java/          # Java source for library code.
+#            native/        # C++ source for library code.
+#            resources/     # Support files.
+#       test/               # Built only on demand, for testing.
+#            java/          # Java source for tests.
+#            native/        # C++ source for tests (rare).
+#            resources/     # Support files.
+#
+# All subdirectories are optional (hence the "2> /dev/null"s below).
 
-define all-core-java-files
-$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && find */src/$(1)/java -name "*.java"))
+define all-main-java-files-under
+$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && find $(dir)/src/main/java -name "*.java" 2> /dev/null)))
 endef
 
-# Redirect ls stderr to /dev/null because the corresponding resources
-# directories don't always exist.
+define all-test-java-files-under
+$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && find $(1)/src/test/java -name "*.java" 2> /dev/null))
+endef
+
 define all-core-resource-dirs
 $(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/{java,resources} 2> /dev/null)
 endef
 
-# The core Java files and associated resources.
-core_src_files := $(call all-core-java-files,main)
+# The Java files and their associated resources.
+core_src_files := $(call all-main-java-files-under,dalvik dom json luni support xml)
 core_resource_dirs := $(call all-core-resource-dirs,main)
-
-# The test Java files and associated resources.
-test_src_files := $(call all-core-java-files,test)
 test_resource_dirs := $(call all-core-resource-dirs,test)
 
 
@@ -60,6 +72,7 @@ LOCAL_JAVA_RESOURCE_DIRS += ../external/emma/core/res ../external/emma/pregenera
 endif
 
 LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := -encoding UTF-8
 LOCAL_DX_FLAGS := --core-library
 
 LOCAL_NO_EMMA_INSTRUMENT := true
@@ -72,17 +85,82 @@ include $(BUILD_JAVA_LIBRARY)
 core-intermediates := ${intermediates}
 
 
-# Definitions to make the core-tests library.
-
+# Make core-junit
 include $(CLEAR_VARS)
-
-LOCAL_SRC_FILES := $(test_src_files)
-LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
-
+LOCAL_SRC_FILES := $(call all-main-java-files-under,junit)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core
-LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE := core-junit
+include $(BUILD_JAVA_LIBRARY)
 
+# Make core-junitrunner
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,junit)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := core core-junit
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE := core-junitrunner
+include $(BUILD_JAVA_LIBRARY)
+
+# Definitions to make the sqlite JDBC driver.
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-main-java-files-under,sqlite-jdbc)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := core
+LOCAL_MODULE := sqlite-jdbc
+include $(BUILD_JAVA_LIBRARY)
+
+
+# Definitions to make the core-tests libraries.
+#
+# We make a library per module, because otherwise the .jar files get too
+# large, to the point that dx(1) can't cope (and the build is
+# ridiculously slow).
+#
+# TODO: DalvikRunner will make this nonsense obsolete.
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,dom)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := core core-junit core-junitrunner core-tests-support
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE := core-tests-dom
+include $(BUILD_JAVA_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,json)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := core core-junit core-junitrunner core-tests-support
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE := core-tests-json
+include $(BUILD_JAVA_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,luni)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+# This module contains the top-level "tests.AllTests" that ties everything
+# together, so it has compile-time dependencies on all the other test
+# libraries.
+# TODO: we should have a bogus module that just contains tests.AllTests for speed.
+LOCAL_JAVA_LIBRARIES := \
+        bouncycastle \
+        core \
+        core-junit \
+        core-junitrunner \
+        core-tests-support \
+        core-tests-dom \
+        core-tests-json \
+        core-tests-xml \
+        sqlite-jdbc
+LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests
 
@@ -91,7 +169,36 @@ LOCAL_NO_EMMA_COMPILE := true
 
 include $(BUILD_JAVA_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit core-junitrunner
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE := core-tests-support
+include $(BUILD_JAVA_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,xml)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := core core-junit core-junitrunner core-tests-support
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE := core-tests-xml
+include $(BUILD_JAVA_LIBRARY)
+
+# also build support as a static library for use by frameworks/base HTTPS tests
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit core-junitrunner
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE := core-tests-supportlib
+include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # This one's tricky. One of our tests needs to have a
 # resource with a "#" in its name, but Perforce doesn't
@@ -169,23 +276,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_NO_EMMA_COMPILE := true
 
     LOCAL_MODULE := core
-
-    include $(BUILD_HOST_JAVA_LIBRARY)
-
-
-    # Definitions to make the core-tests library.
-
-    include $(CLEAR_VARS)
-
-    LOCAL_SRC_FILES := $(test_src_files)
-    LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
-
-    LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := core
-    LOCAL_DX_FLAGS := --core-library
-
-    LOCAL_MODULE_TAGS := tests
-    LOCAL_MODULE := core-tests
 
     include $(BUILD_HOST_JAVA_LIBRARY)
 

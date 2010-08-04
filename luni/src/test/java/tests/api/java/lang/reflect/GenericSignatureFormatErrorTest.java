@@ -42,18 +42,18 @@ public class GenericSignatureFormatErrorTest extends TestCase{
         File tf = File.createTempFile("classes", ".dex");
         // System.out.println("GenericSignatureFormatErrorTest:"
         //         +tf.getAbsolutePath()+", canRead: "+tf.canRead()
-        //         +", canWrite: "+tf.canWrite()); 
+        //         +", canWrite: "+tf.canWrite());
         InputStream is = this.getClass().getResourceAsStream("dex1.bytes");
         assertNotNull(is);
     }
 
-    
+
     @TestTargetNew(
         level = TestLevel.PARTIAL_COMPLETE,
         notes = "",
         method = "GenericSignatureFormatError",
         args = {}
-    )    
+    )
     @AndroidOnly("Uses Android specific class dalvik.system.DexFile " +
             "for loading classes.")
     @SideEffect("strange issue (exception: 'could not open dex file', " +
@@ -62,23 +62,23 @@ public class GenericSignatureFormatErrorTest extends TestCase{
     public void test_signatureFormatError() throws Exception {
         /*
          * dex1.bytes is a jar file with a classes.dex in it.
-         * the classes.dex was javac'ed, dx'ed and patched 
+         * the classes.dex was javac'ed, dx'ed and patched
          * with the following java file:
-         * 
+         *
          * package demo;
          *  public class HelloWorld<U> {
          *      public HelloWorld(U t) {}
          *  }
-         * 
+         *
          * patch:
          * the string constant (class generics signature string)
          *  "<U:" was changed to "<<:"
-         * 
+         *
          */
-        
+
         File tf = File.createTempFile("classes", ".dex");
-        // System.out.println("GenericSignatureFormatErrorTest:" + 
-        //         tf.getAbsolutePath() + ", canRead: " + tf.canRead() + 
+        // System.out.println("GenericSignatureFormatErrorTest:" +
+        //         tf.getAbsolutePath() + ", canRead: " + tf.canRead() +
         //         ", canWrite: "+tf.canWrite());
         InputStream is = this.getClass().getResourceAsStream("dex1.bytes");
         assertNotNull(is);
@@ -86,8 +86,8 @@ public class GenericSignatureFormatErrorTest extends TestCase{
         copy(is, fos);
         fos.flush();
         fos.close();
-        
-        
+
+
         // class signature string "<U:" was changed to "<<:"
         //System.out.println("file length:"+tf.length());
         try {
@@ -97,7 +97,7 @@ public class GenericSignatureFormatErrorTest extends TestCase{
 
             ClassLoader cl = Support_ClassLoader.getInstance(tf.toURL(),
                     getClass().getClassLoader());
-            
+
             Class clazz = cl.loadClass("demo/HelloWorld");
             TypeVariable[] tvs = clazz.getTypeParameters();
             fail("expecting a GenericSignatureFormatError");
@@ -108,10 +108,10 @@ public class GenericSignatureFormatErrorTest extends TestCase{
             // expected
         }
     }
-    
+
     private void copy(InputStream is, OutputStream os) {
         try {
-            int b; 
+            int b;
             while ((b = is.read()) != -1) {
                 os.write(b);
             }

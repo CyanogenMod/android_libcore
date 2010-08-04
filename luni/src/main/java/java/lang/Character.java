@@ -18,26 +18,17 @@
 package java.lang;
 
 import java.io.Serializable;
-// BEGIN android-removed
-// import java.util.SortedMap;
-// import java.util.TreeMap;
-//
-// import org.apache.harmony.luni.util.BinarySearch;
-// END android-removed
-
-// BEGIN android-changed
-import com.ibm.icu4jni.lang.UCharacter;
-// END android-changed
 
 /**
  * The wrapper for the primitive type {@code char}. This class also provides a
  * number of utility methods for working with characters.
- * <p>
- * Character data is based upon the Unicode Standard, 4.0. The Unicode
+ *
+ * <p>Character data is kept up to date as Unicode evolves.
+ * This implementation is currently based on Unicode 5.2. The Unicode
  * specification, character tables and other information are available at <a
  * href="http://www.unicode.org/">http://www.unicode.org/</a>.
- * <p>
- * Unicode characters are referred to as <i>code points</i>. The range of valid
+ *
+ * <p>Unicode characters are referred to as <i>code points</i>. The range of valid
  * code points is U+0000 to U+10FFFF. The <i>Basic Multilingual Plane (BMP)</i>
  * is the code point range U+0000 to U+FFFF. Characters above the BMP are
  * referred to as <i>Supplementary Characters</i>. On the Java platform, UTF-16
@@ -50,6 +41,54 @@ import com.ibm.icu4jni.lang.UCharacter;
  * On the Java platform a {@code char} value represents either a single BMP code
  * point or a UTF-16 unit that's part of a surrogate pair. The {@code int} type
  * is used to represent all Unicode code points.
+ *
+ * <a name="unicode_categories"><h3>Unicode categories</h3></a>
+ * <p>Here's a list of the Unicode character categories and the corresponding Java constant,
+ * grouped semantically to provide a convenient overview. This table is also useful in
+ * conjunction with {@code \p} and {@code \P} in {@link java.util.regex.Pattern regular expressions}.
+ * <span class="datatable">
+ * <style type="text/css">
+ * .datatable td { padding-right: 20px; }
+ * </style>
+ * <p><table>
+ * <tr> <td> Cn </td> <td> Unassigned </td>  <td>{@link #UNASSIGNED}</td> </tr>
+ * <tr> <td> Cc </td> <td> Control </td>     <td>{@link #CONTROL}</td> </tr>
+ * <tr> <td> Cf </td> <td> Format </td>      <td>{@link #FORMAT}</td> </tr>
+ * <tr> <td> Cf </td> <td> Private use </td> <td>{@link #PRIVATE_USE}</td> </tr>
+ * <tr> <td> Cf </td> <td> Surrogate </td>   <td>{@link #SURROGATE}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Lu </td> <td> Uppercase letter </td> <td>{@link #UPPERCASE_LETTER}</td> </tr>
+ * <tr> <td> Ll </td> <td> Lowercase letter </td> <td>{@link #LOWERCASE_LETTER}</td> </tr>
+ * <tr> <td> Lt </td> <td> Titlecase letter </td> <td>{@link #TITLECASE_LETTER}</td> </tr>
+ * <tr> <td> Lm </td> <td> Modifier letter </td>  <td>{@link #MODIFIER_LETTER}</td> </tr>
+ * <tr> <td> Lo </td> <td> Other letter </td>     <td>{@link #OTHER_LETTER}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Mn </td> <td> Non-spacing mark </td>       <td>{@link #NON_SPACING_MARK}</td> </tr>
+ * <tr> <td> Me </td> <td> Enclosing mark </td>         <td>{@link #ENCLOSING_MARK}</td> </tr>
+ * <tr> <td> Mc </td> <td> Combining spacing mark </td> <td>{@link #COMBINING_SPACING_MARK}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Nd </td> <td> Decimal digit number </td> <td>{@link #DECIMAL_DIGIT_NUMBER}</td> </tr>
+ * <tr> <td> Nl </td> <td> Letter number </td>        <td>{@link #LETTER_NUMBER}</td> </tr>
+ * <tr> <td> No </td> <td> Other number </td>         <td>{@link #OTHER_NUMBER}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Pd </td> <td> Dash punctuation </td>          <td>{@link #DASH_PUNCTUATION}</td> </tr>
+ * <tr> <td> Ps </td> <td> Start punctuation </td>         <td>{@link #START_PUNCTUATION}</td> </tr>
+ * <tr> <td> Pe </td> <td> End punctuation </td>           <td>{@link #END_PUNCTUATION}</td> </tr>
+ * <tr> <td> Pc </td> <td> Connector punctuation </td>     <td>{@link #CONNECTOR_PUNCTUATION}</td> </tr>
+ * <tr> <td> Pi </td> <td> Initial quote punctuation </td> <td>{@link #INITIAL_QUOTE_PUNCTUATION}</td> </tr>
+ * <tr> <td> Pf </td> <td> Final quote punctuation </td>   <td>{@link #FINAL_QUOTE_PUNCTUATION}</td> </tr>
+ * <tr> <td> Po </td> <td> Other punctuation </td>         <td>{@link #OTHER_PUNCTUATION}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Sm </td> <td> Math symbol </td>     <td>{@link #MATH_SYMBOL}</td> </tr>
+ * <tr> <td> Sc </td> <td> Currency symbol </td> <td>{@link #CURRENCY_SYMBOL}</td> </tr>
+ * <tr> <td> Sk </td> <td> Modifier symbol </td> <td>{@link #MODIFIER_SYMBOL}</td> </tr>
+ * <tr> <td> So </td> <td> Other symbol </td>    <td>{@link #OTHER_SYMBOL}</td> </tr>
+ * <tr> <td><br></td> </tr>
+ * <tr> <td> Zs </td> <td> Space separator </td>     <td>{@link #SPACE_SEPARATOR}</td> </tr>
+ * <tr> <td> Zl </td> <td> Line separator </td>      <td>{@link #LINE_SEPARATOR}</td> </tr>
+ * <tr> <td> Zp </td> <td> Paragraph separator </td> <td>{@link #PARAGRAPH_SEPARATOR}</td> </tr>
+ * </table>
+ * </span>
  *
  * @since 1.0
  */
@@ -1357,16 +1396,134 @@ public final class Character implements Serializable, Comparable<Character> {
         /*
          * All of the UnicodeBlocks with valid ranges in ascending order.
          */
-        private static UnicodeBlock[] BLOCKS;
-
-        // BEGIN android-changed
-        // /*
-        //  * A SortedMap (String.CASE_INSENSITIVE_ORDER) with keys that represents
-        //  * valid block names and values of the UnicodeBlock constant they map
-        //  * to.
-        //  */
-        // private static final SortedMap<String, UnicodeBlock> BLOCKS_BY_NAME = ...;
-        // END android-changed
+        private static UnicodeBlock[] BLOCKS = new UnicodeBlock[] {
+            null,
+            UnicodeBlock.BASIC_LATIN,
+            UnicodeBlock.LATIN_1_SUPPLEMENT,
+            UnicodeBlock.LATIN_EXTENDED_A,
+            UnicodeBlock.LATIN_EXTENDED_B,
+            UnicodeBlock.IPA_EXTENSIONS,
+            UnicodeBlock.SPACING_MODIFIER_LETTERS,
+            UnicodeBlock.COMBINING_DIACRITICAL_MARKS,
+            UnicodeBlock.GREEK,
+            UnicodeBlock.CYRILLIC,
+            UnicodeBlock.ARMENIAN,
+            UnicodeBlock.HEBREW,
+            UnicodeBlock.ARABIC,
+            UnicodeBlock.SYRIAC,
+            UnicodeBlock.THAANA,
+            UnicodeBlock.DEVANAGARI,
+            UnicodeBlock.BENGALI,
+            UnicodeBlock.GURMUKHI,
+            UnicodeBlock.GUJARATI,
+            UnicodeBlock.ORIYA,
+            UnicodeBlock.TAMIL,
+            UnicodeBlock.TELUGU,
+            UnicodeBlock.KANNADA,
+            UnicodeBlock.MALAYALAM,
+            UnicodeBlock.SINHALA,
+            UnicodeBlock.THAI,
+            UnicodeBlock.LAO,
+            UnicodeBlock.TIBETAN,
+            UnicodeBlock.MYANMAR,
+            UnicodeBlock.GEORGIAN,
+            UnicodeBlock.HANGUL_JAMO,
+            UnicodeBlock.ETHIOPIC,
+            UnicodeBlock.CHEROKEE,
+            UnicodeBlock.UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS,
+            UnicodeBlock.OGHAM,
+            UnicodeBlock.RUNIC,
+            UnicodeBlock.KHMER,
+            UnicodeBlock.MONGOLIAN,
+            UnicodeBlock.LATIN_EXTENDED_ADDITIONAL,
+            UnicodeBlock.GREEK_EXTENDED,
+            UnicodeBlock.GENERAL_PUNCTUATION,
+            UnicodeBlock.SUPERSCRIPTS_AND_SUBSCRIPTS,
+            UnicodeBlock.CURRENCY_SYMBOLS,
+            UnicodeBlock.COMBINING_MARKS_FOR_SYMBOLS,
+            UnicodeBlock.LETTERLIKE_SYMBOLS,
+            UnicodeBlock.NUMBER_FORMS,
+            UnicodeBlock.ARROWS,
+            UnicodeBlock.MATHEMATICAL_OPERATORS,
+            UnicodeBlock.MISCELLANEOUS_TECHNICAL,
+            UnicodeBlock.CONTROL_PICTURES,
+            UnicodeBlock.OPTICAL_CHARACTER_RECOGNITION,
+            UnicodeBlock.ENCLOSED_ALPHANUMERICS,
+            UnicodeBlock.BOX_DRAWING,
+            UnicodeBlock.BLOCK_ELEMENTS,
+            UnicodeBlock.GEOMETRIC_SHAPES,
+            UnicodeBlock.MISCELLANEOUS_SYMBOLS,
+            UnicodeBlock.DINGBATS,
+            UnicodeBlock.BRAILLE_PATTERNS,
+            UnicodeBlock.CJK_RADICALS_SUPPLEMENT,
+            UnicodeBlock.KANGXI_RADICALS,
+            UnicodeBlock.IDEOGRAPHIC_DESCRIPTION_CHARACTERS,
+            UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION,
+            UnicodeBlock.HIRAGANA,
+            UnicodeBlock.KATAKANA,
+            UnicodeBlock.BOPOMOFO,
+            UnicodeBlock.HANGUL_COMPATIBILITY_JAMO,
+            UnicodeBlock.KANBUN,
+            UnicodeBlock.BOPOMOFO_EXTENDED,
+            UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS,
+            UnicodeBlock.CJK_COMPATIBILITY,
+            UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A,
+            UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS,
+            UnicodeBlock.YI_SYLLABLES,
+            UnicodeBlock.YI_RADICALS,
+            UnicodeBlock.HANGUL_SYLLABLES,
+            UnicodeBlock.HIGH_SURROGATES,
+            UnicodeBlock.HIGH_PRIVATE_USE_SURROGATES,
+            UnicodeBlock.LOW_SURROGATES,
+            UnicodeBlock.PRIVATE_USE_AREA,
+            UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS,
+            UnicodeBlock.ALPHABETIC_PRESENTATION_FORMS,
+            UnicodeBlock.ARABIC_PRESENTATION_FORMS_A,
+            UnicodeBlock.COMBINING_HALF_MARKS,
+            UnicodeBlock.CJK_COMPATIBILITY_FORMS,
+            UnicodeBlock.SMALL_FORM_VARIANTS,
+            UnicodeBlock.ARABIC_PRESENTATION_FORMS_B,
+            UnicodeBlock.SPECIALS,
+            UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS,
+            UnicodeBlock.OLD_ITALIC,
+            UnicodeBlock.GOTHIC,
+            UnicodeBlock.DESERET,
+            UnicodeBlock.BYZANTINE_MUSICAL_SYMBOLS,
+            UnicodeBlock.MUSICAL_SYMBOLS,
+            UnicodeBlock.MATHEMATICAL_ALPHANUMERIC_SYMBOLS,
+            UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B,
+            UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT,
+            UnicodeBlock.TAGS,
+            UnicodeBlock.CYRILLIC_SUPPLEMENTARY,
+            UnicodeBlock.TAGALOG,
+            UnicodeBlock.HANUNOO,
+            UnicodeBlock.BUHID,
+            UnicodeBlock.TAGBANWA,
+            UnicodeBlock.MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A,
+            UnicodeBlock.SUPPLEMENTAL_ARROWS_A,
+            UnicodeBlock.SUPPLEMENTAL_ARROWS_B,
+            UnicodeBlock.MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B,
+            UnicodeBlock.SUPPLEMENTAL_MATHEMATICAL_OPERATORS,
+            UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS,
+            UnicodeBlock.VARIATION_SELECTORS,
+            UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_A,
+            UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B,
+            UnicodeBlock.LIMBU,
+            UnicodeBlock.TAI_LE,
+            UnicodeBlock.KHMER_SYMBOLS,
+            UnicodeBlock.PHONETIC_EXTENSIONS,
+            UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_ARROWS,
+            UnicodeBlock.YIJING_HEXAGRAM_SYMBOLS,
+            UnicodeBlock.LINEAR_B_SYLLABARY,
+            UnicodeBlock.LINEAR_B_IDEOGRAMS,
+            UnicodeBlock.AEGEAN_NUMBERS,
+            UnicodeBlock.UGARITIC,
+            UnicodeBlock.SHAVIAN,
+            UnicodeBlock.OSMANYA,
+            UnicodeBlock.CYPRIOT_SYLLABARY,
+            UnicodeBlock.TAI_XUAN_JING_SYMBOLS,
+            UnicodeBlock.VARIATION_SELECTORS_SUPPLEMENT
+        };
 
         /**
          * Retrieves the constant that corresponds to the specified block name.
@@ -1394,17 +1551,10 @@ public final class Character implements Serializable, Comparable<Character> {
          * @since 1.5
          */
         public static final UnicodeBlock forName(String blockName) {
-            // BEGIN android-note
-            // trying to get closer to the RI which defines this as final.
-            // END android-note
             if (blockName == null) {
                 throw new NullPointerException();
             }
-            // BEGIN android-changed
-            if (BLOCKS == null) {
-                BLOCKS = UCharacter.getBlockTable();
-            }
-            int block = UCharacter.forName(blockName);
+            int block = forNameImpl(blockName);
             if (block == -1) {
                 if(blockName.equals("SURROGATES_AREA")) {
                     return SURROGATES_AREA;
@@ -1418,7 +1568,6 @@ public final class Character implements Serializable, Comparable<Character> {
                 throw new IllegalArgumentException();
             }
             return BLOCKS[block];
-            // END android-changed
         }
 
         /**
@@ -1454,24 +1603,21 @@ public final class Character implements Serializable, Comparable<Character> {
             if (!isValidCodePoint(codePoint)) {
                 throw new IllegalArgumentException();
             }
-            // BEGIN android-changed
-            if (BLOCKS == null) {
-                BLOCKS = UCharacter.getBlockTable();
-            }
-            int block = UCharacter.of(codePoint);
+            int block = ofImpl(codePoint);
             if(block == -1 || block >= BLOCKS.length) {
                 return null;
             }
             return BLOCKS[block];
-            // END android-changed
         }
 
-        // BEGIN android-changed
         private UnicodeBlock(String blockName, int start, int end) {
             super(blockName);
         }
-        // END android-changed
     }
+
+    private static native int forNameImpl(String blockName);
+
+    private static native int ofImpl(int codePoint);
 
     /**
      * Constructs a new {@code Character} with the specified primitive char
@@ -1650,7 +1796,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int toCodePoint(char high, char low) {
         // See RFC 2781, Section 2.2
-        // http://www.faqs.org/rfcs/rfc2781.html
+        // http://www.ietf.org/rfc/rfc2781.txt
         int h = (high & 0x3FF) << 10;
         int l = low & 0x3FF;
         return (h | l) + 0x10000;
@@ -1951,7 +2097,7 @@ public final class Character implements Serializable, Comparable<Character> {
                 throw new IndexOutOfBoundsException();
             }
             // See RFC 2781, Section 2.1
-            // http://www.faqs.org/rfcs/rfc2781.html
+            // http://www.ietf.org/rfc/rfc2781.txt
             int cpPrime = codePoint - 0x10000;
             int high = 0xD800 | ((cpPrime >> 10) & 0x3FF);
             int low = 0xDC00 | (cpPrime & 0x3FF);
@@ -2259,9 +2405,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         between {@link #MIN_RADIX} and {@link #MAX_RADIX}; -1 otherwise.
      */
     public static int digit(char c, int radix) {
-        // BEGIN android-changed
         return digit((int) c, radix);
-        // END android-changed
     }
 
     /**
@@ -2278,7 +2422,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         -1 otherwise.
      */
     public static int digit(int codePoint, int radix) {
-        // BEGIN android-changed
         if (radix < MIN_RADIX || radix > MAX_RADIX) {
             return -1;
         }
@@ -2294,9 +2437,10 @@ public final class Character implements Serializable, Comparable<Character> {
             }
             return result < radix ? result : -1;
         }
-        return UCharacter.digit(codePoint, radix);
-        // END android-changed
+        return digitImpl(codePoint, radix);
     }
+
+    private static native int digitImpl(int codePoint, int radix);
 
     /**
      * Compares this object with the specified object and indicates if they are
@@ -2310,8 +2454,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     @Override
     public boolean equals(Object object) {
-        return (object instanceof Character)
-                && (value == ((Character) object).value);
+        return (object instanceof Character) && (value == ((Character) object).value);
     }
 
     /**
@@ -2347,9 +2490,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         -2 if the numeric value can not be represented with an integer.
      */
     public static int getNumericValue(char c) {
-        // BEGIN android-changed
         return getNumericValue((int) c);
-        // END android-changed
     }
 
     /**
@@ -2365,7 +2506,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         represented with an integer.
      */
     public static int getNumericValue(int codePoint) {
-        // BEGIN android-changed
         if (codePoint < 128) {
             // Optimized for ASCII
             if (codePoint >= '0' && codePoint <= '9') {
@@ -2379,9 +2519,10 @@ public final class Character implements Serializable, Comparable<Character> {
             }
             return -1;
         }
-        return UCharacter.getNumericValue(codePoint);
-        // END android-changed
+        return getNumericValueImpl(codePoint);
     }
+
+    private static native int getNumericValueImpl(int codePoint);
 
     /**
      * Gets the general Unicode category of the specified character.
@@ -2391,9 +2532,7 @@ public final class Character implements Serializable, Comparable<Character> {
      * @return the Unicode category of {@code c}.
      */
     public static int getType(char c) {
-        // BEGIN android-changed
         return getType((int) c);
-        // END android-changed
     }
 
     /**
@@ -2404,20 +2543,15 @@ public final class Character implements Serializable, Comparable<Character> {
      * @return the Unicode category of {@code codePoint}.
      */
     public static int getType(int codePoint) {
-        // BEGIN android-changed
-        // if (codePoint < 1000 && codePoint > 0) {
-        //     return typeValuesCache[codePoint];
-        // }
-        // END android-changed
-        int type = UCharacter.getType(codePoint);
-
-        // the type values returned by UCharacter are not compatible with what
-        // the spec says.RI's Character type values skip the value 17.
+        int type = getTypeImpl(codePoint);
+        // The type values returned by ICU are not RI-compatible. The RI skips the value 17.
         if (type <= Character.FORMAT) {
             return type;
         }
         return (type + 1);
     }
+
+    private static native int getTypeImpl(int codePoint);
 
     /**
      * Gets the Unicode directionality of the specified character.
@@ -2454,12 +2588,14 @@ public final class Character implements Serializable, Comparable<Character> {
             return Character.DIRECTIONALITY_UNDEFINED;
         }
 
-        byte UCDirectionality = UCharacter.getDirectionality(codePoint);
-        if (UCDirectionality == -1) {
+        byte directionality = getDirectionalityImpl(codePoint);
+        if (directionality == -1) {
             return -1;
         }
-        return DIRECTIONALITY[UCDirectionality];
+        return DIRECTIONALITY[directionality];
     }
+
+    private static native byte getDirectionalityImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is mirrored.
@@ -2470,15 +2606,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isMirrored(char c) {
-        // BEGIN android-changed
-        // int value = c / 16;
-        // if (value >= mirrored.length) {
-        //     return false;
-        // }
-        // int bit = 1 << (c % 16);
-        // return (mirrored[value] & bit) != 0;
-        return isMirrored((int)c);
-        // ENd android-changed
+        return isMirrored((int) c);
     }
 
     /**
@@ -2490,8 +2618,10 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isMirrored(int codePoint) {
-        return UCharacter.isMirrored(codePoint);
+        return isMirroredImpl(codePoint);
     }
+
+    private static native boolean isMirroredImpl(int codePoint);
 
     @Override
     public int hashCode() {
@@ -2508,10 +2638,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         not {@code UNASSIGNED}; {@code false} otherwise.
      */
     public static boolean isDefined(char c) {
-        // BEGIN android-changed
-        // return getType(c) != UNASSIGNED;
-        return UCharacter.isDefined(c);
-        // END android-changed
+        return isDefinedImpl(c);
     }
 
     /**
@@ -2524,8 +2651,10 @@ public final class Character implements Serializable, Comparable<Character> {
      *         not {@code UNASSIGNED}; {@code false} otherwise.
      */
     public static boolean isDefined(int codePoint) {
-        return UCharacter.isDefined(codePoint);
+        return isDefinedImpl(codePoint);
     }
+
+    private static native boolean isDefinedImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is a digit.
@@ -2536,9 +2665,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isDigit(char c) {
-        // BEGIN android-changed
         return isDigit((int) c);
-        // END android-changed
     }
 
     /**
@@ -2550,7 +2677,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isDigit(int codePoint) {
-        // BEGIN android-changed
         // Optimized case for ASCII
         if ('0' <= codePoint && codePoint <= '9') {
             return true;
@@ -2558,9 +2684,10 @@ public final class Character implements Serializable, Comparable<Character> {
         if (codePoint < 1632) {
             return false;
         }
-        return UCharacter.isDigit(codePoint);
-        // END android-changed
+        return isDigitImpl(codePoint);
     }
+
+    private static native boolean isDigitImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is ignorable in a Java or
@@ -2571,9 +2698,7 @@ public final class Character implements Serializable, Comparable<Character> {
      * @return {@code true} if {@code c} is ignorable; {@code false} otherwise.
      */
     public static boolean isIdentifierIgnorable(char c) {
-        // BEGIN android-changed
         return isIdentifierIgnorable((int) c);
-        // END android-changed
     }
 
     /**
@@ -2586,14 +2711,14 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isIdentifierIgnorable(int codePoint) {
-        // BEGIN android-changed
         if (codePoint < 0x600) {
             return (codePoint >= 0 && codePoint <= 8) || (codePoint >= 0xe && codePoint <= 0x1b) ||
                     (codePoint >= 0x7f && codePoint <= 0x9f) || (codePoint == 0xad);
         }
-        return UCharacter.isIdentifierIgnorable(codePoint);
-        // END android-changed
+        return isIdentifierIgnorableImpl(codePoint);
     }
+
+    private static native boolean isIdentifierIgnorableImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is an ISO control character.
@@ -2604,7 +2729,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code false} otherwise.
      */
     public static boolean isISOControl(char c) {
-        return isISOControl((int)c);
+        return isISOControl((int) c);
     }
 
     /**
@@ -2736,9 +2861,7 @@ public final class Character implements Serializable, Comparable<Character> {
      * @return {@code true} if {@code c} is a letter; {@code false} otherwise.
      */
     public static boolean isLetter(char c) {
-        // BEGIN android-changed
         return isLetter((int) c);
-        // END android-changed
     }
 
     /**
@@ -2750,16 +2873,16 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isLetter(int codePoint) {
-        // BEGIN android-changed
         if (('A' <= codePoint && codePoint <= 'Z') || ('a' <= codePoint && codePoint <= 'z')) {
             return true;
         }
         if (codePoint < 128) {
             return false;
         }
-        return UCharacter.isLetter(codePoint);
-        // END android-changed
+        return isLetterImpl(codePoint);
     }
+
+    private static native boolean isLetterImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is a letter or a digit.
@@ -2770,9 +2893,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isLetterOrDigit(char c) {
-        // BEGIN android-changed
         return isLetterOrDigit((int) c);
-        // END android-changed
     }
 
     /**
@@ -2784,7 +2905,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code false} otherwise.
      */
     public static boolean isLetterOrDigit(int codePoint) {
-        // BEGIN android-changed
         // Optimized case for ASCII
         if (('A' <= codePoint && codePoint <= 'Z') || ('a' <= codePoint && codePoint <= 'z')) {
             return true;
@@ -2795,9 +2915,10 @@ public final class Character implements Serializable, Comparable<Character> {
         if (codePoint < 128) {
             return false;
         }
-        return UCharacter.isLetterOrDigit(codePoint);
-        // END android-changed
+        return isLetterOrDigitImpl(codePoint);
     }
+
+    private static native boolean isLetterOrDigitImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is a lower case letter.
@@ -2808,9 +2929,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isLowerCase(char c) {
-        // BEGIN android-changed
         return isLowerCase((int) c);
-        // END android-changed
     }
 
     /**
@@ -2822,7 +2941,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code false} otherwise.
      */
     public static boolean isLowerCase(int codePoint) {
-        // BEGIN android-changed
         // Optimized case for ASCII
         if ('a' <= codePoint && codePoint <= 'z') {
             return true;
@@ -2830,9 +2948,10 @@ public final class Character implements Serializable, Comparable<Character> {
         if (codePoint < 128) {
             return false;
         }
-        // END android-changed
-        return UCharacter.isLowerCase(codePoint);
+        return isLowerCaseImpl(codePoint);
     }
+
+    private static native boolean isLowerCaseImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is a Java space.
@@ -2859,9 +2978,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code false} otherwise.
      */
     public static boolean isSpaceChar(char c) {
-        // BEGIN android-changed
         return isSpaceChar((int) c);
-        // END android-changed
     }
 
     /**
@@ -2875,7 +2992,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code false} otherwise.
      */
     public static boolean isSpaceChar(int codePoint) {
-        // BEGIN android-changed
         if (codePoint == 0x20 || codePoint == 0xa0 || codePoint == 0x1680) {
             return true;
         }
@@ -2886,9 +3002,10 @@ public final class Character implements Serializable, Comparable<Character> {
             return codePoint <= 0x200b || codePoint == 0x2028 || codePoint == 0x2029 ||
                     codePoint == 0x202f || codePoint == 0x3000;
         }
-        return UCharacter.isSpaceChar(codePoint);
-        // END android-changed
+        return isSpaceCharImpl(codePoint);
     }
+
+    private static native boolean isSpaceCharImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is a titlecase character.
@@ -2899,9 +3016,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isTitleCase(char c) {
-        // BEGIN android-changed
-        return UCharacter.isTitleCase(c);
-        // END android-changed
+        return isTitleCaseImpl(c);
     }
 
     /**
@@ -2913,8 +3028,10 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code false} otherwise.
      */
     public static boolean isTitleCase(int codePoint) {
-        return UCharacter.isTitleCase(codePoint);
+        return isTitleCaseImpl(codePoint);
     }
+
+    private static native boolean isTitleCaseImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is valid as part of a Unicode
@@ -2926,15 +3043,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         identifier; {@code false} otherwise.
      */
     public static boolean isUnicodeIdentifierPart(char c) {
-        // BEGIN android-changed
-        // int type = getType(c);
-        // return (type >= UPPERCASE_LETTER && type <= OTHER_LETTER)
-        //         || type == CONNECTOR_PUNCTUATION
-        //         || (type >= DECIMAL_DIGIT_NUMBER && type <= LETTER_NUMBER)
-        //         || type == NON_SPACING_MARK || type == COMBINING_SPACING_MARK
-        //         || isIdentifierIgnorable(c);
-        return UCharacter.isUnicodeIdentifierPart(c);
-        // END android-changed
+        return isUnicodeIdentifierPartImpl(c);
     }
 
     /**
@@ -2947,8 +3056,10 @@ public final class Character implements Serializable, Comparable<Character> {
      *         identifier; {@code false} otherwise.
      */
     public static boolean isUnicodeIdentifierPart(int codePoint) {
-        return UCharacter.isUnicodeIdentifierPart(codePoint);
+        return isUnicodeIdentifierPartImpl(codePoint);
     }
+
+    private static native boolean isUnicodeIdentifierPartImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is a valid initial character
@@ -2960,12 +3071,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         Unicode identifier; {@code false} otherwise.
      */
     public static boolean isUnicodeIdentifierStart(char c) {
-        // BEGIN android-changed
-        // int type = getType(c);
-        // return (type >= UPPERCASE_LETTER && type <= OTHER_LETTER)
-        //         || type == LETTER_NUMBER;
-        return UCharacter.isUnicodeIdentifierStart(c);
-        // END android-changed
+        return isUnicodeIdentifierStartImpl(c);
     }
 
     /**
@@ -2978,8 +3084,10 @@ public final class Character implements Serializable, Comparable<Character> {
      *         a Unicode identifier; {@code false} otherwise.
      */
     public static boolean isUnicodeIdentifierStart(int codePoint) {
-        return UCharacter.isUnicodeIdentifierStart(codePoint);
+        return isUnicodeIdentifierStartImpl(codePoint);
     }
+
+    private static native boolean isUnicodeIdentifierStartImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is an upper case letter.
@@ -2990,9 +3098,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise.
      */
     public static boolean isUpperCase(char c) {
-        // BEGIN android-changed
         return isUpperCase((int) c);
-        // END android-changed
     }
 
     /**
@@ -3004,7 +3110,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code false} otherwise.
      */
     public static boolean isUpperCase(int codePoint) {
-        // BEGIN android-changed
         // Optimized case for ASCII
         if ('A' <= codePoint && codePoint <= 'Z') {
             return true;
@@ -3012,9 +3117,10 @@ public final class Character implements Serializable, Comparable<Character> {
         if (codePoint < 128) {
             return false;
         }
-        return UCharacter.isUpperCase(codePoint);
-        // END android-changed
+        return isUpperCaseImpl(codePoint);
     }
+
+    private static native boolean isUpperCaseImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is a whitespace character in
@@ -3026,9 +3132,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         in Java; {@code false} otherwise.
      */
     public static boolean isWhitespace(char c) {
-        // BEGIN android-changed
         return isWhitespace((int) c);
-        // END android-changed
     }
 
     /**
@@ -3041,7 +3145,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         in Java; {@code false} otherwise.
      */
     public static boolean isWhitespace(int codePoint) {
-        // BEGIN android-changed
         // Optimized case for ASCII
         if ((codePoint >= 0x1c && codePoint <= 0x20) || (codePoint >= 0x9 && codePoint <= 0xd)) {
             return true;
@@ -3056,9 +3159,10 @@ public final class Character implements Serializable, Comparable<Character> {
             return codePoint <= 0x200b || codePoint == 0x2028 || codePoint == 0x2029 ||
                     codePoint == 0x3000;
         }
-        return UCharacter.isWhitespace(codePoint);
-        // END android-changed
+        return isWhitespaceImpl(codePoint);
     }
+
+    private static native boolean isWhitespaceImpl(int codePoint);
 
     /**
      * Reverses the order of the first and second byte in the specified
@@ -3083,9 +3187,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         counterpart, otherwise just {@code c}.
      */
     public static char toLowerCase(char c) {
-        // BEGIN android-changed
         return (char) toLowerCase((int) c);
-        // END android-changed
     }
 
     /**
@@ -3099,7 +3201,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         case counterpart, otherwise just {@code codePoint}.
      */
     public static int toLowerCase(int codePoint) {
-        // BEGIN android-changed
         // Optimized case for ASCII
         if ('A' <= codePoint && codePoint <= 'Z') {
             return (char) (codePoint + ('a' - 'A'));
@@ -3107,9 +3208,10 @@ public final class Character implements Serializable, Comparable<Character> {
         if (codePoint < 192) {
             return codePoint;
         }
-        return UCharacter.toLowerCase(codePoint);
-        // END android-changed
+        return toLowerCaseImpl(codePoint);
     }
+
+    private static native int toLowerCaseImpl(int codePoint);
 
     @Override
     public String toString() {
@@ -3137,17 +3239,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         {@code c}.
      */
     public static char toTitleCase(char c) {
-        // BEGIN android-changed
-        // if (isTitleCase(c)) {
-        //     return c;
-        // }
-        // int result = BinarySearch.binarySearch(titlecaseKeys, c);
-        // if (result >= 0) {
-        //     return titlecaseValues[result];
-        // }
-        // return toUpperCase(c);
-        return (char)UCharacter.toTitleCase(c);
-        // ENd android-changed
+        return (char) toTitleCaseImpl(c);
     }
 
     /**
@@ -3160,8 +3252,10 @@ public final class Character implements Serializable, Comparable<Character> {
      *         otherwise {@code codePoint}.
      */
     public static int toTitleCase(int codePoint) {
-        return UCharacter.toTitleCase(codePoint);
+        return toTitleCaseImpl(codePoint);
     }
+
+    private static native int toTitleCaseImpl(int codePoint);
 
     /**
      * Returns the upper case equivalent for the specified character if the
@@ -3174,9 +3268,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *         counterpart, otherwise just {@code c}.
      */
     public static char toUpperCase(char c) {
-        // BEGIN android-changed
         return (char) toUpperCase((int) c);
-        // END android-changed
     }
 
     /**
@@ -3190,7 +3282,6 @@ public final class Character implements Serializable, Comparable<Character> {
      *         case counterpart, otherwise just {@code codePoint}.
      */
     public static int toUpperCase(int codePoint) {
-        // BEGIN android-changed
         // Optimized case for ASCII
         if ('a' <= codePoint && codePoint <= 'z') {
             return (char) (codePoint - ('a' - 'A'));
@@ -3198,7 +3289,8 @@ public final class Character implements Serializable, Comparable<Character> {
         if (codePoint < 181) {
             return codePoint;
         }
-        return UCharacter.toUpperCase(codePoint);
-        // END android-changed
+        return toUpperCaseImpl(codePoint);
     }
+
+    private static native int toUpperCaseImpl(int codePoint);
 }

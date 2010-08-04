@@ -17,14 +17,14 @@
 
 package tests.api.java.io;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestLevel;
 
 import java.io.StringBufferInputStream;
 
-@TestTargetClass(StringBufferInputStream.class) 
+@TestTargetClass(StringBufferInputStream.class)
 public class StringBufferInputStreamTest extends junit.framework.TestCase {
 
     StringBufferInputStream sbis;

@@ -34,7 +34,7 @@ public class BindException extends SocketException {
 
     /**
      * Constructs a new instance with its walkback and message filled in.
-     * 
+     *
      * @param detailMessage
      *            detail message of the exception.
      */

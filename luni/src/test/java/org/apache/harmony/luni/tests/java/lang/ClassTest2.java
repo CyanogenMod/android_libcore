@@ -25,7 +25,7 @@ import dalvik.annotation.TestTargetClass;
 import java.io.IOException;
 import java.io.InputStream;
 
-@TestTargetClass(Class.class) 
+@TestTargetClass(Class.class)
 public class ClassTest2 extends junit.framework.TestCase {
 
     /**
@@ -53,10 +53,10 @@ public class ClassTest2 extends junit.framework.TestCase {
     )
     public void testGetResourceAsStream1() throws IOException {
         Class clazz = getClass();
-        
+
         InputStream stream = clazz.getResourceAsStream("HelloWorld.txt");
         assert(stream != null);
-        
+
         byte[] buffer = new byte[20];
         int length = stream.read(buffer);
         String s = new String(buffer, 0, length);
@@ -64,7 +64,7 @@ public class ClassTest2 extends junit.framework.TestCase {
 
         stream.close();
     }
-    
+
     /**
      *  Tests loading a resource with a global name.
      */
@@ -76,17 +76,17 @@ public class ClassTest2 extends junit.framework.TestCase {
     )
     public void testGetResourceAsStream2() throws IOException {
         Class clazz = getClass();
-        
+
         InputStream stream = clazz.getResourceAsStream("/org/apache/harmony/luni/tests/java/lang/HelloWorld.txt");
         assert(stream != null);
-        
+
         byte[] buffer = new byte[20];
         int length = stream.read(buffer);
         String s = new String(buffer, 0, length);
         assert("Hello, World.".equals(s));
 
         stream.close();
-        
+
         try {
             clazz.getResourceAsStream(null);
             fail("NullPointerException is not thrown.");

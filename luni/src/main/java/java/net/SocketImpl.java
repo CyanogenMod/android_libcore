@@ -21,10 +21,8 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * This class is the base of all streaming socket implementation classes.
@@ -57,24 +55,9 @@ public abstract class SocketImpl implements SocketOptions {
      */
     protected int localport;
 
-    INetworkSystem netImpl;
-
-    // BEGIN android-removed
-    // int receiveTimeout;
-    // END android-removed
+    INetworkSystem netImpl = Platform.getNetworkSystem();
 
     boolean streaming = true;
-
-    boolean shutdownInput;
-
-    /**
-     * Creates a new connection-oriented socket implementation.
-     *
-     * @see SocketImplFactory
-     */
-    public SocketImpl() {
-        this.netImpl = Platform.getNetworkSystem();
-    }
 
     /**
      * Waits for an incoming request and blocks until the connection is opened
@@ -279,11 +262,11 @@ public abstract class SocketImpl implements SocketOptions {
      *                thrown if an error occurs while writing
      */
     int write(byte[] buffer, int offset, int count) throws IOException {
-        if (!streaming) {
-            return this.netImpl.sendDatagram2(fd, buffer, offset, count, port,
-                    address);
+        if (streaming) {
+            return this.netImpl.write(fd, buffer, offset, count);
+        } else {
+            return this.netImpl.send(fd, buffer, offset, count, port, address);
         }
-        return this.netImpl.write(fd, buffer, offset, count);
     }
 
     /**
@@ -296,8 +279,7 @@ public abstract class SocketImpl implements SocketOptions {
      *             always because this method should be overridden.
      */
     protected void shutdownInput() throws IOException {
-        // KA025=Method has not been implemented
-        throw new IOException(Msg.getString("KA025"));//$NON-NLS-1$
+        throw new IOException("Method has not been implemented");
     }
 
     /**
@@ -310,8 +292,7 @@ public abstract class SocketImpl implements SocketOptions {
      *             always because this method should be overridden.
      */
     protected void shutdownOutput() throws IOException {
-        // KA025=Method has not been implemented
-        throw new IOException(Msg.getString("KA025"));//$NON-NLS-1$
+        throw new IOException("Method has not been implemented");
     }
 
     /**

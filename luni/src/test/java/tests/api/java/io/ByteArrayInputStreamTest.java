@@ -25,7 +25,7 @@ import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 
-@TestTargetClass(ByteArrayInputStream.class) 
+@TestTargetClass(ByteArrayInputStream.class)
 public class ByteArrayInputStreamTest extends junit.framework.TestCase {
 
     private ByteArrayInputStream is;
@@ -39,7 +39,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "ByteArrayInputStream",
         args = {byte[].class}
-    )       
+    )
     public void test_Constructor$B() {
         // Test for method java.io.ByteArrayInputStream(byte [])
 
@@ -55,7 +55,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
     }
 
     /**
-     * @throws IOException 
+     * @throws IOException
      * @tests java.io.ByteArrayInputStream#ByteArrayInputStream(byte[], int,
      *        int)
      */
@@ -63,7 +63,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "ByteArrayInputStream",
         args = {byte[].class, int.class, int.class}
-    )           
+    )
     public void test_Constructor$BII() throws IOException {
         // Test for method java.io.ByteArrayInputStream(byte [], int, int)
 
@@ -76,14 +76,14 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("Exception during Constructor test");
         }
-        
+
         // Regression test for Harmony-2405
         new SubByteArrayInputStream(new byte[] { 1, 2 }, 444, 13);
         assertEquals(444, SubByteArrayInputStream.pos);
         assertEquals(444, SubByteArrayInputStream.mark);
         assertEquals(2, SubByteArrayInputStream.count);
     }
-    
+
     static class SubByteArrayInputStream extends ByteArrayInputStream {
         public static byte[] buf;
 
@@ -107,7 +107,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         notes = "Verifies available() method.",
         method = "available",
         args = {}
-    )        
+    )
     public void test_available() {
         // Test for method int java.io.ByteArrayInputStream.available()
         try {
@@ -125,7 +125,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "close",
         args = {}
-    )      
+    )
     public void test_close() {
         is.read();
         try {
@@ -148,7 +148,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         notes = "Verifies mark(int readAheadLimit) method.",
         method = "mark",
         args = {int.class}
-    )       
+    )
     public void test_markI() {
         // Test for method void java.io.ByteArrayInputStream.mark(int)
         byte[] buf1 = new byte[100];
@@ -177,7 +177,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         notes = "Verifies markSupported() method.",
         method = "markSupported",
         args = {}
-    )       
+    )
     public void test_markSupported() {
         // Test for method boolean java.io.ByteArrayInputStream.markSupported()
         assertTrue("markSupported returned incorrect value", is.markSupported());
@@ -191,7 +191,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         notes = "Verifies read() method.",
         method = "read",
         args = {}
-    )  
+    )
     public void test_read() {
         // Test for method int java.io.ByteArrayInputStream.read()
         try {
@@ -212,13 +212,13 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         level = TestLevel.COMPLETE,
         method = "read",
         args = {byte[].class, int.class, int.class}
-    )      
+    )
     public void test_read$BII() throws IOException {
         byte[] buf1 = new byte[20];
         is.skip(50);
         is.mark(100);
         is.read(buf1, 0, buf1.length);
-        assertTrue("Test 1: Failed to read correct data.", 
+        assertTrue("Test 1: Failed to read correct data.",
                 new String(buf1, 0, buf1.length).equals(
                         fileString.substring(50, 70)));
 
@@ -236,7 +236,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         } catch (IndexOutOfBoundsException e) {
             // Expected
         }
-        
+
         try {
             is.read(buf1 , 1, -1);
             fail("Test 4: IndexOutOfBoundsException expected.");
@@ -260,7 +260,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         notes = "The test verifies reset() method.",
         method = "reset",
         args = {}
-    )     
+    )
     public void test_reset() {
         // Test for method void java.io.ByteArrayInputStream.reset()
         byte[] buf1 = new byte[10];
@@ -286,7 +286,7 @@ public class ByteArrayInputStreamTest extends junit.framework.TestCase {
         notes = "",
         method = "skip",
         args = {long.class}
-    )       
+    )
     public void test_skipJ() {
         // Test for method long java.io.ByteArrayInputStream.skip(long)
         byte[] buf1 = new byte[10];

@@ -120,7 +120,7 @@ public class StringTokenizer implements Enumeration<Object> {
      *            the string to be tokenized.
      */
     public StringTokenizer(String string) {
-        this(string, " \t\n\r\f", false); //$NON-NLS-1$
+        this(string, " \t\n\r\f", false);
     }
 
     /**

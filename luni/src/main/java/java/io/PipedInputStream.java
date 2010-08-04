@@ -15,16 +15,7 @@
  *  limitations under the License.
  */
 
-// BEGIN android-note
-// We've made several changes including:
-//  - delayed buffer creation until pipe connection
-//  - throw an IOException when a pipe is closed during a write
-//  - improved consistency with PipedReader
-// END android-note
-
 package java.io;
-
-import org.apache.harmony.luni.util.Msg;
 
 /**
  * Receives information from a communications pipe. When two threads want to
@@ -59,7 +50,7 @@ public class PipedInputStream extends InputStream {
      * {@code in == out}. Writing when the buffer is full will block until free
      * space is available.
      */
-    protected byte buffer[];
+    protected byte[] buffer;
 
     /**
      * The index in {@code buffer} where the next byte will be written.
@@ -99,6 +90,38 @@ public class PipedInputStream extends InputStream {
      *             if this stream or {@code out} are already connected.
      */
     public PipedInputStream(PipedOutputStream out) throws IOException {
+        connect(out);
+    }
+
+    /**
+     * Constructs a new unconnected {@code PipedInputStream} with the given
+     * buffer size. The resulting stream must be connected to a
+     * {@code PipedOutputStream} before data may be read from it.
+     *
+     * @param pipeSize the size of the buffer in bytes.
+     * @throws IllegalArgumentException if pipeSize is less than or equal to zero.
+     * @since 1.6
+     */
+    public PipedInputStream(int pipeSize) {
+        if (pipeSize <= 0) {
+            throw new IllegalArgumentException("pipe size " + pipeSize + " too small");
+        }
+        buffer = new byte[pipeSize];
+    }
+
+    /**
+     * Constructs a new {@code PipedInputStream} connected to the given {@code PipedOutputStream},
+     * with the given buffer size. Any data written to the output stream can be read from this
+     * input stream.
+     *
+     * @param out the {@code PipedOutputStream} to connect to.
+     * @param pipeSize the size of the buffer in bytes.
+     * @throws IOException if an I/O error occurs.
+     * @throws IllegalArgumentException if pipeSize is less than or equal to zero.
+     * @since 1.6
+     */
+    public PipedInputStream(PipedOutputStream out, int pipeSize) throws IOException {
+        this(pipeSize);
         connect(out);
     }
 
@@ -154,9 +177,11 @@ public class PipedInputStream extends InputStream {
      */
     synchronized void establishConnection() throws IOException {
         if (isConnected) {
-            throw new IOException(Msg.getString("K007a")); //$NON-NLS-1$
+            throw new IOException("Pipe already connected");
         }
-        buffer = new byte[PipedInputStream.PIPE_SIZE];
+        if (buffer == null) { // We may already have allocated the buffer.
+            buffer = new byte[PipedInputStream.PIPE_SIZE];
+        }
         isConnected = true;
     }
 
@@ -181,21 +206,11 @@ public class PipedInputStream extends InputStream {
     @Override
     public synchronized int read() throws IOException {
         if (!isConnected) {
-            // K0074=Not connected
-            throw new IOException(Msg.getString("K0074")); //$NON-NLS-1$
+            throw new IOException("Not connected");
         }
         if (buffer == null) {
-            // K0075=InputStream is closed
-            throw new IOException(Msg.getString("K0075")); //$NON-NLS-1$
+            throw new IOException("InputStream is closed");
         }
-
-        // BEGIN android-removed
-        // eagerly throwing prevents checking isClosed and returning normally
-        // if (lastWriter != null && !lastWriter.isAlive() && (in < 0)) {
-        //     // KA030=Write end dead
-        //     throw new IOException(Msg.getString("KA030")); //$NON-NLS-1$
-        // }
-        // END android-removed
 
         /**
          * Set the last thread to be reading on this PipedInputStream. If
@@ -211,8 +226,7 @@ public class PipedInputStream extends InputStream {
                     return -1;
                 }
                 if ((attempts-- <= 0) && lastWriter != null && !lastWriter.isAlive()) {
-                    // K0076=Pipe broken
-                    throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+                    throw new IOException("Pipe broken");
                 }
                 // Notify callers of receive()
                 notifyAll();
@@ -222,7 +236,6 @@ public class PipedInputStream extends InputStream {
             throw new InterruptedIOException();
         }
 
-        // BEGIN android-changed
         int result = buffer[out++] & 0xff;
         if (out == buffer.length) {
             out = 0;
@@ -237,7 +250,6 @@ public class PipedInputStream extends InputStream {
         notifyAll();
 
         return result;
-        // END android-changed
     }
 
     /**
@@ -274,43 +286,27 @@ public class PipedInputStream extends InputStream {
     @Override
     public synchronized int read(byte[] bytes, int offset, int count)
             throws IOException {
-        // BEGIN android-changed
         if (bytes == null) {
-            throw new NullPointerException(Msg.getString("K0047")); //$NON-NLS-1$
+            throw new NullPointerException("bytes == null");
         }
 
-        // Exception priorities (in case of multiple errors) differ from
-        // RI, but are spec-compliant.
-        // removed redundant check, used (offset | count) < 0
-        // instead of (offset < 0) || (count < 0) to safe one operation
         if ((offset | count) < 0 || count > bytes.length - offset) {
-            throw new IndexOutOfBoundsException(Msg.getString("K002f")); //$NON-NLS-1$
+            throw new IndexOutOfBoundsException();
         }
-        // END android-changed
 
         if (count == 0) {
             return 0;
         }
 
         if (!isConnected) {
-            // K0074=Not connected
-            throw new IOException(Msg.getString("K0074")); //$NON-NLS-1$
+            throw new IOException("Not connected");
         }
 
         if (buffer == null) {
-            // K0075=InputStream is closed
-            throw new IOException(Msg.getString("K0075")); //$NON-NLS-1$
+            throw new IOException("InputStream is closed");
         }
 
-        // BEGIN android-removed
-        // eagerly throwing prevents checking isClosed and returning normally
-        // if (lastWriter != null && !lastWriter.isAlive() && (in < 0)) {
-        //     // KA030=Write end dead
-        //     throw new IOException(Msg.getString("KA030")); //$NON-NLS-1$
-        // }
-        // END android-removed
-
-        /**
+        /*
          * Set the last thread to be reading on this PipedInputStream. If
          * lastReader dies while someone is waiting to write an IOException of
          * "Pipe broken" will be thrown in receive()
@@ -324,8 +320,7 @@ public class PipedInputStream extends InputStream {
                     return -1;
                 }
                 if ((attempts-- <= 0) && lastWriter != null && !lastWriter.isAlive()) {
-                    // K0076=Pipe broken
-                    throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+                    throw new IOException("Pipe broken");
                 }
                 // Notify callers of receive()
                 notifyAll();
@@ -335,7 +330,6 @@ public class PipedInputStream extends InputStream {
             throw new InterruptedIOException();
         }
 
-        // BEGIN android-changed
         int totalCopied = 0;
 
         // copy bytes from out thru the end of buffer
@@ -374,7 +368,6 @@ public class PipedInputStream extends InputStream {
         notifyAll();
 
         return totalCopied;
-        // END android-changed
     }
 
     /**
@@ -396,15 +389,10 @@ public class PipedInputStream extends InputStream {
      */
     protected synchronized void receive(int oneByte) throws IOException {
         if (buffer == null || isClosed) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException("Pipe is closed");
         }
-        // BEGIN android-removed
-        // eagerly throwing causes us to fail even if the buffer's not full
-        // if (lastReader != null && !lastReader.isAlive()) {
-        //     throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
-        // }
-        // END android-removed
-        /**
+
+        /*
          * Set the last thread to be writing on this PipedInputStream. If
          * lastWriter dies while someone is waiting to read an IOException of
          * "Pipe broken" will be thrown in read()
@@ -412,20 +400,17 @@ public class PipedInputStream extends InputStream {
         lastWriter = Thread.currentThread();
         try {
             while (buffer != null && out == in) {
-                // BEGIN android-changed
-                // moved has-last-reader-died check to be before wait()
                 if (lastReader != null && !lastReader.isAlive()) {
-                    throw new IOException(Msg.getString("K0076")); //$NON-NLS-1$
+                    throw new IOException("Pipe broken");
                 }
                 notifyAll();
                 wait(1000);
-                // END android-changed
             }
         } catch (InterruptedException e) {
             throw new InterruptedIOException();
         }
         if (buffer == null) {
-            throw new IOException(Msg.getString("K0078")); //$NON-NLS-1$
+            throw new IOException("Pipe is closed");
         }
         if (in == -1) {
             in = 0;
@@ -435,10 +420,8 @@ public class PipedInputStream extends InputStream {
             in = 0;
         }
 
-        // BEGIN android-added
         // let blocked readers read the newly available data
         notifyAll();
-        // END android-added
     }
 
     synchronized void done() {

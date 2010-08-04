@@ -341,7 +341,7 @@ class TimSort<T> {
         while (lo < hi) {
             Object t = a[lo];
             a[lo++] = a[hi];
-            a[hi--] = t;            
+            a[hi--] = t;
         }
     }
 

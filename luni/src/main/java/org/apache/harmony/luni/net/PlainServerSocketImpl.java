@@ -29,22 +29,19 @@ import org.apache.harmony.luni.net.PlainSocketImpl;
  */
 public class PlainServerSocketImpl extends PlainSocketImpl {
 
-    public PlainServerSocketImpl() {
-        super();
-    }
+    public PlainServerSocketImpl() {}
 
     public PlainServerSocketImpl(FileDescriptor fd) {
-        super();
-        this.fd = fd;
+        super(fd);
     }
 
     @Override
     protected void create(boolean isStreaming) throws SocketException {
         streaming = isStreaming;
         if (isStreaming) {
-            netImpl.createServerStreamSocket(fd, NetUtil.preferIPv4Stack());
+            netImpl.createServerStreamSocket(fd);
         } else {
-            netImpl.createDatagramSocket(fd, NetUtil.preferIPv4Stack());
+            netImpl.createDatagramSocket(fd);
         }
     }
 }

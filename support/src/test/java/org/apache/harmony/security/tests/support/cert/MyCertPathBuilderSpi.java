@@ -29,9 +29,9 @@ import java.security.cert.CertPathBuilderSpi;
 import java.security.cert.CertPathParameters;
 
 /**
- * Additional class for verification CertPathBuilderSpi 
- * and CertPathBuilder 
- 
+ * Additional class for verification CertPathBuilderSpi
+ * and CertPathBuilder
+
  */
 
 public class MyCertPathBuilderSpi extends CertPathBuilderSpi {

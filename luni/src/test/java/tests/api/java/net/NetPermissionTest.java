@@ -17,14 +17,14 @@
 
 package tests.api.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
 
 import java.net.NetPermission;
 
-@TestTargetClass(NetPermission.class) 
+@TestTargetClass(NetPermission.class)
 public class NetPermissionTest extends junit.framework.TestCase {
 
     /**
@@ -39,7 +39,7 @@ public class NetPermissionTest extends junit.framework.TestCase {
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.net.NetPermission(java.lang.String)
         NetPermission n = new NetPermission("requestPasswordAuthentication");
-        assertEquals("Returned incorrect name", 
+        assertEquals("Returned incorrect name",
                 "requestPasswordAuthentication", n.getName());
     }
 
@@ -58,7 +58,7 @@ public class NetPermissionTest extends junit.framework.TestCase {
         // java.lang.String)
         NetPermission n = new NetPermission("requestPasswordAuthentication",
                 null);
-        assertEquals("Returned incorrect name", 
+        assertEquals("Returned incorrect name",
                 "requestPasswordAuthentication", n.getName());
         NetPermission n1 = new NetPermission("requestPasswordAuthentication",
                 "");

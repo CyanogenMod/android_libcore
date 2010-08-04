@@ -17,11 +17,7 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
-// BEGIN android-added
 import java.util.logging.Logger;
-// END android-added
 
 /**
  * Wraps an existing {@link Reader} and <em>buffers</em> the input. Expensive
@@ -30,13 +26,13 @@ import java.util.logging.Logger;
  * some extra space is required to hold the buffer and that copying takes place
  * when filling that buffer, but this is usually outweighed by the performance
  * benefits.
- * 
+ *
  * <p/>A typical application pattern for the class looks like this:<p/>
  *
  * <pre>
  * BufferedReader buf = new BufferedReader(new FileReader(&quot;file.java&quot;));
  * </pre>
- * 
+ *
  * @see BufferedWriter
  * @since 1.1
  */
@@ -75,48 +71,27 @@ public class BufferedReader extends Reader {
     private int markLimit = -1;
 
     /**
-     * Constructs a new BufferedReader on the Reader {@code in}. The
-     * buffer gets the default size (8 KB).
-     * 
-     * @param in
-     *            the Reader that is buffered.
+     * Constructs a new {@code BufferedReader}, providing {@code in} with a buffer
+     * of 8192 characters.
+     *
+     * @param in the {@code Reader} the buffer reads from.
      */
     public BufferedReader(Reader in) {
-        super(in);
-        this.in = in;
-        buf = new char[8192];
-
-        // BEGIN android-only
-        /*
-         * For Android, we want to discourage the use of this
-         * constructor (with its arguably too-large default), so we
-         * note its use in the log. We don't disable it, nor do we
-         * alter the default, however, because we still aim to behave
-         * compatibly, and the default value, though not documented,
-         * is established by convention.
-         */
-        Logger.global.info(
-                "Default buffer size used in BufferedReader " +
-                "constructor. It would be " +
-                "better to be explicit if an 8k-char buffer is required.");
-        // END android-only
+        this(in, 8192);
     }
 
     /**
-     * Constructs a new BufferedReader on the Reader {@code in}. The buffer
-     * size is specified by the parameter {@code size}.
-     * 
-     * @param in
-     *            the Reader that is buffered.
-     * @param size
-     *            the size of the buffer to allocate.
-     * @throws IllegalArgumentException
-     *             if {@code size <= 0}.
+     * Constructs a new {@code BufferedReader}, providing {@code in} with {@code size} characters
+     * of buffer.
+     *
+     * @param in the {@code InputStream} the buffer reads from.
+     * @param size the size of buffer in characters.
+     * @throws IllegalArgumentException if {@code size <= 0}.
      */
     public BufferedReader(Reader in, int size) {
         super(in);
         if (size <= 0) {
-            throw new IllegalArgumentException(Msg.getString("K0058")); //$NON-NLS-1$
+            throw new IllegalArgumentException("size <= 0");
         }
         this.in = in;
         buf = new char[size];
@@ -126,7 +101,7 @@ public class BufferedReader extends Reader {
      * Closes this reader. This implementation closes the buffered source reader
      * and releases the buffer. Nothing is done if this reader has already been
      * closed.
-     * 
+     *
      * @throws IOException
      *             if an error occurs while closing this reader.
      */
@@ -188,7 +163,7 @@ public class BufferedReader extends Reader {
 
     /**
      * Indicates whether or not this reader is closed.
-     * 
+     *
      * @return {@code true} if this reader is closed, {@code false}
      *         otherwise.
      */
@@ -201,7 +176,7 @@ public class BufferedReader extends Reader {
      * indicates how many characters can be read before the mark is invalidated.
      * Calling {@code reset()} will reposition the reader back to the marked
      * position if {@code markLimit} has not been surpassed.
-     * 
+     *
      * @param markLimit
      *            the number of characters that can be read before the mark is
      *            invalidated.
@@ -218,18 +193,22 @@ public class BufferedReader extends Reader {
             throw new IllegalArgumentException();
         }
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             this.markLimit = markLimit;
             mark = pos;
+        }
+    }
+
+    private void checkNotClosed() throws IOException {
+        if (isClosed()) {
+            throw new IOException("BufferedReader is closed");
         }
     }
 
     /**
      * Indicates whether this reader supports the {@code mark()} and
      * {@code reset()} methods. This implementation returns {@code true}.
-     * 
+     *
      * @return {@code true} for {@code BufferedReader}.
      * @see #mark(int)
      * @see #reset()
@@ -254,9 +233,7 @@ public class BufferedReader extends Reader {
     @Override
     public int read() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             /* Are there buffered characters available? */
             if (pos < end || fillBuf() != -1) {
                 return buf[pos++];
@@ -273,7 +250,7 @@ public class BufferedReader extends Reader {
      * has not been set and the requested number of characters is larger than
      * this readers buffer size, BufferedReader bypasses the buffer and simply
      * places the results directly into {@code buffer}.
-     * 
+     *
      * @param buffer
      *            the character array to store the characters read.
      * @param offset
@@ -294,9 +271,7 @@ public class BufferedReader extends Reader {
     @Override
     public int read(char[] buffer, int offset, int length) throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             if (offset < 0 || offset > buffer.length - length || length < 0) {
                 throw new IndexOutOfBoundsException();
             }
@@ -371,7 +346,7 @@ public class BufferedReader extends Reader {
      * represented by zero or more characters followed by {@code '\n'},
      * {@code '\r'}, {@code "\r\n"} or the end of the reader. The string does
      * not include the newline sequence.
-     * 
+     *
      * @return the contents of the line or {@code null} if no characters were
      *         read before the end of the reader has been reached.
      * @throws IOException
@@ -379,9 +354,7 @@ public class BufferedReader extends Reader {
      */
     public String readLine() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             /* has the underlying stream been exhausted? */
             if (pos == end && fillBuf() == -1) {
                 return null;
@@ -472,9 +445,7 @@ public class BufferedReader extends Reader {
     @Override
     public boolean ready() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             return ((end - pos) > 0) || in.ready();
         }
     }
@@ -483,7 +454,7 @@ public class BufferedReader extends Reader {
      * Resets this reader's position to the last {@code mark()} location.
      * Invocations of {@code read()} and {@code skip()} will occur from this new
      * location.
-     * 
+     *
      * @throws IOException
      *             if this reader is closed or no mark has been set.
      * @see #mark(int)
@@ -492,11 +463,9 @@ public class BufferedReader extends Reader {
     @Override
     public void reset() throws IOException {
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             if (mark == -1) {
-                throw new IOException(Msg.getString("K005c")); //$NON-NLS-1$
+                throw new IOException("Invalid mark");
             }
             pos = mark;
         }
@@ -507,7 +476,7 @@ public class BufferedReader extends Reader {
      * {@code read()}s will not return these characters unless {@code reset()}
      * is used. Skipping characters may invalidate a mark if {@code markLimit}
      * is surpassed.
-     * 
+     *
      * @param amount
      *            the maximum number of characters to skip.
      * @return the number of characters actually skipped.
@@ -525,9 +494,7 @@ public class BufferedReader extends Reader {
             throw new IllegalArgumentException();
         }
         synchronized (lock) {
-            if (isClosed()) {
-                throw new IOException(Msg.getString("K005b")); //$NON-NLS-1$
-            }
+            checkNotClosed();
             if (amount < 1) {
                 return 0;
             }

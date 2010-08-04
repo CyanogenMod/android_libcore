@@ -22,20 +22,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-
-import org.apache.harmony.luni.util.Msg;
 import org.apache.harmony.luni.util.URLUtil;
 
 public class Handler extends URLStreamHandler {
     /**
      * Returns a connection to the jar file pointed by this <code>URL</code>
      * in the file system
-     * 
+     *
      * @return java.net.URLConnection A connection to the resource pointed by
      *         this url.
      * @param u
      *            java.net.URL The URL to which the connection is pointing to
-     * 
+     *
      * @throws IOException
      *             thrown if an IO error occurs when this method tries to
      *             establish connection.
@@ -46,7 +44,7 @@ public class Handler extends URLStreamHandler {
     }
 
     /**
-     * 
+     *
      * @param url
      *            URL the context URL
      * @param spec
@@ -60,17 +58,17 @@ public class Handler extends URLStreamHandler {
     protected void parseURL(URL url, String spec, int start, int limit) {
         String file = url.getFile();
         if (file == null) {
-            file = ""; //$NON-NLS-1$
+            file = "";
         }
         if (limit > start) {
             spec = spec.substring(start, limit);
         } else {
-            spec = ""; //$NON-NLS-1$
+            spec = "";
         }
-        if (spec.indexOf("!/") == -1 && (file.indexOf("!/") == -1)) { //$NON-NLS-1$ //$NON-NLS-2$
-            throw new NullPointerException(Msg.getString("K01b6")); //$NON-NLS-1$
+        if (spec.indexOf("!/") == -1 && (file.indexOf("!/") == -1)) {
+            throw new NullPointerException("Cannot find \"!/\"");
         }
-        if (file.equals("")) {
+        if (file.isEmpty()) {
             file = spec;
         } else if (spec.charAt(0) == '/') {
             file = file.substring(0, file.indexOf('!') + 1) + spec;
@@ -87,12 +85,12 @@ public class Handler extends URLStreamHandler {
         } catch (MalformedURLException e) {
             throw new NullPointerException(e.toString());
         }
-        setURL(url, "jar", "", -1, null, null, file, null, null); //$NON-NLS-1$//$NON-NLS-2$
+        setURL(url, "jar", "", -1, null, null, file, null, null);
     }
 
     /**
      * Build and return the externalized string representation of url.
-     * 
+     *
      * @return String the externalized string representation of url
      * @param url
      *            a URL
@@ -100,7 +98,7 @@ public class Handler extends URLStreamHandler {
     @Override
     protected String toExternalForm(URL url) {
         StringBuilder sb = new StringBuilder();
-        sb.append("jar:"); //$NON-NLS-1$
+        sb.append("jar:");
         sb.append(url.getFile());
         String ref = url.getRef();
         if (ref != null) {

@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,15 +21,12 @@ import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * The superclass of all enumerated types. Actual enumeration types inherit from
  * this class, but extending this class does not make a class an enumeration
  * type, since the compiler needs to generate special information for it.
  */
-public abstract class Enum<E extends Enum<E>> implements Serializable,
-        Comparable<E> {
+public abstract class Enum<E extends Enum<E>> implements Serializable, Comparable<E> {
 
     private static final long serialVersionUID = -4300926546619394005L;
 
@@ -113,8 +110,7 @@ public abstract class Enum<E extends Enum<E>> implements Serializable,
      */
     @Override
     protected final Object clone() throws CloneNotSupportedException {
-        // KA004=Enums may not be cloned
-        throw new CloneNotSupportedException(Msg.getString("KA004")); //$NON-NLS-1$
+        throw new CloneNotSupportedException("Enums may not be cloned");
     }
 
     /**
@@ -166,29 +162,30 @@ public abstract class Enum<E extends Enum<E>> implements Serializable,
      *             have a constant value called {@code name}.
      */
     public static <T extends Enum<T>> T valueOf(Class<T> enumType, String name) {
-        if ((enumType == null) || (name == null)) {
-            // KA001=Argument must not be null
-            throw new NullPointerException(Msg.getString("KA001")); //$NON-NLS-1$
+        if (enumType == null || name == null) {
+            throw new NullPointerException("enumType == null || name == null");
         }
 
-        // BEGIN android-changed
         enumType.checkPublicMemberAccess();
 
         T result = enumType.getClassCache().getEnumValue(name);
-
         if (result == null) {
             if (!enumType.isEnum()) {
-                // KA005={0} is not an enum type
-                throw new IllegalArgumentException(Msg.getString("KA005", enumType)); //$NON-NLS-1$
+                throw new IllegalArgumentException(enumType + " is not an enum type");
             } else {
-                // KA006={0} is not a constant in the enum type {1}
-                throw new IllegalArgumentException(Msg.getString("KA006", name, //$NON-NLS-1$
-                                enumType));
+                throw new IllegalArgumentException(name + " is not a constant in " + enumType);
             }
         }
-
         return result;
-        // END android-changed
+    }
+
+    /**
+     * Enum types may not have finalizers.
+     *
+     * @since 1.6
+     */
+    @Override
+    protected final void finalize() {
     }
 
     /*
@@ -201,7 +198,7 @@ public abstract class Enum<E extends Enum<E>> implements Serializable,
             Method values = AccessController
                     .doPrivileged(new PrivilegedExceptionAction<Method>() {
                         public Method run() throws Exception {
-                            Method valsMethod = enumType.getMethod("values", //$NON-NLS-1$
+                            Method valsMethod = enumType.getMethod("values",
                                     (Class[]) null);
                             valsMethod.setAccessible(true);
                             return valsMethod;

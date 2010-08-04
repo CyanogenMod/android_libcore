@@ -17,7 +17,7 @@
 
 package org.apache.harmony.luni.tests.java.net;
 
-import dalvik.annotation.TestTargetClass; 
+import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargets;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetNew;
@@ -29,7 +29,7 @@ import java.net.InetAddress;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
-@TestTargetClass(Inet4Address.class) 
+@TestTargetClass(Inet4Address.class)
 public class Inet4AddressTest extends junit.framework.TestCase {
 
     /**
@@ -428,7 +428,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
             fail("Unknown address : " + addrName);
         }
     }
-    
+
     // comparator for Inet4Address objects
     private static final SerializableAssert COMPARATOR = new SerializableAssert() {
         public void assertDeserialized(Serializable initial,
@@ -476,7 +476,7 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         SerializationTest.verifyGolden(this, Inet4Address
                 .getByName("localhost"), COMPARATOR);
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -490,11 +490,11 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         InetAddress addr2 = Inet4Address.getByName("localhost");
         assertTrue(addr1.equals(addr2));
         assertFalse(addr.equals(addr1));
-        
+
         InetAddress addr3 = Inet4Address.getByName("127.0.0");
         assertFalse(addr1.equals(addr3));
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -504,23 +504,23 @@ public class Inet4AddressTest extends junit.framework.TestCase {
     public void test_getHostAddress() throws Exception {
         InetAddress addr = Inet4Address.getByName("localhost");
         assertEquals("127.0.0.1", addr.getHostAddress());
-        
+
         addr = Inet4Address.getByName("127.0.0.1");
         assertEquals("127.0.0.1", addr.getHostAddress());
-        
+
         addr = Inet4Address.getByName("224.0.0.0");
         assertEquals("224.0.0.0", addr.getHostAddress());
-        
+
         addr = Inet4Address.getByName("1");
-        assertEquals("0.0.0.1", addr.getHostAddress());   
-        
+        assertEquals("0.0.0.1", addr.getHostAddress());
+
         addr = Inet4Address.getByName("1.1");
-        assertEquals("1.0.0.1", addr.getHostAddress());  
-        
+        assertEquals("1.0.0.1", addr.getHostAddress());
+
         addr = Inet4Address.getByName("1.1.1");
-        assertEquals("1.1.0.1", addr.getHostAddress());         
+        assertEquals("1.1.0.1", addr.getHostAddress());
     }
-    
+
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         notes = "",
@@ -531,10 +531,10 @@ public class Inet4AddressTest extends junit.framework.TestCase {
         InetAddress addr1 = Inet4Address.getByName("1.1");
         InetAddress addr2 = Inet4Address.getByName("1.1.1");
         assertFalse(addr1.hashCode() == addr2.hashCode());
-        
+
         addr2 = InetAddress.getByName("1.0.0.1");
         assertTrue(addr1.hashCode() == addr2.hashCode());
-        
+
         addr1 = Inet4Address.getByName("127.0.0.1");
         addr2 = Inet4Address.getByName("localhost");
         assertTrue(addr1.hashCode() == addr2.hashCode());

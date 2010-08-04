@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,10 +25,10 @@ import junit.framework.TestCase;
 
 import java.util.Properties;
 
-@TestTargetClass(Integer.class) 
+@TestTargetClass(Integer.class)
 public class IntegerTest extends TestCase {
     private Properties orgProps;
-    
+
     @Override
     protected void setUp() {
         orgProps = System.getProperties();
@@ -73,7 +73,7 @@ public class IntegerTest extends TestCase {
                 .compareTo(new Integer(-2)));
         assertTrue("3 compared to 2 gave non-positive answer", new Integer(3)
                 .compareTo(new Integer(2)) > 0);
-        
+
         try {
             new Integer(0).compareTo(null);
             fail("No NPE");
@@ -331,14 +331,14 @@ public class IntegerTest extends TestCase {
         // java.lang.Integer.getInteger(java.lang.String, java.lang.Integer)
         Properties tProps = new Properties();
         tProps.put("testInt", "99");
-        tProps.put("testIncInt", "notInt");        
+        tProps.put("testIncInt", "notInt");
         System.setProperties(tProps);
         assertTrue("returned incorrect Integer", Integer.getInteger("testInt",
                 new Integer(4)).equals(new Integer(99)));
         assertTrue("returned incorrect default Integer", Integer.getInteger(
                 "ff", new Integer(4)).equals(new Integer(4)));
         assertTrue("returned incorrect default Integer", Integer.getInteger(
-                "testIncInt", new Integer(4)).equals(new Integer(4)));        
+                "testIncInt", new Integer(4)).equals(new Integer(4)));
     }
 
     /**
@@ -641,7 +641,7 @@ public class IntegerTest extends TestCase {
                 -Integer.MAX_VALUE));
         assertEquals("Returned incorrect octal string", "-2147483648", Integer.toString(
                 Integer.MIN_VALUE));
-        
+
         // Test for HARMONY-6068
         assertEquals("Returned incorrect octal String", "-1000", Integer.toString(-1000));
         assertEquals("Returned incorrect octal String", "1000", Integer.toString(1000));
@@ -678,7 +678,7 @@ public class IntegerTest extends TestCase {
         assertTrue("Returned incorrect hex string--wanted -7fffffff but got: "
                 + Integer.toString(-2147483647, 16), Integer.toString(
                 -2147483647, 16).equals("-7fffffff"));
-        assertEquals("Incorrect string returned", 
+        assertEquals("Incorrect string returned",
                         "-1111111111111111111111111111111", Integer
                 .toString(-2147483647, 2));
         assertEquals("Incorrect string returned", "-2147483647", Integer.toString(-2147483647,
@@ -689,7 +689,7 @@ public class IntegerTest extends TestCase {
         assertTrue("Returned incorrect hex string--wanted -80000000 but got: "
                 + Integer.toString(-2147483648, 16), Integer.toString(
                 -2147483648, 16).equals("-80000000"));
-        assertEquals("Incorrect string returned", 
+        assertEquals("Incorrect string returned",
                         "-10000000000000000000000000000000", Integer
                 .toString(-2147483648, 2));
         assertEquals("Incorrect string returned", "-2147483648", Integer.toString(-2147483648,
@@ -817,7 +817,7 @@ public class IntegerTest extends TestCase {
         assertTrue("Failed to throw exception with hex MIN_VALUE - 1",
                 exception);
     }
-    
+
     /**
      * @tests java.lang.Integer#valueOf(byte)
      */
@@ -839,7 +839,7 @@ public class IntegerTest extends TestCase {
             s++;
         }
     }
-    
+
     /**
      * @tests java.lang.Integer#hashCode()
      */
@@ -869,7 +869,7 @@ public class IntegerTest extends TestCase {
         assertEquals(new Integer(0), new Integer("0"));
         assertEquals(new Integer(1), new Integer("1"));
         assertEquals(new Integer(-1), new Integer("-1"));
-        
+
         try {
             new Integer("0x1");
             fail("Expected NumberFormatException with hex string.");
@@ -884,7 +884,7 @@ public class IntegerTest extends TestCase {
             new Integer("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             new Integer(null);
             fail("Expected NumberFormatException with null string.");
@@ -905,7 +905,7 @@ public class IntegerTest extends TestCase {
         assertEquals(2, new Integer(2).intValue());
         assertEquals(0, new Integer(0).intValue());
         assertEquals(-1, new Integer(-1).intValue());
-        
+
         Integer i = new Integer(-89000);
         assertEquals("Incorrect Integer created", -89000, i.intValue());
     }
@@ -920,7 +920,7 @@ public class IntegerTest extends TestCase {
         args = {}
     )
     public void test_booleanValue() {
-        assertEquals(1, new Integer(1).byteValue());    
+        assertEquals(1, new Integer(1).byteValue());
         assertEquals(2, new Integer(2).byteValue());
         assertEquals(0, new Integer(0).byteValue());
         assertEquals(-1, new Integer(-1).byteValue());
@@ -939,7 +939,7 @@ public class IntegerTest extends TestCase {
         assertEquals(new Integer(0), Integer.valueOf(0));
         assertEquals(new Integer(1), Integer.valueOf(1));
         assertEquals(new Integer(-1), Integer.valueOf(-1));
-        
+
         Integer fixture = new Integer(25);
         assertEquals(fixture, fixture);
         assertFalse(fixture.equals(null));
@@ -991,7 +991,7 @@ public class IntegerTest extends TestCase {
         assertEquals(new Integer(0), Integer.valueOf("0"));
         assertEquals(new Integer(1), Integer.valueOf("1"));
         assertEquals(new Integer(-1), Integer.valueOf("-1"));
-        
+
         try {
             Integer.valueOf("0x1");
             fail("Expected NumberFormatException with hex string.");
@@ -1006,13 +1006,13 @@ public class IntegerTest extends TestCase {
             Integer.valueOf("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Integer.valueOf(null);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Integer#valueOf(String,int)
      */
@@ -1026,11 +1026,11 @@ public class IntegerTest extends TestCase {
         assertEquals(new Integer(0), Integer.valueOf("0", 10));
         assertEquals(new Integer(1), Integer.valueOf("1", 10));
         assertEquals(new Integer(-1), Integer.valueOf("-1", 10));
-        
+
         //must be consistent with Character.digit()
         assertEquals(Character.digit('1', 2), Integer.valueOf("1", 2).byteValue());
         assertEquals(Character.digit('F', 16), Integer.valueOf("F", 16).byteValue());
-        
+
         try {
             Integer.valueOf("0x1", 10);
             fail("Expected NumberFormatException with hex string.");
@@ -1045,13 +1045,13 @@ public class IntegerTest extends TestCase {
             Integer.valueOf("", 10);
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Integer.valueOf(null, 10);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Integer#parseInt(String)
      */
@@ -1065,7 +1065,7 @@ public class IntegerTest extends TestCase {
         assertEquals(0, Integer.parseInt("0"));
         assertEquals(1, Integer.parseInt("1"));
         assertEquals(-1, Integer.parseInt("-1"));
-        
+
         try {
             Integer.parseInt("0x1");
             fail("Expected NumberFormatException with hex string.");
@@ -1080,13 +1080,13 @@ public class IntegerTest extends TestCase {
             Integer.parseInt("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Integer.parseInt(null);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Integer#parseInt(String,int)
      */
@@ -1100,11 +1100,11 @@ public class IntegerTest extends TestCase {
         assertEquals(0, Integer.parseInt("0", 10));
         assertEquals(1, Integer.parseInt("1", 10));
         assertEquals(-1, Integer.parseInt("-1", 10));
-        
+
         //must be consistent with Character.digit()
         assertEquals(Character.digit('1', 2), Integer.parseInt("1", 2));
         assertEquals(Character.digit('F', 16), Integer.parseInt("F", 16));
-        
+
         try {
             Integer.parseInt("0x1", 10);
             fail("Expected NumberFormatException with hex string.");
@@ -1119,13 +1119,13 @@ public class IntegerTest extends TestCase {
             Integer.parseInt("", 10);
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Integer.parseInt(null, 10);
             fail("Expected NumberFormatException with null string.");
         } catch (NumberFormatException e) {}
     }
-    
+
     /**
      * @tests java.lang.Integer#decode(String)
      */
@@ -1143,7 +1143,7 @@ public class IntegerTest extends TestCase {
         assertEquals(new Integer(0xF), Integer.decode("#F"));
         assertEquals(new Integer(0xF), Integer.decode("0XF"));
         assertEquals(new Integer(07), Integer.decode("07"));
-        
+
         try {
             Integer.decode("9.2");
             fail("Expected NumberFormatException with floating point string.");
@@ -1153,14 +1153,14 @@ public class IntegerTest extends TestCase {
             Integer.decode("");
             fail("Expected NumberFormatException with empty string.");
         } catch (NumberFormatException e) {}
-        
+
         try {
             Integer.decode(null);
             //undocumented NPE, but seems consistent across JREs
             fail("Expected NullPointerException with null string.");
         } catch (NullPointerException e) {}
     }
-    
+
     /**
      * @tests java.lang.Integer#doubleValue()
      */
@@ -1175,7 +1175,7 @@ public class IntegerTest extends TestCase {
         assertEquals(0D, new Integer(0).doubleValue(), 0D);
         assertEquals(1D, new Integer(1).doubleValue(), 0D);
     }
-    
+
     /**
      * @tests java.lang.Integer#floatValue()
      */
@@ -1190,7 +1190,7 @@ public class IntegerTest extends TestCase {
         assertEquals(0F, new Integer(0).floatValue(), 0F);
         assertEquals(1F, new Integer(1).floatValue(), 0F);
     }
-    
+
     /**
      * @tests java.lang.Integer#intValue()
      */
@@ -1205,9 +1205,9 @@ public class IntegerTest extends TestCase {
         assertEquals(0, new Integer(0).intValue());
         assertEquals(1, new Integer(1).intValue());
         assertEquals(Integer.MAX_VALUE, new Integer(Integer.MAX_VALUE).intValue());
-        assertEquals(Integer.MIN_VALUE, new Integer(Integer.MIN_VALUE).intValue());        
+        assertEquals(Integer.MIN_VALUE, new Integer(Integer.MIN_VALUE).intValue());
     }
-    
+
     /**
      * @tests java.lang.Integer#longValue()
      */
@@ -1222,9 +1222,9 @@ public class IntegerTest extends TestCase {
         assertEquals(0L, new Integer(0).longValue());
         assertEquals(1L, new Integer(1).longValue());
         assertEquals(Integer.MAX_VALUE, new Integer(Integer.MAX_VALUE).longValue());
-        assertEquals(Integer.MIN_VALUE, new Integer(Integer.MIN_VALUE).longValue());          
+        assertEquals(Integer.MIN_VALUE, new Integer(Integer.MIN_VALUE).longValue());
     }
-    
+
     /**
      * @tests java.lang.Integer#shortValue()
      */
@@ -1239,7 +1239,7 @@ public class IntegerTest extends TestCase {
         assertEquals(0, new Integer(0).shortValue());
         assertEquals(1, new Integer(1).shortValue());
         assertEquals(-1, new Integer(Integer.MAX_VALUE).shortValue());
-        assertEquals(0, new Integer(Integer.MIN_VALUE).shortValue());          
+        assertEquals(0, new Integer(Integer.MIN_VALUE).shortValue());
     }
     /**
      * @tests java.lang.Integer#highestOneBit(int)
@@ -1256,17 +1256,17 @@ public class IntegerTest extends TestCase {
         assertEquals(0x08, Integer.highestOneBit(0x0C));
         assertEquals(0x08, Integer.highestOneBit(0x0F));
         assertEquals(0x80, Integer.highestOneBit(0xFF));
-        
+
         assertEquals(0x080000, Integer.highestOneBit(0x0F1234));
         assertEquals(0x800000, Integer.highestOneBit(0xFF9977));
-        
+
         assertEquals(0x80000000, Integer.highestOneBit(0xFFFFFFFF));
-        
+
         assertEquals(0, Integer.highestOneBit(0));
         assertEquals(1, Integer.highestOneBit(1));
         assertEquals(0x80000000, Integer.highestOneBit(-1));
     }
-    
+
     /**
      * @tests java.lang.Integer#lowestOneBit(int)
      */
@@ -1278,25 +1278,25 @@ public class IntegerTest extends TestCase {
     )
     public void test_lowestOneBitI() {
         assertEquals(0x10, Integer.lowestOneBit(0xF0));
-        
+
         assertEquals(0x10, Integer.lowestOneBit(0x90));
         assertEquals(0x10, Integer.lowestOneBit(0xD0));
-        
+
         assertEquals(0x10, Integer.lowestOneBit(0x123490));
         assertEquals(0x10, Integer.lowestOneBit(0x1234D0));
-        
+
         assertEquals(0x100000, Integer.lowestOneBit(0x900000));
         assertEquals(0x100000, Integer.lowestOneBit(0xD00000));
-        
+
         assertEquals(0x40, Integer.lowestOneBit(0x40));
         assertEquals(0x40, Integer.lowestOneBit(0xC0));
-        
+
         assertEquals(0x4000, Integer.lowestOneBit(0x4000));
         assertEquals(0x4000, Integer.lowestOneBit(0xC000));
-        
+
         assertEquals(0x4000, Integer.lowestOneBit(0x99994000));
         assertEquals(0x4000, Integer.lowestOneBit(0x9999C000));
-        
+
         assertEquals(0, Integer.lowestOneBit(0));
         assertEquals(1, Integer.lowestOneBit(1));
         assertEquals(1, Integer.lowestOneBit(-1));
@@ -1348,13 +1348,13 @@ public class IntegerTest extends TestCase {
         assertEquals(3, Integer.numberOfLeadingZeros(0x10000000));
         assertEquals(0, Integer.numberOfLeadingZeros(0x80000000));
         assertEquals(0, Integer.numberOfLeadingZeros(0xF0000000));
-        
+
         assertEquals(1, Integer.numberOfLeadingZeros(Integer.MAX_VALUE));
         assertEquals(0, Integer.numberOfLeadingZeros(Integer.MIN_VALUE));
     }
-    
+
     /**
-     * @tests 
+     * @tests
      * java.lang.Integer#numberOfTrailingZeros(int)
      */
     @TestTargetNew(
@@ -1367,40 +1367,40 @@ public class IntegerTest extends TestCase {
         assertEquals(32, Integer.numberOfTrailingZeros(0x0));
         assertEquals(31, Integer.numberOfTrailingZeros(Integer.MIN_VALUE));
         assertEquals(0, Integer.numberOfTrailingZeros(Integer.MAX_VALUE));
-        
+
         assertEquals(0, Integer.numberOfTrailingZeros(0x1));
         assertEquals(3, Integer.numberOfTrailingZeros(0x8));
         assertEquals(0, Integer.numberOfTrailingZeros(0xF));
-        
+
         assertEquals(4, Integer.numberOfTrailingZeros(0x10));
         assertEquals(7, Integer.numberOfTrailingZeros(0x80));
         assertEquals(4, Integer.numberOfTrailingZeros(0xF0));
-        
+
         assertEquals(8, Integer.numberOfTrailingZeros(0x100));
         assertEquals(11, Integer.numberOfTrailingZeros(0x800));
         assertEquals(8, Integer.numberOfTrailingZeros(0xF00));
-        
+
         assertEquals(12, Integer.numberOfTrailingZeros(0x1000));
         assertEquals(15, Integer.numberOfTrailingZeros(0x8000));
         assertEquals(12, Integer.numberOfTrailingZeros(0xF000));
-        
+
         assertEquals(16, Integer.numberOfTrailingZeros(0x10000));
         assertEquals(19, Integer.numberOfTrailingZeros(0x80000));
         assertEquals(16, Integer.numberOfTrailingZeros(0xF0000));
-        
+
         assertEquals(20, Integer.numberOfTrailingZeros(0x100000));
         assertEquals(23, Integer.numberOfTrailingZeros(0x800000));
         assertEquals(20, Integer.numberOfTrailingZeros(0xF00000));
-        
+
         assertEquals(24, Integer.numberOfTrailingZeros(0x1000000));
         assertEquals(27, Integer.numberOfTrailingZeros(0x8000000));
         assertEquals(24, Integer.numberOfTrailingZeros(0xF000000));
-        
+
         assertEquals(28, Integer.numberOfTrailingZeros(0x10000000));
         assertEquals(31, Integer.numberOfTrailingZeros(0x80000000));
         assertEquals(28, Integer.numberOfTrailingZeros(0xF0000000));
     }
-    
+
     /**
      * @tests java.lang.Integer#bitCount(int)
      */
@@ -1427,7 +1427,7 @@ public class IntegerTest extends TestCase {
         assertEquals(3, Integer.bitCount(0xD));
         assertEquals(3, Integer.bitCount(0xE));
         assertEquals(4, Integer.bitCount(0xF));
-        
+
         assertEquals(8, Integer.bitCount(0xFF));
         assertEquals(12, Integer.bitCount(0xFFF));
         assertEquals(16, Integer.bitCount(0xFFFF));
@@ -1436,7 +1436,7 @@ public class IntegerTest extends TestCase {
         assertEquals(28, Integer.bitCount(0xFFFFFFF));
         assertEquals(32, Integer.bitCount(0xFFFFFFFF));
     }
-    
+
     /**
      * @tests java.lang.Integer#rotateLeft(int,int)
      */
@@ -1457,7 +1457,7 @@ public class IntegerTest extends TestCase {
         assertEquals(0xF0000000, Integer.rotateLeft(0xF, 28));
         assertEquals(0xF0000000, Integer.rotateLeft(0xF0000000, 32));
     }
-    
+
     /**
      * @tests java.lang.Integer#rotateRight(int,int)
      */
@@ -1477,9 +1477,9 @@ public class IntegerTest extends TestCase {
         assertEquals(0xF, Integer.rotateRight(0xF0000000, 28));
         assertEquals(0xF0000000, Integer.rotateRight(0xF0000000, 32));
         assertEquals(0xF0000000, Integer.rotateRight(0xF0000000, 0));
-        
+
     }
-    
+
     /**
      * @tests java.lang.Integer#reverseBytes(int)
      */
@@ -1495,7 +1495,7 @@ public class IntegerTest extends TestCase {
         assertEquals(0x00112233, Integer.reverseBytes(0x33221100));
         assertEquals(0x20000002, Integer.reverseBytes(0x02000020));
     }
-    
+
     /**
      * @tests java.lang.Integer#reverse(int)
      */
@@ -1509,7 +1509,7 @@ public class IntegerTest extends TestCase {
         assertEquals(-1, Integer.reverse(-1));
         assertEquals(0x80000000,Integer.reverse(1));
     }
-    
+
     /**
      * @tests java.lang.Integer#signum(int)
      */

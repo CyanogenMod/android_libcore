@@ -20,14 +20,7 @@ package java.net;
 import java.io.ObjectStreamException;
 
 /**
- * This class represents a 32 bit long IPv4 address. The most common textual
- * representation of an IPv4 address follows the pattern {@code b.b.b.b} where
- * each {@code b} represents one of the four bytes. If only three parts are
- * specified ({@code b.b.bb} ), the last part is then 16 bit long, the address
- * represents a class B network address as <i>128.net.host</i>. A two part
- * address ({@code b.bbb} ) allows to represent a class A network address as
- * <i>net.host</i>. If there is only one part ({@code bbbb} ) the address is
- * represented without any byte rearrangement.
+ * An IPv4 address. See {@link InetAddress}.
  */
 public final class Inet4Address extends InetAddress {
 
@@ -35,7 +28,7 @@ public final class Inet4Address extends InetAddress {
 
     final static InetAddress ANY = new Inet4Address(new byte[] { 0, 0, 0, 0 });
     final static InetAddress LOOPBACK = new Inet4Address(
-            new byte[] { 127, 0, 0, 1 }, "localhost"); //$NON-NLS-1$
+            new byte[] { 127, 0, 0, 1 }, "localhost");
 
     Inet4Address(byte[] address) {
         family = AF_INET;
@@ -51,7 +44,7 @@ public final class Inet4Address extends InetAddress {
     /**
      * Returns whether the represented address is a multicast address or not.
      * Valid IPv4 multicast addresses are prefixed with 1110 = 0xE.
-     * 
+     *
      * @return {@code true} if this instance represents a multicast address,
      *         {@code false} otherwise.
      */
@@ -63,7 +56,7 @@ public final class Inet4Address extends InetAddress {
     /**
      * Returns whether the represented address is the local wildcard ANY address
      * or not.
-     * 
+     *
      * @return {@code true} if this instance represents the wildcard ANY
      *         address, {@code false} otherwise.
      */
@@ -80,7 +73,7 @@ public final class Inet4Address extends InetAddress {
     /**
      * Returns whether the represented address is a loopback address or not.
      * Loopback IPv4 addresses are prefixed with: 011111111 = 127.
-     * 
+     *
      * @return {@code true} if this instance represents a lookback address,
      *         {@code false} otherwise.
      */
@@ -114,7 +107,7 @@ public final class Inet4Address extends InetAddress {
      * Default Address Selection for Internet Protocol Version 6 (IPv6) states
      * IPv4 private addresses, prefixes 10/8, 172.16/12, and 192.168/16, are
      * assigned site-local scope.
-     * 
+     *
      * @return {@code true} if this instance represents a site-local address,
      *         {@code false} otherwise.
      */
@@ -129,7 +122,7 @@ public final class Inet4Address extends InetAddress {
     /**
      * Returns whether the address is a global multicast address or not. Valid
      * MCGlobal IPv4 addresses are 224.0.1.0 - 238.255.255.255.
-     * 
+     *
      * @return {@code true} if the address is in the global multicast group,
      *         {@code false} otherwise.
      */
@@ -168,7 +161,7 @@ public final class Inet4Address extends InetAddress {
      * Returns whether the address has a node-local scope or not. This method
      * returns always {@code false} because there are no valid IPv4 node-local
      * addresses.
-     * 
+     *
      * @return {@code false} for all IPv4 addresses.
      */
     @Override
@@ -180,7 +173,7 @@ public final class Inet4Address extends InetAddress {
      * Returns whether the address is a link-local multicast address or not. The
      * valid range for IPv4 link-local addresses is: 224.0.0.0 to 239.0.0.255
      * Hence a mask of 111000000000000000000000 = 0xE00000.
-     * 
+     *
      * @return {@code true} if this instance represents a link-local address,
      *         {@code false} otherwise.
      */
@@ -193,7 +186,7 @@ public final class Inet4Address extends InetAddress {
      * Returns whether the address is a site-local multicast address or not. The
      * valid range for IPv4 site-local addresses is: 239.255.0.0 to
      * 239.255.255.255 Hence a mask of 11101111 11111111 = 0xEFFF.
-     * 
+     *
      * @return {@code true} if this instance represents a site-local address,
      *         {@code false} otherwise.
      */
@@ -207,7 +200,7 @@ public final class Inet4Address extends InetAddress {
      * not. The valid range for IPv4 organization-local addresses is:
      * 239.192.0.0 to 239.195.255.255 Hence masks of 11101111 11000000 to
      * 11101111 11000011 are valid. 0xEFC0 to 0xEFC3
-     * 
+     *
      * @return {@code true} if this instance represents a organization-local
      *         address, {@code false} otherwise.
      */
@@ -216,21 +209,6 @@ public final class Inet4Address extends InetAddress {
         int prefix = InetAddress.bytesToInt(ipaddress, 0) >>> 16;
         return prefix >= 0xEFC0 && prefix <= 0xEFC3;
     }
-
-    // BEGIN android-removed
-    // public String getHostAddress() {
-    // }
-    // END android-removed
-
-    // BEGIN android-removed
-    // public int hashCode() {
-    // }
-    // END android-removed
-
-    // BEGIN android-removed
-    // public boolean equals(Object obj) {
-    // }
-    // END android-removed
 
     private Object writeReplace() throws ObjectStreamException {
         return new Inet4Address(ipaddress, hostName);

@@ -17,8 +17,6 @@
 
 package java.io;
 
-import org.apache.harmony.luni.util.Msg;
-
 /**
  * The base class for all input streams. An input stream is a means of reading
  * data from a source in a byte-wise manner.
@@ -185,12 +183,10 @@ public abstract class InputStream extends Object implements Closeable {
         // END android-note
         // Force null check for b first!
         if (offset > b.length || offset < 0) {
-            // K002e=Offset out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K002e", offset)); //$NON-NLS-1$
-        } 
+            throw new ArrayIndexOutOfBoundsException("Offset out of bounds: " + offset);
+        }
         if (length < 0 || length > b.length - offset) {
-            // K0031=Length out of bounds \: {0}
-            throw new ArrayIndexOutOfBoundsException(Msg.getString("K0031", length)); //$NON-NLS-1$
+            throw new ArrayIndexOutOfBoundsException("Length out of bounds: " + length);
         }
         for (int i = 0; i < length; i++) {
             int c;

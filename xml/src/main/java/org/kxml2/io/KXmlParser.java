@@ -33,7 +33,7 @@ import org.xmlpull.v1.*;
 public class KXmlParser implements XmlPullParser {
 
     private Object location;
-	static final private String UNEXPECTED_EOF = "Unexpected EOF";
+    static final private String UNEXPECTED_EOF = "Unexpected EOF";
     static final private String ILLEGAL_TYPE = "Wrong event type";
     static final private int LEGACY = 999;
     static final private int XML_DECL = 998;
@@ -93,7 +93,7 @@ public class KXmlParser implements XmlPullParser {
 //    private int stackMismatch = 0;
     private String error;
 
-    /** 
+    /**
      * A separate peek buffer seems simpler than managing
      * wrap around in the first level read buffer */
 
@@ -163,7 +163,7 @@ public class KXmlParser implements XmlPullParser {
                 nspStack[j] = attrName;
                 nspStack[j + 1] = attributes[i + 3];
 
-                if (attrName != null && attributes[i + 3].equals(""))
+                if (attrName != null && attributes[i + 3].isEmpty())
                     error("illegal empty namespace");
 
                 //  prefixMap = new PrefixMap (prefixMap, attrName, attr.getValue ());
@@ -172,7 +172,7 @@ public class KXmlParser implements XmlPullParser {
 
                 // BEGIN android-changed
                 if (keepNamespaceAttributes) {
-                    // explicitly set the namespace for unprefixed attributes 
+                    // explicitly set the namespace for unprefixed attributes
                     // such as xmlns="http://foo"
                     attributes[i] = "http://www.w3.org/2000/xmlns/";
                     any = true;
@@ -276,8 +276,8 @@ public class KXmlParser implements XmlPullParser {
             null);
     }
 
-    /** 
-     * common base for next and nextToken. Clears the state, except from 
+    /**
+     * common base for next and nextToken. Clears the state, except from
      * txtPos and whitespace. Does not set the type variable */
 
     private final void nextImpl() throws IOException, XmlPullParserException {
@@ -291,20 +291,20 @@ public class KXmlParser implements XmlPullParser {
         while (true) {
             attributeCount = -1;
 
-			// degenerated needs to be handled before error because of possible
-			// processor expectations(!)
+            // degenerated needs to be handled before error because of possible
+            // processor expectations(!)
 
-			if (degenerated) {
-				degenerated = false;
-				type = END_TAG;
-				return;
-			}
+            if (degenerated) {
+                degenerated = false;
+                type = END_TAG;
+                return;
+            }
 
 
             if (error != null) {
                 for (int i = 0; i < error.length(); i++)
                     push(error.charAt(i));
-                //				text = error;
+                //text = error;
                 error = null;
                 type = COMMENT;
                 return;
@@ -357,7 +357,7 @@ public class KXmlParser implements XmlPullParser {
                         if (isWhitespace)
                             type = IGNORABLE_WHITESPACE;
                         // make exception switchable for instances.chg... !!!!
-                        //	else 
+                        // else
                         //    exception ("text '"+getText ()+"' not allowed outside root element");
                     }
                     return;
@@ -563,7 +563,7 @@ public class KXmlParser implements XmlPullParser {
           if (!name.equals(elementStack[sp + 3])) {
             error("expected: /" + elementStack[sp + 3] + " read: " + name);
 
-			// become case insensitive in relaxed mode
+              // become case insensitive in relaxed mode
 
 //            int probe = sp;
 //            while (probe >= 0 && !name.toLowerCase().equals(elementStack[probe + 3].toLowerCase())) {
@@ -573,7 +573,7 @@ public class KXmlParser implements XmlPullParser {
 //
 //            if (probe < 0) {
 //                stackMismatch = 0;
-//                //			text = "unexpected end tag ignored";
+//                // text = "unexpected end tag ignored";
 //                type = COMMENT;
 //                return;
 //            }
@@ -693,25 +693,24 @@ public class KXmlParser implements XmlPullParser {
             skip();
 
             if (peek(0) != '=') {
-            	if(!relaxed){
-            		error("Attr.value missing f. "+attrName);
-            	}
+                if(!relaxed){
+                    error("Attr.value missing f. "+attrName);
+                }
                 attributes[i] = attrName;
-            }
-            else {
+            } else {
                 read('=');
                 skip();
                 int delimiter = peek(0);
 
                 if (delimiter != '\'' && delimiter != '"') {
-                	if(!relaxed){
-                		error("attr value delimiter missing!");
-                	}
+                    if(!relaxed){
+                        error("attr value delimiter missing!");
+                    }
                     delimiter = ' ';
+                } else {
+                    read();
                 }
-				else 
-					read();
-				
+
                 int p = txtPos;
                 // BEGIN android-changed: distinguish attribute values from normal text.
                 pushText(delimiter, true, true);
@@ -739,14 +738,14 @@ public class KXmlParser implements XmlPullParser {
         nspCounts[depth] = nspCounts[depth - 1];
 
         /*
-        		if(!relaxed){
+            if(!relaxed){
                 for (int i = attributeCount - 1; i > 0; i--) {
                     for (int j = 0; j < i; j++) {
                         if (getAttributeName(i).equals(getAttributeName(j)))
                             exception("Duplicate Attribute: " + getAttributeName(i));
                     }
                 }
-        		}
+            }
         */
         if (processNsp)
             adjustNsp();
@@ -758,7 +757,7 @@ public class KXmlParser implements XmlPullParser {
         elementStack[sp + 2] = name;
     }
 
-    /** 
+    /**
      * result: isWhitespace; if the setName parameter is set,
      * the name of the entity is stored in "name" */
 
@@ -766,8 +765,8 @@ public class KXmlParser implements XmlPullParser {
         throws IOException, XmlPullParserException {
 
         push(read()); // &
-        
-        
+
+
         int pos = txtPos;
 
         while (true) {
@@ -776,22 +775,17 @@ public class KXmlParser implements XmlPullParser {
               read();
               break;
             }
-            if (c < 128
-                && (c < '0' || c > '9')
-                && (c < 'a' || c > 'z')
-                && (c < 'A' || c > 'Z')
-                && c != '_'
-                && c != '-'
-                && c != '#') {
-            	if(!relaxed){
-            		error("unterminated entity ref");
-            	}
-            	
-            	// BEGIN android-removed: avoid log spam.
-            	// System.out.println("broken entitiy: "+get(pos-1));
-            	// END android-removed
-            	
-                //; ends with:"+(char)c);           
+            if (c < 128 && (c < '0' || c > '9') && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z')
+                    && c != '_' && c != '-' && c != '#') {
+                if(!relaxed){
+                    error("unterminated entity ref");
+                }
+
+                // BEGIN android-removed: avoid log spam.
+                // System.out.println("broken entitiy: "+get(pos-1));
+                // END android-removed
+
+                //; ends with:"+(char)c);
 //                if (c != -1)
 //                    push(c);
                 return;
@@ -898,10 +892,10 @@ public class KXmlParser implements XmlPullParser {
             result = peek[0];
             peek[0] = peek[1];
         }
-        //		else {
-        //			result = peek[0]; 
-        //			System.arraycopy (peek, 1, peek, 0, peekCount-1);
-        //		}
+        // else {
+        //     result = peek[0];
+        //     System.arraycopy (peek, 1, peek, 0, peekCount-1);
+        // }
         peekCount--;
 
         column++;
@@ -1042,7 +1036,7 @@ public class KXmlParser implements XmlPullParser {
         try {
 
             if (enc == null) {
-                // read four bytes 
+                // read four bytes
 
                 int chk = 0;
 
@@ -1176,8 +1170,8 @@ public class KXmlParser implements XmlPullParser {
             return version;
         if (isProp(property, true, "xmldecl-standalone"))
             return standalone;
-		if (isProp(property, true, "location"))            
-			return location != null ? location : reader.toString();
+        if (isProp(property, true, "location"))
+            return location != null ? location : reader.toString();
         return null;
     }
 
@@ -1257,15 +1251,14 @@ public class KXmlParser implements XmlPullParser {
             buf.append(text);
         }
 
-		buf.append("@"+line + ":" + column);
-		if(location != null){
-			buf.append(" in ");
-			buf.append(location);
-		}
-		else if(reader != null){
-			buf.append(" in ");
-			buf.append(reader.toString());
-		}
+        buf.append("@"+line + ":" + column);
+        if(location != null){
+            buf.append(" in ");
+            buf.append(location);
+        } else if(reader != null){
+            buf.append(" in ");
+            buf.append(reader.toString());
+        }
         return buf.toString();
     }
 
@@ -1385,7 +1378,7 @@ public class KXmlParser implements XmlPullParser {
             nextImpl();
             if (type < minType)
                 minType = type;
-            //	    if (curr <= TEXT) type = curr; 
+            //    if (curr <= TEXT) type = curr;
         }
         while (minType > ENTITY_REF // ignorable
             || (minType >= TEXT && peekType() >= TEXT));
@@ -1465,19 +1458,20 @@ public class KXmlParser implements XmlPullParser {
 
     public void setProperty(String property, Object value)
         throws XmlPullParserException {
-        if(isProp(property, true, "location"))
-        	location = value;
-        else
-	        throw new XmlPullParserException("unsupported property: " + property);
+        if(isProp(property, true, "location")) {
+            location = value;
+        } else {
+            throw new XmlPullParserException("unsupported property: " + property);
+        }
     }
 
     /**
       * Skip sub tree that is currently porser positioned on.
       * <br>NOTE: parser must be on START_TAG and when funtion returns
-      * parser will be positioned on corresponding END_TAG. 
+      * parser will be positioned on corresponding END_TAG.
       */
 
-    //	Implementation copied from Alek's mail... 
+    // Implementation copied from Alek's mail...
 
     public void skipSubTree() throws XmlPullParserException, IOException {
         require(START_TAG, null, null);

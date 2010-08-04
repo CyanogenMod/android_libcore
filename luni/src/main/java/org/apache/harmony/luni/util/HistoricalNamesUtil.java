@@ -164,7 +164,7 @@ public class HistoricalNamesUtil {
     }
 
     public static String getHistoricalName(String name) {
-        return (!historicalNames.containsKey(name) ? name : historicalNames
-                .get(name));
+        String result = historicalNames.get(name);
+        return (result != null) ? result : name;
     }
 }

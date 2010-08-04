@@ -15,9 +15,14 @@
  *  limitations under the License.
  */
 
-#include "AndroidSystemNatives.h"
+#define LOG_TAG "NetworkInterface"
+
 #include "JNIHelp.h"
+#include "JniConstants.h"
+#include "JniException.h"
 #include "jni.h"
+#include "NetworkUtilities.h"
+#include "ScopedFd.h"
 
 #include <errno.h>
 #include <netinet/in.h>
@@ -30,7 +35,7 @@
 
 #include <net/if.h> // Note: Can't appear before <sys/socket.h> on OS X.
 
-#ifdef ANDROID
+#ifdef HAVE_ANDROID_OS
 #include "ifaddrs-android.h"
 #else
 #include <ifaddrs.h>
@@ -41,73 +46,69 @@ class ScopedInterfaceAddresses {
 public:
     ScopedInterfaceAddresses() : list(NULL) {
     }
-    
+
     bool init() {
         int rc = getifaddrs(&list);
         return (rc != -1);
     }
-    
+
     ~ScopedInterfaceAddresses() {
         freeifaddrs(list);
     }
-    
+
     ifaddrs* list;
+
+private:
+    // Disallow copy and assignment.
+    ScopedInterfaceAddresses(const ScopedInterfaceAddresses&);
+    void operator=(const ScopedInterfaceAddresses&);
 };
 
-// TODO: add a header file for shared utilities like this.
-extern jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* sockAddress);
-
-// TODO(enh): move to JNIHelp.h
-static void jniThrowSocketException(JNIEnv* env) {
-    char buf[BUFSIZ];
-    jniThrowException(env, "java/net/SocketException",
-            jniStrError(errno, buf, sizeof(buf)));
-}
-
-static jobject makeInterfaceAddress(JNIEnv* env, jint interfaceIndex, const char* name, sockaddr_storage* ss) {
-    jclass clazz = env->FindClass("java/net/InterfaceAddress");
-    if (clazz == NULL) {
-        return NULL;
-    }
-    jmethodID constructor = env->GetMethodID(clazz, "<init>", "(ILjava/lang/String;Ljava/net/InetAddress;)V");
+static jobject makeInterfaceAddress(JNIEnv* env, jint interfaceIndex, ifaddrs* ifa) {
+    jmethodID constructor = env->GetMethodID(JniConstants::interfaceAddressClass, "<init>",
+            "(ILjava/lang/String;Ljava/net/InetAddress;Ljava/net/InetAddress;)V");
     if (constructor == NULL) {
         return NULL;
     }
-    jobject javaName = env->NewStringUTF(name);
+    jobject javaName = env->NewStringUTF(ifa->ifa_name);
     if (javaName == NULL) {
         return NULL;
     }
-    jobject javaAddress = socketAddressToInetAddress(env, ss);
+    sockaddr_storage* addr = reinterpret_cast<sockaddr_storage*>(ifa->ifa_addr);
+    jobject javaAddress = socketAddressToInetAddress(env, addr);
     if (javaAddress == NULL) {
         return NULL;
     }
-    return env->NewObject(clazz, constructor, interfaceIndex, javaName, javaAddress);
+    sockaddr_storage* mask = reinterpret_cast<sockaddr_storage*>(ifa->ifa_netmask);
+    jobject javaMask = socketAddressToInetAddress(env, mask);
+    if (javaMask == NULL) {
+        return NULL;
+    }
+    return env->NewObject(JniConstants::interfaceAddressClass, constructor,
+            interfaceIndex, javaName, javaAddress, javaMask);
 }
 
-static jobjectArray getInterfaceAddresses(JNIEnv* env, jclass) {
+static jobjectArray NetworkInterface_getAllInterfaceAddressesImpl(JNIEnv* env, jclass) {
     // Get the list of interface addresses.
     ScopedInterfaceAddresses addresses;
     if (!addresses.init()) {
-        jniThrowSocketException(env);
+        jniThrowSocketException(env, errno);
         return NULL;
     }
-    
+
     // Count how many there are.
     int interfaceAddressCount = 0;
     for (ifaddrs* ifa = addresses.list; ifa != NULL; ifa = ifa->ifa_next) {
         ++interfaceAddressCount;
     }
-    
+
     // Build the InterfaceAddress[]...
-    jclass interfaceAddressClass = env->FindClass("java/net/InterfaceAddress");
-    if (interfaceAddressClass == NULL) {
-        return NULL;
-    }
-    jobjectArray result = env->NewObjectArray(interfaceAddressCount, interfaceAddressClass, NULL);
+    jobjectArray result =
+            env->NewObjectArray(interfaceAddressCount, JniConstants::interfaceAddressClass, NULL);
     if (result == NULL) {
         return NULL;
     }
-    
+
     // And fill it in...
     int arrayIndex = 0;
     for (ifaddrs* ifa = addresses.list; ifa != NULL; ifa = ifa->ifa_next) {
@@ -128,8 +129,7 @@ static jobjectArray getInterfaceAddresses(JNIEnv* env, jclass) {
             continue;
         }
         // Make a new InterfaceAddress, and insert it into the array.
-        sockaddr_storage* ss = reinterpret_cast<sockaddr_storage*>(ifa->ifa_addr);
-        jobject element = makeInterfaceAddress(env, interfaceIndex, ifa->ifa_name, ss);
+        jobject element = makeInterfaceAddress(env, interfaceIndex, ifa);
         if (element == NULL) {
             return NULL;
         }
@@ -142,11 +142,89 @@ static jobjectArray getInterfaceAddresses(JNIEnv* env, jclass) {
     return result;
 }
 
+static bool doIoctl(JNIEnv* env, jstring name, int request, ifreq& ifr) {
+    // Copy the name into the ifreq structure, if there's room...
+    jsize nameLength = env->GetStringLength(name);
+    if (nameLength >= IFNAMSIZ) {
+        errno = ENAMETOOLONG;
+        jniThrowSocketException(env, errno);
+        return false;
+    }
+    memset(&ifr, 0, sizeof(ifr));
+    env->GetStringUTFRegion(name, 0, nameLength, ifr.ifr_name);
+
+    // ...and do the ioctl.
+    ScopedFd fd(socket(AF_INET, SOCK_DGRAM, 0));
+    if (fd.get() == -1) {
+        jniThrowSocketException(env, errno);
+        return false;
+    }
+    int rc = ioctl(fd.get(), request, &ifr);
+    if (rc == -1) {
+        jniThrowSocketException(env, errno);
+        return false;
+    }
+    return true;
+}
+
+static jboolean hasFlag(JNIEnv* env, jstring name, int flag) {
+    ifreq ifr;
+    doIoctl(env, name, SIOCGIFFLAGS, ifr); // May throw.
+    return (ifr.ifr_flags & flag) != 0;
+}
+
+static jbyteArray NetworkInterface_getHardwareAddressImpl(JNIEnv* env, jclass, jstring name) {
+    ifreq ifr;
+    if (!doIoctl(env, name, SIOCGIFHWADDR, ifr)) {
+        return NULL;
+    }
+    jbyte bytes[IFHWADDRLEN];
+    bool isEmpty = true;
+    for (int i = 0; i < IFHWADDRLEN; ++i) {
+        bytes[i] = ifr.ifr_hwaddr.sa_data[i];
+        if (bytes[i] != 0) {
+            isEmpty = false;
+        }
+    }
+    if (isEmpty) {
+        return NULL;
+    }
+    jbyteArray result = env->NewByteArray(IFHWADDRLEN);
+    env->SetByteArrayRegion(result, 0, IFHWADDRLEN, bytes);
+    return result;
+}
+
+static jint NetworkInterface_getMTUImpl(JNIEnv* env, jclass, jstring name) {
+    ifreq ifr;
+    doIoctl(env, name, SIOCGIFMTU, ifr); // May throw.
+    return ifr.ifr_mtu;
+}
+
+static jboolean NetworkInterface_isLoopbackImpl(JNIEnv* env, jclass, jstring name) {
+    return hasFlag(env, name, IFF_LOOPBACK);
+}
+
+static jboolean NetworkInterface_isPointToPointImpl(JNIEnv* env, jclass, jstring name) {
+    return hasFlag(env, name, IFF_POINTOPOINT); // Unix API typo!
+}
+
+static jboolean NetworkInterface_isUpImpl(JNIEnv* env, jclass, jstring name) {
+    return hasFlag(env, name, IFF_UP);
+}
+
+static jboolean NetworkInterface_supportsMulticastImpl(JNIEnv* env, jclass, jstring name) {
+    return hasFlag(env, name, IFF_MULTICAST);
+}
+
 static JNINativeMethod gMethods[] = {
-    /* name, signature, funcPtr */
-    { "getInterfaceAddresses", "()[Ljava/net/InterfaceAddress;", (void*) getInterfaceAddresses },
+    { "getAllInterfaceAddressesImpl", "()[Ljava/net/InterfaceAddress;", (void*) NetworkInterface_getAllInterfaceAddressesImpl },
+    { "getHardwareAddressImpl", "(Ljava/lang/String;)[B", (void*) NetworkInterface_getHardwareAddressImpl },
+    { "getMTUImpl", "(Ljava/lang/String;)I", (void*) NetworkInterface_getMTUImpl },
+    { "isLoopbackImpl", "(Ljava/lang/String;)Z", (void*) NetworkInterface_isLoopbackImpl },
+    { "isPointToPointImpl", "(Ljava/lang/String;)Z", (void*) NetworkInterface_isPointToPointImpl },
+    { "isUpImpl", "(Ljava/lang/String;)Z", (void*) NetworkInterface_isUpImpl },
+    { "supportsMulticastImpl", "(Ljava/lang/String;)Z", (void*) NetworkInterface_supportsMulticastImpl },
 };
 int register_java_net_NetworkInterface(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/net/NetworkInterface",
-            gMethods, NELEM(gMethods));
+    return jniRegisterNativeMethods(env, "java/net/NetworkInterface", gMethods, NELEM(gMethods));
 }
