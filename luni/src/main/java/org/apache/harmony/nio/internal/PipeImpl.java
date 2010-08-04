@@ -16,177 +16,118 @@
 
 package org.apache.harmony.nio.internal;
 
+import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.Pipe;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-
+import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 
 /*
- * default implementation of Pipe
- *
+ * Implements {@link java.nio.channels.Pipe}.
  */
-
 final class PipeImpl extends Pipe {
-
-    private SinkChannelImpl sink;
-
-    private SourceChannelImpl source;
-
-    private int serverPort;
+    private final PipeSinkChannel sink;
+    private final PipeSourceChannel source;
 
     public PipeImpl() throws IOException {
-        super();
-        try {
-            sink = new SinkChannelImpl(SelectorProvider.provider());
-            source = new SourceChannelImpl(SelectorProvider.provider());
-            sink.finishConnect();
-            source.accept();
-            source.closeServer();
-        } catch(IOException ioe){
-            reset();
-            throw ioe;
-        } catch(RuntimeException e){
-            reset();
-            throw e;
-        }
+        int[] fds = new int[2];
+        IoUtils.pipe(fds);
+        this.sink = new PipeSinkChannel(fds[1]);
+        this.source = new PipeSourceChannel(fds[0]);
     }
 
-    private void reset(){
-        if(sink != null){
-            try {
-                sink.close();
-            } catch (Exception e) {
-            }
-        }
-        if(source != null){
-            try {
-                source.closeServer();
-            } catch (Exception e) {
-            }
-            try {
-                source.close();
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    /*
-     * @see java.nio.channels.Pipe#sink()
-     */
-    public SinkChannel sink() {
+    @Override public SinkChannel sink() {
         return sink;
     }
 
-    /*
-     * @see java.nio.channels.Pipe#source()
-     */
-    public SourceChannel source() {
+    @Override public SourceChannel source() {
         return source;
     }
 
-    /*
-     * default implementation of SourceChannel
+    /**
+     * FileChannelImpl doesn't close its fd itself; it calls close on the object it's given.
      */
-    private class SourceChannelImpl extends Pipe.SourceChannel implements
-            FileDescriptorHandler {
-
-        private SocketChannelImpl sourceSocket;
-
-        private ServerSocketChannel sourceServer;
-
-        /*
-         * constructor
-         */
-        protected SourceChannelImpl(SelectorProvider provider)
-                throws IOException {
-            super(provider);
-            sourceServer = provider.openServerSocketChannel();
-            sourceServer.socket().bind(
-                new InetSocketAddress(InetAddress.getByName(null), 0));
-            serverPort = sourceServer.socket().getLocalPort();
+    private static class FdCloser implements Closeable {
+        private final FileDescriptor fd;
+        private FdCloser(FileDescriptor fd) {
+            this.fd = fd;
         }
-
-        void closeServer() throws IOException {
-            sourceServer.close();
-        }
-
-        void accept() throws IOException {
-            sourceSocket = (SocketChannelImpl) sourceServer.accept();
-        }
-
-        protected void implCloseSelectableChannel() throws IOException {
-            sourceSocket.close();
-        }
-
-        protected void implConfigureBlocking(boolean blockingMode) throws IOException {
-            sourceSocket.configureBlocking(blockingMode);
-        }
-
-        public int read(ByteBuffer buffer) throws IOException {
-            return sourceSocket.read(buffer);
-        }
-
-        public long read(ByteBuffer[] buffers) throws IOException {
-            return read(buffers, 0, buffers.length);
-        }
-
-        public long read(ByteBuffer[] buffers, int offset, int length)
-                throws IOException {
-            return sourceSocket.read(buffers, offset, length);
-        }
-
-        public FileDescriptor getFD() {
-            return sourceSocket.getFD();
+        public void close() throws IOException {
+            IoUtils.close(fd);
         }
     }
 
-    /*
-     * default implementation of SinkChannel
-     */
-    private class SinkChannelImpl extends Pipe.SinkChannel implements
-            FileDescriptorHandler {
+    private class PipeSourceChannel extends Pipe.SourceChannel implements FileDescriptorHandler {
+        private final FileDescriptor fd;
+        private final FileChannelImpl channel;
 
-        private SocketChannelImpl sinkSocket;
-
-        protected SinkChannelImpl(SelectorProvider provider) throws IOException {
-            super(provider);
-            sinkSocket = (SocketChannelImpl) provider.openSocketChannel();
+        private PipeSourceChannel(int fd) throws IOException {
+            super(SelectorProvider.provider());
+            this.fd = IoUtils.newFileDescriptor(fd);
+            this.channel = new ReadOnlyFileChannel(new FdCloser(this.fd), fd);
         }
 
-        public boolean finishConnect() throws IOException {
-            return sinkSocket.connect(
-                new InetSocketAddress(InetAddress.getByName(null), serverPort));
+        @Override protected void implCloseSelectableChannel() throws IOException {
+            channel.close();
         }
 
-        protected void implCloseSelectableChannel() throws IOException {
-            sinkSocket.close();
+        @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
+            IoUtils.setNonBlocking(getFD(), !blocking);
         }
 
-        protected void implConfigureBlocking(boolean blockingMode) throws IOException {
-            sinkSocket.configureBlocking(blockingMode);
+        public int read(ByteBuffer buffer) throws IOException {
+            return channel.read(buffer);
         }
 
-        public int write(ByteBuffer buffer) throws IOException {
-            return sinkSocket.write(buffer);
+        public long read(ByteBuffer[] buffers) throws IOException {
+            return channel.read(buffers);
         }
 
-        public long write(ByteBuffer[] buffers) throws IOException {
-            return write(buffers, 0, buffers.length);
-        }
-
-        public long write(ByteBuffer[] buffers, int offset, int length)
-                throws IOException {
-            return sinkSocket.write(buffers, offset, length);
+        public long read(ByteBuffer[] buffers, int offset, int length) throws IOException {
+            return channel.read(buffers, offset, length);
         }
 
         public FileDescriptor getFD() {
-            return sinkSocket.getFD();
+            return fd;
+        }
+    }
+
+    private class PipeSinkChannel extends Pipe.SinkChannel implements FileDescriptorHandler {
+        private final FileDescriptor fd;
+        private final FileChannelImpl channel;
+
+        private PipeSinkChannel(int fd) throws IOException {
+            super(SelectorProvider.provider());
+            this.fd = IoUtils.newFileDescriptor(fd);
+            this.channel = new WriteOnlyFileChannel(new FdCloser(this.fd), fd);
+        }
+
+        @Override protected void implCloseSelectableChannel() throws IOException {
+            channel.close();
+        }
+
+        @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
+            IoUtils.setNonBlocking(getFD(), !blocking);
+        }
+
+        public int write(ByteBuffer buffer) throws IOException {
+            return channel.write(buffer);
+        }
+
+        public long write(ByteBuffer[] buffers) throws IOException {
+            return channel.write(buffers);
+        }
+
+        public long write(ByteBuffer[] buffers, int offset, int length) throws IOException {
+            return channel.write(buffers, offset, length);
+        }
+
+        public FileDescriptor getFD() {
+            return fd;
         }
     }
 }

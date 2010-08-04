@@ -46,7 +46,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
-
+import libcore.io.IoUtils;
 import org.apache.harmony.luni.net.PlainSocketImpl;
 import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.luni.platform.INetworkSystem;
@@ -137,17 +137,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     }
 
     /*
-     * For native call.
-     */
-    @SuppressWarnings("unused")
-    private SocketChannelImpl() {
-        super(SelectorProvider.provider());
-        fd = new FileDescriptor();
-        connectAddress = new InetSocketAddress(0);
-        status = SOCKET_STATUS_CONNECTED;
-    }
-
-    /*
      * Getting the internal Socket If we have not the socket, we create a new
      * one.
      */
@@ -226,7 +215,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                         normalAddr, port, HY_SOCK_STEP_START, connectContext);
                 // set back to nonblocking to work around with a bug in portlib
                 if (!this.isBlocking()) {
-                    networkSystem.setNonBlocking(fd, true);
+                    IoUtils.setNonBlocking(fd, true);
                 }
             }
             isBound = finished;
@@ -570,7 +559,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     @Override
     protected void implConfigureBlocking(boolean blockMode) throws IOException {
         synchronized (blockingLock()) {
-            networkSystem.setNonBlocking(fd, !blockMode);
+            IoUtils.setNonBlocking(fd, !blockMode);
         }
     }
 

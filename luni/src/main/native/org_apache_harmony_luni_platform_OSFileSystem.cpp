@@ -375,14 +375,6 @@ static void OSFileSystem_fflush(JNIEnv* env, jobject, jint fd, jboolean metadata
     }
 }
 
-static jint OSFileSystem_close(JNIEnv* env, jobject, jint fd) {
-    jint rc = TEMP_FAILURE_RETRY(close(fd));
-    if (rc == -1) {
-        jniThrowIOException(env, errno);
-    }
-    return rc;
-}
-
 static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
     if (offsetTooLarge(env, length)) {
         return -1;
@@ -508,7 +500,6 @@ static jlong lengthImpl(JNIEnv* env, jobject, jint fd) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "close", "(I)V", (void*) OSFileSystem_close },
     { "fflush", "(IZ)V", (void*) OSFileSystem_fflush },
     { "getAllocGranularity", "()I", (void*) OSFileSystem_getAllocGranularity },
     { "ioctlAvailable", "(Ljava/io/FileDescriptor;)I", (void*) OSFileSystem_ioctlAvailable },

@@ -22,17 +22,8 @@
 
 package org.apache.harmony.nio;
 
-import java.io.FileDescriptor;
 import java.nio.Buffer;
-import java.nio.channels.Channel;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-
-import org.apache.harmony.luni.platform.FileDescriptorHandler;
 import org.apache.harmony.nio.internal.DirectBuffer;
-import org.apache.harmony.nio.internal.FileChannelImpl;
 
 public class AddressUtil {
 
@@ -57,9 +48,4 @@ public class AddressUtil {
         }
         return ((DirectBuffer) buf).getEffectiveAddress().toInt();
     }
-
-    // BEGIN android-removed: dead code (the native side of which was scary!)
-    //public static int getChannelAddress(Channel channel);
-    //private static native int getFDAddress(FileDescriptor fd);
-    // END android-removed
 }

@@ -220,10 +220,6 @@ public final class BlockGuard {
             mFileSystem.fflush(fileDescriptor, metadata);
         }
 
-        public void close(int fileDescriptor) throws IOException {
-            mFileSystem.close(fileDescriptor);
-        }
-
         public void truncate(int fileDescriptor, long size) throws IOException {
             BlockGuard.getThreadPolicy().onWriteToDisk();
             mFileSystem.truncate(fileDescriptor, size);
@@ -297,11 +293,6 @@ public final class BlockGuard {
                 throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
             return mNetwork.writeDirect(fd, address, offset, count);
-        }
-
-        public void setNonBlocking(FileDescriptor aFD, boolean block)
-                throws IOException {
-            mNetwork.setNonBlocking(aFD, block);
         }
 
         public void connect(FileDescriptor aFD, InetAddress inetAddress, int port)
@@ -426,11 +417,9 @@ public final class BlockGuard {
             if (lingerValue instanceof Boolean) {
                 return (Boolean) lingerValue;
             } else if (lingerValue instanceof Integer) {
-                // Note: not exactly to spec, but gingerbread returns
-                // -1 when linger is disabled.
-                return ((Integer) lingerValue) > 0;
+                return ((Integer) lingerValue) != 0;
             }
-            return false;  // shouldn't happen
+            throw new AssertionError(lingerValue.getClass().getName());
         }
     }
 }

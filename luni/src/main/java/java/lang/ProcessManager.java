@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import libcore.io.IoUtils;
 
 /**
  * Manages child processes.
@@ -368,7 +369,7 @@ final class ProcessManager {
                 synchronized (this) {
                     if (fd != null && fd.valid()) {
                         try {
-                            ProcessManager.close(fd);
+                            IoUtils.close(fd);
                         } finally {
                             fd = null;
                         }
@@ -396,7 +397,7 @@ final class ProcessManager {
                 synchronized (this) {
                     if (fd != null && fd.valid()) {
                         try {
-                            ProcessManager.close(fd);
+                            IoUtils.close(fd);
                         } finally {
                             fd = null;
                         }
@@ -405,7 +406,4 @@ final class ProcessManager {
             }
         }
     }
-
-    /** Closes the given file descriptor. */
-    private static native void close(FileDescriptor fd) throws IOException;
 }

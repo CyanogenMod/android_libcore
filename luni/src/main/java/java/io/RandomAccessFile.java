@@ -19,7 +19,7 @@ package java.io;
 
 import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
-
+import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -187,9 +187,8 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
                 channel.close();
                 channel = null;
             }
-            if (fd != null && fd.descriptor >= 0) {
-                fileSystem.close(fd.descriptor);
-                fd.descriptor = -1;
+            if (fd != null && fd.valid()) {
+                IoUtils.close(fd);
             }
         }
         // END android-changed
