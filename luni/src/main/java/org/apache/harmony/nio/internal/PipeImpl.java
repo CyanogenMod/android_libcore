@@ -36,6 +36,8 @@ final class PipeImpl extends Pipe {
     public PipeImpl() throws IOException {
         int[] fds = new int[2];
         IoUtils.pipe(fds);
+        // Which fd is used for which channel is important. Unix pipes are only guaranteed to be
+        // unidirectional, and indeed are only unidirectional on Linux. See IoUtils.pipe.
         this.sink = new PipeSinkChannel(fds[1]);
         this.source = new PipeSourceChannel(fds[0]);
     }
