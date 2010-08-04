@@ -215,7 +215,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
                         normalAddr, port, HY_SOCK_STEP_START, connectContext);
                 // set back to nonblocking to work around with a bug in portlib
                 if (!this.isBlocking()) {
-                    IoUtils.setNonBlocking(fd, true);
+                    IoUtils.setBlocking(fd, false);
                 }
             }
             isBound = finished;
@@ -559,7 +559,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
     @Override
     protected void implConfigureBlocking(boolean blockMode) throws IOException {
         synchronized (blockingLock()) {
-            IoUtils.setNonBlocking(fd, !blockMode);
+            IoUtils.setBlocking(fd, blockMode);
         }
     }
 

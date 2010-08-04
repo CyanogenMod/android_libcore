@@ -2323,7 +2323,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
      * Make socket non-blocking, so SSL_connect SSL_read() and SSL_write() don't hang
      * forever and we can use select() to find out if the socket is ready.
      */
-    if (!setNonBlocking(fd, true)) {
+    if (!setBlocking(fd, false)) {
         throwSSLExceptionStr(env, "Unable to make socket non blocking");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => 0", ssl);
@@ -2937,7 +2937,7 @@ static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address) {
     int fd = SSL_get_fd(ssl);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_shutdown s=%d", ssl, fd);
     if (fd != -1) {
-        setNonBlocking(fd, false);
+        setBlocking(fd, true);
     }
 
     AppData* appData = toAppData(ssl);

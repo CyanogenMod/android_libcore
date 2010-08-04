@@ -76,7 +76,7 @@ final class PipeImpl extends Pipe {
         }
 
         @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
-            IoUtils.setNonBlocking(getFD(), !blocking);
+            IoUtils.setBlocking(getFD(), blocking);
         }
 
         public int read(ByteBuffer buffer) throws IOException {
@@ -111,7 +111,7 @@ final class PipeImpl extends Pipe {
         }
 
         @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
-            IoUtils.setNonBlocking(getFD(), !blocking);
+            IoUtils.setBlocking(getFD(), blocking);
         }
 
         public int write(ByteBuffer buffer) throws IOException {

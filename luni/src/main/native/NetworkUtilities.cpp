@@ -106,13 +106,13 @@ jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* ss) {
     return byteArrayToInetAddress(env, byteArray);
 }
 
-bool setNonBlocking(int fd, bool newState) {
+bool setBlocking(int fd, bool blocking) {
     int flags = fcntl(fd, F_GETFL);
     if (flags == -1) {
         return false;
     }
 
-    if (newState) {
+    if (!blocking) {
         flags |= O_NONBLOCK;
     } else {
         flags &= ~O_NONBLOCK;

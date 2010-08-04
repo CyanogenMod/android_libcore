@@ -55,8 +55,7 @@ public final class IoUtils {
     public static native void setFd(FileDescriptor fd, int newValue);
 
     /**
-     * Sets 'fd' to be non-blocking or blocking, according to the state of 'nonBlocking'.
+     * Sets 'fd' to be blocking or non-blocking, according to the state of 'blocking'.
      */
-    public static native void setNonBlocking(FileDescriptor fd, boolean nonBlocking)
-            throws IOException;
+    public static native void setBlocking(FileDescriptor fd, boolean blocking) throws IOException;
 }

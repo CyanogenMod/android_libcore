@@ -350,7 +350,7 @@ static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int time
         context->nfds = fd + 1;
 
         /* set the socket to non-blocking */
-        if (!setNonBlocking(fd, true)) {
+        if (!setBlocking(fd, false)) {
             return -errno;
         }
 
@@ -424,7 +424,7 @@ static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int time
     } else if (step == SOCKET_STEP_DONE) {
         /* we are done the connect or an error occurred so clean up  */
         if (fd != -1) {
-            setNonBlocking(fd, false);
+            setBlocking(fd, true);
         }
         return 0;
     }
