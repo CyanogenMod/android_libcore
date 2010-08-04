@@ -116,8 +116,6 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void setInetAddress(InetAddress sender, byte[] address);
 
-    public native void setNonBlocking(FileDescriptor fd, boolean block) throws IOException;
-
     public native void setSocketOption(FileDescriptor fd, int opt, Object optVal)
             throws SocketException;
 

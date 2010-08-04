@@ -704,18 +704,6 @@ static jint osNetworkSystem_write(JNIEnv* env, jobject,
     return result;
 }
 
-static void osNetworkSystem_setNonBlocking(JNIEnv* env, jobject,
-        jobject fileDescriptor, jboolean newState) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    if (!setNonBlocking(fd.get(), newState)) {
-        jniThrowSocketException(env, errno);
-    }
-}
-
 static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
         jobject, jobject fileDescriptor, jint timeout,
         jobject inetAddr, jint port, jint step, jbyteArray passContext) {
@@ -1652,7 +1640,6 @@ static JNINativeMethod gMethods[] = {
     { "sendDirect",                     "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I",                    (void*) osNetworkSystem_sendDirect },
     { "sendUrgentData",                 "(Ljava/io/FileDescriptor;B)V",                                             (void*) osNetworkSystem_sendUrgentData },
     { "setInetAddress",                 "(Ljava/net/InetAddress;[B)V",                                              (void*) osNetworkSystem_setInetAddress },
-    { "setNonBlocking",                 "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_setNonBlocking },
     { "setSocketOption",                "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V",                           (void*) osNetworkSystem_setSocketOption },
     { "shutdownInput",                  "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownInput },
     { "shutdownOutput",                 "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownOutput },

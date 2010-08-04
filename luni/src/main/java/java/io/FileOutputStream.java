@@ -18,7 +18,7 @@
 package java.io;
 
 import java.nio.channels.FileChannel;
-
+import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
 import org.apache.harmony.nio.FileChannelFactory;
@@ -189,9 +189,8 @@ public class FileOutputStream extends OutputStream implements Closeable {
         }
 
         synchronized (this) {
-            if (fd.descriptor >= 0 && innerFD) {
-                fileSystem.close(fd.descriptor);
-                fd.descriptor = -1;
+            if (fd.valid() && innerFD) {
+                IoUtils.close(fd);
             }
         }
     }

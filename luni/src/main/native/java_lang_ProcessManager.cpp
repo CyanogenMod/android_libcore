@@ -49,14 +49,6 @@ static int androidSystemPropertiesFd = -1;
 #define WAIT_STATUS_NO_CHILDREN (-2)   // no children to wait for
 #define WAIT_STATUS_STRANGE_ERRNO (-3) // observed an undocumented errno
 
-/** Closes a file descriptor. */
-static void ProcessManager_close(JNIEnv* env, jclass, jobject javaDescriptor) {
-    int fd = jniGetFDFromFileDescriptor(env, javaDescriptor);
-    if (TEMP_FAILURE_RETRY(close(fd)) == -1) {
-        jniThrowIOException(env, errno);
-    }
-}
-
 /**
  * Kills process with the given ID.
  */
@@ -393,7 +385,6 @@ static void ProcessManager_staticInitialize(JNIEnv* env,
 }
 
 static JNINativeMethod methods[] = {
-    { "close",            "(Ljava/io/FileDescriptor;)V", (void*) ProcessManager_close },
     { "kill",             "(I)V",                        (void*) ProcessManager_kill },
     { "staticInitialize", "()V",                         (void*) ProcessManager_staticInitialize },
     { "watchChildren",    "()V",                         (void*) ProcessManager_watchChildren },

@@ -18,7 +18,7 @@
 package java.io;
 
 import java.nio.channels.FileChannel;
-
+import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
 import org.apache.harmony.nio.FileChannelFactory;
@@ -152,9 +152,8 @@ public class FileInputStream extends InputStream implements Closeable {
                 channel.close();
                 channel = null;
             }
-            if (fd != null && fd.descriptor >= 0 && innerFD) {
-                fileSystem.close(fd.descriptor);
-                fd.descriptor = -1;
+            if (fd != null && fd.valid() && innerFD) {
+                IoUtils.close(fd);
             }
         }
         // END android-changed

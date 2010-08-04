@@ -58,8 +58,6 @@ public interface INetworkSystem {
 
     public int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
 
-    public void setNonBlocking(FileDescriptor fd, boolean block) throws IOException;
-
     public void connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException;
 
     public boolean connectWithTimeout(FileDescriptor fd, int timeout,

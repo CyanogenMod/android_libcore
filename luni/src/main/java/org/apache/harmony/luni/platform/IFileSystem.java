@@ -94,8 +94,6 @@ public interface IFileSystem {
     public void fflush(int fileDescriptor, boolean metadata)
             throws IOException;
 
-    public void close(int fileDescriptor) throws IOException;
-
     public void truncate(int fileDescriptor, long size) throws IOException;
 
     /**
