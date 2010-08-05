@@ -34,17 +34,6 @@ import java.nio.channels.Channel;
  * The interface for network methods.
  */
 public interface INetworkSystem {
-
-    /*
-     * Socket connect Step start
-     */
-    public final int SOCKET_CONNECT_STEP_START = 0;
-
-    /*
-     * Socket connect Step check
-     */
-    public final int SOCKET_CONNECT_STEP_CHECK = 1;
-
     public void accept(FileDescriptor serverFd, SocketImpl newSocket, FileDescriptor clientFd)
             throws IOException;
 
@@ -58,10 +47,9 @@ public interface INetworkSystem {
 
     public int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
 
-    public void connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException;
-
-    public boolean connectWithTimeout(FileDescriptor fd, int timeout,
-            InetAddress hostname, int port, int step, byte[] context) throws IOException;
+    public boolean connectNonBlocking(FileDescriptor fd, InetAddress inetAddress, int port)
+            throws IOException;
+    public boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
 
     public int send(FileDescriptor fd, byte[] data, int offset, int length,
             int port, InetAddress inetAddress) throws IOException;
@@ -77,9 +65,6 @@ public interface INetworkSystem {
 
     public void createDatagramSocket(FileDescriptor fd) throws SocketException;
 
-    public void connectDatagram(FileDescriptor fd, int port, InetAddress inetAddress)
-            throws SocketException;
-
     public void shutdownInput(FileDescriptor descriptor) throws IOException;
 
     public void shutdownOutput(FileDescriptor descriptor) throws IOException;
@@ -92,8 +77,8 @@ public interface INetworkSystem {
 
     public void listen(FileDescriptor fd, int backlog) throws SocketException;
 
-    public void connectStreamWithTimeoutSocket(FileDescriptor fd, int port,
-            int timeout, InetAddress inetAddress) throws IOException;
+    public void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeout)
+            throws SocketException;
 
     public InetAddress getSocketLocalAddress(FileDescriptor fd);
 

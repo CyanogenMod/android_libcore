@@ -295,16 +295,15 @@ public final class BlockGuard {
             return mNetwork.writeDirect(fd, address, offset, count);
         }
 
-        public void connect(FileDescriptor aFD, InetAddress inetAddress, int port)
+        public boolean connectNonBlocking(FileDescriptor fd, InetAddress inetAddress, int port)
                 throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.connect(aFD, inetAddress, port);
+            return mNetwork.connectNonBlocking(fd, inetAddress, port);
         }
 
-        public boolean connectWithTimeout(FileDescriptor aFD, int timeout,
-                InetAddress hostname, int port, int step, byte[] context) throws IOException {
+        public boolean isConnected(FileDescriptor fd, int timeout) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.connectWithTimeout(aFD, timeout, hostname, port, step, context);
+            return mNetwork.isConnected(fd, timeout);
         }
 
         public int send(FileDescriptor fd, byte[] data, int offset, int length,
@@ -341,11 +340,6 @@ public final class BlockGuard {
             mNetwork.createDatagramSocket(aFD);
         }
 
-        public void connectDatagram(FileDescriptor aFD, int port, InetAddress inetAddress)
-                throws SocketException {
-            mNetwork.connectDatagram(aFD, port, inetAddress);
-        }
-
         public void shutdownInput(FileDescriptor descriptor) throws IOException {
             mNetwork.shutdownInput(descriptor);
         }
@@ -370,10 +364,10 @@ public final class BlockGuard {
             mNetwork.listen(aFD, backlog);
         }
 
-        public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int port,
-                int timeout, InetAddress inetAddress) throws IOException {
+        public void connect(FileDescriptor aFD, InetAddress inetAddress, int port,
+                int timeout) throws SocketException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.connectStreamWithTimeoutSocket(aFD, port, timeout, inetAddress);
+            mNetwork.connect(aFD, inetAddress, port, timeout);
         }
 
         public InetAddress getSocketLocalAddress(FileDescriptor aFD) {

@@ -74,14 +74,7 @@
 #define JAVASOCKOPT_SO_SNDBUF 4097
 #define JAVASOCKOPT_TCP_NODELAY 1
 
-/* constants for calling multi-call functions */
-#define SOCKET_STEP_START 10
-#define SOCKET_STEP_CHECK 20
-#define SOCKET_STEP_DONE 30
-
-#define SOCKET_CONNECT_STEP_START 0
-#define SOCKET_CONNECT_STEP_CHECK 1
-
+/* constants for osNetworkSystem_selectImpl */
 #define SOCKET_OP_NONE 0
 #define SOCKET_OP_READ 1
 #define SOCKET_OP_WRITE 2
@@ -97,15 +90,6 @@ static struct CachedFields {
     jfieldID dpack_port;
     jfieldID dpack_length;
 } gCachedFields;
-
-/* needed for connecting with timeout */
-struct selectFDSet {
-  int nfds;
-  int sock;
-  fd_set writeSet;
-  fd_set readSet;
-  fd_set exceptionSet;
-};
 
 /**
  * Wraps access to the int inside a java.io.FileDescriptor, taking care of throwing exceptions.
@@ -326,41 +310,42 @@ static int doConnect(int fd, const sockaddr_storage* socketAddress) {
 }
 
 /**
- * Establish a connection to a peer with a timeout.  This function is called
+ * Establish a connection to a peer with a timeout.  The member functions are called
  * repeatedly in order to carry out the connect and to allow other tasks to
- * proceed on certain platforms. The caller must first call with
- * step = SOCKET_STEP_START, if the result is -EINPROGRESS it will then
- * call it with step = CHECK until either another error or 0 is returned to
+ * proceed on certain platforms. The caller must first call ConnectHelper::start.
+ * if the result is -EINPROGRESS it will then
+ * call ConnectHelper::isConnected until either another error or 0 is returned to
  * indicate the connect is complete.  Each time the function should sleep for no
- * more than timeout milliseconds.  If the connect succeeds or an error occurs,
- * the caller must always end the process by calling the function with
- * step = SOCKET_STEP_DONE
+ * more than 'timeout' milliseconds.  If the connect succeeds or an error occurs,
+ * the caller must always end the process by calling ConnectHelper::done.
  *
- * @param[in] timeout the timeout in milliseconds. If timeout is negative,
- *         perform a block operation.
- *
- * @return 0, if no errors occurred, otherwise -errno. TODO: use +errno.
+ * Member functions return 0 if no errors occur, otherwise -errno. TODO: use +errno.
  */
-static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int timeout, unsigned int step, selectFDSet* context) {
-    int errorVal;
-    socklen_t errorValLen = sizeof(int);
+class ConnectHelper {
+public:
+    ConnectHelper(JNIEnv* env) : mEnv(env) {
+    }
 
-    if (step == SOCKET_STEP_START) {
-        context->sock = fd;
-        context->nfds = fd + 1;
-
-        /* set the socket to non-blocking */
-        if (!setBlocking(fd, false)) {
-            return -errno;
+    int start(int fd, jobject inetAddr, jint port) {
+        sockaddr_storage ss;
+        if (!inetAddressToSocketAddress(mEnv, inetAddr, port, &ss)) {
+            return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
         }
 
-        if (doConnect(fd, &addr) == -1) {
+        // Set the socket to non-blocking and initiate a connection attempt...
+        if (!setBlocking(fd, false) || doConnect(fd, &ss) == -1) {
+            if (errno != EINPROGRESS) {
+                didFail(fd, -errno);
+            }
             return -errno;
         }
-
-        /* we connected right off the bat so just return */
+        // We connected straight away!
+        didConnect(fd);
         return 0;
-    } else if (step == SOCKET_STEP_CHECK) {
+    }
+
+    // 'timeout' the timeout in milliseconds. If timeout is negative, perform a blocking operation.
+    int isConnected(int fd, int timeout) {
         /* now check if we have connected yet */
 
         /*
@@ -376,27 +361,33 @@ static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int time
         timeval passedTimeout(toTimeval(timeout));
 
         /* initialize the FD sets for the select */
-        FD_ZERO(&(context->exceptionSet));
-        FD_ZERO(&(context->writeSet));
-        FD_ZERO(&(context->readSet));
-        FD_SET(context->sock, &(context->writeSet));
-        FD_SET(context->sock, &(context->readSet));
-        FD_SET(context->sock, &(context->exceptionSet));
+        fd_set writeSet;
+        fd_set readSet;
+        fd_set exceptionSet;
+        FD_ZERO(&exceptionSet);
+        FD_ZERO(&writeSet);
+        FD_ZERO(&readSet);
+        FD_SET(fd, &writeSet);
+        FD_SET(fd, &readSet);
+        FD_SET(fd, &exceptionSet);
 
-        int rc = TEMP_FAILURE_RETRY(select(context->nfds,
-                &(context->readSet), &(context->writeSet), &(context->exceptionSet),
-                timeout >= 0 ? &passedTimeout : NULL));
+        int nfds = fd + 1;
+        timeval* tp = timeout >= 0 ? &passedTimeout : NULL;
+        int rc = TEMP_FAILURE_RETRY(select(nfds, &readSet, &writeSet, &exceptionSet, tp));
 
         /* if there is at least one descriptor ready to be checked */
         if (rc > 0) {
+            int errorVal;
+            socklen_t errorValLen = sizeof(int);
+
             /* if the descriptor is in the write set we connected or failed */
-            if (FD_ISSET(context->sock, &(context->writeSet))) {
-                if (!FD_ISSET(context->sock, &(context->readSet))) {
+            if (FD_ISSET(fd, &writeSet)) {
+                if (!FD_ISSET(fd, &readSet)) {
                     /* ok we have connected ok */
                     return 0;
                 } else {
                     /* ok we have more work to do to figure it out */
-                    if (getsockopt(context->sock, SOL_SOCKET, SO_ERROR, &errorVal, &errorValLen) >= 0) {
+                    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errorVal, &errorValLen) >= 0) {
                         return errorVal ? -errorVal : 0;
                     } else {
                         return -errno;
@@ -405,8 +396,8 @@ static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int time
             }
 
             /* if the descriptor is in the exception set the connect failed */
-            if (FD_ISSET(context->sock, &(context->exceptionSet))) {
-                if (getsockopt(context->sock, SOL_SOCKET, SO_ERROR, &errorVal, &errorValLen) >= 0) {
+            if (FD_ISSET(fd, &exceptionSet)) {
+                if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errorVal, &errorValLen) >= 0) {
                     return errorVal ? -errorVal : 0;
                 }
                 return -errno;
@@ -421,15 +412,32 @@ static int sockConnectWithTimeout(int fd, const sockaddr_storage& addr, int time
          * completed just indicate that the connect is not yet complete
          */
         return -EINPROGRESS;
-    } else if (step == SOCKET_STEP_DONE) {
-        /* we are done the connect or an error occurred so clean up  */
+    }
+
+    void didConnect(int fd) {
         if (fd != -1) {
             setBlocking(fd, true);
         }
-        return 0;
     }
-    return -EFAULT;
-}
+
+    void didFail(int fd, int result) {
+        if (fd != -1) {
+            setBlocking(fd, true);
+        }
+
+        if (result == -ECONNRESET || result == -ECONNREFUSED || result == -EADDRNOTAVAIL ||
+                result == -EADDRINUSE || result == -ENETUNREACH) {
+            jniThrowConnectException(mEnv, -result);
+        } else if (result == -EACCES) {
+            jniThrowSecurityException(mEnv, -result);
+        } else {
+            jniThrowSocketException(mEnv, -result);
+        }
+    }
+
+private:
+    JNIEnv* mEnv;
+};
 
 #ifdef ENABLE_MULTICAST
 /*
@@ -678,8 +686,8 @@ static jint osNetworkSystem_writeDirect(JNIEnv* env, jobject,
         return 0;
     }
 
-    jbyte* message = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address + offset));
-    int bytesSent = write(fd.get(), message, count);
+    jbyte* src = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address + offset));
+    ssize_t bytesSent = write(fd.get(), src, count);
     if (bytesSent == -1) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             // We were asked to write to a non-blocking socket, but were told
@@ -704,67 +712,43 @@ static jint osNetworkSystem_write(JNIEnv* env, jobject,
     return result;
 }
 
-static jboolean osNetworkSystem_connectWithTimeout(JNIEnv* env,
-        jobject, jobject fileDescriptor, jint timeout,
-        jobject inetAddr, jint port, jint step, jbyteArray passContext) {
-    sockaddr_storage address;
-    if (!inetAddressToSocketAddress(env, inetAddr, port, &address)) {
-        return JNI_FALSE;
-    }
-
+static jboolean osNetworkSystem_connectNonBlocking(JNIEnv* env, jobject, jobject fileDescriptor, jobject inetAddr, jint port) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return JNI_FALSE;
     }
 
-    ScopedByteArrayRW contextBytes(env, passContext);
-    if (contextBytes.get() == NULL) {
-        return JNI_FALSE;
-    }
-    selectFDSet* context = reinterpret_cast<selectFDSet*>(contextBytes.get());
-    int result = 0;
-    switch (step) {
-    case SOCKET_CONNECT_STEP_START:
-        result = sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_START, context);
-        break;
-    case SOCKET_CONNECT_STEP_CHECK:
-        result = sockConnectWithTimeout(fd.get(), address, timeout, SOCKET_STEP_CHECK, context);
-        break;
-    default:
-        assert(false);
-    }
-
-    if (result == 0) {
-        // Connected!
-        sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, NULL);
-        return JNI_TRUE;
-    }
-
-    if (result == -EINPROGRESS) {
-        // Not yet connected, but not yet denied either... Try again later.
-        return JNI_FALSE;
-    }
-
-    // Denied!
-    sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, NULL);
-    if (result == -EACCES) {
-        jniThrowSecurityException(env, -result);
-    } else {
-        jniThrowConnectException(env, -result);
-    }
-    return JNI_FALSE;
+    ConnectHelper context(env);
+    return context.start(fd.get(), inetAddr, port) == 0;
 }
 
-static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
-        jobject, jobject fileDescriptor, jint remotePort, jint timeout, jobject inetAddr) {
-    int result = 0;
-    sockaddr_storage address;
-    int remainingTimeout = timeout;
-    int passedTimeout = 0;
-    int finishTime = 0;
-    bool hasTimeout = timeout > 0;
+static jboolean osNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDescriptor, jint timeout) {
+    NetFd fd(env, fileDescriptor);
+    if (fd.isClosed()) {
+        return JNI_FALSE;
+    }
+
+    ConnectHelper context(env);
+    int result = context.isConnected(fd.get(), timeout);
+    if (result == 0) {
+        context.didConnect(fd.get());
+        return JNI_TRUE;
+    } else if (result == -EINPROGRESS) {
+        // Not yet connected, but not yet denied either... Try again later.
+        return JNI_FALSE;
+    } else {
+        context.didFail(fd.get(), result);
+        return JNI_FALSE;
+    }
+}
+
+// TODO: move this into Java, using connectNonBlocking and isConnected!
+static void osNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescriptor,
+        jobject inetAddr, jint port, jint timeout) {
 
     /* if a timeout was specified calculate the finish time value */
+    bool hasTimeout = timeout > 0;
+    int finishTime = 0;
     if (hasTimeout)  {
         finishTime = time_msec_clock() + (int) timeout;
     }
@@ -774,86 +758,32 @@ static void osNetworkSystem_connectStreamWithTimeoutSocket(JNIEnv* env,
         return;
     }
 
-    if (!inetAddressToSocketAddress(env, inetAddr, remotePort, &address)) {
-        return;
-    }
-
-    /*
-     * we will be looping checking for when we are connected so allocate
-     * the descriptor sets that we will use
-     */
-    selectFDSet context;
-    result = sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_START, &context);
-    if (result == 0) {
-        /* ok we connected right away so we are done */
-        sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
-        return;
-    } else if (result != -EINPROGRESS) {
-        sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
-        /* we got an error other than NOTCONNECTED so we cannot continue */
-        if (result == -EACCES) {
-            jniThrowSecurityException(env, -result);
-        } else {
-            jniThrowSocketException(env, -result);
-        }
-        return;
-    }
-
+    ConnectHelper context(env);
+    int result = context.start(fd.get(), inetAddr, port);
+    int remainingTimeout = timeout;
     while (result == -EINPROGRESS) {
-        passedTimeout = remainingTimeout;
-
         /*
          * ok now try and connect. Depending on the platform this may sleep
          * for up to passedTimeout milliseconds
          */
-        result = sockConnectWithTimeout(fd.get(), address, passedTimeout, SOCKET_STEP_CHECK, &context);
-
-        /*
-         * now check if the socket is still connected.
-         * Do it here as some platforms seem to think they
-         * are connected if the socket is closed on them.
-         */
-        if (fd.isClosed()) {
-            sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
-            return;
-        }
-
-        /*
-         * check if we are now connected,
-         * if so we can finish the process and return
-         */
+        result = context.isConnected(fd.get(), remainingTimeout);
         if (result == 0) {
-            sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
+            context.didConnect(fd.get());
+            return;
+        } else if (result != -EINPROGRESS) {
+            context.didFail(fd.get(), result);
             return;
         }
 
-        /*
-         * if the error is -EINPROGRESS then we have not yet
-         * connected and we may not be done yet
-         */
-        if (result == -EINPROGRESS) {
-            /* check if the timeout has expired */
-            if (hasTimeout) {
-                remainingTimeout = finishTime - time_msec_clock();
-                if (remainingTimeout <= 0) {
-                    sockConnectWithTimeout(fd.get(), address, 0, SOCKET_STEP_DONE, &context);
-                    jniThrowSocketTimeoutException(env, ETIMEDOUT);
-                    return;
-                }
-            } else {
-                remainingTimeout = 100;
+        /* check if the timeout has expired */
+        if (hasTimeout) {
+            remainingTimeout = finishTime - time_msec_clock();
+            if (remainingTimeout <= 0) {
+                context.didFail(fd.get(), -ETIMEDOUT);
+                return;
             }
         } else {
-            sockConnectWithTimeout(fd.get(), address, remainingTimeout, SOCKET_STEP_DONE, &context);
-            if (result == -ECONNRESET || result == -ECONNREFUSED || result == -EADDRNOTAVAIL ||
-                    result == -EADDRINUSE || result == -ENETUNREACH) {
-                jniThrowConnectException(env, -result);
-            } else if (result == -EACCES) {
-                jniThrowSecurityException(env, -result);
-            } else {
-                jniThrowSocketException(env, -result);
-            }
-            return;
+            remainingTimeout = 100;
         }
     }
 }
@@ -958,23 +888,6 @@ static void osNetworkSystem_sendUrgentData(JNIEnv* env, jobject,
 
     int rc = send(fd.get(), &value, 1, MSG_OOB);
     if (rc == -1) {
-        jniThrowSocketException(env, errno);
-    }
-}
-
-static void osNetworkSystem_connectDatagram(JNIEnv* env, jobject,
-        jobject fileDescriptor, jint port, jobject inetAddress) {
-    sockaddr_storage sockAddr;
-    if (!inetAddressToSocketAddress(env, inetAddress, port, &sockAddr)) {
-        return;
-    }
-
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    if (doConnect(fd.get(), &sockAddr) == -1) {
         jniThrowSocketException(env, errno);
     }
 }
@@ -1608,43 +1521,44 @@ static void osNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) 
         return;
     }
 
+    int oldFd = fd.get();
     jniSetFileDescriptorOfFD(env, fileDescriptor, -1);
 
     // TODO: this will be part of the fix for http://b/2823977.
     // shutdown(fd.get(), SHUT_RDWR);
 
-    close(fd.get());
+    close(oldFd);
 }
 
 static JNINativeMethod gMethods[] = {
-    { "accept",                         "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V", (void*) osNetworkSystem_accept },
-    { "bind",                           "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V",                       (void*) osNetworkSystem_bind },
-    { "close",                          "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_close },
-    { "connectDatagram",                "(Ljava/io/FileDescriptor;ILjava/net/InetAddress;)V",                       (void*) osNetworkSystem_connectDatagram },
-    { "connectStreamWithTimeoutSocket", "(Ljava/io/FileDescriptor;IILjava/net/InetAddress;)V",                      (void*) osNetworkSystem_connectStreamWithTimeoutSocket },
-    { "connectWithTimeout",             "(Ljava/io/FileDescriptor;ILjava/net/InetAddress;II[B)Z",                   (void*) osNetworkSystem_connectWithTimeout },
-    { "createDatagramSocket",           "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createDatagramSocket },
-    { "createServerStreamSocket",       "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createServerStreamSocket },
-    { "createStreamSocket",             "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createStreamSocket },
-    { "disconnectDatagram",             "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_disconnectDatagram },
-    { "getSocketLocalAddress",          "(Ljava/io/FileDescriptor;)Ljava/net/InetAddress;",                         (void*) osNetworkSystem_getSocketLocalAddress },
-    { "getSocketLocalPort",             "(Ljava/io/FileDescriptor;)I",                                              (void*) osNetworkSystem_getSocketLocalPort },
-    { "getSocketOption",                "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;",                            (void*) osNetworkSystem_getSocketOption },
-    { "listen",                         "(Ljava/io/FileDescriptor;I)V",                                             (void*) osNetworkSystem_listen },
-    { "read",                           "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_read },
-    { "readDirect",                     "(Ljava/io/FileDescriptor;II)I",                                            (void*) osNetworkSystem_readDirect },
-    { "recv",                           "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I",               (void*) osNetworkSystem_recv },
-    { "recvDirect",                     "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIZZ)I",                (void*) osNetworkSystem_recvDirect },
-    { "selectImpl",                     "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z",               (void*) osNetworkSystem_selectImpl },
-    { "send",                           "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_send },
-    { "sendDirect",                     "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I",                    (void*) osNetworkSystem_sendDirect },
-    { "sendUrgentData",                 "(Ljava/io/FileDescriptor;B)V",                                             (void*) osNetworkSystem_sendUrgentData },
-    { "setInetAddress",                 "(Ljava/net/InetAddress;[B)V",                                              (void*) osNetworkSystem_setInetAddress },
-    { "setSocketOption",                "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V",                           (void*) osNetworkSystem_setSocketOption },
-    { "shutdownInput",                  "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownInput },
-    { "shutdownOutput",                 "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownOutput },
-    { "write",                          "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_write },
-    { "writeDirect",                    "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_writeDirect },
+    { "accept",                   "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V", (void*) osNetworkSystem_accept },
+    { "bind",                     "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V",                       (void*) osNetworkSystem_bind },
+    { "close",                    "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_close },
+    { "connectNonBlocking",       "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z",                       (void*) osNetworkSystem_connectNonBlocking },
+    { "connect",                  "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;II)V",                      (void*) osNetworkSystem_connect },
+    { "createDatagramSocket",     "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createDatagramSocket },
+    { "createServerStreamSocket", "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createServerStreamSocket },
+    { "createStreamSocket",       "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createStreamSocket },
+    { "disconnectDatagram",       "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_disconnectDatagram },
+    { "getSocketLocalAddress",    "(Ljava/io/FileDescriptor;)Ljava/net/InetAddress;",                         (void*) osNetworkSystem_getSocketLocalAddress },
+    { "getSocketLocalPort",       "(Ljava/io/FileDescriptor;)I",                                              (void*) osNetworkSystem_getSocketLocalPort },
+    { "getSocketOption",          "(Ljava/io/FileDescriptor;I)Ljava/lang/Object;",                            (void*) osNetworkSystem_getSocketOption },
+    { "isConnected",              "(Ljava/io/FileDescriptor;I)Z",                                             (void*) osNetworkSystem_isConnected },
+    { "listen",                   "(Ljava/io/FileDescriptor;I)V",                                             (void*) osNetworkSystem_listen },
+    { "read",                     "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_read },
+    { "readDirect",               "(Ljava/io/FileDescriptor;II)I",                                            (void*) osNetworkSystem_readDirect },
+    { "recv",                     "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I",               (void*) osNetworkSystem_recv },
+    { "recvDirect",               "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIZZ)I",                (void*) osNetworkSystem_recvDirect },
+    { "selectImpl",               "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z",               (void*) osNetworkSystem_selectImpl },
+    { "send",                     "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I",                   (void*) osNetworkSystem_send },
+    { "sendDirect",               "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I",                    (void*) osNetworkSystem_sendDirect },
+    { "sendUrgentData",           "(Ljava/io/FileDescriptor;B)V",                                             (void*) osNetworkSystem_sendUrgentData },
+    { "setInetAddress",           "(Ljava/net/InetAddress;[B)V",                                              (void*) osNetworkSystem_setInetAddress },
+    { "setSocketOption",          "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V",                           (void*) osNetworkSystem_setSocketOption },
+    { "shutdownInput",            "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownInput },
+    { "shutdownOutput",           "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownOutput },
+    { "write",                    "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_write },
+    { "writeDirect",              "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_writeDirect },
 };
 int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env) {
     return initCachedFields(env) && jniRegisterNativeMethods(env,

@@ -193,7 +193,7 @@ public abstract class SelectionKey {
      * and is ready to write. A call to this method is equal to executing
      * {@code (readyOps() & OP_WRITE) == OP_WRITE}.
      *
-     * @return {@code true} if the channel is interested in the wrie operation
+     * @return {@code true} if the channel is interested in the write operation
      *         and is ready to write, {@code false} otherwise.
      * @throws CancelledKeyException
      *             if the key has already been canceled.
