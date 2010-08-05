@@ -389,29 +389,22 @@ static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
 
 static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflags) {
     int flags = 0;
-    int mode = 0;
 
-    // On Android, we don't want default permissions to allow global access.
     switch (jflags) {
     case 0:
         flags = HyOpenRead;
-        mode = 0;
         break;
     case 1:
         flags = HyOpenCreate | HyOpenWrite | HyOpenTruncate;
-        mode = 0600;
         break;
     case 16:
         flags = HyOpenRead | HyOpenWrite | HyOpenCreate;
-        mode = 0600;
         break;
     case 32:
         flags = HyOpenRead | HyOpenWrite | HyOpenCreate | HyOpenSync;
-        mode = 0600;
         break;
     case 256:
         flags = HyOpenWrite | HyOpenCreate | HyOpenAppend;
-        mode = 0600;
         break;
     }
 
@@ -421,7 +414,7 @@ static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflag
     if (path.c_str() == NULL) {
         return -1;
     }
-    jint rc = TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode));
+    jint rc = TEMP_FAILURE_RETRY(open(path.c_str(), flags));
     if (rc == -1) {
         // Get the human-readable form of errno.
         char buffer[80];
