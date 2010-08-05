@@ -127,8 +127,7 @@ public class MulticastSocket extends DatagramSocket {
         }
 
         // ok it was not set at the IPV6 level so try at the IPV4 level
-        InetAddress theAddress = (InetAddress) impl
-                .getOption(SocketOptions.IP_MULTICAST_IF);
+        InetAddress theAddress = (InetAddress) impl.getOption(SocketOptions.IP_MULTICAST_IF);
         if (theAddress != null) {
             if (!theAddress.isAnyLocalAddress()) {
                 return NetworkInterface.getByInetAddress(theAddress);
@@ -138,7 +137,7 @@ public class MulticastSocket extends DatagramSocket {
             // interface with only the any address. We do this to be
             // compatible
             InetAddress theAddresses[] = new InetAddress[1];
-            if (!NetUtil.preferIPv4Stack() && NetUtil.preferIPv6Addresses()) {
+            if (NetUtil.preferIPv6Addresses()) {
                 theAddresses[0] = Inet6Address.ANY;
             } else {
                 theAddresses[0] = Inet4Address.ANY;
@@ -560,18 +559,16 @@ public class MulticastSocket extends DatagramSocket {
     }
 
     /**
-     * Sets the {@code SocketOptions.IP_MULTICAST_LOOP}.
+     * Sets the {@link SocketOptions#IP_MULTICAST_LOOP}.
      *
-     * @param loop
-     *            the value for the socket option socket {@code
-     *            SocketOptions.IP_MULTICAST_LOOP}.
+     * @param disable
+     *            true to <i>disable</i> loopback
      * @throws SocketException
      *             if the socket is closed or the option is invalid.
      * @since 1.4
      */
-    public void setLoopbackMode(boolean loop) throws SocketException {
+    public void setLoopbackMode(boolean disable) throws SocketException {
         checkClosedAndBind(false);
-        impl.setOption(SocketOptions.IP_MULTICAST_LOOP, loop ? Boolean.FALSE
-                : Boolean.TRUE);
+        impl.setOption(SocketOptions.IP_MULTICAST_LOOP, Boolean.valueOf(!disable));
     }
 }

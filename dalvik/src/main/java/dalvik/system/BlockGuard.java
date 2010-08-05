@@ -220,10 +220,6 @@ public final class BlockGuard {
             mFileSystem.fflush(fileDescriptor, metadata);
         }
 
-        public void close(int fileDescriptor) throws IOException {
-            mFileSystem.close(fileDescriptor);
-        }
-
         public void truncate(int fileDescriptor, long size) throws IOException {
             BlockGuard.getThreadPolicy().onWriteToDisk();
             mFileSystem.truncate(fileDescriptor, size);
@@ -299,38 +295,30 @@ public final class BlockGuard {
             return mNetwork.writeDirect(fd, address, offset, count);
         }
 
-        public void setNonBlocking(FileDescriptor aFD, boolean block)
+        public void connect(FileDescriptor aFD, InetAddress inetAddress, int port)
                 throws IOException {
-            mNetwork.setNonBlocking(aFD, block);
-        }
-
-        public void connect(FileDescriptor aFD, int trafficClass,
-                            InetAddress inetAddress, int port) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.connect(aFD, trafficClass, inetAddress, port);
+            mNetwork.connect(aFD, inetAddress, port);
         }
 
         public boolean connectWithTimeout(FileDescriptor aFD, int timeout,
-                int trafficClass, InetAddress hostname, int port, int step,
-                byte[] context) throws IOException {
+                InetAddress hostname, int port, int step, byte[] context) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.connectWithTimeout(aFD, timeout, trafficClass,
-                    hostname, port, step, context);
+            return mNetwork.connectWithTimeout(aFD, timeout, hostname, port, step, context);
         }
 
         public int send(FileDescriptor fd, byte[] data, int offset, int length,
-                int port, int trafficClass, InetAddress inetAddress) throws IOException {
+                int port, InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.send(fd, data, offset, length, port, trafficClass, inetAddress);
+            return mNetwork.send(fd, data, offset, length, port, inetAddress);
         }
 
         public int sendDirect(FileDescriptor fd, int address, int offset, int length,
-                int port, int trafficClass, InetAddress inetAddress) throws IOException {
+                int port, InetAddress inetAddress) throws IOException {
             // Note: no BlockGuard violation.  We permit datagrams
             // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.sendDirect(fd, address, offset, length,
-                    port, trafficClass, inetAddress);
+            return mNetwork.sendDirect(fd, address, offset, length, port, inetAddress);
         }
 
         public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
@@ -349,14 +337,13 @@ public final class BlockGuard {
             mNetwork.disconnectDatagram(aFD);
         }
 
-        public void createDatagramSocket(FileDescriptor aFD, boolean preferIPv4Stack)
-                throws SocketException {
-            mNetwork.createDatagramSocket(aFD, preferIPv4Stack);
+        public void createDatagramSocket(FileDescriptor aFD) throws SocketException {
+            mNetwork.createDatagramSocket(aFD);
         }
 
-        public void connectDatagram(FileDescriptor aFD, int port, int trafficClass,
-                InetAddress inetAddress) throws SocketException {
-            mNetwork.connectDatagram(aFD, port, trafficClass, inetAddress);
+        public void connectDatagram(FileDescriptor aFD, int port, InetAddress inetAddress)
+                throws SocketException {
+            mNetwork.connectDatagram(aFD, port, inetAddress);
         }
 
         public void shutdownInput(FileDescriptor descriptor) throws IOException {
@@ -371,26 +358,22 @@ public final class BlockGuard {
             mNetwork.sendUrgentData(fd, value);
         }
 
-        public void createServerStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
-                throws SocketException {
-            mNetwork.createServerStreamSocket(aFD, preferIPv4Stack);
+        public void createServerStreamSocket(FileDescriptor aFD) throws SocketException {
+            mNetwork.createServerStreamSocket(aFD);
         }
 
-        public void createStreamSocket(FileDescriptor aFD, boolean preferIPv4Stack)
-                throws SocketException {
-            mNetwork.createStreamSocket(aFD, preferIPv4Stack);
+        public void createStreamSocket(FileDescriptor aFD) throws SocketException {
+            mNetwork.createStreamSocket(aFD);
         }
 
         public void listen(FileDescriptor aFD, int backlog) throws SocketException {
             mNetwork.listen(aFD, backlog);
         }
 
-        public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int aport,
-                int timeout, int trafficClass, InetAddress inetAddress)
-                throws IOException {
+        public void connectStreamWithTimeoutSocket(FileDescriptor aFD, int port,
+                int timeout, InetAddress inetAddress) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.connectStreamWithTimeoutSocket(aFD, aport,
-                    timeout, trafficClass, inetAddress);
+            mNetwork.connectStreamWithTimeoutSocket(aFD, port, timeout, inetAddress);
         }
 
         public InetAddress getSocketLocalAddress(FileDescriptor aFD) {
@@ -434,11 +417,9 @@ public final class BlockGuard {
             if (lingerValue instanceof Boolean) {
                 return (Boolean) lingerValue;
             } else if (lingerValue instanceof Integer) {
-                // Note: not exactly to spec, but gingerbread returns
-                // -1 when linger is disabled.
-                return ((Integer) lingerValue) > 0;
+                return ((Integer) lingerValue) != 0;
             }
-            return false;  // shouldn't happen
+            throw new AssertionError(lingerValue.getClass().getName());
         }
     }
 }

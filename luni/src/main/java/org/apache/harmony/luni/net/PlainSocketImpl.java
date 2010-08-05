@@ -51,13 +51,6 @@ public class PlainSocketImpl extends SocketImpl {
 
     private static Field fdField;
 
-    /**
-     * used to store the trafficClass value which is simply returned as the
-     * value that was set. We also need it to pass it to methods that specify an
-     * address packets are going to be sent to
-     */
-    private int trafficClass;
-
     protected INetworkSystem netImpl = Platform.getNetworkSystem();
 
     public boolean streaming = true;
@@ -210,14 +203,13 @@ public class PlainSocketImpl extends SocketImpl {
                     socksConnect(anAddr, aPort, 0);
                 } else {
                     if (timeout == 0) {
-                        netImpl.connect(fd, trafficClass, normalAddr, aPort);
+                        netImpl.connect(fd, normalAddr, aPort);
                     } else {
-                        netImpl.connectStreamWithTimeoutSocket(fd, aPort,
-                                timeout, trafficClass, normalAddr);
+                        netImpl.connectStreamWithTimeoutSocket(fd, aPort, timeout, normalAddr);
                     }
                 }
             } else {
-                netImpl.connectDatagram(fd, aPort, trafficClass, normalAddr);
+                netImpl.connectDatagram(fd, aPort, normalAddr);
             }
         } catch (ConnectException e) {
             throw new ConnectException(anAddr + ":" + aPort + " - " + e.getMessage());
@@ -230,9 +222,9 @@ public class PlainSocketImpl extends SocketImpl {
     protected void create(boolean streaming) throws IOException {
         this.streaming = streaming;
         if (streaming) {
-            netImpl.createStreamSocket(fd, NetUtil.preferIPv4Stack());
+            netImpl.createStreamSocket(fd);
         } else {
-            netImpl.createDatagramSocket(fd, NetUtil.preferIPv4Stack());
+            netImpl.createDatagramSocket(fd);
         }
     }
 
@@ -249,11 +241,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     public Object getOption(int optID) throws SocketException {
-        if (optID == SocketOptions.IP_TOS) {
-            return Integer.valueOf(trafficClass);
-        } else {
-            return netImpl.getSocketOption(fd, optID);
-        }
+        return netImpl.getSocketOption(fd, optID);
     }
 
     @Override
@@ -274,28 +262,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     public void setOption(int optID, Object val) throws SocketException {
-        try {
-            netImpl.setSocketOption(fd, optID, val);
-        } catch (SocketException e) {
-            // we don't throw an exception for IP_TOS even if the platform
-            // won't let us set the requested value
-            if (optID != SocketOptions.IP_TOS) {
-                throw e;
-            }
-        }
-
-        /*
-         * save this value as it is actually used differently for IPv4 and
-         * IPv6 so we cannot get the value using the getOption. The option
-         * is actually only set for IPv4 and a masked version of the value
-         * will be set as only a subset of the values are allowed on the
-         * socket. Therefore we need to retain it to return the value that
-         * was set. We also need the value to be passed into a number of
-         * natives so that it can be used properly with IPv6
-         */
-        if (optID == SocketOptions.IP_TOS) {
-            trafficClass = ((Integer) val).intValue();
-        }
+        netImpl.setSocketOption(fd, optID, val);
     }
 
     /**
@@ -333,12 +300,10 @@ public class PlainSocketImpl extends SocketImpl {
             int applicationServerPort, int timeout) throws IOException {
         try {
             if (timeout == 0) {
-                netImpl.connect(fd, trafficClass, socksGetServerAddress(),
-                        socksGetServerPort());
+                netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort());
             } else {
                 netImpl.connectStreamWithTimeoutSocket(fd,
-                        socksGetServerPort(), timeout, trafficClass,
-                        socksGetServerAddress());
+                        socksGetServerPort(), timeout, socksGetServerAddress());
             }
 
         } catch (Exception e) {
@@ -399,7 +364,7 @@ public class PlainSocketImpl extends SocketImpl {
      */
     private void socksBind() throws IOException {
         try {
-            netImpl.connect(fd, trafficClass, socksGetServerAddress(), socksGetServerPort());
+            netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort());
         } catch (Exception e) {
             throw new IOException("Unable to connect to SOCKS server: " + e);
         }
@@ -510,7 +475,7 @@ public class PlainSocketImpl extends SocketImpl {
         if (streaming) {
             return netImpl.write(fd, buffer, offset, count);
         } else {
-            return netImpl.send(fd, buffer, offset, count, port, 0, address);
+            return netImpl.send(fd, buffer, offset, count, port, address);
         }
     }
 }

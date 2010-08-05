@@ -21,19 +21,17 @@ import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.SelectorProvider;
 
 /**
- * A pipe contains two channels. One is the writable sink channel and the other
- * is the readable source channel. When bytes are written into the writable
- * channel they can be read from the readable channel. The order of these bytes
- * remains unchanged.
+ * A pipe contains two channels, forming a unidirectional pipe. One is the writable sink channel,
+ * and the other is the readable source channel. When bytes are written into the writable
+ * channel they can be read from the readable channel. Bytes are read in the order in which they
+ * were written.
  */
 public abstract class Pipe {
-
     /**
      * Writable sink channel used to write to a pipe.
      */
     public static abstract class SinkChannel extends AbstractSelectableChannel
             implements WritableByteChannel, GatheringByteChannel {
-
         /**
          * Constructs a new {@code SinkChannel}.
          *
@@ -59,9 +57,7 @@ public abstract class Pipe {
      * Readable source channel used to read from a pipe.
      */
     public static abstract class SourceChannel extends
-            AbstractSelectableChannel implements ReadableByteChannel,
-            ScatteringByteChannel {
-
+            AbstractSelectableChannel implements ReadableByteChannel, ScatteringByteChannel {
         /**
          * Constructs a new {@code SourceChannel}.
          *
@@ -81,13 +77,10 @@ public abstract class Pipe {
         public final int validOps() {
             return SelectionKey.OP_READ;
         }
-
     }
 
     /**
-     * Initializes a pipe.
-     *
-     * @return a new instance of pipe.
+     * Returns a new pipe from the default {@see java.nio.channels.spi.SelectorProvider}.
      *
      * @throws IOException
      *             if an I/O error occurs.
@@ -116,5 +109,4 @@ public abstract class Pipe {
      * @return a readable source channel of the pipe.
      */
     public abstract SourceChannel source();
-
 }

@@ -1313,13 +1313,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
         } catch (UnknownHostException e) {
             fail("UnknownHostException was thrown.");
         }
-
-        try {
-            new java.net.DatagramSocket(isa);
-            fail("SocketException was not thrown.");
-        } catch(SocketException se) {
-            //expected
-        }
     }
 
     public void test_bindLjava_net_SocketAddress() throws Exception {

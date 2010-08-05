@@ -265,11 +265,9 @@ public class InetAddress implements Serializable {
     static InetAddress[] getAllByNameImpl(String host) throws UnknownHostException {
         if (host == null || host.isEmpty()) {
             if (NetUtil.preferIPv6Addresses()) {
-                return new InetAddress[] { Inet6Address.LOOPBACK,
-                                           Inet4Address.LOOPBACK };
+                return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
             } else {
-                return new InetAddress[] { Inet4Address.LOOPBACK,
-                                           Inet6Address.LOOPBACK };
+                return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
             }
         }
 
@@ -857,18 +855,16 @@ public class InetAddress implements Serializable {
         return false;
     }
 
-    private boolean isReachableByTCP(InetAddress destination, InetAddress source,
-            int timeout) throws IOException {
+    private boolean isReachableByTCP(InetAddress destination, InetAddress source, int timeout)
+            throws IOException {
         FileDescriptor fd = new FileDescriptor();
-        // define traffic only for parameter
-        int traffic = 0;
         boolean reached = false;
-        NETIMPL.createStreamSocket(fd, NetUtil.preferIPv4Stack());
+        NETIMPL.createStreamSocket(fd);
         try {
             if (null != source) {
                 NETIMPL.bind(fd, source, 0);
             }
-            NETIMPL.connectStreamWithTimeoutSocket(fd, 7, timeout, traffic, destination);
+            NETIMPL.connectStreamWithTimeoutSocket(fd, 7, timeout, destination);
             reached = true;
         } catch (IOException e) {
             if (ERRMSG_CONNECTION_REFUSED.equals(e.getMessage())) {

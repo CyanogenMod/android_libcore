@@ -225,8 +225,10 @@ template <typename T> static T get(jint srcAddress) {
     if ((srcAddress & (sizeof(T) - 1)) == 0) {
         return *cast<const T*>(srcAddress);
     } else {
+        // Cast to void* so GCC can't assume correct alignment and optimize this out.
+        const void* src = cast<const void*>(srcAddress);
         T result;
-        memcpy(&result, cast<const T*>(srcAddress), sizeof(T));
+        memcpy(&result, src, sizeof(T));
         return result;
     }
 }
@@ -235,7 +237,9 @@ template <typename T> static void set(jint dstAddress, T value) {
     if ((dstAddress & (sizeof(T) - 1)) == 0) {
         *cast<T*>(dstAddress) = value;
     } else {
-        memcpy(cast<void*>(dstAddress), &value, sizeof(T));
+        // Cast to void* so GCC can't assume correct alignment and optimize this out.
+        void* dst = cast<void*>(dstAddress);
+        memcpy(dst, &value, sizeof(T));
     }
 }
 

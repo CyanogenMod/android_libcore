@@ -39,9 +39,9 @@ public class PlainServerSocketImpl extends PlainSocketImpl {
     protected void create(boolean isStreaming) throws SocketException {
         streaming = isStreaming;
         if (isStreaming) {
-            netImpl.createServerStreamSocket(fd, NetUtil.preferIPv4Stack());
+            netImpl.createServerStreamSocket(fd);
         } else {
-            netImpl.createDatagramSocket(fd, NetUtil.preferIPv4Stack());
+            netImpl.createDatagramSocket(fd);
         }
     }
 }

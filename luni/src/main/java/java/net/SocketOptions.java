@@ -36,7 +36,7 @@ public interface SocketOptions {
      * the method blocks this time in milliseconds. If all data could be sent
      * during this timeout the socket is closed normally otherwise forcefully.
      * Valid values for this option are in the range {@code 0 <= SO_LINGER <=
-     * 65535}.
+     * 65535}. (Larger timeouts will be treated as 65535s timeouts; roughly 18 hours.)
      */
     public static final int SO_LINGER = 128;
 
@@ -102,7 +102,9 @@ public interface SocketOptions {
 
     /**
      * This option specifies the value for the Type-of-Service (TOS) field of
-     * the IP header.
+     * the IP header. This may be ignored by the underlying OS.
+     * Values must be between 0 and 255 inclusive.
+     * See <a href="http://www.ietf.org/rfc/rfc1349.txt">RFC 1349</a> for more information.
      */
     public static final int IP_TOS = 3;
 

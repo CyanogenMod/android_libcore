@@ -157,6 +157,13 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertContent("ABCDE", server.getUrl("/").openConnection(), 5);
     }
 
+    // Check that we recognize a few basic mime types by extension.
+    // http://code.google.com/p/android/issues/detail?id=10100
+    public void test_10100() throws Exception {
+        assertEquals("image/jpeg", URLConnection.guessContentTypeFromName("someFile.jpg"));
+        assertEquals("application/pdf", URLConnection.guessContentTypeFromName("stuff.pdf"));
+    }
+
     public void testConnectionsArePooled() throws Exception {
         MockResponse response = new MockResponse().setBody("ABCDEFGHIJKLMNOPQR");
 
@@ -347,7 +354,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         server.play();
 
         HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/foo").openConnection();
-        connection.setSSLSocketFactory(testSSLContext.serverContext.getSocketFactory());
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
 
         assertContent("this response comes via HTTPS", connection);
 
@@ -375,6 +382,23 @@ public class URLConnectionTest extends junit.framework.TestCase {
             fail();
         } catch (SSLException expected) {
         }
+    }
+
+    public void testConnectViaHttpsWithSSLFallback() throws IOException, InterruptedException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse().setDisconnectAtStart(true));
+        server.enqueue(new MockResponse().setBody("this response comes via SSL"));
+        server.play();
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/foo").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+
+        assertContent("this response comes via SSL", connection);
+
+        RecordedRequest request = server.takeRequest();
+        assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
     }
 
     public void testConnectViaProxy() throws IOException, InterruptedException {
@@ -1048,7 +1072,11 @@ public class URLConnectionTest extends junit.framework.TestCase {
             assertEquals("GHI", readAscii(url.openStream(), Integer.MAX_VALUE));
 
             assertEquals(Arrays.asList("verify localhost"), hostnameVerifier.calls);
-            assertEquals(Arrays.asList("checkServerTrusted [CN=localhost 1] RSA"),
+            assertEquals(Arrays.asList("checkServerTrusted ["
+                                       + "CN=localhost 1, "
+                                       + "CN=Test Intermediate Certificate Authority 1, "
+                                       + "CN=Test Root Certificate Authority 1"
+                                       + "] RSA"),
                     trustManager.calls);
         } finally {
             HttpsURLConnection.setDefaultHostnameVerifier(defaultHostnameVerifier);

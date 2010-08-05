@@ -70,13 +70,6 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private int connectedPort = -1;
 
-    /**
-     * used to store the trafficClass value which is simply returned as the
-     * value that was set. We also need it to pass it to methods that specify an
-     * address packets are going to be sent to
-     */
-    private int trafficClass;
-
     public PlainDatagramSocketImpl(FileDescriptor fd, int localPort) {
         super();
         this.fd = fd;
@@ -119,7 +112,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void create() throws SocketException {
-        netImpl.createDatagramSocket(fd, NetUtil.preferIPv4Stack());
+        netImpl.createDatagramSocket(fd);
     }
 
     @Override
@@ -128,11 +121,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     public Object getOption(int optID) throws SocketException {
-        if (optID == SocketOptions.IP_TOS) {
-            return Integer.valueOf(trafficClass);
-        } else {
-            return netImpl.getSocketOption(fd, optID);
-        }
+        return netImpl.getSocketOption(fd, optID);
     }
 
     @Override
@@ -209,32 +198,11 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public void send(DatagramPacket packet) throws IOException {
         int port = isNativeConnected ? 0 : packet.getPort();
         InetAddress address = isNativeConnected ? null : packet.getAddress();
-        netImpl.send(fd, packet.getData(), packet.getOffset(), packet.getLength(),
-                port, trafficClass, address);
+        netImpl.send(fd, packet.getData(), packet.getOffset(), packet.getLength(), port, address);
     }
 
     public void setOption(int optID, Object val) throws SocketException {
-        try {
-            netImpl.setSocketOption(fd, optID, val);
-        } catch (SocketException e) {
-            // we don't throw an exception for IP_TOS even if the platform
-            // won't let us set the requested value
-            if (optID != SocketOptions.IP_TOS) {
-                throw e;
-            }
-        }
-        /*
-         * save this value as it is actually used differently for IPv4 and
-         * IPv6 so we cannot get the value using the getOption. The option
-         * is actually only set for IPv4 and a masked version of the value
-         * will be set as only a subset of the values are allowed on the
-         * socket. Therefore we need to retain it to return the value that
-         * was set. We also need the value to be passed into a number of
-         * natives so that it can be used properly with IPv6
-         */
-        if (optID == SocketOptions.IP_TOS) {
-            trafficClass = ((Integer) val).intValue();
-        }
+        netImpl.setSocketOption(fd, optID, val);
     }
 
     @Override
@@ -251,7 +219,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public void connect(InetAddress inetAddr, int port) throws SocketException {
 
         // connectDatagram impl2
-        netImpl.connectDatagram(fd, port, trafficClass, inetAddr);
+        netImpl.connectDatagram(fd, port, inetAddr);
 
         // if we get here then we are connected at the native level
         try {

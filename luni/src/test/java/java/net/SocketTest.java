@@ -19,6 +19,9 @@ package java.net;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -115,5 +118,75 @@ public class SocketTest extends junit.framework.TestCase {
         assertNull(out.socket().getRemoteSocketAddress());
 
         assertEquals(in.socket().getLocalSocketAddress(), ss.getLocalSocketAddress());
+    }
+
+    // SocketOptions.setOption has weird behavior for setSoLinger/SO_LINGER.
+    // This test ensures we do what the RI does.
+    public void test_SocketOptions_setOption() throws Exception {
+        class MySocketImpl extends SocketImpl {
+            public int option;
+            public Object value;
+
+            public boolean createCalled;
+            public boolean createStream;
+
+            public MySocketImpl() { super(); }
+            @Override protected void accept(SocketImpl arg0) throws IOException { }
+            @Override protected int available() throws IOException { return 0; }
+            @Override protected void bind(InetAddress arg0, int arg1) throws IOException { }
+            @Override protected void close() throws IOException { }
+            @Override protected void connect(String arg0, int arg1) throws IOException { }
+            @Override protected void connect(InetAddress arg0, int arg1) throws IOException { }
+            @Override protected void connect(SocketAddress arg0, int arg1) throws IOException { }
+            @Override protected InputStream getInputStream() throws IOException { return null; }
+            @Override protected OutputStream getOutputStream() throws IOException { return null; }
+            @Override protected void listen(int arg0) throws IOException { }
+            @Override protected void sendUrgentData(int arg0) throws IOException { }
+            public Object getOption(int arg0) throws SocketException { return null; }
+
+            @Override protected void create(boolean isStream) throws IOException {
+                this.createCalled = true;
+                this.createStream = isStream;
+            }
+
+            public void setOption(int option, Object value) throws SocketException {
+                this.option = option;
+                this.value = value;
+            }
+        }
+
+        class MySocket extends Socket {
+            public MySocket(SocketImpl impl) throws SocketException {
+                super(impl);
+            }
+        }
+
+        MySocketImpl impl = new MySocketImpl();
+        Socket s = new MySocket(impl);
+
+        // Check that, as per the SocketOptions.setOption documentation, we pass false rather
+        // than -1 to the SocketImpl when setSoLinger is called with the first argument false.
+        s.setSoLinger(false, -1);
+        assertEquals(Boolean.FALSE, (Boolean) impl.value);
+        // We also check that SocketImpl.create was called. SocketChannelImpl.SocketAdapter
+        // subclasses Socket, and whether or not to call SocketImpl.create is the main behavioral
+        // difference.
+        assertEquals(true, impl.createCalled);
+        s.setSoLinger(false, 0);
+        assertEquals(Boolean.FALSE, (Boolean) impl.value);
+        s.setSoLinger(false, 1);
+        assertEquals(Boolean.FALSE, (Boolean) impl.value);
+
+        // Check that otherwise, we pass down an Integer.
+        s.setSoLinger(true, 0);
+        assertEquals(Integer.valueOf(0), (Integer) impl.value);
+        s.setSoLinger(true, 1);
+        assertEquals(Integer.valueOf(1), (Integer) impl.value);
+    }
+
+    public void test_setTrafficClass() throws Exception {
+        Socket s = new Socket();
+        s.setTrafficClass(123);
+        assertEquals(123, s.getTrafficClass());
     }
 }
