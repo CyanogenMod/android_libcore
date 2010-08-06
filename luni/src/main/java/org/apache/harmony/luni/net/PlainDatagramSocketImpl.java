@@ -179,6 +179,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
                 updatePacketRecvAddress(pack);
             }
         } catch (InterruptedIOException e) {
+            // TODO: remove this. the underlying code only ever throws SocketTimeoutException!
             throw new SocketTimeoutException(e.getMessage());
         }
     }
@@ -217,9 +218,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void connect(InetAddress inetAddr, int port) throws SocketException {
-
-        // connectDatagram impl2
-        netImpl.connectDatagram(fd, port, inetAddr);
+        netImpl.connect(fd, inetAddr, port, 0);
 
         // if we get here then we are connected at the native level
         try {

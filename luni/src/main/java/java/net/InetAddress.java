@@ -864,7 +864,7 @@ public class InetAddress implements Serializable {
             if (null != source) {
                 NETIMPL.bind(fd, source, 0);
             }
-            NETIMPL.connectStreamWithTimeoutSocket(fd, 7, timeout, destination);
+            NETIMPL.connect(fd, destination, 7, timeout);
             reached = true;
         } catch (IOException e) {
             if (ERRMSG_CONNECTION_REFUSED.equals(e.getMessage())) {

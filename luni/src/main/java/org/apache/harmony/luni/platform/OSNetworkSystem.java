@@ -45,19 +45,12 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void bind(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException;
 
-    public void connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException {
-        connectStreamWithTimeoutSocket(fd, port, 0, inetAddress);
-    }
-
-    public native void connectDatagram(FileDescriptor fd, int port, InetAddress inetAddress)
+    public native void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeout)
             throws SocketException;
 
-    public native void connectStreamWithTimeoutSocket(FileDescriptor fd,
-            int port, int timeout, InetAddress inetAddress)
+    public native boolean connectNonBlocking(FileDescriptor fd, InetAddress inetAddress, int port)
             throws IOException;
-
-    public native boolean connectWithTimeout(FileDescriptor fd, int timeout,
-            InetAddress inetAddress, int port, int step, byte[] context) throws IOException;
+    public native boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
 
     public native void createDatagramSocket(FileDescriptor fd) throws SocketException;
 

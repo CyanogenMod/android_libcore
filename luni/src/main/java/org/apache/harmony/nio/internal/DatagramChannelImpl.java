@@ -158,8 +158,8 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
 
         try {
             begin();
-            networkSystem.connectDatagram(fd,
-                    inetSocketAddress.getPort(), inetSocketAddress.getAddress());
+            networkSystem.connect(fd,
+                    inetSocketAddress.getAddress(), inetSocketAddress.getPort(), 0);
         } catch (ConnectException e) {
             // ConnectException means connect fail, not exception
         } finally {

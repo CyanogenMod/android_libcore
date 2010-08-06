@@ -102,6 +102,7 @@ public class PlainSocketImpl extends SocketImpl {
                 netImpl.accept(fd, newImpl, newFd);
             }
         } catch (InterruptedIOException e) {
+            // TODO: remove this. the underlying code only ever throws SocketTimeoutException!
             throw new SocketTimeoutException(e.getMessage());
         } catch (IllegalAccessException e) {
             // empty
@@ -198,18 +199,10 @@ public class PlainSocketImpl extends SocketImpl {
     private void connect(InetAddress anAddr, int aPort, int timeout) throws IOException {
         InetAddress normalAddr = anAddr.isAnyLocalAddress() ? InetAddress.getLocalHost() : anAddr;
         try {
-            if (streaming) {
-                if (NetUtil.usingSocks(proxy)) {
-                    socksConnect(anAddr, aPort, 0);
-                } else {
-                    if (timeout == 0) {
-                        netImpl.connect(fd, normalAddr, aPort);
-                    } else {
-                        netImpl.connectStreamWithTimeoutSocket(fd, aPort, timeout, normalAddr);
-                    }
-                }
+            if (streaming && NetUtil.usingSocks(proxy)) {
+                socksConnect(anAddr, aPort, 0);
             } else {
-                netImpl.connectDatagram(fd, aPort, normalAddr);
+                netImpl.connect(fd, normalAddr, aPort, timeout);
             }
         } catch (ConnectException e) {
             throw new ConnectException(anAddr + ":" + aPort + " - " + e.getMessage());
@@ -299,13 +292,7 @@ public class PlainSocketImpl extends SocketImpl {
     private void socksConnect(InetAddress applicationServerAddress,
             int applicationServerPort, int timeout) throws IOException {
         try {
-            if (timeout == 0) {
-                netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort());
-            } else {
-                netImpl.connectStreamWithTimeoutSocket(fd,
-                        socksGetServerPort(), timeout, socksGetServerAddress());
-            }
-
+            netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort(), timeout);
         } catch (Exception e) {
             throw new SocketException("SOCKS connection failed: " + e);
         }
@@ -364,7 +351,7 @@ public class PlainSocketImpl extends SocketImpl {
      */
     private void socksBind() throws IOException {
         try {
-            netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort());
+            netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort(), 0);
         } catch (Exception e) {
             throw new IOException("Unable to connect to SOCKS server: " + e);
         }
