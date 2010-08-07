@@ -101,9 +101,6 @@ public class PlainSocketImpl extends SocketImpl {
                 FileDescriptor newFd = (FileDescriptor) fdField.get(newImpl);
                 netImpl.accept(fd, newImpl, newFd);
             }
-        } catch (InterruptedIOException e) {
-            // TODO: remove this. the underlying code only ever throws SocketTimeoutException!
-            throw new SocketTimeoutException(e.getMessage());
         } catch (IllegalAccessException e) {
             // empty
         }

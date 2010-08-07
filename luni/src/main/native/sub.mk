@@ -3,6 +3,7 @@
 # or BUILD_*_LIBRARY.
 
 LOCAL_SRC_FILES := \
+	AsynchronousSocketCloseMonitor.cpp \
 	ErrorCode.cpp \
 	ICU.cpp \
 	JniConstants.cpp \

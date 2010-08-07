@@ -16,6 +16,7 @@
 
 #define LOG_TAG "OSNetworkSystem"
 
+#include "AsynchronousSocketCloseMonitor.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
@@ -127,25 +128,18 @@ private:
 /**
  * Used to retry syscalls that can return EINTR. This differs from TEMP_FAILURE_RETRY in that
  * it also considers the case where the reason for failure is that another thread called
- * shutdown(2) on the socket.
+ * Socket.close.
  */
-#define NET_FAILURE_RETRY(env, fd, exp) ({                          \
-    typeof (exp) _rc;                                               \
-    do {                                                            \
-        _rc = (exp);                                                \
-        if (_rc == -1) {                                            \
-            if (fd.isClosed()) {                                    \
-                break;                                              \
-            }                                                       \
-            if (errno != EINTR) {                                   \
-                if (errno == EAGAIN || errno == EWOULDBLOCK) {      \
-                    jniThrowSocketTimeoutException(env, ETIMEDOUT); \
-                } else {                                            \
-                    jniThrowSocketException(env, errno);            \
-                }                                                   \
-            }                                                       \
-        }                                                           \
-    } while (_rc == -1 && errno == EINTR);                          \
+#define NET_FAILURE_RETRY(fd, exp) ({               \
+    typeof (exp) _rc;                               \
+    do {                                            \
+        _rc = (exp);                                \
+        if (_rc == -1) {                            \
+            if (fd.isClosed() || errno != EINTR) {  \
+                break;                              \
+            }                                       \
+        }                                           \
+    } while (_rc == -1);                            \
     _rc; })
 
 /**
@@ -298,18 +292,6 @@ static int time_msec_clock() {
 }
 
 /**
- * Wrapper for connect() that converts IPv4 addresses to IPv4-mapped IPv6
- * addresses if necessary.
- *
- * @param socket the file descriptor of the socket to connect
- * @param socketAddress the address to connect to
- */
-static int doConnect(int fd, const sockaddr_storage* socketAddress) {
-    const CompatibleSocketAddress compatibleAddress(fd, *socketAddress, true);
-    return TEMP_FAILURE_RETRY(connect(fd, compatibleAddress.get(), sizeof(sockaddr_storage)));
-}
-
-/**
  * Establish a connection to a peer with a timeout.  The member functions are called
  * repeatedly in order to carry out the connect and to allow other tasks to
  * proceed on certain platforms. The caller must first call ConnectHelper::start.
@@ -326,91 +308,66 @@ public:
     ConnectHelper(JNIEnv* env) : mEnv(env) {
     }
 
-    int start(int fd, jobject inetAddr, jint port) {
+    int start(NetFd& fd, jobject inetAddr, jint port) {
         sockaddr_storage ss;
         if (!inetAddressToSocketAddress(mEnv, inetAddr, port, &ss)) {
             return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
         }
 
         // Set the socket to non-blocking and initiate a connection attempt...
-        if (!setBlocking(fd, false) || doConnect(fd, &ss) == -1) {
+        const CompatibleSocketAddress compatibleAddress(fd.get(), ss, true);
+        if (!setBlocking(fd.get(), false) ||
+                connect(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage)) == -1) {
+            if (fd.isClosed()) {
+                return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
+            }
             if (errno != EINPROGRESS) {
-                didFail(fd, -errno);
+                didFail(fd.get(), -errno);
             }
             return -errno;
         }
         // We connected straight away!
-        didConnect(fd);
+        didConnect(fd.get());
         return 0;
     }
 
+    // Returns 0 if we're connected; -EINPROGRESS if we're still hopeful, -errno if we've failed.
     // 'timeout' the timeout in milliseconds. If timeout is negative, perform a blocking operation.
     int isConnected(int fd, int timeout) {
-        /* now check if we have connected yet */
-
-        /*
-         * set the timeout value to be used. Because on some unix platforms we
-         * don't get notified when a socket is closed we only sleep for 100ms
-         * at a time
-         *
-         * TODO: is this relevant for Android?
-         */
-        if (timeout > 100) {
-            timeout = 100;
-        }
         timeval passedTimeout(toTimeval(timeout));
 
-        /* initialize the FD sets for the select */
-        fd_set writeSet;
+        // Initialize the fd sets for the select.
         fd_set readSet;
-        fd_set exceptionSet;
-        FD_ZERO(&exceptionSet);
-        FD_ZERO(&writeSet);
+        fd_set writeSet;
         FD_ZERO(&readSet);
-        FD_SET(fd, &writeSet);
+        FD_ZERO(&writeSet);
         FD_SET(fd, &readSet);
-        FD_SET(fd, &exceptionSet);
+        FD_SET(fd, &writeSet);
 
         int nfds = fd + 1;
         timeval* tp = timeout >= 0 ? &passedTimeout : NULL;
-        int rc = TEMP_FAILURE_RETRY(select(nfds, &readSet, &writeSet, &exceptionSet, tp));
-
-        /* if there is at least one descriptor ready to be checked */
-        if (rc > 0) {
-            int errorVal;
-            socklen_t errorValLen = sizeof(int);
-
-            /* if the descriptor is in the write set we connected or failed */
-            if (FD_ISSET(fd, &writeSet)) {
-                if (!FD_ISSET(fd, &readSet)) {
-                    /* ok we have connected ok */
-                    return 0;
-                } else {
-                    /* ok we have more work to do to figure it out */
-                    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errorVal, &errorValLen) >= 0) {
-                        return errorVal ? -errorVal : 0;
-                    } else {
-                        return -errno;
-                    }
-                }
-            }
-
-            /* if the descriptor is in the exception set the connect failed */
-            if (FD_ISSET(fd, &exceptionSet)) {
-                if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errorVal, &errorValLen) >= 0) {
-                    return errorVal ? -errorVal : 0;
-                }
-                return -errno;
-            }
-        } else if (rc < 0) {
-            /* some other error occurred */
+        int rc = TEMP_FAILURE_RETRY(select(nfds, &readSet, &writeSet, NULL, tp));
+        if (rc == -1) {
             return -errno;
         }
 
-        /*
-         * if we get here the timeout expired or the connect had not yet
-         * completed just indicate that the connect is not yet complete
-         */
+        // If the fd is just in the write set, we're connected.
+        if (FD_ISSET(fd, &writeSet) && !FD_ISSET(fd, &readSet)) {
+            return 0;
+        }
+
+        // If the fd is in both the read and write set, there was an error.
+        if (FD_ISSET(fd, &readSet) || FD_ISSET(fd, &writeSet)) {
+            // Get the pending error.
+            int error = 0;
+            socklen_t errorLen = sizeof(error);
+            if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errorLen) == -1) {
+                return -errno; // Couldn't get the real error, so report why not.
+            }
+            return -error;
+        }
+
+        // Timeout expired.
         return -EINPROGRESS;
     }
 
@@ -687,7 +644,17 @@ static jint osNetworkSystem_writeDirect(JNIEnv* env, jobject,
     }
 
     jbyte* src = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address + offset));
-    ssize_t bytesSent = write(fd.get(), src, count);
+
+    ssize_t bytesSent;
+    {
+        int intFd = fd.get();
+        AsynchronousSocketCloseMonitor monitor(intFd);
+        bytesSent = NET_FAILURE_RETRY(fd, write(intFd, src, count));
+    }
+    if (env->ExceptionOccurred()) {
+        return -1;
+    }
+
     if (bytesSent == -1) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             // We were asked to write to a non-blocking socket, but were told
@@ -719,7 +686,7 @@ static jboolean osNetworkSystem_connectNonBlocking(JNIEnv* env, jobject, jobject
     }
 
     ConnectHelper context(env);
-    return context.start(fd.get(), inetAddr, port) == 0;
+    return context.start(fd, inetAddr, port) == 0;
 }
 
 static jboolean osNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDescriptor, jint timeout) {
@@ -759,7 +726,7 @@ static void osNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescriptor
     }
 
     ConnectHelper context(env);
-    int result = context.start(fd.get(), inetAddr, port);
+    int result = context.start(fd, inetAddr, port);
     int remainingTimeout = timeout;
     while (result == -EINPROGRESS) {
         /*
@@ -767,6 +734,9 @@ static void osNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescriptor
          * for up to passedTimeout milliseconds
          */
         result = context.isConnected(fd.get(), remainingTimeout);
+        if (fd.isClosed()) {
+            return;
+        }
         if (result == 0) {
             context.didConnect(fd.get());
             return;
@@ -835,8 +805,22 @@ static void osNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescr
     sockaddr_storage ss;
     socklen_t addrLen = sizeof(ss);
     sockaddr* sa = reinterpret_cast<sockaddr*>(&ss);
-    int clientFd = NET_FAILURE_RETRY(env, serverFd, accept(serverFd.get(), sa, &addrLen));
+
+    int clientFd;
+    {
+        int intFd = serverFd.get();
+        AsynchronousSocketCloseMonitor monitor(intFd);
+        clientFd = NET_FAILURE_RETRY(serverFd, accept(intFd, sa, &addrLen));
+    }
+    if (env->ExceptionOccurred()) {
+        return;
+    }
     if (clientFd == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            jniThrowSocketTimeoutException(env, errno);
+        } else {
+            jniThrowSocketException(env, errno);
+        }
         return;
     }
 
@@ -844,7 +828,7 @@ static void osNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescr
     timeval timeout(toTimeval(0));
     int rc = setsockopt(clientFd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
     if (rc == -1) {
-        LOGE("couldn't reset SO_RCVTIMEO on accepted socket: %s (%i)", strerror(errno), errno);
+        LOGE("couldn't reset SO_RCVTIMEO on accepted socket fd %i: %s", clientFd, strerror(errno));
         jniThrowSocketException(env, errno);
     }
 
@@ -924,30 +908,28 @@ static jint osNetworkSystem_readDirect(JNIEnv* env, jobject, jobject fileDescrip
     }
 
     jbyte* dst = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address));
-    while (true) {
-        ssize_t bytesReceived = read(fd.get(), dst, count);
-        if (bytesReceived == 0) {
-            // If fd is closed, we saw EOF because of the shutdown(2) that happens at close...
-            if (fd.isClosed()) {
-                return 0;
-            }
-            // ...otherwise it was a genuine EOF.
-            return -1;
-        } else if (bytesReceived == -1) {
-            if (errno == EINTR) {
-                continue;
-            }
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                // We were asked to read a non-blocking socket with no data
-                // available, so report "no bytes read".
-                return 0;
-            } else {
-                jniThrowSocketException(env, errno);
-                return 0;
-            }
+    ssize_t bytesReceived;
+    {
+        int intFd = fd.get();
+        AsynchronousSocketCloseMonitor monitor(intFd);
+        bytesReceived = NET_FAILURE_RETRY(fd, read(intFd, dst, count));
+    }
+    if (env->ExceptionOccurred()) {
+        return -1;
+    }
+    if (bytesReceived == 0) {
+        return -1;
+    } else if (bytesReceived == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // We were asked to read a non-blocking socket with no data
+            // available, so report "no bytes read".
+            return 0;
         } else {
-            return bytesReceived;
+            jniThrowSocketException(env, errno);
+            return 0;
         }
+    } else {
+        return bytesReceived;
     }
 }
 
@@ -976,8 +958,17 @@ static jint osNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
     socklen_t sockAddrLen = sizeof(ss);
     sockaddr* from = connected ? NULL : reinterpret_cast<sockaddr*>(&ss);
     socklen_t* fromLength = connected ? NULL : &sockAddrLen;
-    ssize_t actualLength = TEMP_FAILURE_RETRY(recvfrom(fd.get(), buf, length, flags, from, fromLength));
-    if (actualLength == -1) {
+
+    ssize_t bytesReceived;
+    {
+        int intFd = fd.get();
+        AsynchronousSocketCloseMonitor monitor(intFd);
+        bytesReceived = NET_FAILURE_RETRY(fd, recvfrom(intFd, buf, length, flags, from, fromLength));
+    }
+    if (env->ExceptionOccurred()) {
+        return -1;
+    }
+    if (bytesReceived == -1) {
         if (connected && errno == ECONNREFUSED) {
             jniThrowException(env, "java/net/PortUnreachableException", "");
         } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -989,7 +980,7 @@ static jint osNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
     }
 
     if (packet != NULL) {
-        env->SetIntField(packet, gCachedFields.dpack_length, actualLength);
+        env->SetIntField(packet, gCachedFields.dpack_length, bytesReceived);
         if (!connected) {
             jbyteArray addr = socketAddressToByteArray(env, &ss);
             if (addr == NULL) {
@@ -1004,7 +995,7 @@ static jint osNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
             env->SetIntField(packet, gCachedFields.dpack_port, port);
         }
     }
-    return actualLength;
+    return bytesReceived;
 }
 
 static jint osNetworkSystem_recv(JNIEnv* env, jobject, jobject fd, jobject packet,
@@ -1040,7 +1031,16 @@ static jint osNetworkSystem_sendDirect(JNIEnv* env, jobject, jobject fileDescrip
     char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
     sockaddr* to = inetAddress ? reinterpret_cast<sockaddr*>(&receiver) : NULL;
     socklen_t toLength = inetAddress ? sizeof(receiver) : 0;
-    ssize_t bytesSent = TEMP_FAILURE_RETRY(sendto(fd.get(), buf, length, flags, to, toLength));
+
+    ssize_t bytesSent;
+    {
+        int intFd = fd.get();
+        AsynchronousSocketCloseMonitor monitor(intFd);
+        bytesSent = NET_FAILURE_RETRY(fd, sendto(intFd, buf, length, flags, to, toLength));
+    }
+    if (env->ExceptionOccurred()) {
+        return -1;
+    }
     if (bytesSent == -1) {
         if (errno == ECONNRESET || errno == ECONNREFUSED) {
             return 0;
@@ -1121,7 +1121,6 @@ static bool translateFdSet(JNIEnv* env, jobjectArray fdArray, jint count, fd_set
 static jboolean osNetworkSystem_selectImpl(JNIEnv* env, jclass,
         jobjectArray readFDArray, jobjectArray writeFDArray, jint countReadC,
         jint countWriteC, jintArray outFlags, jlong timeoutMs) {
-    // LOGD("ENTER selectImpl");
 
     // Initialize the fd_sets.
     int maxFd = -1;
@@ -1523,10 +1522,7 @@ static void osNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) 
 
     int oldFd = fd.get();
     jniSetFileDescriptorOfFD(env, fileDescriptor, -1);
-
-    // TODO: this will be part of the fix for http://b/2823977.
-    // shutdown(fd.get(), SHUT_RDWR);
-
+    AsynchronousSocketCloseMonitor::signalBlockedThreads(oldFd);
     close(oldFd);
 }
 
@@ -1560,7 +1556,9 @@ static JNINativeMethod gMethods[] = {
     { "write",                    "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_write },
     { "writeDirect",              "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_writeDirect },
 };
+
 int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env) {
+    AsynchronousSocketCloseMonitor::init();
     return initCachedFields(env) && jniRegisterNativeMethods(env,
             "org/apache/harmony/luni/platform/OSNetworkSystem", gMethods, NELEM(gMethods));
 }
