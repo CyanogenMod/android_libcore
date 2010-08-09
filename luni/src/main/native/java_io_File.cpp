@@ -388,7 +388,8 @@ static jboolean File_createNewFileImpl(JNIEnv* env, jclass, jstring javaPath) {
         return JNI_FALSE;
     }
 
-    ScopedFd fd(open(path.c_str(), O_CREAT | O_EXCL, S_IRWXU | S_IRWXG | S_IRWXO));
+    ScopedFd fd(open(path.c_str(), O_CREAT | O_EXCL,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
     if (fd.get() != -1) {
         // We created a new file. Success!
         return JNI_TRUE;
