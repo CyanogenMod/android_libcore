@@ -414,7 +414,8 @@ static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflag
     if (path.c_str() == NULL) {
         return -1;
     }
-    jint rc = TEMP_FAILURE_RETRY(open(path.c_str(), flags, S_IRWXU | S_IRWXG | S_IRWXO));
+    jint rc = TEMP_FAILURE_RETRY(open(path.c_str(), flags,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
     if (rc == -1) {
         // Get the human-readable form of errno.
         char buffer[80];
