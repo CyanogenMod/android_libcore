@@ -172,15 +172,10 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     private void doRecv(DatagramPacket pack, boolean peek) throws IOException {
-        try {
-            netImpl.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(), peek,
-                    isNativeConnected);
-            if (isNativeConnected) {
-                updatePacketRecvAddress(pack);
-            }
-        } catch (InterruptedIOException e) {
-            // TODO: remove this. the underlying code only ever throws SocketTimeoutException!
-            throw new SocketTimeoutException(e.getMessage());
+        netImpl.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(), peek,
+                isNativeConnected);
+        if (isNativeConnected) {
+            updatePacketRecvAddress(pack);
         }
     }
 
