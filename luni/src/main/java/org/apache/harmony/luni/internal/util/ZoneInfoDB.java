@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+import libcore.io.IoUtils;
 
 /**
  * A class used to initialize the time zone database.  This implementation uses the
@@ -38,159 +39,131 @@ import java.util.logging.Logger;
  * {@hide}
  */
 public final class ZoneInfoDB {
-    private static final int TZNAME_LENGTH = 40;
-    private static final int TZINT_LENGTH = 4;
-
     /**
      * The directory containing the time zone database files.
      */
     private static final String ZONE_DIRECTORY_NAME =
-        System.getenv("ANDROID_ROOT") + "/usr/share/zoneinfo/";
+            System.getenv("ANDROID_ROOT") + "/usr/share/zoneinfo/";
 
     /**
      * The name of the file containing the concatenated time zone records.
      */
-    private static final String ZONE_FILE_NAME =
-        ZONE_DIRECTORY_NAME + "zoneinfo.dat";
+    private static final String ZONE_FILE_NAME = ZONE_DIRECTORY_NAME + "zoneinfo.dat";
 
     /**
      * The name of the file containing the index to each time zone record within
      * the zoneinfo.dat file.
      */
-    private static final String INDEX_FILE_NAME =
-        ZONE_DIRECTORY_NAME + "zoneinfo.idx";
+    private static final String INDEX_FILE_NAME = ZONE_DIRECTORY_NAME + "zoneinfo.idx";
 
-    /**
-     *  Zoneinfo version used prior to creation of the zoneinfo.version file,
-     *  equal to "2007h".
-     */
-    private static final String DEFAULT_VERSION = "2007h";
+    private static final Object LOCK = new Object();
 
-    /**
-     * The name of the file indicating the database version in use.  If the file is not
-     * present or is unreadable, we assume a version of DEFAULT_VERSION.
-     */
-    private static final String VERSION_FILE_NAME =
-        ZONE_DIRECTORY_NAME + "zoneinfo.version";
+    private static final String VERSION = readVersion();
 
-    private static Object lock = new Object();
-
-    private static String version;
     private static String[] names;
     private static int[] starts;
     private static int[] lengths;
     private static int[] offsets;
+    static {
+        readIndex();
+    }
 
     private ZoneInfoDB() {}
 
-    private static void readVersion() throws IOException {
-        RandomAccessFile versionFile = new RandomAccessFile(VERSION_FILE_NAME, "r");
-        int len = (int) versionFile.length();
-        byte[] vbuf = new byte[len];
-        versionFile.readFully(vbuf);
-        version = new String(vbuf, 0, len, Charsets.ISO_8859_1).trim();
-        versionFile.close();
+    /**
+     * Reads the file indicating the database version in use.  If the file is not
+     * present or is unreadable, we assume a version of "2007h".
+     */
+    private static String readVersion() {
+        // Zoneinfo version used prior to creation of the zoneinfo.version file.
+        String version = "2007h";
+        RandomAccessFile versionFile = null;
+        try {
+            versionFile = new RandomAccessFile(ZONE_DIRECTORY_NAME + "zoneinfo.version", "r");
+            byte[] buf = new byte[(int) versionFile.length()];
+            versionFile.readFully(buf);
+            version = new String(buf, 0, buf.length, Charsets.ISO_8859_1).trim();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            IoUtils.closeQuietly(versionFile);
+        }
+        return version;
     }
 
-    private static void readDatabase() throws IOException {
-        if (starts != null) {
-            return;
-        }
+    private static void readIndex() {
+        RandomAccessFile indexFile = null;
+        try {
+            indexFile = new RandomAccessFile(INDEX_FILE_NAME, "r");
 
-        RandomAccessFile indexFile = new RandomAccessFile(INDEX_FILE_NAME, "r");
-        byte[] nbuf = new byte[TZNAME_LENGTH];
+            // The database reserves 40 bytes for each name.
+            final int SIZEOF_TZNAME = 40;
+            // The database uses 32-bit (4 byte) integers.
+            final int SIZEOF_TZINT = 4;
 
-        int numEntries =
-            (int) (indexFile.length() / (TZNAME_LENGTH + 3*TZINT_LENGTH));
+            byte[] nameBytes = new byte[SIZEOF_TZNAME];
 
-        char[] namebuf = new char[numEntries * TZNAME_LENGTH];
-        int[] nameend = new int[numEntries];
-        int nameoff = 0;
+            int numEntries = (int) (indexFile.length() / (SIZEOF_TZNAME + 3*SIZEOF_TZINT));
 
-        starts = new int[numEntries];
-        lengths = new int[numEntries];
-        offsets = new int[numEntries];
+            char[] nameChars = new char[numEntries * SIZEOF_TZNAME];
+            int[] nameEnd = new int[numEntries];
+            int nameOffset = 0;
 
-        for (int i = 0; i < numEntries; i++) {
-            indexFile.readFully(nbuf);
-            starts[i] = indexFile.readInt();
-            lengths[i] = indexFile.readInt();
-            offsets[i] = indexFile.readInt();
+            starts = new int[numEntries];
+            lengths = new int[numEntries];
+            offsets = new int[numEntries];
 
-            // Don't include null chars in the String
-            int len = nbuf.length;
-            for (int j = 0; j < len; j++) {
-                if (nbuf[j] == 0) {
-                    break;
+            for (int i = 0; i < numEntries; i++) {
+                indexFile.readFully(nameBytes);
+                starts[i] = indexFile.readInt();
+                lengths[i] = indexFile.readInt();
+                offsets[i] = indexFile.readInt();
+
+                // Don't include null chars in the String
+                int len = nameBytes.length;
+                for (int j = 0; j < len; j++) {
+                    if (nameBytes[j] == 0) {
+                        break;
+                    }
+                    nameChars[nameOffset++] = (char) (nameBytes[j] & 0xFF);
                 }
-                namebuf[nameoff++] = (char) (nbuf[j] & 0xFF);
+
+                nameEnd[i] = nameOffset;
             }
 
-            nameend[i] = nameoff;
-        }
+            String name = new String(nameChars, 0, nameOffset);
 
-        String name = new String(namebuf, 0, nameoff);
-
-        // Assumes the namebuf is all ASCII (so byte offsets == char offsets).
-        names = new String[numEntries];
-        for (int i = 0; i < numEntries; i++) {
-            names[i] = name.substring(i == 0 ? 0 : nameend[i - 1],
-                                      nameend[i]);
-        }
-
-        indexFile.close();
-    }
-
-    static {
-        // Don't attempt to log here because the logger requires this class to be initialized
-        try {
-            readVersion();
-        } catch (IOException e) {
-            // The version can't be read, we can continue without it
-            version = DEFAULT_VERSION;
-        }
-
-        try {
-            readDatabase();
-        } catch (IOException e) {
-            // The database can't be read, try to continue without it
-            names = new String[0];
-            starts = new int[0];
-            lengths = new int[0];
-            offsets = new int[0];
+            // Assumes the nameChars is all ASCII (so byte offsets == char offsets).
+            names = new String[numEntries];
+            for (int i = 0; i < numEntries; i++) {
+                names[i] = name.substring(i == 0 ? 0 : nameEnd[i - 1], nameEnd[i]);
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            IoUtils.closeQuietly(indexFile);
         }
     }
 
     public static String getVersion() {
-        return version;
+        return VERSION;
     }
 
     public static String[] getAvailableIDs() {
-        return _getAvailableIDs(0, false);
+        return (String[]) names.clone();
     }
 
     public static String[] getAvailableIDs(int rawOffset) {
-        return _getAvailableIDs(rawOffset, true);
-    }
-
-    private static String[] _getAvailableIDs(int rawOffset,
-            boolean checkOffset) {
         List<String> matches = new ArrayList<String>();
-
-        int[] _offsets = ZoneInfoDB.offsets;
-        String[] _names = ZoneInfoDB.names;
-        int len = _offsets.length;
-        for (int i = 0; i < len; i++) {
-            if (!checkOffset || _offsets[i] == rawOffset) {
-                matches.add(_names[i]);
+        for (int i = 0, end = offsets.length; i < end; i++) {
+            if (offsets[i] == rawOffset) {
+                matches.add(names[i]);
             }
         }
-
         return matches.toArray(new String[matches.size()]);
     }
 
-    /*package*/ static TimeZone _getTimeZone(String name)
-            throws IOException {
+    private static TimeZone readTimeZone(String name) throws IOException {
         FileInputStream fis = null;
         int length = 0;
 
@@ -245,13 +218,15 @@ public final class ZoneInfoDB {
         int base = 44;
 
         int[] transitions = new int[ntransition];
-        for (int i = 0; i < ntransition; i++)
+        for (int i = 0; i < ntransition; i++) {
             transitions[i] = read4(data, base + 4 * i);
+        }
         base += 4 * ntransition;
 
         byte[] type = new byte[ntransition];
-        for (int i = 0; i < ntransition; i++)
+        for (int i = 0; i < ntransition; i++) {
             type[i] = data[base + i];
+        }
         base += ntransition;
 
         int[] gmtoff = new int[ngmtoff];
@@ -276,129 +251,24 @@ public final class ZoneInfoDB {
     }
 
     public static TimeZone getTimeZone(String id) {
-        if (id != null) {
-            if (id.equals("GMT") || id.equals("UTC")) {
-                TimeZone tz = new MinimalTimeZone(0);
-                tz.setID(id);
-                return tz;
-            }
-
-            if (id.startsWith("GMT")) {
-                return new MinimalTimeZone(parseNumericZone(id) * 1000);
-            }
+        if (id == null) {
+            return null;
         }
 
-        TimeZone tz = ZoneInfo.getTimeZone(id);
-
-        if (tz != null)
-            return tz;
-
-        /*
-         * It isn't GMT+anything, and it also isn't something we have
-         * in the database.  Give up and return GMT.
-         */
-        tz = new MinimalTimeZone(0);
-        tz.setID("GMT");
-        return tz;
+        try {
+            return readTimeZone(id);
+        } catch (IOException ignored) {
+            return null;
+        }
     }
 
     public static TimeZone getSystemDefault() {
-        synchronized (lock) {
+        synchronized (LOCK) {
             TimezoneGetter tzGetter = TimezoneGetter.getInstance();
             String zoneName = tzGetter != null ? tzGetter.getId() : null;
             return zoneName != null && !zoneName.isEmpty()
                     ? TimeZone.getTimeZone(zoneName.trim())
                     : TimeZone.getTimeZone("localtime"); // use localtime for the simulator
-        }
-    }
-
-    private static int parseNumericZone(String name) {
-        if (name == null)
-            return 0;
-
-        if (!name.startsWith("GMT"))
-            return 0;
-
-        if (name.length() == 3)
-            return 0;
-
-        int sign;
-        if (name.charAt(3) == '+')
-            sign = 1;
-        else if (name.charAt(3) == '-')
-            sign = -1;
-        else
-            return 0;
-
-        int where;
-        int hour = 0;
-        boolean colon = false;
-        for (where = 4; where < name.length(); where++) {
-            char c = name.charAt(where);
-
-            if (c == ':') {
-                where++;
-                colon = true;
-                break;
-            }
-
-            if (c >= '0' && c <= '9')
-                hour = hour * 10 + c - '0';
-            else
-                return 0;
-        }
-
-        int min = 0;
-        for (; where < name.length(); where++) {
-            char c = name.charAt(where);
-
-            if (c >= '0' && c <= '9')
-                min = min * 10 + c - '0';
-            else
-                return 0;
-        }
-
-        if (colon)
-            return sign * (hour * 60 + min) * 60;
-        else if (hour >= 100)
-            return sign * ((hour / 100) * 60 + (hour % 100)) * 60;
-        else
-            return sign * (hour * 60) * 60;
-    }
-
-    /*package*/ static class MinimalTimeZone extends TimeZone {
-        private int rawOffset;
-
-        public MinimalTimeZone(int offset) {
-            rawOffset = offset;
-            setID(getDisplayName());
-        }
-
-        @SuppressWarnings("unused")
-        @Override
-        public int getOffset(int era, int year, int month, int day, int dayOfWeek, int millis) {
-            return getRawOffset();
-        }
-
-        @Override
-        public int getRawOffset() {
-            return rawOffset;
-        }
-
-        @Override
-        public void setRawOffset(int off) {
-            rawOffset = off;
-        }
-
-        @SuppressWarnings("unused")
-        @Override
-        public boolean inDaylightTime(Date when) {
-            return false;
-        }
-
-        @Override
-        public boolean useDaylightTime() {
-            return false;
         }
     }
 }
