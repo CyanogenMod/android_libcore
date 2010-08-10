@@ -35,7 +35,7 @@ test tests.api.java.util.ResourceBundleTest#test_getBundleLjava_lang_StringLjava
 result EXEC_FAILED
 
 # http://b/1952042 - issues with sockets forgetting their local and remote addresses
-test java.nio.channels.OldServerSocketChannelTest#test_accept_Security
+test libcore.java.nio.channels.OldServerSocketChannelTest#test_accept_Security
 result EXEC_FAILED
 
 # Fails in CTS but passes under run-core-tests
