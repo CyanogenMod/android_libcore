@@ -16,6 +16,7 @@
 
 package libcore.io;
 
+import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 
@@ -27,6 +28,18 @@ public final class IoUtils {
      * Calls close(2) on 'fd'. Also resets the internal int to -1.
      */
     public static native void close(FileDescriptor fd) throws IOException;
+
+    /**
+     * Closes 'closeable', ignoring any exceptions. Does nothing if 'closeable' is null.
+     */
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
 
     /**
      * Returns the int file descriptor from within the given FileDescriptor 'fd'.

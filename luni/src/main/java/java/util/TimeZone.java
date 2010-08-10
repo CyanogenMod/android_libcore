@@ -19,57 +19,45 @@ package java.util;
 
 import java.io.Serializable;
 import libcore.icu.TimeZones;
-import org.apache.harmony.luni.internal.util.ZoneInfo;
 import org.apache.harmony.luni.internal.util.ZoneInfoDB;
 
 /**
- * {@code TimeZone} represents a time zone offset, taking into account
- * daylight savings.
- * <p>
- * Typically, you get a {@code TimeZone} using {@code getDefault}
- * which creates a {@code TimeZone} based on the time zone where the
- * program is running. For example, for a program running in Japan,
- * {@code getDefault} creates a {@code TimeZone} object based on
- * Japanese Standard Time.
- * <p>
- * You can also get a {@code TimeZone} using {@code getTimeZone}
- * along with a time zone ID. For instance, the time zone ID for the U.S.
- * Pacific Time zone is "America/Los_Angeles". So, you can get a U.S. Pacific
- * Time {@code TimeZone} object with the following: <blockquote>
+ * {@code TimeZone} represents a time zone, primarily used for configuring a {@link Calendar} or
+ * {@link SimpleDateFormat} instance.
  *
- * <pre>
- * TimeZone tz = TimeZone.getTimeZone(&quot;America/Los_Angeles&quot;);
- * </pre>
+ * <p>Most applications will use {@link #getDefault} which returns a {@code TimeZone} based on
+ * the time zone where the program is running.
  *
- * </blockquote> You can use the {@code getAvailableIDs} method to iterate
- * through all the supported time zone IDs. You can then choose a supported ID
- * to get a {@code TimeZone}. If the time zone you want is not
- * represented by one of the supported IDs, then you can create a custom time
- * zone ID with the following syntax: <blockquote>
+ * <p>You can also get a specific {@code TimeZone} {@link #getTimeZone by id}.
  *
- * <pre>
- * GMT[+|-]hh[[:]mm]
- * </pre>
+ * <p>It is highly unlikely you'll ever want to use anything but the factory methods yourself.
+ * Let classes like {@link Calendar} and {@link SimpleDateFormat} do the date computations for you.
  *
- * </blockquote> For example, you might specify GMT+14:00 as a custom time zone
- * ID. The {@code TimeZone} that is returned when you specify a custom
- * time zone ID does not include daylight savings time.
- * <p>
- * For compatibility with JDK 1.1.x, some other three-letter time zone IDs (such
- * as "PST", "CTT", "AST") are also supported. However, <strong>their use is
- * deprecated</strong> because the same abbreviation is often used for multiple
- * time zones (for example, "CST" could be U.S. "Central Standard Time" and
- * "China Standard Time"), and the Java platform can then only recognize one of
- * them.
- * <p>
- * Please note the type returned by factory methods, i.e. {@code getDefault()}
- * and {@code getTimeZone(String)}, is implementation dependent, so it may
- * introduce serialization incompatibility issues between different
- * implementations. Android returns instances of {@link SimpleTimeZone} so that
+ * <p>If you do need to do date computations manually, there are two common cases to take into
+ * account:
+ * <ul>
+ * <li>Somewhere like California, where daylight time is used.
+ * The {@link #useDaylightTime} method will always return true, and {@link #inDaylightTime}
+ * must be used to determine whether or not daylight time applies to a given {@code Date}.
+ * The {@link #getRawOffset} method will return a raw offset of (in this case) -8 hours from UTC,
+ * which isn't usually very useful. More usefully, the {@link #getOffset} methods return the
+ * actual offset from UTC <i>for a given point in time</i>; this is the raw offset plus (if the
+ * point in time is {@link #inDaylightTime in daylight time}) the applicable
+ * {@link #getDSTSavings DST savings} (usually, but not necessarily, 1 hour).
+ * <li>Somewhere like Japan, where daylight time is not used.
+ * The {@link #useDaylightTime} and {@link #inDaylightTime} methods both always return false,
+ * and the raw and actual offsets will always be the same.
+ * </ul>
+ *
+ * <p>Note the type returned by the factory methods {@link #getDefault} and {@link #getTimeZone} is
+ * implementation dependent. This may introduce serialization incompatibility issues between
+ * different implementations. Android returns instances of {@link SimpleTimeZone} so that
  * the bytes serialized by Android can be deserialized successfully on other
  * implementations, but the reverse compatibility cannot be guaranteed.
  *
+ * @see Calendar
  * @see GregorianCalendar
+ * @see SimpleDateFormat
  * @see SimpleTimeZone
  */
 public abstract class TimeZone implements Serializable, Cloneable {
@@ -273,42 +261,62 @@ public abstract class TimeZone implements Serializable, Cloneable {
     public abstract int getRawOffset();
 
     /**
-     * Returns a time zone whose ID is {@code id}. Time zone IDs are typically
-     * named by geographic identifiers like {@code America/Los_Angeles} or GMT
-     * offsets like {@code GMT-8:00}. Three letter IDs like {@code PST} are
-     * supported but should not be used because they are often ambiguous.
+     * Returns a {@code TimeZone} suitable for {@code id}, or {@code GMT} on failure.
      *
-     * @return a time zone with the specified ID, or {@code GMT} if the ID
-     *     is not recognized and cannot be parsed.
+     * <p>An id can be an Olson name of the form <i>Area</i>/<i>Location</i>, such
+     * as {@code America/Los_Angeles}. The {@link #getAvailableIDs} method returns
+     * the supported names.
+     *
+     * <p>This method can also create a custom {@code TimeZone} using the following
+     * syntax: {@code GMT[+|-]hh[[:]mm]}. For example, {@code TimeZone.getTimeZone("GMT+14:00")}
+     * would return an object with a raw offset of +14 hours from UTC, and which does <i>not</i>
+     * use daylight savings. These are rarely useful, because they don't correspond to time
+     * zones actually in use.
+     *
+     * <p>For compatibility with JDK 1.1.x, some other three-letter time zone IDs (such
+     * as "PST", "CTT", "AST") are also supported. However, <strong>their use is
+     * deprecated</strong> because the same abbreviation is often used for multiple
+     * time zones (for example, "CST" could be U.S. "Central Standard Time" and
+     * "China Standard Time"), and the Java platform can then only recognize one of
+     * them.
      */
     public static synchronized TimeZone getTimeZone(String id) {
-        TimeZone zone = ZoneInfo.getTimeZone(id);
+        TimeZone zone = ZoneInfoDB.getTimeZone(id);
         if (zone != null) {
             return (TimeZone) zone.clone();
         }
-
-        if (!id.startsWith("GMT") || id.length() <= 3) {
-            return (TimeZone) GMT.clone();
+        if (zone == null && id.length() > 3 && id.startsWith("GMT")) {
+            zone = getCustomTimeZone(id);
         }
+        if (zone == null) {
+            zone = (TimeZone) GMT.clone();
+        }
+        return zone;
+    }
+
+    /**
+     * Returns a new SimpleTimeZone for an id of the form "GMT[+|-]hh[[:]mm]", or null.
+     */
+    private static TimeZone getCustomTimeZone(String id) {
         char sign = id.charAt(3);
         if (sign != '+' && sign != '-') {
-            return (TimeZone) GMT.clone();
+            return null;
         }
         int[] position = new int[1];
         String formattedName = formatTimeZoneName(id, 4);
         int hour = parseNumber(formattedName, 4, position);
         if (hour < 0 || hour > 23) {
-            return (TimeZone) GMT.clone();
+            return null;
         }
         int index = position[0];
         if (index == -1) {
-            return (TimeZone) GMT.clone();
+            return null;
         }
         int raw = hour * 3600000;
         if (index < formattedName.length() && formattedName.charAt(index) == ':') {
             int minute = parseNumber(formattedName, index + 1, position);
             if (position[0] == -1 || minute < 0 || minute > 59) {
-                return (TimeZone) GMT.clone();
+                return null;
             }
             raw += minute * 60000;
         } else if (hour >= 30 || index > 6) {
