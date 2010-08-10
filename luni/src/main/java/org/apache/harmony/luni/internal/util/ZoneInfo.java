@@ -17,6 +17,7 @@
 package org.apache.harmony.luni.internal.util;
 
 import java.io.IOException;
+import java.nio.charset.Charsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
@@ -38,17 +39,15 @@ final class ZoneInfo extends TimeZone {
         0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335,
     };
 
-    private static String nullName(byte[] data, int where, int off) {
-        if (off < 0) {
+    private static String nullName(byte[] bytes, int begin) {
+        if (begin < 0) {
             return null;
         }
-
-        int end = where + off;
-        while (end < data.length && data[end] != '\0') {
-            end++;
+        int end = begin;
+        while (end < bytes.length && bytes[end] != 0) {
+            ++end;
         }
-
-        return new String(data, where + off, end - (where + off));
+        return new String(bytes, begin, end - begin, Charsets.US_ASCII);
     }
 
     private int mRawOffset;
@@ -61,9 +60,8 @@ final class ZoneInfo extends TimeZone {
     private final String mDaylightName;
     private final String mStandardName;
 
-    ZoneInfo(String name, int[] transitions, byte[] type,
-                     int[] gmtoff, byte[] isdst, byte[] abbrev,
-                     byte[] data, int abbrevoff) {
+    ZoneInfo(String name, int[] transitions, byte[] type, int[] gmtoff, byte[] isdst,
+            byte[] abbreviationIndexes, byte[] abbreviationList) {
         mTransitions = transitions;
         mTypes = type;
         mGmtOffs = gmtoff;
@@ -87,12 +85,12 @@ final class ZoneInfo extends TimeZone {
         }
 
         if (lastdst >= 0) {
-            mDaylightName = nullName(data, abbrevoff, abbrev[mTypes[lastdst] & 0xFF]);
+            mDaylightName = nullName(abbreviationList, abbreviationIndexes[mTypes[lastdst] & 0xFF]);
         } else {
             mDaylightName = null;
         }
         if (laststd >= 0) {
-            mStandardName = nullName(data, abbrevoff, abbrev[mTypes[laststd] & 0xFF]);
+            mStandardName = nullName(abbreviationList, abbreviationIndexes[mTypes[laststd] & 0xFF]);
         } else {
             mStandardName = null;
         }
