@@ -18,61 +18,62 @@ package org.apache.harmony.luni.lang.reflect;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
-public class ListOfTypes {
-    static final ListOfTypes empty = new ListOfTypes(0);
+public final class ListOfTypes {
+    public static final ListOfTypes EMPTY = new ListOfTypes(0);
 
-    ArrayList<Type> list;
+    private final ArrayList<Type> types;
     private Type[] resolvedTypes;
 
-    void add(Type elem) {
-        if (elem == null) {
-            throw new RuntimeException("Adding null type is not allowed!");
-        }
-        list.add(elem);
-    }
-
     ListOfTypes(int capacity) {
-        list = new ArrayList<Type>(capacity);
+        types = new ArrayList<Type>(capacity);
     }
 
     ListOfTypes(Type[] types) {
-        list = new ArrayList<Type>();
-        for(Type t : types) {
-            list.add(t);
+        this.types = new ArrayList<Type>(types.length);
+        for (Type type : types) {
+            this.types.add(type);
         }
+    }
+
+    void add(Type type) {
+        if (type == null) {
+            throw new NullPointerException("type == null");
+        }
+        types.add(type);
     }
 
     int length() {
-        return list.size();
+        return types.size();
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        for (Type t : list) {
-            if (i != 0) { sb.append(", "); }
-            sb.append(t.toString());
-        }
-        return sb.toString();
-    }
-
-    // Returns not null, but maybe an array of length 0.
     public Type[] getResolvedTypes() {
-        if (resolvedTypes == null) {
-            resolvedTypes = new Type[list.size()];
-            int i = 0;
-            for (Type t : list) {
-                try {
-                    resolvedTypes[i] = ((ImplForType)t).getResolvedType();
-                } catch (ClassCastException e) {
-                    resolvedTypes[i] = t;
-                }
-                i++;
+        Type[] result = resolvedTypes;
+        return result != null ? result : (resolvedTypes = resolveTypes(types));
+    }
+
+    private Type[] resolveTypes(List<Type> unresolved) {
+        Type[] result = new Type[unresolved.size()];
+        for (int i = 0; i < unresolved.size(); i++) {
+            Type type = unresolved.get(i);
+            try {
+                result[i] = ((ImplForType) type).getResolvedType();
+            } catch (ClassCastException e) {
+                result[i] = type;
             }
-            list = null;
         }
-        return resolvedTypes;
+        return result;
+    }
+
+    @Override public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < types.size(); i++) {
+            if (i > 0) {
+                result.append(", ");
+            }
+            result.append(types.get(i));
+        }
+        return result.toString();
     }
 }
