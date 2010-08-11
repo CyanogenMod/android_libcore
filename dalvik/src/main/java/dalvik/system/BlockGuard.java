@@ -348,10 +348,6 @@ public final class BlockGuard {
             mNetwork.sendUrgentData(fd, value);
         }
 
-        public void createServerStreamSocket(FileDescriptor aFD) throws SocketException {
-            mNetwork.createServerStreamSocket(aFD);
-        }
-
         public void createStreamSocket(FileDescriptor aFD) throws SocketException {
             mNetwork.createStreamSocket(aFD);
         }

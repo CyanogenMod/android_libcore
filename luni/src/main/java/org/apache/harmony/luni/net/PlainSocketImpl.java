@@ -51,11 +51,11 @@ public class PlainSocketImpl extends SocketImpl {
 
     protected INetworkSystem netImpl = Platform.getNetworkSystem();
 
-    public boolean streaming = true;
+    private boolean streaming = true;
 
-    public boolean shutdownInput;
+    private boolean shutdownInput;
 
-    Proxy proxy;
+    private Proxy proxy;
 
     public PlainSocketImpl(FileDescriptor fd) {
         this.fd = fd;

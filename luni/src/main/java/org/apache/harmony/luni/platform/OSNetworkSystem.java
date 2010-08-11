@@ -52,8 +52,6 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void createDatagramSocket(FileDescriptor fd) throws SocketException;
 
-    public native void createServerStreamSocket(FileDescriptor fd) throws SocketException;
-
     public native void createStreamSocket(FileDescriptor fd) throws SocketException;
 
     public native void disconnectDatagram(FileDescriptor fd) throws SocketException;

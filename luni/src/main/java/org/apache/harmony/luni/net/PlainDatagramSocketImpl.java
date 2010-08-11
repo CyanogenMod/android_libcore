@@ -53,9 +53,9 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private volatile boolean isNativeConnected;
 
-    public boolean streaming = true;
+    private boolean streaming = true;
 
-    public boolean shutdownInput;
+    private boolean shutdownInput;
 
     /**
      * used to keep address to which the socket was connected to at the native
