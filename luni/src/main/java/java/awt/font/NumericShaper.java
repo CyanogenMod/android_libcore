@@ -22,7 +22,6 @@ package java.awt.font;
 
 import java.io.IOException;
 import java.io.Serializable;
-import org.apache.harmony.misc.HashCode;
 
 /**
  * The Class NumericShaper provides methods to convert latin character codes
@@ -498,14 +497,11 @@ public final class NumericShaper implements Serializable {
 
     @Override
     public int hashCode() {
-        HashCode hash = new HashCode();
-
-        hash.append(fRanges);
-        hash.append(fDefaultContextIndex);
-        hash.append(fContextual);
-
-        return hash.hashCode();
-
+        int result = 17;
+        result = 31 * result + fRanges;
+        result = 31 * result + fDefaultContextIndex;
+        result = 31 * result + (fContextual ? 1 : 0);
+        return result;
     }
 
     @Override
@@ -844,4 +840,3 @@ public final class NumericShaper implements Serializable {
     }
 
 }
-

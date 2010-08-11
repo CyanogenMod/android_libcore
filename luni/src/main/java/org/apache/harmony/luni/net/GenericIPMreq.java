@@ -38,9 +38,6 @@ final class GenericIPMreq {
     @SuppressWarnings("unused")
     private InetAddress interfaceAddr;
 
-    @SuppressWarnings("unused")
-    private boolean isIPV6Address;
-
     // BEGIN android-changed: we need interfaceIdx.
     private int interfaceIdx;
 
@@ -70,7 +67,6 @@ final class GenericIPMreq {
         multiaddr = addr;
         interfaceAddr = null;
         interfaceIdx = 0;
-        init();
     }
 
     /**
@@ -117,17 +113,5 @@ final class GenericIPMreq {
             interfaceIdx = 0;
             interfaceAddr = null;
         }
-        init();
-    }
-
-    /**
-     * This method does any required initialization for the constructors
-     */
-    private void init() {
-        /*
-         * set the flag indicating if the multicast address is an IPV6 address
-         * or not
-         */
-        isIPV6Address = ((multiaddr != null) && (multiaddr instanceof Inet6Address));
     }
 }

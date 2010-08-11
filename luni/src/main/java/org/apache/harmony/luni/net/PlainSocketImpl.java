@@ -80,7 +80,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected void accept(SocketImpl newImpl) throws IOException {
-        if (NetUtil.usingSocks(proxy)) {
+        if (usingSocks()) {
             ((PlainSocketImpl) newImpl).socksBind();
             ((PlainSocketImpl) newImpl).socksAccept();
             return;
@@ -102,6 +102,10 @@ public class PlainSocketImpl extends SocketImpl {
         } catch (IllegalAccessException e) {
             // empty
         }
+    }
+
+    private boolean usingSocks() {
+        return proxy != null && proxy.type() == Proxy.Type.SOCKS;
     }
 
     /**
@@ -194,7 +198,7 @@ public class PlainSocketImpl extends SocketImpl {
     private void connect(InetAddress anAddr, int aPort, int timeout) throws IOException {
         InetAddress normalAddr = anAddr.isAnyLocalAddress() ? InetAddress.getLocalHost() : anAddr;
         try {
-            if (streaming && NetUtil.usingSocks(proxy)) {
+            if (streaming && usingSocks()) {
                 socksConnect(anAddr, aPort, 0);
             } else {
                 netImpl.connect(fd, normalAddr, aPort, timeout);
@@ -240,7 +244,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected void listen(int backlog) throws IOException {
-        if (NetUtil.usingSocks(proxy)) {
+        if (usingSocks()) {
             // Do nothing for a SOCKS connection. The listen occurs on the
             // server during the bind.
             return;
@@ -376,10 +380,21 @@ public class PlainSocketImpl extends SocketImpl {
             // currently the Socks4Message.getIP() only returns int,
             // so only works with IPv4 4byte addresses
             byte[] replyBytes = new byte[4];
-            NetUtil.intToBytes(reply.getIP(), replyBytes, 0);
+            intToBytes(reply.getIP(), replyBytes, 0);
             address = InetAddress.getByAddress(replyBytes);
         }
         localport = reply.getPort();
+    }
+
+    private static void intToBytes(int value, byte bytes[], int start) {
+        /*
+         * Shift the int so the current byte is right-most Use a byte mask of
+         * 255 to single out the last byte.
+         */
+        bytes[start] = (byte) ((value >> 24) & 255);
+        bytes[start + 1] = (byte) ((value >> 16) & 255);
+        bytes[start + 2] = (byte) ((value >> 8) & 255);
+        bytes[start + 3] = (byte) (value & 255);
     }
 
     /**

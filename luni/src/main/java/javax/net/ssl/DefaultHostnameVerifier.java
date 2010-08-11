@@ -37,7 +37,10 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.harmony.luni.util.Inet6Util;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 
 /**
  * A HostnameVerifier that works the same way as Curl and Firefox.
@@ -159,7 +162,7 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             boolean doWildcard = cn.startsWith("*.") &&
                                  cn.lastIndexOf('.') >= 0 &&
                                  acceptableCountryWildcard(cn) &&
-                                 !Inet6Util.isValidIPV4Address(host);
+                                 !isValidIPV4Address(host);
 
             if(doWildcard) {
                 match = hostName.endsWith(cn.substring(1));
@@ -179,6 +182,50 @@ class DefaultHostnameVerifier implements HostnameVerifier {
             throw new SSLException("hostname in certificate didn't match: <" +
                                    host + "> !=" + buf);
         }
+    }
+
+    /**
+     * Takes a string and parses it to see if it is a valid IPV4 address.
+     *
+     * @return true, if the string represents an IPV4 address in dotted
+     *         notation, false otherwise
+     */
+    private static boolean isValidIPV4Address(String value) {
+        // BEGIN android-changed
+        // general test
+        if (!value.matches("\\p{Digit}+(\\.\\p{Digit}+)*")) {
+            return false;
+        }
+
+        String[] parts = value.split("\\.");
+        int length = parts.length;
+        if (length < 1 || length > 4) {
+            return false;
+        }
+
+        if (length == 1) {
+            // One part decimal numeric address
+            long longValue = Long.parseLong(parts[0]);
+            return longValue <= 0xFFFFFFFFL;
+        } else {
+            // Test each part for inclusion in the correct range
+            for (int i = 0; i < length; i++) {
+                // For two part addresses, the second part expresses
+                // a 24-bit quantity; for three part addresses, the third
+                // part expresses a 16-bit quantity.
+                int max = 0xff;
+                if ((length == 2) && (i == 1)) {
+                    max = 0xffffff;
+                } else if ((length == 3) && (i == 2)) {
+                    max = 0xffff;
+                }
+                if (Integer.parseInt(parts[i]) > max) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        // END android-changed
     }
 
     public static boolean acceptableCountryWildcard(String cn) {

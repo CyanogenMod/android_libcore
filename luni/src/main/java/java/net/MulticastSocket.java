@@ -19,7 +19,6 @@ package java.net;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import org.apache.harmony.luni.net.NetUtil;
 import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
 
 /**
@@ -137,7 +136,7 @@ public class MulticastSocket extends DatagramSocket {
             // interface with only the any address. We do this to be
             // compatible
             InetAddress theAddresses[] = new InetAddress[1];
-            if (NetUtil.preferIPv6Addresses()) {
+            if (InetAddress.preferIPv6Addresses()) {
                 theAddresses[0] = Inet6Address.ANY;
             } else {
                 theAddresses[0] = Inet4Address.ANY;

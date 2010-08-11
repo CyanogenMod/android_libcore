@@ -25,14 +25,15 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
+import java.security.AccessController;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
-import org.apache.harmony.luni.net.NetUtil;
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
+import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * An Internet Protocol (IP) address. This can be either an IPv4 address or an IPv6 address, and
@@ -219,7 +220,7 @@ public class InetAddress implements Serializable {
         // If we prefer IPv4, ignore the RFC3484 ordering we get from getaddrinfo
         // and always put IPv4 addresses first. Arrays.sort() is stable, so the
         // internal ordering will not be changed.
-        if (!NetUtil.preferIPv6Addresses()) {
+        if (!preferIPv6Addresses()) {
             Arrays.sort(rawAddresses, SHORTEST_FIRST);
         }
 
@@ -263,7 +264,7 @@ public class InetAddress implements Serializable {
      */
     static InetAddress[] getAllByNameImpl(String host) throws UnknownHostException {
         if (host == null || host.isEmpty()) {
-            if (NetUtil.preferIPv6Addresses()) {
+            if (preferIPv6Addresses()) {
                 return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
             } else {
                 return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
@@ -301,6 +302,12 @@ public class InetAddress implements Serializable {
 
     private static String wrongAddressLength() {
         return "Invalid IP Address is neither 4 or 16 bytes";
+    }
+
+    static boolean preferIPv6Addresses() {
+        String propertyName = "java.net.preferIPv6Addresses";
+        String propertyValue = AccessController.doPrivileged(new PriviAction<String>(propertyName));
+        return Boolean.getBoolean(propertyValue);
     }
 
     /**

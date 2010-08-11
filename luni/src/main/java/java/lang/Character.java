@@ -2561,19 +2561,7 @@ public final class Character implements Serializable, Comparable<Character> {
      * @return the Unicode directionality of {@code c}.
      */
     public static byte getDirectionality(char c) {
-        // BEGIN android-changed
-        // int result = BinarySearch.binarySearchRange(bidiKeys, c);
-        // int high = bidiValues[result * 2];
-        // if (c <= high) {
-        //     int code = bidiValues[result * 2 + 1];
-        //     if (code < 0x100) {
-        //         return (byte) (code - 1);
-        //     }
-        //     return (byte) (((c & 1) == 1 ? code >> 8 : code & 0xff) - 1);
-        // }
-        // return DIRECTIONALITY_UNDEFINED;
         return getDirectionality((int)c);
-        // END android-changed
     }
 
     /**
