@@ -283,7 +283,7 @@ public abstract class TimeZone implements Serializable, Cloneable {
     public static synchronized TimeZone getTimeZone(String id) {
         TimeZone zone = ZoneInfoDB.getTimeZone(id);
         if (zone != null) {
-            return (TimeZone) zone.clone();
+            return zone;
         }
         if (zone == null && id.length() > 3 && id.startsWith("GMT")) {
             zone = getCustomTimeZone(id);

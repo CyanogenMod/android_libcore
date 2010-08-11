@@ -20,6 +20,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,13 +63,20 @@ public final class ZoneInfoDB {
 
     private static final String VERSION = readVersion();
 
-    private static String[] names;
-    private static int[] starts;
-    private static int[] lengths;
-    private static int[] offsets;
+    /**
+     * The 'ids' array contains time zone ids sorted alphabetically, for binary searching.
+     * The other two arrays are in the same order. 'byteOffsets' gives the byte offset
+     * into "zoneinfo.dat" of each time zone, and 'rawUtcOffsets' gives the time zone's
+     * raw UTC offset.
+     */
+    private static String[] ids;
+    private static int[] byteOffsets;
+    private static int[] rawUtcOffsets;
     static {
         readIndex();
     }
+
+    private static ByteBuffer mappedData = mapData();
 
     private ZoneInfoDB() {}
 
@@ -75,68 +85,77 @@ public final class ZoneInfoDB {
      * present or is unreadable, we assume a version of "2007h".
      */
     private static String readVersion() {
-        // Zoneinfo version used prior to creation of the zoneinfo.version file.
-        String version = "2007h";
         RandomAccessFile versionFile = null;
         try {
             versionFile = new RandomAccessFile(ZONE_DIRECTORY_NAME + "zoneinfo.version", "r");
             byte[] buf = new byte[(int) versionFile.length()];
             versionFile.readFully(buf);
-            version = new String(buf, 0, buf.length, Charsets.ISO_8859_1).trim();
+            return new String(buf, 0, buf.length, Charsets.ISO_8859_1).trim();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         } finally {
             IoUtils.closeQuietly(versionFile);
         }
-        return version;
     }
 
+    /**
+     * Traditionally, Unix systems have one file per time zone. We have one big data file, which
+     * is just a concatenation of regular time zone files. To allow random access into this big
+     * data file, we also have an index. We read the index at startup, and keep it in memory so
+     * we can binary search by id when we need time zone data.
+     *
+     * The format of this file is, I believe, Android's own, and undocumented.
+     *
+     * All this code assumes strings are US-ASCII.
+     */
     private static void readIndex() {
         RandomAccessFile indexFile = null;
         try {
             indexFile = new RandomAccessFile(INDEX_FILE_NAME, "r");
 
-            // The database reserves 40 bytes for each name.
+            // The database reserves 40 bytes for each id.
             final int SIZEOF_TZNAME = 40;
             // The database uses 32-bit (4 byte) integers.
             final int SIZEOF_TZINT = 4;
 
-            byte[] nameBytes = new byte[SIZEOF_TZNAME];
+            byte[] idBytes = new byte[SIZEOF_TZNAME];
 
             int numEntries = (int) (indexFile.length() / (SIZEOF_TZNAME + 3*SIZEOF_TZINT));
 
-            char[] nameChars = new char[numEntries * SIZEOF_TZNAME];
-            int[] nameEnd = new int[numEntries];
-            int nameOffset = 0;
+            char[] idChars = new char[numEntries * SIZEOF_TZNAME];
+            int[] idEnd = new int[numEntries];
+            int idOffset = 0;
 
-            starts = new int[numEntries];
-            lengths = new int[numEntries];
-            offsets = new int[numEntries];
+            byteOffsets = new int[numEntries];
+            rawUtcOffsets = new int[numEntries];
 
             for (int i = 0; i < numEntries; i++) {
-                indexFile.readFully(nameBytes);
-                starts[i] = indexFile.readInt();
-                lengths[i] = indexFile.readInt();
-                offsets[i] = indexFile.readInt();
+                indexFile.readFully(idBytes);
+                byteOffsets[i] = indexFile.readInt();
+                int length = indexFile.readInt();
+                if (length < 44) {
+                    throw new AssertionError("length in index file < sizeof(tzhead)");
+                }
+                rawUtcOffsets[i] = indexFile.readInt();
 
                 // Don't include null chars in the String
-                int len = nameBytes.length;
+                int len = idBytes.length;
                 for (int j = 0; j < len; j++) {
-                    if (nameBytes[j] == 0) {
+                    if (idBytes[j] == 0) {
                         break;
                     }
-                    nameChars[nameOffset++] = (char) (nameBytes[j] & 0xFF);
+                    idChars[idOffset++] = (char) (idBytes[j] & 0xFF);
                 }
 
-                nameEnd[i] = nameOffset;
+                idEnd[i] = idOffset;
             }
 
-            String name = new String(nameChars, 0, nameOffset);
-
-            // Assumes the nameChars is all ASCII (so byte offsets == char offsets).
-            names = new String[numEntries];
+            // We create one string containing all the ids, and then break that into substrings.
+            // This way, all ids share a single char[] on the heap.
+            String allIds = new String(idChars, 0, idOffset);
+            ids = new String[numEntries];
             for (int i = 0; i < numEntries; i++) {
-                names[i] = name.substring(i == 0 ? 0 : nameEnd[i - 1], nameEnd[i]);
+                ids[i] = allIds.substring(i == 0 ? 0 : idEnd[i - 1], idEnd[i]);
             }
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -145,130 +164,121 @@ public final class ZoneInfoDB {
         }
     }
 
-    public static String getVersion() {
-        return VERSION;
+    /**
+     * Rather than open, read, and close the big data file each time we look up a time zone,
+     * we map the big data file during startup, and then just use the ByteBuffer.
+     *
+     * At the moment, this "big" data file is about 160 KiB. At some point, that will be small
+     * enough that we'll just keep the byte[] in memory.
+     */
+    private static ByteBuffer mapData() {
+        RandomAccessFile file = null;
+        try {
+            file = new RandomAccessFile(ZONE_FILE_NAME, "r");
+            FileChannel channel = file.getChannel();
+            ByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+            buffer.order(ByteOrder.BIG_ENDIAN);
+            return buffer;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            IoUtils.closeQuietly(file);
+        }
+    }
+
+    private static TimeZone makeTimeZone(String id) throws IOException {
+        // Work out where in the big data file this time zone is.
+        int index = Arrays.binarySearch(ids, id);
+        if (index < 0) {
+            return null;
+        }
+        int start = byteOffsets[index];
+
+        // We duplicate the ByteBuffer to allow unsynchronized access to this shared data,
+        // despite Buffer's implicit position.
+        ByteBuffer data = mappedData.duplicate();
+        data.position(start);
+
+        // Variable names beginning tzh_ correspond to those in "tzfile.h".
+        // Check tzh_magic.
+        if (data.getInt() != 0x545a6966) { // "TZif"
+            return null;
+        }
+
+        // Skip the uninteresting part of the header.
+        data.position(start + 32);
+
+        // Read the sizes of the arrays we're about to read.
+        int tzh_timecnt = data.getInt();
+        int tzh_typecnt = data.getInt();
+        int tzh_charcnt = data.getInt();
+
+        int[] transitions = new int[tzh_timecnt];
+        for (int i = 0; i < tzh_timecnt; ++i) {
+            transitions[i] = data.getInt();
+        }
+
+        byte[] type = new byte[tzh_timecnt];
+        data.get(type);
+
+        int[] gmtOffsets = new int[tzh_typecnt];
+        byte[] isDsts = new byte[tzh_typecnt];
+        byte[] abbreviationIndexes = new byte[tzh_typecnt];
+        for (int i = 0; i < tzh_typecnt; ++i) {
+            gmtOffsets[i] = data.getInt();
+            isDsts[i] = data.get();
+            abbreviationIndexes[i] = data.get();
+        }
+
+        byte[] abbreviationList = new byte[tzh_charcnt];
+        data.get(abbreviationList);
+
+        return new ZoneInfo(id, transitions, type, gmtOffsets, isDsts,
+                abbreviationIndexes, abbreviationList);
     }
 
     public static String[] getAvailableIDs() {
-        return (String[]) names.clone();
+        return (String[]) ids.clone();
     }
 
     public static String[] getAvailableIDs(int rawOffset) {
         List<String> matches = new ArrayList<String>();
-        for (int i = 0, end = offsets.length; i < end; i++) {
-            if (offsets[i] == rawOffset) {
-                matches.add(names[i]);
+        for (int i = 0, end = rawUtcOffsets.length; i < end; i++) {
+            if (rawUtcOffsets[i] == rawOffset) {
+                matches.add(ids[i]);
             }
         }
         return matches.toArray(new String[matches.size()]);
-    }
-
-    private static TimeZone readTimeZone(String name) throws IOException {
-        FileInputStream fis = null;
-        int length = 0;
-
-        File f = new File(ZONE_DIRECTORY_NAME + name);
-        if (!f.exists()) {
-            fis = new FileInputStream(ZONE_FILE_NAME);
-            int i = Arrays.binarySearch(ZoneInfoDB.names, name);
-
-            if (i < 0) {
-                return null;
-            }
-
-            int start = ZoneInfoDB.starts[i];
-            length = ZoneInfoDB.lengths[i];
-
-            fis.skip(start);
-        }
-
-        if (fis == null) {
-            fis = new FileInputStream(f);
-            length = (int)f.length(); // data won't exceed 2G!
-        }
-
-        byte[] data = new byte[length];
-        int nread = 0;
-        while (nread < length) {
-            int size = fis.read(data, nread, length - nread);
-            if (size > 0) {
-                nread += size;
-            }
-        }
-
-        try {
-            fis.close();
-        } catch (IOException e3) {
-            // probably better to continue than to fail here
-            java.util.logging.Logger.global.warning("IOException " + e3 +
-                " retrieving time zone data");
-            e3.printStackTrace();
-        }
-
-        if (data.length < 36) {
-            return null;
-        }
-        if (data[0] != 'T' || data[1] != 'Z' ||
-            data[2] != 'i' || data[3] != 'f') {
-            return null;
-        }
-
-        int ntransition = read4(data, 32);
-        int ngmtoff = read4(data, 36);
-        int base = 44;
-
-        int[] transitions = new int[ntransition];
-        for (int i = 0; i < ntransition; i++) {
-            transitions[i] = read4(data, base + 4 * i);
-        }
-        base += 4 * ntransition;
-
-        byte[] type = new byte[ntransition];
-        for (int i = 0; i < ntransition; i++) {
-            type[i] = data[base + i];
-        }
-        base += ntransition;
-
-        int[] gmtoff = new int[ngmtoff];
-        byte[] isdst = new byte[ngmtoff];
-        byte[] abbrev = new byte[ngmtoff];
-        for (int i = 0; i < ngmtoff; i++) {
-            gmtoff[i] = read4(data, base + 6 * i);
-            isdst[i] = data[base + 6 * i + 4];
-            abbrev[i] = data[base + 6 * i + 5];
-        }
-
-        base += 6 * ngmtoff;
-
-        return new ZoneInfo(name, transitions, type, gmtoff, isdst, abbrev, data, base);
-    }
-
-    private static int read4(byte[] data, int off) {
-        return ((data[off    ] & 0xFF) << 24) |
-               ((data[off + 1] & 0xFF) << 16) |
-               ((data[off + 2] & 0xFF) <<  8) |
-               ((data[off + 3] & 0xFF) <<  0);
-    }
-
-    public static TimeZone getTimeZone(String id) {
-        if (id == null) {
-            return null;
-        }
-
-        try {
-            return readTimeZone(id);
-        } catch (IOException ignored) {
-            return null;
-        }
     }
 
     public static TimeZone getSystemDefault() {
         synchronized (LOCK) {
             TimezoneGetter tzGetter = TimezoneGetter.getInstance();
             String zoneName = tzGetter != null ? tzGetter.getId() : null;
-            return zoneName != null && !zoneName.isEmpty()
-                    ? TimeZone.getTimeZone(zoneName.trim())
-                    : TimeZone.getTimeZone("localtime"); // use localtime for the simulator
+            if (zoneName != null) {
+                zoneName = zoneName.trim();
+            }
+            if (zoneName == null || zoneName.isEmpty()) {
+                // use localtime for the simulator
+                // TODO: what does that correspond to?
+                zoneName = "localtime";
+            }
+            return TimeZone.getTimeZone(zoneName);
         }
+    }
+
+    public static TimeZone getTimeZone(String id) {
+        if (id == null) {
+            return null;
+        }
+        try {
+            return makeTimeZone(id);
+        } catch (IOException ignored) {
+            return null;
+        }
+    }
+
+    public static String getVersion() {
+        return VERSION;
     }
 }
