@@ -24,7 +24,6 @@ package org.apache.harmony.security.x509;
 
 import java.io.IOException;
 import java.util.Arrays;
-
 import org.apache.harmony.security.asn1.ASN1Boolean;
 import org.apache.harmony.security.asn1.ASN1OctetString;
 import org.apache.harmony.security.asn1.ASN1Oid;

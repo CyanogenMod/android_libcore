@@ -31,11 +31,6 @@ import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.CertificateFactory;
 import java.util.Date;
-import javax.security.cert.Certificate;
-import javax.security.cert.CertificateEncodingException;
-import javax.security.cert.CertificateException;
-import javax.security.cert.CertificateExpiredException;
-import javax.security.cert.CertificateNotYetValidException;
 
 /**
  * Abstract base class for X.509 certificates.

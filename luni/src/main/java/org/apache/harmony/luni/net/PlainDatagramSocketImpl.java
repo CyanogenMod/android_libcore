@@ -19,7 +19,6 @@ package org.apache.harmony.luni.net;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
@@ -27,13 +26,9 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketOptions;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.security.AccessController;
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * The default, concrete instance of datagram sockets. This class does not

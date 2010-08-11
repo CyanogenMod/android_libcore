@@ -19,13 +19,9 @@
 package org.apache.harmony.security.provider.crypto;
 
 
-import java.security.MessageDigestSpi;
 import java.security.DigestException;
-
+import java.security.MessageDigestSpi;
 import java.util.Arrays;
-
-import org.apache.harmony.security.provider.crypto.SHA1_Data;
-import org.apache.harmony.security.provider.crypto.SHA1Impl;
 
 
 /**

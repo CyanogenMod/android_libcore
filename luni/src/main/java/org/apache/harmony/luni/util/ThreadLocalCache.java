@@ -19,7 +19,6 @@ package org.apache.harmony.luni.util;
 
 import java.lang.ref.SoftReference;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.Charsets;

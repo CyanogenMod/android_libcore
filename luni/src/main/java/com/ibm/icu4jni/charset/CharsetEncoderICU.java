@@ -14,6 +14,7 @@
  */
 package com.ibm.icu4jni.charset;
 
+import com.ibm.icu4jni.common.ErrorCode;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -22,8 +23,6 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.ibm.icu4jni.common.ErrorCode;
 
 public final class CharsetEncoderICU extends CharsetEncoder {
     private static final Map<String, byte[]> DEFAULT_REPLACEMENTS = new HashMap<String, byte[]>();

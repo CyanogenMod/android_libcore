@@ -18,9 +18,9 @@
 package org.apache.harmony.luni.platform;
 
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.Reference;
 import java.lang.ref.PhantomReference;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.util.HashMap;
 import java.util.Map;
 

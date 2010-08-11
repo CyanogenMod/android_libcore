@@ -23,8 +23,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
-import java.net.UnknownHostException;
-import java.nio.channels.Channel;
 
 /**
  * This wraps native code that implements the INetworkSystem interface.

@@ -7,8 +7,8 @@
 
 package org.xml.sax.helpers;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Create a new instance of a class by name.

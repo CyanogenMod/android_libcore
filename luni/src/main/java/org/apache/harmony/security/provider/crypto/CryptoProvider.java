@@ -17,10 +17,8 @@
 
 package org.apache.harmony.security.provider.crypto;
 
-import java.security.Provider;
 import java.security.AccessController;
-
-import org.apache.harmony.security.provider.crypto.RandomBitsSupplier;
+import java.security.Provider;
 
 /**
  * Implementation of Provider for SecureRandom, MessageDigest and Signature

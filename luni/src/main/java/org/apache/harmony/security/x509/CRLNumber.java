@@ -21,7 +21,6 @@ package org.apache.harmony.security.x509;
 
 import java.io.IOException;
 import java.math.BigInteger;
-
 import org.apache.harmony.security.asn1.ASN1Integer;
 import org.apache.harmony.security.asn1.ASN1Type;
 

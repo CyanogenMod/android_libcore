@@ -20,7 +20,6 @@ package java.security;
 import java.io.IOException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
-
 import org.apache.harmony.security.fortress.Engine;
 
 

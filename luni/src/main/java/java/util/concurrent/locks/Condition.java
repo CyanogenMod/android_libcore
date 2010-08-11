@@ -5,8 +5,9 @@
  */
 
 package java.util.concurrent.locks;
-import java.util.concurrent.*;
+
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@code Condition} factors out the {@code Object} monitor

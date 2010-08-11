@@ -18,7 +18,6 @@
 package java.net;
 
 import dalvik.system.BlockGuard;
-
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.ObjectInputStream;

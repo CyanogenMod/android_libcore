@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import org.apache.harmony.luni.util.TwoKeyHashMap;
 import org.apache.harmony.security.Util;
 import org.apache.harmony.security.fortress.Services;

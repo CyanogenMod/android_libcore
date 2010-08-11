@@ -16,9 +16,6 @@
 
 package org.apache.harmony.luni.util;
 
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-
 /**
  * Utility functions for IPV6 operations.
  */

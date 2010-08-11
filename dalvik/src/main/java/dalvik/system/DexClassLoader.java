@@ -18,11 +18,9 @@ package dalvik.system;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.zip.ZipFile;
-import java.net.MalformedURLException;
-
-import dalvik.system.DexFile;
 
 /**
  * Provides a simple {@link ClassLoader} implementation that operates on a

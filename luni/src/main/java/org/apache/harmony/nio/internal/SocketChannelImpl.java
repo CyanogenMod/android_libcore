@@ -31,8 +31,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketImpl;
-import java.net.SocketOptions;
 import java.net.SocketUtils;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;

@@ -32,6 +32,7 @@
 
 package java.lang;
 
+import dalvik.system.VMStack;
 import java.io.Console;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -41,15 +42,12 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.channels.Channel;
 import java.nio.channels.spi.SelectorProvider;
-import java.security.SecurityPermission;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.PropertyPermission;
 import java.util.Set;
-
-import dalvik.system.VMStack;
 
 /**
  * Provides access to system-related information and resources including

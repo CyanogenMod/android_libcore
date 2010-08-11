@@ -16,8 +16,8 @@
 
 package java.lang;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class VMThread
 {

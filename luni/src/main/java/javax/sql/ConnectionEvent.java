@@ -17,9 +17,9 @@
 
 package javax.sql;
 
-import java.util.EventObject;
-import java.sql.SQLException;
 import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.EventObject;
 
 /**
  * Sent when specific events happen on a {@link PooledConnection} object. These

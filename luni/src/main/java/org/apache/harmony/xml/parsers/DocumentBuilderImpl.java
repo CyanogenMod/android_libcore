@@ -20,10 +20,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
-
 import javax.xml.parsers.DocumentBuilder;
-
 import org.apache.harmony.xml.dom.CDATASectionImpl;
+import org.apache.harmony.xml.dom.DOMImplementationImpl;
 import org.apache.harmony.xml.dom.DocumentImpl;
 import org.apache.harmony.xml.dom.DocumentTypeImpl;
 import org.apache.harmony.xml.dom.TextImpl;
@@ -43,8 +42,6 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.LocatorImpl;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-
-import org.apache.harmony.xml.dom.DOMImplementationImpl;
 
 /**
  * Provides a straightforward DocumentBuilder implementation based on

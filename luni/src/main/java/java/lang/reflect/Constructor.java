@@ -33,9 +33,7 @@
 package java.lang.reflect;
 
 import dalvik.system.VMStack;
-
 import java.lang.annotation.Annotation;
-
 import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
 import org.apache.harmony.luni.lang.reflect.ListOfTypes;

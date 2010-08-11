@@ -24,7 +24,6 @@ package org.apache.harmony.security.fortress;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
-
 import org.apache.harmony.security.Util;
 
 

@@ -22,9 +22,7 @@ package javax.xml.parsers;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.xml.validation.Schema;
-
 import org.xml.sax.HandlerBase;
 import org.xml.sax.InputSource;
 import org.xml.sax.Parser;

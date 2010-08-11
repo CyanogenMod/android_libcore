@@ -18,9 +18,8 @@
 package java.lang;
 
 // BEGIN android-added
-import dalvik.system.VMStack;
-// END android-added
 
+import dalvik.system.VMStack;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FilePermission;
@@ -36,8 +35,6 @@ import java.security.Permission;
 import java.security.Security;
 import java.security.SecurityPermission;
 import java.util.PropertyPermission;
-import java.util.StringTokenizer;
-
 import org.apache.harmony.luni.util.PriviAction;
 
 /**

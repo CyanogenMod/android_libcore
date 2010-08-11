@@ -18,11 +18,8 @@
 package java.text;
 
 import com.ibm.icu4jni.util.ICU;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Comparator;
 import java.util.Locale;
-import java.util.Vector;
 
 /**
  * Performs locale-sensitive string comparison. A concrete subclass,

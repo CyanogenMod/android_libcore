@@ -16,7 +16,6 @@
 
 package org.apache.harmony.luni.internal.util;
 
-import java.io.IOException;
 import java.nio.charset.Charsets;
 import java.util.Arrays;
 import java.util.Date;

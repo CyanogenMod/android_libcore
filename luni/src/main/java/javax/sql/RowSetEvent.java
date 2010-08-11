@@ -17,8 +17,8 @@
 
 package javax.sql;
 
-import java.util.EventObject;
 import java.io.Serializable;
+import java.util.EventObject;
 
 /**
  * An event which is sent when specific events happen to a {@link RowSet}

@@ -5,8 +5,6 @@
  */
 
 package java.util.concurrent;
-import java.util.concurrent.atomic.*;
-import java.util.*;
 
 /**
  * An {@link ExecutorService} that can schedule commands to run after a given

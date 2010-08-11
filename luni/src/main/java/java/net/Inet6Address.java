@@ -22,7 +22,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.util.Enumeration;
-import org.apache.harmony.luni.util.Inet6Util;
 
 /**
  * An IPv6 address. See {@link InetAddress}.

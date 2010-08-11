@@ -35,7 +35,6 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.apache.harmony.kernel.vm.VM;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**

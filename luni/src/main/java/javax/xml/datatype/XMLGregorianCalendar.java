@@ -19,11 +19,11 @@
 
 package javax.xml.datatype;
 
-import javax.xml.namespace.QName;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.TimeZone;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
+import javax.xml.namespace.QName;
 
 /**
  * <p>Representation for W3C XML Schema 1.0 date/time datatypes.

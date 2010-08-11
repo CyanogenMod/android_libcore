@@ -28,12 +28,10 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
-
 import javax.crypto.SecretKey;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 import javax.security.auth.callback.CallbackHandler;
-
 import org.apache.harmony.security.fortress.Engine;
 
 /**

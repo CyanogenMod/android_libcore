@@ -6,8 +6,6 @@
 
 package java.util.concurrent;
 
-import java.util.*;
-
 /**
  * A mix-in style interface for marking objects that should be
  * acted upon after a given delay.

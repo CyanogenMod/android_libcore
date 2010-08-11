@@ -6,8 +6,17 @@
 
 package java.util.concurrent;
 
-import java.util.concurrent.locks.*;
-import java.util.*;
+import java.util.AbstractQueue;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.SortedSet;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 // BEGIN android-note
 // removed link to collections framework docs

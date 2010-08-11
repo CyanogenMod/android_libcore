@@ -17,8 +17,8 @@
 
 package java.text;
 
-import com.ibm.icu4jni.util.LocaleData;
 import com.ibm.icu4jni.util.ICU;
+import com.ibm.icu4jni.util.LocaleData;
 import java.io.InvalidObjectException;
 import java.util.Calendar;
 import java.util.Date;

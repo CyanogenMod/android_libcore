@@ -31,7 +31,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.ReadableByteChannel;
-
 import org.apache.harmony.luni.platform.IMemorySystem;
 
 public final class ReadOnlyFileChannel extends FileChannelImpl {

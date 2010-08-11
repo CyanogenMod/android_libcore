@@ -21,7 +21,6 @@ package javax.xml.transform.sax;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 

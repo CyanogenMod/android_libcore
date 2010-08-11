@@ -18,7 +18,6 @@
 package java.nio;
 
 import org.apache.harmony.luni.platform.PlatformAddress;
-// BEGIN android-added
 import org.apache.harmony.luni.platform.PlatformAddressFactory;
 // END android-added
 

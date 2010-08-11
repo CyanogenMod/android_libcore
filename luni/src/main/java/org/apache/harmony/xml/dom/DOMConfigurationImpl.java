@@ -16,6 +16,8 @@
 
 package org.apache.harmony.xml.dom;
 
+import java.util.Map;
+import java.util.TreeMap;
 import org.apache.xml.serializer.dom3.DOMErrorImpl;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMError;
@@ -24,9 +26,6 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMStringList;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * A minimal implementation of DOMConfiguration. This implementation uses inner

@@ -5,12 +5,6 @@
 
 package org.xml.sax.helpers;
 
-import java.lang.ClassNotFoundException;
-import java.lang.IllegalAccessException;
-import java.lang.InstantiationException;
-import java.lang.SecurityException;
-import java.lang.ClassCastException;
-
 import org.xml.sax.Parser;
 
 

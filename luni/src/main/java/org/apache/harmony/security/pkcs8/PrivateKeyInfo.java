@@ -18,6 +18,7 @@
 
 package org.apache.harmony.security.pkcs8;
 
+import java.util.List;
 import org.apache.harmony.security.asn1.ASN1Implicit;
 import org.apache.harmony.security.asn1.ASN1Integer;
 import org.apache.harmony.security.asn1.ASN1OctetString;
@@ -25,12 +26,8 @@ import org.apache.harmony.security.asn1.ASN1Sequence;
 import org.apache.harmony.security.asn1.ASN1SetOf;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
-
 import org.apache.harmony.security.x501.AttributeTypeAndValue;
-
 import org.apache.harmony.security.x509.AlgorithmIdentifier;
-
-import java.util.List;
 
 /**
  * The class implements the ASN.1 DER encoding and decoding of the PKCS#8

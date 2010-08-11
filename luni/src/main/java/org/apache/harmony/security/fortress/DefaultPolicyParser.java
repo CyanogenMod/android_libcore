@@ -27,9 +27,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.KeyStore;
@@ -37,6 +34,9 @@ import java.security.KeyStoreException;
 import java.security.Permission;
 import java.security.Principal;
 import java.security.UnresolvedPermission;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,14 +45,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-
 import org.apache.harmony.security.DefaultPolicyScanner;
-import org.apache.harmony.security.PolicyEntry;
-import org.apache.harmony.security.UnresolvedPrincipal;
 import org.apache.harmony.security.DefaultPolicyScanner.GrantEntry;
 import org.apache.harmony.security.DefaultPolicyScanner.KeystoreEntry;
 import org.apache.harmony.security.DefaultPolicyScanner.PermissionEntry;
 import org.apache.harmony.security.DefaultPolicyScanner.PrincipalEntry;
+import org.apache.harmony.security.PolicyEntry;
+import org.apache.harmony.security.UnresolvedPrincipal;
 
 /**
  * This is a basic loader of policy files. It delegates lexical analysis to

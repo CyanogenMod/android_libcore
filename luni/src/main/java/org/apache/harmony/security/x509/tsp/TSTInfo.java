@@ -21,7 +21,6 @@ package org.apache.harmony.security.x509.tsp;
 
 import java.math.BigInteger;
 import java.util.Date;
-
 import org.apache.harmony.security.asn1.ASN1Boolean;
 import org.apache.harmony.security.asn1.ASN1Explicit;
 import org.apache.harmony.security.asn1.ASN1GeneralizedTime;

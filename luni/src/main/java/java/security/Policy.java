@@ -18,7 +18,6 @@
 package java.security;
 
 import java.util.Enumeration;
-
 import org.apache.harmony.security.fortress.DefaultPolicy;
 import org.apache.harmony.security.fortress.PolicyUtils;
 

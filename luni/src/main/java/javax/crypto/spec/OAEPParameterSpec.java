@@ -17,9 +17,8 @@
 
 package javax.crypto.spec;
 
-import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.AlgorithmParameterSpec;
-import javax.crypto.spec.PSource;
+import java.security.spec.MGF1ParameterSpec;
 
 /**
  * The algorithm parameter specification for the <i>OAEP Padding</i> algorithm.

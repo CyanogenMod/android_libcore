@@ -18,9 +18,7 @@
 package org.apache.harmony.security.pkcs10;
 
 import java.util.List;
-
 import javax.security.auth.x500.X500Principal;
-
 import org.apache.harmony.security.asn1.ASN1Implicit;
 import org.apache.harmony.security.asn1.ASN1Integer;
 import org.apache.harmony.security.asn1.ASN1Sequence;

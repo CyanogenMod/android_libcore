@@ -15,8 +15,17 @@
  */
 
 package java.util.concurrent;
-import java.util.*;
-import java.util.concurrent.locks.*;
+
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+import java.util.RandomAccess;
+import java.util.concurrent.locks.ReentrantLock;
 import sun.misc.Unsafe;
 
 // BEGIN android-note

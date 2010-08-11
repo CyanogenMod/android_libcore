@@ -18,8 +18,8 @@
 package java.security;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.security.cert.CertPath;
+import java.util.Date;
 
 /**
  * {@code Timestamp} represents a signed time stamp. {@code Timestamp} is

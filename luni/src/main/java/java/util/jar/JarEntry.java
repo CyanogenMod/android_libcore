@@ -27,7 +27,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
-
 import javax.security.auth.x500.X500Principal;
 
 /**

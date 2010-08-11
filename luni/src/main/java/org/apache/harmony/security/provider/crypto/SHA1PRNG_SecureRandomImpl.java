@@ -18,16 +18,12 @@
 
 package org.apache.harmony.security.provider.crypto;
 
-import java.security.InvalidParameterException;
-import java.security.SecureRandomSpi;
-
-import org.apache.harmony.security.provider.crypto.RandomBitsSupplier;
-import org.apache.harmony.security.provider.crypto.SHA1Impl;
-
-import java.io.Serializable;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.IOException;
+import java.io.Serializable;
+import java.security.InvalidParameterException;
+import java.security.SecureRandomSpi;
 
 /**
  * This class extends the SecureRandomSpi class implementing all its abstract methods. <BR>

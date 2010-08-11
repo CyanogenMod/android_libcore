@@ -20,7 +20,6 @@
 package javax.xml.transform.sax;
 
 import javax.xml.transform.Result;
-
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ext.LexicalHandler;
 

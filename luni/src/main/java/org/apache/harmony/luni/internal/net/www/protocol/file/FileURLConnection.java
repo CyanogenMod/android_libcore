@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLConnection;
-
 import org.apache.harmony.luni.util.Util;
 
 /**

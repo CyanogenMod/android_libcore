@@ -25,7 +25,6 @@ package org.apache.harmony.nio.internal;
 
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
-
 import org.apache.harmony.luni.platform.IMemorySystem;
 
 public final class ReadWriteFileChannel extends FileChannelImpl {

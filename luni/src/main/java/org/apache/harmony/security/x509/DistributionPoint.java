@@ -23,7 +23,6 @@
 package org.apache.harmony.security.x509;
 
 import java.io.IOException;
-
 import org.apache.harmony.security.asn1.ASN1Explicit;
 import org.apache.harmony.security.asn1.ASN1Implicit;
 import org.apache.harmony.security.asn1.ASN1Sequence;

@@ -24,10 +24,7 @@
 
 package javax.net.ssl;
 
-import org.apache.harmony.luni.util.Inet6Util;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
@@ -40,11 +37,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
+import org.apache.harmony.luni.util.Inet6Util;
 
 /**
  * A HostnameVerifier that works the same way as Curl and Firefox.

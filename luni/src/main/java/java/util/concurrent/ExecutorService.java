@@ -5,10 +5,9 @@
  */
 
 package java.util.concurrent;
-import java.util.List;
+
 import java.util.Collection;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
+import java.util.List;
 
 /**
  * An {@link Executor} that provides methods to manage termination and

@@ -25,7 +25,6 @@ package org.apache.harmony.security.x509;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.harmony.security.x501.AttributeTypeAndValue;
 import org.apache.harmony.security.x501.AttributeValue;
 

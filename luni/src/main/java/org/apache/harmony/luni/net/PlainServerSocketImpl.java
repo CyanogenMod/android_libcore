@@ -20,9 +20,6 @@ package org.apache.harmony.luni.net;
 import java.io.FileDescriptor;
 import java.net.SocketException;
 
-import org.apache.harmony.luni.net.NetUtil;
-import org.apache.harmony.luni.net.PlainSocketImpl;
-
 /**
  * This class overrides create to call natives that set the options required
  * for server sockets.

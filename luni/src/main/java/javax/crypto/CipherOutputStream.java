@@ -20,7 +20,6 @@ package javax.crypto;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.crypto.NullCipher;
 
 /**
  * This class wraps an output stream and a cipher so that {@code write} methods

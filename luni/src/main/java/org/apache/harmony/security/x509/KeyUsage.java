@@ -18,8 +18,8 @@
 package org.apache.harmony.security.x509;
 
 import java.io.IOException;
-import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.ASN1BitString;
+import org.apache.harmony.security.asn1.ASN1Type;
 
 /**
  * Key Usage Extension (OID = 2.5.29.15).

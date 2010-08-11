@@ -21,11 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
-import java.security.AccessController;
 import org.apache.harmony.luni.net.NetUtil;
 import org.apache.harmony.luni.net.PlainSocketImpl;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Provides a client-side TCP socket.

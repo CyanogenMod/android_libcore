@@ -21,7 +21,6 @@ import java.lang.reflect.Constructor;
 import java.nio.MappedByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
 import org.apache.harmony.luni.platform.PlatformAddress;
 
 class MappedByteBufferFactory {

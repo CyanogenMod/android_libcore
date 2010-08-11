@@ -34,9 +34,8 @@ package java.lang.reflect;
 
 import java.lang.annotation.Annotation;
 import java.util.Hashtable;
-
-import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.kernel.vm.ReflectionAccess;
+import org.apache.harmony.kernel.vm.StringUtils;
 
 /**
  * {@code AccessibleObject} is the superclass of all member reflection classes

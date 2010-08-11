@@ -23,7 +23,6 @@ import java.security.Principal;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
 import javax.security.auth.x500.X500Principal;
 
 /**

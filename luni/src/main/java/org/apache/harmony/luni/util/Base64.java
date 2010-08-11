@@ -21,7 +21,6 @@
 
 package org.apache.harmony.luni.util;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 /**

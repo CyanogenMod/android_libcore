@@ -19,9 +19,7 @@ package java.net;
 
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
-
 import org.apache.harmony.luni.net.PlainDatagramSocketImpl;
-import org.apache.harmony.luni.platform.Platform;
 
 /**
  * This class implements a UDP socket for sending and receiving {@code

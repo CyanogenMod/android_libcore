@@ -24,7 +24,6 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
 import javax.xml.XMLConstants;
 
 /**

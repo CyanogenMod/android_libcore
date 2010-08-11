@@ -16,20 +16,16 @@
 
 package dalvik.system;
 
-import org.apache.harmony.luni.platform.IFileSystem;
-import org.apache.harmony.luni.platform.INetworkSystem;
-
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.SocketOptions;
 import java.net.SocketImpl;
-import java.net.UnknownHostException;
-import java.nio.channels.Channel;
+import java.net.SocketOptions;
+import org.apache.harmony.luni.platform.IFileSystem;
+import org.apache.harmony.luni.platform.INetworkSystem;
 
 /**
  * Mechanism to let threads set restrictions on what code is allowed

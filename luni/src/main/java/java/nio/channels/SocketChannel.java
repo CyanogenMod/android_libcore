@@ -24,8 +24,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.SelectorProvider;
 
-import org.apache.harmony.luni.platform.Platform;
-
 /**
  * A {@code SocketChannel} is a selectable channel that provides a partial
  * abstraction of stream connecting socket. {@code socket()} returns the related

@@ -5,7 +5,10 @@
  */
 
 package java.util.concurrent;
-import java.util.*;
+
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A {@link Deque} that additionally supports blocking operations that wait

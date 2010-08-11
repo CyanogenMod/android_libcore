@@ -35,7 +35,6 @@ import java.security.spec.DSAParameterSpec;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-
 import org.apache.harmony.security.PrivateKeyImpl;
 import org.apache.harmony.security.asn1.ASN1Integer;
 import org.apache.harmony.security.pkcs8.PrivateKeyInfo;

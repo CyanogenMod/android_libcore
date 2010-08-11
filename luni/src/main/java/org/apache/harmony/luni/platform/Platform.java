@@ -16,8 +16,8 @@
 
 package org.apache.harmony.luni.platform;
 
-import dalvik.system.VMStack;
 import dalvik.system.BlockGuard;
+import dalvik.system.VMStack;
 
 /**
  * The Platform class gives access to the low-level underlying capabilities of

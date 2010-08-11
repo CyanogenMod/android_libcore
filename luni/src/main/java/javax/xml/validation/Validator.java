@@ -19,10 +19,8 @@
 package javax.xml.validation;
 
 import java.io.IOException;
-
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
-
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;

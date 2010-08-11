@@ -18,7 +18,6 @@
 package javax.sql;
 
 import java.sql.SQLException;
-import java.io.PrintWriter;
 
 /**
  * An interface for the creation of {@code ConnectionPoolDataSource} objects.

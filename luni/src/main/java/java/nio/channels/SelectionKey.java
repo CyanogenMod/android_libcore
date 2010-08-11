@@ -16,8 +16,6 @@
 
 package java.nio.channels;
 
-import java.nio.channels.Selector;
-
 /**
  * A {@code SelectionKey} represents the relationship between a channel and a
  * selector for which the channel is registered.

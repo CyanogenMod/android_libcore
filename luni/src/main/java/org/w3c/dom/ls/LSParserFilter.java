@@ -12,8 +12,8 @@
 
 package org.w3c.dom.ls;
 
-import org.w3c.dom.Node;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  *  <code>LSParserFilter</code>s provide applications the ability to examine
