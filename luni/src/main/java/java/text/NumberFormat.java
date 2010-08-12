@@ -82,14 +82,13 @@ import java.util.Locale;
  * </pre>
  *
  * </blockquote>
- * <p>
- * Use {@code getInstance} or {@code getNumberInstance} to get the normal number
- * format. Use {@code getIntegerInstance} to get an integer number format. Use
- * {@code getCurrencyInstance} to get the currency number format and use
- * {@code getPercentInstance} to get a format for displaying percentages. With
- * this format, a fraction like 0.53 is displayed as 53%.
- * <p>
- * You can also control the display of numbers with methods such as
+ *
+ * <p>Use {@code #getInstance} or {@code #getNumberInstance} to get the default number
+ * format. Use {@link #getIntegerInstance} to get an integer number format,
+ * {@link #getCurrencyInstance} to get the currency number format, and
+ * {@link #getPercentInstance} to get a format for displaying percentages.
+ *
+ * <p>You can also control the display of numbers with methods such as
  * {@code setMinimumFractionDigits}. If you want even more control over the
  * format or parsing, or want to give your users more control, you can try
  * casting the {@code NumberFormat} you get from the factory methods to a
@@ -479,7 +478,10 @@ public abstract class NumberFormat extends Format {
      * values for the user's default locale.
      * See "<a href="../util/Locale.html#default_locale">Be wary of the default locale</a>".
      *
-     * @return a {@code NumberFormat} for handling percentage values.
+     * <p>The {@code NumberFormat} returned by this method should only be used
+     * to format floating-point numbers typically between 0 and 1 (with 1 being 100%).
+     * A value such as 0.53 will be treated as 53%, but 53.0 (or the integer 53) will be
+     * treated as 5,300%, which is rarely what you intended.
      */
     public final static NumberFormat getPercentInstance() {
         return getPercentInstance(Locale.getDefault());
@@ -487,11 +489,12 @@ public abstract class NumberFormat extends Format {
 
     /**
      * Returns a {@code NumberFormat} for formatting and parsing percentage
-     * values for the specified locale.
+     * values for the given {@code locale}.
      *
-     * @param locale
-     *            the locale to use.
-     * @return a {@code NumberFormat} for handling percentage values.
+     * <p>The {@code NumberFormat} returned by this method should only be used
+     * to format floating-point numbers typically between 0 and 1 (with 1 being 100%).
+     * A value such as 0.53 will be treated as 53%, but 53.0 (or the integer 53) will be
+     * treated as 5,300%, which is rarely what you intended.
      */
     public static NumberFormat getPercentInstance(Locale locale) {
         return getInstance(LocaleData.get(locale).percentPattern, locale);
