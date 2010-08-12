@@ -78,4 +78,17 @@ public class NumberFormatTest extends junit.framework.TestCase {
         assertEquals("\u0661\u066c\u0662\u0663\u0664\u066c\u0665\u0666\u0667\u066c\u0668\u0669\u0660",
                 nf.format(1234567890));
     }
+
+    // Formatting percentages is confusing but deliberate.
+    // Ensure we don't accidentally "fix" this.
+    public void test_10333() throws Exception {
+        NumberFormat nf = NumberFormat.getPercentInstance(Locale.US);
+        assertEquals("15%", nf.format(0.15));
+        assertEquals("1,500%", nf.format(15));
+        try {
+            nf.format("15");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
 }

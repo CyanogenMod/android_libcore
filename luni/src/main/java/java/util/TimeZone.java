@@ -23,7 +23,7 @@ import org.apache.harmony.luni.internal.util.ZoneInfoDB;
 
 /**
  * {@code TimeZone} represents a time zone, primarily used for configuring a {@link Calendar} or
- * {@link SimpleDateFormat} instance.
+ * {@link java.text.SimpleDateFormat} instance.
  *
  * <p>Most applications will use {@link #getDefault} which returns a {@code TimeZone} based on
  * the time zone where the program is running.
@@ -31,7 +31,8 @@ import org.apache.harmony.luni.internal.util.ZoneInfoDB;
  * <p>You can also get a specific {@code TimeZone} {@link #getTimeZone by id}.
  *
  * <p>It is highly unlikely you'll ever want to use anything but the factory methods yourself.
- * Let classes like {@link Calendar} and {@link SimpleDateFormat} do the date computations for you.
+ * Let classes like {@link Calendar} and {@link java.text.SimpleDateFormat} do the date
+ * computations for you.
  *
  * <p>If you do need to do date computations manually, there are two common cases to take into
  * account:
