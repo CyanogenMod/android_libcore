@@ -904,8 +904,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *         class represented by this {@code class}.
      */
     public Type[] getGenericInterfaces() {
-        GenericSignatureParser parser = new GenericSignatureParser(
-                VMStack.getCallingClassLoader2());
+        GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
         parser.parseForClass(this, getSignatureAttribute());
         return Types.getClonedTypeArray(parser.interfaceTypes);
     }
@@ -917,8 +916,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return an instance of {@code Type} representing the superclass.
      */
     public Type getGenericSuperclass() {
-        GenericSignatureParser parser = new GenericSignatureParser(
-                VMStack.getCallingClassLoader2());
+        GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
         parser.parseForClass(this, getSignatureAttribute());
         return Types.getType(parser.superclassType);
     }
@@ -1246,8 +1244,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public synchronized TypeVariable<Class<T>>[] getTypeParameters() {
-        GenericSignatureParser parser = new GenericSignatureParser(
-                VMStack.getCallingClassLoader2());
+        GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
         parser.parseForClass(this, getSignatureAttribute());
         return parser.formalTypeParameters.clone();
     }

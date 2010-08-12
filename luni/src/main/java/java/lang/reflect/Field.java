@@ -97,7 +97,7 @@ public final class Field extends AccessibleObject implements Member {
         if (!genericTypesAreInitialized) {
             String signatureAttribute = getSignatureAttribute();
             GenericSignatureParser parser = new GenericSignatureParser(
-                    VMStack.getCallingClassLoader2());
+                    declaringClass.getClassLoader());
             parser.parseForField(this.declaringClass, signatureAttribute);
             genericType = parser.fieldType;
             if (genericType == null) {

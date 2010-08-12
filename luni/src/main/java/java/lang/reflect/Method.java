@@ -101,7 +101,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         if (!genericTypesAreInitialized) {
             String signatureAttribute = getSignatureAttribute();
             GenericSignatureParser parser = new GenericSignatureParser(
-                    VMStack.getCallingClassLoader2());
+                    declaringClass.getClassLoader());
             parser.parseForMethod(this, signatureAttribute, exceptionTypes);
             formalTypeParameters = parser.formalTypeParameters;
             genericParameterTypes = parser.parameterTypes;
