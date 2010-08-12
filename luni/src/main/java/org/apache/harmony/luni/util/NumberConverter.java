@@ -96,8 +96,7 @@ public final class NumberConverter {
         if (-59 < pow && pow < 6 || (pow == -59 && !mantissaIsZero))
             longDigitGenerator(f, pow, e == 0, mantissaIsZero, numBits);
         else
-            bigIntDigitGeneratorInstImpl(f, pow, e == 0, mantissaIsZero,
-                    numBits);
+            bigIntDigitGeneratorInstImpl(f, pow, e == 0, numBits);
 
         if (inputNumber >= 1e7D || inputNumber <= -1e7D
                 || (inputNumber > -1e-3D && inputNumber < 1e-3D))
@@ -147,8 +146,7 @@ public final class NumberConverter {
         if (-59 < pow && pow < 35 || (pow == -59 && !mantissaIsZero))
             longDigitGenerator(f, pow, e == 0, mantissaIsZero, numBits);
         else
-            bigIntDigitGeneratorInstImpl(f, pow, e == 0, mantissaIsZero,
-                    numBits);
+            bigIntDigitGeneratorInstImpl(f, pow, e == 0, numBits);
         if (inputNumber >= 1e7f || inputNumber <= -1e7f
                 || (inputNumber > -1e-3f && inputNumber < 1e-3f))
             return signString + freeFormatExponential();
@@ -213,8 +211,7 @@ public final class NumberConverter {
         return new String(formattedDecimal, 0, charPos);
     }
 
-    private native void bigIntDigitGeneratorInstImpl(long f, int e,
-            boolean isDenormalized, boolean mantissaIsZero, int p);
+    private native void bigIntDigitGeneratorInstImpl(long f, int e, boolean isDenormalized, int p);
 
     private void longDigitGenerator(long f, int e, boolean isDenormalized,
             boolean mantissaIsZero, int p) {

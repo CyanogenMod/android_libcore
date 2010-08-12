@@ -68,15 +68,8 @@
  *           1.2341234124312331E107
  *
  */
-JNIEXPORT void JNICALL
-Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
-        JNIEnv* env,
-        jobject inst,
-        jlong f,
-        jint e,
-        jboolean isDenormalized,
-        jboolean mantissaIsZero,
-        jint p) {
+void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlong f, jint e,
+        jboolean isDenormalized, jint p) {
   int RLength, SLength, TempLength, mplus_Length, mminus_Length;
   int high, low, i;
   jint k, firstK, U;
@@ -259,8 +252,7 @@ Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl (
 }
 
 static JNINativeMethod gMethods[] = {
-    { "bigIntDigitGeneratorInstImpl", "(JIZZI)V"              ,
-      (void*)Java_org_apache_harmony_luni_util_NumberConverter_bigIntDigitGeneratorInstImpl },
+    { "bigIntDigitGeneratorInstImpl", "(JIZI)V", (void*)NumberConverter_bigIntDigitGeneratorInstImpl },
 };
 int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv *env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/NumberConverter",

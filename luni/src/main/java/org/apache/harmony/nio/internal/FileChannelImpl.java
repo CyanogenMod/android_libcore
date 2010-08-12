@@ -172,7 +172,7 @@ public abstract class FileChannelImpl extends FileChannel {
 
     @Override public void force(boolean metadata) throws IOException {
         openCheck();
-        fileSystem.fflush(handle, metadata);
+        fileSystem.fsync(handle, metadata);
     }
 
     public abstract MappedByteBuffer map(MapMode mode, long position, long size) throws IOException;

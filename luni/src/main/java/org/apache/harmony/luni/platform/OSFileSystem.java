@@ -80,7 +80,7 @@ class OSFileSystem implements IFileSystem {
         unlockImpl(fd, start, length);
     }
 
-    public native void fflush(int fd, boolean metadata) throws IOException;
+    public native void fsync(int fd, boolean metadata) throws IOException;
 
     /*
      * File position seeking.

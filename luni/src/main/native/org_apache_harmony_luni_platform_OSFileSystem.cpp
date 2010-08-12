@@ -366,8 +366,10 @@ static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint
     return result;
 }
 
-static void OSFileSystem_fflush(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
-    LOGW("fdatasync unimplemented on Android"); // http://b/2667481
+static void OSFileSystem_fsync(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
+    if (!metadataToo) {
+        LOGW("fdatasync(2) unimplemented on Android - doing fsync(2)"); // http://b/2667481
+    }
     int rc = fsync(fd);
     // int rc = metadataToo ? fsync(fd) : fdatasync(fd);
     if (rc == -1) {
@@ -494,7 +496,7 @@ static jlong lengthImpl(JNIEnv* env, jobject, jint fd) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "fflush", "(IZ)V", (void*) OSFileSystem_fflush },
+    { "fsync", "(IZ)V", (void*) OSFileSystem_fsync },
     { "getAllocGranularity", "()I", (void*) OSFileSystem_getAllocGranularity },
     { "ioctlAvailable", "(Ljava/io/FileDescriptor;)I", (void*) OSFileSystem_ioctlAvailable },
     { "length", "(I)J", (void*) lengthImpl },
