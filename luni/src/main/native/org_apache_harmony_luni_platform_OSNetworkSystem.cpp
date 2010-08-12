@@ -584,39 +584,33 @@ static bool initCachedFields(JNIEnv* env) {
     return true;
 }
 
-static int createSocketFileDescriptor(JNIEnv* env, jobject fileDescriptor, int type) {
+static void osNetworkSystem_socket(JNIEnv* env, jobject, jobject fileDescriptor, jboolean stream) {
     if (fileDescriptor == NULL) {
         jniThrowNullPointerException(env, NULL);
         errno = EBADF;
-        return -1;
+        return;
     }
 
     // Try IPv6 but fall back to IPv4...
+    int type = stream ? SOCK_STREAM : SOCK_DGRAM;
     int fd = socket(AF_INET6, type, 0);
     if (fd == -1 && errno == EAFNOSUPPORT) {
         fd = socket(AF_INET, type, 0);
     }
     if (fd == -1) {
         jniThrowSocketException(env, errno);
+        return;
     } else {
         jniSetFileDescriptorOfFD(env, fileDescriptor, fd);
     }
-    return fd;
-}
 
-static void osNetworkSystem_createStreamSocket(JNIEnv* env, jobject, jobject fileDescriptor) {
-    createSocketFileDescriptor(env, fileDescriptor, SOCK_STREAM);
-}
-
-static void osNetworkSystem_createDatagramSocket(JNIEnv* env, jobject, jobject fileDescriptor) {
-    int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_DGRAM);
 #ifdef __linux__
     // The RFC (http://www.ietf.org/rfc/rfc3493.txt) says that IPV6_MULTICAST_HOPS defaults to 1.
     // The Linux kernel (at least up to 2.6.32) accidentally defaults to 64 (which would be correct
     // for the *unicast* hop limit). See http://www.spinics.net/lists/netdev/msg129022.html.
-    // When that's fixed, we can remove this code. Until then, we manually set the hop limit on
-    // IPv6 datagram sockets. (IPv4 is already correct.)
-    if (fd != -1 && getSocketAddressFamily(fd) == AF_INET6) {
+    // When that bug is fixed, we can remove this code. Until then, we manually set the hop
+    // limit on IPv6 datagram sockets. (IPv4 is already correct.)
+    if (type == SOCK_DGRAM && getSocketAddressFamily(fd) == AF_INET6) {
         int ttl = 1;
         setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(int));
     }
@@ -1523,8 +1517,6 @@ static JNINativeMethod gMethods[] = {
     { "close",                    "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_close },
     { "connectNonBlocking",       "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z",                       (void*) osNetworkSystem_connectNonBlocking },
     { "connect",                  "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;II)V",                      (void*) osNetworkSystem_connect },
-    { "createDatagramSocket",     "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createDatagramSocket },
-    { "createStreamSocket",       "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createStreamSocket },
     { "disconnectDatagram",       "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_disconnectDatagram },
     { "getSocketLocalAddress",    "(Ljava/io/FileDescriptor;)Ljava/net/InetAddress;",                         (void*) osNetworkSystem_getSocketLocalAddress },
     { "getSocketLocalPort",       "(Ljava/io/FileDescriptor;)I",                                              (void*) osNetworkSystem_getSocketLocalPort },
@@ -1543,6 +1535,7 @@ static JNINativeMethod gMethods[] = {
     { "setSocketOption",          "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V",                           (void*) osNetworkSystem_setSocketOption },
     { "shutdownInput",            "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownInput },
     { "shutdownOutput",           "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_shutdownOutput },
+    { "socket",                   "(Ljava/io/FileDescriptor;Z)V",                                             (void*) osNetworkSystem_socket },
     { "write",                    "(Ljava/io/FileDescriptor;[BII)I",                                          (void*) osNetworkSystem_write },
     { "writeDirect",              "(Ljava/io/FileDescriptor;III)I",                                           (void*) osNetworkSystem_writeDirect },
 };

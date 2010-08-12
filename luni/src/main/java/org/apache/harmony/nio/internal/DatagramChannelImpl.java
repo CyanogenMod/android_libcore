@@ -85,7 +85,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorHandl
     protected DatagramChannelImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
         fd = new FileDescriptor();
-        networkSystem.createDatagramSocket(fd);
+        networkSystem.socket(fd, false);
     }
 
     /*

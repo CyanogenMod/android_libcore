@@ -61,15 +61,13 @@ public interface INetworkSystem {
 
     public void disconnectDatagram(FileDescriptor fd) throws SocketException;
 
-    public void createDatagramSocket(FileDescriptor fd) throws SocketException;
+    public void socket(FileDescriptor fd, boolean stream) throws SocketException;
 
     public void shutdownInput(FileDescriptor descriptor) throws IOException;
 
     public void shutdownOutput(FileDescriptor descriptor) throws IOException;
 
     public void sendUrgentData(FileDescriptor fd, byte value);
-
-    public void createStreamSocket(FileDescriptor fd) throws SocketException;
 
     public void listen(FileDescriptor fd, int backlog) throws SocketException;
 

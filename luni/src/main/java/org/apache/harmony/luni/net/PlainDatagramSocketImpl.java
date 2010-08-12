@@ -107,7 +107,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void create() throws SocketException {
-        netImpl.createDatagramSocket(fd);
+        netImpl.socket(fd, false);
     }
 
     @Override

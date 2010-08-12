@@ -213,11 +213,7 @@ public class PlainSocketImpl extends SocketImpl {
     @Override
     protected void create(boolean streaming) throws IOException {
         this.streaming = streaming;
-        if (streaming) {
-            netImpl.createStreamSocket(fd);
-        } else {
-            netImpl.createDatagramSocket(fd);
-        }
+        netImpl.socket(fd, streaming);
     }
 
     @Override

@@ -332,8 +332,8 @@ public final class BlockGuard {
             mNetwork.disconnectDatagram(aFD);
         }
 
-        public void createDatagramSocket(FileDescriptor aFD) throws SocketException {
-            mNetwork.createDatagramSocket(aFD);
+        public void socket(FileDescriptor aFD, boolean stream) throws SocketException {
+            mNetwork.socket(aFD, stream);
         }
 
         public void shutdownInput(FileDescriptor descriptor) throws IOException {
@@ -346,10 +346,6 @@ public final class BlockGuard {
 
         public void sendUrgentData(FileDescriptor fd, byte value) {
             mNetwork.sendUrgentData(fd, value);
-        }
-
-        public void createStreamSocket(FileDescriptor aFD) throws SocketException {
-            mNetwork.createStreamSocket(aFD);
         }
 
         public void listen(FileDescriptor aFD, int backlog) throws SocketException {

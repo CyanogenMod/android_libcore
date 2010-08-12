@@ -118,7 +118,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorHandler {
         fd = new FileDescriptor();
         status = SOCKET_STATUS_UNCONNECTED;
         if (connect) {
-            networkSystem.createStreamSocket(fd);
+            networkSystem.socket(fd, true);
         }
     }
 

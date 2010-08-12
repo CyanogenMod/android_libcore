@@ -865,7 +865,7 @@ public class InetAddress implements Serializable {
             throws IOException {
         FileDescriptor fd = new FileDescriptor();
         boolean reached = false;
-        NETIMPL.createStreamSocket(fd);
+        NETIMPL.socket(fd, true);
         try {
             if (null != source) {
                 NETIMPL.bind(fd, source, 0);
