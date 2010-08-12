@@ -69,8 +69,6 @@ public interface INetworkSystem {
 
     public void sendUrgentData(FileDescriptor fd, byte value);
 
-    public void createServerStreamSocket(FileDescriptor fd) throws SocketException;
-
     public void createStreamSocket(FileDescriptor fd) throws SocketException;
 
     public void listen(FileDescriptor fd, int backlog) throws SocketException;

@@ -608,15 +608,6 @@ static void osNetworkSystem_createStreamSocket(JNIEnv* env, jobject, jobject fil
     createSocketFileDescriptor(env, fileDescriptor, SOCK_STREAM);
 }
 
-static void osNetworkSystem_createServerStreamSocket(JNIEnv* env, jobject, jobject fileDescriptor) {
-    int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_STREAM);
-    if (fd != -1) {
-        // TODO: we could actually do this in Java. (and check for errors!)
-        int value = 1;
-        setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(int));
-    }
-}
-
 static void osNetworkSystem_createDatagramSocket(JNIEnv* env, jobject, jobject fileDescriptor) {
     int fd = createSocketFileDescriptor(env, fileDescriptor, SOCK_DGRAM);
 #ifdef __linux__
@@ -1533,7 +1524,6 @@ static JNINativeMethod gMethods[] = {
     { "connectNonBlocking",       "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z",                       (void*) osNetworkSystem_connectNonBlocking },
     { "connect",                  "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;II)V",                      (void*) osNetworkSystem_connect },
     { "createDatagramSocket",     "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createDatagramSocket },
-    { "createServerStreamSocket", "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createServerStreamSocket },
     { "createStreamSocket",       "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_createStreamSocket },
     { "disconnectDatagram",       "(Ljava/io/FileDescriptor;)V",                                              (void*) osNetworkSystem_disconnectDatagram },
     { "getSocketLocalAddress",    "(Ljava/io/FileDescriptor;)Ljava/net/InetAddress;",                         (void*) osNetworkSystem_getSocketLocalAddress },
