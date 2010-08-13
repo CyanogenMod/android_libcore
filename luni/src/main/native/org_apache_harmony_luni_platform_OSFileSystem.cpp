@@ -268,72 +268,56 @@ static jlong OSFileSystem_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
 }
 
 static jlong OSFileSystem_readDirect(JNIEnv* env, jobject, jint fd,
-        jint buf, jint offset, jint nbytes) {
-    if (nbytes == 0) {
+        jint buf, jint offset, jint byteCount) {
+    if (byteCount == 0) {
         return 0;
     }
-
     jbyte* dst = reinterpret_cast<jbyte*>(buf + offset);
-    jlong rc = TEMP_FAILURE_RETRY(read(fd, dst, nbytes));
+    jlong rc = TEMP_FAILURE_RETRY(read(fd, dst, byteCount));
     if (rc == 0) {
         return -1;
     }
     if (rc == -1) {
-        jniThrowIOException(env, errno);
-    }
-    return rc;
-}
-
-static jlong OSFileSystem_writeDirect(JNIEnv* env, jobject, jint fd,
-        jint buf, jint offset, jint nbytes) {
-    jbyte* src = reinterpret_cast<jbyte*>(buf + offset);
-    jlong rc = TEMP_FAILURE_RETRY(write(fd, src, nbytes));
-    if (rc == -1) {
+        // We return 0 rather than throw if we try to read from an empty non-blocking pipe.
+        if (errno == EAGAIN) {
+            return 0;
+        }
         jniThrowIOException(env, errno);
     }
     return rc;
 }
 
 static jlong OSFileSystem_read(JNIEnv* env, jobject, jint fd,
-        jbyteArray byteArray, jint offset, jint nbytes) {
-    if (nbytes == 0) {
-        return 0;
-    }
-
+        jbyteArray byteArray, jint offset, jint byteCount) {
     ScopedByteArrayRW bytes(env, byteArray);
     if (bytes.get() == NULL) {
         return 0;
     }
-    jlong rc = TEMP_FAILURE_RETRY(read(fd, bytes.get() + offset, nbytes));
-    if (rc == 0) {
-        return -1;
+    jint buf = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get()));
+    return OSFileSystem_readDirect(env, NULL, fd, buf, offset, byteCount);
+}
+
+static jlong OSFileSystem_writeDirect(JNIEnv* env, jobject, jint fd,
+        jint buf, jint offset, jint byteCount) {
+    if (byteCount == 0) {
+        return 0;
     }
+    jbyte* src = reinterpret_cast<jbyte*>(buf + offset);
+    jlong rc = TEMP_FAILURE_RETRY(write(fd, src, byteCount));
     if (rc == -1) {
-        if (errno == EAGAIN) {
-            jniThrowException(env, "java/io/InterruptedIOException", "Read timed out");
-        } else {
-            jniThrowIOException(env, errno);
-        }
+        jniThrowIOException(env, errno);
     }
     return rc;
 }
 
 static jlong OSFileSystem_write(JNIEnv* env, jobject, jint fd,
-        jbyteArray byteArray, jint offset, jint nbytes) {
-
+        jbyteArray byteArray, jint offset, jint byteCount) {
     ScopedByteArrayRO bytes(env, byteArray);
     if (bytes.get() == NULL) {
         return 0;
     }
-    jlong result = TEMP_FAILURE_RETRY(write(fd, bytes.get() + offset, nbytes));
-    if (result == -1) {
-        if (errno == EAGAIN) {
-            jniThrowException(env, "java/io/InterruptedIOException", "Write timed out");
-        } else {
-            jniThrowIOException(env, errno);
-        }
-    }
-    return result;
+    jint buf = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get()));
+    return OSFileSystem_writeDirect(env, NULL, fd, buf, offset, byteCount);
 }
 
 static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint javaWhence) {
