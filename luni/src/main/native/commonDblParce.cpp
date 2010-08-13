@@ -147,13 +147,16 @@ static jdouble doubleAlgorithm (JNIEnv* env, U_64 * f, IDATA length, jint e,
 #define sizeOfTenToTheE(e) (((e) / 19) + 1)
 
 jdouble
-createDouble (JNIEnv* env, const char *s, jint e)
+createDouble (JNIEnv* env, const char* s, jint e)
 {
   /* assumes s is a null terminated string with at least one
    * character in it */
   U_64 def[DEFAULT_WIDTH];
   U_64 defBackup[DEFAULT_WIDTH];
-  U_64 *f, *fNoOverflow, *g, *tempBackup;
+  U_64* f;
+  U_64* fNoOverflow;
+  U_64* g;
+  U_64* tempBackup;
   U_32 overflow;
   jdouble result;
   IDATA index = 1;
@@ -348,7 +351,10 @@ doubleAlgorithm (JNIEnv*, U_64 * f, IDATA length, jint e, jdouble z)
 {
   U_64 m;
   IDATA k, comparison, comparison2;
-  U_64 *x, *y, *D, *D2;
+  U_64* x;
+  U_64* y;
+  U_64* D;
+  U_64* D2;
   IDATA xLength, yLength, DLength, D2Length, decApproxCount, incApproxCount;
 
   x = y = D = D2 = 0;

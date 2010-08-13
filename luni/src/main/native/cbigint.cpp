@@ -254,7 +254,7 @@ simpleMultiplyAddHighPrecision (U_64 * arg1, IDATA length, U_64 arg2,
 }
 
 #ifndef HY_LITTLE_ENDIAN
-void simpleMultiplyAddHighPrecisionBigEndianFix(U_64 *arg1, IDATA length, U_64 arg2, U_32 *result) {
+void simpleMultiplyAddHighPrecisionBigEndianFix(U_64* arg1, IDATA length, U_64 arg2, U_32* result) {
 	/* Assumes result can hold the product and arg2 only holds 32 bits
 	   of information */
 	U_64 product;
@@ -286,8 +286,8 @@ multiplyHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2,
                        U_64 * result, IDATA length)
 {
   /* assumes result is large enough to hold product */
-  U_64 *temp;
-  U_32 *resultIn32;
+  U_64* temp;
+  U_32* resultIn32;
   IDATA count, index;
 
   if (length1 < length2)
@@ -854,7 +854,8 @@ floatExponent (jfloat z)
 U_64
 simpleMultiplyHighPrecision64 (U_64 * arg1, IDATA length, U_64 arg2)
 {
-  U_64 intermediate, *pArg1, carry1, carry2, prod1, prod2, sum;
+  U_64 intermediate, carry1, carry2, prod1, prod2, sum;
+  U_64* pArg1;
   IDATA index;
   U_32 buf32;
 

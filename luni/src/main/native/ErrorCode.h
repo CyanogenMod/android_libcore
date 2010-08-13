@@ -18,15 +18,15 @@ extern "C" {
 #endif
 
 /**
-* Checks if an error has occured. 
+* Checks if an error has occured.
 * Throws a generic Java RuntimeException if an error has occured.
 * @param env JNI environment variable
 * @param errorcode code to determine if it is an erro
-* @return 0 if errorcode is not an error, 1 if errorcode is an error, but the 
+* @return 0 if errorcode is not an error, 1 if errorcode is an error, but the
 *         creation of the exception to be thrown fails
 * @exception thrown if errorcode represents an error
 */
-UBool icu4jni_error(JNIEnv *env, UErrorCode errorcode);
+UBool icu4jni_error(JNIEnv* env, UErrorCode errorcode);
 
 #ifdef __cplusplus
 }

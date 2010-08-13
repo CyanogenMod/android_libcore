@@ -407,7 +407,7 @@ static BIGNUM* arrayToBignum(JNIEnv* env, jbyteArray source) {
 #define THROW_EXCEPTION (-2)
 #define THROW_SOCKETTIMEOUTEXCEPTION (-3)
 
-static MUTEX_TYPE *mutex_buf = NULL;
+static MUTEX_TYPE* mutex_buf = NULL;
 
 static void locking_function(int mode, int n, const char*, int) {
     if (mode & CRYPTO_LOCK) {
@@ -971,7 +971,7 @@ static const char* get_content_type(int content_type) {
  * Simple logging call back to show hand shake messages
  */
 static void ssl_msg_callback_LOG(int write_p, int ssl_version, int content_type,
-                                 const void *buf, size_t len, SSL* ssl, void* arg) {
+                                 const void* buf, size_t len, SSL* ssl, void* arg) {
   JNI_TRACE("ssl=%p SSL msg %s %s %s %p %d %p",
            ssl,
            (write_p) ? "send" : "recv",
@@ -1322,7 +1322,7 @@ static int sslSelect(int type, int fd, AppData* appData, int timeout) {
 
     // Build a struct for the timeout data if we actually want a timeout.
     timeval tv;
-    timeval *ptv;
+    timeval* ptv;
     if (timeout > 0) {
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = 0;
@@ -1399,7 +1399,7 @@ static const char* SSL_CIPHER_authentication_method(const SSL_CIPHER* cipher)
 {
     unsigned long alg_auth = cipher->algorithm_auth;
 
-    const char *au;
+    const char* au;
     switch (alg_auth) {
         case SSL_aRSA:
             au="RSA";
@@ -1495,7 +1495,7 @@ static int cert_verify_callback(X509_STORE_CTX* x509_store_ctx, void* arg __attr
  * for SSL_MODE_HANDSHAKE_CUTTHROUGH support, since SSL_do_handshake
  * returns before the handshake is completed in this case.
  */
-static void info_callback(const SSL *ssl, int where, int ret __attribute__ ((unused))) {
+static void info_callback(const SSL* ssl, int where, int ret __attribute__ ((unused))) {
     JNI_TRACE("ssl=%p info_callback where=0x%x ret=%d", ssl, where, ret);
 #ifdef WITH_JNI_TRACE
     info_callback_LOG(ssl, where, ret);

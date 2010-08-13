@@ -255,7 +255,7 @@ void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlo
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NumberConverter, bigIntDigitGeneratorInstImpl, "(JIZI)V"),
 };
-int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv *env) {
+int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/NumberConverter",
                 gMethods, NELEM(gMethods));
 }

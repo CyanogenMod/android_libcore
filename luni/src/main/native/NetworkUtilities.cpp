@@ -36,14 +36,14 @@ bool byteArrayToSocketAddress(JNIEnv* env, jclass, jbyteArray byteArray, int por
     memset(ss, 0, sizeof(*ss));
     if (addressLength == 4) {
         // IPv4 address.
-        sockaddr_in *sin = reinterpret_cast<sockaddr_in*>(ss);
+        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
         sin->sin_family = AF_INET;
         sin->sin_port = htons(port);
         jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
         env->GetByteArrayRegion(byteArray, 0, 4, dst);
     } else if (addressLength == 16) {
         // IPv6 address.
-        sockaddr_in6 *sin6 = reinterpret_cast<sockaddr_in6*>(ss);
+        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ss);
         sin6->sin6_family = AF_INET6;
         sin6->sin6_port = htons(port);
         jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
@@ -61,14 +61,14 @@ bool byteArrayToSocketAddress(JNIEnv* env, jclass, jbyteArray byteArray, int por
 }
 
 jbyteArray socketAddressToByteArray(JNIEnv* env, sockaddr_storage* ss) {
-    void *rawAddress;
+    void* rawAddress;
     size_t addressLength;
     if (ss->ss_family == AF_INET) {
-        sockaddr_in *sin = reinterpret_cast<sockaddr_in*>(ss);
+        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
         rawAddress = &sin->sin_addr.s_addr;
         addressLength = 4;
     } else if (ss->ss_family == AF_INET6) {
-        sockaddr_in6 *sin6 = reinterpret_cast<sockaddr_in6*>(ss);
+        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ss);
         rawAddress = &sin6->sin6_addr.s6_addr;
         addressLength = 16;
     } else {

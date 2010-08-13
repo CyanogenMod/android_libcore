@@ -39,7 +39,7 @@ struct BN_CTX_Deleter {
 };
 typedef UniquePtr<BN_CTX, BN_CTX_Deleter> Unique_BN_CTX;
 
-static int isValidHandle (JNIEnv* env, void* handle, const char *message) {
+static int isValidHandle (JNIEnv* env, void* handle, const char* message) {
     if (handle == NULL) {
         jniThrowNullPointerException(env, message);
         return JNI_FALSE;
@@ -52,19 +52,19 @@ static int oneValidHandle (JNIEnv* env, void* a)
     return isValidHandle(env, a, "Mandatory handle (first) passed as null");
 }
 
-static int twoValidHandles (JNIEnv* env, void* a, void *b)
+static int twoValidHandles (JNIEnv* env, void* a, void* b)
 {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return isValidHandle(env, b, "Mandatory handle (second) passed as null");
 }
 
-static int threeValidHandles (JNIEnv* env, void* a, void *b, void* c)
+static int threeValidHandles (JNIEnv* env, void* a, void* b, void* c)
 {
     if (!twoValidHandles(env, a, b)) return JNI_FALSE;
     return isValidHandle(env, c, "Mandatory handle (third) passed as null");
 }
 
-static int fourValidHandles (JNIEnv* env, void* a, void *b, void* c, void* d)
+static int fourValidHandles (JNIEnv* env, void* a, void* b, void* c, void* d)
 {
     if (!threeValidHandles(env, a, b, c)) return JNI_FALSE;
     return isValidHandle(env, d, "Mandatory handle (fourth) passed as null");
@@ -423,27 +423,27 @@ static jboolean NativeBN_BN_shift(JNIEnv* env, jclass, BIGNUM* r, BIGNUM* a, int
     return (n >= 0) ? BN_lshift(r, a, n) : BN_rshift(r, a, -n);
 }
 
-static jboolean NativeBN_BN_add_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static jboolean NativeBN_BN_add_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_add_word(a, w);
 }
 
-static jboolean NativeBN_BN_sub_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static jboolean NativeBN_BN_sub_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_sub_word(a, w);
 }
 
-static jboolean NativeBN_BN_mul_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static jboolean NativeBN_BN_mul_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_mul_word(a, w);
 }
 
-static BN_ULONG NativeBN_BN_div_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static BN_ULONG NativeBN_BN_div_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_div_word(a, w);
 }
 
-static BN_ULONG NativeBN_BN_mod_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static BN_ULONG NativeBN_BN_mod_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_mod_word(a, w);
 }

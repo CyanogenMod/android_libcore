@@ -186,7 +186,7 @@ static jstring InetAddress_getnameinfo(JNIEnv* env, jclass,
         jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
         env->GetByteArrayRegion(javaAddress, 0, 4, dst);
     } else if (addressLength == 16) {
-        sockaddr_in6 *sin6 = reinterpret_cast<sockaddr_in6*>(&ss);
+        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&ss);
         sin6->sin6_family = AF_INET6;
         socklen = sizeof(sockaddr_in6);
         jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
