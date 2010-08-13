@@ -326,11 +326,11 @@ static jstring InetAddress_byteArrayToIpString(JNIEnv* env, jobject, jbyteArray 
 }
 
 static JNINativeMethod gMethods[] = {
-    { "byteArrayToIpString", "([B)Ljava/lang/String;", (void*) InetAddress_byteArrayToIpString },
-    { "getaddrinfo", "(Ljava/lang/String;)[[B", (void*) InetAddress_getaddrinfo },
-    { "gethostname", "()Ljava/lang/String;", (void*) InetAddress_gethostname  },
-    { "getnameinfo", "([B)Ljava/lang/String;", (void*) InetAddress_getnameinfo },
-    { "ipStringToByteArray", "(Ljava/lang/String;)[B", (void*) InetAddress_ipStringToByteArray },
+    NATIVE_METHOD(InetAddress, byteArrayToIpString, "([B)Ljava/lang/String;"),
+    NATIVE_METHOD(InetAddress, getaddrinfo, "(Ljava/lang/String;)[[B"),
+    NATIVE_METHOD(InetAddress, gethostname, "()Ljava/lang/String;"),
+    NATIVE_METHOD(InetAddress, getnameinfo, "([B)Ljava/lang/String;"),
+    NATIVE_METHOD(InetAddress, ipStringToByteArray, "(Ljava/lang/String;)[B"),
 };
 int register_java_net_InetAddress(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/net/InetAddress", gMethods, NELEM(gMethods));

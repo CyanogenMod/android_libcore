@@ -18,6 +18,7 @@
 #define LOG_TAG "CRC32"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "jni.h"
 #include "zlib.h"
@@ -36,8 +37,8 @@ static jlong CRC32_updateByteImpl(JNIEnv*, jobject, jbyte val, jlong crc) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "updateImpl", "([BIIJ)J", (void*) CRC32_updateImpl },
-    { "updateByteImpl", "(BJ)J", (void*) CRC32_updateByteImpl },
+    NATIVE_METHOD(CRC32, updateImpl, "([BIIJ)J"),
+    NATIVE_METHOD(CRC32, updateByteImpl, "(BJ)J"),
 };
 int register_java_util_zip_CRC32(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/util/zip/CRC32", gMethods, NELEM(gMethods));

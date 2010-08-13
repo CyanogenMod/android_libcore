@@ -68,4 +68,7 @@ struct JniConstants {
     static jclass vmRuntimeClass;
 };
 
+#define NATIVE_METHOD(className, functionName, signature) \
+    { #functionName, signature, reinterpret_cast<void*>(className ## _ ## functionName) }
+
 #endif  // JNI_CONSTANTS_H_included

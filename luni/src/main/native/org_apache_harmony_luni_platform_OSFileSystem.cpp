@@ -31,6 +31,7 @@
 #define SHARED_LOCK_TYPE 1L
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "LocalArray.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -486,7 +487,7 @@ static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescrip
     return (jint) avail;
 }
 
-static jlong lengthImpl(JNIEnv* env, jobject, jint fd) {
+static jlong OSFileSystem_length(JNIEnv* env, jobject, jint fd) {
     struct stat sb;
     jint rc = TEMP_FAILURE_RETRY(fstat(fd, &sb));
     if (rc == -1) {
@@ -496,22 +497,22 @@ static jlong lengthImpl(JNIEnv* env, jobject, jint fd) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "fsync", "(IZ)V", (void*) OSFileSystem_fsync },
-    { "getAllocGranularity", "()I", (void*) OSFileSystem_getAllocGranularity },
-    { "ioctlAvailable", "(Ljava/io/FileDescriptor;)I", (void*) OSFileSystem_ioctlAvailable },
-    { "length", "(I)J", (void*) lengthImpl },
-    { "lockImpl", "(IJJIZ)I", (void*) OSFileSystem_lockImpl },
-    { "open", "(Ljava/lang/String;I)I", (void*) OSFileSystem_open },
-    { "read", "(I[BII)J", (void*) OSFileSystem_read },
-    { "readDirect", "(IIII)J", (void*) OSFileSystem_readDirect },
-    { "readv", "(I[I[I[II)J", (void*) OSFileSystem_readv },
-    { "seek", "(IJI)J", (void*) OSFileSystem_seek },
-    { "transfer", "(ILjava/io/FileDescriptor;JJ)J", (void*) OSFileSystem_transfer },
-    { "truncate", "(IJ)V", (void*) OSFileSystem_truncate },
-    { "unlockImpl", "(IJJ)V", (void*) OSFileSystem_unlockImpl },
-    { "write", "(I[BII)J", (void*) OSFileSystem_write },
-    { "writeDirect", "(IIII)J", (void*) OSFileSystem_writeDirect },
-    { "writev", "(I[I[I[II)J", (void*) OSFileSystem_writev },
+    NATIVE_METHOD(OSFileSystem, fsync, "(IZ)V"),
+    NATIVE_METHOD(OSFileSystem, getAllocGranularity, "()I"),
+    NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
+    NATIVE_METHOD(OSFileSystem, length, "(I)J"),
+    NATIVE_METHOD(OSFileSystem, lockImpl, "(IJJIZ)I"),
+    NATIVE_METHOD(OSFileSystem, open, "(Ljava/lang/String;I)I"),
+    NATIVE_METHOD(OSFileSystem, read, "(I[BII)J"),
+    NATIVE_METHOD(OSFileSystem, readDirect, "(IIII)J"),
+    NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),
+    NATIVE_METHOD(OSFileSystem, seek, "(IJI)J"),
+    NATIVE_METHOD(OSFileSystem, transfer, "(ILjava/io/FileDescriptor;JJ)J"),
+    NATIVE_METHOD(OSFileSystem, truncate, "(IJ)V"),
+    NATIVE_METHOD(OSFileSystem, unlockImpl, "(IJJ)V"),
+    NATIVE_METHOD(OSFileSystem, write, "(I[BII)J"),
+    NATIVE_METHOD(OSFileSystem, writeDirect, "(IIII)J"),
+    NATIVE_METHOD(OSFileSystem, writev, "(I[I[I[II)J"),
 };
 int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/platform/OSFileSystem", gMethods,

@@ -145,9 +145,9 @@ static void TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jobjectArray outer
 }
 
 static JNINativeMethod gMethods[] = {
-    {"getDisplayNameImpl", "(Ljava/lang/String;ZILjava/lang/String;)Ljava/lang/String;", (void*) TimeZones_getDisplayNameImpl},
-    {"forCountryCode", "(Ljava/lang/String;)[Ljava/lang/String;", (void*) TimeZones_forCountryCode},
-    {"getZoneStringsImpl", "([[Ljava/lang/String;Ljava/lang/String;)V", (void*) TimeZones_getZoneStringsImpl},
+    NATIVE_METHOD(TimeZones, getDisplayNameImpl, "(Ljava/lang/String;ZILjava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(TimeZones, forCountryCode, "(Ljava/lang/String;)[Ljava/lang/String;"),
+    NATIVE_METHOD(TimeZones, getZoneStringsImpl, "([[Ljava/lang/String;Ljava/lang/String;)V"),
 };
 int register_libcore_icu_TimeZones(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/icu/TimeZones", gMethods, NELEM(gMethods));

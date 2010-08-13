@@ -132,16 +132,16 @@ static void Deflater_setLevelsImpl(JNIEnv* env, jobject, int level, int strategy
 }
 
 static JNINativeMethod gMethods[] = {
-    { "createStream", "(IIZ)J", (void*) Deflater_createStream },
-    { "deflateImpl", "([BIIJI)I", (void*) Deflater_deflateImpl },
-    { "endImpl", "(J)V", (void*) Deflater_endImpl },
-    { "getAdlerImpl", "(J)I", (void*) Deflater_getAdlerImpl },
-    { "getTotalInImpl", "(J)J", (void*) Deflater_getTotalInImpl },
-    { "getTotalOutImpl", "(J)J", (void*) Deflater_getTotalOutImpl },
-    { "resetImpl", "(J)V", (void*) Deflater_resetImpl },
-    { "setDictionaryImpl", "([BIIJ)V", (void*) Deflater_setDictionaryImpl },
-    { "setInputImpl", "([BIIJ)V", (void*) Deflater_setInputImpl },
-    { "setLevelsImpl", "(IIJ)V", (void*) Deflater_setLevelsImpl },
+    NATIVE_METHOD(Deflater, createStream, "(IIZ)J"),
+    NATIVE_METHOD(Deflater, deflateImpl, "([BIIJI)I"),
+    NATIVE_METHOD(Deflater, endImpl, "(J)V"),
+    NATIVE_METHOD(Deflater, getAdlerImpl, "(J)I"),
+    NATIVE_METHOD(Deflater, getTotalInImpl, "(J)J"),
+    NATIVE_METHOD(Deflater, getTotalOutImpl, "(J)J"),
+    NATIVE_METHOD(Deflater, resetImpl, "(J)V"),
+    NATIVE_METHOD(Deflater, setDictionaryImpl, "([BIIJ)V"),
+    NATIVE_METHOD(Deflater, setInputImpl, "([BIIJ)V"),
+    NATIVE_METHOD(Deflater, setLevelsImpl, "(IIJ)V"),
 };
 int register_java_util_zip_Deflater(JNIEnv* env) {
     gCachedFields.finished = env->GetFieldID(JniConstants::deflaterClass, "finished", "Z");

@@ -19,6 +19,7 @@
 #include <string.h>
 #include <math.h>
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedUtfChars.h"
 #include "commonDblParce.h"
 #include "cbigint.h"
@@ -41,11 +42,11 @@
 #define DEFAULT_WIDTH MAX_ACCURACY_WIDTH
 
 JNIEXPORT jfloat JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv* env,
+FloatingPointParser_parseFltImpl (JNIEnv* env,
                                                         jclass clazz,
                                                         jstring s, jint e);
 JNIEXPORT jdouble JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv* env,
+FloatingPointParser_parseDblImpl (JNIEnv* env,
                                                         jclass clazz,
                                                         jstring s, jint e);
 
@@ -539,7 +540,7 @@ OutOfMemory:
 #endif
 
 JNIEXPORT jfloat JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv* env,
+FloatingPointParser_parseFltImpl (JNIEnv* env,
                                                         jclass,
                                                         jstring s, jint e)
 {
@@ -560,7 +561,7 @@ Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl (JNIEnv* env,
 }
 
 JNIEXPORT jdouble JNICALL
-Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv* env,
+FloatingPointParser_parseDblImpl (JNIEnv* env,
                                                         jclass,
                                                         jstring s, jint e)
 {
@@ -581,10 +582,8 @@ Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl (JNIEnv* env,
 }
 
 static JNINativeMethod gMethods[] = {
-    { "parseFltImpl", "(Ljava/lang/String;I)F",
-        (void*)Java_org_apache_harmony_luni_util_FloatingPointParser_parseFltImpl },
-    { "parseDblImpl", "(Ljava/lang/String;I)D",
-        (void*)Java_org_apache_harmony_luni_util_FloatingPointParser_parseDblImpl },
+    NATIVE_METHOD(FloatingPointParser, parseFltImpl, "(Ljava/lang/String;I)F"),
+    NATIVE_METHOD(FloatingPointParser, parseDblImpl, "(Ljava/lang/String;I)D"),
 };
 int register_org_apache_harmony_luni_util_fltparse(JNIEnv *env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/FloatingPointParser",

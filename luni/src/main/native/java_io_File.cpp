@@ -203,7 +203,7 @@ static bool doStatFs(JNIEnv* env, jstring javaPath, struct statfs& sb) {
     return (rc != -1);
 }
 
-static jlong File_getFreeSpace(JNIEnv* env, jclass, jstring javaPath) {
+static jlong File_getFreeSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
     struct statfs sb;
     if (!doStatFs(env, javaPath, sb)) {
         return 0;
@@ -211,7 +211,7 @@ static jlong File_getFreeSpace(JNIEnv* env, jclass, jstring javaPath) {
     return sb.f_bfree * sb.f_bsize; // free block count * block size in bytes.
 }
 
-static jlong File_getTotalSpace(JNIEnv* env, jclass, jstring javaPath) {
+static jlong File_getTotalSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
     struct statfs sb;
     if (!doStatFs(env, javaPath, sb)) {
         return 0;
@@ -219,7 +219,7 @@ static jlong File_getTotalSpace(JNIEnv* env, jclass, jstring javaPath) {
     return sb.f_blocks * sb.f_bsize; // total block count * block size in bytes.
 }
 
-static jlong File_getUsableSpace(JNIEnv* env, jclass, jstring javaPath) {
+static jlong File_getUsableSpaceImpl(JNIEnv* env, jclass, jstring javaPath) {
     struct statfs sb;
     if (!doStatFs(env, javaPath, sb)) {
         return 0;
@@ -417,27 +417,27 @@ static jboolean File_renameToImpl(JNIEnv* env, jclass, jstring javaOldPath, jstr
 }
 
 static JNINativeMethod gMethods[] = {
-    { "canExecuteImpl",     "(Ljava/lang/String;)Z", (void*) File_canExecuteImpl },
-    { "canReadImpl",        "(Ljava/lang/String;)Z", (void*) File_canReadImpl },
-    { "canWriteImpl",       "(Ljava/lang/String;)Z", (void*) File_canWriteImpl },
-    { "createNewFileImpl",  "(Ljava/lang/String;)Z", (void*) File_createNewFileImpl },
-    { "deleteImpl",         "(Ljava/lang/String;)Z", (void*) File_deleteImpl },
-    { "existsImpl",         "(Ljava/lang/String;)Z", (void*) File_existsImpl },
-    { "getFreeSpaceImpl",   "(Ljava/lang/String;)J", (void*) File_getFreeSpace },
-    { "getTotalSpaceImpl",  "(Ljava/lang/String;)J", (void*) File_getTotalSpace },
-    { "getUsableSpaceImpl", "(Ljava/lang/String;)J", (void*) File_getUsableSpace },
-    { "isDirectoryImpl",    "(Ljava/lang/String;)Z", (void*) File_isDirectoryImpl },
-    { "isFileImpl",         "(Ljava/lang/String;)Z", (void*) File_isFileImpl },
-    { "lastModifiedImpl",   "(Ljava/lang/String;)J", (void*) File_lastModifiedImpl },
-    { "lengthImpl",         "(Ljava/lang/String;)J", (void*) File_lengthImpl },
-    { "listImpl",           "(Ljava/lang/String;)[Ljava/lang/String;", (void*) File_listImpl },
-    { "mkdirImpl",          "(Ljava/lang/String;)Z", (void*) File_mkdirImpl },
-    { "readlink",           "(Ljava/lang/String;)Ljava/lang/String;", (void*) File_readlink },
-    { "renameToImpl",       "(Ljava/lang/String;Ljava/lang/String;)Z", (void*) File_renameToImpl },
-    { "setExecutableImpl",  "(Ljava/lang/String;ZZ)Z", (void*) File_setExecutableImpl },
-    { "setLastModifiedImpl","(Ljava/lang/String;J)Z", (void*) File_setLastModifiedImpl },
-    { "setReadableImpl",    "(Ljava/lang/String;ZZ)Z", (void*) File_setReadableImpl },
-    { "setWritableImpl",    "(Ljava/lang/String;ZZ)Z", (void*) File_setWritableImpl },
+    NATIVE_METHOD(File, canExecuteImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, canReadImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, canWriteImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, createNewFileImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, deleteImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, existsImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, getFreeSpaceImpl, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(File, getTotalSpaceImpl, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(File, getUsableSpaceImpl, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(File, isDirectoryImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, isFileImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, lastModifiedImpl, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(File, lengthImpl, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
+    NATIVE_METHOD(File, mkdirImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(File, renameToImpl, "(Ljava/lang/String;Ljava/lang/String;)Z"),
+    NATIVE_METHOD(File, setExecutableImpl, "(Ljava/lang/String;ZZ)Z"),
+    NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
+    NATIVE_METHOD(File, setReadableImpl, "(Ljava/lang/String;ZZ)Z"),
+    NATIVE_METHOD(File, setWritableImpl, "(Ljava/lang/String;ZZ)Z"),
 };
 int register_java_io_File(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));

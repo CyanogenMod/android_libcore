@@ -17,6 +17,7 @@
 #define LOG_TAG "System"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedUtfChars.h"
 
 #include <stdlib.h>
@@ -53,9 +54,9 @@ static void System_setFieldImpl(JNIEnv* env, jclass clazz,
 }
 
 static JNINativeMethod gMethods[] = {
-    { "getEnvByIndex", "(I)Ljava/lang/String;",                                     (void*) System_getEnvByIndex },
-    { "getEnvByName",  "(Ljava/lang/String;)Ljava/lang/String;",                    (void*) System_getEnvByName },
-    { "setFieldImpl",  "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", (void*) System_setFieldImpl },
+    NATIVE_METHOD(System, getEnvByIndex, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(System, getEnvByName, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(System, setFieldImpl, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"),
 };
 int register_java_lang_System(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/System", gMethods, NELEM(gMethods));

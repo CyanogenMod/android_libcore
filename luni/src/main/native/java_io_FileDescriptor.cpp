@@ -18,6 +18,7 @@
 #define LOG_TAG "FileDescriptor"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 
 #include <errno.h>
 #include <unistd.h>
@@ -41,7 +42,7 @@ static void FileDescriptor_syncImpl(JNIEnv* env, jobject obj) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "syncImpl", "()V", (void*) FileDescriptor_syncImpl }
+    NATIVE_METHOD(FileDescriptor, syncImpl, "()V"),
 };
 int register_java_io_FileDescriptor(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/FileDescriptor", gMethods, NELEM(gMethods));

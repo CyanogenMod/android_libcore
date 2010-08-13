@@ -18,6 +18,7 @@
 #define LOG_TAG "ObjectOutputStream"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedUtfChars.h"
 
 #define GETTER(FUNCTION_NAME, JNI_C_TYPE, JNI_TYPE_STRING, JNI_GETTER_FUNCTION) \
@@ -64,15 +65,15 @@ static jobject ObjectOutputStream_getFieldObj(JNIEnv* env, jclass, jobject insta
 }
 
 static JNINativeMethod gMethods[] = {
-    { "getFieldBool",   "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)Z", (void*) ObjectOutputStream_getFieldBool },
-    { "getFieldByte",   "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)B", (void*) ObjectOutputStream_getFieldByte },
-    { "getFieldChar",   "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)C", (void*) ObjectOutputStream_getFieldChar },
-    { "getFieldDouble", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)D", (void*) ObjectOutputStream_getFieldDouble },
-    { "getFieldFloat",  "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)F", (void*) ObjectOutputStream_getFieldFloat },
-    { "getFieldInt",    "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)I", (void*) ObjectOutputStream_getFieldInt },
-    { "getFieldLong",   "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)J", (void*) ObjectOutputStream_getFieldLong },
-    { "getFieldObj",    "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;", (void*) ObjectOutputStream_getFieldObj },
-    { "getFieldShort",  "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)S", (void*) ObjectOutputStream_getFieldShort },
+    NATIVE_METHOD(ObjectOutputStream, getFieldBool, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)Z"),
+    NATIVE_METHOD(ObjectOutputStream, getFieldByte, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)B"),
+    NATIVE_METHOD(ObjectOutputStream, getFieldChar, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)C"),
+    NATIVE_METHOD(ObjectOutputStream, getFieldDouble, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)D"),
+    NATIVE_METHOD(ObjectOutputStream, getFieldFloat, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)F"),
+    NATIVE_METHOD(ObjectOutputStream, getFieldInt, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)I"),
+    NATIVE_METHOD(ObjectOutputStream, getFieldLong, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)J"),
+    NATIVE_METHOD(ObjectOutputStream, getFieldObj, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;"),
+    NATIVE_METHOD(ObjectOutputStream, getFieldShort, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;)S"),
 };
 int register_java_io_ObjectOutputStream(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/ObjectOutputStream", gMethods, NELEM(gMethods));

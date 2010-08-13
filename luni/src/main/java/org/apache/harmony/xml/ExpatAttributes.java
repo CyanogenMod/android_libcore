@@ -71,7 +71,7 @@ abstract class ExpatAttributes implements Attributes {
     public String getValue(int index) {
         return (index < 0 || index >= getLength())
                 ? null
-                : getValue(getPointer(), index);
+                : getValueByIndex(getPointer(), index);
     }
 
     public int getIndex(String uri, String localName) {
@@ -96,7 +96,7 @@ abstract class ExpatAttributes implements Attributes {
         if (pointer == 0) {
             return -1;
         }
-        return getIndex(pointer, qName);
+        return getIndexForQName(pointer, qName);
     }
 
     public String getType(String uri, String localName) {
@@ -135,20 +135,16 @@ abstract class ExpatAttributes implements Attributes {
         if (pointer == 0) {
             return null;
         }
-        return getValue(pointer, qName);
+        return getValueForQName(pointer, qName);
     }
 
-    static native String getURI(int pointer, int attributePointer, int index);
-    static native String getLocalName(int pointer, int attributePointer,
-            int index);
-    static native String getQName(int pointer, int attributePointer,
-            int index);
-    static native String getValue(int attributePointer, int index);
-    static native int getIndex(int attributePointer, String uri,
-            String localName);
-    static native int getIndex(int attributePointer, String qName);
-    static native String getValue(int attributePointer,
-            String uri, String localName);
-    static native String getValue(int attributePointer, String qName);
-    static native void freeAttributes(int pointer);
+    private static native String getURI(int pointer, int attributePointer, int index);
+    private static native String getLocalName(int pointer, int attributePointer, int index);
+    private static native String getQName(int pointer, int attributePointer, int index);
+    private static native String getValueByIndex(int attributePointer, int index);
+    private static native int getIndex(int attributePointer, String uri, String localName);
+    private static native int getIndexForQName(int attributePointer, String qName);
+    private static native String getValue(int attributePointer, String uri, String localName);
+    private static native String getValueForQName(int attributePointer, String qName);
+    protected native void freeAttributes(int pointer);
 }

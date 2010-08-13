@@ -11,6 +11,7 @@
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
@@ -175,26 +176,26 @@ static void NativeCollation_setText(JNIEnv* env, jclass, jint address, jstring s
 }
 
 static JNINativeMethod gMethods[] = {
-    { "closeCollator", "(I)V", (void*) NativeCollation_closeCollator },
-    { "closeElements", "(I)V", (void*) NativeCollation_closeElements },
-    { "compare", "(ILjava/lang/String;Ljava/lang/String;)I", (void*) NativeCollation_compare },
-    { "getAttribute", "(II)I", (void*) NativeCollation_getAttribute },
-    { "getCollationElementIterator", "(ILjava/lang/String;)I", (void*) NativeCollation_getCollationElementIterator },
-    { "getMaxExpansion", "(II)I", (void*) NativeCollation_getMaxExpansion },
-    { "getNormalization", "(I)I", (void*) NativeCollation_getNormalization },
-    { "getOffset", "(I)I", (void*) NativeCollation_getOffset },
-    { "getRules", "(I)Ljava/lang/String;", (void*) NativeCollation_getRules },
-    { "getSortKey", "(ILjava/lang/String;)[B", (void*) NativeCollation_getSortKey },
-    { "next", "(I)I", (void*) NativeCollation_next },
-    { "openCollator", "(Ljava/lang/String;)I", (void*) NativeCollation_openCollator },
-    { "openCollatorFromRules", "(Ljava/lang/String;II)I", (void*) NativeCollation_openCollatorFromRules },
-    { "previous", "(I)I", (void*) NativeCollation_previous },
-    { "reset", "(I)V", (void*) NativeCollation_reset },
-    { "safeClone", "(I)I", (void*) NativeCollation_safeClone },
-    { "setAttribute", "(III)V", (void*) NativeCollation_setAttribute },
-    { "setNormalization", "(II)V", (void*) NativeCollation_setNormalization },
-    { "setOffset", "(II)V", (void*) NativeCollation_setOffset },
-    { "setText", "(ILjava/lang/String;)V", (void*) NativeCollation_setText },
+    NATIVE_METHOD(NativeCollation, closeCollator, "(I)V"),
+    NATIVE_METHOD(NativeCollation, closeElements, "(I)V"),
+    NATIVE_METHOD(NativeCollation, compare, "(ILjava/lang/String;Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeCollation, getAttribute, "(II)I"),
+    NATIVE_METHOD(NativeCollation, getCollationElementIterator, "(ILjava/lang/String;)I"),
+    NATIVE_METHOD(NativeCollation, getMaxExpansion, "(II)I"),
+    NATIVE_METHOD(NativeCollation, getNormalization, "(I)I"),
+    NATIVE_METHOD(NativeCollation, getOffset, "(I)I"),
+    NATIVE_METHOD(NativeCollation, getRules, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCollation, getSortKey, "(ILjava/lang/String;)[B"),
+    NATIVE_METHOD(NativeCollation, next, "(I)I"),
+    NATIVE_METHOD(NativeCollation, openCollator, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeCollation, openCollatorFromRules, "(Ljava/lang/String;II)I"),
+    NATIVE_METHOD(NativeCollation, previous, "(I)I"),
+    NATIVE_METHOD(NativeCollation, reset, "(I)V"),
+    NATIVE_METHOD(NativeCollation, safeClone, "(I)I"),
+    NATIVE_METHOD(NativeCollation, setAttribute, "(III)V"),
+    NATIVE_METHOD(NativeCollation, setNormalization, "(II)V"),
+    NATIVE_METHOD(NativeCollation, setOffset, "(II)V"),
+    NATIVE_METHOD(NativeCollation, setText, "(ILjava/lang/String;)V"),
 };
 int register_com_ibm_icu4jni_text_NativeCollator(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativeCollation",

@@ -64,11 +64,11 @@ static void IoUtils_setBlocking(JNIEnv* env, jclass, jobject fileDescriptor, jbo
 }
 
 static JNINativeMethod gMethods[] = {
-    { "close", "(Ljava/io/FileDescriptor;)V", (void*) IoUtils_close },
-    { "getFd", "(Ljava/io/FileDescriptor;)I", (void*) IoUtils_getFd },
-    { "pipe", "([I)V", (void*) IoUtils_pipe },
-    { "setFd", "(Ljava/io/FileDescriptor;I)V", (void*) IoUtils_setFd },
-    { "setBlocking", "(Ljava/io/FileDescriptor;Z)V", (void*) IoUtils_setBlocking },
+    NATIVE_METHOD(IoUtils, close, "(Ljava/io/FileDescriptor;)V"),
+    NATIVE_METHOD(IoUtils, getFd, "(Ljava/io/FileDescriptor;)I"),
+    NATIVE_METHOD(IoUtils, pipe, "([I)V"),
+    NATIVE_METHOD(IoUtils, setFd, "(Ljava/io/FileDescriptor;I)V"),
+    NATIVE_METHOD(IoUtils, setBlocking, "(Ljava/io/FileDescriptor;Z)V"),
 };
 int register_libcore_io_IoUtils(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/io/IoUtils", gMethods, NELEM(gMethods));

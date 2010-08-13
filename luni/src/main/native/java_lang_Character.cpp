@@ -17,6 +17,7 @@
 #define LOG_TAG "Character"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedUtfChars.h"
 #include "unicode/uchar.h"
 #include <math.h>
@@ -151,28 +152,28 @@ static int Character_ofImpl(JNIEnv*, jclass, jint codePoint) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "digitImpl", "(II)I", (void*) Character_digitImpl },
-    { "forNameImpl", "(Ljava/lang/String;)I", (void*) Character_forNameImpl },
-    { "getDirectionalityImpl", "(I)B", (void*) Character_getDirectionalityImpl },
-    { "getNumericValueImpl", "(I)I", (void*) Character_getNumericValueImpl },
-    { "getTypeImpl", "(I)I", (void*) Character_getTypeImpl },
-    { "isDefinedImpl", "(I)Z", (void*) Character_isDefinedImpl },
-    { "isDigitImpl", "(I)Z", (void*) Character_isDigitImpl },
-    { "isIdentifierIgnorableImpl", "(I)Z", (void*) Character_isIdentifierIgnorableImpl },
-    { "isLetterImpl", "(I)Z", (void*) Character_isLetterImpl },
-    { "isLetterOrDigitImpl", "(I)Z", (void*) Character_isLetterOrDigitImpl },
-    { "isLowerCaseImpl", "(I)Z", (void*) Character_isLowerCaseImpl },
-    { "isMirroredImpl", "(I)Z", (void*) Character_isMirroredImpl },
-    { "isSpaceCharImpl", "(I)Z", (void*) Character_isSpaceCharImpl },
-    { "isTitleCaseImpl", "(I)Z", (void*) Character_isTitleCaseImpl },
-    { "isUnicodeIdentifierPartImpl", "(I)Z", (void*) Character_isUnicodeIdentifierPartImpl },
-    { "isUnicodeIdentifierStartImpl", "(I)Z", (void*) Character_isUnicodeIdentifierStartImpl },
-    { "isUpperCaseImpl", "(I)Z", (void*) Character_isUpperCaseImpl },
-    { "isWhitespaceImpl", "(I)Z", (void*) Character_isWhitespaceImpl },
-    { "ofImpl", "(I)I", (void*) Character_ofImpl },
-    { "toLowerCaseImpl", "(I)I", (void*) Character_toLowerCaseImpl },
-    { "toTitleCaseImpl", "(I)I", (void*) Character_toTitleCaseImpl },
-    { "toUpperCaseImpl", "(I)I", (void*) Character_toUpperCaseImpl },
+    NATIVE_METHOD(Character, digitImpl, "(II)I"),
+    NATIVE_METHOD(Character, forNameImpl, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(Character, getDirectionalityImpl, "(I)B"),
+    NATIVE_METHOD(Character, getNumericValueImpl, "(I)I"),
+    NATIVE_METHOD(Character, getTypeImpl, "(I)I"),
+    NATIVE_METHOD(Character, isDefinedImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isDigitImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isIdentifierIgnorableImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isLetterImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isLetterOrDigitImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isLowerCaseImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isMirroredImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isSpaceCharImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isTitleCaseImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isUnicodeIdentifierPartImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isUnicodeIdentifierStartImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isUpperCaseImpl, "(I)Z"),
+    NATIVE_METHOD(Character, isWhitespaceImpl, "(I)Z"),
+    NATIVE_METHOD(Character, ofImpl, "(I)I"),
+    NATIVE_METHOD(Character, toLowerCaseImpl, "(I)I"),
+    NATIVE_METHOD(Character, toTitleCaseImpl, "(I)I"),
+    NATIVE_METHOD(Character, toUpperCaseImpl, "(I)I"),
 };
 int register_java_lang_Character(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/Character", gMethods, NELEM(gMethods));

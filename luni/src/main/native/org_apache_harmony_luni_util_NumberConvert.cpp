@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "cbigint.h"
 
@@ -252,7 +253,7 @@ void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlo
 }
 
 static JNINativeMethod gMethods[] = {
-    { "bigIntDigitGeneratorInstImpl", "(JIZI)V", (void*)NumberConverter_bigIntDigitGeneratorInstImpl },
+    NATIVE_METHOD(NumberConverter, bigIntDigitGeneratorInstImpl, "(JIZI)V"),
 };
 int register_org_apache_harmony_luni_util_NumberConvert(JNIEnv *env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/NumberConverter",

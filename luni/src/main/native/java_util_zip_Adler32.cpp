@@ -18,6 +18,7 @@
 #define LOG_TAG "Adler32"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "jni.h"
 #include "zlib.h"
@@ -36,8 +37,8 @@ static jlong Adler32_updateByteImpl(JNIEnv*, jobject, jint val, jlong crc) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "updateImpl", "([BIIJ)J", (void*) Adler32_updateImpl },
-    { "updateByteImpl", "(IJ)J", (void*) Adler32_updateByteImpl },
+    NATIVE_METHOD(Adler32, updateImpl, "([BIIJ)J"),
+    NATIVE_METHOD(Adler32, updateByteImpl, "(IJ)J"),
 };
 int register_java_util_zip_Adler32(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/util/zip/Adler32", gMethods, NELEM(gMethods));

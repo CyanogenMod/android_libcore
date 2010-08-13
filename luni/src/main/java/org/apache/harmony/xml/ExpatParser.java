@@ -409,13 +409,13 @@ class ExpatParser {
      */
     /*package*/ void append(String xml) throws SAXException {
         try {
-            append(this.pointer, xml, false);
+            appendString(this.pointer, xml, false);
         } catch (ExpatException e) {
             throw new ParseException(e.getMessage(), this.locator);
         }
     }
 
-    private native void append(int pointer, String xml, boolean isFinal)
+    private native void appendString(int pointer, String xml, boolean isFinal)
             throws SAXException, ExpatException;
 
     /**
@@ -430,13 +430,13 @@ class ExpatParser {
     /*package*/ void append(char[] xml, int offset, int length)
             throws SAXException {
         try {
-            append(this.pointer, xml, offset, length);
+            appendChars(this.pointer, xml, offset, length);
         } catch (ExpatException e) {
             throw new ParseException(e.getMessage(), this.locator);
         }
     }
 
-    private native void append(int pointer, char[] xml, int offset,
+    private native void appendChars(int pointer, char[] xml, int offset,
             int length) throws SAXException, ExpatException;
 
     /**
@@ -462,13 +462,13 @@ class ExpatParser {
     /*package*/ void append(byte[] xml, int offset, int length)
             throws SAXException {
         try {
-            append(this.pointer, xml, offset, length);
+            appendBytes(this.pointer, xml, offset, length);
         } catch (ExpatException e) {
             throw new ParseException(e.getMessage(), this.locator);
         }
     }
 
-    private native void append(int pointer, byte[] xml, int offset,
+    private native void appendBytes(int pointer, byte[] xml, int offset,
             int length) throws SAXException, ExpatException;
 
     /**
@@ -500,7 +500,7 @@ class ExpatParser {
         int length;
         while ((length = in.read(buffer)) != -1) {
             try {
-                append(this.pointer, buffer, 0, length);
+                appendChars(this.pointer, buffer, 0, length);
             } catch (ExpatException e) {
                 throw new ParseException(e.getMessage(), locator);
             }
@@ -516,7 +516,7 @@ class ExpatParser {
         int length;
         while ((length = in.read(buffer)) != -1) {
             try {
-                append(this.pointer, buffer, 0, length);
+                appendBytes(this.pointer, buffer, 0, length);
             } catch (ExpatException e) {
                 throw new ParseException(e.getMessage(), this.locator);
             }
@@ -546,7 +546,7 @@ class ExpatParser {
      */
     /*package*/ void finish() throws SAXException {
         try {
-            append(this.pointer, "", true);
+            appendString(this.pointer, "", true);
         } catch (ExpatException e) {
             throw new ParseException(e.getMessage(), this.locator);
         }
