@@ -196,7 +196,7 @@ static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jint addr,
     return env->NewString(pattern.getBuffer(), pattern.length());
 }
 
-static jstring formatResult(JNIEnv* env, const UnicodeString &str, FieldPositionIterator *fpi, jobject fpIter) {
+static jstring formatResult(JNIEnv* env, const UnicodeString &str, FieldPositionIterator* fpi, jobject fpIter) {
     static jmethodID gFPI_setData = env->GetMethodID(JniConstants::fieldPositionIteratorClass, "setData", "([I)V");
 
     if (fpi != NULL) {
@@ -222,7 +222,7 @@ static jstring format(JNIEnv* env, jint addr, jobject fpIter, T val) {
     UnicodeString str;
     DecimalFormat* fmt = toDecimalFormat(addr);
     FieldPositionIterator fpi;
-    FieldPositionIterator *pfpi = fpIter ? &fpi : NULL;
+    FieldPositionIterator* pfpi = fpIter ? &fpi : NULL;
     fmt->format(val, str, pfpi, status);
     return formatResult(env, str, pfpi, fpIter);
 }
@@ -276,7 +276,7 @@ static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jint addr, jstring
     Formattable res;
     ParsePosition pp(parsePos);
     ScopedJavaUnicodeString src(env, text);
-    DecimalFormat *fmt = toDecimalFormat(addr);
+    DecimalFormat* fmt = toDecimalFormat(addr);
     fmt->parse(src.unicodeString(), res, pp);
 
     if (pp.getErrorIndex() == -1) {

@@ -53,7 +53,7 @@ FloatingPointParser_parseDblImpl (JNIEnv* env,
 jfloat createFloat1 (JNIEnv* env, U_64 * f, IDATA length, jint e);
 jfloat floatAlgorithm (JNIEnv* env, U_64 * f, IDATA length, jint e,
                        jfloat z);
-jfloat createFloat (JNIEnv* env, const char *s, jint e);
+jfloat createFloat (JNIEnv* env, const char* s, jint e);
 
 static const U_32 tens[] = {
   0x3f800000,
@@ -123,13 +123,16 @@ static const U_32 tens[] = {
 #define release(r) if ((r)) free((r));
 
 jfloat
-createFloat (JNIEnv* env, const char *s, jint e)
+createFloat (JNIEnv* env, const char* s, jint e)
 {
   /* assumes s is a null terminated string with at least one
    * character in it */
   U_64 def[DEFAULT_WIDTH];
   U_64 defBackup[DEFAULT_WIDTH];
-  U_64 *f, *fNoOverflow, *g, *tempBackup;
+  U_64* f;
+  U_64* fNoOverflow;
+  U_64* g;
+  U_64* tempBackup;
   U_32 overflow;
   jfloat result;
   IDATA index = 1;
@@ -353,11 +356,14 @@ createFloat1 (JNIEnv* env, U_64 * f, IDATA length, jint e)
  * then return the original approximation.
  */
 jfloat
-floatAlgorithm (JNIEnv*, U_64 * f, IDATA length, jint e, jfloat z)
+floatAlgorithm (JNIEnv*, U_64* f, IDATA length, jint e, jfloat z)
 {
   U_64 m;
   IDATA k, comparison, comparison2;
-  U_64 *x, *y, *D, *D2;
+  U_64* x;
+  U_64* y;
+  U_64* D;
+  U_64* D2;
   IDATA xLength, yLength, DLength, D2Length;
   IDATA decApproxCount, incApproxCount;
 
@@ -585,7 +591,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(FloatingPointParser, parseFltImpl, "(Ljava/lang/String;I)F"),
     NATIVE_METHOD(FloatingPointParser, parseDblImpl, "(Ljava/lang/String;I)D"),
 };
-int register_org_apache_harmony_luni_util_fltparse(JNIEnv *env) {
+int register_org_apache_harmony_luni_util_fltparse(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/FloatingPointParser",
                 gMethods, NELEM(gMethods));
 }

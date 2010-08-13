@@ -91,7 +91,7 @@ static jbyteArray NativeCollation_getSortKey(JNIEnv* env, jclass, jint address, 
     const UCollator* collator  = toCollator(address);
     uint8_t byteArray[UCOL_MAX_BUFFER * 2];
     UniquePtr<uint8_t[]> largerByteArray;
-    uint8_t *usedByteArray = byteArray;
+    uint8_t* usedByteArray = byteArray;
     const UChar* chars = source.unicodeString().getBuffer();
     size_t charCount = source.unicodeString().length();
     size_t byteArraySize = ucol_getSortKey(collator, chars, charCount, usedByteArray, sizeof(byteArray) - 1);

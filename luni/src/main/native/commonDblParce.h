@@ -23,7 +23,7 @@ extern "C"
 {
 #endif
 
-jdouble createDouble(JNIEnv * env, const char *s, jint e);
+jdouble createDouble(JNIEnv* env, const char* s, jint e);
 
 #if defined(__cplusplus)
 }

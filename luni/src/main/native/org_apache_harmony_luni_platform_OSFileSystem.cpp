@@ -62,7 +62,7 @@
  */
 #include <sys/socket.h>
 #include <sys/types.h>
-static inline ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count) {
+static inline ssize_t sendfile(int out_fd, int in_fd, off_t* offset, size_t count) {
     off_t len = count;
     int result = sendfile(in_fd, out_fd, *offset, &len, NULL, 0);
     if (result < 0) {

@@ -245,18 +245,18 @@ private:
 /**
  * Converts an InetAddress object and port number to a native address structure.
  */
-static bool inetAddressToSocketAddress(JNIEnv *env, jobject inetaddress,
-        int port, sockaddr_storage *sockaddress) {
+static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress,
+        int port, sockaddr_storage* ss) {
     // Get the byte array that stores the IP address bytes in the InetAddress.
-    if (inetaddress == NULL) {
+    if (inetAddress == NULL) {
         jniThrowNullPointerException(env, NULL);
         return false;
     }
     jbyteArray addressBytes =
-        reinterpret_cast<jbyteArray>(env->GetObjectField(inetaddress,
+        reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress,
             gCachedFields.iaddr_ipaddress));
 
-    return byteArrayToSocketAddress(env, NULL, addressBytes, port, sockaddress);
+    return byteArrayToSocketAddress(env, NULL, addressBytes, port, ss);
 }
 
 // Converts a number of milliseconds to a timeval.
@@ -444,7 +444,7 @@ static int interfaceIndexFromMulticastSocket(int socket) {
  *
  * @exception SocketException if an error occurs during the call
  */
-static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setSockOptVal) {
+static void mcastAddDropMembership(JNIEnv* env, int fd, jobject optVal, int setSockOptVal) {
     /*
      * Check whether we are getting an InetAddress or an Generic IPMreq. For now
      * we support both so that we will not break the tests. If an InetAddress
@@ -512,7 +512,7 @@ static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setS
 
         ip_mreqn ipv4Request;
         ipv6_mreq ipv6Request;
-        void *multicastRequest;
+        void* multicastRequest;
         socklen_t requestLength;
         int level;
         switch (family) {
@@ -556,13 +556,13 @@ static void mcastAddDropMembership(JNIEnv *env, int fd, jobject optVal, int setS
 
 static bool initCachedFields(JNIEnv* env) {
     memset(&gCachedFields, 0, sizeof(gCachedFields));
-    struct CachedFields *c = &gCachedFields;
+    struct CachedFields* c = &gCachedFields;
 
     struct fieldInfo {
-        jfieldID *field;
+        jfieldID* field;
         jclass clazz;
-        const char *name;
-        const char *type;
+        const char* name;
+        const char* type;
     } fields[] = {
         {&c->iaddr_ipaddress, JniConstants::inetAddressClass, "ipaddress", "[B"},
         {&c->integer_class_value, JniConstants::integerClass, "value", "I"},

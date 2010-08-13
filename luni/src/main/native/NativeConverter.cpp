@@ -424,7 +424,7 @@ static void CHARSET_ENCODER_CALLBACK(const void* rawContext, UConverterFromUnico
 }
 
 static void encoderReplaceCallback(const void* rawContext,
-        UConverterFromUnicodeArgs *fromArgs, const UChar*, int32_t, UChar32,
+        UConverterFromUnicodeArgs* fromArgs, const UChar*, int32_t, UChar32,
         UConverterCallbackReason, UErrorCode * err) {
     if (rawContext == NULL) {
         return;
