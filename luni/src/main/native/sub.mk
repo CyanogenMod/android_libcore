@@ -48,8 +48,8 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_platform_OSFileSystem.cpp \
 	org_apache_harmony_luni_platform_OSMemory.cpp \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
+	org_apache_harmony_luni_util_FloatingPointParser.cpp \
 	org_apache_harmony_luni_util_NumberConvert.cpp \
-	org_apache_harmony_luni_util_fltparse.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
 	valueOf.cpp
 
