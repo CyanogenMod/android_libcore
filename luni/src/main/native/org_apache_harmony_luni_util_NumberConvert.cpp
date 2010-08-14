@@ -80,14 +80,14 @@ void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlo
   jfieldID fid;
   jintArray uArrayObject;
 
-  U_64 R[RM_SIZE], S[STemp_SIZE], mplus[RM_SIZE], mminus[RM_SIZE],
+  uint64_t R[RM_SIZE], S[STemp_SIZE], mplus[RM_SIZE], mminus[RM_SIZE],
     Temp[STemp_SIZE];
 
-  memset (R     , 0, RM_SIZE    * sizeof (U_64));
-  memset (S     , 0, STemp_SIZE * sizeof (U_64));
-  memset (mplus , 0, RM_SIZE    * sizeof (U_64));
-  memset (mminus, 0, RM_SIZE    * sizeof (U_64));
-  memset (Temp  , 0, STemp_SIZE * sizeof (U_64));
+  memset (R     , 0, RM_SIZE    * sizeof (uint64_t));
+  memset (S     , 0, STemp_SIZE * sizeof (uint64_t));
+  memset (mplus , 0, RM_SIZE    * sizeof (uint64_t));
+  memset (mminus, 0, RM_SIZE    * sizeof (uint64_t));
+  memset (Temp  , 0, STemp_SIZE * sizeof (uint64_t));
 
   if (e >= 0)
     {
@@ -134,7 +134,7 @@ void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlo
         }
     }
 
-  k = (int) ceil ((e + p - 1) * INV_LOG_OF_TEN_BASE_2 - 1e-10);
+  k = static_cast<int>(ceil ((e + p - 1) * INV_LOG_OF_TEN_BASE_2 - 1e-10));
 
   if (k > 0)
     {
@@ -150,8 +150,8 @@ void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlo
   RLength = mplus_Length = mminus_Length = RM_SIZE;
   SLength = TempLength = STemp_SIZE;
 
-  memset (Temp + RM_SIZE, 0, (STemp_SIZE - RM_SIZE) * sizeof (U_64));
-  memcpy (Temp, R, RM_SIZE * sizeof (U_64));
+  memset (Temp + RM_SIZE, 0, (STemp_SIZE - RM_SIZE) * sizeof (uint64_t));
+  memcpy (Temp, R, RM_SIZE * sizeof (uint64_t));
 
   while (RLength > 1 && R[RLength - 1] == 0)
     --RLength;
@@ -184,7 +184,7 @@ void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlo
 
   clazz = env->GetObjectClass(inst);
   fid = env->GetFieldID(clazz, "uArray", "[I");
-  uArrayObject = (jintArray) env->GetObjectField(inst, fid);
+  uArrayObject = reinterpret_cast<jintArray>(env->GetObjectField(inst, fid));
   ScopedIntArrayRW uArray(env, uArrayObject);
   if (uArray.get() == NULL) {
     return;
@@ -198,7 +198,7 @@ void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlo
         {
           TempLength = SLength + 1;
           Temp[SLength] = 0;
-          memcpy (Temp, S, SLength * sizeof (U_64));
+          memcpy (Temp, S, SLength * sizeof (uint64_t));
           simpleShiftLeftHighPrecision (Temp, TempLength, i);
           if (compareHighPrecision (R, RLength, Temp, TempLength) >= 0)
             {
@@ -209,8 +209,8 @@ void NumberConverter_bigIntDigitGeneratorInstImpl(JNIEnv* env, jobject inst, jlo
 
       low = compareHighPrecision (R, RLength, mminus, mminus_Length) <= 0;
 
-      memset (Temp + RLength, 0, (STemp_SIZE - RLength) * sizeof (U_64));
-      memcpy (Temp, R, RLength * sizeof (U_64));
+      memset (Temp + RLength, 0, (STemp_SIZE - RLength) * sizeof (uint64_t));
+      memcpy (Temp, R, RLength * sizeof (uint64_t));
       TempLength = (RLength > mplus_Length ? RLength : mplus_Length) + 1;
       addHighPrecision (Temp, TempLength, mplus, mplus_Length);
 

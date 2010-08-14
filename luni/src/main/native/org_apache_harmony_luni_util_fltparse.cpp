@@ -65,8 +65,6 @@
 #endif /* USE_L */
 #endif /* USE_LL */
 
-#define DOUBLE_TO_LONGBITS(dbl) (*((U_64 *)(&dbl)))
-
 /* Keep a count of the number of times we decrement and increment to
  * approximate the double, and attempt to detect the case where we
  * could potentially toggle back and forth between decrementing and
@@ -103,8 +101,7 @@
         } \
     }
 
-#define allocateU64(x, n) if (!((x) = (U_64*) malloc((n) * sizeof(U_64)))) goto OutOfMemory;
-#define release(r) if ((r)) free((r));
+#define allocateU64(x, n) if (!((x) = reinterpret_cast<uint64_t*>(malloc((n) * sizeof(uint64_t))))) goto OutOfMemory;
 
 /* *********************************************************** */
 
@@ -137,8 +134,8 @@ static const jdouble double_tens[] = {
 /* *********************************************************** */
 
 /* ************** private function declarations ************** */
-static jdouble createDouble1   (JNIEnv* env, U_64 * f, IDATA length, jint e);
-static jdouble doubleAlgorithm (JNIEnv* env, U_64 * f, IDATA length, jint e,
+static jdouble createDouble1   (JNIEnv* env, uint64_t * f, int32_t length, jint e);
+static jdouble doubleAlgorithm (JNIEnv* env, uint64_t * f, int32_t length, jint e,
                                 jdouble z);
 /* *********************************************************** */
 
@@ -150,15 +147,15 @@ static jdouble doubleAlgorithm (JNIEnv* env, U_64 * f, IDATA length, jint e,
 static jdouble createDouble(JNIEnv* env, const char* s, jint e) {
   /* assumes s is a null terminated string with at least one
    * character in it */
-  U_64 def[DEFAULT_DOUBLE_WIDTH];
-  U_64 defBackup[DEFAULT_DOUBLE_WIDTH];
-  U_64* f;
-  U_64* fNoOverflow;
-  U_64* g;
-  U_64* tempBackup;
-  U_32 overflow;
+  uint64_t def[DEFAULT_DOUBLE_WIDTH];
+  uint64_t defBackup[DEFAULT_DOUBLE_WIDTH];
+  uint64_t* f;
+  uint64_t* fNoOverflow;
+  uint64_t* g;
+  uint64_t* tempBackup;
+  uint32_t overflow;
   jdouble result;
-  IDATA index = 1;
+  int32_t index = 1;
   int unprocessedDigits = 0;
 
   f = def;
@@ -173,7 +170,7 @@ static jdouble createDouble(JNIEnv* env, const char* s, jint e) {
            * back out of it if there is no more room, i.e. index >
            * MAX_DOUBLE_ACCURACY_WIDTH.
            */
-          memcpy (fNoOverflow, f, sizeof (U_64) * index);
+          memcpy (fNoOverflow, f, sizeof (uint64_t) * index);
           overflow =
             simpleAppendDecimalDigitHighPrecision (f, index, *s - '0');
           if (overflow)
@@ -187,7 +184,7 @@ static jdouble createDouble(JNIEnv* env, const char* s, jint e) {
               if (index >= MAX_DOUBLE_ACCURACY_WIDTH)
                 {
                   index--;
-                  memcpy (f, fNoOverflow, sizeof (U_64) * index);
+                  memcpy (f, fNoOverflow, sizeof (uint64_t) * index);
                   break;
                 }
               if (tempBackup)
@@ -253,8 +250,8 @@ static jdouble createDouble(JNIEnv* env, const char* s, jint e) {
 
 }
 
-static jdouble createDouble1(JNIEnv* env, U_64* f, IDATA length, jint e) {
-  IDATA numBits;
+static jdouble createDouble1(JNIEnv* env, uint64_t* f, int32_t length, jint e) {
+  int32_t numBits;
   jdouble result;
 
   static const jint APPROX_MIN_MAGNITUDE = -309;
@@ -342,14 +339,14 @@ static jdouble createDouble1(JNIEnv* env, U_64* f, IDATA length, jint e) {
  * is currently set such that if the oscillation occurs more than twice
  * then return the original approximation.
  */
-static jdouble doubleAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jdouble z) {
-  U_64 m;
-  IDATA k, comparison, comparison2;
-  U_64* x;
-  U_64* y;
-  U_64* D;
-  U_64* D2;
-  IDATA xLength, yLength, DLength, D2Length, decApproxCount, incApproxCount;
+static jdouble doubleAlgorithm(JNIEnv*, uint64_t* f, int32_t length, jint e, jdouble z) {
+  uint64_t m;
+  int32_t k, comparison, comparison2;
+  uint64_t* x;
+  uint64_t* y;
+  uint64_t* D;
+  uint64_t* D2;
+  int32_t xLength, yLength, DLength, D2Length, decApproxCount, incApproxCount;
 
   x = y = D = D2 = 0;
   xLength = yLength = DLength = D2Length = 0;
@@ -363,21 +360,21 @@ static jdouble doubleAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jdouble z
       if (x && x != f)
           free(x);
 
-      release (y);
-      release (D);
-      release (D2);
+      free(y);
+      free(D);
+      free(D2);
 
       if (e >= 0 && k >= 0)
         {
           xLength = sizeOfTenToTheE (e) + length;
           allocateU64 (x, xLength);
-          memset (x + length, 0, sizeof (U_64) * (xLength - length));
-          memcpy (x, f, sizeof (U_64) * length);
+          memset (x + length, 0, sizeof (uint64_t) * (xLength - length));
+          memcpy (x, f, sizeof (uint64_t) * length);
           timesTenToTheEHighPrecision (x, xLength, e);
 
           yLength = (k >> 6) + 2;
           allocateU64 (y, yLength);
-          memset (y + 1, 0, sizeof (U_64) * (yLength - 1));
+          memset (y + 1, 0, sizeof (uint64_t) * (yLength - 1));
           *y = m;
           simpleShiftLeftHighPrecision (y, yLength, k);
         }
@@ -385,8 +382,8 @@ static jdouble doubleAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jdouble z
         {
           xLength = sizeOfTenToTheE (e) + length + ((-k) >> 6) + 1;
           allocateU64 (x, xLength);
-          memset (x + length, 0, sizeof (U_64) * (xLength - length));
-          memcpy (x, f, sizeof (U_64) * length);
+          memset (x + length, 0, sizeof (uint64_t) * (xLength - length));
+          memcpy (x, f, sizeof (uint64_t) * length);
           timesTenToTheEHighPrecision (x, xLength, e);
           simpleShiftLeftHighPrecision (x, xLength, -k);
 
@@ -401,7 +398,7 @@ static jdouble doubleAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jdouble z
 
           yLength = sizeOfTenToTheE (-e) + 2 + (k >> 6);
           allocateU64 (y, yLength);
-          memset (y + 1, 0, sizeof (U_64) * (yLength - 1));
+          memset (y + 1, 0, sizeof (uint64_t) * (yLength - 1));
           *y = m;
           timesTenToTheEHighPrecision (y, yLength, -e);
           simpleShiftLeftHighPrecision (y, yLength, k);
@@ -410,13 +407,13 @@ static jdouble doubleAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jdouble z
         {
           xLength = length + ((-k) >> 6) + 1;
           allocateU64 (x, xLength);
-          memset (x + length, 0, sizeof (U_64) * (xLength - length));
-          memcpy (x, f, sizeof (U_64) * length);
+          memset (x + length, 0, sizeof (uint64_t) * (xLength - length));
+          memcpy (x, f, sizeof (uint64_t) * length);
           simpleShiftLeftHighPrecision (x, xLength, -k);
 
           yLength = sizeOfTenToTheE (-e) + 1;
           allocateU64 (y, yLength);
-          memset (y + 1, 0, sizeof (U_64) * (yLength - 1));
+          memset (y + 1, 0, sizeof (uint64_t) * (yLength - 1));
           *y = m;
           timesTenToTheEHighPrecision (y, yLength, -e);
         }
@@ -426,14 +423,14 @@ static jdouble doubleAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jdouble z
         {                       /* x > y */
           DLength = xLength;
           allocateU64 (D, DLength);
-          memcpy (D, x, DLength * sizeof (U_64));
+          memcpy (D, x, DLength * sizeof (uint64_t));
           subtractHighPrecision (D, DLength, y, yLength);
         }
       else if (comparison)
         {                       /* y > x */
           DLength = yLength;
           allocateU64 (D, DLength);
-          memcpy (D, y, DLength * sizeof (U_64));
+          memcpy (D, y, DLength * sizeof (uint64_t));
           subtractHighPrecision (D, DLength, x, xLength);
         }
       else
@@ -508,18 +505,18 @@ static jdouble doubleAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jdouble z
 
   if (x && x != f)
      free(x);
-  release (y);
-  release (D);
-  release (D2);
+  free(y);
+  free(D);
+  free(D2);
   return z;
 
 OutOfMemory:
   if (x && x != f)
       free(x);
-  release (y);
-  release (y);
-  release (D);
-  release (D2);
+  free(y);
+  free(y);
+  free(D);
+  free(D2);
 
   DOUBLE_TO_LONGBITS (z) = -2;
 
@@ -532,10 +529,10 @@ OutOfMemory:
 
 #define DEFAULT_FLOAT_WIDTH MAX_FLOAT_ACCURACY_WIDTH
 
-static jfloat createFloat1(JNIEnv* env, U_64* f, IDATA length, jint e);
-static jfloat floatAlgorithm(JNIEnv* env, U_64* f, IDATA length, jint e, jfloat z);
+static jfloat createFloat1(JNIEnv* env, uint64_t* f, int32_t length, jint e);
+static jfloat floatAlgorithm(JNIEnv* env, uint64_t* f, int32_t length, jint e, jfloat z);
 
-static const U_32 float_tens[] = {
+static const uint32_t float_tens[] = {
   0x3f800000,
   0x41200000,
   0x42c80000,
@@ -558,7 +555,6 @@ static const U_32 float_tens[] = {
 #define FLOAT_MANTISSA_MASK (0x007FFFFF)
 #define FLOAT_EXPONENT_MASK (0x7F800000)
 #define FLOAT_NORMAL_MASK   (0x00800000)
-#define FLOAT_TO_INTBITS(flt) (*((U_32 *)(&flt)))
 
 /* Keep a count of the number of times we decrement and increment to
  * approximate the double, and attempt to detect the case where we
@@ -600,15 +596,15 @@ static const U_32 float_tens[] = {
 static jfloat createFloat(JNIEnv* env, const char* s, jint e) {
   /* assumes s is a null terminated string with at least one
    * character in it */
-  U_64 def[DEFAULT_FLOAT_WIDTH];
-  U_64 defBackup[DEFAULT_FLOAT_WIDTH];
-  U_64* f;
-  U_64* fNoOverflow;
-  U_64* g;
-  U_64* tempBackup;
-  U_32 overflow;
+  uint64_t def[DEFAULT_FLOAT_WIDTH];
+  uint64_t defBackup[DEFAULT_FLOAT_WIDTH];
+  uint64_t* f;
+  uint64_t* fNoOverflow;
+  uint64_t* g;
+  uint64_t* tempBackup;
+  uint32_t overflow;
   jfloat result;
-  IDATA index = 1;
+  int32_t index = 1;
   int unprocessedDigits = 0;
 
   f = def;
@@ -623,7 +619,7 @@ static jfloat createFloat(JNIEnv* env, const char* s, jint e) {
            * back out of it if there is no more room, i.e. index >
            * MAX_FLOAT_ACCURACY_WIDTH.
            */
-          memcpy (fNoOverflow, f, sizeof (U_64) * index);
+          memcpy (fNoOverflow, f, sizeof (uint64_t) * index);
           overflow =
             simpleAppendDecimalDigitHighPrecision (f, index, *s - '0');
           if (overflow)
@@ -638,7 +634,7 @@ static jfloat createFloat(JNIEnv* env, const char* s, jint e) {
               if (index >= MAX_FLOAT_ACCURACY_WIDTH)
                 {
                   index--;
-                  memcpy (f, fNoOverflow, sizeof (U_64) * index);
+                  memcpy (f, fNoOverflow, sizeof (uint64_t) * index);
                   break;
                 }
               if (tempBackup)
@@ -680,7 +676,7 @@ static jfloat createFloat(JNIEnv* env, const char* s, jint e) {
         }
       else
         {
-          result = *(jfloat *) & index;
+          result = INTBITS_TO_FLOAT(index);
         }
     }
   else
@@ -691,7 +687,7 @@ static jfloat createFloat(JNIEnv* env, const char* s, jint e) {
         }
       else
         {
-        result = *(jfloat *) & index;
+          result = INTBITS_TO_FLOAT(index);
         }
     }
 
@@ -699,8 +695,8 @@ static jfloat createFloat(JNIEnv* env, const char* s, jint e) {
 
 }
 
-static jfloat createFloat1 (JNIEnv* env, U_64* f, IDATA length, jint e) {
-  IDATA numBits;
+static jfloat createFloat1 (JNIEnv* env, uint64_t* f, int32_t length, jint e) {
+  int32_t numBits;
   jdouble dresult;
   jfloat result;
 
@@ -733,8 +729,8 @@ static jfloat createFloat1 (JNIEnv* env, U_64* f, IDATA length, jint e) {
   else if (e > -309)
     {
       int dexp;
-      U_32 fmant, fovfl;
-      U_64 dmant;
+      uint32_t fmant, fovfl;
+      uint64_t dmant;
       dresult = toDoubleHighPrecision (f, length) / pow (10.0, (double) -e);
       if (IS_DENORMAL_DBL (dresult))
         {
@@ -754,8 +750,8 @@ static jfloat createFloat1 (JNIEnv* env, U_64* f, IDATA length, jint e) {
       if ((dexp <= -127) && (dexp > -155))
         {
           /* Only interested in 24 msb bits of the 53-bit double mantissa */
-          fmant = (U_32) (dmant >> 29);
-          fovfl = ((U_32) (dmant & 0x1FFFFFFF)) << 3;
+          fmant = (uint32_t) (dmant >> 29);
+          fovfl = ((uint32_t) (dmant & 0x1FFFFFFF)) << 3;
           while ((dexp < -127) && ((fmant | fovfl) != 0))
             {
               if ((fmant & 1) != 0)
@@ -826,15 +822,15 @@ static jfloat createFloat1 (JNIEnv* env, U_64* f, IDATA length, jint e) {
  * is currently set such that if the oscillation occurs more than twice
  * then return the original approximation.
  */
-static jfloat floatAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jfloat z) {
-  U_64 m;
-  IDATA k, comparison, comparison2;
-  U_64* x;
-  U_64* y;
-  U_64* D;
-  U_64* D2;
-  IDATA xLength, yLength, DLength, D2Length;
-  IDATA decApproxCount, incApproxCount;
+static jfloat floatAlgorithm(JNIEnv*, uint64_t* f, int32_t length, jint e, jfloat z) {
+  uint64_t m;
+  int32_t k, comparison, comparison2;
+  uint64_t* x;
+  uint64_t* y;
+  uint64_t* D;
+  uint64_t* D2;
+  int32_t xLength, yLength, DLength, D2Length;
+  int32_t decApproxCount, incApproxCount;
 
   x = y = D = D2 = 0;
   xLength = yLength = DLength = D2Length = 0;
@@ -848,21 +844,21 @@ static jfloat floatAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jfloat z) {
       if (x && x != f)
           free(x);
 
-      release (y);
-      release (D);
-      release (D2);
+      free(y);
+      free(D);
+      free(D2);
 
       if (e >= 0 && k >= 0)
         {
           xLength = sizeOfTenToTheE (e) + length;
           allocateU64 (x, xLength);
-          memset (x + length, 0, sizeof (U_64) * (xLength - length));
-          memcpy (x, f, sizeof (U_64) * length);
+          memset (x + length, 0, sizeof (uint64_t) * (xLength - length));
+          memcpy (x, f, sizeof (uint64_t) * length);
           timesTenToTheEHighPrecision (x, xLength, e);
 
           yLength = (k >> 6) + 2;
           allocateU64 (y, yLength);
-          memset (y + 1, 0, sizeof (U_64) * (yLength - 1));
+          memset (y + 1, 0, sizeof (uint64_t) * (yLength - 1));
           *y = m;
           simpleShiftLeftHighPrecision (y, yLength, k);
         }
@@ -870,8 +866,8 @@ static jfloat floatAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jfloat z) {
         {
           xLength = sizeOfTenToTheE (e) + length + ((-k) >> 6) + 1;
           allocateU64 (x, xLength);
-          memset (x + length, 0, sizeof (U_64) * (xLength - length));
-          memcpy (x, f, sizeof (U_64) * length);
+          memset (x + length, 0, sizeof (uint64_t) * (xLength - length));
+          memcpy (x, f, sizeof (uint64_t) * length);
           timesTenToTheEHighPrecision (x, xLength, e);
           simpleShiftLeftHighPrecision (x, xLength, -k);
 
@@ -886,7 +882,7 @@ static jfloat floatAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jfloat z) {
 
           yLength = sizeOfTenToTheE (-e) + 2 + (k >> 6);
           allocateU64 (y, yLength);
-          memset (y + 1, 0, sizeof (U_64) * (yLength - 1));
+          memset (y + 1, 0, sizeof (uint64_t) * (yLength - 1));
           *y = m;
           timesTenToTheEHighPrecision (y, yLength, -e);
           simpleShiftLeftHighPrecision (y, yLength, k);
@@ -895,13 +891,13 @@ static jfloat floatAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jfloat z) {
         {
           xLength = length + ((-k) >> 6) + 1;
           allocateU64 (x, xLength);
-          memset (x + length, 0, sizeof (U_64) * (xLength - length));
-          memcpy (x, f, sizeof (U_64) * length);
+          memset (x + length, 0, sizeof (uint64_t) * (xLength - length));
+          memcpy (x, f, sizeof (uint64_t) * length);
           simpleShiftLeftHighPrecision (x, xLength, -k);
 
           yLength = sizeOfTenToTheE (-e) + 1;
           allocateU64 (y, yLength);
-          memset (y + 1, 0, sizeof (U_64) * (yLength - 1));
+          memset (y + 1, 0, sizeof (uint64_t) * (yLength - 1));
           *y = m;
           timesTenToTheEHighPrecision (y, yLength, -e);
         }
@@ -911,14 +907,14 @@ static jfloat floatAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jfloat z) {
         {                       /* x > y */
           DLength = xLength;
           allocateU64 (D, DLength);
-          memcpy (D, x, DLength * sizeof (U_64));
+          memcpy (D, x, DLength * sizeof (uint64_t));
           subtractHighPrecision (D, DLength, y, yLength);
         }
       else if (comparison)
         {                       /* y > x */
           DLength = yLength;
           allocateU64 (D, DLength);
-          memcpy (D, y, DLength * sizeof (U_64));
+          memcpy (D, y, DLength * sizeof (uint64_t));
           subtractHighPrecision (D, DLength, x, xLength);
         }
       else
@@ -993,17 +989,17 @@ static jfloat floatAlgorithm(JNIEnv*, U_64* f, IDATA length, jint e, jfloat z) {
 
   if (x && x != f)
       free(x);
-  release (y);
-  release (D);
-  release (D2);
+  free(y);
+  free(D);
+  free(D2);
   return z;
 
 OutOfMemory:
   if (x && x != f)
       free(x);
-  release (y);
-  release (D);
-  release (D2);
+  free(y);
+  free(D);
+  free(D2);
 
   FLOAT_TO_INTBITS (z) = -2;
 
@@ -1021,9 +1017,9 @@ static jfloat FloatingPointParser_parseFltImpl(JNIEnv* env, jclass, jstring s, j
     }
     jfloat flt = createFloat(env, str.c_str(), e);
 
-    if (((I_32) FLOAT_TO_INTBITS (flt)) >= 0) {
+    if (((int32_t) FLOAT_TO_INTBITS (flt)) >= 0) {
         return flt;
-    } else if (((I_32) FLOAT_TO_INTBITS (flt)) == (I_32) - 1) {
+    } else if (((int32_t) FLOAT_TO_INTBITS (flt)) == (int32_t) - 1) {
         jniThrowException(env, "java/lang/NumberFormatException", NULL);
     } else {
         jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
@@ -1040,7 +1036,7 @@ static jdouble FloatingPointParser_parseDblImpl(JNIEnv* env, jclass, jstring s, 
 
     if (!ERROR_OCCURED (dbl)) {
         return dbl;
-    } else if (LOW_I32_FROM_VAR (dbl) == (I_32) - 1) {
+    } else if (LOW_I32_FROM_VAR (dbl) == (int32_t) - 1) {
         jniThrowException(env, "java/lang/NumberFormatException", NULL);
     } else {
         jniThrowException(env, "java/lang/OutOfMemoryError", NULL);

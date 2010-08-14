@@ -22,7 +22,7 @@
 #define USE_LL
 #endif
 
-#ifdef HY_LITTLE_ENDIAN
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 #define at(i) (i)
 #else
 #define at(i) ((i)^1)
@@ -81,9 +81,7 @@
 
 #define TIMES_TEN(x) (((x) << 3) + ((x) << 1))
 #define bitSection(x, mask, shift) (((x) & (mask)) >> (shift))
-#define DOUBLE_TO_LONGBITS(dbl) (*((U_64 *)(&dbl)))
-#define FLOAT_TO_INTBITS(flt) (*((U_32 *)(&flt)))
-#define CREATE_DOUBLE_BITS(normalizedM, e) (((normalizedM) & MANTISSA_MASK) | (((U_64)((e) + E_OFFSET)) << 52))
+#define CREATE_DOUBLE_BITS(normalizedM, e) (((normalizedM) & MANTISSA_MASK) | ((static_cast<uint64_t>((e) + E_OFFSET)) << 52))
 
 #if defined(USE_LL)
 #define MANTISSA_MASK (0x000FFFFFFFFFFFFFLL)
@@ -111,11 +109,11 @@
 #define FLOAT_NORMAL_MASK   (0x00800000)
 #define FLOAT_E_OFFSET (150)
 
-IDATA
-simpleAddHighPrecision (U_64 * arg1, IDATA length, U_64 arg2)
+int32_t
+simpleAddHighPrecision (uint64_t * arg1, int32_t length, uint64_t arg2)
 {
   /* assumes length > 0 */
-  IDATA index = 1;
+  int32_t index = 1;
 
   *arg1 += arg2;
   if (arg2 <= *arg1)
@@ -125,20 +123,20 @@ simpleAddHighPrecision (U_64 * arg1, IDATA length, U_64 arg2)
 
   while (++arg1[index] == 0 && ++index < length);
 
-  return (IDATA) index == length;
+  return index == length;
 }
 
-IDATA
-addHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2)
+int32_t
+addHighPrecision (uint64_t * arg1, int32_t length1, uint64_t * arg2, int32_t length2)
 {
   /* addition is limited by length of arg1 as it this function is
    * storing the result in arg1 */
   /* fix for cc (GCC) 3.2 20020903 (Red Hat Linux 8.0 3.2-7): code generated does not
    * do the temp1 + temp2 + carry addition correct.  carry is 64 bit because gcc has
    * subtle issues when you mix 64 / 32 bit maths. */
-  U_64 temp1, temp2, temp3;     /* temporary variables to help the SH-4, and gcc */
-  U_64 carry;
-  IDATA index;
+  uint64_t temp1, temp2, temp3;     /* temporary variables to help the SH-4, and gcc */
+  uint64_t carry;
+  int32_t index;
 
   if (length1 == 0 || length2 == 0)
     {
@@ -170,14 +168,14 @@ addHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2)
 
   while (++arg1[index] == 0 && ++index < length1);
 
-  return (IDATA) index == length1;
+  return index == length1;
 }
 
 void
-subtractHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2)
+subtractHighPrecision (uint64_t * arg1, int32_t length1, uint64_t * arg2, int32_t length2)
 {
   /* assumes arg1 > arg2 */
-  IDATA index;
+  int32_t index;
   for (index = 0; index < length1; ++index)
     arg1[index] = ~arg1[index];
   simpleAddHighPrecision (arg1, length1, 1);
@@ -192,12 +190,10 @@ subtractHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2)
   simpleAddHighPrecision (arg1, length1, 1);
 }
 
-U_32
-simpleMultiplyHighPrecision (U_64 * arg1, IDATA length, U_64 arg2)
-{
+static uint32_t simpleMultiplyHighPrecision(uint64_t* arg1, int32_t length, uint64_t arg2) {
   /* assumes arg2 only holds 32 bits of information */
-  U_64 product;
-  IDATA index;
+  uint64_t product;
+  int32_t index;
 
   index = 0;
   product = 0;
@@ -216,14 +212,14 @@ simpleMultiplyHighPrecision (U_64 * arg1, IDATA length, U_64 arg2)
   return HIGH_U32_FROM_VAR (product);
 }
 
-void
-simpleMultiplyAddHighPrecision (U_64 * arg1, IDATA length, U_64 arg2,
-                                U_32 * result)
+static void
+simpleMultiplyAddHighPrecision (uint64_t * arg1, int32_t length, uint64_t arg2,
+                                uint32_t * result)
 {
   /* Assumes result can hold the product and arg2 only holds 32 bits
      of information */
-  U_64 product;
-  IDATA index, resultIndex;
+  uint64_t product;
+  int32_t index, resultIndex;
 
   index = resultIndex = 0;
   product = 0;
@@ -253,12 +249,12 @@ simpleMultiplyAddHighPrecision (U_64 * arg1, IDATA length, U_64 arg2,
     }
 }
 
-#ifndef HY_LITTLE_ENDIAN
-void simpleMultiplyAddHighPrecisionBigEndianFix(U_64* arg1, IDATA length, U_64 arg2, U_32* result) {
+#if __BYTE_ORDER != __LITTLE_ENDIAN
+void simpleMultiplyAddHighPrecisionBigEndianFix(uint64_t* arg1, int32_t length, uint64_t arg2, uint32_t* result) {
 	/* Assumes result can hold the product and arg2 only holds 32 bits
 	   of information */
-	U_64 product;
-	IDATA index, resultIndex;
+	uint64_t product;
+	int32_t index, resultIndex;
 
 	index = resultIndex = 0;
 	product = 0;
@@ -282,13 +278,13 @@ void simpleMultiplyAddHighPrecisionBigEndianFix(U_64* arg1, IDATA length, U_64 a
 #endif
 
 void
-multiplyHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2,
-                       U_64 * result, IDATA length)
+multiplyHighPrecision (uint64_t * arg1, int32_t length1, uint64_t * arg2, int32_t length2,
+                       uint64_t * result, int32_t length)
 {
   /* assumes result is large enough to hold product */
-  U_64* temp;
-  U_32* resultIn32;
-  IDATA count, index;
+  uint64_t* temp;
+  uint32_t* resultIn32;
+  int32_t count, index;
 
   if (length1 < length2)
     {
@@ -300,16 +296,16 @@ multiplyHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2,
       length2 = count;
     }
 
-  memset (result, 0, sizeof (U_64) * length);
+  memset (result, 0, sizeof (uint64_t) * length);
 
   /* length1 > length2 */
-  resultIn32 = (U_32 *) result;
+  resultIn32 = reinterpret_cast<uint32_t*>(result);
   index = -1;
   for (count = 0; count < length2; ++count)
     {
       simpleMultiplyAddHighPrecision (arg1, length1, LOW_IN_U64 (arg2[count]),
                                       resultIn32 + (++index));
-#ifdef HY_LITTLE_ENDIAN
+#if __BYTE_ORDER == __LITTLE_ENDIAN
       simpleMultiplyAddHighPrecision(arg1, length1, HIGH_IN_U64(arg2[count]), resultIn32 + (++index));
 #else
       simpleMultiplyAddHighPrecisionBigEndianFix(arg1, length1, HIGH_IN_U64(arg2[count]), resultIn32 + (++index));
@@ -317,12 +313,12 @@ multiplyHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2,
     }
 }
 
-U_32
-simpleAppendDecimalDigitHighPrecision (U_64 * arg1, IDATA length, U_64 digit)
+uint32_t
+simpleAppendDecimalDigitHighPrecision (uint64_t * arg1, int32_t length, uint64_t digit)
 {
   /* assumes digit is less than 32 bits */
-  U_64 arg;
-  IDATA index = 0;
+  uint64_t arg;
+  int32_t index = 0;
 
   digit <<= 32;
   do
@@ -341,10 +337,10 @@ simpleAppendDecimalDigitHighPrecision (U_64 * arg1, IDATA length, U_64 digit)
 }
 
 void
-simpleShiftLeftHighPrecision (U_64 * arg1, IDATA length, IDATA arg2)
+simpleShiftLeftHighPrecision (uint64_t * arg1, int32_t length, int32_t arg2)
 {
   /* assumes length > 0 */
-  IDATA index, offset;
+  int32_t index, offset;
   if (arg2 >= 64)
     {
       offset = arg2 >> 6;
@@ -370,11 +366,11 @@ simpleShiftLeftHighPrecision (U_64 * arg1, IDATA length, IDATA arg2)
   *arg1 <<= arg2;
 }
 
-IDATA
-highestSetBit (U_64 * y)
+int32_t
+highestSetBit (uint64_t * y)
 {
-  U_32 x;
-  IDATA result;
+  uint32_t x;
+  int32_t result;
 
   if (*y == 0)
     return 0;
@@ -441,11 +437,11 @@ highestSetBit (U_64 * y)
     return result + 1;
 }
 
-IDATA
-lowestSetBit (U_64 * y)
+int32_t
+lowestSetBit (uint64_t * y)
 {
-  U_32 x;
-  IDATA result;
+  uint32_t x;
+  int32_t result;
 
   if (*y == 0)
     return 0;
@@ -513,10 +509,10 @@ lowestSetBit (U_64 * y)
     return result + 4;
 }
 
-IDATA
-highestSetBitHighPrecision (U_64 * arg, IDATA length)
+int32_t
+highestSetBitHighPrecision (uint64_t * arg, int32_t length)
 {
-  IDATA highBit;
+  int32_t highBit;
 
   while (--length >= 0)
     {
@@ -528,10 +524,10 @@ highestSetBitHighPrecision (U_64 * arg, IDATA length)
   return 0;
 }
 
-IDATA
-lowestSetBitHighPrecision (U_64 * arg, IDATA length)
+int32_t
+lowestSetBitHighPrecision (uint64_t * arg, int32_t length)
 {
-  IDATA lowBit, index = -1;
+  int32_t lowBit, index = -1;
 
   while (++index < length)
     {
@@ -543,8 +539,8 @@ lowestSetBitHighPrecision (U_64 * arg, IDATA length)
   return 0;
 }
 
-IDATA
-compareHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2)
+int32_t
+compareHighPrecision (uint64_t * arg1, int32_t length1, uint64_t * arg2, int32_t length2)
 {
   while (--length1 >= 0 && arg1[length1] == 0);
   while (--length2 >= 0 && arg2[length2] == 0);
@@ -569,11 +565,11 @@ compareHighPrecision (U_64 * arg1, IDATA length1, U_64 * arg2, IDATA length2)
 }
 
 jdouble
-toDoubleHighPrecision (U_64 * arg, IDATA length)
+toDoubleHighPrecision (uint64_t * arg, int32_t length)
 {
-  IDATA highBit;
-  U_64 mantissa, test64;
-  U_32 test;
+  int32_t highBit;
+  uint64_t mantissa, test64;
+  uint32_t test;
   jdouble result;
 
   while (length > 0 && arg[length - 1] == 0)
@@ -674,37 +670,13 @@ toDoubleHighPrecision (U_64 * arg, IDATA length)
   return result;
 }
 
-IDATA
-tenToTheEHighPrecision (U_64 * result, IDATA length, jint e)
-{
-  /* size test */
-  if (length < ((e / 19) + 1))
-    return 0;
+static uint64_t simpleMultiplyHighPrecision64(uint64_t* arg1, int32_t length, uint64_t arg2);
 
-  memset (result, 0, length * sizeof (U_64));
-  *result = 1;
-
-  if (e == 0)
-    return 1;
-
-  length = 1;
-  length = timesTenToTheEHighPrecision (result, length, e);
-  /* bad O(n) way of doing it, but simple */
-  /*
-     do {
-     overflow = simpleAppendDecimalDigitHighPrecision(result, length, 0);
-     if (overflow)
-     result[length++] = overflow;
-     } while (--e);
-   */
-  return length;
-}
-
-IDATA
-timesTenToTheEHighPrecision (U_64 * result, IDATA length, jint e)
+int32_t
+timesTenToTheEHighPrecision (uint64_t * result, int32_t length, jint e)
 {
   /* assumes result can hold value */
-  U_64 overflow;
+  uint64_t overflow;
   int exp10 = e;
 
   if (e == 0)
@@ -797,10 +769,10 @@ timesTenToTheEHighPrecision (U_64 * result, IDATA length, jint e)
   return length;
 }
 
-U_64
+uint64_t
 doubleMantissa (jdouble z)
 {
-  U_64 m = DOUBLE_TO_LONGBITS (z);
+  uint64_t m = DOUBLE_TO_LONGBITS (z);
 
   if ((m & EXPONENT_MASK) != 0)
     m = (m & MANTISSA_MASK) | NORMAL_MASK;
@@ -810,11 +782,11 @@ doubleMantissa (jdouble z)
   return m;
 }
 
-IDATA
+int32_t
 doubleExponent (jdouble z)
 {
   /* assumes positive double */
-  IDATA k = HIGH_U32_FROM_VAR (z) >> 20;
+  int32_t k = HIGH_U32_FROM_VAR (z) >> 20;
 
   if (k)
     k -= E_OFFSET;
@@ -824,10 +796,8 @@ doubleExponent (jdouble z)
   return k;
 }
 
-UDATA
-floatMantissa (jfloat z)
-{
-  UDATA m = (UDATA) FLOAT_TO_INTBITS (z);
+uint32_t floatMantissa(jfloat z) {
+  uint32_t m = FLOAT_TO_INTBITS (z);
 
   if ((m & FLOAT_EXPONENT_MASK) != 0)
     m = (m & FLOAT_MANTISSA_MASK) | FLOAT_NORMAL_MASK;
@@ -837,11 +807,11 @@ floatMantissa (jfloat z)
   return m;
 }
 
-IDATA
+int32_t
 floatExponent (jfloat z)
 {
   /* assumes positive float */
-  IDATA k = FLOAT_TO_INTBITS (z) >> 23;
+  int32_t k = FLOAT_TO_INTBITS (z) >> 23;
   if (k)
     k -= FLOAT_E_OFFSET;
   else
@@ -851,13 +821,13 @@ floatExponent (jfloat z)
 }
 
 /* Allow a 64-bit value in arg2 */
-U_64
-simpleMultiplyHighPrecision64 (U_64 * arg1, IDATA length, U_64 arg2)
+uint64_t
+simpleMultiplyHighPrecision64 (uint64_t * arg1, int32_t length, uint64_t arg2)
 {
-  U_64 intermediate, carry1, carry2, prod1, prod2, sum;
-  U_64* pArg1;
-  IDATA index;
-  U_32 buf32;
+  uint64_t intermediate, carry1, carry2, prod1, prod2, sum;
+  uint64_t* pArg1;
+  int32_t index;
+  uint32_t buf32;
 
   index = 0;
   intermediate = 0;
@@ -869,7 +839,7 @@ simpleMultiplyHighPrecision64 (U_64 * arg1, IDATA length, U_64 arg2)
       if ((*pArg1 != 0) || (intermediate != 0))
         {
           prod1 =
-            (U_64) LOW_U32_FROM_VAR (arg2) * (U_64) LOW_U32_FROM_PTR (pArg1);
+            static_cast<uint64_t>(LOW_U32_FROM_VAR (arg2)) * static_cast<uint64_t>(LOW_U32_FROM_PTR (pArg1));
           sum = intermediate + prod1;
           if ((sum < prod1) || (sum < intermediate))
             {
@@ -880,9 +850,9 @@ simpleMultiplyHighPrecision64 (U_64 * arg1, IDATA length, U_64 arg2)
               carry1 = 0;
             }
           prod1 =
-            (U_64) LOW_U32_FROM_VAR (arg2) * (U_64) HIGH_U32_FROM_PTR (pArg1);
+            static_cast<uint64_t>(LOW_U32_FROM_VAR (arg2)) * static_cast<uint64_t>(HIGH_U32_FROM_PTR (pArg1));
           prod2 =
-            (U_64) HIGH_U32_FROM_VAR (arg2) * (U_64) LOW_U32_FROM_PTR (pArg1);
+            static_cast<uint64_t>(HIGH_U32_FROM_VAR (arg2)) * static_cast<uint64_t>(LOW_U32_FROM_PTR (pArg1));
           intermediate = carry2 + HIGH_IN_U64 (sum) + prod1 + prod2;
           if ((intermediate < prod1) || (intermediate < prod2))
             {
@@ -896,7 +866,7 @@ simpleMultiplyHighPrecision64 (U_64 * arg1, IDATA length, U_64 arg2)
           buf32 = HIGH_U32_FROM_PTR (pArg1);
           HIGH_U32_FROM_PTR (pArg1) = LOW_U32_FROM_VAR (intermediate);
           intermediate = carry1 + HIGH_IN_U64 (intermediate)
-            + (U_64) HIGH_U32_FROM_VAR (arg2) * (U_64) buf32;
+            + static_cast<uint64_t>(HIGH_U32_FROM_VAR (arg2)) * static_cast<uint64_t>(buf32);
         }
       pArg1++;
     }
