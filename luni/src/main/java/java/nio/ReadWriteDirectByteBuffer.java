@@ -78,8 +78,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
     @Override
     public ByteBuffer compact() {
         PlatformAddress effectiveAddress = getEffectiveAddress();
-        effectiveAddress.offsetBytes(position).moveTo(effectiveAddress,
-                remaining());
+        effectiveAddress.offsetBytes(position).moveTo(effectiveAddress, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;

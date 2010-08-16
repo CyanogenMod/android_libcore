@@ -21,11 +21,14 @@
 
 package java.nio;
 
+import java.nio.channels.FileChannel.MapMode;
 import org.apache.harmony.luni.platform.PlatformAddress;
 import org.apache.harmony.nio.internal.DirectBuffer;
 
-final class MappedByteBufferAdapter extends MappedByteBuffer implements
-        DirectBuffer {
+/**
+ * @hide
+ */
+public final class MappedByteBufferAdapter extends MappedByteBuffer implements DirectBuffer {
 
     private static final int CHAR_SIZE = 2;
 
@@ -43,8 +46,7 @@ final class MappedByteBufferAdapter extends MappedByteBuffer implements
         super(buffer);
     }
 
-    public MappedByteBufferAdapter(PlatformAddress addr, int capa, int offset,
-            int mode) {
+    public MappedByteBufferAdapter(PlatformAddress addr, int capa, int offset, MapMode mode) {
         super(addr, capa, offset, mode);
     }
 

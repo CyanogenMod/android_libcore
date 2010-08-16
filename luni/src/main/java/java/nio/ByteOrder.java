@@ -16,13 +16,10 @@
 
 package java.nio;
 
-import org.apache.harmony.luni.platform.Platform;
-
 /**
  * Defines byte order constants.
  */
 public final class ByteOrder {
-
     /**
      * This constant represents big endian.
      */
@@ -33,14 +30,14 @@ public final class ByteOrder {
      */
     public static final ByteOrder LITTLE_ENDIAN = new ByteOrder("LITTLE_ENDIAN");
 
-    private static final ByteOrder NATIVE_ORDER;
+    private static final ByteOrder NATIVE_ORDER = isLittleEndian() ? LITTLE_ENDIAN : BIG_ENDIAN;
 
-    static {
-        if (Platform.getMemorySystem().isLittleEndian()) {
-            NATIVE_ORDER = LITTLE_ENDIAN;
-        } else {
-            NATIVE_ORDER = BIG_ENDIAN;
-        }
+    private static native boolean isLittleEndian();
+
+    private final String name;
+
+    private ByteOrder(String name) {
+        this.name = name;
     }
 
     /**
@@ -51,13 +48,6 @@ public final class ByteOrder {
      */
     public static ByteOrder nativeOrder() {
         return NATIVE_ORDER;
-    }
-
-    private final String name;
-
-    private ByteOrder(String name) {
-        super();
-        this.name = name;
     }
 
     /**

@@ -30,6 +30,7 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.nio.MappedByteBufferAdapter;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -177,8 +178,8 @@ public abstract class FileChannelImpl extends FileChannel {
 
     public abstract MappedByteBuffer map(MapMode mode, long position, long size) throws IOException;
 
-    protected final MappedByteBuffer mapImpl(int mapMode, long position,
-            long size) throws IOException {
+    protected final MappedByteBuffer mapImpl(MapMode mapMode, long position, long size)
+            throws IOException {
         if (position + size > size()) {
             fileSystem.truncate(handle, position + size);
         }
@@ -186,14 +187,7 @@ public abstract class FileChannelImpl extends FileChannel {
         int offset = (int) (position - alignment);
         PlatformAddress address = PlatformAddressFactory.allocMap(handle,
                 alignment, size + offset, mapMode);
-        MappedByteBuffer buffer = null;
-        try {
-            buffer = MappedByteBufferFactory.getBuffer(address, mapMode, size,
-                    offset);
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
-        }
-        return buffer;
+        return new MappedByteBufferAdapter(address, (int) size, offset, mapMode);
     }
 
     /*
