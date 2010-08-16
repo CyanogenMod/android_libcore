@@ -37,6 +37,7 @@ LOCAL_SRC_FILES := \
 	java_lang_System.cpp \
 	java_net_InetAddress.cpp \
 	java_net_NetworkInterface.cpp \
+	java_nio_ByteOrder.cpp \
 	java_nio_charset_Charsets.cpp \
 	java_util_regex_Matcher.cpp \
 	java_util_regex_Pattern.cpp \
@@ -52,7 +53,6 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_util_NumberConvert.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
 	valueOf.cpp
-
 
 LOCAL_C_INCLUDES += \
 	external/expat/lib \

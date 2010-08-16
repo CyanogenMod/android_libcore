@@ -28,22 +28,22 @@ public class MappedPlatformAddress extends PlatformAddress {
 
     public final void mmapLoad() {
         memorySpy.rangeCheck(this, 0, (int) size * SIZEOF_JBYTE);
-        osMemory.load(osaddr, size);
+        OSMemory.load(osaddr, size);
     }
 
     public final boolean mmapIsLoaded() {
         memorySpy.rangeCheck(this, 0, (int) size * SIZEOF_JBYTE);
-        return osMemory.isLoaded(osaddr, size);
+        return OSMemory.isLoaded(osaddr, size);
     }
 
     public final void mmapFlush() {
         memorySpy.rangeCheck(this, 0, (int) size * SIZEOF_JBYTE);
-        osMemory.flush(osaddr, size);
+        OSMemory.flush(osaddr, size);
     }
 
     public final void free(){
         if(memorySpy.free(this)){
-            osMemory.unmap(osaddr, size);
+            OSMemory.unmap(osaddr, size);
         }
     }
 
@@ -54,9 +54,4 @@ public class MappedPlatformAddress extends PlatformAddress {
     public final PlatformAddress offsetBytes(int offset) {
         return PlatformAddressFactory.mapOn(osaddr + offset, size - offset);
     }
-    // BEGIN android-removed
-    // public final PlatformAddress offsetBytes(long offset) {
-    //     return PlatformAddressFactory.mapOn(osaddr + offset, size - offset);
-    // }
-    // END android-removed
 }
