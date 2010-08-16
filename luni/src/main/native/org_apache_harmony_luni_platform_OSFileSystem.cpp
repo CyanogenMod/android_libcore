@@ -409,8 +409,7 @@ static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflag
         const char* reason = jniStrError(errno, &buffer[0], sizeof(buffer));
 
         // Construct a message that includes the path and the reason.
-        // (path.size() already includes space for our trailing NUL.)
-        LocalArray<128> message(path.size() + 2 + strlen(reason) + 1);
+        LocalArray<128> message(path.size() + 2 + strlen(reason) + 1 + 1);
         snprintf(&message[0], message.size(), "%s (%s)", path.c_str(), reason);
 
         // We always throw FileNotFoundException, regardless of the specific
@@ -468,7 +467,7 @@ static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescrip
         jniThrowIOException(env, errno);
     }
 
-    return (jint) avail;
+    return avail;
 }
 
 static jlong OSFileSystem_length(JNIEnv* env, jobject, jint fd) {
