@@ -23,6 +23,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MulticastGroupRequest;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -37,13 +38,12 @@ import org.apache.harmony.luni.platform.Platform;
  */
 public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
+    private static final int MCAST_JOIN_GROUP = 19;
+    private static final int MCAST_LEAVE_GROUP = 20;
+
     private static final int SO_BROADCAST = 32;
 
     static final int TCP_NODELAY = 4;
-
-    final static int IP_MULTICAST_ADD = 19;
-
-    final static int IP_MULTICAST_DROP = 20;
 
     final static int IP_MULTICAST_TTL = 17;
 
@@ -131,28 +131,27 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void join(InetAddress addr) throws IOException {
-        setOption(IP_MULTICAST_ADD, new GenericIPMreq(addr));
+        setOption(MCAST_JOIN_GROUP, new MulticastGroupRequest(addr, null));
     }
 
     @Override
     public void joinGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IP_MULTICAST_ADD, new GenericIPMreq(groupAddr, netInterface));
+            setOption(MCAST_JOIN_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
         }
     }
 
     @Override
     public void leave(InetAddress addr) throws IOException {
-        setOption(IP_MULTICAST_DROP, new GenericIPMreq(addr));
+        setOption(MCAST_LEAVE_GROUP, new MulticastGroupRequest(addr, null));
     }
 
     @Override
-    public void leaveGroup(SocketAddress addr, NetworkInterface netInterface)
-            throws IOException {
+    public void leaveGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IP_MULTICAST_DROP, new GenericIPMreq(groupAddr, netInterface));
+            setOption(MCAST_LEAVE_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
         }
     }
 

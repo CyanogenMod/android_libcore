@@ -115,8 +115,7 @@ public class MulticastSocket extends DatagramSocket {
         }
 
         if (theIndex.intValue() != 0) {
-            Enumeration<NetworkInterface> theInterfaces = NetworkInterface
-                    .getNetworkInterfaces();
+            Enumeration<NetworkInterface> theInterfaces = NetworkInterface.getNetworkInterfaces();
             while (theInterfaces.hasMoreElements()) {
                 NetworkInterface nextInterface = theInterfaces.nextElement();
                 if (nextInterface.getIndex() == theIndex.intValue()) {
@@ -259,7 +258,7 @@ public class MulticastSocket extends DatagramSocket {
         }
 
         if ((netInterface != null) && (netInterface.getFirstAddress() == null)) {
-            throw new SocketException("No address associated with interface");
+            throw new SocketException("No address associated with interface: " + netInterface);
         }
 
         if (!(groupAddress instanceof InetSocketAddress)) {
@@ -269,11 +268,11 @@ public class MulticastSocket extends DatagramSocket {
 
         InetAddress groupAddr = ((InetSocketAddress) groupAddress).getAddress();
         if (groupAddr == null) {
-            throw new SocketException("Group address is null");
+            throw new SocketException("Group address is null: " + groupAddr);
         }
 
         if (!groupAddr.isMulticastAddress()) {
-            throw new IOException("Not a multicast group");
+            throw new IOException("Not a multicast group: " + groupAddr);
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -284,7 +283,7 @@ public class MulticastSocket extends DatagramSocket {
     private void checkJoinOrLeave(InetAddress groupAddr) throws IOException {
         checkClosedAndBind(false);
         if (!groupAddr.isMulticastAddress()) {
-            throw new IOException("Not a multicast group");
+            throw new IOException("Not a multicast group: " + groupAddr);
         }
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -377,7 +376,7 @@ public class MulticastSocket extends DatagramSocket {
                 // Ignored
             }
         } else if (addr instanceof Inet6Address) {
-            throw new SocketException("Address not associated with an interface - not set");
+            throw new SocketException("Address not associated with an interface: " + addr);
         }
     }
 
@@ -402,7 +401,7 @@ public class MulticastSocket extends DatagramSocket {
 
         InetAddress firstAddress = netInterface.getFirstAddress();
         if (firstAddress == null) {
-            throw new SocketException("No address associated with interface");
+            throw new SocketException("No address associated with interface: " + netInterface);
         }
 
         if (netInterface.getIndex() == NetworkInterface.UNSET_INTERFACE_INDEX) {
@@ -449,7 +448,7 @@ public class MulticastSocket extends DatagramSocket {
                  * interfaces which have no IPV4 address and which does not have
                  * the network interface index not set correctly
                  */
-                throw new SocketException("No address associated with interface");
+                throw new SocketException("No address associated with interface: " + netInterface);
             }
         } else {
             // set the address using IP_MULTICAST_IF to make sure this
@@ -509,8 +508,7 @@ public class MulticastSocket extends DatagramSocket {
     }
 
     @Override
-    synchronized void createSocket(int aPort, InetAddress addr)
-            throws SocketException {
+    synchronized void createSocket(int aPort, InetAddress addr) throws SocketException {
         impl = factory != null ? factory.createDatagramSocketImpl()
                 : new PlainDatagramSocketImpl();
         impl.create();
