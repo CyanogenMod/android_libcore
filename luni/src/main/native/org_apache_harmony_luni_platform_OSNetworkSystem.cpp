@@ -62,8 +62,8 @@
 #define JAVASOCKOPT_IP_MULTICAST_IF2 31
 #define JAVASOCKOPT_IP_MULTICAST_LOOP 18
 #define JAVASOCKOPT_IP_TOS 3
-#define JAVASOCKOPT_MCAST_ADD_MEMBERSHIP 19
-#define JAVASOCKOPT_MCAST_DROP_MEMBERSHIP 20
+#define JAVASOCKOPT_MCAST_JOIN_GROUP 19
+#define JAVASOCKOPT_MCAST_LEAVE_GROUP 20
 #define JAVASOCKOPT_MULTICAST_TTL 17
 #define JAVASOCKOPT_SO_BROADCAST 32
 #define JAVASOCKOPT_SO_KEEPALIVE 8
@@ -397,159 +397,27 @@ private:
 };
 
 #ifdef ENABLE_MULTICAST
-/*
- * Find the interface index that was set for this socket by the IP_MULTICAST_IF
- * or IPV6_MULTICAST_IF socket option.
- *
- * @param socket the socket to examine
- *
- * @return the interface index, or -1 on failure
- *
- * @note on internal failure, the errno variable will be set appropriately
- */
-static int interfaceIndexFromMulticastSocket(int socket) {
-    int family = getSocketAddressFamily(socket);
-    if (family == AF_INET) {
-        // IP_MULTICAST_IF returns a pointer to a ip_mreqn struct.
-        ip_mreqn tempRequest;
-        socklen_t requestLength = sizeof(tempRequest);
-        int rc = getsockopt(socket, IPPROTO_IP, IP_MULTICAST_IF, &tempRequest, &requestLength);
-        return (rc == -1) ? -1 : tempRequest.imr_ifindex;
-    } else if (family == AF_INET6) {
-        // IPV6_MULTICAST_IF returns a pointer to an integer.
-        int interfaceIndex;
-        socklen_t requestLength = sizeof(interfaceIndex);
-        int rc = getsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, &interfaceIndex, &requestLength);
-        return (rc == -1) ? -1 : interfaceIndex;
-    } else {
-        errno = EAFNOSUPPORT;
-        return -1;
+static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, bool join) {
+    group_req groupRequest;
+
+    // Get the IPv4 or IPv6 multicast address to join or leave.
+    jfieldID fid = env->GetFieldID(JniConstants::multicastGroupRequestClass,
+            "gr_group", "Ljava/net/InetAddress;");
+    jobject group = env->GetObjectField(javaGroupRequest, fid);
+    if (!inetAddressToSocketAddress(env, group, 0, &groupRequest.gr_group)) {
+        return;
     }
-}
 
-/**
- * Join/Leave the nominated multicast group on the specified socket.
- * Implemented by setting the multicast 'add membership'/'drop membership'
- * option at the HY_IPPROTO_IP level on the socket.
- *
- * Implementation note for multicast sockets in general:
- *
- * - This code is untested, because at the time of this writing multicast can't
- * be properly tested on Android due to GSM routing restrictions. So it might
- * or might not work.
- *
- * @param env pointer to the JNI library.
- * @param socketP pointer to the hysocket to join/leave on.
- * @param optVal pointer to the InetAddress, the multicast group to join/drop.
- *
- * @exception SocketException if an error occurs during the call
- */
-static void mcastAddDropMembership(JNIEnv* env, int fd, jobject optVal, int setSockOptVal) {
-    /*
-     * Check whether we are getting an InetAddress or an Generic IPMreq. For now
-     * we support both so that we will not break the tests. If an InetAddress
-     * is passed in, only support IPv4 as obtaining an interface from an
-     * InetAddress is complex and should be done by the Java caller.
-     */
-    if (env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
-        /*
-         * optVal is an InetAddress. Construct a multicast request structure
-         * from this address. Support IPv4 only.
-         */
-        ip_mreqn multicastRequest;
-        socklen_t length = sizeof(multicastRequest);
-        memset(&multicastRequest, 0, length);
+    // Get the interface index to use (or 0 for "whatever").
+    fid = env->GetFieldID(JniConstants::multicastGroupRequestClass, "gr_interface", "I");
+    groupRequest.gr_interface = env->GetIntField(javaGroupRequest, fid);
 
-        int interfaceIndex = interfaceIndexFromMulticastSocket(fd);
-        multicastRequest.imr_ifindex = interfaceIndex;
-        if (interfaceIndex == -1) {
-            jniThrowSocketException(env, errno);
-            return;
-        }
-
-        // Convert the inetAddress to an IPv4 address structure.
-        sockaddr_storage ss;
-        if (!inetAddressToSocketAddress(env, optVal, 0, &ss)) {
-            return;
-        }
-        if (ss.ss_family != AF_INET) {
-            jniThrowSocketException(env, EAFNOSUPPORT);
-            return;
-        }
-        multicastRequest.imr_multiaddr = reinterpret_cast<sockaddr_in*>(&ss)->sin_addr;
-        int rc = setsockopt(fd, IPPROTO_IP, setSockOptVal, &multicastRequest, length);
-        if (rc == -1) {
-            jniThrowSocketException(env, errno);
-            return;
-        }
-    } else {
-        /*
-         * optVal is a GenericIPMreq object. Extract the relevant fields from
-         * it and construct a multicast request structure from these. Support
-         * both IPv4 and IPv6.
-         */
-
-        // Get the multicast address to join or leave.
-        jfieldID multiaddrID = env->GetFieldID(JniConstants::genericIPMreqClass, "multiaddr", "Ljava/net/InetAddress;");
-        jobject multiaddr = env->GetObjectField(optVal, multiaddrID);
-
-        // Get the interface index to use.
-        jfieldID interfaceIdxID = env->GetFieldID(JniConstants::genericIPMreqClass, "interfaceIdx", "I");
-        int interfaceIndex = env->GetIntField(optVal, interfaceIdxID);
-        LOGI("mcastAddDropMembership interfaceIndex=%i", interfaceIndex);
-
-        sockaddr_storage ss;
-        if (!inetAddressToSocketAddress(env, multiaddr, 0, &ss)) {
-            return;
-        }
-
-        int family = getSocketAddressFamily(fd);
-
-        // Handle IPv4 multicast on an IPv6 socket.
-        if (family == AF_INET6 && ss.ss_family == AF_INET) {
-            family = AF_INET;
-        }
-
-        ip_mreqn ipv4Request;
-        ipv6_mreq ipv6Request;
-        void* multicastRequest;
-        socklen_t requestLength;
-        int level;
-        switch (family) {
-            case AF_INET:
-                requestLength = sizeof(ipv4Request);
-                memset(&ipv4Request, 0, requestLength);
-                ipv4Request.imr_multiaddr = reinterpret_cast<sockaddr_in*>(&ss)->sin_addr;
-                ipv4Request.imr_ifindex = interfaceIndex;
-                multicastRequest = &ipv4Request;
-                level = IPPROTO_IP;
-                break;
-            case AF_INET6:
-                // setSockOptVal is passed in by the caller and may be IPv4-only
-                if (setSockOptVal == IP_ADD_MEMBERSHIP) {
-                    setSockOptVal = IPV6_ADD_MEMBERSHIP;
-                }
-                if (setSockOptVal == IP_DROP_MEMBERSHIP) {
-                    setSockOptVal = IPV6_DROP_MEMBERSHIP;
-                }
-                requestLength = sizeof(ipv6Request);
-                memset(&ipv6Request, 0, requestLength);
-                ipv6Request.ipv6mr_multiaddr = reinterpret_cast<sockaddr_in6*>(&ss)->sin6_addr;
-                ipv6Request.ipv6mr_interface = interfaceIndex;
-                multicastRequest = &ipv6Request;
-                level = IPPROTO_IPV6;
-                break;
-           default:
-                jniThrowSocketException(env, EAFNOSUPPORT);
-                return;
-        }
-
-        /* join/drop the multicast address */
-        int rc = setsockopt(fd, level, setSockOptVal, multicastRequest, requestLength);
-        if (rc == -1) {
-            jniThrowSocketException(env, errno);
-            return;
-        }
+    int level = groupRequest.gr_group.ss_family == AF_INET ? IPPROTO_IP : IPPROTO_IPV6;
+    int option = join ? MCAST_JOIN_GROUP : MCAST_LEAVE_GROUP;
+    int rc = setsockopt(fd, level, option, &groupRequest, sizeof(groupRequest));
+    if (rc == -1) {
+        jniThrowSocketException(env, errno);
+        return;
     }
 }
 #endif // def ENABLE_MULTICAST
@@ -1344,8 +1212,10 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
     } else if (env->IsInstanceOf(optVal, JniConstants::booleanClass)) {
         intVal = (int) env->GetBooleanField(optVal, gCachedFields.boolean_class_value);
         wasBoolean = true;
-    } else if (env->IsInstanceOf(optVal, JniConstants::genericIPMreqClass) || env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
-        // we'll use optVal directly
+    } else if (env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
+        // We use optVal directly as an InetAddress for IP_MULTICAST_IF.
+    } else if (env->IsInstanceOf(optVal, JniConstants::multicastGroupRequestClass)) {
+        // We use optVal directly as a MulticastGroupRequest for MCAST_JOIN_GROUP/MCAST_LEAVE_GROUP.
     } else {
         jniThrowSocketException(env, EINVAL);
         return;
@@ -1403,11 +1273,11 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         setSocketOption(env, fd, IPPROTO_TCP, TCP_NODELAY, &intVal);
         return;
 #ifdef ENABLE_MULTICAST
-    case JAVASOCKOPT_MCAST_ADD_MEMBERSHIP:
-        mcastAddDropMembership(env, fd.get(), optVal, IP_ADD_MEMBERSHIP);
+    case JAVASOCKOPT_MCAST_JOIN_GROUP:
+        mcastJoinLeaveGroup(env, fd.get(), optVal, true);
         return;
-    case JAVASOCKOPT_MCAST_DROP_MEMBERSHIP:
-        mcastAddDropMembership(env, fd.get(), optVal, IP_DROP_MEMBERSHIP);
+    case JAVASOCKOPT_MCAST_LEAVE_GROUP:
+        mcastJoinLeaveGroup(env, fd.get(), optVal, false);
         return;
     case JAVASOCKOPT_IP_MULTICAST_IF:
         {
@@ -1465,8 +1335,8 @@ static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDe
         }
 #else
     case JAVASOCKOPT_MULTICAST_TTL:
-    case JAVASOCKOPT_MCAST_ADD_MEMBERSHIP:
-    case JAVASOCKOPT_MCAST_DROP_MEMBERSHIP:
+    case JAVASOCKOPT_MCAST_JOIN_GROUP:
+    case JAVASOCKOPT_MCAST_LEAVE_GROUP:
     case JAVASOCKOPT_IP_MULTICAST_IF:
     case JAVASOCKOPT_IP_MULTICAST_IF2:
     case JAVASOCKOPT_IP_MULTICAST_LOOP:
