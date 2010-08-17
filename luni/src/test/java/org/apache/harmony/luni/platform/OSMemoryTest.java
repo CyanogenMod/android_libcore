@@ -54,7 +54,7 @@ public class OSMemoryTest extends TestCase {
             swappedValues[i] = swapInt(values[i]);
         }
 
-        int scale = PlatformAddress.SIZEOF_INT;
+        int scale = PlatformAddress.SIZEOF_JINT;
         int ptr = OSMemory.malloc(scale * values.length);
         try {
             // Regular copy. Memset first so we start from a known state.
@@ -80,7 +80,7 @@ public class OSMemoryTest extends TestCase {
 
     private void assertIntsEqual(int[] expectedValues, int ptr) {
         for (int i = 0; i < expectedValues.length; ++i) {
-            assertEquals(expectedValues[i], OSMemory.getInt(ptr + PlatformAddress.SIZEOF_INT * i));
+            assertEquals(expectedValues[i], OSMemory.getInt(ptr + PlatformAddress.SIZEOF_JINT * i));
         }
     }
 
@@ -95,7 +95,7 @@ public class OSMemoryTest extends TestCase {
         short[] values = { 0x0001, 0x0020, 0x0300, 0x4000 };
         short[] swappedValues = { 0x0100, 0x2000, 0x0003, 0x0040 };
 
-        int scale = PlatformAddress.SIZEOF_SHORT;
+        int scale = PlatformAddress.SIZEOF_JSHORT;
         int ptr = OSMemory.malloc(scale * values.length);
         try {
             // Regular copy. Memset first so we start from a known state.
@@ -121,7 +121,7 @@ public class OSMemoryTest extends TestCase {
 
     private void assertShortsEqual(short[] expectedValues, int ptr) {
         for (int i = 0; i < expectedValues.length; ++i) {
-            assertEquals(expectedValues[i], OSMemory.getShort(ptr + PlatformAddress.SIZEOF_SHORT * i));
+            assertEquals(expectedValues[i], OSMemory.getShort(ptr + PlatformAddress.SIZEOF_JSHORT * i));
         }
     }
 
