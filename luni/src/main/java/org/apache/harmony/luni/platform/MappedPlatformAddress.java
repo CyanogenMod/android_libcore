@@ -21,7 +21,6 @@
 package org.apache.harmony.luni.platform;
 
 public class MappedPlatformAddress extends PlatformAddress {
-
     MappedPlatformAddress(int address, long size) {
         super(address, size);
     }
@@ -41,13 +40,13 @@ public class MappedPlatformAddress extends PlatformAddress {
         OSMemory.flush(osaddr, size);
     }
 
-    public final void free(){
-        if(memorySpy.free(this)){
+    public final void free() {
+        if (memorySpy.free(this)){
             OSMemory.unmap(osaddr, size);
         }
     }
 
-    public PlatformAddress duplicate(){
+    public PlatformAddress duplicate() {
         return PlatformAddressFactory.mapOn(osaddr, size);
     }
 

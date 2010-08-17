@@ -118,29 +118,6 @@ public class PlatformAddressFactory {
     }
 
     /**
-     * Allocates a contiguous block of OS heap memory.
-     *
-     * @param size The number of bytes to allocate from the system heap.
-     * @return PlatformAddress representing the memory block.
-     */
-    public static PlatformAddress alloc(int size) {
-        int osAddress = OSMemory.malloc(size);
-        // BEGIN android-changed
-        /*
-         * We use make() and not on() here, for a couple reasons:
-         * First and foremost, doing so means that if the client uses
-         * address.autoFree() (to enable auto-free on gc) the cache
-         * won't prevent the freeing behavior. Second, this avoids
-         * polluting the cache with addresses that aren't likely to be
-         * reused anyway.
-         */
-        PlatformAddress newMemory = make(osAddress, size);
-        // END android-changed
-        PlatformAddress.memorySpy.alloc(newMemory);
-        return newMemory;
-    }
-
-    /**
      * Allocates a contiguous block of OS heap memory and initializes it to
      * a given value.
      *
@@ -151,10 +128,15 @@ public class PlatformAddressFactory {
     public static PlatformAddress alloc(int size, byte init) {
         int osAddress = OSMemory.malloc(size);
         OSMemory.memset(osAddress, init, size);
-        // BEGIN android-changed
-        // See above for the make() vs. on() rationale.
+        /*
+         * We use make() and not on() here, for a couple reasons:
+         * First and foremost, doing so means that if the client uses
+         * address.autoFree() (to enable auto-free on gc) the cache
+         * won't prevent the freeing behavior. Second, this avoids
+         * polluting the cache with addresses that aren't likely to be
+         * reused anyway.
+         */
         PlatformAddress newMemory = make(osAddress, size);
-        // END android-changed
         PlatformAddress.memorySpy.alloc(newMemory);
         return newMemory;
     }

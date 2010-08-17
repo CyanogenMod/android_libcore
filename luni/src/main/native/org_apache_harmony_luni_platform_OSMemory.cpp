@@ -39,10 +39,6 @@ template <typename T> static T cast(jint address) {
     return reinterpret_cast<T>(static_cast<uintptr_t>(address));
 }
 
-static jint OSMemory_getPointerSizeImpl(JNIEnv*, jclass) {
-    return sizeof(void*);
-}
-
 static jint OSMemory_malloc(JNIEnv* env, jclass, jint size) {
     jboolean allowed = env->CallBooleanMethod(gIDCache.runtimeInstance,
             gIDCache.method_trackExternalAllocation, static_cast<jlong>(size));
@@ -343,7 +339,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSMemory, getFloat, "(I)F"),
     NATIVE_METHOD(OSMemory, getInt, "(I)I"),
     NATIVE_METHOD(OSMemory, getLong, "(I)J"),
-    NATIVE_METHOD(OSMemory, getPointerSizeImpl, "()I"),
     NATIVE_METHOD(OSMemory, getShort, "(I)S"),
     NATIVE_METHOD(OSMemory, isLoaded, "(IJ)Z"),
     NATIVE_METHOD(OSMemory, load, "(IJ)V"),

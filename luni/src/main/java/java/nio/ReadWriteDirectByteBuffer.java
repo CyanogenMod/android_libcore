@@ -34,8 +34,7 @@ import org.apache.harmony.luni.platform.PlatformAddressFactory;
  */
 final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
-    static ReadWriteDirectByteBuffer copy(DirectByteBuffer other,
-            int markOfOther) {
+    static ReadWriteDirectByteBuffer copy(DirectByteBuffer other, int markOfOther) {
         ReadWriteDirectByteBuffer buf = new ReadWriteDirectByteBuffer(
                 other.safeAddress, other.capacity(), other.offset);
         buf.limit = other.limit();

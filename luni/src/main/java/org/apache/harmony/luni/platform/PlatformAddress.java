@@ -41,11 +41,6 @@ public class PlatformAddress implements Comparable {
     static final int UNKNOWN = -1;
 
     /**
-     * This final field defines the size of an address on this platform.
-     */
-    static final int SIZEOF = OSMemory.getPointerSize();
-
-    /**
      * NULL is the canonical address with address value zero.
      */
     public static final PlatformAddress NULL = new PlatformAddress(0, 0);
@@ -56,7 +51,7 @@ public class PlatformAddress implements Comparable {
      */
     public static final PlatformAddress INVALID = new PlatformAddress(UNKNOWN, UNKNOWN);
 
-    public static final IMemorySpy memorySpy = new RuntimeMemorySpy();
+    public static final RuntimeMemorySpy memorySpy = new RuntimeMemorySpy();
 
     final int osaddr;
 

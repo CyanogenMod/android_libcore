@@ -27,49 +27,14 @@ import java.nio.channels.FileChannel.MapMode;
 
 /**
  * This class enables direct access to OS memory.
- * <p>
- * Methods that take OS addresses define such parameters as a Java
- * <code>int</code>. The <code>int</code> value is interpreted based on
- * the underlying platform pointer size, such that only the lowest significant
- * <code>POINTER_SIZE</code> bytes of the <code>long</code> value are used.
- * In practice this means that methods on 64-bit platforms use the full eight
- * bytes of the address parameter, and on 32-bit platforms the same methods are
- * truncated to use only the low four bytes.
- * </p>
- * <p>
- * Methods that return OS addresses define the return type to be a Java
- * <code>long</code>. If the platform pointer size is less than eight bytes
- * the OS address value is zero-extended to an eight-byte int to correspond to
- * the subsequent interpretation of that jlong as an OS address as defined
- * above.
- * </p>
  */
 final class OSMemory {
-
-    /**
-     * Defines the size, in bytes, of a native pointer type for the underlying
-     * platform. This will be 4 (for 32-bit machines) or 8 (for 64-bit
-     * machines).
-     */
-    public static final int POINTER_SIZE = getPointerSizeImpl();
-
     /**
      * Defines the natural byte order for this machine.
      */
     public static final ByteOrder NATIVE_ORDER = ByteOrder.nativeOrder();
 
     private OSMemory() {
-    }
-
-    /**
-     * Returns the size of a native pointer type for the underlying platform.
-     *
-     * @return the size of a pointer, in bytes.
-     */
-    private static native int getPointerSizeImpl();
-
-    public static int getPointerSize() {
-        return POINTER_SIZE;
     }
 
     /**
@@ -526,40 +491,10 @@ final class OSMemory {
         }
     }
 
-    /**
-     * Gets the value of the platform pointer at the given address.
-     * <p>
-     * The length of the platform pointer is defined by
-     * <code>POINTER_SIZE</code>.
-     * </p>
-     * The behavior is unspecified if
-     * <code>(address ... address + POINTER_SIZE)</code> is not wholly within
-     * the range that was previously allocated using <code>malloc()</code>.
-     * </p>
-     *
-     * @param address
-     *            the platform address of the start of the platform pointer.
-     * @return the value of the platform pointer as a Java <code>int</code>.
-     */
+    // "get uintptr_t"
     public static native int getAddress(int address);
 
-    /**
-     * Sets the value of the platform pointer at the given address.
-     * <p>
-     * The length of the platform pointer is defined by
-     * <code>POINTER_SIZE</code>. This method only sets
-     * <code>POINTER_SIZE</code> bytes at the given address.
-     * </p>
-     * The behavior is unspecified if
-     * <code>(address ... address + POINTER_SIZE)</code> is not wholly within
-     * the range that was previously allocated using <code>malloc()</code>.
-     * </p>
-     *
-     * @param address
-     *            the platform address of the start of the platform pointer.
-     * @param value
-     *            the value of the platform pointer as a Java <code>int</code>.
-     */
+    // "put uintptr_t"
     public static native void setAddress(int address, int value);
 
     private static native int mmapImpl(int fd, long offset, long size, int mapMode);
