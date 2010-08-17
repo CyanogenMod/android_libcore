@@ -504,7 +504,7 @@ public:
      * Returns true if this expat name has the same qualified name.
      */
     bool matchesQName(const char* qName) {
-        char* lastColon = strrchr(qName, ':');
+        const char* lastColon = strrchr(qName, ':');
 
         // Compare local names only if either:
         //  - the input qualified name doesn't have a colon (like "h1")
