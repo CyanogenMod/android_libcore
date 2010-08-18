@@ -16,22 +16,18 @@
 
 #define LOG_TAG "StrictMath"
 
-#include "jni.h"
-#include "JNIHelp.h"
-
-#include <stdlib.h>
-/* This static way is the "best" way to integrate fdlibm without a conflict
- * into the android environment.
- */
-
-#if defined(__P)
-#undef __P
-#endif /* defined(__P) */
-
+// We include this header file first, because it's unhygienic when it comes to checking whether
+// things are already #defined. It's also missing the 'extern "C"', and leaves a bunch of stuff.
 extern "C" {
 #include "../../external/fdlibm/fdlibm.h"
 }
-_LIB_VERSION_TYPE _LIB_VERSION = _IEEE_;
+// fdlibm.h #defines __P. glibc uses #undef itself to supply its own definition, but bionic
+// assumes no-one's been polluting the namespace.
+#undef __P
+
+#include "jni.h"
+#include "JNIHelp.h"
+#include "JniConstants.h"
 
 static jdouble StrictMath_sin(JNIEnv*, jclass, jdouble a) {
     return ieee_sin(a);
