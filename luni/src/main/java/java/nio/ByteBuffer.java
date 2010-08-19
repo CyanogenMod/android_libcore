@@ -17,8 +17,6 @@
 
 package java.nio;
 
-import org.apache.harmony.luni.platform.Endianness;
-
 /**
  * A buffer for bytes.
  * <p>
@@ -33,8 +31,7 @@ import org.apache.harmony.luni.platform.Endianness;
  * </ul>
  *
  */
-public abstract class ByteBuffer extends Buffer implements
-        Comparable<ByteBuffer> {
+public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer> {
 
     /**
      * Creates a byte buffer based on a newly allocated byte array.
@@ -116,7 +113,7 @@ public abstract class ByteBuffer extends Buffer implements
     /**
      * The byte order of this buffer, default is {@code BIG_ENDIAN}.
      */
-    Endianness order = Endianness.BIG_ENDIAN;
+    ByteOrder order = ByteOrder.BIG_ENDIAN;
 
     /**
      * Constructs a {@code ByteBuffer} with given capacity.
@@ -649,8 +646,7 @@ public abstract class ByteBuffer extends Buffer implements
      *         other primitive types.
      */
     public final ByteOrder order() {
-        return order == Endianness.BIG_ENDIAN ? ByteOrder.BIG_ENDIAN
-                : ByteOrder.LITTLE_ENDIAN;
+        return order;
     }
 
     /**
@@ -667,8 +663,10 @@ public abstract class ByteBuffer extends Buffer implements
     }
 
     ByteBuffer orderImpl(ByteOrder byteOrder) {
-        order = byteOrder == ByteOrder.BIG_ENDIAN ? Endianness.BIG_ENDIAN
-                : Endianness.LITTLE_ENDIAN;
+        if (byteOrder == null) {
+            byteOrder = ByteOrder.LITTLE_ENDIAN;
+        }
+        order = byteOrder;
         return this;
     }
 

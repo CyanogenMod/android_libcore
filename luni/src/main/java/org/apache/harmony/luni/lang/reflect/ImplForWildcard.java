@@ -16,9 +16,9 @@
 
 package org.apache.harmony.luni.lang.reflect;
 
-import java.lang.reflect.WildcardType;
-import java.lang.reflect.Type;
 import java.lang.reflect.MalformedParameterizedTypeException;
+import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 
 public final class ImplForWildcard implements WildcardType {

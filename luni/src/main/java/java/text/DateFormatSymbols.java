@@ -17,8 +17,8 @@
 
 package java.text;
 
-import com.ibm.icu4jni.util.LocaleData;
 import com.ibm.icu4jni.util.ICU;
+import com.ibm.icu4jni.util.LocaleData;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

@@ -35,7 +35,6 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.apache.harmony.kernel.vm.VM;
 import org.apache.harmony.luni.util.PriviAction;
 
 /**
@@ -1236,35 +1235,35 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                     // BEGIN android-changed
                     switch (fieldDesc.getTypeCode()) {
                         case 'B':
-                            setField(obj, declaringClass, fieldDesc.getName(),
+                            setFieldByte(obj, declaringClass, fieldDesc.getName(),
                                     input.readByte());
                             break;
                         case 'C':
-                            setField(obj, declaringClass, fieldDesc.getName(),
+                            setFieldChar(obj, declaringClass, fieldDesc.getName(),
                                     input.readChar());
                             break;
                         case 'D':
-                            setField(obj, declaringClass, fieldDesc.getName(),
+                            setFieldDouble(obj, declaringClass, fieldDesc.getName(),
                                     input.readDouble());
                             break;
                         case 'F':
-                            setField(obj, declaringClass, fieldDesc.getName(),
+                            setFieldFloat(obj, declaringClass, fieldDesc.getName(),
                                     input.readFloat());
                             break;
                         case 'I':
-                            setField(obj, declaringClass, fieldDesc.getName(),
+                            setFieldInt(obj, declaringClass, fieldDesc.getName(),
                                     input.readInt());
                             break;
                         case 'J':
-                            setField(obj, declaringClass, fieldDesc.getName(),
+                            setFieldLong(obj, declaringClass, fieldDesc.getName(),
                                     input.readLong());
                             break;
                         case 'S':
-                            setField(obj, declaringClass, fieldDesc.getName(),
+                            setFieldShort(obj, declaringClass, fieldDesc.getName(),
                                     input.readShort());
                             break;
                         case 'Z':
-                            setField(obj, declaringClass, fieldDesc.getName(),
+                            setFieldBool(obj, declaringClass, fieldDesc.getName(),
                                     input.readBoolean());
                             break;
                         default:
@@ -1310,8 +1309,8 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
                         }
                         try {
                             // BEGIN android-changed
-                            objSetField(obj, declaringClass, fieldName, field
-                                    .getTypeString(), toSet);
+                            setFieldObject(obj, declaringClass, fieldName, field.getTypeString(),
+                                    toSet);
                             // END android-changed
                         } catch (NoSuchFieldError e) {
                             // Ignored
@@ -2603,41 +2602,41 @@ public class ObjectInputStream extends InputStream implements ObjectInput,
      *
      * @throws NoSuchFieldError If the field does not exist.
      */
-    private static native void setField(Object instance,
+    private static native void setFieldByte(Object instance,
             Class<?> declaringClass, String fieldName, byte value)
             throws NoSuchFieldError;
 
 
-    private static native void setField(Object instance,
+    private static native void setFieldChar(Object instance,
             Class<?> declaringClass, String fieldName, char value)
             throws NoSuchFieldError;
 
 
-    private static native void setField(Object instance,
+    private static native void setFieldDouble(Object instance,
             Class<?> declaringClass, String fieldName, double value)
             throws NoSuchFieldError;
 
-    private static native void setField(Object instance,
+    private static native void setFieldFloat(Object instance,
             Class<?> declaringClass, String fieldName, float value)
             throws NoSuchFieldError;
 
-    private static native void setField(Object instance,
+    private static native void setFieldInt(Object instance,
             Class<?> declaringClass, String fieldName, int value)
             throws NoSuchFieldError;
 
-    private static native void setField(Object instance,
+    private static native void setFieldLong(Object instance,
             Class<?> declaringClass, String fieldName, long value)
             throws NoSuchFieldError;
 
-    private static native void objSetField(Object instance,
+    private static native void setFieldObject(Object instance,
             Class<?> declaringClass, String fieldName, String fieldTypeName,
             Object value) throws NoSuchFieldError;
 
-    private static native void setField(Object instance,
+    private static native void setFieldShort(Object instance,
             Class<?> declaringClass, String fieldName, short value)
             throws NoSuchFieldError;
 
-    private static native void setField(Object instance,
+    private static native void setFieldBool(Object instance,
             Class<?> declaringClass, String fieldName, boolean value)
             throws NoSuchFieldError;
 

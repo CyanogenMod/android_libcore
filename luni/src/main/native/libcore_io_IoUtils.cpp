@@ -53,23 +53,22 @@ static void IoUtils_setFd(JNIEnv* env, jclass, jobject fileDescriptor, jint newV
     return jniSetFileDescriptorOfFD(env, fileDescriptor, newValue);
 }
 
-static void IoUtils_setNonBlocking(JNIEnv* env, jclass, jobject fileDescriptor,
-        jboolean nonBlocking) {
+static void IoUtils_setBlocking(JNIEnv* env, jclass, jobject fileDescriptor, jboolean blocking) {
     int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
     if (fd == -1) {
         return;
     }
-    if (!setNonBlocking(fd, nonBlocking)) {
+    if (!setBlocking(fd, blocking)) {
         jniThrowIOException(env, errno);
     }
 }
 
 static JNINativeMethod gMethods[] = {
-    { "close", "(Ljava/io/FileDescriptor;)V", (void*) IoUtils_close },
-    { "getFd", "(Ljava/io/FileDescriptor;)I", (void*) IoUtils_getFd },
-    { "pipe", "([I)V", (void*) IoUtils_pipe },
-    { "setFd", "(Ljava/io/FileDescriptor;I)V", (void*) IoUtils_setFd },
-    { "setNonBlocking", "(Ljava/io/FileDescriptor;Z)V", (void*) IoUtils_setNonBlocking },
+    NATIVE_METHOD(IoUtils, close, "(Ljava/io/FileDescriptor;)V"),
+    NATIVE_METHOD(IoUtils, getFd, "(Ljava/io/FileDescriptor;)I"),
+    NATIVE_METHOD(IoUtils, pipe, "([I)V"),
+    NATIVE_METHOD(IoUtils, setFd, "(Ljava/io/FileDescriptor;I)V"),
+    NATIVE_METHOD(IoUtils, setBlocking, "(Ljava/io/FileDescriptor;Z)V"),
 };
 int register_libcore_io_IoUtils(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/io/IoUtils", gMethods, NELEM(gMethods));

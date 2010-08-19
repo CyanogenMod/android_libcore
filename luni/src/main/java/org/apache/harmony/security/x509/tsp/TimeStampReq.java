@@ -20,7 +20,6 @@
 package org.apache.harmony.security.x509.tsp;
 
 import java.math.BigInteger;
-
 import org.apache.harmony.security.asn1.ASN1Boolean;
 import org.apache.harmony.security.asn1.ASN1Implicit;
 import org.apache.harmony.security.asn1.ASN1Integer;

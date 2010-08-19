@@ -33,7 +33,6 @@
 package java.lang;
 
 import dalvik.system.VMStack;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.net.URL;

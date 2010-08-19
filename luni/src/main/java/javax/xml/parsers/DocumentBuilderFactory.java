@@ -19,9 +19,8 @@
 
 package javax.xml.parsers;
 
-import org.apache.harmony.xml.parsers.DocumentBuilderFactoryImpl;
-
 import javax.xml.validation.Schema;
+import org.apache.harmony.xml.parsers.DocumentBuilderFactoryImpl;
 
 /**
  * Defines a factory API that enables applications to obtain a

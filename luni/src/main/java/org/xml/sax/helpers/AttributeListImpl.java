@@ -5,9 +5,8 @@
 
 package org.xml.sax.helpers;
 
-import org.xml.sax.AttributeList;
-
 import java.util.Vector;
+import org.xml.sax.AttributeList;
 
 
 /**

@@ -17,8 +17,6 @@
 
 package java.lang;
 
-import java.util.Random;
-
 /**
  * Class StrictMath provides basic math constants and operations such as
  * trigonometric functions, hyperbolic functions, exponential, logarithms, etc.

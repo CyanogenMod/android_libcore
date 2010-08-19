@@ -23,7 +23,6 @@
 package org.apache.harmony.security.x509;
 
 import java.util.Arrays;
-
 import org.apache.harmony.security.asn1.ASN1Any;
 import org.apache.harmony.security.asn1.ASN1Oid;
 import org.apache.harmony.security.asn1.ASN1Sequence;

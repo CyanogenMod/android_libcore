@@ -16,8 +16,6 @@
 
 package libcore.icu;
 
-import java.util.Locale;
-
 public class TimeZonesTest extends junit.framework.TestCase {
     public void test_getZoneStrings() throws Exception {
         // Check that corrupting our array doesn't affect other callers.

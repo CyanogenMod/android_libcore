@@ -40,7 +40,6 @@ import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.harmony.luni.net.NetUtil;
 
 public class FtpURLConnection extends URLConnection {
 
@@ -173,7 +172,10 @@ public class FtpURLConnection extends URLConnection {
             proxyList = new ArrayList<Proxy>(1);
             proxyList.add(proxy);
         } else {
-            proxyList = NetUtil.getProxyList(uri);
+            ProxySelector selector = ProxySelector.getDefault();
+            if (selector != null) {
+                proxyList = selector.select(uri);
+            }
         }
         if (null == proxyList) {
             currentProxy = null;

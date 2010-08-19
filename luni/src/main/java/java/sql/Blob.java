@@ -17,8 +17,8 @@
 
 package java.sql;
 
-import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * A Java interface representing the SQL {@code BLOB} type.

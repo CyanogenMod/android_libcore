@@ -18,9 +18,9 @@
 package org.apache.harmony.luni.net;
 
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.net.SocketException;
-
-import org.apache.harmony.luni.net.NetUtil;
+import java.net.SocketOptions;
 import org.apache.harmony.luni.net.PlainSocketImpl;
 
 /**
@@ -36,12 +36,10 @@ public class PlainServerSocketImpl extends PlainSocketImpl {
     }
 
     @Override
-    protected void create(boolean isStreaming) throws SocketException {
-        streaming = isStreaming;
+    protected void create(boolean isStreaming) throws IOException {
+        super.create(isStreaming);
         if (isStreaming) {
-            netImpl.createServerStreamSocket(fd);
-        } else {
-            netImpl.createDatagramSocket(fd);
+            setOption(SocketOptions.SO_REUSEADDR, Boolean.TRUE);
         }
     }
 }

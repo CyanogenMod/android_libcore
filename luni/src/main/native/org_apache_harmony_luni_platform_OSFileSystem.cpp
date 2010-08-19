@@ -31,6 +31,7 @@
 #define SHARED_LOCK_TYPE 1L
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "LocalArray.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
@@ -61,7 +62,7 @@
  */
 #include <sys/socket.h>
 #include <sys/types.h>
-static inline ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count) {
+static inline ssize_t sendfile(int out_fd, int in_fd, off_t* offset, size_t count) {
     off_t len = count;
     int result = sendfile(in_fd, out_fd, *offset, &len, NULL, 0);
     if (result < 0) {
@@ -267,72 +268,56 @@ static jlong OSFileSystem_transfer(JNIEnv* env, jobject, jint fd, jobject sd,
 }
 
 static jlong OSFileSystem_readDirect(JNIEnv* env, jobject, jint fd,
-        jint buf, jint offset, jint nbytes) {
-    if (nbytes == 0) {
+        jint buf, jint offset, jint byteCount) {
+    if (byteCount == 0) {
         return 0;
     }
-
     jbyte* dst = reinterpret_cast<jbyte*>(buf + offset);
-    jlong rc = TEMP_FAILURE_RETRY(read(fd, dst, nbytes));
+    jlong rc = TEMP_FAILURE_RETRY(read(fd, dst, byteCount));
     if (rc == 0) {
         return -1;
     }
     if (rc == -1) {
-        jniThrowIOException(env, errno);
-    }
-    return rc;
-}
-
-static jlong OSFileSystem_writeDirect(JNIEnv* env, jobject, jint fd,
-        jint buf, jint offset, jint nbytes) {
-    jbyte* src = reinterpret_cast<jbyte*>(buf + offset);
-    jlong rc = TEMP_FAILURE_RETRY(write(fd, src, nbytes));
-    if (rc == -1) {
+        // We return 0 rather than throw if we try to read from an empty non-blocking pipe.
+        if (errno == EAGAIN) {
+            return 0;
+        }
         jniThrowIOException(env, errno);
     }
     return rc;
 }
 
 static jlong OSFileSystem_read(JNIEnv* env, jobject, jint fd,
-        jbyteArray byteArray, jint offset, jint nbytes) {
-    if (nbytes == 0) {
-        return 0;
-    }
-
+        jbyteArray byteArray, jint offset, jint byteCount) {
     ScopedByteArrayRW bytes(env, byteArray);
     if (bytes.get() == NULL) {
         return 0;
     }
-    jlong rc = TEMP_FAILURE_RETRY(read(fd, bytes.get() + offset, nbytes));
-    if (rc == 0) {
-        return -1;
+    jint buf = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get()));
+    return OSFileSystem_readDirect(env, NULL, fd, buf, offset, byteCount);
+}
+
+static jlong OSFileSystem_writeDirect(JNIEnv* env, jobject, jint fd,
+        jint buf, jint offset, jint byteCount) {
+    if (byteCount == 0) {
+        return 0;
     }
+    jbyte* src = reinterpret_cast<jbyte*>(buf + offset);
+    jlong rc = TEMP_FAILURE_RETRY(write(fd, src, byteCount));
     if (rc == -1) {
-        if (errno == EAGAIN) {
-            jniThrowException(env, "java/io/InterruptedIOException", "Read timed out");
-        } else {
-            jniThrowIOException(env, errno);
-        }
+        jniThrowIOException(env, errno);
     }
     return rc;
 }
 
 static jlong OSFileSystem_write(JNIEnv* env, jobject, jint fd,
-        jbyteArray byteArray, jint offset, jint nbytes) {
-
+        jbyteArray byteArray, jint offset, jint byteCount) {
     ScopedByteArrayRO bytes(env, byteArray);
     if (bytes.get() == NULL) {
         return 0;
     }
-    jlong result = TEMP_FAILURE_RETRY(write(fd, bytes.get() + offset, nbytes));
-    if (result == -1) {
-        if (errno == EAGAIN) {
-            jniThrowException(env, "java/io/InterruptedIOException", "Write timed out");
-        } else {
-            jniThrowIOException(env, errno);
-        }
-    }
-    return result;
+    jint buf = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get()));
+    return OSFileSystem_writeDirect(env, NULL, fd, buf, offset, byteCount);
 }
 
 static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint javaWhence) {
@@ -366,8 +351,10 @@ static jlong OSFileSystem_seek(JNIEnv* env, jobject, jint fd, jlong offset, jint
     return result;
 }
 
-static void OSFileSystem_fflush(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
-    LOGW("fdatasync unimplemented on Android"); // http://b/2667481
+static void OSFileSystem_fsync(JNIEnv* env, jobject, jint fd, jboolean metadataToo) {
+    if (!metadataToo) {
+        LOGW("fdatasync(2) unimplemented on Android - doing fsync(2)"); // http://b/2667481
+    }
     int rc = fsync(fd);
     // int rc = metadataToo ? fsync(fd) : fdatasync(fd);
     if (rc == -1) {
@@ -389,29 +376,22 @@ static jint OSFileSystem_truncate(JNIEnv* env, jobject, jint fd, jlong length) {
 
 static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflags) {
     int flags = 0;
-    int mode = 0;
 
-    // On Android, we don't want default permissions to allow global access.
     switch (jflags) {
     case 0:
         flags = HyOpenRead;
-        mode = 0;
         break;
     case 1:
         flags = HyOpenCreate | HyOpenWrite | HyOpenTruncate;
-        mode = 0600;
         break;
     case 16:
         flags = HyOpenRead | HyOpenWrite | HyOpenCreate;
-        mode = 0600;
         break;
     case 32:
         flags = HyOpenRead | HyOpenWrite | HyOpenCreate | HyOpenSync;
-        mode = 0600;
         break;
     case 256:
         flags = HyOpenWrite | HyOpenCreate | HyOpenAppend;
-        mode = 0600;
         break;
     }
 
@@ -421,15 +401,15 @@ static jint OSFileSystem_open(JNIEnv* env, jobject, jstring javaPath, jint jflag
     if (path.c_str() == NULL) {
         return -1;
     }
-    jint rc = TEMP_FAILURE_RETRY(open(path.c_str(), flags, mode));
+    jint rc = TEMP_FAILURE_RETRY(open(path.c_str(), flags,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
     if (rc == -1) {
         // Get the human-readable form of errno.
         char buffer[80];
         const char* reason = jniStrError(errno, &buffer[0], sizeof(buffer));
 
         // Construct a message that includes the path and the reason.
-        // (path.size() already includes space for our trailing NUL.)
-        LocalArray<128> message(path.size() + 2 + strlen(reason) + 1);
+        LocalArray<128> message(path.size() + 2 + strlen(reason) + 1 + 1);
         snprintf(&message[0], message.size(), "%s (%s)", path.c_str(), reason);
 
         // We always throw FileNotFoundException, regardless of the specific
@@ -487,10 +467,10 @@ static jint OSFileSystem_ioctlAvailable(JNIEnv*env, jobject, jobject fileDescrip
         jniThrowIOException(env, errno);
     }
 
-    return (jint) avail;
+    return avail;
 }
 
-static jlong lengthImpl(JNIEnv* env, jobject, jint fd) {
+static jlong OSFileSystem_length(JNIEnv* env, jobject, jint fd) {
     struct stat sb;
     jint rc = TEMP_FAILURE_RETRY(fstat(fd, &sb));
     if (rc == -1) {
@@ -500,22 +480,22 @@ static jlong lengthImpl(JNIEnv* env, jobject, jint fd) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "fflush", "(IZ)V", (void*) OSFileSystem_fflush },
-    { "getAllocGranularity", "()I", (void*) OSFileSystem_getAllocGranularity },
-    { "ioctlAvailable", "(Ljava/io/FileDescriptor;)I", (void*) OSFileSystem_ioctlAvailable },
-    { "length", "(I)J", (void*) lengthImpl },
-    { "lockImpl", "(IJJIZ)I", (void*) OSFileSystem_lockImpl },
-    { "open", "(Ljava/lang/String;I)I", (void*) OSFileSystem_open },
-    { "read", "(I[BII)J", (void*) OSFileSystem_read },
-    { "readDirect", "(IIII)J", (void*) OSFileSystem_readDirect },
-    { "readv", "(I[I[I[II)J", (void*) OSFileSystem_readv },
-    { "seek", "(IJI)J", (void*) OSFileSystem_seek },
-    { "transfer", "(ILjava/io/FileDescriptor;JJ)J", (void*) OSFileSystem_transfer },
-    { "truncate", "(IJ)V", (void*) OSFileSystem_truncate },
-    { "unlockImpl", "(IJJ)V", (void*) OSFileSystem_unlockImpl },
-    { "write", "(I[BII)J", (void*) OSFileSystem_write },
-    { "writeDirect", "(IIII)J", (void*) OSFileSystem_writeDirect },
-    { "writev", "(I[I[I[II)J", (void*) OSFileSystem_writev },
+    NATIVE_METHOD(OSFileSystem, fsync, "(IZ)V"),
+    NATIVE_METHOD(OSFileSystem, getAllocGranularity, "()I"),
+    NATIVE_METHOD(OSFileSystem, ioctlAvailable, "(Ljava/io/FileDescriptor;)I"),
+    NATIVE_METHOD(OSFileSystem, length, "(I)J"),
+    NATIVE_METHOD(OSFileSystem, lockImpl, "(IJJIZ)I"),
+    NATIVE_METHOD(OSFileSystem, open, "(Ljava/lang/String;I)I"),
+    NATIVE_METHOD(OSFileSystem, read, "(I[BII)J"),
+    NATIVE_METHOD(OSFileSystem, readDirect, "(IIII)J"),
+    NATIVE_METHOD(OSFileSystem, readv, "(I[I[I[II)J"),
+    NATIVE_METHOD(OSFileSystem, seek, "(IJI)J"),
+    NATIVE_METHOD(OSFileSystem, transfer, "(ILjava/io/FileDescriptor;JJ)J"),
+    NATIVE_METHOD(OSFileSystem, truncate, "(IJ)V"),
+    NATIVE_METHOD(OSFileSystem, unlockImpl, "(IJJ)V"),
+    NATIVE_METHOD(OSFileSystem, write, "(I[BII)J"),
+    NATIVE_METHOD(OSFileSystem, writeDirect, "(IIII)J"),
+    NATIVE_METHOD(OSFileSystem, writev, "(I[I[I[II)J"),
 };
 int register_org_apache_harmony_luni_platform_OSFileSystem(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/platform/OSFileSystem", gMethods,

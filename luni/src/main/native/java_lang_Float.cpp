@@ -17,6 +17,7 @@
 #define LOG_TAG "Float"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -36,7 +37,7 @@ static jint Float_floatToIntBits(JNIEnv*, jclass, jfloat val) {
     return isnanf(f.f) ? NaN : f.bits;
 }
 
-jint Float_floatToRawBits(JNIEnv*, jclass, jfloat val) {
+jint Float_floatToRawIntBits(JNIEnv*, jclass, jfloat val) {
     Float f;
     f.f = val;
     return f.bits;
@@ -49,9 +50,9 @@ jfloat Float_intBitsToFloat(JNIEnv*, jclass, jint val) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "floatToIntBits",         "(F)I",     (void*)Float_floatToIntBits },
-    { "floatToRawIntBits",      "(F)I",     (void*)Float_floatToRawBits },
-    { "intBitsToFloat",         "(I)F",     (void*)Float_intBitsToFloat },
+    NATIVE_METHOD(Float, floatToIntBits, "(F)I"),
+    NATIVE_METHOD(Float, floatToRawIntBits, "(F)I"),
+    NATIVE_METHOD(Float, intBitsToFloat, "(I)F"),
 };
 int register_java_lang_Float(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/Float", gMethods, NELEM(gMethods));

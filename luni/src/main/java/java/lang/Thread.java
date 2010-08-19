@@ -33,11 +33,9 @@
 package java.lang;
 
 import dalvik.system.VMStack;
-
 import java.security.AccessController;
-import java.util.Map;
 import java.util.HashMap;
-
+import java.util.Map;
 import org.apache.harmony.security.fortress.SecurityUtils;
 
 /**

@@ -16,12 +16,12 @@
 
 package java.util.prefs;
 
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.EventObject;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.NotSerializableException;
-import java.io.IOException;
 
 /**
  * This is the event class to indicate that one child of the preference node has

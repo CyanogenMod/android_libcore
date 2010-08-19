@@ -10,7 +10,6 @@
 
 package com.ibm.icu4jni.text;
 
-import com.ibm.icu4jni.text.RuleBasedCollator;
 import java.util.Locale;
 
 public abstract class Collator implements Cloneable {

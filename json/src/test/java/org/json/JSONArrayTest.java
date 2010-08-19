@@ -16,11 +16,10 @@
 
 package org.json;
 
-import junit.framework.TestCase;
-
 import java.util.Arrays;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * This black box test was written without inspecting the non-free org.json sourcecode.

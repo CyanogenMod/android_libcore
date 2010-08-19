@@ -18,6 +18,7 @@
 #define LOG_TAG "ObjectInputStream"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedUtfChars.h"
 
 #define SETTER(FUNCTION_NAME, JNI_C_TYPE, JNI_TYPE_STRING, JNI_SETTER_FUNCTION) \
@@ -45,7 +46,7 @@ SETTER(ObjectInputStream_setFieldInt,    jint,     "I", SetIntField)
 SETTER(ObjectInputStream_setFieldLong,   jlong,    "J", SetLongField)
 SETTER(ObjectInputStream_setFieldShort,  jshort,   "S", SetShortField)
 
-static void ObjectInputStream_setFieldObj(JNIEnv* env, jclass, jobject instance,
+static void ObjectInputStream_setFieldObject(JNIEnv* env, jclass, jobject instance,
         jclass declaringClass, jstring javaFieldName, jstring javaFieldTypeName, jobject newValue) {
     if (instance == NULL) {
         return;
@@ -74,16 +75,16 @@ static jobject ObjectInputStream_newInstance(JNIEnv* env, jclass,
 }
 
 static JNINativeMethod gMethods[] = {
-    { "newInstance", "(Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;", (void*) ObjectInputStream_newInstance },
-    { "objSetField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", (void*) ObjectInputStream_setFieldObj },
-    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;B)V", (void*) ObjectInputStream_setFieldByte },
-    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;C)V", (void*) ObjectInputStream_setFieldChar },
-    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;D)V", (void*) ObjectInputStream_setFieldDouble },
-    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;F)V", (void*) ObjectInputStream_setFieldFloat },
-    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;I)V", (void*) ObjectInputStream_setFieldInt },
-    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;J)V", (void*) ObjectInputStream_setFieldLong },
-    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;S)V", (void*) ObjectInputStream_setFieldShort },
-    { "setField", "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Z)V", (void*) ObjectInputStream_setFieldBool },
+    NATIVE_METHOD(ObjectInputStream, newInstance, "(Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;"),
+    NATIVE_METHOD(ObjectInputStream, setFieldObject, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"),
+    NATIVE_METHOD(ObjectInputStream, setFieldByte, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;B)V"),
+    NATIVE_METHOD(ObjectInputStream, setFieldChar, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;C)V"),
+    NATIVE_METHOD(ObjectInputStream, setFieldDouble, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;D)V"),
+    NATIVE_METHOD(ObjectInputStream, setFieldFloat, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;F)V"),
+    NATIVE_METHOD(ObjectInputStream, setFieldInt, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;I)V"),
+    NATIVE_METHOD(ObjectInputStream, setFieldLong, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;J)V"),
+    NATIVE_METHOD(ObjectInputStream, setFieldShort, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;S)V"),
+    NATIVE_METHOD(ObjectInputStream, setFieldBool, "(Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;Z)V"),
 };
 int register_java_io_ObjectInputStream(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/ObjectInputStream", gMethods, NELEM(gMethods));

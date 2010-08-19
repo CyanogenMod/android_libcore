@@ -23,7 +23,6 @@
 package org.apache.harmony.security.x509;
 
 import java.util.Date;
-
 import org.apache.harmony.security.asn1.ASN1Sequence;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;

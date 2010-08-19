@@ -22,7 +22,6 @@ import com.ibm.icu4jni.util.LocaleData;
 import java.io.Serializable;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.logging.Logger;
 
 /**
  * This class represents a currency as identified in the ISO 4217 currency

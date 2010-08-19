@@ -19,15 +19,13 @@ package dalvik.system;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.net.MalformedURLException;
-
-import dalvik.system.DexFile;
 
 /**
  * Cloned out of PathClassLoader for TouchDex.  This could be made

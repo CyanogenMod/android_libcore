@@ -131,7 +131,7 @@ public class GenericSignatureParser {
             } else {
                 this.formalTypeParameters = ListOfVariables.empty;
                 this.superclassType = Object.class;
-                this.interfaceTypes = ListOfTypes.empty;
+                this.interfaceTypes = ListOfTypes.EMPTY;
             }
         }
     }
@@ -157,8 +157,8 @@ public class GenericSignatureParser {
                 this.returnType = m.getReturnType();
             } else {
                 this.formalTypeParameters = ListOfVariables.empty;
-                this.parameterTypes = ListOfTypes.empty;
-                this.exceptionTypes = ListOfTypes.empty;
+                this.parameterTypes = ListOfTypes.EMPTY;
+                this.exceptionTypes = ListOfTypes.EMPTY;
                 this.returnType = void.class;
             }
         }
@@ -184,8 +184,8 @@ public class GenericSignatureParser {
                 this.exceptionTypes = new ListOfTypes(c.getExceptionTypes());
             } else {
                 this.formalTypeParameters = ListOfVariables.empty;
-                this.parameterTypes = ListOfTypes.empty;
-                this.exceptionTypes = ListOfTypes.empty;
+                this.parameterTypes = ListOfTypes.EMPTY;
+                this.exceptionTypes = ListOfTypes.EMPTY;
             }
         }
     }

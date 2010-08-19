@@ -22,7 +22,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.util.Enumeration;
-import org.apache.harmony.luni.util.Inet6Util;
 
 /**
  * An IPv6 address. See {@link InetAddress}.
@@ -30,6 +29,8 @@ import org.apache.harmony.luni.util.Inet6Util;
 public final class Inet6Address extends InetAddress {
 
     private static final long serialVersionUID = 6880410070516793377L;
+
+    private static final int AF_INET6 = 10;
 
     static final InetAddress ANY = new Inet6Address(new byte[]
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });

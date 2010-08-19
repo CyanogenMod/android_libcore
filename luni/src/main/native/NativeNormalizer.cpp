@@ -18,6 +18,7 @@
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedJavaUnicodeString.h"
 #include "unicode/normlzr.h"
 
@@ -41,8 +42,8 @@ static jboolean NativeNormalizer_isNormalizedImpl(JNIEnv* env, jclass, jstring s
 }
 
 static JNINativeMethod gMethods[] = {
-    {"normalizeImpl", "(Ljava/lang/String;I)Ljava/lang/String;", (void*) NativeNormalizer_normalizeImpl},
-    {"isNormalizedImpl", "(Ljava/lang/String;I)Z", (void*) NativeNormalizer_isNormalizedImpl},
+    NATIVE_METHOD(NativeNormalizer, normalizeImpl, "(Ljava/lang/String;I)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeNormalizer, isNormalizedImpl, "(Ljava/lang/String;I)Z"),
 };
 int register_libcore_icu_NativeNormalizer(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/icu/NativeNormalizer", gMethods, NELEM(gMethods));

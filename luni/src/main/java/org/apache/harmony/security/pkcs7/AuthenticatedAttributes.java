@@ -22,7 +22,6 @@
 package org.apache.harmony.security.pkcs7;
 
 import java.util.List;
-
 import org.apache.harmony.security.asn1.ASN1SetOf;
 import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.x501.AttributeTypeAndValue;

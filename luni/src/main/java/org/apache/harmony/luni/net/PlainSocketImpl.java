@@ -20,7 +20,6 @@ package org.apache.harmony.luni.net;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.ConnectException;
@@ -30,7 +29,6 @@ import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
-import java.net.SocketOptions;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.security.AccessController;
@@ -53,11 +51,11 @@ public class PlainSocketImpl extends SocketImpl {
 
     protected INetworkSystem netImpl = Platform.getNetworkSystem();
 
-    public boolean streaming = true;
+    private boolean streaming = true;
 
-    public boolean shutdownInput;
+    private boolean shutdownInput;
 
-    Proxy proxy;
+    private Proxy proxy;
 
     public PlainSocketImpl(FileDescriptor fd) {
         this.fd = fd;
@@ -82,7 +80,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected void accept(SocketImpl newImpl) throws IOException {
-        if (NetUtil.usingSocks(proxy)) {
+        if (usingSocks()) {
             ((PlainSocketImpl) newImpl).socksBind();
             ((PlainSocketImpl) newImpl).socksAccept();
             return;
@@ -101,11 +99,13 @@ public class PlainSocketImpl extends SocketImpl {
                 FileDescriptor newFd = (FileDescriptor) fdField.get(newImpl);
                 netImpl.accept(fd, newImpl, newFd);
             }
-        } catch (InterruptedIOException e) {
-            throw new SocketTimeoutException(e.getMessage());
         } catch (IllegalAccessException e) {
             // empty
         }
+    }
+
+    private boolean usingSocks() {
+        return proxy != null && proxy.type() == Proxy.Type.SOCKS;
     }
 
     /**
@@ -198,18 +198,10 @@ public class PlainSocketImpl extends SocketImpl {
     private void connect(InetAddress anAddr, int aPort, int timeout) throws IOException {
         InetAddress normalAddr = anAddr.isAnyLocalAddress() ? InetAddress.getLocalHost() : anAddr;
         try {
-            if (streaming) {
-                if (NetUtil.usingSocks(proxy)) {
-                    socksConnect(anAddr, aPort, 0);
-                } else {
-                    if (timeout == 0) {
-                        netImpl.connect(fd, normalAddr, aPort);
-                    } else {
-                        netImpl.connectStreamWithTimeoutSocket(fd, aPort, timeout, normalAddr);
-                    }
-                }
+            if (streaming && usingSocks()) {
+                socksConnect(anAddr, aPort, 0);
             } else {
-                netImpl.connectDatagram(fd, aPort, normalAddr);
+                netImpl.connect(fd, normalAddr, aPort, timeout);
             }
         } catch (ConnectException e) {
             throw new ConnectException(anAddr + ":" + aPort + " - " + e.getMessage());
@@ -221,11 +213,7 @@ public class PlainSocketImpl extends SocketImpl {
     @Override
     protected void create(boolean streaming) throws IOException {
         this.streaming = streaming;
-        if (streaming) {
-            netImpl.createStreamSocket(fd);
-        } else {
-            netImpl.createDatagramSocket(fd);
-        }
+        netImpl.socket(fd, streaming);
     }
 
     @Override
@@ -252,7 +240,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected void listen(int backlog) throws IOException {
-        if (NetUtil.usingSocks(proxy)) {
+        if (usingSocks()) {
             // Do nothing for a SOCKS connection. The listen occurs on the
             // server during the bind.
             return;
@@ -299,13 +287,7 @@ public class PlainSocketImpl extends SocketImpl {
     private void socksConnect(InetAddress applicationServerAddress,
             int applicationServerPort, int timeout) throws IOException {
         try {
-            if (timeout == 0) {
-                netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort());
-            } else {
-                netImpl.connectStreamWithTimeoutSocket(fd,
-                        socksGetServerPort(), timeout, socksGetServerAddress());
-            }
-
+            netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort(), timeout);
         } catch (Exception e) {
             throw new SocketException("SOCKS connection failed: " + e);
         }
@@ -364,7 +346,7 @@ public class PlainSocketImpl extends SocketImpl {
      */
     private void socksBind() throws IOException {
         try {
-            netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort());
+            netImpl.connect(fd, socksGetServerAddress(), socksGetServerPort(), 0);
         } catch (Exception e) {
             throw new IOException("Unable to connect to SOCKS server: " + e);
         }
@@ -394,10 +376,21 @@ public class PlainSocketImpl extends SocketImpl {
             // currently the Socks4Message.getIP() only returns int,
             // so only works with IPv4 4byte addresses
             byte[] replyBytes = new byte[4];
-            NetUtil.intToBytes(reply.getIP(), replyBytes, 0);
+            intToBytes(reply.getIP(), replyBytes, 0);
             address = InetAddress.getByAddress(replyBytes);
         }
         localport = reply.getPort();
+    }
+
+    private static void intToBytes(int value, byte bytes[], int start) {
+        /*
+         * Shift the int so the current byte is right-most Use a byte mask of
+         * 255 to single out the last byte.
+         */
+        bytes[start] = (byte) ((value >> 24) & 255);
+        bytes[start + 1] = (byte) ((value >> 16) & 255);
+        bytes[start + 2] = (byte) ((value >> 8) & 255);
+        bytes[start + 3] = (byte) (value & 255);
     }
 
     /**

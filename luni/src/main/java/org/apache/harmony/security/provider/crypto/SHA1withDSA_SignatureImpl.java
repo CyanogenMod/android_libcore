@@ -18,23 +18,19 @@
 package org.apache.harmony.security.provider.crypto;
 
 import java.math.BigInteger;
-
+import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
-
-import java.security.InvalidKeyException;
-import java.security.InvalidParameterException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-
-import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAKey;
+import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
-
-import java.security.MessageDigest;
 
 public class SHA1withDSA_SignatureImpl extends Signature {
 

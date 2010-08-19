@@ -5,7 +5,8 @@
  */
 
 package java.util.concurrent;
-import java.util.concurrent.locks.*;
+
+import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 /**
  * A cancellable asynchronous computation.  This class provides a base

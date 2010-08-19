@@ -34,10 +34,6 @@ result EXEC_FAILED
 test tests.api.java.util.ResourceBundleTest#test_getBundleLjava_lang_StringLjava_util_LocaleLjava_lang_ClassLoader
 result EXEC_FAILED
 
-# http://b/1952042 - issues with sockets forgetting their local and remote addresses
-test java.nio.channels.OldServerSocketChannelTest#test_accept_Security
-result EXEC_FAILED
-
 # Fails in CTS but passes under run-core-tests
 test tests.api.java.nio.charset.CharsetProviderTest#testForName_InsufficientPrivilege
 result EXEC_FAILED

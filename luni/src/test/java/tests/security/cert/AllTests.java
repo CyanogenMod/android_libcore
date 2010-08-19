@@ -16,7 +16,6 @@
 
 package tests.security.cert;
 
-import java.security.cert.OldPKIXParametersTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

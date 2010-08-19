@@ -19,8 +19,6 @@ package java.net;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
-
-import org.apache.harmony.luni.net.NetUtil;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -57,8 +55,7 @@ public abstract class DatagramSocketImpl implements SocketOptions {
      *                if an error occurs while binding, for example, if the port
      *                has been already bound.
      */
-    protected abstract void bind(int port, InetAddress addr)
-            throws SocketException;
+    protected abstract void bind(int port, InetAddress addr) throws SocketException;
 
     /**
      * Closes this socket.

@@ -23,8 +23,6 @@ import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.util.Arrays;
-import javax.security.cert.CertificateEncodingException;
-import javax.security.cert.CertificateException;
 
 /**
  * Abstract class to represent identity certificates. It represents a way to

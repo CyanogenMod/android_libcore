@@ -424,7 +424,7 @@ static void CHARSET_ENCODER_CALLBACK(const void* rawContext, UConverterFromUnico
 }
 
 static void encoderReplaceCallback(const void* rawContext,
-        UConverterFromUnicodeArgs *fromArgs, const UChar*, int32_t, UChar32,
+        UConverterFromUnicodeArgs* fromArgs, const UChar*, int32_t, UChar32,
         UConverterCallbackReason, UErrorCode * err) {
     if (rawContext == NULL) {
         return;
@@ -666,25 +666,25 @@ static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring chars
 }
 
 static JNINativeMethod gMethods[] = {
-    { "canEncode", "(JI)Z", (void*) NativeConverter_canEncode },
-    { "charsetForName", "(Ljava/lang/String;)Ljava/nio/charset/Charset;", (void*) NativeConverter_charsetForName },
-    { "closeConverter", "(J)V", (void*) NativeConverter_closeConverter },
-    { "contains", "(Ljava/lang/String;Ljava/lang/String;)Z", (void*) NativeConverter_contains },
-    { "decode", "(J[BI[CI[IZ)I", (void*) NativeConverter_decode },
-    { "encode", "(J[CI[BI[IZ)I", (void*) NativeConverter_encode },
-    { "flushByteToChar", "(J[CI[I)I", (void*) NativeConverter_flushByteToChar },
-    { "flushCharToByte", "(J[BI[I)I", (void*) NativeConverter_flushCharToByte },
-    { "getAvailableCharsetNames", "()[Ljava/lang/String;", (void*) NativeConverter_getAvailableCharsetNames },
-    { "getAveBytesPerChar", "(J)F", (void*) NativeConverter_getAveBytesPerChar },
-    { "getAveCharsPerByte", "(J)F", (void*) NativeConverter_getAveCharsPerByte },
-    { "getMaxBytesPerChar", "(J)I", (void*) NativeConverter_getMaxBytesPerChar },
-    { "getMinBytesPerChar", "(J)I", (void*) NativeConverter_getMinBytesPerChar },
-    { "getSubstitutionBytes", "(J)[B", (void*) NativeConverter_getSubstitutionBytes },
-    { "openConverter", "(Ljava/lang/String;)J", (void*) NativeConverter_openConverter },
-    { "resetByteToChar", "(J)V", (void*) NativeConverter_resetByteToChar },
-    { "resetCharToByte", "(J)V", (void*) NativeConverter_resetCharToByte },
-    { "setCallbackDecode", "(JII[C)I", (void*) NativeConverter_setCallbackDecode },
-    { "setCallbackEncode", "(JII[B)I", (void*) NativeConverter_setCallbackEncode },
+    NATIVE_METHOD(NativeConverter, canEncode, "(JI)Z"),
+    NATIVE_METHOD(NativeConverter, charsetForName, "(Ljava/lang/String;)Ljava/nio/charset/Charset;"),
+    NATIVE_METHOD(NativeConverter, closeConverter, "(J)V"),
+    NATIVE_METHOD(NativeConverter, contains, "(Ljava/lang/String;Ljava/lang/String;)Z"),
+    NATIVE_METHOD(NativeConverter, decode, "(J[BI[CI[IZ)I"),
+    NATIVE_METHOD(NativeConverter, encode, "(J[CI[BI[IZ)I"),
+    NATIVE_METHOD(NativeConverter, flushByteToChar, "(J[CI[I)I"),
+    NATIVE_METHOD(NativeConverter, flushCharToByte, "(J[BI[I)I"),
+    NATIVE_METHOD(NativeConverter, getAvailableCharsetNames, "()[Ljava/lang/String;"),
+    NATIVE_METHOD(NativeConverter, getAveBytesPerChar, "(J)F"),
+    NATIVE_METHOD(NativeConverter, getAveCharsPerByte, "(J)F"),
+    NATIVE_METHOD(NativeConverter, getMaxBytesPerChar, "(J)I"),
+    NATIVE_METHOD(NativeConverter, getMinBytesPerChar, "(J)I"),
+    NATIVE_METHOD(NativeConverter, getSubstitutionBytes, "(J)[B"),
+    NATIVE_METHOD(NativeConverter, openConverter, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(NativeConverter, resetByteToChar, "(J)V"),
+    NATIVE_METHOD(NativeConverter, resetCharToByte, "(J)V"),
+    NATIVE_METHOD(NativeConverter, setCallbackDecode, "(JII[C)I"),
+    NATIVE_METHOD(NativeConverter, setCallbackEncode, "(JII[B)I"),
 };
 int register_com_ibm_icu4jni_converters_NativeConverter(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "com/ibm/icu4jni/charset/NativeConverter",

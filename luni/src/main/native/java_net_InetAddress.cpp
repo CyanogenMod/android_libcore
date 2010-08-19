@@ -186,7 +186,7 @@ static jstring InetAddress_getnameinfo(JNIEnv* env, jclass,
         jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
         env->GetByteArrayRegion(javaAddress, 0, 4, dst);
     } else if (addressLength == 16) {
-        sockaddr_in6 *sin6 = reinterpret_cast<sockaddr_in6*>(&ss);
+        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&ss);
         sin6->sin6_family = AF_INET6;
         socklen = sizeof(sockaddr_in6);
         jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
@@ -326,11 +326,11 @@ static jstring InetAddress_byteArrayToIpString(JNIEnv* env, jobject, jbyteArray 
 }
 
 static JNINativeMethod gMethods[] = {
-    { "byteArrayToIpString", "([B)Ljava/lang/String;", (void*) InetAddress_byteArrayToIpString },
-    { "getaddrinfo", "(Ljava/lang/String;)[[B", (void*) InetAddress_getaddrinfo },
-    { "gethostname", "()Ljava/lang/String;", (void*) InetAddress_gethostname  },
-    { "getnameinfo", "([B)Ljava/lang/String;", (void*) InetAddress_getnameinfo },
-    { "ipStringToByteArray", "(Ljava/lang/String;)[B", (void*) InetAddress_ipStringToByteArray },
+    NATIVE_METHOD(InetAddress, byteArrayToIpString, "([B)Ljava/lang/String;"),
+    NATIVE_METHOD(InetAddress, getaddrinfo, "(Ljava/lang/String;)[[B"),
+    NATIVE_METHOD(InetAddress, gethostname, "()Ljava/lang/String;"),
+    NATIVE_METHOD(InetAddress, getnameinfo, "([B)Ljava/lang/String;"),
+    NATIVE_METHOD(InetAddress, ipStringToByteArray, "(Ljava/lang/String;)[B"),
 };
 int register_java_net_InetAddress(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/net/InetAddress", gMethods, NELEM(gMethods));

@@ -25,7 +25,6 @@ package org.apache.harmony.security.x501;
 import org.apache.harmony.security.asn1.ASN1Choice;
 import org.apache.harmony.security.asn1.ASN1StringType;
 import org.apache.harmony.security.asn1.ASN1Type;
-import org.apache.harmony.security.asn1.BerInputStream;
 
 
 /**

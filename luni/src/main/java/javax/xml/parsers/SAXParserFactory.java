@@ -20,7 +20,6 @@
 package javax.xml.parsers;
 
 import javax.xml.validation.Schema;
-
 import org.apache.harmony.xml.parsers.SAXParserFactoryImpl;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;

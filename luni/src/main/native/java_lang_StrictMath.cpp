@@ -25,6 +25,9 @@ extern "C" {
 // assumes no-one's been polluting the namespace.
 #undef __P
 
+// This controls fdlibm's error behavior. We don't want to take any POSIX/SysV shortcuts.
+_LIB_VERSION_TYPE _LIB_VERSION = _IEEE_;
+
 #include "jni.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
@@ -61,7 +64,7 @@ static jdouble StrictMath_log(JNIEnv*, jclass, jdouble a) {
     return ieee_log(a);
 }
 
-static jdouble StrictMath_sqrt2(JNIEnv*, jclass, jdouble a) {
+static jdouble StrictMath_sqrt(JNIEnv*, jclass, jdouble a) {
     return ieee_sqrt(a);
 }
 
@@ -125,14 +128,14 @@ static jdouble StrictMath_nextafter(JNIEnv*, jclass, jdouble a, jdouble b) {
     return ieee_nextafter(a, b);
 }
 
-extern jint Float_floatToRawBits(JNIEnv*, jclass, jfloat);
+extern jint Float_floatToRawIntBits(JNIEnv*, jclass, jfloat);
 extern jfloat Float_intBitsToFloat(JNIEnv*, jclass, jint val);
 
 // TODO: we should make Float.floatToRawBits and Float.intBitsToFloat intrinsics, and move
 // this kind of code into Java.
 static jfloat StrictMath_nextafterf(JNIEnv*, jclass, jfloat arg1, jfloat arg2) {
-    jint hx = Float_floatToRawBits(NULL, NULL, arg1);
-    jint hy = Float_floatToRawBits(NULL, NULL, arg2);
+    jint hx = Float_floatToRawIntBits(NULL, NULL, arg1);
+    jint hy = Float_floatToRawIntBits(NULL, NULL, arg2);
 
     if (!(hx & 0x7fffffff)) { /* arg1 == 0 */
         return Float_intBitsToFloat(NULL, NULL, (hy & 0x80000000) | 0x1);
@@ -147,31 +150,31 @@ static jfloat StrictMath_nextafterf(JNIEnv*, jclass, jfloat arg1, jfloat arg2) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "IEEEremainder", "(DD)D", (void*)StrictMath_IEEEremainder },
-    { "acos",          "(D)D",  (void*)StrictMath_acos },
-    { "asin",          "(D)D",  (void*)StrictMath_asin },
-    { "atan",          "(D)D",  (void*)StrictMath_atan },
-    { "atan2",         "(DD)D", (void*)StrictMath_atan2 },
-    { "cbrt",          "(D)D",  (void*)StrictMath_cbrt },
-    { "ceil",          "(D)D",  (void*)StrictMath_ceil },
-    { "cos",           "(D)D",  (void*)StrictMath_cos },
-    { "cosh",          "(D)D",  (void*)StrictMath_cosh },
-    { "exp",           "(D)D",  (void*)StrictMath_exp },
-    { "expm1",         "(D)D",  (void*)StrictMath_expm1 },
-    { "floor",         "(D)D",  (void*)StrictMath_floor },
-    { "hypot",         "(DD)D", (void*)StrictMath_hypot },
-    { "log",           "(D)D",  (void*)StrictMath_log },
-    { "log10",         "(D)D",  (void*)StrictMath_log10 },
-    { "log1p",         "(D)D",  (void*)StrictMath_log1p },
-    { "nextafter",     "(DD)D", (void*)StrictMath_nextafter },
-    { "nextafterf",    "(FF)F", (void*)StrictMath_nextafterf },
-    { "pow",           "(DD)D", (void*)StrictMath_pow },
-    { "rint",          "(D)D",  (void*)StrictMath_rint },
-    { "sin",           "(D)D",  (void*)StrictMath_sin },
-    { "sinh",          "(D)D",  (void*)StrictMath_sinh },
-    { "sqrt",          "(D)D",  (void*)StrictMath_sqrt2 },
-    { "tan",           "(D)D",  (void*)StrictMath_tan },
-    { "tanh",          "(D)D",  (void*)StrictMath_tanh },
+    NATIVE_METHOD(StrictMath, IEEEremainder, "(DD)D"),
+    NATIVE_METHOD(StrictMath, acos, "(D)D"),
+    NATIVE_METHOD(StrictMath, asin, "(D)D"),
+    NATIVE_METHOD(StrictMath, atan, "(D)D"),
+    NATIVE_METHOD(StrictMath, atan2, "(DD)D"),
+    NATIVE_METHOD(StrictMath, cbrt, "(D)D"),
+    NATIVE_METHOD(StrictMath, ceil, "(D)D"),
+    NATIVE_METHOD(StrictMath, cos, "(D)D"),
+    NATIVE_METHOD(StrictMath, cosh, "(D)D"),
+    NATIVE_METHOD(StrictMath, exp, "(D)D"),
+    NATIVE_METHOD(StrictMath, expm1, "(D)D"),
+    NATIVE_METHOD(StrictMath, floor, "(D)D"),
+    NATIVE_METHOD(StrictMath, hypot, "(DD)D"),
+    NATIVE_METHOD(StrictMath, log, "(D)D"),
+    NATIVE_METHOD(StrictMath, log10, "(D)D"),
+    NATIVE_METHOD(StrictMath, log1p, "(D)D"),
+    NATIVE_METHOD(StrictMath, nextafter, "(DD)D"),
+    NATIVE_METHOD(StrictMath, nextafterf, "(FF)F"),
+    NATIVE_METHOD(StrictMath, pow, "(DD)D"),
+    NATIVE_METHOD(StrictMath, rint, "(D)D"),
+    NATIVE_METHOD(StrictMath, sin, "(D)D"),
+    NATIVE_METHOD(StrictMath, sinh, "(D)D"),
+    NATIVE_METHOD(StrictMath, sqrt, "(D)D"),
+    NATIVE_METHOD(StrictMath, tan, "(D)D"),
+    NATIVE_METHOD(StrictMath, tanh, "(D)D"),
 };
 
 int register_java_lang_StrictMath(JNIEnv* env) {

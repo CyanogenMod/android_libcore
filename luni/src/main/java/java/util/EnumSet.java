@@ -16,10 +16,9 @@
 package java.util;
 
 // BEGIN android-added
-import org.apache.harmony.kernel.vm.LangAccess;
-// END android-added
 
 import java.io.Serializable;
+import org.apache.harmony.kernel.vm.LangAccess;
 
 /**
  * An EnumSet is a specialized Set to be used with enums as keys.

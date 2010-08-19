@@ -21,8 +21,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import dalvik.annotation.TestTargetNew;
-
 /**
  * Defines an annotation for test classes that allows to link them to the class
  * that is being tested. The current assumption is that the test are somewhat

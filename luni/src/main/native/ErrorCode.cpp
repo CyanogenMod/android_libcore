@@ -18,13 +18,13 @@
 *         creation of the exception to be thrown fails
  * @exception thrown if errorCode represents an error
 */
-UBool icu4jni_error(JNIEnv *env, UErrorCode errorCode)
+UBool icu4jni_error(JNIEnv* env, UErrorCode errorCode)
 {
     const char* message = u_errorName(errorCode);
     if (errorCode <= U_ZERO_ERROR || errorCode >= U_ERROR_LIMIT) {
         return 0;
     }
-    
+
     switch (errorCode) {
     case U_ILLEGAL_ARGUMENT_ERROR:
         return jniThrowException(env, "java/lang/IllegalArgumentException", message);

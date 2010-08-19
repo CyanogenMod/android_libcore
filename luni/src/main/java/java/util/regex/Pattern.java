@@ -19,7 +19,6 @@ package java.util.regex;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * Patterns are compiled regular expressions. In many cases, convenience methods such as

@@ -16,8 +16,8 @@
 
 package org.apache.harmony.luni.platform;
 
-import dalvik.system.VMStack;
 import dalvik.system.BlockGuard;
+import dalvik.system.VMStack;
 
 /**
  * The Platform class gives access to the low-level underlying capabilities of
@@ -33,7 +33,6 @@ import dalvik.system.BlockGuard;
  *
  * @see IFileSystem
  * @see INetworkSystem
- * @see IMemorySystem
  */
 public class Platform {
     // Note: for now, we're always wrapping the filesystem with
@@ -49,8 +48,6 @@ public class Platform {
     // TODO: measure & fix if needed.
     private static final IFileSystem FILE_SYSTEM =
             new BlockGuard.WrappedFileSystem(OSFileSystem.getOSFileSystem());
-
-    private static final IMemorySystem MEMORY_SYSTEM = OSMemory.getOSMemory();
 
     private static final INetworkSystem NETWORK_SYSTEM =
             new BlockGuard.WrappedNetworkSystem(OSNetworkSystem.getOSNetworkSystem());
@@ -68,11 +65,6 @@ public class Platform {
     public static IFileSystem getFileSystem() {
         accessCheck();
         return FILE_SYSTEM;
-    }
-
-    public static IMemorySystem getMemorySystem() {
-        accessCheck();
-        return MEMORY_SYSTEM;
     }
 
     public static INetworkSystem getNetworkSystem() {

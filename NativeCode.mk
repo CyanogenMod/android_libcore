@@ -85,7 +85,7 @@ core_static_libraries := $(sort $(LOCAL_STATIC_LIBRARIES))
 
 include $(CLEAR_VARS)
 
-LOCAL_CFLAGS += -Wall -Wextra
+LOCAL_CFLAGS += -Wall -Wextra -Werror
 
 ifeq ($(TARGET_ARCH),arm)
 # Ignore "note: the mangling of 'va_list' has changed in GCC 4.4"

@@ -21,6 +21,7 @@
 package org.apache.harmony.luni.platform;
 
 import java.io.IOException;
+import java.nio.channels.FileChannel.MapMode;
 
 public class PlatformAddressFactory {
 
@@ -103,37 +104,15 @@ public class PlatformAddressFactory {
         return addr;
     }
 
-    public static PlatformAddress allocMap(int fd, long start, long size, int mode) throws IOException {
+    public static PlatformAddress allocMap(int fd, long start, long size, MapMode mode)
+            throws IOException {
         if (size == 0) {
             // if size is 0, call to mmap has incorrect behaviour on
             // unix and windows, so return empty address
             return mapOn(0, 0);
         }
-        int osAddress = PlatformAddress.osMemory.mmap(fd, start, size, mode);
+        int osAddress = OSMemory.mmap(fd, start, size, mode);
         PlatformAddress newMemory = mapOn(osAddress, size);
-        PlatformAddress.memorySpy.alloc(newMemory);
-        return newMemory;
-    }
-
-    /**
-     * Allocates a contiguous block of OS heap memory.
-     *
-     * @param size The number of bytes to allocate from the system heap.
-     * @return PlatformAddress representing the memory block.
-     */
-    public static PlatformAddress alloc(int size) {
-        int osAddress = PlatformAddress.osMemory.malloc(size);
-        // BEGIN android-changed
-        /*
-         * We use make() and not on() here, for a couple reasons:
-         * First and foremost, doing so means that if the client uses
-         * address.autoFree() (to enable auto-free on gc) the cache
-         * won't prevent the freeing behavior. Second, this avoids
-         * polluting the cache with addresses that aren't likely to be
-         * reused anyway.
-         */
-        PlatformAddress newMemory = make(osAddress, size);
-        // END android-changed
         PlatformAddress.memorySpy.alloc(newMemory);
         return newMemory;
     }
@@ -147,12 +126,17 @@ public class PlatformAddressFactory {
      * @return PlatformAddress representing the memory block.
      */
     public static PlatformAddress alloc(int size, byte init) {
-        int osAddress = PlatformAddress.osMemory.malloc(size);
-        PlatformAddress.osMemory.memset(osAddress, init, size);
-        // BEGIN android-changed
-        // See above for the make() vs. on() rationale.
+        int osAddress = OSMemory.malloc(size);
+        OSMemory.memset(osAddress, init, size);
+        /*
+         * We use make() and not on() here, for a couple reasons:
+         * First and foremost, doing so means that if the client uses
+         * address.autoFree() (to enable auto-free on gc) the cache
+         * won't prevent the freeing behavior. Second, this avoids
+         * polluting the cache with addresses that aren't likely to be
+         * reused anyway.
+         */
         PlatformAddress newMemory = make(osAddress, size);
-        // END android-changed
         PlatformAddress.memorySpy.alloc(newMemory);
         return newMemory;
     }

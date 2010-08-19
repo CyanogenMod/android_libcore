@@ -17,6 +17,7 @@
 #define LOG_TAG "Double"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -50,9 +51,9 @@ static jdouble Double_longBitsToDouble(JNIEnv*, jclass, jlong val) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "doubleToLongBits",       "(D)J",     (void*)Double_doubleToLongBits },
-    { "doubleToRawLongBits",    "(D)J",     (void*)Double_doubleToRawLongBits },
-    { "longBitsToDouble",       "(J)D",     (void*)Double_longBitsToDouble },
+    NATIVE_METHOD(Double, doubleToLongBits, "(D)J"),
+    NATIVE_METHOD(Double, doubleToRawLongBits, "(D)J"),
+    NATIVE_METHOD(Double, longBitsToDouble, "(J)D"),
 };
 int register_java_lang_Double(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/Double", gMethods, NELEM(gMethods));

@@ -26,6 +26,8 @@ public final class Inet4Address extends InetAddress {
 
     private static final long serialVersionUID = 3286316764910316507L;
 
+    private static final int AF_INET = 2;
+
     final static InetAddress ANY = new Inet4Address(new byte[] { 0, 0, 0, 0 });
     final static InetAddress LOOPBACK = new Inet4Address(
             new byte[] { 127, 0, 0, 1 }, "localhost");

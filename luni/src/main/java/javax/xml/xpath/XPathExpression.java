@@ -18,8 +18,8 @@
 
 package javax.xml.xpath;
 
-import org.xml.sax.InputSource;
 import javax.xml.namespace.QName;
+import org.xml.sax.InputSource;
 
 /**
  * <p><code>XPathExpression</code> provides access to compiled XPath expressions.</p>

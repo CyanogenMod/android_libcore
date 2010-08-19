@@ -48,10 +48,10 @@ static jboolean ObjectStreamClass_hasClinit(JNIEnv * env, jclass, jclass targetC
 }
 
 static JNINativeMethod gMethods[] = {
-    { "getConstructorSignature", "(Ljava/lang/reflect/Constructor;)Ljava/lang/String;", (void*) ObjectStreamClass_getConstructorSignature },
-    { "getFieldSignature", "(Ljava/lang/reflect/Field;)Ljava/lang/String;", (void*) ObjectStreamClass_getFieldSignature },
-    { "getMethodSignature", "(Ljava/lang/reflect/Method;)Ljava/lang/String;", (void*) ObjectStreamClass_getMethodSignature },
-    { "hasClinit", "(Ljava/lang/Class;)Z", (void*) ObjectStreamClass_hasClinit },
+    NATIVE_METHOD(ObjectStreamClass, getConstructorSignature, "(Ljava/lang/reflect/Constructor;)Ljava/lang/String;"),
+    NATIVE_METHOD(ObjectStreamClass, getFieldSignature, "(Ljava/lang/reflect/Field;)Ljava/lang/String;"),
+    NATIVE_METHOD(ObjectStreamClass, getMethodSignature, "(Ljava/lang/reflect/Method;)Ljava/lang/String;"),
+    NATIVE_METHOD(ObjectStreamClass, hasClinit, "(Ljava/lang/Class;)Z"),
 };
 int register_java_io_ObjectStreamClass(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/io/ObjectStreamClass", gMethods, NELEM(gMethods));

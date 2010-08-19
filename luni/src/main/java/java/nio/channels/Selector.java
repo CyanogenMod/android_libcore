@@ -36,11 +36,9 @@ import java.util.Set;
 public abstract class Selector {
 
     /**
-     * The factory method for selector. It returns the selector returned by the
-     * default {@link SelectorProvider} by calling its {@code openCollector}
-     * method.
+     * Returns a selector returned by {@link SelectorProvider#provider}'s
+     * {@link SelectorProvider#openSelector} method.
      *
-     * @return a new selector.
      * @throws IOException
      *             if an I/O error occurs.
      */

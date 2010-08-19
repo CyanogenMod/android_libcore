@@ -16,6 +16,10 @@
 
 package org.apache.harmony.xml.dom;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.xml.transform.TransformerException;
 import org.apache.xml.serializer.utils.SystemIDResolver;
 import org.apache.xml.utils.URI;
 import org.w3c.dom.Attr;
@@ -29,11 +33,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.TypeInfo;
 import org.w3c.dom.UserDataHandler;
-
-import javax.xml.transform.TransformerException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A straightforward implementation of the corresponding W3C DOM node.

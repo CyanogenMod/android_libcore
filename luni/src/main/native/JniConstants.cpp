@@ -30,7 +30,7 @@ jclass JniConstants::deflaterClass;
 jclass JniConstants::doubleClass;
 jclass JniConstants::fieldClass;
 jclass JniConstants::fieldPositionIteratorClass;
-jclass JniConstants::genericIPMreqClass;
+jclass JniConstants::multicastGroupRequestClass;
 jclass JniConstants::inetAddressClass;
 jclass JniConstants::inflaterClass;
 jclass JniConstants::integerClass;
@@ -67,7 +67,6 @@ void JniConstants::init(JNIEnv* env) {
     doubleClass = findClass(env, "java/lang/Double");
     fieldClass = findClass(env, "java/lang/reflect/Field");
     fieldPositionIteratorClass = findClass(env, "com/ibm/icu4jni/text/NativeDecimalFormat$FieldPositionIterator");
-    genericIPMreqClass = findClass(env, "org/apache/harmony/luni/net/GenericIPMreq");
     inetAddressClass = findClass(env, "java/net/InetAddress");
     inflaterClass = findClass(env, "java/util/zip/Inflater");
     integerClass = findClass(env, "java/lang/Integer");
@@ -75,6 +74,7 @@ void JniConstants::init(JNIEnv* env) {
     localeDataClass = findClass(env, "com/ibm/icu4jni/util/LocaleData");
     longClass = findClass(env, "java/lang/Long");
     methodClass = findClass(env, "java/lang/reflect/Method");
+    multicastGroupRequestClass = findClass(env, "java/net/MulticastGroupRequest");
     parsePositionClass = findClass(env, "java/text/ParsePosition");
     patternSyntaxExceptionClass = findClass(env, "java/util/regex/PatternSyntaxException");
     socketClass = findClass(env, "java/net/Socket");

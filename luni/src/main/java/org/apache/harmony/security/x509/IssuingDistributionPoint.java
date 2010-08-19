@@ -18,13 +18,12 @@
 package org.apache.harmony.security.x509;
 
 import java.io.IOException;
-
-import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.asn1.ASN1Boolean;
 import org.apache.harmony.security.asn1.ASN1Explicit;
 import org.apache.harmony.security.asn1.ASN1Implicit;
 import org.apache.harmony.security.asn1.ASN1Sequence;
 import org.apache.harmony.security.asn1.ASN1Type;
+import org.apache.harmony.security.asn1.BerInputStream;
 
 /**
  * CRL's Issuing Distribution Point Extension (OID = 2.5.29.28).

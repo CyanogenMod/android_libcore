@@ -23,7 +23,6 @@
 package org.apache.harmony.security.asn1;
 
 import java.util.Arrays;
-
 import org.apache.harmony.security.x501.AttributeType;
 
 

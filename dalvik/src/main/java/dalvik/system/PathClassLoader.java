@@ -19,18 +19,16 @@ package dalvik.system;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.net.MalformedURLException;
-
-import dalvik.system.DexFile;
 
 /**
  * Provides a simple {@link ClassLoader} implementation that operates on a list

@@ -21,10 +21,8 @@ package javax.xml.validation;
 
 import java.io.File;
 import java.net.URL;
-
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;

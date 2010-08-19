@@ -23,7 +23,6 @@ package org.apache.harmony.security.pkcs7;
 
 import java.io.IOException;
 import java.util.Arrays;
-
 import org.apache.harmony.security.asn1.ASN1Any;
 import org.apache.harmony.security.asn1.ASN1Explicit;
 import org.apache.harmony.security.asn1.ASN1OctetString;

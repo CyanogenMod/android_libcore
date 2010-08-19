@@ -1103,7 +1103,11 @@ public final class Math {
      * If you need a determinate sign in such cases, use {@code StrictMath.copySign}.
      * @since 1.6
      */
-    public static native double copySign(double magnitude, double sign);
+    public static double copySign(double magnitude, double sign) {
+        return copysign(magnitude, sign);
+    }
+
+    private static native double copysign(double magnitude, double sign);
 
     /**
      * Returns a float with the given magnitude and the sign of {@code sign}.
@@ -1111,7 +1115,11 @@ public final class Math {
      * If you need a determinate sign in such cases, use {@code StrictMath.copySign}.
      * @since 1.6
      */
-    public static native float copySign(float magnitude, float sign);
+    public static float copySign(float magnitude, float sign) {
+        return copysignf(magnitude, sign);
+    }
+
+    private static native float copysignf(float magnitude, float sign);
 
     /**
      * Returns the exponent of float {@code f}.

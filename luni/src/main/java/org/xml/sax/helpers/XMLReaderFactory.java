@@ -6,11 +6,12 @@
 // $Id: XMLReaderFactory.java,v 1.10 2002/04/22 01:00:13 dbrownell Exp $
 
 package org.xml.sax.helpers;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import org.xml.sax.XMLReader;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 
 /**

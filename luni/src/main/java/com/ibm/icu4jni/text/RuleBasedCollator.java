@@ -10,9 +10,9 @@
 
 package com.ibm.icu4jni.text;
 
-import java.util.Locale;
 import java.text.CharacterIterator;
 import java.text.ParseException;
+import java.util.Locale;
 
 /**
 * Concrete implementation class for Collation.

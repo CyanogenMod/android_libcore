@@ -26,7 +26,6 @@ import java.security.NoSuchProviderException;
 import java.security.PrivilegedAction;
 import java.security.Provider;
 import java.security.Security;
-
 import org.apache.harmony.security.fortress.Engine;
 
 /**

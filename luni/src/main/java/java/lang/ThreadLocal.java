@@ -22,8 +22,8 @@ package java.lang;
  * http://svn.apache.org/viewvc/harmony/enhanced/drlvm/trunk/vm/vmcore/src/kernel_classes/
  */
 
-import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
