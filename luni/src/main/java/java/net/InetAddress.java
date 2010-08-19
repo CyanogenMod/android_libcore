@@ -154,8 +154,6 @@ public class InetAddress implements Serializable {
     private int addrCount;
 
     int family = 0;
-    static final int AF_INET = 2;
-    static final int AF_INET6 = 10;
 
     byte[] ipaddress;
 

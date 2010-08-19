@@ -268,7 +268,7 @@ public class MulticastSocket extends DatagramSocket {
 
         InetAddress groupAddr = ((InetSocketAddress) groupAddress).getAddress();
         if (groupAddr == null) {
-            throw new SocketException("Group address is null: " + groupAddr);
+            throw new SocketException("Group address has no address: " + groupAddress);
         }
 
         if (!groupAddr.isMulticastAddress()) {

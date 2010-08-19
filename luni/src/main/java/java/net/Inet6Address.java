@@ -30,6 +30,8 @@ public final class Inet6Address extends InetAddress {
 
     private static final long serialVersionUID = 6880410070516793377L;
 
+    private static final int AF_INET6 = 10;
+
     static final InetAddress ANY = new Inet6Address(new byte[]
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
     static final InetAddress LOOPBACK = new Inet6Address(new byte[]
