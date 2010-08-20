@@ -19,7 +19,10 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "UniquePtr.h"
+#include "java_lang_Float.h"
+#include "java_lang_Double.h"
 
+#include <byteswap.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,16 +83,16 @@ static void OSMemory_memmove(JNIEnv*, jclass, jint dstAddress, jint srcAddress, 
     memmove(cast<void*>(dstAddress), cast<const void*>(srcAddress), length);
 }
 
-static jbyte OSMemory_getByte(JNIEnv*, jclass, jint srcAddress) {
+static jbyte OSMemory_peekByte(JNIEnv*, jclass, jint srcAddress) {
     return *cast<const jbyte*>(srcAddress);
 }
 
-static void OSMemory_getByteArray(JNIEnv* env, jclass, jint srcAddress,
+static void OSMemory_peekByteArray(JNIEnv* env, jclass, jint srcAddress,
         jbyteArray dst, jint offset, jint length) {
     env->SetByteArrayRegion(dst, offset, length, cast<const jbyte*>(srcAddress));
 }
 
-static void OSMemory_setByte(JNIEnv*, jclass, jint dstAddress, jbyte value) {
+static void OSMemory_pokeByte(JNIEnv*, jclass, jint dstAddress, jbyte value) {
     *cast<jbyte*>(dstAddress) = value;
 }
 
@@ -151,21 +154,27 @@ static void OSMemory_setShortArray(JNIEnv* env, jclass,
     }
 }
 
-static jshort OSMemory_getShort(JNIEnv*, jclass, jint srcAddress) {
+static jshort OSMemory_peekShort(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
+    jshort result;
     if ((srcAddress & 0x1) == 0) {
-        return *cast<const jshort*>(srcAddress);
+        result = *cast<const jshort*>(srcAddress);
     } else {
         // Handle unaligned memory access one byte at a time
-        jshort result;
         const jbyte* src = cast<const jbyte*>(srcAddress);
         jbyte* dst = reinterpret_cast<jbyte*>(&result);
         dst[0] = src[0];
         dst[1] = src[1];
-        return result;
     }
+    if (swap) {
+        result = bswap_16(result);
+    }
+    return result;
 }
 
-static void OSMemory_setShort(JNIEnv*, jclass, jint dstAddress, jshort value) {
+static void OSMemory_pokeShort(JNIEnv*, jclass, jint dstAddress, jshort value, jboolean swap) {
+    if (swap) {
+        value = bswap_16(value);
+    }
     if ((dstAddress & 0x1) == 0) {
         *cast<jshort*>(dstAddress) = value;
     } else {
@@ -177,23 +186,29 @@ static void OSMemory_setShort(JNIEnv*, jclass, jint dstAddress, jshort value) {
     }
 }
 
-static jint OSMemory_getInt(JNIEnv*, jclass, jint srcAddress) {
+static jint OSMemory_peekInt(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
+    jint result;
     if ((srcAddress & 0x3) == 0) {
-        return *cast<const jint*>(srcAddress);
+        result = *cast<const jint*>(srcAddress);
     } else {
         // Handle unaligned memory access one byte at a time
-        jint result;
         const jbyte* src = cast<const jbyte*>(srcAddress);
         jbyte* dst = reinterpret_cast<jbyte*>(&result);
         dst[0] = src[0];
         dst[1] = src[1];
         dst[2] = src[2];
         dst[3] = src[3];
-        return result;
     }
+    if (swap) {
+        result = bswap_32(result);
+    }
+    return result;
 }
 
-static void OSMemory_setInt(JNIEnv*, jclass, jint dstAddress, jint value) {
+static void OSMemory_pokeInt(JNIEnv*, jclass, jint dstAddress, jint value, jboolean swap) {
+    if (swap) {
+        value = bswap_32(value);
+    }
     if ((dstAddress & 0x3) == 0) {
         *cast<jint*>(dstAddress) = value;
     } else {
@@ -229,36 +244,51 @@ template <typename T> static void set(jint dstAddress, T value) {
     }
 }
 
-static jlong OSMemory_getLong(JNIEnv*, jclass, jint srcAddress) {
-    return get<jlong>(srcAddress);
+static jlong OSMemory_peekLong(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
+    jlong result = get<jlong>(srcAddress);
+    if (swap) {
+        result = bswap_64(result);
+    }
+    return result;
 }
 
-static void OSMemory_setLong(JNIEnv*, jclass, jint dstAddress, jlong value) {
+static void OSMemory_pokeLong(JNIEnv*, jclass, jint dstAddress, jlong value, jboolean swap) {
+    if (swap) {
+        value = bswap_64(value);
+    }
     set<jlong>(dstAddress, value);
 }
 
-static jfloat OSMemory_getFloat(JNIEnv*, jclass, jint srcAddress) {
-    return get<jfloat>(srcAddress);
+static jfloat OSMemory_peekFloat(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
+    jfloat result = get<jfloat>(srcAddress);
+    if (swap) {
+        result = Float::intBitsToFloat(bswap_32(Float::floatToRawIntBits(result)));
+    }
+    return result;
 }
 
-static void OSMemory_setFloat(JNIEnv*, jclass, jint dstAddress, jfloat value) {
-    set<jfloat>(dstAddress, value);
+static void OSMemory_pokeFloat(JNIEnv*, jclass, jint dstAddress, jfloat value, jboolean swap) {
+    jint bits = Float::floatToRawIntBits(value);
+    if (swap) {
+        bits = bswap_32(bits);
+    }
+    set<jint>(dstAddress, bits);
 }
 
-static jdouble OSMemory_getDouble(JNIEnv*, jclass, jint srcAddress) {
-    return get<jdouble>(srcAddress);
+static jdouble OSMemory_peekDouble(JNIEnv*, jclass, jint srcAddress, jboolean swap) {
+    jdouble result = get<jdouble>(srcAddress);
+    if (swap) {
+        result = Double::longBitsToDouble(bswap_64(Double::doubleToRawLongBits(result)));
+    }
+    return result;
 }
 
-static void OSMemory_setDouble(JNIEnv*, jclass, jint dstAddress, jdouble value) {
-    set<jdouble>(dstAddress, value);
-}
-
-static jint OSMemory_getAddress(JNIEnv*, jclass, jint srcAddress) {
-    return *cast<const jint*>(srcAddress);
-}
-
-static void OSMemory_setAddress(JNIEnv*, jclass, jint dstAddress, jint value) {
-    *cast<jint*>(dstAddress) = value;
+static void OSMemory_pokeDouble(JNIEnv*, jclass, jint dstAddress, jdouble value, jboolean swap) {
+    jlong bits = Double::doubleToRawLongBits(value);
+    if (swap) {
+        bits = bswap_64(bits);
+    }
+    set<jlong>(dstAddress, bits);
 }
 
 static jint OSMemory_mmapImpl(JNIEnv* env, jclass, jint fd, jlong offset, jlong size, jint mapMode) {
@@ -289,7 +319,7 @@ static jint OSMemory_mmapImpl(JNIEnv* env, jclass, jint fd, jlong offset, jlong 
     return reinterpret_cast<uintptr_t>(mapAddress);
 }
 
-static void OSMemory_unmap(JNIEnv*, jclass, jint address, jlong size) {
+static void OSMemory_munmap(JNIEnv*, jclass, jint address, jlong size) {
     munmap(cast<void*>(address), size);
 }
 
@@ -325,39 +355,37 @@ static jboolean OSMemory_isLoaded(JNIEnv*, jclass, jint address, jlong size) {
     return JNI_TRUE;
 }
 
-static void OSMemory_flush(JNIEnv*, jclass, jint address, jlong size) {
+static void OSMemory_msync(JNIEnv*, jclass, jint address, jlong size) {
     msync(cast<void*>(address), size, MS_SYNC);
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(OSMemory, flush, "(IJ)V"),
     NATIVE_METHOD(OSMemory, free, "(I)V"),
-    NATIVE_METHOD(OSMemory, getAddress, "(I)I"),
-    NATIVE_METHOD(OSMemory, getByte, "(I)B"),
-    NATIVE_METHOD(OSMemory, getByteArray, "(I[BII)V"),
-    NATIVE_METHOD(OSMemory, getDouble, "(I)D"),
-    NATIVE_METHOD(OSMemory, getFloat, "(I)F"),
-    NATIVE_METHOD(OSMemory, getInt, "(I)I"),
-    NATIVE_METHOD(OSMemory, getLong, "(I)J"),
-    NATIVE_METHOD(OSMemory, getShort, "(I)S"),
     NATIVE_METHOD(OSMemory, isLoaded, "(IJ)Z"),
     NATIVE_METHOD(OSMemory, load, "(IJ)V"),
     NATIVE_METHOD(OSMemory, malloc, "(I)I"),
     NATIVE_METHOD(OSMemory, memmove, "(IIJ)V"),
     NATIVE_METHOD(OSMemory, memset, "(IBJ)V"),
     NATIVE_METHOD(OSMemory, mmapImpl, "(IJJI)I"),
-    NATIVE_METHOD(OSMemory, setAddress, "(II)V"),
-    NATIVE_METHOD(OSMemory, setByte, "(IB)V"),
+    NATIVE_METHOD(OSMemory, msync, "(IJ)V"),
+    NATIVE_METHOD(OSMemory, munmap, "(IJ)V"),
+    NATIVE_METHOD(OSMemory, peekByte, "(I)B"),
+    NATIVE_METHOD(OSMemory, peekByteArray, "(I[BII)V"),
+    NATIVE_METHOD(OSMemory, peekDouble, "(IZ)D"),
+    NATIVE_METHOD(OSMemory, peekFloat, "(IZ)F"),
+    NATIVE_METHOD(OSMemory, peekInt, "(IZ)I"),
+    NATIVE_METHOD(OSMemory, peekLong, "(IZ)J"),
+    NATIVE_METHOD(OSMemory, peekShort, "(IZ)S"),
+    NATIVE_METHOD(OSMemory, pokeByte, "(IB)V"),
+    NATIVE_METHOD(OSMemory, pokeDouble, "(IDZ)V"),
+    NATIVE_METHOD(OSMemory, pokeFloat, "(IFZ)V"),
+    NATIVE_METHOD(OSMemory, pokeInt, "(IIZ)V"),
+    NATIVE_METHOD(OSMemory, pokeLong, "(IJZ)V"),
+    NATIVE_METHOD(OSMemory, pokeShort, "(ISZ)V"),
     NATIVE_METHOD(OSMemory, setByteArray, "(I[BII)V"),
-    NATIVE_METHOD(OSMemory, setDouble, "(ID)V"),
-    NATIVE_METHOD(OSMemory, setFloat, "(IF)V"),
     NATIVE_METHOD(OSMemory, setFloatArray, "(I[FIIZ)V"),
-    NATIVE_METHOD(OSMemory, setInt, "(II)V"),
     NATIVE_METHOD(OSMemory, setIntArray, "(I[IIIZ)V"),
-    NATIVE_METHOD(OSMemory, setLong, "(IJ)V"),
-    NATIVE_METHOD(OSMemory, setShort, "(IS)V"),
     NATIVE_METHOD(OSMemory, setShortArray, "(I[SIIZ)V"),
-    NATIVE_METHOD(OSMemory, unmap, "(IJ)V"),
 };
 int register_org_apache_harmony_luni_platform_OSMemory(JNIEnv* env) {
     /*

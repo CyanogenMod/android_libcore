@@ -18,35 +18,25 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "java_lang_Float.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-union Float {
-    unsigned int bits;
-    float f;
-};
-
 static const jint NaN = 0x7fc00000;
 
-static jint Float_floatToIntBits(JNIEnv*, jclass, jfloat val) {
-    Float f;
-    f.f = val;
+static jint Float_floatToIntBits(JNIEnv*, jclass, jfloat floatValue) {
     //  For this method all values in the NaN range are normalized to the canonical NaN value.
-    return isnanf(f.f) ? NaN : f.bits;
+    return isnanf(floatValue) ? NaN : Float::floatToRawIntBits(floatValue);
 }
 
-jint Float_floatToRawIntBits(JNIEnv*, jclass, jfloat val) {
-    Float f;
-    f.f = val;
-    return f.bits;
+static jint Float_floatToRawIntBits(JNIEnv*, jclass, jfloat floatValue) {
+    return Float::floatToRawIntBits(floatValue);
 }
 
-jfloat Float_intBitsToFloat(JNIEnv*, jclass, jint val) {
-    Float f;
-    f.bits = val;
-    return f.f;
+static jfloat Float_intBitsToFloat(JNIEnv*, jclass, jint bits) {
+    return Float::intBitsToFloat(bits);
 }
 
 static JNINativeMethod gMethods[] = {

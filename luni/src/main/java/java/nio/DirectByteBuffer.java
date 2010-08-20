@@ -62,8 +62,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
      * free the memory where possible.
      */
     DirectByteBuffer(int capacity) {
-        this(new SafeAddress(PlatformAddressFactory.alloc(capacity, (byte) 0)),
-                capacity, 0);
+        this(new SafeAddress(PlatformAddressFactory.alloc(capacity, (byte) 0)), capacity, 0);
         safeAddress.address.autoFree();
     }
 
@@ -99,7 +98,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (len > remaining()) {
             throw new BufferUnderflowException();
         }
-        getBaseAddress().getByteArray(offset + position, dst, off, len);
+        getBaseAddress().peekByteArray(offset + position, dst, off, len);
         position += len;
         return this;
     }
@@ -109,7 +108,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (position == limit) {
             throw new BufferUnderflowException();
         }
-        return getBaseAddress().getByte(offset + position++);
+        return getBaseAddress().peekByte(offset + position++);
     }
 
     @Override
@@ -117,7 +116,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (index < 0 || index >= limit) {
             throw new IndexOutOfBoundsException();
         }
-        return getBaseAddress().getByte(offset + index);
+        return getBaseAddress().peekByte(offset + index);
     }
 
     @Override
@@ -126,7 +125,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        double result = getBaseAddress().getDouble(offset + position, order);
+        double result = getBaseAddress().peekDouble(offset + position, order);
         position = newPosition;
         return result;
     }
@@ -136,7 +135,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (index < 0 || (long) index + 8 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return getBaseAddress().getDouble(offset + index, order);
+        return getBaseAddress().peekDouble(offset + index, order);
     }
 
     @Override
@@ -145,7 +144,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        float result = getBaseAddress().getFloat(offset + position, order);
+        float result = getBaseAddress().peekFloat(offset + position, order);
         position = newPosition;
         return result;
     }
@@ -155,7 +154,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (index < 0 || (long) index + 4 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return getBaseAddress().getFloat(offset + index, order);
+        return getBaseAddress().peekFloat(offset + index, order);
     }
 
     @Override
@@ -164,7 +163,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        int result = getBaseAddress().getInt(offset + position, order);
+        int result = getBaseAddress().peekInt(offset + position, order);
         position = newPosition;
         return result;
     }
@@ -174,7 +173,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (index < 0 || (long) index + 4 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return getBaseAddress().getInt(offset + index, order);
+        return getBaseAddress().peekInt(offset + index, order);
     }
 
     @Override
@@ -183,7 +182,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        long result = getBaseAddress().getLong(offset + position, order);
+        long result = getBaseAddress().peekLong(offset + position, order);
         position = newPosition;
         return result;
     }
@@ -193,7 +192,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (index < 0 || (long) index + 8 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return getBaseAddress().getLong(offset + index, order);
+        return getBaseAddress().peekLong(offset + index, order);
     }
 
     @Override
@@ -202,7 +201,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (newPosition > limit) {
             throw new BufferUnderflowException();
         }
-        short result = getBaseAddress().getShort(offset + position, order);
+        short result = getBaseAddress().peekShort(offset + position, order);
         position = newPosition;
         return result;
     }
@@ -212,7 +211,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
         if (index < 0 || (long) index + 2 > limit) {
             throw new IndexOutOfBoundsException();
         }
-        return getBaseAddress().getShort(offset + index, order);
+        return getBaseAddress().peekShort(offset + index, order);
     }
 
     @Override
@@ -273,7 +272,7 @@ abstract class DirectByteBuffer extends BaseByteBuffer implements DirectBuffer {
      * <code>IllegalStateException</code>.
      * <p>
      * Note this is is possible that the memory is freed by code that reaches
-     * into the address and explicitly frees it 'beneith' us -- this is bad
+     * into the address and explicitly frees it 'beneath' us -- this is bad
      * form.
      * </p>
      */

@@ -78,10 +78,6 @@ final class RuntimeMemorySpy {
         return wrapper != null;
     }
 
-    public void rangeCheck(PlatformAddress address, int offset, int length) throws IndexOutOfBoundsException {
-        // Do nothing
-    }
-
     /**
      * Requests that the given address is freed automatically when it becomes
      * garbage. If the address is already freed, or has not been notified as

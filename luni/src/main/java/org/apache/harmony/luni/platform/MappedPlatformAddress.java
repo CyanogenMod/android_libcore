@@ -26,23 +26,20 @@ public class MappedPlatformAddress extends PlatformAddress {
     }
 
     public final void mmapLoad() {
-        memorySpy.rangeCheck(this, 0, (int) size * SIZEOF_JBYTE);
         OSMemory.load(osaddr, size);
     }
 
     public final boolean mmapIsLoaded() {
-        memorySpy.rangeCheck(this, 0, (int) size * SIZEOF_JBYTE);
         return OSMemory.isLoaded(osaddr, size);
     }
 
-    public final void mmapFlush() {
-        memorySpy.rangeCheck(this, 0, (int) size * SIZEOF_JBYTE);
-        OSMemory.flush(osaddr, size);
+    public final void msync() {
+        OSMemory.msync(osaddr, size);
     }
 
     public final void free() {
         if (memorySpy.free(this)){
-            OSMemory.unmap(osaddr, size);
+            OSMemory.munmap(osaddr, size);
         }
     }
 

@@ -19,7 +19,6 @@ package java.nio;
 
 import org.apache.harmony.luni.platform.PlatformAddress;
 import org.apache.harmony.luni.platform.PlatformAddressFactory;
-// END android-added
 
 /**
  * DirectByteBuffer, ReadWriteDirectByteBuffer and ReadOnlyDirectByteBuffer
@@ -133,7 +132,6 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         return this;
     }
 
-    // BEGIN android-added
     /**
      * Writes <code>short</code>s in the given short array, starting from the
      * specified offset, to the current position and increase the position by
@@ -168,8 +166,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        boolean swap = order() != ByteOrder.nativeOrder();
-        getBaseAddress().setShortArray(offset + position, src, off, len, swap);
+        getBaseAddress().setShortArray(offset + position, src, off, len, order.needsSwap);
         position += len << 1;
         return this;
     }
@@ -208,8 +205,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        boolean swap = order() != ByteOrder.nativeOrder();
-        getBaseAddress().setIntArray(offset + position, src, off, len, swap);
+        getBaseAddress().setIntArray(offset + position, src, off, len, order.needsSwap);
         position += len << 2;
         return this;
     }
@@ -248,12 +244,10 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        boolean swap = order() != ByteOrder.nativeOrder();
-        getBaseAddress().setFloatArray(offset + position, src, off, len, swap);
+        getBaseAddress().setFloatArray(offset + position, src, off, len, order.needsSwap);
         position += len << 2;
         return this;
     }
-    // END android-added
 
     @Override
     public ByteBuffer putDouble(double value) {

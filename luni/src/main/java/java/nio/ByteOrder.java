@@ -20,24 +20,40 @@ package java.nio;
  * Defines byte order constants.
  */
 public final class ByteOrder {
+    private static final ByteOrder NATIVE_ORDER;
+
     /**
      * This constant represents big endian.
      */
-    public static final ByteOrder BIG_ENDIAN = new ByteOrder("BIG_ENDIAN");
+    public static final ByteOrder BIG_ENDIAN;
 
     /**
      * This constant represents little endian.
      */
-    public static final ByteOrder LITTLE_ENDIAN = new ByteOrder("LITTLE_ENDIAN");
-
-    private static final ByteOrder NATIVE_ORDER = isLittleEndian() ? LITTLE_ENDIAN : BIG_ENDIAN;
+    public static final ByteOrder LITTLE_ENDIAN;
 
     private static native boolean isLittleEndian();
 
+    static {
+        boolean isLittleEndian = isLittleEndian();
+        BIG_ENDIAN = new ByteOrder("BIG_ENDIAN", isLittleEndian);
+        LITTLE_ENDIAN = new ByteOrder("LITTLE_ENDIAN", !isLittleEndian);
+        NATIVE_ORDER = isLittleEndian ? LITTLE_ENDIAN : BIG_ENDIAN;
+    }
+
     private final String name;
 
-    private ByteOrder(String name) {
+    /**
+     * This is the only thing that ByteOrder is really used for: to know whether we need to swap
+     * bytes to get this order, given bytes in native order. (That is, this is the opposite of
+     * the hypothetical "isNativeOrder".)
+     * @hide internal use only
+     */
+    public final boolean needsSwap;
+
+    private ByteOrder(String name, boolean needsSwap) {
         this.name = name;
+        this.needsSwap = needsSwap;
     }
 
     /**

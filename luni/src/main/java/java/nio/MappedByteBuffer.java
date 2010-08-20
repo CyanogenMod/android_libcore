@@ -94,7 +94,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
      */
     public final MappedByteBuffer force() {
         if (mapMode == MapMode.READ_WRITE) {
-            ((MappedPlatformAddress) ((DirectBuffer) wrapped).getBaseAddress()).mmapFlush();
+            ((MappedPlatformAddress) ((DirectBuffer) wrapped).getBaseAddress()).msync();
         }
         return this;
     }
