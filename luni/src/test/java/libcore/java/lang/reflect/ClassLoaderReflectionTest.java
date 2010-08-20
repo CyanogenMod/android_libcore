@@ -16,22 +16,18 @@
 
 package libcore.java.lang.reflect;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import junit.framework.TestCase;
+import tests.util.ClassLoaderBuilder;
 
 /**
  * This class creates another class loader to load multiple copies of various
@@ -55,7 +51,7 @@ public final class ClassLoaderReflectionTest extends TestCase {
 
     @Override protected void setUp() throws Exception {
         String prefix = ClassLoaderReflectionTest.class.getName();
-        ClassLoader loader = twoCopiesClassLoader(prefix, getClass().getClassLoader());
+        ClassLoader loader = new ClassLoaderBuilder().withPrivateCopy(prefix).build();
         aClass = loader.loadClass(prefix + "$A");
         bClass = loader.loadClass(prefix + "$B");
         cClass = loader.loadClass(prefix + "$C");
@@ -151,68 +147,6 @@ public final class ClassLoaderReflectionTest extends TestCase {
         A field;
     }
     static class BString extends B<String> {}
-
-    /**
-     * Returns a class loader that permits multiple copies of the same class to
-     * be loaded into the same VM at the same time. This loads classes using the
-     * same classpath as the application class loader.
-     *
-     * @param prefix the prefix of classes that can be loaded by both the
-     *     returned class loader and the application class loader.
-     */
-    private ClassLoader twoCopiesClassLoader(final String prefix, ClassLoader parent)
-            throws IOException, InterruptedException {
-
-        /*
-         * To load two copies of a given class in the VM, we end up creating two
-         * new class loaders: a bridge class loader and a leaf class loader.
-         *
-         * The bridge class loader is a child of the application class loader.
-         * It never loads any classes. All it does is decide when to delegate to
-         * the application class loader (which has a copy of everything) and
-         * when to fail.
-         *
-         * The leaf class loader is a child of the bridge class loader. It
-         * uses the same classpath as the application class loader. It loads
-         * anything that its parent failed on.
-         */
-
-        ClassLoader bridge = new ClassLoader(parent) {
-            @Override protected Class<?> loadClass(String className, boolean resolve)
-                    throws ClassNotFoundException {
-                if (className.startsWith(prefix)) {
-                    /* throwing will cause the child class loader to load the class. */
-                    throw new ClassNotFoundException();
-                } else {
-                    return super.loadClass(className, resolve);
-                }
-            }
-        };
-
-        try {
-            // first try to create a PathClassLoader for a dalvik VM...
-            String classPath = System.getProperty("java.class.path");
-            return (ClassLoader) Class.forName("dalvik.system.PathClassLoader")
-                    .getConstructor(String.class, ClassLoader.class)
-                    .newInstance(classPath, bridge);
-        } catch (Exception ignored) {
-        }
-
-        // fall back to a URLClassLoader on a JVM
-        List<URL> classpath = new ArrayList<URL>();
-        classpath.addAll(classpathToUrls("java.class.path"));
-        classpath.addAll(classpathToUrls("sun.boot.class.path"));
-        return new URLClassLoader(classpath.toArray(new URL[classpath.size()]), bridge);
-    }
-
-    private List<URL> classpathToUrls(String propertyName) throws MalformedURLException {
-        String classpath = System.getProperty(propertyName);
-        List<URL> result = new ArrayList<URL>();
-        for (String pathElement : classpath.split(File.pathSeparator)) {
-            result.add(new File(pathElement).toURI().toURL());
-        }
-        return result;
-    }
 
     private void assertParameterizedType(Type actual, Type raw, Type... args) {
         assertTrue(actual.toString(), actual instanceof ParameterizedType);
