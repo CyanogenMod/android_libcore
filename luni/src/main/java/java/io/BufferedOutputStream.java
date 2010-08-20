@@ -17,8 +17,6 @@
 
 package java.io;
 
-import java.util.logging.Logger;
-
 /**
  * Wraps an existing {@link OutputStream} and <em>buffers</em> the output.
  * Expensive interaction with the underlying input stream is minimized, since

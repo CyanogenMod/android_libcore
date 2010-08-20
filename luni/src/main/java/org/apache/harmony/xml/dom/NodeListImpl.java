@@ -16,11 +16,10 @@
 
 package org.apache.harmony.xml.dom;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Provides a straightforward implementation of the corresponding W3C DOM

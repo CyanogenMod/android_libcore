@@ -33,9 +33,7 @@
 package java.lang.reflect;
 
 import dalvik.system.VMStack;
-
 import java.lang.annotation.Annotation;
-
 import java.util.Comparator;
 import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
@@ -103,7 +101,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         if (!genericTypesAreInitialized) {
             String signatureAttribute = getSignatureAttribute();
             GenericSignatureParser parser = new GenericSignatureParser(
-                    VMStack.getCallingClassLoader2());
+                    declaringClass.getClassLoader());
             parser.parseForMethod(this, signatureAttribute, exceptionTypes);
             formalTypeParameters = parser.formalTypeParameters;
             genericParameterTypes = parser.parameterTypes;

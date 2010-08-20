@@ -20,7 +20,6 @@
 package javax.xml.transform.dom;
 
 import javax.xml.transform.Source;
-
 import org.w3c.dom.Node;
 
 /**

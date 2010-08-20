@@ -19,21 +19,17 @@ package org.apache.harmony.luni.net;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MulticastGroupRequest;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketOptions;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.security.AccessController;
 import org.apache.harmony.luni.platform.INetworkSystem;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * The default, concrete instance of datagram sockets. This class does not
@@ -42,13 +38,12 @@ import org.apache.harmony.luni.util.PriviAction;
  */
 public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
+    private static final int MCAST_JOIN_GROUP = 19;
+    private static final int MCAST_LEAVE_GROUP = 20;
+
     private static final int SO_BROADCAST = 32;
 
     static final int TCP_NODELAY = 4;
-
-    final static int IP_MULTICAST_ADD = 19;
-
-    final static int IP_MULTICAST_DROP = 20;
 
     final static int IP_MULTICAST_TTL = 17;
 
@@ -58,9 +53,9 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     private volatile boolean isNativeConnected;
 
-    public boolean streaming = true;
+    private boolean streaming = true;
 
-    public boolean shutdownInput;
+    private boolean shutdownInput;
 
     /**
      * used to keep address to which the socket was connected to at the native
@@ -112,7 +107,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void create() throws SocketException {
-        netImpl.createDatagramSocket(fd);
+        netImpl.socket(fd, false);
     }
 
     @Override
@@ -136,28 +131,27 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void join(InetAddress addr) throws IOException {
-        setOption(IP_MULTICAST_ADD, new GenericIPMreq(addr));
+        setOption(MCAST_JOIN_GROUP, new MulticastGroupRequest(addr, null));
     }
 
     @Override
     public void joinGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IP_MULTICAST_ADD, new GenericIPMreq(groupAddr, netInterface));
+            setOption(MCAST_JOIN_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
         }
     }
 
     @Override
     public void leave(InetAddress addr) throws IOException {
-        setOption(IP_MULTICAST_DROP, new GenericIPMreq(addr));
+        setOption(MCAST_LEAVE_GROUP, new MulticastGroupRequest(addr, null));
     }
 
     @Override
-    public void leaveGroup(SocketAddress addr, NetworkInterface netInterface)
-            throws IOException {
+    public void leaveGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IP_MULTICAST_DROP, new GenericIPMreq(groupAddr, netInterface));
+            setOption(MCAST_LEAVE_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
         }
     }
 
@@ -172,14 +166,10 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     private void doRecv(DatagramPacket pack, boolean peek) throws IOException {
-        try {
-            netImpl.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(), peek,
-                    isNativeConnected);
-            if (isNativeConnected) {
-                updatePacketRecvAddress(pack);
-            }
-        } catch (InterruptedIOException e) {
-            throw new SocketTimeoutException(e.getMessage());
+        netImpl.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(), peek,
+                isNativeConnected);
+        if (isNativeConnected) {
+            updatePacketRecvAddress(pack);
         }
     }
 
@@ -217,9 +207,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void connect(InetAddress inetAddr, int port) throws SocketException {
-
-        // connectDatagram impl2
-        netImpl.connectDatagram(fd, port, inetAddr);
+        netImpl.connect(fd, inetAddr, port, 0);
 
         // if we get here then we are connected at the native level
         try {

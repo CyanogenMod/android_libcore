@@ -16,7 +16,6 @@
 
 package tests.api.java.net;
 
-import java.net.OldURLClassLoaderTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

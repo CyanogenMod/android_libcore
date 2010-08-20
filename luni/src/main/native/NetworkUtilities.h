@@ -33,4 +33,4 @@ jobject socketAddressToInetAddress(JNIEnv* env, sockaddr_storage* ss);
 
 
 // Changes 'fd' to be blocking/non-blocking. Returns false and sets errno on failure.
-bool setNonBlocking(int fd, bool newState);
+bool setBlocking(int fd, bool blocking);

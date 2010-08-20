@@ -23,7 +23,6 @@ import java.security.cert.X509Certificate;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Iterator;
 import java.util.Set;
-
 import org.apache.harmony.security.fortress.Engine;
 
 

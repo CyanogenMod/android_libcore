@@ -18,12 +18,9 @@ package org.apache.harmony.xml.parsers;
 
 import java.util.Collections;
 import java.util.HashMap;
-import org.apache.harmony.xml.ExpatReader;
-
 import java.util.Map;
-
 import javax.xml.parsers.SAXParser;
-
+import org.apache.harmony.xml.ExpatReader;
 import org.xml.sax.Parser;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;

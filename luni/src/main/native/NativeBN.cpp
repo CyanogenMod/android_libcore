@@ -21,6 +21,7 @@
 #define LOG_TAG "NativeBN"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
@@ -38,7 +39,7 @@ struct BN_CTX_Deleter {
 };
 typedef UniquePtr<BN_CTX, BN_CTX_Deleter> Unique_BN_CTX;
 
-static int isValidHandle (JNIEnv* env, void* handle, const char *message) {
+static int isValidHandle (JNIEnv* env, void* handle, const char* message) {
     if (handle == NULL) {
         jniThrowNullPointerException(env, message);
         return JNI_FALSE;
@@ -51,19 +52,19 @@ static int oneValidHandle (JNIEnv* env, void* a)
     return isValidHandle(env, a, "Mandatory handle (first) passed as null");
 }
 
-static int twoValidHandles (JNIEnv* env, void* a, void *b)
+static int twoValidHandles (JNIEnv* env, void* a, void* b)
 {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return isValidHandle(env, b, "Mandatory handle (second) passed as null");
 }
 
-static int threeValidHandles (JNIEnv* env, void* a, void *b, void* c)
+static int threeValidHandles (JNIEnv* env, void* a, void* b, void* c)
 {
     if (!twoValidHandles(env, a, b)) return JNI_FALSE;
     return isValidHandle(env, c, "Mandatory handle (third) passed as null");
 }
 
-static int fourValidHandles (JNIEnv* env, void* a, void *b, void* c, void* d)
+static int fourValidHandles (JNIEnv* env, void* a, void* b, void* c, void* d)
 {
     if (!threeValidHandles(env, a, b, c)) return JNI_FALSE;
     return isValidHandle(env, d, "Mandatory handle (fourth) passed as null");
@@ -422,27 +423,27 @@ static jboolean NativeBN_BN_shift(JNIEnv* env, jclass, BIGNUM* r, BIGNUM* a, int
     return (n >= 0) ? BN_lshift(r, a, n) : BN_rshift(r, a, -n);
 }
 
-static jboolean NativeBN_BN_add_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static jboolean NativeBN_BN_add_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_add_word(a, w);
 }
 
-static jboolean NativeBN_BN_sub_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static jboolean NativeBN_BN_sub_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_sub_word(a, w);
 }
 
-static jboolean NativeBN_BN_mul_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static jboolean NativeBN_BN_mul_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_mul_word(a, w);
 }
 
-static BN_ULONG NativeBN_BN_div_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static BN_ULONG NativeBN_BN_div_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_div_word(a, w);
 }
 
-static BN_ULONG NativeBN_BN_mod_word(JNIEnv* env, jclass, BIGNUM *a, BN_ULONG w) {
+static BN_ULONG NativeBN_BN_mod_word(JNIEnv* env, jclass, BIGNUM* a, BN_ULONG w) {
     if (!oneValidHandle(env, a)) return JNI_FALSE;
     return BN_mod_word(a, w);
 }
@@ -512,46 +513,46 @@ static jboolean NativeBN_BN_is_prime_ex(JNIEnv* env, jclass, BIGNUM* p, int nche
 }
 
 static JNINativeMethod gMethods[] = {
-   { "BN_add", "(III)Z", (void*)NativeBN_BN_add },
-   { "BN_add_word", "(II)Z", (void*)NativeBN_BN_add_word },
-   { "BN_bin2bn", "([BIZI)Z", (void*)NativeBN_BN_bin2bn },
-   { "BN_bn2bin", "(I)[B", (void*)NativeBN_BN_bn2bin },
-   { "BN_bn2dec", "(I)Ljava/lang/String;", (void*)NativeBN_BN_bn2dec },
-   { "BN_bn2hex", "(I)Ljava/lang/String;", (void*)NativeBN_BN_bn2hex },
-   { "BN_cmp", "(II)I", (void*)NativeBN_BN_cmp },
-   { "BN_copy", "(II)Z", (void*)NativeBN_BN_copy },
-   { "BN_dec2bn", "(ILjava/lang/String;)I", (void*)NativeBN_BN_dec2bn },
-   { "BN_div", "(IIII)Z", (void*)NativeBN_BN_div },
-   { "BN_div_word", "(II)I", (void*)NativeBN_BN_div_word },
-   { "BN_exp", "(III)Z", (void*)NativeBN_BN_exp },
-   { "BN_free", "(I)V", (void*)NativeBN_BN_free },
-   { "BN_gcd", "(III)Z", (void*)NativeBN_BN_gcd },
-   { "BN_generate_prime_ex", "(IIZIII)Z", (void*)NativeBN_BN_generate_prime_ex },
-   { "BN_hex2bn", "(ILjava/lang/String;)I", (void*)NativeBN_BN_hex2bn },
-   { "BN_is_bit_set", "(II)Z", (void*)NativeBN_BN_is_bit_set },
-   { "BN_is_prime_ex", "(III)Z", (void*)NativeBN_BN_is_prime_ex },
-   { "BN_mod_exp", "(IIII)Z", (void*)NativeBN_BN_mod_exp },
-   { "BN_mod_inverse", "(III)Z", (void*)NativeBN_BN_mod_inverse },
-   { "BN_mod_word", "(II)I", (void*)NativeBN_BN_mod_word },
-   { "BN_mul", "(III)Z", (void*)NativeBN_BN_mul },
-   { "BN_mul_word", "(II)Z", (void*)NativeBN_BN_mul_word },
-   { "BN_new", "()I", (void*)NativeBN_BN_new },
-   { "BN_nnmod", "(III)Z", (void*)NativeBN_BN_nnmod },
-   { "BN_set_negative", "(II)V", (void*)NativeBN_BN_set_negative },
-   { "BN_shift", "(III)Z", (void*)NativeBN_BN_shift },
-   { "BN_sub", "(III)Z", (void*)NativeBN_BN_sub },
-   { "BN_sub_word", "(II)Z", (void*)NativeBN_BN_sub_word },
-   { "ERR_error_string", "(I)Ljava/lang/String;", (void*)NativeBN_ERR_error_string },
-   { "ERR_get_error", "()I", (void*)NativeBN_ERR_get_error },
-   { "bitLength", "(I)I", (void*)NativeBN_bitLength },
-   { "bn2litEndInts", "(I)[I", (void*)NativeBN_bn2litEndInts },
-   { "litEndInts2bn", "([IIZI)Z", (void*)NativeBN_litEndInts2bn },
-   { "longInt", "(I)J", (void*)NativeBN_longInt },
-   { "modifyBit", "(III)Z", (void*)NativeBN_modifyBit },
-   { "putLongInt", "(IJ)Z", (void*)NativeBN_putLongInt },
-   { "putULongInt", "(IJZ)Z", (void*)NativeBN_putULongInt },
-   { "sign", "(I)I", (void*)NativeBN_sign },
-   { "twosComp2bn", "([BII)Z", (void*)NativeBN_twosComp2bn },
+   NATIVE_METHOD(NativeBN, BN_add, "(III)Z"),
+   NATIVE_METHOD(NativeBN, BN_add_word, "(II)Z"),
+   NATIVE_METHOD(NativeBN, BN_bin2bn, "([BIZI)Z"),
+   NATIVE_METHOD(NativeBN, BN_bn2bin, "(I)[B"),
+   NATIVE_METHOD(NativeBN, BN_bn2dec, "(I)Ljava/lang/String;"),
+   NATIVE_METHOD(NativeBN, BN_bn2hex, "(I)Ljava/lang/String;"),
+   NATIVE_METHOD(NativeBN, BN_cmp, "(II)I"),
+   NATIVE_METHOD(NativeBN, BN_copy, "(II)Z"),
+   NATIVE_METHOD(NativeBN, BN_dec2bn, "(ILjava/lang/String;)I"),
+   NATIVE_METHOD(NativeBN, BN_div, "(IIII)Z"),
+   NATIVE_METHOD(NativeBN, BN_div_word, "(II)I"),
+   NATIVE_METHOD(NativeBN, BN_exp, "(III)Z"),
+   NATIVE_METHOD(NativeBN, BN_free, "(I)V"),
+   NATIVE_METHOD(NativeBN, BN_gcd, "(III)Z"),
+   NATIVE_METHOD(NativeBN, BN_generate_prime_ex, "(IIZIII)Z"),
+   NATIVE_METHOD(NativeBN, BN_hex2bn, "(ILjava/lang/String;)I"),
+   NATIVE_METHOD(NativeBN, BN_is_bit_set, "(II)Z"),
+   NATIVE_METHOD(NativeBN, BN_is_prime_ex, "(III)Z"),
+   NATIVE_METHOD(NativeBN, BN_mod_exp, "(IIII)Z"),
+   NATIVE_METHOD(NativeBN, BN_mod_inverse, "(III)Z"),
+   NATIVE_METHOD(NativeBN, BN_mod_word, "(II)I"),
+   NATIVE_METHOD(NativeBN, BN_mul, "(III)Z"),
+   NATIVE_METHOD(NativeBN, BN_mul_word, "(II)Z"),
+   NATIVE_METHOD(NativeBN, BN_new, "()I"),
+   NATIVE_METHOD(NativeBN, BN_nnmod, "(III)Z"),
+   NATIVE_METHOD(NativeBN, BN_set_negative, "(II)V"),
+   NATIVE_METHOD(NativeBN, BN_shift, "(III)Z"),
+   NATIVE_METHOD(NativeBN, BN_sub, "(III)Z"),
+   NATIVE_METHOD(NativeBN, BN_sub_word, "(II)Z"),
+   NATIVE_METHOD(NativeBN, ERR_error_string, "(I)Ljava/lang/String;"),
+   NATIVE_METHOD(NativeBN, ERR_get_error, "()I"),
+   NATIVE_METHOD(NativeBN, bitLength, "(I)I"),
+   NATIVE_METHOD(NativeBN, bn2litEndInts, "(I)[I"),
+   NATIVE_METHOD(NativeBN, litEndInts2bn, "([IIZI)Z"),
+   NATIVE_METHOD(NativeBN, longInt, "(I)J"),
+   NATIVE_METHOD(NativeBN, modifyBit, "(III)Z"),
+   NATIVE_METHOD(NativeBN, putLongInt, "(IJ)Z"),
+   NATIVE_METHOD(NativeBN, putULongInt, "(IJZ)Z"),
+   NATIVE_METHOD(NativeBN, sign, "(I)I"),
+   NATIVE_METHOD(NativeBN, twosComp2bn, "([BII)Z"),
 };
 int register_java_math_NativeBN(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/math/NativeBN", gMethods, NELEM(gMethods));

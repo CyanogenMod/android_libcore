@@ -17,8 +17,8 @@
 
 package java.security.interfaces;
 
-import java.security.spec.ECPoint;
 import java.security.PublicKey;
+import java.security.spec.ECPoint;
 
 /**
  * The interface for an Elliptic Curve (EC) public key.

@@ -23,7 +23,6 @@
 package org.apache.harmony.security.x501;
 
 import java.io.IOException;
-
 import org.apache.harmony.security.asn1.ASN1StringType;
 import org.apache.harmony.security.asn1.DerInputStream;
 import org.apache.harmony.security.x509.Utils;

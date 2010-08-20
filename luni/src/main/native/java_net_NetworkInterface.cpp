@@ -217,13 +217,13 @@ static jboolean NetworkInterface_supportsMulticastImpl(JNIEnv* env, jclass, jstr
 }
 
 static JNINativeMethod gMethods[] = {
-    { "getAllInterfaceAddressesImpl", "()[Ljava/net/InterfaceAddress;", (void*) NetworkInterface_getAllInterfaceAddressesImpl },
-    { "getHardwareAddressImpl", "(Ljava/lang/String;)[B", (void*) NetworkInterface_getHardwareAddressImpl },
-    { "getMTUImpl", "(Ljava/lang/String;)I", (void*) NetworkInterface_getMTUImpl },
-    { "isLoopbackImpl", "(Ljava/lang/String;)Z", (void*) NetworkInterface_isLoopbackImpl },
-    { "isPointToPointImpl", "(Ljava/lang/String;)Z", (void*) NetworkInterface_isPointToPointImpl },
-    { "isUpImpl", "(Ljava/lang/String;)Z", (void*) NetworkInterface_isUpImpl },
-    { "supportsMulticastImpl", "(Ljava/lang/String;)Z", (void*) NetworkInterface_supportsMulticastImpl },
+    NATIVE_METHOD(NetworkInterface, getAllInterfaceAddressesImpl, "()[Ljava/net/InterfaceAddress;"),
+    NATIVE_METHOD(NetworkInterface, getHardwareAddressImpl, "(Ljava/lang/String;)[B"),
+    NATIVE_METHOD(NetworkInterface, getMTUImpl, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NetworkInterface, isLoopbackImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(NetworkInterface, isPointToPointImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(NetworkInterface, isUpImpl, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(NetworkInterface, supportsMulticastImpl, "(Ljava/lang/String;)Z"),
 };
 int register_java_net_NetworkInterface(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/net/NetworkInterface", gMethods, NELEM(gMethods));

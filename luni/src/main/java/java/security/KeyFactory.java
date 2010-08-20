@@ -19,7 +19,6 @@ package java.security;
 
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
-
 import org.apache.harmony.security.fortress.Engine;
 
 /**

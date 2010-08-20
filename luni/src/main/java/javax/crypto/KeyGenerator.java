@@ -24,7 +24,6 @@ import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.AlgorithmParameterSpec;
-
 import org.apache.harmony.security.fortress.Engine;
 
 

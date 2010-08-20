@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.charset.Charsets;
 import java.util.Arrays;
 import java.util.Map;
-import org.apache.harmony.luni.util.ThreadLocalCache;
 
 /**
  * Reads a JAR file manifest. The specification is here:

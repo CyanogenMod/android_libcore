@@ -24,8 +24,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.SelectorProvider;
 
-import org.apache.harmony.luni.platform.Platform;
-
 /**
  * A {@code DatagramChannel} is a selectable channel that represents a partial
  * abstraction of a datagram socket. The {@code socket} method of this class can

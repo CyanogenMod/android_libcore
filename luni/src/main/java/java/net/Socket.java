@@ -21,11 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
-import java.security.AccessController;
-import org.apache.harmony.luni.net.NetUtil;
 import org.apache.harmony.luni.net.PlainSocketImpl;
 import org.apache.harmony.luni.platform.Platform;
-import org.apache.harmony.luni.util.PriviAction;
 
 /**
  * Provides a client-side TCP socket.
@@ -701,7 +698,7 @@ public class Socket {
             impl.create(streaming);
             isCreated = true;
             try {
-                if (!streaming || !NetUtil.usingSocks(proxy)) {
+                if (!streaming || !usingSocks()) {
                     impl.bind(addr, localPort);
                 }
                 isBound = true;
@@ -713,6 +710,10 @@ public class Socket {
                 throw e;
             }
         }
+    }
+
+    private boolean usingSocks() {
+        return proxy != null && proxy.type() == Proxy.Type.SOCKS;
     }
 
     /**
@@ -974,7 +975,7 @@ public class Socket {
                     // checkOpenAndCreate this caused us to lose socket
                     // options on create
                     // impl.create(true);
-                    if (!NetUtil.usingSocks(proxy)) {
+                    if (!usingSocks()) {
                         impl.bind(Inet4Address.ANY, 0);
                     }
                     isBound = true;

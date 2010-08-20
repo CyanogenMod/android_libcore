@@ -33,12 +33,10 @@
 package java.lang.reflect;
 
 import dalvik.system.VMStack;
-
 import java.lang.annotation.Annotation;
-
+import org.apache.harmony.kernel.vm.StringUtils;
 import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
 import org.apache.harmony.luni.lang.reflect.Types;
-import org.apache.harmony.kernel.vm.StringUtils;
 
 /**
  * This class represents a field. Information about the field can be accessed,
@@ -99,7 +97,7 @@ public final class Field extends AccessibleObject implements Member {
         if (!genericTypesAreInitialized) {
             String signatureAttribute = getSignatureAttribute();
             GenericSignatureParser parser = new GenericSignatureParser(
-                    VMStack.getCallingClassLoader2());
+                    declaringClass.getClassLoader());
             parser.parseForField(this.declaringClass, signatureAttribute);
             genericType = parser.fieldType;
             if (genericType == null) {

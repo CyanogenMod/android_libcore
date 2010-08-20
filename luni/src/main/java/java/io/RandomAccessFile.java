@@ -22,7 +22,6 @@ import java.nio.charset.ModifiedUtf8;
 import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.IFileSystem;
 import org.apache.harmony.luni.platform.Platform;
-
 import org.apache.harmony.nio.FileChannelFactory;
 
 /**

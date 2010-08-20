@@ -18,6 +18,7 @@
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedUtfChars.h"
 #include "unicode/plurrule.h"
 
@@ -55,9 +56,9 @@ static jint NativePluralRules_quantityForIntImpl(JNIEnv*, jclass, jint address, 
 }
 
 static JNINativeMethod gMethods[] = {
-    {"finalizeImpl", "(I)V", (void*) NativePluralRules_finalizeImpl},
-    {"forLocaleImpl", "(Ljava/lang/String;)I", (void*) NativePluralRules_forLocaleImpl},
-    {"quantityForIntImpl", "(II)I", (void*) NativePluralRules_quantityForIntImpl},
+    NATIVE_METHOD(NativePluralRules, finalizeImpl, "(I)V"),
+    NATIVE_METHOD(NativePluralRules, forLocaleImpl, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativePluralRules, quantityForIntImpl, "(II)I"),
 };
 int register_libcore_icu_NativePluralRules(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/icu/NativePluralRules", gMethods, NELEM(gMethods));

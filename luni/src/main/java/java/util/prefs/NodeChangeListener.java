@@ -17,7 +17,6 @@
 package java.util.prefs;
 
 import java.util.EventListener;
-import java.util.prefs.NodeChangeEvent;
 
 /**
  * This interface is used to handle preference node change events. The

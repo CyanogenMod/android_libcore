@@ -17,13 +17,9 @@
 
 package java.security;
 
-import java.util.Iterator;
 import java.util.Random;
-import java.util.Set;
-
 import org.apache.harmony.security.fortress.Engine;
 import org.apache.harmony.security.fortress.Services;
-
 import org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl;
 
 /**

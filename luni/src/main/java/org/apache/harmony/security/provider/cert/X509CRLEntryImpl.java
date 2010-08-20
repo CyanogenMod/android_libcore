@@ -27,9 +27,7 @@ import java.security.cert.CRLException;
 import java.security.cert.X509CRLEntry;
 import java.util.Date;
 import java.util.Set;
-
 import javax.security.auth.x500.X500Principal;
-
 import org.apache.harmony.security.x509.Extension;
 import org.apache.harmony.security.x509.Extensions;
 import org.apache.harmony.security.x509.TBSCertList;

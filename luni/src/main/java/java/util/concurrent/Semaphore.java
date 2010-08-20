@@ -5,9 +5,10 @@
  */
 
 package java.util.concurrent;
-import java.util.*;
-import java.util.concurrent.locks.*;
-import java.util.concurrent.atomic.*;
+
+import java.util.Collection;
+import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.concurrent.locks.Lock;
 
 /**
  * A counting semaphore.  Conceptually, a semaphore maintains a set of

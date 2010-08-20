@@ -29,7 +29,6 @@ import java.security.Permission;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
-
 import org.apache.harmony.security.fortress.PolicyUtils;
 
 /**

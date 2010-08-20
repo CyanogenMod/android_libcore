@@ -18,7 +18,6 @@
 package java.security;
 
 import java.security.spec.AlgorithmParameterSpec;
-
 import org.apache.harmony.security.fortress.Engine;
 
 

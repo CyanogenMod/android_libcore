@@ -15,17 +15,12 @@
 package com.ibm.icu4jni.charset;
 
 import com.ibm.icu4jni.common.ErrorCode;
-// BEGIN android-removed
-// import com.ibm.icu4jni.converters.NativeConverter;
-// END android-removed
-
-
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.nio.ByteBuffer;
 
 public final class CharsetDecoderICU extends CharsetDecoder {
     private static final int MAX_CHARS_PER_BYTE = 2;

@@ -18,11 +18,11 @@
 package java.sql;
 
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.io.Reader;
+import java.math.BigDecimal;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.Map;
-import java.net.URL;
 
 /**
  * An interface for an object which represents a database table entry, returned

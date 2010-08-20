@@ -18,7 +18,6 @@
 package java.io;
 
 import java.security.AccessController;
-import java.util.logging.Logger;
 import org.apache.harmony.luni.util.PriviAction;
 import org.apache.harmony.luni.util.SneakyThrow;
 

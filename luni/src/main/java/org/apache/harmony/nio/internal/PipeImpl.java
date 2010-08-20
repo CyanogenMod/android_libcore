@@ -20,7 +20,6 @@ import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.Pipe;
 import java.nio.channels.spi.SelectorProvider;
 import libcore.io.IoUtils;
@@ -36,6 +35,8 @@ final class PipeImpl extends Pipe {
     public PipeImpl() throws IOException {
         int[] fds = new int[2];
         IoUtils.pipe(fds);
+        // Which fd is used for which channel is important. Unix pipes are only guaranteed to be
+        // unidirectional, and indeed are only unidirectional on Linux. See IoUtils.pipe.
         this.sink = new PipeSinkChannel(fds[1]);
         this.source = new PipeSourceChannel(fds[0]);
     }
@@ -76,7 +77,7 @@ final class PipeImpl extends Pipe {
         }
 
         @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
-            IoUtils.setNonBlocking(getFD(), !blocking);
+            IoUtils.setBlocking(getFD(), blocking);
         }
 
         public int read(ByteBuffer buffer) throws IOException {
@@ -111,7 +112,7 @@ final class PipeImpl extends Pipe {
         }
 
         @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
-            IoUtils.setNonBlocking(getFD(), !blocking);
+            IoUtils.setBlocking(getFD(), blocking);
         }
 
         public int write(ByteBuffer buffer) throws IOException {

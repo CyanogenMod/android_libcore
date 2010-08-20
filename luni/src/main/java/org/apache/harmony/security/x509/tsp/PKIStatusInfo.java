@@ -21,7 +21,6 @@ package org.apache.harmony.security.x509.tsp;
 
 import java.math.BigInteger;
 import java.util.List;
-
 import org.apache.harmony.security.asn1.ASN1BitString;
 import org.apache.harmony.security.asn1.ASN1Integer;
 import org.apache.harmony.security.asn1.ASN1Sequence;

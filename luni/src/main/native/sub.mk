@@ -3,6 +3,7 @@
 # or BUILD_*_LIBRARY.
 
 LOCAL_SRC_FILES := \
+	AsynchronousSocketCloseMonitor.cpp \
 	ErrorCode.cpp \
 	ICU.cpp \
 	JniConstants.cpp \
@@ -21,7 +22,6 @@ LOCAL_SRC_FILES := \
 	Register.cpp \
 	TimeZones.cpp \
 	cbigint.cpp \
-	commonDblParce.cpp \
 	java_io_Console.cpp \
 	java_io_File.cpp \
 	java_io_FileDescriptor.cpp \
@@ -37,6 +37,7 @@ LOCAL_SRC_FILES := \
 	java_lang_System.cpp \
 	java_net_InetAddress.cpp \
 	java_net_NetworkInterface.cpp \
+	java_nio_ByteOrder.cpp \
 	java_nio_charset_Charsets.cpp \
 	java_util_regex_Matcher.cpp \
 	java_util_regex_Pattern.cpp \
@@ -48,11 +49,10 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_luni_platform_OSFileSystem.cpp \
 	org_apache_harmony_luni_platform_OSMemory.cpp \
 	org_apache_harmony_luni_platform_OSNetworkSystem.cpp \
+	org_apache_harmony_luni_util_FloatingPointParser.cpp \
 	org_apache_harmony_luni_util_NumberConvert.cpp \
-	org_apache_harmony_luni_util_fltparse.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
 	valueOf.cpp
-
 
 LOCAL_C_INCLUDES += \
 	external/expat/lib \

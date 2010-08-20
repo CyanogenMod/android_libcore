@@ -138,7 +138,7 @@ static void ProcessManager_watchChildren(JNIEnv* env, jobject o) {
 /** Close all open fds > 2 (i.e. everything but stdin/out/err), != skipFd. */
 static void closeNonStandardFds(int skipFd) {
     // TODO: rather than close all these non-open files, we could look in /proc/self/fd.
-    struct rlimit rlimit;
+    rlimit rlimit;
     getrlimit(RLIMIT_NOFILE, &rlimit);
     const int max_fd = rlimit.rlim_max;
     for (int fd = 3; fd < max_fd; ++fd) {
@@ -385,11 +385,10 @@ static void ProcessManager_staticInitialize(JNIEnv* env,
 }
 
 static JNINativeMethod methods[] = {
-    { "kill",             "(I)V",                        (void*) ProcessManager_kill },
-    { "staticInitialize", "()V",                         (void*) ProcessManager_staticInitialize },
-    { "watchChildren",    "()V",                         (void*) ProcessManager_watchChildren },
-    { "exec",             "([Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Z)I",
-                                                         (void*) ProcessManager_exec },
+    NATIVE_METHOD(ProcessManager, kill, "(I)V"),
+    NATIVE_METHOD(ProcessManager, staticInitialize, "()V"),
+    NATIVE_METHOD(ProcessManager, watchChildren, "()V"),
+    NATIVE_METHOD(ProcessManager, exec, "([Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Z)I"),
 };
 int register_java_lang_ProcessManager(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/lang/ProcessManager", methods, NELEM(methods));

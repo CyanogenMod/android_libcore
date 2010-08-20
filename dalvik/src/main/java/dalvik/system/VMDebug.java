@@ -395,4 +395,11 @@ public final class VMDebug {
      * actually called.
      */
     private static void startClassPrep() {}
+
+    /**
+      * Returns a count of the extant instances of a class.
+     *
+     * @hide
+     */
+    public static native long countInstancesOfClass(Class cls);
 }

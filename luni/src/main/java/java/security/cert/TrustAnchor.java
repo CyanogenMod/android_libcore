@@ -19,9 +19,7 @@ package java.security.cert;
 
 import java.io.IOException;
 import java.security.PublicKey;
-
 import javax.security.auth.x500.X500Principal;
-
 import org.apache.harmony.security.utils.Array;
 import org.apache.harmony.security.x509.NameConstraints;
 

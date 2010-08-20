@@ -32,6 +32,8 @@
 
 package java.lang;
 
+import dalvik.system.PathClassLoader;
+import dalvik.system.VMStack;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -39,11 +41,8 @@ import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.HashMap;
-
-import dalvik.system.PathClassLoader;
-import dalvik.system.VMStack;
+import java.util.Map;
 
 /**
  * Loads classes and resources from a repository. One or more class loaders are

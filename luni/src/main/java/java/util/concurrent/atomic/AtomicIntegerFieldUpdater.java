@@ -5,9 +5,12 @@
  */
 
 package java.util.concurrent.atomic;
+
 import dalvik.system.VMStack;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
 import sun.misc.Unsafe;
-import java.lang.reflect.*;
 
 /**
  * A reflection-based utility that enables atomic updates to

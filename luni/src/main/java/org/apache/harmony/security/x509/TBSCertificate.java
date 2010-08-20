@@ -24,7 +24,6 @@ package org.apache.harmony.security.x509;
 
 import java.math.BigInteger;
 import javax.security.auth.x500.X500Principal;
-
 import org.apache.harmony.security.asn1.ASN1BitString;
 import org.apache.harmony.security.asn1.ASN1Explicit;
 import org.apache.harmony.security.asn1.ASN1Implicit;

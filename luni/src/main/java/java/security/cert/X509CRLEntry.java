@@ -18,9 +18,6 @@
 package java.security.cert;
 
 import java.math.BigInteger;
-import java.security.cert.CRLException;
-import java.security.cert.X509CRLEntry;
-import java.security.cert.X509Extension;
 import java.util.Arrays;
 import java.util.Date;
 import javax.security.auth.x500.X500Principal;

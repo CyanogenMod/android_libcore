@@ -26,8 +26,8 @@ package java.math;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Random;
 import java.io.Serializable;
+import java.util.Random;
 
 /**
  * This class represents immutable integer numbers of arbitrary length. Large

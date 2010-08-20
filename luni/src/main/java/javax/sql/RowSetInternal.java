@@ -17,9 +17,9 @@
 
 package javax.sql;
 
-import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * An interface provided by a {@code RowSet} object to let either a {@code

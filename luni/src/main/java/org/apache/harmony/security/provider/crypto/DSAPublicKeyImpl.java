@@ -30,24 +30,18 @@ package org.apache.harmony.security.provider.crypto;
 
 import java.io.IOException;
 import java.io.NotActiveException;
-
 import java.math.BigInteger;
-
-import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.DSAParams;
-
+import java.security.interfaces.DSAPublicKey;
+import java.security.spec.DSAParameterSpec;
 import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.DSAParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
-
+import org.apache.harmony.security.PublicKeyImpl;
+import org.apache.harmony.security.asn1.ASN1Integer;
 import org.apache.harmony.security.utils.AlgNameMapper;
 import org.apache.harmony.security.x509.AlgorithmIdentifier;
 import org.apache.harmony.security.x509.SubjectPublicKeyInfo;
-
-import org.apache.harmony.security.asn1.ASN1Integer;
-
-import org.apache.harmony.security.PublicKeyImpl;
 
 /**
  * The class provides DSAPublicKey functionality by extending a class implementing PublicKey

@@ -17,6 +17,7 @@
 #define LOG_TAG "NativeBreakIterator"
 
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ErrorCode.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedUtfChars.h"
@@ -122,21 +123,21 @@ static jint NativeBreakIterator_lastImpl(JNIEnv*, jclass, jint address) {
 }
 
 static JNINativeMethod gMethods[] = {
-    { "cloneImpl", "(I)I", (void*) NativeBreakIterator_cloneImpl },
-    { "closeBreakIteratorImpl", "(I)V", (void*) NativeBreakIterator_closeBreakIteratorImpl },
-    { "currentImpl", "(I)I", (void*) NativeBreakIterator_currentImpl },
-    { "firstImpl", "(I)I", (void*) NativeBreakIterator_firstImpl },
-    { "followingImpl", "(II)I", (void*) NativeBreakIterator_followingImpl },
-    { "getCharacterInstanceImpl", "(Ljava/lang/String;)I", (void*) NativeBreakIterator_getCharacterInstanceImpl },
-    { "getLineInstanceImpl", "(Ljava/lang/String;)I", (void*) NativeBreakIterator_getLineInstanceImpl },
-    { "getSentenceInstanceImpl", "(Ljava/lang/String;)I", (void*) NativeBreakIterator_getSentenceInstanceImpl },
-    { "getWordInstanceImpl", "(Ljava/lang/String;)I", (void*) NativeBreakIterator_getWordInstanceImpl },
-    { "isBoundaryImpl", "(II)Z", (void*) NativeBreakIterator_isBoundaryImpl },
-    { "lastImpl", "(I)I", (void*) NativeBreakIterator_lastImpl },
-    { "nextImpl", "(II)I", (void*) NativeBreakIterator_nextImpl },
-    { "precedingImpl", "(II)I", (void*) NativeBreakIterator_precedingImpl },
-    { "previousImpl", "(I)I", (void*) NativeBreakIterator_previousImpl },
-    { "setTextImpl", "(ILjava/lang/String;)V", (void*) NativeBreakIterator_setTextImpl },
+    NATIVE_METHOD(NativeBreakIterator, cloneImpl, "(I)I"),
+    NATIVE_METHOD(NativeBreakIterator, closeBreakIteratorImpl, "(I)V"),
+    NATIVE_METHOD(NativeBreakIterator, currentImpl, "(I)I"),
+    NATIVE_METHOD(NativeBreakIterator, firstImpl, "(I)I"),
+    NATIVE_METHOD(NativeBreakIterator, followingImpl, "(II)I"),
+    NATIVE_METHOD(NativeBreakIterator, getCharacterInstanceImpl, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeBreakIterator, getLineInstanceImpl, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeBreakIterator, getSentenceInstanceImpl, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeBreakIterator, getWordInstanceImpl, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeBreakIterator, isBoundaryImpl, "(II)Z"),
+    NATIVE_METHOD(NativeBreakIterator, lastImpl, "(I)I"),
+    NATIVE_METHOD(NativeBreakIterator, nextImpl, "(II)I"),
+    NATIVE_METHOD(NativeBreakIterator, precedingImpl, "(II)I"),
+    NATIVE_METHOD(NativeBreakIterator, previousImpl, "(I)I"),
+    NATIVE_METHOD(NativeBreakIterator, setTextImpl, "(ILjava/lang/String;)V"),
 };
 int register_com_ibm_icu4jni_text_NativeBreakIterator(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "com/ibm/icu4jni/text/NativeBreakIterator",

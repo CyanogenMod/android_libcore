@@ -19,9 +19,9 @@ package java.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.OptionalDataException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
 import java.io.Serializable;
 import java.net.SocketPermission;
 import java.net.URL;
@@ -33,9 +33,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.security.auth.x500.X500Principal;
-
 import org.apache.harmony.security.fortress.PolicyUtils;
 
 /**

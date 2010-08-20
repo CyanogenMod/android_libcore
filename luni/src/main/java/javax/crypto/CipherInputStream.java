@@ -20,7 +20,6 @@ package javax.crypto;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.crypto.NullCipher;
 import java.security.GeneralSecurityException;
 
 /**

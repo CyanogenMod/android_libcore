@@ -19,7 +19,6 @@ package java.net;
 import java.security.AccessController;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.apache.harmony.luni.util.PriviAction;
 
 /**

@@ -22,6 +22,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
@@ -57,11 +58,30 @@ public final class HttpConnection {
 
     private HttpConnection(Address config, int connectTimeout) throws IOException {
         this.address = config;
-        this.socket = (config.proxy != null && config.proxy.type() != Proxy.Type.HTTP)
-                ? new Socket(config.proxy)
-                : new Socket();
-        SocketAddress address = new InetSocketAddress(config.hostName, config.hostPort);
-        socket.connect(address, connectTimeout);
+
+        /*
+         * Try each of the host's addresses for best behaviour in mixed IPv4/IPv6
+         * environments. See http://b/2876927
+         * TODO: add a hidden method so that Socket.tryAllAddresses can does this for us
+         */
+        Socket socketCandidate = null;
+        InetAddress[] addresses = InetAddress.getAllByName(config.hostName);
+        for (int i = 0; i < addresses.length; i++) {
+            socketCandidate = (config.proxy != null && config.proxy.type() != Proxy.Type.HTTP)
+                    ? new Socket(config.proxy)
+                    : new Socket();
+            try {
+                socketCandidate.connect(
+                        new InetSocketAddress(addresses[i], config.hostPort), connectTimeout);
+                break;
+            } catch (IOException e) {
+                if (i == addresses.length - 1) {
+                    throw e;
+                }
+            }
+        }
+
+        this.socket = socketCandidate;
     }
 
     public void closeSocketAndStreams() {

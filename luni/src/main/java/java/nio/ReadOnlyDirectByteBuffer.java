@@ -43,13 +43,11 @@ final class ReadOnlyDirectByteBuffer extends DirectByteBuffer {
         return buf;
     }
 
-    protected ReadOnlyDirectByteBuffer(SafeAddress address, int capacity,
-            int offset) {
+    protected ReadOnlyDirectByteBuffer(SafeAddress address, int capacity, int offset) {
         super(address, capacity, offset);
     }
 
-    protected ReadOnlyDirectByteBuffer(PlatformAddress address, int capacity,
-            int offset) {
+    protected ReadOnlyDirectByteBuffer(PlatformAddress address, int capacity, int offset) {
         super(new SafeAddress(address), capacity, offset);
     }
 

@@ -32,8 +32,6 @@ import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.harmony.luni.platform.IMemorySystem;
-
 public final class ReadOnlyFileChannel extends FileChannelImpl {
     public ReadOnlyFileChannel(Object stream, int handle) {
         super(stream, handle);
@@ -80,8 +78,7 @@ public final class ReadOnlyFileChannel extends FileChannelImpl {
         throw new NonWritableChannelException();
     }
 
-    public final MappedByteBuffer map(MapMode mode, long position, long size)
-            throws IOException {
+    public final MappedByteBuffer map(MapMode mode, long position, long size) throws IOException {
         openCheck();
         if (mode == null) {
             throw new NullPointerException();
@@ -92,7 +89,7 @@ public final class ReadOnlyFileChannel extends FileChannelImpl {
         if (mode != MapMode.READ_ONLY) {
             throw new NonWritableChannelException();
         }
-        return super.mapImpl(IMemorySystem.MMAP_READ_ONLY, position, size);
+        return super.mapImpl(mode, position, size);
     }
 
     @Override public final void force(boolean metadata) throws IOException {

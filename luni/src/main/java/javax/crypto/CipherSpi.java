@@ -17,6 +17,7 @@
 
 package javax.crypto;
 
+import java.nio.ByteBuffer;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -24,7 +25,6 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
-import java.nio.ByteBuffer;
 
 /**
  * This class defines the <i>Service Provider Interface</i> (<b>SPI</b>) for

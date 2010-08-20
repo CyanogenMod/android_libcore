@@ -33,13 +33,9 @@
 package java.lang;
 
 import dalvik.system.VMStack;
-
-import org.apache.harmony.kernel.vm.StringUtils;
-import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
-import org.apache.harmony.luni.lang.reflect.Types;
-
 import java.io.InputStream;
 import java.io.Serializable;
+import static java.lang.ClassCache.*;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.ref.SoftReference;
@@ -53,15 +49,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.Collection;
-import java.util.HashMap;
 import java.net.URL;
 import java.security.ProtectionDomain;
-
-import static java.lang.ClassCache.REFLECT;
-import static java.lang.ClassCache.compareClassLists;
-import static java.lang.ClassCache.findMethodByName;
-import static java.lang.ClassCache.findFieldByName;
+import java.util.Collection;
+import java.util.HashMap;
+import org.apache.harmony.kernel.vm.StringUtils;
+import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
+import org.apache.harmony.luni.lang.reflect.Types;
 
 /**
  * The in-memory representation of a Java class. This representation serves as
@@ -910,8 +904,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *         class represented by this {@code class}.
      */
     public Type[] getGenericInterfaces() {
-        GenericSignatureParser parser = new GenericSignatureParser(
-                VMStack.getCallingClassLoader2());
+        GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
         parser.parseForClass(this, getSignatureAttribute());
         return Types.getClonedTypeArray(parser.interfaceTypes);
     }
@@ -923,8 +916,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @return an instance of {@code Type} representing the superclass.
      */
     public Type getGenericSuperclass() {
-        GenericSignatureParser parser = new GenericSignatureParser(
-                VMStack.getCallingClassLoader2());
+        GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
         parser.parseForClass(this, getSignatureAttribute());
         return Types.getType(parser.superclassType);
     }
@@ -1252,8 +1244,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public synchronized TypeVariable<Class<T>>[] getTypeParameters() {
-        GenericSignatureParser parser = new GenericSignatureParser(
-                VMStack.getCallingClassLoader2());
+        GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
         parser.parseForClass(this, getSignatureAttribute());
         return parser.formalTypeParameters.clone();
     }

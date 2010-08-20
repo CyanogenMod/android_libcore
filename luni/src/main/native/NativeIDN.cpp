@@ -18,6 +18,7 @@
 
 #include "ErrorCode.h"
 #include "JNIHelp.h"
+#include "JniConstants.h"
 #include "ScopedJavaUnicodeString.h"
 #include "unicode/uidna.h"
 
@@ -59,7 +60,7 @@ static jstring NativeIDN_convertImpl(JNIEnv* env, jclass, jstring s, jint flags,
 }
 
 static JNINativeMethod gMethods[] = {
-    {"convertImpl", "(Ljava/lang/String;IZ)Ljava/lang/String;", (void*) NativeIDN_convertImpl},
+    NATIVE_METHOD(NativeIDN, convertImpl, "(Ljava/lang/String;IZ)Ljava/lang/String;"),
 };
 int register_libcore_icu_NativeIDN(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "libcore/icu/NativeIDN", gMethods, NELEM(gMethods));

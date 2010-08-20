@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.WeakHashMap;
-
 import org.apache.harmony.security.PolicyEntry;
 
 

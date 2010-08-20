@@ -17,10 +17,10 @@
 
 package javax.net.ssl;
 
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.security.KeyStore;
 
 /**
  * The parameters for {@code KeyManager}s. The parameters are a list of

@@ -17,8 +17,8 @@
 
 package javax.sql;
 
-import java.sql.SQLException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * An interface which provides facilities for handling connections to a database
