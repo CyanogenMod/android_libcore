@@ -99,6 +99,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             // Note: we don't allow users to specify "CONNECT"
     };
 
+    public static final int DEFAULT_CHUNK_LENGTH = 1024;
+
     private final int defaultPort;
 
     /**
@@ -565,6 +567,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (chunkLength > 0 || "chunked".equalsIgnoreCase(encoding)) {
             sendChunked = true;
             contentLength = -1;
+            if (chunkLength == -1) {
+                chunkLength = DEFAULT_CHUNK_LENGTH;
+            }
         }
 
         connect();
