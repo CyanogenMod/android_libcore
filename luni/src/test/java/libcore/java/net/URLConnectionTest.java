@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Authenticator;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
@@ -1131,6 +1132,20 @@ public class URLConnectionTest extends junit.framework.TestCase {
             fail();
         } catch (SocketTimeoutException expected) {
         }
+    }
+
+    public void testSetChunkedEncodingAsRequestProperty() throws IOException, InterruptedException {
+        server.enqueue(new MockResponse());
+        server.play();
+
+        HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
+        urlConnection.setRequestProperty("Transfer-encoding", "chunked");
+        urlConnection.setDoOutput(true);
+        urlConnection.getOutputStream().write("ABC".getBytes("UTF-8"));
+        assertEquals(200, urlConnection.getResponseCode());
+
+        RecordedRequest request = server.takeRequest();
+        assertEquals("ABC", new String(request.getBody(), "UTF-8"));
     }
 
     /**

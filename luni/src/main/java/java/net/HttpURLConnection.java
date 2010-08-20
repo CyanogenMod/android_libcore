@@ -76,8 +76,6 @@ public abstract class HttpURLConnection extends URLConnection {
      */
     protected int fixedContentLength = -1;
 
-    private final static int DEFAULT_CHUNK_LENGTH = 1024;
-
     // 2XX: generally "OK"
     // 3XX: relocation/redirect
     // 4XX: client error
@@ -527,7 +525,7 @@ public abstract class HttpURLConnection extends URLConnection {
             throw new IllegalStateException("Already in fixed-length mode");
         }
         if (chunkLength <= 0) {
-            this.chunkLength = DEFAULT_CHUNK_LENGTH;
+            this.chunkLength = HttpURLConnectionImpl.DEFAULT_CHUNK_LENGTH;
         } else {
             this.chunkLength = chunkLength;
         }
