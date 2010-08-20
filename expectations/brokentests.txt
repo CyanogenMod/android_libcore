@@ -732,3 +732,21 @@ result EXEC_FAILED
 test org.apache.harmony.luni.tests.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_Width
 pattern .*java.util.IllegalFormatFlagsException: %% doesn't take an argument.*
 result EXEC_FAILED
+
+# These tests expect to be able to load resources from the file system
+test org.apache.harmony.luni.tests.java.lang.ClassTest#test_getResourceAsStreamLjava_lang_String
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.lang.ClassTest#test_getResourceAsStream_withSharpChar
+result EXEC_FAILED
+test org.apache.harmony.luni.tests.java.lang.ClassTest#test_getResourceLjava_lang_String
+result EXEC_FAILED
+
+# Some tests (ExcludedProxyTest) connect to a public webserver to check that the HTTP client works
+failure connect to the Internet
+result EXEC_FAILED
+pattern .*java.net.UnknownHostException:.*jcltest.apache.org.*
+
+# These tests violate visibility rules when trying to unit test internal classes
+test javax.net.ssl.DefaultSSLSocketFactoryTest
+result EXEC_FAILED
+pattern .*java.lang.IllegalAccessError: tried to access class javax.net.ssl.DefaultSSLSocketFactory from class javax.net.ssl.DefaultSSLSocketFactoryTest.*
