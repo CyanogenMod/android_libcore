@@ -276,6 +276,20 @@ public final class StandardNames extends Assert {
             unprovide("TrustManagerFactory", "PKIX");
             provide("TrustManagerFactory", "X509");
 
+            // different names: ARCFOUR vs ARC4/RC$
+            unprovide("Cipher", "ARCFOUR");
+            provide("Cipher", "ARC4");
+            unprovide("KeyGenerator", "ARCFOUR");
+            provide("KeyGenerator", "RC4");
+
+            // different case names: Blowfish vs BLOWFISH
+            unprovide("AlgorithmParameters", "Blowfish");
+            provide("AlgorithmParameters", "BLOWFISH");
+            unprovide("Cipher", "Blowfish");
+            provide("Cipher", "BLOWFISH");
+            unprovide("KeyGenerator", "Blowfish");
+            provide("KeyGenerator", "BLOWFISH");
+
             // Harmony has X.509, BouncyCastle X509
             // TODO remove one, probably Harmony's
             provide("CertificateFactory", "X509");
@@ -294,11 +308,6 @@ public final class StandardNames extends Assert {
             provide("SecretKeyFactory", "PBEWITHHMACSHA1");
             provide("SecretKeyFactory", "PBEWITHSHAAND40BITRC2-CBC");
             provide("SecretKeyFactory", "PBEWITHSHAANDTWOFISH-CBC");
-
-            // removed Blowfish
-            unprovide("AlgorithmParameters", "Blowfish");
-            unprovide("Cipher", "Blowfish");
-            unprovide("KeyGenerator", "Blowfish");
 
             // removed LDAP
             unprovide("CertStore", "LDAP");
