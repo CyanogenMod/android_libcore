@@ -16,11 +16,12 @@
 
 package libcore.javax.net.ssl;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.Principal;
-import libcore.java.security.StandardNames;
-import libcore.java.security.TestKeyStore;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 import javax.net.ssl.HandshakeCompletedEvent;
@@ -34,6 +35,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import junit.framework.TestCase;
+import libcore.java.security.StandardNames;
+import libcore.java.security.TestKeyStore;
 
 public class SSLSocketTest extends TestCase {
 
@@ -437,6 +440,22 @@ public class SSLSocketTest extends TestCase {
         }
     }
 
+    public void test_SSLSocket_setUseClientMode_afterHandshake() throws Exception {
+
+        // can't set after handshake
+        TestSSLEnginePair pair = TestSSLEnginePair.create(null);
+        try {
+            pair.server.setUseClientMode(false);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+        try {
+            pair.client.setUseClientMode(false);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
     private void test_SSLSocket_setUseClientMode(final boolean clientClientMode,
                                                  final boolean serverClientMode)
             throws Exception {
@@ -668,6 +687,90 @@ public class SSLSocketTest extends TestCase {
         }
     }
 
+    public void test_SSLSocket_close() throws Exception {
+        TestSSLSocketPair pair = TestSSLSocketPair.create();
+        SSLSocket server = pair.server;
+        SSLSocket client = pair.client;
+        assertFalse(server.isClosed());
+        assertFalse(client.isClosed());
+        InputStream input = client.getInputStream();
+        OutputStream output = client.getOutputStream();
+        server.close();
+        client.close();
+        assertTrue(server.isClosed());
+        assertTrue(client.isClosed());
+
+        // close after close is okay...
+        server.close();
+        client.close();
+
+        // ...so are a lot of other operations...
+        HandshakeCompletedListener l = new HandshakeCompletedListener () {
+            public void handshakeCompleted(HandshakeCompletedEvent e) {}
+        };
+        client.addHandshakeCompletedListener(l);
+        assertNotNull(client.getEnabledCipherSuites());
+        assertNotNull(client.getEnabledProtocols());
+        client.getEnableSessionCreation();
+        client.getNeedClientAuth();
+        assertNotNull(client.getSession());
+        assertNotNull(client.getSSLParameters());
+        assertNotNull(client.getSupportedProtocols());
+        client.getUseClientMode();
+        client.getWantClientAuth();
+        client.removeHandshakeCompletedListener(l);
+        client.setEnabledCipherSuites(new String[0]);
+        client.setEnabledProtocols(new String[0]);
+        client.setEnableSessionCreation(false);
+        client.setNeedClientAuth(false);
+        client.setSSLParameters(client.getSSLParameters());
+        client.setWantClientAuth(false);
+
+        // ...but some operations are expected to give SocketException...
+        try {
+            client.startHandshake();
+            fail();
+        } catch (SocketException expected) {
+        }
+        try {
+            client.getInputStream();
+            fail();
+        } catch (SocketException expected) {
+        }
+        try {
+            client.getOutputStream();
+            fail();
+        } catch (SocketException expected) {
+        }
+        try {
+            input.read();
+            fail();
+        } catch (SocketException expected) {
+        }
+        try {
+            input.read(null, -1, -1);
+            fail();
+        } catch (SocketException expected) {
+        }
+        try {
+            output.write(-1);
+            fail();
+        } catch (SocketException expected) {
+        }
+        try {
+            output.write(null, -1, -1);
+            fail();
+        } catch (SocketException expected) {
+        }
+
+        // ... and one gives IllegalArgumentException
+        try {
+            client.setUseClientMode(false);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
     public void test_TestSSLSocketPair_create() {
         TestSSLSocketPair test = TestSSLSocketPair.create();
         assertNotNull(test.c);
@@ -675,6 +778,8 @@ public class SSLSocketTest extends TestCase {
         assertNotNull(test.client);
         assertTrue(test.server.isConnected());
         assertTrue(test.client.isConnected());
+        assertFalse(test.server.isClosed());
+        assertFalse(test.client.isClosed());
         assertNotNull(test.server.getSession());
         assertNotNull(test.client.getSession());
         assertTrue(test.server.getSession().isValid());

@@ -231,6 +231,22 @@ public class SSLEngineTest extends TestCase {
         assertNotConnected(test_SSLEngine_setUseClientMode(false, false));
     }
 
+    public void test_SSLEngine_setUseClientMode_afterHandshake() throws Exception {
+
+        // can't set after handshake
+        TestSSLEnginePair pair = TestSSLEnginePair.create(null);
+        try {
+            pair.server.setUseClientMode(false);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+        try {
+            pair.client.setUseClientMode(false);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
     private TestSSLEnginePair test_SSLEngine_setUseClientMode(final boolean clientClientMode,
                                                               final boolean serverClientMode)
             throws Exception {
