@@ -190,7 +190,7 @@ public final class Float extends Number implements Comparable<Float> {
      * Converts the specified float value to a binary representation conforming
      * to the IEEE 754 floating-point single precision bit layout. All
      * <em>Not-a-Number (NaN)</em> values are converted to a single NaN
-     * representation ({@code 0x7ff8000000000000L}).
+     * representation ({@code 0x7fc00000}).
      *
      * @param value
      *            the float value to convert.
