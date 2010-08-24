@@ -16,16 +16,12 @@
 
 package java.math;
 
-import java.util.Random;
-
 /*
  * In contrast to BigIntegers this class doesn't fake two's complement representation.
  * Any Bit-Operations, including Shifting, solely regard the unsigned magnitude.
  * Moreover BigInt objects are mutable and offer efficient in-place-operations.
  */
 class BigInt {
-    /** This is the serialVersionUID used by the sun implementation */
-    private static final long serialVersionUID = -8287574255936472291L;
 
     /* Fields used for the internal representation. */
     transient int bignum = 0;
@@ -38,7 +34,8 @@ class BigInt {
     }
 
     @Override
-    protected void finalize() {
+    protected void finalize() throws Throwable {
+        super.finalize();
         dispose();
     }
 
@@ -225,13 +222,11 @@ class BigInt {
     }
 
     public String decString() {
-        String str = NativeBN.BN_bn2dec(this.bignum);
-        return str;
+        return NativeBN.BN_bn2dec(this.bignum);
     }
 
     public String hexString() {
-        String str = NativeBN.BN_bn2hex(this.bignum);
-        return str;
+        return NativeBN.BN_bn2hex(this.bignum);
     }
 
     public byte[] bigEndianMagnitude() {
@@ -264,12 +259,6 @@ class BigInt {
         return NativeBN.BN_is_bit_set(this.bignum, n);
     }
 
-    public void modifyBit(int n, int op) {
-        // op: 0 = reset; 1 = set; -1 = flip
-        Check(NativeBN.modifyBit(this.bignum, n, op));
-    }
-
-
     // n > 0: shift left (multiply)
     public static BigInt shift(BigInt a, int n) {
         BigInt r = newBigInt();
@@ -285,18 +274,8 @@ class BigInt {
         Check(NativeBN.BN_add_word(this.bignum, w));
     }
 
-    public void subtractPositiveInt(int w) {
-        Check(NativeBN.BN_sub_word(this.bignum, w));
-    }
-
     public void multiplyByPositiveInt(int w) {
         Check(NativeBN.BN_mul_word(this.bignum, w));
-    }
-
-    public int divideByPositiveInt(int w) {
-        int rem = NativeBN.BN_div_word(this.bignum, w);
-        Check(rem != -1);
-        return rem;
     }
 
     public static int remainderByPositiveInt(BigInt a, int w) {
@@ -332,10 +311,6 @@ class BigInt {
         BigInt r = newBigInt();
         Check(NativeBN.BN_mul(r.bignum, a.bignum, b.bignum));
         return r;
-    }
-
-    public void multiplyBy(BigInt a) {
-        Check(NativeBN.BN_mul(this.bignum, this.bignum, a.bignum));
     }
 
     public static BigInt bigExp(BigInt a, BigInt p) {
@@ -396,19 +371,13 @@ class BigInt {
     }
 
 
-    public static BigInt generatePrimeDefault(int bitLength, Random rnd) {
+    public static BigInt generatePrimeDefault(int bitLength) {
         BigInt r = newBigInt();
         Check(NativeBN.BN_generate_prime_ex(r.bignum, bitLength, false, 0, 0, 0));
         return r;
     }
 
-    public static BigInt generatePrimeSafe(int bitLength, Random rnd) {
-        BigInt r = newBigInt();
-        Check(NativeBN.BN_generate_prime_ex(r.bignum, bitLength, true, 0, 0, 0));
-        return r;
-    }
-
-    public boolean isPrime(int certainty, Random rnd) {
+    public boolean isPrime(int certainty) {
         return NativeBN.BN_is_prime_ex(bignum, certainty, 0);
     }
 }
