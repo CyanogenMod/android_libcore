@@ -850,8 +850,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
                 Math.max(thisValue.bitLength,augend.bitLength+LONG_TEN_POW_BIT_LENGTH[diffScale])+1<64) {
             return valueOf(thisValue.smallValue+augend.smallValue*LONG_TEN_POW[diffScale],thisValue.scale);
         } else {
-            BigInt bi = Multiplication.multiplyByTenPow(augend.getUnscaledValue(),diffScale).bigInt;
-            bi.add(thisValue.getUnscaledValue().bigInt);
+            BigInt bi = Multiplication.multiplyByTenPow(augend.getUnscaledValue(),diffScale).getBigInt();
+            bi.add(thisValue.getUnscaledValue().getBigInt());
             return new BigDecimal(new BigInteger(bi), thisValue.scale);
         }
         // END android-changed

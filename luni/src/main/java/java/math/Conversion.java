@@ -51,9 +51,7 @@ class Conversion {
 
     /** @see BigInteger#toString(int) */
     static String bigInteger2String(BigInteger val, int radix) {
-        // BEGIN android-added
-        val.establishOldRepresentation("Conversion.bigInteger2String");
-        // END android-added
+        val.prepareJavaRepresentation();
         int sign = val.sign;
         int numberLength = val.numberLength;
         int digits[] = val.digits;
@@ -137,9 +135,7 @@ class Conversion {
      * @see BigDecimal#toString()
      */
     static String toDecimalScaledString(BigInteger val, int scale) {
-        // BEGIN android-added
-        val.establishOldRepresentation("Conversion.toDecimalScaledString");
-        // END android-added
+        val.prepareJavaRepresentation();
         int sign = val.sign;
         int numberLength = val.numberLength;
         int digits[] = val.digits;
@@ -420,9 +416,7 @@ class Conversion {
 
     /** @see BigInteger#doubleValue() */
     static double bigInteger2Double(BigInteger val) {
-        // BEGIN android-added
-        val.establishOldRepresentation("Conversion.bigInteger2Double");
-        // END android-added
+        val.prepareJavaRepresentation();
         // val.bitLength() < 64
         if ((val.numberLength < 2)
                 || ((val.numberLength == 2) && (val.digits[1] > 0))) {
