@@ -123,16 +123,6 @@ static jfloat Math_nextafterf(JNIEnv*, jclass, jfloat a, jfloat b) {
     return nextafterf(a, b);
 }
 
-static jdouble Math_copysign(JNIEnv*, jclass, jdouble a, jdouble b) {
-    // Our StrictMath.copySign delegates to Math.copySign, so we need to treat NaN as positive.
-    return copysign(a, isnan(b) ? 1.0 : b);
-}
-
-static jfloat Math_copysignf(JNIEnv*, jclass, jfloat a, jfloat b) {
-    // Our StrictMath.copySign delegates to Math.copySign, so we need to treat NaN as positive.
-    return copysignf(a, isnan(b) ? 1.0 : b);
-}
-
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Math, IEEEremainder, "(DD)D"),
     NATIVE_METHOD(Math, acos, "(D)D"),
@@ -141,8 +131,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Math, atan2, "(DD)D"),
     NATIVE_METHOD(Math, cbrt, "(D)D"),
     NATIVE_METHOD(Math, ceil, "(D)D"),
-    NATIVE_METHOD(Math, copysign, "(DD)D"),
-    NATIVE_METHOD(Math, copysignf, "(FF)F"),
     NATIVE_METHOD(Math, cos, "(D)D"),
     NATIVE_METHOD(Math, cosh, "(D)D"),
     NATIVE_METHOD(Math, exp, "(D)D"),
