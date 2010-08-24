@@ -1040,7 +1040,15 @@ public final class StrictMath {
      * @since 1.6
      */
     public static double copySign(double magnitude, double sign) {
-        return Math.copySign(magnitude, sign);
+        // We manually inline Double.isNaN here because the JIT can't do it yet.
+        // With Double.isNaN: 236.3ns
+        // With manual inline: 141.2ns
+        // With no check (i.e. Math's behavior): 110.0ns
+        // (Tested on a Nexus One.)
+        long magnitudeBits = Double.doubleToRawLongBits(magnitude);
+        long signBits = Double.doubleToRawLongBits((sign != sign) ? 1.0 : sign);
+        magnitudeBits = (magnitudeBits & ~DOUBLE_SIGN_MASK) | (signBits & DOUBLE_SIGN_MASK);
+        return Double.longBitsToDouble(magnitudeBits);
     }
 
     /**
@@ -1049,7 +1057,15 @@ public final class StrictMath {
      * @since 1.6
      */
     public static float copySign(float magnitude, float sign) {
-        return Math.copySign(magnitude, sign);
+        // We manually inline Float.isNaN here because the JIT can't do it yet.
+        // With Float.isNaN: 214.7ns
+        // With manual inline: 112.3ns
+        // With no check (i.e. Math's behavior): 93.1ns
+        // (Tested on a Nexus One.)
+        int magnitudeBits = Float.floatToRawIntBits(magnitude);
+        int signBits = Float.floatToRawIntBits((sign != sign) ? 1.0f : sign);
+        magnitudeBits = (magnitudeBits & ~FLOAT_SIGN_MASK) | (signBits & FLOAT_SIGN_MASK);
+        return Float.intBitsToFloat(magnitudeBits);
     }
 
     /**

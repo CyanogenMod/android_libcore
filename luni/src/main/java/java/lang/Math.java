@@ -1104,10 +1104,11 @@ public final class Math {
      * @since 1.6
      */
     public static double copySign(double magnitude, double sign) {
-        return copysign(magnitude, sign);
+        long magnitudeBits = Double.doubleToRawLongBits(magnitude);
+        long signBits = Double.doubleToRawLongBits(sign);
+        magnitudeBits = (magnitudeBits & ~DOUBLE_SIGN_MASK) | (signBits & DOUBLE_SIGN_MASK);
+        return Double.longBitsToDouble(magnitudeBits);
     }
-
-    private static native double copysign(double magnitude, double sign);
 
     /**
      * Returns a float with the given magnitude and the sign of {@code sign}.
@@ -1116,10 +1117,11 @@ public final class Math {
      * @since 1.6
      */
     public static float copySign(float magnitude, float sign) {
-        return copysignf(magnitude, sign);
+        int magnitudeBits = Float.floatToRawIntBits(magnitude);
+        int signBits = Float.floatToRawIntBits(sign);
+        magnitudeBits = (magnitudeBits & ~FLOAT_SIGN_MASK) | (signBits & FLOAT_SIGN_MASK);
+        return Float.intBitsToFloat(magnitudeBits);
     }
-
-    private static native float copysignf(float magnitude, float sign);
 
     /**
      * Returns the exponent of float {@code f}.
