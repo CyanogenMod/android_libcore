@@ -90,11 +90,9 @@ class Multiplication {
      * @return {@code val * factor}
      */
     static BigInteger multiplyByPositiveInt(BigInteger val, int factor) {
-        // BEGIN android-changed
-        BigInt bi = val.bigInt.copy();
+        BigInt bi = val.getBigInt().copy();
         bi.multiplyByPositiveInt(factor);
         return new BigInteger(bi);
-        // END android-changed
     }
 
     /**

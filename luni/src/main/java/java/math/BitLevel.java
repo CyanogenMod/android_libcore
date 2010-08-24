@@ -39,9 +39,7 @@ class BitLevel {
 
     /** @see BigInteger#bitLength() */
     static int bitLength(BigInteger val) {
-        // BEGIN android-added
-        val.establishOldRepresentation("BitLevel.bitLength");
-        // END android-added
+        val.prepareJavaRepresentation();
         if (val.sign == 0) {
             return 0;
         }
@@ -62,16 +60,14 @@ class BitLevel {
 
     /** @see BigInteger#bitCount() */
     static int bitCount(BigInteger val) {
-        // BEGIN android-added
-        val.establishOldRepresentation("BitLevel.bitCount");
-        // END android-added
+        val.prepareJavaRepresentation();
         int bCount = 0;
 
         if (val.sign == 0) {
             return 0;
         }
 
-        int i = val.getFirstNonzeroDigit();;
+        int i = val.getFirstNonzeroDigit();
         if (val.sign > 0) {
             for ( ; i < val.numberLength; i++) {
                 bCount += Integer.bitCount(val.digits[i]);
@@ -93,9 +89,7 @@ class BitLevel {
      * must be in the range {@code [0, val.bitLength()-1]}
      */
     static boolean testBit(BigInteger val, int n) {
-        // BEGIN android-added
-        val.establishOldRepresentation("BitLevel.testBit");
-        // END android-added
+        val.prepareJavaRepresentation();
         // PRE: 0 <= n < val.bitLength()
         return ((val.digits[n >> 5] & (1 << (n & 31))) != 0);
     }
@@ -117,65 +111,6 @@ class BitLevel {
         return ((i != intCount) || (digits[i] << (32 - bitCount) != 0));
     }
 
-    // BEGIN android-removed
-    //  /** @see BigInteger#shiftLeft(int) */
-    //  static BigInteger shiftLeft(BigInteger source, int count) {
-    //      int intCount = count >> 5;
-    //      count &= 31; // %= 32
-    //      int resLength = source.numberLength + intCount
-    //              + ( ( count == 0 ) ? 0 : 1 );
-    //      int resDigits[] = new int[resLength];
-    //
-    //      shiftLeft(resDigits, source.digits, intCount, count);
-    //         BigInteger result = new BigInteger(source.sign, resLength, resDigits);
-    //         result.cutOffLeadingZeroes();
-    //     return result;
-    // }
-    //
-    // /**
-    //  * Performs {@code val <<= count}.
-    //  */
-    // // val should have enough place (and one digit more)
-    // static void inplaceShiftLeft(BigInteger val, int count) {
-    //     int intCount = count >> 5; // count of integers
-    //     val.numberLength += intCount
-    //             + ( Integer
-    //             .numberOfLeadingZeros(val.digits[val.numberLength - 1])
-    //             - ( count & 31 ) >= 0 ? 0 : 1 );
-    //     shiftLeft(val.digits, val.digits, intCount, count & 31);
-    //     val.cutOffLeadingZeroes();
-    //     val.unCache();
-    // }
-    //
-    // /**
-    //  * Abstractly shifts left an array of integers in little endian (i.e. shift
-    //  * it right). Total shift distance in bits is intCount * 32 + count
-    //  *
-    //  * @param result the destination array
-    //  * @param source the source array
-    //  * @param intCount the shift distance in integers
-    //  * @param count an additional shift distance in bits
-    //  */
-    // static void shiftLeft(int result[], int source[], int intCount, int count) {
-    //     if (count == 0) {
-    //         System.arraycopy(source, 0, result, intCount, result.length
-    //                 - intCount);
-    //     } else {
-    //         int rightShiftCount = 32 - count;
-    //
-    //         result[result.length - 1] = 0;
-    //         for (int i = result.length - 1; i > intCount; i--) {
-    //             result[i] |= source[i - intCount - 1] >>> rightShiftCount;
-    //             result[i - 1] = source[i - intCount - 1] << count;
-    //         }
-    //     }
-    //
-    //     for (int i = 0; i < intCount; i++) {
-    //         result[i] = 0;
-    //     }
-    // }
-    // END android-removed
-
     static void shiftLeftOneBit(int result[], int source[], int srcLen) {
         int carry = 0;
         for(int i = 0; i < srcLen; i++) {
@@ -189,23 +124,17 @@ class BitLevel {
     }
 
     static BigInteger shiftLeftOneBit(BigInteger source) {
-        // BEGIN android-added
-        source.establishOldRepresentation("BitLevel.shiftLeftOneBit");
-        // END android-added
+        source.prepareJavaRepresentation();
         int srcLen = source.numberLength;
         int resLen = srcLen + 1;
         int resDigits[] = new int[resLen];
         shiftLeftOneBit(resDigits, source.digits, srcLen);
-        BigInteger result = new BigInteger(source.sign, resLen, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(source.sign, resLen, resDigits);
     }
 
     /** @see BigInteger#shiftRight(int) */
     static BigInteger shiftRight(BigInteger source, int count) {
-        // BEGIN android-added
-        source.establishOldRepresentation("BitLevel.shiftRight");
-        // END android-added
+        source.prepareJavaRepresentation();
         int intCount = count >> 5; // count of integers
         count &= 31; // count of remaining bits
         if (intCount >= source.numberLength) {
@@ -234,38 +163,7 @@ class BitLevel {
                 resDigits[i]++;
             }
         }
-        BigInteger result = new BigInteger(source.sign, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
-    }
-
-    /**
-     * Performs {@code val >>= count} where {@code val} is a positive number.
-     */
-    static void inplaceShiftRight(BigInteger val, int count) {
-        // BEGIN android-added
-        val.establishOldRepresentation("BitLevel.inplaceShiftRight");
-        // END android-added
-        int sign = val.signum();
-        if (count == 0 || val.signum() == 0)
-            return;
-        int intCount = count >> 5; // count of integers
-        val.numberLength -= intCount;
-        if (!shiftRight(val.digits, val.numberLength, val.digits, intCount,
-                count & 31)
-                && sign < 0) {
-            // remainder not zero: add one to the result
-            int i;
-            for (i = 0; ( i < val.numberLength ) && ( val.digits[i] == -1 ); i++) {
-                val.digits[i] = 0;
-            }
-            if (i == val.numberLength) {
-                val.numberLength++;
-            }
-            val.digits[i]++;
-        }
-        val.cutOffLeadingZeroes();
-        val.unCache();
+        return new BigInteger(source.sign, resLength, resDigits);
     }
 
     /**
@@ -312,13 +210,9 @@ class BitLevel {
     /**
      * Performs a flipBit on the BigInteger, returning a BigInteger with the the
      * specified bit flipped.
-     * @param intCount: the index of the element of the digits array where the operation will be performed
-     * @param bitNumber: the bit's position in the intCount element
      */
     static BigInteger flipBit(BigInteger val, int n){
-        // BEGIN android-added
-        val.establishOldRepresentation("BitLevel.flipBit");
-        // END android-added
+        val.prepareJavaRepresentation();
         int resSign = (val.sign == 0) ? 1 : val.sign;
         int intCount = n >> 5;
         int bitN = n & 31;
@@ -357,8 +251,6 @@ class BitLevel {
         } else {//case where val is positive
             resDigits[intCount] ^= bitNumber;
         }
-        BigInteger result = new BigInteger(resSign, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(resSign, resLength, resDigits);
     }
 }

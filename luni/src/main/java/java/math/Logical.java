@@ -122,9 +122,7 @@ class Logical {
             resDigits[i] = val.digits[i] & that.digits[i];
         }
 
-        BigInteger result = new BigInteger(1, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(1, resLength, resDigits);
     }
 
     /** @return sign = positive.magnitude & magnitude = -negative.magnitude */
@@ -159,9 +157,7 @@ class Logical {
             }
         } // else positive ended and must "copy" virtual 0's, do nothing then
 
-        BigInteger result = new BigInteger(1, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(1, resLength, resDigits);
     }
 
     /** @return sign = -1, magnitude = -(-longer.magnitude & -shorter.magnitude)*/
@@ -199,8 +195,7 @@ class Logical {
                     resDigits = new int[resLength];
                     resDigits[resLength - 1] = 1;
 
-                    BigInteger result = new BigInteger(-1, resLength, resDigits);
-                    return result;
+                    return new BigInteger(-1, resLength, resDigits);
                 }
             }
         }
@@ -216,8 +211,7 @@ class Logical {
             resDigits[i] = longer.digits[i];
         }
 
-        BigInteger result = new BigInteger(-1, resLength, resDigits);
-        return result;
+        return new BigInteger(-1, resLength, resDigits);
     }
 
     /** @see BigInteger#andNot(BigInteger) */
@@ -266,9 +260,7 @@ class Logical {
             resDigits[i] = val.digits[i];
         }
 
-        BigInteger result = new BigInteger(1, val.numberLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(1, val.numberLength, resDigits);
     }
 
     /** @return sign = 1, magnitude = positive.magnitude & ~(-negative.magnitude)*/
@@ -299,9 +291,7 @@ class Logical {
             resDigits[i] = positive.digits[i] & negative.digits[i];
         }
 
-        BigInteger result = new BigInteger(1, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(1, resLength, resDigits);
     }
 
     /** @return sign = -1, magnitude = -(-negative.magnitude & ~positive.magnitude)*/
@@ -352,8 +342,7 @@ class Logical {
                         resDigits = new int[resLength];
                         resDigits[resLength - 1] = 1;
 
-                        BigInteger result = new BigInteger(-1, resLength, resDigits);
-                        return result;
+                        return new BigInteger(-1, resLength, resDigits);
                     }
                 }
             }
@@ -375,9 +364,8 @@ class Logical {
             resDigits[i] = positive.digits[i];
         }
 
-        BigInteger result = new BigInteger(-1, resLength, resDigits);
-        return result;
-            }
+        return new BigInteger(-1, resLength, resDigits);
+    }
 
     /** @return sign = 1, magnitude = -val.magnitude & ~(-that.magnitude)*/
     static BigInteger andNotNegative(BigInteger val, BigInteger that) {
@@ -430,9 +418,7 @@ class Logical {
             resDigits[i] = that.digits[i];
         }
 
-        BigInteger result = new BigInteger(1, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(1, resLength, resDigits);
     }
 
     /** @see BigInteger#or(BigInteger) */
@@ -447,26 +433,26 @@ class Logical {
             return that;
         }
 
-                    if (val.sign > 0) {
+        if (val.sign > 0) {
             if (that.sign > 0) {
                 if (val.numberLength > that.numberLength) {
                     return orPositive(val, that);
-                    } else {
-                    return orPositive(that, val);
-                    }
                 } else {
+                    return orPositive(that, val);
+                }
+            } else {
                 return orDiffSigns(val, that);
             }
-                    } else {
+        } else {
             if (that.sign > 0) {
                 return orDiffSigns(that, val);
             } else if (that.getFirstNonzeroDigit() > val.getFirstNonzeroDigit()) {
                 return orNegative(that, val);
             } else {
                 return orNegative(val, that);
-                    }
-                }
             }
+        }
+    }
 
     /** @return sign = 1, magnitude = longer.magnitude | shorter.magnitude*/
     static BigInteger orPositive(BigInteger longer, BigInteger shorter) {
@@ -475,7 +461,7 @@ class Logical {
         int resLength = longer.numberLength;
         int resDigits[] = new int[resLength];
 
-        int i = Math.min(longer.getFirstNonzeroDigit(), shorter.getFirstNonzeroDigit());
+        int i;
         for (i = 0; i < shorter.numberLength; i++) {
             resDigits[i] = longer.digits[i] | shorter.digits[i];
         }
@@ -483,8 +469,7 @@ class Logical {
             resDigits[i] = longer.digits[i];
         }
 
-        BigInteger result = new BigInteger(1, resLength, resDigits);
-        return result;
+        return new BigInteger(1, resLength, resDigits);
     }
 
     /** @return sign = -1, magnitude = -(-val.magnitude | -that.magnitude) */
@@ -519,9 +504,7 @@ class Logical {
             resDigits[i] = val.digits[i] & that.digits[i];
         }
 
-        BigInteger result = new BigInteger(-1, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(-1, resLength, resDigits);
     }
 
     /** @return sign = -1, magnitude = -(positive.magnitude | -negative.magnitude) */
@@ -579,9 +562,7 @@ class Logical {
             resDigits[i] = negative.digits[i];
         }
 
-        BigInteger result = new BigInteger(-1, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(-1, resLength, resDigits);
     }
 
     /** @see BigInteger#xor(BigInteger) */
@@ -634,9 +615,7 @@ class Logical {
             resDigits[i] = longer.digits[i];
         }
 
-        BigInteger result = new BigInteger(1, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(1, resLength, resDigits);
     }
 
     /** @return sign = 0, magnitude = -val.magnitude ^ -that.magnitude */
@@ -689,9 +668,7 @@ class Logical {
             resDigits[i] = that.digits[i];
         }
 
-        BigInteger result = new BigInteger(1, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(1, resLength, resDigits);
     }
 
     /** @return sign = 1, magnitude = -(positive.magnitude ^ -negative.magnitude)*/
@@ -751,10 +728,9 @@ class Logical {
                 }
             }
                 } else {
-            int digit;
             //The first non-zero digit of the positive and negative are the same
             i = iNeg;
-            digit = positive.digits[i] ^ -negative.digits[i];
+            int digit = positive.digits[i] ^ -negative.digits[i];
             if (digit == 0) {
                 limit = Math.min(positive.numberLength, negative.numberLength);
                 for (i++; i < limit && (digit = positive.digits[i] ^ ~negative.digits[i]) == 0; i++)
@@ -770,8 +746,7 @@ class Logical {
                         resDigits = new int[resLength];
                         resDigits[resLength - 1] = 1;
 
-                        BigInteger result = new BigInteger(-1, resLength, resDigits);
-                        return result;
+                        return new BigInteger(-1, resLength, resDigits);
                 }
             }
         }
@@ -793,8 +768,6 @@ class Logical {
             resDigits[i] = negative.digits[i];
         }
 
-        BigInteger result = new BigInteger(-1, resLength, resDigits);
-        result.cutOffLeadingZeroes();
-        return result;
+        return new BigInteger(-1, resLength, resDigits);
     }
 }

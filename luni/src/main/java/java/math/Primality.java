@@ -87,7 +87,6 @@ class Primality {
      * not discarded in the sieve.
      *
      * @see BigInteger#nextProbablePrime()
-     * @see #millerRabin(BigInteger, int)
      */
     static BigInteger nextProbablePrime(BigInteger n) {
         // PRE: n >= 0
@@ -96,7 +95,7 @@ class Primality {
         int gapSize = 1024; // for searching of the next probable prime number
         int modules[] = new int[primes.length];
         boolean isDivisible[] = new boolean[gapSize];
-        BigInt ni = n.bigInt;
+        BigInt ni = n.getBigInt();
         // If n < "last prime of table" searches next prime in the table
         if (ni.bitLength() <= 10) {
             int l = (int)ni.longInt();
@@ -140,7 +139,7 @@ class Primality {
                 if (!isDivisible[j]) {
                     probPrime.putCopy(startPoint);
                     probPrime.addPositiveInt(j);
-                    if (probPrime.isPrime(100, null)) {
+                    if (probPrime.isPrime(100)) {
                         return new BigInteger(probPrime);
                     }
                 }
